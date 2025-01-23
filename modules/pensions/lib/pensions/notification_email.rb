@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'pensions/notification_callback'
 require 'veteran_facing_services/notification_email/saved_claim'
 
 module Pensions
+  # @see VeteranFacingServices::NotificationEmail::SavedClaim
   class NotificationEmail < ::VeteranFacingServices::NotificationEmail::SavedClaim
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#new
     def initialize(saved_claim_id)
@@ -11,6 +13,7 @@ module Pensions
 
     private
 
+    # @see VeteranFacingServices::NotificationEmail::SavedClaim#claim_class
     def claim_class
       Pensions::SavedClaim
     end
@@ -26,6 +29,11 @@ module Pensions
       }
 
       default.merge(pensions)
+    end
+
+    # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_class
+    def callback_klass
+      Pensions::NotificationCallback.to_s
     end
   end
 end
