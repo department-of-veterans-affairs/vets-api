@@ -350,6 +350,7 @@ class Form526Submission < ApplicationRecord
       submission.workflow_complete = true
       submission.save
     else
+      params = submission.personalization_parameters(options['first_name'])
       Form526SubmissionFailedEmailJob.perform_async(params)
     end
   end
