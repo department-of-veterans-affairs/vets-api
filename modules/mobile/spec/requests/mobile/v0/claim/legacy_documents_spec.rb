@@ -16,8 +16,10 @@ RSpec.describe 'legacy Mobile::V0::Claim::Document', :skip_json_api_validation, 
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   before do
-    Flipper.disable(:mobile_lighthouse_document_upload)
-    Flipper.disable(:mobile_lighthouse_document_upload, user)
+    # Flipper.disable(:mobile_lighthouse_document_upload)
+    # Flipper.disable(:mobile_lighthouse_document_upload, user)
+    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_document_upload,
+                                              instance_of(User)).and_return(false)
     FileUtils.rm_rf(Rails.root.join('tmp', 'uploads', 'cache', '*'))
     user.user_account_uuid = user_account.id
     user.save!
