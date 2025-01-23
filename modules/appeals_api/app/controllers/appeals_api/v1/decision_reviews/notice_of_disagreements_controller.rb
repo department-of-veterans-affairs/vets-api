@@ -21,6 +21,13 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   FORM_NUMBER = '10182'
   MODEL_ERROR_STATUS = 422
 
+  def show
+    deprecate_headers
+
+    @notice_of_disagreement = with_status_simulation(@notice_of_disagreement) if status_requested_and_allowed?
+    render_notice_of_disagreement
+  end
+
   def create
     deprecate_headers
 
@@ -29,13 +36,6 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
     # PDF and API versioning are not 1:1, but are closely coupled and in this case are the same
     pdf_version = api_version
     AppealsApi::PdfSubmitJob.perform_async(@notice_of_disagreement.id, 'AppealsApi::NoticeOfDisagreement', pdf_version)
-    render_notice_of_disagreement
-  end
-
-  def show
-    deprecate_headers
-
-    @notice_of_disagreement = with_status_simulation(@notice_of_disagreement) if status_requested_and_allowed?
     render_notice_of_disagreement
   end
 
