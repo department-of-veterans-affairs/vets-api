@@ -14,6 +14,7 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
   let(:user_account) { create(:user_account) }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(false)
     sign_in_as(user)
     user.user_account_uuid = user_account.id
     user.save!
