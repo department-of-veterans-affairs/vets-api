@@ -159,10 +159,10 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         described_class.within_sidekiq_retries_exhausted_block(msg) do
           expect(EVSS::FailureNotification).to receive(:perform_async).with(
             user_account.icn,
-            personalisation: {
+            {
               first_name: 'Bob',
               document_type: document_type,
-              file_name: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
+              filename: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
               date_submitted: formatted_submit_date,
               date_failed: formatted_submit_date
             }
@@ -171,7 +171,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
           expect(Rails.logger)
             .to receive(:info)
             .with(log_message)
-          expect(StatsD).to receive(:increment).with('silent_failure', tags: statsd_tags)
+          expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: statsd_tags)
         end
       end
     end

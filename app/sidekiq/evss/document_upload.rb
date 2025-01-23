@@ -12,6 +12,8 @@ class EVSS::DocumentUpload
   extend SentryLogging
   extend Logging::ThirdPartyTransaction::MethodWrapper
 
+  DD_ZSF_TAGS = ['service:claim-status', 'function: evidence upload to EVSS'].freeze
+
   attr_accessor :auth_headers, :user_uuid, :document_hash
 
   wrap_with_logging(
@@ -92,14 +94,14 @@ class EVSS::DocumentUpload
 
     icn = UserAccount.find(msg['args'][1]).icn
 
-    EVSS::FailureNotification.perform_async(icn, personalisation: create_personalisation(msg))
+    EVSS::FailureNotification.perform_async(icn, create_personalisation(msg))
 
     ::Rails.logger.info('EVSS::DocumentUpload exhaustion handler email queued')
     StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   rescue => e
     ::Rails.logger.error('EVSS::DocumentUpload exhaustion handler email error',
                          { message: e.message })
-    StatsD.increment('silent_failure', tags: ['service:claim-status', 'function: evidence upload to EVSS'])
+    StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
     log_exception_to_sentry(e)
   end
 
@@ -115,7 +117,7 @@ class EVSS::DocumentUpload
     first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
     document_type = msg['args'][2]['document_type']
     # Obscure the file name here since this will be used to generate a failed email
-    # NOTE: the template that we use for va_notify.send_email requires `filename`
+    # NOTE: the template that we use for va_notify.send_email uses `filename` but we can also pass in `file_name`
     filename = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][2]['file_name'])
     date_submitted = format_issue_instant_for_mailers(msg['created_at'])
     date_failed = format_issue_instant_for_mailers(msg['failed_at'])
