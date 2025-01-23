@@ -618,11 +618,6 @@ features:
       On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option
       in the "Search for" box.
     enable_in_development: true
-  facility_locator_show_health_connect_number:
-    actor_type: user
-    description: >
-      On https://www.va.gov/find-locations/ enable the health connect phone number display
-    enable_in_development: true
   facility_locator_show_operational_hours_special_instructions:
     actor_type: user
     description: Display new field operationalHoursSpecialInstructions for VA facilities
