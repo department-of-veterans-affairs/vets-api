@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'pdf_forms'
+# require 'pdf_forms'
 
 module AccreditedRepresentativePortal
   class PdfHandler
@@ -9,16 +9,33 @@ module AccreditedRepresentativePortal
     def initialize(pdf_path, output_path)
       @pdf_path = pdf_path
       @output_path = output_path
-      @pdf = PdfForms.new(Settings.binaries.pdftk)
+      # @pdf = PdfForms.new(Settings.binaries.pdftk)
+      @pdf = HexaPDF::Document.open(pdf_path)
     end
+
+    # def fill_form(field_data)
+    #   pdf.fill_form(pdf_path, output_path, field_data)
+    # end
 
     def fill_form(field_data)
-      pdf.fill_form(pdf_path, output_path, field_data)
+      acro_form = pdf.acro_form
+      acro_form.fill(field_data)
+
+      pdf.write(output_path)
     end
 
-    def extract_data(path)
-      pdf.get_fields(path).map { |row| { name: row.name, value: row.value } }
+    # def extract_data(path)
+    #   pdf.get_fields(path).map { |row| { name: row.name, value: row.value } }
+    # end
+    def extract_data
+      acro_form = pdf.acro_form
+      fields = []
+      acro_form.each_field do |field|    
+        fields.push({ name: field.field_name, value: field[:V] } )
+      end
+      fields
     end
+    
   end
 end
 
@@ -66,6 +83,9 @@ end
 #  {:name=>"F[0].Page_8[0].#subform[0].StateOrProvince[0]", :value=>nil},
 #  {:name=>"F[0].Page_8[0].#subform[0].City_Or_County[0]", :value=>nil}
 
+
+
+# use this for field_data
 #  {
 #   "F[0].Page_7[0].#subform[0].VeteranFirstName[0]"=>"Jane",
 #   "F[0].Page_7[0].#subform[0].VeteranMiddleInitial1[0]"=>"A",
@@ -115,4 +135,3 @@ end
 #   "F[0].Page_7[0].#subform[0].Reason_For_Separation[0]" => "lack of stella pets",
 #   "F[0].Page_7[0].#subform[0].CheckBox1[0]" => "Off",
 # }
-
