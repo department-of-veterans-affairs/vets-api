@@ -91,19 +91,19 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('20 0 * * *', 'TestUserDashboard::DailyMaintenance')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::GmtThresholdsImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::GmtThresholdsImport')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::StdCountyImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::StdCountyImport')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::StdIncomeThresholdImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::StdIncomeThresholdImport')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::StdStateImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::StdStateImport')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::StdZipcodeImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::StdZipcodeImport')
 
   # Import facilities data CSV from S3 daily at 4:30pmET
   mgr.register('30 16 * * *', 'HCA::StdInstitutionImportJob')
