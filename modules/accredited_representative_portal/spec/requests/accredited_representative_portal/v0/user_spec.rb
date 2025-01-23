@@ -46,18 +46,18 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::User', type: :request do
           expect(parsed_response).to eq(
             {
               'account' => {
-                'account_uuid' => user.user_account.id
+                'accountUuid' => user.user_account.id
               },
               'profile' => {
-                'first_name' => first_name,
-                'last_name' => last_name,
+                'firstName' => first_name,
+                'lastName' => last_name,
                 'verified' => true,
-                'sign_in' => {
-                  'service_name' => sign_in_service_name
+                'signIn' => {
+                  'serviceName' => sign_in_service_name
                 }
               },
-              'prefills_available' => [],
-              'in_progress_forms' => [
+              'prefillsAvailable' => [],
+              'inProgressForms' => [
                 {
                   'form' => in_progress_form_id,
                   'metadata' => {

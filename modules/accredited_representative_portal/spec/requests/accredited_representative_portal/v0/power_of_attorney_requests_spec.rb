@@ -28,7 +28,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     resolution.power_of_attorney_request
   end
   let(:time) { '2024-12-21T04:45:37.000Z' }
-  let(:time_plus_one_day) { '2024-12-22T04:45:37.000Z' }
   let(:expires_at) { '2025-02-19T04:45:37.000Z' }
 
   let(:poa_requests) do
@@ -83,18 +82,18 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         [
           {
             'id' => poa_requests[0].id,
-            'claimant_id' => poa_requests[0].claimant_id,
-            'created_at' => time,
-            'expires_at' => (Time.zone.parse(time) + 60.days).iso8601(3),
-            'power_of_attorney_form' => veteran_claimant_power_of_attorney_form,
-            'power_of_attorney_holder' => {
+            'claimantId' => poa_requests[0].claimant_id,
+            'createdAt' => time,
+            'expiresAt' => (Time.zone.parse(time) + 60.days).iso8601(3),
+            'powerOfAttorneyForm' => veteran_claimant_power_of_attorney_form,
+            'powerOfAttorneyHolder' => {
               'id' => poa_requests[0].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
               'name' => poa_requests[0].power_of_attorney_holder.name
             },
-            'accredited_individual' => {
+            'accreditedIndividual' => {
               'id' => poa_requests[0].accredited_individual.id,
-              'full_name' => [
+              'fullName' => [
                 poa_requests[0].accredited_individual.first_name,
                 poa_requests[0].accredited_individual.last_name
               ].join(' ')
@@ -103,18 +102,18 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           },
           {
             'id' => poa_requests[1].id,
-            'claimant_id' => poa_requests[1].claimant_id,
-            'created_at' => time,
-            'expires_at' => nil,
-            'power_of_attorney_form' => dependent_claimant_power_of_attorney_form,
-            'power_of_attorney_holder' => {
+            'claimantId' => poa_requests[1].claimant_id,
+            'createdAt' => time,
+            'expiresAt' => nil,
+            'powerOfAttorneyForm' => dependent_claimant_power_of_attorney_form,
+            'powerOfAttorneyHolder' => {
               'id' => poa_requests[1].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
               'name' => poa_requests[1].power_of_attorney_holder.name
             },
-            'accredited_individual' => {
+            'accreditedIndividual' => {
               'id' => poa_requests[1].accredited_individual.id,
-              'full_name' => [
+              'fullName' => [
                 poa_requests[1].accredited_individual.first_name,
                 poa_requests[1].accredited_individual.last_name
               ].join(' ')
@@ -122,25 +121,25 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'resolution' => {
               'id' => poa_requests[1].resolution.id,
               'type' => 'decision',
-              'created_at' => time,
-              'creator_id' => poa_requests[1].resolution.resolving.creator_id,
-              'decision_type' => 'acceptance'
+              'createdAt' => time,
+              'creatorId' => poa_requests[1].resolution.resolving.creator_id,
+              'decisionType' => 'acceptance'
             }
           },
           {
             'id' => poa_requests[2].id,
-            'claimant_id' => poa_requests[2].claimant_id,
-            'created_at' => time,
-            'expires_at' => nil,
-            'power_of_attorney_form' => dependent_claimant_power_of_attorney_form,
-            'power_of_attorney_holder' => {
+            'claimantId' => poa_requests[2].claimant_id,
+            'createdAt' => time,
+            'expiresAt' => nil,
+            'powerOfAttorneyForm' => dependent_claimant_power_of_attorney_form,
+            'powerOfAttorneyHolder' => {
               'id' => poa_requests[2].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
               'name' => poa_requests[2].power_of_attorney_holder.name
             },
-            'accredited_individual' => {
+            'accreditedIndividual' => {
               'id' => poa_requests[2].accredited_individual.id,
-              'full_name' => [
+              'fullName' => [
                 poa_requests[2].accredited_individual.first_name,
                 poa_requests[2].accredited_individual.last_name
               ].join(' ')
@@ -148,26 +147,26 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'resolution' => {
               'id' => poa_requests[2].resolution.id,
               'type' => 'decision',
-              'created_at' => time,
-              'creator_id' => poa_requests[2].resolution.resolving.creator_id,
+              'createdAt' => time,
+              'creatorId' => poa_requests[2].resolution.resolving.creator_id,
               'reason' => 'Didn\'t authorize treatment record disclosure',
-              'decision_type' => 'declination'
+              'decisionType' => 'declination'
             }
           },
           {
             'id' => poa_requests[3].id,
-            'claimant_id' => poa_requests[3].claimant_id,
-            'created_at' => time,
-            'expires_at' => nil,
-            'power_of_attorney_form' => dependent_claimant_power_of_attorney_form,
-            'power_of_attorney_holder' => {
+            'claimantId' => poa_requests[3].claimant_id,
+            'createdAt' => time,
+            'expiresAt' => nil,
+            'powerOfAttorneyForm' => dependent_claimant_power_of_attorney_form,
+            'powerOfAttorneyHolder' => {
               'id' => poa_requests[3].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
               'name' => poa_requests[3].power_of_attorney_holder.name
             },
-            'accredited_individual' => {
+            'accreditedIndividual' => {
               'id' => poa_requests[3].accredited_individual.id,
-              'full_name' => [
+              'fullName' => [
                 poa_requests[3].accredited_individual.first_name,
                 poa_requests[3].accredited_individual.last_name
               ].join(' ')
@@ -175,7 +174,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'resolution' => {
               'id' => poa_requests[3].resolution.id,
               'type' => 'expiration',
-              'created_at' => time
+              'createdAt' => time
             }
           }
         ]
@@ -226,26 +225,26 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       expect(parsed_response).to eq(
         {
           'id' => poa_request.id,
-          'claimant_id' => poa_request.claimant_id,
-          'created_at' => time,
-          'expires_at' => nil,
-          'power_of_attorney_form' => power_of_attorney_form,
+          'claimantId' => poa_request.claimant_id,
+          'createdAt' => time,
+          'expiresAt' => nil,
+          'powerOfAttorneyForm' => power_of_attorney_form,
           'resolution' => {
             'id' => poa_request.resolution.id,
             'type' => 'decision',
-            'created_at' => time,
-            'creator_id' => poa_request.resolution.resolving.creator_id,
+            'createdAt' => time,
+            'creatorId' => poa_request.resolution.resolving.creator_id,
             'reason' => 'Didn\'t authorize treatment record disclosure',
-            'decision_type' => 'declination'
+            'decisionType' => 'declination'
           },
-          'power_of_attorney_holder' => {
+          'powerOfAttorneyHolder' => {
             'id' => poa_request.power_of_attorney_holder.id,
             'type' => 'veteran_service_organization',
             'name' => poa_request.power_of_attorney_holder.name
           },
-          'accredited_individual' => {
+          'accreditedIndividual' => {
             'id' => poa_request.accredited_individual.id,
-            'full_name' => [
+            'fullName' => [
               poa_request.accredited_individual.first_name,
               poa_request.accredited_individual.last_name
             ].join(' ')
