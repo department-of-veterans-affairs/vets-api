@@ -68,7 +68,7 @@ COPY --chown=nonroot:nonroot . .
 RUN chmod +x bin/merge_imagemagick_policy
 
 # Execute the merge policy script for ImageMagick
-RUN bin/rails runner 'bin/merge_imagemagick_policy'
+RUN ruby -rbundler/setup bin/merge_imagemagick_policy
 
 EXPOSE 3000
 

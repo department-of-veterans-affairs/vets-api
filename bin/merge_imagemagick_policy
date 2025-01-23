@@ -1,20 +1,13 @@
-#!/usr/bin/env ruby
-# frozen_string_literal: true
-
 require 'nokogiri'
 
-# Paths to the original and new policies
 original_policy_path = '/etc/ImageMagick-6/policy.xml'
 new_policy_path = '/app/config/imagemagick/policies/new-policy.xml'
 
-# Read the original and new policy files
 policy1 = Nokogiri::XML(File.read(original_policy_path)) { |config| config.default_xml.noblanks }
 policy2 = Nokogiri::XML(File.read(new_policy_path)) { |config| config.default_xml.noblanks }
 
-# Merge policies
 policy2.xpath('//policy').each do |policy|
   policy1.root.add_child(policy)
 end
 
-# Format and write the merged policy back
 File.write(original_policy_path, policy1.to_xml(indent: 2))
