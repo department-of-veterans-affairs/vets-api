@@ -193,11 +193,27 @@ module Lighthouse
     def send_confirmation_email
       @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
 
-      Burials::NotificationEmail.new(@claim.id).deliver(:confirmation) if %w[21P-530EZ].include?(@claim&.form_id)
+      return unless %w[21P-530EZ].include?(@claim&.form_id)
+
+      if Flipper.enabled?(:burial_submitted_email_notification)
+        send_submitted_email
+      else
+        Burials::NotificationEmail.new(@claim.id).deliver(:confirmation)
+      end
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
                         generate_log_details(e))
       StatsD.increment("#{STATSD_KEY_PREFIX}.send_confirmation_email.failure")
+    end
+
+    ##
+    # VANotify job to send Submission in Progress email to veteran
+    #
+    def send_submitted_email
+      Burials::NotificationEmail.new(@claim.id).deliver(:submitted)
+    rescue => e
+      burial_monitor = Burials::Monitor.new
+      burial_monitor.track_send_submitted_email_failure(@claim, @lighthouse_service, e)
     end
   end
 end
