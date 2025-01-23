@@ -120,6 +120,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             sign_in_as(user)
           end
 
+          let(:user) { loa1_user }
           let!(:form_id) { '21-526EZ' }
 
           it 'adds default startedFormVersion for new InProgressForm' do
@@ -287,8 +288,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
       context 'without a user' do
         describe '#show' do
           let(:in_progress_form) { create(:in_progress_form) }
-
-          # before do
 
           it 'returns a 401' do
             get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
