@@ -133,4 +133,4 @@ RSpec.describe UserAction, type: :model do
       expect(user_action).to be_status_error
     end
   end
-end 
+end

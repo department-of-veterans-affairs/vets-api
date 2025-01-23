@@ -15,4 +15,4 @@ class UserAction < ApplicationRecord
   validates :acting_ip_address, presence: true
   validates :acting_user_agent, presence: true
   validates :status, presence: true, inclusion: { in: statuses.keys }
-end 
+end
