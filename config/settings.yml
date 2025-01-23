@@ -661,6 +661,8 @@ claims_api:
     services:
       lighthouse:
         api_key: ~
+  bgs:
+    mock_responses: false
 
 connected_apps_api:
   connected_apps:
@@ -1192,6 +1194,7 @@ vanotify:
         fsr_confirmation_email: fake_template_id
         vha_new_copay_statement_email: fake_template_id
         fsr_streamlined_confirmation_email: fake_template_id
+        fsr_failed_email: fake_template_id
     check_in:
       api_key: fake_secret
       sms_sender_id: fake_secret
@@ -1259,6 +1262,9 @@ vanotify:
         error:
           template_id: form527ez_error_email_template_id
           flipper_id: pension_error_email_notification
+        submitted:
+          template_id: form527ez_submitted_email_template_id
+          flipper_id: pension_submitted_email_notification
         received:
           template_id: form527ez_received_email_template_id
           flipper_id: pension_received_email_notification

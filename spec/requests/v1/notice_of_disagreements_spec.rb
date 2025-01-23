@@ -65,6 +65,17 @@ RSpec.describe 'V1::NoticeOfDisagreements', type: :request do
                                  'valid_NOD_create_request.json').read
     end
 
+    it 'logs use of the old controller' do
+      warn_old_controller_args = {
+        message: 'Calling decision reviews controller outside module',
+        action: 'NOD create',
+        form_id: '10182'
+      }
+      allow(Rails.logger).to receive(:warn)
+      expect(Rails.logger).to receive(:warn).with(warn_old_controller_args)
+      subject
+    end
+
     it 'creates an NOD and logs to StatsD and logger' do
       VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-200_V1') do
         allow(Rails.logger).to receive(:info)

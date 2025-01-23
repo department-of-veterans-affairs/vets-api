@@ -48,6 +48,14 @@ FactoryBot.define do
       zip_code { '11249' }
     end
 
+    trait :incorrect_address_pou do
+      address_line1 { '37 1st st' }
+      city { 'Brooklyn' }
+      state_code { 'NY' }
+      zip_code { '11249' }
+      address_pou { 'RESIDENCE/CHOICE' }
+    end
+
     trait :override do
       address_pou { VAProfile::Models::V3::Address::CORRESPONDENCE }
       address_line1 { '1494 Martin Luther King Rd' }

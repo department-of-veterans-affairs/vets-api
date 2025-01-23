@@ -17,7 +17,8 @@ module VAOS
 
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
-      APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
+      APPOINTMENTS_OH_REQUESTS = :va_online_scheduling_OH_request
+      APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS = :va_online_scheduling_OH_direct_schedule
       APPOINTMENT_TYPES = {
         va: 'VA',
         cc_appointment: 'COMMUNITY_CARE_APPOINTMENT',
@@ -97,11 +98,10 @@ module VAOS
         params = VAOS::V2::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
         params.compact_blank!
         with_monitoring do
-          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
-                       perform(:post, appointments_base_path_vpg, params, headers)
+          response = if params[:status] == 'proposed'
+                       create_appointment_request(params)
                      else
-                       perform(:post, appointments_base_path_vaos, params, headers)
+                       create_direct_scheduling_appointment(params)
                      end
 
           if request_object_body[:kind] == 'clinic' &&
@@ -120,6 +120,23 @@ module VAOS
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
           raise e
+        end
+      end
+
+      def create_direct_scheduling_appointment(params)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
+           Flipper.enabled?(APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS, user)
+          perform(:post, appointments_base_path_vpg, params, headers)
+        else
+          perform(:post, appointments_base_path_vaos, params, headers)
+        end
+      end
+
+      def create_appointment_request(params)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) && Flipper.enabled?(APPOINTMENTS_OH_REQUESTS, user)
+          perform(:post, appointments_base_path_vpg, params, headers)
+        else
+          perform(:post, appointments_base_path_vaos, params, headers)
         end
       end
 
@@ -779,28 +796,24 @@ module VAOS
       end
 
       def log_modality_failure(appointment)
-        Rails.logger.info("VAOS appointment id #{appointment[:id]} modality cannot be determined.")
-        if Random.new.rand(10).zero?
-          Rails.logger.info(
-            "VAOS appointment id #{appointment[:id]} modality details.",
-            {
-              service_type: appointment[:service_type],
-              service_category_text: appointment.dig(:service_category, 0, :text),
-              kind: appointment[:kind],
-              atlas: appointment.dig(:telehealth, :atlas),
-              vvs_kind: appointment.dig(:telehealth, :vvs_kind),
-              gfe: appointment.dig(:extension, :patient_has_mobile_gfe)
-            }.to_json
-          )
-        end
+        context = {
+          service_type: appointment[:service_type],
+          service_category_text: appointment.dig(:service_category, 0, :text),
+          kind: appointment[:kind],
+          atlas: appointment.dig(:telehealth, :atlas),
+          vvs_kind: appointment.dig(:telehealth, :vvs_kind),
+          gfe: appointment.dig(:extension, :patient_has_mobile_gfe)
+        }.to_json
+        Rails.logger.warn("VAOS appointment id #{appointment[:id]} modality cannot be determined", context)
       end
 
       def telehealth_modality(appointment)
+        vvs_kind = appointment.dig(:telehealth, :vvs_kind)
         if !appointment.dig(:telehealth, :atlas).nil?
           'vaVideoCareAtAnAtlasLocation'
-        elsif %w[CLINIC_BASED STORE_FORWARD].include?(appointment.dig(:telehealth, :vvs_kind))
+        elsif %w[CLINIC_BASED STORE_FORWARD].include?(vvs_kind)
           'vaVideoCareAtAVaLocation'
-        elsif appointment.dig(:telehealth, :vvs_kind) == 'MOBILE_ANY/ADHOC'
+        elsif vvs_kind.nil? || vvs_kind == 'MOBILE_ANY' || vvs_kind == 'ADHOC'
           appointment.dig(:extension, :patient_has_mobile_gfe) ? 'vaVideoCareOnGfe' : 'vaVideoCareAtHome'
         end
       end

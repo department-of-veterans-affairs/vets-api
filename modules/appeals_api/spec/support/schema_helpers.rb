@@ -3,17 +3,15 @@
 module SchemaHelpers
   def read_schema(filename, api_name = 'decision_reviews', schema_version = 'v1')
     JSON.parse(
-      File.read(
-        Rails.root.join(
-          'modules',
-          'appeals_api',
-          'config',
-          'schemas',
-          api_name,
-          schema_version,
-          filename
-        )
-      )
+      Rails.root.join(
+        'modules',
+        'appeals_api',
+        'config',
+        'schemas',
+        api_name,
+        schema_version,
+        filename
+      ).read
     )
   end
 

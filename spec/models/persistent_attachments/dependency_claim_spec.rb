@@ -37,9 +37,9 @@ RSpec.describe PersistentAttachments::DependencyClaim, :uploader_helpers do
       instance.file = file.open
       instance.save!
       shrine_file = instance.file
-      expect(shrine_file.exists?).to eq(true)
+      expect(shrine_file.exists?).to be(true)
       instance.destroy
-      expect(shrine_file.exists?).to eq(false)
+      expect(shrine_file.exists?).to be(false)
     end
   end
 end
