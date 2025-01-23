@@ -2,10 +2,21 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestSerializer < ApplicationSerializer
-    attributes :claimant_id, :claimant_type, :created_at
+    attributes :claimant_id, :created_at, :expires_at
 
     attribute :power_of_attorney_form do |poa_request|
-      poa_request.power_of_attorney_form.parsed_data
+      poa_request.power_of_attorney_form.parsed_data.tap do |form|
+        claimant_key =
+          case poa_request.claimant_type
+          when PowerOfAttorneyRequest::ClaimantTypes::DEPENDENT
+            'dependent'
+          when PowerOfAttorneyRequest::ClaimantTypes::VETERAN
+            'veteran'
+          end
+
+        form['claimant'] = form.delete(claimant_key)
+        form.delete('dependent')
+      end
     end
 
     attribute :resolution do |poa_request|
@@ -25,7 +36,15 @@ module AccreditedRepresentativePortal
     end
 
     attribute :power_of_attorney_holder do |poa_request|
-      PowerOfAttorneyHolderSerializer
+      serializer =
+        case poa_request.power_of_attorney_holder
+        when AccreditedIndividual
+          IndividualPowerOfAttorneyHolderSerializer
+        when AccreditedOrganization
+          OrganizationPowerOfAttorneyHolderSerializer
+        end
+
+      serializer
         .new(poa_request.power_of_attorney_holder)
         .serializable_hash
     end
