@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pension_burial/tag_sentry'
 require 'lgy/tag_sentry'
 require 'claim_documents/monitor'
 require 'lighthouse/benefits_intake/service'
@@ -42,7 +41,6 @@ module V0
     def klass
       case form_id
       when '21P-527EZ', '21P-530EZ', '21P-530V2'
-        PensionBurial::TagSentry.tag_sentry
         PersistentAttachments::PensionBurial
       when '21-686C', '686C-674'
         PersistentAttachments::DependencyClaim
