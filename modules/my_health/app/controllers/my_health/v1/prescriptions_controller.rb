@@ -177,7 +177,8 @@ module MyHealth
         resource.data = if params[:filter].blank? && Flipper.enabled?(:mhv_medications_display_pending_meds)
                           resource.data.reject { |item| item.prescription_source.equal? 'PF' }
                         else
-                          resource.data = remove_pf_pd(resource.data) # TODO: remove this line when PF and PD are allowed on va.gov
+                          # TODO: remove this line when PF and PD are allowed on va.gov
+                          resource.data = remove_pf_pd(resource.data)
                         end
         resource.data = group_prescriptions(resource.data) if Flipper.enabled?(:mhv_medications_display_grouping)
         resource.data = filter_non_va_meds(resource.data)
