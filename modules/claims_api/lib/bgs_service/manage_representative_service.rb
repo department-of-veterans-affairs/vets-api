@@ -8,7 +8,7 @@ module ClaimsApi
       'VDC/ManageRepresentativeService'
     end
 
-    def read_poa_request(poa_codes: [], page_size: nil, page_index: nil, filter: {}) # rubocop:disable Metrics/MethodLength
+    def read_poa_request(poa_codes: [], page_size: nil, page_index: nil, filter: {}, use_mocks: false) # rubocop:disable Metrics/MethodLength
       # Workaround to allow multiple roots in the Nokogiri XML builder
       # https://stackoverflow.com/a/4907450
       doc = Nokogiri::XML::DocumentFragment.parse ''
@@ -55,7 +55,7 @@ module ClaimsApi
       body = builder_to_xml(doc)
 
       make_request(endpoint: bean_name, action: 'readPOARequest', body:, key: 'POARequestRespondReturnVO',
-                   namespaces: { 'data' => '/data' }, transform_response: false)
+                   namespaces: { 'data' => '/data' }, transform_response: false, use_mocks:)
     end
 
     def read_poa_request_by_ptcpnt_id(ptcpnt_id:)
