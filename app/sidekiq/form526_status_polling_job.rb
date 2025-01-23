@@ -64,7 +64,7 @@ class Form526StatusPollingJob
       form_submission.paranoid_success!
       # Send Received Email once Backup Path is successful!
       if Flipper.enabled?(:disability_526_send_received_email_from_backup_path)
-        submission.send_received_email('Form526StatusPollingJob#handle_submission paranoid_success!')
+        form_submission.send_received_email('Form526StatusPollingJob#handle_submission paranoid_success!')
       end
     else
       Rails.logger.info(
