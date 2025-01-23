@@ -608,10 +608,6 @@ features:
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
-  facility_locator_rails_engine:
-    actor_type: user
-    description: Use rails engine routes for all Facility Locator API calls
-    enable_in_development: true
   facility_locator_show_community_cares:
     actor_type: user
     description: >
