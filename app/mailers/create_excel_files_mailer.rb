@@ -6,7 +6,7 @@ class CreateExcelFilesMailer < ApplicationMailer
 
     # rubocop:disable Layout/LineLength
     recipients = Settings.vsp_environment.eql?('production') ? Settings.edu.production_excel_contents.emails : Settings.edu.staging_excel_contents.emails
-    subject = Settings.vsp_environment.eql?('production') ? "22-10282 Form CSV file for #{date}" : "Staging CSV file for #{date}"
+    subject = Settings.vsp_environment.eql?('production') ? "22-10282 Form CSV file for #{date}" : "(Staging) 22-10282 CSV file for #{date}"
     # rubocop:enable Layout/LineLength
 
     attachments[filename] = File.read("tmp/#{filename}")
@@ -16,7 +16,7 @@ class CreateExcelFilesMailer < ApplicationMailer
       subject: subject
     ) do |format|
       format.text { render plain: "CSV file for #{date} is attached." }
-      format.html { render html: "<p>CSV file for #{date} is attached.</p>" }
+      format.html { render html: "CSV file for #{date} is attached." }
     end
   end
 end
