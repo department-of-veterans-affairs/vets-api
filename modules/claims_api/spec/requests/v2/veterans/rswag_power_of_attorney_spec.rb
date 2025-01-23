@@ -5,13 +5,13 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
-require 'bgs_service/local_bgs'
+require 'bgs_service/claimant_web_service'
 require 'bgs_service/org_web_service'
 
 describe 'PowerOfAttorney',
          openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
-  let(:local_bgs) { ClaimsApi::LocalBGS }
   let(:org_web_service) { ClaimsApi::OrgWebService }
+  let(:claimant_web_service) { ClaimsApi::ClaimantWebService }
 
   claimant_data = {
     'claimantId' => '1013093331V548481',
@@ -62,7 +62,7 @@ describe 'PowerOfAttorney',
                                             'get.json').read)
 
           before do |example|
-            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             create(:veteran_representative, representative_id: '12345',
@@ -120,7 +120,7 @@ describe 'PowerOfAttorney',
                                             'power_of_attorney', 'default.json').read)
 
           before do |example|
-            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
 
@@ -154,7 +154,7 @@ describe 'PowerOfAttorney',
                                             'power_of_attorney', 'default.json').read)
 
           before do |example|
-            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             create(:veteran_representative, representative_id: '12345',
@@ -672,7 +672,7 @@ describe 'PowerOfAttorney',
           end
 
           before do |example|
-            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             create(:veteran_representative, representative_id: '999999999999',
@@ -869,7 +869,7 @@ describe 'PowerOfAttorney',
                                             'power_of_attorney', '2122', 'submit.json').read)
 
           before do |example|
-            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             create(:veteran_organization, poa: organization_poa_code,
