@@ -21,4 +21,4 @@ FactoryBot.define do
       status { 'error' }
     end
   end
-end 
+end

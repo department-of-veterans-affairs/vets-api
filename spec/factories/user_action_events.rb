@@ -4,4 +4,4 @@ FactoryBot.define do
   factory :user_action_event do
     sequence(:details) { |n| "User action event details #{n}" }
   end
-end 
+end

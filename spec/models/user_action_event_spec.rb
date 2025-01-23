@@ -38,4 +38,4 @@ RSpec.describe UserActionEvent, type: :model do
       end
     end
   end
-end 
+end
