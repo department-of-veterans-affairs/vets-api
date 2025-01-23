@@ -114,32 +114,31 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             expect(json_response['formData']['startedFormVersion']).to eq('2019')
           end
         end
-      end
 
-      context 'prefills formData when user does not have an InProgressForm pending submission' do
-        before do
-          sign_in_as(user)
-        end
+        context 'prefills formData when user does not have an InProgressForm pending submission' do
+          before do
+            sign_in_as(user)
+          end
 
-        let(:user) { loa1_user }
-        let!(:form_id) { '21-526EZ' }
+          let!(:form_id) { '21-526EZ' }
 
-        it 'adds default startedFormVersion for new InProgressForm' do
-          get v0_disability_compensation_in_progress_form_url(form_id), params: nil
-          json_response = JSON.parse(response.body)
-          expect(json_response['formData']['startedFormVersion']).to eq('2022')
-        end
-
-        it 'returns 2022 when existing IPF with 2022 as startedFormVersion' do
-          parsed_form_data = JSON.parse(in_progress_form.form_data)
-          parsed_form_data['startedFormVersion'] = '2022'
-          in_progress_form.form_data = parsed_form_data.to_json
-          in_progress_form.save!
-          VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-            get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
-            expect(response).to have_http_status(:ok)
+          it 'adds default startedFormVersion for new InProgressForm' do
+            get v0_disability_compensation_in_progress_form_url(form_id), params: nil
             json_response = JSON.parse(response.body)
             expect(json_response['formData']['startedFormVersion']).to eq('2022')
+          end
+
+          it 'returns 2022 when existing IPF with 2022 as startedFormVersion' do
+            parsed_form_data = JSON.parse(in_progress_form_lighthouse.form_data)
+            parsed_form_data['startedFormVersion'] = '2022'
+            in_progress_form_lighthouse.form_data = parsed_form_data.to_json
+            in_progress_form_lighthouse.save!
+            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+              get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              expect(response).to have_http_status(:ok)
+              json_response = JSON.parse(response.body)
+              expect(json_response['formData']['startedFormVersion']).to eq('2022')
+            end
           end
         end
       end
