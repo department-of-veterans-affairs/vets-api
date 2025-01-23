@@ -90,7 +90,7 @@ class EVSS::DocumentUpload
   end
 
   def self.call_failure_notification(msg)
-    return unless Flipper.enabled?('cst_send_evidence_failure_emails')
+    return unless Flipper.enabled?(:cst_send_evidence_failure_emails)
 
     icn = UserAccount.find(msg['args'][1]).icn
 

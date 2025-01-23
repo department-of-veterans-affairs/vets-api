@@ -141,7 +141,9 @@ RSpec.describe EVSSClaimService do
     end
 
     context 'when :cst_send_evidence_submission_failure_emails is enabled' do
-      before { Flipper.enable(:cst_send_evidence_submission_failure_emails) }
+      before do
+        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
+      end
 
       it 'records evidence submission' do
         subject.upload_document(document)
@@ -150,7 +152,9 @@ RSpec.describe EVSSClaimService do
     end
 
     context 'when :cst_send_evidence_submission_failure_emails is disabled' do
-      before { Flipper.disable(:cst_send_evidence_submission_failure_emails) }
+      before do
+        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(false)
+      end
 
       it 'does not record evidence submission' do
         subject.upload_document(document)

@@ -70,7 +70,9 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   let(:statsd_error_tags) { ['service:claim-status', "function: #{log_error_message}"] }
 
   context 'when :cst_send_evidence_submission_failure_emails is enabled' do
-    before { Flipper.enable(:cst_send_evidence_submission_failure_emails) }
+    before do
+      allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
+    end
 
     context 'when upload succeeds' do
       let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
@@ -127,7 +129,9 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   end
 
   context 'when :cst_send_evidence_submission_failure_emails is disabled' do
-    before { Flipper.disable(:cst_send_evidence_submission_failure_emails) }
+    before do
+      allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(false)
+    end
 
     let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
     let(:formatted_submit_date) do
@@ -152,7 +156,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
 
     context 'when cst_send_evidence_failure_emails is enabled' do
       before do
-        Flipper.enable(:cst_send_evidence_failure_emails)
+        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_failure_emails).and_return(true)
       end
 
       it 'calls EVSS::FailureNotification' do
@@ -178,7 +182,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
 
     context 'when cst_send_evidence_failure_emails is disabled' do
       before do
-        Flipper.disable(:cst_send_evidence_failure_emails)
+        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_failure_emails).and_return(false)
       end
 
       it 'does not call EVSS::Failure Notification' do
