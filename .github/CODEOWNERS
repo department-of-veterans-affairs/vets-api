@@ -2198,3 +2198,6 @@ spec/uploaders/validate_pdf_spec.rb @department-of-veterans-affairs/Disability-E
 spec/uploaders/simple_forms_api/ @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 # Place your entry above this comment in alphabetical order.
 app/models/user_action.rb @department-of-veterans-affairs/backend-review-group
+
+app/models/user_action.rb @department-of-veterans-affairs/octo-identity @department-of-veterans-affairs/backend-review-group
+app/models/user_action_event.rb @department-of-veterans-affairs/octo-identity @department-of-veterans-affairs/backend-review-group
