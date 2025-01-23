@@ -608,12 +608,6 @@ features:
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
-  facility_locator_show_community_cares:
-    actor_type: user
-    description: >
-      On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option
-      in the "Search for" box.
-    enable_in_development: true
   facility_locator_show_operational_hours_special_instructions:
     actor_type: user
     description: Display new field operationalHoursSpecialInstructions for VA facilities
