@@ -318,18 +318,6 @@ features:
     actor_type: user
     description: When enabled, the Download Decision Letters feature includes Subsequent Development Letters
     enable_in_development: true
-  cst_use_lighthouse_5103:
-    actor_type: user
-    description: When enabled, claims status tool uses the Lighthouse API for the 5103 endpoint
-    enable_in_development: true
-  cst_use_lighthouse_index:
-    actor_type: user
-    description: When enabled, claims status tool uses the Lighthouse API for the index endpoint
-    enable_in_development: true
-  cst_use_lighthouse_show:
-    actor_type: user
-    description: When enabled, claims status tool uses the Lighthouse API for the show endpoint
-    enable_in_development: true
   cst_send_evidence_failure_emails:
     actor_type: user
     description: When enabled, emails will be sent when evidence uploads from the CST fail
@@ -1013,6 +1001,14 @@ features:
   mhv_secure_messaging_recipient_combobox:
     actor_type: user
     description: Disables/Enables Secure Messaging combobox in recipient dropdown on Start a new message page
+  mhv_secure_messaging_remove_landing_page:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Messages landing page and its components from view on VA.gov
+    enable_in_development: true
+  mhv_secure_messaging_signature_settings:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Signature Settings in the VA Personal Information Settings
+    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
@@ -1553,10 +1549,6 @@ features:
     actor_type: user
     description: When enabled, the VAProfile::V3::ContactInformation will be enabled
     enable_in_development: true
-  validate_saved_claims_with_json_schemer:
-    actor_type: user
-    description: When enabled, Saved Claims will be validated using the JSON Schemer gem rather than JSON Schema
-    enable_in_development: false
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
