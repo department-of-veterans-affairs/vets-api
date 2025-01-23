@@ -58,7 +58,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
       Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
       allow(Flipper).to receive(:enabled?).with(:disability_526_migrate_contention_classification,
-                                                    anything).and_return(false)
+                                                anything).and_return(false)
     end
 
     after do
@@ -328,7 +328,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             before do
               Flipper.enable(:disability_526_ep_merge_api, user)
               allow(Flipper).to receive(:enabled?).and_call_original
-              allow(Flipper).to receive(:enabled?).with(:disability_526_migrate_contention_classification, anything).and_return(false)
+              allow(Flipper).to receive(:enabled?).with(:disability_526_migrate_contention_classification,
+                                                        anything).and_return(false)
             end
 
             it 'records the eligible claim ID and adds the EP400 special issue to the submission' do
@@ -421,6 +422,24 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                saved_claim_id: saved_claim.id)
       end
 
+      context 'when the migration endpoint is not enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(
+            :disability_compensation_migrate_contention_classification, anything
+          ).and_return(true)
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'logs a message indicating endpoint is not ready' do
+          subject.perform_async(submission.id)
+          described_class.drain
+          expect(Rails.logger).to have_received(:info).with(
+            'Migrated endpoint called but is not available'
+          )
+        end
+      end
+
       it 'does something when multi-contention api endpoint is hit' do
         subject.perform_async(submission.id)
 
@@ -438,10 +457,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       it 'calls va-gov-claim-classifier as default' do
         vro_client_mock = instance_double(VirtualRegionalOffice::Client)
         allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client_mock)
-        allow(vro_client_mock).to receive_messages(
-          classify_vagov_contentions_expanded: OpenStruct.new(body: 'expanded classification'),
-          classify_vagov_contentions: OpenStruct.new(body: 'regular response')
-        )
+        allow(vro_client_mock).to receive(:classify_vagov_contentions_expanded)
 
         expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
         expect(vro_client_mock).to receive(:classify_vagov_contentions_expanded)
