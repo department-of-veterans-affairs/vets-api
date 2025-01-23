@@ -10,9 +10,9 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
   describe 'POST /mobile/v0/user/emails' do
     context 'with a valid email that takes two tries to complete' do
       before do
-        VCR.use_cassette('mobile/profile/v2/get_email_status_complete') do
-          VCR.use_cassette('mobile/profile/v2/get_email_status_incomplete') do
-            VCR.use_cassette('mobile/profile/v2/post_email_initial') do
+        VCR.use_cassette('mobile/profile/v2/get_email_status_complete', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('mobile/profile/v2/get_email_status_incomplete', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('mobile/profile/v2/post_email_initial', match_requests_on: %i[uri method headers]) do
               post '/mobile/v0/user/emails',
                    params: { id: 42, email_address: 'person42@example.com' }.to_json,
                    headers: sis_headers(json: true)
@@ -23,6 +23,11 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
 
       it 'returns a 200' do
         expect(response).to have_http_status(:ok)
+      end
+
+      it 'matches the expected email address' do
+        parsed_request = JSON.parse(request.body.read)
+        expect(parsed_request["email_address"]).to eq('person42@example.com')
       end
 
       it 'matches the expected schema' do
@@ -69,9 +74,9 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
   describe 'PUT /mobile/v0/user/emails' do
     context 'with a valid email that takes two tries to complete' do
       before do
-        VCR.use_cassette('mobile/profile/v2/get_email_status_complete') do
-          VCR.use_cassette('mobile/profile/v2/get_email_status_incomplete') do
-            VCR.use_cassette('mobile/profile/v2/put_email_initial') do
+        VCR.use_cassette('mobile/profile/v2/get_email_status_complete', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('mobile/profile/v2/get_email_status_incomplete', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('mobile/profile/v2/put_email_initial', match_requests_on: %i[uri method headers]) do
               put '/mobile/v0/user/emails',
                   params: { id: 42, email_address: 'person42@example.com' }.to_json,
                   headers: sis_headers(json: true)
@@ -82,6 +87,11 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
 
       it 'returns a 200' do
         expect(response).to have_http_status(:ok)
+      end
+
+      it 'matches the expected email address' do
+        parsed_request = JSON.parse(request.body.read)
+        expect(parsed_request["email_address"]).to eq('person42@example.com')
       end
 
       it 'matches the expected schema' do
@@ -137,9 +147,9 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
         allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
         email.id = id_in_cassette
 
-        VCR.use_cassette('mobile/profile/v2/get_email_status_complete') do
-          VCR.use_cassette('mobile/profile/v2/get_email_status_incomplete') do
-            VCR.use_cassette('mobile/profile/v2/delete_email_initial') do
+        VCR.use_cassette('mobile/profile/v2/get_email_status_complete', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('mobile/profile/v2/get_email_status_incomplete', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('mobile/profile/v2/delete_email_initial', match_requests_on: %i[uri method headers]) do
               delete '/mobile/v0/user/emails',
                      params: { id: 42, email_address: 'person42@example.com' }.to_json,
                      headers: sis_headers(json: true)
@@ -149,6 +159,7 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
       end
 
       it 'returns a 200' do
+        puts response.body
         expect(response).to have_http_status(:ok)
       end
 
