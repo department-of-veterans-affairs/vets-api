@@ -65,7 +65,10 @@ module VeteranVerification
 
     def transform_response(response)
       attributes = response['data']['attributes']
-      return response if attributes['veteran_status'] != 'not confirmed' || attributes.exclude?('not_confirmed_reason')
+      if attributes['veteran_status'] == 'confirmed' || attributes.exclude?('not_confirmed_reason')
+        log_confirmed
+        return response
+      end
 
       reason = attributes['not_confirmed_reason']
       response['data']['message'] =
@@ -77,12 +80,16 @@ module VeteranVerification
           VeteranVerification::Constants::NOT_FOUND_MESSAGE
         end
 
-      log_reason(reason)
+      log_not_confirmed(reason)
       response
     end
 
-    def log_reason(reason)
-      ::Rails.logger.info('Vet Verification Status Success', { not_confirmed_reason: reason })
+    def log_not_confirmed(reason)
+      ::Rails.logger.info('Vet Verification Status Success: not confirmed', { not_confirmed: true, not_confirmed_reason: reason })
+    end
+
+    def log_confirmed
+      ::Rails.logger.info('Vet Verification Status Success: confirmed', { confirmed: true })
     end
   end
 end
