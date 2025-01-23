@@ -10,6 +10,11 @@ describe Mobile::V0::Profile::SyncUpdateService do
     allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+    Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.012Z'))
+  end
+
+  after do
+    Timecop.return
   end
 
   describe '#v2_save_and_await_response' do
@@ -31,7 +36,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
       let(:transaction) do
         VCR.use_cassette('va_profile/v3/contact_information/address_transaction_status', VCR::MATCH_EVERYTHING) do
           VCR.use_cassette('va_profile/v3/contact_information/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
-            VCR.use_cassette('va_profile/v3/contact_information/put_address_initial', match_requests_on: %i[uri method headers]) do
+            VCR.use_cassette('va_profile/v3/contact_information/put_address_initial', VCR::MATCH_EVERYTHING) do
               service.save_and_await_response(resource_type: :address, params:, update: true)
             end
           end
@@ -52,7 +57,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
         VCR.use_cassette('va_profile/v3/contact_information/get_address_status_complete', VCR::MATCH_EVERYTHING) do
           VCR.use_cassette('va_profile/v3/contact_information/get_address_status_incomplete_2', VCR::MATCH_EVERYTHING) do
             VCR.use_cassette('va_profile/v3/contact_information/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
-              VCR.use_cassette('va_profile/v3/contact_information/put_address_initial', match_requests_on: %i[uri method headers]) do
+              VCR.use_cassette('va_profile/v3/contact_information/put_address_initial', VCR::MATCH_EVERYTHING) do
                 service.save_and_await_response(resource_type: :address, params:, update: true)
               end
             end
@@ -80,7 +85,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
         VCR.use_cassette('va_profile/v3/contact_information/get_address_status_complete', VCR::MATCH_EVERYTHING) do
           VCR.use_cassette('va_profile/v3/contact_information/get_address_status_incomplete_2', VCR::MATCH_EVERYTHING) do
             VCR.use_cassette('va_profile/v3/contact_information/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
-              VCR.use_cassette('va_profile/v3/contact_information/put_address_initial', match_requests_on: %i[uri method headers]) do
+              VCR.use_cassette('va_profile/v3/contact_information/put_address_initial', VCR::MATCH_EVERYTHING) do
                 expect { service.save_and_await_response(resource_type: :address, params:, update: true) }
                   .to raise_error(Common::Exceptions::GatewayTimeout)
               end
@@ -93,7 +98,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
     context 'when it fails on a status check returning an error' do
       it 'raises a backend service exception' do
         VCR.use_cassette('va_profile/v3/contact_information/get_address_status_error', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('va_profile/v3/contact_information/put_address_initial', match_requests_on: %i[uri method headers]) do
+          VCR.use_cassette('va_profile/v3/contact_information/put_address_initial', VCR::MATCH_EVERYTHING) do
             expect { service.save_and_await_response(resource_type: :address, params:, update: true) }
               .to raise_error(Common::Exceptions::BackendServiceException)
           end

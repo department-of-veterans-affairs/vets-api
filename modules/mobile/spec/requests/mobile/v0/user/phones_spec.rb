@@ -16,6 +16,11 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
     allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+    Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.012Z'))
+  end
+
+  after do
+    Timecop.return
   end
 
   describe 'POST /mobile/v0/user/phones', :skip_va_profile_user do
@@ -26,7 +31,7 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
         VCR.use_cassette('mobile/profile/v2/get_phone_status_complete', VCR::MATCH_EVERYTHING) do
           VCR.use_cassette('mobile/profile/v2/get_phone_status_incomplete', VCR::MATCH_EVERYTHING) do
             VCR.use_cassette('mobile/profile/v2/get_phone_status_incomplete_2', VCR::MATCH_EVERYTHING) do
-              VCR.use_cassette('mobile/profile/v2/post_phone_initial', match_requests_on: %i[uri method headers]) do #, match_requests_on: %i[uri method headers]) do
+              VCR.use_cassette('mobile/profile/v2/post_phone_initial', VCR::MATCH_EVERYTHING) do
                 post('/mobile/v0/user/phones', params: telephone.to_json, headers:)
               end
             end
@@ -36,11 +41,6 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
 
       it 'returns a 200' do
         expect(response).to have_http_status(:ok)
-      end
-
-      it 'matches the expected phone number' do
-        parsed_request = JSON.parse(request.body.read)
-        expect(parsed_request["phone_number"]).to eq('5551234')
       end
 
       it 'matches the expected schema' do
@@ -91,7 +91,7 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
 
         VCR.use_cassette('mobile/profile/v2/get_phone_status_complete', VCR::MATCH_EVERYTHING) do
           VCR.use_cassette('mobile/profile/v2/get_phone_status_incomplete', VCR::MATCH_EVERYTHING) do
-            VCR.use_cassette('mobile/profile/v2/put_phone_initial', match_requests_on: %i[uri method headers]) do
+            VCR.use_cassette('mobile/profile/v2/put_phone_initial', VCR::MATCH_EVERYTHING) do
               put('/mobile/v0/user/phones', params: telephone.to_json, headers:)
             end
           end
@@ -100,11 +100,6 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
 
       it 'returns a 200' do
         expect(response).to have_http_status(:ok)
-      end
-
-      it 'matches the expected phone number' do
-        parsed_request = JSON.parse(request.body.read)
-        expect(parsed_request["phone_number"]).to eq('5551234')
       end
 
       it 'matches the expected schema' do
@@ -154,7 +149,7 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
         telephone.id = 42
         VCR.use_cassette('mobile/profile/v2/get_phone_status_complete', VCR::MATCH_EVERYTHING) do
           VCR.use_cassette('mobile/profile/v2/get_phone_status_incomplete', VCR::MATCH_EVERYTHING) do
-            VCR.use_cassette('mobile/profile/v2/delete_phone_initial', VCR::MATCH_EVERYTHING) do # match_requests_on: %i[uri method headers]) do
+            VCR.use_cassette('mobile/profile/v2/delete_phone_initial', VCR::MATCH_EVERYTHING) do
               delete '/mobile/v0/user/phones',
                      params: telephone.to_json,
                      headers:
@@ -165,11 +160,6 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
 
       it 'returns a 200' do
         expect(response).to have_http_status(:ok)
-      end
-
-      it 'matches the expected phone number' do
-        parsed_request = JSON.parse(request.body.read)
-        expect(parsed_request["phone_number"]).to eq('5551234')
       end
 
       it 'matches the expected schema' do

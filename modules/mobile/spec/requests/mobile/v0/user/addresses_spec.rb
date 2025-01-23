@@ -11,6 +11,11 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
     allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+    Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.012Z'))
+  end
+
+  after do
+    Timecop.return
   end
 
   describe 'update endpoints' do
@@ -29,7 +34,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
             VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
               VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete_2', VCR::MATCH_EVERYTHING) do
                 VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete_3', VCR::MATCH_EVERYTHING) do
-                  VCR.use_cassette('mobile/profile/v2/post_address_initial', match_requests_on: %i[method uri headers]) do
+                  VCR.use_cassette('mobile/profile/v2/post_address_initial', VCR::MATCH_EVERYTHING) do
                     post '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
                   end
                 end
@@ -40,11 +45,6 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
         it 'returns a 200' do
           expect(response).to have_http_status(:ok)
-        end
-
-        it 'matches the expected address' do
-          parsed_request = JSON.parse(request.body.read)
-          expect(parsed_request["address_line1"]).to eq('2122 W Taylor St')
         end
 
         it 'matches the expected schema' do
@@ -64,7 +64,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
           VCR.use_cassette('mobile/profile/v2/get_address_status_complete', VCR::MATCH_EVERYTHING) do
             VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
-              VCR.use_cassette('mobile/profile/v2/post_address_initial', match_requests_on: %i[method uri headers]) do
+              VCR.use_cassette('mobile/profile/v2/post_address_initial', VCR::MATCH_EVERYTHING) do
                 post '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
               end
             end
@@ -73,11 +73,6 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
         it 'returns a gateway timeout error' do
           expect(response).to have_http_status(:gateway_timeout)
-        end
-
-        it 'matches the expected address' do
-          parsed_request = JSON.parse(request.body.read)
-          expect(parsed_request["address_line1"]).to eq('2122 W Taylor St')
         end
       end
 
@@ -118,7 +113,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
         before do
           VCR.use_cassette('mobile/profile/v2/get_address_status_complete', VCR::MATCH_EVERYTHING) do
             VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
-              VCR.use_cassette('mobile/profile/v2/put_address_initial', match_requests_on: %i[uri method headers]) do
+              VCR.use_cassette('mobile/profile/v2/put_address_initial', VCR::MATCH_EVERYTHING) do
                 put '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
               end
             end
@@ -127,11 +122,6 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
         it 'returns a 200' do
           expect(response).to have_http_status(:ok)
-        end
-
-        it 'matches the expected address' do
-          parsed_request = JSON.parse(request.body.read)
-          expect(parsed_request["address_line1"]).to eq('2122 W Taylor St')
         end
 
         it 'matches the expected schema' do
@@ -153,7 +143,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
           VCR.use_cassette('mobile/profile/v2/get_address_status_complete', VCR::MATCH_EVERYTHING) do
             VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
-              VCR.use_cassette('mobile/profile/v2/put_address_initial', match_requests_on: %i[method uri headers]) do
+              VCR.use_cassette('mobile/profile/v2/put_address_initial', VCR::MATCH_EVERYTHING) do
                 put '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
               end
             end
@@ -162,11 +152,6 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
         it 'returns a gateway timeout error' do
           expect(response).to have_http_status(:gateway_timeout)
-        end
-
-        it 'matches the expected address' do
-          parsed_request = JSON.parse(request.body.read)
-          expect(parsed_request["address_line1"]).to eq('2122 W Taylor St')
         end
       end
 
@@ -207,7 +192,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
         before do
           VCR.use_cassette('mobile/profile/v2/get_address_status_complete', VCR::MATCH_EVERYTHING) do
             VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
-              VCR.use_cassette('mobile/profile/v2/put_address_initial', match_requests_on: %i[method uri headers]) do
+              VCR.use_cassette('mobile/profile/v2/delete_address_initial', VCR::MATCH_EVERYTHING) do
                 delete '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
               end
             end
@@ -216,11 +201,6 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
         it 'returns a 200' do
           expect(response).to have_http_status(:ok)
-        end
-
-        it 'matches the expected address' do
-          parsed_request = JSON.parse(request.body.read)
-          expect(parsed_request["address_line1"]).to eq('2122 W Taylor St')
         end
 
         it 'matches the expected schema' do
@@ -242,7 +222,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
           VCR.use_cassette('mobile/profile/v2/get_address_status_complete', VCR::MATCH_EVERYTHING) do
             VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
-              VCR.use_cassette('mobile/profile/v2/put_address_initial', match_requests_on: %i[method uri headers]) do
+              VCR.use_cassette('mobile/profile/v2/delete_address_initial', VCR::MATCH_EVERYTHING) do
                 delete '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
               end
             end
@@ -251,11 +231,6 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
         it 'returns a gateway timeout error' do
           expect(response).to have_http_status(:gateway_timeout)
-        end
-
-        it 'matches the expected address' do
-          parsed_request = JSON.parse(request.body.read)
-          expect(parsed_request["address_line1"]).to eq('2122 W Taylor St')
         end
       end
 
@@ -268,11 +243,6 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
         it 'returns a 422' do
           expect(response).to have_http_status(:unprocessable_entity)
-        end
-
-        it 'matches the expected address' do
-          parsed_request = JSON.parse(request.body.read)
-          expect(parsed_request["address_line2"]).to eq('c/o foo')
         end
 
         it 'matches the error schema' do
