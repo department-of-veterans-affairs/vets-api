@@ -209,6 +209,7 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
       expect(JSON.parse(response.body)['errors'].first['title']).to eq(
         I18n.t('errors.messages.uploads.document_type_unknown')
       )
+      expect(EvidenceSubmission.count).to eq(0)
     end
 
     it 'normalizes requests with a null tracked_item_id' do
@@ -232,6 +233,7 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         expect(JSON.parse(response.body)['errors'].first['title']).to eq(
           I18n.t('errors.messages.uploads.content_type_mismatch')
         )
+        expect(EvidenceSubmission.count).to eq(0)
       end
     end
 
@@ -243,6 +245,7 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)['errors'].first['title']).to eq('Unprocessable Entity')
+        expect(EvidenceSubmission.count).to eq(0)
       end
     end
 
@@ -254,6 +257,7 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.pdf.locked'))
+        expect(EvidenceSubmission.count).to eq(0)
       end
 
       it 'accepts locked PDFs with the correct password' do
@@ -261,6 +265,7 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:accepted)
         expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
+        expect(EvidenceSubmission.count).to eq(1)
       end
 
       it 'rejects locked PDFs with the incorrect password' do
@@ -271,6 +276,7 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         expect(JSON.parse(response.body)['errors'].first['title']).to eq(
           I18n.t('errors.messages.uploads.pdf.incorrect_password')
         )
+        expect(EvidenceSubmission.count).to eq(0)
       end
     end
 
@@ -287,6 +293,7 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.malformed_pdf'))
+        expect(EvidenceSubmission.count).to eq(0)
       end
     end
 
@@ -300,6 +307,7 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         expect(JSON.parse(response.body)['errors'].first['detail']).to eq(
           I18n.t('errors.messages.min_size_error', min_size: '1 Byte')
         )
+        expect(EvidenceSubmission.count).to eq(0)
       end
     end
 
@@ -316,6 +324,7 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
+        expect(EvidenceSubmission.count).to eq(0)
       end
     end
 
@@ -351,6 +360,7 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
+        expect(EvidenceSubmission.count).to eq(0)
       end
     end
   end
