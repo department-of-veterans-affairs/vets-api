@@ -144,20 +144,42 @@ class FormSubmissionAttempt < ApplicationRecord
   end
 
   def simple_forms_enqueue_result_email(notification_type)
-    raw_form_data = form_submission.form_data || '{}'
-    form_data = JSON.parse(raw_form_data)
+    if SimpleFormsApi::FormUploadNotificationEmail::SUPPORTED_FORMS.include? simple_forms_form_number
+      simple_forms_enqueue_form_upload_result_email(notification_type)
+    else
+      raw_form_data = form_submission.form_data || '{}'
+      form_data = JSON.parse(raw_form_data)
+      config = {
+        form_data:,
+        form_number: simple_forms_form_number,
+        confirmation_number: benefits_intake_uuid,
+        date_submitted: created_at.strftime('%B %d, %Y'),
+        lighthouse_updated_at: lighthouse_updated_at&.strftime('%B %d, %Y')
+      }
+
+      SimpleFormsApi::NotificationEmail.new(
+        config,
+        notification_type:,
+        user_account:
+      ).send(at: time_to_send)
+    end
+  end
+
+  def simple_forms_enqueue_form_upload_result_email(notification_type)
+    parsed_form_data = JSON.parse(form_submission.form_data)
     config = {
-      form_data:,
-      form_number: simple_forms_form_number,
-      confirmation_number: benefits_intake_uuid,
+      form_number: parsed_form_data[:form_number],
+      form_name: parsed_form_data[:form_name],
+      first_name: parsed_form_data.dig(:form_data, :fullName, :first),
+      email: parsed_form_data.dig(:form_data, :email),
       date_submitted: created_at.strftime('%B %d, %Y'),
+      confirmation_number: benefits_intake_uuid,
       lighthouse_updated_at: lighthouse_updated_at&.strftime('%B %d, %Y')
     }
 
     SimpleFormsApi::NotificationEmail.new(
       config,
-      notification_type:,
-      user_account:
+      notification_type:
     ).send(at: time_to_send)
   end
 
@@ -175,7 +197,10 @@ class FormSubmissionAttempt < ApplicationRecord
 
   def simple_forms_form_number
     @simple_forms_form_number ||=
-      if SimpleFormsApi::NotificationEmail::TEMPLATE_IDS.keys.include? form_submission.form_type
+      if [
+        SimpleFormsApi::NotificationEmail::TEMPLATE_IDS.keys +
+        SimpleFormsApi::FormUploadNotificationEmail::SUPPORTED_FORMS
+      ].include? form_submission.form_type
         form_submission.form_type
       else
         SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP[form_submission.form_type]

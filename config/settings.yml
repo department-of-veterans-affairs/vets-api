@@ -1173,6 +1173,9 @@ vanotify:
         form40_0247_confirmation_email: form40_0247_confirmation_email_template_id
         form40_0247_error_email: form40_0247_error_email_template_id
         form40_10007_error_email: form40_10007_error_email_template_id
+        form_upload_confirmation_email: form_upload_confirmation_template_id
+        form_upload_error_email: form_upload_error_template_id
+        form_upload_received_email: form_upload_received_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id
         form5490_confirmation_email: form5490_confirmation_email_template_id
