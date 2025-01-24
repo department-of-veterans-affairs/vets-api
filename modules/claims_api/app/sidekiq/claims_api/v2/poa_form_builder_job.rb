@@ -41,13 +41,11 @@ module ClaimsApi
         else
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, rep_id)
         end
-        process.update!(step_status: 'SUCCESS')
+        process.update!(step_status: 'SUCCESS', error_messages: [])
       rescue VBMS::Unknown
-        rescue_vbms_error(power_of_attorney)
-        process.update!(step_status: 'FAILED')
+        rescue_vbms_error(power_of_attorney, process:)
       rescue Errno::ENOENT
-        rescue_file_not_found(power_of_attorney)
-        process.update!(step_status: 'FAILED')
+        rescue_file_not_found(power_of_attorney, process:)
       end
 
       private
