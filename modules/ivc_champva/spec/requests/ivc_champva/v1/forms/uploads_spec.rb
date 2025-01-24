@@ -252,27 +252,27 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
     context 'when all status codes are 200' do
       it 'returns a status of 200' do
-        expect(controller.send(:build_json, [200, 200], 'Error')).to eq({ json: {}, status: 200 })
+        expect(controller.send(:build_json, [200, 200], [nil, nil])).to eq({ json: {}, status: 200 })
       end
     end
 
     context 'when all status codes are 400' do
       it 'returns a status of 400 and an error message' do
-        expect(controller.send(:build_json, [400, 400], nil)).to eq({ json:
-        { error_message: 'An unknown error occurred while uploading some documents.' }, status: 400 })
+        expect(controller.send(:build_json, [400, 400], %w[Error Error])).to eq({ json:
+        { error_message: %w[Error Error] }, status: 400 })
       end
     end
 
     context 'when status codes include a 400' do
       it 'returns a status of 400' do
-        expect(controller.send(:build_json, [200, 400], nil)).to eq({ json:
-        { error_message: 'An unknown error occurred while uploading some documents.' }, status: 400 })
+        expect(controller.send(:build_json, [200, 400], [nil, 'Error'])).to eq({ json:
+        { error_message: [nil, 'Error'] }, status: 400 })
       end
     end
 
-    context 'when status codes are do not include 200 or 400' do
+    context 'when status codes do not include 200 or 400' do
       it 'returns a status of 500' do
-        expect(controller.send(:build_json, [300, 500], 'Error')).to eq({ json:
+        expect(controller.send(:build_json, [300, 500], ['Multiple Choices', 'Error'])).to eq({ json:
         { error_message: 'An unknown error occurred while uploading document(s).' }, status: 500 })
       end
     end
@@ -293,80 +293,51 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
         let(:metadata) { { 'attachment_ids' => %w[id1 id2] } }
         let(:file_uploader) { instance_double(IvcChampva::FileUploader) }
+        let(:error_response) { [[200, nil], [400, 'Upload failed']] }
 
         before do
+          allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(false)
           allow(controller).to receive(:get_file_paths_and_metadata).and_return([file_paths, metadata])
           allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
         end
 
         context 'when file uploads succeed' do
           before do
-            allow(file_uploader).to receive(:handle_uploads).and_return([[200], nil])
+            allow(file_uploader).to receive(:handle_uploads).and_return([200, nil])
           end
 
           it 'returns success statuses and no error message' do
             statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
             expect(statuses).to eq([200])
-            expect(error_message).to be_nil
-          end
-        end
-
-        context 'when file uploads fail with specific error message' do
-          before do
-            allow(file_uploader).to receive(:handle_uploads).and_return([['No such file or directory @ rb_sysopen'],
-                                                                         'File not found'])
-          end
-
-          it 'retries the file uploads and returns the final statuses and error message' do
-            allow(file_uploader).to receive(:handle_uploads).and_return([[200], nil])
-            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-            expect(statuses).to eq([200])
-            expect(error_message).to be_nil
+            expect(error_message).to eq([])
           end
         end
 
         context 'when file uploads fail with other errors' do
           before do
-            allow(file_uploader).to receive(:handle_uploads).and_return([[400], 'Upload failed'])
+            allow(file_uploader).to receive(:handle_uploads).and_return(error_response)
           end
 
           it 'returns the error statuses and error message' do
             statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-            expect(statuses).to eq([400])
-            expect(error_message).to eq('Upload failed')
+            expect(statuses).to eq([200, 400])
+            expect(error_message).to eq([nil, 'Upload failed'])
           end
         end
 
         context 'when file uploads fail with other errors retry once' do
           subject(:result) { controller.send(:handle_file_uploads, form_id, parsed_form_data) }
 
-          let(:failure_response) { [[400], 'Upload failed'] }
-          let(:expected_statuses) { [400] }
-          let(:expected_error_message) { 'Upload failed' }
+          let(:expected_statuses) { [200, 400] } # All http codes
+          let(:expected_error_message) { [nil, 'Upload failed'] } # All error message strings
 
           before do
             allow(Flipper).to receive(:enabled?).with(:champva_multiple_stamp_retry, @current_user).and_return(true)
-            allow(file_uploader).to receive(:handle_uploads).and_return(failure_response)
+            allow(file_uploader).to receive(:handle_uploads).and_return(error_response)
           end
 
           it 'returns the error statuses and error message' do
             expect(result).to eq([expected_statuses, expected_error_message])
-          end
-        end
-
-        context 'when a document is loaded and is missing' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:champva_multiple_stamp_retry, @current_user).and_return(true)
-            allow(file_uploader).to receive(:handle_uploads).and_return([['No such file '],
-                                                                         'File not found'])
-          end
-
-          it 'retries the file uploads and returns the error message' do
-            allow(file_uploader).to receive(:handle_uploads).and_return([[200], nil])
-
-            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-            expect(statuses).to eq([200])
-            expect(error_message).to be_nil
           end
         end
       end
