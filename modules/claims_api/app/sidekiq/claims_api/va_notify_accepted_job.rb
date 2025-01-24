@@ -8,12 +8,8 @@ module ClaimsApi
       return if skip_notification_email?
 
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
-
-      unless poa
-        raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
-          detail: "Could not find Power of Attorney with id: #{poa_id}"
-        )
-      end
+      process = ClaimsApi::Process.find_or_create_by(processable: poa, step_type: 'CLAIMANT_NOTIFICATION')
+      process.update!(step_status: 'IN_PROGRESS')
 
       if organization_filing?(poa.form_data)
         org = find_org(poa, '2122')
@@ -23,8 +19,10 @@ module ClaimsApi
         poa_code_from_form('2122a', poa)
         res = send_representative_notification(poa, rep)
       end
+      process.update!(step_status: 'SUCCESS')
       schedule_follow_up_check(res.id) if res.present?
     rescue => e
+      process.update!(step_status: 'FAILED')
       handle_failure(poa_id, e)
     end
 
