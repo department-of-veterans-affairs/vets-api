@@ -122,7 +122,7 @@ module SimpleFormsApi
         config = {
           form_number: params[:form_number],
           form_name: params[:form_name],
-          first_name: params.dig(:form_data, :fullName, :first),
+          first_name: params.dig(:form_data, :full_name, :first),
           email: params.dig(:form_data, :email),
           date_submitted: Time.zone.today.strftime('%B %d, %Y'),
           confirmation_number:

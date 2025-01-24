@@ -177,7 +177,7 @@ class FormSubmissionAttempt < ApplicationRecord
       lighthouse_updated_at: lighthouse_updated_at&.strftime('%B %d, %Y')
     }
 
-    SimpleFormsApi::NotificationEmail.new(
+    SimpleFormsApi::FormUploadNotificationEmail.new(
       config,
       notification_type:
     ).send(at: time_to_send)
@@ -197,10 +197,10 @@ class FormSubmissionAttempt < ApplicationRecord
 
   def simple_forms_form_number
     @simple_forms_form_number ||=
-      if [
+      if (
         SimpleFormsApi::NotificationEmail::TEMPLATE_IDS.keys +
         SimpleFormsApi::FormUploadNotificationEmail::SUPPORTED_FORMS
-      ].include? form_submission.form_type
+      ).include? form_submission.form_type
         form_submission.form_type
       else
         SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP[form_submission.form_type]
