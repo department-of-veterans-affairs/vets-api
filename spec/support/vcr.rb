@@ -46,7 +46,7 @@ VCR.configure do |c|
     Settings.lighthouse.benefits_education.client_id
   end
   c.filter_sensitive_data('<VEIS_AUTH_URL>') { Settings.travel_pay.veis.auth_url }
-
+  c.filter_sensitive_data('<VRO_URL>') { Settings.virtual_regional_office.url }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')
