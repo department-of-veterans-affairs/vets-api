@@ -15,6 +15,10 @@ RSpec.describe HealthCareApplication, type: :model do
   let(:zsf_tags) { described_class::DD_ZSF_TAGS }
   let(:form_id) { described_class::FORM_ID }
 
+  before do
+    allow(Flipper).to receive(:enabled?).with(:retry_form_validation).and_return(false)
+  end
+
   describe 'LOCKBOX' do
     it 'can encrypt strings over 4kb' do
       str = 'f' * 6000
@@ -364,29 +368,135 @@ RSpec.describe HealthCareApplication, type: :model do
       end
     end
 
-    context 'schema validation raises an exception' do
-      let(:health_care_application) { build(:health_care_application) }
-      let(:exception) { StandardError.new('Some exception') }
+    context 'retry_form_validation disabled' do
+      context 'schema validation raises an exception' do
+        let(:health_care_application) { build(:health_care_application) }
+        let(:exception) { StandardError.new('Some exception') }
 
+        before do
+          allow(PersonalInformationLog).to receive(:create)
+          allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
+        end
+
+        it 'logs exception and raises exception' do
+          expect(PersonalInformationLog).to receive(:create).with(
+            data: {
+              schema: VetsJsonSchema::SCHEMAS[form_id],
+              parsed_form: health_care_application.parsed_form
+            },
+            error_class: 'HealthCareApplication FormValidationError'
+          )
+          expect(Rails.logger).to receive(:error)
+            .with("[#{form_id}] Error during schema validation!", {
+                    error: exception.message,
+                    schema: VetsJsonSchema::SCHEMAS[form_id]
+                  })
+          expect { health_care_application.valid? }.to raise_error(exception.class, exception.message)
+        end
+      end
+    end
+
+    context 'retry_form_validation enabled' do
       before do
-        allow(PersonalInformationLog).to receive(:create)
-        allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
+        allow(Flipper).to receive(:enabled?).with(:retry_form_validation).and_return(true)
       end
 
-      it 'logs exception and raises exception' do
-        expect(PersonalInformationLog).to receive(:create).with(
-          data: {
-            schema: VetsJsonSchema::SCHEMAS[form_id],
-            parsed_form: health_care_application.parsed_form
-          },
-          error_class: 'HealthCareApplication FormValidationError'
-        )
-        expect(Rails.logger).to receive(:error)
-          .with("[#{form_id}] Error during schema validation!", {
-                  error: exception.message,
-                  schema: VetsJsonSchema::SCHEMAS[form_id]
-                })
-        expect { health_care_application.valid? }.to raise_error(exception.class, exception.message)
+      context 'no validation errors' do
+        before do
+          allow(JSON::Validator).to receive(:fully_validate).and_return([])
+        end
+
+        it 'returns true' do
+          expect(Rails.logger).not_to receive(:info)
+            .with("Form validation in #{described_class} succeeded on attempt 1/3")
+
+          expect(health_care_application.valid?).to be true
+        end
+      end
+
+      context 'validation errors' do
+        let(:health_care_application) { build(:health_care_application) }
+        let(:schema_errors) { [{ fragment: 'error' }] }
+
+        context 'when JSON:Validator.fully_validate returns errors' do
+          before do
+            allow(JSON::Validator).to receive(:fully_validate).and_return(schema_errors)
+          end
+
+          it 'adds validation errors to the form' do
+            expect(Rails.logger).not_to receive(:info)
+              .with("Form validation in #{described_class} succeeded on attempt 1/3")
+
+            health_care_application.valid?
+            expect(health_care_application.errors.full_messages).not_to be_empty
+          end
+        end
+
+        context 'when JSON:Validator.fully_validate throws an exception' do
+          let(:exception_text) { 'Some exception' }
+          let(:exception) { StandardError.new(exception_text) }
+
+          context '3 times' do
+            let(:schema) { 'schema_content' }
+
+            before do
+              allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
+              allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
+            end
+
+            it 'logs exceptions and raises exception' do
+              expect(Rails.logger).to receive(:warn)
+                .with("Retrying form validation in #{described_class} due to error: " \
+                      "#{exception_text} (Attempt 1/3)").once
+              expect(Rails.logger).not_to receive(:info)
+                .with("Form validation in #{described_class} succeeded on attempt 1/3")
+              expect(Rails.logger).to receive(:warn)
+                .with("Retrying form validation in #{described_class} due to error: " \
+                      "#{exception_text} (Attempt 2/3)").once
+              expect(Rails.logger).to receive(:warn)
+                .with("Retrying form validation in #{described_class} due to error: " \
+                      "#{exception_text} (Attempt 3/3)").once
+              expect(Rails.logger).to receive(:error)
+                .with("Error during form validation in #{described_class} after " \
+                      'maximum retries', { error: exception.message,
+                                           backtrace: anything })
+
+              expect(PersonalInformationLog).to receive(:create).with(
+                data: { schema: schema,
+                        parsed_form: health_care_application.parsed_form,
+                        params: { errors_as_objects: true } },
+                error_class: "#{described_class} FormValidationError"
+              )
+
+              expect { health_care_application.valid? }.to raise_error(exception.class, exception.message)
+            end
+          end
+
+          context '1 time but succeeds after retrying' do
+            before do
+              # Throws exception the first time, returns empty array on subsequent calls
+              call_count = 0
+              allow(JSON::Validator).to receive(:fully_validate).and_wrap_original do
+                call_count += 1
+                if call_count == 1
+                  raise exception
+                else
+                  []
+                end
+              end
+            end
+
+            it 'logs exception and validates succesfully after the retry' do
+              expect(Rails.logger).to receive(:warn)
+                .with("Retrying form validation in #{described_class} due to error: " \
+                      "#{exception_text} (Attempt 1/3)").once
+              expect(Rails.logger).to receive(:info)
+                .with("Form validation in #{described_class} succeeded on attempt 2/3").once
+
+              expect(health_care_application.valid?).to be true
+            end
+          end
+        end
       end
     end
   end
