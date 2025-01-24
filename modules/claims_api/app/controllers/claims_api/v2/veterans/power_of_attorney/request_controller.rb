@@ -81,12 +81,12 @@ module ClaimsApi
           service = ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bgs.external_uid,
                                                                external_key: Settings.bgs.external_key)
 
+          ptcpnt_id = fetch_ptcpnt_id(vet_icn)
           if decision == 'declined'
-            ptcpnt_id = fetch_ptcpnt_id(vet_icn)
             poa_request = validate_ptcpnt_id!(ptcpnt_id:, proc_id:, representative_id:, service:)
           end
 
-          first_name = poa_request['claimantFirstName'] || poa_request['vetFirstName'].presence if poa_request
+          first_name = poa_request['claimantFirstName'].presence || poa_request['vetFirstName'] if poa_request
 
           res = service.update_poa_request(proc_id:, secondary_status: decision,
                                            declined_reason: form_attributes['declinedReason'])
@@ -95,9 +95,11 @@ module ClaimsApi
 
           send_declined_notification(ptcpnt_id:, first_name:, representative_id:) if decision == 'declined'
 
+          service = ClaimsApi::PowerOfAttorneyRequestService::Show.new(ptcpnt_id)
+          res = service.get_poa_request
           res['id'] = lighthouse_id
 
-          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :decide,
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :index_or_show,
                                                                                               root: :data),
                  status: :ok
         end

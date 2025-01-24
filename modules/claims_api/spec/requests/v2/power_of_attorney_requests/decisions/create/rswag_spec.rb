@@ -64,22 +64,32 @@ describe 'PowerOfAttorney', metadata do
         schema JSON.load_file(File.expand_path('rswag/200.json', __dir__))
 
         let(:data) { body_schema[:example] }
-        let(:request_response) do
-          ClaimsApi::PowerOfAttorneyRequest.new(
-            id: '348fa995-5b29-4819-91af-13f1bb3c7d77',
-            proc_id: '3858322',
-            veteran_icn: '1012667169V030190',
-            claimant_icn: '',
-            poa_code: '067',
-            metadata: {},
-            power_of_attorney_id: nil
-          )
+        let(:poa_request_service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Show) }
+        let(:get_poa_request_response) do
+          {
+            'VSOUserEmail' => nil, 'VSOUserFirstName' => 'vets-api',
+            'VSOUserLastName' => 'vets-api', 'changeAddressAuth' => 'Y',
+            'claimantCity' => 'Portland', 'claimantCountry' => 'USA',
+            'claimantMilitaryPO' => nil, 'claimantMilitaryPostalCode' => nil,
+            'claimantState' => 'OR', 'claimantZip' => '56789',
+            'dateRequestActioned' => '2025-01-09T10:19:26-06:00',
+            'dateRequestReceived' => '2024-10-30T08:22:07-05:00',
+            'declinedReason' => nil, 'healthInfoAuth' => 'Y', 'poaCode' => '074',
+            'procID' => '3857362', 'secondaryStatus' => 'Accepted',
+            'vetFirstName' => 'ANDREA', 'vetLastName' => 'MITCHELL',
+            'vetMiddleName' => 'L', 'vetPtcpntID' => '600049322'
+          }
         end
 
         before do |example|
-          allow(ClaimsApi::PowerOfAttorneyRequest).to(
-            receive(:find_by).and_return(request_response)
-          )
+          create(:claims_api_power_of_attorney_request, id:,
+                                                        proc_id: '3857362',
+                                                        veteran_icn: '1012829932V238054',
+                                                        poa_code: '003')
+          allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController).to receive(:fetch_ptcpnt_id)
+            .with(anything).and_return('600049322')
+          allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(poa_request_service)
+          allow(poa_request_service).to receive(:get_poa_request).and_return(get_poa_request_response)
 
           mock_ccg(scopes) do
             VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do

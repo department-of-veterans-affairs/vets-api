@@ -110,57 +110,147 @@
                 "example": {
                   "data": {
                     "id": "348fa995-5b29-4819-91af-13f1bb3c7d77",
-                    "type": "power-of-attorney-request-decision",
+                    "type": "power-of-attorney-request",
                     "attributes": {
-                      "vsoUserEmail": null,
-                      "vsoUserFirstName": "vets-api",
-                      "vsoUserLastName": "vets-api",
-                      "dateRequestActioned": "2024-10-15T17:40:36-05:00",
+                      "veteran": {
+                        "firstName": "ANDREA",
+                        "lastName": "MITCHELL",
+                        "middleName": "L"
+                      },
+                      "claimant": {
+                        "city": "Portland",
+                        "country": "USA",
+                        "militaryPo": null,
+                        "militaryPostalCode": null,
+                        "state": "OR",
+                        "zip": "56789"
+                      },
+                      "representative": {
+                        "poaCode": "074",
+                        "vsoUserEmail": null,
+                        "vsoUserFirstName": "vets-api",
+                        "vsoUserLastName": "vets-api"
+                      },
+                      "receivedDate": "2024-10-30T08:22:07-05:00",
+                      "actionedDate": "2025-01-09T10:19:26-06:00",
+                      "status": "Accepted",
                       "declinedReason": null,
-                      "procId": "76529",
-                      "secondaryStatus": "ACC"
+                      "consentAddressChange": true,
+                      "recordConsent": true
                     }
                   }
                 },
                 "schema": {
                   "type": "object",
+                  "required": [
+                    "data"
+                  ],
                   "properties": {
                     "data": {
                       "type": "object",
+                      "required": [
+                        "type",
+                        "attributes"
+                      ],
                       "properties": {
                         "id": {
-                          "type": "string"
+                          "type": "string",
+                          "format": "uuid"
                         },
                         "type": {
-                          "type": "string"
+                          "type": "string",
+                          "enum": [
+                            "power-of-attorney-request"
+                          ]
                         },
                         "attributes": {
                           "type": "object",
+                          "required": [
+                            "veteran",
+                            "claimant",
+                            "representative"
+                          ],
                           "properties": {
-                            "VSOUserEmail": {
-                              "type": "string"
+                            "veteran": {
+                              "type": "object",
+                              "properties": {
+                                "firstName": {
+                                  "type": "string"
+                                },
+                                "lastName": {
+                                  "type": "string"
+                                },
+                                "middleName": {
+                                  "type": "string"
+                                }
+                              }
                             },
-                            "VSOUserFirstName": {
-                              "type": "string"
+                            "claimant": {
+                              "type": "object",
+                              "properties": {
+                                "city": {
+                                  "type": "string"
+                                },
+                                "country": {
+                                  "type": "string"
+                                },
+                                "militaryPo": {
+                                  "type": "string"
+                                },
+                                "militaryPostalCode": {
+                                  "type": "string"
+                                },
+                                "state": {
+                                  "type": "string"
+                                },
+                                "zip": {
+                                  "type": "string"
+                                }
+                              }
                             },
-                            "VSOUserLastName": {
-                              "type": "string"
+                            "representative": {
+                              "type": "object",
+                              "properties": {
+                                "poaCode": {
+                                  "type": "string"
+                                },
+                                "vsoUserEmail": {
+                                  "type": "string"
+                                },
+                                "vsoUserFirstName": {
+                                  "type": "string"
+                                },
+                                "vsoUserLastName": {
+                                  "type": "string"
+                                }
+                              }
                             },
-                            "dateRequestActioned": {
+                            "receivedDate": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "actionedDate": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "status": {
                               "type": "string"
                             },
                             "declinedReason": {
                               "type": "string"
                             },
-                            "procId": {
-                              "type": "string"
-                            },
-                            "secondaryStatus": {
-                              "type": "string",
+                            "consentAddressChange": {
+                              "type": "boolean",
                               "enum": [
-                                "ACC",
-                                "DEC",
-                                "OBS"
+                                true,
+                                false
+                              ]
+                            },
+                            "recordConsent": {
+                              "type": "boolean",
+                              "enum": [
+                                true,
+                                false
                               ]
                             }
                           }
