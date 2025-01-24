@@ -14,7 +14,7 @@ module FormValidation
       end
       errors_array
     rescue => e
-      handle_validate_form_with_retries_exception(e, attempts, max_attempts, schema)
+      handle_validate_form_with_retries_exception(e, attempts, max_attempts, schema, parsed_form)
 
       retry if attempts <= max_attempts
     end
@@ -22,14 +22,19 @@ module FormValidation
 
   private
 
-  def handle_validate_form_with_retries_exception(e, attempts, max_attempts, schema)
+  def handle_validate_form_with_retries_exception(e, attempts, max_attempts, schema, parsed_form)
     if attempts <= max_attempts
       Rails.logger.warn(
         "Retrying form validation in #{self.class} due to error: #{e.message} (Attempt #{attempts}/#{max_attempts})"
       )
       sleep(1) # Delay 1 second between retries
     else
-      PersonalInformationLog.create(data: { schema:, parsed_form:, params: { errors_as_objects: true } },
+      PersonalInformationLog.create(data: {
+                                      schema:, parsed_form:,
+                                      params: {
+                                        errors_as_objects: true
+                                      }
+                                    },
                                     error_class: "#{self.class} FormValidationError")
       Rails.logger.error(
         "Error during form validation in #{self.class} after maximum retries", { error: e.message,
