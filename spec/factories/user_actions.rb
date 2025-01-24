@@ -2,8 +2,8 @@
 
 FactoryBot.define do
   factory :user_action do
-    sequence(:acting_ip_address) { |n| "192.168.1.#{n}" }
-    sequence(:acting_user_agent) { |n| "Mozilla/5.0 (Test Browser #{n})" }
+    acting_ip_address { Faker::Internet.ip_v4_address }
+    acting_user_agent { Faker::Internet.user_agent }
     status { 'initial' }
     association :acting_user_account, factory: :user_account
     association :subject_user_account, factory: :user_account
