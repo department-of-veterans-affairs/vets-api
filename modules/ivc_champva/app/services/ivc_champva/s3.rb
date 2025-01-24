@@ -18,8 +18,8 @@ module IvcChampva
 
         begin
           response = client.put_object(
-            bucket: bucket,
-            key: key,
+            bucket:,
+            key:,
             body: File.read(file),
             metadata: metadata
           )
