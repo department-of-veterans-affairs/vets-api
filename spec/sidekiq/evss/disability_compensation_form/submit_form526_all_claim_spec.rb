@@ -50,7 +50,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     let(:cassettes) do
       [open_claims_cassette, caseflow_cassette, rated_disabilities_cassette,
        submit_form_cassette, lh_upload, evss_get_pdf,
-       lh_intake_upload, lh_submission] # TODO: Remove which?
+       lh_intake_upload, lh_submission]
     end
     let(:backup_klass) { Sidekiq::Form526BackupSubmissionProcess::Submit }
 
@@ -227,7 +227,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           subject.perform_async(submission.id)
 
           expect do
-            VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do # TODO: Remove?
+            VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
               described_class.drain
               submission.reload
 
