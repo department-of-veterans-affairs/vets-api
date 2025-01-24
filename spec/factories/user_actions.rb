@@ -5,12 +5,14 @@ FactoryBot.define do
     acting_ip_address { Faker::Internet.ip_v4_address }
     acting_user_agent { Faker::Internet.user_agent }
     status { 'initial' }
-    association :acting_user_account, factory: :user_account
-    association :subject_user_account, factory: :user_account
+    association :acting_user_verification, factory: :user_verification
+    association :subject_user_verification, factory: :user_verification
     association :user_action_event
 
-    trait :with_verification do
-      association :subject_user_verification, factory: :user_verification
+    trait :system_initiated do
+      acting_user_verification { nil }
+      acting_ip_address { nil }
+      acting_user_agent { nil }
     end
 
     trait :success_status do
