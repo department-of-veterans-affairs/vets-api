@@ -30,7 +30,8 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         post('/v0/evss_claims/189625/documents', params:)
       end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
       expect(response).to have_http_status(:accepted)
-      expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
+      expect(JSON.parse(response.body)['job_id'])
+        .to eq(EVSS::DocumentUpload.jobs.first['jid'])
       expect(EvidenceSubmission.count).to eq(0)
     end
 
@@ -48,7 +49,8 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
       post('/v0/evss_claims/189625/documents', params:)
       args = EVSS::DocumentUpload.jobs.first['args'][2]
       expect(response).to have_http_status(:accepted)
-      expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
+      expect(JSON.parse(response.body)['job_id'])
+        .to eq(EVSS::DocumentUpload.jobs.first['jid'])
       expect(args.key?('tracked_item_id')).to be(true)
       expect(args['tracked_item_id']).to be_nil
       expect(EvidenceSubmission.count).to eq(0)
@@ -118,7 +120,8 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         params = { file: tempfile, tracked_item_id:, document_type: }
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.malformed_pdf'))
+        expect(JSON.parse(response.body)['errors'].first['title'])
+          .to eq(I18n.t('errors.messages.uploads.malformed_pdf'))
       end
     end
 
@@ -147,7 +150,8 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         params = { file: tempfile, tracked_item_id:, document_type: }
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
+        expect(JSON.parse(response.body)['errors'].first['title'])
+          .to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
       end
     end
 
@@ -182,7 +186,8 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         params = { file: tempfile, tracked_item_id:, document_type: }
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
+        expect(JSON.parse(response.body)['errors'].first['title'])
+          .to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
       end
     end
   end
@@ -245,7 +250,8 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         params = { file:, tracked_item_id:, document_type: }
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['errors'].first['title']).to eq('Unprocessable Entity')
+        expect(JSON.parse(response.body)['errors'].first['title'])
+          .to eq('Unprocessable Entity')
         expect(EvidenceSubmission.count).to eq(0)
       end
     end
@@ -257,7 +263,8 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         params = { file: locked_file, tracked_item_id:, document_type: }
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.pdf.locked'))
+        expect(JSON.parse(response.body)['errors'].first['title'])
+          .to eq(I18n.t('errors.messages.uploads.pdf.locked'))
         expect(EvidenceSubmission.count).to eq(0)
       end
 
@@ -265,7 +272,8 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         params = { file: locked_file, tracked_item_id:, document_type:, password: 'test' }
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:accepted)
-        expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
+        expect(JSON.parse(response.body)['job_id'])
+          .to eq(EVSS::DocumentUpload.jobs.first['jid'])
         expect(EvidenceSubmission.count).to eq(1)
       end
 
@@ -293,7 +301,8 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         params = { file: tempfile, tracked_item_id:, document_type: }
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.malformed_pdf'))
+        expect(JSON.parse(response.body)['errors'].first['title'])
+          .to eq(I18n.t('errors.messages.uploads.malformed_pdf'))
         expect(EvidenceSubmission.count).to eq(0)
       end
     end
@@ -324,7 +333,8 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         params = { file: tempfile, tracked_item_id:, document_type: }
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
+        expect(JSON.parse(response.body)['errors'].first['title'])
+          .to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
         expect(EvidenceSubmission.count).to eq(0)
       end
     end
@@ -341,7 +351,8 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         params = { file: tempfile, tracked_item_id:, document_type: }
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:accepted)
-        expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
+        expect(JSON.parse(response.body)['job_id'])
+          .to eq(EVSS::DocumentUpload.jobs.first['jid'])
         expect(EvidenceSubmission.count).to eq(1)
       end
     end
@@ -360,7 +371,8 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
         params = { file: tempfile, tracked_item_id:, document_type: }
         post('/v0/evss_claims/189625/documents', params:)
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
+        expect(JSON.parse(response.body)['errors'].first['title'])
+          .to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
         expect(EvidenceSubmission.count).to eq(0)
       end
     end
