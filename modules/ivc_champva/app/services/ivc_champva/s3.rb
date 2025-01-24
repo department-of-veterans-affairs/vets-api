@@ -23,10 +23,15 @@ module IvcChampva
             body: File.read(file),
             metadata: metadata
           )
-
-          handle_put_object_response(response, key, file)
+          result = { success: true }
         rescue => e
-          handle_put_object_error(e)
+          result = { success: false, error_message: "S3 PutObject failure for #{file}: #{e.message}" }
+        end
+
+        if Flipper.enabled?(:champva_log_all_s3_uploads, @current_user)
+          response ? handle_put_object_response(response, key, file) : handle_put_object_error(e)
+        else
+          result
         end
       end
     end
