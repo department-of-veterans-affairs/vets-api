@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../support/shared_examples_for_base_form'
 
-RSpec.describe SimpleFormsApi::VBA21P0847 do
+RSpec.describe SimpleFormsApi::VBA21p0847 do
   it_behaves_like 'zip_code_is_us_based', %w[preparer_address]
 
   describe '#notification_first_name' do
