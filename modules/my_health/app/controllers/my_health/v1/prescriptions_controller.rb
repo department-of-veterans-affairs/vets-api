@@ -38,8 +38,7 @@ module MyHealth
       def show
         id = params[:id].try(:to_i)
         resource = if Flipper.enabled?(:mhv_medications_display_grouping)
-                     # TODO: remove remove_pf_pd when PF and PD are allowed on va.gov
-                     get_single_rx_from_grouped_list(remove_pf_pd(collection_resource.data), id)
+                     get_single_rx_from_grouped_list(collection_resource.data, id)
                    else
                      client.get_rx_details(id)
                    end
