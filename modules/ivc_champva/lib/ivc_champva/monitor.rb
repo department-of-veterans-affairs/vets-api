@@ -123,6 +123,8 @@ module IvcChampva
       }
       track_request('error', 'IVC ChampVA Forms - S3 UploadFile failure',
                     "#{STATS_KEY}.s3_upload.failure", # Consistent stats key
+                    call_location: caller_locations.first, **additional_context)
+    end
 
     ##
     # Logs UUID and S3 error message when supporting docs fail to reach S3.
