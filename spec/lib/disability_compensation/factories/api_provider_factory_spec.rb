@@ -231,10 +231,10 @@ RSpec.describe ApiProviderFactory do
     end
 
     it 'provides generate_pdf provider based on Flipper' do
-      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
+      allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF).and_return(true)
       expect(provider.class).to equal(LighthouseGeneratePdfProvider)
 
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
+      allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF).and_return(false)
       expect(provider.class).to equal(EvssGeneratePdfProvider)
     end
 
