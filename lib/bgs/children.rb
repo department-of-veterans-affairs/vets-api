@@ -11,11 +11,13 @@ module BGS
       @proc_id = proc_id
       @views = payload['view:selectable686_options']
       @dependents_application = payload['dependents_application']
+      @is_v2 = Flipper.enabled?(:va_dependents_v2)
     end
 
     def create_all
       report_children if @views['add_child']
       report_stepchildren if @views['report_stepchild_not_in_household']
+
       report_child_event('child_marriage') if @views['report_marriage_of_child_under18']
       report_child_event('not_attending_school') if @views['report_child18_or_older_is_not_attending_school']
 
@@ -88,7 +90,10 @@ module BGS
     end
 
     def report_child_event(event_type)
-      child_event = child_event_type(event_type)
+      child_event_type(event_type)
+    end
+
+    def generate_child_event(child_event)
       formatted_info = child_event.format_info
       participant = bgs_service.create_participant(@proc_id)
 
@@ -119,11 +124,23 @@ module BGS
     end
 
     def child_event_type(event_type)
-      if event_type == 'child_marriage'
-        return BGSDependents::ChildMarriage.new(@dependents_application['child_marriage'])
-      end
-
-      BGSDependents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school'])
+        if event_type == 'child_marriage'
+          if @is_v2
+            @dependents_application['child_marriage'].each do |child_marriage_details|
+              generate_child_event(BGSDependents::ChildMarriage.new(child_marriage_details))
+            end
+          else
+            generate_child_event(BGSDependents::ChildMarriage.new(@dependents_application['child_marriage']))
+          end
+        elsif event_type == 'not_attending_school'
+          if @is_v2
+            @dependents_application['child_stopped_attending_school'].each do |child_stopped_attending_school_details|
+              generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(child_stopped_attending_school_details))
+            end
+          else
+            generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school']))
+          end
+        end
     end
 
     def step_child_parent(child_info)
