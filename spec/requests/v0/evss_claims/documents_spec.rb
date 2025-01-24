@@ -217,7 +217,8 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
       post('/v0/evss_claims/189625/documents', params:)
       args = EVSS::DocumentUpload.jobs.first['args'][2]
       expect(response).to have_http_status(:accepted)
-      expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
+      expect(JSON.parse(response.body)['job_id'])
+        .to eq(EVSS::DocumentUpload.jobs.first['jid'])
       expect(args.key?('tracked_item_id')).to be(true)
       expect(args['tracked_item_id']).to be_nil
       expect(EvidenceSubmission.count).to eq(1)
