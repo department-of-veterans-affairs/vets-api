@@ -69,7 +69,7 @@ features:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
   caregiver_use_facilities_API:
-    actor_type: user
+    actor_type: cookie_id
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
   caregiver_browser_monitoring_enabled:
     actor_type: user
@@ -126,9 +126,6 @@ features:
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
-  hca_log_email_diff_in_progress_form:
-    actor_type: user
-    description: Enable using database instead of redis to log email differences between va_profile and in progress forms.
   hca_retrieve_facilities_without_repopulating:
     actor_type: user
     description: Constrain facilities endpoint to only return existing facilities values - even if the table is empty, do not rerun the Job to populate it.
@@ -180,6 +177,9 @@ features:
   champva_vanotify_custom_callback:
     actor_type: user
     description: Enables the custom callback_klass when sending IVC CHAMPVA failure emails with VA Notify
+  champva_vanotify_custom_confirmation_callback:
+    actor_type: user
+    description: Enables the custom callback_klass when sending IVC CHAMPVA confirmation emails with VA Notify
   champva_multiple_stamp_retry:
     actor_type: user
     description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
@@ -195,6 +195,9 @@ features:
   champva_pdf_decrypt:
     actor_type: user
     description: Enables unlocking password protected file submissions in IVC CHAMPVA forms.
+  champva_require_all_s3_success:
+    actor_type: user
+    description: Enables raising a StandardError if any supporting documents fail to upload to S3 in IVC CHAMPVA forms.
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -315,18 +318,6 @@ features:
     actor_type: user
     description: When enabled, the Download Decision Letters feature includes Subsequent Development Letters
     enable_in_development: true
-  cst_use_lighthouse_5103:
-    actor_type: user
-    description: When enabled, claims status tool uses the Lighthouse API for the 5103 endpoint
-    enable_in_development: true
-  cst_use_lighthouse_index:
-    actor_type: user
-    description: When enabled, claims status tool uses the Lighthouse API for the index endpoint
-    enable_in_development: true
-  cst_use_lighthouse_show:
-    actor_type: user
-    description: When enabled, claims status tool uses the Lighthouse API for the show endpoint
-    enable_in_development: true
   cst_send_evidence_failure_emails:
     actor_type: user
     description: When enabled, emails will be sent when evidence uploads from the CST fail
@@ -354,33 +345,6 @@ features:
   communication_preferences:
     actor_type: user
     description: Allow user to access backend communication_preferences API
-  covid_vaccine_registration:
-    actor_type: user
-    description: Toggles availability of covid vaccine form API.
-  covid_vaccine_registration_expanded:
-    actor_type: user
-    description: Toggles availability of covid vaccine expanded registration form API.
-    enable_in_development: true
-  covid_vaccine_registration_frontend:
-    actor_type: user
-    description: Toggles the availability of the frontend form on va.gov for the covid-19 vaccine sign-up
-  covid_vaccine_registration_frontend_cta:
-    actor_type: user
-    description: >
-      Toggles the availability of the call-to-action prompt (cta) on "va.gov/health-care/covid-19-vaccine/"
-      leading to the frontend form on va.gov for the covid-19 vaccine sign-up
-  covid_vaccine_registration_frontend_enable_expanded_eligibility:
-    actor_type: user
-    description: Toggles the 'continue' button to launch the new expanded eligibility VAFS app
-  covid_vaccine_registration_frontend_hide_auth:
-    actor_type: user
-    description: >
-      Toggles the availability of the sign-in button on the covid-19 vaccine sign-up form on va.gov.
-      Note: When this is enabled, the 'Sign in' button will be hidden
-  covid_vaccine_scheduling_frontend:
-    actor_type: user
-    description: Toggles the availability of covid-19 vaccine scheduling links in the facility locator frontend
-    enable_in_development: true
   claims_claim_uploader_use_bd:
     actor_type: user
     description: Use BDS instead of EVSS to upload to VBMS.
@@ -419,6 +383,9 @@ features:
   debts_copay_logging:
     actor_type: user
     description: Logs copay request data
+  debts_silent_failure_mailer:
+    actor_type: user
+    description: Enables silent failure mailer for the 5655
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
@@ -548,9 +515,6 @@ features:
     actor_type: user
     description: enables adding applicable flashes to disability_526 prior to submission.
     enable_in_development: true
-  disability_526_new_confirmation_page:
-    actor_type: user
-    description: enables new confirmation page for form 526 submission confirmation page
   disability_526_call_received_email_from_polling:
     actor_type: user
     description: enables received email in poll_form526_pdf job and disables calling from form526_submission
@@ -611,6 +575,10 @@ features:
   dispute_debt:
     actor_type: user
     description: Enables the Dispute Debt feature
+    enable_in_development: true
+  facilities_autosuggest_vamc_services_enabled:
+    actor_type: user
+    description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
     enable_in_development: true
   facilities_ppms_suppress_all:
     actor_type: user
@@ -1033,6 +1001,14 @@ features:
   mhv_secure_messaging_recipient_combobox:
     actor_type: user
     description: Disables/Enables Secure Messaging combobox in recipient dropdown on Start a new message page
+  mhv_secure_messaging_remove_landing_page:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Messages landing page and its components from view on VA.gov
+    enable_in_development: true
+  mhv_secure_messaging_signature_settings:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Signature Settings in the VA Personal Information Settings
+    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
@@ -1144,6 +1120,9 @@ features:
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
+  pension_submitted_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Submission in Progress email notification
   pension_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
@@ -1434,6 +1413,9 @@ features:
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
+  va_notify_metadata_statsd_tags:
+    actor_type: user
+    description: Allow statsd tags in callback metadata to be a hash or array
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
@@ -1523,10 +1505,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for routing eligibility requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
-  va_online_scheduling_enable_OH_requests:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for routing new appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
   va_online_scheduling_enable_OH_slots_search:
     actor_type: user
     enable_in_development: true
@@ -1559,6 +1537,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
+  va_online_scheduling_appointment_type_consolidation:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to enable appointment type consolidation logic.
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled
@@ -1567,10 +1549,6 @@ features:
     actor_type: user
     description: When enabled, the VAProfile::V3::ContactInformation will be enabled
     enable_in_development: true
-  validate_saved_claims_with_json_schemer:
-    actor_type: user
-    description: When enabled, Saved Claims will be validated using the JSON Schemer gem rather than JSON Schema
-    enable_in_development: false
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -1801,10 +1779,6 @@ features:
   sc_confirmation_update:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
-    enable_in_development: true
-  hlr_updateed_contnet:
-    actor_type: user
-    description: HLR show form content updates
     enable_in_development: true
   sc_new_form:
     actor_type: user

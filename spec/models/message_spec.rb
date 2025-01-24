@@ -6,7 +6,7 @@ RSpec.describe Message do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 
-    let(:params) { attributes_for :message }
+    let(:params) { attributes_for(:message) }
     let(:other) { described_class.new(attributes_for(:message, sent_date: Time.current)) }
 
     it 'populates attributes' do

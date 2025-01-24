@@ -123,7 +123,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     # add the two arrays together but also account for nil arrays
     supporting_documents = [child_documents, spouse_documents].compact.reduce([], :|)
     if supporting_documents.present?
-      files = PersistentAttachment.where(guid: supporting_documents.map { |doc| doc['confirmation_code'] })
+      files = PersistentAttachment.where(guid: supporting_documents.pluck('confirmation_code'))
       files.find_each { |f| f.update(saved_claim_id: id) }
     end
   end
@@ -155,7 +155,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   # this failure email is not the ideal way to handle the Notification Emails as
   # part of the ZSF work, but with the initial timeline it handles the email as intended.
   # Future work will be integrating into the Va Notify common lib:
-  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/va_notify/notification_email.rb
+  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
 
   def send_failure_email(email) # rubocop:disable Metrics/MethodLength
     # if the claim is both a 686c and a 674, send a combination email.

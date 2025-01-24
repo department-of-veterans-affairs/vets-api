@@ -4,6 +4,15 @@ module V0
   class DependentsApplicationsController < ApplicationController
     service_tag 'dependent-change'
 
+    def show
+      dependents = dependent_service.get_dependents
+      dependents[:diaries] = dependency_verification_service.read_diaries
+      render json: DependentsSerializer.new(dependents)
+    rescue => e
+      log_exception_to_sentry(e)
+      raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
+    end
+
     def create
       if Flipper.enabled?(:va_dependents_v2)
         form = dependent_params.to_json
@@ -25,15 +34,6 @@ module V0
       # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
 
       render json: SavedClaimSerializer.new(claim)
-    end
-
-    def show
-      dependents = dependent_service.get_dependents
-      dependents[:diaries] = dependency_verification_service.read_diaries
-      render json: DependentsSerializer.new(dependents)
-    rescue => e
-      log_exception_to_sentry(e)
-      raise Common::Exceptions::BackendServiceException.new(nil, detail: e.message)
     end
 
     def disability_rating

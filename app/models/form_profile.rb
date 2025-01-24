@@ -428,7 +428,7 @@ class FormProfile
     when Hash
       clean_hash!(value)
     when Array
-      value.map { |v| clean!(v) }.delete_if(&:blank?)
+      value.map { |v| clean!(v) }.compact_blank!
     else
       value
     end
@@ -437,6 +437,6 @@ class FormProfile
   def clean_hash!(hash)
     hash.deep_transform_keys! { |k| k.to_s.camelize(:lower) }
     hash.each { |k, v| hash[k] = clean!(v) }
-    hash.delete_if { |_k, v| v.blank? }
+    hash.compact_blank!
   end
 end

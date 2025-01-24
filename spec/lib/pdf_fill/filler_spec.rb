@@ -104,14 +104,14 @@ describe PdfFill::Filler, type: :model do
 
                 expect(
                   FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
-                ).to eq(true)
+                ).to be(true)
 
                 File.delete(extras_path)
               end
 
               expect(
                 pdfs_fields_match?(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
-              ).to eq(true)
+              ).to be(true)
 
               File.delete(file_path)
             end

@@ -2,7 +2,6 @@
 
 require 'central_mail/service'
 require 'pdf_utilities/datestamp_pdf'
-require 'pension_burial/tag_sentry'
 require 'burials/monitor'
 require 'burials/notification_email'
 require 'pcpg/monitor'
@@ -156,7 +155,8 @@ module Lighthouse
       details = {
         claim_id: @claim&.id,
         benefits_intake_uuid: @lighthouse_service&.uuid,
-        confirmation_number: @claim&.confirmation_number
+        confirmation_number: @claim&.confirmation_number,
+        form_id: @claim&.form_id
       }
       details['error'] = e.message if e
       details
