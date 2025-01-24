@@ -292,10 +292,10 @@ module Organizations
     end
 
     def log_to_slack(message)
-      # client = SlackNotify::Client.new(webhook_url: WE_NEED_A_WEBHOOK_URL),
-      #                                  channel: '#benefits-representation-management-notifications',
-      #                                  username: 'Organizations::Update Bot')
-      # client.notify(message)
+      client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
+                                       channel: '#benefits-representation-management-notifications',
+                                       username: 'Organizations::Update Bot')
+      client.notify(message)
     end
   end
 end
