@@ -32,18 +32,14 @@ module Representatives
     # If the address validation fails or an error occurs during the update, the error is logged and the process
     # is halted for the current representative.
     # @param rep_data [Hash] The representative data including id and address.
-    def process_rep_data(rep_data) # rubocop:disable Metrics/MethodLength
+    def process_rep_data(rep_data)
       return unless record_can_be_updated?(rep_data)
 
       address_validation_api_response = nil
 
       if rep_data['address_changed']
 
-        api_response = if Flipper.enabled?(:va_v3_contact_information_service)
-                         get_best_address_candidate(rep_data)
-                       else
-                         get_best_address_candidate(rep_data['address'])
-                       end
+        api_response = get_best_address_candidate(rep_data['address'])
 
         # don't update the record if there is not a valid address with non-zero lat and long at this point
         if api_response.nil?
@@ -76,7 +72,7 @@ module Representatives
     def build_validation_address(address)
       if Flipper.enabled?(:va_v3_contact_information_service)
         validation_model = VAProfile::Models::V3::ValidationAddress
-        state_code = address['state']['state_code']
+        state_code = address['state_province']['code']
         city = address['city_name']
       else
         validation_model = VAProfile::Models::ValidationAddress
