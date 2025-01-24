@@ -3,6 +3,7 @@
 require 'json'
 
 module SimpleFormsApi
+  # rubocop:disable Metrics/ClassLength
   class VBA4010007 < BaseForm
     STATS_KEY = 'api.simple_forms_api.40_10007'
 
@@ -485,4 +486,5 @@ module SimpleFormsApi
       attachments
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

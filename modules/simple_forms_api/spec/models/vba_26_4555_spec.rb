@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'SimpleFormsApi::VBA264555' do
+RSpec.describe SimpleFormsApi::VBA264555 do
   describe 'veteran name' do
     it 'limits the length to 30 characters' do
       name = 'Wolfeschlegelsteinhausenbergerdorffwelchevoralternwarengewissenhaftschaferswessenschafe
