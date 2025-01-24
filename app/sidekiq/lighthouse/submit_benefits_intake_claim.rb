@@ -2,7 +2,6 @@
 
 require 'central_mail/service'
 require 'pdf_utilities/datestamp_pdf'
-require 'pension_burial/tag_sentry'
 require 'burials/monitor'
 require 'burials/notification_email'
 require 'pcpg/monitor'
