@@ -119,16 +119,26 @@ RSpec.describe Form526StatusPollingJob, type: :job do
       end
 
       describe 'updating the form 526s local submission state' do
-        it 'updates local state to reflect the returned statuses' do
-          pending_claim_ids = Form526Submission.pending_backup
-                                               .pluck(:backup_submitted_claim_id)
-          response = double
+        let(:pending_claim_ids) {Form526Submission.pending_backup
+                                                  .pluck(:backup_submitted_claim_id)}
+        let(:response) {double}
 
+        before do
           allow(response).to receive(:body).and_return(api_response)
           allow_any_instance_of(BenefitsIntakeService::Service)
             .to receive(:get_bulk_status_of_uploads)
-            .with(pending_claim_ids)
-            .and_return(response)
+                  .with(pending_claim_ids)
+                  .and_return(response)
+
+          allow(Flipper).to receive(:enabled?).and_call_original
+        end
+
+        it 'updates local state to reflect the returned statuses' do
+          # if a backup submission hits paranoid_success!, it should send the received email to the Veteran
+          allow(Flipper).to receive(:enabled?)
+                              .with(:disability_526_send_received_email_from_backup_path)
+                              .and_return(true)
+          expect(Form526ConfirmationEmailJob).to receive(:perform_async).once
 
           Form526StatusPollingJob.new.perform
 
@@ -136,6 +146,18 @@ RSpec.describe Form526StatusPollingJob, type: :job do
           expect(backup_submission_b.reload.backup_submitted_claim_status).to eq 'paranoid_success'
           expect(backup_submission_c.reload.backup_submitted_claim_status).to eq 'rejected'
           expect(backup_submission_d.reload.backup_submitted_claim_status).to eq 'rejected'
+        end
+
+        # this test will be removed when the Flipper flag is gone.
+        it 'does not send the received email when paranoid_success status if not enabled' do
+          allow(Flipper).to receive(:enabled?)
+                              .with(:disability_526_send_received_email_from_backup_path)
+                              .and_return(false)
+          expect(Form526ConfirmationEmailJob).to_not receive(:perform_async)
+
+          Form526StatusPollingJob.new.perform
+
+          expect(backup_submission_b.reload.backup_submitted_claim_status).to eq 'paranoid_success'
         end
       end
 
