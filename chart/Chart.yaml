@@ -113,7 +113,8 @@ type: application
 # 0.15.9  - Fix issue with ImageMagick initContainers command
 # 0.15.10  - Fix issue with ImageMagick initContainers command bin/rails
 # 0.15.11  - Reformat initContainers command and args
-version: 0.15.11
+# 0.15.12  - Discard ImageMagick k8s changes
+version: 0.15.12
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
