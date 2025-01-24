@@ -39,6 +39,16 @@ module SimpleFormsApi
       }
     end
 
+    def notification_first_name
+      applicant_relationship = @data.dig('application', 'applicant', 'applicant_relationship_to_claimant')
+
+      if applicant_relationship == 'Self'
+        @data.dig('application', 'claimant', 'name', 'first')
+      else
+        @data.dig('application', 'applicant', 'name', 'first')
+      end
+    end
+
     def zip_code_is_us_based
       # TODO: Implement this
       true

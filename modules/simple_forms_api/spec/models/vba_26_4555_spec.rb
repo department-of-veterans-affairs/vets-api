@@ -49,4 +49,21 @@ RSpec.describe 'SimpleFormsApi::VBA264555' do
       expect(form.as_payload[:veteran][:ssn]).to eq stripped_ssn
     end
   end
+
+  describe '#notification_first_name' do
+    let(:data) do
+      {
+        'veteran' => {
+          'full_name' => {
+            'first' => 'Veteran',
+            'last' => 'Eteranvay'
+          }
+        }
+      }
+    end
+
+    it 'returns the first name to be used in notifications' do
+      expect(described_class.new(data).notification_first_name).to eq 'Veteran'
+    end
+  end
 end
