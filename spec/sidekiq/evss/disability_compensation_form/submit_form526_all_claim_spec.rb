@@ -50,7 +50,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     let(:cassettes) do
       [open_claims_cassette, caseflow_cassette, rated_disabilities_cassette,
        submit_form_cassette, lh_upload, evss_get_pdf,
-       lh_intake_upload, lh_submission]
+       lh_intake_upload, lh_submission] # TODO: Remove which?
     end
     let(:backup_klass) { Sidekiq::Form526BackupSubmissionProcess::Submit }
 
@@ -235,132 +235,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               expect(final_code).to eq(9012)
             end
           end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
-        end
-
-        context 'when veteran has open claims' do
-          let(:open_claims_cassette) { 'evss/claims/claims' }
-
-          before do
-            allow(Rails.logger).to receive(:info)
-            Timecop.freeze('2018-09-28T13:00:00ZZ')
-          end
-
-          after { Timecop.return }
-
-          it 'logs the expected data for EP 400 merge eligibility' do # TODO: Remove?
-            subject.perform_async(submission.id)
-            VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-              described_class.drain
-            end
-            expect(Rails.logger).to have_received(:info).with('EP Merge total open EPs', id: submission.id,
-                                                                                         count: 1)
-            expect(Rails.logger).to have_received(:info).with(
-              'EP Merge open EP eligibility',
-              { id: submission.id, feature_enabled: true, open_claim_review: false,
-                pending_ep_age: 365, pending_ep_status: 'UNDER REVIEW' }
-            )
-          end
-
-          context 'when the claim is not fully classified' do
-            it 'does not log EP 400 merge eligibility' do
-              subject.perform_async(submission.id)
-              VCR.use_cassette('virtual_regional_office/multi_contention_classification') do
-                described_class.drain
-              end
-              expect(Rails.logger).not_to have_received(:info).with(
-                'EP Merge total open EPs', id: submission.id, count: 1
-              )
-              expect(Rails.logger).not_to have_received(:info).with(
-                'EP Merge open EP eligibility',
-                { id: submission.id, feature_enabled: true, open_claim_review: false,
-                  pending_ep_age: 365, pending_ep_status: 'UNDER REVIEW' }
-              )
-            end
-          end
-
-          context 'when using LH Benefits Claims API instead of EVSS' do
-            before do
-              Flipper.enable(:disability_compensation_lighthouse_claims_service_provider)
-              allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
-                .and_return('access_token')
-            end
-
-            after { Flipper.disable(:disability_compensation_lighthouse_claims_service_provider) }
-
-            let(:open_claims_cassette) do
-              'lighthouse/benefits_claims/index/claims_with_single_open_disability_claim'
-            end
-
-            it 'logs the expected data for EP 400 merge eligibility' do # TODO: Remove?
-              subject.perform_async(submission.id)
-              VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-                described_class.drain
-              end
-              expect(Rails.logger).to have_received(:info).with('EP Merge total open EPs', id: submission.id,
-                                                                                           count: 1)
-              expect(Rails.logger).to have_received(:info).with(
-                'EP Merge open EP eligibility',
-                { id: submission.id, feature_enabled: true, open_claim_review: false,
-                  pending_ep_age: 365, pending_ep_status: 'INITIAL_REVIEW' }
-              )
-            end
-
-            context 'when the claim is not fully classified' do
-              it 'does not log EP 400 merge eligibility' do
-                subject.perform_async(submission.id)
-                VCR.use_cassette('virtual_regional_office/multi_contention_classification') do
-                  described_class.drain
-                end
-                expect(Rails.logger).not_to have_received(:info).with(
-                  'EP Merge total open EPs', id: submission.id, count: 1
-                )
-                expect(Rails.logger).not_to have_received(:info).with(
-                  'EP Merge open EP eligibility',
-                  { id: submission.id, feature_enabled: true, open_claim_review: false,
-                    pending_ep_age: 365, pending_ep_status: 'INITIAL_REVIEW' }
-                )
-              end
-            end
-          end
-
-          context 'when pending claim has lifecycle status not considered open for EP400 merge' do # TODO: Remove?
-            let(:open_claims_cassette) { 'evss/claims/claims_pending_decision_approval' }
-
-            it 'does not save any claim ID for EP400 merge' do # TODO: Remove?
-              subject.perform_async(submission.id)
-              VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-                described_class.drain
-              end
-              submission.reload
-              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
-            end
-          end
-
-          context 'when an EP 030 or 040 is included in the list of open claims' do # TODO: Remove?
-            let(:open_claims_cassette) { 'evss/claims/claims_with_open_040' }
-
-            it 'does not save any claim ID for EP400 merge' do
-              subject.perform_async(submission.id)
-              VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-                described_class.drain
-              end
-              submission.reload
-              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
-            end
-          end
-
-          context 'when Caseflow appeals status API returns an open claim review' do # TODO: Remove?
-            let(:caseflow_cassette) { 'caseflow/appeals_with_hlr_only' }
-
-            it 'does not save any claim ID for EP400 merge' do
-              subject.perform_async(submission.id)
-              VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-                described_class.drain
-              end
-              submission.reload
-              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
-            end
-          end
         end
       end
     end

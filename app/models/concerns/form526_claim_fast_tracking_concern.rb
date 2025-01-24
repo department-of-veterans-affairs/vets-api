@@ -11,12 +11,9 @@ module Form526ClaimFastTrackingConcern
 
   RRD_STATSD_KEY_PREFIX = 'worker.rapid_ready_for_decision'
   MAX_CFI_STATSD_KEY_PREFIX = 'api.max_cfi'
-  EP_MERGE_STATSD_KEY_PREFIX = 'worker.ep_merge' # TODO: Remove?
   FLASHES_STATSD_KEY = 'worker.flashes'
 
   FLASH_PROTOTYPES = ['Amyotrophic Lateral Sclerosis'].freeze
-  EP_MERGE_BASE_CODES = %w[010 110 020].freeze # TODO: Remove?
-  EP_MERGE_SPECIAL_ISSUE = 'EMP' # TODO: Remove?
   OPEN_STATUSES = [
     'CLAIM RECEIVED',
     'UNDER REVIEW',
@@ -25,8 +22,6 @@ module Form526ClaimFastTrackingConcern
     'CLAIM_RECEIVED',
     'INITIAL_REVIEW'
   ].freeze
-  CLAIM_REVIEW_BASE_CODES = %w[030 040].freeze
-  CLAIM_REVIEW_TYPES = %w[higherLevelReview supplementalClaim].freeze
 
   def claim_age_in_days(pending_ep)
     date = if pending_ep.respond_to?(:claim_date)
@@ -55,6 +50,7 @@ module Form526ClaimFastTrackingConcern
     self
   end
 
+  # TODO: Remove? This is unused.
   def rrd_status
     return 'processed' if rrd_claim_processed?
 
@@ -87,7 +83,8 @@ module Form526ClaimFastTrackingConcern
   DOCUMENT_NAME_PREFIX = 'VAMC'
   DOCUMENT_NAME_SUFFIX = 'Rapid_Decision_Evidence'
   PDF_FILENAME_REGEX = /#{DOCUMENT_NAME_PREFIX}.*#{DOCUMENT_NAME_SUFFIX}/
-  RRD_CODE = 'RRD'
+  RRD_CODE = 'RRD' # TODO: Remove?
+  # TODO: RRD_CODE was renamed to EMP elsewhere See PR: https://github.com/department-of-veterans-affairs/vets-api/pull/15858/files
 
   # @return if an RRD pdf has been included as a file to upload
   def rrd_pdf_added_for_uploading?
@@ -119,6 +116,13 @@ module Form526ClaimFastTrackingConcern
   end
 
   def prepare_for_evss!
+    begin
+      update_contention_classification_all!
+    rescue => e
+      Rails.logger.error("Contention Classification failed #{e.message}.")
+      Rails.logger.error(e.backtrace.join('\n'))
+    end
+
     return if pending_eps? || disabilities_not_service_connected?
 
     save_metadata(forward_to_mas_all_claims: true)
@@ -276,30 +280,6 @@ module Form526ClaimFastTrackingConcern
       all_claims = api_provider.all_claims
       all_claims['open_claims']
     end
-  end
-
-  # Check both Benefits Claim service and Caseflow Appeals status APIs for open 030 or 040
-  # Offramps EP 400 Merge process if any are found, or if anything fails
-  def open_claim_review?
-    open_claim_review = open_claims.any? do |claim|
-      CLAIM_REVIEW_BASE_CODES.include?(claim['base_end_product_code']) && OPEN_STATUSES.include?(claim['status'])
-    end
-    if open_claim_review
-      StatsD.increment("#{EP_MERGE_STATSD_KEY_PREFIX}.open_claim_review") # TODO: Remove?
-      return true
-    end
-
-    ssn = User.find(user_uuid)&.ssn
-    ssn ||= auth_headers['va_eauth_pnid'] if auth_headers['va_eauth_pnidtype'] == 'SSN'
-    decision_reviews = Caseflow::Service.new.get_appeals(OpenStruct.new({ ssn: })).body['data']
-    StatsD.increment("#{EP_MERGE_STATSD_KEY_PREFIX}.caseflow_api_called") # TODO: Remove?
-    decision_reviews.any? do |review|
-      CLAIM_REVIEW_TYPES.include?(review['type']) && review['attributes']['active']
-    end
-  rescue => e
-    Rails.logger.error('EP Merge failed open claim review check', backtrace: e.backtrace)
-    Rails.logger.error(e.backtrace.join('\n'))
-    true
   end
 
   # fetch, memoize, and return all of the veteran's rated disabilities from EVSS
