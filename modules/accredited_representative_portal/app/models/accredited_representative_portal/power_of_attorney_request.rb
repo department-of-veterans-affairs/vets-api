@@ -45,6 +45,9 @@ module AccreditedRepresentativePortal
       resolution.present?
     end
 
+    scope :unresolved, -> { where.missing(:resolution) }
+    scope :resolved, -> { joins(:resolution) }
+
     private
 
     def set_claimant_type
