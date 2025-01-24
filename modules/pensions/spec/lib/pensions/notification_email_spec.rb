@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'pensions/notification_callback'
 require 'pensions/notification_email'
 
 RSpec.describe Pensions::NotificationEmail do
@@ -21,7 +22,7 @@ RSpec.describe Pensions::NotificationEmail do
           'first_name' => claim.first_name.titleize
         },
         Settings.vanotify.services['21p_527ez'].api_key,
-        { callback_klass: VeteranFacingServices::NotificationCallback::SavedClaim.to_s,
+        { callback_klass: Pensions::NotificationCallback.to_s,
           callback_metadata: anything }
       ]
       expect(VANotify::EmailJob).to receive(:perform_async).with(*args)
