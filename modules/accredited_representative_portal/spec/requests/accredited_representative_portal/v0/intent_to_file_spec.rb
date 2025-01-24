@@ -14,7 +14,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
 
   describe 'GET /accredited_representative_portal/v0/intent_to_file' do
     context 'feature flag is off' do
-      it 'returns not found' do
+      it 'returns forbidden' do
         Flipper.disable(:accredited_representative_portal_intent_to_file_api)
         get('/accredited_representative_portal/v0/intent_to_file/123498767V234859')
         expect(response).to have_http_status(:forbidden)
@@ -62,6 +62,17 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
             expect(JSON.parse(response.body).dig('data', 'id')).to eq '193685'
             expect(JSON.parse(response.body).dig('data', 'attributes', 'status')).to eq 'active'
           end
+        end
+      end
+    end
+
+    context 'rep does not have POA for veteran' do
+      let(:test_user) { create(:representative_user, email: 'notallowed@example.com') }
+
+      it 'returns 403' do
+        VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney/200_response') do
+          post('/accredited_representative_portal/v0/intent_to_file/?id=123498767V234859&type=compensation')
+          expect(response).to have_http_status(:forbidden)
         end
       end
     end
