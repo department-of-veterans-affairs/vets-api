@@ -83,8 +83,7 @@ module Form526ClaimFastTrackingConcern
   DOCUMENT_NAME_PREFIX = 'VAMC'
   DOCUMENT_NAME_SUFFIX = 'Rapid_Decision_Evidence'
   PDF_FILENAME_REGEX = /#{DOCUMENT_NAME_PREFIX}.*#{DOCUMENT_NAME_SUFFIX}/
-  RRD_CODE = 'RRD' # TODO: Remove?
-  # TODO: RRD_CODE was renamed to EMP elsewhere See PR: https://github.com/department-of-veterans-affairs/vets-api/pull/15858/files
+  RRD_CODE = 'RRD'
 
   # @return if an RRD pdf has been included as a file to upload
   def rrd_pdf_added_for_uploading?
