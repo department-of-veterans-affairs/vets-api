@@ -6,7 +6,7 @@ module VANotify
   class CallbacksController < VANotify::ApplicationController
     include ActionController::HttpAuthentication::Token::ControllerMethods
 
-    CUSTOM_BEARER_TOKENS = Settings.vanotify.status_callback
+    SERVICE_CALLBACK_TOKENS = Settings.vanotify.service_callback_tokens
 
     service_tag 'va-notify'
 
