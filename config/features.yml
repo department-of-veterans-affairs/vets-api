@@ -1996,4 +1996,5 @@ features:
     description: If enabled, allows for the use of Datadog logging for the chatbot
   show_about_yellow_ribbon_program:
     actor_type: user
-    description: If enabled, show additional info about the yellow ribbon program  
+    description: If enabled, show additional info about the yellow ribbon program
+    
