@@ -8,12 +8,19 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
 
   before do
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
-    Flipper.enable(:accredited_representative_portal_pilot)
     login_as(test_user)
     travel_to(time)
   end
 
   describe 'GET /accredited_representative_portal/v0/intent_to_file' do
+    context 'feature flag is off' do
+      it 'returns not found' do
+        Flipper.disable(:accredited_representative_portal_intent_to_file_api)
+        get('/accredited_representative_portal/v0/intent_to_file/123498767V234859')
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'bad or missing filing type' do
       it 'returns the appropriate error message' do
         get('/accredited_representative_portal/v0/intent_to_file/123498767V234859')

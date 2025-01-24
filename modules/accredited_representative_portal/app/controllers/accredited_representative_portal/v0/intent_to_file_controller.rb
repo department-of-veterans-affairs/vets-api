@@ -5,6 +5,7 @@ module AccreditedRepresentativePortal
     class IntentToFileController < ApplicationController
       INTENT_TO_FILE_TYPES = %w[compensation pension survivor].freeze
 
+      before_action :check_feature_toggle
       before_action :validate_file_type, only: %i[show create]
       before_action :validate_poa_code, only: %i[show create]
 
@@ -31,6 +32,15 @@ module AccreditedRepresentativePortal
       end
 
       private
+
+      def check_feature_toggle
+        unless Flipper.enabled?(:accredited_representative_portal_intent_to_file_api, @current_user)
+          message = 'The accredited_representative_portal_intent_to_file_api feature flag is disabled ' \
+                    "for the user with uuid: #{@current_user.uuid}"
+
+          raise Common::Exceptions::Forbidden, detail: message
+        end
+      end
 
       def validate_poa_code
         authorize params[:id], policy_class: IntentToFilePolicy
