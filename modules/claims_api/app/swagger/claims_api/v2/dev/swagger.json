@@ -9795,6 +9795,24 @@
                         "email": "test@test.com",
                         "insuranceNumber": "1234567890"
                       },
+                      "claimant": {
+                        "claimantId": null,
+                        "address": {
+                          "addressLine1": null,
+                          "addressLine2": null,
+                          "city": null,
+                          "stateCode": null,
+                          "country": null,
+                          "zipCode": null,
+                          "zipCodeSuffix": null
+                        },
+                        "phone": {
+                          "areaCode": null,
+                          "phoneNumber": null
+                        },
+                        "email": null,
+                        "relationship": null
+                      },
                       "poa": {
                         "poaCode": "067",
                         "registrationNumber": "999999999999",
