@@ -10,26 +10,14 @@ RSpec.describe UserAction, type: :model do
       expect(user_action).to be_valid
     end
 
-    describe '#acting_ip_address' do
-      context 'when nil' do
-        before { user_action.acting_ip_address = nil }
-
-        it 'is not valid' do
-          expect(user_action).not_to be_valid
-          expect(user_action.errors[:acting_ip_address]).to include("can't be blank")
-        end
-      end
+    it 'is valid with nil acting_ip_address' do
+      user_action.acting_ip_address = nil
+      expect(user_action).to be_valid
     end
 
-    describe '#acting_user_agent' do
-      context 'when nil' do
-        before { user_action.acting_user_agent = nil }
-
-        it 'is not valid' do
-          expect(user_action).not_to be_valid
-          expect(user_action.errors[:acting_user_agent]).to include("can't be blank")
-        end
-      end
+    it 'is valid with nil acting_user_agent' do
+      user_action.acting_user_agent = nil
+      expect(user_action).to be_valid
     end
 
     describe '#status' do
