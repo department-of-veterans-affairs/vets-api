@@ -1508,10 +1508,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for routing eligibility requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
-  va_online_scheduling_enable_OH_requests:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for routing new appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
   va_online_scheduling_enable_OH_slots_search:
     actor_type: user
     enable_in_development: true
@@ -1544,6 +1540,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
+  va_online_scheduling_appointment_type_consolidation:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to enable appointment type consolidation logic.
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled
