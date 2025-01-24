@@ -13,11 +13,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
   # This needs to be modernized (using allow)
   before do
     Sidekiq::Job.clear_all
-    Flipper.disable(:validate_saved_claims_with_json_schemer)
-    Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
-    Flipper.disable(:disability_compensation_production_tester)
-    Flipper.disable(:disability_compensation_fail_submission)
     allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
+                                              instance_of(OpenStruct)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE,
+                                              instance_of(OpenStruct)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_fail_submission,
+                                              instance_of(OpenStruct)).and_return(false)
   end
 
   let(:user) { create(:user, :loa3) }
@@ -55,8 +58,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
     before do
       cassettes.each { |cassette| VCR.insert_cassette(cassette) }
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
+      allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND,
+                                                instance_of(OpenStruct)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND,
+                                                instance_of(OpenStruct)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:disability_526_migrate_contention_classification,
                                                 anything).and_return(false)
     end
@@ -281,12 +286,16 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
           context 'when using LH Benefits Claims API instead of EVSS' do
             before do
-              Flipper.enable(:disability_compensation_lighthouse_claims_service_provider)
+              allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE,
+                                                        instance_of(OpenStruct)).and_return(true)
               allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
                 .and_return('access_token')
             end
 
-            after { Flipper.disable(:disability_compensation_lighthouse_claims_service_provider) }
+            after do
+              allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE,
+                                                        instance_of(OpenStruct)).and_return(false)
+            end
 
             let(:open_claims_cassette) do
               'lighthouse/benefits_claims/index/claims_with_single_open_disability_claim'
@@ -326,10 +335,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
           context 'when EP400 merge API call is enabled' do
             before do
-              Flipper.enable(:disability_526_ep_merge_api, user)
-              allow(Flipper).to receive(:enabled?).and_call_original
-              allow(Flipper).to receive(:enabled?).with(:disability_526_migrate_contention_classification,
-                                                        anything).and_return(false)
+              allow(Flipper).to receive(:enabled?).with(:disability_526_ep_merge_api,
+                                                        instance_of(OpenStruct)).and_return(true)
             end
 
             it 'records the eligible claim ID and adds the EP400 special issue to the submission' do
@@ -397,7 +404,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           end
 
           context 'when EP400 merge API call is disabled' do
-            before { Flipper.disable(:disability_526_ep_merge_api) }
+            before do
+              allow(Flipper).to receive(:enabled?).with(:disability_526_ep_merge_api,
+                                                        instance_of(OpenStruct)).and_return(false)
+            end
 
             it 'does not record any eligible claim ID or add an EP400 special issue to the submission' do
               subject.perform_async(submission.id)
@@ -425,9 +435,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       context 'when the migration endpoint is not enabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(
-            :disability_compensation_migrate_contention_classification, anything
+            :disability_526_migrate_contention_classification, instance_of(OpenStruct)
           ).and_return(true)
-          allow(Flipper).to receive(:enabled?).and_call_original
           allow(Rails.logger).to receive(:info)
         end
 
