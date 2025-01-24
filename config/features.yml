@@ -1001,6 +1001,10 @@ features:
   mhv_secure_messaging_recipient_combobox:
     actor_type: user
     description: Disables/Enables Secure Messaging combobox in recipient dropdown on Start a new message page
+  mhv_secure_messaging_remove_landing_page:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Messages landing page and its components from view on VA.gov
+    enable_in_development: true
   mhv_secure_messaging_signature_settings:
     actor_type: user
     description: Disables/Enables Secure Messaging Signature Settings in the VA Personal Information Settings
@@ -1501,10 +1505,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for routing eligibility requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
-  va_online_scheduling_enable_OH_requests:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for routing new appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
   va_online_scheduling_enable_OH_slots_search:
     actor_type: user
     enable_in_development: true
