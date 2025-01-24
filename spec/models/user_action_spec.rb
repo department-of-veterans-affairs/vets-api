@@ -20,6 +20,11 @@ RSpec.describe UserAction, type: :model do
       expect(user_action).to be_valid
     end
 
+    it 'is valid without acting_user_verification' do
+      user_action.acting_user_verification = nil
+      expect(user_action).to be_valid
+    end
+
     describe '#status' do
       context 'when nil' do
         before { user_action.status = nil }
@@ -49,10 +54,9 @@ RSpec.describe UserAction, type: :model do
   end
 
   describe 'associations' do
-    it { is_expected.to belong_to(:acting_user_account).class_name('UserAccount') }
-    it { is_expected.to belong_to(:subject_user_account).class_name('UserAccount') }
+    it { is_expected.to belong_to(:acting_user_verification).class_name('UserVerification').optional }
+    it { is_expected.to belong_to(:subject_user_verification).class_name('UserVerification') }
     it { is_expected.to belong_to(:user_action_event) }
-    it { is_expected.to belong_to(:subject_user_verification).class_name('UserVerification').optional }
   end
 
   describe 'enum status' do
