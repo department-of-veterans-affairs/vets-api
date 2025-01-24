@@ -216,7 +216,7 @@ http_interactions:
                           {
                               "closedDate": null,
                               "description": "Please complete and return the enclosed VA Form 21-4142, Authorization to Disclose Information, so that we can obtain the authorization to request treatment records from your private medical sources listed on the received VA Form 21-4142a, General Release for Medical Provider Information.\n",
-                              "displayName": "Request 1",
+                              "displayName": "PMR Pending",
                               "overdue": false,
                               "receivedDate": null,
                               "requestedDate": "2023-03-16",

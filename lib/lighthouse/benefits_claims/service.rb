@@ -25,11 +25,6 @@ module BenefitsClaims
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
       claims['data'] = filter_by_status(claims['data'])
-      # https://github.com/department-of-veterans-affairs/va.gov-team/issues/98364
-      # This should be removed when the items are removed by BGS
-      if Flipper.enabled?(:cst_suppress_evidence_requests)
-        claims['data'].each { |claim| suppress_evidence_requests(claim) }
-      end
       # Manual status override for PMR Pending items
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
       # This should be removed when the items are re-categorized by BGS
