@@ -52,21 +52,25 @@ describe IvcChampva::S3 do
       end
 
       it 'logs the error message' do
-        expect(Rails.logger).to receive(:error).with("S3 PutObject failure for #{file_path}: Status code: 500, Body: Internal Server Error")
+        expect(Rails.logger).to receive(:error).with(
+          "S3 PutObject failure for #{file_path}: Status code: 500, Body: Internal Server Error"
+        )
         s3_instance.put_object(key, file_path)
       end
     end
 
     context 'when upload raises an exception' do
       before do
-        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_raise(Aws::S3::Errors::ServiceError.new(nil,
-                                                                                                                   'Service Unavailable'))
+        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_raise(
+          Aws::S3::Errors::ServiceError.new(nil, 'Service Unavailable')
+        )
       end
 
       it 'returns failure response with exception message' do
         expect(s3_instance.put_object(key,
                                       file_path)).to eq({ success: false,
-                                                          error_message: 'S3 PutObject unexpected error: Service Unavailable' })
+                                                          error_message: 'S3 PutObject unexpected error: Service
+                                                           Unavailable' })
       end
 
       it 'logs the exception message' do
