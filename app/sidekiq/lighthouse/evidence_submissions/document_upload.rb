@@ -82,7 +82,7 @@ module Lighthouse
       def self.call_failure_notification(msg)
         icn = msg['args'].first
 
-        Lighthouse::FailureNotification.perform_async(icn, personalisation: create_personalisation(msg))
+        Lighthouse::FailureNotification.perform_async(icn, create_personalisation(msg))
 
         ::Rails.logger.info("#{name} exhaustion handler email queued")
         StatsD.increment('silent_failure_avoided_no_confirmation',
@@ -114,11 +114,12 @@ module Lighthouse
         first_name = msg['args'][1]['first_name'].titleize unless msg['args'][1]['first_name'].nil?
         document_type = msg['args'][1]['document_type']
         # Obscure the file name here since this will be used to generate a failed email
-        file_name = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][1]['file_name'])
+        # NOTE: the template that we use for va_notify.send_email uses `filename` but we can also pass in `file_name`
+        filename = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][1]['file_name'])
         date_submitted = format_issue_instant_for_mailers(msg['created_at'])
         date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 
-        { first_name:, document_type:, file_name:, date_submitted:, date_failed: }
+        { first_name:, document_type:, filename:, date_submitted:, date_failed: }
       end
 
       private
