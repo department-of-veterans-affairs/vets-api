@@ -81,5 +81,20 @@ RSpec.describe IvcChampva::Monitor do
         monitor.track_failed_send_zsf_notification_to_pega(payload[:form_uuid], 'fake-template')
       end
     end
+
+    describe '#track_s3_upload_file_error' do
+      it 'logs sidekiq success' do
+        payload = {
+          key: 'test_form.pdf',
+          file_path: 'test_form.pdf'
+        }
+
+        expect(monitor).to receive(:track_s3_upload_file_error).with(
+          payload[:key],
+          payload[:file_path]
+        )
+        monitor.track_s3_upload_file_error(payload[:key], payload[:file_path])
+      end
+    end
   end
 end
