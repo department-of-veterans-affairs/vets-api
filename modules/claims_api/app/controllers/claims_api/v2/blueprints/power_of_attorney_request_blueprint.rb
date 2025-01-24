@@ -38,8 +38,8 @@ module ClaimsApi
               actioned_date: request['dateRequestActioned'],
               status: request['secondaryStatus'],
               declined_reason: request['declinedReason'],
-              change_address_authorization: request['changeAddressAuth'],
-              health_info_authorization: request['healthInfoAuth']
+              consent_address_change: request['changeAddressAuth'] == 'Y',
+              record_consent: request['healthInfoAuth'] == 'Y'
             }
           end
 

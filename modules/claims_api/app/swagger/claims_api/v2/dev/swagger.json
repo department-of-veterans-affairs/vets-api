@@ -10681,8 +10681,8 @@
                         "actionedDate": "2024-05-25T13:45:00-05:00",
                         "status": "New",
                         "declinedReason": null,
-                        "changeAddressAuthorization": "Y",
-                        "healthInfoAuthorization": "Y"
+                        "consentAddressChange": true,
+                        "recordConsent": true
                       }
                     },
                     {
@@ -10712,8 +10712,8 @@
                         "actionedDate": "2013-01-14T08:50:17-06:00",
                         "status": "New",
                         "declinedReason": null,
-                        "changeAddressAuthorization": "Y",
-                        "healthInfoAuthorization": "Y"
+                        "consentAddressChange": true,
+                        "recordConsent": true
                       }
                     },
                     {
@@ -10743,8 +10743,8 @@
                         "actionedDate": "2013-01-14T08:51:25-06:00",
                         "status": "New",
                         "declinedReason": null,
-                        "changeAddressAuthorization": "Y",
-                        "healthInfoAuthorization": "Y"
+                        "consentAddressChange": true,
+                        "recordConsent": true
                       }
                     }
                   ]
@@ -10850,18 +10850,18 @@
                               "declinedReason": {
                                 "type": "string"
                               },
-                              "changeAddressAuthorization": {
-                                "type": "string",
+                              "consentAddressChange": {
+                                "type": "boolean",
                                 "enum": [
-                                  "Y",
-                                  "N"
+                                  true,
+                                  false
                                 ]
                               },
-                              "healthInfoAuthorization": {
-                                "type": "string",
+                              "recordConsent": {
+                                "type": "boolean",
                                 "enum": [
-                                  "Y",
-                                  "N"
+                                  true,
+                                  false
                                 ]
                               }
                             }
@@ -11152,8 +11152,8 @@
                       "actionedDate": "2025-01-09T10:19:26-06:00",
                       "status": "Accepted",
                       "declinedReason": null,
-                      "changeAddressAuthorization": "Y",
-                      "healthInfoAuthorization": "Y"
+                      "consentAddressChange": true,
+                      "recordConsent": true
                     }
                   }
                 },
@@ -11256,18 +11256,18 @@
                             "declinedReason": {
                               "type": "string"
                             },
-                            "changeAddressAuthorization": {
-                              "type": "string",
+                            "consentAddressChange": {
+                              "type": "boolean",
                               "enum": [
-                                "Y",
-                                "N"
+                                true,
+                                false
                               ]
                             },
-                            "healthInfoAuthorization": {
-                              "type": "string",
+                            "recordConsent": {
+                              "type": "boolean",
                               "enum": [
-                                "Y",
-                                "N"
+                                true,
+                                false
                               ]
                             }
                           }
