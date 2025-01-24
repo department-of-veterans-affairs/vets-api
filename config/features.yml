@@ -132,6 +132,9 @@ features:
   hca_zero_silent_failures:
     actor_type: user
     description: Pass callback metadata to vanotify sidekiq job
+  retry_form_validation:
+    actor_type: user
+    description: Enables concern to retry schema validation for 10-10EZ and 10-10CG
   cg1010_oauth_2_enabled:
     actor_type: user
     description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
