@@ -100,6 +100,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     true
   end
 
+  def multiple_674?
+    submittable_674? && parsed_form['dependents_application'].dig('student_information')&.size.to_i > 1
+  end
+
   def address_exists
     if parsed_form.dig('dependents_application', 'veteran_contact_information', 'veteran_address').blank?
       errors.add(:parsed_form, "Veteran address can't be blank")
