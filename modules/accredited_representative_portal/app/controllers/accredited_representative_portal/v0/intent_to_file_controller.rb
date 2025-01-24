@@ -12,7 +12,7 @@ module AccreditedRepresentativePortal
         parsed_response = service.get_intent_to_file(params[:type])
 
         if parsed_response['errors']&.first.try(:[], 'title') == 'Resource not found'
-          raise NotFound.new(error: parsed_response['errors']&.first['detail'])
+          raise NotFound.new(error: parsed_response['errors']&.first&.[]('detail'))
         else
           render json: parsed_response, status: :ok
         end
@@ -22,7 +22,7 @@ module AccreditedRepresentativePortal
         parsed_response = service.create_intent_to_file(params[:type], params[:claimant_ssn])
 
         if parsed_response['errors'].present?
-          raise ActionController::BadRequest.new(error: parsed_response['errors']&.first['detail'])
+          raise ActionController::BadRequest.new(error: parsed_response['errors']&.first&.[]('detail'))
         else
           render json: parsed_response, status: :created
         end

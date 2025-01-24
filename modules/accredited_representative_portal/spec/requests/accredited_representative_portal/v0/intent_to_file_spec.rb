@@ -3,7 +3,6 @@
 require_relative '../../../rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type: :request do
-  # let(:poa_response) { { data: { attributes: { code: '067' } } }.to_json }
   let(:test_user) { create(:representative_user, email: 'j2@example.com') }
   let(:time) { '2024-12-21T04:45:37.458Z' }
 
@@ -65,7 +64,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
         VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney/200_response') do
           VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_422_response') do
             post('/accredited_representative_portal/v0/intent_to_file/?id=123498767V234859&type=compensation')
-            expect(response).to have_http_status(422)
+            expect(response).to have_http_status(:unprocessable_entity)
           end
         end
       end
@@ -76,7 +75,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
         VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney/200_response') do
           VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_503_response') do
             post('/accredited_representative_portal/v0/intent_to_file/?id=123498767V234859&type=compensation')
-            expect(response).to have_http_status(503)
+            expect(response).to have_http_status(:service_unavailable)
           end
         end
       end
