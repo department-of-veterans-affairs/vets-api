@@ -120,18 +120,20 @@ module IvcChampva
       else
         def handle_file_uploads(form_id, parsed_form_data)
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
-          statuses = Array(statuses)
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
+          statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 
           # Retry attempt if specific error message is found
-          if statuses.any? do |status|
-            status.is_a?(String) && status.include?('No such file or directory @ rb_sysopen')
+          if error_messages.any? do |message|
+            message.is_a?(String) && message.include?('No such file or directory @ rb_sysopen')
           end
             file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-            statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+            hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+            statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
           end
 
-          [statuses, error_message]
+          [statuses, error_messages]
         end
       end
 
