@@ -59,27 +59,38 @@ describe ClaimsApi::VnpPtcpntAddrsService, metadata do
       options[:zip_prefix_nbr] = '06605'
       options[:zip_second_suffix_nbr] = nil
 
-      use_bgs_cassette('happy_path') do
+      VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_addrs_service/vnp_ptcpnt_addrs_create') do
         response = subject.vnp_ptcpnt_addrs_create(options)
         expect(response).to include(
-          { vnp_ptcpnt_addrs_id: '143950',
-            efctv_dt: '2020-07-16T18:20:18Z',
-            vnp_ptcpnt_id: '182057',
-            vnp_proc_id: '3854596',
-            addrs_one_txt: '76 Crowther Ave',
-            city_nm: 'Bridgeport',
-            email_addrs_txt: 'testy@test.com',
-            jrn_dt: '2020-07-16T18:20:17Z',
+          { vnp_ptcpnt_addrs_id: '144757',
+            efctv_dt: '2024-05-13T18:58:48Z',
+            vnp_ptcpnt_id: '182766',
+            vnp_proc_id: '3855183',
+            addrs_one_txt: '2719 Hyperion Ave',
+            city_nm: 'Los Angeles',
+            jrn_dt: '2024-05-13T18:58:48Z',
             jrn_lctn_id: '281',
             jrn_obj_id: 'VAgovAPI',
             jrn_status_type_cd: 'U',
             jrn_user_id: 'VAgovAPI',
-            postal_cd: 'CT',
-            prvnc_nm: 'CT',
+            postal_cd: 'CA',
             ptcpnt_addrs_type_nm: 'Mailing',
             shared_addrs_ind: 'N',
-            zip_prefix_nbr: '06605' }
+            zip_prefix_nbr: '92264' }
         )
+      end
+    end
+
+    it 'responds appropriately with invalid options' do
+      options[:vnp_ptcpnt_addrs_id] = nil
+      options[:vnp_proc_id] = 'not-an-id'
+      options[:vnp_ptcpnt_id] = 'not-an-id'
+      options[:efctv_dt] = '2020-07-16T18:20:18Z'
+      options[:addrs_one_txt] = '76-Crowther%Ave'
+      VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_addrs_service/invalid_vnp_ptcpnt_addrs_create') do
+        subject.vnp_ptcpnt_addrs_create(options)
+      rescue => e
+        expect(e).to be_a(Common::Exceptions::UnprocessableEntity)
       end
     end
   end
