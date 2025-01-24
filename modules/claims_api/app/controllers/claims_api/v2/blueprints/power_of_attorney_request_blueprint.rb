@@ -96,7 +96,6 @@ module ClaimsApi
                 relationship: request.dig('claimant', 'relationship')
               },
               poa: {
-                description: request.dig('poa', 'description'),
                 poa_code: request.dig('poa', 'poaCode'),
                 registration_number: request.dig('poa', 'registrationNumber'),
                 job_title: request.dig('poa', 'jobTitle')
