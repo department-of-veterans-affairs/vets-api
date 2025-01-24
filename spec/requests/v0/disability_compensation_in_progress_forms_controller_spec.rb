@@ -13,6 +13,20 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
     let(:loa1_user) { build(:user, :loa1) }
 
     describe '#show' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(
+          'disability_compensation_lighthouse_rated_disabilities_provider_foreground', instance_of(User)
+        ).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:in_progress_form_custom_expiration)
+        allow(Flipper).to receive(:enabled?).with(:disability_compensation_sync_modern_0781_flow, instance_of(User))
+        allow(Flipper).to receive(:enabled?).with(:disability_compensation_remove_pciu, instance_of(User))
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User))
+        allow(Flipper).to receive(:enabled?).with('disability_compensation_lighthouse_ppiu_direct_deposit_provider',
+                                                  instance_of(User))
+        allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, instance_of(User))
+        allow(Flipper).to receive(:enabled?).with(:intent_to_file_lighthouse_enabled, instance_of(User))
+      end
+
       context 'using the Lighthouse Rated Disabilities Provider' do
         let(:rated_disabilities_from_lighthouse) do
           [{ 'name' => 'Diabetes mellitus0',
@@ -42,7 +56,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
         end
 
         before do
-          Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
 
           sign_in_as(lighthouse_user)
@@ -146,7 +159,17 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
       context 'using the EVSS Rated Disabilities Provider' do
         before do
-          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
+          allow(Flipper).to receive(:enabled?).with(
+            'disability_compensation_lighthouse_rated_disabilities_provider_foreground', instance_of(User)
+          ).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:in_progress_form_custom_expiration).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:disability_compensation_sync_modern_0781_flow, instance_of(User))
+          allow(Flipper).to receive(:enabled?).with(:disability_compensation_remove_pciu, instance_of(User))
+          allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User))
+          allow(Flipper).to receive(:enabled?).with('disability_compensation_lighthouse_ppiu_direct_deposit_provider',
+                                                    instance_of(User))
+          allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, instance_of(User))
+
           sign_in_as(user)
         end
 
