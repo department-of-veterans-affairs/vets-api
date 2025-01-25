@@ -70,7 +70,7 @@ describe IvcChampva::S3 do
         expect(s3_instance.put_object(key,
                                       file_path)).to eq({ success: false,
                                                           error_message: 'S3 PutObject unexpected error: Service
-                                                           Unavailable' })
+                                                          Unavailable'.squish })
       end
 
       it 'logs the exception message' do

@@ -9,7 +9,6 @@ module IvcChampva
     def initialize(region:, bucket:)
       @region = region
       @bucket = bucket
-      @monitor = Monitor.new
     end
 
     def put_object(key, file, metadata = {})
@@ -69,7 +68,7 @@ module IvcChampva
 
     def handle_put_object_error(error)
       Rails.logger.error "S3 PutObject unexpected error: #{error.message}"
-      { success: false, error_message: "S3 PutObject unexpected error: #{error.message}" }
+      { success: false, error_message: "S3 PutObject unexpected error: #{error.message.strip}" }
     end
 
     def client
