@@ -81,7 +81,7 @@ RSpec.describe IvcChampva::Monitor do
         monitor.track_failed_send_zsf_notification_to_pega(payload[:form_uuid], 'fake-template')
       end
     end
-    
+
     describe '#track_s3_upload_file_error' do
       it 'logs sidekiq success' do
         payload = {
