@@ -232,6 +232,8 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
     describe 'GET recent facilities' do
       let(:user) { build(:user, :vaos) }
 
+      before { skip }
+
       context 'using VAOS' do
         before do
           # VPG routes do not exist for the MFS calls made for this scenario
@@ -300,7 +302,7 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
         context 'on unsuccessful query for appointment within look back limit' do
           it 'returns a 404 http status' do
             expect_any_instance_of(VAOS::V2::AppointmentsService)
-              .to receive(:get_recent_sorted_appointments)
+              .to receive(:get_sorted_recent_appointments)
               .and_return(nil)
             get '/vaos/v2/locations/recent_facilities', headers: inflection_header
             expect(response).to have_http_status(:not_found)

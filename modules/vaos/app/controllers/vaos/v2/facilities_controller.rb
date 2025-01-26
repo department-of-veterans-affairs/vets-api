@@ -19,25 +19,27 @@ module VAOS
       private
 
       def sort_by_recent_facilities(facilities)
-        recent_appointments = appointments_service.get_recent_sorted_appointments
+        recent_appointments = appointments_service.get_sorted_recent_appointments
         recent_ids = []
 
-        recent_appointments.each do |appt|
-          # if we don't have the information to lookup the clinic, return 'unable to lookup' message
-          unable_to_lookup_facility?(appt) ? log_unable_to_lookup_facility(appt) : recent_ids.push(appt.location_id)
-        end
+        if !recent_appointments.nil? && recent_appointments.present?
+          recent_appointments.each do |appt|
+            # if we don't have the information to lookup the location id, log 'unable to lookup' message
+            recent_ids.push(appt.location_id) if location_id_available?(appt)
+          end
 
-        # remove duplicate facility ids
-        recent_ids = recent_ids.uniq
+          # remove duplicate facility ids
+          recent_ids = recent_ids.uniq
+        end
 
         # partition facilities using recency in preparation for sorting
         recent_facilities, other_facilities = facilities.partition { |facility| recent_ids.include?(facility[:id]) }
 
         # sort by recency
-        recent_facilities.sort_by { |facility| recent_ids.index(facility[:id]) }
+        recent_facilities = recent_facilities.sort_by { |facility| recent_ids.index(facility[:id]) }
 
         # sort by name
-        other_facilities.sort_by { |facility| facility[:name] }
+        other_facilities = other_facilities.sort_by { |facility| facility[:name] }
 
         recent_facilities.concat(other_facilities)
       end
@@ -51,19 +53,18 @@ module VAOS
           VAOS::V2::AppointmentsService.new(current_user)
       end
 
-      def unable_to_lookup_facility?(appt)
-        appt.nil? || appt.location_id.nil?
-      end
-
-      def log_unable_to_lookup_facility(appt)
-        message = ''
+      def location_id_available?(appt)
         if appt.nil?
-          message = 'Appointment not found'
-        elsif appt.location_id.nil?
-          message = 'Appointment does not have location id'
+          Rails.logger.info('VAOS sort_by_recent_facilities - Appointment not found')
+          return false
         end
 
-        Rails.logger.info('VAOS sort_by_recent_facilities', message) if message.present?
+        if appt.location_id.nil?
+          Rails.logger.info('VAOS sort_by_recent_facilities - Appointment does not have location id')
+          return false
+        end
+
+        true
       end
 
       def facility
