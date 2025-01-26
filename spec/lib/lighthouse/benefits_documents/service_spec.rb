@@ -40,8 +40,12 @@ RSpec.describe BenefitsDocuments::Service do
         }
       end
 
-      context 'when cst_synchronous_evidence_uploads is false' do
-        before { Flipper.disable(:cst_synchronous_evidence_uploads) }
+      context 'when cst_synchronous_evidence_uploads is false and cst_send_evidence_submission_failure_emails is true' do # rubocop:disable Layout/LineLength
+        before do
+          allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
+                                                    instance_of(User)).and_return(false)
+        end
 
         it 'enqueues a job' do
           expect do
@@ -49,35 +53,42 @@ RSpec.describe BenefitsDocuments::Service do
           end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
         end
 
-        context 'when cst_send_evidence_submission_failure_emails is true' do
-          before { Flipper.enable(:cst_send_evidence_submission_failure_emails) }
-
-          it 'records evidence submission with PENDING status' do
-            subject.queue_document_upload(params)
-            expect(EvidenceSubmission.count).to eq(1)
-            expect(EvidenceSubmission.first.upload_status)
-              .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
-          end
-        end
-
-        context 'when cst_send_evidence_submission_failure_emails is false' do
-          before { Flipper.disable(:cst_send_evidence_submission_failure_emails) }
-
-          it 'does not record an evidence submission' do
-            expect do
-              service.queue_document_upload(params)
-            end.not_to change(EvidenceSubmission, :count)
-          end
+        it 'records evidence submission with PENDING status' do
+          subject.queue_document_upload(params)
+          expect(EvidenceSubmission.count).to eq(1)
+          expect(EvidenceSubmission.first.upload_status)
+            .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
         end
       end
 
-      it 'does not enqueue a job when cst_synchronous_evidence_uploads is true' do
-        VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_document_upload_200_pdf') do
-          Flipper.enable(:cst_synchronous_evidence_uploads)
+      context 'when cst_synchronous_evidence_uploads is false and cst_send_evidence_submission_failure_emails is false' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
+                                                    instance_of(User)).and_return(false)
+        end
+
+        it 'does not record an evidence submission' do
           expect do
             service.queue_document_upload(params)
-          end.not_to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size)
-          expect(EvidenceSubmission.count).to eq(0)
+          end.not_to change(EvidenceSubmission, :count)
+        end
+      end
+
+      context 'when cst_synchronous_evidence_uploads is true and cst_send_evidence_submission_failure_emails is false' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
+                                                    instance_of(User)).and_return(true)
+        end
+
+        it 'does not enqueue a job' do
+          VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_document_upload_200_pdf') do
+            expect do
+              service.queue_document_upload(params)
+            end.not_to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size)
+            expect(EvidenceSubmission.count).to eq(0)
+          end
         end
       end
     end

@@ -54,7 +54,9 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   let(:file) { Rails.root.join('spec', 'fixtures', 'files', file_name).read }
 
   context 'when :cst_send_evidence_submission_failure_emails is enabled' do
-    before { Flipper.enable(:cst_send_evidence_submission_failure_emails) }
+    before do
+      allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
+    end
 
     context 'when upload succeeds' do
       let(:uploader_stub) { instance_double(LighthouseDocumentUploader) }
@@ -169,7 +171,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   context 'when :cst_send_evidence_submission_failure_emails is disabled' do
     before do
       allow(Lighthouse::FailureNotification).to receive(:perform_async)
-      Flipper.disable(:cst_send_evidence_submission_failure_emails)
+      allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(false)
     end
 
     let(:formatted_submit_date) do
