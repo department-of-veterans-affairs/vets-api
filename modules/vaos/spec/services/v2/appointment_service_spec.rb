@@ -709,6 +709,23 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns the recent sorted clinic appointments' do
         expect(subject).to eq([mock_appointment_three, mock_appointment_one, mock_appointment_two])
+        expect(instance_of_class).to have_received(:get_appointments).once
+      end
+    end
+
+    context 'when old appointments are available' do
+      before do
+        allow(instance_of_class)
+          .to receive(:get_appointments).with(anything, anything, 'booked,fulfilled,arrived,proposed')
+          .and_return({ data: [] })
+        allow(instance_of_class)
+          .to receive(:get_appointments).with(anything, anything, 'booked,fulfilled,arrived')
+          .and_return({ data: [mock_appointment_one, mock_appointment_two, mock_appointment_three] })
+      end
+
+      it 'returns the recent sorted clinic appointments' do
+        expect(subject).to eq([mock_appointment_three, mock_appointment_one, mock_appointment_two])
+        expect(instance_of_class).to have_received(:get_appointments).exactly(2).times
       end
     end
 
@@ -719,6 +736,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns nil' do
         expect(subject.first).to be_nil
+        expect(instance_of_class).to have_received(:get_appointments).exactly(2).times
       end
     end
   end
