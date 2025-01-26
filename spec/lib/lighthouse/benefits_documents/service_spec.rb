@@ -52,9 +52,11 @@ RSpec.describe BenefitsDocuments::Service do
         context 'when cst_send_evidence_submission_failure_emails is true' do
           before { Flipper.enable(:cst_send_evidence_submission_failure_emails) }
 
-          it 'records evidence submission' do
+          it 'records evidence submission with PENDING status' do
             subject.queue_document_upload(params)
             expect(EvidenceSubmission.count).to eq(1)
+            expect(EvidenceSubmission.first.upload_status)
+              .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
           end
         end
 

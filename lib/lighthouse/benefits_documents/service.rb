@@ -130,7 +130,7 @@ module BenefitsDocuments
         file_name: file.original_filename,
         # We pull the string out of the array for the tracked item since lighthouse gives us an array
         # NOTE there will only be one tracked item here
-        # TODO update this so that we only pass a tracked item instead of an array of tracked items
+        # TODO make a new pr to update this so that we only pass a tracked item instead of an array of tracked items
         tracked_item_id: tracked_item_ids,
         document_type:,
         password:
