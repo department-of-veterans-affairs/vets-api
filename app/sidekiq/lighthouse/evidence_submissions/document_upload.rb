@@ -33,18 +33,10 @@ module Lighthouse
       def perform(user_icn, document_hash)
         @user_icn = user_icn
         @document_hash = document_hash
-        document = LighthouseDocument.new document_hash
+
         initialize_upload_document
-        Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
-          span.set_tag('Document File Size', file_body.size)
-          response = client.upload_document(file_body, document) # returns upload response which includes requestId
-          if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
-            update_evidence_submission_for_success(jid, response)
-          end
-        end
-        Datadog::Tracing.trace('Remove Upload Document') do
-          uploader.remove!
-        end
+        perform_document_upload
+        clean_up!
       end
 
       def self.verify_msg(msg)
@@ -134,6 +126,22 @@ module Lighthouse
 
       def validate_document!
         raise Common::Exceptions::ValidationErrors, document unless document.valid?
+      end
+
+      def perform_document_upload
+        Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
+          span.set_tag('Document File Size', file_body.size)
+          response = client.upload_document(file_body, document) # returns upload response which includes requestId
+          if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
+            update_evidence_submission_for_success(jid, response)
+          end
+        end
+      end
+
+      def clean_up!
+        Datadog::Tracing.trace('Remove Upload Document') do
+          uploader.remove!
+        end
       end
 
       def client

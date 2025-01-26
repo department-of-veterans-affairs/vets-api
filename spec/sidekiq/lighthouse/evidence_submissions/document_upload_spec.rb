@@ -96,7 +96,9 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         described_class.drain # runs all queued jobs of this class
         # After running DocumentUpload job, there should be an updated EvidenceSubmission record
         # with the response request_id
-        expect(EvidenceSubmission.find_by(job_id: job_id).request_id).to eql(response.dig(:data, :requestId))
+        new_evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
+        expect(new_evidence_submission.request_id).to eql(response.dig(:data, :requestId))
+        expect(new_evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
       end
     end
 
@@ -145,6 +147,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
                                                      tags: ['service:claim-status', "function: #{message}"])
         end
         expect(EvidenceSubmission.va_notify_email_not_queued.length).to equal(1)
+        expect(EvidenceSubmission.find_by(job_id: job_id).upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
       end
 
       it 'fails to create a failed evidence submission record when args malformed' do
