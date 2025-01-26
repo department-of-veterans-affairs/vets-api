@@ -10,7 +10,7 @@ RSpec.describe IvcChampva::VHA1010d do
           'first' => 'Veteran',
           'last' => 'Surname'
         },
-        'email' => false
+        'email' => true
       },
       'veteran' => {
         'full_name' => { 'first' => 'John', 'middle' => 'P', 'last' => 'Doe' },
@@ -19,6 +19,9 @@ RSpec.describe IvcChampva::VHA1010d do
       },
       'form_number' => 'VHA1010d',
       'has_applicant_over65' => false,
+      'applicants' => {
+        'applicantEmailAddress' => 'email@address.com'
+      },
       'veteran_supporting_documents' => [
         { 'confirmation_code' => 'abc123' },
         { 'confirmation_code' => 'def456' }
@@ -56,12 +59,13 @@ RSpec.describe IvcChampva::VHA1010d do
         'docType' => 'VHA1010d',
         'businessLine' => 'CMP',
         'hasApplicantOver65' => 'false',
+        'applicantEmailAddress' => 'email@address.com',
         'primaryContactInfo' => {
           'name' => {
             'first' => 'Veteran',
             'last' => 'Surname'
           },
-          'email' => false
+          'email' => true
         }
       )
     end
