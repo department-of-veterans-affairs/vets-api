@@ -182,10 +182,10 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
       described_class.within_sidekiq_retries_exhausted_block(msg) do
         expect(Lighthouse::FailureNotification).to receive(:perform_async).with(
           user_account.icn,
-          personalisation: {
+          {
             first_name: 'Bob',
             document_type: document_type,
-            file_name: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
+            filename: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
             date_submitted: formatted_submit_date,
             date_failed: formatted_submit_date
           }
