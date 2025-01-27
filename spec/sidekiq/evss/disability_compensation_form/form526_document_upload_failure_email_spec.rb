@@ -93,7 +93,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
           'api.form_526.veteran_notifications.document_upload_failure_email.success'
         )
         # It shouldn't do this any more.
-        # It now gets a definative answer from VA notfy in the callback
+        # It now gets a definitive answer from VA notfy in the callback
         # .and trigger_statsd_increment(
         #   'silent_failure_avoided_no_confirmation',
         #   tags: [
