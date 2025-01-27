@@ -55,7 +55,22 @@ module AccreditedRepresentativePortal
 
           accreditations = []
 
-          #FIXME: add back accredited individuals when we're ready to populate
+          insert_all(
+            Records::REPRESENTATIVES,
+            factory: [
+              :representative
+            ],
+            unique_by: [:first_name, :last_name, :representative_id]
+          ) do |representative|
+            representative
+              .delete(:poa_codes)
+              .each do |poa_code|
+                accreditations.push(
+                  accredited_individual_id: representative[:representative_id],
+                  accredited_organization_id: poa_code
+                )
+              end
+          end
 
           insert_all(
             Records::CLAIMANTS,
@@ -104,8 +119,8 @@ module AccreditedRepresentativePortal
               claimant_type: 'veteran',
               claimant_id:,
               power_of_attorney_holder_type: 'AccreditedOrganization',
-              power_of_attorney_holder_id: accreditation[:accredited_organization_id],
-              accredited_individual_id: accreditation[:accredited_individual_id],
+              power_of_attorney_holder_poa_code: accreditation[:accredited_organization_id],
+              accredited_individual_registration_number: accreditation[:accredited_individual_id],
               created_at:
             )
           end
@@ -123,8 +138,8 @@ module AccreditedRepresentativePortal
               claimant_type: 'veteran',
               claimant_id:,
               power_of_attorney_holder_type: 'AccreditedOrganization',
-              power_of_attorney_holder_id: accreditation[:accredited_organization_id],
-              accredited_individual_id: accreditation[:accredited_individual_id],
+              power_of_attorney_holder_poa_code: accreditation[:accredited_organization_id],
+              accredited_individual_registration_number: accreditation[:accredited_individual_id],
               created_at:
             )
           end
@@ -176,7 +191,7 @@ module AccreditedRepresentativePortal
           .build_class
           .insert_all(
             records,
-            unique_by:
+            unique_by: unique_by
           )
       end
 

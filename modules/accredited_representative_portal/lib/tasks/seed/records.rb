@@ -83,28 +83,147 @@ module AccreditedRepresentativePortal
       ORGANIZATIONS = [
         {
           name: 'Trustworthy Organization',
-          id: '23563963-e31c-4797-a259-e26b727072e1',
           poa: 'YHZ'
         },
         {
           name: 'Good Representatives R Us',
-          id: '41d36596-67d1-4b23-ab58-927447e88d07',
           poa: 'SVS'
         },
         {
           name: 'We Help Vets',
-          id: '83b7de4d-a2cd-4b15-9e32-af48804c3e31',
           poa: 'FIX'
         },
         {
           name: 'The Swift Reps',
-          id: '31f61e0f-8993-4c57-86f2-7f22e9ca9e68',
           poa: 'MIM'
         },
         {
           name: 'Department of Veterans Fake Data',
-          id: '4e21e4b2-02e5-4a96-ace3-8b56b97a275c',
           poa: 'GWI'
+        }
+      ].freeze
+
+      REPRESENTATIVES = [
+        {
+          first_name: 'Bob',
+          last_name: 'Representative',
+          representative_id: '10000',
+          poa_codes: %w[
+            UYX
+            GWI
+          ]
+        },
+        {
+          first_name: 'Robert',
+          last_name: 'Lowe',
+          representative_id: '10001',
+          poa_codes: %w[
+            EUM
+            UYX
+            GWI
+            TVB
+            XRO
+          ]
+        },
+        {
+          first_name: 'Suzie',
+          last_name: 'Lowe',
+          representative_id: '10002',
+          poa_codes: %w[
+            TVB
+            XRO
+          ]
+        },
+        {
+          first_name: 'Jewell',
+          last_name: 'Armstrong',
+          representative_id: '10003',
+          poa_codes: %w[
+            EUM
+            XRO
+          ]
+        },
+        {
+          first_name: 'Odis',
+          last_name: 'Cruickshank',
+          representative_id: '10004',
+          poa_codes: %w[
+            EUM
+            UYX
+            SVS
+            MIM
+          ]
+        },
+        {
+          first_name: 'Catheryn',
+          last_name: 'Baumbach',
+          representative_id: '10005',
+          poa_codes: %w[
+            FIX
+            SVS
+          ]
+        },
+        {
+          first_name: 'Erica',
+          last_name: 'Representative',
+          representative_id: '10006',
+          poa_codes: %w[
+            XRO
+          ]
+        },
+        {
+          first_name: 'Erin',
+          last_name: 'Trust',
+          representative_id: '10007',
+          poa_codes: %w[
+            EUM
+            TVB
+            XRO
+          ]
+        },
+        {
+          first_name: 'Eric',
+          last_name: 'Good',
+          representative_id: '10008',
+          poa_codes: %w[
+            EUM
+            UYX
+            FIX
+            SVS
+            MIM
+          ]
+        },
+        {
+          first_name: 'Hershel',
+          last_name: 'Kertzmann',
+          representative_id: '10009',
+          poa_codes: %w[
+            FIX
+            SVS
+            MIM
+            XRO
+          ]
+        },
+        {
+          first_name: 'Georgetta',
+          last_name: 'Roob',
+          representative_id: '10010',
+          poa_codes: %w[
+            EUM
+            GWI
+            FIX
+            SVS
+            XRO
+          ]
+        },
+        {
+          first_name: 'Horacio',
+          last_name: 'Schultz',
+          representative_id: '10011',
+          poa_codes: %w[
+            EUM
+            UYX
+          ]
         }
       ].freeze
 
