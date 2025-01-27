@@ -234,11 +234,34 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
         allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, user).and_return(true)
       end
 
-      it 'logs a message indicating the new service is used' do
-        expect(Rails.logger).to receive(:info).with(
-          'New Max Ratings service triggered by feature flag, but implementation is pending'
+      it 'calls the DisabilityMaxRating::Client to fetch max ratings' do
+        max_ratings_client = instance_double(DisabilityMaxRating::Client)
+        response = double('response', body: { 'ratings' => [40, 50, 60] })
+
+        allow(DisabilityMaxRating::Client).to receive(:new).and_return(max_ratings_client)
+        allow(max_ratings_client)
+          .to receive(:get_max_rating_for_diagnostic_codes)
+          .with(diagnostic_codes)
+          .and_return(response)
+
+        result = described_class.send(:get_ratings, diagnostic_codes, user)
+        expect(result).to eq([40, 50, 60])
+      end
+
+      it 'logs an error when the DisabilityMaxRating client raises a ClientError' do
+        max_ratings_client = instance_double(DisabilityMaxRating::Client)
+        allow(DisabilityMaxRating::Client).to receive(:new).and_return(max_ratings_client)
+        allow(max_ratings_client).to receive(:get_max_rating_for_diagnostic_codes).and_raise(
+          Common::Client::Errors::ClientError.new('Failed miserably')
         )
-        described_class.send(:get_ratings, diagnostic_codes, user)
+
+        expect(Rails.logger).to receive(:error).with(
+          'Get Max Ratings Failed  Failed miserably.',
+          hash_including(:backtrace)
+        )
+
+        result = described_class.send(:get_ratings, diagnostic_codes, user)
+        expect(result).to be_nil
       end
     end
 
