@@ -149,7 +149,8 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
                                                      tags: ['service:claim-status', "function: #{message}"])
         end
         expect(EvidenceSubmission.va_notify_email_not_queued.length).to equal(1)
-        expect(EvidenceSubmission.find_by(job_id: job_id).upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
+        expect(EvidenceSubmission.find_by(job_id: job_id).upload_status)
+          .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
       end
 
       it 'fails to create a failed evidence submission record when args malformed' do

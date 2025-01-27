@@ -61,7 +61,7 @@ RSpec.describe BenefitsDocuments::Service do
         end
       end
 
-      context 'when cst_synchronous_evidence_uploads is false and cst_send_evidence_submission_failure_emails is false' do
+      context 'when cst_synchronous_evidence_uploads is false and cst_send_evidence_submission_failure_emails is false' do # rubocop:disable Layout/LineLength
         before do
           allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
@@ -75,7 +75,7 @@ RSpec.describe BenefitsDocuments::Service do
         end
       end
 
-      context 'when cst_synchronous_evidence_uploads is true and cst_send_evidence_submission_failure_emails is false' do
+      context 'when cst_synchronous_evidence_uploads is true and cst_send_evidence_submission_failure_emails is false' do # rubocop:disable Layout/LineLength
         before do
           allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
