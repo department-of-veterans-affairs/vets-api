@@ -318,11 +318,11 @@ describe AppealsApi::DecisionReviewReport do
     it 'returns false if there are records with a faulty status' do
       create(:notice_of_disagreement, :status_error)
 
-      expect(described_class.new.no_faulty_records?).to eq(false)
+      expect(described_class.new.no_faulty_records?).to be(false)
     end
 
     it 'returns true if there are no records with a faulty status' do
-      expect(described_class.new.no_faulty_records?).to eq(true)
+      expect(described_class.new.no_faulty_records?).to be(true)
     end
   end
 end

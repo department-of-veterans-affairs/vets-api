@@ -104,7 +104,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                 token = JSON.parse(response.body)['data']['id']
                 poa = ClaimsApi::PowerOfAttorney.find(token)
                 expect(poa.source_data['name']).to eq('abraham lincoln')
-                expect(poa.source_data['icn'].present?).to eq(true)
+                expect(poa.source_data['icn'].present?).to be(true)
                 expect(poa.source_data['email']).to eq('abraham.lincoln@vets.gov')
               end
             end
@@ -283,11 +283,11 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
       context 'validate_veteran_identifiers' do
         context 'when Veteran identifiers are missing in MPI lookups' do
           before do
-            stub_mpi(build(:mpi_profile, birth_date: nil, participant_id: nil))
+            stub_mpi(build(:mpi_profile, icn: nil))
           end
 
           it 'returns an unprocessible entity status' do
-            allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
+            allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)
               .and_raise(ArgumentError)
             mock_acg(scopes) do |auth_header|
               post path, params: data, headers: headers.merge(auth_header)
@@ -990,9 +990,9 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
               expect(parsed['data']['attributes']['representative']['service_organization']['organization_name'])
                 .to eq('Some Great Organization')
               expect(parsed['data']['attributes']['representative']['service_organization']['first_name'])
-                .to eq(nil)
+                .to be_nil
               expect(parsed['data']['attributes']['representative']['service_organization']['last_name'])
-                .to eq(nil)
+                .to be_nil
               expect(parsed['data']['attributes']['representative']['service_organization']['phone_number'])
                 .to eq('555-555-5555')
             end
@@ -1028,7 +1028,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
               expect(parsed['data']['attributes']['representative']['service_organization']['last_name'])
                 .to eq('Testerson')
               expect(parsed['data']['attributes']['representative']['service_organization']['organization_name'])
-                .to eq(nil)
+                .to be_nil
               expect(parsed['data']['attributes']['representative']['service_organization']['phone_number'])
                 .to eq('555-555-5555')
             end
