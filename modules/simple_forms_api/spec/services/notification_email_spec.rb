@@ -262,7 +262,9 @@ describe SimpleFormsApi::NotificationEmail do
                   'date_submitted' => date_submitted,
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
-                }
+                },
+                anything,
+                anything
               )
             end
           end
@@ -284,7 +286,9 @@ describe SimpleFormsApi::NotificationEmail do
                   'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
-                }
+                },
+                anything,
+                anything
               )
             end
           end
@@ -309,7 +313,9 @@ describe SimpleFormsApi::NotificationEmail do
                   'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
-                }
+                },
+                anything,
+                anything
               )
             end
           end
@@ -332,7 +338,9 @@ describe SimpleFormsApi::NotificationEmail do
                   'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => lighthouse_updated_at
-                }
+                },
+                anything,
+                anything
               )
             end
           end
@@ -369,7 +377,9 @@ describe SimpleFormsApi::NotificationEmail do
                     'date_submitted' => date_submitted,
                     'confirmation_number' => 'confirmation_number',
                     'lighthouse_updated_at' => lighthouse_updated_at
-                  }
+                  },
+                  anything,
+                  anything
                 )
               end
             end
@@ -411,7 +421,9 @@ describe SimpleFormsApi::NotificationEmail do
                     'date_submitted' => date_submitted,
                     'confirmation_number' => 'confirmation_number',
                     'lighthouse_updated_at' => lighthouse_updated_at
-                  }
+                  },
+                  anything,
+                  anything
                 )
               end
             end
@@ -465,7 +477,9 @@ describe SimpleFormsApi::NotificationEmail do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
         end
@@ -699,7 +713,9 @@ describe SimpleFormsApi::NotificationEmail do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
 
@@ -720,7 +736,9 @@ describe SimpleFormsApi::NotificationEmail do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
         end
@@ -743,7 +761,9 @@ describe SimpleFormsApi::NotificationEmail do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
 
@@ -780,7 +800,9 @@ describe SimpleFormsApi::NotificationEmail do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => lighthouse_updated_at
-              }
+              },
+              anything,
+              anything
             )
           end
         end
@@ -833,7 +855,9 @@ describe SimpleFormsApi::NotificationEmail do
             'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
             'itf_api_expiration_date' => nil
-          }
+          },
+          anything,
+          anything
         )
       end
 
@@ -862,7 +886,9 @@ describe SimpleFormsApi::NotificationEmail do
               'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                  '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
               'itf_api_expiration_date' => nil
-            }
+            },
+            anything,
+            anything
           )
         end
       end
@@ -904,7 +930,9 @@ describe SimpleFormsApi::NotificationEmail do
                 'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                    '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
                 'itf_api_expiration_date' => expiration_date
-              }
+              },
+              anything,
+              anything
             )
           end
 
@@ -932,7 +960,9 @@ describe SimpleFormsApi::NotificationEmail do
                   'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                      '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
                   'itf_api_expiration_date' => expiration_date
-                }
+                },
+                anything,
+                anything
               )
             end
           end
@@ -1002,7 +1032,9 @@ describe SimpleFormsApi::NotificationEmail do
             'date_submitted' => date_submitted,
             'confirmation_number' => 'confirmation_number',
             'lighthouse_updated_at' => lighthouse_updated_at
-          }
+          },
+          anything,
+          anything
         )
       end
     end
@@ -1038,7 +1070,9 @@ describe SimpleFormsApi::NotificationEmail do
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => lighthouse_updated_at
-            }
+            },
+            anything,
+            anything
           )
         end
       end
@@ -1067,7 +1101,9 @@ describe SimpleFormsApi::NotificationEmail do
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => lighthouse_updated_at
-            }
+            },
+            anything,
+            anything
           )
         end
       end
@@ -1096,7 +1132,9 @@ describe SimpleFormsApi::NotificationEmail do
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => lighthouse_updated_at
-            }
+            },
+            anything,
+            anything
           )
         end
       end
@@ -1125,7 +1163,9 @@ describe SimpleFormsApi::NotificationEmail do
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => lighthouse_updated_at
-            }
+            },
+            anything,
+            anything
           )
         end
       end
