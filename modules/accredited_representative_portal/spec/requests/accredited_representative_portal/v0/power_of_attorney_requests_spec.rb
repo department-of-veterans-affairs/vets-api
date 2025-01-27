@@ -30,6 +30,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   let(:time) { '2024-12-21T04:45:37.000Z' }
   let(:time_plus_one_day) { '2024-12-22T04:45:37.000Z' }
   let(:expires_at) { '2025-02-19T04:45:37.000Z' }
+  let(:valid_accredited_individual_id) { AccreditedIndividual.first&.id || create(:accredited_individual).id }
 
   let(:poa_requests) do
     [].tap do |memo|
@@ -93,7 +94,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
               'name' => poa_requests[0].power_of_attorney_holder.name
             },
             'accredited_individual' => {
-              'id' => poa_requests[0].accredited_individual.id,
+              'id' => valid_accredited_individual_id,
               'full_name' => [
                 poa_requests[0].accredited_individual.first_name,
                 poa_requests[0].accredited_individual.last_name
@@ -251,7 +252,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'decision_type' => 'declination'
           },
           'power_of_attorney_holder' => {
-            'id' => poa_request.power_of_attorney_holder.id,
+            'id' => valid_accredited_individual_id,
             'type' => 'veteran_service_organization',
             'name' => poa_request.power_of_attorney_holder.name
           },
