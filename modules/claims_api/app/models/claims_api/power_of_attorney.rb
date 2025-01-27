@@ -12,6 +12,7 @@ module ClaimsApi
     has_kms_key
     has_encrypted :auth_headers, :form_data, :source_data, key: :kms_key, **lockbox_options
 
+    has_many :processes, as: :processable, dependent: :destroy
     has_one :power_of_attorney_request, dependent: :nullify
 
     PENDING = 'pending'
@@ -66,6 +67,42 @@ module ClaimsApi
       headers['status'] = status
       self.header_md5 = Digest::MD5.hexdigest headers.to_json
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
+    end
+
+    def processes
+      @processes ||= ClaimsApi::Process.where(processable: self)
+                                       .in_order_of(:step_type, ClaimsApi::Process::VALID_POA_STEP_TYPES).to_a
+    end
+
+    def steps
+      ClaimsApi::Process::VALID_POA_STEP_TYPES.each do |step_type|
+        unless processes.any? { |p| p.step_type == step_type }
+          index = ClaimsApi::Process::VALID_POA_STEP_TYPES.index(step_type)
+          processes.insert(index, ClaimsApi::Process.new(step_type:, step_status: 'NOT_STARTED', processable: self))
+        end
+      end
+
+      processes.map do |p|
+        {
+          type: p.step_type,
+          status: p.step_status,
+          completed_at: p.completed_at,
+          next_step: p.next_step
+        }
+      end
+    end
+
+    def errors
+      processes.map do |p|
+        error_message = p.error_messages.last
+        next unless error_message
+
+        {
+          title: error_message['title'],
+          detail: error_message['detail'],
+          code: p.step_type
+        }
+      end.compact
     end
 
     def uploader

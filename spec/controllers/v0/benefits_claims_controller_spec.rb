@@ -126,7 +126,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         expect(response).to have_http_status(:ok)
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body['data']['attributes']['canUpload']).to eq(true)
+        expect(parsed_body['data']['attributes']['canUpload']).to be(true)
       end
 
       it 'logs the claim type details' do
@@ -162,8 +162,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                 { message_type: 'lh.cst.evidence_requests',
                   claim_id: '600383363',
                   tracked_item_id: 395_084,
-                  tracked_item_type: 'Request 1',
-                  tracked_item_status: 'NEEDED_FROM_YOU' })
+                  tracked_item_type: 'Private Medical Record',
+                  tracked_item_status: 'NEEDED_FROM_OTHERS' })
         expect(Rails.logger)
           .to have_received(:info)
           .with('Evidence Request Types',

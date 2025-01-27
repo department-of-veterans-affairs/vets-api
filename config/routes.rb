@@ -423,7 +423,6 @@ Rails.application.routes.draw do
     namespace :higher_level_reviews do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
-    resources :higher_level_reviews, only: %i[create show]
 
     namespace :notice_of_disagreements do
       get 'contestable_issues', to: 'contestable_issues#index'
@@ -461,6 +460,7 @@ Rails.application.routes.draw do
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
+  mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'

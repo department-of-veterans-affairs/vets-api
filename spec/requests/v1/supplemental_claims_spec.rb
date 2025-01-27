@@ -66,6 +66,17 @@ RSpec.describe 'V1::SupplementalClaims', type: :request do
            headers:
     end
 
+    it 'logs use of the old controller' do
+      warn_old_controller_args = {
+        message: 'Calling decision reviews controller outside module',
+        action: 'SC create',
+        form_id: '995'
+      }
+      allow(Rails.logger).to receive(:warn)
+      expect(Rails.logger).to receive(:warn).with(warn_old_controller_args)
+      subject
+    end
+
     it 'creates a supplemental claim' do
       VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-200_V1') do
         # Create an InProgressForm

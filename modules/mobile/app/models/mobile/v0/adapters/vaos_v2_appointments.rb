@@ -11,6 +11,10 @@ module Mobile
       #   Mobile::V0::Adapters::VAOSV2Appointments.new.parse(appointments)
       #
       class VAOSV2Appointments
+        def initialize(user)
+          @user = user
+        end
+
         # Takes a result set of VAOS v2 appointments from the appointments web service
         # and returns the set adapted to a common schema.
         #
@@ -22,7 +26,7 @@ module Mobile
           return [] if appointments.nil?
 
           appointments.map do |appointment_hash|
-            appointment_adapter = VAOSV2Appointment.new(appointment_hash)
+            appointment_adapter = VAOSV2Appointment.new(@user, appointment_hash)
             appointment_adapter.build_appointment_model
           end.compact
         end
