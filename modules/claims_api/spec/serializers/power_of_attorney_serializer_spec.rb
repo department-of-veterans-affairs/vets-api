@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe ClaimsApi::PowerOfAttorneySerializer, type: :serializer do
+describe ClaimsApi::V1::PowerOfAttorneySerializer, type: :serializer do
   include SerializerSpecHelper
 
   subject { serialize(poa_submission, serializer_class: described_class) }
