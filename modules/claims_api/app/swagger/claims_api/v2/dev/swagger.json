@@ -335,7 +335,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "0b1b7763-0d7e-4eb7-9709-c7fa08b40310",
+                        "id": "abfe2a44-0a0c-4c1d-b2bc-156687d309e9",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -520,7 +520,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-01-25"
+                              "anticipatedSeparationDate": "2025-01-29"
                             },
                             "confinements": [
                               {
@@ -566,7 +566,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "4629f8b5-b329-46bc-9466-3705b50d532f",
+                        "id": "11064a28-3752-4d53-9520-0b4c1f543ad9",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -730,7 +730,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2025-01-25",
+                                "activeDutyEndDate": "2025-01-29",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -751,7 +751,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-01-25"
+                              "anticipatedSeparationDate": "2025-01-29"
                             },
                             "confinements": [
                               {
@@ -3994,7 +3994,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2025-01-25",
+                              "activeDutyEndDate": "2025-01-29",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -4015,7 +4015,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2025-01-25"
+                            "anticipatedSeparationDate": "2025-01-29"
                           },
                           "confinements": [
                             {
@@ -8537,8 +8537,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2025-01-23",
-                      "expirationDate": "2026-01-23",
+                      "creationDate": "2025-01-27",
+                      "expirationDate": "2026-01-27",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9428,7 +9428,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "52af1cfa-4586-4f9b-be4d-0720efc9699a",
+                    "id": "46175d68-d477-4ea3-9950-ecb35a2b88bf",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
@@ -10336,8 +10336,8 @@
                         "actionedDate": "2024-05-25T13:45:00-05:00",
                         "status": "New",
                         "declinedReason": null,
-                        "changeAddressAuthorization": "Y",
-                        "healthInfoAuthorization": "Y"
+                        "consentAddressChange": true,
+                        "recordConsent": true
                       }
                     },
                     {
@@ -10367,8 +10367,8 @@
                         "actionedDate": "2013-01-14T08:50:17-06:00",
                         "status": "New",
                         "declinedReason": null,
-                        "changeAddressAuthorization": "Y",
-                        "healthInfoAuthorization": "Y"
+                        "consentAddressChange": true,
+                        "recordConsent": true
                       }
                     },
                     {
@@ -10398,8 +10398,8 @@
                         "actionedDate": "2013-01-14T08:51:25-06:00",
                         "status": "New",
                         "declinedReason": null,
-                        "changeAddressAuthorization": "Y",
-                        "healthInfoAuthorization": "Y"
+                        "consentAddressChange": true,
+                        "recordConsent": true
                       }
                     }
                   ]
@@ -10505,18 +10505,18 @@
                               "declinedReason": {
                                 "type": "string"
                               },
-                              "changeAddressAuthorization": {
-                                "type": "string",
+                              "consentAddressChange": {
+                                "type": "boolean",
                                 "enum": [
-                                  "Y",
-                                  "N"
+                                  true,
+                                  false
                                 ]
                               },
-                              "healthInfoAuthorization": {
-                                "type": "string",
+                              "recordConsent": {
+                                "type": "boolean",
                                 "enum": [
-                                  "Y",
-                                  "N"
+                                  true,
+                                  false
                                 ]
                               }
                             }
@@ -10807,8 +10807,8 @@
                       "actionedDate": "2025-01-09T10:19:26-06:00",
                       "status": "Accepted",
                       "declinedReason": null,
-                      "changeAddressAuthorization": "Y",
-                      "healthInfoAuthorization": "Y"
+                      "consentAddressChange": true,
+                      "recordConsent": true
                     }
                   }
                 },
@@ -10911,18 +10911,18 @@
                             "declinedReason": {
                               "type": "string"
                             },
-                            "changeAddressAuthorization": {
-                              "type": "string",
+                            "consentAddressChange": {
+                              "type": "boolean",
                               "enum": [
-                                "Y",
-                                "N"
+                                true,
+                                false
                               ]
                             },
-                            "healthInfoAuthorization": {
-                              "type": "string",
+                            "recordConsent": {
+                              "type": "boolean",
                               "enum": [
-                                "Y",
-                                "N"
+                                true,
+                                false
                               ]
                             }
                           }
@@ -11433,7 +11433,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d27c185b-27fd-44a8-96e6-679c2c6ae118",
+                    "id": "4468b20c-fdaa-4625-b089-7f6104557215",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -11798,16 +11798,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -11822,6 +11822,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -11893,16 +11926,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -11917,6 +11950,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -12205,7 +12271,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "17723d4d-0763-4199-9dbb-d336f0f3d3e2",
+                    "id": "1f4e8fe7-6675-4f12-af08-3848c9810b9b",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12553,16 +12619,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -12577,6 +12643,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -12662,16 +12761,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -12686,6 +12785,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -13243,16 +13375,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -13267,6 +13399,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -13338,16 +13503,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -13362,6 +13527,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -13910,16 +14108,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -13934,6 +14132,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -14019,16 +14250,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -14043,6 +14274,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -14199,17 +14463,43 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1fb38506-d8f1-4526-982c-711cecbffc81",
+                    "id": "eb2225b2-c1fd-48d1-ad7e-5fbd366df28f",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2025-01-23",
-                      "previousPoa": null,
+                      "createdAt": "2025-01-27T16:00:13.570Z",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
                         }
                       },
-                      "status": "pending"
+                      "status": "pending",
+                      "errors": [],
+                      "steps": [
+                        {
+                          "type": "PDF_SUBMISSION",
+                          "status": "NOT_STARTED",
+                          "completedAt": null,
+                          "nextStep": "POA_UPDATE"
+                        },
+                        {
+                          "type": "POA_UPDATE",
+                          "status": "NOT_STARTED",
+                          "completedAt": null,
+                          "nextStep": "POA_ACCESS_UPDATE"
+                        },
+                        {
+                          "type": "POA_ACCESS_UPDATE",
+                          "status": "NOT_STARTED",
+                          "completedAt": null,
+                          "nextStep": "CLAIMANT_NOTIFICATION"
+                        },
+                        {
+                          "type": "CLAIMANT_NOTIFICATION",
+                          "status": "NOT_STARTED",
+                          "completedAt": null,
+                          "nextStep": null
+                        }
+                      ]
                     }
                   }
                 },
@@ -14241,7 +14531,7 @@
                           "additionalProperties": false,
                           "required": [
                             "status",
-                            "dateRequestAccepted",
+                            "createdAt",
                             "representative"
                           ],
                           "properties": {
@@ -14255,10 +14545,74 @@
                                 "errored"
                               ]
                             },
-                            "dateRequestAccepted": {
+                            "createdAt": {
                               "type": "string",
                               "description": "Date request was first accepted",
                               "format": "date"
+                            },
+                            "errors": {
+                              "type": "array",
+                              "description": "Error details if applicable",
+                              "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                  "title": {
+                                    "type": "string"
+                                  },
+                                  "detail": {
+                                    "type": "string"
+                                  },
+                                  "code": {
+                                    "type": "string",
+                                    "enum": [
+                                      "PDF_SUBMISSION",
+                                      "POA_UPDATE",
+                                      "POA_ACCESS_UPDATE",
+                                      "CLAIMANT_NOTIFICATION"
+                                    ]
+                                  }
+                                }
+                              }
+                            },
+                            "steps": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "PDF_SUBMISSION",
+                                      "POA_UPDATE",
+                                      "POA_ACCESS_UPDATE",
+                                      "CLAIMANT_NOTIFICATION"
+                                    ]
+                                  },
+                                  "status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "NOT_STARTED",
+                                      "IN_PROGRESS",
+                                      "SUCCESS",
+                                      "FAILED"
+                                    ]
+                                  },
+                                  "completedAt": {
+                                    "type": "string",
+                                    "format": "date"
+                                  },
+                                  "nextStep": {
+                                    "type": "string",
+                                    "enum": [
+                                      "POA_UPDATE",
+                                      "POA_ACCESS_UPDATE",
+                                      "CLAIMANT_NOTIFICATION"
+                                    ]
+                                  }
+                                }
+                              }
                             },
                             "representative": {
                               "type": "object",
@@ -14281,11 +14635,6 @@
                                   }
                                 }
                               }
-                            },
-                            "previousPoa": {
-                              "type": "string",
-                              "nullable": true,
-                              "description": "Current or Previous Power of Attorney Code submitted for Veteran"
                             }
                           }
                         }
