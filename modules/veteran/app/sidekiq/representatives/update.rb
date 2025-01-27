@@ -222,7 +222,8 @@ module Representatives
     # Logs an error to Sentry.
     # @param error [Exception] The error string to be logged.
     def log_error(error)
-      log_message_to_sentry("Representatives::Update: #{error}", :error)
+      message = "Representatives::Update: #{error}"
+      log_message_to_sentry(message, :error)
     end
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values
