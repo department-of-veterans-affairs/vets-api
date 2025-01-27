@@ -330,6 +330,10 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses DataDog's Real User Monitoring logging
     enable_in_development: false
+  cst_suppress_evidence_requests:
+    actor_type: user
+    description: When enabled, CST does not show Attorney Fee, Secondary Action Required, or Stage 2 Development
+    enable_in_development: false
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application
@@ -889,6 +893,10 @@ features:
   letters_check_discrepancies:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
+    enable_in_development: true
+  letters_page_new_design:
+    actor_type: user
+    description: Enables ability to show updated letter page design
     enable_in_development: true
   lighthouse_claims_api_v2_add_person_proxy:
     actor_type: user
@@ -1823,6 +1831,9 @@ features:
   burial_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
+  burial_submitted_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Burial Submission in Progress email notification
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
