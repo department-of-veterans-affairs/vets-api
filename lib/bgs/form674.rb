@@ -19,16 +19,64 @@ module BGS
     def initialize(user, saved_claim)
       @user = user
       @saved_claim = saved_claim
+      @multiple_674 = @saved_claim.multiple_674?
       @proc_id = vnp_proc_id(saved_claim)
       @end_product_name = '130 - Automated School Attendance 674'
       @end_product_code = '130SCHATTEBN'
       @proc_state = 'Ready' if Flipper.enabled?(:va_dependents_submit674)
+      @is_v2 = Flipper.enabled?(:va_dependents_v2)
     end
 
     def submit(payload)
+      # creating the veteran for all 674s
       veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130SCHATTEBN').create
+      if @is_v2
+        payload['dependents_application']['student_information'].each do |student_info|
+          generate_674_for_veteran(payload, student_info)
+        end
+      else
+        generate_674_for_veteran(payload, nil)
+      end
+    end
 
-      process_relationships(proc_id, veteran, payload)
+    private
+
+    def benefit_claim_args(vnp_benefit_claim_record, veteran)
+      {
+        vnp_benefit_claim: vnp_benefit_claim_record,
+        veteran:,
+        user:,
+        proc_id:,
+        end_product_name: @end_product_name,
+        end_product_code: @end_product_code
+      }
+    end
+
+    def process_relationships(proc_id, veteran, payload, student_info)
+      dependent = DependentHigherEdAttendance.new(proc_id:, payload:, user: @user, student_info:).create
+
+      VnpRelationships.new(
+        proc_id:,
+        veteran:,
+        dependents: [dependent],
+        step_children: [],
+        user: @user
+      ).create_all
+
+      process_674(proc_id, dependent, payload, student_info)
+    end
+
+    def process_674(proc_id, dependent, payload, student_info)
+      StudentSchool.new(
+        proc_id:,
+        vnp_participant_id: dependent[:vnp_participant_id],
+        payload:,
+        user: @user
+      ).create
+    end
+
+    def generate_674_for_veteran(payload, student_info)
+      process_relationships(proc_id, veteran, payload, student_info)
 
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user:)
       vnp_benefit_claim_record = vnp_benefit_claim.create
@@ -59,42 +107,6 @@ module BGS
       rescue
         log_submit_failure(error)
       end
-    end
-
-    private
-
-    def benefit_claim_args(vnp_benefit_claim_record, veteran)
-      {
-        vnp_benefit_claim: vnp_benefit_claim_record,
-        veteran:,
-        user:,
-        proc_id:,
-        end_product_name: @end_product_name,
-        end_product_code: @end_product_code
-      }
-    end
-
-    def process_relationships(proc_id, veteran, payload)
-      dependent = DependentHigherEdAttendance.new(proc_id:, payload:, user: @user).create
-
-      VnpRelationships.new(
-        proc_id:,
-        veteran:,
-        dependents: [dependent],
-        step_children: [],
-        user: @user
-      ).create_all
-
-      process_674(proc_id, dependent, payload)
-    end
-
-    def process_674(proc_id, dependent, payload)
-      StudentSchool.new(
-        proc_id:,
-        vnp_participant_id: dependent[:vnp_participant_id],
-        payload:,
-        user: @user
-      ).create
     end
 
     def vnp_proc_id(saved_claim)
