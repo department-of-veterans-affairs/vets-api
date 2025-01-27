@@ -594,6 +594,10 @@ features:
     actor_type: user
     description: Send only lat/long values (no bounding box or address) to the API when querying for facilities.
     enable_in_development: true
+  facility_locator_mobile_map_update:
+    actor_type: user
+    description: Use new mobile map features for research
+    enable_in_development: true
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
