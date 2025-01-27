@@ -8,7 +8,7 @@ module AccreditedRepresentativePortal
       end
 
       attribute :name do
-        "TODO: implement"
+        'TODO: implement'
       end
     end
   end
