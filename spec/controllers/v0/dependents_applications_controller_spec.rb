@@ -72,7 +72,7 @@ RSpec.describe V0::DependentsApplicationsController do
           JSON.parse(response.body)['errors'][0]['detail'].include?(
             'Veteran address can\'t be blank'
           )
-        ).to eq(true)
+        ).to be(true)
       end
     end
   end

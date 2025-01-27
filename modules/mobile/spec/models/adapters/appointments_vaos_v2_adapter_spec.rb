@@ -3,26 +3,8 @@
 require 'rails_helper'
 
 describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
-  def appointment_data(index = nil)
-    appts = index ? raw_data[index] : raw_data
-    Array.wrap(appts).map { |appt| OpenStruct.new(appt) }
-  end
-
-  def appointment_by_id(id, overrides: {}, without: [])
-    appointment = raw_data.find { |appt| appt[:id] == id }
-    appointment.merge!(overrides) if overrides.any?
-    without.each do |property|
-      if property.is_a?(Hash)
-        appointment.dig(*property[:at]).delete(property[:key])
-      else
-        appointment.delete(property)
-      end
-    end
-    subject.parse(Array.wrap(appointment)).first
-  end
-
   let(:appointment_fixtures) do
-    File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'VAOS_v2_appointments.json'))
+    Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'VAOS_v2_appointments.json').read
   end
   let(:raw_data) { JSON.parse(appointment_fixtures, symbolize_names: true) }
 
@@ -39,6 +21,25 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   let(:past_request_date_appt_id) { '53360' }
   let(:future_request_date_appt_id) { '53359' }
   let(:telehealth_onsite_id) { '50097' }
+  let(:user) { build(:user) }
+
+  def appointment_data(index = nil)
+    appts = index ? raw_data[index] : raw_data
+    Array.wrap(appts).map { |appt| OpenStruct.new(appt) }
+  end
+
+  def appointment_by_id(id, overrides: {}, without: [])
+    appointment = raw_data.find { |appt| appt[:id] == id }
+    appointment.merge!(overrides) if overrides.any?
+    without.each do |property|
+      if property.is_a?(Hash)
+        appointment.dig(*property[:at]).delete(property[:key])
+      else
+        appointment.delete(property)
+      end
+    end
+    Mobile::V0::Adapters::VAOSV2Appointments.new(user).parse(Array.wrap(appointment)).first
+  end
 
   before do
     Timecop.freeze(Time.zone.parse('2022-08-25T19:25:00Z'))
@@ -49,11 +50,11 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   it 'returns an empty array when provided nil' do
-    expect(subject.parse(nil)).to eq([])
+    expect(Mobile::V0::Adapters::VAOSV2Appointments.new(user).parse(nil)).to eq([])
   end
 
   it 'returns a list of Mobile::V0::Appointments at the expected size' do
-    adapted_appointments = subject.parse(appointment_data)
+    adapted_appointments = Mobile::V0::Adapters::VAOSV2Appointments.new(user).parse(appointment_data)
     expect(adapted_appointments.size).to eq(13)
     expect(adapted_appointments.map(&:class).uniq).to match_array(Mobile::V0::Appointment)
   end
@@ -124,7 +125,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       expect(appt.id).to eq(booked_va_id)
       expect(appt.appointment_ien).to eq('IEN 1')
       expect(appt.comment).to eq('COMMENT')
-      expect(appt.healthcare_service).to eq(nil) # always nil
+      expect(appt.healthcare_service).to be_nil # always nil
       expect(appt.physical_location).to eq('NYC')
       expect(appt.minutes_duration).to eq(30)
       expect(appt.reason).to eq('REASON')
@@ -133,6 +134,18 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   describe 'appointment_type' do
+    context 'with appointment_type_consolidation flag on' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_appointment_type_consolidation,
+                                                  instance_of(User)).and_return(true)
+      end
+
+      it 'sets va requests to VA' do
+        appt = appointment_by_id(proposed_va_id)
+        expect(appt.appointment_type).to eq('VA')
+      end
+    end
+
     it 'sets phone appointments to VA' do
       appt = appointment_by_id(phone_va_id)
       expect(appt.appointment_type).to eq('VA')
@@ -179,14 +192,14 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   describe 'cancel_id' do
     context 'when telehealth appointment and cancellable is true' do
       it 'is nil' do
-        expect(appointment_by_id(home_va_id).cancel_id).to eq(nil)
+        expect(appointment_by_id(home_va_id).cancel_id).to be_nil
       end
     end
 
     context 'when not telehealth appointment and cancellable is false' do
       it 'is nil' do
         appt = appointment_by_id(home_va_id, overrides: { cancellable: false })
-        expect(appt.cancel_id).to eq(nil)
+        expect(appt.cancel_id).to be_nil
       end
     end
 
@@ -212,14 +225,14 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     let(:practitioner_list) do
       [
         {
-          "identifier": [{ "system": 'dfn-983', "value": '520647609' }],
-          "name": { "family": 'ENGHAUSER', "given": ['MATTHEW'] },
-          "practice_name": 'Site #983'
+          identifier: [{ system: 'dfn-983', value: '520647609' }],
+          name: { family: 'ENGHAUSER', given: ['MATTHEW'] },
+          practice_name: 'Site #983'
         },
         {
-          "identifier": [{ "system": 'dfn-983', "value": '520647609' }],
-          "name": { "family": 'FORTH', "given": ['SALLY'] },
-          "practice_name": 'Site #983'
+          identifier: [{ system: 'dfn-983', value: '520647609' }],
+          name: { family: 'FORTH', given: ['SALLY'] },
+          practice_name: 'Site #983'
         }
       ]
     end
@@ -242,7 +255,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
         booked_va_id,
         overrides: { preferred_provider_name: VAOS::V2::AppointmentProviderName::NPI_NOT_FOUND_MSG }
       )
-      expect(appt.healthcare_provider).to eq(nil)
+      expect(appt.healthcare_provider).to be_nil
     end
 
     it 'uses the practitioners list in favor of the not found message' do
@@ -262,21 +275,21 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       let(:practitioner_list) do
         [
           {
-            "identifier": [
+            identifier: [
               {
-                "system": 'http://hl7.org/fhir/sid/us-npi',
-                "value": '1780671644'
+                system: 'http://hl7.org/fhir/sid/us-npi',
+                value: '1780671644'
               }
             ],
-            "address": {
-              "type": 'physical',
-              "line": [
+            address: {
+              type: 'physical',
+              line: [
                 '161 MADISON AVE STE 7SW'
               ],
-              "city": 'NEW YORK',
-              "state": 'NY',
-              "postal_code": '10016-5448',
-              "text": '161 MADISON AVE STE 7SW,NEW YORK,NY,10016-5448'
+              city: 'NEW YORK',
+              state: 'NY',
+              postal_code: '10016-5448',
+              text: '161 MADISON AVE STE 7SW,NEW YORK,NY,10016-5448'
             }
           }
         ]
@@ -359,14 +372,14 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     context 'when appointment kind is phone' do
       it 'is set to true' do
         appt = appointment_by_id(booked_va_id, overrides: { kind: 'phone' })
-        expect(appt.phone_only).to eq(true)
+        expect(appt.phone_only).to be(true)
       end
     end
 
     context 'when appointment kind is not phone' do
       it 'is set to false' do
         appt = appointment_by_id(booked_va_id)
-        expect(appt.phone_only).to eq(false)
+        expect(appt.phone_only).to be(false)
       end
     end
   end
@@ -460,7 +473,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     context 'with nil service type' do
       it 'returns nil' do
         vaos_data = appointment_by_id(booked_va_id, overrides: { service_type: nil })
-        expect(vaos_data[:type_of_care]).to eq(nil)
+        expect(vaos_data[:type_of_care]).to be_nil
       end
     end
 
@@ -534,12 +547,12 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   describe 'is_covid_vaccine' do
     it 'is true when service type is covid' do
       appt = appointment_by_id(booked_va_id, overrides: { service_type: 'covid' })
-      expect(appt.is_covid_vaccine).to eq(true)
+      expect(appt.is_covid_vaccine).to be(true)
     end
 
     it 'is false when service type is not covid' do
       appt = appointment_by_id(booked_va_id)
-      expect(appt.is_covid_vaccine).to eq(false)
+      expect(appt.is_covid_vaccine).to be(false)
     end
   end
 
@@ -594,12 +607,12 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   describe 'is_pending' do
     it 'is true for appointment requests' do
       appt = appointment_by_id(proposed_va_id)
-      expect(appt.is_pending).to eq(true)
+      expect(appt.is_pending).to be(true)
     end
 
     it 'is false for confirmed appointments' do
       appt = appointment_by_id(booked_va_id)
-      expect(appt.is_pending).to eq(false)
+      expect(appt.is_pending).to be(false)
     end
   end
 
@@ -607,7 +620,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     context 'when contact info is not present' do
       it 'is nil' do
         appt = appointment_by_id(proposed_cc_id, without: [:contact])
-        expect(appt.patient_email).to eq(nil)
+        expect(appt.patient_email).to be_nil
       end
     end
 
@@ -628,7 +641,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
       it 'is set to nil when location name is absent' do
         appt = appointment_by_id(booked_va_id, without: [:location])
-        expect(appt.friendly_location_name).to eq(nil)
+        expect(appt.friendly_location_name).to be_nil
       end
     end
 
@@ -640,7 +653,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
       it 'is set to nil when location name is absent' do
         appt = appointment_by_id(proposed_cc_id, without: [:location])
-        expect(appt.friendly_location_name).to eq(nil)
+        expect(appt.friendly_location_name).to be_nil
       end
     end
 
@@ -652,7 +665,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
       it 'is set to nil when cc location practice name is absent' do
         appt = appointment_by_id(booked_cc_id, without: [:extension])
-        expect(appt.friendly_location_name).to eq(nil)
+        expect(appt.friendly_location_name).to be_nil
       end
     end
   end

@@ -93,6 +93,7 @@ en:
           - :veteran_postal_code
           - :veterans_location_of_residence
           - :who_is_your_question_about
+          - :your_health_facility
           - :your_location_of_residence
           - :your_role
           - :your_role_education
@@ -121,24 +122,35 @@ en:
             - :first
             - :last
             - :middle
-            - :social_or_service_num
+            - :social_num
+            - :social_or_service_num:
+              - :service_number
+              - :ssn
             - :suffix
+            - :branch_of_service
+            - :preferred_name
+            - :service_date_range:
+              - :from
+              - :to
           about_the_veteran:
             - :date_of_birth
             - :first
             - :last
             - :middle
             - :social_or_service_num:
-                - :service_number
-                - :ssn
+              - :service_number
+              - :ssn
             - :suffix
             - :branch_of_service
           about_the_family_member:
-            - :date_of_birth
             - :first
             - :last
             - :middle
             - :suffix
+            - :social_or_service_num:
+              - :service_number
+              - :ssn
+            - :date_of_birth
             - :branch_of_service
           state_or_residency:
             - :residency_state

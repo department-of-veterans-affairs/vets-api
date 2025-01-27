@@ -171,7 +171,7 @@ module EducationForm
     def remaining_entitlement_days(remaining_entitlement)
       months = remaining_entitlement.months
       days = remaining_entitlement.days
-      months * 30 + days
+      (months * 30) + days
     end
 
     # Inverse of less than six months check performed in SavedClaim::EducationBenefits::VA10203
@@ -184,7 +184,7 @@ module EducationForm
     def inform_on_error(claim, error = nil)
       region = EducationFacility.facility_for(region: :eastern)
       StatsD.increment("worker.education_benefits_claim.failed_formatting.#{region}.22-#{claim.form_type}")
-      exception = if error&.present?
+      exception = if error.present?
                     FormattingError.new("Could not format #{claim.confirmation_number}.\n\n#{error}")
                   else
                     FormattingError.new("Could not format #{claim.confirmation_number}")

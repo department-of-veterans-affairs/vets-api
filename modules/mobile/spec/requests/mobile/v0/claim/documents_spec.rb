@@ -121,7 +121,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     args = Lighthouse::DocumentUpload.jobs.first['args'][1]
     expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
-    expect(args.key?('tracked_item_id')).to eq(true)
+    expect(args.key?('tracked_item_id')).to be(true)
     expect(args['tracked_item_id']).to be_nil
   end
 

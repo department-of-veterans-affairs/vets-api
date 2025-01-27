@@ -20,7 +20,7 @@ RSpec.describe 'V0::Status', type: :request do
     expect(response.headers['X-Git-SHA']).to eq(git_rev)
     expect(json['git_revision']).to eq(git_rev)
     expect(json['postgres_up']).to eq(pg_up)
-    expect(json['redis_up']).to eq(true)
+    expect(json['redis_up']).to be(true)
     expect(json['redis_details']).to eq({
                                           'app_data_redis' => true,
                                           'rails_cache' => true,
@@ -39,7 +39,7 @@ RSpec.describe 'V0::Status', type: :request do
       assert_response :success
 
       json = JSON.parse(response.body)
-      expect(json['redis_up']).to eq(false)
+      expect(json['redis_up']).to be(false)
       expect(json['redis_details']).to eq({
                                             'app_data_redis' => false,
                                             'rails_cache' => true,

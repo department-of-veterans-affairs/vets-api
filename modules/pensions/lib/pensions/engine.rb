@@ -16,13 +16,24 @@ module Pensions
       end
     end
 
-    initializer 'pensions.register_form' do |app|
+    initializer 'pensions.pdf_fill.register_form' do |app|
       app.config.to_prepare do
         require 'pdf_fill/filler'
         require_relative '../pdf_fill/va21p527ez'
 
         # Register our Pension Pdf Fill form
-        ::PdfFill::Filler.register_form(Pensions::PdfFill::Va21p527ez::FORM_ID, Pensions::PdfFill::Va21p527ez)
+        ::PdfFill::Filler.register_form(Pensions::FORM_ID, Pensions::PdfFill::Va21p527ez)
+      end
+    end
+
+    initializer 'pensions.benefits_intake.register_handler' do |app|
+      app.config.to_prepare do
+        require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
+        require_relative '../benefits_intake/submission_handler'
+
+        # Register our Pension Benefits Intake Submission Handler
+        ::BenefitsIntake::SubmissionStatusJob.register_handler(Pensions::FORM_ID,
+                                                               Pensions::BenefitsIntake::SubmissionHandler)
       end
     end
   end

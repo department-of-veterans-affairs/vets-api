@@ -16,7 +16,7 @@ describe MPI::Responses::AddPersonResponse do
       let(:status) { :ok }
 
       it 'returns true' do
-        expect(subject).to eq(true)
+        expect(subject).to be(true)
       end
     end
 
@@ -24,7 +24,7 @@ describe MPI::Responses::AddPersonResponse do
       let(:status) { 'some-status' }
 
       it 'returns false' do
-        expect(subject).to eq(false)
+        expect(subject).to be(false)
       end
     end
   end
@@ -36,7 +36,7 @@ describe MPI::Responses::AddPersonResponse do
       let(:status) { :server_error }
 
       it 'returns true' do
-        expect(subject).to eq(true)
+        expect(subject).to be(true)
       end
     end
 
@@ -44,7 +44,7 @@ describe MPI::Responses::AddPersonResponse do
       let(:status) { 'some-status' }
 
       it 'returns false' do
-        expect(subject).to eq(false)
+        expect(subject).to be(false)
       end
     end
   end

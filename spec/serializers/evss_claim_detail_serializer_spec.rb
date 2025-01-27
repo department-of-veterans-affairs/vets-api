@@ -59,7 +59,7 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
     let(:evss_claim) { build(:evss_claim, data: claim_data, list_data: claim_list_data) }
 
     it 'does not use list_data' do
-      expect(attributes['waiver_submitted']).to eq true
+      expect(attributes['waiver_submitted']).to be true
     end
   end
 

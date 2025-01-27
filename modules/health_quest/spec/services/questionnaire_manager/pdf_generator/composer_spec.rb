@@ -27,11 +27,11 @@ describe HealthQuest::QuestionnaireManager::PdfGenerator::Composer do
     end
 
     it 'responds to opts' do
-      expect(subject.synthesize({}).respond_to?(:opts)).to eq(true)
+      expect(subject.synthesize({}).respond_to?(:opts)).to be(true)
     end
 
     it 'responds to properties' do
-      expect(subject.synthesize({}).respond_to?(:properties)).to eq(true)
+      expect(subject.synthesize({}).respond_to?(:properties)).to be(true)
     end
   end
 

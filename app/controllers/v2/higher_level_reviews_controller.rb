@@ -6,6 +6,7 @@ module V2
   class HigherLevelReviewsController < AppealsBaseControllerV1
     include DecisionReview::SavedClaim::Service
     service_tag 'higher-level-review'
+    before_action { log_non_module_controller(action: "HLR V2 #{action_name}", form_id: '996') }
 
     def show
       render json: decision_review_service.get_higher_level_review(params[:id]).body

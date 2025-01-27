@@ -5,8 +5,6 @@ require 'va_profile/address_validation/service'
 module Mobile
   module V0
     class AddressesController < ProfileBaseController
-      skip_after_action :invalidate_cache, only: [:validation]
-
       def create
         render_transaction_to_json(
           service.save_and_await_response(resource_type: :address, params: address_params)

@@ -6,7 +6,7 @@ RSpec.describe Preneeds::Address do
   subject { described_class.new(params) }
 
   context 'with US/CAN address' do
-    let(:params) { attributes_for :address }
+    let(:params) { attributes_for(:address) }
 
     it 'specifies the permitted_params' do
       expect(described_class.permitted_params).to include(
@@ -34,7 +34,7 @@ RSpec.describe Preneeds::Address do
   end
 
   context 'with foreign address' do
-    let(:params) { attributes_for :foreign_address }
+    let(:params) { attributes_for(:foreign_address) }
 
     it 'treats nil state as empty string' do
       expect(subject.as_eoas[:state]).to eq('')

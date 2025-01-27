@@ -72,7 +72,7 @@ RSpec.describe CheckIn::V2::PatientCheckIn do
     it 'returns true' do
       patient_check_in_with_data = subject.build(data:, check_in: nil)
 
-      expect(patient_check_in_with_data.error_status?).to eq(true)
+      expect(patient_check_in_with_data.error_status?).to be(true)
     end
   end
 

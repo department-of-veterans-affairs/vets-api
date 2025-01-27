@@ -170,7 +170,7 @@ describe CARMA::Client::MuleSoftClient do
         subject { client.send(:raise_error_unless_success, 'my/url', status_code) }
 
         it 'returns nil' do
-          expect(subject).to eq(nil)
+          expect(subject).to be_nil
         end
 
         it 'logs submission and response code' do

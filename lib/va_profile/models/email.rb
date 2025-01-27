@@ -22,7 +22,7 @@ module VAProfile
       attribute :transaction_id, String
       attribute :updated_at, Common::ISO8601Time
       attribute :vet360_id, String
-      attribute :vaprofile_id, String
+      attribute :va_profile_id, String
 
       validates(
         :email_address,
@@ -42,7 +42,23 @@ module VAProfile
             originatingSourceSystem: SOURCE_SYSTEM,
             sourceSystemUser: @source_system_user,
             sourceDate: @source_date,
-            vet360Id: @vet360_id,
+            vet360Id: @vet360_id || @vaProfileId,
+            effectiveStartDate: @effective_start_date,
+            effectiveEndDate: @effective_end_date
+          }
+        }.to_json
+      end
+
+      # Contact Information V2 requests do not need the vet360Id
+      # in_json_v2 will replace in_json when Contact Information V1 Service has depreciated
+      def in_json_v2
+        {
+          bio: {
+            emailAddressText: @email_address,
+            emailId: @id,
+            originatingSourceSystem: SOURCE_SYSTEM,
+            sourceSystemUser: @source_system_user,
+            sourceDate: @source_date,
             effectiveStartDate: @effective_start_date,
             effectiveEndDate: @effective_end_date
           }
@@ -62,7 +78,8 @@ module VAProfile
           source_date: body['source_date'],
           transaction_id: body['tx_audit_id'],
           updated_at: body['update_date'],
-          vet360_id: body['vet360_id']
+          vet360_id: body['vet360_id'] || body['va_profile_id'],
+          va_profile_id: body['va_profile_id'] || body['vet360_id']
         )
       end
     end

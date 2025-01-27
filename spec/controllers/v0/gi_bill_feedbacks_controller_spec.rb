@@ -22,7 +22,7 @@ RSpec.describe V0::GIBillFeedbacksController, type: :controller do
     context 'with a valid form' do
       it 'creates a gi bill feedback submission' do
         send_create
-        expect(GIBillFeedback.find(parsed_body['data']['attributes']['guid']).present?).to eq(true)
+        expect(GIBillFeedback.find(parsed_body['data']['attributes']['guid']).present?).to be(true)
       end
     end
 
@@ -33,7 +33,7 @@ RSpec.describe V0::GIBillFeedbacksController, type: :controller do
         post(:create, params: { gi_bill_feedback: { form: { foo: 1 }.to_json } })
 
         expect(response.status).to eq(422)
-        expect(parsed_body['errors'][0]['title'].include?('contains additional properties')).to eq(true)
+        expect(parsed_body['errors'][0]['title'].include?('contains additional properties')).to be(true)
       end
     end
   end

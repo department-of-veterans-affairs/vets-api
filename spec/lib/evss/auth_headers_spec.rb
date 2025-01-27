@@ -7,7 +7,7 @@ describe EVSS::AuthHeaders do
   subject { described_class.new(current_user) }
 
   context 'with an LoA3 user' do
-    let(:current_user) { FactoryBot.build(:user, :loa3) }
+    let(:current_user) { build(:user, :loa3) }
 
     it 'has the right LoA' do
       expect(subject.to_h['va_eauth_assurancelevel']).to eq '3'
@@ -15,7 +15,7 @@ describe EVSS::AuthHeaders do
 
     it 'has only lowercase first letters in key names' do
       # EVSS requires us to pass the HTTP headers as lowercase
-      expect(subject.to_h.find { |k, _| k.match(/^[[:upper:]]/) }).to be nil
+      expect(subject.to_h.find { |k, _| k.match(/^[[:upper:]]/) }).to be_nil
     end
 
     it 'includes the users birls id' do
@@ -24,7 +24,7 @@ describe EVSS::AuthHeaders do
   end
 
   context 'with an LoA1 user' do
-    let(:current_user) { FactoryBot.build(:user, :loa1) }
+    let(:current_user) { build(:user, :loa1) }
 
     it 'has the right LoA' do
       expect(subject.to_h['va_eauth_assurancelevel']).to eq '1'
@@ -32,7 +32,7 @@ describe EVSS::AuthHeaders do
   end
 
   describe '#to_h' do
-    let(:current_user) { FactoryBot.build(:user, :loa3) }
+    let(:current_user) { build(:user, :loa3) }
     let(:headers) { subject.to_h }
 
     context 'with some nil values' do
@@ -41,7 +41,7 @@ describe EVSS::AuthHeaders do
       end
 
       it 'does not return nil header values' do
-        expect(headers.values.include?(nil)).to eq false
+        expect(headers.values.include?(nil)).to be false
       end
 
       it 'sets any nil headers values to an empty string', :aggregate_failures do
@@ -86,12 +86,12 @@ describe EVSS::AuthHeaders do
         end
 
         it 'does not return additional authorization response fields' do
-          expect(authorization_response['headOfFamily']).to eq nil
+          expect(authorization_response['headOfFamily']).to be_nil
         end
       end
 
       context 'when user is a dependent' do
-        let(:current_user) { FactoryBot.build(:dependent_user_with_relationship, :loa3) }
+        let(:current_user) { build(:dependent_user_with_relationship, :loa3) }
         let(:head_of_family) { authorization_response['headOfFamily'] }
         let(:expected_status) { 'DEPENDENT' }
 
@@ -111,7 +111,7 @@ describe EVSS::AuthHeaders do
           end
 
           it 'returns head of family hash' do
-            expect(head_of_family).not_to be nil
+            expect(head_of_family).not_to be_nil
           end
 
           it 'returns expected values inside head of family hash' do
@@ -130,7 +130,7 @@ describe EVSS::AuthHeaders do
           end
 
           it 'does not return additional authorization response fields' do
-            expect(head_of_family).to eq nil
+            expect(head_of_family).to be_nil
           end
         end
       end

@@ -141,7 +141,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
           do_update
 
           expect(response.status).to eq(404)
-          expect(onsite_notification.reload.dismissed).to eq(false)
+          expect(onsite_notification.reload.dismissed).to be(false)
         end
       end
 
@@ -179,7 +179,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
 
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)['data']['id']).to eq(onsite_notification.id.to_s)
-        expect(onsite_notification.reload.dismissed).to eq(true)
+        expect(onsite_notification.reload.dismissed).to be(true)
       end
     end
   end

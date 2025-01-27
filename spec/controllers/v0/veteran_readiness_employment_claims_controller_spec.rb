@@ -44,7 +44,7 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
           JSON.parse(response.body)['errors'][0]['detail'].include?(
             'form - can\'t be blank'
           )
-        ).to eq(true)
+        ).to be(true)
       end
     end
 

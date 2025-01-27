@@ -10,7 +10,7 @@ module RepresentationManagement
         protected
 
         def next_steps_page?
-          true
+          false
         end
 
         def next_steps_part1(pdf)
@@ -90,12 +90,12 @@ module RepresentationManagement
             data.veteran_address_line2,
             "#{PAGE1_KEY}.Claimants_MailingAddress_City[1]": data.veteran_city,
             "#{PAGE1_KEY}.Claimants_MailingAddress_StateOrProvince[1]": \
-            data.veteran_state_code,
+            data.veteran_state_code_truncated,
             "#{PAGE1_KEY}.Claimants_MailingAddress_Country[1]": data.veteran_country,
             "#{PAGE1_KEY}.Claimants_MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": \
-            data.veteran_zip_code,
+            data.veteran_zip_code_expanded.first,
             "#{PAGE1_KEY}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[1]": \
-            data.veteran_zip_code_suffix,
+            data.veteran_zip_code_expanded.second,
             # Veteran Phone Number
             "#{PAGE1_KEY}.TelephoneNumber_IncludeAreaCode[1]": data.veteran_phone,
             # Veteran Email
@@ -131,12 +131,12 @@ module RepresentationManagement
             data.claimant_address_line2,
             "#{PAGE1_KEY}.Claimants_MailingAddress_City[0]": data.claimant_city,
             "#{PAGE1_KEY}.Claimants_MailingAddress_StateOrProvince[0]": \
-            data.claimant_state_code,
+            data.claimant_state_code_truncated,
             "#{PAGE1_KEY}.Claimants_MailingAddress_Country[0]": data.claimant_country,
             "#{PAGE1_KEY}.Claimants_MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": \
-            data.claimant_zip_code,
+            data.claimant_zip_code_expanded.first,
             "#{PAGE1_KEY}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": \
-            data.claimant_zip_code_suffix,
+            data.claimant_zip_code_expanded.second,
             # Claimant Phone Number
             "#{PAGE1_KEY}.TelephoneNumber_IncludeAreaCode[0]": data.claimant_phone,
             # Claimant Email
@@ -156,14 +156,12 @@ module RepresentationManagement
             # Record Consent
             "#{PAGE2_KEY}.I_Authorize[1]": data.record_consent == true ? 1 : 0,
             # Item 20
-            "#{PAGE2_KEY}.Drug_Abuse[0]": \
-            data.consent_limits.present? && data.consent_limits.include?('DRUG_ABUSE') ? 1 : 0,
+            "#{PAGE2_KEY}.Drug_Abuse[0]": data.limitations_of_consent_checkbox('DRUG_ABUSE'),
             "#{PAGE2_KEY}.Alcoholism_Or_Alcohol_Abuse[0]": \
-            data.consent_limits.present? && data.consent_limits.include?('ALCOHOLISM') ? 1 : 0,
+            data.limitations_of_consent_checkbox('ALCOHOLISM'),
             "#{PAGE2_KEY}.Infection_With_The_Human_Immunodeficiency_Virus_HIV[0]": \
-            data.consent_limits.present? && data.consent_limits.include?('HIV') ? 1 : 0,
-            "#{PAGE2_KEY}.sicklecellanemia[0]": \
-            data.consent_limits.present? && data.consent_limits.include?('SICKLE_CELL') ? 1 : 0,
+            data.limitations_of_consent_checkbox('HIV'),
+            "#{PAGE2_KEY}.sicklecellanemia[0]": data.limitations_of_consent_checkbox('SICKLE_CELL'),
             # Consent Address Change
             "#{PAGE2_KEY}.I_Authorize[0]": data.consent_address_change == true ? 1 : 0
           }

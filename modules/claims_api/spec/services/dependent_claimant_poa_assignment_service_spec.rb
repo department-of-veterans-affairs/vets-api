@@ -4,6 +4,7 @@ require 'rails_helper'
 require 'bgs_service/local_bgs'
 require 'bgs_service/benefit_claim_web_service'
 require 'bgs_service/benefit_claim_service'
+require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 
 Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
   describe '#assign_poa_to_dependent!' do
@@ -114,7 +115,9 @@ Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
         VCR.use_cassette('claims_api/bgs/person_web_service/manage_ptcpnt_rlnshp_poa_with_open_claims') do
           VCR.use_cassette('claims_api/bgs/standard_data_web_service/find_poas') do
             allow(service).to receive(:assign_poa_to_dependent_via_update_benefit_claim?).and_call_original
-            allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:find_benefit_claims_status_by_ptcpnt_id)
+            allow_any_instance_of(ClaimsApi::EbenefitsBnftClaimStatusWebService).to receive(
+              :find_benefit_claims_status_by_ptcpnt_id
+            )
               .with(dependent_participant_id).and_return(mock_find_benefit_claims_status_by_ptcpnt_id)
             allow_any_instance_of(ClaimsApi::BenefitClaimWebService).to receive(:find_bnft_claim)
               .with(claim_id: '256009').and_return(mock_find_bnft_claim)

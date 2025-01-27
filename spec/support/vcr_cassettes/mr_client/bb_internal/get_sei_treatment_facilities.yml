@@ -1,0 +1,40 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/getcare/treatmentFacility/11375034"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 21 Nov 2024 00:24:36 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '[{"userProfileId":11375034,"treatmentFacilityId":14551460,"addressCity":null,"addressCountry":null,"addressPostalCode":null,"addressProvince":null,"addressState":null,"addressStreet1":null,"addressStreet2":null,"comments":null,"contactInfoFax":null,"contactInfoWorkPhone":null,"contactInfoWorkPhoneExt":null,"facilityName":"Aveeno
+        Medical","facilityType":"V","homeFacility":true},{"userProfileId":11375034,"treatmentFacilityId":14551462,"addressCity":null,"addressCountry":null,"addressPostalCode":null,"addressProvince":null,"addressState":null,"addressStreet1":null,"addressStreet2":null,"comments":null,"contactInfoFax":null,"contactInfoWorkPhone":null,"contactInfoWorkPhoneExt":null,"facilityName":"lilfetime
+        ","facilityType":"V","homeFacility":false},{"userProfileId":11375034,"treatmentFacilityId":14168615,"addressCity":null,"addressCountry":null,"addressPostalCode":null,"addressProvince":null,"addressState":null,"addressStreet1":null,"addressStreet2":null,"comments":null,"contactInfoFax":null,"contactInfoWorkPhone":"801-956-6523","contactInfoWorkPhoneExt":null,"facilityName":"Lone
+        Peak Hospital","facilityType":"V","homeFacility":false},{"userProfileId":11375034,"treatmentFacilityId":14221544,"addressCity":null,"addressCountry":null,"addressPostalCode":null,"addressProvince":null,"addressState":null,"addressStreet1":null,"addressStreet2":null,"comments":null,"contactInfoFax":null,"contactInfoWorkPhone":"801-231-4561","contactInfoWorkPhoneExt":null,"facilityName":"New
+        Haven","facilityType":"V","homeFacility":false}]'
+  recorded_at: Thu, 21 Nov 2024 00:24:36 GMT
+recorded_with: VCR 6.3.1

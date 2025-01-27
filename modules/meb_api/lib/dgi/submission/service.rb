@@ -51,7 +51,8 @@ module MebApi
           if Flipper.enabled?(:meb_gate_person_criteria)
             camelized_keys = camelize_keys_for_java_service(params.except(:form_id))
             modified_keys = camelized_keys['claimant']&.merge(
-              personCriteria: { ssn: @user.ssn }.stringify_keys)
+              personCriteria: { ssn: @user.ssn }.stringify_keys
+            )
             camelized_keys['claimant'] = modified_keys
             camelized_keys
           else

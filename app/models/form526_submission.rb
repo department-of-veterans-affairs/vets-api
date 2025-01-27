@@ -63,8 +63,8 @@ class Form526Submission < ApplicationRecord
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
-  enum backup_submitted_claim_status: { accepted: 0, rejected: 1, paranoid_success: 2 }
-  enum submit_endpoint: { evss: 0, claims_api: 1, benefits_intake_api: 2 }
+  enum :backup_submitted_claim_status, { accepted: 0, rejected: 1, paranoid_success: 2 }
+  enum :submit_endpoint, { evss: 0, claims_api: 1, benefits_intake_api: 2 }
 
   FORM_526 = 'form526'
   FORM_526_UPLOADS = 'form526_uploads'
@@ -328,8 +328,7 @@ class Form526Submission < ApplicationRecord
       submit_form_8940 if form[FORM_8940].present?
       upload_bdd_instructions if bdd?
       submit_flashes if form[FLASHES].present?
-      poll_form526_pdf if Flipper.enabled?(:disability_526_toxic_exposure_document_upload_polling,
-                                           OpenStruct.new({ flipper_id: user_uuid }))
+      poll_form526_pdf
       cleanup
     end
   end

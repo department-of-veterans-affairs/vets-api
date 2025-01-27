@@ -10,7 +10,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm8940, type: :job do
     Flipper.disable(:disability_compensation_lighthouse_document_service_provider)
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -27,7 +27,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm8940, type: :job do
     with8940 = File.read 'spec/support/disability_compensation_form/submissions/with_8940.json'
     submitted_claim_id = 123_456_789
 
-    let(:saved_claim) { FactoryBot.create(:va526ez) }
+    let(:saved_claim) { create(:va526ez) }
     let(:submitted_claim_id) { 123_456_789 }
     let(:submission) do
       create(:form526_submission,

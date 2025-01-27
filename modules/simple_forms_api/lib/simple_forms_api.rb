@@ -75,5 +75,7 @@ module SimpleFormsApi
         words.uniq.sort_by(&:length).reverse
       end
     end
+
+    class BenefitsClaimsApiDownError < RuntimeError; end
   end
 end

@@ -10,6 +10,7 @@ class MHVUserAccount
   attribute :patient, :boolean
   attribute :sm_account_created, :boolean
   attribute :message, :string
+  alias_attribute :id, :user_profile_id
 
   validates :user_profile_id, presence: true
   validates :premium, :champ_va, :patient, :sm_account_created, inclusion: { in: [true, false] }

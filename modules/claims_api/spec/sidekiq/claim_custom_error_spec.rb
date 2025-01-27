@@ -12,7 +12,7 @@ RSpec.describe ClaimsApi::CustomError, type: :job do
     stub_claims_api_auth_token
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
 
   let(:claim) do
     claim = create(:auto_established_claim)

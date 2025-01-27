@@ -14,7 +14,7 @@ module BipClaims
 
     def veteran_attributes(claim)
       case claim.form_id
-      when '21P-530', '21P-530V2'
+      when '21P-530EZ'
         ssn, full_name, bday = claim.parsed_form.values_at(
           'veteranSocialSecurityNumber',
           'veteranFullName',

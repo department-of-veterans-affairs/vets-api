@@ -9,7 +9,8 @@ class PersistentAttachments::VAForm < PersistentAttachment
     { max_pages: 10, min_pages: 1 }
   ).merge(
     {
-      '21-0779' => { max_pages: 4, min_pages: 2 }
+      '21-0779' => { max_pages: 4, min_pages: 2 },
+      '21-509' => { max_pages: 4, min_pages: 2 }
     }
   )
 

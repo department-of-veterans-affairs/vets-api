@@ -7,9 +7,9 @@ require 'saml/responses/login'
 RSpec.describe SAML::Responses::Login do
   include SAML::ResponseBuilder
 
-  status_detail = '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder"></samlp:StatusCode>'\
-                  '<samlp:StatusDetail>'\
-                  '<fim:FIMStatusDetail MessageID="could_not_perform_token_exchange"></fim:FIMStatusDetail>'\
+  status_detail = '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder"></samlp:StatusCode>' \
+                  '<samlp:StatusDetail>' \
+                  '<fim:FIMStatusDetail MessageID="could_not_perform_token_exchange"></fim:FIMStatusDetail>' \
                   '</samlp:StatusDetail>'
   no_detail = '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success" />'
 

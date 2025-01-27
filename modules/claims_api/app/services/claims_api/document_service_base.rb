@@ -9,7 +9,6 @@ module ClaimsApi
     # rubocop:disable Metrics/ParameterLists
     def generate_upload_body(claim_id:, system_name:, doc_type:, pdf_path:, file_name:, birls_file_number:,
                              participant_id:, tracked_item_ids:)
-
       payload = {}
 
       data = build_body(claim_id:, system_name:, doc_type:, file_name:, participant_id:,

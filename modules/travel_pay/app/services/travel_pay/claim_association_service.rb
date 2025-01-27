@@ -5,6 +5,7 @@ module TravelPay
     def initialize(user)
       @user = user
     end
+
     # We need to associate an existing claim to a VAOS appointment, matching on date-time
     #
     # There will be a 1:1 claimID > appt association
@@ -16,7 +17,7 @@ module TravelPay
     #         metadata => {
     #           status => int (http status code, i.e. 200)
     #           success => boolean
-    #           message => string ('No claim for this appt' | 'Claim service is unavailable')
+    #           message => string ('Data retrieved successfully' | 'Claim service is unavailable')
     #         }
     #         claim => TravelPay::Claim (if a claim matches)
     #   }
@@ -30,52 +31,79 @@ module TravelPay
     # appointments: [VAOS::Appointment + travelPayClaim]
 
     def associate_appointments_to_claims(params = {})
-      raw_claims = service.get_claims_by_date_range(
-        { 'start_date' => params['start_date'],
-          'end_date' => params['end_date'] }
-      )
-      if raw_claims
-        append_claims(params['appointments'], raw_claims[:data], raw_claims[:metadata])
-      else
-        append_error(params['appointments'], { 'status' => 503,
-                                               'success' => false,
-                                               'message' => 'Travel Pay service unavailable.' })
+      validate_date_params(params['start_date'], params['end_date'])
+
+      auth_manager.authorize => { veis_token:, btsss_token: }
+      faraday_response = client.get_claims_by_date(veis_token, btsss_token,
+                                                   { 'start_date' => params['start_date'],
+                                                     'end_date' => params['end_date'] })
+
+      if faraday_response.status == 200
+        raw_claims = faraday_response.body['data'].deep_dup
+
+        data = raw_claims&.map do |sc|
+          sc['claimStatus'] = sc['claimStatus'].underscore.titleize
+          sc
+        end
+
+        append_claims(params['appointments'],
+                      data,
+                      build_metadata(faraday_response.body))
+
       end
+    rescue => e
+      append_error(params['appointments'],
+                   rescue_errors(e))
     end
 
     def associate_single_appointment_to_claim(params = {})
       appt = params['appointment']
+      # Because we only receive a single date/time but the external endpoint requires 2 dates
+      # in this case both start and end dates are the same
+      validate_date_params(appt['start'], appt['start'])
 
-      raw_claim = service.get_claims_by_date_range(
-        { 'start_date' => appt['start'],
-          'end_date' => appt['start'] }
-      )
-      if raw_claim
-        append_single_claim(appt, raw_claim)
-      else
-        appt['travelPayClaim'] = {
-          'metadata' => { 'status' => 503,
-                          'success' => false,
-                          'message' => 'Travel Pay service unavailable.' }
-        }
-        appt
-      end
+      auth_manager.authorize => { veis_token:, btsss_token: }
+      faraday_response = client.get_claims_by_date(veis_token, btsss_token,
+                                                   { 'start_date' => appt['start'], 'end_date' => appt['start'] })
+
+      claim_data = faraday_response.body['data']&.dig(0)
+      appt['travelPayClaim'] = {}
+      appt['travelPayClaim']['metadata'] = build_metadata(faraday_response.body)
+      appt['travelPayClaim']['claim'] = claim_data if claim_data
+
+      appt
+    rescue => e
+      appt['travelPayClaim'] = {
+        'metadata' => rescue_errors(e)
+      }
+      appt
     end
 
     private
 
-    def append_single_claim(appt, claim_response)
-      appt['travelPayClaim'] = if claim_response[:data].count
-                                 {
-                                   'metadata' => claim_response[:metadata],
-                                   'claim' => claim_response[:data][0]
-                                 }
-                               else
-                                 {
-                                   'metadata' => claim_response[:metadata]
-                                 }
-                               end
-      appt
+    def rescue_errors(e) # rubocop:disable Metrics/MethodLength
+      if e.is_a?(ArgumentError)
+        Rails.logger.error(message: e.message.to_s)
+        {
+          'status' => 400,
+          'message' => e.message.to_s,
+          'success' => false
+        }
+      elsif e.is_a?(Common::Exceptions::BackendServiceException)
+        Rails.logger.error(message: "#{e}, #{e.original_body}")
+        {
+          'status' => e.original_status,
+          'message' => e.original_body['message'],
+          'success' => false
+        }
+      else
+        Rails.logger.error(message: "An unknown error occured: #{e}")
+        {
+          'status' => 520, # Unknown error code
+          'message' => "An unknown error occured: #{e}",
+          'success' => false
+        }
+      end
     end
 
     def append_claims(appts, claims, metadata)
@@ -112,9 +140,30 @@ module TravelPay
       appointments
     end
 
-    def service
-      auth_manager = TravelPay::AuthManager.new(Settings.travel_pay.client_number, @user)
-      TravelPay::ClaimsService.new(auth_manager)
+    def build_metadata(faraday_response_body)
+      { 'status' => faraday_response_body['statusCode'],
+        'success' => faraday_response_body['success'],
+        'message' => faraday_response_body['message'] }
+    end
+
+    def validate_date_params(start_date, end_date)
+      if start_date && end_date
+        DateTime.parse(start_date.to_s) && DateTime.parse(end_date.to_s)
+      else
+        raise ArgumentError,
+              message: "Both start and end dates are required, got #{start_date}-#{end_date}."
+      end
+    rescue Date::Error => e
+      raise ArgumentError,
+            message: "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date})."
+    end
+
+    def auth_manager
+      @auth_manager ||= TravelPay::AuthManager.new(Settings.travel_pay.client_number, @user)
+    end
+
+    def client
+      TravelPay::ClaimsClient.new
     end
   end
 end

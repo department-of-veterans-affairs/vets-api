@@ -10,13 +10,13 @@ RSpec.describe PersonalInformationSerializer, type: :serializer do
 
   context 'when gender is nil' do
     it 'returns nil for gender' do
-      expect(attributes['gender']).to eq(nil)
+      expect(attributes['gender']).to be_nil
     end
   end
 
   context 'when birth_date is nil' do
     it 'returns nil for birth_date' do
-      expect(attributes['birth_date']).to eq(nil)
+      expect(attributes['birth_date']).to be_nil
     end
   end
 

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'simple_forms_api/form_remediation/error'
+
 module SimpleFormsApi
   module FormRemediation
     module Configuration
@@ -59,18 +61,36 @@ module SimpleFormsApi
 
         # Utility method, override to add your own team's preferred logging approach
         def log_info(message, **details)
-          Rails.logger.info({ message: }.merge(details))
+          Rails.logger.info({ message: "#{caller_class} - #{message}" }.merge(details))
         end
 
-        # Utility method, override to add your own team's preferred logging approach
+        # Utility method, override to add your own team's preferred error logging approach
         def log_error(message, error, **details)
-          Rails.logger.error({ message:, error: error.message, backtrace: error.backtrace.first(5) }.merge(details))
+          info = { message: "#{caller_class} - #{message}", error: error.message, backtrace: error.backtrace.first(5) }
+          Rails.logger.error(info.merge(details))
         end
 
-        # Utility method, override to add your own team's preferred logging approach
+        # Utility method, override to add your own team's preferred error handling approach
         def handle_error(message, error, **details)
           log_error(message, error, **details)
-          raise error
+          raise SimpleFormsApi::FormRemediation::Error.new(message:, error:)
+        end
+
+        private
+
+        # Extracts the class name from the call stack by matching the file path to extract
+        # the namespace and class name
+        def caller_class
+          matches = caller_locations&.map { |location| location.path.match(%r{modules/.+/app/services/(.+)/(.+)\.rb}) }
+          return 'SimpleFormsApi::FormRemediation' if matches&.empty?
+
+          files = matches.compact.first&.captures
+          return 'SimpleFormsApi::FormRemediation' unless files&.any?
+
+          class_name = files.map(&:camelize).join('::')
+          return class_name if Object.const_defined?(class_name)
+
+          'SimpleFormsApi::FormRemediation'
         end
       end
     end

@@ -19,7 +19,6 @@ module MPI
                      address: nil,
                      idme_uuid: nil,
                      logingov_uuid: nil)
-
         @first_name = first_name
         @last_name = last_name
         @ssn = ssn

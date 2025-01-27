@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Preneeds::CurrentlyBuriedPerson do
   subject { described_class.new(params) }
 
-  let(:params) { attributes_for :currently_buried_person }
+  let(:params) { attributes_for(:currently_buried_person) }
 
   it 'specifies the permitted_params' do
     expect(described_class.permitted_params).to include(:cemetery_number)

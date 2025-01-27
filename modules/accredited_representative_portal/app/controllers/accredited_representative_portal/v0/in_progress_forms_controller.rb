@@ -3,6 +3,8 @@
 module AccreditedRepresentativePortal
   module V0
     class InProgressFormsController < ApplicationController
+      skip_after_action :verify_pundit_authorization
+
       def update
         form = find_form || build_form
         form.update!(

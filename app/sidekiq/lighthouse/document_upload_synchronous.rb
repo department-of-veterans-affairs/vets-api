@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'ddtrace'
+require 'datadog'
 require 'timeout'
 require 'lighthouse/benefits_documents/worker_service'
 

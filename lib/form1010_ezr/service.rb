@@ -5,6 +5,7 @@ require 'hca/enrollment_system'
 require 'hca/configuration'
 require 'hca/ezr_postfill'
 require 'va1010_forms/utils'
+require 'hca/overrides_parser'
 
 module Form1010Ezr
   class Service < Common::Client::Base
@@ -47,6 +48,10 @@ module Form1010Ezr
         veteran_initials: veteran_initials(parsed_form)
       )
 
+      if parsed_form['attachments'].present?
+        StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.submission_with_attachment")
+      end
+
       res
     rescue => e
       log_and_raise_error(e, parsed_form)
@@ -68,11 +73,6 @@ module Form1010Ezr
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
 
       if parsed_form.present?
-        PersonalInformationLog.create!(
-          data: parsed_form,
-          error_class: 'Form1010Ezr Failed'
-        )
-
         log_message_to_sentry(
           '1010EZR failure',
           :error,
@@ -156,7 +156,7 @@ module Form1010Ezr
       post_fill_fields(parsed_form)
       validate_form(parsed_form)
       # Due to overriding the JSON form schema, we need to do so after the form has been validated
-      override_parsed_form(parsed_form)
+      HCA::OverridesParser.new(parsed_form).override
       add_financial_flag(parsed_form)
     end
 

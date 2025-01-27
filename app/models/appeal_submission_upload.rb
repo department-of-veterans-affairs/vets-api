@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AppealSubmissionUpload < ApplicationRecord
-  validates :decision_review_evidence_attachment_guid, :appeal_submission_id, presence: true
+  validates :decision_review_evidence_attachment_guid, presence: true
 
   belongs_to :appeal_submission
   has_one :decision_review_evidence_attachment,

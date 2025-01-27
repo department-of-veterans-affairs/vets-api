@@ -24,7 +24,7 @@
   "form1[0].#subform[0].#area[0].OutsdWrkAccdnt[0]":                          "<%= ['true', true].include?(form.data.dig('claims', 0, 'claim_is_auto_related')) ? 0 : 1 %>",
   "form1[0].#subform[0].PtntCverage[0]":                                      "<%= ['true', true].include?(form.data.dig('has_ohi')) ? 0 : 1 %>",
   "form1[0].#subform[0].#area[1].RadioButtonList[0]":                         "<%= form.data.dig('policies', 0, 'type') === 'group' ? 1 :
-                                                                                   form.data.dig('policies', 0, 'type') === 'non_group' ? 2 :
+                                                                                   form.data.dig('policies', 0, 'type') === 'nonGroup' ? 2 :
                                                                                    form.data.dig('policies', 0, 'type') === 'medicare' ? 3 :
                                                                                    form.data.dig('policies', 0, 'type') === 'other' ? 4 : 0 %>",
   "form1[0].#subform[0].#area[1].SpecifyOtherPrimaryHealthInsurance[0]":      "<%= form.data.dig('policies', 0, 'other_type') %>",

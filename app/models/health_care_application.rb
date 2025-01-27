@@ -6,6 +6,7 @@ require 'hca/user_attributes'
 require 'hca/enrollment_eligibility/service'
 require 'hca/enrollment_eligibility/status_matcher'
 require 'mpi/service'
+require 'hca/overrides_parser'
 
 class HealthCareApplication < ApplicationRecord
   include SentryLogging
@@ -14,6 +15,10 @@ class HealthCareApplication < ApplicationRecord
   FORM_ID = '10-10EZ'
   ACTIVEDUTY_ELIGIBILITY = 'TRICARE'
   DISABILITY_THRESHOLD = 50
+  DD_ZSF_TAGS = [
+    'service:healthcare-application',
+    'function: 10-10EZ async form submission'
+  ].freeze
   LOCKBOX = Lockbox.new(key: Settings.lockbox.master_key, encode: true)
 
   attr_accessor :user, :async_compatible, :google_analytics_client_id, :form
@@ -67,7 +72,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_sync
-    @parsed_form = override_parsed_form(parsed_form)
+    @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
@@ -236,7 +241,7 @@ class HealthCareApplication < ApplicationRecord
 
   def submit_async
     submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
-    @parsed_form = override_parsed_form(parsed_form)
+    @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     "HCA::#{submission_job}".constantize.perform_async(
       self.class.get_user_identifier(user),
@@ -255,15 +260,14 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def log_async_submission_failure
-    log_zero_silent_failures
+    log_zero_silent_failures unless Flipper.enabled?(:hca_zero_silent_failures)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
     log_submission_failure_details
   end
 
   def log_zero_silent_failures
-    tags = ['service:healthcare-application', 'function: 10-10EZ async form submission']
-    StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
+    StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   end
 
   def log_submission_failure_details
@@ -292,13 +296,19 @@ class HealthCareApplication < ApplicationRecord
     api_key = Settings.vanotify.services.health_apps_1010.api_key
 
     salutation = first_name ? "Dear #{first_name}," : ''
+    metadata =
+      {
+        callback_metadata: {
+          notification_type: 'error',
+          form_number: FORM_ID,
+          statsd_tags: DD_ZSF_TAGS
+        }
+      }
 
-    VANotify::EmailJob.perform_async(
-      email,
-      template_id,
-      { 'salutation' => salutation },
-      api_key
-    )
+    params = [email, template_id, { 'salutation' => salutation }, api_key]
+    params << metadata if Flipper.enabled?(:hca_zero_silent_failures)
+
+    VANotify::EmailJob.perform_async(*params)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_failure_email_sent")
   rescue => e
     log_exception_to_sentry(e)
@@ -306,8 +316,16 @@ class HealthCareApplication < ApplicationRecord
 
   def form_matches_schema
     if form.present?
-      JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM_ID], parsed_form).each do |v|
-        errors.add(:form, v.to_s)
+      schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
+      begin
+        JSON::Validator.fully_validate(schema, parsed_form).each do |v|
+          errors.add(:form, v.to_s)
+        end
+      rescue => e
+        PersonalInformationLog.create(data: { schema:, parsed_form: },
+                                      error_class: 'HealthCareApplication FormValidationError')
+        Rails.logger.error("[#{FORM_ID}] Error during schema validation!", { error: e.message, schema: })
+        raise
       end
     end
   end

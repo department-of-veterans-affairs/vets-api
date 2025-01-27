@@ -19,6 +19,8 @@ module RepresentationManagement
         render json: json_response
       end
 
+      private
+
       def feature_enabled
         routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
       end

@@ -89,7 +89,7 @@ describe TravelPay::AppointmentsClient do
 
   context '/appointments' do
     it 'returns a response only with appointments with no claims' do
-      @stubs.get('/api/v1.1/appointments?excludeWithClaims=true') do
+      @stubs.get('/api/v1.2/appointments?excludeWithClaims=true') do
         [
           200,
           {},
@@ -109,7 +109,7 @@ describe TravelPay::AppointmentsClient do
     end
 
     it 'returns a response with all appointments' do
-      @stubs.get('/api/v1.1/appointments') do
+      @stubs.get('/api/v1.2/appointments') do
         [
           200,
           {},

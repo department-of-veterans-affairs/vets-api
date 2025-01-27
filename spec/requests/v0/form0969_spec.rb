@@ -7,6 +7,7 @@ RSpec.describe 'V0::Form0969', type: %i[request serializer] do
   before do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
+    allow(Flipper).to receive(:enabled?).and_call_original
   end
 
   let(:full_claim) do
@@ -36,11 +37,13 @@ RSpec.describe 'V0::Form0969', type: %i[request serializer] do
       it 'shows the validation errors' do
         subject
         expect(response).to have_http_status(:unprocessable_entity)
+
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
-            "The property '#/veteranSocialSecurityNumber' value \"just a string\" did not match the regex"
+            '/veteran-social-security-number - string at `/veteranSocialSecurityNumber` ' \
+            'does not match pattern: ^[0-9]{9}$'
           )
-        ).to eq(true)
+        ).to be(true)
       end
     end
 

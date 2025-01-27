@@ -16,11 +16,11 @@ FactoryBot.define do
             versioned_school_certifying_officials: [
               {
                 priority: 'Primary',
-                email: 'test@edu_sample.com'
+                email: 'user@school.edu'
               },
               {
                 priority: 'Secondary',
-                email: 'test@edu_sample.com'
+                email: 'user@school.edu'
               }
             ]
           }

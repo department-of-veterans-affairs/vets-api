@@ -53,9 +53,9 @@ module DependentsHelper
         end
       most_recent = active.max { |a, b| max_time(a, b) }
       # include all future events (including school attendance begins)
-      (decs.filter { |dec|
+      (decs.filter do |dec|
         FUTURE_EVENTS.include?(dec[:dependency_decision_type]) && in_future(dec)
-      } + [most_recent]).compact
+      end + [most_recent]).compact
     end
   end
 

@@ -9,7 +9,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526Cleanup, type: :jo
     Sidekiq::Job.clear_all
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:submission) { create(:form526_submission, user_uuid: user.uuid) }
 
   describe '.perform_async' do

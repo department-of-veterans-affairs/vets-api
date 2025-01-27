@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe Veteran::Service::Representative, type: :model do
-  let(:identity) { FactoryBot.create(:user_identity) }
+  let(:identity) { create(:user_identity) }
 
   describe 'individual record' do
     it 'is valid with valid attributes' do
@@ -26,8 +26,8 @@ describe Veteran::Service::Representative, type: :model do
 
   describe 'finding by identity' do
     let(:representative) do
-      FactoryBot.create(:representative,
-                        basic_attributes)
+      create(:representative,
+             basic_attributes)
     end
 
     before do
@@ -47,13 +47,13 @@ describe Veteran::Service::Representative, type: :model do
         expect(Veteran::Service::Representative.for_user(
                  first_name: identity.first_name,
                  last_name: nil
-               )).to eq(nil)
+               )).to be_nil
       end
     end
 
     it 'finds right user when 2 with the same name exist' do
-      FactoryBot.create(:representative,
-                        basic_attributes)
+      create(:representative,
+             basic_attributes)
       expect(Veteran::Service::Representative.for_user(
         first_name: identity.first_name,
         last_name: identity.last_name
@@ -210,11 +210,11 @@ describe Veteran::Service::Representative, type: :model do
   describe '#diff' do
     context 'when there are changes in address' do
       let(:representative) do
-        FactoryBot.create(:representative,
-                          address_line1: '123 Main St',
-                          city: 'Anytown',
-                          zip_code: '12345',
-                          state_code: 'ST')
+        create(:representative,
+               address_line1: '123 Main St',
+               city: 'Anytown',
+               zip_code: '12345',
+               state_code: 'ST')
       end
       let(:new_data) do
         {
@@ -241,8 +241,8 @@ describe Veteran::Service::Representative, type: :model do
 
     context 'when there are changes in email' do
       let(:representative) do
-        FactoryBot.create(:representative,
-                          email: 'old@example.com')
+        create(:representative,
+               email: 'old@example.com')
       end
       let(:new_data) do
         {
@@ -269,8 +269,8 @@ describe Veteran::Service::Representative, type: :model do
 
     context 'when there are changes in phone' do
       let(:representative) do
-        FactoryBot.create(:representative,
-                          phone_number: '1234567890')
+        create(:representative,
+               phone_number: '1234567890')
       end
       let(:new_data) do
         {
@@ -297,11 +297,11 @@ describe Veteran::Service::Representative, type: :model do
 
     context 'when there are no changes to address, email or phone' do
       let(:representative) do
-        FactoryBot.create(:representative,
-                          address_line1: '123 Main St',
-                          city: 'Anytown',
-                          zip_code: '12345',
-                          state_code: 'ST')
+        create(:representative,
+               address_line1: '123 Main St',
+               city: 'Anytown',
+               zip_code: '12345',
+               state_code: 'ST')
       end
       let(:new_data) do
         {

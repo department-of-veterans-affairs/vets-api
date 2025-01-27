@@ -46,7 +46,7 @@ module VBADocuments
     end
 
     def expire(upload)
-      upload.update(status: 'expired') if upload.created_at < Time.zone.now - 20.minutes
+      upload.update(status: 'expired') if upload.created_at < 20.minutes.ago
     end
 
     def bucket

@@ -35,7 +35,7 @@ class SavedClaim < ApplicationRecord
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
   after_initialize do
-    self.form_id = self.class::FORM.upcase unless instance_of?(::SavedClaim::Burial)
+    self.form_id = self.class::FORM.upcase
   end
 
   def self.add_form_and_validation(form_id)
@@ -84,25 +84,24 @@ class SavedClaim < ApplicationRecord
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
     clear_cache = false
 
-    unless Flipper.enabled?(:saved_claim_schema_validation_disable)
-      schema_errors = validate_schema(schema)
-
-      unless schema_errors.empty?
-        Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
-        clear_cache = true
-      end
+    schema_errors = validate_schema(schema)
+    unless schema_errors.empty?
+      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.',
+                         { form_id:, errors: schema_errors })
+      clear_cache = true
     end
 
     validation_errors = validate_form(schema, clear_cache)
-
     validation_errors.each do |e|
       errors.add(e[:fragment], e[:message])
       e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
     end
 
     unless validation_errors.empty?
-      Rails.logger.error('SavedClaim form did not pass validation', { guid:, errors: validation_errors })
+      Rails.logger.error('SavedClaim form did not pass validation', { form_id:, guid:, errors: validation_errors })
     end
+
+    schema_errors.empty? && validation_errors.empty?
   end
 
   def to_pdf(file_name = nil)
@@ -152,20 +151,29 @@ class SavedClaim < ApplicationRecord
   private
 
   def validate_schema(schema)
-    JSON::Validator.fully_validate_schema(schema, { errors_as_objects: true })
-  rescue => e
-    Rails.logger.error('Error during schema validation!', { error: e.message, backtrace: e.backtrace, schema: })
-    raise
+    errors = JSONSchemer.validate_schema(schema).to_a
+    return [] if errors.empty?
+
+    reformatted_schemer_errors(errors)
   end
 
-  def validate_form(schema, clear_cache)
-    JSON::Validator.fully_validate(schema, parsed_form, { errors_as_objects: true, clear_cache: })
-  rescue => e
-    PersonalInformationLog.create(data: { schema:, parsed_form:, params: { errors_as_objects: true, clear_cache: } },
-                                  error_class: 'SavedClaim FormValidationError')
-    Rails.logger.error('Error during form validation!',
-                       { error: e.message, backtrace: e.backtrace, schema:, clear_cache: })
-    raise
+  def validate_form(schema, _clear_cache)
+    errors = JSONSchemer.schema(schema).validate(parsed_form).to_a
+    return [] if errors.empty?
+
+    reformatted_schemer_errors(errors)
+  end
+
+  # This method exists to change the json_schemer errors
+  # to be formatted like json_schema errors, which keeps
+  # the error logging smooth and identical for both options.
+  def reformatted_schemer_errors(errors)
+    errors.map!(&:symbolize_keys)
+    errors.each do |error|
+      error[:fragment] = error[:data_pointer]
+      error[:message] = error[:error]
+    end
+    errors
   end
 
   def attachment_keys

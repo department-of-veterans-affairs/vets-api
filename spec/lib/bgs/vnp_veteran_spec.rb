@@ -4,8 +4,8 @@ require 'rails_helper'
 require 'bgs/vnp_veteran'
 
 RSpec.describe BGS::VnpVeteran do
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+  let(:user_object) { create(:evss_user, :loa3) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:formatted_payload) do
     {
       'first' => 'WESLEY',
@@ -167,7 +167,7 @@ RSpec.describe BGS::VnpVeteran do
 
       it 'sets ssn to User#ssn' do
         VCR.use_cassette('bgs/vnp_veteran/create') do
-          user_object = FactoryBot.create(:evss_user, :loa3, ssn: '123456789')
+          user_object = create(:evss_user, :loa3, ssn: '123456789')
           vnp_veteran = BGS::VnpVeteran.new(
             proc_id: '3828241',
             payload: all_flows_payload,

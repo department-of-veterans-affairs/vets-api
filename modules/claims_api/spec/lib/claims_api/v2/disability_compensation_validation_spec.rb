@@ -51,12 +51,12 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
     it 'returns TRUE when the date is formatted YYYY-MM-DD' do
       result = test_526_validation_instance.send(:date_has_day?, date_string_with_day)
-      expect(result).to eq(true)
+      expect(result).to be(true)
     end
 
     it 'returns FALSE when the date is formatted YYYY-MM' do
       result = test_526_validation_instance.send(:date_has_day?, date_string_without_day)
-      expect(result).to eq(false)
+      expect(result).to be(false)
     end
   end
 
@@ -196,13 +196,13 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     describe '#address_is_military?' do
       it 'correctly identifies address as MILITARY' do
         check = test_526_validation_instance.send(:address_is_military?, valid_military_address)
-        expect(check).to eq(true)
+        expect(check).to be(true)
       end
 
       it 'correctly identifies address as not MILITARY if no military codes are used' do
         check = test_526_validation_instance.send(:address_is_military?,
                                                   subject.form_attributes['veteranIdentification']['mailingAddress'])
-        expect(check).to eq(false)
+        expect(check).to be(false)
       end
     end
 
@@ -219,13 +219,13 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
           subject.form_attributes['veteranIdentification']['mailingAddress'] = valid_military_address
           test_526_validation_instance.send(:validate_form_526_address_type)
           test_526_validation_instance.instance_variable_get('@errors')
-          expect(current_error_array).to eq(nil)
+          expect(current_error_array).to be_nil
         end
 
         it 'handles a DOMESTIC address' do
           test_526_validation_instance.send(:validate_form_526_address_type)
           test_526_validation_instance.instance_variable_get('@errors')
-          expect(current_error_array).to eq(nil)
+          expect(current_error_array).to be_nil
         end
       end
     end
@@ -243,7 +243,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       begin_two = test_526_validation_instance.send(:date_regex_groups, date_begin_two)
       end_two = test_526_validation_instance.send(:date_regex_groups, date_end_two)
       result = test_526_validation_instance.send(:date_range_overlap?, begin_one..end_one, begin_two..end_two)
-      expect(result).to eq(true)
+      expect(result).to be(true)
     end
 
     it 'returns false when the date ranges do not overlap' do
@@ -252,7 +252,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
       begin_two = test_526_validation_instance.send(:date_regex_groups, date_begin_two)
       end_two = test_526_validation_instance.send(:date_regex_groups, date_end_two)
       result = test_526_validation_instance.send(:date_range_overlap?, begin_one..end_one, begin_two..end_two)
-      expect(result).to eq(false)
+      expect(result).to be(false)
     end
   end
 
@@ -264,12 +264,12 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
 
     it 'returns false when a date is invalid' do
       result = test_526_validation_instance.send(:date_is_valid?, begin_date, begin_prop)
-      expect(result).to eq(false)
+      expect(result).to be(false)
     end
 
     it 'returns true when a date is valid' do
       result = test_526_validation_instance.send(:date_is_valid?, end_date, end_prop)
-      expect(result).to eq(true)
+      expect(result).to be(true)
     end
   end
 
@@ -471,6 +471,8 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
   end
 
   describe 'validation for BDD_PROGRAM claim' do
+    future_date = "#{Time.current.year + 1}-12-20"
+
     let(:valid_service_info_for_bdd) do
       {
         'servicePeriods' => [
@@ -478,7 +480,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
             'serviceBranch' => 'Air Force Reserves',
             'serviceComponent' => 'Reserves',
             'activeDutyBeginDate' => '2015-11-14',
-            'activeDutyEndDate' => '2024-12-20'
+            'activeDutyEndDate' => future_date
           }
         ],
         'reservesNationalGuardService' => {
@@ -497,7 +499,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         },
         'federalActivation' => {
           'activationDate' => '2023-10-01',
-          'anticipatedSeparationDate' => '2024-12-20'
+          'anticipatedSeparationDate' => future_date
         }
       }
     end
@@ -523,7 +525,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
     context 'when federalActivation is present' do
       it 'and all the required attributes are present' do
         test_526_validation_instance.send(:validate_federal_activation_values, valid_service_info_for_bdd)
-        expect(current_error_array).to eq(nil)
+        expect(current_error_array).to be_nil
       end
 
       # rubocop:disable RSpec/NoExpectationExample

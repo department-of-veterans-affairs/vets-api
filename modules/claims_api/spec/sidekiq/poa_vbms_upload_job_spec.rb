@@ -17,7 +17,7 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job, vcr: 'bgs/person_web_ser
       .to receive(:get_auth_token).and_return('some-value-here')
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     headers = EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     headers['va_eauth_pnid'] = '796104437'

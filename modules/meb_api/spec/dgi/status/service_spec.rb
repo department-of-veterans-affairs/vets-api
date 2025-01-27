@@ -15,7 +15,7 @@ RSpec.describe MebApi::DGI::Status::Service do
       end
     end
     let(:claimant_id) { 600_000_001 }
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
     let(:service) { MebApi::DGI::Status::Service.new(user) }
 
     describe '#get_claim_status' do

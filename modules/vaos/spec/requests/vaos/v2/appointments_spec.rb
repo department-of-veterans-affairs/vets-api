@@ -112,16 +112,16 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     context 'with VAOS' do
       before do
         Flipper.disable(:va_online_scheduling_use_vpg)
-        Flipper.disable(:va_online_scheduling_enable_OH_requests)
+        Flipper.disable(:va_online_scheduling_OH_request)
       end
 
       describe 'CREATE cc appointment' do
         let(:community_cares_request_body) do
-          FactoryBot.build(:appointment_form_v2, :community_cares, user: current_user).attributes
+          build(:appointment_form_v2, :community_cares, user: current_user).attributes
         end
 
         let(:community_cares_request_body2) do
-          FactoryBot.build(:appointment_form_v2, :community_cares2, user: current_user).attributes
+          build(:appointment_form_v2, :community_cares2, user: current_user).attributes
         end
 
         it 'creates the cc appointment' do
@@ -157,11 +157,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       describe 'CREATE va appointment' do
         let(:va_booked_request_body) do
-          FactoryBot.build(:appointment_form_v2, :va_booked, user: current_user).attributes
+          build(:appointment_form_v2, :va_booked, user: current_user).attributes
         end
 
         let(:va_proposed_request_body) do
-          FactoryBot.build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
+          build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
         end
 
         it 'creates the va appointment - proposed' do
@@ -213,16 +213,17 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     context 'using VPG' do
       before do
         Flipper.enable(:va_online_scheduling_use_vpg)
-        Flipper.enable(:va_online_scheduling_enable_OH_requests)
+        Flipper.enable(:va_online_scheduling_OH_request)
+        Flipper.enable(:va_online_scheduling_OH_direct_schedule)
       end
 
       describe 'CREATE cc appointment' do
         let(:community_cares_request_body) do
-          FactoryBot.build(:appointment_form_v2, :community_cares, user: current_user).attributes
+          build(:appointment_form_v2, :community_cares, user: current_user).attributes
         end
 
         let(:community_cares_request_body2) do
-          FactoryBot.build(:appointment_form_v2, :community_cares2, user: current_user).attributes
+          build(:appointment_form_v2, :community_cares2, user: current_user).attributes
         end
 
         it 'creates the cc appointment' do
@@ -259,11 +260,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       describe 'CREATE va appointment' do
         let(:va_booked_request_body) do
-          FactoryBot.build(:appointment_form_v2, :va_booked, user: current_user).attributes
+          build(:appointment_form_v2, :va_booked, user: current_user).attributes
         end
 
         let(:va_proposed_request_body) do
-          FactoryBot.build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
+          build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
         end
 
         it 'creates the va appointment - proposed' do
@@ -276,9 +277,25 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
         end
 
-        it 'creates the va appointment - booked' do
+        it 'creates the booked va appointment using VPG' do
           stub_clinics
           VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M_vpg',
+                           match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              post '/vaos/v2/appointments', params: va_booked_request_body, headers: inflection_header
+              expect(response).to have_http_status(:created)
+              json_body = json_body_for(response)
+              expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+              expect(json_body['attributes']['localStartTime']).to eq('2022-11-30T13:45:00.000-07:00')
+            end
+          end
+        end
+
+        it 'creates the booked va appointment using VAOS' do
+          Flipper.disable(:va_online_scheduling_OH_direct_schedule)
+          stub_clinics
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M',
                            match_requests_on: %i[method path query]) do
             VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
                              match_requests_on: %i[method path query]) do
@@ -466,8 +483,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
               expect(data.size).to eq(16)
-              expect(data[0]['attributes']['serviceName']).to eq(nil)
-              expect(data[0]['attributes']['location']).to eq(nil)
+              expect(data[0]['attributes']['serviceName']).to be_nil
+              expect(data[0]['attributes']['location']).to be_nil
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end
@@ -522,7 +539,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
               expect(data.size).to eq(1)
-              expect(data[0]['attributes']['serviceName']).to eq(nil)
+              expect(data[0]['attributes']['serviceName']).to be_nil
 
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
@@ -536,7 +553,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
 
-              expect(data[0]['attributes']['serviceName']).to eq(nil)
+              expect(data[0]['attributes']['serviceName']).to be_nil
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end

@@ -13,6 +13,8 @@ RSpec.describe V0::InProgressFormsController do
 
     before do
       sign_in_as(user)
+      Flipper.disable(:va_v3_contact_information_service)
+      Flipper.disable(:remove_pciu)
       enabled_forms = FormProfile.prefill_enabled_forms << 'FAKEFORM'
       allow(FormProfile).to receive(:prefill_enabled_forms).and_return(enabled_forms)
       allow(FormProfile).to receive(:load_form_mapping).with('FAKEFORM').and_return(
@@ -131,6 +133,10 @@ RSpec.describe V0::InProgressFormsController do
     end
 
     describe '#show' do
+      before do
+        Flipper.disable('remove_pciu_2')
+      end
+
       let(:user) { build(:user, :loa3, address: build(:mpi_profile_address)) }
       let!(:in_progress_form) { create(:in_progress_form, :with_nested_metadata, user_uuid: user.uuid) }
 

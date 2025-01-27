@@ -237,7 +237,7 @@ describe ClaimsApi::BD do
                                                      pdf_path:, action: 'post', pctpnt_vet_id: '123456789')
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['fileNumber']).not_to be_truthy
-        expect(js['data']['fileNumber']).to eq(nil)
+        expect(js['data']['fileNumber']).to be_nil
       end
     end
 

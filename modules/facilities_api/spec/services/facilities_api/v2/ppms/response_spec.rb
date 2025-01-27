@@ -6,7 +6,7 @@ describe FacilitiesApi::V2::PPMS::Response, team: :facilities do
   let(:response) { double('response', status: 200, body: { 'value' => body }) }
 
   let(:body) do
-    FactoryBot.build_list(
+    build_list(
       :facilities_api_v2_ppms_provider, 10, :from_provider_locator
     ).collect do |x|
       x.attributes.except(:id)

@@ -2,6 +2,7 @@
 
 require 'common/exceptions'
 require 'brd/brd'
+require 'bgs_service/standard_data_service'
 
 module ClaimsApi
   module DisabilityCompensationValidations # rubocop:disable Metrics/ModuleLength
@@ -235,21 +236,21 @@ module ClaimsApi
     def validate_form_526_veteran_homelessness!
       if too_many_homelessness_attributes_provided?
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "Must define only one of 'veteran.homelessness.currentlyHomeless' or "\
+          detail: "Must define only one of 'veteran.homelessness.currentlyHomeless' or " \
                   "'veteran.homelessness.homelessnessRisk'"
         )
       end
 
       if unnecessary_homelessness_point_of_contact_provided?
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "If 'veteran.homelessness.pointOfContact' is defined, then one of "\
+          detail: "If 'veteran.homelessness.pointOfContact' is defined, then one of " \
                   "'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is required"
         )
       end
 
       if missing_point_of_contact?
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is "\
+          detail: "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is " \
                   "defined, then 'veteran.homelessness.pointOfContact' is required"
         )
       end
@@ -266,7 +267,7 @@ module ClaimsApi
       end
       if started_before_age_thirteen
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "If any 'serviceInformation.servicePeriods.activeDutyBeginDate' is "\
+          detail: "If any 'serviceInformation.servicePeriods.activeDutyBeginDate' is " \
                   "before the Veteran's 13th birthdate: #{age_thirteen}, the claim can not be processed."
         )
       end
@@ -410,22 +411,44 @@ module ClaimsApi
     end
 
     def validate_form_526_disability_classification_code!
-      return if (form_attributes['disabilities'].pluck('classificationCode') - [nil]).blank?
+      form_attributes['disabilities'].each_with_index do |disability, index|
+        classification_code = disability['classificationCode']
+        next if classification_code.nil? || classification_code.blank?
 
-      form_attributes['disabilities'].each do |disability|
-        next if disability['classificationCode'].blank?
-        next if bgs_classification_ids.include?(disability['classificationCode'])
-
-        raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.classificationCode',
-                                                          disability['classificationCode'])
+        if bgs_classification_ids.include?(classification_code)
+          validate_form_526_disability_classification_code_end_date!(classification_code, index)
+        else
+          raise ::Common::Exceptions::InvalidFieldValue.new("disabilities.#{index}.classificationCode",
+                                                            classification_code)
+        end
       end
     end
 
-    def bgs_classification_ids
-      return @bgs_classification_ids if @bgs_classification_ids.present?
+    def validate_form_526_disability_classification_code_end_date!(classification_code, index)
+      bgs_disability = contention_classification_type_code_list.find { |d| d[:clsfcn_id] == classification_code }
+      end_date = bgs_disability[:end_dt] if bgs_disability
 
-      contention_classification_type_codes = bgs_service.data.get_contention_classification_type_code_list
-      @bgs_classification_ids = contention_classification_type_codes.pluck(:clsfcn_id)
+      return if end_date.nil?
+
+      return if Date.parse(end_date) >= Time.zone.today
+
+      raise ::Common::Exceptions::InvalidFieldValue.new("disabilities.#{index}.classificationCode", classification_code)
+    end
+
+    def contention_classification_type_code_list
+      @contention_classification_type_code_list ||= if Flipper.enabled?(:claims_api_526_validations_v1_local_bgs)
+                                                      service = ClaimsApi::StandardDataService.new(
+                                                        external_uid: Settings.bgs.external_uid,
+                                                        external_key: Settings.bgs.external_key
+                                                      )
+                                                      service.get_contention_classification_type_code_list
+                                                    else
+                                                      bgs_service.data.get_contention_classification_type_code_list
+                                                    end
+    end
+
+    def bgs_classification_ids
+      contention_classification_type_code_list.pluck(:clsfcn_id)
     end
 
     def validate_form_526_disability_approximate_begin_date!

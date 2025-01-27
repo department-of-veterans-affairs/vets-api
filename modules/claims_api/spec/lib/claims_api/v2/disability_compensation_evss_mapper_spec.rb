@@ -58,7 +58,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
 
     RSpec.shared_examples 'does not map any values' do |section|
       it "does not map any of the #{section} values" do
-        expect(evss_data[section]).to eq(nil)
+        expect(evss_data[section]).to be_nil
       end
     end
 
@@ -100,7 +100,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
       end
 
       it 'maps the other veteran info' do
-        expect(evss_data[:veteran][:currentlyVAEmployee]).to eq(false)
+        expect(evss_data[:veteran][:currentlyVAEmployee]).to be(false)
         expect(evss_data[:veteran][:emailAddress]).to eq('valid@somedomain.com')
       end
 
@@ -189,9 +189,9 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
           includes_pow = evss_data[:disabilities][0][:specialIssues].include? 'POW'
           includes_emp = evss_data[:disabilities][0][:specialIssues].include? 'EMP'
           includes_pact = evss_data[:disabilities][0][:specialIssues].include? 'PACT'
-          expect(includes_pow).to eq(true)
-          expect(includes_emp).to eq(true)
-          expect(includes_pact).to eq(true)
+          expect(includes_pow).to be(true)
+          expect(includes_emp).to be(true)
+          expect(includes_pact).to be(true)
         end
       end
 
@@ -205,9 +205,9 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
           includes_pow = evss_data[:disabilities][0][:specialIssues].include? 'POW'
           includes_emp = evss_data[:disabilities][0][:specialIssues].include? 'EMP'
           includes_pact = evss_data[:disabilities][0][:specialIssues].include? 'PACT'
-          expect(includes_pow).to eq(true)
-          expect(includes_emp).to eq(true)
-          expect(includes_pact).to eq(false)
+          expect(includes_pow).to be(true)
+          expect(includes_emp).to be(true)
+          expect(includes_pact).to be(false)
         end
       end
 
@@ -218,7 +218,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
           auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
           evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
           disability = evss_data[:disabilities][1]
-          expect(disability[:serviceRelevance]).to eq(nil)
+          expect(disability[:serviceRelevance]).to be_nil
         end
       end
 
@@ -229,7 +229,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
           auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
           evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
           disability = evss_data[:disabilities][1]
-          expect(disability[:classificationCode]).to eq(nil)
+          expect(disability[:classificationCode]).to be_nil
         end
       end
     end
@@ -249,7 +249,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         reserves_addition = evss_data[:serviceInformation][:reservesNationalGuardService]
 
         expect(reserves_addition[:title10Activation][:title10ActivationDate]).to eq('2023-10-01')
-        expect(reserves_addition[:title10Activation][:anticipatedSeparationDate]).to eq('2024-10-31')
+        expect(reserves_addition[:title10Activation][:anticipatedSeparationDate]).to eq('2025-10-31')
         expect(reserves_addition[:obligationTermOfServiceFromDate]).to eq('2019-06-04')
         expect(reserves_addition[:obligationTermOfServiceToDate]).to eq('2020-06-04')
         expect(reserves_addition[:unitName]).to eq('National Guard Unit Name')

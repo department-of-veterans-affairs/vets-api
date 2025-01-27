@@ -19,7 +19,7 @@ RSpec.describe 'Mobile::V0::FacilitiesInfo', type: :request do
     va_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures',
                               'VAOS_v2_appointments_facilities.json')
     va_json = File.read(va_path)
-    va_appointments = Mobile::V0::Adapters::VAOSV2Appointments.new.parse(
+    va_appointments = Mobile::V0::Adapters::VAOSV2Appointments.new(user).parse(
       JSON.parse(va_json, symbolize_names: true)
     )
 

@@ -11,7 +11,7 @@ RSpec.describe 'SimpleFormsApi::VBA4010007' do
       attachment_page_path = 'attachment_page.pdf'
       page = double('HexaPDF::Page')
 
-      form = FactoryBot.build(:vba4010007)
+      form = build(:vba4010007)
 
       allow(HexaPDF::Document).to receive(:open).with(original_file_path).and_return(original_pdf)
       allow(HexaPDF::Document).to receive(:open).with(attachment_page_path).and_return(combined_pdf)

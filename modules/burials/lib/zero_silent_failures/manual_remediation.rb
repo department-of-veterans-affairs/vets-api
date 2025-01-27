@@ -27,13 +27,12 @@ module Burials
           }
         ]
 
-        burials += v2_stamps(timestamp) if ['21P-530V2'].include?(claim.form_id)
+        burials += submitted_stamp(timestamp)
 
         base + burials
       end
 
-      # specific stamps for burials v2
-      def v2_stamps(timestamp)
+      def submitted_stamp(timestamp)
         [
           {
             text: 'Application Submitted on va.gov',

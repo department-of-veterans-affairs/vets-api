@@ -3,6 +3,42 @@
 require 'rails_helper'
 
 RSpec.describe RepresentationManagement::Form2122Data, type: :model do
+  describe '#limitations_of_consent_checkbox' do
+    context 'when record_consent is false' do
+      it 'returns 0' do
+        form_2122_data = described_class.new(record_consent: false, consent_limits: [])
+
+        expect(form_2122_data.limitations_of_consent_checkbox('ALCOHOLISM')).to eq(0)
+      end
+    end
+
+    context 'when record_consent is true' do
+      context 'when consent_limits is empty' do
+        it 'returns 0' do
+          form_2122_data = described_class.new(record_consent: true, consent_limits: [])
+
+          expect(form_2122_data.limitations_of_consent_checkbox('ALCOHOLISM')).to eq(0)
+        end
+      end
+
+      context 'when consent_limits does not include the key' do
+        it 'returns 1' do
+          form_2122_data = described_class.new(record_consent: true, consent_limits: %w[DRUG_ABUSE])
+
+          expect(form_2122_data.limitations_of_consent_checkbox('ALCOHOLISM')).to eq(1)
+        end
+      end
+
+      context 'when consent_limits includes the key' do
+        it 'returns 0' do
+          form_2122_data = described_class.new(record_consent: true, consent_limits: %w[ALCOHOLISM])
+
+          expect(form_2122_data.limitations_of_consent_checkbox('ALCOHOLISM')).to eq(0)
+        end
+      end
+    end
+  end
+
   describe '#organization' do
     context 'when organization is found in AccreditedOrganization' do
       it 'returns the AccreditedOrganization' do
@@ -26,7 +62,7 @@ RSpec.describe RepresentationManagement::Form2122Data, type: :model do
       it 'returns nil' do
         form_2122_data = described_class.new(organization_id: 'Nonexistent Org')
 
-        expect(form_2122_data.organization).to eq(nil)
+        expect(form_2122_data.organization).to be_nil
       end
     end
   end

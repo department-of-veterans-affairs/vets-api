@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'bgs_service/tracked_item_service'
 module ClaimsApi
   module V2
     module ClaimsRequests
@@ -9,7 +10,7 @@ module ClaimsApi
         def find_tracked_items!(claim_id)
           return if claim_id.blank?
 
-          @tracked_items = local_bgs_service.find_tracked_items(claim_id)[:dvlpmt_items] || []
+          @tracked_items = tracked_item_service.find_tracked_items(claim_id)[:dvlpmt_items] || []
         end
 
         def find_tracked_item(id)
@@ -99,6 +100,15 @@ module ClaimsApi
             id: tracked_item[:dvlpmt_item_id].to_i,
             uploads_allowed:
           }
+        end
+
+        private
+
+        def tracked_item_service
+          @tracked_item_service ||= ClaimsApi::TrackedItemService.new(
+            external_uid: target_veteran.participant_id,
+            external_key: target_veteran.participant_id
+          )
         end
       end
     end

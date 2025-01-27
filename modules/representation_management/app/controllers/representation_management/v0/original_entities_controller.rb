@@ -19,6 +19,8 @@ module RepresentationManagement
         render json: json_response
       end
 
+      private
+
       def feature_enabled
         routing_error unless Flipper.enabled?(:use_veteran_models_for_appoint)
       end

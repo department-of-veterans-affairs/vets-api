@@ -6,7 +6,7 @@ module DisabilityCompensation
       include ActiveModel::Serialization
       include Virtus.model
 
-      attribute :code, Integer
+      attribute :code, String
       attribute :description, String
     end
 

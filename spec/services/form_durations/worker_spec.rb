@@ -16,7 +16,7 @@ RSpec.describe FormDurations::Worker do
 
     it 'responds to attributes' do
       %i[form_id days_till_expires config duration_instance].each do |attr|
-        expect(worker.respond_to?(attr)).to eq(true)
+        expect(worker.respond_to?(attr)).to be(true)
       end
     end
 
@@ -32,7 +32,7 @@ RSpec.describe FormDurations::Worker do
       end
 
       it 'config static is false' do
-        expect(worker.config.static).to eq(false)
+        expect(worker.config.static).to be(false)
       end
     end
   end
@@ -66,7 +66,7 @@ RSpec.describe FormDurations::Worker do
       end
 
       it 'config static is true' do
-        expect(worker.config.static).to eq(true)
+        expect(worker.config.static).to be(true)
       end
 
       it 'has a duration of 60 days' do
@@ -82,7 +82,7 @@ RSpec.describe FormDurations::Worker do
       end
 
       it 'config static is true' do
-        expect(worker.config.static).to eq(true)
+        expect(worker.config.static).to be(true)
       end
 
       it 'has a duration of 1 year' do
@@ -98,7 +98,7 @@ RSpec.describe FormDurations::Worker do
       end
 
       it 'config static is false' do
-        expect(worker.config.static).to eq(false)
+        expect(worker.config.static).to be(false)
       end
 
       it 'has a duration of 90 days' do

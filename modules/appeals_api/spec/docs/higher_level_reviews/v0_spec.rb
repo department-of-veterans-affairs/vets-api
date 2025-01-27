@@ -122,7 +122,7 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
       response '200', 'Success' do
         schema '$ref' => '#/components/schemas/hlrShow'
 
-        let(:id) { FactoryBot.create(:minimal_higher_level_review_v0).id }
+        let(:id) { create(:minimal_higher_level_review_v0).id }
 
         it_behaves_like 'rswag example', desc: 'returns a 200 response',
                                          response_wrapper: :normalize_appeal_response,
@@ -132,7 +132,7 @@ RSpec.describe 'Higher-Level Reviews', openapi_spec:, type: :request do
       response '403', 'Forbidden access with a veteran-scoped OAuth token to an unowned Higher-Level Review' do
         schema '$ref' => '#/components/schemas/errorModel'
 
-        let(:id) { FactoryBot.create(:minimal_higher_level_review_v0, veteran_icn: '1234567890V123456').id }
+        let(:id) { create(:minimal_higher_level_review_v0, veteran_icn: '1234567890V123456').id }
 
         it_behaves_like 'rswag example',
                         desc: 'with a veteran-scoped OAuth token for a Veteran who does not own the Higher-Level Review',

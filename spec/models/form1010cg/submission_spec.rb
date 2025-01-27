@@ -42,11 +42,11 @@ RSpec.describe Form1010cg::Submission, type: :model do
 
   it 'can initialize with attributes :carma_case_id, :accepted_at, :attachments, :metadata, :attachments_job_id' do
     instance_1 = described_class.new
-    expect(instance_1.carma_case_id).to eq(nil)
-    expect(instance_1.accepted_at).to eq(nil)
-    expect(instance_1.metadata).to eq(nil)
-    expect(instance_1.attachments).to eq(nil)
-    expect(instance_1.attachments_job_id).to eq(nil)
+    expect(instance_1.carma_case_id).to be_nil
+    expect(instance_1.accepted_at).to be_nil
+    expect(instance_1.metadata).to be_nil
+    expect(instance_1.attachments).to be_nil
+    expect(instance_1.attachments_job_id).to be_nil
 
     instance_2 = described_class.new(sample_data)
     expect(instance_2.carma_case_id).to eq(sample_data[:carma_case_id])
@@ -57,11 +57,11 @@ RSpec.describe Form1010cg::Submission, type: :model do
   end
 
   it 'has attribute accessors for :carma_case_id, :accepted_at, :attachments, :metadata, :attachments_job_id' do
-    expect(subject.carma_case_id).to eq(nil)
-    expect(subject.accepted_at).to eq(nil)
-    expect(subject.metadata).to eq(nil)
-    expect(subject.attachments).to eq(nil)
-    expect(subject.attachments_job_id).to eq(nil)
+    expect(subject.carma_case_id).to be_nil
+    expect(subject.accepted_at).to be_nil
+    expect(subject.metadata).to be_nil
+    expect(subject.attachments).to be_nil
+    expect(subject.attachments_job_id).to be_nil
 
     subject.carma_case_id = sample_data[:carma_case_id]
     subject.accepted_at = sample_data[:accepted_at]
@@ -86,14 +86,14 @@ RSpec.describe Form1010cg::Submission, type: :model do
     end
 
     it 'accepts_nested_attributes_for claim' do
-      expect(submission.persisted?).to eq(false)
-      expect(submission.persisted?).to eq(false)
+      expect(submission.persisted?).to be(false)
+      expect(submission.persisted?).to be(false)
 
       submission.claim = claim
       submission.save
 
-      expect(submission.persisted?).to eq(true)
-      expect(claim.persisted?).to eq(true)
+      expect(submission.persisted?).to be(true)
+      expect(claim.persisted?).to be(true)
     end
   end
 end

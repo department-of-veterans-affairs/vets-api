@@ -23,7 +23,7 @@ describe AppealsApi::ContestableIssue do
         raw_issue_data.merge('attributes' => { 'decisionDate' => nil })
       )
 
-      expect(issue.decision_date).to eq(nil)
+      expect(issue.decision_date).to be_nil
     end
 
     it 'parses and returns decision_date' do
@@ -47,7 +47,7 @@ describe AppealsApi::ContestableIssue do
         raw_issue_data.merge('attributes' => { 'socDate' => nil })
       )
 
-      expect(issue.soc_date).to eq(nil)
+      expect(issue.soc_date).to be_nil
     end
 
     it 'parses and returns soc_date' do
@@ -77,7 +77,7 @@ describe AppealsApi::ContestableIssue do
     it 'returns true if issue is not nil' do
       issue = AppealsApi::ContestableIssue.new(raw_issue_data)
 
-      expect(issue.text_exists?).to eq(true)
+      expect(issue.text_exists?).to be(true)
     end
 
     it 'returns false if issue is nil' do
@@ -85,7 +85,7 @@ describe AppealsApi::ContestableIssue do
         raw_issue_data.merge('attributes' => { 'issue' => nil })
       )
 
-      expect(issue.text_exists?).to eq(false)
+      expect(issue.text_exists?).to be(false)
     end
   end
 
@@ -93,7 +93,7 @@ describe AppealsApi::ContestableIssue do
     it 'returns true if soc date is in the past' do
       issue = AppealsApi::ContestableIssue.new(raw_issue_data)
 
-      expect(issue.soc_date_past?).to eq(true)
+      expect(issue.soc_date_past?).to be(true)
     end
 
     it 'returns false if soc date isn\'t in the past' do
@@ -103,7 +103,7 @@ describe AppealsApi::ContestableIssue do
         raw_issue_data.merge('attributes' => { 'socDate' => '3021-06-18' })
       )
 
-      expect(issue.soc_date_past?).to eq(false)
+      expect(issue.soc_date_past?).to be(false)
     end
   end
 
@@ -111,7 +111,7 @@ describe AppealsApi::ContestableIssue do
     it 'returns true if decision date is in the past' do
       issue = AppealsApi::ContestableIssue.new(raw_issue_data)
 
-      expect(issue.decision_date_past?).to eq(true)
+      expect(issue.decision_date_past?).to be(true)
     end
 
     it 'returns false if decision date isn\'t in the past' do
@@ -121,7 +121,7 @@ describe AppealsApi::ContestableIssue do
         raw_issue_data.merge('attributes' => { 'decisionDate' => '3021-06-18' })
       )
 
-      expect(issue.decision_date_past?).to eq(false)
+      expect(issue.decision_date_past?).to be(false)
     end
   end
 

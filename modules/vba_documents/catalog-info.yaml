@@ -2,8 +2,11 @@ apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
   name: vba_documents
-  description: Benefits Intake API for submitted pdf claims.
+  description: The Benefits Intake API is an unstructured submission path for VA documents in PDF format. It enables applications that allow Veterans, Non-Veteran Claimants, and other users to digitally submit forms, claims and appeals evidence, and other documents in PDF format into the mail handling system. End-users of the API can submit any PDF no larger than 78" x 101" and up to 100MB and check the status of their submissions as they progress through the Central Mail Portal.
   title: Benefits Intake API
+  annotations:
+    datadog/production-monitor-id: 130842
+    datadog/sandbox-monitor-id: 130855
   tags:
     - benefits
     - intake

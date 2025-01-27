@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe V0::BenefitsClaimsController, type: :controller do
   let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
-  let(:dependent_user) { FactoryBot.build(:dependent_user_with_relationship, :loa3) }
+  let(:dependent_user) { build(:dependent_user_with_relationship, :loa3) }
 
   before do
     sign_in_as(user)
@@ -126,7 +126,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         expect(response).to have_http_status(:ok)
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body['data']['attributes']['canUpload']).to eq(true)
+        expect(parsed_body['data']['attributes']['canUpload']).to be(true)
       end
 
       it 'logs the claim type details' do

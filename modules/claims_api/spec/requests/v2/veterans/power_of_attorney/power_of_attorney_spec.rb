@@ -18,12 +18,12 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
 
   describe 'PowerOfAttorney' do
     before do
-      FactoryBot.create(:veteran_representative, representative_id: '12345', poa_codes: [individual_poa_code],
-                                                 first_name: 'Abraham', last_name: 'Lincoln')
-      FactoryBot.create(:veteran_representative, representative_id: '67890', poa_codes: [organization_poa_code],
-                                                 first_name: 'George', last_name: 'Washington')
-      FactoryBot.create(:veteran_organization, poa: organization_poa_code,
-                                               name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
+      create(:veteran_representative, representative_id: '12345', poa_codes: [individual_poa_code],
+                                      first_name: 'Abraham', last_name: 'Lincoln')
+      create(:veteran_representative, representative_id: '67890', poa_codes: [organization_poa_code],
+                                      first_name: 'George', last_name: 'Washington')
+      create(:veteran_organization, poa: organization_poa_code,
+                                    name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
     end
 
     describe 'show' do

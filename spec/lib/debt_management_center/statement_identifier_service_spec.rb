@@ -194,7 +194,10 @@ RSpec.describe DebtManagementCenter::StatementIdentifierService, :skip_vet360,
   end
 
   describe '#get_mpi_data v2' do
-    Flipper.enable(:va_v3_contact_information_service)
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+    end
+
     let(:cassette_path) do
       if Flipper.enabled?(:va_v3_contact_information_service)
         'va_profile/v2/contact_information'

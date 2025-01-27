@@ -3,6 +3,7 @@
 require 'rails_helper'
 require_relative '../../../rails_helper'
 require 'bgs_service/local_bgs'
+require 'bgs_service/person_web_service'
 
 RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
   let(:headers) do
@@ -17,13 +18,17 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
   let(:multi_profile) do
     MPI::Responses::FindProfileResponse.new(
       status: :ok,
-      profile: FactoryBot.build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
+      profile: build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
     )
   end
-  let(:pws) { ClaimsApi::LocalBGS }
+  let(:pws) { ClaimsApi::PersonWebService }
+  let(:lbgs) { ClaimsApi::LocalBGS }
 
   before do
     stub_poa_verification
+    allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+    allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return false
   end
 
   describe '#2122' do
@@ -63,6 +68,29 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                                                  first_name: 'Abraham', last_name: 'Lincoln').save!
           end
 
+          describe 'when the claims_api_use_person_web_service flipper is on' do
+            let(:person_web_service) { instance_double(ClaimsApi::PersonWebService) }
+
+            before do
+              allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
+              allow(ClaimsApi::PersonWebService).to receive(:new).with(external_uid: anything,
+                                                                       external_key: anything)
+                                                                 .and_return(person_web_service)
+              allow(person_web_service).to receive(:find_by_ssn).and_return({ file_nbr: '796111863' })
+            end
+
+            it 'calls local bgs services instead of bgs-ext' do
+              mock_acg(scopes) do |auth_header|
+                allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                  .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+                allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+                allow(bgs_poa_verifier).to receive(:current_poa_code).and_return(Struct.new(:code).new('HelloWorld'))
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(person_web_service).to have_received(:find_by_ssn)
+              end
+            end
+          end
+
           context 'when Veteran has all necessary identifiers' do
             it 'assigns a source' do
               mock_acg(scopes) do |auth_header|
@@ -76,7 +104,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                 token = JSON.parse(response.body)['data']['id']
                 poa = ClaimsApi::PowerOfAttorney.find(token)
                 expect(poa.source_data['name']).to eq('abraham lincoln')
-                expect(poa.source_data['icn'].present?).to eq(true)
+                expect(poa.source_data['icn'].present?).to be(true)
                 expect(poa.source_data['email']).to eq('abraham.lincoln@vets.gov')
               end
             end
@@ -384,6 +412,117 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         end
       end
 
+      describe 'validates zipFirstFive' do
+        context 'when the country is US and zipFirstFive is blank' do
+          before do
+            Veteran::Service::Representative.new(representative_id: '56789', poa_codes: ['074'],
+                                                 first_name: 'Abraham', last_name: 'Lincoln').save!
+          end
+
+          let(:address) do
+            {
+              numberAndStreet: '76 Crowther Ave',
+              city: 'Bridgeport',
+              country: 'US',
+              state: 'CT'
+            }
+          end
+
+          let(:data) do
+            {
+              data: {
+                attributes: {
+                  veteran: { address: address },
+                  serviceOrganization: {
+                    poaCode: '074',
+                    address: address
+                  },
+                  claimant: {
+                    firstName: 'John',
+                    lastName: 'Doe',
+                    address: address,
+                    relationship: 'spouse'
+                  }
+                }
+              }
+            }.to_json
+          end
+
+          it 'responds with unprocessable entity' do
+            mock_acg(scopes) do |auth_header|
+              allow_any_instance_of(pws)
+                .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+              allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+              post path, params: data, headers: headers.merge(auth_header)
+              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response.parsed_body['errors']).to contain_exactly(
+                {
+                  'status' => 422,
+                  'detail' => 'The property /veteran/address did not contain the required key zipFirstFive',
+                  'source' => '/veteran/address'
+                }, {
+                  'status' => 422,
+                  'detail' => 'The property /claimant/address did not contain the required key zipFirstFive',
+                  'source' => '/claimant/address'
+                }, {
+                  'status' => 422,
+                  'detail' => 'The property /serviceOrganization/address did not contain the required key zipFirstFive',
+                  'source' => '/serviceOrganization/address'
+                }
+              )
+            end
+          end
+        end
+
+        context 'when the country is not US and zipFirstFive is blank' do
+          before do
+            Veteran::Service::Representative.new(representative_id: '56789', poa_codes: ['074'],
+                                                 first_name: 'Abraham', last_name: 'Lincoln').save!
+          end
+
+          let(:address) do
+            {
+              numberAndStreet: '41 Halifax Ave',
+              city: 'Chambly',
+              country: 'CA',
+              state: 'QC'
+            }
+          end
+
+          let(:data) do
+            {
+              data: {
+                attributes: {
+                  veteran: { address: address },
+                  serviceOrganization: {
+                    poaCode: '074',
+                    address: address
+                  },
+                  claimant: {
+                    firstName: 'John',
+                    lastName: 'Doe',
+                    address: address,
+                    relationship: 'spouse'
+                  }
+                }
+              }
+            }.to_json
+          end
+
+          it 'responds with ok' do
+            mock_acg(scopes) do |auth_header|
+              allow_any_instance_of(pws)
+                .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+              allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+              post path, params: data, headers: headers.merge(auth_header)
+              expect(response).to have_http_status(:ok)
+            end
+          end
+        end
+      end
+
       shared_context 'stub validation methods' do
         before do
           allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
@@ -414,7 +553,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         end
 
         before do
-          Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
+          allow_any_instance_of(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                              .and_return true
         end
 
         context 'and the request includes a dependent claimant' do
@@ -702,7 +842,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
       context 'when the lighthouse_claims_api_poa_dependent_claimants feature is enabled' do
         before do
-          Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
+          allow_any_instance_of(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                              .and_return true
         end
 
         context 'and the request includes a dependent claimant' do
@@ -849,9 +990,9 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
               expect(parsed['data']['attributes']['representative']['service_organization']['organization_name'])
                 .to eq('Some Great Organization')
               expect(parsed['data']['attributes']['representative']['service_organization']['first_name'])
-                .to eq(nil)
+                .to be_nil
               expect(parsed['data']['attributes']['representative']['service_organization']['last_name'])
-                .to eq(nil)
+                .to be_nil
               expect(parsed['data']['attributes']['representative']['service_organization']['phone_number'])
                 .to eq('555-555-5555')
             end
@@ -887,7 +1028,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
               expect(parsed['data']['attributes']['representative']['service_organization']['last_name'])
                 .to eq('Testerson')
               expect(parsed['data']['attributes']['representative']['service_organization']['organization_name'])
-                .to eq(nil)
+                .to be_nil
               expect(parsed['data']['attributes']['representative']['service_organization']['phone_number'])
                 .to eq('555-555-5555')
             end

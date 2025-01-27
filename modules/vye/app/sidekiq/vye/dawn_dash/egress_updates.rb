@@ -7,6 +7,10 @@ module Vye
       sidekiq_options retry: 0
 
       def perform
+        if Vye::CloudTransfer.holiday?
+          logger.info("Vye::DawnDash::EgressUpdates: holiday detected, job run at: #{Time.zone.now}")
+        end
+
         Vye::BatchTransfer::EgressFiles.address_changes_upload
         Vye::BatchTransfer::EgressFiles.direct_deposit_upload
         Vye::BatchTransfer::EgressFiles.verification_upload

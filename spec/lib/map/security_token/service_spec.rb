@@ -14,8 +14,21 @@ describe MAP::SecurityToken::Service do
     let(:log_prefix) { '[MAP][SecurityToken][Service]' }
     let(:expected_request_message) { "#{log_prefix} token request" }
     let(:expected_request_payload) { { application:, icn: } }
+    let(:jwks_cache_key) { 'map_public_jwks' }
+    let(:jwk_payload) { JSON.parse(File.read('spec/fixtures/map/jwks.json'))['keys'].first }
+    let(:map_jwks) { JWT::JWK::Set.new([jwk_payload]) }
+    let(:redis_store) { ActiveSupport::Cache::RedisCacheStore.new(redis: MockRedis.new) }
 
     shared_examples 'STS token request' do
+      before do
+        allow(Rails).to receive(:cache).and_return(redis_store)
+        Rails.cache.write(jwks_cache_key, map_jwks)
+      end
+
+      after do
+        Rails.cache.clear
+      end
+
       it 'logs the token request' do
         VCR.use_cassette('map/security_token_service_200_response') do
           expect(Rails.logger).to receive(:info).with(expected_request_message, expected_request_payload)
@@ -143,6 +156,49 @@ describe MAP::SecurityToken::Service do
       context 'and response is successful' do
         let(:expected_log_message) { "#{log_prefix} token success" }
         let(:expected_log_payload) { { application:, icn:, cached_response: false } }
+
+        context 'when validating the response token' do
+          before do
+            described_class.configuration.instance_variable_set(:@public_jwks, nil)
+            allow(Rails.logger).to receive(:info)
+          end
+
+          context 'when obtaining the MAP STS JWKs' do
+            context 'and the MAP STS JWKs are not cached' do
+              before { Rails.cache.clear }
+
+              it 'makes a request to the MAP STS JWKs endpoint' do
+                VCR.use_cassette('map/security_token_service_200_response') do
+                  expect(Rails.logger).to receive(:info).with("#{log_prefix} Get Public JWKs Success")
+                  subject
+                end
+              end
+            end
+
+            context 'and the MAP STS JWKs are cached' do
+              it 'does not make a request to the MAP STS JWKs endpoint' do
+                VCR.use_cassette('map/security_token_service_200_response') do
+                  expect(Rails.cache).not_to receive(:write).with(jwks_cache_key, anything)
+                  expect(Rails.logger).not_to receive(:info).with("#{log_prefix} Get Public JWKs Success")
+                  subject
+                end
+              end
+            end
+          end
+
+          context 'when response is an invalid token',
+                  vcr: { cassette_name: 'map/security_token_service_200_invalid_token' } do
+            let(:expected_error) { JWT::DecodeError }
+            let(:expected_error_context) { 'Signature verification failed' }
+            let(:expected_logger_message) { "#{log_prefix} token failed, JWT decode error" }
+            let(:expected_log_values) { { application:, icn:, context: expected_error_context } }
+
+            it 'raises a JWT Decode error and creates a log' do
+              expect(Rails.logger).to receive(:error).with(expected_logger_message, expected_log_values)
+              expect { subject }.to raise_exception(expected_error, expected_error_context)
+            end
+          end
+        end
 
         it 'logs a token success message',
            vcr: { cassette_name: 'map/security_token_service_200_response' } do

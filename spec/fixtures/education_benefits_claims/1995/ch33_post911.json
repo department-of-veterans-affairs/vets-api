@@ -4,7 +4,7 @@
     "middle": "middle",
     "last": "last"
   },
-  "veteranSocialSecurityNumber": "111223333",
+  "veteranSocialSecurityNumber": "223334444",
   "newSchool": {
     "name": "school name",
     "address": {
@@ -15,7 +15,7 @@
       "street": "111 Uni Drive"
     }
   },
-  "sponsorSocialSecurityNumber": "111223333",
+  "sponsorSocialSecurityNumber": "444433322",
   "oldSchool": {
     "name": "old school name",
     "address": {
@@ -45,6 +45,7 @@
   "email": "test@sample.com",
   "benefit": "chapter33Post911",
   "benefitUpdate": "chapter33Post911",
+  "rudisillReview": "Yes",
   "changeAnotherBenefit": "Yes",
   "benefitAppliedFor": "chapter1606",
   "educationType": "tuitionTopUp",

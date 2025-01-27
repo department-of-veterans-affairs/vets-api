@@ -16,7 +16,7 @@ RSpec.describe V0::ExampleController, type: :controller do
   end
 
   context 'when logged in' do
-    let(:test_user) { FactoryBot.build(:user) }
+    let(:test_user) { build(:user) }
 
     before do
       sign_in_as(test_user)

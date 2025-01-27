@@ -29,6 +29,16 @@ RSpec.describe V1::DecisionReviewNotificationCallbacksController, type: :control
       allow(DecisionReviewNotificationAuditLog).to receive(:create!)
     end
 
+    it 'logs use of the old controller' do
+      warn_old_controller_args = {
+        message: 'Calling decision reviews controller outside module',
+        action: 'Notification callbacks controller'
+      }
+      allow(Rails.logger).to receive(:warn)
+      expect(Rails.logger).to receive(:warn).with(warn_old_controller_args)
+      post(:create, params:, as: :json)
+    end
+
     context 'the record saved without an issue' do
       it 'returns success' do
         expect(DecisionReviewNotificationAuditLog).to receive(:create!)

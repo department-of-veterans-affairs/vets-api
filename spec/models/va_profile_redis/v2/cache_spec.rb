@@ -3,16 +3,12 @@
 require 'rails_helper'
 
 describe VAProfileRedis::V2::Cache, :skip_vet360 do
-  let(:user) { build(:user, :loa3, vet360_id: '1781151') }
+  let(:user) { build(:user, :loa3) }
 
   describe 'ContactInformationServiceV2' do
     before do
-      Flipper.enable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-    end
-
-    after do
-      Flipper.disable(:va_v3_contact_information_service)
     end
 
     describe '.invalidate v2' do
@@ -21,11 +17,11 @@ describe VAProfileRedis::V2::Cache, :skip_vet360 do
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             VAProfileRedis::V2::ContactInformation.for_user(user)
           end
-          expect(VAProfileRedis::V2::ContactInformation.exists?(user.uuid)).to eq(true)
+          expect(VAProfileRedis::V2::ContactInformation.exists?(user.icn)).to be(true)
 
           VAProfileRedis::V2::Cache.invalidate(user)
 
-          expect(VAProfileRedis::V2::ContactInformation.exists?(user.uuid)).to eq(false)
+          expect(VAProfileRedis::V2::ContactInformation.exists?(user.icn)).to be(false)
         end
       end
 

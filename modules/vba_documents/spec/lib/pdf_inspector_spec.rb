@@ -41,7 +41,7 @@ RSpec.describe VBADocuments::PDFInspector do
         expected_keys.each_key do |key|
           has_all_keys = expected_keys[key][0].all? { |s| expected_keys[key][1].key? s }
           msg = "Key Check error on:  #{key}"
-          expect(has_all_keys).to eq(true), msg
+          expect(has_all_keys).to be(true), msg
         end
       end
 
@@ -56,7 +56,7 @@ RSpec.describe VBADocuments::PDFInspector do
         expect(content_hash[:dimensions]).to be_a(Hash)
         expect(content_hash[:dimensions][:height]).to eq(page_height)
         expect(content_hash[:dimensions][:width]).to eq(page_width)
-        expect(content_hash[:dimensions][:oversized_pdf]).to eq(false)
+        expect(content_hash[:dimensions][:oversized_pdf]).to be(false)
         expect(content_hash[:page_count]).to eq(1)
         expect(content_hash[:sha256_checksum]).to be_a(String)
         expect(content_hash[:sha256_checksum].length).to eq(sha256_char_length)
@@ -72,7 +72,7 @@ RSpec.describe VBADocuments::PDFInspector do
         expect(attachment_hash[:dimensions]).to be_a(Hash)
         expect(attachment_hash[:dimensions][:height]).to eq(page_height)
         expect(attachment_hash[:dimensions][:width]).to eq(page_width)
-        expect(attachment_hash[:dimensions][:oversized_pdf]).to eq(false)
+        expect(attachment_hash[:dimensions][:oversized_pdf]).to be(false)
         expect(attachment_hash[:page_count]).to eq(1)
         expect(attachment_hash[:sha256_checksum]).to be_a(String)
         expect(attachment_hash[:sha256_checksum].length).to eq(sha256_char_length)

@@ -3,8 +3,8 @@
 module CheckIn
   module V0
     class TravelClaimsController < CheckIn::ApplicationController
-      before_action :before_logger, only: %i[show create]
-      after_action :after_logger, only: %i[show create]
+      before_action :before_logger, only: %i[create]
+      after_action :after_logger, only: %i[create]
 
       def create
         check_in_session = CheckIn::V2::Session.build(data: { uuid: permitted_params[:uuid] }, jwt: low_auth_token)

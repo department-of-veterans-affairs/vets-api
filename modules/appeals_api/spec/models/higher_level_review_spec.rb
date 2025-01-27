@@ -19,14 +19,14 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
     describe 'non-veteran claimant flag' do
       it 'saves non-veteran claimant status to metadata' do
-        expect(hlr.metadata['non_veteran_claimant']).to eq(false)
+        expect(hlr.metadata['non_veteran_claimant']).to be(false)
       end
 
       describe 'with non-veteran claimant' do
         let(:hlr) { create(opts[:extra_factory]) }
 
         it 'saves non-veteran claimant status to metadata' do
-          expect(hlr.metadata['non_veteran_claimant']).to eq(true)
+          expect(hlr.metadata['non_veteran_claimant']).to be(true)
         end
       end
     end
@@ -149,7 +149,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
       describe 'by default' do
         subject { higher_level_review.soc_opt_in }
 
-        it('is true') { is_expected.to eq true }
+        it('is true') { is_expected.to be true }
       end
 
       describe 'if a false value is provided' do
@@ -161,7 +161,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
           hlr.soc_opt_in
         end
 
-        it('ignores the user-provided value') { is_expected.to eq true }
+        it('ignores the user-provided value') { is_expected.to be true }
       end
     end
 
@@ -183,7 +183,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
   end
 
   describe 'when api_version is v2' do
-    let(:default_higher_level_review) { create :higher_level_review_v2, status: 'pending' }
+    let(:default_higher_level_review) { create(:higher_level_review_v2, status: 'pending') }
     let(:default_auth_headers) { fixture_as_json 'decision_reviews/v2/valid_200996_headers.json' }
     let(:default_form_data) { fixture_as_json 'decision_reviews/v2/valid_200996.json' }
     let(:higher_level_review) { default_higher_level_review }
@@ -463,8 +463,8 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
         describe 'when pdf version is unset' do
           it 'uses the value from the record' do
-            expect(hlr_opted_in.soc_opt_in).to eq(true)
-            expect(hlr_not_opted_in.soc_opt_in).to eq(false)
+            expect(hlr_opted_in.soc_opt_in).to be(true)
+            expect(hlr_not_opted_in.soc_opt_in).to be(false)
           end
         end
 

@@ -30,8 +30,6 @@ module V0
 
       def form_submission
         params.require(:inquiry).require(:form)
-      rescue
-        raise
       end
 
       def validate!(claim)

@@ -1,0 +1,56 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/journal/activityjournals/11375034"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 21 Nov 2024 00:31:48 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '[{"activityJournalId":14867873,"oplock":null,"createdDate":null,"comments":"test","journalDate":1518152400000,"modifiedDate":null,"activityDetails":[{"activityDetailId":14867874,"repCount":0,"description":"bench
+        press","timeOfDay":null,"activityType":"W","measure":"P","distanceDuration":0,"setCount":0,"intensity":null,"activityJournalId":14867873,"activityJournal":null,"dispIntensity":null,"dispMeasure":"pound(s)","dispTimeOfDay":null,"dispDescription":"bench
+        press","editMode":null}],"userId":11375034,"userProfile":null,"dispJournalDate":"02/09/2018","dayNoOfWeek":6,"summary":"Weights,
+        Comments","abbrWeekDay":"Fri","weekDay":"Friday","activityTypeCount":"<strong>1</strong>
+        Activity","aerobicCardioStr":[],"weightsStr":["null bench press "],"otherStr":[],"aerobicCardiaoType":[],"weightsType":[{"activityDetailId":14867874,"repCount":0,"description":"bench
+        press","timeOfDay":null,"activityType":"W","measure":"P","distanceDuration":0,"setCount":0,"intensity":null,"activityJournalId":14867873,"activityJournal":null,"dispIntensity":null,"dispMeasure":"pound(s)","dispTimeOfDay":null,"dispDescription":"bench
+        press","editMode":null}],"otherType":[],"activityDetailId":null,"activityType":null,"distDuration":null,"measure":null,"intensity":null,"timeOfDay":null,"noOfSets":null,"noOfReps":null,"activityDesc":null},{"activityJournalId":14867876,"oplock":null,"createdDate":null,"comments":null,"journalDate":1517806800000,"modifiedDate":null,"activityDetails":[{"activityDetailId":14867877,"repCount":0,"description":"Zumba","timeOfDay":"M","activityType":"A","measure":null,"distanceDuration":0,"setCount":0,"intensity":"M","activityJournalId":14867876,"activityJournal":null,"dispIntensity":"Moderate
+        impact","dispMeasure":null,"dispTimeOfDay":"Morning","dispDescription":"Zumba","editMode":null}],"userId":11375034,"userProfile":null,"dispJournalDate":"02/05/2018","dayNoOfWeek":2,"summary":"Aerobic/Cardio","abbrWeekDay":"Mon","weekDay":"Monday","activityTypeCount":"<strong>1</strong>
+        Activity","aerobicCardioStr":["Zumba "],"weightsStr":[],"otherStr":[],"aerobicCardiaoType":[{"activityDetailId":14867877,"repCount":0,"description":"Zumba","timeOfDay":"M","activityType":"A","measure":null,"distanceDuration":0,"setCount":0,"intensity":"M","activityJournalId":14867876,"activityJournal":null,"dispIntensity":"Moderate
+        impact","dispMeasure":null,"dispTimeOfDay":"Morning","dispDescription":"Zumba","editMode":null}],"weightsType":[],"otherType":[],"activityDetailId":null,"activityType":null,"distDuration":null,"measure":null,"intensity":null,"timeOfDay":null,"noOfSets":null,"noOfReps":null,"activityDesc":null},{"activityJournalId":14867871,"oplock":null,"createdDate":null,"comments":"test","journalDate":1505880000000,"modifiedDate":null,"activityDetails":[{"activityDetailId":14867872,"repCount":0,"description":"Running","timeOfDay":null,"activityType":"A","measure":"ML","distanceDuration":2,"setCount":0,"intensity":null,"activityJournalId":14867871,"activityJournal":null,"dispIntensity":null,"dispMeasure":"mile(s)","dispTimeOfDay":null,"dispDescription":"Running","editMode":null}],"userId":11375034,"userProfile":null,"dispJournalDate":"09/20/2017","dayNoOfWeek":4,"summary":"Aerobic/Cardio,
+        Comments","abbrWeekDay":"Wed","weekDay":"Wednesday","activityTypeCount":"<strong>1</strong>
+        Activity","aerobicCardioStr":["null Running "],"weightsStr":[],"otherStr":[],"aerobicCardiaoType":[{"activityDetailId":14867872,"repCount":0,"description":"Running","timeOfDay":null,"activityType":"A","measure":"ML","distanceDuration":2,"setCount":0,"intensity":null,"activityJournalId":14867871,"activityJournal":null,"dispIntensity":null,"dispMeasure":"mile(s)","dispTimeOfDay":null,"dispDescription":"Running","editMode":null}],"weightsType":[],"otherType":[],"activityDetailId":null,"activityType":null,"distDuration":null,"measure":null,"intensity":null,"timeOfDay":null,"noOfSets":null,"noOfReps":null,"activityDesc":null},{"activityJournalId":14160042,"oplock":null,"createdDate":null,"comments":"Like
+        %%%","journalDate":1491192000000,"modifiedDate":null,"activityDetails":[{"activityDetailId":14160043,"repCount":456,"description":"Test
+        @%&#*","timeOfDay":"M","activityType":"W","measure":"HR","distanceDuration":5,"setCount":45,"intensity":"M","activityJournalId":14160042,"activityJournal":null,"dispIntensity":"Moderate
+        impact","dispMeasure":"hr(s)","dispTimeOfDay":"Morning","dispDescription":"5
+        hr(s); 45 set(s) of 456 reps of Test @%&#*","editMode":null}],"userId":11375034,"userProfile":null,"dispJournalDate":"04/03/2017","dayNoOfWeek":2,"summary":"Weights,
+        Comments","abbrWeekDay":"Mon","weekDay":"Monday","activityTypeCount":"<strong>1</strong>
+        Activity","aerobicCardioStr":[],"weightsStr":["null 45 456 Test @%&#* "],"otherStr":[],"aerobicCardiaoType":[],"weightsType":[{"activityDetailId":14160043,"repCount":456,"description":"Test
+        @%&#*","timeOfDay":"M","activityType":"W","measure":"HR","distanceDuration":5,"setCount":45,"intensity":"M","activityJournalId":14160042,"activityJournal":null,"dispIntensity":"Moderate
+        impact","dispMeasure":"hr(s)","dispTimeOfDay":"Morning","dispDescription":"5
+        hr(s); 45 set(s) of 456 reps of Test @%&#*","editMode":null}],"otherType":[],"activityDetailId":null,"activityType":null,"distDuration":null,"measure":null,"intensity":null,"timeOfDay":null,"noOfSets":null,"noOfReps":null,"activityDesc":null}]'
+  recorded_at: Thu, 21 Nov 2024 00:31:48 GMT
+recorded_with: VCR 6.3.1

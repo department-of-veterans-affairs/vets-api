@@ -20,14 +20,6 @@ jobs:
       with:
         fetch-depth: 2
 
-    - name: Remove Review label
-      if:  github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
-      uses: actions-ecosystem/action-remove-labels@v1
-      with:
-        number: ${{ github.event.pull_request.number }}
-        labels: |
-          ready-for-backend-review
-
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
@@ -79,14 +71,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 2
-
-    - name: Remove Review label
-      if:  github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
-      uses: actions-ecosystem/action-remove-labels@v1
-      with:
-        number: ${{ github.event.pull_request.number }}
-        labels: |
-          ready-for-backend-review
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4.0.2

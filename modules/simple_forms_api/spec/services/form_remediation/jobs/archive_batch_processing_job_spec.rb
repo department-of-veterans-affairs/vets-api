@@ -53,7 +53,7 @@ module SimpleFormsApi
             before { allow(s3_client_double).to receive(:upload).and_raise(StandardError.new('oopsy')) }
 
             it 'handles the error with the config handle_error method' do
-              expect { perform }.to raise_error(StandardError, 'oopsy')
+              expect { perform }.to raise_error(SimpleFormsApi::FormRemediation::Error, a_string_including('oopsy'))
             end
           end
         end

@@ -24,7 +24,7 @@ module SimpleFormsApi
         assign_defaults(options)
         log_initialization
       rescue => e
-        config.handle_error("#{self.class.name} initialization failed", e)
+        config.handle_error('S3 Client initialization failed', e)
       end
 
       def upload
@@ -55,26 +55,35 @@ module SimpleFormsApi
         @file_path = options[:file_path]
         @archive_path, @manifest_row = build_archive!(config:, type: upload_type, **options)
         @temp_directory_path = File.dirname(archive_path)
+      rescue => e
+        config.handle_error('Failed to assign defaults during S3 Client initialization', e)
       end
 
       def log_initialization
-        config.log_info("Initialized S3Client for #{upload_type} with ID: #{id}")
+        config.log_info("Initialized S3 Client for #{upload_type} with ID: #{id}")
       end
 
       def build_archive!(**)
         config.submission_archive_class.new(**).build!
       end
 
-      def upload_to_s3(local_path)
+      def upload_to_s3(local_path, type: upload_type)
         return if File.directory?(local_path)
 
         File.open(local_path) do |file_obj|
           sanitized_file = CarrierWave::SanitizedFile.new(file_obj)
           s3_uploader.store!(sanitized_file)
+          config.log_info("Successfully uploaded #{type}: #{sanitized_file.filename} to S3 bucket")
         end
       end
 
       def update_manifest
+        form_number = manifest_row[1]
+        if form_number.blank?
+          config.handle_error('Manifest update failed: form_number is missing or invalid.')
+          return
+        end
+
         temp_dir = Rails.root.join("tmp/#{SecureRandom.hex}-manifest/").to_s
         create_directory!(temp_dir)
         begin
@@ -102,7 +111,7 @@ module SimpleFormsApi
 
       def write_and_upload_manifest(local_path)
         write_manifest(manifest_row, local_path)
-        upload_to_s3(local_path)
+        upload_to_s3(local_path, type: :manifest)
       end
 
       def s3_uploader

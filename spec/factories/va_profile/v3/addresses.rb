@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# This will be removed after ContactInformation has been updated
 FactoryBot.define do
   factory :va_profile_v3_address, class: 'VAProfile::Models::V3::Address' do
     address_line1 { '140 Rock Creek Rd' }
@@ -47,6 +46,14 @@ FactoryBot.define do
       city { 'Brooklyn' }
       state_code { 'NY' }
       zip_code { '11249' }
+    end
+
+    trait :incorrect_address_pou do
+      address_line1 { '37 1st st' }
+      city { 'Brooklyn' }
+      state_code { 'NY' }
+      zip_code { '11249' }
+      address_pou { 'RESIDENCE/CHOICE' }
     end
 
     trait :override do

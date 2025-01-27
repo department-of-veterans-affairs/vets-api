@@ -2,12 +2,12 @@
 JOE
 
 TESTER
-123456789
+444433322
 223334444
-V1995
+1995R
 
 
-Chapter35
+CH35
 *START*
 VA Form 22-1995
 OMB Control #: 2900-0074
@@ -49,7 +49,7 @@ Routing/Transit #:    Account #:
 
 Name:   John Smith
 
-SSN:   123456789
+SSN:   444433322
 
 VA File Number: c12345679
 
@@ -57,6 +57,8 @@ VA File Number: c12345679
                   -----------------------------------------
 
 Benefit Most Recently Received: Chapter30
+
+Do you wish to request a 'Rudisill' review?: Yes
 
 Select Another Benefit: Yes
 

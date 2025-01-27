@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGSDependents::Spouse do
-  let(:veteran_spouse) { FactoryBot.build(:spouse) }
+  let(:veteran_spouse) { build(:spouse) }
   let(:spouse) { described_class.new(veteran_spouse['dependents_application']) }
   let(:format_info_output) do
     {

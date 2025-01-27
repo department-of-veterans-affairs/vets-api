@@ -1,0 +1,266 @@
+{
+  "view:enhanced_financial_status_report": true,
+  "view:streamlined_waiver": true,
+  "view:streamlined_waiver_asset_update": true,
+  "view:review_page_navigation_toggle": true,
+  "view:show_updated_expense_pages": true,
+  "questions": {
+    "has_repayments": false,
+    "has_credit_card_bills": false,
+    "has_recreational_vehicle": false,
+    "has_vehicle": false,
+    "has_real_estate": true,
+    "is_married": false,
+    "has_dependents": "0",
+    "has_been_adjudicated_bankrupt": false,
+    "vet_is_employed": true
+  },
+  "view:components": {
+    "view:contracts_additional_info": {},
+    "view:rec_vehicle_info": {},
+    "view:marital_status": {},
+    "view:veteran_info": {},
+    "view:dependents_additional_info": {},
+    "view:va_benefits_on_file": {}
+  },
+  "assets": {
+    "real_estate_value": "200000",
+    "monetary_assets": [
+      {
+        "name": "Cash on hand (not in bank)",
+        "amount": "10000"
+      },
+      {
+        "name": "Cash in a bank (savings and checkings)",
+        "amount": "10000"
+      }
+    ]
+  },
+  "benefits": {
+    "spouse_benefits": {}
+  },
+  "personal_data": {
+    "date_of_birth": "1950-09-06",
+    "telephone_number": "4445551212",
+    "email_address": "test2@test1.net",
+    "spouse_full_name": {},
+    "veteran_full_name": {
+      "first": "Travis",
+      "last": "Jones",
+      "middle": "D"
+    },
+    "veteran_contact_information": {
+      "email": "test@user.com",
+      "mobile_phone": {
+        "area_code": "510",
+        "country_code": "1",
+        "created_at": "2020-06-12T16:56:37.000+00:00",
+        "extension": "",
+        "effective_end_date": null,
+        "effective_start_date": "2020-07-14T19:07:45.000+00:00",
+        "id": 146766,
+        "is_international": false,
+        "is_textable": null,
+        "is_text_permitted": null,
+        "is_tty": null,
+        "is_voicemailable": null,
+        "phone_number": "9224444",
+        "phone_type": "HOME",
+        "source_date": "2020-07-14T19:07:45.000+00:00",
+        "source_system_user": null,
+        "transaction_id": "92c49d39-22b2-4bd6-92b4-0b7e7c63c6a9",
+        "updated_at": "2020-07-14T19:07:46.000+00:00",
+        "vet360_id": "1273780"
+      },
+      "address": {
+        "address_line1": "1200 Park Ave",
+        "address_line2": "c/o Pixar",
+        "address_pou": "CORRESPONDENCE",
+        "address_type": "DOMESTIC",
+        "city": "Emeryville",
+        "country_name": "United States",
+        "country_code_iso2": "US",
+        "country_code_iso3": "USA",
+        "country_code_fips": null,
+        "county_code": null,
+        "county_name": null,
+        "created_at": "2020-05-30T03:57:20.000+00:00",
+        "effective_end_date": null,
+        "effective_start_date": "2020-07-10T20:10:45.000+00:00",
+        "id": 173917,
+        "province": null,
+        "source_date": "2020-07-10T20:10:45.000+00:00",
+        "source_system_user": null,
+        "state_code": "CA",
+        "transaction_id": "7139aa82-fd06-45ea-a217-9654869924bd",
+        "updated_at": "2020-07-10T20:10:46.000+00:00",
+        "validation_key": null,
+        "vet360_id": "1273780",
+        "zip_code": "94608",
+        "zip_code_suffix": null
+      }
+    },
+    "dependents": [],
+    "address": {
+      "street": "375 Mountainhigh Dr",
+      "city": "Antioch",
+      "state": "TN",
+      "country": "USA",
+      "postal_code": "37013"
+    },
+    "employment_history": {
+      "veteran": {
+        "employment_records": [
+          {
+            "type": "Full time",
+            "from": "2020-03-01",
+            "to": "",
+            "is_current": true,
+            "employer_name": "Acme",
+            "gross_monthly_income": "10000",
+            "deductions": [
+              {
+                "name": "State tax",
+                "amount": "100"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "personal_identification": {
+    "ssn": "3018",
+    "file_number": "3018"
+  },
+  "selected_debts_and_copays": [
+    {
+      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "resolution_waiver_check": true,
+      "resolution_option": "waiver",
+      "resolution_comment": "",
+      "selected_debt_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "debt_type": "COPAY",
+      "p_s_seq_num": 1,
+      "p_s_tot_seq_num": 1,
+      "p_s_facility_num": "757",
+      "p_s_fac_phone_num": null,
+      "p_s_tot_statement": 3,
+      "p_s_statement_val": "0000037953E",
+      "p_s_statement_date": "12242024",
+      "p_s_statement_date_output": "12/24/2024",
+      "p_s_process_date": "12102020",
+      "p_s_process_date_output": "12/10/2020",
+      "p_h_patient_lst_nme": "HHUFHYULSEHU",
+      "p_h_patient_fst_nme": "CDAA",
+      "p_h_patient_mid_nme": "A",
+      "p_h_address1": "7780 RED MAPLE CT",
+      "p_h_address2": null,
+      "p_h_address3": null,
+      "p_h_city": "HUBER HEIGHTS",
+      "p_h_state": "OH",
+      "p_h_zip_cde": "45424",
+      "p_h_zip_cde_output": "45424",
+      "p_h_ctry_nme": null,
+      "p_h_amt_due": 105.24,
+      "p_h_amt_due_output": "105.24&nbsp;&nbsp;",
+      "p_h_prev_bal": 103.21,
+      "p_h_prev_bal_output": "103.21&nbsp;&nbsp;",
+      "p_h_tot_charges": 2.03,
+      "p_h_tot_charges_output": "2.03&nbsp;&nbsp;",
+      "p_h_tot_credits": 0,
+      "p_h_tot_credits_output": ".00&nbsp;&nbsp;",
+      "p_h_new_balance": 105.24,
+      "p_h_new_balance_output": "105.24&nbsp;&nbsp;",
+      "p_h_special_notes": null,
+      "p_hro_para_cdes": "0125304050556065708085",
+      "p_h_num_of_lines": 2,
+      "p_h_dfn_number": 197750,
+      "p_h_cerner_statement_number": 0,
+      "p_h_cerner_patient_id": "                ",
+      "p_h_cerner_account_number": "                ",
+      "p_h_icn_number": "                 ",
+      "p_h_account_number": 7570000000197750,
+      "p_h_large_font_indcator": 0,
+      "station": {
+        "facilit_y_num": "757",
+        "vis_n_num": "10",
+        "facilit_y_desc": "CHALMERS P WYLIE VA ACC (757)",
+        "cycl_e_num": "004",
+        "remi_t_to_flag": "L",
+        "mai_l_insert_flag": "0",
+        "sta_t_address1": "420 N JAMES RD",
+        "sta_t_address2": null,
+        "sta_t_address3": null,
+        "city": "Columbus",
+        "state": "OH",
+        "zi_p_cde": "432191834",
+        "zi_p_cde_output": "43219-1834",
+        "ba_r_cde": "*432191834203*",
+        "te_l_num_flag": "S",
+        "te_l_num": "1-866-812-0318",
+        "te_l_num2": null,
+        "contac_t_info": null,
+        "d_m2_tel_num": null,
+        "contac_t_info2": null,
+        "to_p_tel_num": null,
+        "lb_x_fedex_address1": null,
+        "lb_x_fedex_address2": null,
+        "lb_x_fedex_address3": null,
+        "lb_x_fedex_city": null,
+        "lb_x_fedex_state": null,
+        "lb_x_fedex_zip_cde": null,
+        "lb_x_fedex_bar_cde": null,
+        "lb_x_fedex_contact": null,
+        "lb_x_fedex_contact_tel_num": null,
+        "facility_name": "Chalmers P. Wylie Veterans Outpatient Clinic"
+      }
+    }
+  ],
+  "additional_income": {
+    "addl_inc_records": [
+      {
+        "name": "Rental income",
+        "amount": "1000"
+      },
+      {
+        "name": "Irregular or “gig” income",
+        "amount": "500"
+      }
+    ],
+    "spouse": {}
+  },
+  "expenses": {
+    "monthly_housing_expenses": "500"
+  },
+  "utility_records": [
+    {
+      "name": "Gas",
+      "amount": "100"
+    },
+    {
+      "name": "Sewer",
+      "amount": "200"
+    }
+  ],
+  "additional_data": {
+    "additional_comments": "Cool COol",
+    "bankruptcy": {}
+  },
+  "income": [
+    {
+      "veteran_or_spouse": "VETERAN"
+    }
+  ],
+  "gmt_data": {
+    "is_eligible_for_streamlined": true,
+    "gmt_threshold": 12000,
+    "error": null,
+    "income_upper_threshold": 18000,
+    "asset_threshold": 780,
+    "discretionary_income_threshold": 150,
+    "income_below_gmt": false,
+    "income_below_one_fifty_gmt": false,
+    "liquid_assets_below_gmt": false
+  }
+}

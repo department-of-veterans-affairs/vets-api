@@ -21,7 +21,7 @@ describe AppealsApi::MonthlyStatsReport do
 
       it 'does not build a report without recipients' do
         allow(YAML).to receive(:load_file).and_return({ 'common' => %w[] })
-        messager = instance_double('AppealsApi::Slack::Messager')
+        messager = instance_double(AppealsApi::Slack::Messager)
         allow(AppealsApi::Slack::Messager).to receive(:new).and_return(messager)
         expect(messager).to receive(:notify!)
         expect(AppealsApi::StatsReportMailer).not_to receive(:build)

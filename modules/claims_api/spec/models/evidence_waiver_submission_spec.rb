@@ -18,8 +18,8 @@ RSpec.describe ClaimsApi::EvidenceWaiverSubmission, type: :model do
 
     context 'when all required attributes are provided' do
       it 'saves the record' do
-        ews = FactoryBot.create(:evidence_waiver_submission, auth_headers: 'cghdsjg',
-                                                             cid: '21635')
+        ews = create(:evidence_waiver_submission, auth_headers: 'cghdsjg',
+                                                  cid: '21635')
 
         expect { ews.save! }.not_to raise_error
       end

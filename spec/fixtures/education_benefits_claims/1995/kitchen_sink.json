@@ -4,7 +4,7 @@
     "middle": "middle",
     "last": "last"
   },
-  "veteranSocialSecurityNumber": "111223333",
+  "veteranSocialSecurityNumber": "223334444",
   "newSchool": {
     "name": "school name",
     "address": {
@@ -15,7 +15,11 @@
       "street": "111 Uni Drive"
     }
   },
-  "sponsorSocialSecurityNumber": "111223333",
+  "sponsorSocialSecurityNumber": "444433322",
+  "sponsorFullName": {
+    "first": "John",
+    "last": "Smith"
+  },
   "oldSchool": {
     "name": "old school name",
     "address": {
@@ -29,7 +33,7 @@
   "preferredContactMethod": "email",
   "trainingEndDate": "2007-06-XX",
   "reasonForChange": "reason for change",
-  "vaFileNumber": "c12345678",
+  "vaFileNumber": "c12345679",
   "homePhone": "5551110000",
   "mobilePhone": "5551110001",
   "veteranAddress": {
@@ -45,8 +49,9 @@
   "email": "test@sample.com",
   "benefit": "transferOfEntitlement",
   "benefitUpdate": "transferOfEntitlement",
+  "rudisillReview": "No",
   "changeAnotherBenefit": "Yes",
-  "benefitAppliedFor": "chapter30",
+  "benefitAppliedFor": "chapter35",
   "educationType": "tuitionTopUp",
   "educationTypeUpdate": "prepCourseForLoC",
   "educationObjective": "bachelor's degree",

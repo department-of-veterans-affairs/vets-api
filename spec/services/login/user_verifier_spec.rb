@@ -4,31 +4,25 @@ require 'rails_helper'
 
 RSpec.describe Login::UserVerifier do
   describe '#perform' do
-    subject { described_class.new(user_identity).perform }
-
-    let(:user_identity) do
-      OpenStruct.new(
-        {
-          edipi: edipi_identifier,
-          sign_in: { service_name: login_value, auth_broker: },
-          mhv_correlation_id: mhv_correlation_id_identifier,
-          idme_uuid: idme_uuid_identifier,
-          logingov_uuid: logingov_uuid_identifier,
-          icn:,
-          user_verification_id: nil,
-          user_account_uuid: nil
-        }
-      )
+    subject do
+      described_class.new(login_type:,
+                          auth_broker:,
+                          mhv_uuid:,
+                          idme_uuid:,
+                          dslogon_uuid:,
+                          logingov_uuid:,
+                          icn:).perform
     end
+
     let(:auth_broker) { 'some-auth-broker' }
-    let(:edipi_identifier) { 'some-edipi' }
-    let(:mhv_correlation_id_identifier) { 'some-correlation-id' }
-    let(:idme_uuid_identifier) { 'some-idme-uuid' }
-    let(:logingov_uuid_identifier) { 'some-logingov-uuid' }
+    let(:dslogon_uuid) { 'some-edipi' }
+    let(:mhv_uuid) { 'some-credential-uuid' }
+    let(:idme_uuid) { 'some-idme-uuid' }
+    let(:logingov_uuid) { 'some-logingov-uuid' }
     let(:locked) { false }
 
     let(:icn) { nil }
-    let(:login_value) { nil }
+    let(:login_type) { nil }
     let(:time_freeze_time) { '10-10-2021' }
 
     before do
@@ -41,10 +35,10 @@ RSpec.describe Login::UserVerifier do
 
     shared_examples 'user_verification with nil credential identifier' do
       let(:authn_identifier) { nil }
-      let(:edipi_identifier) { authn_identifier }
-      let(:mhv_correlation_id_identifier) { authn_identifier }
-      let(:idme_uuid_identifier) { authn_identifier }
-      let(:logingov_uuid_identifier) { authn_identifier }
+      let(:dslogon_uuid) { authn_identifier }
+      let(:mhv_uuid) { authn_identifier }
+      let(:idme_uuid) { authn_identifier }
+      let(:logingov_uuid) { authn_identifier }
       let(:expected_log) { "[Login::UserVerifier] Nil identifier for type=#{authn_identifier_type}" }
       let(:expected_error) { Login::Errors::UserVerificationNotCreatedError }
 
@@ -58,11 +52,11 @@ RSpec.describe Login::UserVerifier do
       context 'and there is an alternate idme credential identifier' do
         let(:type) { :idme_uuid }
         let(:expected_log_idme) do
-          "[Login::UserVerifier] Attempting alternate type=#{type} identifier=#{idme_uuid_identifier}"
+          "[Login::UserVerifier] Attempting alternate type=#{type} identifier=#{idme_uuid}"
         end
-        let(:idme_uuid_identifier) { 'some-idme-uuid-identifier' }
+        let(:idme_uuid) { 'some-idme-uuid-identifier' }
         let!(:user_verification) do
-          UserVerification.create!(type => idme_uuid_identifier,
+          UserVerification.create!(type => idme_uuid,
                                    backing_idme_uuid:,
                                    user_account:,
                                    locked:)
@@ -86,11 +80,11 @@ RSpec.describe Login::UserVerifier do
         let(:icn) { 'some-icn' }
         let(:expected_log) do
           '[Login::UserVerifier] New VA.gov user, ' \
-            "type=#{login_value}, broker=#{auth_broker}, identifier=#{authn_identifier}, locked=#{locked}"
+            "type=#{login_type}, broker=#{auth_broker}, identifier=#{authn_identifier}, locked=#{locked}"
         end
 
         context 'and user_verification for user credential already exists' do
-          let(:user_account) { UserAccount.new(icn: user_identity.icn) }
+          let(:user_account) { UserAccount.new(icn:) }
           let!(:user_verification) do
             UserVerification.create!(authn_identifier_type => authn_identifier,
                                      user_account:,
@@ -98,7 +92,7 @@ RSpec.describe Login::UserVerifier do
                                      verified_at:,
                                      locked:)
           end
-          let(:verified_at) { Time.zone.now - 1.day }
+          let(:verified_at) { 1.day.ago }
 
           it 'does not make new user log to rails logger' do
             expect(Rails.logger).not_to receive(:info).with(expected_log, { icn: })
@@ -124,7 +118,7 @@ RSpec.describe Login::UserVerifier do
           end
 
           context 'and user_account with the current user ICN exists' do
-            let(:user_account) { UserAccount.new(icn: user_identity.icn) }
+            let(:user_account) { UserAccount.new(icn:) }
 
             context 'and this user account is already associated with the user_verification' do
               it 'does not change user_verification user_account associations' do
@@ -140,7 +134,7 @@ RSpec.describe Login::UserVerifier do
             end
 
             context 'and this user account is not already associated with the user_verification' do
-              let(:other_user_account) { UserAccount.new(icn: user_identity.icn) }
+              let(:other_user_account) { UserAccount.new(icn:) }
 
               context 'and the current user_verification is not verified' do
                 let(:user_account) { UserAccount.new(icn: nil) }
@@ -194,7 +188,7 @@ RSpec.describe Login::UserVerifier do
 
               context 'and the current user_verification is verified' do
                 let(:user_account) { UserAccount.new(icn: 'some-other-icn') }
-                let(:verified_at) { Time.zone.now - 1.day }
+                let(:verified_at) { 1.day.ago }
                 let(:expected_message) do
                   "[Login::UserVerifier] User Account Mismatch for UserVerification id=#{user_verification.id}, " \
                     "UserAccount id=#{user_account.id}, icn=#{user_account.icn}, " \
@@ -229,7 +223,7 @@ RSpec.describe Login::UserVerifier do
               expect do
                 subject
                 user_account.reload
-              end.to change(user_account, :icn).from(nil).to(user_identity.icn)
+              end.to change(user_account, :icn).from(nil).to(icn)
             end
 
             it 'sets the user_verification verified_at time to now' do
@@ -249,7 +243,7 @@ RSpec.describe Login::UserVerifier do
           let(:expected_verified_at_time) { Time.zone.now }
           let(:expected_log) do
             '[Login::UserVerifier] New VA.gov user, ' \
-              "type=#{login_value}, broker=#{auth_broker}, identifier=#{authn_identifier}, locked=#{locked}"
+              "type=#{login_type}, broker=#{auth_broker}, identifier=#{authn_identifier}, locked=#{locked}"
           end
 
           it 'makes a new user log to rails logger' do
@@ -271,7 +265,7 @@ RSpec.describe Login::UserVerifier do
             it 'sets the current user ICN on the user_account record' do
               subject
               account_icn = UserVerification.where(authn_identifier_type => authn_identifier).first.user_account.icn
-              expect(account_icn).to eq user_identity.icn
+              expect(account_icn).to eq icn
             end
 
             it 'creates a user_account record attached to the user_verification record' do
@@ -298,13 +292,13 @@ RSpec.describe Login::UserVerifier do
 
                 it 'creates a locked UserVerification object and logs the event' do
                   expect(Rails.logger).to receive(:info).with(expected_log, { icn: })
-                  expect(subject.locked).to eq(true)
+                  expect(subject.locked).to be(true)
                 end
               end
 
               context 'and the linked user verification is not locked' do
                 it 'creates an unlocked UserVerification object' do
-                  expect(subject.locked).to eq(false)
+                  expect(subject.locked).to be(false)
                 end
               end
             end
@@ -330,7 +324,7 @@ RSpec.describe Login::UserVerifier do
         let(:icn) { nil }
         let(:expected_log) do
           '[Login::UserVerifier] New VA.gov user, ' \
-            "type=#{login_value}, broker=#{auth_broker}, identifier=#{authn_identifier}, locked=#{locked}"
+            "type=#{login_type}, broker=#{auth_broker}, identifier=#{authn_identifier}, locked=#{locked}"
         end
 
         context 'and user_verification for user credential already exists' do
@@ -390,10 +384,10 @@ RSpec.describe Login::UserVerifier do
     end
 
     context 'when user credential is mhv' do
-      let(:login_value) { SignIn::Constants::Auth::MHV }
-      let(:authn_identifier) { user_identity.mhv_correlation_id }
+      let(:login_type) { SignIn::Constants::Auth::MHV }
+      let(:authn_identifier) { mhv_uuid }
       let(:authn_identifier_type) { :mhv_uuid }
-      let(:backing_idme_uuid) { idme_uuid_identifier }
+      let(:backing_idme_uuid) { idme_uuid }
       let(:linked_user_verification_type) { :mhv_user_verification }
 
       it_behaves_like 'user_verification with nil credential identifier'
@@ -401,18 +395,18 @@ RSpec.describe Login::UserVerifier do
     end
 
     context 'when user credential is idme' do
-      let(:login_value) { SignIn::Constants::Auth::IDME }
-      let(:authn_identifier) { user_identity.idme_uuid }
+      let(:login_type) { SignIn::Constants::Auth::IDME }
+      let(:authn_identifier) { idme_uuid }
       let(:authn_identifier_type) { :idme_uuid }
       let(:backing_idme_uuid) { nil }
       let(:linked_user_verification_type) { :idme_user_verification }
 
       context 'when credential identifier is nil' do
         let(:authn_identifier) { nil }
-        let(:edipi_identifier) { authn_identifier }
-        let(:mhv_correlation_id_identifier) { authn_identifier }
-        let(:idme_uuid_identifier) { authn_identifier }
-        let(:logingov_uuid_identifier) { authn_identifier }
+        let(:dslogon_uuid) { authn_identifier }
+        let(:mhv_uuid) { authn_identifier }
+        let(:idme_uuid) { authn_identifier }
+        let(:logingov_uuid) { authn_identifier }
         let(:expected_log) { "[Login::UserVerifier] Nil identifier for type=#{authn_identifier_type}" }
         let(:expected_error) { Login::Errors::UserVerificationNotCreatedError }
 
@@ -426,10 +420,10 @@ RSpec.describe Login::UserVerifier do
     end
 
     context 'when user credential is dslogon' do
-      let(:login_value) { SignIn::Constants::Auth::DSLOGON }
-      let(:authn_identifier) { user_identity.edipi }
+      let(:login_type) { SignIn::Constants::Auth::DSLOGON }
+      let(:authn_identifier) { dslogon_uuid }
       let(:authn_identifier_type) { :dslogon_uuid }
-      let(:backing_idme_uuid) { idme_uuid_identifier }
+      let(:backing_idme_uuid) { idme_uuid }
       let(:linked_user_verification_type) { :dslogon_user_verification }
 
       it_behaves_like 'user_verification with nil credential identifier'
@@ -437,8 +431,8 @@ RSpec.describe Login::UserVerifier do
     end
 
     context 'when user credential is logingov' do
-      let(:login_value) { SignIn::Constants::Auth::LOGINGOV }
-      let(:authn_identifier) { user_identity.logingov_uuid }
+      let(:login_type) { SignIn::Constants::Auth::LOGINGOV }
+      let(:authn_identifier) { logingov_uuid }
       let(:authn_identifier_type) { :logingov_uuid }
       let(:backing_idme_uuid) { nil }
       let(:linked_user_verification_type) { :logingov_user_verification }

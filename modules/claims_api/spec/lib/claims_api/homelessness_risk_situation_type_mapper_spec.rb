@@ -15,7 +15,7 @@ describe ClaimsApi::HomelessnessRiskSituationTypeMapper do
   end
 
   it 'returns nil for invalid name' do
-    expect(subject.code_from_name('invalid-name')).to eq(nil)
+    expect(subject.code_from_name('invalid-name')).to be_nil
   end
 
   it 'raises exception for invalid name' do
@@ -33,7 +33,7 @@ describe ClaimsApi::HomelessnessRiskSituationTypeMapper do
   end
 
   it 'returns nil for invalid code' do
-    expect(subject.name_from_code('invalid-code')).to eq(nil)
+    expect(subject.name_from_code('invalid-code')).to be_nil
   end
 
   it 'raises exception for invalid code' do

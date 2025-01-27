@@ -27,8 +27,9 @@ module Lighthouse
     # sends error logs to sentry that contains the client id and url that the consumer was trying call
     # raises an error based off of what the response status was
     # formats the Lighthouse exception for the controller ExceptionHandling to report out to the consumer
-    def self.send_error(error, service_name, lighthouse_client_id, url)
-      send_error_logs(error, service_name, lighthouse_client_id, url)
+    # @option options [string] :invoker where this method was called from
+    def self.send_error(error, service_name, lighthouse_client_id, url, options = {})
+      send_error_logs(error, service_name, lighthouse_client_id, url, options)
       return error unless error.respond_to?(:response)
 
       response = error.response
@@ -100,7 +101,7 @@ module Lighthouse
     end
 
     # log errors
-    def self.send_error_logs(error, service_name, lighthouse_client_id, url)
+    def self.send_error_logs(error, service_name, lighthouse_client_id, url, options = {})
       logging_options = { url:, lighthouse_client_id: }
 
       if error.respond_to?(:response) && error.response.present?
@@ -110,6 +111,9 @@ module Lighthouse
         logging_options[:message] = error.message
         logging_options[:backtrace] = error.backtrace
       end
+
+      logging_options[:invoker] = options[:invoker] if options[:invoker]
+
       log_to_rails_logger(service_name, logging_options)
 
       extra_context = Sentry.set_extras(

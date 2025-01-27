@@ -99,9 +99,9 @@ RSpec.describe 'VBADocument::V2::Uploads::Submit', retry: 3, type: :request do
       expect(@attributes['status']).to eq('uploaded')
       uploaded_pdf = @attributes['uploaded_pdf']
       expect(uploaded_pdf['total_documents']).to eq(3)
-      expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to eq(false)
-      expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to eq(false)
-      expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
+      expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to be(false)
+      expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to be(false)
+      expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to be(false)
     end
 
     it 'processes base64 requests' do
@@ -128,9 +128,9 @@ RSpec.describe 'VBADocument::V2::Uploads::Submit', retry: 3, type: :request do
         expect(@attributes['status']).to eq('error')
         uploaded_pdf = @attributes['uploaded_pdf']
         expect(uploaded_pdf['total_documents']).to eq(3)
-        expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to eq(false)
-        expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to eq(true)
-        expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
+        expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to be(false)
+        expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to be(true)
+        expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to be(false)
       end
     end
 
@@ -194,7 +194,7 @@ RSpec.describe 'VBADocument::V2::Uploads::Submit', retry: 3, type: :request do
         pdf_data = json['data']['attributes']['uploaded_pdf']
         expect(@attributes['status']).to eq('uploaded')
         expect(pdf_data['line_of_business']).to eq(key)
-        expect(pdf_data['submitted_line_of_business']).to eq(nil)
+        expect(pdf_data['submitted_line_of_business']).to be_nil
       end
     end
 

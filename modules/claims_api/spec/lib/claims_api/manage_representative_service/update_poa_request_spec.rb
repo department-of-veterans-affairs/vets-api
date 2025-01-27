@@ -28,7 +28,7 @@ describe ClaimsApi::ManageRepresentativeService, metadata do
 
       let(:params) do
         representative =
-          FactoryBot.create(
+          create(
             :representative,
             {
               poa_codes: ['A1Q'],

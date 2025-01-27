@@ -21,7 +21,7 @@ RSpec.describe Identity::AccountCreator, type: :model do
 
     context 'when user does not have an idme_uuid, sec_id, or logingov_uuid' do
       it 'returns nil' do
-        expect(subject).to be nil
+        expect(subject).to be_nil
       end
     end
 

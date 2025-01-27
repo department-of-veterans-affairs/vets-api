@@ -50,7 +50,7 @@ module Mobile
         end
 
         def vaos_v2_to_v0_appointment_adapter
-          Mobile::V0::Adapters::VAOSV2Appointments.new
+          Mobile::V0::Adapters::VAOSV2Appointments.new(@user)
         end
       end
     end

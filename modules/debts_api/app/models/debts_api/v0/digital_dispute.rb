@@ -3,7 +3,7 @@
 module DebtsApi
   class V0::DigitalDispute < Common::Base
     include ActiveModel::Validations
-    STATS_KEY = 'api.digital_dispute'
+    STATS_KEY = 'api.digital_dispute_submission'
 
     attribute :contact_information, Hash
     attribute :debt_information, Array
@@ -16,6 +16,10 @@ module DebtsApi
       super()
       self.user_icn = user.icn
       self.attributes = attributes.to_h.merge(user_icn: user.icn)
+    end
+
+    def sanitized_json
+      as_json(except: [:user_icn])
     end
 
     private

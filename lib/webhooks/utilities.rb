@@ -4,7 +4,7 @@ require 'json_schemer'
 require 'uri'
 
 # data structures built up at class load time then frozen.  This is threadsafe.
-# rubocop:disable ThreadSafety/InstanceVariableInClassMethod
+# rubocop:disable ThreadSafety/ClassInstanceVariable
 module Webhooks
   module Utilities
     include Common::Exceptions
@@ -70,9 +70,7 @@ module Webhooks
       end
 
       def fetch_events(subscription)
-        subscription['subscriptions'].map do |e|
-          e['event']
-        end.uniq
+        subscription['subscriptions'].pluck('event').uniq
       end
     end
     extend ClassMethods
@@ -95,7 +93,7 @@ module Webhooks
     end
 
     def validate_events(subscriptions)
-      events = subscriptions.select { |s| s.key?('event') }.map { |s| s['event'] }
+      events = subscriptions.select { |s| s.key?('event') }.pluck('event')
       raise SchemaValidationErrors, ["Duplicate Event(s) submitted! #{events}"] if Set.new(events).size != events.length
 
       unsupported_events = events - Webhooks::Utilities.supported_events
@@ -130,7 +128,7 @@ module Webhooks
     end
   end
 end
-# rubocop:enable ThreadSafety/InstanceVariableInClassMethod
+# rubocop:enable ThreadSafety/ClassInstanceVariable
 # ADD YOUR REGISTRATIONS BELOW
 require './lib/webhooks/registrations'
 # ADD YOUR REGISTRATIONS ABOVE

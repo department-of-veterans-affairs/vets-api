@@ -72,7 +72,29 @@ class FormSubmissionAttempt < ApplicationRecord
   end
 
   def log_status_change
-    log_hash = {
+    log_level = :info
+    log_hash = status_change_hash
+
+    case aasm.current_event
+    when :fail!
+      log_level = :error
+      log_hash[:message] = 'Form Submission Attempt failed'
+    when :manual!
+      log_level = :warn
+      log_hash[:message] = 'Form Submission Attempt is being manually remediated'
+    when :vbms!
+      log_hash[:message] = 'Form Submission Attempt went to vbms'
+    else
+      log_hash[:message] = 'Form Submission Attempt State change'
+    end
+
+    Rails.logger.public_send(log_level, log_hash)
+  end
+
+  private
+
+  def status_change_hash
+    {
       form_submission_id:,
       benefits_intake_uuid:,
       form_type: form_submission&.form_type,
@@ -80,23 +102,7 @@ class FormSubmissionAttempt < ApplicationRecord
       to_state: aasm.to_state,
       event: aasm.current_event
     }
-
-    case aasm.current_event
-    when 'fail!'
-      log_hash[:message] = 'Form Submission Attempt failed'
-      Rails.logger.error(log_hash)
-    when 'vbms!'
-      log_hash[:message] = 'Form Submission Attempt went to vbms'
-    when 'manual!'
-      log_hash[:message] = 'Form Submission Attempt is being manually remediated'
-    else
-      log_hash[:message] = 'Form Submission Attempt State change'
-    end
-
-    Rails.logger.info(log_hash) if aasm.current_event != 'fail!'
   end
-
-  private
 
   def simple_forms_api_email(log_info)
     Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)

@@ -2,6 +2,10 @@
 
 module ClaimsApi
   class VnpPtcpntAddrsService < ClaimsApi::LocalBGS
+    def bean_name
+      'VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService'
+    end
+
     def vnp_ptcpnt_addrs_create(options)
       arg_strg = convert_nil_values(options)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML

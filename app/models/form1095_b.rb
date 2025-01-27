@@ -129,34 +129,34 @@ class Form1095B < ApplicationRecord
 
   def form_data_schema
     {
-      "type": 'object',
-      "required": %w[first_name middle_name last_name address city country coverage_months],
-      "properties": {
-        "first_name": { "type": 'string' },
-        "middle_name": { "type": 'string' },
-        "last_name": { "type": 'string' },
-        "last_4_ssn": {
-          "type": 'string',
-          "pattern": '[0-9]{4}|^$'
+      type: 'object',
+      required: %w[first_name middle_name last_name address city country coverage_months],
+      properties: {
+        first_name: { type: 'string' },
+        middle_name: { type: 'string' },
+        last_name: { type: 'string' },
+        last_4_ssn: {
+          type: 'string',
+          pattern: '[0-9]{4}|^$'
         },
-        "birth_date": {
-          "type": 'string',
-          "format": 'date'
+        birth_date: {
+          type: 'string',
+          format: 'date'
         },
-        "address": { "type": 'string' },
-        "city": { "type": 'string' },
-        "state": { "type": 'string' },
-        "province": { "type": 'string' },
-        "country": { "type": 'string' },
-        "zip_code": { "type": 'string' },
-        "foreign_zip": { "type": 'string' },
-        "is_beneficiary": { "type": 'boolean' },
-        "is_corrected": { "type": 'boolean' },
-        "coverage_months": {
-          "type": 'array',
-          "items": { "type": 'boolean' },
-          "minItems": 13,
-          "maxItems": 13
+        address: { type: 'string' },
+        city: { type: 'string' },
+        state: { type: 'string' },
+        province: { type: 'string' },
+        country: { type: 'string' },
+        zip_code: { type: 'string' },
+        foreign_zip: { type: 'string' },
+        is_beneficiary: { type: 'boolean' },
+        is_corrected: { type: 'boolean' },
+        coverage_months: {
+          type: 'array',
+          items: { type: 'boolean' },
+          minItems: 13,
+          maxItems: 13
         }
       }
     }

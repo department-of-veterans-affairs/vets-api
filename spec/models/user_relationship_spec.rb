@@ -34,7 +34,7 @@ RSpec.describe UserRelationship, type: :model do
       expect(user_relationship.birth_date).to eq Formatters::DateFormatter.format_date(bgs_dependent[:date_of_birth])
       expect(user_relationship.ssn).to eq bgs_dependent[:ssn]
       expect(user_relationship.gender).to eq bgs_dependent[:gender]
-      expect(user_relationship.veteran_status).to eq false
+      expect(user_relationship.veteran_status).to be false
       expect(user_relationship.participant_id).to eq bgs_dependent[:ptcpnt_id]
     end
   end

@@ -97,4 +97,19 @@ RSpec.describe DebtsApi::V0::DigitalDispute do
       end
     end
   end
+
+  describe '#sanitized_json' do
+    let(:user) { build(:user, :loa3) }
+    let(:raw_params) do
+      get_fixture_absolute('modules/debts_api/spec/fixtures/digital_disputes/standard_submission')
+    end
+
+    let(:params) { ActionController::Parameters.new(raw_params) }
+
+    it 'returns a sanitized json' do
+      digital_dispute = described_class.new(params.permit!.to_h, user)
+
+      expect(digital_dispute.sanitized_json).to eq(raw_params)
+    end
+  end
 end

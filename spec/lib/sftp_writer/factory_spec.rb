@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'sftp_writer/factory'
 
-RSpec.describe SFTPWriter::Factory, type: :model, form: :education_benefits do
+RSpec.describe SFTPWriter::Factory, form: :education_benefits, type: :model do
   subject { described_class }
 
   it 'raises an error if in production but lacking auth keys' do

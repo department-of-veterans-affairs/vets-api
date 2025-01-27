@@ -16,7 +16,7 @@ describe VBS::Configuration do
 
   describe '#mock_enabled?' do
     it 'is false' do
-      expect(subject.mock_enabled?).to eq(false)
+      expect(subject.mock_enabled?).to be(false)
     end
   end
 

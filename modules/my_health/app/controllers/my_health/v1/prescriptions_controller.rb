@@ -5,6 +5,7 @@ module MyHealth
     class PrescriptionsController < RxController
       include Filterable
       include MyHealth::PrescriptionHelper::Filtering
+      include MyHealth::RxGroupingHelper
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized
       # @param refill_status - one refill status to filter on
@@ -14,11 +15,10 @@ module MyHealth
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
-        resource.data = filter_non_va_meds(resource.data)
+        resource.data = resource_data_modifications(resource)
         filter_count = set_filter_metadata(resource.data)
-        renewal_params = 'Active,Expired'
         resource = if params[:filter].present?
-                     if filter_params[:disp_status]&.[](:eq) == renewal_params
+                     if filter_params[:disp_status]&.[](:eq) == 'Active,Expired' # renewal params
                        filter_renewals(resource)
                      else
                        resource.find_by(filter_params)
@@ -31,17 +31,25 @@ module MyHealth
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
         options = { meta: resource.metadata.merge(filter_count) }
-
         options[:links] = pagination_links(resource) if is_using_pagination
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
 
       def show
         id = params[:id].try(:to_i)
-        resource = client.get_rx_details(id)
+        resource = if Flipper.enabled?(:mhv_medications_display_grouping)
+                     # TODO: remove remove_pf_pd when PF and PD are allowed on va.gov
+                     get_single_rx_from_grouped_list(remove_pf_pd(collection_resource.data), id)
+                   else
+                     client.get_rx_details(id)
+                   end
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
 
-        options = { meta: resource.metadata }
+        options = if Flipper.enabled?(:mhv_medications_display_grouping)
+                    { meta: client.get_rx_details(id).metadata }
+                  else
+                    { meta: resource.metadata }
+                  end
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource, options)
       end
 
@@ -92,6 +100,8 @@ module MyHealth
 
       private
 
+      # rubocop:disable ThreadSafety/NewThread
+      # New threads are joined at the end
       def fetch_and_include_images(data)
         threads = []
         data.each do |item|
@@ -108,6 +118,7 @@ module MyHealth
         threads.each(&:join)
         data
       end
+      # rubocop:enable ThreadSafety/NewThread
 
       def fetch_image(image_url)
         uri = URI.parse(image_url)
@@ -161,6 +172,12 @@ module MyHealth
         end
       end
 
+      def resource_data_modifications(resource)
+        resource.data = remove_pf_pd(resource.data) # TODO: remove this line when PF and PD are allowed on va.gov
+        resource.data = group_prescriptions(resource.data) if Flipper.enabled?(:mhv_medications_display_grouping)
+        resource.data = filter_non_va_meds(resource.data)
+      end
+
       def set_filter_metadata(list)
         {
           filter_count: {
@@ -189,6 +206,12 @@ module MyHealth
       def count_non_active_medications(list)
         non_active_statuses = %w[Discontinued Expired Transferred Unknown]
         list.select { |rx| non_active_statuses.include?(rx.disp_status) }.length
+      end
+
+      # TODO: remove once pf and pd are allowed on va.gov
+      def remove_pf_pd(data)
+        sources_to_remove_from_data = %w[PF PD]
+        data.reject { |item| sources_to_remove_from_data.include?(item.prescription_source) }
       end
     end
   end

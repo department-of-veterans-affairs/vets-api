@@ -98,7 +98,7 @@ module EVSS
             send_post_evss_notifications(submission, true)
           rescue => e
             send_post_evss_notifications(submission, false)
-            conditionally_handle_errors(e)
+            handle_errors(submission, e)
           end
         end
       end
@@ -111,14 +111,6 @@ module EVSS
           send_submission_data_to_lighthouse(submission, submission.account.icn)
         else
           service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
-        end
-      end
-
-      def conditionally_handle_errors(e)
-        if submission.claims_api?
-          handle_lighthouse_errors(submission, e)
-        else
-          handle_errors(submission, e)
         end
       end
 
@@ -191,28 +183,7 @@ module EVSS
       end
 
       def handle_errors(submission, error)
-        raise error
-      rescue Common::Exceptions::BackendServiceException,
-             Common::Exceptions::GatewayTimeout,
-             Breakers::OutageException,
-             EVSS::DisabilityCompensationForm::ServiceUnavailableException => e
-        retryable_error_handler(submission, e)
-      rescue EVSS::DisabilityCompensationForm::ServiceException => e
-        # retry submitting the form for specific upstream errors
-        retry_form526_error_handler!(submission, e)
-      rescue => e
-        non_retryable_error_handler(submission, e)
-      end
-
-      def handle_lighthouse_errors(submission, error) # rubocop:disable Metrics/MethodLength
-        if error.instance_of?(Common::Exceptions::UnprocessableEntity)
-          error_clone = error.deep_dup
-          upstream_error = error_clone.errors.first.stringify_keys
-          unless (upstream_error['source'].present? && upstream_error['source']['pointer'].present?) ||
-                 upstream_error['detail'].downcase.include?('retries will fail')
-            error = Common::Exceptions::UpstreamUnprocessableEntity.new(errors: error.errors)
-          end
-        end
+        error = retries_will_fail_error(error)
         raise error
       rescue Common::Exceptions::BackendServiceException,
              Common::Exceptions::Unauthorized, # 401 (UnauthorizedError?)
@@ -223,8 +194,8 @@ module EVSS
              Common::Exceptions::ExternalServerInternalServerError, # 500
              Common::Exceptions::NotImplemented, # 501
              Common::Exceptions::BadGateway, # 502
-             Common::Exceptions::ServiceUnavailable, # 503 (ServiceUnavailableException?)
-             Common::Exceptions::GatewayTimeout, # 504 (already here)
+             Common::Exceptions::ServiceUnavailable, # 503 (ServiceUnavailableException)
+             Common::Exceptions::GatewayTimeout, # 504
              Breakers::OutageException => e
         retryable_error_handler(submission, e)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
@@ -232,6 +203,19 @@ module EVSS
         retry_form526_error_handler!(submission, e)
       rescue => e
         non_retryable_error_handler(submission, e)
+      end
+
+      # check if this error from the provider will fail retires
+      def retries_will_fail_error(error)
+        if error.instance_of?(Common::Exceptions::UnprocessableEntity)
+          error_clone = error.deep_dup
+          upstream_error = error_clone.errors.first.stringify_keys
+          unless (upstream_error['source'].present? && upstream_error['source']['pointer'].present?) ||
+                 upstream_error['detail'].downcase.include?('retries will fail')
+            error = Common::Exceptions::UpstreamUnprocessableEntity.new(errors: error.errors)
+          end
+        end
+        error
       end
 
       def retryable_error_handler(_submission, error)

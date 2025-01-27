@@ -4,9 +4,9 @@ require 'rails_helper'
 require 'zero_silent_failures/manual_remediation/saved_claim'
 
 RSpec.describe ZeroSilentFailures::ManualRemediation::SavedClaim do
-  let(:fake_claim) { FactoryBot.build(:fake_saved_claim) }
-  let(:submission) { FactoryBot.build(:form_submission, :failure, form_type: fake_claim.form_id) }
-  let(:attachment) { FactoryBot.build(:persistent_attachment) }
+  let(:fake_claim) { build(:fake_saved_claim) }
+  let(:submission) { build(:form_submission, :failure, form_type: fake_claim.form_id) }
+  let(:attachment) { build(:persistent_attachment) }
 
   let(:fake_pdf_path) { 'fake_pdf_path' }
   let(:stamper) { PDFUtilities::DatestampPdf.new(fake_pdf_path) }

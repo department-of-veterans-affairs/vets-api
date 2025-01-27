@@ -7,10 +7,10 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
   let(:tracked_item_id) { 33 }
   let(:document_type) { 'L023' }
   let!(:claim) do
-    FactoryBot.create(:evss_claim, id: 1, evss_id: 189_625,
-                                   user_uuid: user.uuid, data: {})
+    create(:evss_claim, id: 1, evss_id: 189_625,
+                        user_uuid: user.uuid, data: {})
   end
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
 
   before { sign_in_as(user) }
 
@@ -38,7 +38,7 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
     args = EVSS::DocumentUpload.jobs.first['args'][2]
     expect(response).to have_http_status(:accepted)
     expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
-    expect(args.key?('tracked_item_id')).to eq(true)
+    expect(args.key?('tracked_item_id')).to be(true)
     expect(args['tracked_item_id']).to be_nil
   end
 

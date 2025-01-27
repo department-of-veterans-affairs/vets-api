@@ -24,7 +24,7 @@ describe HCA::Service do
     </S:Envelope>
      )))
   end
-  let(:current_user) { FactoryBot.build(:user, :loa3, icn: nil) }
+  let(:current_user) { build(:user, :loa3, icn: nil) }
 
   describe '#submit_form' do
     before do
@@ -50,7 +50,7 @@ describe HCA::Service do
           VCR::MATCH_EVERYTHING.merge(erb: true)
         ) do
           result = HCA::Service.new.submit_form(get_fixture('hca/short_form'))
-          expect(result[:success]).to eq(true)
+          expect(result[:success]).to be(true)
           expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZ: ' \
                                                             'Body size of 5.16 KB with 0 attachment(s)')
         end
@@ -108,10 +108,10 @@ describe HCA::Service do
           VCR::MATCH_EVERYTHING.merge(erb: true)
         ) do
           form = get_fixture('hca/demographic_no')
-          expect(HealthCareApplication.new(form: form.to_json).valid?).to eq(true)
+          expect(HealthCareApplication.new(form: form.to_json).valid?).to be(true)
 
           result = HCA::Service.new.submit_form(form)
-          expect(result[:success]).to eq(true)
+          expect(result[:success]).to be(true)
         end
       end
     end
@@ -123,10 +123,10 @@ describe HCA::Service do
           VCR::MATCH_EVERYTHING.merge(erb: true)
         ) do
           form = get_fixture('hca/medicare_claim_num')
-          expect(HealthCareApplication.new(form: form.to_json).valid?).to eq(true)
+          expect(HealthCareApplication.new(form: form.to_json).valid?).to be(true)
 
           result = HCA::Service.new.submit_form(form)
-          expect(result[:success]).to eq(true)
+          expect(result[:success]).to be(true)
         end
       end
     end
@@ -138,7 +138,7 @@ describe HCA::Service do
           VCR::MATCH_EVERYTHING.merge(erb: true)
         ) do
           result = HCA::Service.new.submit_form(get_fixture('hca/sigi'))
-          expect(result[:success]).to eq(true)
+          expect(result[:success]).to be(true)
         end
       end
     end
@@ -150,9 +150,9 @@ describe HCA::Service do
           VCR::MATCH_EVERYTHING.merge(erb: true)
         ) do
           form = get_fixture('hca/tera')
-          expect(HealthCareApplication.new(form: form.to_json).valid?).to eq(true)
+          expect(HealthCareApplication.new(form: form.to_json).valid?).to be(true)
           result = HCA::Service.new.submit_form(form)
-          expect(result[:success]).to eq(true)
+          expect(result[:success]).to be(true)
         end
       end
     end
@@ -164,7 +164,7 @@ describe HCA::Service do
           VCR::MATCH_EVERYTHING.merge(erb: true)
         ) do
           result = HCA::Service.new.submit_form(get_fixture('hca/short_form'))
-          expect(result[:success]).to eq(true)
+          expect(result[:success]).to be(true)
         end
       end
 
@@ -188,7 +188,7 @@ describe HCA::Service do
           VCR::MATCH_EVERYTHING.merge(erb: true)
         ) do
           result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
-          expect(result[:success]).to eq(true)
+          expect(result[:success]).to be(true)
           expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZ: ' \
                                                             'Body size of 16 KB with 2 attachment(s)')
           expect(Rails.logger).to have_received(:info).with(
@@ -225,7 +225,7 @@ describe HCA::Service do
             VCR::MATCH_EVERYTHING.merge(erb: true)
           ) do
             result = HCA::Service.new.submit_form(health_care_application.parsed_form)
-            expect(result[:success]).to eq(true)
+            expect(result[:success]).to be(true)
           end
         end
       end

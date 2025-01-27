@@ -15,21 +15,21 @@ describe HealthQuest::QuestionnaireManager::ResponsesGroup do
 
   describe 'attributes' do
     it 'responds to base_qm' do
-      expect(basic_structure.respond_to?(:base_qm)).to eq(true)
+      expect(basic_structure.respond_to?(:base_qm)).to be(true)
     end
 
     it 'responds to hashed_qr' do
-      expect(basic_structure.respond_to?(:hashed_qr)).to eq(true)
+      expect(basic_structure.respond_to?(:hashed_qr)).to be(true)
     end
 
     it 'responds to hashed_sip' do
-      expect(basic_structure.respond_to?(:hashed_sip)).to eq(true)
+      expect(basic_structure.respond_to?(:hashed_sip)).to be(true)
     end
   end
 
   describe '#empty?' do
     it 'is empty' do
-      expect(basic_structure.empty?).to eq(true)
+      expect(basic_structure.empty?).to be(true)
     end
 
     context 'when responses present' do
@@ -39,7 +39,7 @@ describe HealthQuest::QuestionnaireManager::ResponsesGroup do
       end
 
       it 'is not empty' do
-        expect(basic_structure.empty?).to eq(false)
+        expect(basic_structure.empty?).to be(false)
       end
     end
   end

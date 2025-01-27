@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: <ADDRESS_VALIDATION>/services/address-validation/v3/candidate
+    uri: https://<ADDRESS_VALIDATION>/services/address-validation/v3/candidate
     body:
       encoding: UTF-8
       string: '{"address":{"addressLine1":"37 1st st","cityName":"Brooklyn","zipCode5":"11249","country":{"countryCodeISO3":"USA","countryName":"USA"},"state":{"stateCode":"NY"},"province":{},"addressPOU":"RESIDENCE"}}'

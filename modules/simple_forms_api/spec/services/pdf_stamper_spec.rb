@@ -66,6 +66,25 @@ describe SimpleFormsApi::PdfStamper do
           expect(File).to have_received(:rename).with(current_file_path, path)
         end
       end
+
+      context 'form is not specified' do
+        let(:instance) { described_class.new(stamped_template_path: path, current_loa: 3, timestamp: nil) }
+        let(:datestamp_instance) { double(run: 'current-file-path') }
+
+        before do
+          allow(File).to receive(:rename)
+          allow(File).to receive(:size).and_return(0, 1)
+          allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_instance)
+        end
+
+        it 'does not call stamp_form' do
+          allow(instance).to receive(:stamp_form)
+
+          instance.stamp_pdf
+
+          expect(instance).not_to have_received(:stamp_form)
+        end
+      end
     end
 
     describe 'stamping the authentication text' do

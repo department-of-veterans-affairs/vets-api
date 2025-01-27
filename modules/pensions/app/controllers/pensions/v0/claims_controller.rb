@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pensions/tag_sentry'
 require 'pensions/monitor'
 
 module Pensions
@@ -42,8 +41,6 @@ module Pensions
 
       # POST creates and validates an instance of `claim_class`
       def create
-        Pensions::TagSentry.tag_sentry
-
         claim = claim_class.new(form: filtered_params[:form])
         monitor.track_create_attempt(claim, current_user)
 

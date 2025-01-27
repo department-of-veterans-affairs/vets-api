@@ -11,7 +11,7 @@ militaryInformation:
   serviceDateRange:
     from: [military_information, last_entry_date]
     to: [military_information, last_discharge_date]
-vaFileNumber: [veteran_information, va_file_number]
 identityValidation:
   hasICN: [identity_validation, has_icn]
   hasParticipantId: [identity_validation, has_participant_id]
+  isLoa3: [identity_validation, is_loa3]

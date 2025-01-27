@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative '../rails_helper'
 
 RSpec.describe ClaimsApi::ServiceBase do
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
 
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
@@ -34,6 +34,13 @@ RSpec.describe ClaimsApi::ServiceBase do
     claim
   end
 
+  let(:poa) do
+    poa = create(:power_of_attorney)
+    poa.auth_headers = auth_headers
+    poa.save
+    poa
+  end
+
   before do
     @service = described_class.new
   end
@@ -43,7 +50,7 @@ RSpec.describe ClaimsApi::ServiceBase do
       @service.send(:set_established_state_on_claim, claim)
       claim.reload
       expect(claim.status).to eq('established')
-      expect(claim.evss_response).to eq(nil)
+      expect(claim.evss_response).to be_nil
     end
   end
 
@@ -98,6 +105,44 @@ RSpec.describe ClaimsApi::ServiceBase do
     end
   end
 
+  describe '#enable_vbms_access?' do
+    context 'denies eFolder access' do
+      it 'if recordConsent is set to false' do
+        poa.form_data = poa.form_data.merge('recordConsent' => false)
+        poa.save
+
+        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        expect(res).to be(false)
+      end
+
+      it 'if recordConsent is not present' do
+        poa.save
+
+        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        expect(res).to be(false)
+      end
+
+      it 'if consentLimits are present' do
+        poa.form_data = poa.form_data.merge('recordConsent' => true)
+        poa.form_data = poa.form_data.merge('consentLimits' => ['HIV'])
+        poa.save
+
+        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        expect(res).to be(false)
+      end
+    end
+
+    context 'allows eFolder access' do
+      it 'if recordConsent is set to true' do
+        poa.form_data = poa.form_data.merge('recordConsent' => true)
+        poa.save
+
+        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        expect(res).to be(true)
+      end
+    end
+  end
+
   describe '#will_retry?' do
     it 'retries for a header.va_eauth_birlsfilenumber error' do
       body = [{ key: 'header.va_eauth_birlsfilenumber', severity: 'ERROR', text: 'Size must be between 8 and 9' }]
@@ -110,7 +155,7 @@ RSpec.describe ClaimsApi::ServiceBase do
       claim.save!
 
       should_retry = @service.send(:will_retry?, claim, error)
-      expect(should_retry).to eq(true)
+      expect(should_retry).to be(true)
     end
 
     it 'does not retry a form526.InProcess error' do
@@ -124,7 +169,7 @@ RSpec.describe ClaimsApi::ServiceBase do
       claim.save!
 
       should_retry = @service.send(:will_retry?, claim, error)
-      expect(should_retry).to eq(false)
+      expect(should_retry).to be(false)
     end
 
     it 'does not retry a form526.submit.noRetryError error' do
@@ -139,7 +184,7 @@ RSpec.describe ClaimsApi::ServiceBase do
       claim.save!
 
       should_retry = @service.send(:will_retry?, claim, error)
-      expect(should_retry).to eq(false)
+      expect(should_retry).to be(false)
     end
   end
 

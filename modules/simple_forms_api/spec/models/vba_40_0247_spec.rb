@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/shared_examples_for_base_form'
 
-RSpec.describe 'SimpleFormsApi::VBA400247' do
+RSpec.describe SimpleFormsApi::VBA400247 do
+  it_behaves_like 'zip_code_is_us_based', %w[applicant_address]
+
   describe 'handle_attachments' do
     it 'saves the combined pdf' do
       original_pdf = double('HexaPDF::Document')

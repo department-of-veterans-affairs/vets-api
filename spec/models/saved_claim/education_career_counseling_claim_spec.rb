@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe SavedClaim::EducationCareerCounselingClaim do
   let(:claim) { create(:education_career_counseling_claim_no_vet_information) }
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { create(:evss_user, :loa3) }
 
   describe '#regional_office' do
     it 'returns an empty array for regional office' do

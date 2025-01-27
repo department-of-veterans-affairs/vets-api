@@ -7,15 +7,6 @@ module SimpleFormsApi
     class Uploader < CarrierWave::Uploader::Base
       include UploaderVirusScan
 
-      def size_range
-        (1.byte)...(150.megabytes)
-      end
-
-      # Allowed file types, including those specific to benefits intake
-      def extension_allowlist
-        %w[bmp csv gif jpeg jpg json pdf png tif tiff txt zip]
-      end
-
       def initialize(directory:, config:)
         raise 'The S3 directory is missing.' if directory.blank?
         raise 'The configuration is missing.' unless config
@@ -27,8 +18,28 @@ module SimpleFormsApi
         set_storage_options!
       end
 
+      def size_range
+        (1.byte)...(150.megabytes)
+      end
+
+      # Allowed file types, including those specific to benefits intake
+      def extension_allowlist
+        %w[bmp csv gif jpeg jpg json pdf png tif tiff txt zip]
+      end
+
       def store_dir
         @directory
+      end
+
+      def store!(file)
+        raise 'Invalid file object provided for upload. Skipping.' if file.nil? || !file.respond_to?(:filename)
+
+        super(file)
+      rescue Aws::S3::Errors::ServiceError => e
+        Rails.logger.error("Upload failed for #{file.filename}. Enqueuing for retry.", e)
+        UploadRetryJob.perform_async(file, @directory, config)
+      rescue RuntimeError => e
+        config.handle_error('An error occurred while uploading the file.', e)
       end
 
       def get_s3_link(file_path, filename = nil)
@@ -45,7 +56,7 @@ module SimpleFormsApi
       rescue Aws::S3::Errors::NoSuchKey
         nil
       rescue => e
-        config.handle_error('An error occured while downloading the file.', e)
+        config.handle_error('An error occurred while downloading the file.', e)
       end
 
       private

@@ -11,7 +11,7 @@ module EducationForm
       daily_processed: 0
     }.freeze
 
-    FORM_TYPES = EducationBenefitsClaim::FORM_TYPES
+    FORM_TYPES = EducationBenefitsClaim::FORM_TYPES.reject { |form_type| form_type == '10282' }
 
     FORM_TYPE_HEADERS = EducationBenefitsClaim.form_headers(FORM_TYPES).map do |form_header|
       [form_header, '', '']
@@ -76,9 +76,9 @@ module EducationForm
 
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{@date.year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
-      csv_array << ['RPO', 'BENEFIT TYPE'] + FORM_TYPE_HEADERS
-      csv_array << ['', ''] + ranges_header * num_form_types
-      csv_array << ['', ''] + submitted_header * num_form_types
+      csv_array << (['RPO', 'BENEFIT TYPE'] + FORM_TYPE_HEADERS)
+      csv_array << (['', ''] + (ranges_header * num_form_types))
+      csv_array << (['', ''] + (submitted_header * num_form_types))
 
       csv_array
     end
@@ -181,7 +181,7 @@ module EducationForm
 
       csv_array += create_csv_header
       csv_array += convert_submissions_to_csv_array
-      csv_array << ['', ''] + FORM_TYPE_HEADERS
+      csv_array << (['', ''] + FORM_TYPE_HEADERS)
 
       csv_array
     end

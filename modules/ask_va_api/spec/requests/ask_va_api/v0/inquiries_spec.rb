@@ -49,6 +49,9 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
             'type' => 'inquiry',
             'attributes' =>
              { 'inquiry_number' => 'A-4',
+               'allow_attachments' => nil,
+               'allow_replies' => nil,
+               'has_attachments' => true,
                'attachments' => [{ 'Id' => '4', 'Name' => 'testfile.txt' }],
                'category_name' => 'Benefits issues outside the U.S.',
                'created_on' => '8/5/2024 4:51:52 PM',
@@ -119,6 +122,9 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           'type' => 'inquiry',
           'attributes' =>
           { 'inquiry_number' => 'A-1',
+            'allow_attachments' => nil,
+            'allow_replies' => nil,
+            'has_attachments' => true,
             'attachments' => [{ 'Id' => '1', 'Name' => 'testfile.txt' }],
             'category_name' => 'Debt for benefit overpayments and health care copay bills',
             'created_on' => '8/5/2024 4:51:52 PM',
@@ -194,6 +200,9 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
               'type' => 'inquiry',
               'attributes' =>
               { 'inquiry_number' => 'A-123456',
+                'allow_attachments' => nil,
+                'allow_replies' => nil,
+                'has_attachments' => nil,
                 'attachments' => [{ 'Id' => '012345', 'Name' => 'File A.pdf' }],
                 'category_name' => 'Debt for benefit overpayments and health care copay bills',
                 'created_on' => '8/5/2024 4:51:52 PM',
@@ -521,7 +530,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
   end
 
   describe 'POST #create_reply' do
-    let(:payload) { { 'reply' => 'this is my reply' } }
+    let(:payload) { { 'reply' => 'this is my reply', 'files' => [{ 'file_name' => nil, 'file_content' => nil }] } }
 
     context 'when successful' do
       before do
@@ -549,7 +558,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           sign_in(authorized_user)
           allow_any_instance_of(Crm::Service).to receive(:call)
             .with(endpoint:, method: :put,
-                  payload: { Reply: 'this is my reply' }).and_return(failure)
+                  payload: { Reply: 'this is my reply', ListOfAttachments: nil }).and_return(failure)
           post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
         end
 

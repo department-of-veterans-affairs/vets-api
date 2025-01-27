@@ -25,26 +25,37 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::PersonTransactionResponse]
         # response wrapper around a transaction object
         #
-        def init_vet360_id
+        def init_vet360_id(icn = nil)
           with_monitoring do
-            raw_response = perform(:post, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(uuid_with_aaid)}",
-                                   empty_body)
+            raw_response = perform(:post, encode_url!(icn), empty_body)
             VAProfile::V2::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
           end
         rescue => e
           handle_error(e)
         end
 
+        def encode_url!(icn)
+          encoded_icn_with_aaid = url_encode(build_icn_with_aaid!(icn))
+
+          "#{Identity::Parsers::GCIdsConstants::VA_ROOT_OID}/#{encoded_icn_with_aaid}"
+        end
+
+        def build_icn_with_aaid!(icn)
+          if icn.present?
+            "#{icn}#{Identity::Parsers::GCIdsConstants::ICN_ASSIGNING_AUTHORITY_ID}"
+          elsif @user&.icn_with_aaid.present?
+            @user.icn_with_aaid
+          else
+            raise 'User does not have a valid ICN with an Assigning Authority ID'
+          end
+        end
+
         private
 
         # @see https://ruby-doc.org/stdlib-2.3.0/libdoc/erb/rdoc/ERB/Util.html
         #
-        def uuid_with_aaid
-          return "#{@user.idme_uuid}^PN^200VIDM^USDVA" if @user.idme_uuid
-          return "#{@user.logingov_uuid}^PN^200VLGN^USDVA" if @user.logingov_uuid
-          return "#{@user.vet360_id}^PI^200VETS^USDVA" if @user.idme_uuid.blank? && @user.logingov_uuid.blank?
-
-          nil
+        def icn_with_aaid
+          "#{@user.icn}^NI^200M^USVHA" if @user.icn
         end
 
         def empty_body

@@ -3,13 +3,9 @@
 module TravelPay
   class ApplicationController < ::ApplicationController
     include ActionController::Cookies
-    include ActionController::RequestForgeryProtection
     service_tag 'travel-pay'
 
-    protect_from_forgery with: :exception
-
     before_action :authenticate
-    before_action :scrub_logs
 
     ##
     # This before_action is feature flag driven and should be retired
@@ -30,17 +26,6 @@ module TravelPay
     before_action :block_if_flag_disabled
 
     protected
-
-    def scrub_logs
-      logger.filter = lambda do |log|
-        if (log.name =~ /TravelPay/) && (log.payload[:action].eql? 'show')
-          log.payload[:params]['id'] = 'SCRUBBED_CLAIM_ID'
-          log.payload[:path] = log.payload[:path].gsub(%r{(.+claims/)(.+)}, '\1SCRUBBED_CLAIM_ID')
-        end
-        # After the log has been scrubbed, make sure it is logged:
-        true
-      end
-    end
 
     def before_logger
       logger.info('travel-pay') { Utils::Logger.build(self).before }

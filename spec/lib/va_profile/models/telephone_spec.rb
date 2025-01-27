@@ -10,7 +10,7 @@ describe VAProfile::Models::Telephone do
     context 'with no phone number' do
       it 'returns nil' do
         telephone.phone_number = nil
-        expect(telephone.formatted_phone).to eq(nil)
+        expect(telephone.formatted_phone).to be_nil
       end
     end
 

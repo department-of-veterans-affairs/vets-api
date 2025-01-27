@@ -4,6 +4,10 @@ module ClaimsApi
   class VnpProcFormService < ClaimsApi::LocalBGS
     FORM_TYPE_CD = '21-22'
 
+    def bean_name
+      'VnpProcFormWebServiceBean/VnpProcFormService'
+    end
+
     def vnp_proc_form_create(options)
       vnp_proc_id = options[:vnp_proc_id]
       options.delete(:vnp_proc_id)

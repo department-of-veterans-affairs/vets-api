@@ -1,0 +1,86 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/journal/journals/11375034"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 21 Nov 2024 00:25:44 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '[{"foodJournalId":14944772,"oplock":null,"glassesOfWater":10,"createdDate":1523021422000,"comments":null,"journalDate":1522987200000,"modifiedDate":null,"mealItems":[{"mealItemId":14944773,"createdDate":1523021488000,"item":"oj","modifiedDate":null,"mealType":"D","servingSize":"8","quantity":0,"prepMethod":"Frozen","foodJournalId":14944772,"foodJournal":null,"dispDesc":"8
+        oz oj ","editMode":null}],"userId":11375034,"userProfile":null,"dispJournalDate":"04/06/2018","summary":"Dinner,
+        Water","dayNoOfWeek":6,"abbrWeekDay":"Fri","weekDay":"Friday","mealItemCount":"<strong>1</strong>
+        Meal Item","breakFastItems":[],"lunchItems":[],"dinnerItems":["8 oz oj (Frozen)"],"snackItems":[],"breakFastMealItems":[],"lunchMealItems":[],"dinnerMealItems":[{"mealItemId":14944773,"createdDate":1523021488000,"item":"oj","modifiedDate":null,"mealType":"D","servingSize":"8","quantity":0,"prepMethod":"Frozen","foodJournalId":14944772,"foodJournal":null,"dispDesc":"8
+        oz oj ","editMode":null}],"snackMealItems":[],"mealItemId":null,"mealType":null,"servingSize":null,"quantity":null,"prepMethod":null,"item":null},{"foodJournalId":14867847,"oplock":null,"glassesOfWater":2,"createdDate":1518188373000,"comments":"Test","journalDate":1518152400000,"modifiedDate":null,"mealItems":[{"mealItemId":14867850,"createdDate":1518188462000,"item":"Salad","modifiedDate":null,"mealType":"L","servingSize":"8","quantity":1,"prepMethod":null,"foodJournalId":14867847,"foodJournal":null,"dispDesc":"1:8
+        oz Salad ","editMode":null},{"mealItemId":14867848,"createdDate":1518188412000,"item":"Bagel","modifiedDate":null,"mealType":"B","servingSize":null,"quantity":1,"prepMethod":"Toasted","foodJournalId":14867847,"foodJournal":null,"dispDesc":"1:Bagel
+        ","editMode":null}],"userId":11375034,"userProfile":null,"dispJournalDate":"02/09/2018","summary":"Breakfast,
+        Lunch, Comments, Water","dayNoOfWeek":6,"abbrWeekDay":"Fri","weekDay":"Friday","mealItemCount":"<strong>2</strong>
+        Meal Items","breakFastItems":["1:Bagel (Toasted)"],"lunchItems":["1:8 oz Salad
+        "],"dinnerItems":[],"snackItems":[],"breakFastMealItems":[{"mealItemId":14867848,"createdDate":1518188412000,"item":"Bagel","modifiedDate":null,"mealType":"B","servingSize":null,"quantity":1,"prepMethod":"Toasted","foodJournalId":14867847,"foodJournal":null,"dispDesc":"1:Bagel
+        ","editMode":null}],"lunchMealItems":[{"mealItemId":14867850,"createdDate":1518188462000,"item":"Salad","modifiedDate":null,"mealType":"L","servingSize":"8","quantity":1,"prepMethod":null,"foodJournalId":14867847,"foodJournal":null,"dispDesc":"1:8
+        oz Salad ","editMode":null}],"dinnerMealItems":[],"snackMealItems":[],"mealItemId":null,"mealType":null,"servingSize":null,"quantity":null,"prepMethod":null,"item":null},{"foodJournalId":14159999,"oplock":null,"glassesOfWater":5,"createdDate":1491397919000,"comments":null,"journalDate":1491192000000,"modifiedDate":null,"mealItems":[{"mealItemId":14160001,"createdDate":1491397962000,"item":"turkey","modifiedDate":null,"mealType":"L","servingSize":"4","quantity":8,"prepMethod":null,"foodJournalId":14159999,"foodJournal":null,"dispDesc":"8:4
+        oz turkey ","editMode":null},{"mealItemId":14160000,"createdDate":1491397946000,"item":"eggs","modifiedDate":null,"mealType":"B","servingSize":"6","quantity":1,"prepMethod":"Fried","foodJournalId":14159999,"foodJournal":null,"dispDesc":"1:6
+        oz eggs ","editMode":null}],"userId":11375034,"userProfile":null,"dispJournalDate":"04/03/2017","summary":"Breakfast,
+        Lunch, Water","dayNoOfWeek":2,"abbrWeekDay":"Mon","weekDay":"Monday","mealItemCount":"<strong>2</strong>
+        Meal Items","breakFastItems":["1:6 oz eggs (Fried)"],"lunchItems":["8:4 oz
+        turkey "],"dinnerItems":[],"snackItems":[],"breakFastMealItems":[{"mealItemId":14160000,"createdDate":1491397946000,"item":"eggs","modifiedDate":null,"mealType":"B","servingSize":"6","quantity":1,"prepMethod":"Fried","foodJournalId":14159999,"foodJournal":null,"dispDesc":"1:6
+        oz eggs ","editMode":null}],"lunchMealItems":[{"mealItemId":14160001,"createdDate":1491397962000,"item":"turkey","modifiedDate":null,"mealType":"L","servingSize":"4","quantity":8,"prepMethod":null,"foodJournalId":14159999,"foodJournal":null,"dispDesc":"8:4
+        oz turkey ","editMode":null}],"dinnerMealItems":[],"snackMealItems":[],"mealItemId":null,"mealType":null,"servingSize":null,"quantity":null,"prepMethod":null,"item":null},{"foodJournalId":14159994,"oplock":null,"glassesOfWater":5,"createdDate":1491397824000,"comments":null,"journalDate":1491105600000,"modifiedDate":null,"mealItems":[{"mealItemId":14159998,"createdDate":1491397906000,"item":"Chips
+        and salsa","modifiedDate":null,"mealType":"S","servingSize":"2","quantity":11,"prepMethod":"Boiled","foodJournalId":14159994,"foodJournal":null,"dispDesc":"11:2
+        oz Chips and salsa ","editMode":null},{"mealItemId":14159996,"createdDate":1491397885000,"item":"cinnamon
+        rolls","modifiedDate":null,"mealType":"B","servingSize":"3","quantity":3,"prepMethod":"Baked","foodJournalId":14159994,"foodJournal":null,"dispDesc":"3:3
+        oz cinnamon rolls ","editMode":null},{"mealItemId":14159995,"createdDate":1491397863000,"item":"Llalsagna","modifiedDate":null,"mealType":"D","servingSize":"8","quantity":1,"prepMethod":"Baked","foodJournalId":14159994,"foodJournal":null,"dispDesc":"1:8
+        oz Llalsagna ","editMode":null}],"userId":11375034,"userProfile":null,"dispJournalDate":"04/02/2017","summary":"Breakfast,
+        Dinner, Snack(s), Water","dayNoOfWeek":1,"abbrWeekDay":"Sun","weekDay":"Sunday","mealItemCount":"<strong>3</strong>
+        Meal Items","breakFastItems":["3:3 oz cinnamon rolls (Baked)"],"lunchItems":[],"dinnerItems":["1:8
+        oz Llalsagna (Baked)"],"snackItems":["11:2 oz Chips and salsa (Boiled)"],"breakFastMealItems":[{"mealItemId":14159996,"createdDate":1491397885000,"item":"cinnamon
+        rolls","modifiedDate":null,"mealType":"B","servingSize":"3","quantity":3,"prepMethod":"Baked","foodJournalId":14159994,"foodJournal":null,"dispDesc":"3:3
+        oz cinnamon rolls ","editMode":null}],"lunchMealItems":[],"dinnerMealItems":[{"mealItemId":14159995,"createdDate":1491397863000,"item":"Llalsagna","modifiedDate":null,"mealType":"D","servingSize":"8","quantity":1,"prepMethod":"Baked","foodJournalId":14159994,"foodJournal":null,"dispDesc":"1:8
+        oz Llalsagna ","editMode":null}],"snackMealItems":[{"mealItemId":14159998,"createdDate":1491397906000,"item":"Chips
+        and salsa","modifiedDate":null,"mealType":"S","servingSize":"2","quantity":11,"prepMethod":"Boiled","foodJournalId":14159994,"foodJournal":null,"dispDesc":"11:2
+        oz Chips and salsa ","editMode":null}],"mealItemId":null,"mealType":null,"servingSize":null,"quantity":null,"prepMethod":null,"item":null},{"foodJournalId":14160007,"oplock":null,"glassesOfWater":6,"createdDate":1491398078000,"comments":null,"journalDate":1491019200000,"modifiedDate":null,"mealItems":[{"mealItemId":14867841,"createdDate":1518188329000,"item":"Tuna
+        sandwich","modifiedDate":null,"mealType":"L","servingSize":null,"quantity":0,"prepMethod":"Toasted","foodJournalId":14160007,"foodJournal":null,"dispDesc":"Tuna
+        sandwich ","editMode":null},{"mealItemId":14160008,"createdDate":1491398105000,"item":"donuts","modifiedDate":null,"mealType":"B","servingSize":"2","quantity":10,"prepMethod":"Fried","foodJournalId":14160007,"foodJournal":null,"dispDesc":"10:2
+        oz donuts ","editMode":null}],"userId":11375034,"userProfile":null,"dispJournalDate":"04/01/2017","summary":"Breakfast,
+        Lunch, Water","dayNoOfWeek":7,"abbrWeekDay":"Sat","weekDay":"Saturday","mealItemCount":"<strong>2</strong>
+        Meal Items","breakFastItems":["10:2 oz donuts (Fried)"],"lunchItems":["Tuna
+        sandwich (Toasted)"],"dinnerItems":[],"snackItems":[],"breakFastMealItems":[{"mealItemId":14160008,"createdDate":1491398105000,"item":"donuts","modifiedDate":null,"mealType":"B","servingSize":"2","quantity":10,"prepMethod":"Fried","foodJournalId":14160007,"foodJournal":null,"dispDesc":"10:2
+        oz donuts ","editMode":null}],"lunchMealItems":[{"mealItemId":14867841,"createdDate":1518188329000,"item":"Tuna
+        sandwich","modifiedDate":null,"mealType":"L","servingSize":null,"quantity":0,"prepMethod":"Toasted","foodJournalId":14160007,"foodJournal":null,"dispDesc":"Tuna
+        sandwich ","editMode":null}],"dinnerMealItems":[],"snackMealItems":[],"mealItemId":null,"mealType":null,"servingSize":null,"quantity":null,"prepMethod":null,"item":null},{"foodJournalId":14160009,"oplock":null,"glassesOfWater":5,"createdDate":1491398122000,"comments":null,"journalDate":1490932800000,"modifiedDate":null,"mealItems":[{"mealItemId":14160010,"createdDate":1491398146000,"item":"cake","modifiedDate":null,"mealType":"B","servingSize":"2","quantity":10,"prepMethod":"Boiled","foodJournalId":14160009,"foodJournal":null,"dispDesc":"10:2
+        oz cake ","editMode":null}],"userId":11375034,"userProfile":null,"dispJournalDate":"03/31/2017","summary":"Breakfast,
+        Water","dayNoOfWeek":6,"abbrWeekDay":"Fri","weekDay":"Friday","mealItemCount":"<strong>1</strong>
+        Meal Item","breakFastItems":["10:2 oz cake (Boiled)"],"lunchItems":[],"dinnerItems":[],"snackItems":[],"breakFastMealItems":[{"mealItemId":14160010,"createdDate":1491398146000,"item":"cake","modifiedDate":null,"mealType":"B","servingSize":"2","quantity":10,"prepMethod":"Boiled","foodJournalId":14160009,"foodJournal":null,"dispDesc":"10:2
+        oz cake ","editMode":null}],"lunchMealItems":[],"dinnerMealItems":[],"snackMealItems":[],"mealItemId":null,"mealType":null,"servingSize":null,"quantity":null,"prepMethod":null,"item":null},{"foodJournalId":14160015,"oplock":null,"glassesOfWater":6,"createdDate":1491398462000,"comments":null,"journalDate":1490673600000,"modifiedDate":null,"mealItems":[{"mealItemId":14160016,"createdDate":1491398492000,"item":"garden
+        salad","modifiedDate":null,"mealType":"L","servingSize":"4","quantity":4,"prepMethod":"Fresh","foodJournalId":14160015,"foodJournal":null,"dispDesc":"4:4
+        oz garden salad ","editMode":null}],"userId":11375034,"userProfile":null,"dispJournalDate":"03/28/2017","summary":"Lunch,
+        Water","dayNoOfWeek":3,"abbrWeekDay":"Tue","weekDay":"Tuesday","mealItemCount":"<strong>1</strong>
+        Meal Item","breakFastItems":[],"lunchItems":["4:4 oz garden salad (Fresh)"],"dinnerItems":[],"snackItems":[],"breakFastMealItems":[],"lunchMealItems":[{"mealItemId":14160016,"createdDate":1491398492000,"item":"garden
+        salad","modifiedDate":null,"mealType":"L","servingSize":"4","quantity":4,"prepMethod":"Fresh","foodJournalId":14160015,"foodJournal":null,"dispDesc":"4:4
+        oz garden salad ","editMode":null}],"dinnerMealItems":[],"snackMealItems":[],"mealItemId":null,"mealType":null,"servingSize":null,"quantity":null,"prepMethod":null,"item":null}]'
+  recorded_at: Thu, 21 Nov 2024 00:25:44 GMT
+recorded_with: VCR 6.3.1

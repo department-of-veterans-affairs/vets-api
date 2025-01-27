@@ -78,7 +78,7 @@ module MebApi
 
         render json: {
           data: {
-            'status': response.status
+            status: response.status
           }
         }
       end

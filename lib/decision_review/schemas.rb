@@ -2,9 +2,8 @@
 
 module DecisionReview
   module Schemas
-    nod_create_request_schema_json_string = File.read(
-      Rails.root.join('lib', 'decision_review', 'schemas', 'NOD_create_request_body_schema.json')
-    )
+    nod_create_request_schema_json_string = Rails.root.join('lib', 'decision_review', 'schemas',
+                                                            'NOD_create_request_body_schema.json').read
 
     NOD_CREATE_REQUEST = JSON.parse nod_create_request_schema_json_string
 
@@ -59,8 +58,9 @@ module DecisionReview
 
     NOD_CREATE_RESPONSE_200 = NOD_SHOW_RESPONSE_200
 
-    NOD_CONTESTABLE_ISSUES_RESPONSE_200 = JSON.parse File.read(
-      Rails.root.join('lib', 'decision_review', 'schemas', 'NOD_contestable_issues_response_200_body_schema.json')
+    NOD_CONTESTABLE_ISSUES_RESPONSE_200 = JSON.parse(
+      Rails.root.join('lib', 'decision_review', 'schemas',
+                      'NOD_contestable_issues_response_200_body_schema.json').read
     )
   end
 end

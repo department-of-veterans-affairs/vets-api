@@ -158,7 +158,7 @@ shared_examples 'PDF download docs' do |opts|
 
   consumes 'application/json'
 
-  let!(:appeal) { FactoryBot.create(opts[:factory], id: example_id, pdf_version: 'v3', status: 'submitted') }
+  let!(:appeal) { create(opts[:factory], id: example_id, pdf_version: 'v3', status: 'submitted') }
 
   parameter(
     parameter_from_schema('shared/v0/icn.json', 'properties', 'icn').merge(
@@ -204,7 +204,7 @@ shared_examples 'PDF download docs' do |opts|
 
     let(:icn) { '0000000000V000000' }
     let(:appeal) do
-      FactoryBot.create(opts[:factory], id: example_id, pdf_version: 'v3', status: 'submitted', veteran_icn: icn)
+      create(opts[:factory], id: example_id, pdf_version: 'v3', status: 'submitted', veteran_icn: icn)
     end
 
     it_behaves_like 'rswag example', desc: 'Forbidden access', scopes: veteran_scopes
@@ -228,7 +228,7 @@ shared_examples 'PDF download docs' do |opts|
 
     let(:icn) { appeal.veteran_icn }
     let(:appeal) do
-      record = FactoryBot.create(opts[:factory], id: example_id, pdf_version: 'v3', status: 'submitted')
+      record = create(opts[:factory], id: example_id, pdf_version: 'v3', status: 'submitted')
       record.update!(form_data: nil, auth_headers: nil, auth_headers_ciphertext: nil, form_data_ciphertext: nil)
       record
     end
@@ -272,7 +272,7 @@ shared_examples 'decision reviews PDF download docs' do |opts|
   consumes 'application/json'
 
   let!(:appeal) do
-    record = FactoryBot.create(
+    record = create(
       opts[:factory],
       id: example_uuid,
       pdf_version: 'v3',
@@ -330,7 +330,7 @@ shared_examples 'decision reviews PDF download docs' do |opts|
     produces 'application/json'
 
     let(:appeal) do
-      record = FactoryBot.create(
+      record = create(
         opts[:factory],
         id: example_uuid,
         pdf_version: 'v3',

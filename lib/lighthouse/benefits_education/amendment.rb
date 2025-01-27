@@ -26,5 +26,16 @@ module BenefitsEducation
     attribute :type, String
     attribute :status, String
     attribute :change_effective_date, String
+
+    def initialize(attributes)
+      # Amendment objects previously weren't being serialized because of mismatched keys
+      key_mapping = { 'residence_hours' => 'on_campus_hours',
+                      'distance_hours' => 'online_hours',
+                      'amendment_type' => 'type',
+                      'amendment_status' => 'status',
+                      'amendment_effective_date' => 'change_effective_date' }
+      attributes.transform_keys! { |key| key_mapping[key] || key }
+      super(attributes)
+    end
   end
 end

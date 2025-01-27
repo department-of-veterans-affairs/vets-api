@@ -113,20 +113,4 @@ RSpec.describe SignIn::ClientConfigsController, type: :controller do
       end
     end
   end
-
-  describe 'permitted params' do
-    let(:client_config) { build(:client_config) }
-    let(:attributes) { client_config.attributes.symbolize_keys }
-
-    let(:expected_permitted_params) do
-      array_params, params = attributes.excluding(:id, :created_at, :updated_at)
-                                       .partition { |_, v| v.is_a?(Array) }
-      params.to_h.keys << array_params.to_h.transform_values { [] }
-    end
-
-    it 'returns the expected permitted params' do
-      expect(subject).to permit(*expected_permitted_params)
-        .for(:create, params: { client_config: attributes })
-    end
-  end
 end

@@ -11,7 +11,7 @@ RSpec.describe VeteranReadinessEmploymentMailer, type: [:mailer] do
     subject { described_class.build(user.participant_id, email_addr, routed_to_cmp).deliver_now }
 
     context 'user is loa3 and has participant id' do
-      let(:user) { FactoryBot.create(:evss_user, :loa3) }
+      let(:user) { create(:evss_user, :loa3) }
 
       context 'PDF is uploaded to VBMS' do
         let(:routed_to_cmp) { false }
@@ -45,7 +45,7 @@ RSpec.describe VeteranReadinessEmploymentMailer, type: [:mailer] do
       end
     end
 
-    context 'user has no participant id ' do
+    context 'user has no participant id' do
       let(:user) { create(:unauthorized_evss_user) }
 
       context 'PDF is uploaded to Central Mail' do

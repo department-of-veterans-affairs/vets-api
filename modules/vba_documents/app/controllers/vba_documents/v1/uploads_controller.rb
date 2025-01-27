@@ -11,17 +11,6 @@ module VBADocuments
       before_action :verify_download_enabled, only: [:download]
       before_action :verify_validate_enabled, only: [:validate_document]
 
-      def create
-        submission = VBADocuments::UploadSubmission.create(
-          consumer_name: request.headers['X-Consumer-Username'],
-          consumer_id: request.headers['X-Consumer-ID']
-        )
-        submission.metadata['version'] = 1
-        submission.save!
-        options = { params: { render_location: true } }
-        render json: VBADocuments::V1::UploadSerializer.new(submission, options), status: :accepted
-      end
-
       def show
         submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
 
@@ -42,6 +31,17 @@ module VBADocuments
 
         options = { params: { render_location: false } }
         render json: VBADocuments::V1::UploadSerializer.new(submission, options)
+      end
+
+      def create
+        submission = VBADocuments::UploadSubmission.create(
+          consumer_name: request.headers['X-Consumer-Username'],
+          consumer_id: request.headers['X-Consumer-ID']
+        )
+        submission.metadata['version'] = 1
+        submission.save!
+        options = { params: { render_location: true } }
+        render json: VBADocuments::V1::UploadSerializer.new(submission, options), status: :accepted
       end
 
       def download
