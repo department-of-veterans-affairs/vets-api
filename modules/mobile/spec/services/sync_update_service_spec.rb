@@ -55,8 +55,10 @@ describe Mobile::V0::Profile::SyncUpdateService do
     context 'when it succeeds after two incomplete checks' do
       let(:transaction) do
         VCR.use_cassette('va_profile/v3/contact_information/get_address_status_complete', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('va_profile/v3/contact_information/get_address_status_incomplete_2', VCR::MATCH_EVERYTHING) do
-            VCR.use_cassette('va_profile/v3/contact_information/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/v3/contact_information/get_address_status_incomplete_2',
+                           VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('va_profile/v3/contact_information/get_address_status_incomplete',
+                             VCR::MATCH_EVERYTHING) do
               VCR.use_cassette('va_profile/v3/contact_information/put_address_initial', VCR::MATCH_EVERYTHING) do
                 service.save_and_await_response(resource_type: :address, params:, update: true)
               end
@@ -83,8 +85,10 @@ describe Mobile::V0::Profile::SyncUpdateService do
 
       it 'raises a gateway timeout error' do
         VCR.use_cassette('va_profile/v3/contact_information/get_address_status_complete', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('va_profile/v3/contact_information/get_address_status_incomplete_2', VCR::MATCH_EVERYTHING) do
-            VCR.use_cassette('va_profile/v3/contact_information/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/v3/contact_information/get_address_status_incomplete_2',
+                           VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('va_profile/v3/contact_information/get_address_status_incomplete',
+                             VCR::MATCH_EVERYTHING) do
               VCR.use_cassette('va_profile/v3/contact_information/put_address_initial', VCR::MATCH_EVERYTHING) do
                 expect { service.save_and_await_response(resource_type: :address, params:, update: true) }
                   .to raise_error(Common::Exceptions::GatewayTimeout)
