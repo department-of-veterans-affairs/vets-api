@@ -9,7 +9,8 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
 
   context 'flipper is disabled' do
     before do
-      Flipper.disable(:benefits_intake_submission_status_job)
+      allow(Flipper).to receive(:enabled?).with(anything).and_call_original
+      allow(Flipper).to receive(:enabled?).with(:benefits_intake_submission_status_job).and_return false
     end
 
     it 'does nothing' do
@@ -26,7 +27,8 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
     let(:updated_at) { Time.zone.now }
 
     before do
-      Flipper.enable(:benefits_intake_submission_status_job)
+      allow(Flipper).to receive(:enabled?).with(anything).and_call_original
+      allow(Flipper).to receive(:enabled?).with(:benefits_intake_submission_status_job).and_return true
 
       allow(BenefitsIntake::Service).to receive(:new).and_return(service)
 

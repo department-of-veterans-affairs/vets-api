@@ -4,13 +4,14 @@ require 'rails_helper'
 
 RSpec.describe BenefitsIntakeStatusJob, type: :job do
   before do
-    Flipper.disable(:benefits_intake_submission_status_job)
+    allow(Flipper).to receive(:enabled?).with(anything).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:benefits_intake_submission_status_job).and_return false
   end
 
   describe '#perform' do
     context 'other job flipper is enabled' do
       before do
-        Flipper.enable(:benefits_intake_submission_status_job)
+        allow(Flipper).to receive(:enabled?).with(:benefits_intake_submission_status_job).and_return true
       end
 
       it 'does nothing' do
