@@ -16,6 +16,12 @@ module Representatives
     include Sidekiq::Job
     include SentryLogging
 
+    attr_accessor :slack_messages
+
+    def initialize
+      @slack_messages = []
+    end
+
     # Processes each representative's data provided in JSON format.
     # This method parses the JSON, validates each representative's address, and updates the database records.
     # @param reps_json [String] JSON string containing an array of representative data.
@@ -24,6 +30,8 @@ module Representatives
       reps_data.each { |rep_data| process_rep_data(rep_data) }
     rescue => e
       log_error("Error processing job: #{e.message}")
+    ensure
+      log_to_slack(@slack_messages.join("\n")) unless @slack_messages.empty?
     end
 
     private
@@ -224,6 +232,7 @@ module Representatives
     def log_error(error)
       message = "Representatives::Update: #{error}"
       log_message_to_sentry(message, :error)
+      @slack_messages << message
     end
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values
@@ -315,6 +324,13 @@ module Representatives
       end
     rescue => e
       log_error("In #get_best_address_candidate, address: #{rep_address}, error message: #{e.message}")
+    end
+
+    def log_to_slack(message)
+      client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
+                                       channel: '#benefits-representation-management-notifications',
+                                       username: 'Representatives::Update Bot')
+      client.notify(message)
     end
   end
 end
