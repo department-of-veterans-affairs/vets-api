@@ -216,7 +216,7 @@ http_interactions:
                           {
                               "closedDate": null,
                               "description": "Please complete and return the enclosed VA Form 21-4142, Authorization to Disclose Information, so that we can obtain the authorization to request treatment records from your private medical sources listed on the received VA Form 21-4142a, General Release for Medical Provider Information.\n",
-                              "displayName": "Request 1",
+                              "displayName": "PMR Pending",
                               "overdue": false,
                               "receivedDate": null,
                               "requestedDate": "2023-03-16",
@@ -236,6 +236,19 @@ http_interactions:
                               "suspenseDate": null,
                               "id": 394443,
                               "status": "NEEDED_FROM_YOU",
+                              "uploaded": true,
+                              "uploadsAllowed": false
+                           },
+                           {
+                              "closedDate": null,
+                              "description": "This evidence request should never be surfaced to the end user.",
+                              "displayName": "Attorney Fee",
+                              "overdue": false,
+                              "receivedDate": "2023-03-15",
+                              "requestedDate": "2023-04-14",
+                              "suspenseDate": null,
+                              "id": 394443,
+                              "status": "INITIAL_REVIEW_COMPLETE",
                               "uploaded": true,
                               "uploadsAllowed": false
                            }

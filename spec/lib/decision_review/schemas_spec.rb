@@ -11,7 +11,7 @@ end
 
 describe DecisionReview::Schemas do
   def hash_from_json_file(*)
-    JSON.parse File.read Rails.root.join(*)
+    JSON.parse Rails.root.join(*).read
   end
 
   let(:errors) { validator.validate(json).to_a }

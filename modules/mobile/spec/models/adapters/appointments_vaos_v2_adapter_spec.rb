@@ -3,26 +3,8 @@
 require 'rails_helper'
 
 describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
-  def appointment_data(index = nil)
-    appts = index ? raw_data[index] : raw_data
-    Array.wrap(appts).map { |appt| OpenStruct.new(appt) }
-  end
-
-  def appointment_by_id(id, overrides: {}, without: [])
-    appointment = raw_data.find { |appt| appt[:id] == id }
-    appointment.merge!(overrides) if overrides.any?
-    without.each do |property|
-      if property.is_a?(Hash)
-        appointment.dig(*property[:at]).delete(property[:key])
-      else
-        appointment.delete(property)
-      end
-    end
-    subject.parse(Array.wrap(appointment)).first
-  end
-
   let(:appointment_fixtures) do
-    File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'VAOS_v2_appointments.json'))
+    Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'VAOS_v2_appointments.json').read
   end
   let(:raw_data) { JSON.parse(appointment_fixtures, symbolize_names: true) }
 
@@ -39,6 +21,25 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   let(:past_request_date_appt_id) { '53360' }
   let(:future_request_date_appt_id) { '53359' }
   let(:telehealth_onsite_id) { '50097' }
+  let(:user) { build(:user) }
+
+  def appointment_data(index = nil)
+    appts = index ? raw_data[index] : raw_data
+    Array.wrap(appts).map { |appt| OpenStruct.new(appt) }
+  end
+
+  def appointment_by_id(id, overrides: {}, without: [])
+    appointment = raw_data.find { |appt| appt[:id] == id }
+    appointment.merge!(overrides) if overrides.any?
+    without.each do |property|
+      if property.is_a?(Hash)
+        appointment.dig(*property[:at]).delete(property[:key])
+      else
+        appointment.delete(property)
+      end
+    end
+    Mobile::V0::Adapters::VAOSV2Appointments.new(user).parse(Array.wrap(appointment)).first
+  end
 
   before do
     Timecop.freeze(Time.zone.parse('2022-08-25T19:25:00Z'))
@@ -49,11 +50,11 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   it 'returns an empty array when provided nil' do
-    expect(subject.parse(nil)).to eq([])
+    expect(Mobile::V0::Adapters::VAOSV2Appointments.new(user).parse(nil)).to eq([])
   end
 
   it 'returns a list of Mobile::V0::Appointments at the expected size' do
-    adapted_appointments = subject.parse(appointment_data)
+    adapted_appointments = Mobile::V0::Adapters::VAOSV2Appointments.new(user).parse(appointment_data)
     expect(adapted_appointments.size).to eq(13)
     expect(adapted_appointments.map(&:class).uniq).to match_array(Mobile::V0::Appointment)
   end
@@ -133,6 +134,18 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   describe 'appointment_type' do
+    context 'with appointment_type_consolidation flag on' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_appointment_type_consolidation,
+                                                  instance_of(User)).and_return(true)
+      end
+
+      it 'sets va requests to VA' do
+        appt = appointment_by_id(proposed_va_id)
+        expect(appt.appointment_type).to eq('VA')
+      end
+    end
+
     it 'sets phone appointments to VA' do
       appt = appointment_by_id(phone_va_id)
       expect(appt.appointment_type).to eq('VA')

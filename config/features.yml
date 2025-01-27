@@ -177,6 +177,9 @@ features:
   champva_vanotify_custom_callback:
     actor_type: user
     description: Enables the custom callback_klass when sending IVC CHAMPVA failure emails with VA Notify
+  champva_vanotify_custom_confirmation_callback:
+    actor_type: user
+    description: Enables the custom callback_klass when sending IVC CHAMPVA confirmation emails with VA Notify
   champva_multiple_stamp_retry:
     actor_type: user
     description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
@@ -192,6 +195,9 @@ features:
   champva_pdf_decrypt:
     actor_type: user
     description: Enables unlocking password protected file submissions in IVC CHAMPVA forms.
+  champva_require_all_s3_success:
+    actor_type: user
+    description: Enables raising a StandardError if any supporting documents fail to upload to S3 in IVC CHAMPVA forms.
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -312,18 +318,6 @@ features:
     actor_type: user
     description: When enabled, the Download Decision Letters feature includes Subsequent Development Letters
     enable_in_development: true
-  cst_use_lighthouse_5103:
-    actor_type: user
-    description: When enabled, claims status tool uses the Lighthouse API for the 5103 endpoint
-    enable_in_development: true
-  cst_use_lighthouse_index:
-    actor_type: user
-    description: When enabled, claims status tool uses the Lighthouse API for the index endpoint
-    enable_in_development: true
-  cst_use_lighthouse_show:
-    actor_type: user
-    description: When enabled, claims status tool uses the Lighthouse API for the show endpoint
-    enable_in_development: true
   cst_send_evidence_failure_emails:
     actor_type: user
     description: When enabled, emails will be sent when evidence uploads from the CST fail
@@ -335,6 +329,10 @@ features:
   cst_use_dd_rum:
     actor_type: user
     description: When enabled, claims status tool uses DataDog's Real User Monitoring logging
+    enable_in_development: false
+  cst_suppress_evidence_requests:
+    actor_type: user
+    description: When enabled, CST does not show Attorney Fee, Secondary Action Required, or Stage 2 Development
     enable_in_development: false
   coe_access:
     actor_type: user
@@ -896,6 +894,10 @@ features:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
     enable_in_development: true
+  letters_page_new_design:
+    actor_type: user
+    description: Enables ability to show updated letter page design
+    enable_in_development: true
   lighthouse_claims_api_v2_add_person_proxy:
     actor_type: user
     description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID
@@ -1007,6 +1009,14 @@ features:
   mhv_secure_messaging_recipient_combobox:
     actor_type: user
     description: Disables/Enables Secure Messaging combobox in recipient dropdown on Start a new message page
+  mhv_secure_messaging_remove_landing_page:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Messages landing page and its components from view on VA.gov
+    enable_in_development: true
+  mhv_secure_messaging_signature_settings:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Signature Settings in the VA Personal Information Settings
+    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
@@ -1058,6 +1068,7 @@ features:
   mhv_medical_records_new_eligibility_check:
     actor_type: user
     description: Enables/disables Medical Records new access policy eligibility check endpoint
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
@@ -1081,6 +1092,10 @@ features:
   mhv_medications_display_grouping:
     actor_type: user
     description: Enables/disables grouping medications related work
+    enable_in_development: true
+  mhv_medications_display_pending_meds:
+    actor_type: user
+    description: Enables/disables pending medications related work
     enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
@@ -1118,6 +1133,9 @@ features:
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
+  pension_submitted_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Submission in Progress email notification
   pension_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
@@ -1500,10 +1518,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for routing eligibility requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
-  va_online_scheduling_enable_OH_requests:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for routing new appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
   va_online_scheduling_enable_OH_slots_search:
     actor_type: user
     enable_in_development: true
@@ -1536,6 +1550,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
+  va_online_scheduling_appointment_type_consolidation:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to enable appointment type consolidation logic.
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled
@@ -1544,10 +1562,6 @@ features:
     actor_type: user
     description: When enabled, the VAProfile::V3::ContactInformation will be enabled
     enable_in_development: true
-  validate_saved_claims_with_json_schemer:
-    actor_type: user
-    description: When enabled, Saved Claims will be validated using the JSON Schemer gem rather than JSON Schema
-    enable_in_development: false
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -1822,6 +1836,9 @@ features:
   burial_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
+  burial_submitted_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Burial Submission in Progress email notification
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
@@ -1993,3 +2010,6 @@ features:
   virtual_agent_enable_datadog_logging:
     actor_type: user
     description: If enabled, allows for the use of Datadog logging for the chatbot
+  show_about_yellow_ribbon_program:
+    actor_type: user
+    description: If enabled, show additional info about the yellow ribbon program

@@ -16,8 +16,13 @@ module ClaimsApi
       # it queues a job to update the POA code in BGS, as well.
       #
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
-      def perform(power_of_attorney_id, form_number, rep_id, action)
+      def perform(power_of_attorney_id, form_number, rep_id, action) # rubocop:disable Metrics/MethodLength
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
+
+        process = ClaimsApi::Process.find_or_create_by(processable: power_of_attorney,
+                                                       step_type: 'PDF_SUBMISSION')
+        process.update!(step_status: 'IN_PROGRESS')
+
         rep = ::Veteran::Service::Representative.where(representative_id: rep_id).order(created_at: :desc).first
 
         output_path = pdf_constructor(form_number).construct(data(power_of_attorney, form_number, rep),
@@ -36,10 +41,11 @@ module ClaimsApi
         else
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, rep_id)
         end
+        process.update!(step_status: 'SUCCESS', error_messages: [])
       rescue VBMS::Unknown
-        rescue_vbms_error(power_of_attorney)
+        rescue_vbms_error(power_of_attorney, process:)
       rescue Errno::ENOENT
-        rescue_file_not_found(power_of_attorney)
+        rescue_file_not_found(power_of_attorney, process:)
       end
 
       private
