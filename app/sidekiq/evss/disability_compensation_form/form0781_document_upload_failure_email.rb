@@ -95,7 +95,16 @@ module EVSS
         date_submitted = submission.format_creation_time_for_mailers
 
         notify_service_bd = Settings.vanotify.services.benefits_disability
-        notify_client = VaNotify::Service.new(notify_service_bd.api_key)
+
+        callback_options = {
+            callback_metadata: {
+              notification_type: 'error',
+              form_number: 'form526',
+              statsd_tags: { service: 'disability-application', function: ZSF_DD_TAG_FUNCTION }
+            }
+        }
+
+        notify_client = VaNotify::Service.new(notify_service_bd.api_key, callback_options)
         template_id = notify_service_bd.template_id.form0781_upload_failure_notification_template_id
 
         notify_response = notify_client.send_email(
@@ -114,15 +123,15 @@ module EVSS
 
         Rails.logger.info('Form0781DocumentUploadFailureEmail notification dispatched', log_info)
 
-        cl = caller_locations.first
-        call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
-        zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
+        # cl = caller_locations.first
+        # call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        # zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
 
-        zsf_monitor.log_silent_failure_avoided(
-          log_info.merge(email_confirmation_id: email_response&.id),
-          submission&.user_account_id,
-          call_location:
-        )
+        # zsf_monitor.log_silent_failure_avoided(
+        #   log_info.merge(email_confirmation_id: email_response&.id),
+        #   submission&.user_account_id,
+        #   call_location:
+        # )
       end
     end
   end

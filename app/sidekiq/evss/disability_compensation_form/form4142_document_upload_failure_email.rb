@@ -78,7 +78,16 @@ module EVSS
         form526_submission = Form526Submission.find(form526_submission_id)
 
         with_tracking('Form4142DocumentUploadFailureEmail', form526_submission.saved_claim_id, form526_submission_id) do
-          notify_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key)
+
+          callback_options = {
+            callback_metadata: {
+              notification_type: 'error',
+              form_number: 'form526',
+              statsd_tags: { service: 'disability-application', function: ZSF_DD_TAG_FUNCTION }
+            }
+          }
+
+          notify_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key, callback_options)
 
           email_address = form526_submission.veteran_email_address
           first_name = form526_submission.get_first_name
@@ -116,13 +125,13 @@ module EVSS
         log_info = { form526_submission_id:, timestamp: Time.now.utc }
         Rails.logger.info('Form4142DocumentUploadFailureEmail notification dispatched', log_info)
 
-        cl = caller_locations.first
-        call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
-        zsf_monitor.log_silent_failure_avoided(
-          log_info.merge(email_confirmation_id: email_response&.id),
-          Form526Submission.find(form526_submission_id).user_account_id,
-          call_location:
-        )
+        # cl = caller_locations.first
+        # call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        # zsf_monitor.log_silent_failure_avoided(
+        #   log_info.merge(email_confirmation_id: email_response&.id),
+        #   Form526Submission.find(form526_submission_id).user_account_id,
+        #   call_location:
+        # )
         StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
       end
 
