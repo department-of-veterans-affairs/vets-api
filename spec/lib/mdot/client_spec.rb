@@ -33,10 +33,24 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
-    context 'with a null temporary_address from system of record' do
+    context 'with a null temporary_address value from system of record' do
       it 'returns a valid response' do
         VCR.use_cassette(
-          'mdot/get_supplies_no_temp_address_200.yml',
+          'mdot/get_supplies_null_temp_address_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          response = subject.get_supplies
+          expect(response).to be_ok
+          expect(response).to be_an MDOT::Response
+        end
+      end
+    end
+
+    context 'with a no temporary_address from system of record' do
+      it 'returns a valid response' do
+        VCR.use_cassette(
+          'mdot/get_supplies_no_temp_address_200',
           match_requests_on: %i[method uri headers],
           erb: { icn: user.icn }
         ) do

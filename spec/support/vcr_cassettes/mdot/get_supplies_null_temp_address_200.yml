@@ -61,7 +61,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"permanentAddress":{"street":"456 ANYPLACE RD","street2":null,"city":"PENSACOLA","state":"FL","country":"United
-        States","postalCode":"33344"},"vetEmail":"veteran@gmail.com","supplies":[{"deviceName":null,"productName":"ERHK
+        States","postalCode":"33344"},"temporaryAddress":null,"vetEmail":"veteran@gmail.com","supplies":[{"deviceName":null,"productName":"ERHK
         HE11 680 MINI","productGroup":"ACCESSORIES","productId":6584,"availableForReorder":true,"lastOrderDate":"2019-11-22","nextAvailabilityDate":"2020-04-22","quantity":1},{"deviceName":null,"productName":"ZA10","productGroup":"BATTERIES","productId":3315,"availableForReorder":true,"lastOrderDate":"2019-12-01","nextAvailabilityDate":"2020-05-01","quantity":24},{"deviceName":"WILLIAMS
         SOUND CORP./POCKETALKER II","productName":"M312","productGroup":"BATTERIES","productId":2298,"availableForReorder":false,"lastOrderDate":"2020-05-06","nextAvailabilityDate":"2020-10-06","quantity":12},{"deviceName":"SIVANTOS/SIEMENS/007ASP2","productName":"ZA13","productGroup":"BATTERIES","productId":2314,"availableForReorder":false,"lastOrderDate":"2020-05-06","nextAvailabilityDate":"2020-10-06","quantity":60},{"deviceName":null,"productName":"AIRFIT
         P10","productGroup":"Apnea","productId":6650,"availableForReorder":true,"lastOrderDate":"2022-07-05","nextAvailabilityDate":"2022-12-05","quantity":1},{"deviceName":null,"productName":"AIRCURVE10-ASV-CLIMATELINE","productGroup":"Apnea","productId":8467,"availableForReorder":false,"lastOrderDate":"2022-07-06","nextAvailabilityDate":"2022-12-06","quantity":1}]}'
