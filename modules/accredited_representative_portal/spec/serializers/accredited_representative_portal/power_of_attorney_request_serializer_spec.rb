@@ -7,7 +7,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
     create(:power_of_attorney_request_resolution, :declination, :with_veteran_claimant)
   end
   let(:veteran_declined_poa_request) { veteran_declined_resolution.power_of_attorney_request }
-  let(:veteran_declined_accredited_individual) { veteran_declined_poa_request.accredited_individual }
   let(:veteran_declined_power_of_attorney_holder) { veteran_declined_poa_request.power_of_attorney_holder }
   let(:veteran_declined_response) { described_class.new(veteran_declined_poa_request) }
   let(:veteran_declined_data) { veteran_declined_response.serializable_hash }
@@ -19,7 +18,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
   let(:dependent_expiration_response) { described_class.new(dependent_expiration_poa_request) }
   let(:dependent_expiration_data) { dependent_expiration_response.serializable_hash }
 
-  let(:accredited_individual) { create(:accredited_individual) }
   let(:pending_individual_poa_request) { create(:power_of_attorney_request) }
 
   describe 'PowerOfAttorneyRequestSerializer' do
@@ -86,20 +84,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
     end
 
     describe ':power_of_attorney_holder' do
-      context 'when the holder is an AccreditedIndividual' do
-        it 'serializes the accredited individual' do
-          pending_individual_poa_request.power_of_attorney_holder = accredited_individual
-          pending_individual_poa_request.save
-          pending_individual_response = described_class.new(pending_individual_poa_request)
-          pending_individual_holder_data = pending_individual_response.serializable_hash[:power_of_attorney_holder]
-          expect(pending_individual_holder_data[:type]).to eq 'accredited_representative'
-          # rubocop:disable Layout/LineLength
-          expect(pending_individual_holder_data[:full_name]).to eq "#{accredited_individual.first_name} #{accredited_individual.last_name}"
-          # rubocop:enable Layout/LineLength
-          expect(pending_individual_holder_data[:id]).to eq accredited_individual.id
-        end
-      end
-
       context 'when the holder is an AccreditedOrganization' do
         it 'serializes the accredited organization' do
           veteran_declined_holder_data = veteran_declined_data[:power_of_attorney_holder]
@@ -107,16 +91,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
           expect(veteran_declined_holder_data[:name]).to eq veteran_declined_power_of_attorney_holder.name
           expect(veteran_declined_holder_data[:id]).to eq veteran_declined_power_of_attorney_holder.id
         end
-      end
-    end
-
-    describe ':accredited_individual' do
-      it 'serializes the accredited individual' do
-        veteran_declined_serialized_individual = veteran_declined_data[:accredited_individual]
-        expect(veteran_declined_serialized_individual[:id]).to eq veteran_declined_accredited_individual.id
-        # rubocop:disable Layout/LineLength
-        expect(veteran_declined_serialized_individual[:full_name]).to eq "#{veteran_declined_accredited_individual.first_name} #{veteran_declined_accredited_individual.last_name}"
-        # rubocop:enable Layout/LineLength
       end
     end
   end
