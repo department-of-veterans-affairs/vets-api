@@ -93,11 +93,14 @@ module Representatives
     end
 
     def process_sheet(xlsx, sheet_name)
+      processed_rep_ids = {}
       data = []
       column_map = build_column_index_map(xlsx.sheet(sheet_name).row(1))
 
       xlsx.sheet(sheet_name).each_with_index do |row, index|
         next if index.zero? || row.length < column_map.length
+
+        # next if processed_rep_ids[row[column_map['Number']]]
 
         state_code = get_value(row, column_map, 'WorkState')
 
