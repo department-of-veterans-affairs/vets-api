@@ -105,13 +105,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
               'type' => 'veteran_service_organization',
               'name' => poa_requests[1].power_of_attorney_holder.name
             },
-            'accredited_individual' => {
-              'id' => poa_requests[1].accredited_individual.id,
-              'full_name' => [
-                poa_requests[1].accredited_individual.first_name,
-                poa_requests[1].accredited_individual.last_name
-              ].join(' ')
-            },
             'resolution' => {
               'id' => poa_requests[1].resolution.id,
               'type' => 'decision',
@@ -244,7 +237,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'decision_type' => 'declination'
           },
           'power_of_attorney_holder' => {
-            'id' => valid_accredited_individual_id,
+            'id' => poa_request.power_of_attorney_holder.id,
             'type' => 'veteran_service_organization',
             'name' => poa_request.power_of_attorney_holder.name
           }
