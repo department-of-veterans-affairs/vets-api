@@ -9,9 +9,9 @@ RSpec.describe UserAction, type: :model do
     let(:acting_user_verification) { build(:user_verification) }
     let(:user_action) do
       build(:user_action,
-            acting_ip_address: acting_ip_address,
-            acting_user_agent: acting_user_agent,
-            acting_user_verification: acting_user_verification)
+            acting_ip_address:,
+            acting_user_agent:,
+            acting_user_verification:)
     end
 
     context 'when attributes are valid' do
@@ -87,4 +87,4 @@ RSpec.describe UserAction, type: :model do
       expect(user_action).to respond_to(:error?)
     end
   end
-end
+end 
