@@ -168,14 +168,13 @@ module Lighthouse
 
       def update_evidence_submission_for_success(job_id, response)
         evidence_submission = EvidenceSubmission.find_by(job_id:)
-        request_successful = response.dig(:data, :success)
+        request_successful = response.body['data']['success']
         if request_successful
-          request_id = response.dig(:data, :requestId)
+          request_id = response.body['data']['requestId']
           evidence_submission.update(
             upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
             request_id:
           )
-          evidence_submission.save!
         else
           raise StandardError
         end
