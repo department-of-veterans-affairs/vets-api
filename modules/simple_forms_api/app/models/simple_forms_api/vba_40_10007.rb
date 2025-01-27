@@ -40,12 +40,12 @@ module SimpleFormsApi
     end
 
     def notification_first_name
-      applicant_relationship = @data.dig('application', 'applicant', 'applicant_relationship_to_claimant')
+      applicant_relationship = data.dig('application', 'applicant', 'applicant_relationship_to_claimant')
 
       if applicant_relationship == 'Self'
-        @data.dig('application', 'claimant', 'name', 'first')
+        data.dig('application', 'claimant', 'name', 'first')
       else
-        @data.dig('application', 'applicant', 'name', 'first')
+        data.dig('application', 'applicant', 'name', 'first')
       end
     end
 

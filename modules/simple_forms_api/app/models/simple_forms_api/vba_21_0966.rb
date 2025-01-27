@@ -40,10 +40,10 @@ module SimpleFormsApi
     end
 
     def notification_first_name
-      if @data['preparer_identification'] == 'SURVIVING_DEPENDENT'
-        @data.dig('surviving_dependent_full_name', 'first')
+      if data['preparer_identification'] == 'SURVIVING_DEPENDENT'
+        data.dig('surviving_dependent_full_name', 'first')
       else
-        @data.dig('veteran_full_name', 'first')
+        data.dig('veteran_full_name', 'first')
       end
     end
 

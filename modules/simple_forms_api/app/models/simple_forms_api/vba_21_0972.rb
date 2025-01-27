@@ -17,7 +17,7 @@ module SimpleFormsApi
     end
 
     def notification_first_name
-      @data.dig('preparer_full_name', 'first')
+      data.dig('preparer_full_name', 'first')
     end
 
     def zip_code_is_us_based
