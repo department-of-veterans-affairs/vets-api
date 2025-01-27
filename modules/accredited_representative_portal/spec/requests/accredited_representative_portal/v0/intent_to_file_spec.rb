@@ -7,6 +7,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
   let(:time) { '2024-12-21T04:45:37.458Z' }
 
   before do
+    Settings.add_source!({
+                           'accredited_representative_portal' => {
+                             'pilot_user_email_poa_codes' => { 'j2@example.com' => ['067'] }
+                           }
+                         })
+    Settings.reload!
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
     login_as(test_user)
     travel_to(time)
