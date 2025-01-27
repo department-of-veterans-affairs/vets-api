@@ -10,6 +10,13 @@ class Form526SubmissionFailureEmailJob
   STATSD_PREFIX = 'api.form_526.veteran_notifications.form526_submission_failure_email'
   # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/274bea7fb835e51626259ac16b32c33ab0b2088a/platform/practices/zero-silent-failures/logging-silent-failures.md#capture-silent-failures-state
   ZSF_DD_TAG_SERVICE = '526_backup_submission_to_lighthouse'
+  VA_NOTIFY_CALLBACK_OPTIONS = {
+    callback_metadata: {
+      notification_type: 'error',
+      form_number: 'form526',
+      statsd_tags: { service: Form526Submission::ZSF_DD_TAG_SERVICE, function: ZSF_DD_TAG_FUNCTION }
+    }
+  }
   DD_ZSF_TAGS = [
     "service:#{Form526Submission::ZSF_DD_TAG_SERVICE}",
     "function:#{ZSF_DD_TAG_SERVICE}"
@@ -83,13 +90,6 @@ class Form526SubmissionFailureEmailJob
   private
 
   def send_email
-    callback_options = {
-      callback_metadata: {
-        notification_type: 'error',
-        form_number: 'form526',
-        statsd_tags: { service: 'disability-application', function: ZSF_DD_TAG_FUNCTION }
-      }
-    }
 
     email_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key, callback_options)
     template_id = Settings.vanotify.services.benefits_disability.template_id
