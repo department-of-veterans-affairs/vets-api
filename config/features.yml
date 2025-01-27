@@ -1068,6 +1068,7 @@ features:
   mhv_medical_records_new_eligibility_check:
     actor_type: user
     description: Enables/disables Medical Records new access policy eligibility check endpoint
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
