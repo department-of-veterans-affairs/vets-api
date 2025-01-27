@@ -87,4 +87,4 @@ RSpec.describe UserAction, type: :model do
       expect(user_action).to respond_to(:error?)
     end
   end
-end 
+end

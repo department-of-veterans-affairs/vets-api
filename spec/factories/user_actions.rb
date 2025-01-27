@@ -9,4 +9,4 @@ FactoryBot.define do
     acting_user_agent { Faker::Internet.user_agent }
     association :acting_user_verification, factory: :user_verification
   end
-end 
+end
