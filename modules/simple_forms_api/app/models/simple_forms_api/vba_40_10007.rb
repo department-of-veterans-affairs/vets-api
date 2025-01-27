@@ -223,7 +223,7 @@ module SimpleFormsApi
     end
 
     def create_attachment_page(file_path)
-      SimpleFormsApi::VBA4010007::Attachment.new(file_path:, data:).create
+      SimpleFormsApi::VBA4010007Attachment.new(file_path:, data:).create
     end
 
     # rubocop:disable Metrics/MethodLength
