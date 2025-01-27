@@ -48,6 +48,28 @@ module ClaimsApi
         )
 
       ##
+      # BenefitClaimService
+      #
+      module BenefitClaimServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'BenefitClaimServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://services.share.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module BenefitClaimWebService
+        DEFINITION =
+          Service.new(
+            bean: BenefitClaimServiceBean::DEFINITION,
+            path: 'BenefitClaimWebService'
+          )
+      end
+
+      ##
       # ClaimantServiceBean
       #
       module ClaimantServiceBean
@@ -61,11 +83,33 @@ module ClaimsApi
           )
       end
 
-      module ClaimantService
+      module ClaimantWebService
         DEFINITION =
           Service.new(
             bean: ClaimantServiceBean::DEFINITION,
-            path: 'ClaimantService'
+            path: 'ClaimantWebService'
+          )
+      end
+
+      ##
+      # ClaimManagementService
+      #
+      module ClaimManagementServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'ClaimManagementServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://services.mapd.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module ClaimManagementService
+        DEFINITION =
+          Service.new(
+            bean: ClaimManagementServiceBean::DEFINITION,
+            path: 'ClaimManagementService'
           )
       end
 

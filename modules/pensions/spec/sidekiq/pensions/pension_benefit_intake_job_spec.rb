@@ -19,6 +19,8 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     let(:location) { 'test_location' }
 
     before do
+      allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(true)
+
       job.instance_variable_set(:@claim, claim)
       allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
       allow(claim).to receive_messages(to_pdf: pdf_path, persistent_attachments: [])
@@ -37,20 +39,48 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       allow(monitor).to receive :track_submission_retry
     end
 
-    it 'submits the saved claim successfully' do
-      allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
+    context 'Feature pension_submitted_email_notification=false' do
+      it 'submits the saved claim successfully' do
+        allow(Flipper).to receive(:enabled?).with(:pension_submitted_email_notification).and_return(false)
+        allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
 
-      expect(FormSubmission).to receive(:create)
-      expect(FormSubmissionAttempt).to receive(:create)
-      expect(Datadog::Tracing).to receive(:active_trace)
-      expect(UserAccount).to receive(:find)
+        expect(FormSubmission).to receive(:create)
+        expect(FormSubmissionAttempt).to receive(:create)
+        expect(Datadog::Tracing).to receive(:active_trace)
+        expect(UserAccount).to receive(:find)
 
-      expect(service).to receive(:perform_upload).with(
-        upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
-      )
-      expect(job).to receive(:cleanup_file_paths)
+        expect(service).to receive(:perform_upload).with(
+          upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
+        )
 
-      job.perform(claim.id, :user_uuid)
+        expect(job).to receive(:send_confirmation_email)
+        expect(job).not_to receive(:send_submitted_email)
+        expect(job).to receive(:cleanup_file_paths)
+
+        job.perform(claim.id, :user_uuid)
+      end
+    end
+
+    context 'Feature pension_submitted_email_notification=true' do
+      it 'submits the saved claim successfully' do
+        allow(Flipper).to receive(:enabled?).with(:pension_submitted_email_notification).and_return(true)
+        allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
+
+        expect(FormSubmission).to receive(:create)
+        expect(FormSubmissionAttempt).to receive(:create)
+        expect(Datadog::Tracing).to receive(:active_trace)
+        expect(UserAccount).to receive(:find)
+
+        expect(service).to receive(:perform_upload).with(
+          upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
+        )
+
+        expect(job).not_to receive(:send_confirmation_email)
+        expect(job).to receive(:send_submitted_email)
+        expect(job).to receive(:cleanup_file_paths)
+
+        job.perform(claim.id, :user_uuid)
+      end
     end
 
     it 'is unable to find user_account' do
@@ -58,6 +88,8 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
+      expect(job).not_to receive(:send_confirmation_email)
+      expect(job).not_to receive(:send_submitted_email)
       expect(job).to receive(:cleanup_file_paths)
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
@@ -74,6 +106,8 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
+      expect(job).not_to receive(:send_confirmation_email)
+      expect(job).not_to receive(:send_submitted_email)
       expect(job).to receive(:cleanup_file_paths)
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
@@ -199,6 +233,28 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       expect(notification).to receive(:deliver).with(:confirmation)
       expect(monitor).to receive(:track_send_confirmation_email_failure)
       job.send(:send_confirmation_email)
+    end
+  end
+
+  describe '#send_submitted_email' do
+    let(:monitor_error) { create(:monitor_error) }
+    let(:notification) { double('notification') }
+
+    before do
+      job.instance_variable_set(:@claim, claim)
+
+      allow(Pensions::NotificationEmail).to receive(:new).and_return(notification)
+      allow(notification).to receive(:deliver).and_raise(monitor_error)
+
+      job.instance_variable_set(:@pension_monitor, monitor)
+      allow(monitor).to receive(:track_send_submitted_email_failure)
+    end
+
+    it 'errors and logs but does not reraise' do
+      expect(Pensions::NotificationEmail).to receive(:new).with(claim.id)
+      expect(notification).to receive(:deliver).with(:submitted)
+      expect(monitor).to receive(:track_send_submitted_email_failure)
+      job.send(:send_submitted_email)
     end
   end
 

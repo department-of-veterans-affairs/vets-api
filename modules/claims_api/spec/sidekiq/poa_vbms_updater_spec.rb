@@ -37,6 +37,8 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
         poa = create_poa(allow_poa_access: true)
         create_mock_lighthouse_service
         subject.new.perform(poa.id)
+        process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_ACCESS_UPDATE')
+        expect(process.step_status).to eq('SUCCESS')
       end
     end
 
@@ -48,6 +50,8 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
         poa = create_poa(allow_poa_access: true)
         create_mock_lighthouse_service
         subject.new.perform(poa.id)
+        process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_ACCESS_UPDATE')
+        expect(process.step_status).to eq('SUCCESS')
       end
     end
 
@@ -59,6 +63,8 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
         poa = create_poa(allow_poa_access: true)
         create_mock_lighthouse_service
         subject.new.perform(poa.id)
+        process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_ACCESS_UPDATE')
+        expect(process.step_status).to eq('SUCCESS')
       end
     end
 
@@ -74,6 +80,8 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
         poa.reload
         expect(poa.status).to eq('errored')
         expect(poa.vbms_error_message).to eq('updatePoaAccess: No POA found on system of record')
+        process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_ACCESS_UPDATE')
+        expect(process.step_status).to eq('FAILED')
       end
     end
 
