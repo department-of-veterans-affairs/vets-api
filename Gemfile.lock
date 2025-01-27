@@ -634,7 +634,7 @@ GEM
       ffi (~> 1.0)
     libddwaf (1.18.0.0.0-x86_64-linux)
       ffi (~> 1.0)
-    liquid (5.7.0)
+    liquid (5.7.1)
       bigdecimal
       strscan (>= 3.1.1)
     listen (3.8.0)
