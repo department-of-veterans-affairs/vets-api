@@ -727,8 +727,9 @@ RSpec.describe Representatives::Update do
       end
 
       before do
+        validation_service = VAProfile::V3::AddressValidation::Service
         allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
-        allow_any_instance_of(VAProfile::V3::AddressValidation::Service).to receive(:candidate).and_return(api_response_v3)
+        allow_any_instance_of(validation_service).to receive(:candidate).and_return(api_response_v3)
       end
 
       context 'when JSON parsing fails' do
@@ -1042,7 +1043,8 @@ RSpec.describe Representatives::Update do
         context 'when the second retry has non-zero coordinates' do
           before do
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3, api_response_with_zero_v3,
+            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
+                                                                     api_response_with_zero_v3,
                                                                      api_response2_v3)
           end
 
@@ -1063,8 +1065,10 @@ RSpec.describe Representatives::Update do
         context 'when the third retry has non-zero coordinates' do
           before do
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3, api_response_with_zero_v3,
-                                                                     api_response_with_zero_v3, api_response3_v3)
+            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
+                                                                     api_response_with_zero_v3,
+                                                                     api_response_with_zero_v3,
+                                                                     api_response3_v3)
           end
 
           it 'updates the representative address' do
@@ -1084,8 +1088,10 @@ RSpec.describe Representatives::Update do
         context 'when the retry coordinates are all zero' do
           before do
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3, api_response_with_zero_v3,
-                                                                     api_response_with_zero_v3, api_response_with_zero_v3)
+            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
+                                                                     api_response_with_zero_v3,
+                                                                     api_response_with_zero_v3,
+                                                                     api_response_with_zero_v3)
           end
 
           it 'does not update the representative address' do
