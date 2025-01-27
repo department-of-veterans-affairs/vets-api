@@ -5,10 +5,11 @@ module SimpleFormsApi
     attr_reader :form_number, :form_name, :first_name, :email, :date_submitted, :confirmation_number,
                 :lighthouse_updated_at, :notification_type
 
+    template_root = Settings.vanotify.services.va_gov.template_id
     TEMPLATE_IDS = {
-      confirmation: Settings.vanotify.services.va_gov.template_id.form_upload_confirmation_email,
-      error: Settings.vanotify.services.va_gov.template_id.form_upload_error_email,
-      received: Settings.vanotify.services.va_gov.template_id.form_upload_received_email
+      confirmation: template_root.form_upload_confirmation_email,
+      error: template_root.form_upload_error_email,
+      received: template_root.form_upload_received_email
     }.freeze
 
     SUPPORTED_FORMS = %w[21-0779 21-509 21P-0518-1 21P-0516-1].freeze
@@ -33,7 +34,7 @@ module SimpleFormsApi
       return unless template_id
 
       sent_to_va_notify = if at
-                            # enqueue_email(at, template_id)
+                            enqueue_email(at, template_id)
                           else
                             send_email_now(template_id)
                           end
@@ -61,16 +62,36 @@ module SimpleFormsApi
     end
 
     def send_email_now(template_id)
-      personalization = {
+      VANotify::EmailJob.perform_async(
+        email,
+        template_id,
+        get_personalization,
+        Settings.vanotify.services.va_gov.api_key,
+        { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+      )
+    end
+
+    def enqueue_email(at, template_id)
+      VANotify::EmailJob.perform_at(
+        at,
+        email,
+        template_id,
+        get_personalization,
+        Settings.vanotify.services.va_gov.api_key,
+        { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+      )
+    end
+
+    def get_personalization
+      {
         'first_name' => first_name&.titleize,
         'form_number' => form_number,
         'form_name' => form_name,
         'date_submitted' => date_submitted,
         'confirmation_number' => confirmation_number
-      }
-      personalization['lighthouse_updated_at'] = lighthouse_updated_at if lighthouse_updated_at
-
-      VANotify::EmailJob.perform_async(email, template_id, personalization)
+      }.tap do |personalization|
+        personalization['lighthouse_updated_at'] = lighthouse_updated_at if lighthouse_updated_at
+      end
     end
 
     def statsd_tags

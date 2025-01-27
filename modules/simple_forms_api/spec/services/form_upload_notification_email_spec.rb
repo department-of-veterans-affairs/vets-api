@@ -126,14 +126,30 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
         confirmation_number: 'confirmation-number', date_submitted: }
     end
 
-    it 'sends the email' do
-      allow(VANotify::EmailJob).to receive(:perform_async)
+    context 'send at time is not specified' do
+      it 'sends the email' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
 
-      subject = described_class.new(config, notification_type: :confirmation)
+        subject = described_class.new(config, notification_type: :confirmation)
 
-      subject.send
+        subject.send
 
-      expect(VANotify::EmailJob).to have_received(:perform_async)
+        expect(VANotify::EmailJob).to have_received(:perform_async)
+      end
+    end
+
+    context 'send at time is specified' do
+      it 'sends the email at the specified time' do
+        time = double
+        allow(VANotify::EmailJob).to receive(:perform_at)
+
+        subject = described_class.new(config, notification_type: :confirmation)
+
+        subject.send(at: time)
+
+        expect(VANotify::EmailJob).to have_received(:perform_at).with(time, anything, anything, anything, anything,
+                                                                      anything)
+      end
     end
   end
 end
