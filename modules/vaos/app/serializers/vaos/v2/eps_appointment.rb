@@ -8,7 +8,7 @@ module VAOS
         referral_details = params[:referral]
 
         @id = params[:id]&.to_s
-        @status = determine_status(appointment_details[:status])
+        @status = appointment_details[:status],
         @patient_icn = params[:patient_id]
         @created = appointment_details[:last_retrieved]
         @location_id = params[:network_id]
@@ -22,7 +22,7 @@ module VAOS
       def serializable_hash
         {
           id: @id,
-          status: @status,
+          status: determine_status(@status),
           patient_icn: @patient_icn,
           created: @created,
           location_id: @location_id,
@@ -37,7 +37,7 @@ module VAOS
       private
 
       def determine_status(status)
-        status ? 'booked' : 'proposed'
+        status || 'proposed'
       end
     end
   end
