@@ -4,30 +4,49 @@ require 'rails_helper'
 
 RSpec.describe UserAction, type: :model do
   describe 'validations' do
-    let(:user_action) { build(:user_action) }
-
-    it 'is valid with valid attributes' do
-      expect(user_action).to be_valid
+    let(:acting_ip_address) { Faker::Internet.ip_v4_address }
+    let(:acting_user_agent) { Faker::Internet.user_agent }
+    let(:acting_user_verification) { build(:user_verification) }
+    let(:user_action) do
+      build(:user_action,
+            acting_ip_address: acting_ip_address,
+            acting_user_agent: acting_user_agent,
+            acting_user_verification: acting_user_verification)
     end
 
-    it 'is valid with nil acting_ip_address' do
-      user_action.acting_ip_address = nil
-      expect(user_action).to be_valid
+    context 'when attributes are valid' do
+      it 'is valid' do
+        expect(user_action).to be_valid
+      end
     end
 
-    it 'is valid with nil acting_user_agent' do
-      user_action.acting_user_agent = nil
-      expect(user_action).to be_valid
+    context 'when acting_ip_address is nil' do
+      let(:acting_ip_address) { nil }
+
+      it 'is valid' do
+        expect(user_action).to be_valid
+      end
     end
 
-    it 'is valid without acting_user_verification' do
-      user_action.acting_user_verification = nil
-      expect(user_action).to be_valid
+    context 'when acting_user_agent is nil' do
+      let(:acting_user_agent) { nil }
+
+      it 'is valid' do
+        expect(user_action).to be_valid
+      end
+    end
+
+    context 'when acting_user_verification is nil' do
+      let(:acting_user_verification) { nil }
+
+      it 'is valid' do
+        expect(user_action).to be_valid
+      end
     end
 
     describe '#status' do
       context 'when nil' do
-        before { user_action.status = nil }
+        let(:user_action) { build(:user_action, status: nil) }
 
         it 'is not valid' do
           expect(user_action).not_to be_valid
@@ -43,7 +62,7 @@ RSpec.describe UserAction, type: :model do
 
       %w[initial success error].each do |valid_status|
         context "when status is #{valid_status}" do
-          before { user_action.status = valid_status }
+          let(:user_action) { build(:user_action, status: valid_status) }
 
           it 'is valid' do
             expect(user_action).to be_valid
