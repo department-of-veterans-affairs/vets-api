@@ -30,7 +30,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   let(:time) { '2024-12-21T04:45:37.000Z' }
   let(:time_plus_one_day) { '2024-12-22T04:45:37.000Z' }
   let(:expires_at) { '2025-02-19T04:45:37.000Z' }
-  
+
   let(:poa_requests) do
     [].tap do |memo|
       memo <<
