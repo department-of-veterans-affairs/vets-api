@@ -168,9 +168,9 @@ module Lighthouse
 
       def update_evidence_submission_for_success(job_id, response)
         evidence_submission = EvidenceSubmission.find_by(job_id:)
-        request_successful = response.body['data']['success']
+        request_successful = response.body.dig('data', 'success')
         if request_successful
-          request_id = response.body['data']['requestId']
+          request_id = response.body.dig('data', 'requestId')
           evidence_submission.update(
             upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
             request_id:

@@ -53,6 +53,10 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   end
   let(:file) { Rails.root.join('spec', 'fixtures', 'files', file_name).read }
 
+  def mock_response(status:, body:)
+    instance_double(Faraday::Response, status:, body:)
+  end
+
   context 'when :cst_send_evidence_submission_failure_emails is enabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
@@ -68,12 +72,15 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
       end
       let(:response) do
-        {
-          data: {
-            success: true,
-            requestId: '12345678'
+        mock_response(
+          status: 200,
+          body: {
+            'data' => {
+              'success' => true,
+              'requestId' => 1234
+            }
           }
-        }
+        )
       end
       let(:message) { "#{job_class} EvidenceSubmission updated" }
       let(:evidence_submission_pending) do
@@ -99,7 +106,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         # After running DocumentUpload job, there should be an updated EvidenceSubmission record
         # with the response request_id
         new_evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
-        expect(new_evidence_submission.request_id).to eql(response.dig(:data, :requestId))
+        expect(new_evidence_submission.request_id).to eql(response.body.dig('data', 'requestId').to_s)
         expect(new_evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
       end
     end
