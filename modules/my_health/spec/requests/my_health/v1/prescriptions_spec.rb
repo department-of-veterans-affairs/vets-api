@@ -108,6 +108,48 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(item_index).not_to be_nil
       end
 
+      context 'pending medications' do
+        before do
+          Flipper.enable('mhv_medications_display_pending_meds')
+        end
+
+        it 'responds to GET #index with pending meds included in list' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_prescriptions_w_pending_meds') do
+            get '/my_health/v1/prescriptions?page=1&per_page=99'
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+          expect(JSON.parse(response.body)['data']).to be_truthy
+
+          pending_med = (JSON.parse(response.body)['data']).find do |rx|
+            rx['attributes']['prescription_source'] == 'PD'
+          end
+
+          expect(pending_med).to be_truthy
+        end
+
+        Flipper.disable('mhv_medications_display_pending_meds')
+      end
+
+      it 'responds to GET #index with pending meds not included in list' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_prescriptions_w_pending_meds') do
+          get '/my_health/v1/prescriptions?page=1&per_page=99'
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+        expect(JSON.parse(response.body)['data']).to be_truthy
+
+        pending_med = (JSON.parse(response.body)['data']).find do |rx|
+          rx['attributes']['prescription_source'] == 'PD'
+        end
+
+        expect(pending_med).to be_falsey
+      end
+
       context 'grouping medications' do
         before do
           Flipper.enable('mhv_medications_display_grouping')
