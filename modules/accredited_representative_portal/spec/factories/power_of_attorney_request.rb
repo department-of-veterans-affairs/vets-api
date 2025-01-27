@@ -6,7 +6,6 @@ FactoryBot.define do
     association :power_of_attorney_form, strategy: :build
 
     association :power_of_attorney_holder, factory: %i[accredited_organization with_representatives], strategy: :create
-    accredited_individual { power_of_attorney_holder.accredited_individuals.first }
 
     transient do
       resolution_created_at { nil }
