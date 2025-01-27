@@ -26,18 +26,18 @@ module Eps
 
         @app.call(env).on_complete do |response_env|
           if response_env.status.between?(200, 299)
-            log(:info, 'EPS service call succeeded!', log_tags(env, start_time, response_env))
+            log(:info, 'Eps service call succeeded!', log_tags(env, start_time, response_env))
           elsif response_env.status == 400 # 400 error resp at times contain PII/PHI so we don't want the err msg logged
             statsd_increment("#{STATSD_KEY_PREFIX}.fail", env)
-            log(:warn, 'EPS service call failed!', log_tags(env, start_time, response_env))
+            log(:warn, 'Eps service call failed!', log_tags(env, start_time, response_env))
           else
             statsd_increment("#{STATSD_KEY_PREFIX}.fail", env)
-            log(:warn, 'EPS service call failed!', log_error_tags(env, start_time, response_env))
+            log(:warn, 'Eps service call failed!', log_error_tags(env, start_time, response_env))
           end
         end
       rescue Timeout::Error, Faraday::TimeoutError, Faraday::ConnectionFailed => e
         statsd_increment("#{STATSD_KEY_PREFIX}.fail", env, e)
-        log(:warn, "EPS service call failed - #{e.message}", log_tags(env, start_time))
+        log(:warn, "Eps service call failed - #{e.message}", log_tags(env, start_time))
         raise
       end
 
@@ -49,7 +49,7 @@ module Eps
           jti: jti(env),
           status: response_env&.status,
           duration: Time.current - start_time,
-          # service_name: service_name || 'EPS Generic', # Need to figure out a clean way to do this with headers
+          # service_name: service_name || 'Eps Generic', # Need to figure out a clean way to do this with headers
           url: "(#{env.method.upcase}) #{anon_uri}"
         }
       end
