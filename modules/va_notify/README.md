@@ -65,7 +65,7 @@ This class defaults to using the va.gov service's api key but you can provide yo
 Api keys need to be structured using the following format:
 `NAME_OF_API_KEY-YOUR_SERVICE_UUID-API_KEY`
 
-- `NAME_OF_API_KEY` - VANotify's internal name for your api key (will be provided with your API key)
+- `NAME_OF_API_KEY` - VANotify's internal name for your api key (Usually provided with key; if not, see [below](#name-of-api-key))
 - `YOUR_SERVICE_ID` - The UUID corresponding to your service
 - `API_KEY` - Actual API key
 
@@ -77,9 +77,17 @@ Example for a service with the following attributes:
 
 Expected format: `foo-bar-normal-key-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb`
 
+#### Name of API Key
+
+The value to use for the `NAME_OF_API_KEY` is typically provided when the API Key is issued.
+
+If this value is not known, please reach out via [#va-notify-public](https://dsva.slack.com/archives/C010R6AUPHT) and request the "api key name and type" and share a service_id in you request.
+
+Once a name and type is shared, details regarding API key type can be found in the VANotify Portal under `/developers/technical_information`
+
 Please reach out via [#va-notify-public](https://dsva.slack.com/archives/C010R6AUPHT) if you have any questions.
 
-#### Misc
+### Misc
 
 ICNs are considered PII and therefore should not be logged or stored. https://depo-platform-documentation.scrollhelp.site/developer-docs/personal-identifiable-information-pii-guidelines#PersonalIdentifiableInformation(PII)guidelines-NotesandpoliciesregardingICNs
 
