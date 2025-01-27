@@ -138,7 +138,7 @@ module Representatives
           address_line2: get_value(row, column_map, 'WorkAddress2'),
           address_line3: get_value(row, column_map, 'WorkAddress3'),
           city: get_value(row, column_map, 'WorkCity'),
-          state_province: { code: get_value(row, column_map, 'WorkState') },
+          state: { state_code: get_value(row, column_map, 'WorkState') },
           zip_code5:,
           zip_code4:,
           country_code_iso3: 'US'
