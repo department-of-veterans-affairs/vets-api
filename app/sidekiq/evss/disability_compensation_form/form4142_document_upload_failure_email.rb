@@ -10,6 +10,13 @@ module EVSS
       STATSD_METRIC_PREFIX = 'api.form_526.veteran_notifications.form4142_upload_failure_email'
       ZSF_DD_TAG_FUNCTION  = '526_form_4142_upload_failure_email_sending'
 
+      VA_NOTIFY_CALLBACK_OPTIONS = {
+        callback_metadata: {
+          notification_type: 'error',
+          form_number: 'form526',
+          statsd_tags: { service: 'disability-application', function: ZSF_DD_TAG_FUNCTION }
+        }
+      }.freeze
       # retry for  2d 1h 47m 12s
       # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
       sidekiq_options retry: 16
@@ -78,16 +85,8 @@ module EVSS
         form526_submission = Form526Submission.find(form526_submission_id)
 
         with_tracking('Form4142DocumentUploadFailureEmail', form526_submission.saved_claim_id, form526_submission_id) do
-
-          callback_options = {
-            callback_metadata: {
-              notification_type: 'error',
-              form_number: 'form526',
-              statsd_tags: { service: 'disability-application', function: ZSF_DD_TAG_FUNCTION }
-            }
-          }
-
-          notify_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key, callback_options)
+          notify_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key,
+                                                VA_NOTIFY_CALLBACK_OPTIONS)
 
           email_address = form526_submission.veteran_email_address
           first_name = form526_submission.get_first_name
@@ -121,7 +120,7 @@ module EVSS
         raise error
       end
 
-      def log_mailer_dispatch(form526_submission_id, email_response = {})
+      def log_mailer_dispatch(form526_submission_id, _email_response = {})
         log_info = { form526_submission_id:, timestamp: Time.now.utc }
         Rails.logger.info('Form4142DocumentUploadFailureEmail notification dispatched', log_info)
 
