@@ -88,9 +88,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'expires_at' => (Time.zone.parse(time) + 60.days).iso8601(3),
             'power_of_attorney_form' => veteran_claimant_power_of_attorney_form,
             'power_of_attorney_holder' => {
-              'id' => 'TODO: implement',
+              'id' => poa_requests[0].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
-              'name' => poa_requests[0].power_of_attorney_holder.name
+              'name' => 'TODO: implement'
             },
             'resolution' => nil
           },
