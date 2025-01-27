@@ -12197,14 +12197,40 @@
                     "id": "38b49aa2-1163-4b42-9bc1-331a42404117",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-12-16",
-                      "previousPoa": null,
+                      "createdAt": "2025-01-23T01:09:57.718Z",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
                         }
                       },
-                      "status": "pending"
+                      "status": "pending",
+                      "errors": [],
+                      "steps": [
+                        {
+                          "type": "PDF_SUBMISSION",
+                          "status": "NOT_STARTED",
+                          "completedAt": null,
+                          "nextStep": "POA_UPDATE"
+                        },
+                        {
+                          "type": "POA_UPDATE",
+                          "status": "NOT_STARTED",
+                          "completedAt": null,
+                          "nextStep": "POA_ACCESS_UPDATE"
+                        },
+                        {
+                          "type": "POA_ACCESS_UPDATE",
+                          "status": "NOT_STARTED",
+                          "completedAt": null,
+                          "nextStep": "CLAIMANT_NOTIFICATION"
+                        },
+                        {
+                          "type": "CLAIMANT_NOTIFICATION",
+                          "status": "NOT_STARTED",
+                          "completedAt": null,
+                          "nextStep": null
+                        }
+                      ]
                     }
                   }
                 },
@@ -12236,7 +12262,7 @@
                           "additionalProperties": false,
                           "required": [
                             "status",
-                            "dateRequestAccepted",
+                            "createdAt",
                             "representative"
                           ],
                           "properties": {
@@ -12250,10 +12276,74 @@
                                 "errored"
                               ]
                             },
-                            "dateRequestAccepted": {
+                            "createdAt": {
                               "type": "string",
                               "description": "Date request was first accepted",
                               "format": "date"
+                            },
+                            "errors": {
+                              "type": "array",
+                              "description": "Error details if applicable",
+                              "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                  "title": {
+                                    "type": "string"
+                                  },
+                                  "detail": {
+                                    "type": "string"
+                                  },
+                                  "code": {
+                                    "type": "string",
+                                    "enum": [
+                                      "PDF_SUBMISSION",
+                                      "POA_UPDATE",
+                                      "POA_ACCESS_UPDATE",
+                                      "CLAIMANT_NOTIFICATION"
+                                    ]
+                                  }
+                                }
+                              }
+                            },
+                            "steps": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "PDF_SUBMISSION",
+                                      "POA_UPDATE",
+                                      "POA_ACCESS_UPDATE",
+                                      "CLAIMANT_NOTIFICATION"
+                                    ]
+                                  },
+                                  "status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "NOT_STARTED",
+                                      "IN_PROGRESS",
+                                      "SUCCESS",
+                                      "FAILED"
+                                    ]
+                                  },
+                                  "completedAt": {
+                                    "type": "string",
+                                    "format": "date"
+                                  },
+                                  "nextStep": {
+                                    "type": "string",
+                                    "enum": [
+                                      "POA_UPDATE",
+                                      "POA_ACCESS_UPDATE",
+                                      "CLAIMANT_NOTIFICATION"
+                                    ]
+                                  }
+                                }
+                              }
                             },
                             "representative": {
                               "type": "object",
@@ -12276,11 +12366,6 @@
                                   }
                                 }
                               }
-                            },
-                            "previousPoa": {
-                              "type": "string",
-                              "nullable": true,
-                              "description": "Current or Previous Power of Attorney Code submitted for Veteran"
                             }
                           }
                         }
