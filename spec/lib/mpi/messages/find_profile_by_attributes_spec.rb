@@ -12,7 +12,6 @@ describe MPI::Messages::FindProfileByAttributes do
                           birth_date:,
                           ssn:,
                           gender:,
-                          orch_search:,
                           edipi:,
                           search_type:).perform
     end
@@ -23,7 +22,6 @@ describe MPI::Messages::FindProfileByAttributes do
     let(:birth_date) { '10-1-2020' }
     let(:gender) { 'some-gender' }
     let(:ssn) { 'some-ssn' }
-    let(:orch_search) { 'some-orch_search' }
     let(:edipi) { 'some-edipi' }
     let(:search_type) { 'some-search-type' }
 
@@ -68,39 +66,11 @@ describe MPI::Messages::FindProfileByAttributes do
 
         it_behaves_like 'missing required fields response'
       end
-
-      context 'when edipi is not present' do
-        let(:edipi) { nil }
-        let(:missing_value) { :edipi }
-
-        context 'and orch_search is set to true' do
-          let(:orch_search) { true }
-
-          it_behaves_like 'missing required fields response'
-        end
-
-        context 'and orch_search is set to false' do
-          let(:orch_search) { false }
-
-          it 'does not raise an error' do
-            expect { subject }.not_to raise_error
-          end
-        end
-      end
     end
 
     context 'with a valid set of parameters' do
       let(:idm_path) { 'env:Envelope/env:Body/idm:PRPA_IN201305UV02' }
       let(:parameter_list_path) { "#{idm_path}/controlActProcess/queryByParameter/parameterList" }
-
-      context 'when orch_search is set to true' do
-        it 'has orchestration related params' do
-          expect(subject).to eq_text_at_path(
-            "#{parameter_list_path}/otherIDsScopingOrganization/semanticsText",
-            'MVI.ORCHESTRATION'
-          )
-        end
-      end
 
       it 'has a USDSVA extension with a uuid' do
         expect(subject).to match_at_path("#{idm_path}/id/@extension", /200VGOV-\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/)

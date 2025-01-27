@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pension_burial/tag_sentry'
 require 'common/exceptions/validation_errors'
 
 module Burials
@@ -23,8 +22,6 @@ module Burials
       end
 
       def create
-        PensionBurial::TagSentry.tag_sentry
-
         claim = claim_class.new(form: filtered_params[:form])
         monitor.track_create_attempt(claim, current_user)
 
