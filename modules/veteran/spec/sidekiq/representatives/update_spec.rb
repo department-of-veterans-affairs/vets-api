@@ -160,8 +160,8 @@ RSpec.describe Representatives::Update do
             address_line2: 'abc',
             address_line3: 'abc',
             city: 'abc',
-            state_province: {
-              code: 'abc'
+            state: {
+              state_code: 'abc'
             },
             zip_code5: 'abc',
             zip_code4: 'abc',

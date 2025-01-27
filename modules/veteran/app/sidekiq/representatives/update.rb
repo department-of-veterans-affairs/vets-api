@@ -70,23 +70,19 @@ module Representatives
     # @param address [Hash] A hash containing the details of the representative's address.
     # @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
     def build_validation_address(address)
-      if Flipper.enabled?(:va_v3_contact_information_service)
-        validation_model = VAProfile::Models::V3::ValidationAddress
-        state_code = address['state_province']['code']
-        city = address['city_name']
-      else
-        validation_model = VAProfile::Models::ValidationAddress
-        state_code = address['state_province']['code']
-        city = address['city']
-      end
+      validation_model = if Flipper.enabled?(:va_v3_contact_information_service)
+                           VAProfile::Models::V3::ValidationAddress
+                         else
+                           VAProfile::Models::ValidationAddress
+                         end
 
       validation_model.new(
         address_pou: address['address_pou'],
         address_line1: address['address_line1'],
         address_line2: address['address_line2'],
         address_line3: address['address_line3'],
-        city: city,
-        state_code: state_code,
+        city: address['city'],
+        state_code: address['state']['state_code'],
         zip_code: address['zip_code5'],
         zip_code_suffix: address['zip_code4'],
         country_code_iso3: address['country_code_iso3']
@@ -295,6 +291,10 @@ module Representatives
     # @param rep_address [Hash] the address provided by OGC
     # @return [Hash, Nil] the response from the address validation service
     def get_best_address_candidate(rep_address)
+      if rep_address.nil?
+        log_error('In #get_best_address_candidate, rep_address is nil')
+        return nil
+      end
       candidate_address = build_validation_address(rep_address)
       original_response = validate_address(candidate_address)
       return nil unless address_valid?(original_response)
@@ -312,6 +312,8 @@ module Representatives
       else
         original_response
       end
+    rescue => e
+      log_error("In #get_best_address_candidate, address: #{rep_address}, error message: #{e.message}")
     end
   end
 end
