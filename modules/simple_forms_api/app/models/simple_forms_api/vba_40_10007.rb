@@ -97,83 +97,6 @@ module SimpleFormsApi
       end
     end
 
-    SERVICE_LABELS = {
-      'AC' => 'U.S. Army Air Corps',
-      'AF' => 'U.S. Air Force',
-      'AR' => 'U.S. Army',
-      'CG' => 'U.S. Coast Guard',
-      'CV' => 'Civilian, Wake Island Naval Air Station',
-      'FP' => 'Civilian Ferry Pilot',
-      'MM' => 'U.S. Merchant Marine',
-      'PH' => 'U.S. Public Health Service',
-      'NN' => 'U.S. Navy Nurse Corps',
-      'WA' => 'Women’s Army Auxiliary Corps',
-      'WS' => 'Women’s Army Corps',
-      'CF' => 'Royal Canadian Air Force',
-      'RO' => 'Army, Navy, or Air Force ROTC',
-      'CA' => 'U.S. Citizen, Served with Allies (WWII)',
-      'WR' => 'Women’s Reserve (Navy, Marine Corps, Coast Guard)',
-      'CS' => 'Civilian, Strategic Service (OSS)',
-      'KC' => 'Quartermaster Corps, Keswick Crew (WWII)',
-      'CB' => 'Defense of Bataan (WWII)',
-      'CO' => 'U.S. Army Transport Service',
-      'CI' => 'Civilian, Identification Friend or Foe (IFF) Technician',
-      'CC' => 'U.S. Civilian AFS Volunteer (WWII)',
-      'GS' => 'Civilian Crew, U.S. Coast and Geodetic Survey Vessels',
-      'FT' => 'American Volunteers Flying Tigers',
-      'CE' => 'Royal Canadian Corps of Signals',
-      'C2' => 'Civilian Air Transport Command (United)',
-      'C3' => 'Civilian Air Transport Command (TWA)',
-      'C4' => 'Civilian Air Transport Command (Vultee)',
-      'C5' => 'Civilian Air Transport Command (American)',
-      'C7' => 'Civilian Air Transport Command (Northwest)',
-      'CD' => 'U.S. Navy Transport Service',
-      'NM' => 'Non-Military Civilian',
-      'AL' => 'Allied Forces',
-      'AA' => 'U.S. Army Air Forces',
-      'AT' => 'U.S. Army Air Forces (Air Transport Command)',
-      'GP' => 'Guam Combat Patrol',
-      'MC' => 'U.S. Marine Corps',
-      'NA' => 'U.S. Navy',
-      'NO' => 'National Oceanic and Atmospheric Admin.',
-      'PS' => 'Philippine Scouts',
-      'CM' => 'Cadet or Midshipman',
-      'WP' => 'Women Air Force Service Pilots',
-      'GU' => 'Wake Island Defender (Guam)',
-      'MO' => 'U.S Merchant Seamen, Operation Mulberry (WWII)',
-      'FS' => 'American Field Service',
-      'ES' => 'American Volunteer Guard',
-      'FF' => 'Foreign Forces',
-      'GC' => 'U.S. Coast and Geodetic Survey',
-      'PA' => 'Philippine Army',
-      'AG' => 'U.S. Air National Guard',
-      'NG' => 'U.S. Army National Guard',
-      'PG' => 'Philippine Guerilla',
-      'XA' => 'U.S. Navy Reserve',
-      'XR' => 'U.S. Army Reserve',
-      'XF' => 'U.S. Air Force Reserve',
-      'XC' => 'U.S. Marine Corps Reserve',
-      'XG' => 'Coast Guard Reserve'
-    }.freeze
-
-    def get_service_label(key)
-      SERVICE_LABELS[key]
-    end
-
-    DISCHARGE_TYPE = {
-      '1' => 'Honorable',
-      '2' => 'General',
-      '3' => 'Entry Level Separation/Uncharacterized',
-      '4' => 'Other Than Honorable',
-      '5' => 'Bad Conduct',
-      '6' => 'Dishonorable',
-      '7' => 'Other'
-    }.freeze
-
-    def get_discharge_label(key)
-      DISCHARGE_TYPE[key]
-    end
-
     RELATIONSHIP_TO_VETS = {
       '1' => 'Is veteran',
       '2' => 'Spouse or surviving spouse',
@@ -181,45 +104,8 @@ module SimpleFormsApi
       '4' => 'Other'
     }.freeze
 
-    ETHNICITY_VALUES = {
-      'isSpanishHispanicLatino' => 'Hispanic or Latino',
-      'notSpanishHispanicLatino' => 'Not Hispanic or Latino',
-      'unknown' => 'Unknown',
-      'na' => 'Prefer not to answer'
-    }.freeze
-
-    MILITARY_STATUS = {
-      'A' => 'Active duty',
-      'S' => 'Reserve/National Guard',
-      'R' => 'Retired',
-      'E' => 'Retired active duty',
-      'O' => 'Retired Reserve/National Guard',
-      'V' => 'Veteran',
-      'X' => 'Other',
-      'I' => 'Death related to inactive duty training',
-      'D' => 'Died on active duty'
-    }.freeze
-
-    GENDER = {
-      'Male' => 'Male',
-      'Female' => 'Female',
-      'na' => 'Prefer not to answer'
-    }.freeze
-
     def get_relationship_to_vet(key)
       RELATIONSHIP_TO_VETS[key]
-    end
-
-    def get_ethnicity_labels(key)
-      ETHNICITY_VALUES[key]
-    end
-
-    def get_military_status(key)
-      MILITARY_STATUS[key]
-    end
-
-    def get_gender(key)
-      GENDER[key]
     end
 
     def create_attachment_page(file_path)
