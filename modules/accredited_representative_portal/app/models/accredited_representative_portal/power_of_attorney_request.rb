@@ -26,8 +26,10 @@ module AccreditedRepresentativePortal
                polymorphic: true
 
     belongs_to :organization, class_name: 'Veteran::Service::Organization', foreign_key: :power_of_attorney_holder_poa_code, primary_key: :poa
+    belongs_to :accredited_individual, class_name: 'Veteran::Service::Representative', foreign_key: :accredited_individual_registration_number, primary_key: :representative_id
 
-    default_scope { includes(:organization) }
+    # include organization and accredited_individual in default scope
+    default_scope { includes(:organization, :accredited_individual) }
     
     before_validation :set_claimant_type
 
