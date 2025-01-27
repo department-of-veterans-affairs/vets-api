@@ -684,6 +684,7 @@ app/sidekiq/vre/create_ch31_submissions_report_job.rb @department-of-veterans-af
 app/sidekiq/vre/submit1900_job.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/webhooks @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 bin @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+bin/merge_imagemagick_policy @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 clamav_tmp @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/application.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/betamocks @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -738,6 +739,7 @@ config/form_profile_mappings/FORM-UPLOAD-FLOW.yml @department-of-veterans-affair
 config/form_profile_mappings/MDOT.yml @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 config/freshclam.conf @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/health_care_application @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+config/imagemagick/policies/new-policy.xml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/01_redis.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/aal.rb @department-of-veterans-affairs/octo-identity
 config/initializers/add_local_config.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
