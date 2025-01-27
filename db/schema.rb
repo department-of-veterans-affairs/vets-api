@@ -309,8 +309,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_21_164657) do
     t.string "claimant_type", null: false
     t.string "power_of_attorney_holder_type", null: false
     t.uuid "power_of_attorney_holder_id", null: false
-    t.string "ogc_registration_number"
-    t.string "ogc_poa_code"
+    t.string "accredited_individual_registration_number"
+    t.string "power_of_attorney_holder_poa_code"
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
     t.index ["power_of_attorney_holder_type", "power_of_attorney_holder_id"], name: "index_ar_power_of_attorney_requests_on_power_of_attorney_holder"
   end
