@@ -136,27 +136,27 @@ RSpec.describe Form526StatusPollingJob, type: :job do
         end
 
         # if a backup submission hits paranoid_success!, it should send the received email to the Veteran
-        context "when disability_526_send_received_email_from_backup_path is enabled" do
+        context 'when disability_526_send_received_email_from_backup_path is enabled' do
           before do
             allow(Flipper).to receive(:enabled?)
-                                .with(:disability_526_send_received_email_from_backup_path)
-                                .and_return(true)
+              .with(:disability_526_send_received_email_from_backup_path)
+              .and_return(true)
           end
 
-          it "behaves sends the received email" do
+          it 'behaves sends the received email' do
             expect(Form526ConfirmationEmailJob).to receive(:perform_async).once
             Form526StatusPollingJob.new.perform
           end
         end
 
-        context "when disability_526_send_received_email_from_backup_path is disabled" do
+        context 'when disability_526_send_received_email_from_backup_path is disabled' do
           before do
             allow(Flipper).to receive(:enabled?)
-                                .with(:disability_526_send_received_email_from_backup_path)
-                                .and_return(false)
+              .with(:disability_526_send_received_email_from_backup_path)
+              .and_return(false)
           end
 
-          it "behaves does not send the received email" do
+          it 'behaves does not send the received email' do
             expect(Form526ConfirmationEmailJob).not_to receive(:perform_async)
             Form526StatusPollingJob.new.perform
           end
