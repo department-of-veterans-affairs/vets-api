@@ -21,23 +21,23 @@ module ClaimsApi
       if response[:return_code] == 'BMOD0001'
         # Clear out the error message if there were previous failures
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
+        poa_form.save
+        process.update!(step_status: 'SUCCESS', error_messages: [])
 
         ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Success')
 
         ClaimsApi::VANotifyAcceptedJob.perform_async(poa_form.id, rep_id) if vanotify?(poa_form.auth_headers, rep_id)
 
         ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id)
-
-        process.update!(step_status: 'SUCCESS')
       else
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
         poa_form.vbms_error_message = "BGS Error: update_birls_record failed with code #{response[:return_code]}"
+        poa_form.save
+        process.update!(step_status: 'FAILED',
+                        error_messages: [{ title: 'BGS Error',
+                                           detail: poa_form.vbms_error_message }])
         ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Failed', error: response[:return_code])
-
-        process.update!(step_status: 'FAILED')
       end
-
-      poa_form.save
     end
 
     private
