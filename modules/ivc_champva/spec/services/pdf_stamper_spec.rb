@@ -6,7 +6,95 @@ require IvcChampva::Engine.root.join('spec', 'spec_helper.rb')
 describe IvcChampva::PdfStamper do
   let(:data) { JSON.parse(File.read("modules/ivc_champva/spec/fixtures/form_json/#{test_payload}.json")) }
   let(:form) { "IvcChampva::#{test_payload.titleize.gsub(' ', '')}".constantize.new(data) }
-  let(:path) { 'tmp/stuff.json' }
+  let(:template_path) { "modules/ivc_champva/templates/#{test_payload}.pdf" }
+  let(:path) { 'tmp/pii_stuff.pdf' }
+
+  describe '.stamp_pdf' do
+    subject(:stamp_pdf) { described_class.stamp_pdf(path, form, 2) }
+
+    let(:test_payload) { 'vha_10_10d' }
+
+    before do
+      FileUtils.copy(template_path, path)
+      allow(described_class.send(:monitor)).to receive(:track_pdf_stamper_error)
+    end
+
+    after do
+      File.delete(path) if File.exist?(path)
+    end
+
+    context 'when everything works fine' do
+      before do
+        allow(described_class).to receive(:stamp_signature).and_return(nil)
+        allow(described_class).to receive(:stamp_auth_text).and_return(nil)
+        allow(described_class).to receive(:stamp_submission_date).and_return(nil)
+      end
+
+      it 'does not raise any errors' do
+        expect { stamp_pdf }.not_to raise_error
+        expect(described_class).to have_received(:stamp_signature).with(path, form)
+        expect(described_class).to have_received(:stamp_auth_text).with(path, 2)
+        expect(described_class).to have_received(:stamp_submission_date).with(path, form.submission_date_stamps)
+      end
+    end
+
+    context 'when the file at the stamped_template_path is missing' do
+      before do
+        File.delete(path) if File.exist?(path)
+      end
+
+      it 'raises an exception' do
+        expect { stamp_pdf }.to raise_error(StandardError, "stamped template file does not exist: #{path}")
+      end
+    end
+
+    context 'when stamping raises a PdfForms::PdftkError' do
+      before do
+        allow(described_class).to receive(:stamp_signature).and_return(nil)
+        allow(described_class).to receive(:stamp_auth_text).and_raise(PdfForms::PdftkError, 'pdftk error pii_stuff.pdf')
+        allow(described_class).to receive(:stamp_submission_date).and_return(nil)
+      end
+
+      it 'logs it with no PII and raises a PdfForms::PdftkError' do
+        expect { stamp_pdf }.to raise_error(PdfForms::PdftkError, 'pdftk error pii_stuff.pdf')
+        expect(described_class.monitor).to have_received(:track_pdf_stamper_error) do |_, message|
+          expect(message).to include('PdftkError:')
+          expect(message).not_to include('pii_stuff')
+        end
+      end
+    end
+
+    context 'when stamping raises a SystemCallError such as Errno::ENOENT' do
+      before do
+        allow(described_class).to receive(:stamp_signature).and_raise(Errno::ENOENT, 'pii_stuff.pdf')
+        allow(described_class).to receive(:stamp_auth_text).and_return(nil)
+        allow(described_class).to receive(:stamp_submission_date).and_return(nil)
+      end
+
+      it 'logs it with no PII and raises a Errno::ENOENT' do
+        expect { stamp_pdf }.to raise_error(Errno::ENOENT, 'No such file or directory - pii_stuff.pdf')
+        expect(described_class.monitor).to have_received(:track_pdf_stamper_error) do |_, message|
+          expect(message).to include('SystemCallError:')
+          expect(message).not_to include('pii_stuff')
+        end
+      end
+    end
+
+    context 'when stamping raises a StandardError' do
+      before do
+        allow(described_class).to receive(:stamp_signature).and_return(nil)
+        allow(described_class).to receive(:stamp_auth_text).and_raise(StandardError, 'oh no')
+        allow(described_class).to receive(:stamp_submission_date).and_return(nil)
+      end
+
+      it 'logs it with no PII and raises a PdfForms::PdftkError' do
+        expect { stamp_pdf }.to raise_error(StandardError, 'oh no')
+        expect(described_class.monitor).to have_received(:track_pdf_stamper_error) do |_, message|
+          expect(message).to include('CatchAll:')
+        end
+      end
+    end
+  end
 
   describe '.stamp_signature' do
     subject(:stamp_signature) { described_class.stamp_signature(path, form) }

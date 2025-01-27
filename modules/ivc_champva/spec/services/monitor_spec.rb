@@ -105,5 +105,29 @@ RSpec.describe IvcChampva::Monitor do
         )
       end
     end
+
+    # TODO test track_s3_upload_error
+
+    describe '#track_pdf_stamper_error' do
+      it 'calls track_request with the correct parameters' do
+        form_uuid = '12345678-1234-5678-1234-567812345678',
+          err_message = 'oh no'
+
+        additional_context = {
+          form_uuid: form_uuid,
+          err_message: err_message
+        }
+
+        expect(monitor).to receive(:track_request).with(
+          'warn',
+          "IVC ChampVa Forms - an error occurred during pdf stamping: #{form_uuid}",
+          "#{IvcChampva::Monitor::STATS_KEY}.pdf_stamper_error",
+          call_location: anything,
+          **additional_context
+        )
+
+        monitor.track_pdf_stamper_error(form_uuid, err_message)
+      end
+    end
   end
 end

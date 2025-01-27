@@ -98,5 +98,17 @@ module IvcChampva
                     "#{STATS_KEY}.s3_upload_error",
                     call_location: caller_locations.first, **additional_context)
     end
+
+    ##
+    # Logs UUID and error message when an error occurs in pdf_stamper.rb
+    #
+    # @param [String] form_uuid UUID of the form submission with failed uploads
+    # @param [String] err_message Error message received
+    def track_pdf_stamper_error(form_uuid, err_message)
+      additional_context = { form_uuid:, err_message: }
+      track_request('warn', "IVC ChampVa Forms - an error occurred during pdf stamping: #{form_uuid}",
+                    "#{STATS_KEY}.pdf_stamper_error",
+                    call_location: caller_locations.first, **additional_context)
+    end
   end
 end
