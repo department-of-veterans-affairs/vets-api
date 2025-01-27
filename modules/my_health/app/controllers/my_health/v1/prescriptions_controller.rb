@@ -173,13 +173,16 @@ module MyHealth
 
       def resource_data_modifications(resource)
         # according to business logic filter for all medications is the only list that should contain PD meds
-        resource.data = if params[:filter].blank? && Flipper.enabled?(:mhv_medications_display_pending_meds, @current_user)
+        resource.data = if params[:filter].blank? &&
+                           Flipper.enabled?(:mhv_medications_display_pending_meds, @current_user)
                           resource.data.reject { |item| item.prescription_source.equal? 'PF' }
                         else
                           # TODO: remove this line when PF and PD are allowed on va.gov
                           resource.data = remove_pf_pd(resource.data)
                         end
-        resource.data = group_prescriptions(resource.data) if Flipper.enabled?(:mhv_medications_display_grouping, @current_user)
+        resource.data = if Flipper.enabled?(:mhv_medications_display_grouping, @current_user)
+                          group_prescriptions(resource.data)
+                        end
         resource.data = filter_non_va_meds(resource.data)
       end
 
