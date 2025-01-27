@@ -19,11 +19,10 @@ module ClaimsApi
         poa_code_from_form('2122a', poa)
         res = send_representative_notification(poa, rep)
       end
-      process.update!(step_status: 'SUCCESS')
+      process.update!(step_status: 'SUCCESS', error_messages: [])
       schedule_follow_up_check(res.id) if res.present?
     rescue => e
-      process.update!(step_status: 'FAILED')
-      handle_failure(poa_id, e)
+      handle_failure(poa_id, e, process)
     end
 
     # 2122a
@@ -38,9 +37,11 @@ module ClaimsApi
 
     private
 
-    def handle_failure(poa_id, error)
+    def handle_failure(poa_id, error, process)
       job_name = 'ClaimsApi::VANotifyAcceptedJob'
       msg = "VA Notify email notification failed to send for #{poa_id} with error #{error}"
+      process.update!(step_status: 'FAILED', error_messages: [{ title: 'VA Notify Error',
+                                                                detail: msg }])
       slack_alert_on_failure(job_name, msg)
 
       ClaimsApi::Logger.log(

@@ -27,14 +27,15 @@ module ClaimsApi
 
       if response[:return_code] == 'GUIE50000'
         poa_form.status = ClaimsApi::PowerOfAttorney::UPDATED
-        process.update!(step_status: 'SUCCESS')
+        process.update!(step_status: 'SUCCESS', error_messages: [])
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
         ClaimsApi::Logger.log('poa_vbms_updater', poa_id: power_of_attorney_id, detail: 'VBMS Success')
       else
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
-        process.update!(step_status: 'FAILED')
         poa_form.vbms_error_message = 'update_poa_access failed with code ' \
                                       "#{response[:return_code]}: #{response[:return_message]}"
+        process.update!(step_status: 'FAILED', error_messages: [{ title: 'BGS Error',
+                                                                  detail: poa_form.vbms_error_message }])
         ClaimsApi::Logger.log('poa_vbms_updater',
                               poa_id: power_of_attorney_id,
                               detail: 'VBMS Failed',
@@ -44,9 +45,11 @@ module ClaimsApi
       poa_form.save
     rescue BGS::ShareError => e
       poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
-      process.update!(step_status: 'FAILED')
       poa_form.vbms_error_message = e.respond_to?(:message) ? e.message : 'BGS::ShareError'
       poa_form.save
+      process.update!(step_status: 'FAILED',
+                      error_messages: [{ title: 'BGS Error',
+                                         detail: poa_form.vbms_error_message }])
       ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BGS Error', error: e)
     end
 
