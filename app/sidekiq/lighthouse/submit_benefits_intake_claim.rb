@@ -192,12 +192,14 @@ module Lighthouse
     def send_confirmation_email
       @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
 
-      return unless %w[21P-530EZ].include?(@claim&.form_id)
-
-      if Flipper.enabled?(:burial_submitted_email_notification)
-        send_submitted_email
-      else
-        Burials::NotificationEmail.new(@claim.id).deliver(:confirmation)
+      # handle custom Burials emails
+      if %w[21P-530EZ].include?(@claim&.form_id)
+        # send Burials Submission in Progress email or Burials Confirmation email
+        if Flipper.enabled?(:burial_submitted_email_notification)
+          send_submitted_email
+        else
+          Burials::NotificationEmail.new(@claim.id).deliver(:confirmation)
+        end
       end
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
