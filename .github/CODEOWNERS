@@ -2196,11 +2196,5 @@ spec/uploaders/form1010cg/poa_uploader_spec.rb @department-of-veterans-affairs/v
 spec/uploaders/supporting_evidence_attachment_uploader_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/uploaders/uploader_virus_scan_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/uploaders/validate_pdf_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/models/user_action.rb @department-of-veterans-affairs/octo-identity
-app/models/user_action_event.rb @department-of-veterans-affairs/octo-identity
-spec/factories/user_action_events.rb @department-of-veterans-affairs/octo-identity
-spec/factories/user_actions.rb @department-of-veterans-affairs/octo-identity
-spec/models/user_action_event_spec.rb @department-of-veterans-affairs/octo-identity
-spec/models/user_action_spec.rb @department-of-veterans-affairs/octo-identity
 spec/uploaders/simple_forms_api/ @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 # Place your entry above this comment in alphabetical order.
