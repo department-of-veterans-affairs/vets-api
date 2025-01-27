@@ -194,8 +194,6 @@ module ClaimsApi
 
           poa_requests = Array.wrap(res['poaRequestRespondReturnVOList'])
 
-          byebug
-
           matching_request = poa_requests.find { |poa_request| poa_request['procID'] == proc_id }
 
           detail = 'Participant ID/Process ID combination not found'
