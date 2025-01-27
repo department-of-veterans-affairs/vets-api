@@ -29,7 +29,7 @@ module SimpleFormsApi
                                                          'discharge_type')) || ''
         discharge_type_c = get_discharge_label(@data.dig('application', 'veteran', 'service_records', 2,
                                                          'discharge_type')) || ''
-        highest_rank_a = @data.dig('application', 'veteran', 'service_records', 0, 'highest_rank_') || ''
+        highest_rank_a = @data.dig('application', 'veteran', 'service_records', 0, 'highest_rank') || ''
         highest_rank_b = @data.dig('application', 'veteran', 'service_records', 1, 'highest_rank') || ''
         highest_rank_c = @data.dig('application', 'veteran', 'service_records', 2, 'highest_rank') || ''
         highest_rank_int_a = @data.dig('application', 'veteran', 'service_records', 0, 'highest_rank_description') || ''
