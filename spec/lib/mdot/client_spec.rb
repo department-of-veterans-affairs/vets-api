@@ -61,6 +61,34 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
+    context 'with a null permanent address value from system of record' do
+      it 'returns a valid response' do
+        VCR.use_cassette(
+          'mdot/get_supplies_null_perm_address_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          response = subject.get_supplies
+          expect(response).to be_ok
+          expect(response).to be_an MDOT::Response
+        end
+      end
+    end
+
+    context 'with a no permanent_address from system of record' do
+      it 'returns a valid response' do
+        VCR.use_cassette(
+          'mdot/get_supplies_no_perm_address_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          response = subject.get_supplies
+          expect(response).to be_ok
+          expect(response).to be_an MDOT::Response
+        end
+      end
+    end
+
     context 'with an unknown DLC service error' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/get_supplies_502') do
