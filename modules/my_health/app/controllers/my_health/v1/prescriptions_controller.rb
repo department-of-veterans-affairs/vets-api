@@ -35,15 +35,14 @@ module MyHealth
 
       def show
         id = params[:id].try(:to_i)
-        resource = if Flipper.enabled?(:mhv_medications_display_grouping)
-                     # TODO: remove remove_pf_pd when PF and PD are allowed on va.gov
-                     get_single_rx_from_grouped_list(remove_pf_pd(collection_resource.data), id)
+        resource = if Flipper.enabled?(:mhv_medications_display_grouping, current_user)
+                     get_single_rx_from_grouped_list(collection_resource.data, id)
                    else
                      client.get_rx_details(id)
                    end
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
 
-        options = if Flipper.enabled?(:mhv_medications_display_grouping)
+        options = if Flipper.enabled?(:mhv_medications_display_grouping, current_user)
                     { meta: client.get_rx_details(id).metadata }
                   else
                     { meta: resource.metadata }
@@ -171,8 +170,16 @@ module MyHealth
       end
 
       def resource_data_modifications(resource)
-        resource.data = remove_pf_pd(resource.data) # TODO: remove this line when PF and PD are allowed on va.gov
-        resource.data = group_prescriptions(resource.data) if Flipper.enabled?(:mhv_medications_display_grouping)
+        display_grouping = Flipper.enabled?(:mhv_medications_display_grouping, current_user)
+        display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, current_user)
+        # according to business logic filter for all medications is the only list that should contain PD meds
+        resource.data = if params[:filter].blank? && display_pending_meds
+                          resource.data.reject { |item| item.prescription_source.equal? 'PF' }
+                        else
+                          # TODO: remove this line when PF and PD are allowed on va.gov
+                          resource.data = remove_pf_pd(resource.data)
+                        end
+        resource.data = group_prescriptions(resource.data) if display_grouping
         resource.data = filter_non_va_meds(resource.data)
       end
 
