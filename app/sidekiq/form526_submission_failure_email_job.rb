@@ -90,7 +90,8 @@ class Form526SubmissionFailureEmailJob
   private
 
   def send_email
-    email_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key, VA_NOTIFY_CALLBACK_OPTIONS)
+    email_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key,
+                                         VA_NOTIFY_CALLBACK_OPTIONS)
     template_id = Settings.vanotify.services.benefits_disability.template_id
                           .form526_submission_failure_notification_template_id
 
