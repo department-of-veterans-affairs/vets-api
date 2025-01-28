@@ -75,6 +75,81 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
       expect(poa.status).to eq(ClaimsApi::PowerOfAttorney::UPDATED)
     end
 
+    describe 'allow_poa_access' do
+      let(:dependent_claimant_poa_assignment_service) do
+        instance_double(ClaimsApi::DependentClaimantPoaAssignmentService)
+      end
+
+      before do
+        allow(ClaimsApi::DependentClaimantPoaAssignmentService).to receive(:new)
+          .and_return(dependent_claimant_poa_assignment_service)
+        allow(dependent_claimant_poa_assignment_service).to receive(:assign_poa_to_dependent!).and_return(nil)
+      end
+
+      context 'when recordConsent is true and consentLimits are blank' do
+        before do
+          poa.form_data['recordConsent'] = true
+          poa.form_data['consentLimits'] = []
+          poa.save
+        end
+
+        it "sets allow_poa_access to 'Y'" do
+          expect(ClaimsApi::DependentClaimantPoaAssignmentService)
+            .to receive(:new)
+            .with(hash_including(allow_poa_access: 'Y'))
+
+          described_class.new.perform(poa.id)
+        end
+      end
+
+      context 'when recordConsent is false' do
+        before do
+          poa.form_data['recordConsent'] = false
+          poa.save
+        end
+
+        it "sets allow_poa_access to 'N'" do
+          expect(ClaimsApi::DependentClaimantPoaAssignmentService)
+            .to receive(:new)
+            .with(hash_including(allow_poa_access: 'N'))
+
+          described_class.new.perform(poa.id)
+        end
+      end
+
+      context 'when recordConsent is true but consentLimits are present' do
+        before do
+          poa.form_data['recordConsent'] = true
+          poa.form_data['consentLimits'] = %w[consentLimit1 consentLimit2]
+          poa.save
+        end
+
+        it "sets allow_poa_access to 'N'" do
+          expect(ClaimsApi::DependentClaimantPoaAssignmentService)
+            .to receive(:new)
+            .with(hash_including(allow_poa_access: 'N'))
+
+          described_class.new.perform(poa.id)
+        end
+      end
+
+      context 'when recordConsent is missing' do
+        before do
+          poa.form_data.delete('recordConsent')
+          poa.form_data['consentLimits'] = []
+          poa.save
+        end
+
+        it "sets allow_poa_access to 'N'" do
+          expect(ClaimsApi::DependentClaimantPoaAssignmentService)
+            .to receive(:new)
+            .with(hash_including(allow_poa_access: 'N'))
+
+          described_class.new.perform(poa.id)
+        end
+      end
+    end
+
     context 'if an error occurs in the service call' do
       let(:error) { StandardError.new('error message') }
 
