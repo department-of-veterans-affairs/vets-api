@@ -1040,6 +1040,15 @@ components:
         cancellable:
           type: boolean
           description: If true then this logical appointment can be cancelled.
+        past:
+          type: boolean
+          description: If true then this appointment is in the past.
+        upcoming:
+          type: boolean
+          description: If true then this appointment is in the future.
+        pending:
+          type: boolean
+          description: If true then this appointment is pending.
         patientInstruction:
           type: string
           description: 'Detailed information and instructions for the patient. See: https://www.hl7.org/fhir/appointment-definitions.html#Appointment.patientInstruction'
