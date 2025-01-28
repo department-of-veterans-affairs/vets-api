@@ -1,12 +1,10 @@
 version: '3.4'
 services:
   redis:
-    platform: linux/x86_64
     image: redis:6.2-alpine
     ports:
       - "63790:6379"
   postgres:
-    platform: linux/x86_64
     image: postgis/postgis:14-3.3-alpine
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
@@ -16,7 +14,6 @@ services:
     ports:
       - "54320:5432"
   clamav:
-    platform: linux/x86_64
     volumes:
      - shared-vol:/vets-api
     image: clamav/clamav
