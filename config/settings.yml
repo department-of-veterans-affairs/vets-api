@@ -1504,8 +1504,7 @@ virtual_regional_office:
   ep_merge_path: employee-experience-ep-merge-app/merge
 
 disability_max_ratings_api:
-  url: http://localhost:8130
-  # url: http://disability-max-ratings-api-dev.vfs.va.gov
+  url: http://disability-max-ratings-api-dev.vfs.va.gov
   ratings_path: /disability-max-ratings
   open_timeout: 5
   read_timeout: 10

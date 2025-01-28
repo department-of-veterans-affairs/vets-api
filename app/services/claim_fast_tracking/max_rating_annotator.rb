@@ -61,7 +61,6 @@ module ClaimFastTracking
       if Flipper.enabled?(:disability_526_max_cfi_service_switch, user)
         disability_max_ratings_client = DisabilityMaxRating::Client.new
         response = disability_max_ratings_client.get_max_rating_for_diagnostic_codes(diagnostic_codes)
-        # byebug
       else
         vro_client = VirtualRegionalOffice::Client.new
         response = vro_client.get_max_rating_for_diagnostic_codes(diagnostic_codes)
