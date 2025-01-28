@@ -326,33 +326,6 @@ RSpec/SubjectDeclaration:
     - 'spec/sidekiq/pager_duty/cache_global_downtime_spec.rb'
     - 'spec/uploaders/form1010cg/poa_uploader_spec.rb'
 
-# Offense count: 87
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: ResponseMethods.
-# ResponseMethods: response, last_response
-RSpecRails/HaveHttpStatus:
-  Exclude:
-    - 'modules/appeals_api/spec/controllers/application_controller_spec.rb'
-    - 'spec/controllers/application_controller_spec.rb'
-    - 'spec/controllers/v0/benefits_reference_data_controller_spec.rb'
-    - 'spec/controllers/v0/caregivers_assistance_claims_controller_spec.rb'
-    - 'spec/controllers/v0/dependents_applications_controller_spec.rb'
-    - 'spec/controllers/v0/dependents_verifications_controller_spec.rb'
-    - 'spec/controllers/v0/disability_compensation_forms_controller_spec.rb'
-    - 'spec/controllers/v0/education_career_counseling_claims_controller_spec.rb'
-    - 'spec/controllers/v0/gi_bill_feedbacks_controller_spec.rb'
-    - 'spec/controllers/v0/onsite_notifications_controller_spec.rb'
-    - 'spec/controllers/v0/profile/address_validation_controller_spec.rb'
-    - 'spec/controllers/v0/profile/communication_preferences_controller_spec.rb'
-    - 'spec/controllers/v0/profile/payment_history_controller_spec.rb'
-    - 'spec/controllers/v0/profile/valid_va_file_numbers_controller_spec.rb'
-    - 'spec/controllers/v0/veteran_readiness_employment_claims_controller_spec.rb'
-    - 'spec/lib/vetext/service_spec.rb'
-    - 'spec/middleware/rack/attack_spec.rb'
-    - 'spec/requests/csrf_request_spec.rb'
-    - 'spec/support/controller_spec_helper.rb'
-    - 'spec/support/shared_examples_for_mhv.rb'
-
 # Offense count: 470
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: Inferences.
