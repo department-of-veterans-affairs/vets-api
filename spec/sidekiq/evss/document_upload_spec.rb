@@ -102,6 +102,8 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         allow(EvidenceSubmission).to receive(:find_by).with({ job_id: job_id.to_s })
                                                       .and_return(evidence_submission_pending)
         described_class.drain
+        evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
+        expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
       end
     end
 
@@ -114,10 +116,26 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
                job_id:,
                job_class: described_class)
       end
+      let(:error_message) { "#{job_class} failed to update EvidenceSubmission" }
+      let(:message) { "#{job_class} EvidenceSubmission updated" }
+      let(:tags) { ['service:claim-status', "function: #{error_message}"] }
 
-      it 'updates an evidence submission record with a FAILED status' do
-        EVSS::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) {}
+      it 'updates an evidence submission record with a FAILED status with date_failed' do
+        EVSS::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) do
+          allow(EvidenceSubmission).to receive(:find_by)
+            .with({ job_id: })
+            .and_return(evidence_submission_pending)
+          expect(Rails.logger)
+            .to receive(:info)
+            .with(message)
+          expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation',
+                                                     tags: ['service:claim-status', "function: #{message}"])
+        end
         expect(EvidenceSubmission.va_notify_email_not_queued.length).to equal(1)
+        evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
+        current_personalisation = JSON.parse(evidence_submission.template_metadata_ciphertext)['personalisation']
+        expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
+        expect(current_personalisation['date_failed']).not_to be_nil
       end
 
       it 'fails to create a failed evidence submission record when args malformed' do
@@ -171,7 +189,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
               date_failed: formatted_submit_date
             }
           )
-
+          expect(EvidenceSubmission.count).to equal(0)
           expect(Rails.logger)
             .to receive(:info)
             .with(log_message)

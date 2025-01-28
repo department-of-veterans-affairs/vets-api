@@ -77,12 +77,17 @@ class EVSS::DocumentUpload
 
   def self.update_evidence_submission(msg)
     evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
+    current_personalisation = JSON.parse(evidence_submission.template_metadata_ciphertext)['personalisation']
     evidence_submission.update(
       upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
       template_metadata_ciphertext: {
-        personalisation: update_personalisation(evidence_submission, msg['failed_at'])
+        personalisation: update_personalisation(current_personalisation, msg['failed_at'])
       }.to_json
     )
+    message = "#{name} EvidenceSubmission updated"
+    ::Rails.logger.info(message)
+    StatsD.increment('silent_failure_avoided_no_confirmation',
+                     tags: ['service:claim-status', "function: #{message}"])
   rescue => e
     error_message = "#{name} failed to update EvidenceSubmission"
     ::Rails.logger.info(error_message, { messsage: e.message })
@@ -108,7 +113,7 @@ class EVSS::DocumentUpload
   # Update personalisation here since an evidence submission record was previously created
   def self.update_personalisation(current_personalisation, failed_at)
     personalisation = current_personalisation.clone
-    personalisation.failed_date = format_issue_instant_for_mailers(failed_at)
+    personalisation['date_failed'] = format_issue_instant_for_mailers(failed_at)
     personalisation
   end
 
