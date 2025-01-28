@@ -4,7 +4,6 @@ require 'logging/call_location'
 require 'va_notify/service'
 require 'zero_silent_failures/monitor'
 
-
 module EVSS
   module DisabilityCompensationForm
     class Form4142DocumentUploadFailureEmail < Job
