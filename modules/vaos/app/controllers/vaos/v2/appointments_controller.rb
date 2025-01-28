@@ -380,6 +380,12 @@ module VAOS
       end
 
       def fetch_drive_times(provider)
+        user_address = current_user.vet360_contact_info&.residential_address
+
+        unless user_address&.latitude && user_address&.longitude
+          return "Drive time could not be calculated: user location unavailable"
+        end
+
         eps_provider_service.get_drive_times(
           destinations: {
             provider.id => {
@@ -388,8 +394,8 @@ module VAOS
             }
           },
           origin: {
-            latitude: current_user.address['latitude'],
-            longitude: current_user.address['longitude']
+            latitude: user_address.latitude,
+            longitude: user_address.longitude
           }
         )
       end
