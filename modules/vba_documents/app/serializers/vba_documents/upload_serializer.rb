@@ -20,10 +20,10 @@ module VBADocuments
 
     attribute :final_status, &:in_final_status? if Flipper.enabled?(:vba_documents_final_status_field)
 
-    attribute :location, if: Proc.new { |_, params|
+    attribute :location, if: proc { |_, params|
       # The location will be serialized only if the :render_location key of params is true
       params[:render_location] == true
-    } do |object, params|
+    } do |object, _|
       object.get_location
     rescue => e
       raise Common::Exceptions::InternalServerError, e
