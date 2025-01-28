@@ -9,7 +9,7 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
 
   before do
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:burial_module_enabled).and_return true
+    allow(Flipper).to receive(:enabled?).with(:burial_module_enabled, anything).and_return true
 
     allow(Burials::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
@@ -19,7 +19,7 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
 
   context 'module is not enabled' do
     it 'returns Forbidden' do
-      allow(Flipper).to receive(:enabled?).with(:burial_module_enabled).and_return false
+      allow(Flipper).to receive(:enabled?).with(:burial_module_enabled, anything).and_return false
 
       expect(Burials::SavedClaim).not_to receive(:new)
 
