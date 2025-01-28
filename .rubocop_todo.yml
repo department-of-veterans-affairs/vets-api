@@ -51,12 +51,6 @@ Lint/ConstantDefinitionInBlock:
     - 'spec/uploaders/uploader_virus_scan_spec.rb'
     - 'spec/uploaders/validate_pdf_spec.rb'
 
-# Offense count: 1
-# Configuration parameters: IgnoreLiteralBranches, IgnoreConstantBranches.
-Lint/DuplicateBranch:
-  Exclude:
-    - 'app/sidekiq/education_form/process10203_submissions.rb'
-
 # Offense count: 87
 # Configuration parameters: AllowedParentClasses.
 Lint/MissingSuper:
