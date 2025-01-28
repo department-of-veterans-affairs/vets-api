@@ -12,8 +12,8 @@ RSpec.describe UserAction, type: :model do
   describe 'enum status' do
     it {
       expect(subject).to define_enum_for(:status).with_values({ initial: 'initial',
-                                                               success: 'success',
-                                                               error: 'error' }).backed_by_column_of_type(:enum)
+                                                                success: 'success',
+                                                                error: 'error' }).backed_by_column_of_type(:enum)
     }
   end
 end
