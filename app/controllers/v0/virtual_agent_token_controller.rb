@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 require 'erb'
-require 'datadog_logging'
 
 module V0
   class VirtualAgentTokenController < ApplicationController
-    include DatadogLogging
     service_tag 'virtual-agent'
     skip_before_action :authenticate, only: [:create]
 
@@ -13,7 +11,6 @@ module V0
     rescue_from Net::HTTPError, with: :service_exception_handler
 
     def create
-      log_to_datadog('vets-api - virtual_agent_token_controller', 'test message', 'test stack trace')
       directline_response = fetch_connector_values
       render json: { token: directline_response[:token],
                      conversationId: directline_response[:conversationId],
@@ -65,7 +62,6 @@ module V0
     def service_exception_handler(exception)
       context = 'An error occurred with the Microsoft service that issues chatbot tokens'
       log_exception_to_sentry(exception, 'context' => context)
-      log_to_datadog(context, exception.message, exception.backtrace)
       render nothing: true, status: :service_unavailable
     end
 
