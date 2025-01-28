@@ -86,10 +86,11 @@ FactoryBot.define do
           'current_term_dates' => {
             'official_school_start_date' => '2019-03-03',
             'expected_student_start_date' => '2019-03-05',
-            'expected_graduation_date' => '2023-03-03'
+            'expected_graduation_date' => '2023-03-03',
+            'is_school_accredited' => true
           },
           'program_information' => {
-            'student_is_enrolled_full_time' => false,
+            'student_is_enrolled_full_time' => true,
             'course_of_study' => 'An amazing program',
             'classes_per_week' => 4,
             'hours_per_week' => 37
