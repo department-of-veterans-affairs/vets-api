@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
-require 'va_notify/default_callback'
+require "va_notify/default_callback"
 
 module VANotify
   class CallbacksController < VANotify::ApplicationController
     include ActionController::HttpAuthentication::Token::ControllerMethods
 
-    SERVICE_CALLBACK_TOKENS = Settings.vanotify.service_callback_tokens
-
-    service_tag 'va-notify'
+    service_tag "va-notify"
 
     skip_before_action :verify_authenticity_token, only: [:create]
     skip_before_action :authenticate, only: [:create]
@@ -21,12 +19,12 @@ module VANotify
       if (notification = VANotify::Notification.find_by(notification_id: notification_id))
         notification.update(notification_params)
         Rails.logger.info("va_notify callbacks - Updating notification: #{notification.id}",
-                          {
-                            source_location: notification.source_location,
-                            template_id: notification.template_id,
-                            callback_metadata: notification.callback_metadata,
-                            status: notification.status
-                          })
+          {
+            source_location: notification.source_location,
+            template_id: notification.template_id,
+            callback_metadata: notification.callback_metadata,
+            status: notification.status
+          })
 
         VANotify::DefaultCallback.new(notification).call
         VANotify::StatusUpdate.new.delegate(notification_params.merge(id: notification_id))
@@ -34,7 +32,7 @@ module VANotify
         Rails.logger.info("va_notify callbacks - Received update for unknown notification #{notification_id}")
       end
 
-      render json: { message: 'success' }, status: :ok
+      render json: {message: "success"}, status: :ok
     end
 
     private
@@ -48,8 +46,8 @@ module VANotify
         return false if bearer_token_secret.nil?
 
         if Flipper.enabled?(:va_notify_custom_bearer_tokens)
-          SERVICE_CALLBACK_TOKENS.any? do |_key, value|
-            ActiveSupport::SecurityUtils.secure_compare(token, value)
+          service_callback_tokens.any? do |_key, service_token|
+            ActiveSupport::SecurityUtils.secure_compare(token, service_token)
           end
         else
           ActiveSupport::SecurityUtils.secure_compare(token, bearer_token_secret)
@@ -58,12 +56,16 @@ module VANotify
     end
 
     def authenticity_error
-      Rails.logger.info('va_notify callbacks - Failed to authenticate request')
-      render json: { message: 'Unauthorized' }, status: :unauthorized
+      Rails.logger.info("va_notify callbacks - Failed to authenticate request")
+      render json: {message: "Unauthorized"}, status: :unauthorized
     end
 
     def bearer_token_secret
       Settings.vanotify.status_callback.bearer_token
+    end
+
+    def service_callback_tokens
+      Settings.vanotify.service_callback_tokens
     end
 
     def notification_params
