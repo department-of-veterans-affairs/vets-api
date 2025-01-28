@@ -170,32 +170,14 @@ module SimpleFormsApi
         end
       end
 
-      # rubocop:disable Metrics/MethodLength
       def get_first_name_from_form_data
-        case @form_number
-        when 'vba_21_0845'
-          form21_0845_contact_info[1]
-        when 'vba_21p_0847'
-          form_data.dig('preparer_name', 'first')
-        when 'vba_21_0966', 'vba_21_0966_intent_api'
-          form21_0966_first_name
-        when 'vba_21_0972'
-          form_data.dig('preparer_full_name', 'first')
-        when 'vba_21_4142', 'vba_26_4555'
-          form_data.dig('veteran', 'full_name', 'first')
-        when 'vba_21_10210'
-          form21_10210_contact_info[1]
-        when 'vba_20_10206'
-          form20_10206_contact_info[1]
-        when 'vba_20_10207'
-          form20_10207_contact_info[1]
-        when 'vba_40_0247'
-          form_data.dig('applicant_full_name', 'first')
-        when 'vba_40_10007'
-          form40_10007_first_name
-        end
+        form_id = if form_number == 'vba_21_0966_intent_api'
+                    'vba_21_0966'
+                  else
+                    form_number
+                  end
+        "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(form_data).notification_first_name
       end
-      # rubocop:enable Metrics/MethodLength
 
       def get_first_name_from_user_account
         mpi_response = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
@@ -356,16 +338,6 @@ module SimpleFormsApi
         elsif benefits['survivor']
           ['survivors pension benefits',
            '[Apply for DIC, Survivors Pension, and/or Accrued Benefits (VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)']
-        end
-      end
-
-      def form40_10007_first_name
-        applicant_relationship = form_data.dig('application', 'applicant', 'applicant_relationship_to_claimant')
-
-        if applicant_relationship == 'Self'
-          form_data.dig('application', 'claimant', 'name', 'first')
-        else
-          form_data.dig('application', 'applicant', 'name', 'first')
         end
       end
 
