@@ -15,7 +15,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
     shared_examples 'invalid address' do
       it 'returns an error' do
         post(:create, params: { address: invalid_address })
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)).to include('errors')
         expect(JSON.parse(response.body)).to eq(
           'errors' => [
@@ -138,7 +138,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
     shared_examples 'invalid address' do
       it 'returns an error' do
         post(:create, params: { address: invalid_address })
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)).to include('errors')
         expect(JSON.parse(response.body)).to eq(
           'errors' => [

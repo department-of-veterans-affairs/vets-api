@@ -163,7 +163,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
                  'source' => { 'pointer' => 'data/attributes/template-id' },
                  'status' => '422' }] }
           )
-          expect(response).to have_http_status(:unprocessable_content)
+          expect(response).to have_http_status(:unprocessable_entity)
         end
       end
 
@@ -222,7 +222,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
                'source' => { 'pointer' => 'data/attributes/template-id' },
                'status' => '422' }] }
         )
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end

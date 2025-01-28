@@ -43,7 +43,7 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
       it 'shows the validation errors' do
         post(:create, params: { education_career_counseling_claim: { form: { not_valid: 'not valid' } } })
 
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:unprocessable_entity)
 
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(

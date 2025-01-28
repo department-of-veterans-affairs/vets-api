@@ -37,7 +37,7 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
       it 'returns validation error' do
         subject
 
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)['errors'][0]['title']).to eq("Id can't be blank")
       end
     end

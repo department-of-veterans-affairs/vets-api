@@ -92,7 +92,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
       res_body = JSON.parse(response.body)
 
-      expect(response).to have_http_status(:unprocessable_content)
+      expect(response).to have_http_status(:unprocessable_entity)
 
       expect(res_body['errors']).to be_present
       expect(res_body['errors'].size).to eq(4)

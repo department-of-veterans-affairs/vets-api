@@ -34,12 +34,12 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
       it 'fails validation when no veteran_info is passed in' do
         form_params = { veteran_readiness_employment_claim: { form: no_veteran_info } }
         post(:create, params: form_params)
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
 
       it 'shows the validation errors' do
         post(:create, params: { veteran_readiness_employment_claim: { form: { not_valid: 'not valid' } } })
-        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
             'form - can\'t be blank'
