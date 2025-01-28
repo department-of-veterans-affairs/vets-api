@@ -189,9 +189,6 @@ features:
   champva_confirmation_email_bugfix:
     actor_type: user
     description: Enables fix for a bug where confirmation emails may get sent when Pega reports a status of 'Not Processed'
-  champva_log_all_s3_uploads:
-    actor_type: user
-    description: Enables logging for all s3 uploads using UUID or keys for monitoring
   champva_enhanced_monitor_logging:
     actor_type: user
     description: Enables using the new IVC CHAMPVA Monitoring logging class for enhanced Stats D info.
