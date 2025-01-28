@@ -144,13 +144,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
               'type' => 'veteran_service_organization',
               'name' => poa_requests[3].power_of_attorney_holder.name
             },
-            'accredited_individual' => {
-              'id' => poa_requests[3].accredited_individual.id,
-              'full_name' => [
-                poa_requests[3].accredited_individual.first_name,
-                poa_requests[3].accredited_individual.last_name
-              ].join(' ')
-            },
             'resolution' => {
               'id' => poa_requests[3].resolution.id,
               'type' => 'expiration',
