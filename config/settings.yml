@@ -1291,7 +1291,9 @@ vanotify:
   status_callback:
     bearer_token: fake_bearer_token
   service_callback_tokens:
-    service_name: fake_bearer_token
+    service_name: service_name_fake_bearer_token
+    other_service: other_service_fake_bearer_token
+    third_service: third_service_fake_bearer_token
 
 # Settings for connecting AFS Veteran Services
 # For locahost we can use the existing certs as long as we don't call out
