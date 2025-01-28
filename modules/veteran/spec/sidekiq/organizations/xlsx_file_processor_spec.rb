@@ -25,7 +25,7 @@ RSpec.describe Organizations::XlsxFileProcessor do
     context 'with valid data' do
       let(:expected_keys) { %i[id address phone_number] }
       let(:expected_address_keys) do
-        %i[address_pou address_line1 address_line2 address_line3 city state_province zip_code5 zip_code4
+        %i[address_pou address_line1 address_line2 address_line3 city state zip_code5 zip_code4
            country_code_iso3]
       end
 
