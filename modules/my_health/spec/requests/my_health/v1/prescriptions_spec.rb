@@ -135,6 +135,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         before do
           Flipper.disable(:mhv_medications_display_pending_meds)
         end
+
         it 'responds to GET #index with pending meds not included in list' do
           VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_prescriptions_w_pending_meds') do
             get '/my_health/v1/prescriptions?page=1&per_page=99'
