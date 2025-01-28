@@ -34,6 +34,7 @@ RSpec.describe 'V0::Profile::PersonalInformation',  feature: :personal_info,
       it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('mpi/find_candidate/missing_birthday_and_gender') do
           VCR.use_cassette('va_profile/demographics/demographics') do
+            binding.pry
             get '/v0/profile/personal_information'
             expect(response).to have_http_status(:bad_gateway)
             expect(response).to match_response_schema('errors')
