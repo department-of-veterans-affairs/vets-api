@@ -238,7 +238,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
       it 'returns a valid address' do
         VCR.use_cassette('va_profile/v3/address_validation/candidate_multiple_matches', VCR::MATCH_EVERYTHING) do
           post(:create, params: { address: incorrect_address_pou.to_h })
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(
             'addresses' => [
               {
