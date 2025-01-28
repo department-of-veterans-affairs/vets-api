@@ -31,6 +31,7 @@ module Representatives
     rescue => e
       log_error("Error processing job: #{e.message}")
     ensure
+      @slack_messages.unshift('Representatives::Update') if @slack_messages.any?
       log_to_slack(@slack_messages.join("\n")) unless @slack_messages.empty?
     end
 
@@ -232,7 +233,7 @@ module Representatives
     def log_error(error)
       message = "Representatives::Update: #{error}"
       log_message_to_sentry(message, :error)
-      @slack_messages << message
+      @slack_messages << "----- #{message}"
     end
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values

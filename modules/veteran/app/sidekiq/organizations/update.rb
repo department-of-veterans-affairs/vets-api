@@ -32,7 +32,7 @@ module Organizations
     ensure
       @slack_messages.unshift("Orgs processed: #{@orgs_data.size}") if @orgs_data&.any?
       @slack_messages.unshift('Organizations::Update')
-      log_to_slack(@slack_messages.join("\n----- ")) unless @slack_messages.empty?
+      log_to_slack(@slack_messages.join("\n"))
     end
 
     private
@@ -196,7 +196,7 @@ module Organizations
     def log_error(error)
       message = "Organizations::Update: #{error}"
       log_message_to_sentry(message, :error)
-      @slack_messages << message
+      @slack_messages << "----- #{message}"
     end
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values
