@@ -12,7 +12,7 @@ shared_examples 'an error notification email' do
   end
 end
 
-describe SimpleFormsApi::NotificationEmail do
+describe SimpleFormsApi::Notification::Email do
   let(:lighthouse_updated_at) { Time.current }
 
   %i[confirmation error received].each do |notification_type|
