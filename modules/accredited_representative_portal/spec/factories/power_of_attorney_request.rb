@@ -7,10 +7,6 @@ FactoryBot.define do
 
     association :power_of_attorney_holder, factory: %i[accredited_organization with_representatives], strategy: :create
 
-    before(:create) do |poa_request|
-      poa_request.accredited_individual_id = AccreditedIndividual.first&.id || create(:accredited_individual).id
-    end
-
     transient do
       resolution_created_at { nil }
     end
