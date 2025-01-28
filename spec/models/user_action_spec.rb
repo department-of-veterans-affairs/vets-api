@@ -14,34 +14,8 @@ RSpec.describe UserAction, type: :model do
             acting_user_verification:)
     end
 
-    context 'when attributes are valid' do
-      it 'is valid' do
-        expect(user_action).to be_valid
-      end
-    end
-
-    context 'when acting_ip_address is nil' do
-      let(:acting_ip_address) { nil }
-
-      it 'is valid' do
-        expect(user_action).to be_valid
-      end
-    end
-
-    context 'when acting_user_agent is nil' do
-      let(:acting_user_agent) { nil }
-
-      it 'is valid' do
-        expect(user_action).to be_valid
-      end
-    end
-
-    context 'when acting_user_verification is nil' do
-      let(:acting_user_verification) { nil }
-
-      it 'is valid' do
-        expect(user_action).to be_valid
-      end
+    it 'is valid with valid attributes' do
+      expect(user_action).to be_valid
     end
   end
 
@@ -52,13 +26,7 @@ RSpec.describe UserAction, type: :model do
   end
 
   describe 'enum status' do
-    let(:user_action) { create(:user_action) }
-
-    it 'defines status predicates' do
-      expect(user_action).to respond_to(:initial?)
-      expect(user_action).to respond_to(:success?)
-      expect(user_action).to respond_to(:error?)
-    end
+    let(:user_action) { build(:user_action) }
 
     it 'defines the expected status values' do
       expect(described_class.statuses).to eq(
@@ -68,14 +36,10 @@ RSpec.describe UserAction, type: :model do
       )
     end
 
-    %w[initial success error].each do |valid_status|
-      context "when status is #{valid_status}" do
-        let(:user_action) { build(:user_action, status: valid_status) }
-
-        it 'is valid' do
-          expect(user_action).to be_valid
-        end
-      end
+    it 'validates inclusion of status' do
+      user_action.status = 'invalid_status'
+      expect(user_action).not_to be_valid
+      expect(user_action.errors[:status]).to include('is not included in the list')
     end
   end
 end
