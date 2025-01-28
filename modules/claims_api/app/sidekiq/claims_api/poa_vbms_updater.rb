@@ -27,7 +27,7 @@ module ClaimsApi
 
       if response[:return_code] == 'GUIE50000'
         poa_form.status = ClaimsApi::PowerOfAttorney::UPDATED
-        process.update!(step_status: 'SUCCESS', error_messages: [])
+        process.update!(step_status: 'SUCCESS', error_messages: [], completed_at: Time.zone.now)
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
         ClaimsApi::Logger.log('poa_vbms_updater', poa_id: power_of_attorney_id, detail: 'VBMS Success')
       else
