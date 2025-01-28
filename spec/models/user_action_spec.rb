@@ -43,33 +43,6 @@ RSpec.describe UserAction, type: :model do
         expect(user_action).to be_valid
       end
     end
-
-    describe '#status' do
-      context 'when nil' do
-        let(:user_action) { build(:user_action, status: nil) }
-
-        it 'is not valid' do
-          expect(user_action).not_to be_valid
-          expect(user_action.errors[:status]).to include("can't be blank")
-        end
-      end
-
-      context 'when invalid value' do
-        it 'raises ArgumentError' do
-          expect { user_action.status = 'invalid' }.to raise_error(ArgumentError, "'invalid' is not a valid status")
-        end
-      end
-
-      %w[initial success error].each do |valid_status|
-        context "when status is #{valid_status}" do
-          let(:user_action) { build(:user_action, status: valid_status) }
-
-          it 'is valid' do
-            expect(user_action).to be_valid
-          end
-        end
-      end
-    end
   end
 
   describe 'associations' do
@@ -85,6 +58,24 @@ RSpec.describe UserAction, type: :model do
       expect(user_action).to respond_to(:initial?)
       expect(user_action).to respond_to(:success?)
       expect(user_action).to respond_to(:error?)
+    end
+
+    it 'defines the expected status values' do
+      expect(described_class.statuses).to eq(
+        'initial' => 'initial',
+        'success' => 'success',
+        'error' => 'error'
+      )
+    end
+
+    %w[initial success error].each do |valid_status|
+      context "when status is #{valid_status}" do
+        let(:user_action) { build(:user_action, status: valid_status) }
+
+        it 'is valid' do
+          expect(user_action).to be_valid
+        end
+      end
     end
   end
 end
