@@ -285,23 +285,6 @@ RSpec/NoExpectationExample:
     - 'spec/sidekiq/pager_duty/poll_maintenance_windows_spec.rb'
     - 'spec/sidekiq/vre/create_ch31_submissions_report_job_spec.rb'
 
-# Offense count: 17
-RSpec/PendingWithoutReason:
-  Exclude:
-    - 'modules/appeals_api/spec/controllers/application_controller_spec.rb'
-    - 'modules/appeals_api/spec/services/appeals_api/pdf_construction/generator_spec.rb'
-    - 'modules/appeals_api/spec/sidekiq/appeals_api/add_icn_updater_spec.rb'
-    - 'modules/claims_api/spec/lib/claims_api/evidence_waiver_pdf_constructor/pdf_spec.rb'
-    - 'modules/claims_api/spec/lib/claims_api/v1/poa_pdf_constructor/individual_spec.rb'
-    - 'modules/vaos/spec/services/v1/fhir_service_spec.rb'
-    - 'modules/vba_documents/spec/sidekiq/report_unsuccessful_submissions_spec.rb'
-    - 'spec/lib/bb/generate_report_request_form_spec.rb'
-    - 'spec/lib/bgs/vnp_relationships_spec.rb'
-    - 'spec/lib/saml/ssoe_user_spec.rb'
-    - 'spec/requests/authentication/standard_authentication_spec.rb'
-    - 'spec/requests/breakers_integration_spec.rb'
-    - 'spec/sidekiq/facilities/mental_health_reload_job_spec.rb'
-
 # Offense count: 715
 RSpec/StubbedMock:
   Enabled: false
@@ -325,33 +308,6 @@ RSpec/SubjectDeclaration:
     - 'spec/services/form1010cg/service_spec.rb'
     - 'spec/sidekiq/pager_duty/cache_global_downtime_spec.rb'
     - 'spec/uploaders/form1010cg/poa_uploader_spec.rb'
-
-# Offense count: 87
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: ResponseMethods.
-# ResponseMethods: response, last_response
-RSpecRails/HaveHttpStatus:
-  Exclude:
-    - 'modules/appeals_api/spec/controllers/application_controller_spec.rb'
-    - 'spec/controllers/application_controller_spec.rb'
-    - 'spec/controllers/v0/benefits_reference_data_controller_spec.rb'
-    - 'spec/controllers/v0/caregivers_assistance_claims_controller_spec.rb'
-    - 'spec/controllers/v0/dependents_applications_controller_spec.rb'
-    - 'spec/controllers/v0/dependents_verifications_controller_spec.rb'
-    - 'spec/controllers/v0/disability_compensation_forms_controller_spec.rb'
-    - 'spec/controllers/v0/education_career_counseling_claims_controller_spec.rb'
-    - 'spec/controllers/v0/gi_bill_feedbacks_controller_spec.rb'
-    - 'spec/controllers/v0/onsite_notifications_controller_spec.rb'
-    - 'spec/controllers/v0/profile/address_validation_controller_spec.rb'
-    - 'spec/controllers/v0/profile/communication_preferences_controller_spec.rb'
-    - 'spec/controllers/v0/profile/payment_history_controller_spec.rb'
-    - 'spec/controllers/v0/profile/valid_va_file_numbers_controller_spec.rb'
-    - 'spec/controllers/v0/veteran_readiness_employment_claims_controller_spec.rb'
-    - 'spec/lib/vetext/service_spec.rb'
-    - 'spec/middleware/rack/attack_spec.rb'
-    - 'spec/requests/csrf_request_spec.rb'
-    - 'spec/support/controller_spec_helper.rb'
-    - 'spec/support/shared_examples_for_mhv.rb'
 
 # Offense count: 470
 # This cop supports unsafe autocorrection (--autocorrect-all).

@@ -6,6 +6,7 @@ RSpec.describe EVSSClaimService do
   subject { service }
 
   let(:user) { create(:user, :loa3) }
+  let(:user_account) { create(:user_account) }
   let(:client_stub) { instance_double(EVSS::ClaimsService) }
   let(:service) { described_class.new(user) }
 
@@ -47,6 +48,8 @@ RSpec.describe EVSSClaimService do
     before do
       allow(Rails.logger).to receive(:info)
       allow_any_instance_of(claim_service).to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(claim)
+      user.user_account_uuid = user_account.id
+      user.save!
     end
 
     describe '#request_decision' do
@@ -112,6 +115,16 @@ RSpec.describe EVSSClaimService do
   end
 
   describe '#upload_document' do
+    before do
+      user.user_account_uuid = user_account.id
+      user.save!
+    end
+
+    let(:issue_instant) { Time.now.to_i }
+    let(:submitted_date) do
+      BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
+    end
+
     let(:upload_file) do
       f = Tempfile.new(['file with spaces', '.txt'])
       f.write('test')
@@ -130,6 +143,33 @@ RSpec.describe EVSSClaimService do
       expect do
         subject.upload_document(document)
       end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
+    end
+
+    context 'when :cst_send_evidence_submission_failure_emails is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
+      end
+
+      it 'records evidence submission PENDING' do
+        subject.upload_document(document)
+        expect(EvidenceSubmission.count).to eq(1)
+        evidence_submission = EvidenceSubmission.first
+        current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
+        expect(evidence_submission.upload_status)
+          .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
+        expect(current_personalisation['date_submitted']).to eql(submitted_date)
+      end
+    end
+
+    context 'when :cst_send_evidence_submission_failure_emails is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(false)
+      end
+
+      it 'does not record evidence submission' do
+        subject.upload_document(document)
+        expect(EvidenceSubmission.count).to eq(0)
+      end
     end
 
     it 'updates document with sanitized filename' do
