@@ -145,9 +145,11 @@ RSpec.describe EVSSClaimService do
         allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
       end
 
-      it 'records evidence submission' do
+      it 'records evidence submission PENDING' do
         subject.upload_document(document)
         expect(EvidenceSubmission.count).to eq(1)
+        expect(EvidenceSubmission.first.upload_status)
+          .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
       end
     end
 
