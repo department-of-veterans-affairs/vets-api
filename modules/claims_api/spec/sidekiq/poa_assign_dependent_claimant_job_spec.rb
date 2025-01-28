@@ -64,7 +64,7 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
         )
 
       allow_any_instance_of(ClaimsApi::ServiceBase)
-        .to receive(:enable_vbms_access?).and_return(
+        .to receive(:allow_poa_access?).and_return(
           true
         )
 

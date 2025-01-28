@@ -48,15 +48,15 @@ module ClaimsApi
       raise e
     end
 
-    def dependent_claimant_poa_assignment_service(poa_id, data, auth_headers)
+    def dependent_claimant_poa_assignment_service(poa_id, form_data, auth_headers)
       ClaimsApi::DependentClaimantPoaAssignmentService.new(
         poa_id:,
-        poa_code: find_poa_code(data),
+        poa_code: find_poa_code(form_data),
         veteran_participant_id: auth_headers['va_eauth_pid'],
         dependent_participant_id: auth_headers.dig('dependent', 'participant_id'),
         veteran_file_number: auth_headers['file_number'],
-        allow_poa_access: data['recordConsent'] == true && data['consentLimits'].blank? ? 'Y' : 'N',
-        allow_poa_cadd: data['consentAddressChange'].present? ? 'Y' : nil,
+        allow_poa_access: allow_poa_access?(poa_form_data: form_data) ? 'Y' : 'N',
+        allow_poa_cadd: form_data['consentAddressChange'].present? ? 'Y' : nil,
         claimant_ssn: auth_headers.dig('dependent', 'ssn')
       )
     end
