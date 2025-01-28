@@ -34,7 +34,7 @@ module Lighthouse
       end
 
       def notify_client
-        VaNotify::Service.new(NOTIFY_SETTINGS.api_key)
+        VaNotify::Service.new(NOTIFY_SETTINGS.api_key, { callback_klass: 'BenefitsDocuments::VANotifyEmailStatusCallback' })
       end
 
       def send_failed_evidence_submissions

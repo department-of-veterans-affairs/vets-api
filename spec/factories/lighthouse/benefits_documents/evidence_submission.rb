@@ -49,10 +49,22 @@ FactoryBot.define do
   factory :bd_evidence_submission_failed_va_notify_email_enqueued, class: 'EvidenceSubmission' do
     association :user_account, factory: :user_account
     created_at { 5.days.ago }
+    failed_date { 1.day.ago }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
     job_class { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
     va_notify_id { 123 }
     va_notify_date { DateTime.now.utc }
+    request_id { '1234' }
+    template_metadata_ciphertext do
+      { 'personalisation' => {
+        'first_name' => 'test',
+        'document_type' => 'L014',
+        'file_name' => 'test.txt',
+        'obfuscated_file_name' => 'tesXXile.txt',
+        'date_submitted' => DateTime.now.utc.to_s,
+        'date_failed' => DateTime.now.utc.to_s
+      } }.to_json
+    end
   end
 
   factory :bd_evidence_submission_failed_va_notify_email_queued, class: 'EvidenceSubmission' do

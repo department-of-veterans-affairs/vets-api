@@ -19,7 +19,7 @@ class Lighthouse::FailureNotification
   end
 
   def notify_client
-    VaNotify::Service.new(NOTIFY_SETTINGS.api_key)
+    VaNotify::Service.new(NOTIFY_SETTINGS.api_key, { callback_klass: 'BenefitsDocuments::VANotifyEmailStatusCallback' })
   end
 
   def perform(icn, personalisation)
