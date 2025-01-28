@@ -14,7 +14,11 @@ module BGSDependents
     end
 
     # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def params_for_686c
+      attending = program_information&.dig('student_is_enrolled_full_time') ? 'AttendingContinuously=Y' : nil
+      accredited = current_term_dates&.dig('is_school_accredited') ? 'Accredited=Y' : nil
       {
         vnp_proc_id: @proc_id,
         vnp_ptcpnt_id: @vnp_participant_id,
@@ -31,8 +35,8 @@ module BGSDependents
         prev_school_postal_cd: last_term_school_information&.dig('address', 'state_code'),
         prev_school_addrs_zip_nbr: last_term_school_information&.dig('address', 'zip_code'),
         curnt_school_nm: school_information&.dig('name'),
-        curnt_school_addrs_one_txt: program_information&.dig('student_is_enrolled_full_time') ? 'AttendingContinuously=Y' : nil,
-        curnt_school_addrs_two_txt: current_term_dates&.dig('is_school_accredited') ? 'Accredited=Y' : nil,
+        curnt_school_addrs_one_txt: attending,
+        curnt_school_addrs_two_txt: accredited,
         curnt_school_addrs_three_txt: school_information&.dig('address', 'address_line3'),
         curnt_school_postal_cd: school_information&.dig('address', 'state_code'),
         curnt_school_city_nm: school_information&.dig('address', 'city'),
@@ -49,5 +53,7 @@ module BGSDependents
       }
     end
     # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
   end
 end
