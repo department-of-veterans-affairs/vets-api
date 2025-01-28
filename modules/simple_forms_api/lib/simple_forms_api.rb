@@ -23,6 +23,8 @@ module SimpleFormsApi
         words_to_remove = aggregate_words(JSON.parse(params.to_json))
 
         case params[:form_number]
+        when '21-4140'
+          words_to_remove += SimpleFormsApi::VBA214140.new(params).words_to_remove
         when '21-4142'
           words_to_remove += SimpleFormsApi::VBA214142.new(params).words_to_remove
         when '21-10210'

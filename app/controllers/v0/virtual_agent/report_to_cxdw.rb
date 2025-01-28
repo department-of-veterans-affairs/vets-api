@@ -58,10 +58,10 @@ module V0
                                     'If-None-Match' => 'null',
                                     'Authorization' => "Bearer #{token}"
                                   }
-        if response.code != '204'
-          raise StandardError, "Errored posting to dataverse with response code #{response.code}"
-        else
+        if response.code == '204'
           response
+        else
+          raise StandardError, "Errored posting to dataverse with response code #{response.code}"
         end
       end
     end
