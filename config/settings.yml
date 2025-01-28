@@ -661,6 +661,8 @@ claims_api:
     services:
       lighthouse:
         api_key: ~
+  bgs:
+    mock_responses: false
 
 connected_apps_api:
   connected_apps:
@@ -1260,6 +1262,9 @@ vanotify:
         error:
           template_id: form527ez_error_email_template_id
           flipper_id: pension_error_email_notification
+        submitted:
+          template_id: form527ez_submitted_email_template_id
+          flipper_id: pension_submitted_email_notification
         received:
           template_id: form527ez_received_email_template_id
           flipper_id: pension_received_email_notification
@@ -1276,6 +1281,9 @@ vanotify:
         received:
           template_id: burial_received_email_template_id
           flipper_id: burial_received_email_notification
+        submitted:
+          template_id: burial_submitted_email_template_id
+          flipper_id: burial_submitted_email_notification
     burials: *vanotify_services_burial
     21p_530: *vanotify_services_burial
     21p_530v2: *vanotify_services_burial

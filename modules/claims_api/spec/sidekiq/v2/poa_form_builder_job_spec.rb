@@ -493,6 +493,46 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
     end
   end
 
+  describe 'updating process' do
+    let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22/signed_filled_final.pdf' }
+
+    before do
+      allow_any_instance_of(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
+      allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return true
+      pdf_constructor_double = instance_double(ClaimsApi::V2::PoaPdfConstructor::Organization)
+      allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:pdf_constructor)
+        .and_return(pdf_constructor_double)
+      allow(pdf_constructor_double).to receive(:construct).and_return(pdf_path)
+      allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:data).and_return({})
+    end
+
+    context 'when the pdf is successfully uploaded' do
+      before do
+        allow_any_instance_of(ClaimsApi::PoaDocumentService).to receive(:create_upload)
+          .with(poa: power_of_attorney, pdf_path:, doc_type: 'L190', action: 'post').and_return(nil)
+      end
+
+      it 'updates the process for the power of attorney with the success status' do
+        subject.new.perform(power_of_attorney.id, '2122', rep.id, 'post')
+        expect(ClaimsApi::Process.find_by(processable: power_of_attorney,
+                                          step_type: 'PDF_SUBMISSION').step_status).to eq('SUCCESS')
+      end
+    end
+
+    context 'when the pdf is not successfully uploaded' do
+      before do
+        allow_any_instance_of(ClaimsApi::PoaDocumentService).to receive(:create_upload)
+          .with(poa: power_of_attorney, pdf_path:, doc_type: 'L190', action: 'post').and_raise(Errno::ENOENT, 'error')
+      end
+
+      it 'updates the process for the power of attorney with the failed status' do
+        subject.new.perform(power_of_attorney.id, '2122', rep.id, 'post')
+        expect(ClaimsApi::Process.find_by(processable: power_of_attorney,
+                                          step_type: 'PDF_SUBMISSION').step_status).to eq('FAILED')
+      end
+    end
+  end
+
   context 'when an errored job has exhausted its retries' do
     it 'logs to the ClaimsApi Logger' do
       error_msg = 'An error occurred for the POA Form Builder Job'

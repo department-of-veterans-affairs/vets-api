@@ -11,6 +11,7 @@ module V0
       service_tag 'profile'
 
       skip_before_action :authenticate, only: [:create]
+      skip_before_action :verify_authenticity_token
 
       def create
         address = if Flipper.enabled?(:va_v3_contact_information_service)
@@ -19,8 +20,6 @@ module V0
                     VAProfile::Models::ValidationAddress.new(address_params)
                   end
 
-        Rails.logger.info("Staging Address params: #{address_params}") if Settings.vsp_environment == 'staging'
-        Rails.logger.info("Staging validation Address: #{address}") if Settings.vsp_environment == 'staging'
         Rails.logger.info("Staging Address valid: #{address.valid?}") if Settings.vsp_environment == 'staging'
 
         raise Common::Exceptions::ValidationErrors, address unless address.valid?

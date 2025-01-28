@@ -44,7 +44,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   it 'retrieves the file and uploads to EVSS' do
     allow(EVSSClaimDocumentUploader).to receive(:new) { uploader_stub }
     allow(EVSS::DocumentsService).to receive(:new) { client_stub }
-    file = File.read("#{Rails.root}/spec/fixtures/files/#{filename}")
+    file = File.read(Rails.root.join("spec/fixtures/files/#{filename}").to_s)
     allow(uploader_stub).to receive(:retrieve_from_store!).with(filename) { file }
     allow(uploader_stub).to receive(:read_for_upload) { file }
     expect(uploader_stub).to receive(:remove!).once
