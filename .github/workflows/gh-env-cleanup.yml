@@ -1,58 +1,13 @@
 name: Clean Up Old GitHub Environments
 
 on:
-  push:
-    branches:
-      - eb-cleanup-gh-env
   schedule:
     - cron: '0 0 * * 1-5' # Weekdays at midnight UTC
-  workflow_dispatch: # Allow manual triggering
 
 jobs:
   cleanup:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch and Filter Old Environments
-        if: steps.restore-cache.outputs.cache-hit != 'true'
-        id: fetch-and-filter
-        run: |
-          NOW=$(date +%s)
-          THRESHOLD=$((90 * 24 * 60 * 60)) # 90 days in seconds
-          PAGE=1
-
-          echo "[]" > all-environments.json
-          echo -n "Fetching all environments..."
-
-          while true; do
-            echo -n "."
-            RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${{ github.repository }}/environments?per_page=100&page=$PAGE")
-
-            if [ "$(echo "$RESPONSE" | jq '.environments | length')" -eq 0 ]; then
-              break
-            fi
-
-            jq -s '.[0] + .[1]' all-environments.json <(echo "$RESPONSE" | jq '.environments') > temp.json
-            mv temp.json all-environments.json
-            PAGE=$((PAGE + 1))
-          done
-
-          echo
-
-          echo "Filtering old environments..."
-          jq -r \
-            --arg now "$NOW" \
-            --arg threshold "$THRESHOLD" '
-              .[] |
-              select((.protection_rules | length) == 0) |
-              select((now | tonumber) - (.created_at | fromdateiso8601 | tonumber) > ($threshold | tonumber)) |
-              .name | @uri
-            ' all-environments.json > delete-list.txt
-
-          echo "Filtered environments saved to delete-list.txt:"
-          cat delete-list.txt
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -66,12 +21,41 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
-      - name: Delete Old Environments
-        if: success()
+      - name: Set Up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+
+      - name: Clean Up Environments
         run: |
-          while IFS= read -r environment; do
-            echo "Deleting $environment..."
-            curl -X DELETE -s -H "Authorization: Bearer ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${{ github.repository }}/environments/$environment"
-          done < delete-list.txt
+          cat << 'EOF' | ruby
+            require 'bundler/inline'
+            gemfile { source 'https://rubygems.org'; gem 'octokit' }
+
+            CURRENT_TIME = Time.now.to_i
+            THRESHOLD_SECONDS = 90 * 24 * 60 * 60 # 90 days in seconds
+            REPO = ENV['GITHUB_REPOSITORY']
+            CLIENT = Octokit::Client.new access_token: ENV['VA_VSP_BOT_GITHUB_TOKEN']
+
+            def old_and_unprotected? env
+              env[:protection_rules].empty? && CURRENT_TIME - env[:created_at].to_i > THRESHOLD_SECONDS
+            end
+
+            def delete_environment env
+              puts "\nDeleting: #{env[:name]}"
+              CLIENT.delete_environment REPO, URI.encode_www_form_component(env[:name])
+            end
+
+            print 'Fetching and deleting old environments'
+            100.times do |page|
+              envs = CLIENT.environments(REPO, per_page: 100, page: page + 1)&.dig(:environments) || []
+              print '.'
+              break if envs.empty?
+              exit 2 if CLIENT.rate_limit.remaining < 1000
+
+              envs
+                .select { |env| old_and_unprotected? env }
+                .each { |env| delete_environment env }
+            end
+            puts "\nDone."
+          EOF
