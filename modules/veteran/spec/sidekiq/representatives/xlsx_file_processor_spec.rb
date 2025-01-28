@@ -43,6 +43,14 @@ RSpec.describe Representatives::XlsxFileProcessor do
           end
         end
       end
+
+      it 'deduplicates the rows based on the "Number" column' do
+        # There are no duplicate "Number" values in the Agents and Attorneys sheets
+        expect(result['Agents'].count).to eq(5)
+        expect(result['Attorneys'].count).to eq(5)
+        # There are 19 rows of data in the Representatives sheet, but 12 of them have duplicate "Number" values
+        expect(result['Representatives'].count).to eq(7)
+      end
     end
 
     context 'when an error occurs opening the spreadsheet' do

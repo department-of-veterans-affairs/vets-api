@@ -100,13 +100,14 @@ module Representatives
       xlsx.sheet(sheet_name).each_with_index do |row, index|
         next if index.zero? || row.length < column_map.length
 
-        # next if processed_rep_ids[row[column_map['Number']]]
+        next if processed_rep_ids[row[column_map['Number']]]
 
         state_code = get_value(row, column_map, 'WorkState')
 
         next unless US_STATES_TERRITORIES[state_code]
 
         data << process_row(row, sheet_name, column_map)
+        processed_rep_ids[row[column_map['Number']]] = true
       end
 
       data
