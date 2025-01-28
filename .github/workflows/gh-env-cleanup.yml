@@ -1,11 +1,15 @@
-name: Clean Up Old GitHub Environments
+name: GitHub Environment Cleanup
 
 on:
   schedule:
     - cron: '0 0 * * 1-5' # Weekdays at midnight UTC
+  pull_request:
+    types: [closed] # Trigger on PR close
 
 jobs:
-  cleanup:
+  # Job for scheduled cleanup of old environments
+  scheduled-cleanup:
+    if: github.event_name == 'schedule' # Run only for scheduled events
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS Credentials
@@ -26,7 +30,7 @@ jobs:
         with:
           ruby-version: '3.4'
 
-      - name: Clean Up Environments
+      - name: Clean Up Old Environments
         run: |
           cat << 'EOF' | ruby
             require 'bundler/inline'
@@ -59,3 +63,34 @@ jobs:
             end
             puts "\nDone."
           EOF
+
+  # Job for cleaning up environments on PR close
+  pr-close-cleanup:
+    if: github.event_name == 'pull_request' # Run only for pull request events
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          aws-region: "us-gov-west-1"
+
+      - name: Get Bot Token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+      - name: URL-Encode Environment Name
+        id: url_encode
+        run: |
+          echo "ENCODED_ENV_NAME=$(jq -rn --arg v '${{ github.head_ref }}' '$v|@uri')" >> $GITHUB_ENV
+
+      - name: Delete PR Environment
+        uses: octokit/request-action@v2.x
+        with:
+          route: DELETE /repos/${{ github.repository }}/environments/${{ env.ENCODED_ENV_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+        continue-on-error: true # Prevents failure if the environment doesn't exist
