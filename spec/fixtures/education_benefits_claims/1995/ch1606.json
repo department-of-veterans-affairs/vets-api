@@ -3,7 +3,7 @@
     "first": "Joe",
     "last": "Tester2"
   },
-  "veteranSocialSecurityNumber": "334445555",
+  "veteranSocialSecurityNumber": "223334444",
   "veteranAddress": {
     "city": "Austin",
     "country": "USA",
@@ -11,12 +11,13 @@
     "state": "TX",
     "street": "1234 Test St"
   },
-  "sponsorSocialSecurityNumber": "334445555",
+  "sponsorSocialSecurityNumber": "444433322",
   "applicantGender": "F",
   "dateOfBirth": "1970-01-01",
   "email": "test@test.com",
   "benefit": "chapter1606",
   "benefitUpdate": "chapter1606",
+  "rudisillReview": "Yes",
   "changeAnotherBenefit": "Yes",
   "benefitAppliedFor": "chapter30",
   "remarks": "remarks",

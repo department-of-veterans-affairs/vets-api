@@ -2,7 +2,6 @@
 
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
-require 'pensions/tag_sentry'
 require 'pensions/monitor'
 require 'pensions/notification_email'
 require 'pdf_utilities/datestamp_pdf'
@@ -65,7 +64,11 @@ module Pensions
 
       @pension_monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
-      send_confirmation_email
+      if Flipper.enabled?(:pension_submitted_email_notification)
+        send_submitted_email
+      else
+        send_confirmation_email
+      end
 
       @intake_service.uuid
     rescue => e
@@ -87,7 +90,6 @@ module Pensions
     # @param (see #perform)
     #
     def init(saved_claim_id, user_account_uuid)
-      Pensions::TagSentry.tag_sentry
       @pension_monitor = Pensions::Monitor.new
 
       @user_account_uuid = user_account_uuid
@@ -97,7 +99,9 @@ module Pensions
       @claim = Pensions::SavedClaim.find(saved_claim_id)
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
-      @intake_service = BenefitsIntake::Service.new
+      set_signature_date
+
+      @intake_service = ::BenefitsIntake::Service.new
     end
 
     ##
@@ -120,9 +124,15 @@ module Pensions
     # @return [String] path to stamped PDF
     #
     def process_document(file_path)
-      document = PDFUtilities::DatestampPdf.new(file_path).run(text: 'VA.GOV', x: 5, y: 5)
+      document = PDFUtilities::DatestampPdf.new(file_path).run(
+        text: 'VA.GOV',
+        timestamp: @claim.created_at,
+        x: 5,
+        y: 5
+      )
       document = PDFUtilities::DatestampPdf.new(document).run(
         text: 'FDC Reviewed - VA.gov Submission',
+        timestamp: @claim.created_at,
         x: 429,
         y: 770,
         text_only: true
@@ -167,7 +177,7 @@ module Pensions
       address = form['claimantAddress'] || form['veteranAddress']
 
       # also validates/maniuplates the metadata
-      BenefitsIntake::Metadata.generate(
+      ::BenefitsIntake::Metadata.generate(
         form['veteranFullName']['first'],
         form['veteranFullName']['last'],
         form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
@@ -206,9 +216,18 @@ module Pensions
     # Being VANotify job to send email to veteran
     #
     def send_confirmation_email
-      Pensions::NotificationEmail.new(@claim).deliver(:confirmation)
+      Pensions::NotificationEmail.new(@claim.id).deliver(:confirmation)
     rescue => e
       @pension_monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
+    end
+
+    ##
+    # VANotify job to send Submission in Progress email to veteran
+    #
+    def send_submitted_email
+      Pensions::NotificationEmail.new(@claim.id).deliver(:submitted)
+    rescue => e
+      @pension_monitor.track_send_submitted_email_failure(@claim, @intake_service, @user_account_uuid, e)
     end
 
     ##
@@ -220,6 +239,20 @@ module Pensions
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     rescue => e
       @pension_monitor.track_file_cleanup_error(@claim, @intake_service, @user_account_uuid, e)
+    end
+
+    ##
+    # Sets the signature date to the claim.created_at,
+    # so that retried claims will be considered signed on the date of submission.
+    # Signature date will be set to current date if not provided.
+    #
+    def set_signature_date
+      form_data = JSON.parse(@claim.form)
+      form_data['signatureDate'] = @claim.created_at&.strftime('%Y-%m-%d')
+      @claim.form = form_data.to_json
+      @claim.save
+    rescue => e
+      @pension_monitor.track_claim_signature_error(@claim, @intake_service, @user_account_uuid, e)
     end
   end
 end

@@ -1,0 +1,37 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/healthhistory/militaryHistory/11375034"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 21 Nov 2024 00:20:12 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '379'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"success":true,"failure":false,"pojoObject":[{"id":15125372,"eventTitle":"Test1","eventDate":"2018-08-21","serviceBranch":"N","serviceLocation":"O","exposures":"test","experience":"tedstastgaya
+        yady ","oplock":1,"userprofileId":11375034},{"id":14168648,"eventTitle":"lkjlkjh","eventDate":"2017-04-13","exposures":"hklj","experience":"navy","oplock":1,"userprofileId":11375034}]}'
+  recorded_at: Thu, 21 Nov 2024 00:20:12 GMT
+recorded_with: VCR 6.3.1

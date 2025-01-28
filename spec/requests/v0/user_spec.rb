@@ -11,7 +11,7 @@ RSpec.describe 'V0::User', type: :request do
     let(:mhv_user) { build(:user, :mhv) }
     let(:v0_user_request_headers) { {} }
     let(:edipi) { '1005127153' }
-    let!(:mhv_user_verification) { create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_correlation_id) }
+    let!(:mhv_user_verification) { create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid) }
 
     before do
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
@@ -134,7 +134,7 @@ RSpec.describe 'V0::User', type: :request do
     end
 
     context 'with missing MHV accounts' do
-      let(:mhv_user) { build(:user, :mhv, mhv_ids: nil, active_mhv_ids: nil, mhv_correlation_id: nil) }
+      let(:mhv_user) { build(:user, :mhv, mhv_ids: nil, active_mhv_ids: nil, mhv_credential_uuid: nil) }
       let!(:mhv_user_verification) { create(:mhv_user_verification, backing_idme_uuid: mhv_user.idme_uuid) }
 
       before do
@@ -162,7 +162,8 @@ RSpec.describe 'V0::User', type: :request do
       end
     end
 
-    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', :skip_vet360 do
+    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person',
+            :skip_va_profile_user, :skip_vet360 do
       before do
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }
@@ -197,7 +198,7 @@ RSpec.describe 'V0::User', type: :request do
     let(:edipi) { '1005127153' }
 
     before do
-      user = new_user(:loa1)
+      user = build(:user, :loa1)
       sign_in_as(user)
       create(:user_verification, idme_uuid: user.idme_uuid)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
@@ -233,7 +234,7 @@ RSpec.describe 'V0::User', type: :request do
     let(:v0_user_request_headers) { {} }
 
     before do
-      user = new_user(:loa1)
+      user = build(:user, :loa1)
       sign_in_as(user)
       create(:user_verification, idme_uuid: user.idme_uuid)
       get v0_user_url, params: nil, headers: v0_user_request_headers
@@ -364,7 +365,7 @@ RSpec.describe 'V0::User', type: :request do
             .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
             .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
             .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
-          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(false)
+          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to be(false)
           Timecop.freeze(now)
 
           # sufficient time has elapsed that new requests are made, resulting in success
@@ -374,17 +375,11 @@ RSpec.describe 'V0::User', type: :request do
             .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
             .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
           expect(response).to have_http_status(:ok)
-          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(true)
+          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to be(true)
           Timecop.return
         end
       end
     end
-  end
-
-  def new_user(type = :loa3)
-    user = build(:user, type, icn: SecureRandom.uuid, uuid: rand(1000..100_000))
-    create(:account, idme_uuid: user.uuid)
-    user
   end
 
   def stub_mpi_failure

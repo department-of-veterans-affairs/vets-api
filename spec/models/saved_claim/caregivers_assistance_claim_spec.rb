@@ -113,7 +113,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
         end
 
         it 'returns true' do
-          expect(claim.validate).to eq true
+          expect(claim.validate).to be true
         end
       end
 
@@ -142,7 +142,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
           expect(Rails.logger).not_to receive(:info)
             .with('Form validation succeeded on attempt 1/3')
 
-          expect(claim.validate).to eq true
+          expect(claim.validate).to be true
         end
       end
 
@@ -222,7 +222,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
               expect(Rails.logger).to receive(:info)
                 .with('Form validation succeeded on attempt 2/3').once
 
-              expect(claim.validate).to eq true
+              expect(claim.validate).to be true
             end
           end
         end
@@ -306,7 +306,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
 
     context 'when no data present' do
       it 'returns nil' do
-        expect(subject.veteran_data).to eq(nil)
+        expect(subject.veteran_data).to be_nil
       end
     end
   end
@@ -326,7 +326,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
 
     context 'when no data present' do
       it 'returns nil' do
-        expect(subject.primary_caregiver_data).to eq(nil)
+        expect(subject.primary_caregiver_data).to be_nil
       end
     end
   end
@@ -346,7 +346,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
 
     context 'when no data present' do
       it 'returns nil' do
-        expect(subject.secondary_caregiver_one_data).to eq(nil)
+        expect(subject.secondary_caregiver_one_data).to be_nil
       end
     end
   end
@@ -372,7 +372,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
         expect(file).to receive(:delete)
 
         claim.destroy!
-        expect(Form1010cg::Attachment.exists?(id: attachment.id)).to eq(false)
+        expect(Form1010cg::Attachment.exists?(id: attachment.id)).to be(false)
       end
     end
 
@@ -402,7 +402,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
 
     context 'when no data present' do
       it 'returns nil' do
-        expect(subject.secondary_caregiver_two_data).to eq(nil)
+        expect(subject.secondary_caregiver_two_data).to be_nil
       end
     end
   end

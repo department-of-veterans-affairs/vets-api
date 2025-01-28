@@ -6,7 +6,7 @@ RSpec.describe Users::Services do
   describe '#authorizations' do
     subject { Users::Services.new(user).authorizations }
 
-    let(:user) { build :user, :loa3 }
+    let(:user) { build(:user, :loa3) }
 
     context 'with initialized user' do
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_non_premium_user',
@@ -35,7 +35,7 @@ RSpec.describe Users::Services do
     end
 
     context 'with an loa1 user' do
-      let(:user) { build :user }
+      let(:user) { build(:user, :loa1) }
 
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_non_premium_user',
                        match_requests_on: %i[method sm_user_ignoring_path_param]) do
@@ -71,9 +71,6 @@ RSpec.describe Users::Services do
       end
 
       it 'returns an array including the MHV services' do
-        puts 'VAPAT'
-        puts user.va_patient?
-        puts 'VAPAT'
         %w[health-records medical-records messaging rx].each do |service|
           expect(subject).to include(service)
         end

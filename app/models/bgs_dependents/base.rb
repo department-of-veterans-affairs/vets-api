@@ -34,7 +34,6 @@ module BGSDependents
       family_relationship_type,
       optional_fields = {}
     )
-
       {
         vnp_participant_id: participant[:vnp_ptcpnt_id],
         participant_relationship_type_name: participant_relationship_type,

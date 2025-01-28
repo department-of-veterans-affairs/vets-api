@@ -1,0 +1,132 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments?end=<%= end_date || "2023-01-26T23:59:59Z" %>&pageSize=0&start=<%= start_date || "2021-01-01T00:00:00Z" %>&statuses=proposed,cancelled,booked,fulfilled,arrived
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Referer:
+          - https://review-instance.va.gov
+        X-Vamf-Jwt:
+          - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcmdhbiIsInN1YiI6IjEwMTI4NDYwNDNWNTc2MzQxIiwiYXV0aGVudGljYXRpb25BdXRob3JpdHkiOiJnb3YudmEudmFvcyIsImdlbmRlciI6IkZFTUFMRSIsImlzcyI6Imdvdi52YS52YW1mLnVzZXJzZXJ2aWNlLnYyIiwidmFtZi5hdXRoLnJlc291cmNlcyI6WyJeLiooXC8pP3BhdGllbnRbc10_XC8oSUNOXC8pPzEwMTI4NDYwNDNWNTc2MzQxKFwvLiopPyQiLCJeLiooXC8pP3NpdGVbc10_XC8oZGZuLSk_OTgzXC9wYXRpZW50W3NdP1wvNzIxNjY4NVwvYXBwb2ludG1lbnRzKFwvLiopPyQiLCJeLiooXC8pP3NpdGVbc10_XC8oZGZuLSk_NjY4XC9wYXRpZW50W3NdP1wvMTYxNzM3XC9hcHBvaW50bWVudHMoXC8uKik_JCIsIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNDRcL2FwcG9pbnRtZW50cyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYzOTQzODEwNSwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKYWNxdWVsaW5lIiwibGFzdE5hbWUiOiJNb3JnYW4iLCJnZW5kZXIiOiJGRU1BTEUiLCJpY24iOiIxMDEyODQ2MDQzVjU3NjM0MSIsImRvYiI6IjE5NjItMDItMDciLCJkYXRlT2ZCaXJ0aCI6IjE5NjItMDItMDciLCJzc24iOiI3OTYwNjE5NzYifSwidmFtZi5hdXRoLnJvbGVzIjpbInZldGVyYW4iXSwicmlnaHRPZkFjY2Vzc0FjY2VwdGVkIjp0cnVlLCJleHAiOjE2Mzk0MzkwMDYsImp0aSI6IjVjNmFmYzUyLWJkZDctNGVhMi04OTM0LTI5NTk2YWUyZjUzMCIsImlkVHlwZSI6IklDTiIsImRhdGVPZkJpcnRoIjoiMTk2MjAyMDciLCJ2ZXJzaW9uIjoyLjYsImVkaXBpZCI6IjEwMTM1OTk3MzAiLCJ2aXN0YUlkcyI6W3sicGF0aWVudElkIjoiNzIxNjY4NSIsInNpdGVJZCI6Ijk4MyJ9LHsicGF0aWVudElkIjoiMTYxNzM3Iiwic2l0ZUlkIjoiNjY4In0seyJwYXRpZW50SWQiOiI1NTIxNjEwNDQiLCJzaXRlSWQiOiI5ODQifV0sImZpcnN0TmFtZSI6IkphY3F1ZWxpbmUiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjM5NDM3OTI2LCJkb2IiOiIxOTYyMDIwNyIsImxvYSI6Mn0.rrz0bmrUqXf9NZZtShsP0Ub5ZRiI2LUqgqncs-M9rtBTUyDyW8qUBO7MhYvmJEhA40S66eOh0-JZyDJYKUVg4Hl-1ZRiVc5uX-0I1MhxoQ0DYR886bH373Eybuh3AU30gyohkBun0M3NQV2C3bxs-f0_wkAuyNIR-Rxm6nysei5ZmnQvzJChHg1YKtQKNUUUIVOPDCro_q6pTw_QQA7ZdIVxmT4f18xHODxs9aUXnHOFJPzUK32VbPQVtVYRQWK_SFisG42-Rhxg3O_rDiUeFSxfV-Uhjo2RBh9W0utGuMW9qDbRx1AqQrIsbBM7YeaNhno-BBsfQyeX3--GlXq1YA
+        X-Request-Id:
+          - ''
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Mon, 13 Dec 2021 23:28:26 GMT
+        Content-Type:
+          - application/json
+        Content-Length:
+          - '653'
+        Server:
+          - openresty
+        X-Vamf-Version:
+          - 1.14.1
+        B3:
+          - 8c17e441da8d346f6934d442b0a0ac7c-e1581452019f7fc4-0
+        Access-Control-Allow-Headers:
+          - x-vamf-jwt
+        X-Vamf-Build:
+          - 20a82ca
+        X-Vamf-Timestamp:
+          - '2021-11-26T16:29:10+0000'
+        Access-Control-Allow-Origin:
+          - "*"
+        Access-Control-Allow-Methods:
+          - GET,OPTIONS
+        Access-Control-Max-Age:
+          - '3600'
+        X-Envoy-Upstream-Service-Time:
+          - '424'
+        Strict-Transport-Security:
+          - max-age=63072000; includeSubDomains; preload
+      body:
+        encoding: UTF-8
+        string: '{"data": [
+          {
+            "id":"76131",
+            "identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vvs/id", "value":"28b565a0-64ef-4e13-82c5-aec4c41071c5"}],
+            "kind":"clinic",
+            "status":"booked",
+             "location_id":"438",
+             "clinic":"16",
+             "start":"2022-01-23T21:03:00Z",
+             "end":"2022-01-23T21:23:00Z",
+             "minutes_duration":20,
+             "comment":"Test2 - 1/23/2022 - CLINIC_BASED - Farid",
+             "cancellable":true,
+             "patient_instruction":"this is a test of instruction",
+             "telehealth":{"group":false, "vvs_kind":"CLINIC_BASED"},
+             "extension":{"cc_location":{"address":{}}}
+            },
+            {
+              "id":"76132",
+              "identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vvs/id", "value":"deda8593-5500-4a7c-ab75-ad266d6af8e8"}],
+              "kind":"cc",
+              "status":"proposed",
+              "patient_icn":"1012853802V084487",
+              "location_id":"442",
+              "clinic":"5079",
+              "practitioners":[{"identifier":[{"system":"us-npi", "value":"1407938061 - Provider not in primary care clinic"}]}],
+              "start":"2022-01-24T21:03:00Z",
+              "end":"2022-01-24T21:23:00Z",
+              "minutes_duration":20,
+              "comment":"Test3 - 1/23/2022 - CLINIC_BASED - Farid", "cancellable":true, "patient_instruction":"this is a test of instruction",
+              "telehealth":{"group":false, "vvs_kind":"CLINIC_BASED"},
+              "extension":{"cc_location":{"address":{}}}
+            },
+            {
+              "id":"76133",
+              "identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vvs/id", "value":"ed1c8182-c92f-403f-8eac-104f9eb79963"}],
+              "kind":"clinic",
+              "status":"booked",
+              "service_type":"optometry",
+              "patient_icn":"1012853802V084487",
+              "location_id":"984",
+              "clinic":"1184",
+              "practitioners":[{"identifier":[{"system":"dfn-983", "value":"520647609"}], "name":{"family":"ENGHAUSER", "given":["MATTHEW"]}, "practice_name":"Site #983"}],
+              "start":"2022-01-25T21:03:00Z",
+              "end":"2022-01-25T21:23:00Z",
+              "minutes_duration":20,
+              "comment":"Test4 - 1/23/2022 - CLINIC_BASED - Farid",
+              "cancellable":true,
+              "patient_instruction":"this is a test of instruction",
+              "telehealth":{"group":false, "vvs_kind":"CLINIC_BASED"},
+              "extension":{"cc_location":{"address":{}}}
+            },
+            {
+              "id":"76122",
+              "identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vvs/id", "value":"ed1c8182-c92f-403f-8eac-104f9eb79963"}],
+              "kind":"clinic",
+              "status":"booked",
+              "service_type":"optometry",
+              "patient_icn":"1012853802V084487",
+              "location_id":"984",
+              "clinic":"1184",
+              "practitioners":[{"identifier":[{"system":"dfn-983", "value":"520647609 - Provider not in primary care clinic"}], "name":{"family":"ENGHAUSER", "given":["MATTHEW"]}, "practice_name":"Site #983"}],
+              "start":"2022-01-25T21:03:00Z",
+              "end":"2022-01-25T21:23:00Z",
+              "minutes_duration":20,
+              "comment":"Test4 - 1/23/2022 - CLINIC_BASED - Farid",
+              "cancellable":true,
+              "patient_instruction":"this is a test of instruction",
+              "telehealth":{"group":false, "vvs_kind":"CLINIC_BASED"},
+              "extension":{"cc_location":{"address":{}}}
+            }
+        ]}'
+    recorded_at: Mon, 13 Dec 2021 23:28:26 GMT
+recorded_with: VCR 6.0.0

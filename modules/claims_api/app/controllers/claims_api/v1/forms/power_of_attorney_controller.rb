@@ -2,6 +2,7 @@
 
 require 'bgs/power_of_attorney_verifier'
 require 'bgs_service/local_bgs'
+require 'bgs_service/person_web_service'
 require 'claims_api/dependent_claimant_validation'
 
 module ClaimsApi
@@ -72,7 +73,7 @@ module ClaimsApi
           end
 
           claims_v1_logging('poa_submit', message: "poa_submit complete, poa: #{power_of_attorney&.id}")
-          render json: ClaimsApi::PowerOfAttorneySerializer.new(power_of_attorney)
+          render json: ClaimsApi::V1::PowerOfAttorneySerializer.new(power_of_attorney)
         end
 
         # PUT to upload a wet-signed 2122 form.
@@ -95,7 +96,7 @@ module ClaimsApi
           # If upload is successful, then the PoaUpater job is also called to update the code in BGS.
           ClaimsApi::PoaVBMSUploadJob.perform_async(@power_of_attorney.id, 'put')
 
-          render json: ClaimsApi::PowerOfAttorneySerializer.new(@power_of_attorney)
+          render json: ClaimsApi::V1::PowerOfAttorneySerializer.new(@power_of_attorney)
         end
 
         # GET the current status of a previous POA change request.
@@ -104,7 +105,7 @@ module ClaimsApi
         def status
           find_poa_by_id
 
-          render json: ClaimsApi::PowerOfAttorneySerializer.new(@power_of_attorney)
+          render json: ClaimsApi::V1::PowerOfAttorneySerializer.new(@power_of_attorney)
         end
 
         # GET current POA for a Veteran.
@@ -267,12 +268,19 @@ module ClaimsApi
         end
 
         def find_by_ssn(ssn)
-          # rubocop:disable Rails/DynamicFindBy
-          ClaimsApi::LocalBGS.new(
-            external_uid: target_veteran.participant_id,
-            external_key: target_veteran.participant_id
-          ).find_by_ssn(ssn)
-          # rubocop:enable Rails/DynamicFindBy
+          if Flipper.enabled? :claims_api_use_person_web_service
+            # rubocop:disable Rails/DynamicFindBy
+            ClaimsApi::PersonWebService.new(
+              external_uid: target_veteran.participant_id,
+              external_key: target_veteran.participant_id
+            ).find_by_ssn(ssn)
+          else
+            ClaimsApi::LocalBGS.new(
+              external_uid: target_veteran.participant_id,
+              external_key: target_veteran.participant_id
+            ).find_by_ssn(ssn)
+            # rubocop:enable Rails/DynamicFindBy
+          end
         end
 
         def check_request_ssn_matches_mpi(req_headers)

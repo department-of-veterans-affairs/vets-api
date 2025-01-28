@@ -35,6 +35,8 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
           matthew.christianson@adhocteam.us
           rockwell.rice@oddball.io
           tyler.coleman@oddball.io
+          Janet.Coutinho@va.gov
+          Michael.Harlow@va.gov
         ]
       )
     end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'bgs_service/contention_service'
+
 module ClaimsApi
   class SpecialIssueUpdater < UpdaterService
     # Update special issues for a single contention/disability
@@ -13,7 +15,11 @@ module ClaimsApi
 
       contention_id.symbolize_keys!
       validate_contention_id_structure(contention_id)
-      service = bgs_service(user).contention
+      service = if Flipper.enabled?(:claims_api_special_issues_updater_uses_local_bgs)
+                  contention_service(user)
+                else
+                  bgs_ext_service(user).contention
+                end
 
       claims = service.find_contentions_by_ptcpnt_id(user['participant_id'])[:benefit_claims] || []
       claim = claim_from_contention_id(claims, contention_id)
@@ -58,8 +64,15 @@ module ClaimsApi
     #
     # @param user [OpenStruct] Veteran to attach special issues to
     # @return [BGS::Services] Service object
-    def bgs_service(user)
+    def bgs_ext_service(user)
       BGS::Services.new(
+        external_uid: user['ssn'],
+        external_key: user['ssn']
+      )
+    end
+
+    def contention_service(user)
+      ClaimsApi::ContentionService.new(
         external_uid: user['ssn'],
         external_key: user['ssn']
       )
@@ -137,7 +150,9 @@ module ClaimsApi
     def existing_special_issues(contention, special_issues = [])
       contention[:special_issues] = [] if contention[:special_issues].blank?
 
-      unique_special_issues = (special_issues + contention[:special_issues].pluck(:spis_tc)).uniq
+      contentions = Array.wrap(contention[:special_issues])
+
+      unique_special_issues = (special_issues + contentions.pluck(:spis_tc)).uniq
       unique_special_issues.map do |special_issue|
         { spis_tc: special_issue }
       end
