@@ -684,6 +684,7 @@ app/sidekiq/vre/create_ch31_submissions_report_job.rb @department-of-veterans-af
 app/sidekiq/vre/submit1900_job.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/webhooks @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 bin @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+bin/merge_imagemagick_policy @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 clamav_tmp @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/application.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/betamocks @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -738,6 +739,7 @@ config/form_profile_mappings/FORM-UPLOAD-FLOW.yml @department-of-veterans-affair
 config/form_profile_mappings/MDOT.yml @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 config/freshclam.conf @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/health_care_application @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+config/imagemagick/policies/new-policy.xml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/01_redis.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/aal.rb @department-of-veterans-affairs/octo-identity
 config/initializers/add_local_config.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -745,6 +747,7 @@ config/initializers/app_info.rb @department-of-veterans-affairs/va-api-engineers
 config/initializers/application_controller_renderer.rb @department-of-veterans-affairs/octo-identity
 config/initializers/authn_context.rb @department-of-veterans-affairs/octo-identity
 config/initializers/backtrace_silencers.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+config/initializers/benefits_intake_submission_status_handlers.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/betamocks.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/bgs.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/breakers.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1496,7 +1499,7 @@ spec/lib/lighthouse/auth @department-of-veterans-affairs/benefits-management-too
 spec/lib/lighthouse/benefits_claims @department-of-veterans-affairs/disability-experience @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/benefits_documents @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/benefits_documents/service_spec.rb @department-of-veterans-affairs/backend-review-group
-spec/lib/lighthouse/benefits_intake @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
+spec/lib/lighthouse/benefits_intake @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/direct_deposit @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/dbex-trex @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/direct_deposit/payment_account_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/facilities @department-of-veterans-affairs/vfs-facilities

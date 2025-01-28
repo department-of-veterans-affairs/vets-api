@@ -283,11 +283,11 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
       context 'validate_veteran_identifiers' do
         context 'when Veteran identifiers are missing in MPI lookups' do
           before do
-            stub_mpi(build(:mpi_profile, birth_date: nil, participant_id: nil))
+            stub_mpi(build(:mpi_profile, icn: nil))
           end
 
           it 'returns an unprocessible entity status' do
-            allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
+            allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)
               .and_raise(ArgumentError)
             mock_acg(scopes) do |auth_header|
               post path, params: data, headers: headers.merge(auth_header)
