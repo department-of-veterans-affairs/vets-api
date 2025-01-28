@@ -69,6 +69,42 @@ module ClaimsApi
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
     end
 
+    def processes
+      @processes ||= ClaimsApi::Process.where(processable: self)
+                                       .in_order_of(:step_type, ClaimsApi::Process::VALID_POA_STEP_TYPES).to_a
+    end
+
+    def steps
+      ClaimsApi::Process::VALID_POA_STEP_TYPES.each do |step_type|
+        unless processes.any? { |p| p.step_type == step_type }
+          index = ClaimsApi::Process::VALID_POA_STEP_TYPES.index(step_type)
+          processes.insert(index, ClaimsApi::Process.new(step_type:, step_status: 'NOT_STARTED', processable: self))
+        end
+      end
+
+      processes.map do |p|
+        {
+          type: p.step_type,
+          status: p.step_status,
+          completed_at: p.completed_at,
+          next_step: p.next_step
+        }
+      end
+    end
+
+    def errors
+      processes.map do |p|
+        error_message = p.error_messages.last
+        next unless error_message
+
+        {
+          title: error_message['title'],
+          detail: error_message['detail'],
+          code: p.step_type
+        }
+      end.compact
+    end
+
     def uploader
       @uploader ||= ClaimsApi::PowerOfAttorneyUploader.new(id)
     end
@@ -89,9 +125,7 @@ module ClaimsApi
 
     def create_signature_image(signature_type)
       path = "/tmp/#{signature_type}_#{id}_signature.png"
-      File.open(path, 'wb') do |f|
-        f.write(Base64.decode64(form_data.dig('signatures', signature_type)))
-      end
+      File.binwrite(path, Base64.decode64(form_data.dig('signatures', signature_type)))
       signature_image_paths[signature_type] = path
     end
 
