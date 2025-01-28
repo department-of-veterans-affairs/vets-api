@@ -449,3 +449,18 @@ accredited_representative_portal:
 vaos:
   eps:
     key_path: modules/health_quest/config/rsa/sandbox_rsa
+
+vet360:
+  url: "https://localhost:4000"
+  contact_information:
+    cache_enabled: true
+    enabled: true
+    timeout: 30
+    mock: false
+  address_validation:
+    url: "https://localhost:4000"
+    hostname: "sandbox-api.va.gov"
+    api_key: "<AV_KEY>"
+  v3:
+    address_validation:
+      api_key: "<AV_KEY>"
