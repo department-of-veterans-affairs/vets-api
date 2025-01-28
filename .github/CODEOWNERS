@@ -329,8 +329,8 @@ app/models/transaction_notification.rb @department-of-veterans-affairs/vfs-authe
 app/models/triage_team.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/all_triage_teams.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/user_acceptable_verified_credential.rb @department-of-veterans-affairs/octo-identity
-app/models/user_action.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/models/user_action_event.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
+app/models/user_action_event.rb @department-of-veterans-affairs/octo-identity
+app/models/user_action.rb @department-of-veterans-affairs/octo-identity
 app/models/user_account.rb @department-of-veterans-affairs/octo-identity
 app/models/user_credential_email.rb @department-of-veterans-affairs/octo-identity
 app/models/user_identity.rb @department-of-veterans-affairs/octo-identity
@@ -1272,6 +1272,8 @@ spec/factories/supporting_evidence_attachment.rb @department-of-veterans-affairs
 spec/factories/triage_teams.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/user_acceptable_verified_credentials.rb @department-of-veterans-affairs/octo-identity
 spec/factories/user_accounts.rb @department-of-veterans-affairs/octo-identity
+spec/factories/user_action_events.rb @department-of-veterans-affairs/octo-identity
+spec/factories/user_actions.rb @department-of-veterans-affairs/octo-identity
 spec/factories/user_credential_emails.rb @department-of-veterans-affairs/octo-identity
 spec/factories/user_identities.rb @department-of-veterans-affairs/octo-identity
 spec/factories/user_identity_attributes.rb @department-of-veterans-affairs/octo-identity
@@ -1667,6 +1669,8 @@ spec/models/supporting_evidence_attachment_spec.rb @department-of-veterans-affai
 spec/models/terms_of_use_agreement_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/triage_team_spec.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/user_acceptable_verified_credential_spec.rb @department-of-veterans-affairs/octo-identity
+spec/models/user_action_event_spec.rb @department-of-veterans-affairs/octo-identity
+spec/models/user_action_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/user_action_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
 spec/models/user_action_event_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
 spec/models/user_account_spec.rb @department-of-veterans-affairs/octo-identity
