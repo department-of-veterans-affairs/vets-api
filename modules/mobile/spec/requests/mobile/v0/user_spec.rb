@@ -6,13 +6,16 @@ RSpec.describe 'Mobile::V0::User', type: :request do
   include JsonSchemaMatchers
 
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
-  let(:contact_information_service) do
-    VAProfile::ContactInformation::Service
-  end
 
   before do
-    Flipper.disable(:va_v3_contact_information_service)
-    Flipper.disable(:remove_pciu)
+    allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_letters, instance_of(User)).and_return(false)
+  end
+
+  let(:contact_information_service) do
+    VAProfile::V2::ContactInformation::Service
   end
 
   describe 'GET /mobile/v0/user', :skip_va_profile_user do
@@ -27,10 +30,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
         cerner_facility_ids: %w[757 358 999],
         vha_facility_ids: %w[757 358 999]
       )
-    end
-
-    before(:all) do
-      Flipper.disable(:mobile_lighthouse_letters)
     end
 
     before do
@@ -402,7 +401,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
       # Another team will remove this method from the user model
       context 'when user model does not have a fax number method' do
         before do
-          allow_any_instance_of(VAProfileRedis::ContactInformation).to receive(:try).with(:fax_number).and_return(nil)
+          allow_any_instance_of(VAProfileRedis::V2::ContactInformation).to receive(:try).with(:fax_number).and_return(nil)
         end
 
         it 'sets fax number to nil' do

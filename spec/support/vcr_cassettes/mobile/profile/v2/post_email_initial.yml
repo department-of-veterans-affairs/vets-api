@@ -2,10 +2,10 @@
 http_interactions:
   - request:
       method: post
-      uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/emails
+      uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/emails
       body:
         encoding: UTF-8
-        string: '{"bio":{"emailAddressText":"person42@example.com","emailId":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2018-04-09T11:52:03.000-06:00","vet360Id":"1","effectiveStartDate":null,"effectiveEndDate":null}}'
+        string: '{"bio":{"emailAddressText":"person42@example.com","emailId":42,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2024-08-27T18:51:06.000Z","effectiveStartDate":"2024-08-27T18:51:06.000Z","effectiveEndDate":null}}'
       headers:
         Accept:
           - application/json

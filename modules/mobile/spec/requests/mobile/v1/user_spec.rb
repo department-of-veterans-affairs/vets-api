@@ -5,13 +5,15 @@ require 'common/client/errors'
 
 RSpec.describe 'Mobile::V1::User', type: :request do
   include JsonSchemaMatchers
-  let(:contact_information_service) do
-    VAProfile::ContactInformation::Service
-  end
 
   before do
-    Flipper.disable(:va_v3_contact_information_service)
-    Flipper.disable(:remove_pciu)
+    allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+  end
+
+  let(:contact_information_service) do
+    VAProfile::V2::ContactInformation::Service
   end
 
   describe 'GET /mobile/v1/user', :skip_va_profile_user do

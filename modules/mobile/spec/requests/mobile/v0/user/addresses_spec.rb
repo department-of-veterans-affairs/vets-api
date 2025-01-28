@@ -8,14 +8,19 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
   let!(:user) { sis_user }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+    Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.012Z'))
   end
 
-  describe 'update endpoints', :skip_va_profile_user do
+  after do
+    Timecop.return
+  end
+
+  describe 'update endpoints' do
     let(:address) do
-      address = build(:va_profile_address, vet360_id: user.vet360_id)
+      address = build(:va_profile_v3_address, :v2_override)
       # Some domestic addresses are coming in with province of string 'null'.
       # The controller now manually forces all domestic provinces be nil
       address.province = 'null'
@@ -25,10 +30,14 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
     describe 'POST /mobile/v0/user/addresses' do
       context 'with a valid address that takes two tries to complete' do
         before do
-          VCR.use_cassette('mobile/profile/get_address_status_complete') do
-            VCR.use_cassette('mobile/profile/get_address_status_incomplete') do
-              VCR.use_cassette('mobile/profile/post_address_initial') do
-                post '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
+          VCR.use_cassette('mobile/profile/v2/get_address_status_complete', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
+              VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete_2', VCR::MATCH_EVERYTHING) do
+                VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete_3', VCR::MATCH_EVERYTHING) do
+                  VCR.use_cassette('mobile/profile/v2/post_address_initial', VCR::MATCH_EVERYTHING) do
+                    post '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
+                  end
+                end
               end
             end
           end
@@ -53,12 +62,10 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
           allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService)
             .to receive(:seconds_elapsed_since).and_return(61)
 
-          VCR.use_cassette('mobile/profile/get_address_status_complete') do
-            VCR.use_cassette('mobile/profile/get_address_status_incomplete_2') do
-              VCR.use_cassette('mobile/profile/get_address_status_incomplete') do
-                VCR.use_cassette('mobile/profile/post_address_initial') do
-                  post '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
-                end
+          VCR.use_cassette('mobile/profile/v2/get_address_status_complete', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
+              VCR.use_cassette('mobile/profile/v2/post_address_initial', VCR::MATCH_EVERYTHING) do
+                post '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
               end
             end
           end
@@ -104,9 +111,9 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
     describe 'PUT /mobile/v0/user/addresses' do
       context 'with a valid address that takes two tries to complete' do
         before do
-          VCR.use_cassette('mobile/profile/get_address_status_complete') do
-            VCR.use_cassette('mobile/profile/get_address_status_incomplete') do
-              VCR.use_cassette('mobile/profile/put_address_initial') do
+          VCR.use_cassette('mobile/profile/v2/get_address_status_complete', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
+              VCR.use_cassette('mobile/profile/v2/put_address_initial', VCR::MATCH_EVERYTHING) do
                 put '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
               end
             end
@@ -123,7 +130,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
         it 'includes a transaction id' do
           id = JSON.parse(response.body).dig('data', 'attributes', 'transactionId')
-          expect(id).to eq('1f450c8e-4bb2-4f5d-a5f3-0d907941625a')
+          expect(id).to eq('1bfcadca-fbfa-427c-8da2-96da9111f16b')
         end
       end
 
@@ -131,13 +138,13 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
         before do
           allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService)
             .to receive(:seconds_elapsed_since).and_return(61)
+          allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService).to receive(:check_transaction_status!)
+            .and_raise(Mobile::V0::Profile::IncompleteTransaction)
 
-          VCR.use_cassette('mobile/profile/get_address_status_complete') do
-            VCR.use_cassette('mobile/profile/get_address_status_incomplete_2') do
-              VCR.use_cassette('mobile/profile/get_address_status_incomplete') do
-                VCR.use_cassette('mobile/profile/put_address_initial') do
-                  put '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
-                end
+          VCR.use_cassette('mobile/profile/v2/get_address_status_complete', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
+              VCR.use_cassette('mobile/profile/v2/put_address_initial', VCR::MATCH_EVERYTHING) do
+                put '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
               end
             end
           end
@@ -183,9 +190,9 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
     describe 'DELETE /mobile/v0/user/addresses' do
       context 'with a valid address that takes two tries to complete' do
         before do
-          VCR.use_cassette('mobile/profile/get_address_status_complete') do
-            VCR.use_cassette('mobile/profile/get_address_status_incomplete') do
-              VCR.use_cassette('mobile/profile/put_address_initial') do
+          VCR.use_cassette('mobile/profile/v2/get_address_status_complete', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
+              VCR.use_cassette('mobile/profile/v2/delete_address_initial', VCR::MATCH_EVERYTHING) do
                 delete '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
               end
             end
@@ -202,7 +209,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
         it 'includes a transaction id' do
           id = JSON.parse(response.body).dig('data', 'attributes', 'transactionId')
-          expect(id).to eq('1f450c8e-4bb2-4f5d-a5f3-0d907941625a')
+          expect(id).to eq('1bfcadca-fbfa-427c-8da2-96da9111f16b')
         end
       end
 
@@ -210,13 +217,13 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
         before do
           allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService)
             .to receive(:seconds_elapsed_since).and_return(61)
+          allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService).to receive(:check_transaction_status!)
+            .and_raise(Mobile::V0::Profile::IncompleteTransaction)
 
-          VCR.use_cassette('mobile/profile/get_address_status_complete') do
-            VCR.use_cassette('mobile/profile/get_address_status_incomplete_2') do
-              VCR.use_cassette('mobile/profile/get_address_status_incomplete') do
-                VCR.use_cassette('mobile/profile/put_address_initial') do
-                  delete '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
-                end
+          VCR.use_cassette('mobile/profile/v2/get_address_status_complete', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('mobile/profile/v2/get_address_status_incomplete', VCR::MATCH_EVERYTHING) do
+              VCR.use_cassette('mobile/profile/v2/delete_address_initial', VCR::MATCH_EVERYTHING) do
+                delete '/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
               end
             end
           end
@@ -262,7 +269,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
   describe 'POST /mobile/v0/user/addresses/validate', :skip_va_profile_user do
     let(:address) do
-      address = build(:va_profile_address, vet360_id: user.vet360_id)
+      address = build(:va_profile_v3_address, :v2_override)
       # Some domestic addresses are coming in with province of string 'null'.
       # The controller now manually forces all domestic provinces be nil
       address.province = 'null'
