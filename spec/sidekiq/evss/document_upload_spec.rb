@@ -77,13 +77,6 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
     context 'when upload succeeds' do
       let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
       let(:file) { Rails.root.join('spec', 'fixtures', 'files', file_name).read }
-      let(:formatted_submit_date) do
-        # We want to return all times in EDT
-        timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
-
-        # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-        timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
-      end
       let(:evidence_submission_pending) do
         create(:bd_evidence_submission_pending,
                tracked_item_id:,
@@ -119,6 +112,9 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       let(:error_message) { "#{job_class} failed to update EvidenceSubmission" }
       let(:message) { "#{job_class} EvidenceSubmission updated" }
       let(:tags) { ['service:claim-status', "function: #{error_message}"] }
+      let(:failed_date) do
+        BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
+      end
 
       it 'updates an evidence submission record with a FAILED status with date_failed' do
         EVSS::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) do
@@ -135,7 +131,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
         current_personalisation = JSON.parse(evidence_submission.template_metadata_ciphertext)['personalisation']
         expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
-        expect(current_personalisation['date_failed']).not_to be_nil
+        expect(current_personalisation['date_failed']).to eql(failed_date)
       end
 
       it 'fails to create a failed evidence submission record when args malformed' do

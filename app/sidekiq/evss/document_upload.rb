@@ -113,7 +113,7 @@ class EVSS::DocumentUpload
   # Update personalisation here since an evidence submission record was previously created
   def self.update_personalisation(current_personalisation, failed_at)
     personalisation = current_personalisation.clone
-    personalisation['date_failed'] = format_issue_instant_for_mailers(failed_at)
+    personalisation['date_failed'] = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(failed_at)
     personalisation
   end
 
@@ -124,24 +124,10 @@ class EVSS::DocumentUpload
     # Obscure the file name here since this will be used to generate a failed email
     # NOTE: the template that we use for va_notify.send_email uses `filename` but we can also pass in `file_name`
     filename = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][2]['file_name'])
-    date_submitted = format_issue_instant_for_mailers(msg['created_at'])
-    date_failed = format_issue_instant_for_mailers(msg['failed_at'])
+    date_submitted = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(msg['created_at'])
+    date_failed = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(msg['failed_at'])
 
     { first_name:, document_type:, filename:, date_submitted:, date_failed: }
-  end
-
-  def self.format_issue_instant_for_mailers(issue_instant)
-    # We want to return all times in EDT
-    timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
-
-    # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-    timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
-  end
-
-  # This method allows format_issue_instant_for_mailers to be used by update_evidence_submission_status
-  # and by the self methods called in sidekiq_retries_exhausted
-  def format_issue_instant_for_mailers(issue_instant)
-    self.class.format_issue_instant_for_mailers(issue_instant)
   end
 
   private
