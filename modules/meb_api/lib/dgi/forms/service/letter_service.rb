@@ -33,7 +33,7 @@ module MebApi
             {
               Accept: 'application/pdf',
               Authorization: "Bearer #{MebApi::AuthenticationTokenService.call}",
-              "Accept-Encoding": 'gzip, deflate, br',
+              'Accept-Encoding': 'gzip, deflate, br',
               Connection: 'keep-alive'
             }
           end
