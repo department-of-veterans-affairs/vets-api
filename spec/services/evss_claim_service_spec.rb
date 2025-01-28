@@ -154,7 +154,7 @@ RSpec.describe EVSSClaimService do
         subject.upload_document(document)
         expect(EvidenceSubmission.count).to eq(1)
         evidence_submission = EvidenceSubmission.first
-        current_personalisation = JSON.parse(evidence_submission.template_metadata_ciphertext)['personalisation']
+        current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
         expect(evidence_submission.upload_status)
           .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
         expect(current_personalisation['date_submitted']).to eql(submitted_date)

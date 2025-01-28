@@ -138,7 +138,7 @@ class EVSSClaimService
       job_class: self.class,
       upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
       user_account:,
-      template_metadata_ciphertext: { personalisation: create_personalisation(document) }.to_json
+      template_metadata: { personalisation: create_personalisation(document) }.to_json
     )
   end
 

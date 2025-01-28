@@ -129,7 +129,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         end
         expect(EvidenceSubmission.va_notify_email_not_queued.length).to equal(1)
         evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
-        current_personalisation = JSON.parse(evidence_submission.template_metadata_ciphertext)['personalisation']
+        current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
         expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
         expect(current_personalisation['date_failed']).to eql(failed_date)
       end
