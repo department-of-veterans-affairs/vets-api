@@ -840,42 +840,6 @@ describe MPI::Service do
     end
   end
 
-  describe '#find_profile_by_attributes_with_orch_search' do
-    subject do
-      mpi_service.find_profile_by_attributes_with_orch_search(first_name:,
-                                                              last_name:,
-                                                              birth_date:,
-                                                              ssn:,
-                                                              edipi:)
-    end
-
-    let(:statsd_caller) { 'find_profile_by_attributes_with_orch_search' }
-    let(:first_name) { 'some-first-name' }
-    let(:last_name) { 'some-last-name' }
-    let(:birth_date) { '19700101' }
-    let(:ssn) { 'some-ssn' }
-    let(:edipi) { 'some-edipi' }
-
-    context 'malformed request' do
-      let(:edipi) { nil }
-      let(:missing_keys) { [:edipi] }
-      let(:expected_error) { MPI::Errors::ArgumentError }
-      let(:expected_error_message) { "Required values missing: #{missing_keys}" }
-
-      it 'raises a required values missing error' do
-        expect { subject }.to raise_error(expected_error, expected_error_message)
-      end
-    end
-
-    context 'valid request' do
-      it_behaves_like 'find profile success response'
-    end
-
-    context 'invalid requests' do
-      it_behaves_like 'find profile invalid requests'
-    end
-  end
-
   describe '#find_profile_by_attributes' do
     subject do
       mpi_service.find_profile_by_attributes(first_name:,
