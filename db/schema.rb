@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_21_164657) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -24,6 +24,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_21_164657) do
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
   create_enum "itf_remediation_status", ["unprocessed"]
+  create_enum "user_action_status", ["initial", "success", "error"]
 
   create_table "account_login_stats", force: :cascade do |t|
     t.bigint "account_id", null: false
@@ -1376,6 +1377,29 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_21_164657) do
     t.index ["icn"], name: "index_user_accounts_on_icn", unique: true
   end
 
+  create_table "user_action_events", force: :cascade do |t|
+    t.string "details", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "user_actions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "acting_user_account_id", null: false
+    t.uuid "subject_user_account_id", null: false
+    t.bigint "user_action_event_id", null: false
+    t.enum "status", default: "initial", null: false, enum_type: "user_action_status"
+    t.bigint "subject_user_verification_id"
+    t.text "acting_ip_address"
+    t.text "acting_user_agent"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["acting_user_account_id"], name: "index_user_actions_on_acting_user_account_id"
+    t.index ["status"], name: "index_user_actions_on_status"
+    t.index ["subject_user_account_id"], name: "index_user_actions_on_subject_user_account_id"
+    t.index ["subject_user_verification_id"], name: "index_user_actions_on_subject_user_verification_id"
+    t.index ["user_action_event_id"], name: "index_user_actions_on_user_action_event_id"
+  end
+
   create_table "user_credential_emails", force: :cascade do |t|
     t.bigint "user_verification_id"
     t.text "credential_email_ciphertext"
@@ -1772,6 +1796,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_21_164657) do
   add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
+  add_foreign_key "user_actions", "user_accounts", column: "acting_user_account_id"
+  add_foreign_key "user_actions", "user_accounts", column: "subject_user_account_id"
+  add_foreign_key "user_actions", "user_action_events"
+  add_foreign_key "user_actions", "user_verifications", column: "subject_user_verification_id"
   add_foreign_key "user_credential_emails", "user_verifications"
   add_foreign_key "user_verifications", "user_accounts"
   add_foreign_key "va_notify_in_progress_reminders_sent", "user_accounts"
