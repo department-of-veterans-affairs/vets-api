@@ -3,10 +3,11 @@
 module SimpleFormsApi
   module Notification
     class Personalization
-      attr_reader :first_name, :date_submitted, :confirmation_number, :lighthouse_updated_at, :expiration_date
+      attr_reader :first_name, :form, :date_submitted, :confirmation_number, :lighthouse_updated_at, :expiration_date
 
       def initialize(form:, form_submission_attempt:, expiration_date: nil)
         @first_name = form.notification_first_name&.titleize
+        @form = form
         @date_submitted = form_submission_attempt.created_at.strftime('%B %d, %Y')
         @confirmation_number = form_submission_attempt.benefits_intake_uuid
         @lighthouse_updated_at = form_submission_attempt.lighthouse_updated_at&.strftime('%B %d, %Y')
@@ -20,7 +21,7 @@ module SimpleFormsApi
         }.tap do |personalization|
           personalization['lighthouse_updated_at'] = lighthouse_updated_at if lighthouse_updated_at
           personalization['confirmation_number'] = confirmation_number if confirmation_number
-          personalization.merge(form21_0966_personalization) if form.instance_of? == SimpleFormsApi::VBA210966
+          personalization.merge(form21_0966_personalization) if form.instance_of? SimpleFormsApi::VBA210966
         end
       end
 

@@ -9,7 +9,7 @@ module SimpleFormsApi
       TEMPLATE_IDS = YAML.load_file("#{__dir__}/template_ids.yml")
       SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
-      def initialize(config, notification_type: :confirmation, user: nil, user_account: nil)
+      def initialize(config, form_submission_attempt, notification_type: :confirmation, user: nil, user_account: nil)
         @notification_type = notification_type
 
         check_missing_keys(config)
@@ -179,7 +179,7 @@ module SimpleFormsApi
                     form_number
                   end
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(form_data)
-        SimpleFormsApi::Notification::Personalization.new(form, form_submission_attempt)
+        SimpleFormsApi::Notification::Personalization.new(form:, form_submission_attempt:).to_hash
       end
 
       # email and first name for form 20-10206
