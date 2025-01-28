@@ -32,7 +32,7 @@ module Organizations
     ensure
       @slack_messages.unshift("Orgs processed: #{@orgs_data.size}") if @orgs_data&.any?
       @slack_messages.unshift('Organizations::Update')
-      log_to_slack(@slack_messages.join("\n")) unless @slack_messages.empty?
+      log_to_slack(@slack_messages.join("\n----- ")) unless @slack_messages.empty?
     end
 
     private
