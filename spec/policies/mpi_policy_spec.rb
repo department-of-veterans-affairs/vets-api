@@ -73,7 +73,7 @@ describe MPIPolicy do
   end
 
   permissions :access_add_person_proxy? do
-    context 'with a user who is missing birls and participant id' do
+    context 'with a user who is missing a birls and participant id' do
       let(:user) { build(:user_with_no_ids) }
 
       it 'grants access' do
@@ -81,7 +81,7 @@ describe MPIPolicy do
       end
     end
 
-    context 'with a user who is missing only participant or birls id' do
+    context 'with a user who is missing only a participant or birls id' do
       let(:user) { build(:user, :loa3, birls_id: nil) }
 
       it 'grants access' do
@@ -89,8 +89,16 @@ describe MPIPolicy do
       end
     end
 
-    context 'with a user who is missing EDIPI' do
-      let(:user) { build(:unauthorized_evss_user, :loa3) }
+    context 'with a user who is missing an ICN' do
+      let(:user) { build(:user, icn: nil) }
+
+      it 'denies access' do
+        expect(subject).not_to permit(user, :mvi)
+      end
+    end
+
+    context 'with a user who is missing an EDIPI' do
+      let(:user) { build(:user, edipi: nil) }
 
       it 'denies access' do
         expect(subject).not_to permit(user, :mvi)
