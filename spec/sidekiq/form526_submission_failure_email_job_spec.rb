@@ -5,6 +5,14 @@ require 'rails_helper'
 RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
   subject { described_class }
 
+  let(:callback_metadata) do
+    { callback_metadata: { form_number: 'form526',
+                           notification_type: 'error',
+                           statsd_tags: {
+                             function: '526_backup_submission_to_lighthouse',
+                             service: 'disability-application'
+                           } } }
+  end
   let(:email_service) { double('VaNotify::Service') }
   let(:timestamp) { Time.now.utc }
   let(:failure_timestamp) { timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.') }
@@ -13,7 +21,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
     Sidekiq::Job.clear_all
     allow(VaNotify::Service)
       .to receive(:new)
-      .with(Settings.vanotify.services.benefits_disability.api_key)
+      .with([Settings.vanotify.services.benefits_disability.api_key, callback_metadata])
       .and_return(email_service)
   end
 
