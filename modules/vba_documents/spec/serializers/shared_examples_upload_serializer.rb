@@ -71,8 +71,8 @@ RSpec.shared_examples 'VBADocuments::UploadSerializer' do
   end
 
   context 'when render_location is false or nil' do
-    it 'includes :location with nil' do
-      expect(attributes['location']).to be_nil
+    it 'does not serialize :location' do
+      expect(attributes).not_to have_key('location')
     end
   end
 
