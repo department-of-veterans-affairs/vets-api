@@ -7,7 +7,9 @@ module Vye
       sidekiq_options retry: 0
 
       def perform
-        return if Vye::CloudTransfer.holiday?
+        if Vye::CloudTransfer.holiday?
+          logger.info("Vye::DawnDash::ActivateBdn: holiday detected, job run at: #{Time.zone.now}")
+        end
 
         BdnClone.activate_injested!
         EgressUpdates.perform_async

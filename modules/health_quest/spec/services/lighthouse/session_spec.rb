@@ -73,7 +73,7 @@ describe HealthQuest::Lighthouse::Session do
       it 'returns nil' do
         allow(HealthQuest::SessionStore).to receive(:find).with(anything).and_return(nil)
 
-        expect(subject.build(user:, api: 'pgd_api').session_from_redis).to eq(nil)
+        expect(subject.build(user:, api: 'pgd_api').session_from_redis).to be_nil
       end
     end
   end

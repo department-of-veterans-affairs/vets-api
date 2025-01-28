@@ -135,7 +135,7 @@ class FormProfiles::VA526ez < FormProfile
     )
     invoker = 'FormProfiles::VA526ez#initialize_rated_disabilities_information'
     response = api_provider.get_rated_disabilities(nil, nil, { invoker: })
-    ClaimFastTracking::MaxRatingAnnotator.annotate_disabilities(response)
+    ClaimFastTracking::MaxRatingAnnotator.annotate_disabilities(response, user)
 
     # Remap response object to schema fields
     VA526ez::FormRatedDisabilities.new(
@@ -167,9 +167,7 @@ class FormProfiles::VA526ez < FormProfile
 
   def initialize_form526_prefill
     VA526ez::Form526Prefill.new(
-      # any form that has a startedFormVersion (whether it is '2019' or '2022') will go through the Toxic Exposure flow
-      # '2022' means the Toxic Exposure 1.0 flag.
-      started_form_version: Flipper.enabled?(:disability_526_toxic_exposure, user) ? '2022' : nil,
+      started_form_version: '2022',
       sync_modern_0781_flow: Flipper.enabled?(:disability_compensation_sync_modern_0781_flow, user)
     )
   end
@@ -188,18 +186,20 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   def initialize_veteran_contact_information
-    return {} unless user.authorize :evss, :access?
+    if Flipper.enabled?(:disability_compensation_remove_pciu, user)
+      return {} unless user.authorize :va_profile, :access_to_v2?
 
-    contact_info = if Flipper.enabled?(:disability_compensation_remove_pciu, user)
-                     initialize_vets360_contact_info
-                   else
-                     # fill in blank values with PCIU data
-                     initialize_vets360_contact_info.merge(
-                       mailing_address: get_common_address,
-                       email_address: extract_pciu_data(:pciu_email),
-                       primary_phone: pciu_us_phone
-                     ) { |_, old_val, new_val| old_val.presence || new_val }
-                   end
+      contact_info = initialize_vets360_contact_info
+    else
+      return {} unless user.authorize :evss, :access?
+
+      contact_info = initialize_vets360_contact_info.merge(
+        mailing_address: get_common_address,
+        email_address: extract_pciu_data(:pciu_email),
+        primary_phone: pciu_us_phone
+      ) { |_, old_val, new_val| old_val.presence || new_val }
+
+    end
     # Logging was added below to contrast/compare completeness of contact information returned
     # from VA Profile alone versus VA Profile + PCIU. This logging will be removed when the Flipper flag is.
     Rails.logger.info("disability_compensation_remove_pciu=#{Flipper.enabled?(:disability_compensation_remove_pciu,
