@@ -383,7 +383,7 @@ module VAOS
         user_address = current_user.vet360_contact_info&.residential_address
 
         unless user_address&.latitude && user_address&.longitude
-          return "Drive time could not be calculated: user location unavailable"
+          return ""
         end
 
         eps_provider_service.get_drive_times(
