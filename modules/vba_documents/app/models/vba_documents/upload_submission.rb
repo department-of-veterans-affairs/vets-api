@@ -140,6 +140,17 @@ module VBADocuments
       metadata['base64_encoded'] || false
     end
 
+    # TODO: Improve true/false classification for submissions in "error" status
+    # Non-recoverable errors should return true and recoverable errors false
+    def in_final_status?
+      return true if status == 'vbms' ||
+                     status == 'expired' ||
+                     (status == 'success' && metadata[FINAL_SUCCESS_STATUS_KEY].present?) ||
+                     (status == 'error' && code.start_with?('DOC1')) # non-upstream errors only
+
+      false
+    end
+
     def track_uploaded_received(cause_key, cause)
       case cause_key
       when :uuid_already_in_cache_cause

@@ -2016,3 +2016,6 @@ features:
   show_about_yellow_ribbon_program:
     actor_type: user
     description: If enabled, show additional info about the yellow ribbon program
+  vba_documents_final_status_field:
+    actor_type: user
+    description: Include final_status boolean field in "show," "report," and "create" endpoint responses

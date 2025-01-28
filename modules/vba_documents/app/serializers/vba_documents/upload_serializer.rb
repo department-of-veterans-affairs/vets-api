@@ -18,6 +18,8 @@ module VBADocuments
       detail.length > MAX_DETAIL_DISPLAY_LENGTH ? "#{detail[0..MAX_DETAIL_DISPLAY_LENGTH - 1]}..." : detail
     end
 
+    attribute :final_status, &:in_final_status? if Flipper.enabled?(:vba_documents_final_status_field)
+
     attribute :location do |object, params|
       object.get_location if params[:render_location]
     rescue => e
