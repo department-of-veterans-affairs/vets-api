@@ -9,7 +9,7 @@ module Burials
       before_action :load_user, only: :create
       before_action :check_flipper_flag
 
-      # Raises an exception if the pension module enabled flipper flag isn't enabled.
+      # Raises an exception if the burial module enabled flipper flag isn't enabled.
       def check_flipper_flag
         raise Common::Exceptions::Forbidden unless Flipper.enabled?(:burial_module_enabled, current_user)
       end
