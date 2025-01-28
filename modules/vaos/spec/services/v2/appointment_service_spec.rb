@@ -102,6 +102,9 @@ describe VAOS::V2::AppointmentsService do
                 expect(response[:id]).to be_a(String)
                 expect(response[:local_start_time])
                   .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+                expect(response[:pending]).to be(false)
+                expect(response[:past]).to be(true)
+                expect(response[:future]).to be(false)
               end
             end
           end
@@ -208,6 +211,9 @@ describe VAOS::V2::AppointmentsService do
                 expect(response[:id]).to be_a(String)
                 expect(response[:local_start_time])
                   .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+                expect(response[:pending]).to be(false)
+                expect(response[:past]).to be(true)
+                expect(response[:future]).to be(false)
               end
             end
           end

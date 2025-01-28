@@ -116,6 +116,9 @@ module VAOS
           merge_clinic(new_appointment)
           merge_facility(new_appointment)
           set_modality(new_appointment)
+          new_appointment[:pending] = request?(new_appointment)
+          new_appointment[:past] = past?(new_appointment)
+          new_appointment[:future] = future?(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
