@@ -17,19 +17,17 @@ module MyHealth
         resource = collection_resource
         resource.data = resource_data_modifications(resource)
         filter_count = set_filter_metadata(resource.data)
-        resource = if params[:filter].present?
-                     if filter_params[:disp_status]&.[](:eq) == 'Active,Expired' # renewal params
+        if params[:filter].present?
+          resource = if filter_params[:disp_status]&.[](:eq) == 'Active,Expired' # renewal params
                        filter_renewals(resource)
                      else
                        resource.find_by(filter_params)
                      end
-                   else
-                     resource
-                   end
+        end
         resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
-        resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
+        resource = resource.paginate(**pagination_params) if is_using_pagination
         options = { meta: resource.metadata.merge(filter_count) }
         options[:links] = pagination_links(resource) if is_using_pagination
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
