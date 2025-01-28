@@ -41,7 +41,7 @@ module ClaimsApi
         else
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, rep_id)
         end
-        process.update!(step_status: 'SUCCESS', error_messages: [])
+        process.update!(step_status: 'SUCCESS', error_messages: [], completed_at: Time.zone.now)
       rescue VBMS::Unknown
         rescue_vbms_error(power_of_attorney, process:)
       rescue Errno::ENOENT

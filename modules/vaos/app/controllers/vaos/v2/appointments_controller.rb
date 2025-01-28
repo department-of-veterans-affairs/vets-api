@@ -30,12 +30,12 @@ module VAOS
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointments[:data], 'appointments')
 
-        if !appointments[:meta][:failures]&.empty?
+        if appointments[:meta][:failures] && appointments[:meta][:failures].empty?
+          render json: { data: serialized, meta: appointments[:meta] }, status: :ok
+        else
           StatsDMetric.new(key: STATSD_KEY).save
           StatsD.increment(STATSD_KEY, tags: ["failures:#{appointments[:meta][:failures]}"])
           render json: { data: serialized, meta: appointments[:meta] }, status: :multi_status
-        else
-          render json: { data: serialized, meta: appointments[:meta] }, status: :ok
         end
       end
 
@@ -62,6 +62,25 @@ module VAOS
         render json: { data: serialized }, status: :created
       end
 
+      def create_draft
+        # TODO: validate referral_id from the cache from prior referrals response,
+        # TODO: validate that the referral doesn't already have a confirmed appointment #
+        # TODO: cache provider_id, appointment_type_id, end_date from prior referrals response and use here
+        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: draft_params[:referral_id])
+
+        provider = eps_provider_service.get_provider_service(provider_id: draft_params[:provider_id])
+
+        response_data = OpenStruct.new(
+          id: draft_appointment.id,
+          provider: provider,
+          slots: fetch_provider_slots,
+          drive_time: fetch_drive_times(provider)
+        )
+
+        serialized = Eps::DraftAppointmentSerializer.new(response_data)
+        render json: serialized, status: :created
+      end
+
       def update
         updated_appointment
         set_facility_error_msg(updated_appointment)
@@ -85,6 +104,16 @@ module VAOS
       def mobile_facility_service
         @mobile_facility_service ||=
           VAOS::V2::MobileFacilityService.new(current_user)
+      end
+
+      def eps_appointment_service
+        @eps_appointment_service ||=
+          Eps::AppointmentService.new(current_user)
+      end
+
+      def eps_provider_service
+        @eps_provider_service ||=
+          Eps::ProviderService.new(current_user)
       end
 
       def appointments
@@ -186,6 +215,21 @@ module VAOS
 
       def appointment_show_params
         params.permit(:_include)
+      end
+
+      def draft_params
+        params.require(:referral_id)
+        params.require(:provider_id)
+        params.require(:appointment_type_id)
+        params.require(:start_date)
+        params.require(:end_date)
+        params.permit(
+          :referral_id,
+          :provider_id,
+          :appointment_type_id,
+          :start_date,
+          :end_date
+        )
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -322,6 +366,32 @@ module VAOS
         else
           APPT_CREATE_VAOS
         end
+      end
+
+      def fetch_provider_slots
+        eps_provider_service.get_provider_slots(
+          draft_params[:provider_id],
+          {
+            appointmentTypeId: draft_params[:appointment_type_id],
+            startOnOrAfter: draft_params[:start_date],
+            startBefore: draft_params[:end_date]
+          }
+        )
+      end
+
+      def fetch_drive_times(provider)
+        eps_provider_service.get_drive_times(
+          destinations: {
+            provider.id => {
+              latitude: provider.location['latitude'],
+              longitude: provider.location['longitude']
+            }
+          },
+          origin: {
+            latitude: current_user.address['latitude'],
+            longitude: current_user.address['longitude']
+          }
+        )
       end
     end
   end

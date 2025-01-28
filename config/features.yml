@@ -330,6 +330,10 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses DataDog's Real User Monitoring logging
     enable_in_development: false
+  cst_suppress_evidence_requests:
+    actor_type: user
+    description: When enabled, CST does not show Attorney Fee, Secondary Action Required, or Stage 2 Development
+    enable_in_development: false
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application
@@ -890,6 +894,10 @@ features:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
     enable_in_development: true
+  letters_page_new_design:
+    actor_type: user
+    description: Enables ability to show updated letter page design
+    enable_in_development: true
   lighthouse_claims_api_v2_add_person_proxy:
     actor_type: user
     description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID
@@ -1060,6 +1068,7 @@ features:
   mhv_medical_records_new_eligibility_check:
     actor_type: user
     description: Enables/disables Medical Records new access policy eligibility check endpoint
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
@@ -1083,6 +1092,10 @@ features:
   mhv_medications_display_grouping:
     actor_type: user
     description: Enables/disables grouping medications related work
+    enable_in_development: true
+  mhv_medications_display_pending_meds:
+    actor_type: user
+    description: Enables/disables pending medications related work
     enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
@@ -1826,6 +1839,9 @@ features:
   burial_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
+  burial_submitted_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Burial Submission in Progress email notification
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
@@ -1994,6 +2010,12 @@ features:
   enable_lighthouse:
     actor_type: user
     description: If enabled, user will connect to lighthouse api in sob instead of evss
+  benefits_intake_submission_status_job:
+    actor_type: user
+    description: Batch process FormSubmissionAttempts using ::BenefitsIntake::SubmissionStatusJob
   virtual_agent_enable_datadog_logging:
     actor_type: user
     description: If enabled, allows for the use of Datadog logging for the chatbot
+  show_about_yellow_ribbon_program:
+    actor_type: user
+    description: If enabled, show additional info about the yellow ribbon program
