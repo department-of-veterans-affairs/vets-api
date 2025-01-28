@@ -207,7 +207,7 @@ describe 'VEText::Service' do
 
       it 'returns successfully with a 200 status' do
         expect(response.body).to eq(response_body)
-        expect(response).to have_http_status(:ok)
+        expect(response.status).to eq(200) # rubocop:disable RSpecRails/HaveHttpStatus
       end
     end
 
