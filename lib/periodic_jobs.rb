@@ -86,19 +86,19 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('20 0 * * *', 'TestUserDashboard::DailyMaintenance')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::GmtThresholdsImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::GmtThresholdsImport')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::StdCountyImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::StdCountyImport')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::StdIncomeThresholdImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::StdIncomeThresholdImport')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::StdStateImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::StdStateImport')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::StdZipcodeImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::StdZipcodeImport')
 
   # Import facilities data CSV from S3 daily at 4:30pmET
   mgr.register('30 16 * * *', 'HCA::StdInstitutionImportJob')
@@ -220,10 +220,10 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 
-  # Engine version: Hourly jobs that update DR SavedClaims with delete_date
-  mgr.register('10 * * * *', 'DecisionReviews::HlrStatusUpdaterJob')
-  mgr.register('15 * * * *', 'DecisionReviews::NodStatusUpdaterJob')
-  mgr.register('40 * * * *', 'DecisionReviews::ScStatusUpdaterJob')
+  # Engine version: Sync non-final DR SavedClaims to LH status
+  mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')
+  mgr.register('15 1-21/4 * * *', 'DecisionReviews::NodStatusUpdaterJob')
+  mgr.register('30 2-22/4 * * *', 'DecisionReviews::ScStatusUpdaterJob')
 
   # Engine version: Clean SavedClaim records that are past delete date
   mgr.register('0 5 * * *', 'DecisionReviews::DeleteSavedClaimRecordsJob')

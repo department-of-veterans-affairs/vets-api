@@ -62,11 +62,19 @@ module ClaimsApi
                  status: :ok
         end
 
-        def decide
-          proc_id = form_attributes['procId']
-          ptcpnt_id = form_attributes['participantId']
+        def decide # rubocop:disable Metrics/MethodLength
+          lighthouse_id = params[:id]
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
+
+          request = ClaimsApi::PowerOfAttorneyRequest.find_by(id: lighthouse_id)
+          unless request
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "Could not find Power of Attorney request with id: #{lighthouse_id}"
+            )
+          end
+          proc_id = request.proc_id
+          vet_icn = request.veteran_icn
 
           validate_decide_params!(proc_id:, decision:)
 
@@ -74,6 +82,7 @@ module ClaimsApi
                                                                external_key: Settings.bgs.external_key)
 
           if decision == 'declined'
+            ptcpnt_id = fetch_ptcpnt_id(vet_icn)
             poa_request = validate_ptcpnt_id!(ptcpnt_id:, proc_id:, representative_id:, service:)
           end
 
@@ -86,7 +95,11 @@ module ClaimsApi
 
           send_declined_notification(ptcpnt_id:, first_name:, representative_id:) if decision == 'declined'
 
-          render json: res, status: :ok
+          res['id'] = lighthouse_id
+
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :decide,
+                                                                                              root: :data),
+                 status: :ok
         end
 
         def create # rubocop:disable Metrics/MethodLength
@@ -123,19 +136,17 @@ module ClaimsApi
             form_attributes['id'] = poa_request.id
           end
 
-          # return only the form information consumers provided
+          response_data = ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
+                                                                                            view: :create,
+                                                                                            root: :data)
+
+          options = { status: :created }
           if form_attributes['id'].present?
-            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
-                                                                                           view: :create,
-                                                                                           root: :data),
-                   status: :created,
-                   location: url_for(controller: 'base', action: 'status', id: form_attributes['id'])
-          else
-            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
-                                                                                           view: :create,
-                                                                                           root: :data),
-                   status: :created
+            options[:location] =
+              url_for(controller: 'base', action: 'status', id: form_attributes['id'])
           end
+
+          render json: response_data, **options
         end
 
         private

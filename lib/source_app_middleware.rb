@@ -34,6 +34,7 @@ class SourceAppMiddleware
     10207-pp
     10210-lay-witness-statement
     10-7959f-1-FMP
+    1330m-medallions
     1990-edu-benefits
     1990e-edu-benefits
     1990ez-edu-benefits
@@ -56,7 +57,7 @@ class SourceAppMiddleware
     appeals-testing
     appoint-a-representative
     ask-a-question
-    ask-va-too
+    ask-va
     auth
     avs
     burial-poc-v6
