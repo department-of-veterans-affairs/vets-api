@@ -19,7 +19,7 @@ RSpec.describe DisabilityMaxRating::Configuration do
   end
 
   describe '#connection' do
-    it 'includes the correct middleware and uses the configured base path' do
+    it 'includes the correct middleware' do
       connection = subject.connection
 
       expect(connection.builder.handlers).to include(Faraday::Response::RaiseError)
