@@ -135,6 +135,7 @@ module HCA
       end
 
       def get_income(response, xpath)
+        debugger
         income = {}
 
         response.locate(xpath)&.each do |i|
