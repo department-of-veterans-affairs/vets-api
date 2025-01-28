@@ -330,6 +330,7 @@ app/models/triage_team.rb @department-of-veterans-affairs/vfs-mhv-secure-messagi
 app/models/all_triage_teams.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/user_acceptable_verified_credential.rb @department-of-veterans-affairs/octo-identity
 app/models/user_action.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/models/user_action_event.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
 app/models/user_account.rb @department-of-veterans-affairs/octo-identity
 app/models/user_credential_email.rb @department-of-veterans-affairs/octo-identity
 app/models/user_identity.rb @department-of-veterans-affairs/octo-identity
@@ -1209,6 +1210,7 @@ spec/factories/extract_statuses.rb @department-of-veterans-affairs/vfs-vaos @dep
 spec/factories/evss_claims.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/evss_intent_to_files.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/user_actions.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
+spec/factories/user_action_events.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
 spec/factories/folders.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/form1010_ezr_attachment.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/form1010cg @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1666,6 +1668,7 @@ spec/models/terms_of_use_agreement_spec.rb @department-of-veterans-affairs/octo-
 spec/models/triage_team_spec.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/user_acceptable_verified_credential_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/user_action_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
+spec/models/user_action_event_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
 spec/models/user_account_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/user_credential_email_spec.rb @department-of-veterans-affairs/octo-identity
 spec/models/user_relationship_spec.rb @department-of-veterans-affairs/octo-identity
