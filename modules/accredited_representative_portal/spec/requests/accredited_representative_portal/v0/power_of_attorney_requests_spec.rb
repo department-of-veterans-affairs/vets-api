@@ -103,7 +103,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'power_of_attorney_holder' => {
               'id' => poa_requests[1].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
-              'name' => poa_requests[1].power_of_attorney_holder.name
+              'name' => 'TODO: implement'
             },
             'resolution' => {
               'id' => poa_requests[1].resolution.id,
@@ -122,7 +122,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'power_of_attorney_holder' => {
               'id' => poa_requests[2].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
-              'name' => poa_requests[2].power_of_attorney_holder.name
+              'name' => 'TODO: implement'
             },
             'resolution' => {
               'id' => poa_requests[2].resolution.id,
@@ -142,7 +142,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'power_of_attorney_holder' => {
               'id' => poa_requests[3].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
-              'name' => poa_requests[3].power_of_attorney_holder.name
+              'name' => 'TODO: implement'
             },
             'resolution' => {
               'id' => poa_requests[3].resolution.id,
