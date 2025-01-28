@@ -1,0 +1,154 @@
+name: Clean Up Old GitHub Environments
+
+on:
+  push:
+    branches:
+      - eb-cleanup-gh-env
+  schedule:
+    - cron: '0 0 * * 1-5' # Weekdays at midnight UTC
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore Cached Delete List
+        id: restore-cache
+        uses: actions/cache@v3
+        with:
+          path: delete-list.txt
+          key: delete-list-${{ github.repository }}
+          restore-keys: |
+            delete-list-
+
+      - name: Fetch and Filter Old Environments
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        id: fetch-and-filter
+        run: |
+          NOW=$(date +%s)
+          THRESHOLD=$((90 * 24 * 60 * 60)) # 90 days in seconds
+          PAGE=1
+
+          echo "[]" > all-environments.json
+          echo "Fetching all environments..."
+
+          while true; do
+            echo "Fetching page $PAGE..."
+            RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/environments?per_page=100&page=$PAGE")
+
+            if [ "$(echo "$RESPONSE" | jq '.environments | length')" -eq 0 ]; then
+              echo "No more environments to fetch. Exiting loop."
+              break
+            fi
+
+            jq -s '.[0] + .[1]' all-environments.json <(echo "$RESPONSE" | jq '.environments') > temp.json
+            mv temp.json all-environments.json
+            PAGE=$((PAGE + 1))
+          done
+
+          echo "Filtering old environments..."
+          jq -r \
+            --arg now "$NOW" \
+            --arg threshold "$THRESHOLD" '
+              .[] |
+              select((.protection_rules | length) == 0) |
+              select((now | tonumber) - (.created_at | fromdateiso8601 | tonumber) > ($threshold | tonumber)) |
+              .name | @uri
+            ' all-environments.json > delete-list.txt
+
+          echo "Filtered environments saved to delete-list.txt:"
+          cat delete-list.txt
+
+      - name: Save Cached Delete List
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        uses: actions/cache@v3
+        with:
+          path: delete-list.txt
+          key: delete-list-${{ github.repository }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          aws-region: "us-gov-west-1"
+
+      - name: Get Bot Token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+      - name: Delete Old Environments
+        if: success()
+        timeout-minutes: 120 # Ensure the job doesn't exceed 2 hours
+        run: |
+          echo "Starting deletion process..."
+          TOTAL=$(wc -l < delete-list.txt)
+          echo "Total environments to delete: $TOTAL"
+
+          COUNT=0
+          RATE_LIMIT_BUFFER=1000  # Stop early to reserve API calls for others
+          while IFS= read -r environment; do
+            COUNT=$((COUNT + 1))
+            echo "[$COUNT/$TOTAL] Deleting environment: $environment"
+
+            # Extract headers and body from the DELETE response
+            RESPONSE=$(curl -i -X DELETE -s -H "Authorization: Bearer ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/environments/$environment")
+
+            HEADERS=$(echo "$RESPONSE" | sed -n '/^HTTP/,$p' | sed '/^\r$/q')
+            STATUS_CODE=$(echo "$HEADERS" | grep -oP 'HTTP/2 \K[0-9]+')
+            BODY=$(echo "$RESPONSE" | sed -n '/^\r$/,$p' | tail -n +2)
+
+            if [ "$STATUS_CODE" -eq 204 ]; then
+              echo "$environment deleted successfully."
+            elif echo "$BODY" | grep -q '"message": "API rate limit exceeded'; then
+              echo "Rate limit exceeded. Logging rate limit headers:"
+              echo "$HEADERS" | grep -i '^x-ratelimit'
+
+              RESET_TIME=$(echo "$HEADERS" | awk -F': ' '/^x-ratelimit-reset:/ {print $2}' | tr -d '\r')
+              CURRENT_TIME=$(date +%s)
+
+              if [[ "$RESET_TIME" =~ ^[0-9]+$ ]]; then
+                SLEEP_TIME=$((RESET_TIME - CURRENT_TIME))
+                if [ $SLEEP_TIME -gt 0 ]; then
+                  WAKE_TIME=$(date -d "@$((CURRENT_TIME + SLEEP_TIME))" +"%I:%M %p %Z")
+                  echo "Sleeping for $SLEEP_TIME seconds... Will resume at $WAKE_TIME."
+                  sleep $SLEEP_TIME
+                else
+                  echo "Reset time has already passed. Retrying immediately."
+                fi
+              else
+                echo "Error parsing X-RateLimit-Reset header: $RESET_TIME"
+                exit 1
+              fi
+              continue
+            else
+              echo "Error deleting $environment: $BODY"
+            fi
+
+            # Check remaining rate limit with buffer
+            REMAINING=$(echo "$HEADERS" | awk -F': ' '/^x-ratelimit-remaining:/ {print $2}' | tr -d '\r')
+            if [[ "$REMAINING" =~ ^[0-9]+$ ]] && [ "$REMAINING" -le $RATE_LIMIT_BUFFER ]; then
+              RESET_TIME=$(echo "$HEADERS" | awk -F': ' '/^x-ratelimit-reset:/ {print $2}' | tr -d '\r')
+              CURRENT_TIME=$(date +%s)
+
+              if [[ "$RESET_TIME" =~ ^[0-9]+$ ]]; then
+                SLEEP_TIME=$((RESET_TIME - CURRENT_TIME))
+                if [ $SLEEP_TIME -gt 0 ]; then
+                  WAKE_TIME=$(date -d "@$((CURRENT_TIME + SLEEP_TIME))" +"%I:%M %p %Z")
+                  echo "Approaching rate limit (remaining: $REMAINING). Sleeping for $SLEEP_TIME seconds... Will resume at $WAKE_TIME."
+                  sleep $SLEEP_TIME
+                else
+                  echo "Reset time has already passed. Retrying immediately."
+                fi
+              else
+                echo "Error parsing X-RateLimit-Reset header: $RESET_TIME"
+                exit 1
+              fi
+            fi
+          done < delete-list.txt
