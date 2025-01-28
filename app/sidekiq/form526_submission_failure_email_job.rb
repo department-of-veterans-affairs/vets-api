@@ -9,7 +9,7 @@ class Form526SubmissionFailureEmailJob
 
   STATSD_PREFIX = 'api.form_526.veteran_notifications.form526_submission_failure_email'
   # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/274bea7fb835e51626259ac16b32c33ab0b2088a/platform/practices/zero-silent-failures/logging-silent-failures.md#capture-silent-failures-state
-  ZSF_DD_TAG_SERVICE = '526_backup_submission_to_lighthouse'
+  ZSF_DD_TAG_FUNCTION = '526_backup_submission_to_lighthouse'
   VA_NOTIFY_CALLBACK_OPTIONS = {
     callback_metadata: {
       notification_type: 'error',
@@ -19,7 +19,7 @@ class Form526SubmissionFailureEmailJob
   }.freeze
   DD_ZSF_TAGS = [
     "service:#{Form526Submission::ZSF_DD_TAG_SERVICE}",
-    "function:#{ZSF_DD_TAG_SERVICE}"
+    "function:#{ZSF_DD_TAG_FUNCTION}"
   ].freeze
   FORM_DESCRIPTIONS = {
     'form4142' => 'VA Form 21-4142',
