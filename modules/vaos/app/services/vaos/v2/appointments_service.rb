@@ -612,7 +612,7 @@ module VAOS
       def request?(appt)
         raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
 
-        appt[:type] === "REQUEST" || appt[:type] === "COMMUNITY_CARE_REQUEST"
+        %w[REQUEST COMMUNITY_CARE_REQUEST].include?(appt[:type])
       end
 
       # Determines if the appointment occurs in the past.
@@ -627,13 +627,12 @@ module VAOS
 
         appt_start = appt[:start] || appt.dig(:requested_periods, 0, :start)
 
-        if !appt_start.nil?
-          # if appointment kind is telehealth then set past to true if start time is withing 240 minutes of current time.  Otherwise use 60 minutes.
-          if appt[:kind] == 'telehealth'
-            appt[:past] = (appt_start.to_datetime + 240.minutes) < Time.now
-          else
-            appt[:past] = (appt_start.to_datetime + 60.minutes) < Time.now
-          end
+        unless appt_start.nil?
+          appt[:past] = if appt[:kind] == 'telehealth'
+                          (appt_start.to_datetime + 240.minutes) < Time.now.utc
+                        else
+                          (appt_start.to_datetime + 60.minutes) < Time.now.utc
+                        end
         end
       end
 
@@ -650,9 +649,9 @@ module VAOS
         appt_start = appt[:start] || appt.dig(:requested_periods, 0, :start)
 
         appt[:future] = !request?(appt) &&
-          !past?(appt) &&
-          !appt_start.nil? &&
-          appt_start.to_datetime > Time.now.beginning_of_day
+                        !past?(appt) &&
+                        !appt_start.nil? &&
+                        appt_start.to_datetime > Time.now.utc.beginning_of_day
       end
 
       # Determines if the appointment is for compensation and pension.

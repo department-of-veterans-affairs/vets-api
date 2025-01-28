@@ -694,9 +694,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             expect(data['id']).to eq('70060')
             expect(data['attributes']['kind']).to eq('clinic')
             expect(data['attributes']['status']).to eq('proposed')
-            expect(data['attributes']['pending']).to eq(true)
-            expect(data['attributes']['past']).to eq(true)
-            expect(data['attributes']['future']).to eq(false)
+            expect(data['attributes']['pending']).to be(true)
+            expect(data['attributes']['past']).to be(true)
+            expect(data['attributes']['future']).to be(false)
             expect(data['attributes']['avsPath']).to be_nil
             expect(Rails.logger).to have_received(:info).with(
               'VAOS::V2::AppointmentsController appointment creation time: 2021-12-13T14:03:02Z',

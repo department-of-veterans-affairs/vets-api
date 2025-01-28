@@ -1789,28 +1789,28 @@ describe VAOS::V2::AppointmentsService do
     it 'sets past to true if the appointment is telehealth and within 240 minutes' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:kind] = 'telehealth'
-      appt[:start] = Time.now - 241.minutes
+      appt[:start] = Time.now.utc - 241.minutes
       expect(subject.send(:past?, appt)).to be(true)
     end
 
     it 'sets past to false if the appointment is telehealth and not within 240 minutes' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:kind] = 'telehealth'
-      appt[:start] = Time.now - 239.minutes
+      appt[:start] = Time.now.utc - 239.minutes
       expect(subject.send(:past?, appt)).to be(false)
     end
 
     it 'sets past to true if the appointment is not telehealth and within 60 minutes' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:kind] = 'clinic'
-      appt[:start] = Time.now - 61.minutes
+      appt[:start] = Time.now.utc - 61.minutes
       expect(subject.send(:past?, appt)).to be(true)
     end
 
     it 'sets past to false if the appointment is not telehealth and not within 60 minutes' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:kind] = 'clinic'
-      appt[:start] = Time.now - 59.minutes
+      appt[:start] = Time.now.utc - 59.minutes
       expect(subject.send(:past?, appt)).to be(false)
     end
 
@@ -1825,21 +1825,21 @@ describe VAOS::V2::AppointmentsService do
     it 'sets future to true if the appointment is not a request and occurs after the beginning of the current day' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:type] = 'VA'
-      appt[:start] = Time.now + 1.day
+      appt[:start] = Time.now.utc + 1.day
       expect(subject.send(:future?, appt)).to be(true)
     end
 
     it 'sets future to false if the appointment is not a request and occurs before the beginning of the current day' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:type] = 'VA'
-      appt[:start] = Time.now - 1.day
+      appt[:start] = Time.now.utc - 1.day
       expect(subject.send(:future?, appt)).to be(false)
     end
 
     it 'sets future to false if the appointment is a request' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:type] = 'REQUEST'
-      appt[:start] = Time.now + 1.day
+      appt[:start] = Time.now.utc + 1.day
       expect(subject.send(:future?, appt)).to be(false)
     end
 
