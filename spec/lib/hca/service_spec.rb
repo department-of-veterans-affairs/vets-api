@@ -87,7 +87,7 @@ describe HCA::Service do
               described_class.new
             end
 
-          json = JSON.parse(File.open(root.join("#{form}.json")).read)
+          json = JSON.parse(File.read(root.join("#{form}.json")))
           expect(json).to match_vets_schema('10-10EZ')
           xml = File.read(root.join("#{form}.xml"))
           expect(service).to receive(:perform) do |_verb, _, body|
@@ -264,7 +264,7 @@ describe HCA::Service do
         VCR.use_cassette('hca/health_check', match_requests_on: [:body]) do
           response = subject.health_check
           expect(response).to eq(
-            formSubmissionId: ::HCA::Configuration::HEALTH_CHECK_ID,
+            formSubmissionId: HCA::Configuration::HEALTH_CHECK_ID,
             timestamp: '2024-08-20T11:38:44.535-05:00'
           )
         end

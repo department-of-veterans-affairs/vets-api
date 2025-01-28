@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_23_063915) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1384,18 +1384,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_23_063915) do
   end
 
   create_table "user_actions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "acting_user_account_id", null: false
-    t.uuid "subject_user_account_id", null: false
     t.bigint "user_action_event_id", null: false
     t.enum "status", default: "initial", null: false, enum_type: "user_action_status"
-    t.bigint "subject_user_verification_id"
+    t.bigint "subject_user_verification_id", null: false
     t.text "acting_ip_address"
     t.text "acting_user_agent"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["acting_user_account_id"], name: "index_user_actions_on_acting_user_account_id"
-    t.index ["status"], name: "index_user_actions_on_status"
-    t.index ["subject_user_account_id"], name: "index_user_actions_on_subject_user_account_id"
+    t.bigint "acting_user_verification_id"
+    t.index ["acting_user_verification_id"], name: "index_user_actions_on_acting_user_verification_id"
     t.index ["subject_user_verification_id"], name: "index_user_actions_on_subject_user_verification_id"
     t.index ["user_action_event_id"], name: "index_user_actions_on_user_action_event_id"
   end
@@ -1796,9 +1793,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_23_063915) do
   add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
-  add_foreign_key "user_actions", "user_accounts", column: "acting_user_account_id"
-  add_foreign_key "user_actions", "user_accounts", column: "subject_user_account_id"
   add_foreign_key "user_actions", "user_action_events"
+  add_foreign_key "user_actions", "user_verifications", column: "acting_user_verification_id"
   add_foreign_key "user_actions", "user_verifications", column: "subject_user_verification_id"
   add_foreign_key "user_credential_emails", "user_verifications"
   add_foreign_key "user_verifications", "user_accounts"
