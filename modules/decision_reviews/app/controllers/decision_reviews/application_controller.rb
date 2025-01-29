@@ -24,13 +24,7 @@ module DecisionReviews
       response.set_header('X-CSRF-Token', token)
     end
 
-    def log_message_to_sentry(message, level, extra_context = {}, _tags_context = {})
-      level = normalize_level(level, nil)
-      formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
-      rails_logger(level, formatted_message)
-    end
-
-    def log_exception_to_sentry(exception, _extra_context = {}, _tags_context = {}, level = 'error')
+    def log_exception(exception, _extra_context = {}, _tags_context = {}, level = 'error')
       level = normalize_level(level, exception)
 
       if exception.is_a? Common::Exceptions::BackendServiceException
@@ -40,6 +34,8 @@ module DecisionReviews
       end
       rails_logger(level, exception.backtrace.join("\n")) unless exception.backtrace.nil?
     end
+
+    alias log_exception_to_sentry log_exception # Method call in shared ExceptionHandling is :log_exception_to_sentry
 
     def normalize_level(level, exception)
       # https://docs.sentry.io/platforms/ruby/usage/set-level/
