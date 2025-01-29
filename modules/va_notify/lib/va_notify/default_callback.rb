@@ -15,6 +15,8 @@ module VANotify
       else
         call_without_metadata
       end
+    rescue => e
+      Rails.logger.error(message: 'va_notify DefaultCallback error', notification_id: notification_record.id, error: e)
     end
 
     private

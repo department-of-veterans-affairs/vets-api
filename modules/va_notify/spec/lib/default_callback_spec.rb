@@ -61,11 +61,10 @@ describe VANotify::DefaultCallback do
               build(:notification, status: 'delivered', callback_metadata:)
             end
 
-            it 'raises KeyError' do
-              expect do
-                VANotify::DefaultCallback.new(notification_record).call
-              end.to raise_error(KeyError,
-                                 'Missing required keys in default_callback metadata statsd_tags: service, function')
+            it 'raises and handles KeyError' do
+              expect(Rails.logger).to receive(:error).with(hash_including(notification_id: notification_record.id,
+                                                                          error: an_instance_of(KeyError)))
+              VANotify::DefaultCallback.new(notification_record).call
             end
           end
         end
@@ -117,11 +116,10 @@ describe VANotify::DefaultCallback do
               build(:notification, status: 'delivered', callback_metadata:)
             end
 
-            it 'raises KeyError' do
-              expect do
-                VANotify::DefaultCallback.new(notification_record).call
-              end.to raise_error(KeyError,
-                                 'Missing required keys in default_callback metadata statsd_tags: service, function')
+            it 'raises and handles KeyError' do
+              expect(Rails.logger).to receive(:error).with(hash_including(notification_id: notification_record.id,
+                                                                          error: an_instance_of(KeyError)))
+              VANotify::DefaultCallback.new(notification_record).call
             end
           end
         end
@@ -133,11 +131,10 @@ describe VANotify::DefaultCallback do
               build(:notification, status: 'delivered', callback_metadata:)
             end
 
-            it 'raises KeyError' do
-              expect do
-                VANotify::DefaultCallback.new(notification_record).call
-              end.to raise_error(TypeError,
-                                 'Invalid metadata statsd_tags format: must be a Hash or Array')
+            it 'raises and handles TypeError' do
+              expect(Rails.logger).to receive(:error).with(hash_including(notification_id: notification_record.id,
+                                                                          error: an_instance_of(TypeError)))
+              VANotify::DefaultCallback.new(notification_record).call
             end
           end
         end
