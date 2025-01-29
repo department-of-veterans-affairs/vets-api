@@ -537,10 +537,12 @@ describe VAOS::V2::AppointmentsService do
       context 'includes travel claims' do
         it 'returns a list of appointments with travel claim information attached' do
           Flipper.enable(:travel_pay_view_claim_details)
-          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date', match_requests_on: %i[method path]) do
-            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities',
+          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                              allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
               response = subject.get_appointments(start_date2, end_date2)
+
+              # The first not-cancelled appt with a start date
               appt_with_claim = response[:data][0]
               expect(appt_with_claim[:travelPayClaim]).not_to be_empty
               expect(appt_with_claim[:travelPayClaim]['claim']).not_to be_nil
