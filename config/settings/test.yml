@@ -450,37 +450,3 @@ vaos:
   eps:
     key_path: modules/health_quest/config/rsa/sandbox_rsa
 
-# Settings for VAProfile
-vet360:
-  url: "https://int.vet360.va.gov"
-  contact_information:
-    cache_enabled: false
-    enabled: true
-    timeout: 30
-    mock: false
-  demographics:
-    cache_enabled: false
-    enabled: true
-    timeout: 30
-    mock: true
-  military_personnel:
-    cache_enabled: false
-    enabled: true
-    timeout: 30
-    mock: false
-  veteran_status:
-    cache_enabled: true
-    enabled: true
-    timeout: 30
-    mock: false
-  address_validation:
-    url: "https://int.vet360.va.gov "
-    hostname: "sandbox-api.va.gov"
-    api_key: "<AV_KEY>"
-  v3:
-    address_validation:
-      api_key: "<AV_KEY>"
-  profile_information:
-    enabled: true
-    timeout: 30
-    use_mocks: false
