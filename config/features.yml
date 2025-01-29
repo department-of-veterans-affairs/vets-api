@@ -132,6 +132,9 @@ features:
   hca_zero_silent_failures:
     actor_type: user
     description: Pass callback metadata to vanotify sidekiq job
+  retry_form_validation:
+    actor_type: user
+    description: Enables concern to retry schema validation for 10-10EZ and 10-10CG
   cg1010_oauth_2_enabled:
     actor_type: user
     description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
@@ -596,6 +599,10 @@ features:
   facility_locator_lat_long_only:
     actor_type: user
     description: Send only lat/long values (no bounding box or address) to the API when querying for facilities.
+    enable_in_development: true
+  facility_locator_mobile_map_update:
+    actor_type: user
+    description: Use new mobile map features for research
     enable_in_development: true
   facility_locator_predictive_location_search:
     actor_type: user
@@ -1429,6 +1436,9 @@ features:
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
+  va_notify_custom_bearer_tokens:
+    actor_type: user
+    description: Iterates through Settings.vanotify.service_callback_tokens for token matching
   va_notify_metadata_statsd_tags:
     actor_type: user
     description: Allow statsd tags in callback metadata to be a hash or array
