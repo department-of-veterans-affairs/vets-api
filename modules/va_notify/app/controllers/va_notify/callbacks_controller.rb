@@ -46,7 +46,7 @@ module VANotify
         return false if bearer_token_secret.nil?
 
         if Flipper.enabled?(:va_notify_custom_bearer_tokens)
-          service_callback_tokens.any? do |_key, service_token|
+          service_callback_tokens.any? do |service_token|
             ActiveSupport::SecurityUtils.secure_compare(token, service_token)
           end
         else
@@ -65,7 +65,7 @@ module VANotify
     end
 
     def service_callback_tokens
-      Settings.vanotify.service_callback_tokens
+      Settings.vanotify.service_callback_tokens.to_h.values
     end
 
     def notification_params
