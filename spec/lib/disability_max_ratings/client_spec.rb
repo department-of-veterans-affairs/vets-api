@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'disability_max_rating/client'
+require 'disability_max_ratings/client'
 
 RSpec.describe DisabilityMaxRating::Client do
   let(:client) { DisabilityMaxRating::Client.new }

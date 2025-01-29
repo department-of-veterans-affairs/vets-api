@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'virtual_regional_office/client'
-require 'disability_max_rating/client'
+require 'disability_max_ratings/client'
 
 module ClaimFastTracking
   class MaxRatingAnnotator

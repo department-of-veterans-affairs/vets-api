@@ -234,34 +234,35 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
         allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, user).and_return(true)
       end
 
-      it 'calls the DisabilityMaxRating::Client to fetch max ratings' do
-        max_ratings_client = instance_double(DisabilityMaxRating::Client)
-        response = double('response', body: { 'ratings' => [40, 50, 60] })
+      it 'calls the DisabilityMaxRating::Client to fetch multiple max ratings' do
+        VCR.use_cassette('disability_max_ratings/max_ratings_multiple') do
+          diagnostic_codes = [6260, 7101, 6204]
+          result = described_class.send(:get_ratings, diagnostic_codes, user)
+          expect(result).to eq([
+                                 { 'diagnostic_code' => 7101, 'max_rating' => 60.0 },
+                                 { 'diagnostic_code' => 6260, 'max_rating' => 10.0 }
+                               ])
+        end
+      end
 
-        allow(DisabilityMaxRating::Client).to receive(:new).and_return(max_ratings_client)
-        allow(max_ratings_client)
-          .to receive(:get_max_rating_for_diagnostic_codes)
-          .with(diagnostic_codes)
-          .and_return(response)
-
-        result = described_class.send(:get_ratings, diagnostic_codes, user)
-        expect(result).to eq([40, 50, 60])
+      it 'calls the DisabilityMaxRating::Client to fetch single max ratings' do
+        VCR.use_cassette('disability_max_ratings/max_ratings') do
+          diagnostic_codes = [6260]
+          result = described_class.send(:get_ratings, diagnostic_codes, user)
+          expect(result).to eq([{ 'diagnostic_code' => 6260, 'max_rating' => 10.0 }])
+        end
       end
 
       it 'logs an error when the DisabilityMaxRating client raises a ClientError' do
-        max_ratings_client = instance_double(DisabilityMaxRating::Client)
-        allow(DisabilityMaxRating::Client).to receive(:new).and_return(max_ratings_client)
-        allow(max_ratings_client).to receive(:get_max_rating_for_diagnostic_codes).and_raise(
-          Common::Client::Errors::ClientError.new('Failed miserably')
-        )
+        VCR.use_cassette('disability_max_ratings/max_ratings_failure') do
+          expect(Rails.logger).to receive(:error).with(
+            'Get Max Ratings Failed  the server responded with status 500.',
+            hash_including(:backtrace)
+          )
 
-        expect(Rails.logger).to receive(:error).with(
-          'Get Max Ratings Failed  Failed miserably.',
-          hash_including(:backtrace)
-        )
-
-        result = described_class.send(:get_ratings, diagnostic_codes, user)
-        expect(result).to be_nil
+          result = described_class.send(:get_ratings, diagnostic_codes, user)
+          expect(result).to be_nil
+        end
       end
     end
 
@@ -270,30 +271,35 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
         allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, user).and_return(false)
       end
 
-      it 'calls the VRO client to fetch max ratings' do
-        vro_client = instance_double(VirtualRegionalOffice::Client)
-        response = double('response', body: { 'ratings' => [10, 20, 30] })
+      it 'calls the VRO client to fetch multiple max ratings' do
+        VCR.use_cassette('virtual_regional_office/max_ratings_multiple') do
+          diagnostic_codes = [6260, 7101, 6204]
+          result = described_class.send(:get_ratings, diagnostic_codes, user)
+          expect(result).to eq([
+                                 { 'diagnostic_code' => 7101, 'max_rating' => 60.0 },
+                                 { 'diagnostic_code' => 6260, 'max_rating' => 10.0 }
+                               ])
+        end
+      end
 
-        allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client)
-        allow(vro_client).to receive(:get_max_rating_for_diagnostic_codes).with(diagnostic_codes).and_return(response)
-
-        result = described_class.send(:get_ratings, diagnostic_codes, user)
-        expect(result).to eq([10, 20, 30])
+      it 'calls the VRO client to fetch single max ratings' do
+        VCR.use_cassette('virtual_regional_office/max_ratings') do
+          diagnostic_codes = [6260]
+          result = described_class.send(:get_ratings, diagnostic_codes, user)
+          expect(result).to eq([{ 'diagnostic_code' => 6260, 'max_rating' => 10.0 }])
+        end
       end
 
       it 'logs an error when the VRO client raises a ClientError' do
-        vro_client = instance_double(VirtualRegionalOffice::Client)
-        allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client)
-        allow(vro_client).to receive(:get_max_rating_for_diagnostic_codes).and_raise(
-          Common::Client::Errors::ClientError.new('Miserably')
-        )
-        expect(Rails.logger).to receive(:error).with(
-          'Get Max Ratings Failed  Miserably.',
-          hash_including(:backtrace)
-        )
+        VCR.use_cassette('virtual_regional_office/max_ratings_failure') do
+          expect(Rails.logger).to receive(:error).with(
+            'Get Max Ratings Failed  the server responded with status 500.',
+            hash_including(:backtrace)
+          )
 
-        result = described_class.send(:get_ratings, diagnostic_codes, user)
-        expect(result).to be_nil
+          result = described_class.send(:get_ratings, diagnostic_codes, user)
+          expect(result).to be_nil
+        end
       end
     end
   end

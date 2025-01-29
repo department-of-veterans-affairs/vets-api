@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'disability_max_rating/configuration'
+require 'disability_max_ratings/configuration'
 
 module DisabilityMaxRating
   class Client < Common::Client::Base
