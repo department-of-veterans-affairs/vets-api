@@ -28,6 +28,7 @@ spec:
           mountPath: /locustfile.py
           subPath: locustfile.py
         args:
+        - "--master"
         - "-f"
         - "/locustfile.py"
         ports:
