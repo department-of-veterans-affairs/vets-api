@@ -167,6 +167,61 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
+  "/appointments/submit":
+    post:
+      tags:
+        - appointments
+      summary: Submit a draft appointment
+      operationId: submitDraftAppointment
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitDraftAppointmentRequest"
+      responses:
+        "201":
+          description: The submitted draft appointment
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: "#/components/schemas/DraftAppointment"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
   "/appointments/{appointment-id}":
     get:
       tags:
@@ -1303,6 +1358,44 @@ components:
           type: string
         preferredLanguage:
           type: string
+    SubmitDraftAppointmentRequest:
+      description: A request to create a new referral appointment.
+      type: object
+      properties:
+        id:
+          description: The EPS appointment ID
+          type: string
+          nullable: false
+        networkId:
+          description: The EPS network ID
+          type: string
+          nullable: false
+        providerServiceId:
+          description: The EPS provider service ID
+          type: string
+          nullable: false
+        referralNumber:
+          description: The appointment referral number
+          type: string
+          nullable: false
+        slotId:
+          description: The EPS slot ID
+          type: string
+          nullable: false
+        name:
+          $ref: "#/components/schemas/HumanName"
+        address:
+          $ref: '#/components/schemas/Address'
+        birthDate:
+          description: The birth date of the patient.
+          type: string
+          format: date
+        email:
+          type: string
+        gender:
+          type: string
+        phoneNumber:
+          type: string
     HumanName:
       type: object
       properties:
@@ -1647,6 +1740,99 @@ components:
         enrollmentCoordinator:
           type: string
           example: 202-555-1212
+    DraftAppointment:
+      type: object
+      description: 'Draft appointment'
+      properties:
+        appointment:
+          type: object
+          properties:
+            provider:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                isActive:
+                  type: boolean
+                individualProviders:
+                  type: array
+                  items:
+                    type: string
+                providerOrganization:
+                  type: string
+                location:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                networkIds:
+                  type: array
+                  items:
+                    type: string
+                schedulingNotes:
+                  type: string
+                appointmentTypes:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      isSelfSchedulable:
+                        type: boolean
+                specialties:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                visitMode:
+                  type: string
+                features:
+                  type: object
+                  properties:
+                    isDigital:
+                      type: boolean
+            slots:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  start:
+                    type: string
+                    format: date-time
+            drivetime:
+              type: object
+              properties:
+                origin:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                    longitude:
+                      type: number
+                destination:
+                  type: object
+                  properties:
+                    distanceInMiles:
+                      type: integer
+                    driveTimeInSecondsWithoutTraffic:
+                      type: number
+                    driveTimeInSecondsWithTraffic:
+                      type: number
+                    latitude:
+                      type: number
+                    longitude:
+                      type: number
     SchedulingConfiguration:
       type: object
       required:
