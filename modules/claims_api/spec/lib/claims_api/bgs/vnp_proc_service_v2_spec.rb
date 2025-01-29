@@ -14,12 +14,17 @@ describe ClaimsApi::VnpProcServiceV2 do
       end
     end
 
-    it 'responds appropriately when the service is not available' do
-      allow_any_instance_of(ClaimsApi::LocalBGS)
-        .to receive(:make_request).and_raise(Common::Exceptions::BadGateway)
-      expect do
-        subject.vnp_proc_create
-      end.to raise_error(Common::Exceptions::BadGateway)
+    context 'when BGS is not available' do
+      before do
+        allow_any_instance_of(ClaimsApi::LocalBGS)
+          .to receive(:make_request).and_raise(Common::Exceptions::BadGateway)
+      end
+
+      it 'raises BadGateway error' do
+        expect do
+          subject.vnp_proc_create
+        end.to raise_error(Common::Exceptions::BadGateway)
+      end
     end
   end
 end
