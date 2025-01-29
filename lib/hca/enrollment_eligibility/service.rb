@@ -61,6 +61,8 @@ module HCA
           lookup_user_req(icn)
         end
 
+        debugger
+
         {
           enrollment_status: get_xpath(
             response,
