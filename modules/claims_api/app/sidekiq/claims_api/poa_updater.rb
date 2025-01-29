@@ -3,6 +3,7 @@
 require 'bgs'
 require 'bgs_service/person_web_service'
 require 'bgs_service/vet_record_web_service'
+require 'bgs_service/manage_representative_service'
 
 module ClaimsApi
   class PoaUpdater < ClaimsApi::ServiceBase
@@ -63,6 +64,13 @@ module ClaimsApi
       )
     end
 
+    def manage_rep_poa_update_service(poa_form)
+      ClaimsApi::ManageRepresentativeService.new(
+        external_uid: poa_form.external_uid,
+        external_key: poa_form.external_key
+      )
+    end
+
     def find_by_ssn(ssn, poa_form)
       if Flipper.enabled? :claims_api_use_person_web_service
         person_web_service(poa_form).find_by_ssn(ssn)[:file_nbr] # rubocop:disable Rails/DynamicFindBy
@@ -72,7 +80,14 @@ module ClaimsApi
     end
 
     def update_birls_record(file_number, ssn, poa_code, poa_form)
-      if Flipper.enabled? :claims_api_use_vet_record_service
+      if 1 == 1
+        manage_rep_poa_update_service(poa_form).update_poa_relationship(
+          pctpnt_id: poa_form.auth_headers['va_eauth_pid'],
+          file_number:,
+          ssn:,
+          poa_code:
+        )
+      elsif Flipper.enabled? :claims_api_use_vet_record_service
         vet_record_service(poa_form).update_birls_record(
           file_number:,
           ssn:,
