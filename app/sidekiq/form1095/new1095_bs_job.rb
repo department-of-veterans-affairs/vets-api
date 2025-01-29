@@ -66,7 +66,7 @@ module Form1095
         val = "H#{i < 10 ? '0' : ''}#{i}"
 
         field = form_fields[val.to_sym]
-        coverage_arr.push(field && field.strip == 'Y' ? true : false)
+        coverage_arr.push((field && field.strip == 'Y') || false)
 
         i += 1
       end

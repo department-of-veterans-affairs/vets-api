@@ -713,7 +713,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'financial status report create' do
         it 'validates the route' do
           pdf_stub = class_double(PdfFill::Filler).as_stubbed_const
-          allow(pdf_stub).to receive(:fill_ancillary_form).and_return(::Rails.root.join(
+          allow(pdf_stub).to receive(:fill_ancillary_form).and_return(Rails.root.join(
             *'/spec/fixtures/dmc/5655.pdf'.split('/')
           ).to_s)
           VCR.use_cassette('dmc/submit_fsr') do
@@ -1323,7 +1323,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
         it 'when correct form id is passed, it supports creating mvi user' do
           VCR.use_cassette('mpi/add_person/add_person_success') do
-            VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
+            VCR.use_cassette('mpi/find_candidate/find_profile_with_identifier') do
               expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
             end
           end
