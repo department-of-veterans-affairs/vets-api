@@ -182,22 +182,12 @@ class MPIData < Common::RedisStore
                                                                               ssn: user_ssn,
                                                                               edipi: user_edipi)
     if search_response.ok?
-      orch_search_response = mpi_service.find_profile_by_attributes_with_orch_search(first_name: search_response.profile.given_names.first,
-                                                                                       last_name: search_response.profile.given_names.last,
-                                                                                       birth_date: search_response.profile.birth_date,
-                                                                                       ssn: search_response.profile.ssn,
-                                                                                       edipi: search_response.profile.edipi )
+      orch_search_response = perform_orchestrated_search(search_response)
       if orch_search_response.ok?
         @mvi_response = orch_search_response
-        add_response = mpi_service.add_person_proxy(last_name: orch_search_response.profile.family_name,
-                                                      ssn: orch_search_response.profile.ssn,
-                                                      birth_date: orch_search_response.profile.birth_date,
-                                                      icn: orch_search_response.profile.icn,
-                                                      edipi: orch_search_response.profile.edipi,
-                                                      search_token: orch_search_response.profile.search_token,
-                                                      first_name: orch_search_response.profile.given_names.first )
-        add_ids(add_response) if add_response.ok?
-        add_response
+        add_person_response = perform_add_person_proxy(orch_search_response)
+        add_ids(add_person_response) if add_person_response.ok?
+        add_person_response
       else
         orch_search_response
       end
@@ -207,6 +197,26 @@ class MPIData < Common::RedisStore
   end
 
   private
+
+  def perform_orchestrated_search(search_response)
+    mpi_service.find_profile_by_attributes_with_orch_search(
+      first_name: search_response.profile.given_names.first,
+      last_name: search_response.profile.given_names.last,
+      birth_date: search_response.profile.birth_date,
+      ssn: search_response.profile.ssn,
+      edipi: search_response.profile.edipi
+    )
+  end
+
+  def perform_add_person_proxy(orch_search_response)
+    mpi_service.add_person_proxy(last_name: orch_search_response.profile.family_name,
+                                 ssn: orch_search_response.profile.ssn,
+                                 birth_date: orch_search_response.profile.birth_date,
+                                 icn: orch_search_response.profile.icn,
+                                 edipi: orch_search_response.profile.edipi,
+                                 search_token: orch_search_response.profile.search_token,
+                                 first_name: orch_search_response.profile.given_names.first)
+  end
 
   def get_user_key
     if user_icn.present?
