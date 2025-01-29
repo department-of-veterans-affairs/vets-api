@@ -5,11 +5,7 @@ require 'va_profile/v2/contact_information/transaction_response'
 
 describe VAProfile::V2::ContactInformation::TransactionResponse do
   before do
-    Flipper.enable(:va_v3_contact_information_service)
-  end
-
-  after do
-    Flipper.disable(:va_v3_contact_information_service)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
   end
 
   describe '.from' do
@@ -136,7 +132,7 @@ describe VAProfile::V2::ContactInformation::TransactionResponse do
           end
 
           it 'returns nil' do
-            expect(subject.new_email).to eq(nil)
+            expect(subject.new_email).to be_nil
           end
         end
       end

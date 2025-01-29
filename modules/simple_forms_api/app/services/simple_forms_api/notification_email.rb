@@ -58,6 +58,11 @@ module SimpleFormsApi
         confirmation: nil,
         error: Settings.vanotify.services.va_gov.template_id.form40_10007_error_email,
         received: nil
+      },
+      'vba_26_4555' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form26_4555_confirmation_email,
+        rejected: Settings.vanotify.services.va_gov.template_id.form26_4555_rejected_email,
+        duplicate: Settings.vanotify.services.va_gov.template_id.form26_4555_duplicate_email
       }
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
@@ -95,10 +100,12 @@ module SimpleFormsApi
     private
 
     def check_missing_keys(config)
-      missing_keys = %i[form_data form_number confirmation_number date_submitted].select { |key| config[key].nil? }
-      if config[:form_number] == 'vba_21_0966_intent_api' && config[:expiration_date].nil?
-        missing_keys << :expiration_date
-      end
+      all_keys = %i[form_data form_number date_submitted]
+      all_keys << :confirmation_number if needs_confirmation_number?
+      all_keys << :expiration_date if config[:form_number] == 'vba_21_0966_intent_api'
+
+      missing_keys = all_keys.select { |key| config[key].nil? || config[key].to_s.strip.empty? }
+
       if missing_keys.any?
         StatsD.increment('silent_failure', tags: statsd_tags) if error_notification?
         raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}"
@@ -206,7 +213,7 @@ module SimpleFormsApi
         form_data['preparer_email']
       when 'vba_21_0966', 'vba_21_0966_intent_api'
         form21_0966_email_address
-      when 'vba_21_4142'
+      when 'vba_21_4142', 'vba_26_4555'
         form_data.dig('veteran', 'email')
       when 'vba_21_10210'
         form21_10210_contact_info[0]
@@ -232,7 +239,7 @@ module SimpleFormsApi
         form21_0966_first_name
       when 'vba_21_0972'
         form_data.dig('preparer_full_name', 'first')
-      when 'vba_21_4142'
+      when 'vba_21_4142', 'vba_26_4555'
         form_data.dig('veteran', 'full_name', 'first')
       when 'vba_21_10210'
         form21_10210_contact_info[1]
@@ -269,13 +276,14 @@ module SimpleFormsApi
     end
 
     def get_personalization(first_name)
-      if @form_number.start_with? 'vba_21_0966'
-        personalization = default_personalization(first_name).merge(form21_0966_personalization)
-        personalization.except!('lighthouse_updated_at') unless lighthouse_updated_at
-        personalization
-      else
-        default_personalization(first_name)
-      end
+      personalization = if @form_number.start_with? 'vba_21_0966'
+                          default_personalization(first_name).merge(form21_0966_personalization)
+                        else
+                          default_personalization(first_name)
+                        end
+      personalization.except!('lighthouse_updated_at') unless lighthouse_updated_at
+      personalization.except!('confirmation_number') unless confirmation_number
+      personalization
     end
 
     # personalization hash shared by all simple form confirmation emails
@@ -369,7 +377,7 @@ module SimpleFormsApi
       if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
         form_data.dig('surviving_dependent_full_name', 'first')
       else
-        form_data.dig('veteran_full_name', 'first')
+        form_data.dig('veteran_full_name', 'first') || user&.first_name
       end
     end
 
@@ -425,6 +433,12 @@ module SimpleFormsApi
 
     def error_notification?
       notification_type == :error
+    end
+
+    def needs_confirmation_number?
+      # All email templates require confirmation_number except :duplicate for 26-4555 (SAHSHA)
+      # Only 26-4555 supports the :duplicate notification_type
+      notification_type != :duplicate
     end
   end
 end

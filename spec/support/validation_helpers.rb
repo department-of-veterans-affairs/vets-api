@@ -27,6 +27,6 @@ module ValidationHelpers
 
   def expect_attr_invalid(model, attr, error = 'is invalid')
     model.valid?
-    expect(model.errors[attr].include?(error)).to eq(true)
+    expect(model.errors[attr].include?(error)).to be(true)
   end
 end

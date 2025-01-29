@@ -99,7 +99,7 @@ Shrine.storages = {
   store: Shrine::Storage::Memory.new
 }
 
-CarrierWave.root = Rails.root.join('spec', 'support', "uploads#{ENV['TEST_ENV_NUMBER']}")
+CarrierWave.root = Rails.root.join('spec', 'support', "uploads#{ENV.fetch('TEST_ENV_NUMBER', nil)}")
 
 FactoryBot::SyntaxRunner.class_eval do
   include RSpec::Mocks::ExampleMethods
@@ -183,15 +183,14 @@ RSpec.configure do |config|
     stub_mpi unless example.metadata[:skip_mvi]
     stub_va_profile unless example.metadata[:skip_va_profile]
     stub_vet360 unless example.metadata[:skip_vet360]
-    stub_vaprofile_user if example.metadata[:initiate_vaprofile]
-
+    stub_vaprofile_user unless example.metadata[:skip_va_profile_user]
     Sidekiq::Job.clear_all
   end
 
   # clean up carrierwave uploads
   # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests
   config.after(:all) do
-    FileUtils.rm_rf(Rails.root.glob("spec/support/uploads#{ENV['TEST_ENV_NUMBER']}")) if Rails.env.test?
+    FileUtils.rm_rf(Rails.root.glob("spec/support/uploads#{ENV.fetch('TEST_ENV_NUMBER', nil)}")) if Rails.env.test?
   end
 end
 

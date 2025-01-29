@@ -84,34 +84,34 @@ class Form1095B < ApplicationRecord
       pdf_template_path,
       tmp_file,
       {
-        "topmostSubform[0].Page1[0].Pg1Header[0].cb_1[1]": data[:is_corrected] && 2,
-        "topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_01[0]": data[:first_name],
-        "topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_02[0]": data[:middle_name],
-        "topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_03[0]": data[:last_name],
-        "topmostSubform[0].Page1[0].Part1Contents[0].f1_04[0]": data[:last_4_ssn] || '',
-        "topmostSubform[0].Page1[0].Part1Contents[0].f1_05[0]": data[:last_4_ssn] ? '' : data[:birth_date],
-        "topmostSubform[0].Page1[0].Part1Contents[0].f1_06[0]": data[:address],
-        "topmostSubform[0].Page1[0].Part1Contents[0].f1_07[0]": data[:city],
-        "topmostSubform[0].Page1[0].Part1Contents[0].f1_08[0]": data[:state] || data[:province],
-        "topmostSubform[0].Page1[0].Part1Contents[0].f1_09[0]": country_and_zip,
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_25[0]": data[:first_name],
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_26[0]": middle_initial,
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_27[0]": data[:last_name],
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_28[0]": data[:last_4_ssn] || '',
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_29[0]": data[:last_4_ssn] ? '' : data[:birth_date],
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_01[0]": data[:coverage_months][0] && 1,
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_02[0]": data[:coverage_months][1] && 1,
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_03[0]": data[:coverage_months][2] && 1,
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_04[0]": data[:coverage_months][3] && 1,
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_05[0]": data[:coverage_months][4] && 1,
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_06[0]": data[:coverage_months][5] && 1,
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_07[0]": data[:coverage_months][6] && 1,
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_08[0]": data[:coverage_months][7] && 1,
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_09[0]": data[:coverage_months][8] && 1,
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_10[0]": data[:coverage_months][9] && 1,
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_11[0]": data[:coverage_months][10] && 1,
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_12[0]": data[:coverage_months][11] && 1,
-        "topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_13[0]": data[:coverage_months][12] && 1
+        'topmostSubform[0].Page1[0].Pg1Header[0].cb_1[1]': data[:is_corrected] && 2,
+        'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_01[0]': data[:first_name],
+        'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_02[0]': data[:middle_name],
+        'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_03[0]': data[:last_name],
+        'topmostSubform[0].Page1[0].Part1Contents[0].f1_04[0]': data[:last_4_ssn] || '',
+        'topmostSubform[0].Page1[0].Part1Contents[0].f1_05[0]': data[:last_4_ssn] ? '' : data[:birth_date],
+        'topmostSubform[0].Page1[0].Part1Contents[0].f1_06[0]': data[:address],
+        'topmostSubform[0].Page1[0].Part1Contents[0].f1_07[0]': data[:city],
+        'topmostSubform[0].Page1[0].Part1Contents[0].f1_08[0]': data[:state] || data[:province],
+        'topmostSubform[0].Page1[0].Part1Contents[0].f1_09[0]': country_and_zip,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_25[0]': data[:first_name],
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_26[0]': middle_initial,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_27[0]': data[:last_name],
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_28[0]': data[:last_4_ssn] || '',
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_29[0]': data[:last_4_ssn] ? '' : data[:birth_date],
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_01[0]': data[:coverage_months][0] && 1,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_02[0]': data[:coverage_months][1] && 1,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_03[0]': data[:coverage_months][2] && 1,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_04[0]': data[:coverage_months][3] && 1,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_05[0]': data[:coverage_months][4] && 1,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_06[0]': data[:coverage_months][5] && 1,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_07[0]': data[:coverage_months][6] && 1,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_08[0]': data[:coverage_months][7] && 1,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_09[0]': data[:coverage_months][8] && 1,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_10[0]': data[:coverage_months][9] && 1,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_11[0]': data[:coverage_months][10] && 1,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_12[0]': data[:coverage_months][11] && 1,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_13[0]': data[:coverage_months][12] && 1
       },
       flatten: true
     )
@@ -129,34 +129,34 @@ class Form1095B < ApplicationRecord
 
   def form_data_schema
     {
-      "type": 'object',
-      "required": %w[first_name middle_name last_name address city country coverage_months],
-      "properties": {
-        "first_name": { "type": 'string' },
-        "middle_name": { "type": 'string' },
-        "last_name": { "type": 'string' },
-        "last_4_ssn": {
-          "type": 'string',
-          "pattern": '[0-9]{4}|^$'
+      type: 'object',
+      required: %w[first_name middle_name last_name address city country coverage_months],
+      properties: {
+        first_name: { type: 'string' },
+        middle_name: { type: 'string' },
+        last_name: { type: 'string' },
+        last_4_ssn: {
+          type: 'string',
+          pattern: '[0-9]{4}|^$'
         },
-        "birth_date": {
-          "type": 'string',
-          "format": 'date'
+        birth_date: {
+          type: 'string',
+          format: 'date'
         },
-        "address": { "type": 'string' },
-        "city": { "type": 'string' },
-        "state": { "type": 'string' },
-        "province": { "type": 'string' },
-        "country": { "type": 'string' },
-        "zip_code": { "type": 'string' },
-        "foreign_zip": { "type": 'string' },
-        "is_beneficiary": { "type": 'boolean' },
-        "is_corrected": { "type": 'boolean' },
-        "coverage_months": {
-          "type": 'array',
-          "items": { "type": 'boolean' },
-          "minItems": 13,
-          "maxItems": 13
+        address: { type: 'string' },
+        city: { type: 'string' },
+        state: { type: 'string' },
+        province: { type: 'string' },
+        country: { type: 'string' },
+        zip_code: { type: 'string' },
+        foreign_zip: { type: 'string' },
+        is_beneficiary: { type: 'boolean' },
+        is_corrected: { type: 'boolean' },
+        coverage_months: {
+          type: 'array',
+          items: { type: 'boolean' },
+          minItems: 13,
+          maxItems: 13
         }
       }
     }

@@ -25,7 +25,7 @@ describe VBS::Requests::ListStatements do
     end
 
     it 'does not allow additional properties' do
-      expect(described_class.schema['additionalProperties']).to eq(false)
+      expect(described_class.schema['additionalProperties']).to be(false)
     end
 
     it 'requires "edipi" and "vistaAccountNumbers"' do

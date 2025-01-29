@@ -29,34 +29,64 @@ module ClaimsApi
 
           validate_filter!(filter)
 
-          service = ClaimsApi::ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
-                                                               external_key: 'power_of_attorney_request_key')
+          service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(poa_codes:, page_size:, page_index:, filter:)
 
-          res = service.read_poa_request(poa_codes:, page_size:, page_index:, filter:)
-
-          poa_list = res['poaRequestRespondReturnVOList']
+          poa_list = service.get_poa_list
 
           raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
 
-          render json: Array.wrap(poa_list), status: :ok
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
+            poa_list, view: :index_or_show, root: :data
+          ), status: :ok
         end
 
-        def decide
-          proc_id = form_attributes['procId']
-          ptcpnt_id = form_attributes['participantId']
+        def show
+          poa_request = ClaimsApi::PowerOfAttorneyRequest.find_by(id: params[:id])
+
+          unless poa_request
+            raise Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "Could not find Power of Attorney Request with id: #{params[:id]}"
+            )
+          end
+
+          params[:veteranId] = poa_request.veteran_icn # needed for target_veteran
+          participant_id = target_veteran.participant_id
+
+          service = ClaimsApi::PowerOfAttorneyRequestService::Show.new(participant_id)
+
+          res = service.get_poa_request
+          res['id'] = poa_request.id
+
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :index_or_show,
+                                                                                              root: :data),
+                 status: :ok
+        end
+
+        def decide # rubocop:disable Metrics/MethodLength
+          lighthouse_id = params[:id]
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
 
+          request = ClaimsApi::PowerOfAttorneyRequest.find_by(id: lighthouse_id)
+          unless request
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "Could not find Power of Attorney request with id: #{lighthouse_id}"
+            )
+          end
+          proc_id = request.proc_id
+          vet_icn = request.veteran_icn
+
           validate_decide_params!(proc_id:, decision:)
 
-          service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
-                                                    external_key: 'power_of_attorney_request_key')
+          service = ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bgs.external_uid,
+                                                               external_key: Settings.bgs.external_key)
 
+          ptcpnt_id = fetch_ptcpnt_id(vet_icn)
           if decision == 'declined'
             poa_request = validate_ptcpnt_id!(ptcpnt_id:, proc_id:, representative_id:, service:)
           end
 
-          first_name = poa_request['claimantFirstName'] || poa_request['vetFirstName'].presence if poa_request
+          first_name = poa_request['claimantFirstName'].presence || poa_request['vetFirstName'] if poa_request
 
           res = service.update_poa_request(proc_id:, secondary_status: decision,
                                            declined_reason: form_attributes['declinedReason'])
@@ -65,7 +95,13 @@ module ClaimsApi
 
           send_declined_notification(ptcpnt_id:, first_name:, representative_id:) if decision == 'declined'
 
-          render json: res, status: :ok
+          service = ClaimsApi::PowerOfAttorneyRequestService::Show.new(ptcpnt_id)
+          res = service.get_poa_request
+          res['id'] = lighthouse_id
+
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :index_or_show,
+                                                                                              root: :data),
+                 status: :ok
         end
 
         def create # rubocop:disable Metrics/MethodLength
@@ -97,13 +133,22 @@ module ClaimsApi
             claimant_icn = form_attributes.dig('claimant', 'claimantId')
             poa_request = ClaimsApi::PowerOfAttorneyRequest.create!(proc_id: res['procId'],
                                                                     veteran_icn: params[:veteranId],
-                                                                    claimant_icn:, poa_code:)
+                                                                    claimant_icn:, poa_code:,
+                                                                    metadata: res['meta'])
             form_attributes['id'] = poa_request.id
-            form_attributes['type'] = 'power-of-attorney-request'
           end
 
-          # return only the form information consumers provided
-          render json: { data: { attributes: form_attributes } }, status: :created
+          response_data = ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
+                                                                                            view: :create,
+                                                                                            root: :data)
+
+          options = { status: :created }
+          if form_attributes['id'].present?
+            options[:location] =
+              url_for(controller: 'base', action: 'status', id: form_attributes['id'])
+          end
+
+          render json: response_data, **options
         end
 
         private

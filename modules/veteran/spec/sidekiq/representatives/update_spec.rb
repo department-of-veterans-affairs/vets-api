@@ -78,13 +78,9 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
     let(:address_exists) { true }
 
     before do
-      Flipper.enable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
       create_flagged_records(flag_type)
       allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::V3::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
-    end
-
-    after do
-      Flipper.disable(:va_v3_contact_information_service)
     end
 
     it "updates the #{flag_type} and the associated flagged records" do
@@ -164,8 +160,8 @@ RSpec.describe Representatives::Update do
             address_line2: 'abc',
             address_line3: 'abc',
             city: 'abc',
-            state_province: {
-              code: 'abc'
+            state: {
+              state_code: 'abc'
             },
             zip_code5: 'abc',
             zip_code4: 'abc',
@@ -180,7 +176,7 @@ RSpec.describe Representatives::Update do
         }
       ].to_json
     end
-    let(:api_response) do
+    let(:api_response_v2) do
       {
         'candidate_addresses' => [
           {
@@ -224,11 +220,15 @@ RSpec.describe Representatives::Update do
 
     before do
       Flipper.disable(:va_v3_contact_information_service)
-      allow_any_instance_of(VAProfile::AddressValidation::Service).to receive(:candidate).and_return(api_response)
+      allow_any_instance_of(VAProfile::AddressValidation::Service).to receive(:candidate).and_return(api_response_v2)
     end
 
     context 'when JSON parsing fails' do
       let(:invalid_json_data) { 'invalid json' }
+
+      before do
+        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+      end
 
       it 'logs an error to Sentry' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
@@ -245,6 +245,10 @@ RSpec.describe Representatives::Update do
       let(:address_changed) { true }
       let(:email_changed) { false }
       let(:phone_number_changed) { false }
+
+      before do
+        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+      end
 
       it 'logs an error to Sentry' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
@@ -377,7 +381,7 @@ RSpec.describe Representatives::Update do
       let(:phone_number_changed) { false }
       let!(:representative) { create_representative }
       let(:validation_stub) { instance_double(VAProfile::AddressValidation::Service) }
-      let(:api_response_with_zero) do
+      let(:api_response_with_zero_v2) do
         {
           'candidate_addresses' => [
             {
@@ -418,7 +422,7 @@ RSpec.describe Representatives::Update do
           ]
         }
       end
-      let(:api_response1) do
+      let(:api_response1_v2) do
         {
           'candidate_addresses' => [
             {
@@ -459,7 +463,7 @@ RSpec.describe Representatives::Update do
           ]
         }
       end
-      let(:api_response2) do
+      let(:api_response2_v2) do
         {
           'candidate_addresses' => [
             {
@@ -500,7 +504,7 @@ RSpec.describe Representatives::Update do
           ]
         }
       end
-      let(:api_response3) do
+      let(:api_response3_v2) do
         {
           'candidate_addresses' => [
             {
@@ -546,7 +550,7 @@ RSpec.describe Representatives::Update do
         before do
           Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response1)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response1_v2)
         end
 
         it 'does not update the representative address' do
@@ -567,8 +571,8 @@ RSpec.describe Representatives::Update do
         before do
           Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
-                                                                   api_response2)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
+                                                                   api_response2_v2)
         end
 
         it 'does not update the representative address' do
@@ -589,8 +593,8 @@ RSpec.describe Representatives::Update do
         before do
           Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
-                                                                   api_response_with_zero, api_response3)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
+                                                                   api_response_with_zero_v2, api_response3_v2)
         end
 
         it 'updates the representative address' do
@@ -611,8 +615,8 @@ RSpec.describe Representatives::Update do
         before do
           Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
-                                                                   api_response_with_zero, api_response_with_zero)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
+                                                                   api_response_with_zero_v2, api_response_with_zero_v2)
         end
 
         it 'does not update the representative address' do
@@ -674,17 +678,19 @@ RSpec.describe Representatives::Update do
         [
           {
             id:,
-            address_pou: 'abc',
-            address_line1: 'abc',
-            address_line2: 'abc',
-            address_line3: 'abc',
-            city_name: 'abc',
-            state: {
-              state_code: 'abc'
+            address: {
+              address_pou: 'abc',
+              address_line1: 'abc',
+              address_line2: 'abc',
+              address_line3: 'abc',
+              city_name: 'abc',
+              state: {
+                state_code: 'abc'
+              },
+              zip_code5: 'abc',
+              zip_code4: 'abc',
+              country_code_iso3: 'abc'
             },
-            zip_code5: 'abc',
-            zip_code4: 'abc',
-            country_code_iso3: 'abc',
             email: 'test@example.com',
             phone_number: '999-999-9999',
             address_exists:,
@@ -694,7 +700,7 @@ RSpec.describe Representatives::Update do
           }
         ].to_json
       end
-      let(:api_response) do
+      let(:api_response_v3) do
         {
           'candidate_addresses' => [
             {
@@ -731,16 +737,17 @@ RSpec.describe Representatives::Update do
       end
 
       before do
-        Flipper.enable(:va_v3_contact_information_service)
-        allow_any_instance_of(VAProfile::V3::AddressValidation::Service).to receive(:candidate).and_return(api_response)
-      end
-
-      after do
-        Flipper.disable(:va_v3_contact_information_service)
+        validation_service = VAProfile::V3::AddressValidation::Service
+        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+        allow_any_instance_of(validation_service).to receive(:candidate).and_return(api_response_v3)
       end
 
       context 'when JSON parsing fails' do
         let(:invalid_json_data) { 'invalid json' }
+
+        before do
+          expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+        end
 
         it 'logs an error to Sentry' do
           expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
@@ -757,6 +764,10 @@ RSpec.describe Representatives::Update do
         let(:address_changed) { true }
         let(:email_changed) { false }
         let(:phone_number_changed) { false }
+
+        before do
+          expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+        end
 
         it 'logs an error to Sentry' do
           expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
@@ -886,7 +897,7 @@ RSpec.describe Representatives::Update do
         let(:phone_number_changed) { false }
         let!(:representative) { create_representative }
         let(:validation_stub) { instance_double(VAProfile::V3::AddressValidation::Service) }
-        let(:api_response_with_zero) do
+        let(:api_response_with_zero_v3) do
           {
             'candidate_addresses' => [
               {
@@ -921,7 +932,7 @@ RSpec.describe Representatives::Update do
             ]
           }
         end
-        let(:api_response1) do
+        let(:api_response1_v3) do
           {
             'candidate_addresses' => [
               {
@@ -956,7 +967,7 @@ RSpec.describe Representatives::Update do
             ]
           }
         end
-        let(:api_response2) do
+        let(:api_response2_v3) do
           {
             'candidate_addresses' => [
               {
@@ -991,7 +1002,7 @@ RSpec.describe Representatives::Update do
             ]
           }
         end
-        let(:api_response3) do
+        let(:api_response3_v3) do
           {
             'candidate_addresses' => [
               {
@@ -1030,7 +1041,7 @@ RSpec.describe Representatives::Update do
         context 'when the first retry has non-zero coordinates' do
           before do
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response1)
+            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3, api_response1_v3)
           end
 
           it 'does not update the representative address' do
@@ -1050,8 +1061,9 @@ RSpec.describe Representatives::Update do
         context 'when the second retry has non-zero coordinates' do
           before do
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
-                                                                     api_response2)
+            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
+                                                                     api_response_with_zero_v3,
+                                                                     api_response2_v3)
           end
 
           it 'does not update the representative address' do
@@ -1071,8 +1083,10 @@ RSpec.describe Representatives::Update do
         context 'when the third retry has non-zero coordinates' do
           before do
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
-                                                                     api_response_with_zero, api_response3)
+            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
+                                                                     api_response_with_zero_v3,
+                                                                     api_response_with_zero_v3,
+                                                                     api_response3_v3)
           end
 
           it 'updates the representative address' do
@@ -1092,8 +1106,10 @@ RSpec.describe Representatives::Update do
         context 'when the retry coordinates are all zero' do
           before do
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
-                                                                     api_response_with_zero, api_response_with_zero)
+            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v3,
+                                                                     api_response_with_zero_v3,
+                                                                     api_response_with_zero_v3,
+                                                                     api_response_with_zero_v3)
           end
 
           it 'does not update the representative address' do

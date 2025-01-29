@@ -6,10 +6,11 @@ VAOS::Engine.routes.draw do
     get '/appointments', to: 'appointments#index'
     get '/appointments/:appointment_id', to: 'appointments#show'
     put '/appointments/:id', to: 'appointments#update'
+    get '/providers', to: 'providers#index'
+    get '/providers/:provider_id', to: 'providers#show'
     get 'community_care/eligibility/:service_type', to: 'cc_eligibility#show'
     get '/locations/:location_id/clinics', to: 'clinics#index'
     get '/locations/last_visited_clinic', to: 'clinics#last_visited_clinic'
-    get '/locations/recent_facilities', to: 'clinics#recent_facilities'
     get '/locations/:location_id/clinics/:clinic_id/slots', to: 'slots#index'
     get '/locations/:location_id/slots', to: 'slots#facility_slots'
     get '/eligibility/', to: 'patients#index'
@@ -18,5 +19,7 @@ VAOS::Engine.routes.draw do
     get '/facilities/:facility_id', to: 'facilities#show'
     get '/relationships', to: 'relationships#index'
     post '/appointments', to: 'appointments#create'
+    post '/appointments/draft', to: 'appointments#create_draft'
+    post '/appointments/submit', to: 'appointments#submit_referral_appointment'
   end
 end

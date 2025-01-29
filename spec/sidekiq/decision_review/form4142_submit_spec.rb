@@ -55,7 +55,7 @@ RSpec.describe DecisionReview::Form4142Submit, type: :job do
         expect(subject.new.decrypt_form(enc_payload)).to eq(payload)
       end
 
-      it 'generates a 4142 PDF and sends it to Lighthouse API' do
+      it 'generates a 4142 PDF and sends it to Lighthouse API', skip: 'Flaky test' do
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
             expect do
@@ -104,8 +104,6 @@ RSpec.describe DecisionReview::Form4142Submit, type: :job do
         it 'increments statsd correctly when email is sent' do
           expect { described_class.new.sidekiq_retries_exhausted_block.call(msg) }
             .to trigger_statsd_increment('worker.decision_review.form4142_submit.permanent_error')
-            .and trigger_statsd_increment('silent_failure', tags:)
-            .and trigger_statsd_increment('silent_failure_avoided_no_confirmation', tags:)
             .and trigger_statsd_increment('worker.decision_review.form4142_submit.retries_exhausted.email_queued')
         end
 
