@@ -22,7 +22,7 @@ module ClaimsApi
         # Clear out the error message if there were previous failures
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
         poa_form.save
-        process.update!(step_status: 'SUCCESS', error_messages: [])
+        process.update!(step_status: 'SUCCESS', error_messages: [], completed_at: Time.zone.now)
 
         ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Success')
 

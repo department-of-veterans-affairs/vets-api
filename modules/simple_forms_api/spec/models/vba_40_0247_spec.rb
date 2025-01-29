@@ -45,4 +45,20 @@ RSpec.describe SimpleFormsApi::VBA400247 do
       expect(pages_mock).to have_received(:<<).at_least(:once).with(page_mock)
     end
   end
+
+  describe '#notification_first_name' do
+    let(:data) do
+      {
+        'applicant_full_name' => {
+          'first' => 'Applicant',
+          'last' => 'Eteranvay'
+
+        }
+      }
+    end
+
+    it 'returns the first name to be used in notifications' do
+      expect(described_class.new(data).notification_first_name).to eq 'Applicant'
+    end
+  end
 end

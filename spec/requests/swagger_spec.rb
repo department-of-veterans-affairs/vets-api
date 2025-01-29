@@ -713,7 +713,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'financial status report create' do
         it 'validates the route' do
           pdf_stub = class_double(PdfFill::Filler).as_stubbed_const
-          allow(pdf_stub).to receive(:fill_ancillary_form).and_return(::Rails.root.join(
+          allow(pdf_stub).to receive(:fill_ancillary_form).and_return(Rails.root.join(
             *'/spec/fixtures/dmc/5655.pdf'.split('/')
           ).to_s)
           VCR.use_cassette('dmc/submit_fsr') do
