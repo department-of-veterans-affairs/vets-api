@@ -2,10 +2,10 @@
 
 require 'disability_max_ratings/configuration'
 
-module DisabilityMaxRating
+module DisabilityMaxRatings
   class Client < Common::Client::Base
     include Common::Client::Concerns::Monitoring
-    configuration DisabilityMaxRating::Configuration
+    configuration DisabilityMaxRatings::Configuration
 
     STATSD_KEY_PREFIX = 'api.disability_max_ratings'
 

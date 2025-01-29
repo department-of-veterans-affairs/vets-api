@@ -59,7 +59,7 @@ module ClaimFastTracking
 
     def self.get_ratings(diagnostic_codes, user)
       if Flipper.enabled?(:disability_526_max_cfi_service_switch, user)
-        disability_max_ratings_client = DisabilityMaxRating::Client.new
+        disability_max_ratings_client = DisabilityMaxRatings::Client.new
         response = disability_max_ratings_client.get_max_rating_for_diagnostic_codes(diagnostic_codes)
       else
         vro_client = VirtualRegionalOffice::Client.new

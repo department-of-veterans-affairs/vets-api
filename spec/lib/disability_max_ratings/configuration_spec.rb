@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'disability_max_ratings/configuration'
 
-RSpec.describe DisabilityMaxRating::Configuration do
+RSpec.describe DisabilityMaxRatings::Configuration do
   subject { described_class.send(:new) }
 
   describe '#base_path' do

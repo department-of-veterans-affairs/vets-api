@@ -3,8 +3,8 @@
 require 'rails_helper'
 require 'disability_max_ratings/client'
 
-RSpec.describe DisabilityMaxRating::Client do
-  let(:client) { DisabilityMaxRating::Client.new }
+RSpec.describe DisabilityMaxRatings::Client do
+  let(:client) { DisabilityMaxRatings::Client.new }
   let(:max_ratings_params) { { diagnostic_codes: [1234] } }
 
   describe 'making max rating requests' do

@@ -3,7 +3,7 @@
 require 'common/client/configuration/rest'
 require 'common/client/middleware/response/raise_custom_error'
 
-module DisabilityMaxRating
+module DisabilityMaxRatings
   class Configuration < Common::Client::Configuration::REST
     self.open_timeout = Settings.disability_max_ratings_api.open_timeout
     self.read_timeout = Settings.disability_max_ratings_api.read_timeout
