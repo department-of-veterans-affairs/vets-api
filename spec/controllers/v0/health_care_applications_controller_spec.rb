@@ -16,14 +16,14 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
   end
 
   describe '#facilities' do
-    let(:lighthouse_service) { instance_double(Lighthouse::Facilities::V1::Client) }
+    let(:lighthouse_service) { instance_double(FacilitiesApi::V2::Lighthouse::Client) }
     let(:unrelated_facility) { Lighthouse::Facilities::Facility.new('id' => 'vha_123', 'attributes' => {}) }
     let(:target_facility) { Lighthouse::Facilities::Facility.new('id' => 'vha_456ab', 'attributes' => {}) }
     let(:deactivated_facility) { Lighthouse::Facilities::Facility.new('id' => 'vha_789', 'attributes' => {}) }
     let(:facilities) { [unrelated_facility, target_facility] }
 
     before do
-      allow(Lighthouse::Facilities::V1::Client).to receive(:new) { lighthouse_service }
+      allow(FacilitiesApi::V2::Lighthouse::Client).to receive(:new) { lighthouse_service }
       allow(lighthouse_service).to receive(:get_facilities) { facilities }
     end
 

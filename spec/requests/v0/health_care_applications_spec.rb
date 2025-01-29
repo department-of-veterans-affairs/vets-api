@@ -234,7 +234,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       end
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body[0]).to eq({ 'access' => nil,
-                                              'active_status' => nil,
                                               'address' => {
                                                 'mailing' => { 'zip' => '66713', 'city' => 'Leavenworth',
                                                                'state' => 'KS', 'address1' => '150 Muncie Rd' },
@@ -243,7 +242,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                                                                 'address1' => 'Baxter Springs City Cemetery' }
                                               },
                                               'classification' => 'Soldiers Lot',
-                                              'detailed_services' => nil,
                                               'distance' => nil,
                                               'facility_type' => 'va_cemetery',
                                               'facility_type_prefix' => 'nca',
@@ -266,10 +264,12 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                                               'parent' => nil,
                                               'phone' => { 'fax' => '9137584136', 'main' => '9137584105' },
                                               'services' => nil,
+                                              'time_zone' => 'America/Chicago',
                                               'type' => 'va_facilities',
                                               'unique_id' => '042',
                                               'visn' => nil,
-                                              'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp' })
+                                              'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp',
+                                              'tmp_covid_online_scheduling' => nil })
     end
 
     context 'with hca_retrieve_facilities_without_repopulating disabled' do
