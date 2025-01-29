@@ -18,8 +18,6 @@ class FormSubmissionAttempt < ApplicationRecord
   # If we get around to doing that, we shouldn't need the following line.
   self.ignored_columns += %w[error_message response]
 
-  HOUR_TO_SEND_NOTIFICATIONS = 9
-
   def self.latest_attempts
     select('DISTINCT ON (form_submission_id) form_submission_id, benefits_intake_uuid')
       .order('form_submission_id, created_at DESC')
@@ -40,7 +38,8 @@ class FormSubmissionAttempt < ApplicationRecord
                      form_type:,
                      user_account_uuid: form_submission.user_account_id }
         if should_send_simple_forms_email
-          simple_forms_api_email(log_info)
+          Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
+          simple_forms_enqueue_result_email(:error)
         elsif form_type == CentralMail::SubmitForm4142Job::FORM4142_FORMSUBMISSION_TYPE
           form526_form4142_email(log_info)
         end
@@ -104,11 +103,6 @@ class FormSubmissionAttempt < ApplicationRecord
     }
   end
 
-  def simple_forms_api_email(log_info)
-    Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
-    simple_forms_enqueue_result_email(:error)
-  end
-
   def queue_form526_form4142_email(form526_submission_id, log_info)
     Rails.logger.info('Queuing Form526:Form4142 failure email to VaNotify',
                       log_info.merge({ form526_submission_id: }))
@@ -144,55 +138,11 @@ class FormSubmissionAttempt < ApplicationRecord
   end
 
   def simple_forms_enqueue_result_email(notification_type)
-    if SimpleFormsApi::FormUploadNotificationEmail::SUPPORTED_FORMS.include? simple_forms_form_number
-      simple_forms_enqueue_form_upload_result_email(notification_type)
-    else
-      raw_form_data = form_submission.form_data || '{}'
-      form_data = JSON.parse(raw_form_data)
-      config = {
-        form_data:,
-        form_number: simple_forms_form_number,
-        confirmation_number: benefits_intake_uuid,
-        date_submitted: created_at.strftime('%B %d, %Y'),
-        lighthouse_updated_at: lighthouse_updated_at&.strftime('%B %d, %Y')
-      }
-
-      SimpleFormsApi::NotificationEmail.new(
-        config,
-        notification_type:,
-        user_account:
-      ).send(at: time_to_send)
-    end
-  end
-
-  def simple_forms_enqueue_form_upload_result_email(notification_type)
-    parsed_form_data = JSON.parse(form_submission.form_data)
-    config = {
-      form_number: parsed_form_data[:form_number],
-      form_name: parsed_form_data[:form_name],
-      first_name: parsed_form_data.dig(:form_data, :fullName, :first),
-      email: parsed_form_data.dig(:form_data, :email),
-      date_submitted: created_at.strftime('%B %d, %Y'),
-      confirmation_number: benefits_intake_uuid,
-      lighthouse_updated_at: lighthouse_updated_at&.strftime('%B %d, %Y')
-    }
-
-    SimpleFormsApi::FormUploadNotificationEmail.new(
-      config,
-      notification_type:
-    ).send(at: time_to_send)
-  end
-
-  def time_to_send
-    now = Time.now.in_time_zone('Eastern Time (US & Canada)')
-    if now.hour < HOUR_TO_SEND_NOTIFICATIONS
-      now.change(hour: HOUR_TO_SEND_NOTIFICATIONS,
-                 min: 0)
-    else
-      now.tomorrow.change(
-        hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0
-      )
-    end
+    SimpleFormsApi::Notification::SendNotificationEmailJob.perform_now(
+      notification_type:,
+      form_data: JSON.parse(form_submission.form_data),
+      form_submission_attempt: self
+    )
   end
 
   def simple_forms_form_number

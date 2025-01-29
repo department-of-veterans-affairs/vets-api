@@ -3,7 +3,7 @@
 module SimpleFormsApi
   class FormUploadNotificationEmail
     attr_reader :form_number, :form_name, :first_name, :email, :date_submitted, :confirmation_number,
-                :lighthouse_updated_at, :notification_type
+                :lighthouse_updated_at, :notification_type, :template_id, :statsd_tags
 
     template_root = Settings.vanotify.services.va_gov.template_id
     TEMPLATE_IDS = {
@@ -16,6 +16,7 @@ module SimpleFormsApi
 
     def initialize(config, notification_type:)
       @notification_type = notification_type
+      @template_id = TEMPLATE_IDS[notification_type]
 
       check_missing_keys(config)
       check_if_form_is_supported(config)
@@ -27,16 +28,19 @@ module SimpleFormsApi
       @date_submitted = config[:date_submitted]
       @confirmation_number = config[:confirmation_number]
       @lighthouse_updated_at = config[:lighthouse_updated_at]
+      @statsd_tags = {
+        'service' => 'veteran-facing-forms',
+        'function' => "#{form_number} form upload submission to Lighthouse"
+      }
     end
 
     def send(at: nil)
-      template_id = TEMPLATE_IDS[notification_type]
       return unless template_id
 
       sent_to_va_notify = if at
-                            enqueue_email(at, template_id)
+                            enqueue_email(at)
                           else
-                            send_email_now(template_id)
+                            send_email_now
                           end
       StatsD.increment('silent_failure', tags: statsd_tags) if error_notification? && !sent_to_va_notify
     end
@@ -61,25 +65,30 @@ module SimpleFormsApi
       end
     end
 
-    def send_email_now(template_id)
+    def send_email_now
       VANotify::EmailJob.perform_async(
         email,
         template_id,
         get_personalization,
-        Settings.vanotify.services.va_gov.api_key,
-        { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+        *email_args
       )
     end
 
-    def enqueue_email(at, template_id)
+    def enqueue_email(at)
       VANotify::EmailJob.perform_at(
         at,
         email,
         template_id,
         get_personalization,
+        *email_args
+      )
+    end
+
+    def email_args
+      [
         Settings.vanotify.services.va_gov.api_key,
         { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
-      )
+      ]
     end
 
     def get_personalization
@@ -92,10 +101,6 @@ module SimpleFormsApi
       }.tap do |personalization|
         personalization['lighthouse_updated_at'] = lighthouse_updated_at if lighthouse_updated_at
       end
-    end
-
-    def statsd_tags
-      { 'service' => 'veteran-facing-forms', 'function' => "#{form_number} form upload submission to Lighthouse" }
     end
 
     def error_notification?
