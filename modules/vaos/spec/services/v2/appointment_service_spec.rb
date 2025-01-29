@@ -533,6 +533,23 @@ describe VAOS::V2::AppointmentsService do
           expect(SchemaContract::Validation.last.status).to eq('success')
         end
       end
+
+      context 'includes travel claims' do
+        it 'returns a list of appointments with travel claim information attached' do
+          Flipper.enable(:travel_pay_view_claim_details)
+          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities',
+                             allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
+              response = subject.get_appointments(start_date2, end_date2)
+              appt_with_claim = response[:data][0]
+              expect(appt_with_claim[:travelPayClaim]).not_to be_empty
+              expect(appt_with_claim[:travelPayClaim]['claim']).not_to be_nil
+              expect(appt_with_claim[:travelPayClaim]['metadata']['status']).to eq(200)
+            end
+          end
+          Flipper.disable(:travel_pay_view_claim_details)
+        end
+      end
     end
 
     context 'when a MAP token error occurs' do
@@ -847,6 +864,42 @@ describe VAOS::V2::AppointmentsService do
               Common::Exceptions::BackendServiceException
             )
           end
+        end
+      end
+
+      context 'when travel reimbursement claims are included' do
+        it 'returns an appointment with a travel claim attached if claim exists' do
+          Flipper.enable(:travel_pay_view_claim_details)
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
+          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_instance',
+                           match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_with_avs',
+                             allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
+              response = subject.get_appointment('70060')
+
+              expect(response[:travelPayClaim]).not_to be_empty
+              expect(response[:travelPayClaim]['claim']).not_to be_nil
+              expect(response[:travelPayClaim]['metadata']['status']).to eq(200)
+            end
+          end
+          Flipper.disable(:travel_pay_view_claim_details)
+        end
+
+        it 'returns an appointment without a travel claim attached if claim does not exist' do
+          Flipper.enable(:travel_pay_view_claim_details)
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
+          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_instance_no_claims',
+                           match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_with_avs',
+                             allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
+              response = subject.get_appointment('70060')
+
+              expect(response[:travelPayClaim]).not_to be_empty
+              expect(response[:travelPayClaim]['claim']).to be_nil
+              expect(response[:travelPayClaim]['metadata']['status']).to eq(200)
+            end
+          end
+          Flipper.disable(:travel_pay_view_claim_details)
         end
       end
     end
