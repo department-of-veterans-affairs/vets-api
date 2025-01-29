@@ -19,7 +19,6 @@ module IvcChampva
     end
 
     def metadata
-   #   byebug
       {
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
         'veteranMiddleName' => @data.dig('veteran', 'full_name', 'middle'),
