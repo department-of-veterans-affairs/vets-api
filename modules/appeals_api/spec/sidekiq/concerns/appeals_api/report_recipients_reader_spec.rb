@@ -9,7 +9,7 @@ describe AppealsApi::ReportRecipientsReader do
   describe 'load_recipients' do
     let(:recipient_file_folder) { AppealsApi::Engine.root.join('config', 'mailinglists') }
     let(:recipient_file_path) { recipient_file_folder.join('error_report_daily.yml').to_s }
-    let(:messager_instance) { instance_double('AppealsApi::Slack::Messager') }
+    let(:messager_instance) { instance_double(AppealsApi::Slack::Messager) }
 
     it 'loads no users when file is missing' do
       expected_notify = { warning: ':warning:  recipients file does not exist',

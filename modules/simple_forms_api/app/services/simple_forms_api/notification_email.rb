@@ -101,7 +101,7 @@ module SimpleFormsApi
 
     def check_missing_keys(config)
       all_keys = %i[form_data form_number date_submitted]
-      all_keys << :confirmation_number if needs_confirmation_number?(config)
+      all_keys << :confirmation_number if needs_confirmation_number?
       all_keys << :expiration_date if config[:form_number] == 'vba_21_0966_intent_api'
 
       missing_keys = all_keys.select { |key| config[key].nil? || config[key].to_s.strip.empty? }
@@ -377,7 +377,7 @@ module SimpleFormsApi
       if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
         form_data.dig('surviving_dependent_full_name', 'first')
       else
-        form_data.dig('veteran_full_name', 'first')
+        form_data.dig('veteran_full_name', 'first') || user&.first_name
       end
     end
 
@@ -435,8 +435,10 @@ module SimpleFormsApi
       notification_type == :error
     end
 
-    def needs_confirmation_number?(config)
-      config[:form_number] != 'vba_26_4555' && %w[REJECTED DUPLICATE].exclude?(config[:notification_type])
+    def needs_confirmation_number?
+      # All email templates require confirmation_number except :duplicate for 26-4555 (SAHSHA)
+      # Only 26-4555 supports the :duplicate notification_type
+      notification_type != :duplicate
     end
   end
 end

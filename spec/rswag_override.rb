@@ -61,10 +61,8 @@ module Rswag
           if relevant_path?(url_path) # Added conditional
             file_path = File.join(@config.openapi_root, url_path)
             dirname = File.dirname(file_path)
-            FileUtils.mkdir_p dirname unless File.exist?(dirname)
-            File.open(file_path, 'w') do |file|
-              file.write(pretty_generate(doc))
-            end
+            FileUtils.mkdir_p dirname
+            File.write(file_path, pretty_generate(doc))
             @output.puts "Swagger doc generated at #{file_path}"
           end # Added conditional
         end

@@ -82,8 +82,8 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
 
     context 'saves form corrections from a corrected file' do
       before do
-        create :form1095_b, tax_year: 2020, veteran_icn: '23456789098765437'
-        create :form1095_b, tax_year: 2020, veteran_icn: '23456789098765464'
+        create(:form1095_b, tax_year: 2020, veteran_icn: '23456789098765437')
+        create(:form1095_b, tax_year: 2020, veteran_icn: '23456789098765464')
 
         allow(objects).to receive(:collect).and_return(file_names4)
         allow(Tempfile).to receive(:new).and_return(tempfile4)

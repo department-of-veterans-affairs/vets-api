@@ -1,6 +1,14 @@
 ---
 :services:
 
+# BGS
+- :name: "BGS"
+  :base_uri: <%= "#{URI(Settings.bgs.url).host}:#{URI(Settings.bgs.url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/VDC/ManageRepresentativeService"
+      :file_path: "/bgs/manage_representative_service/read_poa_request/default"
+
 #CRM API GET endpoint
 - :name: "CRM API GET endpoint"
   :base_uri: <%= "#{URI(Settings.ask_va_api.crm_api.base_url).host}:#{URI(Settings.ask_va_api.crm_api.base_url).port}" %>
@@ -908,6 +916,9 @@
     - :method: :post
       :path: "/sts/oauth/v1/token"
       :file_path: "map/secure_token_service/token"
+    - :method: :get
+      :path: "/sts/oauth/v1/jwks"
+      :file_path: "map/secure_token_service/jwks"
 
 # Sign Up Service Terms API
 - :name: "MAP SUS"
@@ -938,7 +949,7 @@
         :uid_location: url
         :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)\/provisioning\/cerner'
 
-# VA Profile / Vet360
+# VA Profile (formerly known as Vet360)
 - :name: "VA Profile"
   :base_uri: <%= "#{URI(Settings.vet360.url).host}:#{URI(Settings.vet360.url).port}" %>
   :endpoints:

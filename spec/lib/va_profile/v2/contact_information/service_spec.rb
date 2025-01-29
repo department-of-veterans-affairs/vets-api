@@ -34,7 +34,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       it 'has a bad address' do
         VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
-          expect(response.person.addresses[0].bad_address).to eq(true)
+          expect(response.person.addresses[0].bad_address).to be(true)
         end
       end
     end
@@ -123,6 +123,16 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
           address.city = 'Fulton'
           address.state_code = 'MS'
           address.zip_code = '38843'
+          response = subject.post_address(address)
+          expect(response).to be_ok
+        end
+      end
+    end
+
+    context 'when the address_pou is invalid' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('va_profile/v2/contact_information/post_address_success_invalid_pou', VCR::MATCH_EVERYTHING) do
+          address = build(:va_profile_v3_address, :incorrect_address_pou)
           response = subject.post_address(address)
           expect(response).to be_ok
         end
@@ -355,7 +365,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
             subject.get_email_transaction_status(transaction_id)
 
-            expect(OldEmail.find(transaction_id)).to eq(nil)
+            expect(OldEmail.find(transaction_id)).to be_nil
           end
         end
       end
@@ -437,7 +447,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
               subject.send(:send_contact_change_notification, transaction_status, :email)
 
-              expect(TransactionNotification.find(transaction_id).present?).to eq(true)
+              expect(TransactionNotification.find(transaction_id).present?).to be(true)
             end
           end
         end

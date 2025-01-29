@@ -27,7 +27,7 @@ RSpec.describe 'API doc validations', type: :request do
   end
 end
 
-RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :defined do
+RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore request] do
   include AuthenticatedSessionHelper
 
   subject { Apivore::SwaggerChecker.instance_for('/v0/apidocs.json') }
@@ -170,7 +170,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports getting an in-progress form' do
-      FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      create(:in_progress_form, user_uuid: mhv_user.uuid)
       stub_evss_pciu(mhv_user)
       expect(subject).to validate(
         :get,
@@ -201,7 +201,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports deleting an in-progress form' do
-      form = FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      form = create(:in_progress_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :delete,
         '/v0/in_progress_forms/{id}',
@@ -212,7 +212,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports getting an disability_compensation_in_progress form' do
-      FactoryBot.create(:in_progress_526_form, user_uuid: mhv_user.uuid)
+      create(:in_progress_526_form, user_uuid: mhv_user.uuid)
       stub_evss_pciu(mhv_user)
       VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
         expect(subject).to validate(
@@ -249,7 +249,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports deleting an disability_compensation_in_progress form' do
-      form = FactoryBot.create(:in_progress_526_form, user_uuid: mhv_user.uuid)
+      form = create(:in_progress_526_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :delete,
         '/v0/disability_compensation_in_progress_forms/{id}',
@@ -712,8 +712,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
       context 'financial status report create' do
         it 'validates the route' do
-          pdf_stub = class_double('PdfFill::Filler').as_stubbed_const
-          allow(pdf_stub).to receive(:fill_ancillary_form).and_return(::Rails.root.join(
+          pdf_stub = class_double(PdfFill::Filler).as_stubbed_const
+          allow(pdf_stub).to receive(:fill_ancillary_form).and_return(Rails.root.join(
             *'/spec/fixtures/dmc/5655.pdf'.split('/')
           ).to_s)
           VCR.use_cassette('dmc/submit_fsr') do
@@ -735,9 +735,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     context 'HCA tests' do
       let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
       let(:test_veteran) do
-        json_string = File.read(
-          Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
-        )
+        json_string = Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json').read
         json = JSON.parse(json_string)
         json.delete('email')
         json.to_json
@@ -880,9 +878,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
     context 'Form1010Ezr tests' do
       let(:form) do
-        json_string = File.read(
-          Rails.root.join('spec', 'fixtures', 'form1010_ezr', 'valid_form.json')
-        )
+        json_string = Rails.root.join('spec', 'fixtures', 'form1010_ezr', 'valid_form.json').read
         json = JSON.parse(json_string)
         json.to_json
       end
@@ -1140,9 +1136,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
 
       let(:form526v2) do
-        File.read(
-          Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json')
-        )
+        Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json').read
       end
 
       it 'supports getting rated disabilities' do
@@ -2784,7 +2778,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         Flipper.disable(:remove_pciu)
       end
 
-      describe 'profiles v2', :skip_vet360, :initiate_vaprofile do
+      describe 'profiles v2', :initiate_vaprofile, :skip_vet360 do
         let(:mhv_user) { build(:user, :loa3) }
 
         before do
@@ -3056,7 +3050,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         end
       end
 
-      describe 'profile/status v2', :skip_vet360, :initiate_vaprofile do
+      describe 'profile/status v2', :initiate_vaprofile, :skip_vet360 do
         let(:user) { build(:user, :loa3) }
 
         before do
@@ -3578,8 +3572,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
     describe 'claim status tool' do
       let!(:claim) do
-        FactoryBot.create(:evss_claim, id: 1, evss_id: 189_625,
-                                       user_uuid: mhv_user.uuid, data: {})
+        create(:evss_claim, id: 1, evss_id: 189_625,
+                            user_uuid: mhv_user.uuid, data: {})
       end
 
       it 'uploads a document to support a claim' do
@@ -3788,6 +3782,33 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
   end
 
+  describe 'banners' do
+    describe 'GET /v0/banners' do
+      it 'requires path parameter' do
+        expect(subject).to validate(:get, '/v0/banners', 422, '_query_string' => 'type=full_width_banner_alert')
+      end
+
+      context 'when the service successfully returns banners' do
+        it 'supports getting banners without type parameter' do
+          VCR.use_cassette('banners/get_banners_success') do
+            expect(subject).to validate(:get, '/v0/banners', 200, '_query_string' => 'path=/some-va-path')
+          end
+        end
+
+        it 'supports getting banners with path and type parameters' do
+          VCR.use_cassette('banners/get_banners_with_type_success') do
+            expect(subject).to validate(
+              :get,
+              '/v0/banners',
+              200,
+              '_query_string' => 'path=full-va-path&type=full_width_banner_alert'
+            )
+          end
+        end
+      end
+    end
+  end
+
   describe 'submission statuses' do
     context 'loa3 user' do
       let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
@@ -3835,7 +3856,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
   end
 end
 
-RSpec.describe 'the v1 API documentation', type: %i[apivore request], order: :defined do
+RSpec.describe 'the v1 API documentation', order: :defined, type: %i[apivore request] do
   include AuthenticatedSessionHelper
 
   subject { Apivore::SwaggerChecker.instance_for('/v1/apidocs.json') }
