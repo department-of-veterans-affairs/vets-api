@@ -51,9 +51,21 @@ RSpec.shared_examples 'VBADocuments::UploadSerializer' do
     end
   end
 
-  it 'includes :final_status' do
-    expect(attributes['final_status']).to be_in([true, false])
-    expect(attributes['final_status']).to eq(upload_submission.in_final_status?)
+  context 'when :vba_documents_final_status_field flag is enabled' do
+    before { Flipper.enable(:vba_documents_final_status_field) }
+
+    it 'includes :final_status' do
+      expect(attributes['final_status']).to be_in([true, false])
+      expect(attributes['final_status']).to eq(upload_submission.in_final_status?)
+    end
+  end
+
+  context 'when :vba_documents_final_status_field flag is disabled' do
+    before { Flipper.disable(:vba_documents_final_status_field) }
+
+    it 'excludes :final_status' do
+      expect(attributes).not_to have_key('final_status')
+    end
   end
 
   it 'includes :updated_at' do
