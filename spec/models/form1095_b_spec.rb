@@ -73,21 +73,12 @@ RSpec.describe Form1095B, type: :model do
     let!(:multi_search_form_1) { create(:form1095_b, veteran_icn: '123456787654321') }
     let!(:multi_search_form_3) { create(:form1095_b, veteran_icn: '123456787654321', tax_year: 2019) }
 
-    let(:expected_val_1) { [[subject.tax_year, subject.updated_at]] }
-    let(:expected_val_2) do
-      [
-        [multi_search_form_1.tax_year, multi_search_form_1.updated_at],
-        [multi_search_form_2.tax_year, multi_search_form_2.updated_at],
-        [multi_search_form_3.tax_year, multi_search_form_3.updated_at]
-      ]
-    end
-
     it 'returns individual available form' do
-      expect(Form1095B.available_forms(subject.veteran_icn)).to eq(expected_val_1)
+      expect(Form1095B.available_forms(subject.veteran_icn)).to eq([subject])
     end
 
     it 'returns available forms in descending order by tax year' do
-      expect(Form1095B.available_forms(multi_search_form_1.veteran_icn)).to eq(expected_val_2)
+      expect(Form1095B.available_forms(multi_search_form_1.veteran_icn)).to eq([multi_search_form_1, multi_search_form_2, multi_search_form_3])
     end
 
     it 'expects empty array if no available forms exist' do
