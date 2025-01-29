@@ -248,7 +248,7 @@ module EVSS
         raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
         # thin wrapper to isolate upload for logging
-        file_body = File.open(pdf_path).read
+        file_body = File.read(pdf_path)
         perform_client_upload(file_body, document_data, form_id)
       ensure
         # Delete the temporary PDF file

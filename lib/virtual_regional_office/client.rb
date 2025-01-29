@@ -22,13 +22,6 @@ module VirtualRegionalOffice
       end
     end
 
-    def merge_end_products(pending_claim_id:, ep400_id:)
-      with_monitoring do
-        params = { pending_claim_id: pending_claim_id.to_i, ep400_claim_id: ep400_id.to_i }
-        perform(:post, Settings.virtual_regional_office.ep_merge_path, params.to_json.to_s, headers_hash)
-      end
-    end
-
     def generate_summary(claim_submission_id:, diagnostic_code:, veteran_info:, evidence:)
       params = {
         claimSubmissionId: claim_submission_id,
