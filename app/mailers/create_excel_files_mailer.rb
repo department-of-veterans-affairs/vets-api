@@ -3,6 +3,8 @@
 class CreateExcelFilesMailer < ApplicationMailer
   def build(filename)
     date = Time.zone.now.strftime('%m/%d/%Y')
+    file_contents = File.read("tmp/#{filename}")
+    headers['Content-Disposition'] = "attachment; filename=#{filename}"
 
     recipients = nil
     subject = nil
@@ -15,14 +17,11 @@ class CreateExcelFilesMailer < ApplicationMailer
       subject = "(Staging) 22-10282 CSV file for #{date}"
     end
 
-    attachments[filename] = File.read("tmp/#{filename}")
-
     mail(
       to: recipients,
-      subject: subject
-    ) do |format|
-      format.text { render plain: "CSV file for #{date} is attached." }
-      format.html { render html: "CSV file for #{date} is attached." }
-    end
+      subject: subject,
+      content_type: 'text/csv',
+      body: file_contents
+    )
   end
 end

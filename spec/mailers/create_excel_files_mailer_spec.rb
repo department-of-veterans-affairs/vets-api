@@ -20,9 +20,7 @@ RSpec.describe CreateExcelFilesMailer, type: %i[mailer aws_helpers] do
       it 'sends the right email' do
         date = Time.zone.now.strftime('%m/%d/%Y')
         expect(subject.subject).to eq("(Staging) 22-10282 CSV file for #{date}")
-        expect(subject.content_type).to include('multipart/mixed')
-        expect(subject.content_type).to include('charset=UTF-8')
-        expect(subject.attachments.size).to eq(1)
+        expect(subject.content_type).to include('text/csv; charset=UTF-8')
       end
     end
   end
