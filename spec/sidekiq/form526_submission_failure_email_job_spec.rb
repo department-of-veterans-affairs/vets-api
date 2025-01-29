@@ -189,7 +189,6 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
 
       it 'increments StatsD' do
         expect(StatsD).to receive(:increment).with("#{described_class::STATSD_PREFIX}.success")
-        # expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
         subject.new.perform(form526_submission.id)
         subject.drain
       end
