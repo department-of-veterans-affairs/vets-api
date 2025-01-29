@@ -40,6 +40,11 @@ RSpec.describe BenefitsDocuments::Service do
         }
       end
 
+      let(:issue_instant) { Time.now.to_i }
+      let(:submitted_date) do
+        BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
+      end
+
       context 'when cst_synchronous_evidence_uploads is false and cst_send_evidence_submission_failure_emails is true' do # rubocop:disable Layout/LineLength
         before do
           allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
@@ -56,12 +61,15 @@ RSpec.describe BenefitsDocuments::Service do
         it 'records evidence submission with PENDING status' do
           subject.queue_document_upload(params)
           expect(EvidenceSubmission.count).to eq(1)
-          expect(EvidenceSubmission.first.upload_status)
+          evidence_submission = EvidenceSubmission.first
+          current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
+          expect(evidence_submission.upload_status)
             .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
+          expect(current_personalisation['date_submitted']).to eql(submitted_date)
         end
       end
 
-      context 'when cst_synchronous_evidence_uploads is false and cst_send_evidence_submission_failure_emails is false' do # rubocop:disable Layout/LineLength
+      context 'when cst_synchronous_evidence_uploads and cst_send_evidence_submission_failure_emails is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,

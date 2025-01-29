@@ -52,6 +52,19 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
     }
   end
   let(:file) { Rails.root.join('spec', 'fixtures', 'files', file_name).read }
+  let(:formatted_submit_date) do
+    BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
+  end
+
+  # Create Evidence Submission records from factory
+  let(:evidence_submission_failed) { create(:bd_evidence_submission_failed) }
+  let(:evidence_submission_pending) do
+    create(:bd_evidence_submission_pending,
+           tracked_item_id: tracked_item_ids,
+           claim_id:,
+           job_id:,
+           job_class: described_class)
+  end
 
   def mock_response(status:, body:)
     instance_double(Faraday::Response, status:, body:)
@@ -63,15 +76,9 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
     end
 
     context 'when upload succeeds' do
-      let(:uploader_stub) { instance_double(LighthouseDocumentUploader) }
-      let(:formatted_submit_date) do
-        # We want to return all times in EDT
-        timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
-
-        # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-        timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
-      end
-      let(:response) do
+      let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
+      let(:message) { "#{job_class} EvidenceSubmission updated" }
+      let(:success_response) do
         mock_response(
           status: 200,
           body: {
@@ -82,23 +89,14 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
           }
         )
       end
-      let(:message) { "#{job_class} EvidenceSubmission updated" }
-      let(:evidence_submission_pending) do
-        create(:bd_evidence_submission_pending,
-               tracked_item_id: tracked_item_ids,
-               claim_id:,
-               job_id:,
-               job_class: described_class)
-      end
 
-      it 'retrieves the file and uploads to Lighthouse' do
+      it 'retrieves the file, uploads to Lighthouse and returns a success response' do
         allow(LighthouseDocumentUploader).to receive(:new) { uploader_stub }
         allow(BenefitsDocuments::WorkerService).to receive(:new) { client_stub }
         allow(uploader_stub).to receive(:retrieve_from_store!).with(file_name) { file }
         allow(uploader_stub).to receive(:read_for_upload) { file }
-        allow(client_stub).to receive(:upload_document).with(file, document_data)
         expect(uploader_stub).to receive(:remove!).once
-        expect(client_stub).to receive(:upload_document).with(file, document_data).and_return(response)
+        expect(client_stub).to receive(:upload_document).with(file, document_data).and_return(success_response)
         allow(EvidenceSubmission).to receive(:find_by)
           .with({ job_id: })
           .and_return(evidence_submission_pending)
@@ -106,7 +104,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         # After running DocumentUpload job, there should be an updated EvidenceSubmission record
         # with the response request_id
         new_evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
-        expect(new_evidence_submission.request_id).to eql(response.body.dig('data', 'requestId').to_s)
+        expect(new_evidence_submission.request_id).to eql(success_response.body.dig('data', 'requestId').to_s)
         expect(new_evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
       end
     end
@@ -132,17 +130,12 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
           }
         }
       end
-      let(:evidence_submission_failed) { create(:bd_evidence_submission_failed) }
-      let(:evidence_submission_pending) do
-        create(:bd_evidence_submission_pending,
-               tracked_item_id: tracked_item_ids,
-               claim_id:,
-               job_id:,
-               job_class: described_class)
-      end
       let(:error_message) { "#{job_class} failed to create EvidenceSubmission" }
       let(:message) { "#{job_class} EvidenceSubmission updated" }
       let(:tags) { ['service:claim-status', "function: #{error_message}"] }
+      let(:failed_date) do
+        BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
+      end
 
       it 'updates an evidence submission record to a failed status with a failed date' do
         Lighthouse::EvidenceSubmissions::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) do
@@ -156,8 +149,10 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
                                                      tags: ['service:claim-status', "function: #{message}"])
         end
         expect(EvidenceSubmission.va_notify_email_not_queued.length).to equal(1)
-        expect(EvidenceSubmission.find_by(job_id: job_id).upload_status)
-          .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
+        evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
+        current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
+        expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
+        expect(current_personalisation['date_failed']).to eql(failed_date)
       end
 
       it 'fails to create a failed evidence submission record when args malformed' do
@@ -182,33 +177,43 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
       allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(false)
     end
 
-    let(:formatted_submit_date) do
-      # We want to return all times in EDT
-      timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
-
-      # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-      timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
-    end
+    let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
     let(:tags) { ['service:claim-status', 'function: evidence upload to Lighthouse'] }
 
-    it 'calls Lighthouse::FailureNotification' do
-      described_class.within_sidekiq_retries_exhausted_block(msg) do
-        expect(Lighthouse::FailureNotification).to receive(:perform_async).with(
-          user_account.icn,
-          {
-            first_name: 'Bob',
-            document_type: document_type,
-            filename: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
-            date_submitted: formatted_submit_date,
-            date_failed: formatted_submit_date
-          }
-        )
+    it 'retrieves the file, uploads to Lighthouse and returns a success response' do
+      allow(LighthouseDocumentUploader).to receive(:new) { uploader_stub }
+      allow(BenefitsDocuments::WorkerService).to receive(:new) { client_stub }
+      allow(uploader_stub).to receive(:retrieve_from_store!).with(file_name) { file }
+      allow(uploader_stub).to receive(:read_for_upload) { file }
+      expect(uploader_stub).to receive(:remove!).once
+      expect(client_stub).to receive(:upload_document).with(file, document_data)
+      expect(EvidenceSubmission.count).to equal(0)
+      described_class.new.perform(user_icn, document_data.to_serializable_hash)
+    end
 
-        expect(Rails.logger)
-          .to receive(:info)
-          .with("#{job_class} exhaustion handler email queued")
-        expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
-        expect(EvidenceSubmission.count).to equal(0)
+    context 'when cst_send_evidence_failure_emails is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_failure_emails).and_return(true)
+      end
+
+      it 'calls Lighthouse::FailureNotification' do
+        described_class.within_sidekiq_retries_exhausted_block(msg) do
+          expect(Lighthouse::FailureNotification).to receive(:perform_async).with(
+            user_account.icn,
+            {
+              first_name: 'Bob',
+              document_type: document_type,
+              filename: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
+              date_submitted: formatted_submit_date,
+              date_failed: formatted_submit_date
+            }
+          )
+          expect(EvidenceSubmission.count).to equal(0)
+          expect(Rails.logger)
+            .to receive(:info)
+            .with("#{job_class} exhaustion handler email queued")
+          expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
+        end
       end
     end
   end
