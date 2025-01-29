@@ -33,7 +33,7 @@ RSpec.describe 'CSRF scenarios' do
         context 'without a CSRF token present' do
           it 'raises an exception' do
             send(verb, '/csrf_test')
-            expect(response.status).to eq 403
+            expect(response).to have_http_status :forbidden
             expect(response.body).to match(/Invalid Authenticity Token/)
           end
         end
@@ -41,7 +41,7 @@ RSpec.describe 'CSRF scenarios' do
         context 'with a CSRF token present' do
           it 'succeeds' do
             send(verb, '/csrf_test', headers: { 'X-CSRF-Token' => @token })
-            expect(response.status).to eq 200
+            expect(response).to have_http_status :ok
           end
         end
       end
@@ -51,14 +51,14 @@ RSpec.describe 'CSRF scenarios' do
       context 'without a CSRF token present' do
         it 'succeeds' do
           get '/csrf_test'
-          expect(response.status).to eq 200
+          expect(response).to have_http_status :ok
         end
       end
 
       context 'with a CSRF token present' do
         it 'succeeds' do
           get '/csrf_test', headers: { 'X-CSRF-Token' => @token }
-          expect(response.status).to eq 200
+          expect(response).to have_http_status :ok
         end
       end
     end
@@ -77,7 +77,7 @@ RSpec.describe 'CSRF scenarios' do
   describe 'unknown route' do
     it 'skips CSRF validation' do
       post '/non_existent_route'
-      expect(response.status).to eq(404)
+      expect(response).to have_http_status(:not_found)
       expect(response.body).to match(/There are no routes matching your request/)
     end
   end

@@ -897,4 +897,148 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       end
     end
   end
+
+  context 'for eps referrals' do
+    describe 'POST create_draft' do
+      context 'when the request is successful' do
+        let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
+
+        let(:draft_params) do
+          {
+            referral_id: 'ref-123',
+            provider_id: '9mN718pH',
+            appointment_type_id: 'ov',
+            start_date: '2025-01-01T00:00:00Z',
+            end_date: '2025-01-03T00:00:00Z'
+          }
+        end
+
+        let(:draft_appointment_response) do
+          {
+            id: 'EEKoGzEf',
+            state: 'draft',
+            patientId: 'ref-123'
+          }
+        end
+
+        let(:provider_response) do
+          {
+            'id' => '9mN718pH',
+            'name' => 'Dr. Moreen S. Rafa @ FHA South Melbourne Medical Complex',
+            'isActive' => true,
+            'individualProviders' => [
+              {
+                'name' => 'Dr. Moreen S. Rafa',
+                'npi' => '91560381x'
+              }
+            ],
+            'providerOrganization' => {
+              'name' => 'Meridian Health (Sandbox 5vuTac8v)'
+            },
+            'location' => {
+              'name' => 'FHA South Melbourne Medical Complex',
+              'address' => '1105 Palmetto Ave, Melbourne, FL, 32901, US',
+              'latitude' => 28.08061,
+              'longitude' => -80.60322,
+              'timezone' => 'America/New_York'
+            },
+            'networkIds' => ['sandbox-network-5vuTac8v'],
+            'schedulingNotes' => 'New patients need to send their previous records to the office prior to their appt.',
+            'appointmentTypes' => [
+              {
+                'id' => 'ov',
+                'name' => 'Office Visit',
+                'isSelfSchedulable' => true
+              }
+            ],
+            'specialties' => [
+              {
+                'id' => '208800000X',
+                'name' => 'Urology'
+              }
+            ],
+            'visitMode' => 'phone',
+            'features' => {
+              'isDigital' => true,
+              'directBooking' => {
+                'isEnabled' => true,
+                'requiredFields' => %w[phone address name birthdate gender]
+              }
+            }
+          }
+        end
+
+        let(:slots_response) do
+          {
+            'count' => 2,
+            'slots' => [
+              {
+                'id' => '5vuTac8v-practitioner-1-role-2|e43a19a8-b0cb-4dcf-befa-8cc511c3999b|' \
+                        '2025-01-02T11:00:00Z|30m0s|1736636444704|ov',
+                'providerServiceId' => '9mN718pH',
+                'appointmentTypeId' => 'ov',
+                'start' => '2025-01-02T11:00:00Z',
+                'remaining' => 1
+              },
+              {
+                'id' => '5vuTac8v-practitioner-1-role-2|e43a19a8-b0cb-4dcf-befa-8cc511c3999b|' \
+                        '2025-01-02T15:30:00Z|30m0s|1736636444704|ov',
+                'providerServiceId' => '9mN718pH',
+                'appointmentTypeId' => 'ov',
+                'start' => '2025-01-02T15:30:00Z',
+                'remaining' => 1
+              }
+            ]
+          }
+        end
+
+        let(:drive_times_response) do
+          {
+            'origin' => {
+              'latitude' => 40.7128,
+              'longitude' => -74.006
+            },
+            'destination' => {
+              'distanceInMiles' => 313,
+              'driveTimeInSecondsWithoutTraffic' => 19_096,
+              'driveTimeInSecondsWithTraffic' => 19_561,
+              'latitude' => 44.475883,
+              'longitude' => -73.212074
+            }
+          }
+        end
+
+        let(:expected_response) do
+          {
+            'data' => {
+              'id' => draft_appointment_response[:id],
+              'type' => 'draft_appointment',
+              'attributes' => {
+                'provider' => provider_response,
+                'slots' => slots_response['slots'],
+                'drivetime' => drive_times_response
+              }
+            }
+          }
+        end
+
+        it 'returns a successful response when all calls succeed' do
+          VCR.use_cassette 'vaos/eps/get_drive_times/200' do
+            VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
+              VCR.use_cassette 'vaos/eps/get_provider_service/200' do
+                VCR.use_cassette 'vaos/eps/draft_appointment/200' do
+                  VCR.use_cassette 'vaos/eps/token/token_200' do
+                    post '/vaos/v2/appointments/draft', params: draft_params
+
+                    expect(response).to have_http_status(:created)
+                    expect(JSON.parse(response.body)).to eq(expected_response)
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
 end
