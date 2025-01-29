@@ -39,3 +39,15 @@ Config.setup do |config|
   #
   config.merge_nil_values = false
 end
+
+unless Object.const_defined? 'Secrets'
+  Secrets = Config.load_files(
+    Config::Sources::EnvSource.new(ENV, prefix: 'SECRETS', separator: '__', converter: :downcase, parse_values: true)
+  )
+end
+
+deployed_settings_file = Rails.root.join "config/settings/deployed/#{Settings.vsp_environment}.yml"
+if File.exist? deployed_settings_file
+  Settings.add_source! deployed_settings_file
+  Settings.reload!
+end
