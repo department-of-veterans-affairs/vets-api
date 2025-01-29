@@ -412,6 +412,11 @@ paths:
           schema:
             type: boolean
           description: Indicates whether returned facilities should be filtered on those that are accepting appointments.
+        - in: query
+          name: sort_by
+          schema:
+            type: string
+          description: Indicates how returned facilities should be sorted if specified. Currently options are ['recentLocations'].
       responses:
         '200':
           description: Success
@@ -472,49 +477,6 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/Clinic"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/Unprocessable"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-        "501":
-          $ref: "#/components/responses/NotImplemented"
-        "502":
-          $ref: "#/components/responses/BadGateway"
-        "503":
-          $ref: "#/components/responses/ServiceUnavailable"
-        "504":
-          $ref: "#/components/responses/GatewayTimeout"
-  "/v2/locations/recent_facilities":
-    parameters:
-     - in: query
-       required: false
-       name: clinical_service_id
-       description: The clinical service (type of care) ID used to filter recent facilities. The currently supported/available VAOS clinical service IDs can be discovered from Mobile Facility Service v2.
-       schema:
-         type: string
-    get:
-      tags:
-        - facilities
-      description: Returns the most recent facilities visited
-      responses:
-        "200":
-          description: Returns the most recent facilities visited
-          content:
-            application/json:
-              schema:
-                required:
-                  - data
-                properties:
-                  data:
-                    $ref: "#/components/schemas/Facility"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
