@@ -56,38 +56,38 @@ describe TravelPay::ClaimAssociationService do
     let(:appointments) do
       [
         {
-          'id' => '32066',
-          'kind' => 'clinic',
-          'status' => 'cancelled',
-          'patientIcn' => '1012845331V153043',
-          'locationId' => '983',
-          'clinic' => '1081',
-          'start' => '2024-10-17T09:00:00Z',
-          'cancellable' => false
+          id: '32066',
+          kind: 'clinic',
+          status: 'cancelled',
+          patientIcn: '1012845331V153043',
+          locationId: '983',
+          clinic: '1081',
+          start: '2024-10-17T09:00:00Z',
+          cancellable: false
         },
         {
-          'id' => '32067',
-          'kind' => 'clinic',
-          'patientIcn' => '1012845331V153043',
-          'locationId' => '983',
-          'clinic' => '621',
-          'start' => '2021-05-20T14:10:00Z',
-          'end' => '2021-05-20T14:20:00Z',
-          'minutesDuration' => 10,
-          'slot' => { 'id' => '3230323130353230313431303A323032313035323031343230',
+          id: '32067',
+          kind: 'clinic',
+          patientIcn: '1012845331V153043',
+          locationId: '983',
+          clinic: '621',
+          start: '2021-05-20T14:10:00Z',
+          end: '2021-05-20T14:20:00Z',
+          minutesDuration: 10,
+          slot: { 'id' => '3230323130353230313431303A323032313035323031343230',
                       'start' => '2021-05-20T14:10:00Z',
                       'end' => '2021-05-20T14:20:00Z' },
-          'cancellable' => true
+          cancellable: true
         },
         {
-          'id' => '32073',
-          'kind' => 'clinic',
-          'status' => 'cancelled',
-          'patientIcn' => '1012845331V153043',
-          'locationId' => '983',
-          'clinic' => '408',
-          'start' => '2021-06-02T16:00:00Z',
-          'cancellable' => false
+          id: '32073',
+          kind: 'clinic',
+          status: 'cancelled',
+          patientIcn: '1012845331V153043',
+          locationId: '983',
+          clinic: '408',
+          start: '2021-06-02T16:00:00Z',
+          cancellable: false
         }
       ]
     end
@@ -128,6 +128,7 @@ describe TravelPay::ClaimAssociationService do
 
       expect(appts_with_claims.count).to eq(appointments.count)
       appts_with_claims.each do |appt|
+        byebug
         expect(appt['travelPayClaim']['metadata']['status']).to eq(200)
         expect(appt['travelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
         expect(appt['travelPayClaim']['metadata']['success']).to be(true)
@@ -254,27 +255,27 @@ describe TravelPay::ClaimAssociationService do
 
     let(:single_appointment) do
       {
-        'id' => '32066',
-        'kind' => 'clinic',
-        'status' => 'cancelled',
-        'patientIcn' => '1012845331V153043',
-        'locationId' => '983',
-        'clinic' => '1081',
-        'start' => '2024-01-01T16:45:34Z',
-        'cancellable' => false
+        id: '32066',
+        kind: 'clinic',
+        status: 'cancelled',
+        patientIcn: '1012845331V153043',
+        locationId: '983',
+        clinic: '1081',
+        start: '2024-01-01T16:45:34Z',
+        cancellable: false
       }
     end
 
     let(:single_appt_invalid) do
       {
-        'id' => '32066',
-        'kind' => 'clinic',
-        'status' => 'cancelled',
-        'patientIcn' => '1012845331V153043',
-        'locationId' => '983',
-        'clinic' => '1081',
-        'start' => 'banana',
-        'cancellable' => false
+        id: '32066',
+        kind: 'clinic',
+        status: 'cancelled',
+        patientIcn: '1012845331V153043',
+        locationId: '983',
+        clinic: '1081',
+        start: 'banana',
+        cancellable: false
       }
     end
 
