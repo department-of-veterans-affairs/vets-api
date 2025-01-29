@@ -16,11 +16,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     allow(Flipper).to receive(:enabled?).and_call_original
     allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
-                                              instance_of(OpenStruct)).and_return(false)
+                                              anything).and_return(false)
     allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE,
-                                              instance_of(OpenStruct)).and_return(false)
+                                              anything).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_fail_submission,
-                                              instance_of(OpenStruct)).and_return(false)
+                                              anything).and_return(false)
   end
 
   let(:user) { create(:user, :loa3) }
@@ -59,9 +59,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     before do
       cassettes.each { |cassette| VCR.insert_cassette(cassette) }
       allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND,
-                                                instance_of(OpenStruct)).and_return(false)
+                                                anything).and_return(false)
       allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND,
-                                                instance_of(OpenStruct)).and_return(false)
+                                                anything).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:disability_526_migrate_contention_classification,
                                                 anything).and_return(false)
     end
@@ -257,7 +257,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       context 'when the migration endpoint is not enabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(
-            :disability_526_migrate_contention_classification, instance_of(OpenStruct)
+            :disability_526_migrate_contention_classification, anything
           ).and_return(true)
           allow(Rails.logger).to receive(:info)
         end
