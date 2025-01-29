@@ -113,7 +113,7 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
-    context 'temporary/permanent address' do
+    context 'validates temporary OR permanent address' do
       before do
         VCR.insert_cassette(
           cassette,
