@@ -140,9 +140,9 @@ module VBADocuments
       metadata['base64_encoded'] || false
     end
 
-    # TODO: Improve true/false classification for submissions in "error" status
-    # Non-recoverable errors should return true and recoverable errors false
     def in_final_status?
+      # TODO: Improve true/false classification for submissions in "error" status
+      #       Non-recoverable errors should return true and recoverable errors false
       return true if status == 'vbms' ||
                      status == 'expired' ||
                      (status == 'success' && metadata[FINAL_SUCCESS_STATUS_KEY].present?) ||
