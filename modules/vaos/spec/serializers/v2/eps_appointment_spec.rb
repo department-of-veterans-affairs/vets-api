@@ -9,7 +9,7 @@ describe VAOS::V2::EpsAppointment do
   let(:params) do
     {
       id: 1,
-      appointment_details: { status: true, last_retrieved: '2023-10-01T00:00:00Z', start: '2023-10-10T10:00:00Z' },
+      appointment_details: { status: 'booked', last_retrieved: '2023-10-01T00:00:00Z', start: '2023-10-10T10:00:00Z' },
       referral: { referral_number: '12345' },
       patient_id: '1234567890V123456',
       network_id: 'network_1',
@@ -52,12 +52,12 @@ describe VAOS::V2::EpsAppointment do
   end
 
   describe '#determine_status' do
-    it 'returns "booked" when status is true' do
-      expect(subject.send(:determine_status, true)).to eq('booked')
+    it 'returns "booked" when status is "booked"' do
+      expect(subject.send(:determine_status, 'booked')).to eq('booked')
     end
 
-    it 'returns "proposed" when status is false' do
-      expect(subject.send(:determine_status, false)).to eq('proposed')
+    it 'returns "proposed" when status is not "booked"' do
+      expect(subject.send(:determine_status, 'proposed')).to eq('proposed')
     end
   end
 end

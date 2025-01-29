@@ -8,8 +8,8 @@ module VAOS
         referral_details = params[:referral]
 
         @id = params[:id]&.to_s
-        @status = appointment_details[:status],
-                  @patient_icn = params[:patient_id]
+        @status = appointment_details[:status]
+        @patient_icn = params[:patient_id]
         @created = appointment_details[:last_retrieved]
         @location_id = params[:network_id]
         @clinic = params[:provider_service_id]
