@@ -148,7 +148,6 @@ class Form526SubmissionFailureEmailJob
     )
 
     StatsD.increment("#{STATSD_PREFIX}.success")
-    # StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   end
 
   def log_failure(error)

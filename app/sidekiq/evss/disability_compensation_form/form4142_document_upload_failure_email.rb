@@ -123,14 +123,6 @@ module EVSS
       def log_mailer_dispatch(form526_submission_id, _email_response = {})
         log_info = { form526_submission_id:, timestamp: Time.now.utc }
         Rails.logger.info('Form4142DocumentUploadFailureEmail notification dispatched', log_info)
-
-        # cl = caller_locations.first
-        # call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
-        # zsf_monitor.log_silent_failure_avoided(
-        #   log_info.merge(email_confirmation_id: email_response&.id),
-        #   Form526Submission.find(form526_submission_id).user_account_id,
-        #   call_location:
-        # )
         StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
       end
 
