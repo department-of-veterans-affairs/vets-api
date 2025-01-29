@@ -49,7 +49,7 @@ RSpec.describe BGS::VnpRelationships do
       end
     end
 
-    xcontext 'reporting a divorce' do
+    context 'reporting a divorce', skip: 'Unknown reason for skip' do
       it 'returns a relationship hash with correct :ptcpnt_rlnshp_type_nm and :family_rlnshp_type_nm' do
         VCR.use_cassette('bgs/vnp_relationships/create/divorce') do
           divorce = {

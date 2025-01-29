@@ -99,7 +99,7 @@ describe AppealsApi::PdfConstruction::Generator do
           # TODO: Try to figure out why the CI runner interprets our expected pdf differently than locally, despite
           #       being visually identical.
           # e.g. on CI, some text is interpreted in a slightly different order or W's are added in odd places.
-          xit 'generates the expected pdf' do
+          it 'generates the expected pdf', skip: 'See TODO' do
             expect(generated_pdf).to match_pdf(expected_pdf)
           end
         end
