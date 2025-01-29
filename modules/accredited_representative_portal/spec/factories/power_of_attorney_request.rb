@@ -8,7 +8,11 @@ FactoryBot.define do
     association :power_of_attorney_holder, factory: %i[accredited_organization with_representatives], strategy: :create
 
     before(:create) do |poa_request|
-      poa_request.accredited_individual_id = AccreditedIndividual.first&.id || create(:accredited_individual).id
+      begin
+        poa_request.accredited_individual_id = AccreditedIndividual.first&.id || create(:accredited_individual).id
+      rescue ActiveModel::UnknownAttributeError
+        Rails.logger.warn("accredited_individual_id column is missing")
+      end
     end
 
     transient do
