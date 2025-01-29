@@ -19,6 +19,7 @@ module IvcChampva
     end
 
     def metadata
+   #   byebug
       {
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
         'veteranMiddleName' => @data.dig('veteran', 'full_name', 'middle'),
@@ -33,7 +34,7 @@ module IvcChampva
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info'],
         'hasApplicantOver65' => @data['has_applicant_over65'].to_s,
-        'applicantEmailAddress' => @data['applicants']&.dig('applicantEmailAddress')
+        'signerEmailAddress' => @data.dig('primary_contact_info', 'email')
       }
     end
 
