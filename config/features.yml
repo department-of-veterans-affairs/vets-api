@@ -512,7 +512,7 @@ features:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
     enable_in_development: true
-  disability_526_ep_merge_api:
+  disability_526_ep_merge_api: # TODO: Remove
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
   disability_526_ee_process_als_flash:
@@ -564,6 +564,9 @@ features:
     actor_type: user
     description: enables a new form flow for 0781 and 0781a in the 526 submission workflow
     enable_in_development: true
+  disability_526_send_received_email_from_backup_path:
+    actor_type: user
+    description: enables received email in complete success state of backup path
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -1426,6 +1429,9 @@ features:
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
+  va_notify_custom_bearer_tokens:
+    actor_type: user
+    description: Iterates through Settings.vanotify.service_callback_tokens for token matching
   va_notify_metadata_statsd_tags:
     actor_type: user
     description: Allow statsd tags in callback metadata to be a hash or array

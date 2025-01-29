@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe 'DhpConnectedDevices::Fitbit', type: :request do
-  let(:current_user) { build(:user, :loa3) }
-  let(:user_without_icn) { build(:user, :loa1) }
+  let(:current_user) { build(:user, :loa1) }
+  let(:user_without_icn) { build(:user, :loa1, icn: '') }
 
   def expected_error_logged(error_class, current_user)
     expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(

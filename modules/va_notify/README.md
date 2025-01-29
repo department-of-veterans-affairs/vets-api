@@ -129,6 +129,12 @@ Using option #2:
 
 ### VA Notify Callback Integration Guide for Vets-API
 
+#### Are you configuring callbacks at the VANotify API level for the first time?
+
+If so please [CONTACT US](https://dsva.slack.com/archives/C010R6AUPHT) so we may arrange for your team to use a dedicated bearer token. We're here to help!
+
+#### Details about callbacks
+
 To effectively track the status of individual notifications, VA Notify provides service callbacks. These callbacks enable you to determine whether a notification was successfully delivered or failed, allowing you to take appropriate action.
 
 This guide outlines two distinct approaches to integrating callback logic:
@@ -138,17 +144,22 @@ This guide outlines two distinct approaches to integrating callback logic:
 
 #### Why Teams Need to Integrate with Callback Logic
 
-A successful request to the VA Notify API does not guarantee that the recipient will receive the notification. Callbacks are crucial because they provide updates on the actual delivery status of each notification sent. Without callbacks, teams would be unaware of issues such as email hard bounces, soft bounces, or other delivery problems. Integrating callback logic allows teams to:
+A successful request to the VA Notify API does **not** guarantee that the recipient will receive the notification.
 
-- Monitor delivery success rates and identify issues.
+Callbacks are crucial because they provide updates on the actual delivery status of each notification sent.
 
-- Improve user experience by taking timely corrective actions when notifications fail.
+Without callbacks, a team would be unaware of issues that may arise during the delivery process, such as:
+  - email hard bounces
+  - soft bounces
+  - other delivery problems
 
-- Maintain compliance and consistency in Veteran communications.
+Integrating callback logic allows teams to:
 
-- Ensure that alternative contact methods can be utilized in case of persistent issues.
+- Monitor delivery success rates and identify issues
+- Improve user experience by taking timely corrective actions when notifications fail
+- Maintain compliance and consistency in Veteran communications
+- Ensure that alternative contact methods can be utilized in case of persistent issues
 
----
 
 #### How Teams Can Integrate with Callbacks
 
@@ -157,28 +168,10 @@ A successful request to the VA Notify API does not guarantee that the recipient 
 
 The Default Callback Class offers a standard, ready-to-use implementation for handling callbacks.
 
-Example Implementation
-
-Step 1: Set Up the Notification Trigger
+Here are 2 example implementations, both using a Hash of `callback_options`:
 
 ```rb
-# VANotify::EmailJob or VANotify::UserAccountJob
-
-VANotify::EmailJob.perform_async(
-  user.va_profile_email,
-  template_id,
-  get_personalization(first_name),
-  Settings.vanotify.services.va_gov.api_key,
-  {
-    callback_metadata: {
-      notification_type: 'error',
-      form_number: 'ExampleForm1234',
-      statsd_tags: { service: 'DefaultService', function: 'DefaultFunction' }
-    }
-  }
-)
-
-# VANotify::Service
+# define the callback_options
 
 callback_options = {
     callback_metadata: {
@@ -188,7 +181,21 @@ callback_options = {
     }
 }
 
-notify_client = VaNotify::Service.new(api_key, callback_options)
+# VANotify::EmailJob (also used for VANotify::UserAccountJob)
+# Must specify email, template_id, personalisations, API key, callback_options
+
+VANotify::EmailJob.perform_async(
+  user.va_profile_email,
+  template_id,
+  get_personalisation(first_name),
+  Settings.vanotify.services.va_gov.api_key,
+  callback_options #from above
+)
+
+# VANotify::Service
+# must specify API key, callback_options
+
+notify_client = VaNotify::Service.new(api_key, callback_options) # from above
 
 notify_response = notify_client.send_email(....)
 ```
