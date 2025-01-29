@@ -19,7 +19,7 @@ module ClaimsApi
         poa_code_from_form('2122a', poa)
         res = send_representative_notification(poa, rep)
       end
-      process.update!(step_status: 'SUCCESS', error_messages: [])
+      process.update!(step_status: 'SUCCESS', error_messages: [], completed_at: Time.zone.now)
       schedule_follow_up_check(res.id) if res.present?
     rescue => e
       handle_failure(poa_id, e, process)

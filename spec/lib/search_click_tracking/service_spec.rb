@@ -48,7 +48,7 @@ describe SearchClickTracking::Service do
         VCR.use_cassette('search_click_tracking/missing_parameter', VCR::MATCH_EVERYTHING) do
           response = subject.track_click
           expect(response.status).to eq(400)
-          expect(response.body).to eq "[\"Query can\'t be blank\"]"
+          expect(response.body).to eq "[\"Query can't be blank\"]"
         end
       end
     end

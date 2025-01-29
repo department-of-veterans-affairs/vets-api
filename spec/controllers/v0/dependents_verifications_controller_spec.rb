@@ -14,7 +14,7 @@ RSpec.describe V0::DependentsVerificationsController do
       it 'returns a list of dependency verifications' do
         VCR.use_cassette('bgs/diaries/read') do
           get(:index)
-          expect(response.code).to eq('200')
+          expect(response).to have_http_status(:ok)
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['data']['type']).to eq('dependency_decs')
         end
@@ -28,14 +28,14 @@ RSpec.describe V0::DependentsVerificationsController do
         form_params = { dependency_verification_claim: { form: { update_diaries: true } } }
 
         post(:create, params: form_params)
-        expect(response.code).to eq('200')
+        expect(response).to have_http_status(:ok)
       end
     end
 
     context 'with update set to false' do
       it 'returns no content' do
         post(:create, params: { dependency_verification_claim: { form: { update_diaries: false } } })
-        expect(response.code).to eq('204')
+        expect(response).to have_http_status(:no_content)
       end
     end
   end
