@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_23_063915) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_28_030020) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -539,6 +539,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_23_063915) do
     t.boolean "shared_sessions", default: false, null: false
     t.string "service_levels", default: ["ial1", "ial2", "loa1", "loa3", "min"], array: true
     t.string "credential_service_providers", default: ["logingov", "idme", "dslogon", "mhv"], array: true
+    t.boolean "json_api_compatibility", default: true, null: false
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
@@ -667,8 +668,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_23_063915) do
   create_table "evidence_submissions", force: :cascade do |t|
     t.string "job_id"
     t.string "job_class"
-    t.string "request_id"
-    t.string "claim_id"
+    t.integer "request_id"
+    t.integer "claim_id"
     t.uuid "user_account_id", null: false
     t.json "template_metadata_ciphertext"
     t.text "encrypted_kms_key"
@@ -680,7 +681,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_23_063915) do
     t.datetime "acknowledgement_date"
     t.datetime "failed_date"
     t.string "error_message"
-    t.string "tracked_item_id"
+    t.integer "tracked_item_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_account_id"], name: "index_evidence_submissions_on_user_account_id"
@@ -1384,18 +1385,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_23_063915) do
   end
 
   create_table "user_actions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "acting_user_account_id", null: false
-    t.uuid "subject_user_account_id", null: false
     t.bigint "user_action_event_id", null: false
     t.enum "status", default: "initial", null: false, enum_type: "user_action_status"
-    t.bigint "subject_user_verification_id"
+    t.bigint "subject_user_verification_id", null: false
     t.text "acting_ip_address"
     t.text "acting_user_agent"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["acting_user_account_id"], name: "index_user_actions_on_acting_user_account_id"
-    t.index ["status"], name: "index_user_actions_on_status"
-    t.index ["subject_user_account_id"], name: "index_user_actions_on_subject_user_account_id"
+    t.bigint "acting_user_verification_id"
+    t.index ["acting_user_verification_id"], name: "index_user_actions_on_acting_user_verification_id"
     t.index ["subject_user_verification_id"], name: "index_user_actions_on_subject_user_verification_id"
     t.index ["user_action_event_id"], name: "index_user_actions_on_user_action_event_id"
   end
@@ -1796,9 +1794,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_23_063915) do
   add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
-  add_foreign_key "user_actions", "user_accounts", column: "acting_user_account_id"
-  add_foreign_key "user_actions", "user_accounts", column: "subject_user_account_id"
   add_foreign_key "user_actions", "user_action_events"
+  add_foreign_key "user_actions", "user_verifications", column: "acting_user_verification_id"
   add_foreign_key "user_actions", "user_verifications", column: "subject_user_verification_id"
   add_foreign_key "user_credential_emails", "user_verifications"
   add_foreign_key "user_verifications", "user_accounts"

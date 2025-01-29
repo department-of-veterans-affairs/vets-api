@@ -132,6 +132,9 @@ features:
   hca_zero_silent_failures:
     actor_type: user
     description: Pass callback metadata to vanotify sidekiq job
+  retry_form_validation:
+    actor_type: user
+    description: Enables concern to retry schema validation for 10-10EZ and 10-10CG
   cg1010_oauth_2_enabled:
     actor_type: user
     description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
@@ -512,7 +515,7 @@ features:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
     enable_in_development: true
-  disability_526_ep_merge_api:
+  disability_526_ep_merge_api: # TODO: Remove
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
   disability_526_ee_process_als_flash:
@@ -564,6 +567,9 @@ features:
     actor_type: user
     description: enables a new form flow for 0781 and 0781a in the 526 submission workflow
     enable_in_development: true
+  disability_526_send_received_email_from_backup_path:
+    actor_type: user
+    description: enables received email in complete success state of backup path
   education_reports_cleanup:
     actor_type: user
     description: Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
@@ -593,6 +599,10 @@ features:
   facility_locator_lat_long_only:
     actor_type: user
     description: Send only lat/long values (no bounding box or address) to the API when querying for facilities.
+    enable_in_development: true
+  facility_locator_mobile_map_update:
+    actor_type: user
+    description: Use new mobile map features for research
     enable_in_development: true
   facility_locator_predictive_location_search:
     actor_type: user
@@ -894,6 +904,10 @@ features:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
     enable_in_development: true
+  letters_page_new_design:
+    actor_type: user
+    description: Enables ability to show updated letter page design
+    enable_in_development: true
   lighthouse_claims_api_v2_add_person_proxy:
     actor_type: user
     description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID
@@ -1064,6 +1078,7 @@ features:
   mhv_medical_records_new_eligibility_check:
     actor_type: user
     description: Enables/disables Medical Records new access policy eligibility check endpoint
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
@@ -1087,6 +1102,10 @@ features:
   mhv_medications_display_grouping:
     actor_type: user
     description: Enables/disables grouping medications related work
+    enable_in_development: true
+  mhv_medications_display_pending_meds:
+    actor_type: user
+    description: Enables/disables pending medications related work
     enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
@@ -1417,6 +1436,9 @@ features:
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
+  va_notify_custom_bearer_tokens:
+    actor_type: user
+    description: Iterates through Settings.vanotify.service_callback_tokens for token matching
   va_notify_metadata_statsd_tags:
     actor_type: user
     description: Allow statsd tags in callback metadata to be a hash or array
@@ -1998,6 +2020,12 @@ features:
   enable_lighthouse:
     actor_type: user
     description: If enabled, user will connect to lighthouse api in sob instead of evss
+  benefits_intake_submission_status_job:
+    actor_type: user
+    description: Batch process FormSubmissionAttempts using ::BenefitsIntake::SubmissionStatusJob
   virtual_agent_enable_datadog_logging:
     actor_type: user
     description: If enabled, allows for the use of Datadog logging for the chatbot
+  show_about_yellow_ribbon_program:
+    actor_type: user
+    description: If enabled, show additional info about the yellow ribbon program

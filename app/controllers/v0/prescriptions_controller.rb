@@ -13,7 +13,7 @@ module V0
     #        (ie: ?sort=facility_name,-prescription_id)
     def index
       resource = collection_resource
-      resource = params[:filter].present? ? resource.find_by(filter_params) : resource
+      resource = resource.find_by(filter_params) if params[:filter].present?
       resource = resource.sort(params[:sort])
       resource = resource.paginate(**pagination_params)
 
