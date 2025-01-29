@@ -66,6 +66,9 @@ module ClaimFastTracking
         response = vro_client.get_max_rating_for_diagnostic_codes(diagnostic_codes)
       end
       response.body['ratings']
+    rescue Faraday::TimeoutError
+      Rails.logger.error 'Get Max Ratings Failed: Request timed out.'
+      nil
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error "Get Max Ratings Failed  #{e.message}.", backtrace: e.backtrace
       nil

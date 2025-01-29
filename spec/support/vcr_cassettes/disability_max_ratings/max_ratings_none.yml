@@ -5,7 +5,7 @@ http_interactions:
     uri: <DISABILITY_MAX_RATINGS_URI>/disability-max-ratings
     body:
       encoding: UTF-8
-      string: '{"diagnostic_codes":[7101,6260,6204]}'
+      string: '{"diagnostic_codes":[6260,7101,6204]}'
     headers:
       Accept:
       - application/json
@@ -17,19 +17,19 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 500
-      message: Internal Server Error
+      code: 200
+      message: OK
     headers:
       Date:
-      - Thu, 10 Aug 2023 20:55:14 GMT
+      - Thu, 10 Aug 2023 19:52:23 GMT
       Server:
       - uvicorn
       Content-Length:
-      - '34'
+      - '56'
       Content-Type:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"detail":"Internal Server Error"}'
-  recorded_at: Thu, 10 Aug 2023 20:55:14 GMT
+      string: '{"ratings":[]}'
+  recorded_at: Thu, 10 Aug 2023 19:52:24 GMT
 recorded_with: VCR 6.2.0

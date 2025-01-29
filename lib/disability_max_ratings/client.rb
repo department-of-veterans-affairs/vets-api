@@ -7,7 +7,7 @@ module DisabilityMaxRating
     include Common::Client::Concerns::Monitoring
     configuration DisabilityMaxRating::Configuration
 
-    STATSD_KEY_PREFIX = 'api.max_ratings'
+    STATSD_KEY_PREFIX = 'api.disability_max_ratings'
 
     def get_max_rating_for_diagnostic_codes(diagnostic_codes_array)
       with_monitoring do

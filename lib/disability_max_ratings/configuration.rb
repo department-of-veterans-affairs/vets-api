@@ -13,7 +13,7 @@ module DisabilityMaxRating
     end
 
     def service_name
-      'DisabilityMaxRatingClient'
+      'DisabilityMaxRatingsApiClient'
     end
 
     def connection

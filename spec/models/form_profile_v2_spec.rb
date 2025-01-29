@@ -10,6 +10,7 @@ RSpec.describe FormProfile, type: :model do
 
   before do
     Flipper.enable(:remove_pciu)
+    Flipper.disable(:disability_526_max_cfi_service_switch)
     Flipper.enable(:va_v3_contact_information_service)
     Flipper.enable(:disability_compensation_remove_pciu)
     described_class.instance_variable_set(:@mappings, nil)
@@ -1581,7 +1582,7 @@ RSpec.describe FormProfile, type: :model do
             VAProfile::Configuration::SETTINGS.prefill = false
           end
 
-          it 'returns prefilled 21-526EZ' do
+          it 'returns prefilled 21-526EZ when disability_526_max_cfi_service_switch is disabled' do
             Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
             Flipper.enable(:disability_526_toxic_exposure, user)
             expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
@@ -1593,6 +1594,27 @@ RSpec.describe FormProfile, type: :model do
                   VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                                    allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
                     VCR.use_cassette('virtual_regional_office/max_ratings') do
+                      expect_prefilled('21-526EZ')
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          it 'returns prefilled 21-526EZ when disability_526_max_cfi_service_switch is enabled' do
+            Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
+            Flipper.enable(:disability_526_max_cfi_service_switch)
+            Flipper.enable(:disability_526_toxic_exposure, user)
+            expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
+            VCR.use_cassette('va_profile/v2/contact_information/get_address') do
+              VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+                VCR.use_cassette('evss/ppiu/payment_information') do
+                  VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
+                                   allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
+                    VCR.use_cassette('disability-max-ratings/max_ratings') do
                       expect_prefilled('21-526EZ')
                     end
                   end

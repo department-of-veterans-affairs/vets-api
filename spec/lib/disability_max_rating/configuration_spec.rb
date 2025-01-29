@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'disability_max_rating/configuration'
+require 'disability_max_ratings/configuration'
 
 RSpec.describe DisabilityMaxRating::Configuration do
   subject { described_class.send(:new) }
@@ -13,8 +13,8 @@ RSpec.describe DisabilityMaxRating::Configuration do
   end
 
   describe '#service_name' do
-    it 'returns the DisabilityMaxRatingClient service name' do
-      expect(subject.service_name).to eq('DisabilityMaxRatingClient')
+    it 'returns the DisabilityMaxRatingsApiClient service name' do
+      expect(subject.service_name).to eq('DisabilityMaxRatingsApiClient')
     end
   end
 
