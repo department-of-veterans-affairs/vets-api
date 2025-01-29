@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.appName }}-locust-script
+  namespace: {{ .Release.Namespace }}
+data:
+  locustfile.py: |
+    from locust import HttpUser, TaskSet, task, between
+    import random
+    def get_headers():
+        return {'X-Key-Inflection': 'camel'}
+    def get_url(query):
+        return("/v0/search?query=%(query)s" % locals())
+    def get_results(self, query):
+        headers = get_headers()
+        url = get_url(query)
+        resp = self.client.get(url, headers=headers)
+        return resp.json()
+    def on_failure(request_type, name, response_time, exception, **kwargs):
+        print('FAILURE STATE')
+        print(exception.request.url)
+        print(exception.response.status_code)
+        print(exception.response.content)
+    class VetsApiClient(HttpUser):
+        @task(1)
+        def search(self):
+            queries = [
+              'benefits',
+              'burials',
+              'health',
+              'pension',
+              'loans'
+            ]
+            for q in queries:
+              get_results(self, q)
+    class APIUser(HttpUser):
+        abstract = True
+        task_set = VetsApiClient
+        min_wait = 0
+        max_wait = 1000
+        host = 'https://staging-api.va.gov' # Will need domain for VetsNext Cluster

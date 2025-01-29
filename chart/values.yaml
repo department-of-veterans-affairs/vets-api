@@ -28,6 +28,7 @@ serviceAccount:
   role_arn:
   name:
 fsGroup:
+loadtestEnabled: false
 #Web configuration
 web:
   strategyType:
