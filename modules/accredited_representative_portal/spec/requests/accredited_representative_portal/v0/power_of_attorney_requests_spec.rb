@@ -90,7 +90,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'power_of_attorney_holder' => {
               'id' => poa_requests[0].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
-              'name' => 'TODO: implement'
+              'name' => nil # TODO: replace when org table is switched out
             },
             'resolution' => nil
           },
@@ -103,7 +103,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'power_of_attorney_holder' => {
               'id' => poa_requests[1].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
-              'name' => 'TODO: implement'
+              'name' => nil # TODO: replace when org table is switched out
             },
             'resolution' => {
               'id' => poa_requests[1].resolution.id,
@@ -122,7 +122,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'power_of_attorney_holder' => {
               'id' => poa_requests[2].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
-              'name' => 'TODO: implement'
+              'name' => nil # TODO: replace when org table is switched out
             },
             'resolution' => {
               'id' => poa_requests[2].resolution.id,
@@ -142,7 +142,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'power_of_attorney_holder' => {
               'id' => poa_requests[3].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
-              'name' => 'TODO: implement'
+              'name' => nil # TODO: replace when org table is switched out
             },
             'resolution' => {
               'id' => poa_requests[3].resolution.id,
@@ -225,7 +225,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           'power_of_attorney_holder' => {
             'id' => poa_request.power_of_attorney_holder.id,
             'type' => 'veteran_service_organization',
-            'name' => 'TODO: implement'
+            'name' => nil # TODO: replace when org table is switched out
           }
         }
       )

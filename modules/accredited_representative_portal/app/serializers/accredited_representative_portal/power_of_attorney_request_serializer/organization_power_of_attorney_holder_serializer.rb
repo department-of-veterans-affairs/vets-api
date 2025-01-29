@@ -8,7 +8,7 @@ module AccreditedRepresentativePortal
       end
 
       attribute :name do
-        'TODO: implement'
+        nil # TODO: replace when org table is switched out
       end
     end
   end
