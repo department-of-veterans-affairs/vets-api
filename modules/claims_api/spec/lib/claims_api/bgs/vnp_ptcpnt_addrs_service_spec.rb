@@ -88,9 +88,9 @@ describe ClaimsApi::VnpPtcpntAddrsService, metadata do
       options[:efctv_dt] = '2020-07-16T18:20:18Z'
       options[:addrs_one_txt] = '76-Crowther%Ave'
       VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_addrs_service/invalid_vnp_ptcpnt_addrs_create') do
-        subject.vnp_ptcpnt_addrs_create(options)
-      rescue => e
-        expect(e).to be_a(Common::Exceptions::UnprocessableEntity)
+        expect do
+          subject.vnp_ptcpnt_addrs_create(options)
+        end.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end
   end

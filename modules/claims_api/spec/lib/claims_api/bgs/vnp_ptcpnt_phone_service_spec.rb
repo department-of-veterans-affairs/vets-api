@@ -31,9 +31,9 @@ describe ClaimsApi::VnpPtcpntPhoneService do
       options[:phone_nbr] = '2225552252'
       options[:efctv_dt] = '2020-07-16T18:20:17Z'
       VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_phone_service/invalid_vnp_ptcpnt_phone_create') do
-        subject.vnp_ptcpnt_phone_create(options)
-      rescue => e
-        expect(e).to be_a(Common::Exceptions::UnprocessableEntity)
+        expect do
+          subject.vnp_ptcpnt_phone_create(options)
+        end.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end
   end
