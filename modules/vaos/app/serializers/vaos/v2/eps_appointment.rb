@@ -37,7 +37,7 @@ module VAOS
       private
 
       def determine_status(status)
-        status || 'proposed'
+        status == 'booked' ? 'booked' : 'proposed'
       end
     end
   end

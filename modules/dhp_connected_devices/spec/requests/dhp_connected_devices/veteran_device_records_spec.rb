@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 Rspec.describe 'DhpConnectedDevices::VeteranDeviceRecords', type: :request do
-  let(:current_user) { build(:user, :loa1) }
-  let(:user_without_icn) { build(:user, :loa1, icn: '') }
+  let(:current_user) { build(:user, :loa3) }
+  let(:user_without_icn) { build(:user, :loa1) }
 
   describe 'veteran_device_record#record' do
     context 'unauthenticated user' do

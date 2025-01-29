@@ -2,7 +2,7 @@
 
 MPIPolicy = Struct.new(:user, :mvi) do
   def access_add_person_proxy?
-    user.edipi.present? && user.ssn.present? && (user.birls_id.blank? || user.participant_id.blank?)
+    user.icn.present? && user.edipi.present? && (user.birls_id.blank? || user.participant_id.blank?)
   end
 
   def queryable?
