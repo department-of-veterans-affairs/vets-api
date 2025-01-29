@@ -146,9 +146,17 @@ module Lighthouse
         timestamp:,
         page_number: 5,
         size: 9,
-        template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+        template: template_path(form_id),
         multistamp: true
       )
+    end
+
+    def template_path(form_id)
+      if form_id == '21P-530EZ'
+        "modules/burials/lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
+      else
+        "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
+      end
     end
 
     def generate_log_details(e = nil)
