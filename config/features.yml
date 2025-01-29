@@ -2018,4 +2018,4 @@ features:
     description: If enabled, show additional info about the yellow ribbon program
   vba_documents_final_status_field:
     actor_type: user
-    description: Include final_status boolean field in "show," "report," and "create" endpoint responses
+    description: Include final_status boolean field in Benefits Intake "show," "report," and "create" endpoint responses
