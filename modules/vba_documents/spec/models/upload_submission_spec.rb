@@ -9,11 +9,20 @@ describe VBADocuments::UploadSubmission, type: :model do
   let(:upload_received) { create(:upload_submission, status: 'received') }
   let(:upload_processing) { create(:upload_submission, status: 'processing') }
   let(:upload_success) { create(:upload_submission, status: 'success') }
-  let(:upload_final_success) { create(:upload_submission, status: 'success', metadata: { final_success_status: 1738096576 }) }
+  let(:upload_final_success) do
+    create(:upload_submission, status: 'success', metadata: { final_success_status: Time.now.to_i })
+  end
   let(:upload_vbms) { create(:upload_submission, status: 'vbms') }
   let(:upload_error) { create(:upload_submission, status: 'error') }
-  let(:upload_error_validation) { create(:upload_submission, status: 'error', code: 'DOC108', detail: 'Maximum page size exceeded. Limit is 78 in x 101 in.') }
-  let(:upload_error_upstream) { create(:upload_submission, status: 'error', code: 'DOC202', detail: 'Upstream status: Errors: ERR-EMMS-FAILED, Corrupted File detected.') }
+  let(:upload_error_validation) do
+    create(:upload_submission,
+           status: 'error', code: 'DOC108', detail: 'Maximum page size exceeded. Limit is 78 in x 101 in.')
+  end
+  let(:upload_error_upstream) do
+    create(:upload_submission,
+           status: 'error', code: 'DOC202',
+           detail: 'Upstream status: Errors: ERR-EMMS-FAILED, Corrupted File detected.')
+  end
   let(:client_stub) { instance_double(CentralMail::Service) }
   let(:faraday_response) { instance_double(Faraday::Response) }
 
