@@ -12,7 +12,7 @@ module EVSS
       VA_NOTIFY_CALLBACK_OPTIONS = {
         callback_metadata: {
           notification_type: 'error',
-          form_number: 'form526',
+          form_number: Form526Submission::FORM_526,
           statsd_tags: { service: Form526Submission::ZSF_DD_TAG_SERVICE, function: ZSF_DD_TAG_FUNCTION }
         }
       }.freeze
