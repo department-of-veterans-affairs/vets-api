@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'pdf_fill/filler'
-require 'lib/pdf_fill/fill_form_examples'
 
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
