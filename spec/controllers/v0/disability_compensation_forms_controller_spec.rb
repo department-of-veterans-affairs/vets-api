@@ -31,7 +31,7 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
         VCR.use_cassette('evss/reference_data/get_intake_sites') do
           2.times do
             get(:separation_locations)
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
           end
         end
       end
@@ -58,7 +58,7 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
         VCR.use_cassette('brd/separation_locations') do
           2.times do
             get(:separation_locations)
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
           end
         end
       end
@@ -86,7 +86,7 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
         VCR.use_cassette('brd/separation_locations_staging') do
           2.times do
             get(:separation_locations)
-            expect(response.status).to eq(200)
+            expect(response).to have_http_status(:ok)
           end
         end
       end

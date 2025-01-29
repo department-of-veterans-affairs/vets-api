@@ -2,10 +2,10 @@
 
 class DeviceSerializer
   def self.serialize(device, active)
-    if !device.is_a? Device
-      device.map { |d| serialize(d, active) }
-    else
+    if device.is_a? Device
       device.as_json(except: :id).merge(urls(device)).merge({ connected: active })
+    else
+      device.map { |d| serialize(d, active) }
     end
   end
 
