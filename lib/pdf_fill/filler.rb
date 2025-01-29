@@ -141,7 +141,7 @@ module PdfFill
       )
 
       has_template = form_class.const_defined?(:TEMPLATE)
-      template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
+      template_path = has_template ? form_class::TEMPLATE : template_path(form_id)
 
       (form_id == SavedClaim::CaregiversAssistanceClaim::FORM ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
         template_path,
@@ -151,6 +151,14 @@ module PdfFill
       )
 
       combine_extras(file_path, hash_converter.extras_generator)
+    end
+
+    def template_path(form_id)
+      if form_id == '21P-530EZ'
+        "modules/burials/lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
+      else
+        "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
+      end
     end
   end
 end
