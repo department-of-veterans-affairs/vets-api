@@ -25,11 +25,21 @@ module VBADocuments
             property :code do
               key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'status_code_description.md'))
               key :type, :string
+              key :example, nil
             end
 
             property :detail do
               key :description, 'Human readable error detail. Only present if status = "error"'
               key :type, :string
+              key :example, ''
+            end
+
+            if Flipper.enabled?(:vba_documents_final_status_field)
+              property :final_status do
+                key :description, 'Indicates whether the status of a submission is final. Submissions with a final_status of true will no longer update to a new status.'
+                key :type, :boolean
+                key :example, false
+              end
             end
 
             property :location do
