@@ -30,9 +30,9 @@ describe ClaimsApi::VnpProcFormService do
       options[:jrn_status_type_cd] = '-'
       options[:jrn_user_id] = 'VAgovAPI'
       VCR.use_cassette('claims_api/bgs/vnp_proc_form_service/invalid_vnp_proc_form_create') do
-        subject.vnp_proc_form_create(options)
-      rescue => e
-        expect(e).to be_a(Common::Exceptions::UnprocessableEntity)
+        expect do
+          subject.vnp_proc_form_create(options)
+        end.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end
   end

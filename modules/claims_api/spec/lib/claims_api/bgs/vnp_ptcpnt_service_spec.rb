@@ -46,9 +46,9 @@ describe ClaimsApi::VnpPtcpntService do
       options[:jrn_lctn_id] = 0
       options[:jrn_status_type_cd] = 'U'
       VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_service/invalid_vnp_ptcpnt_create') do
-        subject.vnp_ptcpnt_create(options)
-      rescue => e
-        expect(e).to be_a(Common::Exceptions::UnprocessableEntity)
+        expect do
+          subject.vnp_ptcpnt_create(options)
+        end.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end
   end
