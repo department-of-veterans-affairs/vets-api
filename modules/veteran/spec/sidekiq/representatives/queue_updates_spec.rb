@@ -31,6 +31,7 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
       Veteran::Service::Representative.create(representative_id: '345', poa_codes: ['A1'])
       allow(Representatives::XlsxFileFetcher).to receive(:new).and_return(double(fetch: file_content))
       allow_any_instance_of(Representatives::XlsxFileProcessor).to receive(:process).and_return(processed_data)
+      expect_any_instance_of(SlackNotify::Client).to receive(:notify)
     end
 
     context 'when file processing is successful' do

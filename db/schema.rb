@@ -539,6 +539,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
     t.boolean "shared_sessions", default: false, null: false
     t.string "service_levels", default: ["ial1", "ial2", "loa1", "loa3", "min"], array: true
     t.string "credential_service_providers", default: ["logingov", "idme", "dslogon", "mhv"], array: true
+    t.boolean "json_api_compatibility", default: true, null: false
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
