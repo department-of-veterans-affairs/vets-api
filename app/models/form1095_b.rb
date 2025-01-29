@@ -10,9 +10,7 @@ class Form1095B < ApplicationRecord
   validate :proper_form_data_schema
 
   # scopes
-  scope :available_forms, lambda { |icn|
-    where(veteran_icn: icn).order(tax_year: :desc).pluck(:tax_year, :updated_at)
-  }
+  scope :available_forms, lambda { |icn| where(veteran_icn: icn).order(tax_year: :desc) }
 
   # methods
   def txt_file

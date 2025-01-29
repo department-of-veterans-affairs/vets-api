@@ -8,7 +8,7 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
   let(:user) { build(:user, :loa3, icn: subject.veteran_icn) }
   let(:invalid_user) { build(:user, :loa1, icn: subject.veteran_icn) }
   let(:user_without_form) { build(:user, :loa3, icn: '7832473474389') }
-  let(:past_form) { create(:form1095_b, tax_year: 2010) }
+  # let(:past_form) { create(:form1095_b, tax_year: 2010) }
 
   describe 'GET /download_pdf for valid user' do
     before do
@@ -84,10 +84,11 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       expect(response).to have_http_status(:success)
     end
 
-    it 'returns last updated object' do
+    it 'returns only the most recent tax year' do
+      last_tax_year_form = create(:form1095_b, tax_year: 2024)
       get '/v0/form1095_bs/available_forms'
       expect(response.body).to eq(
-        { available_forms: [{ year: subject.tax_year, last_updated: subject.updated_at }] }.to_json
+        { available_forms: [{ year: last_tax_year_form.tax_year, last_updated: last_tax_year_form.updated_at }] }.to_json
       )
     end
   end
