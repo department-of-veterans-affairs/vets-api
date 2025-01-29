@@ -176,11 +176,8 @@ class MPIData < Common::RedisStore
   # MPI add person proxy addcall is made. The response is recached afterwards so the new ids can be accessed
   # on the next call.
   def add_person_proxy
-    search_response = mpi_service.find_profile_by_attributes_with_orch_search(first_name: user_first_name,
-                                                                              last_name: user_last_name,
-                                                                              birth_date: user_birth_date,
-                                                                              ssn: user_ssn,
-                                                                              edipi: user_edipi)
+    search_response = mpi_service.find_profile_by_identifier(identifier: user_icn,
+                                                             identifier_type: MPI::Constants::ICN)
     if search_response.ok?
       orch_search_response = perform_orchestrated_search(search_response)
       if orch_search_response.ok?
