@@ -87,7 +87,7 @@ The Upload operation lets a client upload a multi-part document submission, spec
     * `status`: The current status of the submission. See the previous "Document Submission Statuses" section for more information about the specific statuses.
     * `code`: Only present if `status` is `error`. An error code specifying why the submission is in an error state. For a list of the error codes, see the schema for the GET /uploads/{id} 200 response.
     * `detail`: Only present if `status` is `error`. Plain language detailing of the error corresponding to the error code and the specific submission.
-    * `final_status`: Indicates whether the status of a submission is final. Submissions with a `final_status` of `true` will no longer update to a new status.
+    * `final_status`: Indicates whether the status of the submission is final. Submissions with a `final_status` of `true` will no longer update to a new status.
     * `updated_at`: The last time the submission status was updated.
 
 
@@ -100,7 +100,7 @@ If submissions to the API are made frequently, the bulk status endpoint should b
     * `status`: The current status of the submission. See the previous "Document Submission Statuses" section for more information about the specific statuses.
     * `code`: Only present if `status` is `error`. An error code specifying why the submission is in an error state. For a list of the error codes, see the schema for the GET /uploads/{id} 200 response.
     * `detail`: Only present if `status` is `error`. Plain language detailing of the error corresponding to the error code and the specific submission.
-    * `final_status`: Indicates whether the status of a submission is final. Submissions with a `final_status` of `true` will no longer update to a new status.
+    * `final_status`: Indicates whether the status of the submission is final. Submissions with a `final_status` of `true` will no longer update to a new status.
     * `updated_at`: The last time the submission status was updated.
     * Due to current system limitations, data for the /uploads/report endpoint is cached for one hour. The /uploads/{id} endpoint isn't cached.
 
