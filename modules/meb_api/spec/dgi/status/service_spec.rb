@@ -37,7 +37,7 @@ RSpec.describe MebApi::DGI::Status::Service do
 
     describe '#get_toe_claim_status' do
       let(:faraday_response) { double('faraday_connection') }
-      let(:service) { ::MebApi::DGI::Status::Service.new(user) }
+      let(:service) { MebApi::DGI::Status::Service.new(user) }
 
       before do
         allow(faraday_response).to receive(:env)
