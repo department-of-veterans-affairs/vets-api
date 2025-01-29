@@ -40,9 +40,9 @@ describe ClaimsApi::ContentionService do
 
   it 'responds appropriately with invalid options' do
     VCR.use_cassette('claims_api/bgs/contention/invalid_find_contentions_by_ptcpnt_id') do
-      subject.find_contentions_by_ptcpnt_id('not-an-id')
-    rescue => e
-      expect(e).to be_a(Common::Exceptions::UnprocessableEntity)
+      expect do
+        subject.find_contentions_by_ptcpnt_id('not-an-id')
+      end.to raise_error(Common::Exceptions::UnprocessableEntity)
     end
   end
 end
