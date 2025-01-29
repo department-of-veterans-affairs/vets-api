@@ -29,7 +29,7 @@ RSpec.describe BGSDependents::ChildStudent do
       next_year_other_income_amt: '984',
       next_year_ssa_income_amt: '3940',
       acrdtdSchoolInd: 'Y',
-      atndedSchoolCntnusInd: nil,
+      atndedSchoolCntnusInd: 'N',
       stopedAtndngSchoolDt: nil
     }
   end
