@@ -7,6 +7,7 @@ ALLOWLIST = %w[
   action
   category
   code
+  content_type
   controller
   cookie_id
   document_id
@@ -31,6 +32,7 @@ ALLOWLIST = %w[
   sort
   startDate
   startedFormVersion
+  tempfile
   to_date
   type
   useCache
@@ -51,8 +53,9 @@ Rails.application.config.filter_parameters = [
         # Numbers are immutable; return a filtered string.
         'FILTERED'
       when ActionDispatch::Http::UploadedFile
-        # For uploaded files, filter out the filename.
-        'FILTERED FILE'
+        value.instance_variables.each do |k|
+          value.instance_variable_set(k, 'FILTERED') if ALLOWLIST.exclude?(k.to_s.delete('@'))
+        end
       else
         # For other objects (arrays, hashes), Rails will recurse and call this
         # lambda for each element/key/value pair. If there's something else you
