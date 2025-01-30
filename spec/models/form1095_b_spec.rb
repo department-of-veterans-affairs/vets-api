@@ -47,7 +47,7 @@ RSpec.describe Form1095B, type: :model do
       let(:inv_year_form) { create(:form1095_b, veteran_icn: '654678976543678', tax_year: 2008) }
 
       it 'fails if no template PDF for the tax_year' do
-        expect { inv_year_form.pdf_file }.to raise_error(RuntimeError, /1095-B for tax year 2008 not supported/)
+        expect { inv_year_form.pdf_file }.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end
   end
@@ -63,7 +63,7 @@ RSpec.describe Form1095B, type: :model do
       let(:inv_year_form) { create(:form1095_b, veteran_icn: '654678976543678', tax_year: 2008) }
 
       it 'fails if no template txt file for the tax_year' do
-        expect { inv_year_form.txt_file }.to raise_error(RuntimeError, /1095-B for tax year 2008 not supported/)
+        expect { inv_year_form.txt_file }.to raise_error(Common::Exceptions::UnprocessableEntity)
       end
     end
   end

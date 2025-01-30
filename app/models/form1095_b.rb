@@ -16,7 +16,9 @@ class Form1095B < ApplicationRecord
   def txt_file
     unless File.exist?(txt_template_path)
       Rails.logger.error "1095-B template for year #{tax_year} does not exist."
-      raise "1095-B for tax year #{tax_year} not supported"
+      raise Common::Exceptions::UnprocessableEntity.new(
+        detail: "1095-B for tax year #{tax_year} not supported", source: self.class.name
+      )
     end
 
     template_file = File.open(txt_template_path, 'r')
@@ -35,7 +37,9 @@ class Form1095B < ApplicationRecord
 
     unless File.exist?(pdf_template_path)
       Rails.logger.error "1095-B template for year #{tax_year} does not exist."
-      raise "1095-B for tax year #{tax_year} not supported"
+      raise Common::Exceptions::UnprocessableEntity.new(
+        detail: "1095-B for tax year #{tax_year} not supported", source: self.class.name
+      )
     end
 
     generate_pdf(pdftk, tmp_file)
