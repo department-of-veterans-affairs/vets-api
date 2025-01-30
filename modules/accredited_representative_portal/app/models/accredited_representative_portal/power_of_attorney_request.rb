@@ -21,10 +21,6 @@ module AccreditedRepresentativePortal
             class_name: 'PowerOfAttorneyRequestResolution',
             inverse_of: :power_of_attorney_request
 
-    belongs_to :power_of_attorney_holder,
-               inverse_of: :power_of_attorney_requests,
-               polymorphic: true
-
     before_validation :set_claimant_type
 
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
