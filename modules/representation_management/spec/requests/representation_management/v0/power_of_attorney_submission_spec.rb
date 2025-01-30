@@ -93,91 +93,96 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequestsController'
       end
     end
 
-    # context 'When submitting a valid request without a claimant' do
-    #   before do
-    #     params[:pdf_generator2122].delete(:claimant)
-    #     post(base_path, params:)
-    #   end
+    context 'When submitting a valid request without a claimant' do
+      before do
+        params[:power_of_attorney_request][:veteran][:service_number] = nil # TEMPORARY FOR FRONTEND TESTING
+        params[:power_of_attorney_request].delete(:claimant)
+        post(base_path, params:)
+      end
 
-    #   it 'responds with a ok status' do
-    #     expect(response).to have_http_status(:ok)
-    #   end
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
+      end
 
-    #   it 'responds with a PDF' do
-    #     expect(response.content_type).to eq('application/pdf')
-    #   end
-    # end
+      it 'responds with a PDF' do
+        expect(response.body).to eq({ message: 'Email enqueued' }.to_json)
+      end
+    end
 
-    # context 'When submitting a valid request without a representative id' do
-    #   before do
-    #     params[:pdf_generator2122][:representative].delete(:id)
-    #     post(base_path, params:)
-    #   end
+    context 'When submitting a valid request without a representative id' do
+      before do
+        params[:power_of_attorney_request][:veteran][:service_number] = nil # TEMPORARY FOR FRONTEND TESTING
+        params[:power_of_attorney_request][:representative].delete(:id)
+        post(base_path, params:)
+      end
 
-    #   it 'responds with a ok status' do
-    #     expect(response).to have_http_status(:ok)
-    #   end
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
+      end
 
-    #   it 'responds with a PDF' do
-    #     expect(response.content_type).to eq('application/pdf')
-    #   end
-    # end
+      it 'responds with a PDF' do
+        expect(response.body).to eq({ message: 'Email enqueued' }.to_json)
+      end
+    end
 
-    # context 'When submitting a valid request with the accredited organization and individual ids' do
-    #   before do
-    #     accredited_organization = create(:accredited_organization)
-    #     accredited_individual = create(:accredited_individual)
-    #     params[:pdf_generator2122][:representative][:organization_id] = accredited_organization.id
-    #     params[:pdf_generator2122][:representative][:id] = accredited_individual.id
-    #     post(base_path, params:)
-    #   end
+    context 'When submitting a valid request with the accredited organization and individual ids' do
+      before do
+        params[:power_of_attorney_request][:veteran][:service_number] = nil # TEMPORARY FOR FRONTEND TESTING
+        accredited_organization = create(:accredited_organization)
+        accredited_individual = create(:accredited_individual)
+        params[:power_of_attorney_request][:representative][:organization_id] = accredited_organization.id
+        params[:power_of_attorney_request][:representative][:id] = accredited_individual.id
+        post(base_path, params:)
+      end
 
-    #   it 'responds with a ok status' do
-    #     expect(response).to have_http_status(:ok)
-    #   end
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
+      end
 
-    #   it 'responds with a PDF' do
-    #     expect(response.content_type).to eq('application/pdf')
-    #   end
-    # end
+      it 'responds with a PDF' do
+        expect(response.body).to eq({ message: 'Email enqueued' }.to_json)
+      end
+    end
 
-    # context 'when triggering validation errors' do
-    #   context 'when submitting without the veteran first name for a single validation error' do
-    #     before do
-    #       params[:pdf_generator2122][:veteran][:name][:first] = nil
-    #       post(base_path, params:)
-    #     end
+    context 'when triggering validation errors' do
+      context 'when submitting without the veteran first name for a single validation error' do
+        before do
+          params[:power_of_attorney_request][:veteran][:service_number] = nil # TEMPORARY FOR FRONTEND TESTING
+          params[:power_of_attorney_request][:veteran][:name][:first] = nil
+          post(base_path, params:)
+        end
 
-    #     it 'responds with an unprocessable entity status' do
-    #       expect(response).to have_http_status(:unprocessable_entity)
-    #     end
+        it 'responds with an unprocessable entity status' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
 
-    #     it 'responds with the expected body' do
-    #       expect(response.body).to eq({ errors: ["Veteran first name can't be blank"] }.to_json)
-    #     end
-    #   end
+        it 'responds with the expected body' do
+          expect(response.body).to eq({ errors: ["Veteran first name can't be blank"] }.to_json)
+        end
+      end
 
-    #   context 'when submitting without multiple required attributes' do
-    #     before do
-    #       params[:pdf_generator2122][:veteran][:name][:first] = nil
-    #       params[:pdf_generator2122][:veteran][:ssn] = nil
-    #       params[:pdf_generator2122][:veteran][:name][:last] = nil
-    #       params[:pdf_generator2122][:veteran][:date_of_birth] = nil
-    #       post(base_path, params:)
-    #     end
+      context 'when submitting without multiple required attributes' do
+        before do
+          params[:power_of_attorney_request][:veteran][:service_number] = nil # TEMPORARY FOR FRONTEND TESTING
+          params[:power_of_attorney_request][:veteran][:name][:first] = nil
+          params[:power_of_attorney_request][:veteran][:ssn] = nil
+          params[:power_of_attorney_request][:veteran][:name][:last] = nil
+          params[:power_of_attorney_request][:veteran][:date_of_birth] = nil
+          post(base_path, params:)
+        end
 
-    #     it 'responds with an unprocessable entity status' do
-    #       expect(response).to have_http_status(:unprocessable_entity)
-    #     end
+        it 'responds with an unprocessable entity status' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
 
-    #     it 'responds with the expected body' do
-    #       expect(response.body).to include("Veteran first name can't be blank")
-    #       expect(response.body).to include("Veteran social security number can't be blank")
-    #       expect(response.body).to include('Veteran social security number is invalid')
-    #       expect(response.body).to include("Veteran last name can't be blank")
-    #       expect(response.body).to include("Veteran date of birth can't be blank")
-    #     end
-    #   end
-    # end
+        it 'responds with the expected body' do
+          expect(response.body).to include("Veteran first name can't be blank")
+          expect(response.body).to include("Veteran social security number can't be blank")
+          expect(response.body).to include('Veteran social security number is invalid')
+          expect(response.body).to include("Veteran last name can't be blank")
+          expect(response.body).to include("Veteran date of birth can't be blank")
+        end
+      end
+    end
   end
 end
