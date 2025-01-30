@@ -2,8 +2,6 @@
 
 module Eps
   class AppointmentService < BaseService
-    STATSD_KEY = 'api.eps.response'
-
     ##
     # Get appointments data from EPS
     #
