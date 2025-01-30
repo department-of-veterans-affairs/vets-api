@@ -48,6 +48,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VEIS_AUTH_URL>') { Settings.travel_pay.veis.auth_url }
   c.filter_sensitive_data('<VRO_URL>') { Settings.virtual_regional_office.url }
   c.filter_sensitive_data('<VRO_API_KEY>') { Settings.virtual_regional_office.api_key }
+  c.filter_sensitive_data('<CONTENTION_CLASSIFICATION_API_URL>') { Settings.contention_classification_api.url }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')

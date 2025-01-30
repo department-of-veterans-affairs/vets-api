@@ -1505,6 +1505,12 @@ virtual_regional_office:
   expanded_classification_path: contention-classification/expanded-contention-classification
   max_cfi_path: employee-experience/max-ratings
 
+contention_classification_api:
+  url: http://contention-classification-api-dev.vfs.va.gov/
+  expanded_contention_classification_path: expanded-contention-classification
+  open_timeout: 5
+  read_timeout: 10
+
 # Settings for Test User Dashboard modules
 test_user_dashboard:
   env: dev
