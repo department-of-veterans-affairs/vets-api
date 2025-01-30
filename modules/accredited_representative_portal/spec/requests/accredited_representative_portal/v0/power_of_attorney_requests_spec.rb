@@ -88,7 +88,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'expires_at' => (Time.zone.parse(time) + 60.days).iso8601(3),
             'power_of_attorney_form' => veteran_claimant_power_of_attorney_form,
             'power_of_attorney_holder' => {
-              'id' => poa_requests[0].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
               'name' => nil # TODO: replace when org table is switched out
             },
@@ -101,7 +100,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'expires_at' => nil,
             'power_of_attorney_form' => dependent_claimant_power_of_attorney_form,
             'power_of_attorney_holder' => {
-              'id' => poa_requests[1].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
               'name' => nil # TODO: replace when org table is switched out
             },
@@ -120,7 +118,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'expires_at' => nil,
             'power_of_attorney_form' => dependent_claimant_power_of_attorney_form,
             'power_of_attorney_holder' => {
-              'id' => poa_requests[2].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
               'name' => nil # TODO: replace when org table is switched out
             },
@@ -140,7 +137,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'expires_at' => nil,
             'power_of_attorney_form' => dependent_claimant_power_of_attorney_form,
             'power_of_attorney_holder' => {
-              'id' => poa_requests[3].power_of_attorney_holder.id,
               'type' => 'veteran_service_organization',
               'name' => nil # TODO: replace when org table is switched out
             },
@@ -223,7 +219,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'decision_type' => 'declination'
           },
           'power_of_attorney_holder' => {
-            'id' => poa_request.power_of_attorney_holder.id,
             'type' => 'veteran_service_organization',
             'name' => nil # TODO: replace when org table is switched out
           }

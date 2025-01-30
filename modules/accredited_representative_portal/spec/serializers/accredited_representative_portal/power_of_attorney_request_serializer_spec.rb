@@ -89,7 +89,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
           veteran_declined_holder_data = veteran_declined_data[:power_of_attorney_holder]
           expect(veteran_declined_holder_data[:type]).to eq 'veteran_service_organization'
           expect(veteran_declined_holder_data[:name]).to be_nil
-          expect(veteran_declined_holder_data[:id]).to eq veteran_declined_power_of_attorney_holder.id
         end
       end
     end

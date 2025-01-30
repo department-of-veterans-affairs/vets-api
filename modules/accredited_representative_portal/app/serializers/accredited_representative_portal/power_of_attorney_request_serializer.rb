@@ -45,6 +45,7 @@ module AccreditedRepresentativePortal
       serializer
         .new(poa_request.power_of_attorney_holder)
         .serializable_hash
+        .tap { |hash| hash.delete(:id) }
     end
   end
 end
