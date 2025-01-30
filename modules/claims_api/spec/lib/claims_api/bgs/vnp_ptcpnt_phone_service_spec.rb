@@ -24,5 +24,17 @@ describe ClaimsApi::VnpPtcpntPhoneService do
         expect(response[:vnp_ptcpnt_phone_id]).to eq '30888'
       end
     end
+
+    it 'responds appropriately with invalid options' do
+      options[:vnp_proc_id] = 'not-an-id'
+      options[:vnp_ptcpnt_id] = nil
+      options[:phone_nbr] = '2225552252'
+      options[:efctv_dt] = '2020-07-16T18:20:17Z'
+      VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_phone_service/invalid_vnp_ptcpnt_phone_create') do
+        expect do
+          subject.vnp_ptcpnt_phone_create(options)
+        end.to raise_error(Common::Exceptions::UnprocessableEntity)
+      end
+    end
   end
 end
