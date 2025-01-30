@@ -126,6 +126,28 @@ module MPI
       MPI::Services::FindProfileResponseCreator.new(type: Constants::FIND_PROFILE_BY_FACILITY_TYPE, error: e).perform
     end
 
+    def find_profile_by_attributes_with_orch_search(first_name:,
+                                                    last_name:,
+                                                    birth_date:,
+                                                    ssn:,
+                                                    edipi:)
+      with_monitoring do
+        raw_response = perform(:post, '',
+                               MPI::Messages::FindProfileByAttributes.new(first_name:,
+                                                                          last_name:,
+                                                                          birth_date:,
+                                                                          ssn:,
+                                                                          orch_search: true,
+                                                                          edipi:).perform,
+                               soapaction: Constants::FIND_PROFILE)
+        MPI::Services::FindProfileResponseCreator.new(type: Constants::FIND_PROFILE_BY_ATTRIBUTES_ORCH_SEARCH_TYPE,
+                                                      response: raw_response).perform
+      end
+    rescue *CONNECTION_ERRORS => e
+      MPI::Services::FindProfileResponseCreator.new(type: Constants::FIND_PROFILE_BY_ATTRIBUTES_ORCH_SEARCH_TYPE,
+                                                    error: e).perform
+    end
+
     def find_profile_by_attributes(first_name:,
                                    last_name:,
                                    birth_date:,

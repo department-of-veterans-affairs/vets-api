@@ -1293,6 +1293,10 @@ vanotify:
     password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
   status_callback:
     bearer_token: fake_bearer_token
+  service_callback_tokens:
+    service_name: service_name_fake_bearer_token
+    other_service: other_service_fake_bearer_token
+    third_service: third_service_fake_bearer_token
 
 # Settings for connecting AFS Veteran Services
 # For locahost we can use the existing certs as long as we don't call out
@@ -1504,7 +1508,6 @@ virtual_regional_office:
   vagov_classification_path: contention-classification/va-gov-claim-classifier
   expanded_classification_path: contention-classification/expanded-contention-classification
   max_cfi_path: employee-experience/max-ratings
-  ep_merge_path: employee-experience-ep-merge-app/merge
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:

@@ -11,7 +11,6 @@ module V0
       service_tag 'profile'
 
       skip_before_action :authenticate, only: [:create]
-      skip_before_action :verify_authenticity_token
 
       def create
         address = if Flipper.enabled?(:va_v3_contact_information_service)
