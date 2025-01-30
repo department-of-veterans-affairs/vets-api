@@ -13,12 +13,6 @@ module Eps
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
                          {}, headers)
 
-      track_metric(STATSD_KEY, 'get_appointments call completed')
-
-      unless response.status == 200
-        # log failures
-        StatsD.increment(STATSD_KEY, tags: ["failures:#{response.body}"])
-      end
       OpenStruct.new(response.body)
     end
 
@@ -31,12 +25,6 @@ module Eps
       response = perform(:post, "/#{config.base_path}/appointments",
                          { patientId: patient_id, referralId: referral_id }, headers)
 
-      track_metric(STATSD_KEY, 'create_draft_appointment call completed')
-
-      unless response.status == 200
-        # log failures
-        StatsD.increment(STATSD_KEY, tags: ["failures:#{response.body}"])
-      end
       OpenStruct.new(response.body)
     end
 
@@ -65,21 +53,10 @@ module Eps
 
       response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, headers)
 
-      track_metric(STATSD_KEY, 'submit_appointment call completed')
-
-      unless response.status == 200
-        # log failures
-        StatsD.increment(STATSD_KEY, tags: ["failures:#{response.body}"])
-      end
       OpenStruct.new(response.body)
     end
 
     private
-
-    def track_metric(key, tag)
-      StatsDMetric.new(key: key).save
-      StatsD.increment(key, tags: [tag])
-    end
 
     def build_submit_payload(params)
       payload = {
