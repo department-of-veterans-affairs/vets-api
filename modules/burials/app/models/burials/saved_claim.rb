@@ -1,9 +1,30 @@
 # frozen_string_literal: true
 
-require 'pension_burial/processing_office'
+require 'burials/processing_office'
 
 module Burials
+  ##
+  # Burial 21P-530EZ Active::Record
+  # @see app/model/saved_claim
+  #
+  # todo: migrate encryption to Burials::SavedClaim, remove inheritance and encryption shim
   class SavedClaim < ::SavedClaim
+    # We want to use the `Type` behavior but we want to override it with our custom type default scope behaviors.
+    self.inheritance_column = :_type_disabled
+
+    # We want to override the `Type` behaviors for backwards compatability
+    default_scope -> { where(type: 'SavedClaim::Burial') }, all_queries: true
+
+    ##
+    # The KMS Encryption Context is preserved from the saved claim model namespace we migrated from
+    #
+    def kms_encryption_context
+      {
+        model_name: 'SavedClaim::Burial',
+        model_id: id
+      }
+    end
+
     FORM = '21P-530EZ'
 
     def process_attachments!
@@ -13,7 +34,7 @@ module Burials
     end
 
     def regional_office
-      PensionBurial::ProcessingOffice.address_for(open_struct_form.claimantAddress.postalCode)
+      Burials::ProcessingOffice.address_for(open_struct_form.claimantAddress.postalCode)
     end
 
     def attachment_keys
