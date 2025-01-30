@@ -6,6 +6,9 @@ RSpec.describe 'Mobile::V0::User', type: :request do
   include JsonSchemaMatchers
 
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
+  let(:contact_information_service) do
+    VAProfile::V2::ContactInformation::Service
+  end
 
   before do
     allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
@@ -14,12 +17,8 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_letters, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_claims, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_direct_deposit, instance_of(User)).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_disability_ratings, instance_of(User)).and_return(false)
-
-  end
-
-  let(:contact_information_service) do
-    VAProfile::V2::ContactInformation::Service
+    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_disability_ratings,
+                                              instance_of(User)).and_return(false)
   end
 
   describe 'GET /mobile/v0/user' do
@@ -80,7 +79,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
       end
 
       it 'includes the users contact email id' do
-        expect(attributes.dig('profile', 'contactEmail', 'id')).to eq(318927)
+        expect(attributes.dig('profile', 'contactEmail', 'id')).to eq(318_927)
       end
 
       it 'includes the users contact email addrss' do
@@ -96,7 +95,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
       it 'includes the expected residential address' do
         expect(attributes['profile']).to include(
           'residentialAddress' => {
-            'id' => 577127,
+            'id' => 577_127,
             'addressLine1' => '140 Rock Creek Rd',
             'addressLine2' => nil,
             'addressLine3' => nil,
@@ -136,7 +135,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
       it 'includes a home phone number' do
         expect(attributes['profile']['homePhoneNumber']).to include(
           {
-            'id' => 458781,
+            'id' => 458_781,
             'areaCode' => '303',
             'countryCode' => '1',
             'extension' => nil,
@@ -405,7 +404,8 @@ RSpec.describe 'Mobile::V0::User', type: :request do
       # Another team will remove this method from the user model
       context 'when user model does not have a fax number method' do
         before do
-          allow_any_instance_of(VAProfileRedis::V2::ContactInformation).to receive(:try).with(:fax_number).and_return(nil)
+          allow_any_instance_of(VAProfileRedis::V2::ContactInformation).to receive(:try).with(:fax_number)
+                                                                                        .and_return(nil)
         end
 
         it 'sets fax number to nil' do
