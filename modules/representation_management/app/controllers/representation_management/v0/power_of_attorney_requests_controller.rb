@@ -18,6 +18,7 @@ module RepresentationManagement
         if flatten_form_params[:veteran_service_number].present?
           render json: { errors: ['render_error_state_for_failed_submission'] }, status: :unprocessable_entity
         elsif form.valid?
+          # data = RepresentationManagement::PowerOfAttorneyRequestEmailData.new(form)
           # VANotify::EmailJob.perform_async(
           #   data.email_address,
           #   Settings.vanotify.services.va_gov.template_id.appoint_a_representative_confirmation_email,
