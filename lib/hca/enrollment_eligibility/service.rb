@@ -43,6 +43,8 @@ module HCA
           lookup_user_req(icn)
         end
 
+        debugger
+
         income = parse_income(response)
         providers = parse_insurance_providers(response)
         dependents = parse_dependents(response)
