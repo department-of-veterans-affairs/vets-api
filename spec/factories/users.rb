@@ -225,7 +225,6 @@ FactoryBot.define do
 
     trait :loa1 do
       stub_mpi { false }
-      icn { nil }
       authn_context { LOA::IDME_LOA1_VETS }
       sign_in do
         {

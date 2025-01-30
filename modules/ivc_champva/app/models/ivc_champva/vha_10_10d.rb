@@ -23,9 +23,6 @@ module IvcChampva
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
         'veteranMiddleName' => @data.dig('veteran', 'full_name', 'middle'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
-        'sponsorFirstName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'first'),
-        'sponsorMiddleName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'middle'),
-        'sponsorLastName' => @data.fetch('applicants', [])&.first&.dig('full_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'va_claim_number').presence || @data.dig('veteran', 'ssn_or_tin'),
         'zipCode' => @data.dig('veteran', 'address', 'postal_code') || '00000',
         'country' => @data.dig('veteran', 'address', 'country') || 'USA',
@@ -35,7 +32,8 @@ module IvcChampva
         'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin'),
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info'],
-        'hasApplicantOver65' => @data['has_applicant_over65'].to_s
+        'hasApplicantOver65' => @data['has_applicant_over65'].to_s,
+        'signerEmailAddress' => @data.dig('primary_contact_info', 'email')
       }
     end
 

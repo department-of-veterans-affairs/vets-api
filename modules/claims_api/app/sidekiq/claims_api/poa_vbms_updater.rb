@@ -18,7 +18,7 @@ module ClaimsApi
         poa_id: power_of_attorney_id,
         detail: 'Updating Access',
         poa_code:,
-        allow_poa_access: enable_vbms_access?(poa_form:),
+        allow_poa_access: allow_poa_access?(poa_form_data: poa_form.form_data),
         allow_poa_c_add: allow_address_change?(poa_form)
       )
 
@@ -27,7 +27,7 @@ module ClaimsApi
 
       if response[:return_code] == 'GUIE50000'
         poa_form.status = ClaimsApi::PowerOfAttorney::UPDATED
-        process.update!(step_status: 'SUCCESS', error_messages: [])
+        process.update!(step_status: 'SUCCESS', error_messages: [], completed_at: Time.zone.now)
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
         ClaimsApi::Logger.log('poa_vbms_updater', poa_id: power_of_attorney_id, detail: 'VBMS Success')
       else
@@ -67,7 +67,7 @@ module ClaimsApi
       service.update_poa_access(
         participant_id:,
         poa_code:,
-        allow_poa_access: enable_vbms_access?(poa_form:) ? 'Y' : 'N',
+        allow_poa_access: allow_poa_access?(poa_form_data: poa_form.form_data) ? 'Y' : 'N',
         allow_poa_c_add: allow_address_change?(poa_form) ? 'Y' : 'N'
       )
     end

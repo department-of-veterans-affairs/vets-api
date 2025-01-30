@@ -7,7 +7,7 @@ require 'mpi/constants'
 module MPI
   module Messages
     class FindProfileByAttributes
-      attr_reader :first_name, :middle_name, :last_name, :birth_date, :gender, :ssn, :search_type, :edipi
+      attr_reader :first_name, :middle_name, :last_name, :birth_date, :gender, :ssn, :search_type, :orch_search, :edipi
 
       # rubocop:disable Metrics/ParameterLists
       def initialize(first_name:,
@@ -16,6 +16,7 @@ module MPI
                      ssn:,
                      middle_name: nil,
                      gender: nil,
+                     orch_search: false,
                      edipi: nil,
                      search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
         @first_name = first_name
@@ -24,6 +25,7 @@ module MPI
         @birth_date = birth_date
         @gender = gender
         @ssn = ssn
+        @orch_search = orch_search
         @edipi = edipi
         @search_type = search_type
       end
@@ -55,6 +57,7 @@ module MPI
         missing_values << :last_name if last_name.blank?
         missing_values << :birth_date if birth_date.blank?
         missing_values << :ssn if ssn.blank?
+        missing_values << :edipi if edipi.blank? && orch_search
         raise Errors::ArgumentError, "Required values missing: #{missing_values}" if missing_values.present?
       end
 
@@ -75,6 +78,7 @@ module MPI
         element = RequestHelper.build_assigned_person_element
         element << RequestHelper.build_assigned_person_ssn(ssn:)
         element << RequestHelper.build_assigned_person_instance(given_names:, family_name: last_name)
+        element << RequestHelper.build_represented_organization(edipi:) if orch_search
         element
       end
 
