@@ -64,20 +64,21 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneySubmissionsControll
       }
     end
 
-    # context 'When submitting all fields with valid data' do
-    #   before do
-    #     post(base_path, params:)
-    #   end
+    context 'When submitting all fields with valid data' do
+      before do
+        params[:power_of_attorney_submission][:veteran][:service_number] = nil # TEMPORARY FOR FRONTEND TESTING
+        post(base_path, params:)
+      end
 
-    #   it 'responds with a ok status' do
-    #     expect(response).to have_http_status(:ok)
-    #   end
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
+      end
 
-    #   it 'responds with a PDF' do
-    #     expect(response.content_type).to eq('application/pdf')
-    #   end
-    # end
-    #
+      it 'responds with the expected message' do
+        expect(response.body).to eq({ message: 'Email enqueued' }.to_json)
+      end
+    end
+
     context 'when submitting with a veteran service number - TEMPORARY FOR FRONTEND TESTING' do
       before do
         post(base_path, params: params)
