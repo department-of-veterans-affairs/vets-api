@@ -54,6 +54,16 @@ module Eps
 
     private
 
+    def merge_provider_data_with_appointments(appointments)
+      provider_ids = appointments.map(&:providerServiceId)
+      providers = get_provider_services(provider_ids)
+
+      appointments.each do |appointment|
+        provider = providers.find { |provider| provider.id == appointment.providerServiceId }
+        appointment.provider = provider
+      end
+    end
+
     def build_submit_payload(params)
       payload = {
         networkId: params[:network_id],
