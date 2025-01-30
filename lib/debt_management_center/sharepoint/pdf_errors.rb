@@ -6,6 +6,10 @@ module DebtManagementCenter
       def on_complete(env)
         return if env.success?
 
+        # upload: /sites/vhafinance/MDW/_api/Web/GetFolderByServerRelativeUrl('""
+        # get list: "/sites/vhafinance/MDW/_api/Web/GetFileByServerRelativePath(decodedurl='"
+        # update list: /sites/vhafinance/MDW/_api/Web/Lists
+        Rails.logger.error("Sharepoint failed path: #{env.url.path[/.*\/Web\/[^\/]+/]}", env.body)
         response_values = { status: env.status, detail: response_detail(env), source: 'SharepointRequest' }
         case env.status
         when 400..499

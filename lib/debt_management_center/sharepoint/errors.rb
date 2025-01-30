@@ -5,7 +5,7 @@ module DebtManagementCenter
     class Errors < Faraday::Middleware
       def on_complete(env)
         return if env.success?
-
+        # update the codes and get this like pdf
         case env.status
         when 400..499
           raise Common::Exceptions::BackendServiceException.new('SHAREPOINT_GET_LIST_ITEM_400', source: self.class)
