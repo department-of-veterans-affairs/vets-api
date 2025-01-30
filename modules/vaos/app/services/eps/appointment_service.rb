@@ -12,7 +12,6 @@ module Eps
     def get_appointments
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
                          {}, headers)
-
       OpenStruct.new(response.body)
     end
 
@@ -24,7 +23,6 @@ module Eps
     def create_draft_appointment(referral_id:)
       response = perform(:post, "/#{config.base_path}/appointments",
                          { patientId: patient_id, referralId: referral_id }, headers)
-
       OpenStruct.new(response.body)
     end
 
@@ -53,7 +51,6 @@ module Eps
       payload = build_submit_payload(params)
 
       response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, headers)
-
       OpenStruct.new(response.body)
     end
 
