@@ -12,13 +12,16 @@ module ContentionClassification
     def classify_vagov_contentions_expanded(params)
       with_monitoring do
         perform(:post, Settings.contention_classification_api.expanded_contention_classification_path,
-                params.to_json.to_s, headers_hash)
+                params.to_json.to_s, request_headers)
       end
+    rescue Faraday::Error => e
+      Rails.logger.error("ContentionClassification::Client Faraday error: #{e.message}")
+      raise e
     end
 
     private
 
-    def headers_hash
+    def request_headers
       {
         'Content-Type': 'application/json'
       }

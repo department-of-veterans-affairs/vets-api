@@ -109,5 +109,23 @@ RSpec.describe ContentionClassification::Client do
         expect(subject).to eq empty_response
       end
     end
+
+    [
+      Faraday::ConnectionFailed.new('connection failed'),
+      Faraday::TimeoutError.new('test timeout'),
+      Faraday::ServerError.new('test server error')
+    ].each do |error|
+      context "when request raises #{error.class}" do
+        before do
+          allow(client).to receive(:perform).and_raise(error)
+        end
+
+        it 'logs and re-raises the exception' do
+          expect(Rails.logger).to receive(:error)
+            .with(/ContentionClassification::Client Faraday error: #{error.message}/)
+          expect { subject }.to raise_error(error.class)
+        end
+      end
+    end
   end
 end
