@@ -102,6 +102,42 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
   describe '#show' do
     context 'when successful' do
+      context 'when cst_override_reserve_records_website flipper is true' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(true)
+        end
+
+        it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2,
+                                 'displayName')).to eq('RV1 - Reserve Records Request')
+          # In the cassette, this value is NEEDED_FROM_YOU
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
+        end
+      end
+
+      context 'when cst_override_reserve_records_website flipper is false' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(false)
+        end
+
+        it 'leaves the tracked item status as NEEDED_FROM_YOU' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2,
+                                 'displayName')).to eq('RV1 - Reserve Records Request')
+          # Do not modify the cassette value
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_YOU')
+        end
+      end
+
       it 'returns a status of 200' do
         VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
           get(:show, params: { id: '600383363' })

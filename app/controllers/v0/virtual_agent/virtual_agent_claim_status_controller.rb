@@ -56,7 +56,21 @@ module V0
       end
 
       def get_claim_from_lighthouse(id)
-        lighthouse_service.get_claim(id)
+        claim = lighthouse_service.get_claim(id)
+        # Manual status override for certain tracked items
+        # See https://github.com/department-of-veterans-affairs/va.gov-team/issues/101447
+        # This should be removed when the items are re-categorized by BGS
+        # We are not doing this in the Lighthouse service because we want web and mobile to have
+        # separate rollouts and testing.
+        if Flipper.enabled?(:cst_override_reserve_records_website)
+          tracked_items = claim.dig('data', 'attributes', 'trackedItems')
+          return claim unless tracked_items
+
+          tracked_items.select { |i| i['displayName'] == 'RV1 - Reserve Records Request' }.each do |i|
+            i['status'] = 'NEEDED_FROM_OTHERS'
+          end
+        end
+        claim
       end
 
       def lighthouse_service

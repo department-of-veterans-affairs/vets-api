@@ -39,7 +39,6 @@ module BenefitsClaims
       suppress_evidence_requests(claim['data']) if Flipper.enabled?(:cst_suppress_evidence_requests)
       # Manual status override for certain tracked items
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
-      # and https://github.com/department-of-veterans-affairs/va.gov-team/issues/101447
       # This should be removed when the items are re-categorized by BGS
       override_tracked_items(claim['data'])
       claim
@@ -281,11 +280,6 @@ module BenefitsClaims
         tracked_items.select { |i| i['displayName'] == 'PMR Pending' }.each do |i|
           i['status'] = 'NEEDED_FROM_OTHERS'
           i['displayName'] = 'Private Medical Record'
-        end
-      end
-      if Flipper.enabled?(:cst_override_reserve_records_tracked_items)
-        tracked_items.select { |i| i['displayName'] == 'RV1 - Reserve Records Request' }.each do |i|
-          i['status'] = 'NEEDED_FROM_OTHERS'
         end
       end
       tracked_items

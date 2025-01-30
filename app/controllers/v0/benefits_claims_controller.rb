@@ -21,6 +21,13 @@ module V0
     def show
       claim = service.get_claim(params[:id])
 
+      # Manual status override for certain tracked items
+      # See https://github.com/department-of-veterans-affairs/va.gov-team/issues/101447
+      # This should be removed when the items are re-categorized by BGS
+      # We are not doing this in the Lighthouse service because we want web and mobile to have
+      # separate rollouts and testing.
+      claim = rename_rv1(claim) if Flipper.enabled?(:cst_override_reserve_records_website)
+
       # Document uploads to EVSS require a birls_id; This restriction should
       # be removed when we move to Lighthouse Benefits Documents for document uploads
       claim['data']['attributes']['canUpload'] = !@current_user.birls_id.nil?
@@ -111,6 +118,14 @@ module V0
                               tracked_item_type: ti['displayName'],
                               tracked_item_status: ti['status'] })
       end
+    end
+
+    def rename_rv1(claim)
+      tracked_items = claim.dig('data', 'attributes', 'trackedItems')
+      tracked_items&.select { |i| i['displayName'] == 'RV1 - Reserve Records Request' }&.each do |i|
+        i['status'] = 'NEEDED_FROM_OTHERS'
+      end
+      claim
     end
   end
 end

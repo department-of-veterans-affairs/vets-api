@@ -90,38 +90,6 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
 
-        context 'when the RV1 override flipper is enabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_tracked_items).and_return(true)
-          end
-
-          it 'has overridden "RV1 - Reserve Records Request" to the NEEDED_FROM_OTHERS status' do
-            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-              response = @service.get_claim('600383363')
-              # In the cassette, the status is NEEDED_FROM_YOU
-              expect(response.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
-              expect(response.dig('data', 'attributes', 'trackedItems', 2,
-                                  'displayName')).to eq('RV1 - Reserve Records Request')
-            end
-          end
-        end
-
-        context 'when the RV1 override flipper is disabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_tracked_items).and_return(false)
-          end
-
-          it 'has overridden "RV1 - Reserve Records Request" to the NEEDED_FROM_OTHERS status' do
-            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-              response = @service.get_claim('600383363')
-              # In the cassette, the status is NEEDED_FROM_YOU
-              expect(response.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_YOU')
-              expect(response.dig('data', 'attributes', 'trackedItems', 2,
-                                  'displayName')).to eq('RV1 - Reserve Records Request')
-            end
-          end
-        end
-
         context 'when :cst_suppress_evidence_requests is disabled' do
           before do
             allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests).and_return(false)
