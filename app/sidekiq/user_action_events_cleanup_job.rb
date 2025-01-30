@@ -9,9 +9,7 @@ class UserActionEventsCleanupJob
 
   def perform
     events = UserActionEvent.where('created_at < ?', EXPIRATION_TIME.ago)
-    events.find_each do |event|
-      UserAction.where(user_action_event_id: event.id).delete_all
-      event.delete
-    end
+    UserAction.where(user_action_event_id: events).delete_all
+    events.delete_all
   end
 end
