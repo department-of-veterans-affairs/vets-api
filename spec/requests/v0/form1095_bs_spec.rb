@@ -99,7 +99,8 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       last_tax_year_form = create(:form1095_b, tax_year: last_year)
       get '/v0/form1095_bs/available_forms'
       expect(response.body).to eq(
-        { available_forms: [{ year: last_tax_year_form.tax_year, last_updated: last_tax_year_form.updated_at }] }.to_json
+        { available_forms: [{ year: last_tax_year_form.tax_year,
+                              last_updated: last_tax_year_form.updated_at }] }.to_json
       )
     end
   end

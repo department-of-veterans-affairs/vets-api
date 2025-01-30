@@ -10,7 +10,7 @@ class Form1095B < ApplicationRecord
   validate :proper_form_data_schema
 
   # scopes
-  scope :available_forms, lambda { |icn| where(veteran_icn: icn).order(tax_year: :desc) }
+  scope :available_forms, ->(icn) { where(veteran_icn: icn).order(tax_year: :desc) }
 
   # methods
   def txt_file
@@ -64,7 +64,7 @@ class Form1095B < ApplicationRecord
   end
 
   def ssn_or_birthdate
-     data[:last_4_ssn].present? ? '' : data[:birth_date]
+    data[:last_4_ssn].present? ? '' : data[:birth_date]
   end
 
   def txt_form_data
@@ -100,14 +100,14 @@ class Form1095B < ApplicationRecord
         'topmostSubform[0].Page1[0].Part1Contents[0].f1_07[0]': data[:city],
         'topmostSubform[0].Page1[0].Part1Contents[0].f1_08[0]': data[:state] || data[:province],
         'topmostSubform[0].Page1[0].Part1Contents[0].f1_09[0]': country_and_zip,
-        "topmostSubform[0].Page1[0].Part1Contents[0].f1_10[0]": 'C',
-        "topmostSubform[0].Page1[0].f1_18[0]": 'US Department of Veterans Affairs',
-        "topmostSubform[0].Page1[0].f1_19[0]": '74-1612229',
-        "topmostSubform[0].Page1[0].f1_20[0]": '877-222-8387',
-        "topmostSubform[0].Page1[0].f1_21[0]": 'P.O. BOX 149975',
-        "topmostSubform[0].Page1[0].f1_22[0]": 'Austin',
-        "topmostSubform[0].Page1[0].f1_23[0]": 'TX',
-        "topmostSubform[0].Page1[0].f1_24[0]": '78714-8957',
+        'topmostSubform[0].Page1[0].Part1Contents[0].f1_10[0]': 'C',
+        'topmostSubform[0].Page1[0].f1_18[0]': 'US Department of Veterans Affairs',
+        'topmostSubform[0].Page1[0].f1_19[0]': '74-1612229',
+        'topmostSubform[0].Page1[0].f1_20[0]': '877-222-8387',
+        'topmostSubform[0].Page1[0].f1_21[0]': 'P.O. BOX 149975',
+        'topmostSubform[0].Page1[0].f1_22[0]': 'Austin',
+        'topmostSubform[0].Page1[0].f1_23[0]': 'TX',
+        'topmostSubform[0].Page1[0].f1_24[0]': '78714-8957',
         'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_25[0]': data[:first_name],
         'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_26[0]': middle_initial,
         'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_27[0]': data[:last_name],
