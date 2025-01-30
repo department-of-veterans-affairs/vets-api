@@ -5,7 +5,8 @@ module DebtManagementCenter
     class PdfErrors < Faraday::Middleware
       def on_complete(env)
         return if env.success?
-        response_values = {status: env.status, detail: response_detail(env), source: 'SharepointRequest' }
+
+        response_values = { status: env.status, detail: response_detail(env), source: 'SharepointRequest' }
         case env.status
         when 400..499
           raise Common::Exceptions::BackendServiceException.new(

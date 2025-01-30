@@ -129,9 +129,8 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
 
       it 'does not log errors' do
         VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
-          expect {
-            subject.upload(form_contents: form_content, form_submission:, station_id:)
-          }.to raise_error(Common::Exceptions::BackendServiceException) do |e|
+          expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
+            .to raise_error(Common::Exceptions::BackendServiceException) do |e|
             error_details = e.errors.first
             expect(error_details.status).to eq('400')
             expect(error_details.detail).to eq('Operation failed')
