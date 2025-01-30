@@ -65,7 +65,6 @@ module Swagger
         operation :post do
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::BadRequestError
-          extend Swagger::Responses::InternalServerError
 
           key :description, 'Submit a travel reimbursment claim'
           key :operationId, 'postTravelPayClaim'
