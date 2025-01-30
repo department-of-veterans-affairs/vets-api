@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 require 'faraday/multipart'
+require 'debt_management_center/sharepoint/pdf_errors'
+require 'debt_management_center/sharepoint/errors'
+
+Faraday::Response.register_middleware sharepoint_pdf_errors: DebtManagementCenter::Sharepoint::PdfErrors
+Faraday::Response.register_middleware sharepoint_errors: DebtManagementCenter::Sharepoint::Errors
 
 module DebtManagementCenter
   module Sharepoint
@@ -109,12 +114,6 @@ module DebtManagementCenter
           File.delete(pdf_path)
 
           response
-        rescue => e
-          if Flipper.enabled?(:debts_sharepoint_error_logging)
-            report_sharepoint_error(e, 'PDF')
-          else
-            raise e
-          end
         end
       end
 
@@ -136,12 +135,6 @@ module DebtManagementCenter
           raise ListItemNotFound if list_item_id.nil?
 
           list_item_id
-        rescue => e
-          if Flipper.enabled?(:debts_sharepoint_error_logging)
-            report_sharepoint_error(e, 'GET_LIST_ITEM')
-          else
-            raise e
-          end
         end
       end
 
@@ -172,12 +165,6 @@ module DebtManagementCenter
             }.to_json
           end
         end
-      rescue => e
-        if Flipper.enabled?(:debts_sharepoint_error_logging)
-          report_sharepoint_error(e, 'UPDATE_LIST_ITEM')
-        else
-          raise e
-        end
       end
 
       def report_sharepoint_error(e, action)
@@ -197,12 +184,12 @@ module DebtManagementCenter
           detail_message = "Unexpected status code: #{status}. Error: #{detail_message}"
           Rails.logger.error("Unexpected SharePoint error: #{status} - #{detail_message}")
         end
-
+        # binding.pry
         raise Common::Exceptions::BackendServiceException.new(
-          error_code,
-          { detail: detail_message, status: status },
-          status,
-          detail_message
+          error_code, # error code
+          { detail: detail_message, status: status }, # response values
+          status, # original status
+          detail_message # original body
         )
       end
 
@@ -223,7 +210,7 @@ module DebtManagementCenter
           conn.request :json
           conn.use :breakers
           conn.use Faraday::Response::RaiseError
-          conn.response :raise_custom_error, error_prefix: service_name
+          conn.response :sharepoint_errors, error_prefix: service_name
           conn.response :json
           conn.response :betamocks if mock_enabled?
           conn.adapter Faraday.default_adapter
@@ -236,7 +223,7 @@ module DebtManagementCenter
           conn.request :url_encoded
           conn.use :breakers
           conn.use Faraday::Response::RaiseError
-          conn.response :raise_custom_error, error_prefix: service_name
+          conn.response :sharepoint_pdf_errors, error_prefix: service_name
           conn.response :json
           conn.response :betamocks if mock_enabled?
           conn.adapter Faraday.default_adapter
