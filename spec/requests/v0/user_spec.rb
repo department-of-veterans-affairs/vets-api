@@ -198,7 +198,7 @@ RSpec.describe 'V0::User', type: :request do
     let(:edipi) { '1005127153' }
 
     before do
-      user = build(:user, :loa1)
+      user = new_user(:loa1)
       sign_in_as(user)
       create(:user_verification, idme_uuid: user.idme_uuid)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
@@ -234,7 +234,7 @@ RSpec.describe 'V0::User', type: :request do
     let(:v0_user_request_headers) { {} }
 
     before do
-      user = build(:user, :loa1)
+      user = new_user(:loa1)
       sign_in_as(user)
       create(:user_verification, idme_uuid: user.idme_uuid)
       get v0_user_url, params: nil, headers: v0_user_request_headers
@@ -380,6 +380,12 @@ RSpec.describe 'V0::User', type: :request do
         end
       end
     end
+  end
+
+  def new_user(type = :loa3)
+    user = build(:user, type, icn: SecureRandom.uuid, uuid: rand(1000..100_000))
+    create(:account, idme_uuid: user.uuid)
+    user
   end
 
   def stub_mpi_failure
