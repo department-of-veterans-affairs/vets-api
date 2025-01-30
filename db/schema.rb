@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_28_030020) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -668,8 +668,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
   create_table "evidence_submissions", force: :cascade do |t|
     t.string "job_id"
     t.string "job_class"
-    t.string "request_id"
-    t.string "claim_id"
+    t.integer "request_id"
+    t.integer "claim_id"
     t.uuid "user_account_id", null: false
     t.json "template_metadata_ciphertext"
     t.text "encrypted_kms_key"
@@ -681,7 +681,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
     t.datetime "acknowledgement_date"
     t.datetime "failed_date"
     t.string "error_message"
-    t.string "tracked_item_id"
+    t.integer "tracked_item_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_account_id"], name: "index_evidence_submissions_on_user_account_id"
