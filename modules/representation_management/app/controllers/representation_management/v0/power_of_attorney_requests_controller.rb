@@ -2,7 +2,7 @@
 
 module RepresentationManagement
   module V0
-    class PowerOfAttorneySubmissionsController < RepresentationManagement::V0::PowerOfAttorneyRequestBaseController
+    class PowerOfAttorneyRequestsController < RepresentationManagement::V0::PowerOfAttorneyRequestBaseController
       service_tag 'representation-management'
       before_action :feature_enabled
       skip_before_action :authenticate # REMOVE BEFORE REVIEW
@@ -46,7 +46,7 @@ module RepresentationManagement
       end
 
       def form_params
-        params.require(:power_of_attorney_submission).permit(params_permitted)
+        params.require(:power_of_attorney_request).permit(params_permitted)
       end
 
       def flatten_form_params

@@ -2,14 +2,14 @@
 
 require 'rails_helper'
 
-RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneySubmissionsController', type: :request do
+RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequestsController', type: :request do
   describe 'POST #create' do
-    let(:base_path) { '/representation_management/v0/power_of_attorney_submissions' }
+    let(:base_path) { '/representation_management/v0/power_of_attorney_requests' }
     let(:organization) { create(:organization) } # This is the legacy organization
     let(:representative) { create(:representative) } # This is the legacy representative
     let(:params) do
       {
-        power_of_attorney_submission: {
+        power_of_attorney_request: {
           record_consent: '',
           consent_address_change: '',
           consent_limits: [],
@@ -66,7 +66,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneySubmissionsControll
 
     context 'When submitting all fields with valid data' do
       before do
-        params[:power_of_attorney_submission][:veteran][:service_number] = nil # TEMPORARY FOR FRONTEND TESTING
+        params[:power_of_attorney_request][:veteran][:service_number] = nil # TEMPORARY FOR FRONTEND TESTING
         post(base_path, params:)
       end
 
