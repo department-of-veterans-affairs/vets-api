@@ -44,18 +44,19 @@ module RepresentationManagement
         routing_error unless Flipper.enabled?(:appoint_a_representative_enable_v2_features)
       end
 
-      # Strong parameters method for sanitizing input data for the next steps email.
-      #
-      # @return [ActionController::Parameters] Filtered parameters permitted for the next steps email.
-      def next_steps_email_params
-        params.require(:next_steps_email).permit(
-          :email_address,
-          :first_name,
-          :form_name,
-          :form_number,
-          :entity_type,
-          :entity_id
-        )
+      def form_params
+        params.require(:power_of_attorney_submission).permit(params_permitted)
+      end
+
+      def flatten_form_params
+        {
+          representative_id: form_params[:representative][:id],
+          organization_id: form_params[:representative][:organization_id],
+          record_consent: form_params[:record_consent],
+          consent_limits: form_params[:consent_limits],
+          consent_address_change: form_params[:consent_address_change]
+        }.merge(flatten_veteran_params(form_params))
+          .merge(flatten_claimant_params(form_params))
       end
     end
   end
