@@ -8,15 +8,19 @@ module ClaimsApi
       'VDC/ManageRepresentativeService'
     end
 
-    def read_poa_request(poa_codes: [], page_size: nil, page_index: nil, filter: {}, use_mocks: false) # rubocop:disable Metrics/MethodLength
+    def read_poa_request(options = {}, use_mocks: false) # rubocop:disable Metrics/MethodLength
       # Workaround to allow multiple roots in the Nokogiri XML builder
       # https://stackoverflow.com/a/4907450
       doc = Nokogiri::XML::DocumentFragment.parse ''
 
-      status_list = filter['status'].presence || ALL_STATUSES
-      state = filter['state']
-      city = filter['city']
-      country = filter['country']
+      poa_codes = options[:poa_codes]
+      page_size = options[:page_size]
+      page_index = options[:page_index]
+      sensitivity_level = options[:sensitivity_level]
+      status_list = options.dig(:filter, :status).presence || ALL_STATUSES
+      state = options.dig(:filter, :state)
+      city = options.dig(:filter, :city)
+      country = options.dig(:filter, :country)
 
       Nokogiri::XML::Builder.with(doc) do |xml|
         xml.send('data:POACodeList') do
@@ -50,6 +54,7 @@ module ClaimsApi
             xml.pageIndex page_index if page_index
           end
         end
+        xml.send('data:POARepSensitivityLevel', sensitivity_level) if sensitivity_level
       end
 
       body = builder_to_xml(doc)

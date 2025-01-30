@@ -3,10 +3,11 @@
 module ClaimsApi
   module PowerOfAttorneyRequestService
     class Index
-      def initialize(poa_codes:, page_size:, page_index:, filter: {})
+      def initialize(poa_codes:, page_size:, page_index:, sensitivity_level:, filter: {})
         @poa_codes = poa_codes
         @page_size = page_size
         @page_index = page_index
+        @sensitivity_level = sensitivity_level
         @filter = filter
       end
 
@@ -29,9 +30,15 @@ module ClaimsApi
       private
 
       def poa_list
-        @poa_list ||= manage_representative_service.read_poa_request(poa_codes: @poa_codes, page_size: @page_size,
-                                                                     page_index: @page_index, filter: @filter,
-                                                                     use_mocks: true)
+        options = {
+          poa_codes: @poa_codes,
+          page_size: @page_size,
+          page_index: @page_index,
+          sensitivity_level: @sensitivity_level,
+          filter: @filter
+        }
+
+        @poa_list ||= manage_representative_service.read_poa_request(options, use_mocks: true)
 
         @poa_list['poaRequestRespondReturnVOList']
       end

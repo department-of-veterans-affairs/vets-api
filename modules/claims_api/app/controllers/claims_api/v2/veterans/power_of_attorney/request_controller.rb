@@ -11,10 +11,11 @@ module ClaimsApi
       class PowerOfAttorney::RequestController < ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController
         FORM_NUMBER = 'POA_REQUEST'
 
-        def index
+        def index # rubocop:disable Metrics/MethodLength
           poa_codes = form_attributes['poaCodes']
           page_size = form_attributes['pageSize']
           page_index = form_attributes['pageIndex']
+          sensitivity_level = form_attributes['sensitivityLevel']
           filter = form_attributes['filter'] || {}
 
           unless poa_codes.is_a?(Array) && poa_codes.size.positive?
@@ -29,7 +30,8 @@ module ClaimsApi
 
           validate_filter!(filter)
 
-          service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(poa_codes:, page_size:, page_index:, filter:)
+          service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(poa_codes:, page_size:, page_index:,
+                                                                        sensitivity_level:, filter:)
 
           poa_list = service.get_poa_list
 
