@@ -219,7 +219,7 @@ module PdfFill
                   'first' => {
                     key: 'form1[0].#subform[0].StudentTotalValues_FirstOne[0]',
                     limit: 1,
-                    question_num: 14
+                    question_num: 14,
                     question_suffix: 'E',
                     question_text: 'VALUE OF ESTATE > TOTAL VALUE'
                   },
