@@ -35,17 +35,13 @@ module AccreditedRepresentativePortal
         .serializable_hash
     end
 
-    attribute :power_of_attorney_holder do |poa_request|
-      serializer =
-        case poa_request.power_of_attorney_holder
-        when AccreditedOrganization
-          OrganizationPowerOfAttorneyHolderSerializer
-        end
-
-      serializer
-        .new(poa_request.power_of_attorney_holder)
-        .serializable_hash
-        .tap { |hash| hash.delete(:id) }
-    end
+    # attribute :power_of_attorney_holder do |poa_request|
+      # serializer = OrganizationPowerOfAttorneyHolderSerializer
+      # TODO: put this back calling the separate attributes after they are installed in the DB
+      # serializer
+      #   .new(poa_request.power_of_attorney_holder)
+      #   .serializable_hash
+      #   .tap { |hash| hash.delete(:id) }
+    # end
   end
 end
