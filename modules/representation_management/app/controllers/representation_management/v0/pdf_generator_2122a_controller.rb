@@ -2,7 +2,7 @@
 
 module RepresentationManagement
   module V0
-    class PdfGenerator2122aController < RepresentationManagement::V0::PdfGeneratorBaseController
+    class PdfGenerator2122aController < RepresentationManagement::V0::PowerOfAttorneyRequestBaseController
       def create
         form = RepresentationManagement::Form2122aData.new(flatten_form_params)
 
