@@ -382,7 +382,7 @@ module VAOS
       def fetch_drive_times(provider)
         user_address = current_user.vet360_contact_info&.residential_address
 
-        return '' unless user_address&.latitude && user_address.longitude
+        return nil unless user_address&.latitude && user_address.longitude
 
         eps_provider_service.get_drive_times(
           destinations: {
