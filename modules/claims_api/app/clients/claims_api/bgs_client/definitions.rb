@@ -79,7 +79,7 @@ module ClaimsApi
           Bean.new(
             path: 'BenefitClaimWebServiceBean',
             namespaces: Namespaces.new(
-              target: 'http://services.share.benefits.vba.va.gov/',
+              target: 'http://benefitclaim.services.vetsnet.vba.va.gov/',
               data: nil
             )
           )
