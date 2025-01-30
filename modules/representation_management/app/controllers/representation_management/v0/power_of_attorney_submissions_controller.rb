@@ -2,7 +2,7 @@
 
 module RepresentationManagement
   module V0
-    class PowerOrAttorneySubmissionsController < RepresentationManagement::V0::PowerOfAttorneyRequestBaseController
+    class PowerOfAttorneySubmissionsController < RepresentationManagement::V0::PowerOfAttorneyRequestBaseController
       service_tag 'representation-management'
       before_action :feature_enabled
 
