@@ -97,6 +97,10 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
     end
 
     context 'with debts_sharepoint_error_logging feature enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:debts_sharepoint_error_logging).and_return(true)
+      end
+
       it 'uploads a pdf file to SharePoint' do
         VCR.use_cassette('vha/sharepoint/upload_pdf') do
           response = subject.upload(form_contents: form_content, form_submission:, station_id:)
@@ -107,20 +111,33 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
       it 'raises an error if the upload fails' do
         VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
           expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
-            .to raise_error(Common::Exceptions::BackendServiceException)
+            .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+            error_details = e.errors.first
+            expect(error_details.status).to eq('400')
+            expect(error_details.detail).to eq('The PDF could not be generated')
+            expect(error_details.code).to eq('SHAREPOINT_PDF_400')
+            expect(error_details.source).to eq('SharepointRequest')
+          end
         end
       end
     end
 
     context 'with debts_sharepoint_error_logging feature disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:debts_sharepoint_error_logging)
+        allow(Flipper).to receive(:enabled?).with(:debts_sharepoint_error_logging).and_return(false)
       end
 
       it 'does not log errors' do
         VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
-          expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
-            .to raise_error(Common::Exceptions::BackendServiceException)
+          expect {
+            subject.upload(form_contents: form_content, form_submission:, station_id:)
+          }.to raise_error(Common::Exceptions::BackendServiceException) do |e|
+            error_details = e.errors.first
+            expect(error_details.status).to eq('400')
+            expect(error_details.detail).to eq('Operation failed')
+            expect(error_details.code).to eq('VA900')
+            expect(error_details.source).to be_nil
+          end
         end
       end
     end
