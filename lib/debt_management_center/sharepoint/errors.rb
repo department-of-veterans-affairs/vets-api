@@ -5,14 +5,22 @@ module DebtManagementCenter
     class Errors < Faraday::Middleware
       def on_complete(env)
         return if env.success?
-        # update the codes and get this like pdf
+
+        Rails.logger.error("Sharepoint failed path: #{env.url.path[%r{.*/Web/[^/]+}]}", env.body)
+        response_values = { status: env.status, detail: env.reason_phrase, source: 'SharepointRequest' }
         case env.status
         when 400..499
-          raise Common::Exceptions::BackendServiceException.new('SHAREPOINT_GET_LIST_ITEM_400', source: self.class)
+          raise Common::Exceptions::BackendServiceException.new(
+            'SHAREPOINT_400', response_values.merge(code: 'SHAREPOINT_400'), env.status, env.body
+          )
         when 500..510
-          raise Common::Exceptions::BackendServiceException.new('SHAREPOINT_GET_LIST_ITEM_502', source: self.class)
+          raise Common::Exceptions::BackendServiceException.new(
+            'SHAREPOINT_502', response_values.merge(code: 'SHAREPOINT_502'), env.status, env.body
+          )
         else
-          raise Common::Exceptions::BackendServiceException.new('SHAREPOINT_GET_LIST_ITEM_UNKNOWN', source: self.class)
+          raise Common::Exceptions::BackendServiceException.new(
+            'SHAREPOINT_UNKNOWN', response_values.merge(code: 'SHAREPOINT_UNKNOWN'), env.status, env.body
+          )
         end
       end
     end
