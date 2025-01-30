@@ -4,7 +4,6 @@ module RepresentationManagement
   module V0
     class PowerOfAttorneyRequestBaseController < ApplicationController
       service_tag 'representation-management'
-      skip_before_action :authenticate
       before_action :feature_enabled
 
       private

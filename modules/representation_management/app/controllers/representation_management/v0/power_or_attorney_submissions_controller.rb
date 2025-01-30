@@ -4,7 +4,6 @@ module RepresentationManagement
   module V0
     class PowerOrAttorneySubmissionsController < RepresentationManagement::V0::PowerOfAttorneyRequestBaseController
       service_tag 'representation-management'
-      skip_before_action :authenticate
       before_action :feature_enabled
 
       # Creates and enqueues an email with the provided "next steps" information. This action
@@ -42,7 +41,7 @@ module RepresentationManagement
       private
 
       def feature_enabled
-        routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
+        routing_error unless Flipper.enabled?(:appoint_a_representative_enable_v2_features)
       end
 
       # Strong parameters method for sanitizing input data for the next steps email.
