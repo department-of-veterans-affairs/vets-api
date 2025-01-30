@@ -12,7 +12,9 @@ module Burials
       class Va21p530ez < ::PdfFill::Forms::FormBase
         include ::PdfFill::Forms::FormHelper
 
+        FORM_ID = '21P-530EZ'
         ITERATOR = ::PdfFill::HashConverter::ITERATOR
+        TEMPLATE = "#{Burials::MODULE_PATH}/lib/pdf_fill/forms/pdfs/#{FORM_ID}.pdf".freeze
 
         PLACE_OF_DEATH_KEY = {
           'vaMedicalCenter' => 'VA MEDICAL CENTER',
@@ -611,7 +613,6 @@ module Burials
 
         def expand_cemetery_location
           cemetery_location = @form_data['cemeteryLocation']
-          puts cemetery_location.inspect
           return if cemetery_location.blank?
 
           @form_data['stateCemeteryOrTribalTrustName'] = cemetery_location['name'] if cemetery_location['name'].present?

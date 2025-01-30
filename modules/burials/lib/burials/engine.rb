@@ -22,7 +22,8 @@ module Burials
         require_relative '../pdf_fill/forms/va21p530ez'
 
         # Register our Burial Pdf Fill form
-        ::PdfFill::Filler.register_form('21P-530EZ', Burials::PdfFill::Forms::Va21p530ez)
+        ::PdfFill::Filler.register_form(Burials::PdfFill::Forms::Va21p530ez::FORM_ID,
+                                        Burials::PdfFill::Forms::Va21p530ez)
       end
     end
 
