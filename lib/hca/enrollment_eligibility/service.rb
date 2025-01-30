@@ -45,12 +45,12 @@ module HCA
 
         debugger
 
-        income = parse_income(response)
+        financial_info = parse_financial_info(response)
         providers = parse_insurance_providers(response)
         dependents = parse_dependents(response)
         spouse = parse_spouse(response)
 
-        income.merge!(
+        financial_info.merge!(
           convert_insurance_hash(response, providers)
         ).merge!(
           dependents.present? ? { dependents: } : {}
@@ -138,39 +138,66 @@ module HCA
         marital_status
       end
 
+      def find_financial_node(parent_node, node_value)
+        parent_node.nodes.select { |node| node.value == node_value }.first&.nodes&.first
+      end
+
       def get_income(response, xpath)
-        debugger
         income = {}
 
         response.locate(xpath)&.each do |i|
-          income_type = i.nodes.select { |node| node.value == 'type' }.first&.nodes&.first
-          income_amount = i.nodes.select { |node| node.value == 'amount' }.first&.nodes&.first
+          type = find_financial_node(i, 'type')
+          amount = find_financial_node(i, 'amount')
 
-          case income_type
+          case type
           when 'Total Employment Income'
-            income[:grossIncome] = income_amount
+            income[:grossIncome] = amount
           when 'Net Income from Farm, Ranch, Property, Business'
-            income[:netIncome] = income_amount
+            income[:netIncome] = amount
           when 'All Other Income'
-            income[:otherIncome] = income_amount
+            income[:otherIncome] = amount
           end
-        end
 
         income
       end
 
-      def parse_income(response)
-        income_xpath = "#{XPATH_PREFIX}financialsInfo/financialStatement/"
+      def get_expenses(response, xpath)
+        expenses = {}
+
+        response.locate(xpath)&.each do |i|
+          type = find_financial_node(i, 'expenseType')
+          amount = find_financial_node(i, 'amount')
+
+          case type
+          when 'Funeral and Burial Expenses'
+            expenses[:deductibleFuneralExpenses] = amount
+          when 'Total Non-Reimbursed Medical Expenses'
+            expenses[:deductibleMedicalExpenses] = amount
+          when "Veteran's Educational Expenses"
+            expenses[:deductibleEducationExpenses] = amount
+          end
+        end
+
+        expenses
+      end
+
+      def parse_financial_info(response)
+        financial_info_xpath = "#{XPATH_PREFIX}financialsInfo/financialStatement/"
 
         Common::HashHelpers.deep_compact(
           {
-            veteranIncome: get_income(
+            veteranFinancialInfo: get_income(
               response,
-              "#{income_xpath}incomes/income"
+              "#{financial_info_xpath}incomes/income"
+            ).merge!(
+              get_expenses(
+                response,
+                "#{financial_info_xpath}expenses/expense"
+              )
             ),
-            spouseIncome: get_income(
+            spouseFinancialInfo: get_income(
               response,
-              "#{income_xpath}spouseFinancialsList/spouseFinancials/incomes/income"
+              "#{financial_info_xpath}spouseFinancialsList/spouseFinancials/incomes/income"
             )
           }
         )
