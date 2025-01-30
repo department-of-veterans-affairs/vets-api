@@ -21,6 +21,10 @@ module SimpleFormsApi
       }
     end
 
+    def notification_first_name
+      data.dig('veteran', 'full_name', 'first')
+    end
+
     def zip_code_is_us_based
       @data.dig('veteran', 'address', 'country') == 'USA'
     end

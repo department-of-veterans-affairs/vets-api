@@ -259,6 +259,10 @@ lighthouse:
   benefits_intake:
       api_key: fake_api_key
 
+vaos:
+  eps:
+    key_path: modules/health_quest/config/rsa/sandbox_rsa
+
 rrd:
   alerts:
     recipients:
