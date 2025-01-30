@@ -12,8 +12,7 @@ module DisabilityMaxRatings
     def get_max_rating_for_diagnostic_codes(diagnostic_codes_array)
       with_monitoring do
         params = { diagnostic_codes: diagnostic_codes_array }
-        perform(:post, "#{Settings.disability_max_ratings_api.url}#{Settings.disability_max_ratings_api.ratings_path}",
-                params.to_json, headers_hash)
+        perform(:post, Settings.disability_max_ratings_api.ratings_path, params.to_json, headers_hash)
       end
     end
 
