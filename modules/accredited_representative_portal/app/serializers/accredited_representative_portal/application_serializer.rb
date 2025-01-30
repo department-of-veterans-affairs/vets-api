@@ -19,7 +19,9 @@ module AccreditedRepresentativePortal
     private
 
     def unwrap_serializable_hash(data)
-      data[:attributes].merge!(id: data[:id]) unless data[:id].nil?
+      data[:attributes].tap do |attributes|
+        attributes[:id] = data[:id] unless data[:id].nil?
+      end
     end
   end
 end
