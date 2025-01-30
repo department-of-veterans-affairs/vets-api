@@ -81,7 +81,7 @@ module Swagger
             key :type, :string
           end
 
-          response 200 do
+          response 201 do
             key :description, 'Successfully submitted claim for a user'
             schema do
               key :$ref, :TravelPayClaimSummary

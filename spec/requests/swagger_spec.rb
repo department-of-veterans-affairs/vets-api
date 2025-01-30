@@ -3800,18 +3800,18 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
       end
 
-      it 'returns 200 for successful response' do
+      it 'returns 201 for successful response' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
         params = {
           '_data' => {
-            'appt_datetime' => '2024-01-01T16:45:34.465Z'
+            'appointmentDatetime' => '2024-01-01T16:45:34.465Z'
           }
         }
         VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[path method]) do
           expect(subject).to validate(
             :post,
             '/travel_pay/v0/claims',
-            200,
+            201,
             headers.merge(params)
           )
         end
