@@ -13,7 +13,7 @@ module EVSS
       VA_NOTIFY_CALLBACK_OPTIONS = {
         callback_metadata: {
           notification_type: 'error',
-          form_number: 'form526',
+          form_number: Form526Submission::FORM_526,
           statsd_tags: { service: Form526Submission::ZSF_DD_TAG_SERVICE, function: ZSF_DD_TAG_FUNCTION }
         }
       }.freeze
@@ -92,7 +92,7 @@ module EVSS
           first_name = form526_submission.get_first_name
           date_submitted = form526_submission.format_creation_time_for_mailers
 
-          notify_response = notify_client.send_email(
+          va_notify_response = notify_client.send_email(
             email_address:,
             template_id: mailer_template_id,
             personalisation: {
@@ -100,8 +100,8 @@ module EVSS
               date_submitted:
             }
           )
-
-          log_mailer_dispatch(form526_submission_id, notify_response)
+          log_info = { form526_submission_id:, timestamp: Time.now.utc, va_notify_response: }
+          log_mailer_dispatch(log_info)
         end
       rescue => e
         retryable_error_handler(e)
@@ -120,8 +120,7 @@ module EVSS
         raise error
       end
 
-      def log_mailer_dispatch(form526_submission_id, _email_response = {})
-        log_info = { form526_submission_id:, timestamp: Time.now.utc }
+      def log_mailer_dispatch(log_info)
         Rails.logger.info('Form4142DocumentUploadFailureEmail notification dispatched', log_info)
         StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
       end

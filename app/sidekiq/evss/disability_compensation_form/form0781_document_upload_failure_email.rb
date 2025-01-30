@@ -105,18 +105,18 @@ module EVSS
         notify_client = VaNotify::Service.new(notify_service_bd.api_key, VA_NOTIFY_CALLBACK_OPTIONS)
         template_id = notify_service_bd.template_id.form0781_upload_failure_notification_template_id
 
-        notify_response = notify_client.send_email(
+        va_notify_response = notify_client.send_email(
           email_address:,
           template_id:,
           personalisation: { first_name:, date_submitted: }
         )
 
-        log_info = { form526_submission_id: submission.id, timestamp: Time.now.utc }
+        log_info = { form526_submission_id: submission.id, timestamp: Time.now.utc, va_notify_response: }
 
-        log_mailer_dispatch(submission, log_info, notify_response)
+        log_mailer_dispatch(log_info)
       end
 
-      def log_mailer_dispatch(_submission, log_info, _email_response = {})
+      def log_mailer_dispatch(log_info)
         StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
 
         Rails.logger.info('Form0781DocumentUploadFailureEmail notification dispatched', log_info)
