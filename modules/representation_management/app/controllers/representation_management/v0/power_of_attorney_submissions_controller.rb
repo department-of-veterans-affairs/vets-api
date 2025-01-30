@@ -5,6 +5,7 @@ module RepresentationManagement
     class PowerOfAttorneySubmissionsController < RepresentationManagement::V0::PowerOfAttorneyRequestBaseController
       service_tag 'representation-management'
       before_action :feature_enabled
+      skip_before_action :authenticate
 
       # Creates and enqueues an email with the provided "next steps" information. This action
       # validates the input parameters and, if valid, queues an email using the VANotify service.
@@ -14,7 +15,7 @@ module RepresentationManagement
       def create
         form = RepresentationManagement::Form2122Data.new(flatten_form_params)
 
-        if params[:veteran][:service_number].present?
+        if flatten_form_params[:veteran_service_number].present?
           render json: { errors: ['render_error_state_for_failed_submission'] }, status: :unprocessable_entity
         elsif form.valid?
           VANotify::EmailJob.perform_async(
