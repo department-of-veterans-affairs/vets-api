@@ -7,12 +7,13 @@ FactoryBot.define do
 
     # Temporarily set a default value for power_of_attorney_holder_type
     power_of_attorney_holder_type { 'AccreditedOrganization' }
-    # only set the id if the column exists
-    power_of_attorney_holder_id { SecureRandom.uuid } if AccreditedRepresentativePortal::PowerOfAttorneyRequest.column_names.include?('power_of_attorney_holder_id')
 
     before(:create) do |poa_request|
       if poa_request.respond_to?(:accredited_individual_id)
         poa_request.accredited_individual_id = AccreditedIndividual.first&.id || create(:accredited_individual).id
+      end
+      if poa_request.respond_to?(:power_of_attorney_holder_id)
+        poa_request.power_of_attorney_holder_id = SecureRandom.uuid
       end
     end
 
