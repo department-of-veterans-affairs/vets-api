@@ -51,7 +51,7 @@ class ApiProviderFactory
   FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND =
     'disability_compensation_lighthouse_rated_disabilities_provider_background'
   FEATURE_TOGGLE_INTENT_TO_FILE = 'disability_compensation_lighthouse_intent_to_file_provider'
-  FEATURE_TOGGLE_CLAIMS_SERVICE = 'disability_compensation_lighthouse_claims_service_provider'
+  # FEATURE_TOGGLE_CLAIMS_SERVICE = 'disability_compensation_lighthouse_claims_service_provider'
 
   # PPIU calls out to Direct Deposit APIs in Lighthouse
   FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT = 'disability_compensation_lighthouse_ppiu_direct_deposit_provider'
@@ -85,7 +85,7 @@ class ApiProviderFactory
     new(**).call
   end
 
-  def initialize(type:, current_user:, feature_toggle:, provider: nil, options: {})
+  def initialize(type:, current_user:, feature_toggle: nil, provider: nil, options: {})
     @type = type
     @api_provider = provider
     @options = options
