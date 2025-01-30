@@ -167,32 +167,6 @@ module DebtManagementCenter
         end
       end
 
-      def report_sharepoint_error(e, action)
-        status = e.try(:status) || 500
-        response_body = e.try(:response)&.dig(:body)
-        detail_message = response_body || e.message || "No details provided"
-
-        case status
-        when 400..499
-          error_code = "SHAREPOINT_#{action}_400"
-          Rails.logger.warn("SharePoint client error: #{status} - #{detail_message}")
-        when 500..599
-          error_code = "SHAREPOINT_#{action}_502"
-          Rails.logger.error("SharePoint server error: #{status} - #{detail_message}")
-        else
-          error_code = "SHAREPOINT_#{action}_UNKNOWN"
-          detail_message = "Unexpected status code: #{status}. Error: #{detail_message}"
-          Rails.logger.error("Unexpected SharePoint error: #{status} - #{detail_message}")
-        end
-        # binding.pry
-        raise Common::Exceptions::BackendServiceException.new(
-          error_code, # error code
-          { detail: detail_message, status: status }, # response values
-          status, # original status
-          detail_message # original body
-        )
-      end
-
       def auth_connection
         Faraday.new(url: authentication_url, headers: auth_headers) do |conn|
           conn.request :url_encoded
