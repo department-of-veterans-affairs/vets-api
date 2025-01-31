@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'va_notify/error'
 
 shared_examples 'travel claim status check worker #perform' do |facility_type|
   before do
