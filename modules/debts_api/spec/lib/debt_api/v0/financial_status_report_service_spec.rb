@@ -279,13 +279,13 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
           Timecop.freeze(Time.new(2023, 8, 29, 16, 13, 22).utc) do
             VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
-              expect do
-                service.submit_vha_fsr(form_submission)
-              end.to raise_error(Common::Exceptions::BackendServiceException) do |e|
-                expect(e.errors.first.status).to eq('400')
-                expect(e.errors.first.detail).to eq("Malformed PDF request to SharePoint")
-                expect(e.errors.first.code).to eq("SHAREPOINT_PDF_400")
-                expect(e.errors.first.source).to eq("SharepointRequest")
+              expect { service.submit_vha_fsr(form_submission) }
+                .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+                error_details = e.errors.first
+                expect(error_details.status).to eq('400')
+                expect(error_details.detail).to eq('Malformed PDF request to SharePoint')
+                expect(error_details.code).to eq('SHAREPOINT_PDF_400')
+                expect(error_details.source).to eq('SharepointRequest')
               end
             end
           end
