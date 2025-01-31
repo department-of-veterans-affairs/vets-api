@@ -108,14 +108,27 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
         end
       end
 
-      it 'raises an error if the upload fails' do
+      it 'raises a PDF error if the PDF upload fails' do
         VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
           expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |e|
             error_details = e.errors.first
             expect(error_details.status).to eq('400')
-            expect(error_details.detail).to eq('The PDF could not be generated')
+            expect(error_details.detail).to eq('Malformed PDF request to SharePoint')
             expect(error_details.code).to eq('SHAREPOINT_PDF_400')
+            expect(error_details.source).to eq('SharepointRequest')
+          end
+        end
+      end
+
+      it 'raises a request error if getting a list item fails' do
+        VCR.use_cassette('vha/sharepoint/update_list_item_fields_400', preserve_exact_body_bytes: true) do
+          expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
+            .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+            error_details = e.errors.first
+            expect(error_details.status).to eq('400')
+            expect(error_details.detail).to eq('Malformed request to SharePoint')
+            expect(error_details.code).to eq('SHAREPOINT_400')
             expect(error_details.source).to eq('SharepointRequest')
           end
         end
@@ -127,8 +140,21 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
         allow(Flipper).to receive(:enabled?).with(:debts_sharepoint_error_logging).and_return(false)
       end
 
-      it 'does not log errors' do
+      it 'does not log errors when submitting PDF' do
         VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+          expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
+            .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+            error_details = e.errors.first
+            expect(error_details.status).to eq('400')
+            expect(error_details.detail).to eq('Operation failed')
+            expect(error_details.code).to eq('VA900')
+            expect(error_details.source).to be_nil
+          end
+        end
+      end
+
+      it 'does not log errors when getting a list items' do
+        VCR.use_cassette('vha/sharepoint/update_list_item_fields_400', preserve_exact_body_bytes: true) do
           expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |e|
             error_details = e.errors.first

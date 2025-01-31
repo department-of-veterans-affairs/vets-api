@@ -964,7 +964,7 @@ en:
         <<: *external_defaults
         title: Bad Request
         code: SHAREPOINT_PDF_400
-        detail: The PDF could not be generated
+        detail: Malformed PDF request to SharePoint
         status: 400
       SHAREPOINT_PDF_502:
         <<: *external_defaults
@@ -982,7 +982,7 @@ en:
         <<: *external_defaults
         title: Bad Request
         code: SHAREPOINT_400
-        detail: The PDF could not be generated
+        detail: Malformed request to SharePoint
         status: 400
       SHAREPOINT_502:
         <<: *external_defaults
