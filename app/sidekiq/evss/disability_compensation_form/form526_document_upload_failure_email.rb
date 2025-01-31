@@ -114,7 +114,7 @@ module EVSS
         log_info = { obscured_filename:, form526_submission_id: submission.id,
                      supporting_evidence_attachment_guid:, timestamp: Time.now.utc, va_notify_response: }
 
-        log_mailer_dispatch(log_info, submission)
+        log_mailer_dispatch(log_info)
       end
 
       def log_mailer_dispatch(log_info)

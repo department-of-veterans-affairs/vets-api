@@ -112,7 +112,6 @@ module EVSS
         )
 
         log_info = { form526_submission_id: submission.id, timestamp: Time.now.utc, va_notify_response: }
-
         log_mailer_dispatch(log_info)
       end
 

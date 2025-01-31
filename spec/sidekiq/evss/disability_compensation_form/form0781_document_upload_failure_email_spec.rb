@@ -39,7 +39,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEm
 
   describe 'logging' do
     before do
-      allow(notification_client).to receive(:send_email)
+      allow(notification_client).to receive(:send_email).and_return({})
     end
 
     it 'increments StatsD success & silent failure avoided metrics' do
@@ -64,7 +64,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEm
           'Form0781DocumentUploadFailureEmail notification dispatched',
           {
             form526_submission_id: form526_submission.id,
-            timestamp: exhaustion_time
+            timestamp: exhaustion_time,
+            va_notify_response: {}
           }
         )
       end
