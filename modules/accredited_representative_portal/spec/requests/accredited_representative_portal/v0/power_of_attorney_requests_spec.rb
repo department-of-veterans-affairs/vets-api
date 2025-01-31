@@ -87,11 +87,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'created_at' => time,
             'expires_at' => (Time.zone.parse(time) + 60.days).iso8601(3),
             'power_of_attorney_form' => veteran_claimant_power_of_attorney_form,
-            'power_of_attorney_holder' => {
-              'id' => poa_requests[0].power_of_attorney_holder.id,
-              'type' => 'veteran_service_organization',
-              'name' => 'TODO: implement'
-            },
             'resolution' => nil
           },
           {
@@ -100,11 +95,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'created_at' => time,
             'expires_at' => nil,
             'power_of_attorney_form' => dependent_claimant_power_of_attorney_form,
-            'power_of_attorney_holder' => {
-              'id' => poa_requests[1].power_of_attorney_holder.id,
-              'type' => 'veteran_service_organization',
-              'name' => 'TODO: implement'
-            },
             'resolution' => {
               'id' => poa_requests[1].resolution.id,
               'type' => 'decision',
@@ -119,11 +109,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'created_at' => time,
             'expires_at' => nil,
             'power_of_attorney_form' => dependent_claimant_power_of_attorney_form,
-            'power_of_attorney_holder' => {
-              'id' => poa_requests[2].power_of_attorney_holder.id,
-              'type' => 'veteran_service_organization',
-              'name' => 'TODO: implement'
-            },
             'resolution' => {
               'id' => poa_requests[2].resolution.id,
               'type' => 'decision',
@@ -139,11 +124,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'created_at' => time,
             'expires_at' => nil,
             'power_of_attorney_form' => dependent_claimant_power_of_attorney_form,
-            'power_of_attorney_holder' => {
-              'id' => poa_requests[3].power_of_attorney_holder.id,
-              'type' => 'veteran_service_organization',
-              'name' => 'TODO: implement'
-            },
             'resolution' => {
               'id' => poa_requests[3].resolution.id,
               'type' => 'expiration',
@@ -221,11 +201,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'creator_id' => poa_request.resolution.resolving.creator_id,
             'reason' => 'Didn\'t authorize treatment record disclosure',
             'decision_type' => 'declination'
-          },
-          'power_of_attorney_holder' => {
-            'id' => poa_request.power_of_attorney_holder.id,
-            'type' => 'veteran_service_organization',
-            'name' => 'TODO: implement'
           }
         }
       )

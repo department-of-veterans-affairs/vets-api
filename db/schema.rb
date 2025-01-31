@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_30_040343) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -309,11 +309,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
     t.datetime "created_at", null: false
     t.string "claimant_type", null: false
     t.string "power_of_attorney_holder_type", null: false
-    t.uuid "power_of_attorney_holder_id", null: false
     t.string "accredited_individual_registration_number"
     t.string "power_of_attorney_holder_poa_code"
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
-    t.index ["power_of_attorney_holder_type", "power_of_attorney_holder_id"], name: "index_ar_power_of_attorney_requests_on_power_of_attorney_holder"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
