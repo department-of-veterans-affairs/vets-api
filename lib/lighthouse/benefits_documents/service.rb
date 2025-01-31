@@ -92,7 +92,7 @@ module BenefitsDocuments
         # Doing `.first` here since document.tracked_item_id is an array with 1 tracked item
         # TODO update this and remove the first when the below pr is worked
         # Created https://github.com/department-of-veterans-affairs/va.gov-team/issues/101200 for this work
-        tracked_item_id: document.tracked_item_id.first,
+        tracked_item_id: document.tracked_item_id&.first,
         job_id:,
         job_class: self.class,
         upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
