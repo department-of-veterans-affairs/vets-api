@@ -525,4 +525,50 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
 
   it_behaves_like 'claims and appeals overview', false
   it_behaves_like 'claims and appeals overview', true
+
+  describe 'GET /v0/claim/:id' do
+    let!(:user) { sis_user(icn: '1008596379V859838') }
+
+    before do
+      token = 'abcdefghijklmnop'
+      allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
+    end
+
+    describe '#show individual claim is polled' do
+      context 'when cst_override_reserve_records_mobile flipper is true' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(true)
+        end
+
+        it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
+          VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+            get('/mobile/v0/claim/600117255', headers: sis_headers)
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'eventsTimeline', 1,
+                                 'displayName')).to eq('RV1 - Reserve Records Request')
+          expect(parsed_body.dig('data', 'attributes', 'eventsTimeline', 1,
+                                 'type')).to eq('still_need_from_others_list')
+        end
+      end
+
+      context 'when cst_override_reserve_records_mobile flipper is false' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(false)
+        end
+
+        it 'leaves the tracked item status as NEEDED_FROM_YOU' do
+          VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+            get('/mobile/v0/claim/600117255', headers: sis_headers)
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'eventsTimeline', 1,
+                                 'displayName')).to eq('RV1 - Reserve Records Request')
+          expect(parsed_body.dig('data', 'attributes', 'eventsTimeline', 1, 'type')).to eq('still_need_from_you_list')
+        end
+      end
+    end
+  end
 end
