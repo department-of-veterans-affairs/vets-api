@@ -459,6 +459,7 @@ Rails.application.routes.draw do
   # Modules
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
+  mount Preneeds::Engine, at: '/pre_need'
   mount Avs::Engine, at: '/avs'
   mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
