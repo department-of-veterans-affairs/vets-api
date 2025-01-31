@@ -20,7 +20,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
   describe 'update endpoints' do
     let(:address) do
-      address = build(:va_profile_v3_address, :v2_override)
+      address = build(:va_profile_v3_address)
       # Some domestic addresses are coming in with province of string 'null'.
       # The controller now manually forces all domestic provinces be nil
       address.province = 'null'
@@ -200,6 +200,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
         end
 
         it 'returns a 200' do
+          puts response.body
           expect(response).to have_http_status(:ok)
         end
 
