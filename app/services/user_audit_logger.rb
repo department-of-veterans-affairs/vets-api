@@ -9,11 +9,11 @@ class UserAuditLogger
 
     UserAction.create!(
       user_action_event_id: user_action_event_id,
-      acting_user_verification_id: acting_user.user_verification&.id,
-      subject_user_verification_id: subject_user.user_verification.id,
+      acting_user_verification: acting_user.user_verification,
+      subject_user_verification: subject_user.user_verification,
       status: status,
       acting_ip_address: ip_address,
       acting_user_agent: user_agent
     )
   end
-end 
+end

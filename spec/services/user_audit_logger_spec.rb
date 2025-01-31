@@ -7,12 +7,14 @@ RSpec.describe UserAuditLogger do
     let(:acting_user) { build(:user) }
     let(:subject_user) { build(:user) }
     let(:user_action_event) { create(:user_action_event) }
-    let(:ip_address) { '127.0.0.1' }
-    let(:user_agent) { 'Mozilla/5.0' }
+    let(:acting_user_verification) { create(:user_verification) }
+    let(:subject_user_verification) { create(:user_verification) }
+    let(:ip_address) { Faker::Internet.ip_v4_address }
+    let(:user_agent) { Faker::Internet.user_agent }
 
     before do
-      allow(acting_user).to receive(:user_verification).and_return(create(:user_verification))
-      allow(subject_user).to receive(:user_verification).and_return(create(:user_verification))
+      allow(acting_user).to receive(:user_verification).and_return(acting_user_verification)
+      allow(subject_user).to receive(:user_verification).and_return(subject_user_verification)
     end
 
     it 'creates a user action record' do
@@ -29,8 +31,8 @@ RSpec.describe UserAuditLogger do
       user_action = UserAction.last
       expect(user_action).to have_attributes(
         user_action_event_id: user_action_event.id,
-        acting_user_verification_id: acting_user.user_verification.id,
-        subject_user_verification_id: subject_user.user_verification.id,
+        acting_user_verification: acting_user_verification,
+        subject_user_verification: subject_user_verification,
         status: 'initial',
         acting_ip_address: ip_address,
         acting_user_agent: user_agent
@@ -64,4 +66,4 @@ RSpec.describe UserAuditLogger do
       end
     end
   end
-end 
+end
