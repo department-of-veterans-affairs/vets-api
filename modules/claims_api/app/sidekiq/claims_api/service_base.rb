@@ -118,9 +118,8 @@ module ClaimsApi
       auto_claim.save!
     end
 
-    def enable_vbms_access?(poa_form:)
-      record_consent = poa_form.form_data['recordConsent']
-      record_consent.present? && record_consent && poa_form.form_data['consentLimits'].blank?
+    def allow_poa_access?(poa_form_data:)
+      poa_form_data['recordConsent'] == true && poa_form_data['consentLimits'].blank?
     end
 
     def set_vbms_error_message(poa, error)

@@ -356,7 +356,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       }
     end
 
-    let(:params) do
+    let(:unmodified_params) do
       {
         zip: '90210',
         state: 'CA',
@@ -368,10 +368,13 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         mobile: true,
         page: 1,
         per_page: 10,
-        facilityIds: 'vha_123,vha_456',
         services: ['1'],
         bbox: [2]
       }
+    end
+
+    let(:params) do
+      unmodified_params.merge(facility_ids: 'vha_123,vha_456')
     end
 
     let(:mock_facility_response) do
@@ -399,7 +402,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
     it 'calls the Lighthouse facilities service with the permitted params' do
       subject
 
-      expected_params = ActionController::Parameters.new(params).permit!
+      expected_params = unmodified_params.merge(facilityIds: 'vha_123,vha_456')
 
       expect(lighthouse_service).to have_received(:get_paginated_facilities)
         .with(expected_params)
