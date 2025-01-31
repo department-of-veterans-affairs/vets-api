@@ -43,29 +43,29 @@ module CheckIn
     FAILED_CLAIM_TEMPLATE_IDS = [Constants::CIE_TIMEOUT_TEMPLATE_ID, Constants::CIE_FAILURE_TEMPLATE_ID,
                                  Constants::CIE_ERROR_TEMPLATE_ID, Constants::OH_ERROR_TEMPLATE_ID,
                                  Constants::OH_FAILURE_TEMPLATE_ID, Constants::OH_TIMEOUT_TEMPLATE_ID].freeze
+
+    MAX_RETRIES = 3
     def send_notification(opts = {})
       notify_client = VaNotify::Service.new(Settings.vanotify.services.check_in.api_key)
       phone_last_four = opts[:mobile_phone].delete('^0-9').last(4)
-
-      logger.info({
-                    message: "Sending travel claim notification to #{phone_last_four}, #{opts[:template_id]}",
-                    phone_last_four:,
-                    template_id: opts[:template_id]
-                  })
-      appt_date_in_mmm_dd_format = DateTime.strptime(opts[:appointment_date], '%Y-%m-%d').to_date.strftime('%b %d')
-
-      notify_client.send_sms(
-        phone_number: opts[:mobile_phone],
-        template_id: opts[:template_id],
-        sms_sender_id: 'oh'.casecmp?(opts[:facility_type]) ? Constants::OH_SMS_SENDER_ID : Constants::CIE_SMS_SENDER_ID,
-        personalisation: {
-          claim_number: opts[:claim_number],
-          appt_date: appt_date_in_mmm_dd_format
-        }
-      )
-    rescue => e
-      handle_error(e, opts)
-      raise e
+      sms_sender_id = 'oh'.casecmp?(opts[:facility_type]) ? Constants::OH_SMS_SENDER_ID : Constants::CIE_SMS_SENDER_ID
+      logger.info({ message: "Sending travel claim notification to #{phone_last_four}, #{opts[:template_id]}",
+                    phone_last_four:, template_id: opts[:template_id] })
+      date_in_mmm_dd_format = DateTime.strptime(opts[:appointment_date], '%Y-%m-%d').to_date.strftime('%b %d')
+      retry_attempt = 0
+      begin
+        notify_client.send_sms(phone_number: opts[:mobile_phone], template_id: opts[:template_id], sms_sender_id:,
+                               personalisation: { claim_number: opts[:claim_number], appt_date: date_in_mmm_dd_format })
+      rescue => e
+        retry_attempt += 1
+        if retry_attempt <= MAX_RETRIES
+          logger.info({ message: "Sending SMS failed, attempt #{retry_attempt} of #{MAX_RETRIES}" })
+          sleep(retry_attempt * 2) # Backoff: 2s, 4s, 6s
+          retry
+        end
+        handle_error(e, opts)
+        raise e
+      end
     end
 
     def handle_error(ex, opts = {})
