@@ -1,0 +1,26 @@
+name: Yardoc
+on: [pull_request]
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
+jobs:
+  yardoc:
+    name: Yardoc
+
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Run Yardoc
+        run: bundle exec rake yardoc
