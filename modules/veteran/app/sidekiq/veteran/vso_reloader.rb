@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sentry_logging'
 
 module Veteran
   class VSOReloader < BaseReloader
     include Sidekiq::Job
-    include SentryLogging
 
     def perform
       array_of_organizations = reload_representatives
@@ -20,10 +18,10 @@ module Veteran
         rep.destroy!
       end
     rescue Faraday::ConnectionFailed => e
-      log_message_to_sentry("OGC connection failed: #{e.message}", :warn)
+      Rails.logger.warn("OGC connection failed: #{e.message}")
       log_to_slack('VSO Reloader failed to connect to OGC')
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_message_to_sentry("VSO Reloading error: #{e.message}", :warn)
+      Rails.logger.warn("VSO Reloading error: #{e.message}")
       log_to_slack('VSO Reloader job has failed!')
     end
 
@@ -104,6 +102,8 @@ module Veteran
     end
 
     def log_to_slack(message)
+      return unless Rails.env.production?
+
       client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
                                        channel: '#api-benefits-claims',
                                        username: 'VSOReloader')
