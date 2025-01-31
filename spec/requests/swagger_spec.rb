@@ -3962,33 +3962,5 @@ RSpec.describe 'the v1 API documentation', order: :defined, type: %i[apivore req
         Timecop.return
       end
     end
-
-    describe 'decision review evidence upload' do
-      it 'supports uploading a file' do
-        VCR.use_cassette('decision_review/200_pdf_validation') do
-          expect(subject).to validate(
-            :post,
-            '/v1/decision_review_evidence',
-            200,
-            headers.update(
-              '_data' => {
-                'decision_review_evidence_attachment' => {
-                  'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
-                }
-              }
-            )
-          )
-        end
-      end
-
-      it 'returns a 400 if no attachment data is given' do
-        expect(subject).to validate(
-          :post,
-          '/v1/decision_review_evidence',
-          400,
-          headers
-        )
-      end
-    end
   end
 end
