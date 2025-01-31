@@ -53,7 +53,9 @@ Rails.application.config.after_initialize do
     KAFKA_PRODUCER.monitor.subscribe(
       WaterDrop::Instrumentation::LoggerListener.new(
         Rails.logger,
-        log_messages: true
+        # When set to false, the debug message that would log the payload and other message details is suppressed.
+        # We will still get info-level messages from the LoggerListener
+        log_messages: false
       )
     )
 
