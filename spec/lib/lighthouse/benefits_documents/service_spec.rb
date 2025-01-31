@@ -66,6 +66,7 @@ RSpec.describe BenefitsDocuments::Service do
           expect(evidence_submission.upload_status)
             .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
           expect(current_personalisation['date_submitted']).to eql(submitted_date)
+          expect(evidence_submission.tracked_item_id).to be(1)
         end
       end
 
