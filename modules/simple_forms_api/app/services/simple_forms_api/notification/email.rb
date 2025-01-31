@@ -4,7 +4,7 @@ module SimpleFormsApi
   module Notification
     class Email
       attr_reader :form_number, :confirmation_number, :date_submitted, :expiration_date, :lighthouse_updated_at,
-                  :notification_type, :user, :user_account, :form_data, :form_submission_attempt
+                  :notification_type, :user, :user_account, :form_data, :form_submission_attempt, :form
 
       TEMPLATE_IDS = YAML.load_file("#{__dir__}/template_ids.yml")
       SUPPORTED_FORMS = TEMPLATE_IDS.keys
@@ -22,6 +22,10 @@ module SimpleFormsApi
         @expiration_date = config[:expiration_date]
         @lighthouse_updated_at = config[:lighthouse_updated_at]
         @form_submission_attempt = form_submission_attempt
+        # We need this annoying cleaned_form_number for now because 21-0966 has an intent_api variant
+        # vba_21_0966_intent_api becomes vba_21_0966
+        cleaned_form_number = @form_number.gsub('_intent_api', '')
+        @form = "SimpleFormsApi::#{cleaned_form_number.titleize.gsub(' ', '')}".constantize.new(@form_data)
         @user = user
         @user_account = user_account
       end
@@ -69,7 +73,7 @@ module SimpleFormsApi
       end
 
       def enqueue_email(at, template_id)
-        email_from_form_data = get_email_address_from_form_data
+        email_from_form_data = form.notification_email_address
 
         # async job and form data includes email
         if email_from_form_data
@@ -81,190 +85,42 @@ module SimpleFormsApi
       end
 
       def async_job_with_form_data(email, at, template_id)
-        if Flipper.enabled?(:simple_forms_notification_callbacks)
-          VANotify::EmailJob.perform_at(
-            at,
-            email,
-            template_id,
-            get_personalization,
-            Settings.vanotify.services.va_gov.api_key,
-            { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
-          )
-        else
-          VANotify::EmailJob.perform_at(
-            at,
-            email,
-            template_id,
-            get_personalization
-          )
-        end
+        VANotify::EmailJob.perform_at(
+          at,
+          email,
+          template_id,
+          get_personalization,
+          Settings.vanotify.services.va_gov.api_key,
+          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+        )
       end
 
       def async_job_with_user_account(user_account, at, template_id)
-        if Flipper.enabled?(:simple_forms_notification_callbacks)
-          VANotify::UserAccountJob.perform_at(
-            at,
-            user_account.id,
-            template_id,
-            get_personalization,
-            Settings.vanotify.services.va_gov.api_key,
-            { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
-          )
-        else
-          VANotify::UserAccountJob.perform_at(
-            at,
-            user_account.id,
-            template_id,
-            get_personalization
-          )
-        end
+        VANotify::UserAccountJob.perform_at(
+          at,
+          user_account.id,
+          template_id,
+          get_personalization,
+          Settings.vanotify.services.va_gov.api_key,
+          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+        )
       end
 
       def send_email_now(template_id)
-        email_from_form_data = get_email_address_from_form_data
+        email_address = form.notification_email_address || user&.email
+        personalization = get_personalization
 
-        # sync job and form data includes email
-        if email_from_form_data
+        if email_address && personalization
           VANotify::EmailJob.perform_async(
-            email_from_form_data,
+            email_address,
             template_id,
-            get_personalization
-          )
-        # sync job and we have a User
-        elsif user
-          VANotify::EmailJob.perform_async(
-            user.va_profile_email,
-            template_id,
-            get_personalization
+            personalization
           )
         end
-      end
-
-      def get_email_address_from_form_data
-        case @form_number
-        when 'vba_21_0845'
-          form21_0845_contact_info[0]
-        when 'vba_21p_0847', 'vba_21_0972'
-          form_data['preparer_email']
-        when 'vba_21_0966', 'vba_21_0966_intent_api'
-          form21_0966_email_address
-        when 'vba_21_4142', 'vba_26_4555'
-          form_data.dig('veteran', 'email')
-        when 'vba_21_10210'
-          form21_10210_contact_info[0]
-        when 'vba_20_10206'
-          form20_10206_contact_info[0]
-        when 'vba_20_10207'
-          form20_10207_contact_info[0]
-        when 'vba_40_0247'
-          form_data['applicant_email']
-        when 'vba_40_10007'
-          form_data.dig('application', 'claimant', 'email')
-        end
-      end
-
-      def get_first_name_from_form_data
-        form_id = if form_number == 'vba_21_0966_intent_api'
-                    'vba_21_0966'
-                  else
-                    form_number
-                  end
-        "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(form_data).notification_first_name
       end
 
       def get_personalization
-        form_id = if form_number.start_with? 'vba_21_0966'
-                    'vba_21_0966'
-                  else
-                    form_number
-                  end
-        form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(form_data)
         SimpleFormsApi::Notification::Personalization.new(form:, form_submission_attempt:).to_hash
-      end
-
-      # email and first name for form 20-10206
-      def form20_10206_contact_info
-        # email address not required and omitted
-        if @form_data['email_address'].blank? && @user
-          [@user.va_profile_email, @form_data.dig('full_name', 'first')]
-
-        # email address not required and optionally entered
-        else
-          [@form_data['email_address'], @form_data.dig('full_name', 'first')]
-        end
-      end
-
-      # email and first name for form 20-10207
-      def form20_10207_contact_info
-        preparer_types = %w[veteran third-party-veteran non-veteran third-party-non-veteran]
-
-        return unless preparer_types.include?(@form_data['preparer_type'])
-
-        email_and_first_name = [@user&.va_profile_email]
-        # veteran
-        email_and_first_name << if @form_data['preparer_type'] == 'veteran'
-                                  @form_data['veteran_full_name']['first']
-
-                                # non-veteran
-                                elsif @form_data['preparer_type'] == 'non-veteran'
-                                  @form_data['non_veteran_full_name']['first']
-
-                                  # third-party
-                                else
-                                  @form_data['third_party_full_name']['first']
-                                end
-
-        email_and_first_name
-      end
-
-      # email and first name for form 21-0845
-      def form21_0845_contact_info
-        # (vet && signed in)
-        if @form_data['authorizer_type'] == 'veteran'
-          [@form_data['veteran_email'] || @user&.va_profile_email, @form_data.dig('veteran_full_name', 'first')]
-
-        # (non-vet && signed in) || (non-vet && anon)
-        elsif @form_data['authorizer_type'] == 'nonVeteran'
-          [@form_data['authorizer_email'], @form_data.dig('authorizer_full_name', 'first')]
-
-        # (vet && anon)
-        else
-          [nil, nil]
-        end
-      end
-
-      # email and first name for form 21-10210
-      def form21_10210_contact_info
-        # user's own claim
-        # user is a veteran
-        if @form_data['claim_ownership'] == 'self' && @form_data['claimant_type'] == 'veteran'
-          email = @form_data['veteran_email'] || user&.va_profile_email
-          [email, @form_data.dig('veteran_full_name', 'first')]
-
-        # user's own claim
-        # user is not a veteran
-        elsif @form_data['claim_ownership'] == 'self' && @form_data['claimant_type'] == 'non-veteran'
-          email = @form_data['claimant_email'] || user&.va_profile_email
-          [email, @form_data.dig('claimant_full_name', 'first')]
-
-        # someone else's claim
-        # claimant (aka someone else) is a veteran
-        # or
-        # claimant (aka someone else) is not a veteran
-        elsif @form_data['claim_ownership'] == 'third-party'
-          [@form_data['witness_email'], @form_data.dig('witness_full_name', 'first')]
-
-        else
-          [nil, nil]
-        end
-      end
-
-      def form21_0966_email_address
-        if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
-          form_data['surviving_dependent_email']
-        else
-          form_data['veteran_email']
-        end
       end
 
       def statsd_tags
