@@ -153,9 +153,9 @@ RSpec.describe FormProfile, type: :model do
         'phoneNumber' => '4445551212',
         'emailAddress' => 'test2@test1.net'
       },
-      "nonPrefill" => {
-        "veteranSsnLastFour" => "1863",
-        "veteranVaFileNumberLastFour" => "1863"
+      'nonPrefill' => {
+        'veteranSsnLastFour' => '1863',
+        'veteranVaFileNumberLastFour' => '1863'
       },
       'veteranInformation' => {
         'fullName' => {
@@ -182,9 +182,9 @@ RSpec.describe FormProfile, type: :model do
         'phoneNumber' => '4445551212',
         'emailAddress' => 'test2@test1.net'
       },
-      "nonPrefill" => {
-        "veteranSsnLastFour" => "1863",
-        "veteranVaFileNumberLastFour" => "1863"
+      'nonPrefill' => {
+        'veteranSsnLastFour' => '1863',
+        'veteranVaFileNumberLastFour' => '1863'
       },
       'veteranInformation' => {
         'fullName' => {

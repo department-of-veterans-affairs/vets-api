@@ -148,9 +148,9 @@ RSpec.describe FormProfile, type: :model do
         'phoneNumber' => '3035551234',
         'emailAddress' => user.va_profile_email
       },
-      "nonPrefill" => {
-        "veteranSsnLastFour" => "1863",
-        "veteranVaFileNumberLastFour" => "1863"
+      'nonPrefill' => {
+        'veteranSsnLastFour' => '1863',
+        'veteranVaFileNumberLastFour' => '1863'
       },
       'veteranInformation' => {
         'fullName' => {
