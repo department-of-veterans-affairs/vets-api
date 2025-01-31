@@ -16,7 +16,8 @@ module V0
     def create
       if Flipper.enabled?(:va_dependents_v2)
         form = dependent_params.to_json
-        claim = SavedClaim::DependencyClaim.new(form:, use_v2: form.present? ? JSON.parse(form)&.dig('dependents_application', 'use_v2') : nil) # rubocop:disable Layout/LineLength
+        use_v2 = form.present? ? JSON.parse(form)&.dig('dependents_application', 'use_v2') : nil
+        claim = SavedClaim::DependencyClaim.new(form:, use_v2:)
       else
         claim = SavedClaim::DependencyClaim.new(form: dependent_params.to_json)
       end
