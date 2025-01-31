@@ -65,11 +65,11 @@
   "burialCost": 9999999999999999999,
   "burialAllowance": false,
   "plotAllowance": false,
-  "amountGovtContribution": 9999999999999999999,
+  "amountGovtContribution": " 9999999999999999999",
   "amountIncurred": 9999999999999999999,
   "stateCemetery": false,
   "federalCemetery": false,
-  "burialAllowanceRequested": "nonService",
+  "burialAllowanceRequested": {"nonService":true},
   "govtContributions": false,
   "placeOfRemains": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "previousNames": [
