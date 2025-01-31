@@ -10,7 +10,7 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
   let(:headers) do
     sis_headers(json: true)
   end
-  let(:telephone) { build(:telephone, vet360_id: user.vet360_id) }
+  let(:telephone) { build(:telephone, :contact_info_v2, source_system_user: user.icn) }
 
   before do
     allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
@@ -23,7 +23,7 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
     Timecop.return
   end
 
-  describe 'POST /mobile/v0/user/phones', :skip_va_profile_user do
+  describe 'POST /mobile/v0/user/phones' do
     context 'with a valid phone number' do
       before do
         telephone.id = 42
