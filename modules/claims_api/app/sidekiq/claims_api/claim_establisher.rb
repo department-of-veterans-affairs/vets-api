@@ -57,6 +57,8 @@ module ClaimsApi
     def expectation_failed_error?(e)
       error_messages = get_error_message(e)
 
+      return error_messages.include?('417') if error_messages.is_a?(String)
+
       return false if error_messages&.dig(:messages).nil?
 
       error_messages[:messages].any? { |msg| msg[:text]&.include?('417') }
