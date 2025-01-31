@@ -23,16 +23,18 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
       end
 
       context 'SimpleFormsApi::NotificationEmail initialization fails' do
-        it 'raises an error' do
+        it 'raises an error and increments statsd' do
           allow(SimpleFormsApi::NotificationEmail).to receive(:new).and_raise(ArgumentError)
+          allow(StatsD).to receive(:increment)
 
           expect do
             described_class.new.perform(
-              notification_type:,
+              notification_type: :error,
               form_submission_attempt:,
               user_account:
             )
           end.to raise_error(ArgumentError)
+          expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
         end
       end
     end

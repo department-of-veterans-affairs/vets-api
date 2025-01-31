@@ -9,15 +9,16 @@ module SimpleFormsApi
 
       HOUR_TO_SEND_NOTIFICATIONS = 9
 
-      attr_reader :notification_type, :config, :user_account
+      attr_reader :notification_type, :config, :form_number, :user_account
 
       def perform(notification_type:, form_submission_attempt:, user_account:)
         @notification_type = notification_type
         @user_account = user_account
         form_submission = form_submission_attempt.form_submission
+        @form_number = V1::UploadsController::FORM_NUMBER_MAP[form_submission.form_type]
         @config = {
           form_data: JSON.parse(form_submission.form_data),
-          form_number: V1::UploadsController::FORM_NUMBER_MAP[form_submission.form_type],
+          form_number:,
           confirmation_number: form_submission_attempt.benefits_intake_uuid,
           date_submitted: form_submission_attempt.created_at.strftime('%B %d, %Y'),
           lighthouse_updated_at: form_submission_attempt.lighthouse_updated_at&.strftime('%B %d, %Y')
@@ -34,6 +35,9 @@ module SimpleFormsApi
           notification_type:,
           user_account:
         ).send(at: time_to_send)
+      rescue => e
+        StatsD.increment('silent_failure', tags: statsd_tags) if notification_type == :error
+        raise e
       end
 
       def time_to_send
@@ -46,6 +50,10 @@ module SimpleFormsApi
             hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0
           )
         end
+      end
+
+      def statsd_tags
+        { 'service' => 'veteran-facing-forms', 'function' => "#{form_number} form submission to Lighthouse" }
       end
     end
   end
