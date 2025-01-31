@@ -190,10 +190,10 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         {
           verified_at: '1-1-2022',
           sub: 'some-logingov_uuid',
-          social_security_number: '123456789',
+          social_security_number: '123456598',
           birthdate: '2022-01-01',
           given_name: 'some-name',
-          family_name: 'some-family-name',
+          family_name: 'Beer',
           email: 'some-email'
         }
       )
@@ -233,6 +233,11 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     end
 
     context 'failure' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:debts_silent_failure_mailer).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:debts_sharepoint_error_logging).and_return(false)
+      end
+
       it 'raises an error when submission fails' do
         service = described_class.new(user_data)
 
@@ -245,7 +250,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
           a_string_starting_with('FinancialStatusReportService#submit_vha_fsr: BackendServiceException:')
         )
 
-        Timecop.freeze(Time.new(2024, 10, 22).utc) do
+        Timecop.freeze(Time.new(2023, 8, 29, 16, 13, 22).utc) do
           VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
             expect do
               service.submit_vha_fsr(form_submission)
