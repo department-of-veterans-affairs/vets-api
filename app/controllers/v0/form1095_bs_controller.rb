@@ -2,6 +2,7 @@
 
 module V0
   class Form1095BsController < ApplicationController
+    service_tag 'deprecated'
     before_action { authorize :form1095, :access? }
     before_action :set_form, only: %i[download_pdf download_txt]
     before_action :set_available_forms, only: :available_forms
