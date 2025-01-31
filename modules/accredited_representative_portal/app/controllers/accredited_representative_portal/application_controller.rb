@@ -2,6 +2,8 @@
 
 module AccreditedRepresentativePortal
   class ApplicationController < SignIn::ApplicationController
+    class UnprocessableEntity < StandardError; end
+
     include SignIn::AudienceValidator
     include Authenticable
     include Pundit::Authorization
@@ -10,6 +12,13 @@ module AccreditedRepresentativePortal
       render(
         json: { errors: [e.message] },
         status: :forbidden
+      )
+    end
+
+    rescue_from UnprocessableEntity do |e|
+      render(
+        json: { errors: [e.message] },
+        status: :unprocessable_entity
       )
     end
 
