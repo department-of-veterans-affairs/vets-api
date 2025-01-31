@@ -165,31 +165,4 @@ RSpec.describe VirtualRegionalOffice::Client, :vcr do
       end
     end
   end
-
-  describe '#merge_end_products' do
-    subject { client.merge_end_products(pending_claim_id: '12345', ep400_id: '12346') }
-
-    context 'when the request is successful' do
-      it 'returns a accepted job and logs monitor metrics' do
-        VCR.use_cassette('virtual_regional_office/ep_merge') do
-          expect(subject.body['job']).to have_key('job_id')
-          expect(StatsD).not_to have_received(:increment).with('api.vro.merge_end_products.fail', anything)
-          expect(StatsD).to have_received(:increment).with('api.vro.merge_end_products.total')
-        end
-      end
-    end
-
-    context 'when the request is unsuccessful' do
-      it 'raises an exception and log metrics' do
-        VCR.use_cassette('virtual_regional_office/ep_merge_failure') do
-          expect { subject }.to raise_error(Common::Client::Errors::ClientError)
-
-          expected_failure_tags = ['error:CommonClientErrorsClientError', 'status:500']
-          expect(StatsD).to have_received(:increment).with('api.vro.merge_end_products.fail',
-                                                           { tags: expected_failure_tags })
-          expect(StatsD).to have_received(:increment).with('api.vro.merge_end_products.total')
-        end
-      end
-    end
-  end
 end

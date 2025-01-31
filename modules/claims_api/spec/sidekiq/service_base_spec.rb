@@ -105,20 +105,20 @@ RSpec.describe ClaimsApi::ServiceBase do
     end
   end
 
-  describe '#enable_vbms_access?' do
+  describe '#allow_poa_access?' do
     context 'denies eFolder access' do
       it 'if recordConsent is set to false' do
         poa.form_data = poa.form_data.merge('recordConsent' => false)
         poa.save
 
-        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        res = @service.send(:allow_poa_access?, poa_form_data: poa.form_data)
         expect(res).to be(false)
       end
 
       it 'if recordConsent is not present' do
         poa.save
 
-        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        res = @service.send(:allow_poa_access?, poa_form_data: poa.form_data)
         expect(res).to be(false)
       end
 
@@ -127,7 +127,7 @@ RSpec.describe ClaimsApi::ServiceBase do
         poa.form_data = poa.form_data.merge('consentLimits' => ['HIV'])
         poa.save
 
-        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        res = @service.send(:allow_poa_access?, poa_form_data: poa.form_data)
         expect(res).to be(false)
       end
     end
@@ -137,7 +137,7 @@ RSpec.describe ClaimsApi::ServiceBase do
         poa.form_data = poa.form_data.merge('recordConsent' => true)
         poa.save
 
-        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        res = @service.send(:allow_poa_access?, poa_form_data: poa.form_data)
         expect(res).to be(true)
       end
     end

@@ -866,7 +866,7 @@ RSpec.describe SAML::User do
       let(:service_name) { 'dslogon' }
       let(:account_type) { '1' }
 
-      xit 'has various important attributes' do
+      it 'has various important attributes', skip: 'Unknown reason for skip' do
         expect(subject.to_hash).to eq(
           birth_date: nil,
           authn_context:,

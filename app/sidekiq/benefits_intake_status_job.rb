@@ -27,6 +27,8 @@ class BenefitsIntakeStatusJob
   end
 
   def perform
+    return if Flipper.enabled?(:benefits_intake_submission_status_job)
+
     Rails.logger.info('BenefitsIntakeStatusJob started')
     pending_form_submission_attempts = FormSubmissionAttempt.where(aasm_state: 'pending')
     total_handled, result = batch_process(pending_form_submission_attempts)

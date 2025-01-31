@@ -8,7 +8,7 @@ describe VBADocuments::UploadFile, type: :model do
 
   it 'can upload and purge from storage' do
     upload_model = VBADocuments::UploadFile.new
-    base_64 = File.open(get_fixture('base_64')).read
+    base_64 = File.read(get_fixture('base_64'))
     upload_model.multipart.attach(io: StringIO.new(base_64), filename: upload_model.guid)
     upload_model.save!
     upload_model.parse_and_upload!

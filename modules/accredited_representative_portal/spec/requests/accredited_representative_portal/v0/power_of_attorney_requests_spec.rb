@@ -183,28 +183,40 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     end
 
     context 'when providing a status param' do
-      let!(:declined_request) { create(:power_of_attorney_request, :with_declination) }
-      let!(:pending_request) { create(:power_of_attorney_request) }
+      let!(:pending_request1) { create(:power_of_attorney_request, created_at: time) }
+      let!(:pending_request2) { create(:power_of_attorney_request, created_at: time_plus_one_day) }
+      let!(:declined_request) { create(:power_of_attorney_request, :with_declination, resolution_created_at: time) }
+      let!(:accepted_request) do
+        create(:power_of_attorney_request, :with_acceptance, resolution_created_at: time_plus_one_day)
+      end
+      let!(:expired_request) do
+        create(:power_of_attorney_request, :with_expiration, resolution_created_at: time_plus_one_day)
+      end
 
-      it 'returns the list of pending power of attorney requests' do
+      it 'returns the list of pending power of attorney requests sorted by creation date ascending' do
         get('/accredited_representative_portal/v0/power_of_attorney_requests?status=pending')
         parsed_response = JSON.parse(response.body)
         expect(response).to have_http_status(:ok)
         expect(parsed_response.length).to eq 2
-        expect(parsed_response.map { |poa| poa['id'] }).to include(pending_request.id)
         expect(parsed_response.map { |poa| poa['id'] }).not_to include(declined_request.id)
+        expect(parsed_response.map { |poa| poa['id'] }).not_to include(accepted_request.id)
+        expect(parsed_response.map { |poa| poa['id'] }).not_to include(expired_request.id)
+        expect(parsed_response.map { |h| h['created_at'] }).to eq([time, time_plus_one_day])
       end
 
-      it 'returns the list of completed power of attorney requests' do
-        get('/accredited_representative_portal/v0/power_of_attorney_requests?status=completed')
+      it 'returns the list of completed power of attorney requests sorted by resolution creation descending' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests?status=processed')
         parsed_response = JSON.parse(response.body)
         expect(response).to have_http_status(:ok)
-        expect(parsed_response.length).to eq 1
-        expect(parsed_response[0]['id']).to eq declined_request.id
+        expect(parsed_response.length).to eq 2
+        expect(parsed_response.map { |poa| poa['id'] }).not_to include(pending_request1.id)
+        expect(parsed_response.map { |poa| poa['id'] }).not_to include(pending_request2.id)
+        expect(parsed_response.map { |poa| poa['id'] }).not_to include(expired_request.id)
+        expect(parsed_response.map { |h| h['resolution']['created_at'] }).to eq([time_plus_one_day, time])
       end
 
       it 'throws an error if any other status filter provided' do
-        get('/accredited_representative_portal/v0/power_of_attorney_requests?status=delete_all')
+        get('/accredited_representative_portal/v0/power_of_attorney_requests?status=invalid_status')
         expect(response).to have_http_status(:bad_request)
       end
     end

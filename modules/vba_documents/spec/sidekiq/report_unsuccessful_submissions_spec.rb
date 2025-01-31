@@ -13,7 +13,7 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
   let(:upload) { create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
 
   describe '#perform' do
-    xit 'sends mail' do
+    it 'sends mail', skip: 'Unknown reason for skip' do
       with_settings(Settings.vba_documents,
                     report_enabled: true) do
         Timecop.freeze
@@ -39,7 +39,7 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
       end
     end
 
-    xit 'calculate totals' do
+    it 'calculate totals', skip: 'Unknown reason for skip' do
       with_settings(Settings.vba_documents,
                     report_enabled: true) do
         error_upload

@@ -30,7 +30,7 @@ RSpec.describe Burials::SavedClaim do
     it 'inherits init callsbacks from saved_claim' do
       expect(subject.form_id).to eq('21P-530EZ')
       expect(subject.guid).not_to be_nil
-      expect(subject.type).to eq(described_class.to_s)
+      expect(subject.type).to eq(SavedClaim::Burial.to_s)
     end
 
     context 'validates against the form schema' do

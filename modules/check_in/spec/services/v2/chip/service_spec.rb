@@ -29,8 +29,8 @@ describe V2::Chip::Service do
 
     context 'when token is already present' do
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
-        allow_any_instance_of(::V2::Chip::Client).to receive(:check_in_appointment)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(V2::Chip::Client).to receive(:check_in_appointment)
           .and_return(Faraday::Response.new(response_body: 'Checkin successful', status: 200))
       end
 
@@ -44,7 +44,7 @@ describe V2::Chip::Service do
       let(:hsh) { { data: { error: true, message: 'Unauthorized' }, status: 401 } }
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return(nil)
       end
 
       it 'returns unauthorized' do
@@ -69,8 +69,8 @@ describe V2::Chip::Service do
 
     context 'when token is already present' do
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
-        allow_any_instance_of(::V2::Chip::Client).to receive(:refresh_appointments)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(V2::Chip::Client).to receive(:refresh_appointments)
           .and_return(Faraday::Response.new(response_body: 'Refresh successful', status: 200))
         Rails.cache.write(
           "check_in_lorota_v2_appointment_identifiers_#{uuid}",
@@ -87,7 +87,7 @@ describe V2::Chip::Service do
 
     context 'when token is not present' do
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return(nil)
       end
 
       it 'returns unauthorized' do
@@ -113,8 +113,8 @@ describe V2::Chip::Service do
       let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
-        allow_any_instance_of(::V2::Chip::Client).to receive(:pre_check_in)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(V2::Chip::Client).to receive(:pre_check_in)
           .and_return(faraday_response)
       end
 
@@ -128,7 +128,7 @@ describe V2::Chip::Service do
       let(:hsh) { { data: { error: true, message: 'Unauthorized' }, status: 401 } }
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return(nil)
       end
 
       it 'returns unauthorized message' do
@@ -143,8 +143,8 @@ describe V2::Chip::Service do
       let(:resp) { Faraday::Response.new(response_body: { 'uuid' => id }.to_json, status: 200) }
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
-        allow_any_instance_of(::V2::Chip::Client).to receive(:set_precheckin_started)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(V2::Chip::Client).to receive(:set_precheckin_started)
           .and_return(resp)
       end
 
@@ -161,8 +161,8 @@ describe V2::Chip::Service do
       end
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
-        allow_any_instance_of(::V2::Chip::Client).to receive(:set_precheckin_started)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(V2::Chip::Client).to receive(:set_precheckin_started)
           .and_return(resp)
       end
 
@@ -177,7 +177,7 @@ describe V2::Chip::Service do
       let(:resp) { { permissions: 'read.none', status: 'success', uuid: id } }
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return(nil)
       end
 
       it 'returns unauthorized message' do
@@ -214,8 +214,8 @@ describe V2::Chip::Service do
       let(:resp) { { data: response_body, status: 200 } }
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
-        allow_any_instance_of(::V2::Chip::Client).to receive(:set_echeckin_started).and_return(set_echeckin_resp)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(V2::Chip::Client).to receive(:set_echeckin_started).and_return(set_echeckin_resp)
         Rails.cache.write(
           "check_in_lorota_v2_appointment_identifiers_#{id}",
           appointment_identifiers.to_json,
@@ -235,8 +235,8 @@ describe V2::Chip::Service do
       let(:resp) { { data: { error: true, message: 'Something went wrong' }, status: 500 } }
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
-        allow_any_instance_of(::V2::Chip::Client).to receive(:set_echeckin_started).and_return(set_echeckin_resp)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(V2::Chip::Client).to receive(:set_echeckin_started).and_return(set_echeckin_resp)
         Rails.cache.write(
           "check_in_lorota_v2_appointment_identifiers_#{id}",
           appointment_identifiers.to_json,
@@ -254,7 +254,7 @@ describe V2::Chip::Service do
       let(:resp) { { data: { error: true, message: 'Unauthorized' }, status: 401 } }
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return(nil)
       end
 
       it 'returns unauthorized message' do
@@ -267,7 +267,7 @@ describe V2::Chip::Service do
   describe '#token' do
     context 'when it exists in redis' do
       before do
-        allow_any_instance_of(::V2::Chip::RedisClient).to receive(:get).and_return('jwt-token-123-abc')
+        allow_any_instance_of(V2::Chip::RedisClient).to receive(:get).and_return('jwt-token-123-abc')
       end
 
       it 'returns token from redis' do
@@ -277,7 +277,7 @@ describe V2::Chip::Service do
 
     context 'when it does not exist in redis' do
       before do
-        allow_any_instance_of(::V2::Chip::Client).to receive(:token)
+        allow_any_instance_of(V2::Chip::Client).to receive(:token)
           .and_return(Faraday::Response.new(response_body: { token: 'jwt-token-123-abc' }.to_json, status: 200))
       end
 
@@ -338,8 +338,8 @@ describe V2::Chip::Service do
       let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
-        allow_any_instance_of(::V2::Chip::Client).to receive(:confirm_demographics).and_return(faraday_response)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(V2::Chip::Client).to receive(:confirm_demographics).and_return(faraday_response)
         Rails.cache.write(
           "check_in_lorota_v2_appointment_identifiers_#{uuid}",
           appointment_identifiers.to_json,
@@ -357,7 +357,7 @@ describe V2::Chip::Service do
       let(:error_response) { { data: { error: true, message: 'Unauthorized' }, status: 401 } }
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return(nil)
       end
 
       it 'returns unauthorized message' do
@@ -385,8 +385,8 @@ describe V2::Chip::Service do
       let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
-        allow_any_instance_of(::V2::Chip::Client).to receive(:refresh_precheckin).and_return(faraday_response)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(V2::Chip::Client).to receive(:refresh_precheckin).and_return(faraday_response)
       end
 
       it 'returns refresh precheckin response' do
@@ -406,7 +406,7 @@ describe V2::Chip::Service do
       end
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return(nil)
       end
 
       it 'returns unauthorized message' do
@@ -440,8 +440,8 @@ describe V2::Chip::Service do
       let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
-        allow_any_instance_of(::V2::Chip::Client).to receive(:initiate_check_in).and_return(faraday_response)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(V2::Chip::Client).to receive(:initiate_check_in).and_return(faraday_response)
       end
 
       it 'returns initiate_check_in response' do
@@ -460,7 +460,7 @@ describe V2::Chip::Service do
       end
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return(nil)
       end
 
       it 'returns unauthorized message' do
@@ -483,8 +483,8 @@ describe V2::Chip::Service do
       let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
-        allow_any_instance_of(::V2::Chip::Client).to receive(:delete).and_return(faraday_response)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(V2::Chip::Client).to receive(:delete).and_return(faraday_response)
       end
 
       it 'returns delete response' do
@@ -503,7 +503,7 @@ describe V2::Chip::Service do
       end
 
       before do
-        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+        allow_any_instance_of(V2::Chip::Service).to receive(:token).and_return(nil)
       end
 
       it 'returns unauthorized message' do

@@ -54,7 +54,7 @@ describe BB::GenerateReportRequestForm do
     end
 
     # This spec can be added again in the future if desired, but for now leave as MHV error
-    xit 'returns valid false with errors' do
+    it 'returns valid false with errors', skip: 'MHV error' do
       expect(subject).not_to be_valid
       expect(subject.errors.full_messages)
         .to eq(['From date must be before to date'])

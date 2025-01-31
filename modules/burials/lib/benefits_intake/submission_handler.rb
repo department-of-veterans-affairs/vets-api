@@ -12,7 +12,7 @@ module Burials
 
       # BenefitsIntake::SubmissionHandler::SavedClaim#claim_class
       def claim_class
-        SavedClaim::Burial
+        Burials::SavedClaim
       end
 
       # BenefitsIntake::SubmissionHandler::SavedClaim#monitor

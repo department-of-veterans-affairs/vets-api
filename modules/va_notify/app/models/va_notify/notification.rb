@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'json_marshal/marshaller'
+
 module VANotify
   class Notification < ApplicationRecord
     self.table_name = 'va_notify_notifications'

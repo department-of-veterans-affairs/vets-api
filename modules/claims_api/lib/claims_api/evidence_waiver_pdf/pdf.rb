@@ -31,8 +31,8 @@ module ClaimsApi
 
     def page1_options(response)
       {
-        "checkbox.yes": response == false ? 0 : 1,
-        "checkbox.no": response == false ? 1 : 0,
+        'checkbox.yes': response == false ? 0 : 1,
+        'checkbox.no': response == false ? 1 : 0,
         date: I18n.l(Time.zone.now.to_date, format: :va_form),
         signature: signature
       }

@@ -23,7 +23,7 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
       attachment = build(:power_of_attorney)
 
       file = Rack::Test::UploadedFile.new(
-        ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
+        Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
       )
 
       attachment.set_file_data!(file, 'docType')

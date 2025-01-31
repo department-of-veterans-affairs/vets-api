@@ -50,7 +50,7 @@ module V0
     end
 
     def set_started_form_version(data)
-      if data['startedFormVersion'].blank?
+      if data['started_form_version'].blank? || data['startedFormVersion'].blank?
         log_started_form_version(data, 'existing IPF missing startedFormVersion')
         data['startedFormVersion'] = '2019'
       end

@@ -16,6 +16,12 @@ module Representatives
     include Sidekiq::Job
     include SentryLogging
 
+    attr_accessor :slack_messages
+
+    def initialize
+      @slack_messages = []
+    end
+
     # Processes each representative's data provided in JSON format.
     # This method parses the JSON, validates each representative's address, and updates the database records.
     # @param reps_json [String] JSON string containing an array of representative data.
@@ -24,6 +30,9 @@ module Representatives
       reps_data.each { |rep_data| process_rep_data(rep_data) }
     rescue => e
       log_error("Error processing job: #{e.message}")
+    ensure
+      @slack_messages.unshift('Representatives::Update') if @slack_messages.any?
+      log_to_slack(@slack_messages.join("\n")) unless @slack_messages.empty?
     end
 
     private
@@ -32,18 +41,14 @@ module Representatives
     # If the address validation fails or an error occurs during the update, the error is logged and the process
     # is halted for the current representative.
     # @param rep_data [Hash] The representative data including id and address.
-    def process_rep_data(rep_data) # rubocop:disable Metrics/MethodLength
+    def process_rep_data(rep_data)
       return unless record_can_be_updated?(rep_data)
 
       address_validation_api_response = nil
 
       if rep_data['address_changed']
 
-        api_response = if Flipper.enabled?(:va_v3_contact_information_service)
-                         get_best_address_candidate(rep_data)
-                       else
-                         get_best_address_candidate(rep_data['address'])
-                       end
+        api_response = get_best_address_candidate(rep_data['address'])
 
         # don't update the record if there is not a valid address with non-zero lat and long at this point
         if api_response.nil?
@@ -74,23 +79,19 @@ module Representatives
     # @param address [Hash] A hash containing the details of the representative's address.
     # @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
     def build_validation_address(address)
-      if Flipper.enabled?(:va_v3_contact_information_service)
-        validation_model = VAProfile::Models::V3::ValidationAddress
-        state_code = address['state']['state_code']
-        city = address['city_name']
-      else
-        validation_model = VAProfile::Models::ValidationAddress
-        state_code = address['state_province']['code']
-        city = address['city']
-      end
+      validation_model = if Flipper.enabled?(:va_v3_contact_information_service)
+                           VAProfile::Models::V3::ValidationAddress
+                         else
+                           VAProfile::Models::ValidationAddress
+                         end
 
       validation_model.new(
         address_pou: address['address_pou'],
         address_line1: address['address_line1'],
         address_line2: address['address_line2'],
         address_line3: address['address_line3'],
-        city: city,
-        state_code: state_code,
+        city: address['city'],
+        state_code: address['state']['state_code'],
         zip_code: address['zip_code5'],
         zip_code_suffix: address['zip_code4'],
         country_code_iso3: address['country_code_iso3']
@@ -230,7 +231,9 @@ module Representatives
     # Logs an error to Sentry.
     # @param error [Exception] The error string to be logged.
     def log_error(error)
-      log_message_to_sentry("Representatives::Update: #{error}", :error)
+      message = "Representatives::Update: #{error}"
+      log_message_to_sentry(message, :error)
+      @slack_messages << "----- #{message}"
     end
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values
@@ -299,6 +302,10 @@ module Representatives
     # @param rep_address [Hash] the address provided by OGC
     # @return [Hash, Nil] the response from the address validation service
     def get_best_address_candidate(rep_address)
+      if rep_address.nil?
+        log_error('In #get_best_address_candidate, rep_address is nil')
+        return nil
+      end
       candidate_address = build_validation_address(rep_address)
       original_response = validate_address(candidate_address)
       return nil unless address_valid?(original_response)
@@ -316,6 +323,15 @@ module Representatives
       else
         original_response
       end
+    rescue => e
+      log_error("In #get_best_address_candidate, address: #{rep_address}, error message: #{e.message}")
+    end
+
+    def log_to_slack(message)
+      client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
+                                       channel: '#benefits-representation-management-notifications',
+                                       username: 'Representatives::Update Bot')
+      client.notify(message)
     end
   end
 end

@@ -713,7 +713,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'financial status report create' do
         it 'validates the route' do
           pdf_stub = class_double(PdfFill::Filler).as_stubbed_const
-          allow(pdf_stub).to receive(:fill_ancillary_form).and_return(::Rails.root.join(
+          allow(pdf_stub).to receive(:fill_ancillary_form).and_return(Rails.root.join(
             *'/spec/fixtures/dmc/5655.pdf'.split('/')
           ).to_s)
           VCR.use_cassette('dmc/submit_fsr') do
@@ -3776,6 +3776,43 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             '/travel_pay/v0/claims/{id}',
             200,
             headers.merge('id' => claim_id)
+          )
+        end
+      end
+    end
+
+    context 'create' do
+      let(:mhv_user) { build(:user, :loa3) }
+
+      it 'returns unauthorized for unauthorized user' do
+        expect(subject).to validate(:post, '/travel_pay/v0/claims', 401)
+      end
+
+      it 'returns bad request for missing appointment date time' do
+        headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
+        VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[path method]) do
+          expect(subject).to validate(
+            :post,
+            '/travel_pay/v0/claims',
+            400,
+            headers
+          )
+        end
+      end
+
+      it 'returns 201 for successful response' do
+        headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
+        params = {
+          '_data' => {
+            'appointmentDatetime' => '2024-01-01T16:45:34.465Z'
+          }
+        }
+        VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[path method]) do
+          expect(subject).to validate(
+            :post,
+            '/travel_pay/v0/claims',
+            201,
+            headers.merge(params)
           )
         end
       end

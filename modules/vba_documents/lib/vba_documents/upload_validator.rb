@@ -32,7 +32,7 @@ module VBADocuments
                                             detail: 'Incorrect content-type for document part')
       end
       regex = /\A#{META_PART_NAME}|#{DOC_PART_NAME}|attachment\d+\z/
-      invalid_parts = parts.keys.reject { |key| regex.match?(key) }
+      invalid_parts = parts.keys.grep_v(regex)
       log_invalid_parts(model, invalid_parts) if invalid_parts.any?
     end
 

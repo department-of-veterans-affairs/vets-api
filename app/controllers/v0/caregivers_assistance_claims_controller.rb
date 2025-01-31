@@ -73,7 +73,7 @@ module V0
     end
 
     def lighthouse_facilities_params
-      params.permit(
+      permitted_params = params.permit(
         :zip,
         :state,
         :lat,
@@ -84,10 +84,15 @@ module V0
         :mobile,
         :page,
         :per_page,
-        :facilityIds,
+        :facility_ids,
         services: [],
         bbox: []
       )
+
+      # The Lighthouse Facilities api expects the facility ids param as `facilityIds`
+      permitted_params.to_h.tap do |hash|
+        hash['facilityIds'] = hash.delete('facility_ids') if hash.key?('facility_ids')
+      end
     end
 
     def record_submission_attempt

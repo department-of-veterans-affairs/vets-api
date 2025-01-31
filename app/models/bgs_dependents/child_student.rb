@@ -12,6 +12,7 @@ module BGSDependents
       @proc_id = proc_id
       @vnp_participant_id = vnp_participant_id
       @is_v2 = Flipper.enabled?(:va_dependents_v2)
+      @dependents_application = dependents_application
       self.attributes = dependents_application
     end
 
@@ -36,7 +37,10 @@ module BGSDependents
         next_year_annty_income_amt: student_expected_earnings_next_year&.dig('other_annuities_income'),
         next_year_emplmt_income_amt: student_expected_earnings_next_year&.dig('earnings_from_all_employment'),
         next_year_other_income_amt: student_expected_earnings_next_year&.dig('all_other_income'),
-        next_year_ssa_income_amt: student_expected_earnings_next_year&.dig('annual_social_security_payments')
+        next_year_ssa_income_amt: student_expected_earnings_next_year&.dig('annual_social_security_payments'),
+        acrdtdSchoolInd: convert_boolean(@dependents_application&.dig('current_term_dates', 'is_school_accredited')),
+        atndedSchoolCntnusInd: convert_boolean(@dependents_application&.dig('program_information', 'student_is_enrolled_full_time')), # rubocop:disable Layout/LineLength
+        stopedAtndngSchoolDt: format_date(@dependents_application&.dig('child_stopped_attending_school', 'date_stopped_attending')) # rubocop:disable Layout/LineLength
       }
     end
     # rubocop:enable Metrics/MethodLength

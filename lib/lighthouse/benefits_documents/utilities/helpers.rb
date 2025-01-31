@@ -20,6 +20,14 @@ module BenefitsDocuments
           original_filename
         end
       end
+
+      def self.format_date_for_mailers(date)
+        # We want to return all times in EDT
+        timestamp = Time.at(date).in_time_zone('America/New_York')
+
+        # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
+        timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+      end
     end
   end
 end

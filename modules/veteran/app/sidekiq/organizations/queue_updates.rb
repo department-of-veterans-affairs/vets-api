@@ -51,7 +51,7 @@ module Organizations
 
     def rows_to_process(rows)
       rows.map do |row|
-        org = Veteran::Service::Organization.find_by(poa: row[:id])
+        org = Veteran::Service::Organization.find_by!(poa: row[:id])
         diff = org.diff(row)
         row.merge(diff.merge({ address_exists: org.location.present? })) if diff.values.any?
       rescue ActiveRecord::RecordNotFound => e

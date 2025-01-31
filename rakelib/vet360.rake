@@ -79,7 +79,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    data = JSON.parse(ENV[ENV_VAR_NAME])
+    data = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = data['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -103,7 +103,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -129,7 +129,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -152,7 +152,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -178,7 +178,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -204,7 +204,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -228,7 +228,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -251,7 +251,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 

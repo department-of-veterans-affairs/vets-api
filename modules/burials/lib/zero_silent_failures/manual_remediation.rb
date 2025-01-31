@@ -10,7 +10,7 @@ module Burials
 
       # specify the claim class to be used
       def claim_class
-        ::SavedClaim::Burial
+        Burials::SavedClaim
       end
 
       # override - add additional stamps

@@ -47,6 +47,9 @@ module AccreditedRepresentativePortal
 
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
+    scope :not_expired, lambda {
+      where.not(resolution: { resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration' })
+    }
 
     private
 

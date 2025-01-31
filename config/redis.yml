@@ -162,7 +162,7 @@ development: &defaults
     each_ttl: 1800
   sign_in_state_code:
     namespace: sign_in_state_code
-    each_ttl: 1800
+    each_ttl: 3600
   sign_in_terms_code_container:
     namespace: sign_in_terms_code_container
     each_ttl: 1800

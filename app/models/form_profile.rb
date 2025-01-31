@@ -92,7 +92,7 @@ class FormProfile
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
     evss: ['21-526EZ'],
     hca: %w[1010ez 10-10EZR],
-  pension_burial: %w[21P-530EZ 21P-527EZ],
+    pension_burial: %w[21P-530EZ 21P-527EZ],
     dependents: %w[686C-674 686C-674-V2],
     decision_review: %w[20-0995 20-0996 10182],
     mdot: ['MDOT'],
@@ -161,7 +161,7 @@ class FormProfile
   attribute :military_information, FormMilitaryInformation
 
   def self.prefill_enabled_forms
-    forms = %w[21-686C 40-10007 0873 686C-674 686C-674-V2]
+    forms = %w[21-686C 40-10007 0873]
     ALL_FORMS.each { |type, form_list| forms += form_list if Settings[type].prefill }
     forms
   end

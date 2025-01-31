@@ -25,7 +25,7 @@ RSpec.describe Representatives::XlsxFileProcessor do
     context 'with valid data' do
       let(:expected_keys) { %i[id address email phone_number] }
       let(:expected_address_keys) do
-        %i[address_pou address_line1 address_line2 address_line3 city state_province zip_code5 zip_code4
+        %i[address_pou address_line1 address_line2 address_line3 city state zip_code5 zip_code4
            country_code_iso3]
       end
 
@@ -42,6 +42,14 @@ RSpec.describe Representatives::XlsxFileProcessor do
             check_values(row)
           end
         end
+      end
+
+      it 'deduplicates the rows based on the "Number" column' do
+        # There are no duplicate "Number" values in the Agents and Attorneys sheets
+        expect(result['Agents'].count).to eq(5)
+        expect(result['Attorneys'].count).to eq(5)
+        # There are 19 rows of data in the Representatives sheet, but 12 of them have duplicate "Number" values
+        expect(result['Representatives'].count).to eq(7)
       end
     end
 

@@ -14,7 +14,7 @@ RSpec.describe V0::BenefitsReferenceDataController, type: :controller do
       VCR.use_cassette('lighthouse/benefits_reference_data/200_disabilities_response') do
         get(:get_data, params: { path: 'disabilities' })
       end
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
       returned_data = JSON.parse(response.body)
       expect(returned_data.keys.sort).to eq(%w[items links totalItems totalPages])
       expect(returned_data).is_a?(Hash)
@@ -32,7 +32,7 @@ RSpec.describe V0::BenefitsReferenceDataController, type: :controller do
       VCR.use_cassette('lighthouse/benefits_reference_data/404_response') do
         get(:get_data, params: { path: 'a_non_existing_end_point' })
       end
-      expect(response.status).to eq(404)
+      expect(response).to have_http_status(:not_found)
       returned_data = JSON.parse(response.body)
       expect(returned_data).to eq(
         {
