@@ -15,13 +15,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     Sidekiq::Job.clear_all
     Flipper.disable(:validate_saved_claims_with_json_schemer)
     Flipper.disable(:disability_526_expanded_contention_classification)
-    Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
+    # Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
     Flipper.disable(:disability_compensation_production_tester)
     Flipper.disable(:disability_compensation_fail_submission)
     allow(Flipper).to receive(:enabled?).and_call_original
   end
 
-  let(:user) { create(:user, :loa3) }
+  let(:user) { create(:user, :loa3, icn: '123456') }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -90,9 +90,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       def submit_it
+        allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
+                                                                  .and_return('access_token')
         subject.perform_async(submission.id)
-        VCR.use_cassette('virtual_regional_office/contention_classification_null_response') do
-          described_class.drain
+        VCR.use_cassette('lighthouse/claims/200_response' ) do
+         VCR.use_cassette('virtual_regional_office/contention_classification_null_response') do
+            described_class.drain
+           end
         end
         submission.reload
         expect(Form526JobStatus.last.status).to eq 'success'
@@ -108,8 +112,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         end
 
         it 'does not log or push metrics' do
+           allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
+                          .and_return('access_token')
           submit_it
-
           expect(Rails.logger).not_to have_received(:info).with('Flash Prototype Added', anything)
           expect(StatsD).not_to have_received(:increment).with('worker.flashes', anything)
         end
@@ -188,6 +193,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
     context 'with contention classification enabled' do
       context 'when diagnostic code is not set' do
+        let(:user) { create(:user, :loa3, icn: '123456') }
         let(:submission) do
           create(:form526_submission,
                  :without_diagnostic_code,
@@ -198,11 +204,23 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       context 'when diagnostic code is set' do
+        let(:user) { create(:user, :loa3, icn: '123456') }
+        let(:submission) do
+          create(:form526_submission,
+                 :non_rrd_with_mas_diagnostic_code,
+                 user_uuid: user.uuid,
+                 auth_headers_json: auth_headers.to_json,
+                 saved_claim_id: saved_claim.id)
+        end
         it 'still completes form 526 submission when CC fails' do
+          allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
+                                                                    .and_return('access_token')
           subject.perform_async(submission.id)
           expect do
-            VCR.use_cassette('virtual_regional_office/contention_classification_failure') do
-              described_class.drain
+            VCR.use_cassette('lighthouse/claims/200_response' ) do
+              VCR.use_cassette('virtual_regional_office/contention_classification_failure') do
+                described_class.drain
+              end
             end
           end.not_to change(backup_klass.jobs, :size)
           expect(Form526JobStatus.last.status).to eq 'success'
@@ -280,12 +298,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
           context 'when using LH Benefits Claims API instead of EVSS' do
             before do
-              Flipper.enable(:disability_compensation_lighthouse_claims_service_provider)
+              # Flipper.enable(:disability_compensation_lighthouse_claims_service_provider)
               allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
                 .and_return('access_token')
             end
 
-            after { Flipper.disable(:disability_compensation_lighthouse_claims_service_provider) }
+            # after { Flipper.disable(:disability_compensation_lighthouse_claims_service_provider) }
 
             let(:open_claims_cassette) do
               'lighthouse/benefits_claims/index/claims_with_single_open_disability_claim'
