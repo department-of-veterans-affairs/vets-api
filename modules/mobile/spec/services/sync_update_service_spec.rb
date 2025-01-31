@@ -20,7 +20,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
   describe '#v2_save_and_await_response' do
     let(:user) { create(:user, :api_auth_v2) }
 
-    let(:params) { build(:va_profile_v3_address, validation_key: nil) }
+    let(:params) { build(:va_profile_v3_address, source_system_user: user.icn) }
 
     context 'when it succeeds' do
       let(:transaction) do
