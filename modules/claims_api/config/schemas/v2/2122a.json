@@ -112,10 +112,9 @@
             },
             "phoneNumber": {
               "description": "Phone number.",
-              "type": "string", "pattern": "^[0-9]{1,14}$",
+              "type": "string", "pattern": "^\\d(?:[- ]*\\d){6,9}$",
               "example": "555-5555"
-            },
-            "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
+            }
           },
           "if": {
             "properties": {
@@ -221,10 +220,9 @@
             "phoneNumber": {
               "description": "Phone number.",
               "type": "string",
-              "pattern": "^[0-9]{1,14}$",
+              "pattern": "^\\d(?:[- ]*\\d){6,9}$",
               "example": "555-5555"
-            },
-            "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
+            }
           },
           "if": {
             "properties": {
