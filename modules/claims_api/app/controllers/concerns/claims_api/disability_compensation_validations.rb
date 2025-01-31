@@ -598,7 +598,7 @@ module ClaimsApi
         active_duty_end_date = sp['activeDutyEndDate']
         next if active_duty_end_date.blank?
 
-        Date.parse(active_duty_end_date) <= 180.days.from_now
+        Date.parse(active_duty_end_date) <= 180.days.from_now.end_of_day
       end
 
       unless at_least_one_active_duty_end_date_within_180_days
