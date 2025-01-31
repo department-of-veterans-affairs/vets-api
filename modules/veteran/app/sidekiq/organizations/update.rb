@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sentry_logging'
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
 require 'va_profile/models/v3/validation_address'
@@ -13,7 +12,6 @@ module Organizations
   # and update records in the database accordingly.
   class Update
     include Sidekiq::Job
-    include SentryLogging
 
     attr_accessor :slack_messages, :orgs_data
 
@@ -115,7 +113,7 @@ module Organizations
     end
 
     # Updates the address record based on the org_data and validation response.
-    # If the record cannot be found, logs an error to Sentry.
+    # If the record cannot be found, logs an error to Datadog.
     # @param org_data [Hash] Original org_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
     def update_org_record(org_data, api_response)
@@ -191,11 +189,11 @@ module Organizations
       }
     end
 
-    # Logs an error to Sentry.
+    # Logs an error to Datadog and adds and error to be logged to slack.
     # @param error [Exception] The error string to be logged.
     def log_error(error)
       message = "Organizations::Update: #{error}"
-      log_message_to_sentry(message, :error)
+      Rails.logger.error(message)
       @slack_messages << "----- #{message}"
     end
 
@@ -292,6 +290,8 @@ module Organizations
     end
 
     def log_to_slack(message)
+      return unless Rails.env.production?
+
       client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                        channel: '#benefits-representation-management-notifications',
                                        username: 'Organizations::Update Bot')

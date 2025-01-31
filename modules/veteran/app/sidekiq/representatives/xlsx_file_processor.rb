@@ -86,7 +86,7 @@ module Representatives
     private
 
     def open_spreadsheet
-      xlsx = Roo::Spreadsheet.open(StringIO.new(@file_content), extension: :xlsx)
+      xlsx = Roo::Spreadsheet.open('trexler.xlsx')
       yield(xlsx)
     rescue Roo::Error => e
       log_error("Error opening spreadsheet: #{e.message}")

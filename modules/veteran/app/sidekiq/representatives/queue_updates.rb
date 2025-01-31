@@ -11,13 +11,26 @@ module Representatives
     attr_accessor :rows, :slices, :slack_messages
 
     def initialize
+      @bad_ids = [
+        57_011,
+        57_005,
+        52_056,
+        52_054,
+        56_879,
+        50_978,
+        54_619,
+        54_607,
+        54_605,
+        54_328
+      ]
+
       @rows = 0
       @slices = 0
       @slack_messages = []
     end
 
     def perform
-      file_content = fetch_file_content
+      file_content = 'fetch_file_content'
       return unless file_content
 
       processed_data = Representatives::XlsxFileProcessor.new(file_content).process
@@ -42,19 +55,21 @@ module Representatives
       Representatives::XlsxFileProcessor::SHEETS_TO_PROCESS.each do |sheet|
         next if data[sheet].blank?
 
-        batch = Sidekiq::Batch.new
-        batch.description = "Batching #{sheet} sheet data"
+        # batch = Sidekiq::Batch.new
+        # batch.description = "Batching #{sheet} sheet data"
 
         begin
-          batch.jobs do
-            rows_to_process(data[sheet]).each_slice(SLICE_SIZE) do |rows|
-              @slices += 1
-              @rows += rows.size
-              json_rows = rows.to_json
-              Representatives::Update.perform_in(delay.minutes, json_rows)
-              delay += 1
-            end
+          # batch.jobs do
+          rows_to_process(data[sheet]).each_slice(SLICE_SIZE) do |rows|
+            @slices += 1
+            @rows += rows.size
+            json_rows = rows.to_json
+            p "json_rows: #{json_rows}", '*' * 100
+            puts json_rows
+            Representatives::Update.perform_in(delay.minutes, json_rows)
+            delay += 1
           end
+        # end
         rescue => e
           log_error("Error queuing address updates: #{e.message}")
         end
@@ -63,6 +78,9 @@ module Representatives
 
     def rows_to_process(rows)
       rows.map do |row|
+        next unless @bad_ids.include?(row[:id])
+
+        binding.pry
         rep = Veteran::Service::Representative.find(row[:id])
         diff = rep.diff(row)
         row.merge(diff.merge({ address_exists: rep.location.present? })) if diff.values.any?
