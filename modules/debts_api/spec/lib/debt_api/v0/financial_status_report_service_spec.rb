@@ -260,6 +260,38 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         end
       end
 
+      context 'with Sharepoint Error Flipper enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:debts_sharepoint_error_logging).and_return(true)
+        end
+
+        it 'raises an error when submission fails' do
+          service = described_class.new(user_data)
+
+          allow_any_instance_of(MPI::Service)
+            .to receive(:find_profile_by_identifier).and_return(find_profile_response)
+          allow_any_instance_of(DebtManagementCenter::Sharepoint::Request)
+            .to receive(:set_sharepoint_access_token).and_return('fake token')
+
+          expect(form_submission).to receive(:register_failure).with(
+            a_string_starting_with('FinancialStatusReportService#submit_vha_fsr: BackendServiceException:')
+          )
+
+          Timecop.freeze(Time.new(2023, 8, 29, 16, 13, 22).utc) do
+            VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+              expect do
+                service.submit_vha_fsr(form_submission)
+              end.to raise_error(Common::Exceptions::BackendServiceException) do |e|
+                expect(e.errors.first.status).to eq('400')
+                expect(e.errors.first.detail).to eq("Malformed PDF request to SharePoint")
+                expect(e.errors.first.code).to eq("SHAREPOINT_PDF_400")
+                expect(e.errors.first.source).to eq("SharepointRequest")
+              end
+            end
+          end
+        end
+      end
+
       it 'raises an error when Faraday fails' do
         service = described_class.new(user_data)
 
