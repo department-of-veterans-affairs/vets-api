@@ -17,41 +17,25 @@ module AccreditedRepresentativePortal
       end
 
       def create
-        type = deserialize_type
         reason = decision_params[:reason]
 
-        ApplicationRecord.transaction do
-          resolving = PowerOfAttorneyRequestDecision.create!(type:, creator:)
+        case decision_params[:type]
+        when 'acceptance'
+          raise UnprocessableEntity, 'Reason must be blank' if reason.present?
 
-          ##
-          # This form triggers the uniqueness validation, while the
-          # `@poa_request.create_resolution!` form triggers a more obscure
-          # `RecordNotSaved` error that is less functional for getting
-          # validation errors.
-          #
-          PowerOfAttorneyRequestResolution.create!(
-            power_of_attorney_request: @poa_request,
-            resolving:,
-            reason:
-          )
+          service = PowerOfAttorneyRequestService::Accept.new(@poa_request, creator, reason)
+          poa_form_submission = service.call
+          raise UnprocessableEntity, poa_form_submission.error_message if poa_form_submission.enqueue_failed?
+        when 'declination'
+          PowerOfAttorneyRequestService::Decline.new(@poa_request, creator, reason).call
+        else
+          raise UnprocessableEntity, 'Invalid type parameter - Types accepted: [acceptance declination]'
         end
 
         render json: {}, status: :ok
       end
 
       private
-
-      def deserialize_type
-        case decision_params[:type]
-        when 'acceptance'
-          PowerOfAttorneyRequestDecision::Types::ACCEPTANCE
-        when 'declination'
-          PowerOfAttorneyRequestDecision::Types::DECLINATION
-        else
-          # So that validations will get their chance to complain.
-          decision_params[:type]
-        end
-      end
 
       def decision_params
         params.require(:decision).permit(:type, :reason)
