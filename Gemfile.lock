@@ -797,9 +797,9 @@ GEM
       date
       jar-dependencies (>= 0.1.7)
     public_suffix (6.0.1)
-    puma (6.5.0)
+    puma (6.6.0)
       nio4r (~> 2.0)
-    puma (6.5.0-java)
+    puma (6.6.0-java)
       nio4r (~> 2.0)
     pundit (2.4.0)
       activesupport (>= 3.0.0)
