@@ -25,6 +25,9 @@ module SimpleFormsApi
         }
 
         notification_email
+      rescue => e
+        StatsD.increment('silent_failure', tags: statsd_tags) if notification_type == :error
+        raise e
       end
 
       private
@@ -35,9 +38,6 @@ module SimpleFormsApi
           notification_type:,
           user_account:
         ).send(at: time_to_send)
-      rescue => e
-        StatsD.increment('silent_failure', tags: statsd_tags) if notification_type == :error
-        raise e
       end
 
       def time_to_send
