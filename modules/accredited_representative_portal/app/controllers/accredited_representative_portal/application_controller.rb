@@ -2,6 +2,8 @@
 
 module AccreditedRepresentativePortal
   class ApplicationController < SignIn::ApplicationController
+    class UnprocessableEntity < StandardError; end
+
     include SignIn::AudienceValidator
     include Authenticable
     include Pundit::Authorization
@@ -15,7 +17,15 @@ module AccreditedRepresentativePortal
       )
     end
 
-    service_tag 'accredited-representative-portal' # ARP Datadog monitoring
+    rescue_from UnprocessableEntity do |e|
+      render(
+        json: { errors: [e.message] },
+        status: :unprocessable_entity
+      )
+    end
+
+    service_tag 'accredited-representative-portal' # ARP DataDog monitoring: https://bit.ly/arp-datadog-monitoring
+
     validates_access_token_audience Settings.sign_in.arp_client_id
 
     before_action :verify_pilot_enabled_for_user
