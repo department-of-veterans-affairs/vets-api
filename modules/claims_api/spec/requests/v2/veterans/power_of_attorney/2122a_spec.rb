@@ -931,6 +931,84 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                       end
                     end
                   end
+
+                  context 'when claimant phoneNumber has a dash' do
+                    let(:request_body) do
+                      Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                      'power_of_attorney', '2122a', 'valid.json').read
+                    end
+
+                    let(:claimant) do
+                      {
+                        claimantId: '456',
+                        email: 'lillian@disney.com',
+                        relationship: 'Spouse',
+                        address: {
+                          addressLine1: '2688 S Camino Real',
+                          city: 'Palm Springs',
+                          stateCode: 'CA',
+                          countryCode: 'US',
+                          zipCode: '92264'
+                        },
+                        phone: {
+                          countryCode: '1',
+                          areaCode: '456',
+                          phoneNumber: '555-1337'
+                        }
+                      }
+                    end
+
+                    it 'returns a 202' do
+                      VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                        mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                          json = JSON.parse(request_body)
+                          json['data']['attributes']['claimant'] = claimant
+                          request_body = json.to_json
+                          post validate2122a_path, params: request_body, headers: auth_header
+                          expect(response).to have_http_status(:ok)
+                        end
+                      end
+                    end
+                  end
+
+                  context 'when claimant phoneNumber has a space' do
+                    let(:request_body) do
+                      Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                      'power_of_attorney', '2122a', 'valid.json').read
+                    end
+
+                    let(:claimant) do
+                      {
+                        claimantId: '456',
+                        email: 'lillian@disney.com',
+                        relationship: 'Spouse',
+                        address: {
+                          addressLine1: '2688 S Camino Real',
+                          city: 'Palm Springs',
+                          stateCode: 'CA',
+                          countryCode: 'US',
+                          zipCode: '92264'
+                        },
+                        phone: {
+                          countryCode: '1',
+                          areaCode: '456',
+                          phoneNumber: '555 1337'
+                        }
+                      }
+                    end
+
+                    it 'returns a 202' do
+                      VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                        mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                          json = JSON.parse(request_body)
+                          json['data']['attributes']['claimant'] = claimant
+                          request_body = json.to_json
+                          post validate2122a_path, params: request_body, headers: auth_header
+                          expect(response).to have_http_status(:ok)
+                        end
+                      end
+                    end
+                  end
                 end
               end
             end
