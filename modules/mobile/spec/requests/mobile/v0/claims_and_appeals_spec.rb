@@ -546,10 +546,29 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
             get('/mobile/v0/claim/600117255', headers: sis_headers)
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'eventsTimeline', 1,
-                                 'displayName')).to eq('RV1 - Reserve Records Request')
-          expect(parsed_body.dig('data', 'attributes', 'eventsTimeline', 1,
-                                 'type')).to eq('still_need_from_others_list')
+          expect(parsed_body.dig('data', 'attributes', 'eventsTimeline')).to include(
+            { "type"=>"still_need_from_others_list",
+              "trackedItemId"=>360057,
+              "description"=>"RV1 can have its status overriden with a feature flipper.",
+              "displayName"=>"RV1 - Reserve Records Request",
+              "overdue"=>false,
+              "status"=>"NEEDED",
+              "uploaded"=>false,
+              "uploadsAllowed"=>false,
+              "openedDate"=>"2023-04-14",
+              "requestedDate"=>"2023-04-14",
+              "receivedDate"=>"2023-03-15",
+              "closedDate"=>"2022-10-30",
+              "suspenseDate"=>nil,
+              "documents"=>[],
+              "uploadDate"=>nil,
+              "date"=>"2022-10-30",
+              "fileType"=>nil,
+              "documentType"=>nil,
+              "filename"=>nil,
+              "documentId"=>nil
+            }
+          )
         end
       end
 
@@ -564,9 +583,29 @@ RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
             get('/mobile/v0/claim/600117255', headers: sis_headers)
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'eventsTimeline', 1,
-                                 'displayName')).to eq('RV1 - Reserve Records Request')
-          expect(parsed_body.dig('data', 'attributes', 'eventsTimeline', 1, 'type')).to eq('still_need_from_you_list')
+          expect(parsed_body.dig('data', 'attributes', 'eventsTimeline')).to include(
+            { "type"=>"still_need_from_you_list",
+              "trackedItemId"=>360057,
+              "description"=>"RV1 can have its status overriden with a feature flipper.",
+              "displayName"=>"RV1 - Reserve Records Request",
+              "overdue"=>false,
+              "status"=>"NEEDED",
+              "uploaded"=>false,
+              "uploadsAllowed"=>false,
+              "openedDate"=>"2023-04-14",
+              "requestedDate"=>"2023-04-14",
+              "receivedDate"=>"2023-03-15",
+              "closedDate"=>"2022-10-30",
+              "suspenseDate"=>nil,
+              "documents"=>[],
+              "uploadDate"=>nil,
+              "date"=>"2022-10-30",
+              "fileType"=>nil,
+              "documentType"=>nil,
+              "filename"=>nil,
+              "documentId"=>nil
+            }
+          )
         end
       end
     end
