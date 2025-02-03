@@ -289,6 +289,9 @@ vet360:
     url: "https://sandbox-api.va.gov"
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
+  v3:
+    address_validation:
+      api_key: "<AV_KEY>"
   profile_information:
     enabled: true
     timeout: 30
