@@ -936,7 +936,7 @@ module VAOS
       end
 
       def validate_response_schema(response, contract_name)
-        return unless response.success? && response.body.present?
+        return unless response.success? && response.body[:data].present?
 
         SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
       end
