@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sentry_logging'
 
 module Veteran
   class VSOReloader < BaseReloader
     include Sidekiq::Job
-    include SentryLogging
 
     def perform
       array_of_organizations = reload_representatives
@@ -104,6 +102,8 @@ module Veteran
     end
 
     def log_to_slack(message)
+      return unless Settings.vsp_environment == 'production'
+
       client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
                                        channel: '#api-benefits-claims',
                                        username: 'VSOReloader')
