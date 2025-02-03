@@ -78,16 +78,19 @@
                 },
                 "homeless": { "type": "boolean" },
                 "homelessLivingSituation": {
-                  "type": "string", 
-                  "enum": [ 
-                    "I live or sleep in a place that is not meant for regular sleeping",
-                    "I live in a shelter",
-                    "I am staying with a friend or family member, because I am unable to own a home right now",
-                    "In the next 30 days, I will have to leave a facility, like a homeless shelter",
-                    "In the next 30 days, I will lose my home",
-                    "None of these situations apply to me",
-                    "Other"
-                  ]
+                  "type": "array", 
+                  "items": {
+                    "type": "string",
+                    "enum": [ 
+                      "I live or sleep in a place that is not meant for regular sleeping",
+                      "I live in a shelter",
+                      "I am staying with a friend or family member, because I am unable to own a home right now",
+                      "In the next 30 days, I will have to leave a facility, like a homeless shelter",
+                      "In the next 30 days, I will lose my home",
+                      "None of these situations apply to me",
+                      "Other"
+                    ]
+                  }
                 },
                 "homelessLivingSituationOther": {"type":  "string", "maxLength": 100 },
                 "homelessPointOfContact": {"type":  "string", "maxLength": 150 },

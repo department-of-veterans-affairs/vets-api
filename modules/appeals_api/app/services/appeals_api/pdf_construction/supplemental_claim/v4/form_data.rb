@@ -42,8 +42,8 @@ module AppealsApi
             'Private health care provider',
             'Va vet center',
             'Community care',
-            'Va medical center(s) (vamc) and community-based outpatient clinics (cboc)',
-            'Department of defense (dod) military treatment facility(ies) (mtf)',
+            'Va medical centers (VAMC) and community-based outpatient clinics (CBOC)',
+            'Department of defense (DOD) militart treatment facility(IES) (MTF)',
             'Other'
           ].freeze
 
