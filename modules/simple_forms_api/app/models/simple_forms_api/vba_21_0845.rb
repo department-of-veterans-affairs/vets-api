@@ -18,6 +18,22 @@ module SimpleFormsApi
       }
     end
 
+    def notification_first_name
+      if data['authorizer_type'] == 'veteran'
+        data.dig('veteran_full_name', 'first')
+      elsif data['authorizer_type'] == 'nonVeteran'
+        data.dig('authorizer_full_name', 'first')
+      end
+    end
+
+    def notification_email_address
+      if data['authorizer_type'] == 'veteran'
+        data['veteran_email']
+      elsif data['authorizer_type'] == 'nonVeteran'
+        data['authorizer_email']
+      end
+    end
+
     def zip_code_is_us_based
       @data.dig('authorizer_address',
                 'country') == 'USA' || @data.dig('person_address',

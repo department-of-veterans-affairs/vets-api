@@ -6,16 +6,13 @@ module AccreditedRepresentativePortal
 
     attribute :power_of_attorney_form do |poa_request|
       poa_request.power_of_attorney_form.parsed_data.tap do |form|
-        claimant_key =
-          case poa_request.claimant_type
-          when PowerOfAttorneyRequest::ClaimantTypes::DEPENDENT
-            'dependent'
-          when PowerOfAttorneyRequest::ClaimantTypes::VETERAN
-            'veteran'
-          end
-
-        form['claimant'] = form.delete(claimant_key)
-        form.delete('dependent')
+        case poa_request.claimant_type
+        when PowerOfAttorneyRequest::ClaimantTypes::DEPENDENT
+          form['claimant'] = form.delete('dependent')
+        when PowerOfAttorneyRequest::ClaimantTypes::VETERAN
+          form['claimant'] = form.delete('veteran')
+          form.delete('dependent')
+        end
       end
     end
 
