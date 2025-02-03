@@ -34,8 +34,8 @@ RSpec.describe FormProfile::MDOT, type: :model do
         match_requests_on: %i[method uri headers],
         erb: { icn: user.icn }
       )
-      expect { FormProfile.for(form_id: 'MDOT', user:).prefill }.to
-        raise_error(Common::Exceptions::BackendServiceException)
+      expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
+        .to raise_error(Common::Exceptions::BackendServiceException)
       VCR.eject_cassette
     end
   end
