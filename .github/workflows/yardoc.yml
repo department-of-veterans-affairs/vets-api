@@ -1,11 +1,11 @@
 name: Yardoc
 # check documentation in specified paths
-# `on` parses to `true` in ruby
-on:
+on: # `on` parses to `true` in ruby
   pull_request:
     paths:
-      - "modules/burials/*.rb"
-      - "modules/pensions/*.rb"
+      # https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#patterns-to-match-file-paths
+      - 'modules/burials/**.rb'
+      - 'modules/pensions/**.rb'
 permissions:
   contents: read
   pull-requests: write
