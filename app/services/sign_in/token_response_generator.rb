@@ -79,12 +79,8 @@ module SignIn
     end
 
     def audit_log_user_login(validated_credential:)
-      acting_user_verification = validated_credential.user_verification
-      subject_user_verification = validated_credential.user_verification
-
       UserAuditLoggerService.log_user_action(details: 'User logged in',
-                                             acting_user_verification:,
-                                             subject_user_verification:,
+                                             subject_user_verification: validated_credential.user_verification,
                                              status: 'success',
                                              acting_ip_address: cookies.request.remote_ip,
                                              acting_user_agent: cookies.request.user_agent)
