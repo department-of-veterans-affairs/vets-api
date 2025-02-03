@@ -1,5 +1,9 @@
 name: Yardoc
-on: [pull_request]
+on: # this parses to `true` in ruby
+  pull_request:
+    paths:
+      - 'modules/burials/*.rb'
+      - 'modules/pensions/*.rb'
 permissions:
   contents: read
   pull-requests: write

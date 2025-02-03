@@ -3,13 +3,18 @@
 desc 'run yardoc against changed files'
 task yardoc: :environment do
   require 'rainbow'
+  require 'yaml'
 
   head_sha = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
   base_sha = 'origin/master'
 
-  globs = ['*.rb']
+  yardoc_yaml = Rails.root.join('.github', 'workflows', 'yardoc.yml')
+  config = YAML.load_file(yardoc_yaml)
+
+  globs = config[true]['pull_request']['paths']
 
   # git diff the glob list - only want to check the changed files
+  # only want to run on files that are in the defined paths
   globs = globs.map { |g| "'#{g}'" }.join(' ')
   cmd = "git diff #{base_sha}...#{head_sha} --name-only -- #{globs}"
   puts "\n#{cmd}\n"
