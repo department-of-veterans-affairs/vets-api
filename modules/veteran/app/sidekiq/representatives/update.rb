@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sentry_logging'
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
 require 'va_profile/models/v3/validation_address'
@@ -14,7 +13,6 @@ module Representatives
   # address, email, or phone number is updated.
   class Update
     include Sidekiq::Job
-    include SentryLogging
 
     attr_accessor :slack_messages
 
@@ -118,7 +116,7 @@ module Representatives
     end
 
     # Updates the address record based on the rep_data and validation response.
-    # If the record cannot be found, logs an error to Sentry.
+    # If the record cannot be found, logs an error to Datadog.
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
     def update_rep_record(rep_data, api_response)
@@ -228,11 +226,11 @@ module Representatives
       }
     end
 
-    # Logs an error to Sentry.
+    # Logs an error to Datadog and adds an error to the array that will be logged to slack.
     # @param error [Exception] The error string to be logged.
     def log_error(error)
       message = "Representatives::Update: #{error}"
-      log_message_to_sentry(message, :error)
+      Rails.logger.error(message)
       @slack_messages << "----- #{message}"
     end
 
@@ -328,6 +326,8 @@ module Representatives
     end
 
     def log_to_slack(message)
+      return unless Settings.vsp_environment == 'production'
+
       client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                        channel: '#benefits-representation-management-notifications',
                                        username: 'Representatives::Update Bot')

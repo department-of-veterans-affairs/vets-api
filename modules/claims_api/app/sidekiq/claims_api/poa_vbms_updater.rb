@@ -6,6 +6,7 @@ require 'bgs_service/corporate_update_web_service'
 module ClaimsApi
   class PoaVBMSUpdater < ClaimsApi::ServiceBase
     LOG_TAG = 'poa_vbms_updater'
+    sidekiq_options retry_for: 48.hours
 
     def perform(power_of_attorney_id) # rubocop:disable Metrics/MethodLength
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
