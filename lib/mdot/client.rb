@@ -124,13 +124,14 @@ module MDOT
 
     def handle_client_error(error)
       save_error_details(error)
-      code = if error&.status == 503
-               'MDOT_service_unavailable'
-             elsif error&.status == 500
-               'MDOT_internal_server_error'
-             elsif error&.body&.fetch('result', nil)
-               "MDOT_#{error.body['result'].downcase}"
-             end
+      code = nil
+      if error&.status == 503
+        code = 'MDOT_service_unavailable'
+      elsif error&.status == 500
+        code = 'MDOT_internal_server_error'
+      elsif error&.body&.fetch('result', nil)
+        code = "MDOT_#{error.body['result'].downcase}"
+      end
 
       raise_backend_exception(
         MDOT::ExceptionKey.new(code),
