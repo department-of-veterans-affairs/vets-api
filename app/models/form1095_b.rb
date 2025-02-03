@@ -63,13 +63,13 @@ class Form1095B < ApplicationRecord
     data[:middle_name] ? data[:middle_name][0] : ''
   end
 
-  def ssn_or_birthdate
+  def birthdate_unless_ssn
     data[:last_4_ssn].present? ? '' : data[:birth_date]
   end
 
   def txt_form_data
     text_data = {
-      birth_date_field: data[:last_4_ssn].present? ? '' : data[:birth_date],
+      birth_date_field: birthdate_unless_ssn,
       state_or_province: data[:state] || data[:province],
       country_and_zip:,
       middle_init: middle_initial,
@@ -95,7 +95,7 @@ class Form1095B < ApplicationRecord
         'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_02[0]': data[:middle_name],
         'topmostSubform[0].Page1[0].Part1Contents[0].Line1[0].f1_03[0]': data[:last_name],
         'topmostSubform[0].Page1[0].Part1Contents[0].f1_04[0]': data[:last_4_ssn] || '',
-        'topmostSubform[0].Page1[0].Part1Contents[0].f1_05[0]': ssn_or_birthdate,
+        'topmostSubform[0].Page1[0].Part1Contents[0].f1_05[0]': birthdate_unless_ssn,
         'topmostSubform[0].Page1[0].Part1Contents[0].f1_06[0]': data[:address],
         'topmostSubform[0].Page1[0].Part1Contents[0].f1_07[0]': data[:city],
         'topmostSubform[0].Page1[0].Part1Contents[0].f1_08[0]': data[:state] || data[:province],
@@ -112,7 +112,7 @@ class Form1095B < ApplicationRecord
         'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_26[0]': middle_initial,
         'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_27[0]': data[:last_name],
         'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_28[0]': data[:last_4_ssn] || '',
-        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_29[0]': ssn_or_birthdate,
+        'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].f1_29[0]': birthdate_unless_ssn,
         'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_01[0]': data[:coverage_months][0] && 1,
         'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_02[0]': data[:coverage_months][1] && 1,
         'topmostSubform[0].Page1[0].Table1_Part4[0].Row23[0].c1_03[0]': data[:coverage_months][2] && 1,
