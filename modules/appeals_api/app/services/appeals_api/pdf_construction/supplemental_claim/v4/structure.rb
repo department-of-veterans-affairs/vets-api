@@ -74,7 +74,7 @@ module AppealsApi
           end
 
           def whiteout(pdf, at:, width:, height: 14, **_ignored)
-            pdf.fill_color 'FF0000'
+            pdf.fill_color 'ffffff'
             pdf.fill_rectangle at, width, height
             pdf.fill_color '000000'
           end

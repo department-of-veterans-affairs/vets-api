@@ -149,7 +149,18 @@
                       "type": "array",
                       "description": "Identify where you have received treatment",
                       "items": { 
-                        "type": "string", 
+                        "type": "string",
+                        "enum": [
+                          "Private health care provider",
+                          "Va vet center", 
+                          "Community care",
+                          "Va medical centers (VAMC) and community-based outpatient clinics (CBOC)",
+                          "Department of defense (DOD) militart treatment facility(IES) (MTF)",
+                          "Other"
+                        ]
+                      },
+                      "treatment_location_other": {"type":  "string", "maxLength": 115 }
+                    },
                     "evidenceType":{
                       "type": "array",
                       "description": "'upload' indicates that the Veteran has supplied additional evidence as uploaded documents. 'retrieval' indicates that the Veteran has supplied contact information for facilities holding evidence relevant to the claim; the 'retrieveFrom' field will contain the facility's contact information. 'none' indicates that the Veteran has not supplied additional evidence.",

@@ -5,6 +5,7 @@ module AppealsApi
     module SupplementalClaim
       module V4
         class FormFields
+          # rubocop:disable Layout/LineLength
           FIELD_NAMES = {
             veteran_middle_initial: 'form1[0].#subform[3].VeteransMiddleInitial1[0]',
             veteran_ssn_first_three: 'form1[0].#subform[3].Veterans_SocialSecurityNumber_FirstThreeNumbers[0]',
@@ -102,6 +103,7 @@ module AppealsApi
             ci_decision_date_7_year: 'form1[0].#subform[4].Date_Year[7]',
             ci_decision_date_8_year: 'form1[0].#subform[4].Date_Year[8]'
           }.freeze
+          # rubocop:enable Layout/LineLength
 
           def initialize
             FIELD_NAMES.each { |field, name| define_singleton_method(field) { name } }
