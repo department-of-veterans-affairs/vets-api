@@ -38,7 +38,7 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
     post '/test_params', params: { attachment: file }
     logs = @log_output.string
 
-    # puts "DEBUG LOG OUTPUT TEST 1: #{logs}"
+    puts "DEBUG LOG OUTPUT TEST 1: #{logs}"
 
     expect(logs).to include('"attachment"')
 
@@ -64,7 +64,7 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
     post '/test_params', params: { attachment: file_params }
     logs = @log_output.string
 
-    # puts "DEBUG LOG OUTPUT TEST 2: #{logs}"
+    puts "DEBUG LOG OUTPUT TEST 2: #{logs}"
 
     expect(logs).not_to include('private_file.docx')
     expect(logs).not_to include('sensitive binary content')
