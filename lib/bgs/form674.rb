@@ -25,10 +25,10 @@ module BGS
       @proc_state = 'Ready' if Flipper.enabled?(:va_dependents_submit674)
     end
 
-    def submit(payload)
+    def submit(payload, student = nil)
       veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130SCHATTEBN').create
 
-      process_relationships(proc_id, veteran, payload)
+      process_relationships(proc_id, veteran, payload, student)
 
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user:)
       vnp_benefit_claim_record = vnp_benefit_claim.create
@@ -74,8 +74,8 @@ module BGS
       }
     end
 
-    def process_relationships(proc_id, veteran, payload)
-      dependent = DependentHigherEdAttendance.new(proc_id:, payload:, user: @user).create
+    def process_relationships(proc_id, veteran, payload, student = nil)
+      dependent = DependentHigherEdAttendance.new(proc_id:, payload:, user: @user, student:).create
 
       VnpRelationships.new(
         proc_id:,
@@ -85,15 +85,16 @@ module BGS
         user: @user
       ).create_all
 
-      process_674(proc_id, dependent, payload)
+      process_674(proc_id, dependent, payload, student)
     end
 
-    def process_674(proc_id, dependent, payload)
+    def process_674(proc_id, dependent, payload, student = nil)
       StudentSchool.new(
         proc_id:,
         vnp_participant_id: dependent[:vnp_participant_id],
         payload:,
-        user: @user
+        user: @user,
+        student:
       ).create
     end
 

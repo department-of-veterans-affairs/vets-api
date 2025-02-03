@@ -7,9 +7,11 @@ module BGSDependents
     attribute :program_information, Hash
     attribute :current_term_dates, Hash
 
-    def initialize(dependents_application, proc_id, vnp_participant_id)
+    def initialize(dependents_application, proc_id, vnp_participant_id, student = nil)
       @proc_id = proc_id
       @vnp_participant_id = vnp_participant_id
+      @student = student
+      @is_v2 = Flipper.enabled?(:va_dependents_v2)
       self.attributes = dependents_application
     end
 

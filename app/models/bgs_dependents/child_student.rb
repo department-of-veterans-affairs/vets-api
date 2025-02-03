@@ -8,11 +8,12 @@ module BGSDependents
     attribute :student_expected_earnings_next_year, Hash
     attribute :student_information, Hash
 
-    def initialize(dependents_application, proc_id, vnp_participant_id)
+    def initialize(dependents_application, proc_id, vnp_participant_id, student = nil)
       @proc_id = proc_id
       @vnp_participant_id = vnp_participant_id
       @dependents_application = dependents_application
       @is_v2 = Flipper.enabled?(:va_dependents_v2)
+      @student = student
       self.attributes = dependents_application
     end
 
