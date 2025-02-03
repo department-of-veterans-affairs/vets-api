@@ -25,22 +25,32 @@ RSpec.describe SavedClaim::DependencyClaim do
 
   let(:file_path) { "tmp/pdfs/686C-674_#{subject.id}_final.pdf" }
 
-  describe '#format_and_uplad_pdf' do
-    it 'uploads to vbms' do
-      uploader = double(ClaimsApi::VBMSUploader)
-      expect(ClaimsApi::VBMSUploader).to receive(:new).with(
-        filepath: file_path,
-        file_number: va_file_number,
-        doc_type:
-      ).and_return(uploader)
-      expect(uploader).to receive(:upload!)
+  context 'uploader' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+    end
 
-      subject.upload_pdf('686C-674')
+    describe '#format_and_uplad_pdf' do
+      it 'uploads to vbms' do
+        uploader = double(ClaimsApi::VBMSUploader)
+        expect(ClaimsApi::VBMSUploader).to receive(:new).with(
+          filepath: file_path,
+          file_number: va_file_number,
+          doc_type:
+        ).and_return(uploader)
+        expect(uploader).to receive(:upload!)
+
+        subject.upload_pdf('686C-674')
+      end
     end
   end
 
   context 'both forms' do
     subject { described_class.new(form: all_flows_payload.to_json) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+    end
 
     describe '#formatted_686_data' do
       it 'returns all data for 686 submissions' do
@@ -73,6 +83,10 @@ RSpec.describe SavedClaim::DependencyClaim do
   context '674 form only' do
     subject { described_class.new(form: form_674_only.to_json) }
 
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+    end
+
     describe '#submittable_686?' do
       it 'returns false if there is no 686 to process' do
         expect(subject.submittable_686?).to be(false)
@@ -82,6 +96,10 @@ RSpec.describe SavedClaim::DependencyClaim do
 
   context 'with adopted child' do
     subject { described_class.new(form: adopted_child.to_json) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+    end
 
     describe '#submittable_674?' do
       it 'returns false if there is no 674 to process' do
@@ -93,6 +111,18 @@ RSpec.describe SavedClaim::DependencyClaim do
       it 'expects to be empty always' do
         expect(subject.regional_office).to eq([])
       end
+    end
+  end
+
+  context 'v2 form' do
+    subject { described_class.new(form: all_flows_payload.to_json, use_v2: true) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+    end
+
+    it 'has a form id of 686C-674-V2' do
+      expect(subject.form_id).to eq('686C-674-V2')
     end
   end
 end
