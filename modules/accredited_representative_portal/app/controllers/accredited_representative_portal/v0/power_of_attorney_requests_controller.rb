@@ -6,7 +6,7 @@ module AccreditedRepresentativePortal
       module Statuses
         ALL = [
           PENDING = 'pending',
-          COMPLETED = 'completed'
+          PROCESSED = 'processed'
         ].freeze
       end
 
@@ -30,9 +30,9 @@ module AccreditedRepresentativePortal
         rel =
           case status
           when Statuses::PENDING
-            rel.unresolved
-          when Statuses::COMPLETED
-            rel.resolved
+            rel.unresolved.order(created_at: :asc)
+          when Statuses::PROCESSED
+            rel.resolved.not_expired.order('resolution.created_at DESC')
           when NilClass
             rel
           else
@@ -58,8 +58,6 @@ module AccreditedRepresentativePortal
       def scope_includes
         [
           :power_of_attorney_form,
-          :power_of_attorney_holder,
-          :accredited_individual,
           { resolution: :resolving }
         ]
       end

@@ -9,24 +9,34 @@ module SimpleFormsApi
 
       HOUR_TO_SEND_NOTIFICATIONS = 9
 
-      attr_reader :notification_type, :form_number, :confirmation_number, :date_submitted, :lighthouse_updated_at
+      attr_reader :notification_type, :config, :form_number, :user_account
 
-      def perform(notification_type:, form_data:, form_submission_attempt:)
+      def perform(notification_type:, form_submission_attempt:, user_account:)
         @notification_type = notification_type
-        @form_number = form_data[:form_number]
-        @confirmation_number = form_data[:benefits_intake_uuid]
-        @date_submitted = form_submission_attempt.created_at.strftime('%B %d, %Y')
-        @lighthouse_updated_at = form_submission_attempt.lighthouse_updated_at&.strftime('%B %d, %Y')
+        @user_account = user_account
+        form_submission = form_submission_attempt.form_submission
+        @form_number = V1::UploadsController::FORM_NUMBER_MAP[form_submission.form_type]
+        @config = {
+          form_data: JSON.parse(form_submission.form_data),
+          form_number:,
+          confirmation_number: form_submission_attempt.benefits_intake_uuid,
+          date_submitted: form_submission_attempt.created_at.strftime('%B %d, %Y'),
+          lighthouse_updated_at: form_submission_attempt.lighthouse_updated_at&.strftime('%B %d, %Y')
+        }
+
 
         if SimpleFormsApi::FormUploadNotificationEmail::SUPPORTED_FORMS.include? form_number
           form_upload_notification_email(form_data)
         else
-          notification_email(form_data)
+          notification_email
         end
+      rescue => e
+        StatsD.increment('silent_failure', tags: statsd_tags) if notification_type == :error
+        raise e
       end
 
       private
-
+        
       def form_upload_notification_email(form_data)
         config = {
           form_number:,
@@ -44,15 +54,7 @@ module SimpleFormsApi
         ).send(at: time_to_send)
       end
 
-      def notification_email(form_data)
-        config = {
-          form_data:,
-          form_number:,
-          confirmation_number:,
-          date_submitted:,
-          lighthouse_updated_at:
-        }
-
+      def notification_email
         SimpleFormsApi::NotificationEmail.new(
           config,
           notification_type:,
@@ -70,6 +72,10 @@ module SimpleFormsApi
             hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0
           )
         end
+      end
+
+      def statsd_tags
+        { 'service' => 'veteran-facing-forms', 'function' => "#{form_number} form submission to Lighthouse" }
       end
     end
   end

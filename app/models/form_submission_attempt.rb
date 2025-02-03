@@ -138,10 +138,10 @@ class FormSubmissionAttempt < ApplicationRecord
   end
 
   def simple_forms_enqueue_result_email(notification_type)
-    SimpleFormsApi::Notification::SendNotificationEmailJob.perform_now(
+    SimpleFormsApi::Notification::SendNotificationEmailJob.new.perform(
       notification_type:,
-      form_data: JSON.parse(form_submission.form_data),
-      form_submission_attempt: self
+      form_submission_attempt: self,
+      user_account:
     )
   end
 

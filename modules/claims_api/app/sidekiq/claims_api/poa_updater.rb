@@ -6,6 +6,8 @@ require 'bgs_service/vet_record_web_service'
 
 module ClaimsApi
   class PoaUpdater < ClaimsApi::ServiceBase
+    sidekiq_options retry_for: 48.hours
+
     def perform(power_of_attorney_id, rep_id = nil) # rubocop:disable Metrics/MethodLength
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       process = ClaimsApi::Process.find_or_create_by(processable: poa_form,
@@ -22,7 +24,7 @@ module ClaimsApi
         # Clear out the error message if there were previous failures
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
         poa_form.save
-        process.update!(step_status: 'SUCCESS', error_messages: [])
+        process.update!(step_status: 'SUCCESS', error_messages: [], completed_at: Time.zone.now)
 
         ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Success')
 

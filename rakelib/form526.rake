@@ -490,7 +490,7 @@ namespace :form526 do
         end
 
         response = MPI::Service.new.find_profile_by_edipi(edipi:).profile
-        active_corp_ids = response.full_mvi_ids.select { |id| id.match?(/\d*\^PI\^200CORP\^USVBA\^A/) }
+        active_corp_ids = response.full_mvi_ids.grep(/\d*\^PI\^200CORP\^USVBA\^A/)
         vname = "#{fs.auth_headers['va_eauth_firstName']} #{fs.auth_headers['va_eauth_lastName']}"
         csv << [vname, edipi, active_corp_ids] if active_corp_ids.count > 1
       end

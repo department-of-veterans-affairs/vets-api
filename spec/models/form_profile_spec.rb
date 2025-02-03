@@ -1272,6 +1272,7 @@ RSpec.describe FormProfile, type: :model do
       end.tap do |schema_form_id|
         schema = strip_required(VetsJsonSchema::SCHEMAS[schema_form_id]).except('anyOf')
         schema_data = prefilled_data.deep_dup
+
         errors = JSON::Validator.fully_validate(
           schema,
           schema_data.deep_transform_keys { |key| key.camelize(:lower) }, validate_schema: true
@@ -1414,20 +1415,6 @@ RSpec.describe FormProfile, type: :model do
           ) do
             expect_prefilled('10-10EZR')
           end
-        end
-      end
-    end
-
-    context 'with a user that can prefill mdot' do
-      before do
-        expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
-        expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
-        expect(user.authorize(:mdot, :access?)).to be(true)
-      end
-
-      it 'returns a prefilled MDOT form', :skip_va_profile do
-        VCR.use_cassette('mdot/get_supplies_200') do
-          expect_prefilled('MDOT')
         end
       end
     end

@@ -25,6 +25,7 @@ module Eps
     end
 
     ##
+    #
     # Submit an appointment to EPS for booking
     #
     # @param appointment_id [String] The ID of the appointment to submit

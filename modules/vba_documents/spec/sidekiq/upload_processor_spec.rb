@@ -148,7 +148,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         pids.each { |pid| Process.waitpid(pid) } # wait for my children to complete
         responses = []
         temp_files.each do |tf|
-          responses << File.open(tf.path, &:read)
+          responses << File.read(tf.path)
         end
         expect(responses.select { |e| e.eql?('true') }.length).to eq(1)
         expect(responses.select { |e| e.eql?('false') }.length).to eq(num_times - 1)
