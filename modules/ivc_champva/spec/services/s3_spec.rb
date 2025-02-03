@@ -21,24 +21,79 @@ describe IvcChampva::S3 do
     let(:file_path) { 'spec/fixtures/files/doctors-note.pdf' }
 
     context 'when upload is successful' do
+      let(:response_double) { double('Aws::S3::Types::PutObjectOutput', status: 200) }
+
       before do
-        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
+        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(response_double)
       end
 
       it 'returns success response' do
         expect(s3_instance.put_object(key, file_path)).to eq({ success: true })
       end
+
+      it 'tracks successful upload' do
+        expect(s3_instance.monitor).to receive(:track_all_successful_s3_uploads).with(key)
+        s3_instance.put_object(key, file_path)
+      end
     end
 
-    context 'when upload fails' do
-      before do
-        allow_any_instance_of(Aws::S3::Client).to receive(:put_object)
-          .and_raise(Aws::S3::Errors::ServiceError.new(nil, 'upload failed'))
+    context 'when upload fails with non-200 status' do
+      let(:response_double) do
+        double('Aws::S3::Types::PutObjectOutput', status: 500, body: double(read: 'Internal Server Error'))
       end
 
-      it 'returns error response' do
-        expect(s3_instance.put_object(key, file_path))
-          .to eq({ success: false, error_message: "S3 PutObject failure for #{file_path}: upload failed" })
+      before do
+        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(response_double)
+      end
+
+      it 'returns failure response with status code and body' do
+        expected_error_message = "S3 PutObject failure for #{file_path}: Status code: 500, Body: Internal Server Error"
+        expect(s3_instance.put_object(key, file_path)).to eq({ success: false, error_message: expected_error_message })
+      end
+
+      it 'logs the error message' do
+        expect(Rails.logger).to receive(:error).with(
+          "S3 PutObject failure for #{file_path}: Status code: 500, Body: Internal Server Error"
+        )
+        s3_instance.put_object(key, file_path)
+      end
+    end
+
+    context 'when upload raises an exception' do
+      before do
+        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_raise(
+          Aws::S3::Errors::ServiceError.new(nil, 'Service Unavailable')
+        )
+      end
+
+      it 'returns failure response with exception message' do
+        expect(s3_instance.put_object(key,
+                                      file_path)).to eq({ success: false,
+                                                          error_message: 'S3 PutObject unexpected error: Service
+                                                          Unavailable'.squish })
+      end
+
+      it 'logs the exception message' do
+        expect(Rails.logger).to receive(:error).with('S3 PutObject unexpected error: Service Unavailable')
+        s3_instance.put_object(key, file_path)
+      end
+    end
+
+    context 'when response body does not respond to read' do
+      let(:response_double) { double('Aws::S3::Types::PutObjectOutput', status: 500, body: 'Internal Server Error') }
+
+      before do
+        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(response_double)
+      end
+
+      it 'returns failure response with status code' do
+        expected_error_message = "S3 PutObject failure for #{file_path}: Status code: 500"
+        expect(s3_instance.put_object(key, file_path)).to eq({ success: false, error_message: expected_error_message })
+      end
+
+      it 'logs the error message' do
+        expect(Rails.logger).to receive(:error).with("S3 PutObject failure for #{file_path}: Status code: 500")
+        s3_instance.put_object(key, file_path)
       end
     end
   end
