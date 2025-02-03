@@ -5,7 +5,6 @@ module RepresentationManagement
     class PowerOfAttorneyRequestsController < RepresentationManagement::V0::PowerOfAttorneyRequestBaseController
       service_tag 'representation-management'
       before_action :feature_enabled
-      skip_before_action :authenticate # REMOVE BEFORE REVIEW
 
       # Creates and enqueues an email with the provided "next steps" information. This action
       # validates the input parameters and, if valid, queues an email using the VANotify service.
