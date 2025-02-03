@@ -2,6 +2,7 @@
 
 module Eps
   class ProviderService < BaseService
+    STATSD_KEY_PREFIX = 'api.vaos.providers_service'
     ##
     # Get providers data from EPS
     #
@@ -19,9 +20,10 @@ module Eps
     # @return OpenStruct response from EPS provider endpoint
     #
     def get_provider_service(provider_id:)
-      response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}",
-                         {}, headers)
-      OpenStruct.new(response.body)
+      with_monitoring do
+        response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}", {}, headers)
+        OpenStruct.new(response.body)
+      end
     end
 
     ##
