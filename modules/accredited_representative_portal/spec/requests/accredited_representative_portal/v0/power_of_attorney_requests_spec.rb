@@ -87,7 +87,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'created_at' => time,
             'expires_at' => (Time.zone.parse(time) + 60.days).iso8601(3),
             'power_of_attorney_form' => veteran_claimant_power_of_attorney_form,
-            'resolution' => nil
+            'resolution' => nil,
+            'accredited_individual' => {
+              'id' => poa_requests[0].accredited_individual.id,
+              'full_name' => "#{poa_requests[0].accredited_individual.first_name} #{poa_requests[0].accredited_individual.last_name}"
+            }
           },
           {
             'id' => poa_requests[1].id,
@@ -101,6 +105,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
               'created_at' => time,
               'creator_id' => poa_requests[1].resolution.resolving.creator_id,
               'decision_type' => 'acceptance'
+            },
+            'accredited_individual' => {
+              'id' => poa_requests[1].accredited_individual.id,
+              'full_name' => "#{poa_requests[1].accredited_individual.first_name} #{poa_requests[1].accredited_individual.last_name}"
             }
           },
           {
@@ -116,6 +124,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
               'creator_id' => poa_requests[2].resolution.resolving.creator_id,
               'reason' => 'Didn\'t authorize treatment record disclosure',
               'decision_type' => 'declination'
+            },
+            'accredited_individual' => {
+              'id' => poa_requests[2].accredited_individual.id,
+              'full_name' => "#{poa_requests[2].accredited_individual.first_name} #{poa_requests[2].accredited_individual.last_name}"
             }
           },
           {
@@ -128,6 +140,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
               'id' => poa_requests[3].resolution.id,
               'type' => 'expiration',
               'created_at' => time
+            },
+            'accredited_individual' => {
+              'id' => poa_requests[3].accredited_individual.id,
+              'full_name' => "#{poa_requests[3].accredited_individual.first_name} #{poa_requests[3].accredited_individual.last_name}"
             }
           }
         ]
@@ -201,6 +217,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'creator_id' => poa_request.resolution.resolving.creator_id,
             'reason' => 'Didn\'t authorize treatment record disclosure',
             'decision_type' => 'declination'
+          },
+          'accredited_individual' => {
+            'id' => poa_request.accredited_individual.id,
+            'full_name' => "#{poa_request.accredited_individual.first_name} #{poa_request.accredited_individual.last_name}"
           }
         }
       )

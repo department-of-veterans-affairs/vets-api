@@ -59,7 +59,7 @@ module AccreditedRepresentativePortal
         [
           :power_of_attorney_form,
           :accredited_individual,
-          :organization,
+          :accredited_organization,
           { resolution: :resolving }
         ]
       end

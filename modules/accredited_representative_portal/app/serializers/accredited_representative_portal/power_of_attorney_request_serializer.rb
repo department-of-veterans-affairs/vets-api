@@ -41,7 +41,7 @@ module AccreditedRepresentativePortal
         .serializable_hash
     end
 
-    attribute :power_of_attorney_holder, if: ->(poa_request) { poa_request.organization.present? } do |poa_request|
+    attribute :power_of_attorney_holder, if: ->(poa_request) { poa_request.accredited_organization.present? } do |poa_request|
       OrganizationPowerOfAttorneyHolderSerializer
         .new(poa_request.organization)
         .serializable_hash

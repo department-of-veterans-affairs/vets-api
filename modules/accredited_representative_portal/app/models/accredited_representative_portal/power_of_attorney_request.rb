@@ -21,8 +21,8 @@ module AccreditedRepresentativePortal
             class_name: 'PowerOfAttorneyRequestResolution',
             inverse_of: :power_of_attorney_request
 
-    belongs_to :organization, class_name: 'Veteran::Service::Organization', foreign_key: :power_of_attorney_holder_poa_code, primary_key: :poa
-    belongs_to :accredited_individual, class_name: 'Veteran::Service::Representative', foreign_key: :accredited_individual_registration_number, primary_key: :representative_id
+    belongs_to :accredited_organization, class_name: 'Veteran::Service::Organization', foreign_key: :power_of_attorney_holder_poa_code, primary_key: :poa, optional: true
+    belongs_to :accredited_individual, class_name: 'Veteran::Service::Representative', foreign_key: :accredited_individual_registration_number, primary_key: :representative_id, optional: true
     
     before_validation :set_claimant_type
 
