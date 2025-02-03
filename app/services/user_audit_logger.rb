@@ -19,4 +19,4 @@ class UserAuditLogger
       acting_user_agent: user_agent
     )
   end
-end 
+end

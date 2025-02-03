@@ -69,4 +69,4 @@ RSpec.describe UserAuditLogger do
       end
     end
   end
-end 
+end
