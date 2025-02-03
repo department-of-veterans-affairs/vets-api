@@ -2,8 +2,8 @@
 
 module SimpleFormsApi
   class FormUploadNotificationEmail
-    attr_reader :form_number, :form_name, :first_name, :email, :date_submitted, :confirmation_number,
-                :lighthouse_updated_at, :notification_type, :template_id, :statsd_tags
+    attr_reader :form_number, :form_name, :confirmation_number, :date_submitted, :lighthouse_updated_at,
+                :notification_type, :template_id, :statsd_tags, :form_data
 
     template_root = Settings.vanotify.services.va_gov.template_id
     TEMPLATE_IDS = {
@@ -11,7 +11,6 @@ module SimpleFormsApi
       error: template_root.form_upload_error_email,
       received: template_root.form_upload_received_email
     }.freeze
-
     SUPPORTED_FORMS = %w[21-0779 21-509 21P-0518-1 21P-0516-1].freeze
 
     def initialize(config, notification_type:)
@@ -21,12 +20,13 @@ module SimpleFormsApi
       check_missing_keys(config)
       check_if_form_is_supported(config)
 
+      @form_data = config[:form_data]
       @form_number = config[:form_number]
-      @form_name = config[:form_name]
-      @first_name = config[:first_name]
-      @email = config[:email]
-      @date_submitted = config[:date_submitted]
+      # @form_name = config[:form_name]
+      # @first_name = config[:first_name]
+      # @email = config[:email]
       @confirmation_number = config[:confirmation_number]
+      @date_submitted = config[:date_submitted]
       @lighthouse_updated_at = config[:lighthouse_updated_at]
       @statsd_tags = {
         'service' => 'veteran-facing-forms',
@@ -48,7 +48,7 @@ module SimpleFormsApi
     private
 
     def check_missing_keys(config)
-      all_keys = %i[form_number form_name first_name email date_submitted confirmation_number]
+      all_keys = %i[form_data form_number date_submitted confirmation_number]
 
       missing_keys = all_keys.select { |key| config[key].nil? || config[key].to_s.strip.empty? }
 
@@ -67,7 +67,7 @@ module SimpleFormsApi
 
     def send_email_now
       VANotify::EmailJob.perform_async(
-        email,
+        form_data.dig(:form_data, :email),
         template_id,
         get_personalization,
         *email_args
@@ -77,7 +77,7 @@ module SimpleFormsApi
     def enqueue_email(at)
       VANotify::EmailJob.perform_at(
         at,
-        email,
+        form_data.dig(:form_data, :email),
         template_id,
         get_personalization,
         *email_args
@@ -93,9 +93,9 @@ module SimpleFormsApi
 
     def get_personalization
       {
-        'first_name' => first_name&.titleize,
+        'first_name' => form_data.dig(:form_data, :full_name, :first)&.titleize,
         'form_number' => form_number,
-        'form_name' => form_name,
+        'form_name' => form_data[:form_name],
         'date_submitted' => date_submitted,
         'confirmation_number' => confirmation_number
       }.tap do |personalization|

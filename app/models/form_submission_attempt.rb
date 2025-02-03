@@ -141,6 +141,7 @@ class FormSubmissionAttempt < ApplicationRecord
     SimpleFormsApi::Notification::SendNotificationEmailJob.new.perform(
       notification_type:,
       form_submission_attempt: self,
+      form_number: simple_forms_form_number,
       user_account:
     )
   end
