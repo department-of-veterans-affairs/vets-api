@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequestsController', type: :request do
+RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :request do
   describe 'POST #create' do
     let(:user) { create(:user, :loa3) }
     let(:base_path) { '/representation_management/v0/power_of_attorney_requests' }
