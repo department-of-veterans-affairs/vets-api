@@ -30,13 +30,14 @@ task yardoc: :environment do
     files.find { |file| File.fnmatch(path, file) }
   end
 
-  puts 'running yardoc ...'
-  puts "\n"
-  puts yardoc_output = `yardoc #{paths.join(' ')}`.strip.split("\n")
-  puts "\n"
+  cmd = "yardoc #{paths.join(' ')}"
+  puts "#{cmd}\n\n"
+  yardoc_output = `#{cmd}`.strip.split("\n")
 
   # non zero exit == parsing error
   if (yardoc_result = $CHILD_STATUS.exitstatus).positive?
+    puts yardoc_output
+    puts "\n"
     puts Rainbow('Failed. Documentation issues were found.').red
     exit!(yardoc_result)
   end
@@ -45,9 +46,12 @@ task yardoc: :environment do
   percentage = yardoc_output.last.strip[/\d+\.\d+/].to_f
   if percentage < 100
     puts `yard stats --list-undoc #{paths.join(' ')}`
+    puts "\n"
     puts Rainbow('Warning. Documentation is missing.').yellow
     exit!(1)
   end
 
+  puts yardoc_output
+  puts "\n"
   puts Rainbow('Passed. Everything looks documented!').green
 end
