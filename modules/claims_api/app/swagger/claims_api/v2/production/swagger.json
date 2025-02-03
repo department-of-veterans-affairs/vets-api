@@ -335,7 +335,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "f7f66fc3-ea97-45a5-bb38-0a1037b74b7b",
+                        "id": "01784c76-9a7e-4bd3-a799-b7fd8e1d026b",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -520,7 +520,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-01-30"
+                              "anticipatedSeparationDate": "2025-02-05"
                             },
                             "confinements": [
                               {
@@ -566,7 +566,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "74dc787d-aa66-4658-b87c-4153ecc968b9",
+                        "id": "2fc6cd13-260b-47bb-9435-a00fec8f8930",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -730,7 +730,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2025-01-30",
+                                "activeDutyEndDate": "2025-02-05",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -751,7 +751,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-01-30"
+                              "anticipatedSeparationDate": "2025-02-05"
                             },
                             "confinements": [
                               {
@@ -3994,7 +3994,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2025-01-30",
+                              "activeDutyEndDate": "2025-02-05",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -4015,7 +4015,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2025-01-30"
+                            "anticipatedSeparationDate": "2025-02-05"
                           },
                           "confinements": [
                             {
@@ -8537,8 +8537,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2025-01-28",
-                      "expirationDate": "2026-01-28",
+                      "creationDate": "2025-02-03",
+                      "expirationDate": "2026-02-03",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9784,12 +9784,8 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
+                                    "pattern": "^\\d(?:[- ]*\\d){1,14}$",
                                     "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
                                 },
                                 "if": {
@@ -9926,12 +9922,8 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
+                                    "pattern": "^\\d(?:[- ]*\\d){1,14}$",
                                     "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
                                 },
                                 "if": {
@@ -10112,7 +10104,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "cee0496e-0a27-4c19-b18b-3bba4821d900",
+                    "id": "b25c2a93-2fc8-4191-b11f-52da2c4a7417",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -10477,12 +10469,8 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
+                                    "pattern": "^\\d(?:[- ]*\\d){1,14}$",
                                     "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
                                 },
                                 "if": {
@@ -10619,12 +10607,8 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
+                                    "pattern": "^\\d(?:[- ]*\\d){1,14}$",
                                     "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
                                 },
                                 "if": {
@@ -11233,12 +11217,8 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
+                                    "pattern": "^\\d(?:[- ]*\\d){1,14}$",
                                     "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
                                 },
                                 "if": {
@@ -11361,12 +11341,8 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
+                                    "pattern": "^\\d(?:[- ]*\\d){1,14}$",
                                     "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
                                 },
                                 "if": {
@@ -11610,7 +11586,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b01df28a-6961-479f-ad9c-0c91feac5839",
+                    "id": "387bbac0-7a9d-49d0-a59f-a79cb30823ed",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -11992,12 +11968,8 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
+                                    "pattern": "^\\d(?:[- ]*\\d){1,14}$",
                                     "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
                                 },
                                 "if": {
@@ -12120,12 +12092,8 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
+                                    "pattern": "^\\d(?:[- ]*\\d){1,14}$",
                                     "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
                                 },
                                 "if": {
@@ -12458,10 +12426,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9b3813b9-0811-4a6d-adc1-97b0c1df5cd2",
+                    "id": "ba40091c-13d6-499a-9171-d510abb68287",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2025-01-28T14:25:25.171Z",
+                      "createdAt": "2025-02-03T18:42:53.023Z",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
