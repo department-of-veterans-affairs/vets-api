@@ -87,13 +87,6 @@ module Eps
         JWT.decode(token, nil, false).first
       end
 
-      # #user_session_request? determines if current request is a user session request
-      #
-      # @return [Boolean] true if user session request, false otherwise
-      def user_session_request?(env)
-        env.url.to_s.include?('users/v2/session?processRules=true')
-      end
-
       # #jti is the value from the JWT key value pair in the response and needed for logging and audit purposes
       #
       # @param env [Faraday::Env] The Request/Response tree object
