@@ -132,7 +132,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         timestamp:,
         page_number: 5,
         size: 9,
-        template: 'lib/pdf_fill/forms/pdfs/21P-530EZ.pdf',
+        template: anything,
         multistamp: true
       ).and_return(path)
       allow(service).to receive(:valid_document?).and_return(path)
@@ -167,7 +167,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         timestamp:,
         page_number: 5,
         size: 9,
-        template: 'lib/pdf_fill/forms/pdfs/21P-530EZ.pdf',
+        template: 'modules/burials/lib/pdf_fill/forms/pdfs/21P-530EZ.pdf',
         multistamp: true
       ).and_return(path)
       allow(service).to receive(:valid_document?).and_raise(BenefitsIntakeService::Service::InvalidDocumentError)

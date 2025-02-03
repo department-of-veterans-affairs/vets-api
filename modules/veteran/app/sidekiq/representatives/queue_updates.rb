@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sentry_logging'
 
 module Representatives
   class QueueUpdates
     include Sidekiq::Job
-    include SentryLogging
 
     SLICE_SIZE = 30
 
@@ -76,11 +74,13 @@ module Representatives
 
     def log_error(message)
       message = "QueueUpdates error: #{message}"
-      log_message_to_sentry(message, :error)
+      Rails.logger.error(message)
       @slack_messages << "----- #{message}"
     end
 
     def log_to_slack(message)
+      return unless Settings.vsp_environment == 'production'
+
       client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                        channel: '#benefits-representation-management-notifications',
                                        username: 'Representatives::QueueUpdates Bot')
