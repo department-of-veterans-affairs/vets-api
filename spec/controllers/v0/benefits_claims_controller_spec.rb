@@ -43,7 +43,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         parsed_body = JSON.parse(response.body)
 
         expect(parsed_body['data']
-          .select { |claim| claim['attributes']['claimType'] == 'expenses related to death or burial' }.count).to be > 0
+          .select { |claim| claim['attributes']['claimType'] == 'expenses related to death or burial' }.count).to eq 1
         expect(parsed_body['data']
           .select { |claim| claim['attributes']['claimType'] == 'Death' }.count).to eq 0
       end
