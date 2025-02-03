@@ -9,19 +9,14 @@ RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
   before do
-    Flipper.enable(:remove_pciu)
-    Flipper.disable(:disability_526_max_cfi_service_switch)
-    Flipper.enable(:va_v3_contact_information_service)
-    Flipper.enable(:disability_compensation_remove_pciu)
+    allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, anything).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, anything).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, anything).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_remove_pciu, anything).and_return(true)
     described_class.instance_variable_set(:@mappings, nil)
-    Flipper.disable(:disability_526_toxic_exposure)
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
-  end
-
-  after do
-    Flipper.disable(:remove_pciu)
-    Flipper.disable(:va_v3_contact_information_service)
-    Flipper.disable(:disability_compensation_remove_pciu)
+    allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT,
+                                              anything).and_return(false)
   end
 
   let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1781151') }
@@ -1528,7 +1523,8 @@ RSpec.describe FormProfile, type: :model do
           FORM-MOCK-AE-DESIGN-PATTERNS
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
-            Flipper.disable(:pension_military_prefill)
+            # Flipper.disable(:pension_military_prefill)
+            allow(Flipper).to receive(:enabled?).with(:pension_military_prefill, anything).and_return(false)
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                              allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
               expect_prefilled(form_id)
@@ -1538,7 +1534,7 @@ RSpec.describe FormProfile, type: :model do
 
         context 'with pension_military_prefill' do
           it 'returns prefilled 21P-527EZ' do
-            Flipper.enable(:pension_military_prefill)
+            allow(Flipper).to receive(:enabled?).with(:pension_military_prefill, anything).and_return(true)
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                              allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
               form_id = '21P-527EZ'
@@ -1583,8 +1579,8 @@ RSpec.describe FormProfile, type: :model do
           end
 
           it 'returns prefilled 21-526EZ when disability_526_max_cfi_service_switch is disabled' do
-            Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
-            Flipper.enable(:disability_526_toxic_exposure, user)
+            allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND,
+                                                      anything).and_return(false)
             expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
             expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
@@ -1603,9 +1599,10 @@ RSpec.describe FormProfile, type: :model do
           end
 
           it 'returns prefilled 21-526EZ when disability_526_max_cfi_service_switch is enabled' do
-            Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
-            Flipper.enable(:disability_526_max_cfi_service_switch)
-            Flipper.enable(:disability_526_toxic_exposure, user)
+            allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND,
+                                                      anything).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, anything).and_return(true)
+
             expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
             expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)

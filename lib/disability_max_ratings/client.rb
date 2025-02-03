@@ -9,7 +9,7 @@ module DisabilityMaxRatings
 
     STATSD_KEY_PREFIX = 'api.disability_max_ratings'
 
-    def get_max_rating_for_diagnostic_codes(diagnostic_codes_array)
+    def post_for_max_ratings(diagnostic_codes_array)
       with_monitoring do
         params = { diagnostic_codes: diagnostic_codes_array }
         perform(:post, Settings.disability_max_ratings_api.ratings_path, params.to_json, headers_hash)

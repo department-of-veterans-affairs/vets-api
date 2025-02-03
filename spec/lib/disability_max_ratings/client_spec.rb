@@ -8,7 +8,7 @@ RSpec.describe DisabilityMaxRatings::Client do
   let(:max_ratings_params) { { diagnostic_codes: [1234] } }
 
   describe 'making max rating requests' do
-    subject { client.get_max_rating_for_diagnostic_codes(max_ratings_params[:diagnostic_codes]) }
+    subject { client.post_for_max_ratings(max_ratings_params[:diagnostic_codes]) }
 
     context 'valid requests' do
       describe 'when requesting max ratings' do

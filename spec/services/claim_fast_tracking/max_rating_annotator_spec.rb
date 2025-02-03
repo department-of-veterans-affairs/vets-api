@@ -286,7 +286,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
 
     context 'when the API times out' do
       before do
-        allow_any_instance_of(DisabilityMaxRatings::Client).to receive(:get_max_rating_for_diagnostic_codes)
+        allow_any_instance_of(DisabilityMaxRatings::Client).to receive(:post_for_max_ratings)
           .and_raise(Faraday::TimeoutError)
       end
 
