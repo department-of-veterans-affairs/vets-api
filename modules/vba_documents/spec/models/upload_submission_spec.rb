@@ -4,12 +4,25 @@ require 'rails_helper'
 
 describe VBADocuments::UploadSubmission, type: :model do
   let(:upload_pending) { create(:upload_submission) }
+  let(:upload_expired) { create(:upload_submission, status: 'expired') }
   let(:upload_uploaded) { create(:upload_submission, status: 'uploaded') }
   let(:upload_received) { create(:upload_submission, status: 'received') }
   let(:upload_processing) { create(:upload_submission, status: 'processing') }
   let(:upload_success) { create(:upload_submission, status: 'success') }
+  let(:upload_final_success) do
+    create(:upload_submission, status: 'success', metadata: { final_success_status: Time.now.to_i })
+  end
   let(:upload_vbms) { create(:upload_submission, status: 'vbms') }
   let(:upload_error) { create(:upload_submission, status: 'error') }
+  let(:upload_error_validation) do
+    create(:upload_submission,
+           status: 'error', code: 'DOC108', detail: 'Maximum page size exceeded. Limit is 78 in x 101 in.')
+  end
+  let(:upload_error_upstream) do
+    create(:upload_submission,
+           status: 'error', code: 'DOC202',
+           detail: 'Upstream status: Errors: ERR-EMMS-FAILED, Corrupted File detected.')
+  end
   let(:client_stub) { instance_double(CentralMail::Service) }
   let(:faraday_response) { instance_double(Faraday::Response) }
 
@@ -501,6 +514,48 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload = create(:upload_submission)
 
       expect(upload.base64_encoded?).to be(false)
+    end
+  end
+
+  describe '#in_final_status?' do
+    it 'returns false when status is pending' do
+      expect(upload_pending.in_final_status?).to be(false)
+    end
+
+    it 'returns true when status is expired' do
+      expect(upload_expired.in_final_status?).to be(true)
+    end
+
+    it 'returns false when status is uploaded' do
+      expect(upload_uploaded.in_final_status?).to be(false)
+    end
+
+    it 'returns false when status is received' do
+      expect(upload_received.in_final_status?).to be(false)
+    end
+
+    it 'returns false when status is processing' do
+      expect(upload_processing.in_final_status?).to be(false)
+    end
+
+    it 'returns false when status is success with no final success metadata key' do
+      expect(upload_success.in_final_status?).to be(false)
+    end
+
+    it 'returns true when status is success with a final success metadata key' do
+      expect(upload_final_success.in_final_status?).to be(true)
+    end
+
+    it 'returns true when status is vbms' do
+      expect(upload_vbms.in_final_status?).to be(true)
+    end
+
+    it 'returns true when status is error and the error code is DOC1XX (validation error)' do
+      expect(upload_error_validation.in_final_status?).to be(true)
+    end
+
+    it 'returns false when status is error and the error code is DOC2XX (upstream error)' do
+      expect(upload_error_upstream.in_final_status?).to be(false)
     end
   end
 
