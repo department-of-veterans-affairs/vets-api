@@ -27,6 +27,7 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
   after do
     SemanticLogger.remove_appender(@test_appender)
     Rails.logger = @original_logger
+    Rails.application.reload_routes!
   end
 
   it 'filters uploaded file parameters but logs HTTP upload object' do
