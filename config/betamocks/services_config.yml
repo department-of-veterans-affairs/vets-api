@@ -7,7 +7,10 @@
   :endpoints:
     - :method: :post
       :path: "/VDC/ManageRepresentativeService"
-      :file_path: "/bgs/manage_representative_service/read_poa_request/default"
+      :file_path: "/bgs/manage_representative_service/"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: '<tns:(\w+)>'
 
 #CRM API GET endpoint
 - :name: "CRM API GET endpoint"

@@ -58,7 +58,7 @@ module ClaimsApi
                    namespaces: { 'data' => '/data' }, transform_response: false, use_mocks:)
     end
 
-    def read_poa_request_by_ptcpnt_id(ptcpnt_id:)
+    def read_poa_request_by_ptcpnt_id(ptcpnt_id:, use_mocks: false)
       builder = Nokogiri::XML::Builder.new do
         PtcpntId ptcpnt_id
       end
@@ -66,10 +66,11 @@ module ClaimsApi
       body = builder_to_xml(builder)
 
       make_request(endpoint: bean_name, action: 'readPOARequestByPtcpntId', body:, key: 'POARequestRespondReturnVO',
-                   namespaces: { 'data' => '/data' }, transform_response: false)
+                   namespaces: { 'data' => '/data' }, transform_response: false, use_mocks:)
     end
 
-    def update_poa_request(proc_id:, representative: {}, secondary_status: 'obsolete', declined_reason: nil)
+    def update_poa_request(proc_id:, representative: {}, secondary_status: 'obsolete', declined_reason: nil,
+                           use_mocks: false)
       first_name = representative[:first_name].presence || 'vets-api'
       last_name = representative[:last_name].presence || 'vets-api'
 
@@ -87,7 +88,7 @@ module ClaimsApi
       body = builder_to_xml(builder)
 
       make_request(endpoint: bean_name, action: 'updatePOARequest', body:, key: 'POARequestUpdate',
-                   namespaces: { 'data' => '/data' }, transform_response: false)
+                   namespaces: { 'data' => '/data' }, transform_response: false, use_mocks:)
     end
   end
 end

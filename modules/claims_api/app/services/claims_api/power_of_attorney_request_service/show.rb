@@ -11,7 +11,7 @@ module ClaimsApi
         service = ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bgs.external_uid,
                                                              external_key: Settings.bgs.external_key)
 
-        res = service.read_poa_request_by_ptcpnt_id(ptcpnt_id: @participant_id)
+        res = service.read_poa_request_by_ptcpnt_id(ptcpnt_id: @participant_id, use_mocks: true)
         res['poaRequestRespondReturnVOList']
       end
     end
