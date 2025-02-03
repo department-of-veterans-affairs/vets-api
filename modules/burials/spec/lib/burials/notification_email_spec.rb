@@ -1,22 +1,18 @@
 # frozen_string_literal: true
 
-# lib
-require 'burials/notification_callback'
-require 'burials/notification_email'
-
-# spec
 require 'rails_helper'
 
 RSpec.describe Burials::NotificationEmail do
-  let(:claim) { build(:burial_claim) }
+  let(:saved_claim) { create(:burials_saved_claim) }
+  let(:notification_email) { described_class.new(saved_claim.id) }
 
   describe '#deliver' do
     it 'successfully sends an email' do
-      expect(SavedClaim::Burial).to receive(:find).with(23).and_return claim
+      expect(Burials::SavedClaim).to receive(:find).with(23).and_return saved_claim
       expect(Settings.vanotify.services).to receive(:burials).and_call_original
 
       args = [
-        claim.email,
+        saved_claim.email,
         Settings.vanotify.services['21p_530ez'].email.confirmation.template_id,
         anything,
         Settings.vanotify.services['21p_530ez'].api_key,

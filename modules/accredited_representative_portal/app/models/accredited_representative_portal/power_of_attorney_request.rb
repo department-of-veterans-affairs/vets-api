@@ -21,17 +21,9 @@ module AccreditedRepresentativePortal
             class_name: 'PowerOfAttorneyRequestResolution',
             inverse_of: :power_of_attorney_request
 
-    belongs_to :power_of_attorney_holder,
-               inverse_of: :power_of_attorney_requests,
-               polymorphic: true
-
-    belongs_to :accredited_individual
-
     before_validation :set_claimant_type
 
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
-
-    delegate :poa_code, to: :accredited_individual
 
     def expires_at
       created_at + EXPIRY_DURATION if unresolved?
