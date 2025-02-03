@@ -112,7 +112,7 @@
             },
             "phoneNumber": {
               "description": "Phone number.",
-              "type": "string", "pattern": "^\\d(?:[- ]*\\d){6,9}$",
+              "type": "string", "pattern": "^\\d(?:[- ]*\\d){1,14}$",
               "example": "555-5555"
             }
           },
@@ -220,7 +220,7 @@
             "phoneNumber": {
               "description": "Phone number.",
               "type": "string",
-              "pattern": "^\\d(?:[- ]*\\d){6,9}$",
+              "pattern": "^\\d(?:[- ]*\\d){1,14}$",
               "example": "555-5555"
             }
           },
