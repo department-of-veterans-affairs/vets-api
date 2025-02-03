@@ -48,13 +48,13 @@ module ClaimsApi
         )
 
       ##
-      # BenefitClaimWebService
-      # http://bepdev.vba.va.gov/BenefitClaimWebServiceBean/BenefitClaimWebService?WSDL
+      # BenefitClaimServiceBean
+      #
       ##
-      module BenefitClaimWebServiceBean
+      module BenefitClaimServiceBean
         DEFINITION =
           Bean.new(
-            path: 'BenefitClaimWebServiceBean',
+            path: 'BenefitClaimServiceBean',
             namespaces: Namespaces.new(
               target: 'http://services.share.benefits.vba.va.gov/',
               data: nil
@@ -65,7 +65,7 @@ module ClaimsApi
       module BenefitClaimWebService
         DEFINITION =
           Service.new(
-            bean: BenefitClaimWebServiceBean::DEFINITION,
+            bean: BenefitClaimServiceBean::DEFINITION,
             path: 'BenefitClaimWebService'
           )
       end
