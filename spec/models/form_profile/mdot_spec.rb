@@ -27,5 +27,17 @@ RSpec.describe FormProfile::MDOT, type: :model do
       expect(errors).to be_empty
       VCR.eject_cassette
     end
+
+    it 'handles 500 responses from system-of-record' do
+      VCR.insert_cassette(
+        'mdot/get_supplies_500',
+        match_requests_on: %i[method uri headers],
+        erb: { icn: user.icn }
+      )
+      expect {
+        FormProfile.for(form_id: 'MDOT', user:).prefill
+      }.to raise_error(Common::Exceptions::BackendServiceException)
+      VCR.eject_cassette
+    end
   end
 end

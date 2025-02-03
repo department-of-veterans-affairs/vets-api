@@ -2388,6 +2388,12 @@ en:
         detail: The upstream server returned an error code that is unmapped
         code: unmapped_service_exception
         status: 400
+      MDOT_internal_server_error:
+        <<: *defaults
+        title: Internal Server Error
+        detail: The system of record was unable to process this request.
+        code: MDOT_internal_server_error
+        status: 500
       MDOT_502:
         <<: *defaults
         title: Bad Gateway

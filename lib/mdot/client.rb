@@ -126,6 +126,8 @@ module MDOT
       save_error_details(error)
       code = if error&.status == 503
                'MDOT_service_unavailable'
+             elsif error&.status == 500
+               'MDOT_internal_server_error'
              elsif error&.body&.fetch('result', nil)
                "MDOT_#{error.body['result'].downcase}"
              end
