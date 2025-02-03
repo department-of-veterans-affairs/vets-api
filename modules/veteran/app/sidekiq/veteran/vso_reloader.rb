@@ -102,7 +102,7 @@ module Veteran
     end
 
     def log_to_slack(message)
-      return unless Rails.env.production?
+      return unless Settings.vsp_environment == 'production'
 
       client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
                                        channel: '#api-benefits-claims',
