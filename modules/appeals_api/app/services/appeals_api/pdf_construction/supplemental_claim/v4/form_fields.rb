@@ -22,6 +22,30 @@ module AppealsApi
             veteran_phone_prefix: 'form1[0].#subform[3].FirstThreeNumbers[0]',
             veteran_phone_line_number: 'form1[0].#subform[3].LastFourNumbers[0]',
 
+            homeless: 'form1[0].#subform[4].RadioButtonList2[0]',
+            homeless_living_situation_irregular: 'form1[0].#subform[4].I_Live_Or_Sleep_In_A_Place_That_Is_Not_Meant_For_Regular_Sleeping[0]',
+            homeless_living_situation_shelter: 'form1[0].#subform[4].I_Live_In_A_Shelter[0]',
+            homeless_living_situation_guest: 'form1[0].#subform[4].Staying_With_A_Friend_Or_Family_Member_Because_I_Am_Unable_To_Own_A_Home_Right_Now[0]',
+            homeless_living_situation_leaving_facility: 'form1[0].#subform[4].In_The_Next_30_Days_I_Will_Have_To_Leave_A_Facility_Like_A_Homeless_Shelter[0]',
+            homeless_living_situation_losing_home: 'form1[0].#subform[4].IN_THE_NEXT_30_DAYS_I_WILL_LOSE_MY_HOME[0]',
+            homeless_living_situation_none_apply: 'form1[0].#subform[4].NONE_OF_THESE_SITUATIONS_APPLY_TO_ME[0]',
+            homeless_living_situation_other: 'form1[0].#subform[4].OTHER_Specify[1]',
+            homeless_poc_phone_area_code: 'form1[0].#subform[4].Telephone_Number_Area_Code[1]',
+            homeless_poc_phone_prefix: 'form1[0].#subform[4].Telephone_Middle_Three_Numbers[0]',
+            homeless_poc_phone_line_number: 'form1[0].#subform[4].Telephone_Last_Four_Numbers[0]',
+
+            treatment_location_private: 'form1[0].#subform[5].Private_Healthcare_Provider[0]',
+            treatment_location_vet_center: 'form1[0].#subform[5].VA_Vet_Center[0]',
+            treatment_location_community_care: 'form1[0].#subform[5].Community_Care_Paid_For_By_VA[0]',
+            treatment_location_vamc_cboc: 'form1[0].#subform[5].VA_Medical_Center_And_Community_Based_Outpatient_Clinics[0]',
+            treatment_location_dod: 'form1[0].#subform[5].Department_Of_Defense_D_O_D_Military_Treatment_Facility_M_T_F[0]',
+            treatment_location_other: 'form1[0].#subform[5].Other_Specify[0]',
+            treatment_location_other_details: 'form1[0].#subform[5].OTHER_Specify[2]',
+
+            evidence_submission_1_no_treatment_date: 'form1[0].#subform[5].Check_Box_Do_Not_Have_Date_s[0]',
+            evidence_submission_2_no_treatment_date: 'form1[0].#subform[5].Check_Box_Do_Not_Have_Date_s[1]',
+            evidence_submission_3_no_treatment_date: 'form1[0].#subform[5].Check_Box_Do_Not_Have_Date_s[2]',
+
             claimant_middle_initial: 'form1[0].#subform[3].ClaimantsMiddleInitial1[0]',
             claimant_type_code: 'form1[0].#subform[3].RadioButtonList[1]',
             claimant_phone_area_code: 'form1[0].#subform[3].Telephone_Number_Area_Code[0]',
@@ -103,6 +127,10 @@ module AppealsApi
               claimant_city: { at: [196.1, 81.15], width: 313.9, height: 13.65 },
               claimant_zip_code: { at: [274.8, 62.35], width: 84.6, height: 13.65 },
               claimant_email: { at: [267, 33.8], width: 283, height: 33.1, valign: :top },
+
+              homeless_other_reason: { at: [375, 464], width: 170, height: 29 },
+              homeless_point_of_contact: { at: [-2, 419], width: 286, height: 34 },
+              homeless_poc_international_phone: { at: [408, 399.5], width: 135, height: 16.5 },
 
               international_phone: { at: [151, 15], width: 114, height: 15 },
 

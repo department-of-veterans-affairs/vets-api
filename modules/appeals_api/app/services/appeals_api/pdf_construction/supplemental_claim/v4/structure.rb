@@ -74,7 +74,7 @@ module AppealsApi
           end
 
           def whiteout(pdf, at:, width:, height: 14, **_ignored)
-            pdf.fill_color 'ffffff'
+            pdf.fill_color 'FF0000'
             pdf.fill_rectangle at, width, height
             pdf.fill_color '000000'
           end
@@ -160,6 +160,9 @@ module AppealsApi
 
               # page 5, homeless info, issues
               pdf.start_new_page
+              fill_text pdf, :homeless_other_reason
+              fill_text pdf, :homeless_point_of_contact
+              fill_text pdf, :homeless_poc_international_phone
               fill_contestable_issues_text pdf
 
               # page 6, evidence

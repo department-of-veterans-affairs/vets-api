@@ -76,6 +76,27 @@
                     "nationalCemeteryAdministration"
                   ]
                 },
+                "homeless": { "type": "boolean" },
+                "homelessLivingSituation": {
+                  "type": "string", 
+                  "enum": [ 
+                    "I live or sleep in a place that is not meant for regular sleeping",
+                    "I live in a shelter",
+                    "I am staying with a friend or family member, because I am unable to own a home right now",
+                    "In the next 30 days, I will have to leave a facility, like a homeless shelter",
+                    "In the next 30 days, I will lose my home",
+                    "None of these situations apply to me",
+                    "Other"
+                  ]
+                },
+                "homelessLivingSituationOther": {"type":  "string", "maxLength": 100 },
+                "homelessPointOfContact": {"type":  "string", "maxLength": 150 },
+                "homelessPointOfContactPhone": {
+                  "allOf": [
+                    { "$ref": "#/definitions/phone" },
+                    { "$comment": "the phone fields must not exceed 20 chars, when concatenated" }
+                  ]
+                },
                 "claimantType": {"type": "string", "enum": [ "veteran", "spouse_of_veteran", "child_of_veteran", "parent_of_veteran", "other"] },
                 "claimantTypeOtherValue": { "type":  "string", "minLength": 1, "maxLength": 25 },
                 "veteran": {
@@ -124,6 +145,11 @@
                   "description": "Evidence may be uploaded up to 7 days from the 'created_at' date of the associated Supplemental Claim via 'supplemental_claims/evidence_submissions'.",
                   "type": "object",
                   "properties": {
+                    "treatmentLocations":{
+                      "type": "array",
+                      "description": "Identify where you have received treatment",
+                      "items": { 
+                        "type": "string", 
                     "evidenceType":{
                       "type": "array",
                       "description": "'upload' indicates that the Veteran has supplied additional evidence as uploaded documents. 'retrieval' indicates that the Veteran has supplied contact information for facilities holding evidence relevant to the claim; the 'retrieveFrom' field will contain the facility's contact information. 'none' indicates that the Veteran has not supplied additional evidence.",
@@ -151,14 +177,18 @@
                                   "properties": {
                                     "startDate": { "type": "string", "format": "date" },
                                     "endDate": { "type": "string", "format": "date" }
-                                  },
-                                  "required": [ "startDate", "endDate" ]
+                                  }
                                 },
                                 "minItems": 1,
                                 "maxItems": 4
+                              },
+                              "noTreatmentDates": { 
+                                "type": "boolean", 
+                                "description": "Don't have treatment date"
                               }
+                  
                             },
-                            "required": [ "locationAndName", "evidenceDates" ]
+                            "required": [ "locationAndName" ]
                           }
                         },
                         "required": [ "type", "attributes" ]

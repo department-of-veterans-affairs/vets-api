@@ -5,6 +5,20 @@
       "benefitType": "compensation",
       "claimantType": "other",
       "claimantTypeOtherValue": "Veteran Attorney",
+      "homeless": true,
+      "homelessLivingSituation": [
+        "I live or sleep in a place that is not meant for regular sleeping",
+        "I live in a shelter",
+        "I am staying with a friend or family member, because I am unable to own a home right now",
+        "In the next 30 days, I will have to leave a facility, like a homeless shelter",
+        "In the next 30 days, I will lose my home",
+        "None of these situations apply to me",
+        "Other"
+      ],
+      "homelessLivingSituationOther": "random words for other living situation ",
+      "homelessPointOfContact": "Jim Jones Vet Care Network",
+      
+       "homelessPointOfContactPhone": {"areaCode": "777", "phoneNumber": "9957023"},      
       "veteran": {
         "address": {
           "addressLine1": "123 Main St",
@@ -45,6 +59,8 @@
       "socOptIn": true,
       "form5103Acknowledged": true,
       "evidenceSubmission": {
+        "treatmentLocations": ["Private health care provider", "Va vet center", "Community care", "Va medical center(s) (vamc) and community-based outpatient clinics (cboc)", "Department of defense (dod) military treatment facility(ies) (mtf)", "Other"],
+        "treatmentLocationOther": "hospital sdkjgj  wktewj  wket wthtwet etw  wekhwk jt jw wjk jkwgjwetwhthwjk gh jvhj hjvhj uuyy gf jfhj jhjhX",
         "evidenceType": ["upload", "retrieval"],
         "retrieveFrom": [
           {
@@ -56,7 +72,8 @@
                 { "startDate": "2020-01-02", "endDate": "2020-02-01" },
                 { "startDate": "2020-02-20", "endDate": "2020-02-22" },
                 { "startDate": "2019-02-02", "endDate": "2020-02-03" }
-              ]
+              ],
+              "noTreatmentDates": true
             }
           },
           {
@@ -66,7 +83,8 @@
               "evidenceDates": [
                 { "startDate": "2020-02-20", "endDate": "2020-02-22" },
                 { "startDate": "2020-02-02", "endDate": "2020-02-07" }
-              ]
+              ],
+              "noTreatmentDates": true
             }
           },
           {
@@ -75,7 +93,8 @@
               "locationAndName": "Doctor's Notes VAMC",
               "evidenceDates": [
                 { "startDate": "2020-04-10", "endDate": "2020-04-10" }
-              ]
+              ],
+              "noTreatmentDates": true
             }
           },
           {
@@ -85,7 +104,8 @@
               "evidenceDates": [
                 { "startDate": "2020-07-19", "endDate": "2020-07-19" },
                 { "startDate": "2018-03-06", "endDate": "2019-02-12" }
-              ]
+              ],
+              "noTreatmentDates": true
             }
           },
           {
@@ -95,7 +115,8 @@
               "evidenceDates": [
                 { "startDate": "2018-03-06", "endDate": "2018-03-06" },
                 { "startDate": "2018-01-15", "endDate": "2018-01-15" }
-              ]
+              ],
+              "noTreatmentDates": false
             }
           }
         ]

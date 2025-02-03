@@ -28,6 +28,25 @@ module AppealsApi
             'fiduciary' => 5
           }.freeze
 
+          HOMELESS_LIVING_SITUATION = [
+            'I live or sleep in a place that is not meant for regular sleeping',
+            'I live in a shelter',
+            'I am staying with a friend or family member, because I am unable to own a home right now',
+            'In the next 30 days, I will have to leave a facility, like a homeless shelter',
+            'In the next 30 days, I will lose my home',
+            'None of these situations apply to me',
+            'Other'
+          ].freeze
+
+          TREATMENT_LOCATIONS = [
+            'Private health care provider',
+            'Va vet center',
+            'Community care',
+            'Va medical center(s) (vamc) and community-based outpatient clinics (cboc)',
+            'Department of defense (dod) military treatment facility(ies) (mtf)',
+            'Other'
+          ].freeze
+
           LONG_SIGNATURE_THRESHOLD = 70
           LONG_EMAIL_THRESHOLD = 120
           MAX_SIGNATURE_LENGTH = 180
@@ -39,7 +58,8 @@ module AppealsApi
           delegate :veteran_dob_month, :veteran_dob_day, :veteran_dob_year, :signing_appellant_zip_code,
                    :date_signed, :signing_appellant, :appellant_local_time, :contestable_issues,
                    :new_evidence_locations, :new_evidence_dates, :claimant, :veteran,
-                   :alternate_signer_full_name,
+                   :alternate_signer_full_name, :homeless_other_reason,
+                   :treatment_location_other_details, :homeless,
                    to: :supplemental_claim
 
           delegate :first_name, :last_name, :middle_initial, :file_number, :service_number, :email,
@@ -76,6 +96,10 @@ module AppealsApi
 
           def new_evidence_dates
             evidence_records.map(&:dates_month_format)
+          end
+
+          def new_evidence_no_dates
+            evidence_records.map { |es| es.no_treatment_date ? 'X' : '' }
           end
 
           def veteran_ssn_first_three
@@ -148,6 +172,94 @@ module AppealsApi
 
           def claimant_phone_line_number
             claimant.phone_data['phoneNumber'][3..] if claimant_domestic_phone?
+          end
+
+          def homeless
+            return nil if supplemental_claim.homeless.nil?
+
+            supplemental_claim.homeless ? 1 : 2
+          end
+
+          def homeless_living_situation_irregular
+            supplemental_claim.homeless_living_situation&.include?(HOMELESS_LIVING_SITUATION[0]) ? 1 : 0
+          end
+
+          def homeless_living_situation_shelter
+            supplemental_claim.homeless_living_situation&.include?(HOMELESS_LIVING_SITUATION[1]) ? 1 : 0
+          end
+
+          def homeless_living_situation_guest
+            supplemental_claim.homeless_living_situation&.include?(HOMELESS_LIVING_SITUATION[2]) ? 1 : 0
+          end
+
+          def homeless_living_situation_leaving_facility
+            supplemental_claim.homeless_living_situation&.include?(HOMELESS_LIVING_SITUATION[3]) ? 1 : 0
+          end
+
+          def homeless_living_situation_losing_home
+            supplemental_claim.homeless_living_situation&.include?(HOMELESS_LIVING_SITUATION[4]) ? 1 : 0
+          end
+
+          def homeless_living_situation_none_apply
+            supplemental_claim.homeless_living_situation&.include?(HOMELESS_LIVING_SITUATION[5]) ? 1 : 0
+          end
+
+          def homeless_living_situation_other
+            supplemental_claim.homeless_living_situation&.include?(HOMELESS_LIVING_SITUATION[6]) ? 1 : 0
+          end
+
+          def homeless_living_situation_other_reason
+            homeless_living_situation_other == 1 ? supplemental_claim.homeless_other_reason : nil
+          end
+
+          delegate :homeless_point_of_contact, to: :supplemental_claim
+
+          def homeless_poc_international_phone
+            supplemental_claim.homeless_poc.phone_formatted.to_s unless homeless_poc_domestic_phone?
+          end
+
+          def homeless_poc_domestic_phone?
+            # The form has no field for an extension on a domestic number, so if a domestic number has
+            # an extension, we put it in the international field instead.
+            if supplemental_claim.homeless_poc.phone_data.present? && supplemental_claim.homeless_poc.domestic_phone?
+              supplemental_claim.homeless_poc.phone_data['phoneNumberExt'].blank?
+            end
+          end
+
+          def homeless_poc_phone_area_code
+            supplemental_claim.homeless_poc.phone_data['areaCode'] if homeless_poc_domestic_phone?
+          end
+
+          def homeless_poc_phone_prefix
+            supplemental_claim.homeless_poc.phone_data['phoneNumber'][0..2] if homeless_poc_domestic_phone?
+          end
+
+          def homeless_poc_phone_line_number
+            supplemental_claim.homeless_poc.phone_data['phoneNumber'][3..] if homeless_poc_domestic_phone?
+          end
+
+          def treatment_location_private
+            supplemental_claim.treatment_locations&.include?(TREATMENT_LOCATIONS[0]) ? 1 : 0
+          end
+
+          def treatment_location_vet_center
+            supplemental_claim.treatment_locations&.include?(TREATMENT_LOCATIONS[1]) ? 1 : 0
+          end
+
+          def treatment_location_community_care
+            supplemental_claim.treatment_locations&.include?(TREATMENT_LOCATIONS[2]) ? 1 : 0
+          end
+
+          def treatment_location_vamc_cboc
+            supplemental_claim.treatment_locations&.include?(TREATMENT_LOCATIONS[3]) ? 1 : 0
+          end
+
+          def treatment_location_dod
+            supplemental_claim.treatment_locations&.include?(TREATMENT_LOCATIONS[4]) ? 1 : 0
+          end
+
+          def treatment_location_other
+            supplemental_claim.treatment_locations&.include?(TREATMENT_LOCATIONS[5]) ? 1 : 0
           end
 
           def ci_decision_date_month(index)
@@ -268,6 +380,18 @@ module AppealsApi
 
           def full_name_for_signature
             alternate_signer? ? alternate_signer_full_name : signing_appellant.full_name
+          end
+
+          def evidence_submission_1_no_treatment_date
+            supplemental_claim.new_evidence[0]&.no_treatment_date ? 1 : 0
+          end
+
+          def evidence_submission_2_no_treatment_date
+            supplemental_claim.new_evidence[1]&.no_treatment_date ? 1 : 0
+          end
+
+          def evidence_submission_3_no_treatment_date
+            supplemental_claim.new_evidence[2]&.no_treatment_date ? 1 : 0
           end
 
           def evidence_records
