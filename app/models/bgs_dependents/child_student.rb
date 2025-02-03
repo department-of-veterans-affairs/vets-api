@@ -6,11 +6,13 @@ module BGSDependents
     attribute :student_earnings_from_school_year, Hash
     attribute :student_networth_information, Hash
     attribute :student_expected_earnings_next_year, Hash
+    attribute :student_information, Hash
 
     def initialize(dependents_application, proc_id, vnp_participant_id)
       @proc_id = proc_id
       @vnp_participant_id = vnp_participant_id
       @dependents_application = dependents_application
+      @is_v2 = Flipper.enabled?(:va_dependents_v2)
       self.attributes = dependents_application
     end
 
@@ -22,11 +24,11 @@ module BGSDependents
         saving_amt: student_networth_information&.dig('savings'),
         real_estate_amt: student_networth_information&.dig('real_estate'),
         other_asset_amt: student_networth_information&.dig('other_assets'),
-        rmks: student_networth_information&.dig('remarks'),
-        marage_dt: format_date(student_address_marriage_tuition&.dig('marriage_date')),
+        rmks: @is_v2 ? student_information&.dig('remarks') : student_networth_information&.dig('remarks'),
+        marage_dt: format_date(@is_v2 ? student_information&.dig('marraige_date') : student_address_marriage_tuition&.dig('marriage_date')),
         agency_paying_tuitn_nm: student_address_marriage_tuition&.dig('agency_name'),
         stock_bond_amt: student_networth_information&.dig('securities'),
-        govt_paid_tuitn_ind: convert_boolean(student_address_marriage_tuition&.dig('tuition_is_paid_by_gov_agency')),
+        govt_paid_tuitn_ind: convert_boolean(@is_v2 ? student_information&.dig('tuition_is_paid_by_gov_agency') : student_address_marriage_tuition&.dig('tuition_is_paid_by_gov_agency')),
         govt_paid_tuitn_start_dt: format_date(student_address_marriage_tuition&.dig('date_payments_began')),
         term_year_emplmt_income_amt: student_earnings_from_school_year&.dig('earnings_from_all_employment'),
         term_year_other_income_amt: student_earnings_from_school_year&.dig('all_other_income'),
