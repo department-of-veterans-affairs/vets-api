@@ -946,9 +946,9 @@ module PdfFill
           cleaned_value = value.to_s.gsub(/[^0-9]/, '').to_i
       
           parent_object[key] = {
-            'first' => (cleaned_value / 1000).to_s,         # Thousands
-            'second' => ((cleaned_value / 100) % 10).to_s,  # Hundreds
-            'third' => '00'                                 # Always zero cents
+            'first' => (cleaned_value / 1000).to_s,
+            'second' => ((cleaned_value / 100) % 10).to_s,
+            'third' => '00'
           }
         end
       
