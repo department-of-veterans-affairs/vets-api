@@ -28,5 +28,8 @@ jobs:
         with:
           bundler-cache: true
 
+      - name: Install pdftk
+        run: sudo apt-get update && sudo apt-get install -y pdftk-java
+
       - name: Run Yardoc
         run: bundle exec rake yardoc
