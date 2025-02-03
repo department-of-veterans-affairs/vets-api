@@ -14,7 +14,10 @@ module V0
       check_for_birls_id
       check_for_file_number
 
-      update_claim_type_language(claims['data'])
+      claims['data'].each do |claim|
+        update_claim_type_language(claim)
+      end
+
       tap_claims(claims['data'])
 
       render json: claims
@@ -103,15 +106,10 @@ module V0
       end
     end
 
-    def update_claim_type_language(claims)
-      language_map = BenefitsClaims::Constants::LANGUAGE_MAP
-
-      if claims.is_a?(Array)
-        claims.each do |claim|
-          update_claim_type_language(claim)
-        end
-      elsif language_map.key?(claims.dig('attributes', 'claimType'))
-        claims['attributes']['claimType'] = language_map[claims['attributes']['claimType']]
+    def update_claim_type_language(claim)
+      language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
+      if language_map.key?(claim.dig('attributes', 'claimType'))
+        claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
       end
     end
 
