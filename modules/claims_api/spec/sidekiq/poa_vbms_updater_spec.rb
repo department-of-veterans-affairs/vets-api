@@ -29,6 +29,10 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       headers
     end
 
+    it 'sets retry_for to 48 hours' do
+      expect(described_class.get_sidekiq_options['retry_for']).to eq(48.hours)
+    end
+
     context 'when address change is present and allowed' do
       let(:allow_poa_c_add) { 'Y' }
       let(:consent_address_change) { true }

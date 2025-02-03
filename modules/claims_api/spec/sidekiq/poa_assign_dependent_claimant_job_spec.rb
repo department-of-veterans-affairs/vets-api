@@ -49,6 +49,10 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
     }
   end
 
+  it 'sets retry_for to 48 hours' do
+    expect(described_class.get_sidekiq_options['retry_for']).to eq(48.hours)
+  end
+
   describe '#perform' do
     let(:poa) do
       create(:power_of_attorney,
