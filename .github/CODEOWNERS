@@ -679,13 +679,13 @@ app/sidekiq/terms_of_use @department-of-veterans-affairs/octo-identity
 app/sidekiq/test_user_dashboard @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/qa-standards @department-of-veterans-affairs/backend-review-group
 app/sidekiq/test_user_dashboard/daily_maintenance.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/qa-standards @department-of-veterans-affairs/backend-review-group
 app/sidekiq/transactional_email_analytics_job.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
+app/sidekiq/user_action_events_cleanup_job.rb @department-of-veterans-affairs/octo-identity
 app/sidekiq/va_notify_dd_email_job.rb @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/va_notify_email_job.rb @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/vbms @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/vre/create_ch31_submissions_report_job.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/vre/submit1900_job.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/webhooks @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/sidekiq/user_action_events_cleanup_job.rb @department-of-veterans-affairs/octo-identity
 bin @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 bin/merge_imagemagick_policy @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 clamav_tmp @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1417,13 +1417,13 @@ spec/sidekiq/simple_forms_api @department-of-veterans-affairs/platform-va-produc
 spec/sidekiq/terms_of_use @department-of-veterans-affairs/octo-identity
 spec/sidekiq/test_user_dashboard @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/qa-standards @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/transactional_email_analytics_job_spec.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
+spec/sidekiq/user_action_events_cleanup_job_spec.rb @department-of-veterans-affairs/octo-identity
 spec/sidekiq/va_notify_dd_email_job_spec.rb @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/va_notify_email_job_spec.rb @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/vbms @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/vre/create_ch31_submissions_report_job_spec.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/vre/submit1900_job_spec.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/webhooks @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/sidekiq/user_action_events_cleanup_job_spec.rb @department-of-veterans-affairs/octo-identity
 spec/lib/apps @department-of-veterans-affairs/lighthouse-pivot
 spec/lib/bb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/benefits_intake_service @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-dependents-management

@@ -8,7 +8,7 @@ class UserActionEventsCleanupJob
   EXPIRATION_TIME = 1.year
 
   def perform
-    events = UserActionEvent.where('created_at < ?', EXPIRATION_TIME.ago)
+    events = UserActionEvent.where(create_at: ...EXPIRATION_TIME.ago)
     UserAction.where(user_action_event_id: events).delete_all
     events.delete_all
   end
