@@ -75,8 +75,8 @@ describe TravelPay::ClaimAssociationService do
           end: '2021-05-20T14:20:00Z',
           minutesDuration: 10,
           slot: { 'id' => '3230323130353230313431303A323032313035323031343230',
-                      'start' => '2021-05-20T14:10:00Z',
-                      'end' => '2021-05-20T14:20:00Z' },
+                  'start' => '2021-05-20T14:10:00Z',
+                  'end' => '2021-05-20T14:20:00Z' },
           cancellable: true
         },
         {
@@ -128,7 +128,6 @@ describe TravelPay::ClaimAssociationService do
 
       expect(appts_with_claims.count).to eq(appointments.count)
       appts_with_claims.each do |appt|
-        byebug
         expect(appt['travelPayClaim']['metadata']['status']).to eq(200)
         expect(appt['travelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
         expect(appt['travelPayClaim']['metadata']['success']).to be(true)

@@ -66,6 +66,9 @@ module TravelPay
                                                    { 'start_date' => appt[:start], 'end_date' => appt[:start] })
 
       claim_data = faraday_response.body['data']&.dig(0)
+
+      claim_data['claimStatus'] = claim_data['claimStatus'].underscore.titleize if claim_data
+
       appt['travelPayClaim'] = {}
       appt['travelPayClaim']['metadata'] = build_metadata(faraday_response.body)
       appt['travelPayClaim']['claim'] = claim_data if claim_data

@@ -36,7 +36,6 @@ module VAOS
         params = date_params(start_date, end_date).merge(page_params(pagination_params))
                                                   .merge(status_params(statuses))
                                                   .compact
-
         cnp_count = 0
 
         with_monitoring do
@@ -49,7 +48,7 @@ module VAOS
           validate_response_schema(response, 'appointments_index')
           appointments = response.body[:data]
 
-          if Flipper.enabled?(:travel_pay_view_claim_details, user)
+          if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay]
             appointments = merge_all_travel_claims(start_date, end_date, appointments)
           end
 
@@ -91,7 +90,9 @@ module VAOS
           include[:facilities] = true
           include[:clinics] = true
 
-          appointment = merge_one_travel_claim(appointment) if Flipper.enabled?(:travel_pay_view_claim_details, user)
+          if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay]
+            appointment = merge_one_travel_claim(appointment)
+          end
 
           prepare_appointment(appointment, include)
           OpenStruct.new(appointment)
@@ -935,7 +936,7 @@ module VAOS
       end
 
       def validate_response_schema(response, contract_name)
-        return unless response.success? && response.body[:data].present?
+        return unless response.success? && response.body.present?
 
         SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
       end
