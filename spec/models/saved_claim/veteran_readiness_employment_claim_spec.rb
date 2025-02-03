@@ -6,7 +6,7 @@ require 'claims_api/vbms_uploader'
 
 RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   let(:claim) { create(:veteran_readiness_employment_claim) }
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { create(:evss_user, :loa3) }
   let(:new_address_hash) do
     {
       newAddress: {
@@ -75,6 +75,14 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
   describe '#send_to_vre' do
     subject { claim.send_to_vre(user_object) }
+
+    it 'propagates errors from send_to_lighthouse!' do
+      allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'Attachment error')
+
+      expect do
+        claim.send_to_lighthouse!(user_object)
+      end.to raise_error(StandardError, 'Attachment error')
+    end
 
     context 'when VBMS response is VBMSDownForMaintenance' do
       before do

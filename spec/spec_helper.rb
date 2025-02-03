@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'i18n'
+require 'support/codeowners_parser'
 require 'support/spec_builders'
 require 'support/matchers'
 require 'support/spool_helpers'
@@ -61,7 +62,6 @@ unless ENV['NOCOVERAGE']
     add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidResearch', 'modules/covid_research/'
-    add_group 'CovidVaccine', 'modules/covid_vaccine/'
     add_group 'DebtsApi', 'modules/debts_api/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
@@ -88,6 +88,11 @@ unless ENV['NOCOVERAGE']
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     # End Modules
 
+    # Team Groups
+    codeowners_parser = CodeownersParser.new
+    octo_identity_files = codeowners_parser.perform('octo-identity')
+    add_group 'OctoIdentity', octo_identity_files
+
     if ENV['CI']
       SimpleCov.minimum_coverage 90
       SimpleCov.refuse_coverage_drop
@@ -98,6 +103,14 @@ unless ENV['NOCOVERAGE']
       result = SimpleCov.result
       result.format! if ParallelTests.number_of_running_processes <= 1
     end
+  end
+end
+
+# @see https://medium.com/@petro.yakubiv/testing-time-and-date-in-rspec-98483ce7a138
+RSpec::Matchers.define :be_the_same_time_as do |expected|
+  match do |actual|
+    formatted = '%d/%m/%Y %H:%M:%S'
+    expect(expected.strftime(formatted)).to eq(actual.strftime(formatted))
   end
 end
 

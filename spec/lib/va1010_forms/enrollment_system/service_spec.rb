@@ -126,7 +126,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
   end
 
   describe '#submission_body' do
-    let(:user) { FactoryBot.build(:user, :loa3, icn: nil) }
+    let(:user) { build(:user, :loa3, icn: nil) }
 
     root = Rails.root.join('spec', 'fixtures', 'hca', 'conformance')
 

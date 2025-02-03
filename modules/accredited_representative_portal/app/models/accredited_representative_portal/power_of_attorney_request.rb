@@ -3,9 +3,13 @@
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequest < ApplicationRecord
     module ClaimantTypes
-      DEPENDENT = 'dependent'
-      VETERAN = 'veteran'
+      ALL = [
+        DEPENDENT = 'dependent',
+        VETERAN = 'veteran'
+      ].freeze
     end
+
+    EXPIRY_DURATION = 60.days
 
     belongs_to :claimant, class_name: 'UserAccount'
 
@@ -14,7 +18,7 @@ module AccreditedRepresentativePortal
             required: true
 
     has_one :resolution,
-            class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution',
+            class_name: 'PowerOfAttorneyRequestResolution',
             inverse_of: :power_of_attorney_request
 
     belongs_to :power_of_attorney_holder,
@@ -25,14 +29,37 @@ module AccreditedRepresentativePortal
 
     before_validation :set_claimant_type
 
+    validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
+
+    delegate :poa_code, to: :accredited_individual
+
+    def expires_at
+      created_at + EXPIRY_DURATION if unresolved?
+    end
+
+    def unresolved?
+      !resolved?
+    end
+
+    def resolved?
+      resolution.present?
+    end
+
+    scope :unresolved, -> { where.missing(:resolution) }
+    scope :resolved, -> { joins(:resolution) }
+    scope :not_expired, lambda {
+      where.not(resolution: { resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration' })
+    }
+
     private
 
     def set_claimant_type
-      self.claimant_type = if power_of_attorney_form.parsed_data['dependent']
-                             ClaimantTypes::DEPENDENT
-                           elsif power_of_attorney_form.parsed_data['veteran']
-                             ClaimantTypes::VETERAN
-                           end
+      self.claimant_type =
+        if power_of_attorney_form.parsed_data['dependent']
+          ClaimantTypes::DEPENDENT
+        elsif power_of_attorney_form.parsed_data['veteran']
+          ClaimantTypes::VETERAN
+        end
     end
   end
 end

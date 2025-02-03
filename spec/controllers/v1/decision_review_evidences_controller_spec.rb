@@ -25,6 +25,19 @@ RSpec.describe V1::DecisionReviewEvidencesController, type: :controller do
       sign_in_as(user)
     end
 
+    it 'logs use of the old controller' do
+      request.env['SOURCE_APP'] = '10182-board-appeal'
+      params = { param_namespace => { file_data: pdf_file } }
+      warn_old_controller_args = {
+        message: 'Calling decision reviews controller outside module',
+        action: 'Decision review evidences create',
+        form_id: anything
+      }
+      allow(Rails.logger).to receive(:warn)
+      expect(Rails.logger).to receive(:warn).with(warn_old_controller_args)
+      post(:create, params:)
+    end
+
     it 'requires params.`param_namespace`' do
       empty_req_params = [nil, {}]
       empty_req_params << { param_namespace => {} }

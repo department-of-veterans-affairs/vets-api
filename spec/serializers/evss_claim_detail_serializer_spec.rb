@@ -59,13 +59,13 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
     let(:evss_claim) { build(:evss_claim, data: claim_data, list_data: claim_list_data) }
 
     it 'does not use list_data' do
-      expect(attributes['waiver_submitted']).to eq true
+      expect(attributes['waiver_submitted']).to be true
     end
   end
 
   context 'with items in vbaDocuments' do
     let(:raw_data) do
-      fixture_file_name = ::Rails.root.join(
+      fixture_file_name = Rails.root.join(
         *'/spec/fixtures/evss_claim/claim-with-documents.json'.split('/')
       ).to_s
       File.open(fixture_file_name, 'rb') do |f|

@@ -44,8 +44,8 @@ RSpec.describe VBADocuments::ObjectStore do
     it 'returns the earliest available version' do
       v1 = instance_double(Aws::S3::ObjectVersion)
       v2 = instance_double(Aws::S3::ObjectVersion)
-      t1 = Time.zone.now - 1.minute
-      t2 = Time.zone.now - 2.minutes
+      t1 = 1.minute.ago
+      t2 = 2.minutes.ago
       expect(v1).to receive(:last_modified).and_return(t1)
       expect(v2).to receive(:last_modified).and_return(t2)
       expect(@resource).to receive(:bucket).and_return(@bucket)

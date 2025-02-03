@@ -37,7 +37,7 @@ module ClaimsApi
             )
           end
 
-          serialized_response = ClaimsApi::PowerOfAttorneySerializer.new(poa).serializable_hash
+          serialized_response = ClaimsApi::V2::PowerOfAttorneySerializer.new(poa).serializable_hash
           serialized_response[:data][:type] = serialized_response[:data][:type].to_s.camelize(:lower)
           render json: serialized_response.deep_transform_keys! { |key| key.to_s.camelize(:lower).to_sym }
         end
@@ -237,6 +237,12 @@ module ClaimsApi
           end
         rescue ArgumentError
           mpi_profile
+        end
+
+        def fetch_ptcpnt_id(vet_icn)
+          mpi_profile = mpi_service.find_profile_by_identifier(identifier: vet_icn,
+                                                               identifier_type: MPI::Constants::ICN)
+          mpi_profile.profile.participant_id
         end
 
         def claimant_icn

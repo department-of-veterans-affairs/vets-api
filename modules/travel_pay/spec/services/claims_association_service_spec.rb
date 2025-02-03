@@ -130,7 +130,7 @@ describe TravelPay::ClaimAssociationService do
       appts_with_claims.each do |appt|
         expect(appt['travelPayClaim']['metadata']['status']).to eq(200)
         expect(appt['travelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
-        expect(appt['travelPayClaim']['metadata']['success']).to eq(true)
+        expect(appt['travelPayClaim']['metadata']['success']).to be(true)
       end
       expect(actual_appts_with_claims.count).to equal(1)
       expect(actual_appts_with_claims[0]['travelPayClaim']['claim']['id']).to eq(expected_uuids[0])
@@ -166,7 +166,7 @@ describe TravelPay::ClaimAssociationService do
       appts_with_claims.each do |appt|
         expect(appt['travelPayClaim']['metadata']['status']).to equal(401)
         expect(appt['travelPayClaim']['metadata']['message']).to eq('Unauthorized.')
-        expect(appt['travelPayClaim']['metadata']['success']).to eq(false)
+        expect(appt['travelPayClaim']['metadata']['success']).to be(false)
       end
     end
 
@@ -181,7 +181,7 @@ describe TravelPay::ClaimAssociationService do
                                                                                  'end_date' => '2024-12-15T16:45:00Z' })
       appts_with_claims.each do |appt|
         expect(appt['travelPayClaim']['metadata']['status']).to equal(520)
-        expect(appt['travelPayClaim']['metadata']['success']).to eq(false)
+        expect(appt['travelPayClaim']['metadata']['success']).to be(false)
         expect(appt['travelPayClaim']['metadata']['message']).to include(/Uninitialized constant/i)
       end
     end
@@ -193,7 +193,7 @@ describe TravelPay::ClaimAssociationService do
 
       appts.each do |appt|
         expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
-        expect(appt['travelPayClaim']['metadata']['success']).to eq(false)
+        expect(appt['travelPayClaim']['metadata']['success']).to be(false)
         expect(appt['travelPayClaim']['metadata']['message']).to include(/Both start and end/i)
       end
     end
@@ -206,7 +206,7 @@ describe TravelPay::ClaimAssociationService do
 
       appts.each do |appt|
         expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
-        expect(appt['travelPayClaim']['metadata']['success']).to eq(false)
+        expect(appt['travelPayClaim']['metadata']['success']).to be(false)
         expect(appt['travelPayClaim']['metadata']['message']).to include(/invalid date/i)
       end
     end
@@ -301,7 +301,7 @@ describe TravelPay::ClaimAssociationService do
 
       expect(appt_with_claim['travelPayClaim']['metadata']['status']).to eq(200)
       expect(appt_with_claim['travelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
-      expect(appt_with_claim['travelPayClaim']['metadata']['success']).to eq(true)
+      expect(appt_with_claim['travelPayClaim']['metadata']['success']).to be(true)
       expect(appt_with_claim['travelPayClaim']['claim']['id']).to eq(single_claim_data_success['data'][0]['id'])
     end
 
@@ -320,7 +320,7 @@ describe TravelPay::ClaimAssociationService do
 
       expect(appt_with_claim['travelPayClaim']['metadata']['status']).to eq(200)
       expect(appt_with_claim['travelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
-      expect(appt_with_claim['travelPayClaim']['metadata']['success']).to eq(true)
+      expect(appt_with_claim['travelPayClaim']['metadata']['success']).to be(true)
       expect(appt_with_claim['travelPayClaim']['claim']).to be_nil
     end
 
@@ -351,7 +351,7 @@ describe TravelPay::ClaimAssociationService do
       expect(appt_with_claim['travelPayClaim']['metadata']['status']).to equal(401)
       expect(appt_with_claim['travelPayClaim']['metadata']['message'])
         .to eq('A contact with the specified ICN was not found.')
-      expect(appt_with_claim['travelPayClaim']['metadata']['success']).to eq(false)
+      expect(appt_with_claim['travelPayClaim']['metadata']['success']).to be(false)
     end
 
     it 'handles random, unknown errors' do
@@ -364,7 +364,7 @@ describe TravelPay::ClaimAssociationService do
                                                                                     'appointment' => single_appointment
                                                                                   })
       expect(appt_with_claim['travelPayClaim']['metadata']['status']).to equal(520)
-      expect(appt_with_claim['travelPayClaim']['metadata']['success']).to eq(false)
+      expect(appt_with_claim['travelPayClaim']['metadata']['success']).to be(false)
       expect(appt_with_claim['travelPayClaim']['metadata']['message']).to include(/Uninitialized constant/i)
     end
 
@@ -375,7 +375,7 @@ describe TravelPay::ClaimAssociationService do
                                                                        })
 
       expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
-      expect(appt['travelPayClaim']['metadata']['success']).to eq(false)
+      expect(appt['travelPayClaim']['metadata']['success']).to be(false)
       expect(appt['travelPayClaim']['metadata']['message']).to include(/invalid date/i)
     end
   end
