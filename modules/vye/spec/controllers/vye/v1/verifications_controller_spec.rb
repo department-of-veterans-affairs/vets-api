@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
@@ -19,62 +18,67 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
     let(:cur_award_ind) { Vye::Award.cur_award_inds[:future] }
     let(:now) { Time.parse('2024-03-31T12:00:00-00:00') }
     let(:date_last_certified) { Date.new(2024, 2, 15) }
-    let(:last_day_of_previous_month) { Date.new(2024, 2, 29) } # This is not used only for documentation
     let(:award_begin_date) { Date.new(2024, 3, 30) }
-    let(:today) { Date.new(2024, 3, 31) } # This is not used only for documentation
     let(:award_end_date) { Date.new(2024, 4, 1) }
     let!(:user_profile) { create(:vye_user_profile, icn: current_user.icn) }
     let!(:user_info) { create(:vye_user_info, user_profile:, date_last_certified:) }
     let!(:award) { create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
     let!(:award2) { create(:vye_award, user_info:, cur_award_ind:) }
     let(:award_ids) { user_info.awards.pluck(:id) }
-    let!(:params) { { award_ids: } }
+    let(:params) { { award_ids: } }
 
     # rubocop:disable RSpec/SubjectStub
     before do
       allow(subject).to receive_messages(
         params:,
         current_user:,
-        head: :no_content # We're testing the funtionality of the action, not the controller
+        head: :no_content
       )
-
-      subject.send(:load_user_info) # private method override
+      subject.send(:load_user_info)
     end
     # rubocop:enable RSpec/SubjectStub
 
-    it 'sets the transact date to the highest act_end of verifications' do
-      subject.create
-      highest_act_end = Vye::Verification.maximum(:act_end)
+    describe 'cert_through_date calculation' do
+      let!(:verification1) { create(:vye_verification, act_end: Date.new(2024, 4, 1), award: award) }
+      let!(:verification2) { create(:vye_verification, act_end: Date.new(2024, 5, 1), award: award2) }
 
-      Vye::Verification.all.find_each do |verification|
-        expect(verification.transact_date).to eq(highest_act_end)
+      before do
+        allow(subject).to receive(:pending_verifications).and_return([verification1, verification2])
+      end
+
+      it 'returns verification-specific act_end when current date is on or after that verification act_end' do
+        Timecop.freeze(Date.new(2024, 4, 1)) do
+          expect(subject.send(:cert_through_date, verification1).to_date).to eq(verification1.act_end.to_date)
+          expect(subject.send(:cert_through_date, verification2).to_date).to eq(Date.new(2024, 3, 31))
+        end
+      end
+
+      it 'returns end of current month when on last day of month' do
+        Timecop.freeze(Date.new(2024, 3, 31)) do
+          expect(subject.send(:cert_through_date, verification1).to_date).to eq(Date.new(2024, 3, 31))
+          expect(subject.send(:cert_through_date, verification2).to_date).to eq(Date.new(2024, 3, 31))
+        end
+      end
+
+      it 'returns end of previous month for mid-month dates' do
+        Timecop.freeze(Date.new(2024, 3, 15)) do
+          expect(subject.send(:cert_through_date, verification1).to_date).to eq(Date.new(2024, 2, 29))
+          expect(subject.send(:cert_through_date, verification2).to_date).to eq(Date.new(2024, 2, 29))
+        end
       end
     end
 
-    it 'sets the cert_through date based on current date relative to award end dates' do
-      # rubocop:disable Lint/ConstantDefinitionInBlock
-      VerificationTest = Struct.new(:act_end)
-      # rubocop:enable Lint/ConstantDefinitionInBlock
-      award_dates = [
-        Time.zone.parse('2024-08-10'),
-        Time.zone.parse('2024-10-15'),
-        Time.zone.parse('2024-12-15')
-      ]
+    describe 'verification updates' do
+      it 'sets different transact_dates based on each verification act_end' do
+        verification1 = create(:vye_verification, act_end: Date.new(2024, 4, 1), award: award)
+        verification2 = create(:vye_verification, act_end: Date.new(2024, 5, 1), award: award2)
+        allow(subject).to receive(:pending_verifications).and_return([verification1, verification2])
 
-      test_verifications = award_dates.map { |date| VerificationTest.new(date) }
-
-      # rubocop:disable RSpec/SubjectStub
-      allow(subject).to receive(:pending_verifications).and_return(test_verifications)
-      # rubocop:enable RSpec/SubjectStub
-
-      Timecop.freeze(Time.zone.parse('2024-11-15')) do
-        expect(subject.send(:cert_through_date).to_date).to eq(Date.new(2024, 10, 31))
-      end
-
-      # show last award day rather than last day of previous month when award has ended
-      Timecop.freeze(Time.zone.parse('2024-12-15')) do
-        expect(subject.send(:cert_through_date).to_date).to eq(Date.new(2024, 12, 15))
-        expect(subject.send(:cert_through_date).to_date).not_to eq(Date.new(2024, 11, 30))
+        Timecop.freeze(Date.new(2024, 4, 15)) do
+          subject.create
+          expect(verification1.reload.transact_date.to_date).to eq(verification1.act_end.to_date)
+          expect(verification2.reload.transact_date.to_date).to eq(Date.new(2024, 3, 31))
+        end
       end
     end
   end

@@ -14,28 +14,21 @@ module Vye
 
       def create
         authorize user_info, policy_class: UserInfoPolicy
-
         validate_award_ids!
-
-        # transact_date = cert_through_date
         pending_verifications.each do |verification|
-          transact_date = cert_through_date
+          transact_date = cert_through_date(verification)  # Pass in the current verification
           verification.update!(transact_date:, source_ind:)
         end
-
         head :no_content
       end
 
       private
 
-      def cert_through_date
+      def cert_through_date(verification)
         current_date = Time.zone.today
-
         # If we're on or past the final award, return that final date
-        return act_end if current_date >= act_end.to_date
-
+        return verification.act_end if current_date >= verification.act_end.to_date
         return current_date.end_of_month if current_date.eql?(current_date.end_of_month)
-
         # Otherwise, return the end of the previous month
         current_date.prev_month.end_of_month
       end
