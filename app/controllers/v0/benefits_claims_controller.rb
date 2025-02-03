@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_claims/service'
+require 'lighthouse/benefits_claims/constants'
 
 module V0
   class BenefitsClaimsController < ApplicationController
@@ -103,7 +104,7 @@ module V0
     end
 
     def update_claim_type_language(claims)
-      language_map = { 'Death' => 'expenses related to death or burial' }
+      language_map = BenefitsClaims::Constants::LANGUAGE_MAP
 
       if claims.is_a?(Array)
         claims.each do |claim|

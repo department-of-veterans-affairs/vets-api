@@ -193,6 +193,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         parsed_body = JSON.parse(response.body)
 
         expect(parsed_body['data']['attributes']['claimType'] == 'expenses related to death or burial').to be true
+        expect(parsed_body['data']['attributes']['claimType'] == 'Death').to be false
       end
     end
 
