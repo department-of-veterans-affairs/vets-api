@@ -18,10 +18,10 @@ module Veteran
         rep.destroy!
       end
     rescue Faraday::ConnectionFailed => e
-      Rails.logger.warn("OGC connection failed: #{e.message}")
+      log_message_to_sentry("OGC connection failed: #{e.message}", :warn)
       log_to_slack('VSO Reloader failed to connect to OGC')
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      Rails.logger.warn("VSO Reloading error: #{e.message}")
+      log_message_to_sentry("VSO Reloading error: #{e.message}", :warn)
       log_to_slack('VSO Reloader job has failed!')
     end
 
