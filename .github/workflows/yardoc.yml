@@ -1,9 +1,11 @@
 name: Yardoc
-on: # this parses to `true` in ruby
+# check documentation in specified paths
+# `on` parses to `true` in ruby
+on:
   pull_request:
     paths:
-      - 'modules/burials/*.rb'
-      - 'modules/pensions/*.rb'
+      - "modules/burials/*.rb"
+      - "modules/pensions/*.rb"
 permissions:
   contents: read
   pull-requests: write

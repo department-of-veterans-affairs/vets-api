@@ -11,6 +11,7 @@ task yardoc: :environment do
   yardoc_yaml = Rails.root.join('.github', 'workflows', 'yardoc.yml')
   config = YAML.load_file(yardoc_yaml)
 
+  # true == 'on' in GH yaml
   globs = config[true]['pull_request']['paths']
 
   # git diff the glob list - only want to check the changed files
