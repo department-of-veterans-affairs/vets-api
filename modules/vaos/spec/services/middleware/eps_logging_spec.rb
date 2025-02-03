@@ -35,6 +35,7 @@ describe Eps::Middleware::EpsLogging do
     it 'other requests with X-Vamf-Jwt log a success' do
       expect(Rails.logger).to receive(:info).with('Eps service call succeeded!',
                                                   jti: 'unknown jti',
+                                                  service_name: 'EPS',
                                                   status: 200,
                                                   duration: 0.0,
                                                   url: '(GET) https://fake.eps/whatever').and_call_original
@@ -48,6 +49,7 @@ describe Eps::Middleware::EpsLogging do
     it 'other requests with X-VAMF-JWT log a success' do
       expect(Rails.logger).to receive(:info).with('Eps service call succeeded!',
                                                   jti: 'unknown jti',
+                                                  service_name: 'EPS',
                                                   status: 200,
                                                   duration: 0.0,
                                                   url: '(GET) https://fake.eps/provider_service_uri').and_call_original
@@ -66,6 +68,7 @@ describe Eps::Middleware::EpsLogging do
     it 'other requests with X-Vamf-Jwt log a failure' do
       expect(Rails.logger).to receive(:warn).with('Eps service call failed!',
                                                   jti: 'unknown jti',
+                                                  service_name: 'EPS',
                                                   status: 500,
                                                   duration: 0.0,
                                                   url: '(GET) https://fake.eps/whatever',
@@ -76,6 +79,7 @@ describe Eps::Middleware::EpsLogging do
     it 'other requests with X-VAMF-JWT log a failure' do
       expect(Rails.logger).to receive(:warn).with('Eps service call failed!',
                                                   jti: 'unknown jti',
+                                                  service_name: 'EPS',
                                                   status: 500,
                                                   duration: 0.0,
                                                   url: '(GET) https://fake.eps/provider_service_uri',
@@ -89,6 +93,7 @@ describe Eps::Middleware::EpsLogging do
       expected_log_tags = {
         duration: 0.0,
         jti: 'unknown jti',
+        service_name: 'EPS',
         status: nil,
         url: '(POST) https://fake.eps/appointments?patientId=' \
              '441ab560b8fc574c6bf84d6c6105318b79455321a931ef701d39f4ff91894c64'

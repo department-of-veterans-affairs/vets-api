@@ -49,7 +49,7 @@ module Eps
           jti: jti(env),
           status: response_env&.status,
           duration: Time.current - start_time,
-          # service_name: service_name || 'Eps Generic', # Need to figure out a clean way to do this with headers
+          service_name: 'EPS',
           url: "(#{env.method.upcase}) #{anon_uri}"
         }
       end
