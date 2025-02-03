@@ -144,33 +144,11 @@ class FormSubmissionAttempt < ApplicationRecord
   end
 
   def simple_forms_enqueue_result_email(notification_type)
-    raw_form_data = form_submission.form_data || '{}'
-    form_data = JSON.parse(raw_form_data)
-    config = {
-      form_data:,
-      form_number: simple_forms_form_number,
-      confirmation_number: benefits_intake_uuid,
-      date_submitted: created_at.strftime('%B %d, %Y'),
-      lighthouse_updated_at: lighthouse_updated_at&.strftime('%B %d, %Y')
-    }
-
-    SimpleFormsApi::NotificationEmail.new(
-      config,
+    SimpleFormsApi::Notification::SendNotificationEmailJob.new.perform(
       notification_type:,
+      form_submission_attempt: self,
       user_account:
-    ).send(at: time_to_send)
-  end
-
-  def time_to_send
-    now = Time.now.in_time_zone('Eastern Time (US & Canada)')
-    if now.hour < HOUR_TO_SEND_NOTIFICATIONS
-      now.change(hour: HOUR_TO_SEND_NOTIFICATIONS,
-                 min: 0)
-    else
-      now.tomorrow.change(
-        hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0
-      )
-    end
+    )
   end
 
   def simple_forms_form_number
