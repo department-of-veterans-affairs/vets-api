@@ -8,7 +8,7 @@ module ClaimsApi
 
     def perform(poa_id, rep_id = nil) # rubocop:disable Metrics/MethodLength
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
-      poa_code = extract_poa_code(poa.form_data['data']['attributes'])
+      poa_code = extract_poa_code(poa.form_data)
 
       service = dependent_claimant_poa_assignment_service(
         poa.id,
@@ -60,7 +60,7 @@ module ClaimsApi
     def dependent_claimant_poa_assignment_service(poa_id, form_data, auth_headers)
       ClaimsApi::DependentClaimantPoaAssignmentService.new(
         poa_id:,
-        poa_code: extract_poa_code(form_data['data']['attributes']),
+        poa_code: extract_poa_code(form_data),
         veteran_participant_id: auth_headers['va_eauth_pid'],
         dependent_participant_id: auth_headers.dig('dependent', 'participant_id'),
         veteran_file_number: auth_headers['file_number'],
