@@ -29,8 +29,9 @@ task yardoc: :environment do
   paths = config[true]['pull_request']['paths'].select do |path|
     files.find { |file| File.fnmatch(path, file) }
   end
+  paths = paths.map { |g| "'#{g}'" }.join(' ')
 
-  cmd = "yardoc #{paths.join(' ')}"
+  cmd = "yardoc #{paths}"
   puts "#{cmd}\n\n"
   yardoc_output = `#{cmd}`.strip.split("\n")
 
@@ -45,7 +46,7 @@ task yardoc: :environment do
   # 'fail' if not 100% - mark this task as required in github to block merging
   percentage = yardoc_output.last.strip[/\d+\.\d+/].to_f
   if percentage < 100
-    puts `yard stats --list-undoc #{paths.join(' ')}`
+    puts `yard stats --list-undoc #{paths}`
     puts "\n"
     puts Rainbow('Warning. Documentation is missing.').yellow
     exit!(1)
