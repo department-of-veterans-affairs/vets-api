@@ -81,17 +81,16 @@ module IvcChampva
 
       private
 
-      if Flipper.enabled?(:champva_multiple_stamp_retry, @current_user)
-
-        ##
-        # Wraps handle_uploads and includes retry logic when file uploads get non-200s.
-        #
-        # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
-        # @param [Hash] parsed_form_data complete form submission data object
-        #
-        # @return [Array<Integer, String>] An array with 1 or more http status codes
-        #   and an array with 1 or more message strings.
-        def handle_file_uploads(form_id, parsed_form_data)
+      ##
+      # Wraps handle_uploads and includes retry logic when file uploads get non-200s.
+      #
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      # @param [Hash] parsed_form_data complete form submission data object
+      #
+      # @return [Array<Integer, String>] An array with 1 or more http status codes
+      #   and an array with 1 or more message strings.
+      def handle_file_uploads(form_id, parsed_form_data) # rubocop:disable Metrics/MethodLength
+        if Flipper.enabled?(:champva_multiple_stamp_retry, @current_user)
           attempt = 0
           max_attempts = 1
 
@@ -114,11 +113,7 @@ module IvcChampva
               retry
             end
           end
-
-          [statuses, error_messages]
-        end
-      else
-        def handle_file_uploads(form_id, parsed_form_data)
+        else
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
           hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
@@ -132,10 +127,10 @@ module IvcChampva
             hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
             statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
           end
-
-          [statuses, error_messages]
         end
-      end
+
+        [statuses, error_messages]
+      end # rubocop:enable Metrics/MethodLength
 
       def should_retry?(error_message_downcase, attempt, max_attempts)
         error_conditions = [

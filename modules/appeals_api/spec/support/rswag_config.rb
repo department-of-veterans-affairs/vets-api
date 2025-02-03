@@ -293,7 +293,7 @@ class AppealsApi::RswagConfig
         maxLength: 9,
         pattern: '^[0-9]{9}$'
       },
-      "X-VA-ICN": {
+      'X-VA-ICN': {
         description: "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
         type: 'string',
         minLength: 17,
@@ -361,7 +361,7 @@ class AppealsApi::RswagConfig
       'X-VA-Insurance-Policy-Number': {
         allOf: [
           { description: "Veteran's insurance policy number", maxLength: 18 },
-          { "$ref": nbs_ref }
+          { '$ref': nbs_ref }
         ]
       },
       'X-VA-User': {
