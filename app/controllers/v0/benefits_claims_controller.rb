@@ -105,14 +105,12 @@ module V0
     def update_claim_type_language(claims)
       language_map = { 'Death' => 'expenses related to death or burial' }
 
-      if claims.kind_of?(Array)
+      if claims.is_a?(Array)
         claims.each do |claim|
           update_claim_type_language(claim)
         end
-      else
-        if language_map.has_key?(claims.dig('attributes','claimType'))
-          claims['attributes']['claimType'] = language_map[claims['attributes']['claimType']]
-        end
+      elsif language_map.key?(claims.dig('attributes', 'claimType'))
+        claims['attributes']['claimType'] = language_map[claims['attributes']['claimType']]
       end
     end
 
