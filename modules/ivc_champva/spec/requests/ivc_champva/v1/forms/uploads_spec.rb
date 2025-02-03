@@ -352,8 +352,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
           it 'retries handle_uploads and returns an error message' do
             # Expect handle_uploads to be called twice due to one retry
-            expect(file_uploader).to receive(:handle_uploads).at_least(2).times
-            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+            expect(file_uploader).to receive(:handle_uploads).at_least(:twice)
+            _statuses, _error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
             # This expectation causes the `.to receive(:handle_uploads)` count to increment by 1:
             expect { file_uploader.handle_uploads }.to raise_error(StandardError, /Unable to find file/)
           end
