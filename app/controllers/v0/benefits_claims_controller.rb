@@ -13,6 +13,7 @@ module V0
       check_for_birls_id
       check_for_file_number
 
+      update_claim_type_language(claims['data'])
       tap_claims(claims['data'])
 
       render json: claims
@@ -20,6 +21,7 @@ module V0
 
     def show
       claim = service.get_claim(params[:id])
+      update_claim_type_language(claim['data'])
 
       # Document uploads to EVSS require a birls_id; This restriction should
       # be removed when we move to Lighthouse Benefits Documents for document uploads
@@ -96,6 +98,20 @@ module V0
           # If there is a record, we want to set the updated_at field
           # to Time.zone.now
           record.touch # rubocop:disable Rails/SkipsModelValidations
+        end
+      end
+    end
+
+    def update_claim_type_language(claims)
+      language_map = { 'Death' => 'expenses related to death or burial' }
+
+      if claims.kind_of?(Array)
+        claims.each do |claim|
+          update_claim_type_language(claim)
+        end
+      else
+        if language_map.has_key?(claims.dig('attributes','claimType'))
+          claims['attributes']['claimType'] = language_map[claims['attributes']['claimType']]
         end
       end
     end

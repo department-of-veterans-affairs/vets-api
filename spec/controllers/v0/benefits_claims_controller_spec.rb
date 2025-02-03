@@ -33,7 +33,17 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(response).to have_http_status(:ok)
         # NOTE: There are 8 items in the VCR cassette, but some of them will
         # get filtered out by the service based on their 'status' values
-        expect(EVSSClaim.all.count).to equal(5)
+        expect(EVSSClaim.all.count).to equal(6)
+      end
+
+      it 'returns claimType language modifications' do
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+        parsed_body = JSON.parse(response.body)
+        
+        expect(parsed_body['data'].select{|claim| claim['attributes']['claimType'] == 'expenses related to death or burial'}.count).to be > 0
+        expect(parsed_body['data'].select{|claim| claim['attributes']['claimType'] == 'Death'}.count).to eq 0
       end
     end
 
@@ -172,6 +182,15 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                   tracked_item_id: 394_443,
                   tracked_item_type: 'Submit buddy statement(s)',
                   tracked_item_status: 'NEEDED_FROM_YOU' })
+      end
+
+      it 'returns claimType language modifications' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_death_claim_response') do
+          get(:show, params: { id: '600229972' })
+        end
+        parsed_body = JSON.parse(response.body)
+        
+        expect(parsed_body['data']['attributes']['claimType'] == 'expenses related to death or burial').to be true
       end
     end
 
