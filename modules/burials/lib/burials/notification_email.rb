@@ -44,7 +44,7 @@ module Burials
       default.merge(burials)
     end
 
-    # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_class
+    # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_klass
     def callback_klass
       Burials::NotificationCallback.to_s
     end
