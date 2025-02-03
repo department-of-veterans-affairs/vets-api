@@ -65,17 +65,16 @@ RSpec.describe FormSubmissionAttempt, type: :model do
           end
 
           it 'sends an error email' do
-            notification_email = double
-            allow(notification_email).to receive(:send)
-            allow(SimpleFormsApi::FormUploadNotificationEmail).to receive(:new).with(
-              config,
-              notification_type:
-            ).and_return(notification_email)
+            send_notification_email_job = double
+            allow(send_notification_email_job).to receive(:perform)
+            allow(SimpleFormsApi::Notification::SendNotificationEmailJob).to receive(:new).and_return(
+              send_notification_email_job
+            )
             form_submission_attempt = create(:form_submission_attempt, form_submission:)
 
             form_submission_attempt.fail!
 
-            expect(notification_email).to have_received(:send)
+            expect(send_notification_email_job).to have_received(:perform)
           end
         end
       end

@@ -22,9 +22,6 @@ module SimpleFormsApi
 
       @form_data = config[:form_data]
       @form_number = config[:form_number]
-      # @form_name = config[:form_name]
-      # @first_name = config[:first_name]
-      # @email = config[:email]
       @confirmation_number = config[:confirmation_number]
       @date_submitted = config[:date_submitted]
       @lighthouse_updated_at = config[:lighthouse_updated_at]

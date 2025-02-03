@@ -121,9 +121,7 @@ module SimpleFormsApi
       def send_confirmation_email(params, confirmation_number)
         config = {
           form_number: params[:form_number],
-          form_name: params[:form_name],
-          first_name: params.dig(:form_data, :full_name, :first),
-          email: params.dig(:form_data, :email),
+          form_data: params[:form_data],
           date_submitted: Time.zone.today.strftime('%B %d, %Y'),
           confirmation_number:
         }

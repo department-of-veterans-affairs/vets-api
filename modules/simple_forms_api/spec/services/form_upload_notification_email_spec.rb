@@ -18,8 +18,8 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
   describe '#initialize' do
     context 'when all required arguments are passed in' do
       let(:config) do
-        { form_number: '21-0779', form_name: 'form-name', first_name: 'first-name', email: 'email',
-          confirmation_number: 'confirmation-number', date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+        { form_number: '21-0779', form_data: {}, confirmation_number: 'confirmation-number',
+          date_submitted: Time.zone.today.strftime('%B %d, %Y') }
       end
 
       it 'succeeds' do
@@ -29,8 +29,8 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
 
     context 'missing form_number' do
       let(:config) do
-        { form_name: 'form-name', first_name: 'first-name', email: 'email',
-          confirmation_number: 'confirmation-number', date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+        { form_data: {}, confirmation_number: 'confirmation-number',
+          date_submitted: Time.zone.today.strftime('%B %d, %Y') }
       end
 
       it 'fails' do
@@ -40,36 +40,10 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
       it_behaves_like 'an error notification email'
     end
 
-    context 'missing form_name' do
+    context 'missing form_data' do
       let(:config) do
-        { form_number: '21-0779', first_name: 'first-name', email: 'email',
-          confirmation_number: 'confirmation-number', date_submitted: Time.zone.today.strftime('%B %d, %Y') }
-      end
-
-      it 'fails' do
-        expect { described_class.new(config, notification_type: :confirmation) }.to raise_error(ArgumentError)
-      end
-
-      it_behaves_like 'an error notification email'
-    end
-
-    context 'missing first_name' do
-      let(:config) do
-        { form_number: '21-0779', form_name: 'form-name', email: 'email',
-          confirmation_number: 'confirmation-number', date_submitted: Time.zone.today.strftime('%B %d, %Y') }
-      end
-
-      it 'fails' do
-        expect { described_class.new(config, notification_type: :confirmation) }.to raise_error(ArgumentError)
-      end
-
-      it_behaves_like 'an error notification email'
-    end
-
-    context 'missing email' do
-      let(:config) do
-        { form_number: '21-0779', form_name: 'form-name', first_name: 'first-name',
-          confirmation_number: 'confirmation-number', date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+        { form_number: '21-0779', confirmation_number: 'confirmation-number',
+          date_submitted: Time.zone.today.strftime('%B %d, %Y') }
       end
 
       it 'fails' do
@@ -81,8 +55,7 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
 
     context 'missing date_submitted' do
       let(:config) do
-        { form_number: '21-0779', form_name: 'form-name', first_name: 'first-name', email: 'email',
-          confirmation_number: 'confirmation-number' }
+        { form_number: '21-0779', form_data: {}, confirmation_number: 'confirmation-number' }
       end
 
       it 'fails' do
@@ -94,8 +67,7 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
 
     context 'missing confirmation_number' do
       let(:config) do
-        { form_number: '21-0779', form_name: 'form-name', first_name: 'first-name', email: 'email',
-          date_submitted: 'date-submitted' }
+        { form_number: '21-0779', form_data: {}, date_submitted: 'date-submitted' }
       end
 
       it 'fails' do
@@ -107,8 +79,8 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
 
     context 'form not supported' do
       let(:config) do
-        { form_number: 'nonsense', form_name: 'form-name', first_name: 'first-name', email: 'email',
-          confirmation_number: 'confirmation-number', date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+        { form_number: 'nonsense', form_data: {}, confirmation_number: 'confirmation-number',
+          date_submitted: Time.zone.today.strftime('%B %d, %Y') }
       end
 
       it 'fails' do
@@ -122,8 +94,7 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
   describe '#send' do
     let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
     let(:config) do
-      { form_number: '21-0779', form_name: 'form-name', first_name: 'first-name', email: 'email',
-        confirmation_number: 'confirmation-number', date_submitted: }
+      { form_number: '21-0779', form_data: {}, confirmation_number: 'confirmation-number', date_submitted: }
     end
 
     context 'send at time is not specified' do
