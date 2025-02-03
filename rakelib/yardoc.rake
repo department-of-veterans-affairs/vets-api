@@ -8,14 +8,8 @@ task yardoc: :environment do
   head_sha = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
   base_sha = 'origin/master'
 
-  yardoc_yaml = Rails.root.join('.github', 'workflows', 'yardoc.yml')
-  config = YAML.load_file(yardoc_yaml)
-
-  # true == 'on' in GH yaml
-  globs = config[true]['pull_request']['paths']
-
   # git diff the glob list - only want to check the changed files
-  # only want to run on files that are in the defined paths
+  globs = ['*.rb']
   globs = globs.map { |g| "'#{g}'" }.join(' ')
   cmd = "git diff #{base_sha}...#{head_sha} --name-only -- #{globs}"
   puts "\n#{cmd}\n"
@@ -28,8 +22,17 @@ task yardoc: :environment do
     exit!
   end
 
+  yardoc_yaml = Rails.root.join('.github', 'workflows', 'yardoc.yml')
+  config = YAML.load_file(yardoc_yaml)
+
+  # true == 'on' in GH yaml
+  paths = config[true]['pull_request']['paths'].select do |path|
+    files.find { |file| File.fnmatch(path, file) }
+  end
+
   puts 'running yardoc ...'
-  puts yardoc_output = `yardoc #{files.join(' ')}`.strip.split("\n")
+  puts "\n"
+  puts yardoc_output = `yardoc #{paths.join(' ')}`.strip.split("\n")
   puts "\n"
 
   # non zero exit == parsing error
@@ -41,6 +44,7 @@ task yardoc: :environment do
   # 'fail' if not 100% - mark this task as required in github to block merging
   percentage = yardoc_output.last.strip[/\d+\.\d+/].to_f
   if percentage < 100
+    puts `yard stats --list-undoc #{paths.join(' ')}`
     puts Rainbow('Warning. Documentation is missing.').yellow
     exit!(1)
   end

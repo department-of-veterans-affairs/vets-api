@@ -3,7 +3,6 @@
 require 'burials/notification_callback'
 require 'veteran_facing_services/notification_email/saved_claim'
 
-# Form 21P-530EZ
 module Burials
   # @see VeteranFacingServices::NotificationEmail::SavedClaim
   class NotificationEmail < ::VeteranFacingServices::NotificationEmail::SavedClaim
