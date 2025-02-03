@@ -1277,20 +1277,21 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     describe 'intent to file' do
       before do
         # TODO: remove Flipper feature toggle when lighthouse provider is implemented
-        Flipper.disable('disability_compensation_lighthouse_intent_to_file_provider')
+        # Flipper.disable('disability_compensation_lighthouse_intent_to_file_provider')
         Flipper.disable('disability_compensation_production_tester')
+        allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
       end
 
       it 'supports getting all intent to file' do
         expect(subject).to validate(:get, '/v0/intent_to_file', 401)
-        VCR.use_cassette('evss/intent_to_file/intent_to_file') do
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
           expect(subject).to validate(:get, '/v0/intent_to_file', 200, headers)
         end
       end
 
       it 'supports getting an active compensation intent to file' do
         expect(subject).to validate(:get, '/v0/intent_to_file/{type}/active', 401, 'type' => 'compensation')
-        VCR.use_cassette('evss/intent_to_file/active_compensation') do
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
           expect(subject).to validate(
             :get,
             '/v0/intent_to_file/{type}/active',

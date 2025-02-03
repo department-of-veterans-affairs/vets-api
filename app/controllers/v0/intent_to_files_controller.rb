@@ -88,13 +88,7 @@ module V0
     end
 
     def authorize_service
-      # Is this necessary if we've fully migrated to Lighthouse? EVSS tests still exist in the request spec,
-      # so it might be necessary until those are removed
-      if Flipper.enabled?(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE, @current_user)
-        authorize :lighthouse, :itf_access?
-      else
-        authorize :evss, :access_form526?
-      end
+      authorize :lighthouse, :itf_access?
     end
 
     def validate_type_param

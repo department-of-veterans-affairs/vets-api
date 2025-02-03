@@ -10,7 +10,7 @@ RSpec.describe 'V0::IntentToFile', type: :request do
   let(:camel_inflection_header) { { 'X-Key-Inflection' => 'camel' } }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
-  let(:feature_toggle_intent_to_file) { 'disability_compensation_lighthouse_intent_to_file_provider' }
+  # let(:feature_toggle_intent_to_file) { 'disability_compensation_lighthouse_intent_to_file_provider' }
 
   before do
     sign_in
@@ -20,7 +20,7 @@ RSpec.describe 'V0::IntentToFile', type: :request do
   describe 'GET /v0/intent_to_file' do
     context 'Lighthouse api provider' do
       before do
-        Flipper.enable(feature_toggle_intent_to_file)
+        # Flipper.enable(feature_toggle_intent_to_file)
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('test_token')
       end
 
@@ -85,8 +85,8 @@ RSpec.describe 'V0::IntentToFile', type: :request do
     end
 
     context 'EVSS api provider' do
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE)
 
+      # Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE)
       context 'with a valid evss response' do
         it 'matches the intent to files schema' do
           VCR.use_cassette('evss/intent_to_file/intent_to_file') do
