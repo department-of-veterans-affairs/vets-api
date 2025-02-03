@@ -43,13 +43,17 @@ module Eps
 
       private
 
+      def config
+        @config ||= Eps::Configuration.instance
+      end
+
       def log_tags(env, start_time, response_env = nil)
         anon_uri = VAOS::Anonymizers.anonymize_uri_icn(env.url)
         {
           jti: jti(env),
           status: response_env&.status,
           duration: Time.current - start_time,
-          service_name: 'EPS',
+          service_name: config.service_name,
           url: "(#{env.method.upcase}) #{anon_uri}"
         }
       end
