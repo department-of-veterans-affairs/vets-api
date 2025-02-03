@@ -25,7 +25,11 @@ module Mobile
       end
 
       def validate
-        validated_address_params = VAProfile::Models::ValidationAddress.new(address_params)
+        validated_address_params = if Flipper.enabled?(:mobile_v2_contact_info)
+                                     VAProfile::Models::V3::ValidationAddress.new(address_params)
+                                   else
+                                     VAProfile::Models::ValidationAddress.new(address_params)
+                                   end
         raise Common::Exceptions::ValidationErrors, validated_address_params unless validated_address_params.valid?
 
         response = validation_service.address_suggestions(validated_address_params).as_json
@@ -71,7 +75,11 @@ module Mobile
       end
 
       def validation_service
-        VAProfile::AddressValidation::Service.new
+        if Flipper.enabled?(:mobile_v2_contact_info)
+          VAProfile::V3::AddressValidation::Service.new
+        else
+          VAProfile::AddressValidation::Service.new
+        end
       end
     end
   end

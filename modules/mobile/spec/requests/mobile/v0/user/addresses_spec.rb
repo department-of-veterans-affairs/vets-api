@@ -9,6 +9,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
   before do
     allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.012Z'))
@@ -268,9 +269,9 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
     end
   end
 
-  describe 'POST /mobile/v0/user/addresses/validate', :skip_va_profile_user do
+  describe 'POST /mobile/v0/user/addresses/validate' do
     let(:address) do
-      address = build(:va_profile_v3_address, :v2_override)
+      address = build(:va_profile_v3_address)
       # Some domestic addresses are coming in with province of string 'null'.
       # The controller now manually forces all domestic provinces be nil
       address.province = 'null'
@@ -278,7 +279,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
     end
 
     context 'with an invalid address' do
-      let(:invalid_address) { build(:va_profile_validation_address) }
+      let(:invalid_address) { build(:va_profile_v3_validation_address) }
 
       before do
         post '/mobile/v0/user/addresses/validate',
@@ -337,11 +338,11 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
     end
 
     context 'with a found address' do
-      let(:multiple_match_address) { build(:va_profile_address, :multiple_matches) }
+      let(:multiple_match_address) { build(:va_profile_v3_address, :multiple_matches) }
 
       before do
         VCR.use_cassette(
-          'va_profile/address_validation/candidate_multiple_matches',
+          'va_profile/v3/address_validation/candidate_multiple_matches',
           VCR::MATCH_EVERYTHING
         ) do
           post '/mobile/v0/user/addresses/validate',
@@ -363,7 +364,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
             'addressLine1' => '37 N 1st St',
             'addressLine2' => nil,
             'addressLine3' => nil,
-            'addressPou' => 'RESIDENCE/CHOICE',
+            'addressPou' => 'RESIDENCE',
             'addressType' => 'DOMESTIC',
             'city' => 'Brooklyn',
             'countryCodeIso3' => 'USA',
@@ -384,7 +385,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
               'addressType' => 'Domestic',
               'deliveryPointValidation' => 'UNDELIVERABLE'
             },
-            'validationKey' => -646_932_106
+            'validationKey' => '-646932106'
           }
         )
       end
