@@ -189,7 +189,7 @@ module Organizations
       }
     end
 
-    # Logs an error to Datadog and adds and error to be logged to slack.
+    # Logs an error to Datadog and adds an error to be logged to slack.
     # @param error [Exception] The error string to be logged.
     def log_error(error, send_to_slack: false)
       message = "Organizations::Update: #{error}"
