@@ -57,10 +57,8 @@ module AccreditedRepresentativePortal
 
           insert_all(
             Records::REPRESENTATIVES,
-            factory: [
-              :representative
-            ],
-            unique_by: [:first_name, :last_name, :representative_id]
+            factory: %i[representative],
+            unique_by: %i[first_name last_name representative_id]
           ) do |representative|
             representative
               .delete(:poa_codes)

@@ -6,8 +6,8 @@ module AccreditedRepresentativePortal
       attribute :type do
         'veteran_service_organization'
       end
- 
-      attribute :name 
+
+      attribute :name
     end
   end
 end
