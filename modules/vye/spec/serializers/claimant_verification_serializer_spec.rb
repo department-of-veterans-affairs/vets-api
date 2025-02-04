@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require Vye::Engine.root / 'spec/rails_helper'
+require 'vye/vye_serializer'
 
 RSpec.describe Vye::ClaimantVerificationSerializer, type: :serializer do
   let(:json_body) { 'modules/vye/spec/fixtures/claimant_response.json' }
