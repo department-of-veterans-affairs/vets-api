@@ -116,6 +116,9 @@ module VAOS
           merge_clinic(new_appointment)
           merge_facility(new_appointment)
           set_modality(new_appointment)
+          new_appointment[:pending] = request?(new_appointment)
+          new_appointment[:past] = past?(new_appointment)
+          new_appointment[:future] = future?(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
@@ -355,6 +358,10 @@ module VAOS
         set_type(appointment)
 
         set_modality(appointment)
+
+        appointment[:past] = past?(appointment)
+        appointment[:future] = future?(appointment)
+        appointment[:pending] = request?(appointment)
       end
 
       def find_and_merge_provider_name(appointment)
@@ -595,6 +602,58 @@ module VAOS
         raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
 
         appt[:kind] == 'telehealth'
+      end
+
+      # Determines if the appointment is a request type.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is a request, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def request?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        %w[REQUEST COMMUNITY_CARE_REQUEST].include?(appt[:type])
+      end
+
+      # Determines if the appointment occurs in the past.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment occurs in the past, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def past?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt_start = appt[:start] || appt.dig(:requested_periods, 0, :start)
+
+        unless appt_start.nil?
+          appt[:past] = if appt[:kind] == 'telehealth'
+                          (appt_start.to_datetime + 240.minutes) < Time.now.utc
+                        else
+                          (appt_start.to_datetime + 60.minutes) < Time.now.utc
+                        end
+        end
+      end
+
+      # Determines if the appointment occurs in the future.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment occurs in the future, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def future?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt_start = appt[:start] || appt.dig(:requested_periods, 0, :start)
+
+        appt[:future] = !request?(appt) &&
+                        !past?(appt) &&
+                        !appt_start.nil? &&
+                        appt_start.to_datetime > Time.now.utc.beginning_of_day
       end
 
       # Determines if the appointment is for compensation and pension.
