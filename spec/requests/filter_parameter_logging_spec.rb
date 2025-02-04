@@ -77,6 +77,23 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
 
     expect(logs).to include('"attachment"')
   end
+
+  it 'filters SSN from logs' do
+    sensitive_params = {
+      name: 'John Doe',
+      ssn: '123-45-6789',
+      email: 'johndoe@example.com'
+    }
+
+    post '/test_params', params: sensitive_params
+    logs = @log_output.string
+
+    puts "DEBUG LOG OUTPUT 3: #{logs}" # Debugging output
+
+    expect(logs).not_to include('123-45-6789') # SSN should be wiped out
+    expect(logs).not_to include('johndoe@example.com') # Ensure emails are also wiped
+    expect(logs).to include('"ssn":"[FILTERED]"') # Confirm it's being replaced
+  end
 end
 
 class TestParamsController < ActionController::API
