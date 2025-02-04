@@ -68,7 +68,7 @@ module Lighthouse
                          tags: ['service:claim-status', "function: #{message}"])
       rescue => e
         error_message = "#{name} failed to update EvidenceSubmission"
-        ::Rails.logger.info(error_message, { messsage: e.message })
+        ::Rails.logger.error(error_message, { messsage: e.message })
         StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
       end
 
