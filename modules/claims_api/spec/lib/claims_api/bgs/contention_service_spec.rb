@@ -4,16 +4,11 @@ require 'rails_helper'
 require 'bgs_service/contention_service'
 
 describe ClaimsApi::ContentionService do
-  let(:service) do
-    ClaimsApi::ContentionService.new(
-      external_uid: 'something',
-      external_key: 'something'
-    )
-  end
+  subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
 
   it 'get find_contentions_by_ptcpnt_id' do
     VCR.use_cassette('claims_api/bgs/contention/find_contentions_by_ptcpnt_id') do
-      response = service.find_contentions_by_ptcpnt_id('600036156')
+      response = subject.find_contentions_by_ptcpnt_id('600036156')
       expect(response[:benefit_claims].count).to eq(383)
 
       first_claim = response[:benefit_claims].first
@@ -40,6 +35,14 @@ describe ClaimsApi::ContentionService do
       expect(first_claim[:ptcpnt_suspns_id]).to eq('13381347')
       expect(first_claim[:soj_lctn_id]).to eq('347')
       expect(first_claim[:suspns_rsn_txt]).to eq('Cancelled')
+    end
+  end
+
+  it 'responds appropriately with invalid options' do
+    VCR.use_cassette('claims_api/bgs/contention/invalid_find_contentions_by_ptcpnt_id') do
+      expect do
+        subject.find_contentions_by_ptcpnt_id('not-an-id')
+      end.to raise_error(Common::Exceptions::UnprocessableEntity)
     end
   end
 end

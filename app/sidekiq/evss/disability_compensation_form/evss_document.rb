@@ -13,7 +13,7 @@ module EVSS
       # @return [String] the contents of the file
       #
       def file_body
-        File.open(@pdf_path).read
+        File.read(@pdf_path)
       end
 
       # @return [EVSSClaimDocument] A new claim document instance
