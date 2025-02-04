@@ -25,9 +25,11 @@ module Representatives
     rescue => e
       log_error("Error in file fetching process: #{e.message}")
     ensure
-      @slack_messages.unshift("Processed #{@rows} rows in #{@slices} slices")
-      @slack_messages.unshift('Representatives::QueueUpdates')
-      log_to_slack(@slack_messages.join("\n"))
+      if @slack_messages.any? # Only report if we have errors
+        @slack_messages.unshift("Processed #{@rows} rows in #{@slices} slices")
+        @slack_messages.unshift('Representatives::QueueUpdates')
+        log_to_slack(@slack_messages.join("\n"))
+      end
     end
 
     private
