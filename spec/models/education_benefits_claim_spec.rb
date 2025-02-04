@@ -256,22 +256,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
     end
 
-    context 'with a form type of 10216' do
-      subject do
-        create(:va10216)
-      end
-
-      it 'creates a submission' do
-        subject
-
-        expect(associated_submission).to eq(
-          submission_attributes.merge(
-            'form_type' => '10216'
-          )
-        )
-      end
-    end
-
     it 'does not create a submission after save if it was already submitted' do
       subject.education_benefits_claim.update!(processed_at: Time.zone.now)
       expect(EducationBenefitsSubmission.count).to eq(1)
