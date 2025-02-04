@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_claims/service'
+require 'lighthouse/benefits_claims/constants'
 
 module V0
   class BenefitsClaimsController < ApplicationController
@@ -13,6 +14,10 @@ module V0
       check_for_birls_id
       check_for_file_number
 
+      claims['data'].each do |claim|
+        update_claim_type_language(claim)
+      end
+
       tap_claims(claims['data'])
 
       render json: claims
@@ -20,6 +25,7 @@ module V0
 
     def show
       claim = service.get_claim(params[:id])
+      update_claim_type_language(claim['data'])
 
       # Document uploads to EVSS require a birls_id; This restriction should
       # be removed when we move to Lighthouse Benefits Documents for document uploads
@@ -97,6 +103,13 @@ module V0
           # to Time.zone.now
           record.touch # rubocop:disable Rails/SkipsModelValidations
         end
+      end
+    end
+
+    def update_claim_type_language(claim)
+      language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
+      if language_map.key?(claim.dig('attributes', 'claimType'))
+        claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
       end
     end
 
