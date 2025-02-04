@@ -156,7 +156,6 @@ module ClaimsApi
         private
 
         def validate_country_code
-          # veteran and claimant if present
           vet_cc = form_attributes.dig('veteran', 'address', 'countryCode')
           claimant_cc = form_attributes.dig('claimant', 'address', 'countryCode')
 
