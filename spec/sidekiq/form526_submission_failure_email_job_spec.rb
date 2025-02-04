@@ -5,6 +5,14 @@ require 'rails_helper'
 RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
   subject { described_class }
 
+  let(:callback_metadata) do
+    { callback_metadata: { form_number: 'form526',
+                           notification_type: 'error',
+                           statsd_tags: {
+                             function: '526_backup_submission_to_lighthouse',
+                             service: 'disability-application'
+                           } } }
+  end
   let(:email_service) { double('VaNotify::Service') }
   let(:timestamp) { Time.now.utc }
   let(:failure_timestamp) { timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.') }
@@ -13,12 +21,12 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
     Sidekiq::Job.clear_all
     allow(VaNotify::Service)
       .to receive(:new)
-      .with(Settings.vanotify.services.benefits_disability.api_key)
+      .with(Settings.vanotify.services.benefits_disability.api_key, callback_metadata)
       .and_return(email_service)
   end
 
   describe '#perform' do
-    context 'when a user has additional form and files with their submission' do
+    context 'when a user has additional forms and files with their submission' do
       let!(:form526_submission) { create(:form526_submission, :with_uploads_and_ancillary_forms) }
 
       let(:expected_params) do
@@ -70,7 +78,7 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
       end
     end
 
-    context 'when a user has no additional additional forms their submission' do
+    context 'when a user has no additional forms with their submission' do
       let!(:form526_submission) { create(:form526_submission, :with_uploads) }
       let(:expected_params) do
         {
@@ -102,34 +110,67 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
       end
     end
 
-    context 'when a user has no additional additional user-uploaded files their submission' do
-      let(:expected_params) do
-        {
-          email_address: 'test@email.com',
-          template_id: 'form526_submission_failure_notification_template_id',
-          personalisation: {
-            first_name: form526_submission.get_first_name,
-            date_submitted: form526_submission.format_creation_time_for_mailers,
-            date_of_failure: failure_timestamp,
-            files_submitted: 'None',
-            forms_submitted: [
-              'VA Form 21-4142',
-              'VA Form 21-0781',
-              'VA Form 21-0781a',
-              'VA Form 21-8940'
-            ]
+    context 'when a user has no additional user-uploaded files with their submission' do
+      context 'when using v1 of form 0781' do
+        let(:expected_params) do
+          {
+            email_address: 'test@email.com',
+            template_id: 'form526_submission_failure_notification_template_id',
+            personalisation: {
+              first_name: form526_submission.get_first_name,
+              date_submitted: form526_submission.format_creation_time_for_mailers,
+              date_of_failure: failure_timestamp,
+              files_submitted: 'None',
+              forms_submitted: [
+                'VA Form 21-4142',
+                'VA Form 21-0781',
+                'VA Form 21-0781a',
+                'VA Form 21-8940'
+              ]
+            }
           }
-        }
+        end
+
+        let!(:form526_submission) { create(:form526_submission, :with_everything) }
+
+        it 'replaces the files list variable with a placeholder' do
+          Timecop.freeze(timestamp) do
+            expect(email_service).to receive(:send_email).with(expected_params)
+
+            subject.perform_async(form526_submission.id, timestamp.to_s)
+            subject.drain
+          end
+        end
       end
 
-      let!(:form526_submission) { create(:form526_submission, :with_everything) }
+      context 'when using v2 of form 0781' do
+        let(:expected_params) do
+          {
+            email_address: 'test@email.com',
+            template_id: 'form526_submission_failure_notification_template_id',
+            personalisation: {
+              first_name: form526_submission.get_first_name,
+              date_submitted: form526_submission.format_creation_time_for_mailers,
+              date_of_failure: failure_timestamp,
+              files_submitted: 'None',
+              forms_submitted: [
+                'VA Form 21-4142',
+                'VA Form 21-0781',
+                'VA Form 21-8940'
+              ]
+            }
+          }
+        end
 
-      it 'replaces the files list variable with a placeholder' do
-        Timecop.freeze(timestamp) do
-          expect(email_service).to receive(:send_email).with(expected_params)
+        let!(:form526_submission) { create(:form526_submission, :with_0781v2) }
 
-          subject.perform_async(form526_submission.id, timestamp.to_s)
-          subject.drain
+        it 'replaces the files list variable with a placeholder' do
+          Timecop.freeze(timestamp) do
+            expect(email_service).to receive(:send_email).with(expected_params)
+
+            subject.perform_async(form526_submission.id, timestamp.to_s)
+            subject.drain
+          end
         end
       end
     end
@@ -148,7 +189,6 @@ RSpec.describe Form526SubmissionFailureEmailJob, type: :job do
 
       it 'increments StatsD' do
         expect(StatsD).to receive(:increment).with("#{described_class::STATSD_PREFIX}.success")
-        expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
         subject.new.perform(form526_submission.id)
         subject.drain
       end

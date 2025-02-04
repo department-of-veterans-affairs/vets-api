@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'lighthouse/benefits_education/service'
 
 RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
-  let(:user) { FactoryBot.create(:user, :loa3, icn: '1000000000V100000') }
+  let(:user) { create(:user, :loa3, icn: '1000000000V100000') }
   let(:once) { { times: 1, value: 1 } }
   let(:tz) { ActiveSupport::TimeZone.new(BenefitsEducation::Service::OPERATING_ZONE) }
   let(:noon) { tz.parse('1st Feb 2018 12:00:00') }
@@ -16,11 +16,11 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
       # valid icn retrieved from
       # https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/benefits_test_accounts.md
       # 001	Tamara	E	Ellis	F	6/19/67	796130115	1012667145V762142
-      valid_user = FactoryBot.create(:user, :loa3, icn: '1012667145V762142')
+      valid_user = create(:user, :loa3, icn: '1012667145V762142')
       sign_in_as(valid_user)
 
       VCR.use_cassette('lighthouse/benefits_education/gi_bill_status/200_response') do
-        expect(StatsD).to receive(:increment).with(V1::Post911GIBillStatusesController::STATSD_GI_BILL_TOTAL_KEY)
+        expect(StatsD).to receive(:increment).with("#{V1::Post911GIBillStatusesController::STATSD_KEY_PREFIX}.total")
         expect(StatsD).to receive(:increment).with(
           "api.external_http_request.#{BenefitsEducation::Configuration.instance.service_name}.success", 1, anything
         )
@@ -42,9 +42,9 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
 
     it 'returns a 404 when vet isn\'t found' do
       VCR.use_cassette('lighthouse/benefits_education/gi_bill_status/404_response') do
-        expect(StatsD).to receive(:increment).with(V1::Post911GIBillStatusesController::STATSD_GI_BILL_FAIL_KEY,
+        expect(StatsD).to receive(:increment).with("#{V1::Post911GIBillStatusesController::STATSD_KEY_PREFIX}.fail",
                                                    tags: ['error:404'])
-        expect(StatsD).to receive(:increment).with(V1::Post911GIBillStatusesController::STATSD_GI_BILL_TOTAL_KEY)
+        expect(StatsD).to receive(:increment).with("#{V1::Post911GIBillStatusesController::STATSD_KEY_PREFIX}.total")
         expect do
           get :show
         end.to change(PersonalInformationLog, :count)

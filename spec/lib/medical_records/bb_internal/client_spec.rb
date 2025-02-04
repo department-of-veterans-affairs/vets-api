@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'medical_records/bb_internal/client'
 require 'stringio'
 
+UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 describe BBInternal::Client do
   before(:all) do
     VCR.use_cassette 'mr_client/bb_internal/session_auth' do
@@ -16,6 +18,24 @@ describe BBInternal::Client do
   end
 
   let(:client) { @client }
+
+  RSpec.shared_context 'redis setup' do
+    let(:redis) { instance_double(Redis::Namespace) }
+    let(:study_id) { '453-2487450' }
+    let(:uuid) { 'c9396040-23b7-44bc-a505-9127ed968b0d' }
+    let(:cached_data) do
+      {
+        uuid => study_id
+      }.to_json
+    end
+    let(:namespace) { REDIS_CONFIG[:bb_internal_store][:namespace] }
+    let(:study_data_key) { 'study_data-11382904' }
+
+    before do
+      allow(Redis::Namespace).to receive(:new).with(namespace, redis: $redis).and_return(redis)
+      allow(redis).to receive(:get).with(study_data_key).and_return(cached_data)
+    end
+  end
 
   describe '#list_radiology' do
     it 'gets the radiology records' do
@@ -35,26 +55,36 @@ describe BBInternal::Client do
         studies = client.list_imaging_studies
         expect(studies).to be_an(Array)
         expect(studies.first).to have_key('studyIdUrn')
+        expect(studies.first).to have_key('studyIdUrn')
+
+        # Check if 'studyIdUrn' was replaced by a UUID
+        expect(studies.first['studyIdUrn']).to match(UUID_REGEX)
       end
     end
   end
 
   describe '#request_study' do
+    include_context 'redis setup'
+
     it 'requests a study by study_id' do
-      study_id = '453-2487450'
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
-        result = client.request_study(study_id)
+        result = client.request_study(uuid)
         expect(result).to be_a(Hash)
         expect(result).to have_key('status')
+        expect(result).to have_key('studyIdUrn')
+
+        # 'studyIdUrn' should match a specific UUID
+        expect(result['studyIdUrn']).to equal(uuid)
       end
     end
   end
 
   describe '#list_images' do
+    include_context 'redis setup'
+
     it 'lists the images for a given study' do
-      study_id = '453-2487450'
       VCR.use_cassette 'mr_client/bb_internal/list_images' do
-        images = client.list_images(study_id)
+        images = client.list_images(uuid)
         expect(images).to be_an(Array)
         expect(images.first).to be_a(String)
       end
@@ -62,32 +92,38 @@ describe BBInternal::Client do
   end
 
   describe '#get_image' do
+    include_context 'redis setup'
+
     it 'streams an image successfully' do
-      study_id = '453-2487450'
       series = '01'
       image = '01'
       yielder = StringIO.new
 
       VCR.use_cassette 'mr_client/bb_internal/get_image' do
-        client.get_image(study_id, series, image, ->(headers) {}, yielder)
+        client.get_image(uuid, series, image, ->(headers) {}, yielder)
         expect(yielder.string).not_to be_empty
       end
     end
   end
 
   describe '#get_dicom' do
+    include_context 'redis setup'
+
     it 'streams a DICOM zip successfully' do
-      study_id = '453-2487450'
       yielder = StringIO.new
 
       VCR.use_cassette 'mr_client/bb_internal/get_dicom' do
-        client.get_dicom(study_id, ->(headers) {}, yielder)
+        client.get_dicom(uuid, ->(headers) {}, yielder)
         expect(yielder.string).not_to be_empty
       end
     end
   end
 
   describe '#get_generate_ccd' do
+    let(:icn) { '1000000000V000000' }
+    let(:last_name_with_space) { 'DOE SMITH' }
+    let(:expected_escaped_last_name) { 'DOE%20SMITH' }
+
     it 'requests a CCD be generated and returns the correct structure' do
       VCR.use_cassette 'mr_client/bb_internal/generate_ccd' do
         ccd_list = client.get_generate_ccd(client.session.icn, 'DOE')
@@ -103,6 +139,20 @@ describe BBInternal::Client do
         expect(first_ccd).to have_key('status')
         expect(first_ccd['status']).to be_a(String)
       end
+    end
+
+    it 'ensures the URL contains no spaces by escaping them' do
+      # Mock the `perform` method to intercept the URL
+      allow(client).to receive(:perform).and_wrap_original do |_original_method, _method, url, _body, _headers|
+        # Verify the URL contains no spaces
+        expect(url).to include(expected_escaped_last_name)
+        expect(url).not_to include(' ')
+        # Return a mock response to satisfy the method call
+        double('Response', body: [])
+      end
+
+      # Call the method
+      client.get_generate_ccd(icn, last_name_with_space)
     end
   end
 
@@ -153,6 +203,9 @@ describe BBInternal::Client do
         expect(first_study_job['status']).to be_a(String)
         expect(first_study_job).to have_key('studyIdUrn')
         expect(first_study_job['studyIdUrn']).to be_a(String)
+
+        # Check if 'studyIdUrn' was replaced by a UUID
+        expect(first_study_job['studyIdUrn']).to match(UUID_REGEX)
       end
     end
   end
@@ -164,7 +217,7 @@ describe BBInternal::Client do
 
         expect(notification_setting).to be_a(Hash)
         expect(notification_setting).to have_key('flag')
-        expect(notification_setting['flag']).to eq(true)
+        expect(notification_setting['flag']).to be(true)
       end
     end
   end
@@ -381,6 +434,50 @@ describe BBInternal::Client do
         expect(first_record['permCity']).to be_a(String)
         expect(first_record).to have_key('permState')
         expect(first_record['permState']).to be_a(String)
+      end
+    end
+  end
+
+  describe '#invalid?' do
+    let(:session_data) { OpenStruct.new(icn: icn, patient_id: patient_id, expired?: session_expired) }
+
+    context 'when session is expired' do
+      let(:session_expired) { true }
+      let(:icn) { '1000000000V000000' }
+      let(:patient_id) { '12345' }
+
+      it 'returns true' do
+        expect(client.send(:invalid?, session_data)).to be true
+      end
+    end
+
+    context 'when session has no icn' do
+      let(:session_expired) { false }
+      let(:icn) { nil }
+      let(:patient_id) { '12345' }
+
+      it 'returns true' do
+        expect(client.send(:invalid?, session_data)).to be true
+      end
+    end
+
+    context 'when session has no patient_id' do
+      let(:session_expired) { false }
+      let(:icn) { '1000000000V000000' }
+      let(:patient_id) { nil }
+
+      it 'returns true' do
+        expect(client.send(:invalid?, session_data)).to be true
+      end
+    end
+
+    context 'when session is valid' do
+      let(:session_expired) { false }
+      let(:icn) { '1000000000V000000' }
+      let(:patient_id) { '12345' }
+
+      it 'returns false' do
+        expect(client.send(:invalid?, session_data)).to be false
       end
     end
   end

@@ -17,7 +17,8 @@ module VAOS
 
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
-      APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
+      APPOINTMENTS_OH_REQUESTS = :va_online_scheduling_OH_request
+      APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS = :va_online_scheduling_OH_direct_schedule
       APPOINTMENT_TYPES = {
         va: 'VA',
         cc_appointment: 'COMMUNITY_CARE_APPOINTMENT',
@@ -51,6 +52,8 @@ module VAOS
             prepare_appointment(appt, include)
             cnp_count += 1 if cnp?(appt)
           end
+
+          appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
 
           if Flipper.enabled?(:appointments_consolidation, user)
             filterer = AppointmentsPresentationFilter.new
@@ -97,11 +100,10 @@ module VAOS
         params = VAOS::V2::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
         params.compact_blank!
         with_monitoring do
-          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
-                       perform(:post, appointments_base_path_vpg, params, headers)
+          response = if params[:status] == 'proposed'
+                       create_appointment_request(params)
                      else
-                       perform(:post, appointments_base_path_vaos, params, headers)
+                       create_direct_scheduling_appointment(params)
                      end
 
           if request_object_body[:kind] == 'clinic' &&
@@ -115,10 +117,31 @@ module VAOS
           extract_appointment_fields(new_appointment)
           merge_clinic(new_appointment)
           merge_facility(new_appointment)
+          set_modality(new_appointment)
+          new_appointment[:pending] = request?(new_appointment)
+          new_appointment[:past] = past?(new_appointment)
+          new_appointment[:future] = future?(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
           raise e
+        end
+      end
+
+      def create_direct_scheduling_appointment(params)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
+           Flipper.enabled?(APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS, user)
+          perform(:post, appointments_base_path_vpg, params, headers)
+        else
+          perform(:post, appointments_base_path_vaos, params, headers)
+        end
+      end
+
+      def create_appointment_request(params)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) && Flipper.enabled?(APPOINTMENTS_OH_REQUESTS, user)
+          perform(:post, appointments_base_path_vpg, params, headers)
+        else
+          perform(:post, appointments_base_path_vaos, params, headers)
         end
       end
 
@@ -168,12 +191,11 @@ module VAOS
         nil
       end
 
-      def get_recent_sorted_clinic_appointments
-        end_time = Date.current.end_of_day.yesterday
-        start_time = 1.year.ago
-        statuses = 'booked,fulfilled,arrived'
-
-        appointments = get_appointments(start_time, end_time, statuses)
+      def get_sorted_recent_appointments
+        appointments = get_appointments(1.year.ago, 1.year.from_now, 'booked,fulfilled,arrived,proposed')
+        if appointments[:data].length.zero?
+          appointments = get_appointments(3.years.ago, Date.current.end_of_day.yesterday, 'booked,fulfilled,arrived')
+        end
         sort_recent_appointments(appointments[:data])
       end
 
@@ -185,7 +207,7 @@ module VAOS
             Rails.logger.info("VAOS appointment sorting filtered out id #{rem_appt.id} due to missing start time.")
           end
         end
-        filtered_appts.sort_by { |appointment| DateTime.parse(appointment.start) }
+        filtered_appts.sort_by { |appointment| DateTime.parse(appointment.start) }.reverse
       end
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
@@ -202,6 +224,17 @@ module VAOS
         return nil if facility_info.nil?
 
         facility_info[:timezone]&.[](:time_zone_id)
+      end
+
+      def merge_appointments(eps_appointments, appointments)
+        normalized_new = eps_appointments.map(&:serializable_hash)
+        existing_referral_ids = appointments.to_set { |a| a.dig(:referral, :referral_number) }
+        date_and_time_for_referral_list = appointments.pluck(:start)
+        merged_data = appointments + normalized_new.reject do |a|
+          existing_referral_ids.include?(a.dig(:referral,
+                                               :referral_number)) && date_and_time_for_referral_list.include?(a[:start])
+        end
+        merged_data.sort_by { |appt| appt[:start] || '' }
       end
 
       memoize :get_facility_timezone_memoized
@@ -234,6 +267,7 @@ module VAOS
           { message:, status:, icn: sanitized_icn, context: }
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       # Modifies the appointment, extracting individual fields from the appointment. This currently includes:
@@ -336,6 +370,12 @@ module VAOS
         merge_facility(appointment) if include[:facilities]
 
         set_type(appointment)
+
+        set_modality(appointment)
+
+        appointment[:past] = past?(appointment)
+        appointment[:future] = future?(appointment)
+        appointment[:pending] = request?(appointment)
       end
 
       def find_and_merge_provider_name(appointment)
@@ -486,7 +526,7 @@ module VAOS
       # @param appt [Hash] the appointment to check
       # @return [Boolean] true if the appointment cannot be cancelled
       def cannot_be_cancelled?(appointment)
-        cnp?(appointment) || covid?(appointment) ||
+        cnp?(appointment) || covid?(appointment) || appointment[:start]&.to_datetime&.past? ||
           (cc?(appointment) && booked?(appointment)) || telehealth?(appointment)
       end
 
@@ -512,6 +552,20 @@ module VAOS
       def filter_reason_code_text(request_object_body)
         text = request_object_body&.dig(:reason_code, :text)
         VAOS::Strings.filter_ascii_characters(text) if text.present?
+      end
+
+      # Determines if the appointment is a Cerner (Oracle Health) appointment.
+      # This is determined by the presence of a 'CERN' prefix in the appointment's id.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is a Cerner appointment, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def cerner?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt[:id].start_with?('CERN')
       end
 
       # Checks if the appointment is booked.
@@ -562,6 +616,58 @@ module VAOS
         raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
 
         appt[:kind] == 'telehealth'
+      end
+
+      # Determines if the appointment is a request type.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is a request, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def request?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        %w[REQUEST COMMUNITY_CARE_REQUEST].include?(appt[:type])
+      end
+
+      # Determines if the appointment occurs in the past.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment occurs in the past, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def past?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt_start = appt[:start] || appt.dig(:requested_periods, 0, :start)
+
+        unless appt_start.nil?
+          appt[:past] = if appt[:kind] == 'telehealth'
+                          (appt_start.to_datetime + 240.minutes) < Time.now.utc
+                        else
+                          (appt_start.to_datetime + 60.minutes) < Time.now.utc
+                        end
+        end
+      end
+
+      # Determines if the appointment occurs in the future.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment occurs in the future, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def future?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt_start = appt[:start] || appt.dig(:requested_periods, 0, :start)
+
+        appt[:future] = !request?(appt) &&
+                        !past?(appt) &&
+                        !appt_start.nil? &&
+                        appt_start.to_datetime > Time.now.utc.beginning_of_day
       end
 
       # Determines if the appointment is for compensation and pension.
@@ -691,20 +797,45 @@ module VAOS
       end
 
       def set_type(appointment)
-        type = APPOINTMENT_TYPES[:request] if appointment[:kind] != 'cc' && appointment[:request_periods].present?
-
-        type ||= case appointment[:kind]
-                 when 'cc'
-                   if appointment[:start]
-                     APPOINTMENT_TYPES[:cc_appointment]
-                   else
-                     APPOINTMENT_TYPES[:cc_request]
-                   end
-                 else
-                   APPOINTMENT_TYPES[:va]
-                 end
+        type = if cerner?(appointment)
+                 cerner_type(appointment)
+               else
+                 non_cerner_type(appointment)
+               end
 
         appointment[:type] = type
+      end
+
+      # Determines the type of appointment for Cerner appointments.
+      # @param appointment [Hash] the appointment to determine the type for
+      #
+      # @return [String] the type of appointment
+      #
+      def cerner_type(appointment)
+        if appointment[:end].present?
+          appointment[:kind] == 'cc' ? APPOINTMENT_TYPES[:cc_appointment] : APPOINTMENT_TYPES[:va]
+        else
+          appointment[:kind] == 'cc' ? APPOINTMENT_TYPES[:cc_request] : APPOINTMENT_TYPES[:request]
+        end
+      end
+
+      # Determines the type of appointment for non-Cerner appointments.
+      # @param appointment [Hash] the appointment to determine the type for
+      #
+      # @return [String] the type of appointment
+      #
+      def non_cerner_type(appointment)
+        if appointment[:kind] == 'cc'
+          if appointment[:requested_periods].present?
+            APPOINTMENT_TYPES[:cc_request]
+          else
+            APPOINTMENT_TYPES[:cc_appointment]
+          end
+        elsif appointment[:requested_periods].present?
+          APPOINTMENT_TYPES[:request]
+        else
+          APPOINTMENT_TYPES[:va]
+        end
       end
 
       # Modifies the appointment, setting the cancellable flag to false
@@ -712,6 +843,51 @@ module VAOS
       # @param appointment [Hash] the appointment to modify
       def set_cancellable_false(appointment)
         appointment[:cancellable] = false
+      end
+
+      def set_modality(appointment)
+        raise ArgumentError, 'Appointment cannot be nil' if appointment.nil?
+
+        modality = nil
+        if appointment[:service_type] == 'covid'
+          modality = 'vaInPersonVaccine'
+        elsif appointment.dig(:service_category, 0, :text) == 'COMPENSATION & PENSION'
+          modality = 'claimExamAppointment'
+        elsif appointment[:kind] == 'clinic'
+          modality = 'vaInPerson'
+        elsif appointment[:kind] == 'telehealth'
+          modality = telehealth_modality(appointment)
+        elsif appointment[:kind] == 'phone'
+          modality = 'vaPhone'
+        elsif appointment[:kind] == 'cc'
+          modality = 'communityCare'
+        end
+
+        log_modality_failure(appointment) if modality.nil?
+        appointment[:modality] = modality
+      end
+
+      def log_modality_failure(appointment)
+        context = {
+          service_type: appointment[:service_type],
+          service_category_text: appointment.dig(:service_category, 0, :text),
+          kind: appointment[:kind],
+          atlas: appointment.dig(:telehealth, :atlas),
+          vvs_kind: appointment.dig(:telehealth, :vvs_kind),
+          gfe: appointment.dig(:extension, :patient_has_mobile_gfe)
+        }.to_json
+        Rails.logger.warn("VAOS appointment id #{appointment[:id]} modality cannot be determined", context)
+      end
+
+      def telehealth_modality(appointment)
+        vvs_kind = appointment.dig(:telehealth, :vvs_kind)
+        if !appointment.dig(:telehealth, :atlas).nil?
+          'vaVideoCareAtAnAtlasLocation'
+        elsif %w[CLINIC_BASED STORE_FORWARD].include?(vvs_kind)
+          'vaVideoCareAtAVaLocation'
+        elsif vvs_kind.nil? || vvs_kind == 'MOBILE_ANY' || vvs_kind == 'ADHOC'
+          appointment.dig(:extension, :patient_has_mobile_gfe) ? 'vaVideoCareOnGfe' : 'vaVideoCareAtHome'
+        end
       end
 
       def ds_error_details(e)
@@ -826,6 +1002,24 @@ module VAOS
         return unless response.success? && response.body[:data].present?
 
         SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
+      end
+
+      def eps_appointments_service
+        @eps_appointments_service ||=
+          Eps::AppointmentService.new(user)
+      end
+
+      def eps_appointments
+        @eps_appointments ||= begin
+          appointments = eps_appointments_service.get_appointments
+          appointments = [] if appointments.blank? || appointments.all?(&:empty?)
+          appointments.reject! { |appt| appt.dig(:appointment_details, :start).nil? }
+          appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
+        end
+      end
+
+      def eps_serializer
+        @eps_serializer ||= VAOS::V2::EpsAppointment.new
       end
     end
   end

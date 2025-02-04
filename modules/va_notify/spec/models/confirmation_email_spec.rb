@@ -10,7 +10,7 @@ RSpec.describe VANotify::ConfirmationEmail, type: :model do
 
       subject = described_class.send(template_id: 'template_id', first_name: 'first_name',
                                      user_uuid_and_form_id: 'user-id_form_id', email_address: 'email_address')
-      expect(subject).to be nil
+      expect(subject).to be_nil
 
       expect(VANotify::EmailJob).not_to have_received(:perform_async)
     end

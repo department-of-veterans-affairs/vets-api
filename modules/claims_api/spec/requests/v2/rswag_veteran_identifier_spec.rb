@@ -6,7 +6,8 @@ require 'rails_helper'
 require_relative '../../rails_helper'
 require_relative '../../support/swagger_shared_components/v2'
 
-describe 'Veteran Identifier', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do # rubocop:disable RSpec/DescribeClass
+describe 'Veteran Identifier', openapi_spec: Rswag::TextHelpers.new.claims_api_docs, # rubocop:disable RSpec/DescribeClass
+                               skip: 'Disabling tests for deactivated veteran-id:find endpoint' do
   before do
     stub_mpi(profile)
   end
@@ -40,10 +41,10 @@ describe 'Veteran Identifier', openapi_spec: Rswag::TextHelpers.new.claims_api_d
       let(:veteran) { ClaimsApi::Veteran.new }
       let(:veteran_mpi_data) { MPIData.new }
       let(:profile) do
-        FactoryBot.build(:mpi_profile,
-                         icn: test_user_icn,
-                         participant_id: nil,
-                         participant_ids: [])
+        build(:mpi_profile,
+              icn: test_user_icn,
+              participant_id: nil,
+              participant_ids: [])
       end
 
       describe 'Getting a successful response' do

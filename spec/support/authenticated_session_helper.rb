@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module AuthenticatedSessionHelper
-  def sign_in(user = FactoryBot.build(:user, :loa3), token = nil, raw = false)
-    user = user.persisted? ? user : User.create(user)
+  def sign_in(user = build(:user, :loa3), token = nil, raw = false)
+    user = User.create(user) unless user.persisted?
     token ||= 'abracadabra'
     session_object = Session.create(uuid: user.uuid, token:)
     session_options = { key: 'api_session', secure: false, http_only: true }

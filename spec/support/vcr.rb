@@ -15,6 +15,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
   c.filter_sensitive_data('<EVSS_DVP_BASE_URL>') { Settings.evss.dvp.url }
   c.filter_sensitive_data('<FARADAY_VERSION>') { Faraday::Connection::USER_AGENT }
+  c.filter_sensitive_data('<DISABILITY_MAX_RATINGS_URI>') { Settings.disability_max_ratings_api.url }
   c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }
   c.filter_sensitive_data('<LIGHTHOUSE_API_KEY>') { Settings.decision_review.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_API_KEY>') { Settings.lighthouse.facilities.api_key }
@@ -35,11 +36,10 @@ VCR.configure do |c|
   c.filter_sensitive_data('<CENTRAL_MAIL_TOKEN>') { Settings.central_mail.upload.token }
   c.filter_sensitive_data('<PPMS_API_KEY>') { Settings.ppms.api_keys }
   c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
-  c.filter_sensitive_data('<VAPROFILE_URL>') { Settings.vet360.url }
   c.filter_sensitive_data('<VETS360_URL>') { Settings.vet360.url }
   c.filter_sensitive_data('<MULESOFT_SECRET>') { Settings.form_10_10cg.carma.mulesoft.client_secret }
   c.filter_sensitive_data('<SHAREPOINT_CLIENT_SECRET>') { Settings.vha.sharepoint.client_secret }
-  c.filter_sensitive_data('<ADDRESS_VALIDATION>') { VAProfile::Configuration::SETTINGS.address_validation.url }
+  c.filter_sensitive_data('<ADDRESS_VALIDATION>') { VAProfile::Configuration::SETTINGS.address_validation.hostname }
   c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_EDUCATION_RSA_KEY_PATH>') do
     Settings.lighthouse.benefits_education.rsa_key
   end
@@ -47,7 +47,8 @@ VCR.configure do |c|
     Settings.lighthouse.benefits_education.client_id
   end
   c.filter_sensitive_data('<VEIS_AUTH_URL>') { Settings.travel_pay.veis.auth_url }
-
+  c.filter_sensitive_data('<VRO_URL>') { Settings.virtual_regional_office.url }
+  c.filter_sensitive_data('<VRO_API_KEY>') { Settings.virtual_regional_office.api_key }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')

@@ -3,18 +3,7 @@
 require 'pension_burial/processing_office'
 
 class SavedClaim::Burial < SavedClaim
-  FORM = '21P-530'
-
-  # attribute name is passed from the FE as a flag, maintaining camel case
-  attr_accessor :formV2 # rubocop:disable Naming/MethodName
-
-  after_initialize do
-    self.form_id = if Flipper.enabled?(:va_burial_v2)
-                     formV2 || form_id == '21P-530V2' ? '21P-530V2' : self.class::FORM.upcase
-                   else
-                     self.class::FORM.upcase
-                   end
-  end
+  FORM = Burials::FORM_ID
 
   def process_attachments!
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
@@ -50,7 +39,7 @@ class SavedClaim::Burial < SavedClaim
       text_only: true, # passing as text only because we override how the date is stamped in this instance
       timestamp:,
       page_number: 6,
-      template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+      template: "#{Burials::MODULE_PATH}/lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
       multistamp: true
     )
     renamed_path = "tmp/pdfs/#{form_id}_#{id}_final.pdf"

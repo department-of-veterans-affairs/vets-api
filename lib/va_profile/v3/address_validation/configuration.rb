@@ -7,11 +7,11 @@ module VAProfile
     module AddressValidation
       class Configuration < VAProfile::Configuration
         def base_path
-          "#{VAProfile::Configuration::SETTINGS.address_validation.url}/services/address-validation/v3/"
+          "https://#{VAProfile::Configuration::SETTINGS.address_validation.hostname}/services/address-validation/v3/"
         end
 
         def base_request_headers
-          super.merge('apiKey' => VAProfile::Configuration::SETTINGS.address_validation.api_key)
+          super.merge('apiKey' => VAProfile::Configuration::SETTINGS.v3.address_validation.api_key)
         end
 
         def service_name

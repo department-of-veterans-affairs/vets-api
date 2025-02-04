@@ -1,18 +1,25 @@
 # frozen_string_literal: true
 
 require 'vets/attributes'
+require 'vets/model/dirty'
+require 'vets/model/sortable'
+require 'vets/model/pagination'
 
 # This will be moved after virtus is removed
 module Bool; end
 class TrueClass; include Bool; end
 class FalseClass; include Bool; end
 
+# This will be a replacement for Common::Base
 module Vets
   module Model
     extend ActiveSupport::Concern
     include ActiveModel::Model
     include ActiveModel::Serializers::JSON
     include Vets::Attributes
+    include Vets::Model::Dirty
+    include Vets::Model::Sortable
+    include Vets::Model::Pagination
 
     included do
       extend ActiveModel::Naming
@@ -31,7 +38,12 @@ module Vets
 
     # Acts as ActiveRecord::Base#attributes which is needed for serialization
     def attributes
-      nested_attributes(instance_values)
+      nested_attributes(attribute_values)
+    end
+
+    # Acts as Object#instance_values
+    def attribute_values
+      self.class.attribute_set.to_h { |attr| [attr.to_s, send(attr)] }
     end
 
     private
@@ -43,8 +55,8 @@ module Vets
     # @return [Hash] nested attributes
     def nested_attributes(values)
       values.transform_values do |value|
-        if value.respond_to?(:attributes)
-          nested_attributes(value.instance_values)
+        if value.respond_to?(:attribute_values)
+          nested_attributes(value.attribute_values)
         else
           value
         end

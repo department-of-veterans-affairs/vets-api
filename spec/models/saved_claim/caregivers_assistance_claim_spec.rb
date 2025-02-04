@@ -113,7 +113,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
         end
 
         it 'returns true' do
-          expect(claim.validate).to eq true
+          expect(claim.validate).to be true
         end
       end
 
@@ -129,103 +129,17 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
     end
 
     context 'caregiver_retry_form_validation enabled' do
+      let(:schema) { 'schema_content' }
+
       before do
         allow(Flipper).to receive(:enabled?).with(:caregiver_retry_form_validation).and_return(true)
+        allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
       end
 
-      context 'no validation errors' do
-        before do
-          allow(JSON::Validator).to receive(:fully_validate).and_return([])
-        end
+      it 'calls the validate_form_with_retries method' do
+        expect(claim).to receive(:validate_form_with_retries).with(schema, claim.parsed_form).and_return([])
 
-        it 'returns true' do
-          expect(Rails.logger).not_to receive(:info)
-            .with('Form validation succeeded on attempt 1/3')
-
-          expect(claim.validate).to eq true
-        end
-      end
-
-      context 'validation errors' do
-        let(:schema_errors) { [{ fragment: 'error' }] }
-
-        context 'when JSON:Validator.fully_validate returns errors' do
-          before do
-            allow(JSON::Validator).to receive(:fully_validate).and_return(schema_errors)
-          end
-
-          it 'adds validation errors to the form' do
-            expect(JSON::Validator).not_to receive(:fully_validate_schema)
-
-            expect(Rails.logger).not_to receive(:info)
-              .with('Form validation succeeded on attempt 1/3')
-
-            claim.validate
-            expect(claim.errors.full_messages).not_to be_empty
-          end
-        end
-
-        context 'when JSON:Validator.fully_validate throws an exception' do
-          let(:exception_text) { 'Some exception' }
-          let(:exception) { StandardError.new(exception_text) }
-
-          context '3 times' do
-            let(:schema) { 'schema_content' }
-
-            before do
-              allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
-              allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
-            end
-
-            it 'logs exceptions and raises exception' do
-              expect(Rails.logger).to receive(:warn)
-                .with("Retrying form validation due to error: #{exception_text} (Attempt 1/3)").once
-              expect(Rails.logger).not_to receive(:info)
-                .with('Form validation succeeded on attempt 1/3')
-              expect(Rails.logger).to receive(:warn)
-                .with("Retrying form validation due to error: #{exception_text} (Attempt 2/3)").once
-              expect(Rails.logger).to receive(:warn)
-                .with("Retrying form validation due to error: #{exception_text} (Attempt 3/3)").once
-
-              expect(Rails.logger).to receive(:error)
-                .with('Error during form validation after maximimum retries', { error: exception.message,
-                                                                                backtrace: anything, schema: })
-
-              expect(PersonalInformationLog).to receive(:create).with(
-                data: { schema: schema,
-                        parsed_form: claim.parsed_form,
-                        params: { errors_as_objects: true } },
-                error_class: 'SavedClaim FormValidationError'
-              )
-
-              expect { claim.validate }.to raise_error(exception.class, exception.message)
-            end
-          end
-
-          context '1 time but succeeds after retrying' do
-            before do
-              # Throws exception the first time, returns empty array on subsequent calls
-              call_count = 0
-              allow(JSON::Validator).to receive(:fully_validate).and_wrap_original do
-                call_count += 1
-                if call_count == 1
-                  raise exception
-                else
-                  []
-                end
-              end
-            end
-
-            it 'logs exception and validates succesfully after the retry' do
-              expect(Rails.logger).to receive(:warn)
-                .with("Retrying form validation due to error: #{exception_text} (Attempt 1/3)").once
-              expect(Rails.logger).to receive(:info)
-                .with('Form validation succeeded on attempt 2/3').once
-
-              expect(claim.validate).to eq true
-            end
-          end
-        end
+        claim.form_matches_schema
       end
     end
   end
@@ -306,7 +220,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
 
     context 'when no data present' do
       it 'returns nil' do
-        expect(subject.veteran_data).to eq(nil)
+        expect(subject.veteran_data).to be_nil
       end
     end
   end
@@ -326,7 +240,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
 
     context 'when no data present' do
       it 'returns nil' do
-        expect(subject.primary_caregiver_data).to eq(nil)
+        expect(subject.primary_caregiver_data).to be_nil
       end
     end
   end
@@ -346,7 +260,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
 
     context 'when no data present' do
       it 'returns nil' do
-        expect(subject.secondary_caregiver_one_data).to eq(nil)
+        expect(subject.secondary_caregiver_one_data).to be_nil
       end
     end
   end
@@ -372,7 +286,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
         expect(file).to receive(:delete)
 
         claim.destroy!
-        expect(Form1010cg::Attachment.exists?(id: attachment.id)).to eq(false)
+        expect(Form1010cg::Attachment.exists?(id: attachment.id)).to be(false)
       end
     end
 
@@ -402,7 +316,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
 
     context 'when no data present' do
       it 'returns nil' do
-        expect(subject.secondary_caregiver_two_data).to eq(nil)
+        expect(subject.secondary_caregiver_two_data).to be_nil
       end
     end
   end

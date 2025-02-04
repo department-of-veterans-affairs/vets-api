@@ -7,7 +7,6 @@ require 'va_profile/models/telephone'
 
 # rubocop:disable Metrics/MethodLength
 def stub_vaprofile_user(person = nil)
-  Flipper.enable(:va_v3_contact_information_service)
   service = VAProfile::V2::ContactInformation::Service
   person_response = VAProfile::V2::ContactInformation::PersonResponse
   person ||= build(
@@ -21,7 +20,7 @@ def stub_vaprofile_user(person = nil)
     ],
     telephones: [
       build(:telephone, :contact_info_v2, :home, id: 458_781),
-      build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::MOBILE, id: 790),
+      build(:telephone, :contact_info_v2_mobile, phone_type: VAProfile::Models::Telephone::MOBILE, id: 790),
       build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::WORK, id: 791),
       build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::FAX, id: 792),
       build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::TEMPORARY, id: 793)

@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require 'sentry_logging'
+
 module Form1095
   class New1095BsJob
     include Sidekiq::Job
+    include SentryLogging
 
     sidekiq_options(unique_for: 4.hours)
 
@@ -63,7 +66,7 @@ module Form1095
         val = "H#{i < 10 ? '0' : ''}#{i}"
 
         field = form_fields[val.to_sym]
-        coverage_arr.push(field && field.strip == 'Y' ? true : false)
+        coverage_arr.push((field && field.strip == 'Y') || false)
 
         i += 1
       end
@@ -74,7 +77,7 @@ module Form1095
     def produce_1095_hash(form_fields, unique_id, coverage_arr)
       {
         unique_id:,
-        veteran_icn: form_fields[:A15].gsub(/\A0{6}|0{6}\z/, ''),
+        veteran_icn: form_fields[:A15]&.gsub(/\A0{6}|0{6}\z/, ''),
         form_data: {
           last_name: form_fields[:A01] || '',
           first_name: form_fields[:A02] || '',
@@ -208,7 +211,7 @@ module Form1095
           Rails.logger.info "Successfully read #{@form_count} 1095B forms from #{file_name}, deleting file from S3"
           bucket.delete_objects(delete: { objects: [{ key: file_name }] })
         else
-          Rails.logger.error  "failed to save #{@error_count} forms from file: #{file_name};"\
+          Rails.logger.error  "failed to save #{@error_count} forms from file: #{file_name};" \
                               " successfully saved #{@form_count} forms"
         end
       end

@@ -5,7 +5,7 @@ require 'claim_letters/claim_letter_downloader'
 module V0
   class VirtualAgentClaimLettersController < ApplicationController
     Sentry.set_tags(feature: 'claim-letters')
-    service_tag 'claim-status'
+    service_tag 'virtual-agent'
 
     def index
       docs = service.get_letters
@@ -24,14 +24,7 @@ module V0
     private
 
     def service
-      @service ||= ClaimStatusTool::ClaimLetterDownloader.new(@current_user, allowed_doctypes)
-    end
-
-    # 27: Board Of Appeals Decision Letter
-    # 184: Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)
-    # 339: Rating Decision Letter
-    def allowed_doctypes
-      %w[184]
+      @service ||= ClaimStatusTool::ClaimLetterDownloader.new(@current_user)
     end
   end
 end

@@ -16,6 +16,7 @@ module V0
     before_action :validate_name_part, only: [:suggested_conditions]
 
     def rated_disabilities
+      invoker = 'V0::DisabilityCompensationFormsController#rated_disabilities'
       api_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:rated_disabilities],
         provider: nil,
@@ -24,7 +25,7 @@ module V0
         feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
       )
 
-      response = api_provider.get_rated_disabilities
+      response = api_provider.get_rated_disabilities(nil, nil, { invoker: })
 
       render json: RatedDisabilitiesSerializer.new(response)
     end
@@ -34,9 +35,10 @@ module V0
         :all_users,
         :get_separation_locations
       ) do
+        provider = Flipper.enabled?(:disability_compensation_staging_lighthouse_brd) ? :lighthouse_staging : nil
         api_provider = ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:brd],
-          provider: nil,
+          provider:,
           options: {},
           current_user: @current_user,
           feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_BRD
@@ -121,7 +123,7 @@ module V0
         saved_claim_id: saved_claim.id,
         auth_headers_json: auth_headers.to_json,
         form_json: saved_claim.to_submission_data(@current_user),
-        submit_endpoint: includes_toxic_exposure? ? 'claims_api' : 'evss'
+        submit_endpoint: 'claims_api'
       ) { |sub| sub.add_birls_ids @current_user.birls_id }
 
       if missing_disabilities?(submission)
@@ -158,11 +160,6 @@ module V0
 
     def stats_key
       'api.disability_compensation'
-    end
-
-    def includes_toxic_exposure?
-      # any form that has a startedFormVersion (whether it is '2019' or '2022') will go through the Toxic Exposure flow
-      form_content['form526']['startedFormVersion']
     end
 
     def missing_disabilities?(submission)

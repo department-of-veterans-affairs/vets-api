@@ -3,53 +3,63 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
-      POA_REQUEST_ITEM_MOCK_DATA = {
-        status: 'Pending',
-        declinedReason: nil,
-        powerOfAttorneyCode: '091',
-        submittedAt: '2024-04-30T11:03:17Z',
-        acceptedOrDeclinedAt: nil,
-        isAddressChangingAuthorized: false,
-        isTreatmentDisclosureAuthorized: true,
-        veteran: {
-          firstName: 'Jon',
-          middleName: nil,
-          lastName: 'Smith',
-          participantId: '6666666666666'
-        },
-        representative: {
-          email: 'j2@example.com',
-          firstName: 'Jane',
-          lastName: 'Doe'
-        },
-        claimant: {
-          firstName: 'Sam',
-          lastName: 'Smith',
-          participantId: '777777777777777',
-          relationshipToVeteran: 'Child'
-        },
-        claimantAddress: {
-          city: 'Hartford',
-          state: 'CT',
-          zip: '06107',
-          country: 'GU',
-          militaryPostOffice: nil,
-          militaryPostalCode: nil
-        }
-      }.freeze
+      module Statuses
+        ALL = [
+          PENDING = 'pending',
+          PROCESSED = 'processed'
+        ].freeze
+      end
 
-      POA_REQUEST_LIST_MOCK_DATA = [
-        POA_REQUEST_ITEM_MOCK_DATA,
-        POA_REQUEST_ITEM_MOCK_DATA,
-        POA_REQUEST_ITEM_MOCK_DATA
-      ].freeze
+      include PowerOfAttorneyRequests
+
+      before_action do
+        authorize PowerOfAttorneyRequest
+      end
+
+      with_options only: :show do
+        before_action do
+          id = params[:id]
+          find_poa_request(id)
+        end
+      end
 
       def index
-        render json: POA_REQUEST_LIST_MOCK_DATA
+        rel = poa_request_scope
+        status = params[:status].presence
+
+        rel =
+          case status
+          when Statuses::PENDING
+            rel.unresolved.order(created_at: :asc)
+          when Statuses::PROCESSED
+            rel.resolved.not_expired.order('resolution.created_at DESC')
+          when NilClass
+            rel
+          else
+            # Throw 400 for unexpected, non-blank statuses
+            raise ActionController::BadRequest, <<~MSG.squish
+              Invalid status parameter.
+              Must be one of (#{Statuses::ALL.join(', ')})
+            MSG
+          end
+
+        poa_requests = rel.includes(scope_includes).limit(100)
+        serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
+        render json: serializer.serializable_hash, status: :ok
       end
 
       def show
-        render json: POA_REQUEST_ITEM_MOCK_DATA
+        serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
+        render json: serializer.serializable_hash, status: :ok
+      end
+
+      private
+
+      def scope_includes
+        [
+          :power_of_attorney_form,
+          { resolution: :resolving }
+        ]
       end
     end
   end

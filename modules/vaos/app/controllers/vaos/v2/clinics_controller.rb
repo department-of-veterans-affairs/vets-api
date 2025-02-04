@@ -41,39 +41,35 @@ module VAOS
         render json: VAOS::V2::ClinicsSerializer.new(clinic)
       end
 
-      def recent_clinics
-        sorted_clinics = []
-        sorted_appointments = appointments_service.get_recent_sorted_clinic_appointments
-
-        if sorted_appointments.blank?
-          render json: { message: 'No appointments found' }, status: :not_found
-          return
-        end
-        sorted_appointments.each do |appt|
-          # if we don't have the information to lookup the clinic, return 'unable to lookup' message
-          if unable_to_lookup_clinic?(appt)
-            log_unable_to_lookup_clinic(appt)
-          else
-            # get the clinic details using the station id and clinic id
-            location_id = appt.location_id
-            clinic_ids = appt.clinic
-            clinic = mobile_facility_service.get_clinic_with_cache(station_id: location_id, clinic_id: clinic_ids)
-
-            # if clinic details are not returned, log 'not found' message
-            clinic.nil? ? log_no_clinic_details_found(location_id, clinic_ids) : sorted_clinics.push(clinic)
-          end
-        end
-        # remove duplicate clinics
-        sorted_clinics = sorted_clinics.uniq
-
-        render json: VAOS::V2::ClinicsSerializer.new(sorted_clinics)
-      end
-
       private
 
       def appointments_service
         @appointments_service ||=
           VAOS::V2::AppointmentsService.new(current_user)
+      end
+
+      def filter_type_of_care_facilities(facilities)
+        # Return facilities without filtering if no service id is provided
+        service_id = params[:clinical_service_id]
+        return facilities unless service_id
+
+        # Retrieve facility scheduling configurations
+        facility_ids = facilities.pluck(:id).to_csv(row_sep: nil)
+        configurations = mobile_facility_service.get_scheduling_configurations(facility_ids)&.[](:data)
+        supported_facilities = []
+
+        facilities.each do |facility|
+          # Include facility in results if direct schedule or request is enabled for the given service
+          configuration = configurations&.find { |config| config[:facility_id] == facility[:id] }
+          service_configuration = configuration&.[](:services)&.find { |service| service[:id] == service_id }
+          if service_configuration&.dig(:direct, :enabled) || service_configuration&.dig(:request, :enabled)
+            supported_facilities.push(facility)
+          end
+        end
+
+        log_no_supported_facilities(service_id) if supported_facilities.blank?
+
+        supported_facilities
       end
 
       def log_unable_to_lookup_clinic(appt)
@@ -98,12 +94,17 @@ module VAOS
         appt.nil? || appt.location_id.nil? || appt.clinic.nil?
       end
 
+      def log_no_supported_facilities(service_id)
+        Rails.logger.info('VAOS recent_facilities', "No facility supporting #{service_id} service was found.")
+      end
+
       def systems_service
         VAOS::V2::SystemsService.new(current_user)
       end
 
       def mobile_facility_service
-        VAOS::V2::MobileFacilityService.new(current_user)
+        @mobile_facility_service ||=
+          VAOS::V2::MobileFacilityService.new(current_user)
       end
 
       def location_id

@@ -51,6 +51,7 @@ module Sidekiq
         '21-4142' => 'L107',
         '21-0781' => 'L228',
         '21-0781a' => 'L229',
+        '21-0781V2' => 'L228',
         '21-8940' => 'L149',
         'bdd' => 'L023'
       }.freeze
@@ -59,6 +60,7 @@ module Sidekiq
         21-4142
         21-0781
         21-0781a
+        21-0781V2
         21-8940
       ].freeze
 
@@ -130,7 +132,7 @@ module Sidekiq
 
       def evidence_526_split
         is_526_or_evidence = docs.group_by do |doc|
-          doc[:type] == FORM_526_DOC_TYPE || doc[:type] == FORM_526_UPLOADS_DOC_TYPE
+          [FORM_526_DOC_TYPE, FORM_526_UPLOADS_DOC_TYPE].include?(doc[:type])
         end
         [is_526_or_evidence[true], is_526_or_evidence[false]]
       end

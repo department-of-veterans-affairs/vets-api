@@ -118,8 +118,8 @@ module ClaimsApi
       auto_claim.save!
     end
 
-    def enable_vbms_access?(poa_form:)
-      poa_form.form_data['recordConsent'] && poa_form.form_data['consentLimits'].blank?
+    def allow_poa_access?(poa_form_data:)
+      poa_form_data['recordConsent'] == true && poa_form_data['consentLimits'].blank?
     end
 
     def set_vbms_error_message(poa, error)
@@ -224,6 +224,12 @@ module ClaimsApi
       elsif poa_form_data.key?('representative') # V2 2122a
         poa_form_data['representative']['poaCode']
       end
+    end
+
+    def vanotify?(auth_headers, rep_id)
+      rep = ::Veteran::Service::Representative.where(representative_id: rep_id).order(created_at: :desc).first
+      Flipper.enabled?(:lighthouse_claims_api_v2_poa_va_notify) &&
+        auth_headers.key?(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY) && rep.present?
     end
 
     def evss_mapper_service(auto_claim)

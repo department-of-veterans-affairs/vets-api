@@ -9,15 +9,31 @@ class Form526SubmissionFailureEmailJob
 
   STATSD_PREFIX = 'api.form_526.veteran_notifications.form526_submission_failure_email'
   # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/274bea7fb835e51626259ac16b32c33ab0b2088a/platform/practices/zero-silent-failures/logging-silent-failures.md#capture-silent-failures-state
+  ZSF_DD_TAG_FUNCTION = '526_backup_submission_to_lighthouse'
+  VA_NOTIFY_CALLBACK_OPTIONS = {
+    callback_metadata: {
+      notification_type: 'error',
+      form_number: Form526Submission::FORM_526,
+      statsd_tags: { service: Form526Submission::ZSF_DD_TAG_SERVICE, function: ZSF_DD_TAG_FUNCTION }
+    }
+  }.freeze
   DD_ZSF_TAGS = [
-    'service:disability-application',
-    'function:526_backup_submission_to_lighthouse'
+    "service:#{Form526Submission::ZSF_DD_TAG_SERVICE}",
+    "function:#{ZSF_DD_TAG_FUNCTION}"
   ].freeze
   FORM_DESCRIPTIONS = {
     'form4142' => 'VA Form 21-4142',
     'form0781' => 'VA Form 21-0781',
     'form0781a' => 'VA Form 21-0781a',
+    'form0781v2' => 'VA Form 21-0781',
     'form8940' => 'VA Form 21-8940'
+  }.freeze
+  FORM_KEYS = {
+    'form4142' => 'form4142',
+    'form0781' => 'form0781.form0781',
+    'form0781a' => 'form0781.form0781a',
+    'form0781v2' => 'form0781.form0781v2',
+    'form8940' => 'form8940'
   }.freeze
 
   # retry for  2d 1h 47m 12s
@@ -74,7 +90,8 @@ class Form526SubmissionFailureEmailJob
   private
 
   def send_email
-    email_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key)
+    email_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key,
+                                         VA_NOTIFY_CALLBACK_OPTIONS)
     template_id = Settings.vanotify.services.benefits_disability.template_id
                           .form526_submission_failure_notification_template_id
 
@@ -86,11 +103,8 @@ class Form526SubmissionFailureEmailJob
   end
 
   def list_forms_submitted
-    [].tap do |forms|
-      forms << FORM_DESCRIPTIONS['form4142'] if form['form4142'].present?
-      forms << FORM_DESCRIPTIONS['form0781'] if form['form0781'].present?
-      forms << FORM_DESCRIPTIONS['form0781a'] if form.dig('form0781', 'form0781a').present?
-      forms << FORM_DESCRIPTIONS['form8940'] if form['form8940'].present?
+    FORM_KEYS.each_with_object([]) do |(key, path), forms|
+      forms << FORM_DESCRIPTIONS[key] if form.dig(*path.split('.')).present?
     end
   end
 
@@ -134,7 +148,6 @@ class Form526SubmissionFailureEmailJob
     )
 
     StatsD.increment("#{STATSD_PREFIX}.success")
-    StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   end
 
   def log_failure(error)
