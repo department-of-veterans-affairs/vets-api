@@ -191,6 +191,9 @@ describe VAOS::V2::AppointmentsService do
                 expect(response[:id]).to be_a(String)
                 expect(response[:local_start_time])
                   .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+                expect(response[:pending]).to be(false)
+                expect(response[:past]).to be(true)
+                expect(response[:future]).to be(false)
               end
             end
           end
@@ -297,6 +300,9 @@ describe VAOS::V2::AppointmentsService do
                 expect(response[:id]).to be_a(String)
                 expect(response[:local_start_time])
                   .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+                expect(response[:pending]).to be(false)
+                expect(response[:past]).to be(true)
+                expect(response[:future]).to be(false)
               end
             end
           end
@@ -1924,6 +1930,97 @@ describe VAOS::V2::AppointmentsService do
     it 'requires appointment' do
       expect do
         subject.send(:set_modality)
+      end.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#request' do
+    it 'sets pending to true if the appointment is a request' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'REQUEST'
+      expect(subject.send(:request?, appt)).to be(true)
+    end
+
+    it 'sets pending to true if the appointment is a community-care request' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'COMMUNITY_CARE_REQUEST'
+      expect(subject.send(:request?, appt)).to be(true)
+    end
+
+    it 'sets pending to false if the appointment is not a request' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'VA'
+      expect(subject.send(:request?, appt)).to be(false)
+    end
+
+    it 'requires appointment' do
+      expect do
+        subject.send(:request?, nil)
+      end.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#past' do
+    it 'sets past to true if the appointment is telehealth and within 240 minutes' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:kind] = 'telehealth'
+      appt[:start] = Time.now.utc - 241.minutes
+      expect(subject.send(:past?, appt)).to be(true)
+    end
+
+    it 'sets past to false if the appointment is telehealth and not within 240 minutes' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:kind] = 'telehealth'
+      appt[:start] = Time.now.utc - 239.minutes
+      expect(subject.send(:past?, appt)).to be(false)
+    end
+
+    it 'sets past to true if the appointment is not telehealth and within 60 minutes' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:kind] = 'clinic'
+      appt[:start] = Time.now.utc - 61.minutes
+      expect(subject.send(:past?, appt)).to be(true)
+    end
+
+    it 'sets past to false if the appointment is not telehealth and not within 60 minutes' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:kind] = 'clinic'
+      appt[:start] = Time.now.utc - 59.minutes
+      expect(subject.send(:past?, appt)).to be(false)
+    end
+
+    it 'requires appointment' do
+      expect do
+        subject.send(:past?, nil)
+      end.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#future' do
+    it 'sets future to true if the appointment is not a request and occurs after the beginning of the current day' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'VA'
+      appt[:start] = Time.now.utc + 1.day
+      expect(subject.send(:future?, appt)).to be(true)
+    end
+
+    it 'sets future to false if the appointment is not a request and occurs before the beginning of the current day' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'VA'
+      appt[:start] = Time.now.utc - 1.day
+      expect(subject.send(:future?, appt)).to be(false)
+    end
+
+    it 'sets future to false if the appointment is a request' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'REQUEST'
+      appt[:start] = Time.now.utc + 1.day
+      expect(subject.send(:future?, appt)).to be(false)
+    end
+
+    it 'requires appointment' do
+      expect do
+        subject.send(:future?, nil)
       end.to raise_error(ArgumentError)
     end
   end
