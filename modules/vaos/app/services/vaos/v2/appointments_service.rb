@@ -53,6 +53,8 @@ module VAOS
             cnp_count += 1 if cnp?(appt)
           end
 
+          appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
+
           if Flipper.enabled?(:appointments_consolidation, user)
             filterer = AppointmentsPresentationFilter.new
             appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
@@ -224,6 +226,17 @@ module VAOS
         facility_info[:timezone]&.[](:time_zone_id)
       end
 
+      def merge_appointments(eps_appointments, appointments)
+        normalized_new = eps_appointments.map(&:serializable_hash)
+        existing_referral_ids = appointments.to_set { |a| a.dig(:referral, :referral_number) }
+        date_and_time_for_referral_list = appointments.pluck(:start)
+        merged_data = appointments + normalized_new.reject do |a|
+          existing_referral_ids.include?(a.dig(:referral,
+                                               :referral_number)) && date_and_time_for_referral_list.include?(a[:start])
+        end
+        merged_data.sort_by { |appt| appt[:start] || '' }
+      end
+
       memoize :get_facility_timezone_memoized
 
       private
@@ -254,6 +267,7 @@ module VAOS
           { message:, status:, icn: sanitized_icn, context: }
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       # Modifies the appointment, extracting individual fields from the appointment. This currently includes:
@@ -988,6 +1002,24 @@ module VAOS
         return unless response.success? && response.body[:data].present?
 
         SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
+      end
+
+      def eps_appointments_service
+        @eps_appointments_service ||=
+          Eps::AppointmentService.new(user)
+      end
+
+      def eps_appointments
+        @eps_appointments ||= begin
+          appointments = eps_appointments_service.get_appointments
+          appointments = [] if appointments.blank? || appointments.all?(&:empty?)
+          appointments.reject! { |appt| appt.dig(:appointment_details, :start).nil? }
+          appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
+        end
+      end
+
+      def eps_serializer
+        @eps_serializer ||= VAOS::V2::EpsAppointment.new
       end
     end
   end

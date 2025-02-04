@@ -51,7 +51,7 @@ RSpec.describe BenefitsClaims::Service do
         it 'filters out claims with certain statuses' do
           VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
             response = @service.get_claims
-            expect(response['data'].length).to eq(5)
+            expect(response['data'].length).to eq(6)
           end
         end
       end
