@@ -17,7 +17,7 @@ module Representatives
     end
 
     def perform
-      file_content = 'fetch_file_content'
+      file_content = fetch_file_content
       return unless file_content
 
       processed_data = Representatives::XlsxFileProcessor.new(file_content).process

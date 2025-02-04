@@ -138,9 +138,9 @@ RSpec.describe Organizations::Update do
     context 'when JSON parsing fails' do
       let(:invalid_json_data) { 'invalid json' }
 
-      it 'logs an error to Sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-          "Organizations::Update: Error processing job: unexpected token at 'invalid json'", :error
+      it 'logs an error' do
+        expect(Rails.logger).to receive(:error).with(
+          "Organizations::Update: Error processing job: unexpected token at 'invalid json'"
         )
 
         subject.perform(invalid_json_data)
@@ -152,9 +152,9 @@ RSpec.describe Organizations::Update do
       let(:address_exists) { false }
       let(:address_changed) { true }
 
-      it 'logs an error to Sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-          'Organizations::Update: Update failed for Org id: not_found: Organization not found.', :error
+      it 'logs an error' do
+        expect(Rails.logger).to receive(:error).with(
+          'Organizations::Update: Update failed for Org id: not_found: Organization not found.'
         )
 
         subject.perform(json_data)
@@ -558,9 +558,9 @@ RSpec.describe Organizations::Update do
       context 'when JSON parsing fails' do
         let(:invalid_json_data) { 'invalid json' }
 
-        it 'logs an error to Sentry' do
-          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            "Organizations::Update: Error processing job: unexpected token at 'invalid json'", :error
+        it 'logs an error' do
+          expect(Rails.logger).to receive(:error).with(
+            "Organizations::Update: Error processing job: unexpected token at 'invalid json'"
           )
 
           subject.perform(invalid_json_data)
@@ -572,9 +572,9 @@ RSpec.describe Organizations::Update do
         let(:address_exists) { false }
         let(:address_changed) { true }
 
-        it 'logs an error to Sentry' do
-          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            'Organizations::Update: Update failed for Org id: not_found: Organization not found.', :error
+        it 'logs an error' do
+          expect(Rails.logger).to receive(:error).with(
+            'Organizations::Update: Update failed for Org id: not_found: Organization not found.'
           )
 
           subject.perform(json_data)
