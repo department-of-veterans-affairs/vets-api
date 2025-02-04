@@ -49,12 +49,32 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
     }
   end
 
+  it 'sets retry_for to 48 hours' do
+    expect(described_class.get_sidekiq_options['retry_for']).to eq(48.hours)
+  end
+
   describe '#perform' do
     let(:poa) do
       create(:power_of_attorney,
              auth_headers: auth_headers,
              form_data: claimant_form_data,
              status: ClaimsApi::PowerOfAttorney::SUBMITTED)
+    end
+
+    it 'logs out the details correctly for consent information' do
+      poa_code = poa.form_data['data']['attributes']['serviceOrganization']['poaCode']
+      consent_msg = 'Updating Access. recordConsent: false ' \
+                    "for representative #{poa_code}"
+
+      allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
+        .to receive(:assign_poa_to_dependent!).and_return(
+          true
+        )
+
+      detail_msg = ClaimsApi::ServiceBase.new.send(:form_logger_consent_detail, poa, poa_code)
+
+      expect(detail_msg).to eq(consent_msg)
+      described_class.new.perform(poa.id, 'Rep Data')
     end
 
     it "marks the POA status as 'updated'" do
