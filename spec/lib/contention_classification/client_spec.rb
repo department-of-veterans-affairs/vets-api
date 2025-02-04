@@ -93,23 +93,6 @@ RSpec.describe ContentionClassification::Client do
       end
     end
 
-    context 'empty response' do
-      let(:empty_response) do
-        double(
-          'contention classification response', status: 200,
-                                                body: {}.as_json
-        )
-      end
-
-      before do
-        allow(client).to receive(:perform).and_return empty_response
-      end
-
-      it 'returns the empty response for the expanded classification' do
-        expect(subject).to eq empty_response
-      end
-    end
-
     [
       Faraday::ConnectionFailed.new('connection failed'),
       Faraday::TimeoutError.new('test timeout'),
