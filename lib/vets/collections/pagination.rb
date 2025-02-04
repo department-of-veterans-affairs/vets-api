@@ -36,6 +36,7 @@ module Vets
 
       def total_pages
         return 1 if @total_entries.zero?
+
         (@total_entries / @per_page.to_f).ceil
       end
 

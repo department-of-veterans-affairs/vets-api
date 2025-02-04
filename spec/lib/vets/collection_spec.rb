@@ -47,7 +47,6 @@ RSpec.describe Vets::Collection do
     it 'returns an empty Collections if records are nil' do
       collection = described_class.new(nil)
       expect(collection.records).to eq([])
-
     end
 
     it 'returns an empty Collections if records are empty' do
@@ -143,7 +142,7 @@ RSpec.describe Vets::Collection do
     let(:record2) { dummy_class.new(name: 'Bob', age: 25) }
     let(:record3) { dummy_class.new(name: 'Charlie', age: 35) }
     let(:record4) { dummy_class.new(name: 'David', age: 25) }
-    let(:record5) { dummy_class.new(name: nil, age: 21) }
+    let(:record5) { dummy_class.new(name: 'Emma', age: nil) }
 
     let(:collection) { described_class.new([record4, record1, record2, record3]) }
 
@@ -182,17 +181,11 @@ RSpec.describe Vets::Collection do
         .to raise_error(ArgumentError, 'Order must have at least one sort clause')
     end
 
-    it 'raises an error with null values ' do
+    it 'forces null values to end of the array' do
       collection = described_class.new([record4, record1, record5, record2, record3])
-
-      binding.pry
-
-      collection.order(age: :asc)
-
-
+      sorted = collection.order(age: :asc)
+      expect(sorted.last).to eq(record5)
     end
-
-
   end
 
   describe '#paginate' do
