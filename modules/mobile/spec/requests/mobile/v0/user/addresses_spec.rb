@@ -342,7 +342,7 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
 
       before do
         VCR.use_cassette(
-          'va_profile/v3/address_validation/candidate_multiple_matches',
+          'va_profile/v3/address_validation/candidate_multiple_matches_2',
           VCR::MATCH_EVERYTHING
         ) do
           post '/mobile/v0/user/addresses/validate',
