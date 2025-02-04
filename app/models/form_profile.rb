@@ -117,11 +117,15 @@ class FormProfile
     '10182' => ::FormProfiles::VA10182,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
+    '21-0779-UPLOAD' => ::FormProfiles::FormUpload,
     '21-0966' => ::FormProfiles::VA210966,
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a,
+    '21-509-UPLOAD' => ::FormProfiles::FormUpload,
     '21-526EZ' => ::FormProfiles::VA526ez,
     '21-686C' => ::FormProfiles::VA21686c,
+    '21P-0516-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-527EZ' => ::FormProfiles::VA21p527ez,
     '21P-530EZ' => ::FormProfiles::VA21p530ez,
     '22-0993' => ::FormProfiles::VA0993,
@@ -148,7 +152,7 @@ class FormProfile
     'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt,
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
-    'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow,
+    'FORM-UPLOAD' => ::FormProfiles::FormUpload,
     'MDOT' => ::FormProfiles::MDOT
   }.freeze
 
