@@ -46,7 +46,8 @@ task yardoc: :environment do
     puts yardoc_output
     puts "\n"
     puts Rainbow('Failed. Documentation issues were found.').red
-    exit!(yardoc_result)
+
+    exit(yardoc_result)
   end
 
   # 'fail' if not 100% - mark this task as required in github to block merging
@@ -59,12 +60,11 @@ task yardoc: :environment do
     puts yardoc_stats
     puts "\n"
     puts Rainbow('Warning. Documentation is missing.').yellow
+
     exit(1)
   end
 
   puts yardoc_output
   puts "\n"
   puts Rainbow('Passed. Everything looks documented!').green
-
-  exit!
 end
