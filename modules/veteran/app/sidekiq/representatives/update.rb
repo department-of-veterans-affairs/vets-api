@@ -27,7 +27,7 @@ module Representatives
       reps_data = JSON.parse(reps_json)
       reps_data.each { |rep_data| process_rep_data(rep_data) }
     rescue => e
-      log_error("Error processing job: #{e.message}")
+      log_error("Error processing job: #{e.message}", send_to_slack: true)
     ensure
       @slack_messages.unshift('Representatives::Update') if @slack_messages.any?
       log_to_slack(@slack_messages.join("\n")) unless @slack_messages.empty?
@@ -228,10 +228,10 @@ module Representatives
 
     # Logs an error to Datadog and adds an error to the array that will be logged to slack.
     # @param error [Exception] The error string to be logged.
-    def log_error(error)
+    def log_error(error, send_to_slack: false)
       message = "Representatives::Update: #{error}"
       Rails.logger.error(message)
-      @slack_messages << "----- #{message}"
+      @slack_messages << "----- #{message}" if send_to_slack
     end
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values

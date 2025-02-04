@@ -26,7 +26,7 @@ module Organizations
       @orgs_data = JSON.parse(orgs_json)
       @orgs_data.each { |org_data| process_org_data(org_data) }
     rescue => e
-      log_error("Error processing job: #{e.message}")
+      log_error("Error processing job: #{e.message}", send_to_slack: true)
     ensure
       @slack_messages.unshift("Orgs processed: #{@orgs_data.size}") if @orgs_data&.any?
       @slack_messages.unshift('Organizations::Update')
@@ -191,10 +191,10 @@ module Organizations
 
     # Logs an error to Datadog and adds and error to be logged to slack.
     # @param error [Exception] The error string to be logged.
-    def log_error(error)
+    def log_error(error, send_to_slack: false)
       message = "Organizations::Update: #{error}"
       Rails.logger.error(message)
-      @slack_messages << "----- #{message}"
+      @slack_messages << "----- #{message}" if send_to_slack
     end
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values
