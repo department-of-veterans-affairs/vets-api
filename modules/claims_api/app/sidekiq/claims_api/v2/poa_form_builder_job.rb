@@ -11,6 +11,8 @@ module ClaimsApi
     class PoaFormBuilderJob < ClaimsApi::ServiceBase
       include ClaimsApi::PoaVbmsSidekiq
 
+      sidekiq_options retry_for: 48.hours
+
       # Generate a 21-22 or 21-22a form for a given POA request.
       # Uploads the generated form to VBMS. If successfully uploaded,
       # it queues a job to update the POA code in BGS, as well.
@@ -41,7 +43,7 @@ module ClaimsApi
         else
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, rep_id)
         end
-        process.update!(step_status: 'SUCCESS', error_messages: [])
+        process.update!(step_status: 'SUCCESS', error_messages: [], completed_at: Time.zone.now)
       rescue VBMS::Unknown
         rescue_vbms_error(power_of_attorney, process:)
       rescue Errno::ENOENT
