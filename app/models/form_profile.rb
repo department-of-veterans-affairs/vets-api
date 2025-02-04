@@ -98,7 +98,7 @@ class FormProfile
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
     evss: ['21-526EZ'],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
-    form_upload_flow: ['FORM-UPLOAD-FLOW'],
+    form_upload: %w[FORM-UPLOAD 21-0779-UPLOAD 21-509-UPLOAD 21P-0516-1-UPLOAD 21P-0518-1-UPLOAD],
     fsr: ['5655'],
     hca: %w[1010ez 10-10EZR],
     intent_to_file: ['21-0966'],
