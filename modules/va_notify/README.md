@@ -105,7 +105,7 @@ When a client makes an API call to VA Notify, the API first authorizes the reque
 
 Our delivery workflow includes retries for errors that may be temporary in nature, like service availability. If your API request includes a recipient_identifier, then VA Notify kicks off our lookup integrations. First, we use MPI to do a deceased check and identify the correlated VA Profile ID. Once we have the VA Profile ID, we use VA Profile to retrieve the email address on file for the Veteran. If there are issues finding the Veteran’s profile or contact information, then VA Notify is unable to deliver the notification. This would indicate that the Veteran needs an alternative communication method or an updated email address. If an email address is successfully retrieved or the API request includes the email address directly, then the notification moves on to delivery via our email provider.
 
-There are a couple of reasons that can cause an email notification to fail such as hard bounces and soft bounces. Hard bounces indicate a permanent failure due to an invalid, unreachable email address. Soft bounces indicate a temporary failure, which could succeed after retry. However, there’s many reasons for soft bounces, some of which require manual effort by the recipient or recipient’s organization if they are utilizing a managed email service (e.g. a work email). Email settings could be blocking these notifications from being delivered. If your notification continues to soft bounce, it’s unlikely to succeed with more send attempts.
+There are a couple of reasons that can cause an email notification to fail such as hard bounces and soft bounces. Hard bounces indicate a permanent failure due to an invalid, unreachable email address. Soft bounces indicate a temporary failure. However, there’s many reasons for soft bounces, some of which require manual effort by the recipient or recipient’s organization if they are utilizing a managed email service (e.g. a work email). Email settings could be blocking these notifications from being delivered. If your notification continues to soft bounce, it’s unlikely to succeed with more send attempts.
 
 ## API Requests - VA system to system communication.
 
@@ -217,14 +217,10 @@ module ExampleTeam
       when 'delivered'
         # success
         StatsD.increment('api.vanotify.notifications.delivered')
-      when 'permanent-failure'
+      when 'permanent-failure', 'temporary-failure'
         # delivery failed
         # possibly log error or increment metric and use the optional metadata - notification_record.callback_metadata
-        StatsD.increment('api.vanotify.notifications.permanent_failure')
-        Rails.logger.error(notification_id: notification.notification_id, source: notification.source_location,
-                           status: notification.status, status_reason: notification.status_reason)
-      when 'temporary-failure'
-        # the api will continue attempting to deliver - success is still possible
+        # temporary-failure is considered an end-state and will not be retried
         StatsD.increment('api.vanotify.notifications.permanent_failure')
         Rails.logger.error(notification_id: notification.notification_id, source: notification.source_location,
                            status: notification.status, status_reason: notification.status_reason)
@@ -268,7 +264,7 @@ Here's a high-level overview of what happens behind the scenes when using VA Not
 
 2. Delivery Processing: VA Notify attempts to deliver the notification using its internal delivery workflow. This includes retries for temporary issues and contact lookups if an ICN is used.
 
-3. Callback Triggered: As the delivery progresses, VA Notify sends status updates to the configured callback URL. Updates may include statuses like "delivered," "failed," or "temporary failure".
+3. Callback Triggered: As the delivery progresses, VA Notify sends status updates to the configured callback URL. Updates may include statuses like "delivered," "failed," or "temporary failure" (an end-state).
 
 4. Processing Callback: Your application receives the callback and processes it to determine if further action is needed—such as notifying the user of a failed delivery, retrying, or marking the notification as successfully delivered.
 
