@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'rails_helper'
 require 'vets/collections/pagination'
 require 'common/exceptions/invalid_pagination_params'
 
@@ -10,12 +11,18 @@ RSpec.describe Vets::Collections::Pagination do
     context 'without WillPaginate' do
       it 'paginates the data correctly' do
         pagination = described_class.new(page: 2, per_page: 10, total_entries: data.size, data: data)
-        expect(pagination.instance_variable_get(:@data)).to eq((11..20).to_a)
+        expect(pagination.data).to eq((11..20).to_a)
       end
 
       it 'returns an empty array for out-of-bounds page' do
         pagination = described_class.new(page: 6, per_page: 10, total_entries: data.size, data: data)
-        expect(pagination.instance_variable_get(:@data)).to eq([])
+        expect(pagination.data).to eq([])
+      end
+
+      it 'returns an empty array for out-of-bounds page' do
+        pagination = described_class.new(page: 6, per_page: 10, total_entries: nil, data: nil)
+        expect(pagination.data).to eq([])
+        expect(pagination.metadata[:pagination][:total_pages]).to eq(1)
       end
     end
 

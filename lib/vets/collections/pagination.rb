@@ -10,9 +10,11 @@ module Vets
       def initialize(page:, per_page:, total_entries:, data:, use_will_paginate: false)
         @page = page
         @per_page = per_page
-        @total_entries = total_entries
+        @total_entries = total_entries || 0
 
-        @data = if use_will_paginate && defined?(::WillPaginate::Collection)
+        @data = if data.nil?
+                  []
+                elsif use_will_paginate && defined?(::WillPaginate::Collection)
                   will_paginate_collection(data)
                 else
                   data[((page - 1) * per_page)...(page * per_page)]
@@ -33,6 +35,7 @@ module Vets
       private
 
       def total_pages
+        return 1 if @total_entries.zero?
         (@total_entries / @per_page.to_f).ceil
       end
 
