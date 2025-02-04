@@ -4,7 +4,9 @@ require 'common/exceptions/validation_errors'
 
 module Burials
   module V0
-    # Burial Controller
+    ###
+    # The Burial claim controller that handles form submissions
+    #
     class ClaimsController < ApplicationController
       skip_before_action(:authenticate)
       before_action :load_user, only: :create
