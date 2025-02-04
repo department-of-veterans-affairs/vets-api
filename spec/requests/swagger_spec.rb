@@ -1323,7 +1323,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
         it 'when correct form id is passed, it supports creating mvi user' do
           VCR.use_cassette('mpi/add_person/add_person_success') do
-            VCR.use_cassette('mpi/find_candidate/find_profile_with_identifier') do
+            VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
               expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
             end
           end
@@ -3776,6 +3776,43 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             '/travel_pay/v0/claims/{id}',
             200,
             headers.merge('id' => claim_id)
+          )
+        end
+      end
+    end
+
+    context 'create' do
+      let(:mhv_user) { build(:user, :loa3) }
+
+      it 'returns unauthorized for unauthorized user' do
+        expect(subject).to validate(:post, '/travel_pay/v0/claims', 401)
+      end
+
+      it 'returns bad request for missing appointment date time' do
+        headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
+        VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[path method]) do
+          expect(subject).to validate(
+            :post,
+            '/travel_pay/v0/claims',
+            400,
+            headers
+          )
+        end
+      end
+
+      it 'returns 201 for successful response' do
+        headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
+        params = {
+          '_data' => {
+            'appointmentDatetime' => '2024-01-01T16:45:34.465Z'
+          }
+        }
+        VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[path method]) do
+          expect(subject).to validate(
+            :post,
+            '/travel_pay/v0/claims',
+            201,
+            headers.merge(params)
           )
         end
       end

@@ -57,6 +57,8 @@ module VAOS
             cnp_count += 1 if cnp?(appt)
           end
 
+          appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
+
           if Flipper.enabled?(:appointments_consolidation, user)
             filterer = AppointmentsPresentationFilter.new
             appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
@@ -125,6 +127,9 @@ module VAOS
           merge_clinic(new_appointment)
           merge_facility(new_appointment)
           set_modality(new_appointment)
+          new_appointment[:pending] = request?(new_appointment)
+          new_appointment[:past] = past?(new_appointment)
+          new_appointment[:future] = future?(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
@@ -195,12 +200,11 @@ module VAOS
         nil
       end
 
-      def get_recent_sorted_appointments
-        end_time = Date.current.end_of_day.yesterday
-        start_time = 1.year.ago
-        statuses = 'booked,fulfilled,arrived'
-
-        appointments = get_appointments(start_time, end_time, statuses)
+      def get_sorted_recent_appointments
+        appointments = get_appointments(1.year.ago, 1.year.from_now, 'booked,fulfilled,arrived,proposed')
+        if appointments[:data].length.zero?
+          appointments = get_appointments(3.years.ago, Date.current.end_of_day.yesterday, 'booked,fulfilled,arrived')
+        end
         sort_recent_appointments(appointments[:data])
       end
 
@@ -229,6 +233,17 @@ module VAOS
         return nil if facility_info.nil?
 
         facility_info[:timezone]&.[](:time_zone_id)
+      end
+
+      def merge_appointments(eps_appointments, appointments)
+        normalized_new = eps_appointments.map(&:serializable_hash)
+        existing_referral_ids = appointments.to_set { |a| a.dig(:referral, :referral_number) }
+        date_and_time_for_referral_list = appointments.pluck(:start)
+        merged_data = appointments + normalized_new.reject do |a|
+          existing_referral_ids.include?(a.dig(:referral,
+                                               :referral_number)) && date_and_time_for_referral_list.include?(a[:start])
+        end
+        merged_data.sort_by { |appt| appt[:start] || '' }
       end
 
       memoize :get_facility_timezone_memoized
@@ -261,6 +276,7 @@ module VAOS
           { message:, status:, icn: sanitized_icn, context: }
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       # Modifies the appointment, extracting individual fields from the appointment. This currently includes:
@@ -365,6 +381,10 @@ module VAOS
         set_type(appointment)
 
         set_modality(appointment)
+
+        appointment[:past] = past?(appointment)
+        appointment[:future] = future?(appointment)
+        appointment[:pending] = request?(appointment)
       end
 
       def find_and_merge_provider_name(appointment)
@@ -605,6 +625,58 @@ module VAOS
         raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
 
         appt[:kind] == 'telehealth'
+      end
+
+      # Determines if the appointment is a request type.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is a request, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def request?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        %w[REQUEST COMMUNITY_CARE_REQUEST].include?(appt[:type])
+      end
+
+      # Determines if the appointment occurs in the past.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment occurs in the past, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def past?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt_start = appt[:start] || appt.dig(:requested_periods, 0, :start)
+
+        unless appt_start.nil?
+          appt[:past] = if appt[:kind] == 'telehealth'
+                          (appt_start.to_datetime + 240.minutes) < Time.now.utc
+                        else
+                          (appt_start.to_datetime + 60.minutes) < Time.now.utc
+                        end
+        end
+      end
+
+      # Determines if the appointment occurs in the future.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment occurs in the future, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def future?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt_start = appt[:start] || appt.dig(:requested_periods, 0, :start)
+
+        appt[:future] = !request?(appt) &&
+                        !past?(appt) &&
+                        !appt_start.nil? &&
+                        appt_start.to_datetime > Time.now.utc.beginning_of_day
       end
 
       # Determines if the appointment is for compensation and pension.
@@ -955,6 +1027,24 @@ module VAOS
       def merge_one_travel_claim(appointment)
         service = TravelPay::ClaimAssociationService.new(user)
         service.associate_single_appointment_to_claim({ 'appointment' => appointment })
+      end
+
+      def eps_appointments_service
+        @eps_appointments_service ||=
+          Eps::AppointmentService.new(user)
+      end
+
+      def eps_appointments
+        @eps_appointments ||= begin
+          appointments = eps_appointments_service.get_appointments
+          appointments = [] if appointments.blank? || appointments.all?(&:empty?)
+          appointments.reject! { |appt| appt.dig(:appointment_details, :start).nil? }
+          appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
+        end
+      end
+
+      def eps_serializer
+        @eps_serializer ||= VAOS::V2::EpsAppointment.new
       end
     end
   end

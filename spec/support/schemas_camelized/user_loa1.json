@@ -213,10 +213,7 @@
                   "type": "string"
                 },
                 "icn": {
-                  "type": [
-                    "string",
-                    null
-                  ]
+                  "type": "string"
                 },
                 "birlsId": {
                   "type": [

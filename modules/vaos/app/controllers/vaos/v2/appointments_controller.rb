@@ -90,6 +90,20 @@ module VAOS
         render json: { data: serialized }
       end
 
+      def submit_referral_appointment
+        params = submit_params
+        appointment = eps_appointment_service.submit_appointment(
+          params[:id],
+          { referral_number: params[:referral_number],
+            network_id: params[:network_id],
+            provider_service_id: params[:provider_service_id],
+            slot_ids: [params[:slot_id]],
+            additional_patient_attributes: patient_attributes(params) }
+        )
+
+        render json: Eps::DraftAppointmentSerializer.new(appointment), status: :created
+      end
+
       private
 
       def set_facility_error_msg(appointment)
@@ -370,6 +384,59 @@ module VAOS
         end
       end
 
+      def submit_params
+        params.require(%i[id network_id provider_service_id slot_id referral_number])
+        params.permit(
+          :id,
+          :network_id,
+          :provider_service_id,
+          :slot_id,
+          :referral_number,
+          :birth_date,
+          :email,
+          :phone_number,
+          :gender,
+          address: submit_address_params,
+          name: [
+            :family,
+            { given: [] }
+          ]
+        )
+      end
+
+      def submit_address_params
+        [
+          :type,
+          { line: [] },
+          :city,
+          :state,
+          :postal_code,
+          :country,
+          :text
+        ]
+      end
+
+      def patient_attributes(params)
+        {
+          name: {
+            family: params.dig(:name, :family),
+            given: params.dig(:name, :given)
+          },
+          phone: params[:phone_number],
+          email: params[:email],
+          birthDate: params[:birth_date],
+          gender: params[:gender],
+          address: {
+            line: params.dig(:address, :line),
+            city: params.dig(:address, :city),
+            state: params.dig(:address, :state),
+            country: params.dig(:address, :country),
+            postalCode: params.dig(:address, :postal_code),
+            type: params.dig(:address, :type)
+          }
+        }
+      end
+
       def fetch_provider_slots
         eps_provider_service.get_provider_slots(
           draft_params[:provider_id],
@@ -382,6 +449,10 @@ module VAOS
       end
 
       def fetch_drive_times(provider)
+        user_address = current_user.vet360_contact_info&.residential_address
+
+        return nil unless user_address&.latitude && user_address.longitude
+
         eps_provider_service.get_drive_times(
           destinations: {
             provider.id => {
@@ -390,8 +461,8 @@ module VAOS
             }
           },
           origin: {
-            latitude: current_user.address['latitude'],
-            longitude: current_user.address['longitude']
+            latitude: user_address.latitude,
+            longitude: user_address.longitude
           }
         )
       end

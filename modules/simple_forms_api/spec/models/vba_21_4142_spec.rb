@@ -20,4 +20,14 @@ RSpec.describe SimpleFormsApi::VBA214142 do
       expect(described_class.new(data).notification_first_name).to eq 'Veteran'
     end
   end
+
+  describe '#notification_email_address' do
+    let(:data) do
+      { 'veteran' => { 'email' => 'a@b.com' } }
+    end
+
+    it 'returns the email address to be used in notifications' do
+      expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
+    end
+  end
 end
