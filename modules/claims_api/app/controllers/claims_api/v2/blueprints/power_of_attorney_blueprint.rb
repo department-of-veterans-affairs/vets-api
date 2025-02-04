@@ -19,6 +19,30 @@ module ClaimsApi
 
           transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
         end
+
+        view :status do
+          field :id do |poa|
+            poa[:id]
+          end
+
+          field :type do
+            'claimsApiPowerOfAttorneys'
+          end
+
+          field :attributes do |poa|
+            {
+              created_at: poa[:created_at],
+              representative: {
+                poa_code: poa[:current_poa]
+              },
+              status: poa[:status],
+              errors: poa.errors,
+              steps: poa.steps
+            }
+          end
+
+          transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
+        end
       end
     end
   end
