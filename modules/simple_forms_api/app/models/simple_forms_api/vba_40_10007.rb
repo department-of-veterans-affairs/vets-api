@@ -49,6 +49,10 @@ module SimpleFormsApi
       end
     end
 
+    def notification_email_address
+      data.dig('application', 'claimant', 'email')
+    end
+
     def zip_code_is_us_based
       # TODO: Implement this
       true

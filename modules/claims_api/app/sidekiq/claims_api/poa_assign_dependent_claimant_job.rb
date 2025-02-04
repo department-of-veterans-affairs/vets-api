@@ -4,6 +4,8 @@ module ClaimsApi
   class PoaAssignDependentClaimantJob < ClaimsApi::ServiceBase
     LOG_TAG = 'poa_assign_dependent_claimant_job'
 
+    sidekiq_options retry_for: 48.hours
+
     def perform(poa_id, rep_id = nil) # rubocop:disable Metrics/MethodLength
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
 
