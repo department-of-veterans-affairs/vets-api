@@ -21,7 +21,11 @@ module V0
       private
 
       def allowed_forms
-        %w[20-10206 20-10207 21-0845 21-0972 21-10210 21-4142 21-4142a 21P-0847 FORM-UPLOAD-FLOW]
+        %w[20-10206 20-10207 21-0845 21-0972 21-10210 21-4142 21-4142a 21P-0847].merge(uploadable_forms)
+      end
+
+      def uploadable_forms
+        FormProfile::ALL_FORMS[:form_upload]
       end
 
       def serializable_from(result)
