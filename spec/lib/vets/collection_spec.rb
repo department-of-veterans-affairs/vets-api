@@ -314,7 +314,7 @@ RSpec.describe Vets::Collection do
         expect(metadata[:current_page]).to eq(1)
         expect(metadata[:per_page]).to eq(10)
         expect(metadata[:total_entries]).to eq(0)
-        expect(metadata[:total_pages]).to eq(0)
+        expect(metadata[:total_pages]).to eq(1)
         expect(paginated.records).to be_empty
       end
     end
