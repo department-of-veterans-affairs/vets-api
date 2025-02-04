@@ -32,5 +32,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y pdftk-java
 
       - name: Run Yardoc
-        continue-on-error: true
-        run: bundle exec rake yardoc
+        run: |
+          set +e
+          bundle exec rake yardoc
+          set -e
+          exit "$?"
