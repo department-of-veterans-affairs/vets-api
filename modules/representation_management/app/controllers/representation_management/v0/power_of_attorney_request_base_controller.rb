@@ -2,10 +2,9 @@
 
 module RepresentationManagement
   module V0
-    class PdfGeneratorBaseController < ApplicationController
+    class PowerOfAttorneyRequestBaseController < ApplicationController
       service_tag 'representation-management'
       skip_before_action :authenticate
-      before_action :optional_authenticate
       before_action :feature_enabled
 
       private
