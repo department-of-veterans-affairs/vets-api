@@ -55,10 +55,11 @@ task yardoc: :environment do
   percentage = yardoc_output.last.strip[/\d+\.\d+/].to_f
   puts percentage
 
-  if percentage < 100
+  if percentage < 100.0
     cmd = "yard stats --list-undoc #{paths}"
-    yardoc_stats = `#{cmd}`.strip.split("\n")
     puts "#{cmd}\n\n"
+
+    yardoc_stats = `#{cmd}`.strip.split("\n")
     puts yardoc_stats
     puts "\n"
     puts Rainbow('Warning. Documentation is missing.').yellow
