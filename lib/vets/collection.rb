@@ -20,7 +20,7 @@ module Vets
 
     def initialize(records, metadata: {})
       records = Array.wrap(records)
-      @model_class = records.first.class
+      @model_class = records.empty? ? nil : records.first.class
       @metadata = metadata
 
       unless records.all? { |record| record.is_a?(@model_class) }
