@@ -39,7 +39,7 @@ Rspec.describe MebApi::DGI::Claimant::Service do
           VCR.use_cassette('dgi/polling_post_claimant_info') do
             response = service.get_claimant_info('Chapter33')
             expect(response.status).to eq(201)
-            expect(response[:claimant_id]).to be(nil)
+            expect(response[:claimant_id]).to be_nil
           end
         end
       end
