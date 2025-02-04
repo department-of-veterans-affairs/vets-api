@@ -2412,6 +2412,12 @@ en:
         detail: The request was malformed and could not be processed
         code: MDOT_malformed_request
         status: 400
+      MDOT_unauthorized:
+        <<: *defaults
+        title: Unauthorized
+        detail: We could not authenticate your credentials for this resource
+        code: MDOT_unauthorized
+        status: 401
       MDOT_forbidden:
         <<: *defaults
         title: Forbidden

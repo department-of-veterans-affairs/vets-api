@@ -38,5 +38,16 @@ RSpec.describe FormProfile::MDOT, type: :model do
         .to raise_error(Common::Exceptions::BackendServiceException)
       VCR.eject_cassette
     end
+
+    it 'handles 401 responses from system-of-record' do
+      VCR.insert_cassette(
+        'mdot/get_supplies_401',
+        match_requests_on: %i[method uri headers],
+        erb: { icn: user.icn }
+      )
+      expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
+        .to raise_error(Common::Exceptions::BackendServiceException)
+      VCR.eject_cassette
+    end
   end
 end
