@@ -335,7 +335,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "3b4fef81-b80a-43b3-adb7-8e592ffcb433",
+                        "id": "db8972c4-5f94-48b8-a3fc-44a59edc97d6",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -566,7 +566,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "8e6f1970-f34f-4a39-8a46-2ba6ed925618",
+                        "id": "797c2738-5de4-4a17-b661-638a358396c9",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -1523,7 +1523,7 @@
                               }
                             },
                             "treatments": {
-                              "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 1000 characters to successfully generate a PDF.",
+                              "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 10,000 characters to successfully generate a PDF.",
                               "type": "array",
                               "nullable": true,
                               "uniqueItems": true,
@@ -1646,7 +1646,7 @@
                                         "example": "2018-06-06"
                                       },
                                       "activeDutyEndDate": {
-                                        "description": "Date completed active duty.",
+                                        "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                                         "type": "string",
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
@@ -2907,7 +2907,7 @@
                             }
                           },
                           "treatments": {
-                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 1000 characters to successfully generate a PDF.",
+                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 10,000 characters to successfully generate a PDF.",
                             "type": "array",
                             "nullable": true,
                             "uniqueItems": true,
@@ -3030,7 +3030,7 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.",
+                                      "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
@@ -5061,7 +5061,7 @@
                             }
                           },
                           "treatments": {
-                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 1000 characters to successfully generate a PDF.",
+                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 10,000 characters to successfully generate a PDF.",
                             "type": "array",
                             "nullable": true,
                             "uniqueItems": true,
@@ -5184,7 +5184,7 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.",
+                                      "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
@@ -6586,7 +6586,7 @@
                             }
                           },
                           "treatments": {
-                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 1000 characters to successfully generate a PDF.",
+                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 10,000 characters to successfully generate a PDF.",
                             "type": "array",
                             "nullable": true,
                             "maxItems": 5000,
@@ -9428,7 +9428,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7730d1b9-c2dc-4412-b7c5-bd1b7fdcf707",
+                    "id": "2265779d-aa6a-40d5-803f-bac34543cdb7",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
@@ -12221,7 +12221,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "956ebc17-d614-47ab-aa5e-5bd3708c5946",
+                    "id": "4414cba8-a7fe-4e28-95d4-1c91c4172ed1",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -13711,7 +13711,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3a3a7857-9928-4dec-a799-fb00ba27256e",
+                    "id": "bfac9e00-83f6-4383-84cc-22aea75f50f1",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14555,10 +14555,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ddad2731-2077-4f41-811c-8a8872f3fea4",
+                    "id": "14cbfe09-c52a-48ba-b1b2-b489a47ba15a",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2025-02-04T19:36:26.765Z",
+                      "createdAt": "2025-02-04T15:09:41.326Z",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
