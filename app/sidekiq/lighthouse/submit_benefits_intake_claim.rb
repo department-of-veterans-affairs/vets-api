@@ -2,13 +2,12 @@
 
 require 'central_mail/service'
 require 'pdf_utilities/datestamp_pdf'
-require 'pension_burial/tag_sentry'
 require 'burials/monitor'
+require 'burials/notification_email'
 require 'pcpg/monitor'
 require 'benefits_intake_service/service'
-require 'simple_forms_api_submission/metadata_validator'
+require 'lighthouse/benefits_intake/metadata'
 require 'pdf_info'
-require 'va_notify/notification_email/burial'
 
 module Lighthouse
   class SubmitBenefitsIntakeClaim
@@ -36,7 +35,7 @@ module Lighthouse
       rescue
         claim = nil
       end
-      if %w[21P-530V2 21P-530].include?(claim&.form_id)
+      if %w[21P-530EZ].include?(claim&.form_id)
         burial_monitor = Burials::Monitor.new
         burial_monitor.track_submission_exhaustion(msg, claim)
       end
@@ -82,7 +81,7 @@ module Lighthouse
       address = form['claimantAddress'] || form['veteranAddress']
 
       # also validates/manipulates the metadata
-      BenefitsIntake::Metadata.generate(
+      ::BenefitsIntake::Metadata.generate(
         veteran_full_name['first'],
         veteran_full_name['last'],
         form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
@@ -109,7 +108,7 @@ module Lighthouse
 
       document = stamped_path2
 
-      if ['21P-530V2'].include?(record.form_id)
+      if ['21P-530EZ'].include?(record.form_id)
         # If you are doing a burial form, add the extra box that is filled out
         document = stamped_pdf_with_form(record.form_id, stamped_path2,
                                          record.created_at)
@@ -156,7 +155,8 @@ module Lighthouse
       details = {
         claim_id: @claim&.id,
         benefits_intake_uuid: @lighthouse_service&.uuid,
-        confirmation_number: @claim&.confirmation_number
+        confirmation_number: @claim&.confirmation_number,
+        form_id: @claim&.form_id
       }
       details['error'] = e.message if e
       details
@@ -192,11 +192,29 @@ module Lighthouse
     def send_confirmation_email
       @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
 
-      Burials::NotificationEmail.new(@claim).deliver(:confirmation) if %w[21P-530V2 21P-530].include?(@claim&.form_id)
+      # handle custom Burials emails
+      if %w[21P-530EZ].include?(@claim&.form_id)
+        # send Burials Submission in Progress email or Burials Confirmation email
+        if Flipper.enabled?(:burial_submitted_email_notification)
+          send_submitted_email
+        else
+          Burials::NotificationEmail.new(@claim.id).deliver(:confirmation)
+        end
+      end
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
                         generate_log_details(e))
       StatsD.increment("#{STATSD_KEY_PREFIX}.send_confirmation_email.failure")
+    end
+
+    ##
+    # VANotify job to send Submission in Progress email to veteran
+    #
+    def send_submitted_email
+      Burials::NotificationEmail.new(@claim.id).deliver(:submitted)
+    rescue => e
+      burial_monitor = Burials::Monitor.new
+      burial_monitor.track_send_submitted_email_failure(@claim, @lighthouse_service, e)
     end
   end
 end

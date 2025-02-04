@@ -24,15 +24,13 @@ RSpec.describe PersistentAttachments::PensionBurial, :uploader_helpers do
   describe '#can_upload_to_api?' do
     it 'returns true if email is right' do
       instance.saved_claim = SavedClaim::Burial.new(form: { claimantEmail: 'lihan@adhocteam.us' }.to_json)
-      expect(instance.can_upload_to_api?).to eq(true)
+      expect(instance.can_upload_to_api?).to be(true)
     end
   end
 
   context 'stamp_text', run_at: '2017-08-01 01:01:00 EDT' do
     it 'offsets a user timestamp by their browser data' do
-      instance.saved_claim = FactoryBot.create(
-        :burial_claim_v2
-      )
+      instance.saved_claim = create(:burial_claim)
       expect(instance.send(:stamp_text)).to eq('2017-08-01')
     end
   end
@@ -44,9 +42,9 @@ RSpec.describe PersistentAttachments::PensionBurial, :uploader_helpers do
       instance.file = file.open
       instance.save!
       shrine_file = instance.file
-      expect(shrine_file.exists?).to eq(true)
+      expect(shrine_file.exists?).to be(true)
       instance.destroy
-      expect(shrine_file.exists?).to eq(false)
+      expect(shrine_file.exists?).to be(false)
     end
   end
 end

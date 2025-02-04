@@ -167,6 +167,108 @@ paths:
                 $ref: '#/components/schemas/Errors'
           description: Forbidden
       summary: /v1/medical_records/conditions/{id}
+  /v1/medical_records/imaging:
+    get:
+      description: Get a list of MHV radiology reports from CVIX for the current user. These results do not include VIA reports.
+      operationId: list_imaging_studies
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                description: |
+                  The schema can be found at <a target="_blank" href=''>Imaging Studies</a>.
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+      summary: /v1/medical_records/imaging
+  /v1/medical_records/imaging/:studyId/request:
+    get:
+      description: Request that MHV download an imaging study from CVIX. This will initiate the transfer of the images into MHV for later retrieval from vets-api as DICOM or JPGs.
+      operationId: request_study
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                description: |
+                  The schema can be found at <a target="_blank" href=''>Imaging Studies</a>.
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Bad Request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not Found
+      summary: /v1/medical_records/imaging/:studyId/request
+  /v1/medical_records/imaging/:studyId/images:
+    get:
+      description: Get a list of images for the provided CVIX radiology study
+      operationId: list_images
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                description: |
+                  The schema can be found at <a target="_blank" href=''>Imaging Studies</a>.
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Bad Request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not Found
+      summary: /v1/medical_records/imaging/:studyId/images
   /v1/medical_records/labs_and_tests:
     get:
       description: |

@@ -23,11 +23,17 @@ class AccreditedIndividual < ApplicationRecord
   has_many :accreditations, dependent: :destroy
   has_many :accredited_organizations, through: :accreditations
 
+  has_many :power_of_attorney_requests,
+           as: :power_of_attorney_holder,
+           inverse_of: :power_of_attorney_holder,
+           class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequest',
+           dependent: :restrict_with_exception
+
   validates :ogc_id, :registration_number, :individual_type, presence: true
   validates :poa_code, length: { is: 3 }, allow_blank: true
   validates :individual_type, uniqueness: { scope: :registration_number }
 
-  enum individual_type: {
+  enum :individual_type, {
     'attorney' => 'attorney',
     'claims_agent' => 'claims_agent',
     'representative' => 'representative'

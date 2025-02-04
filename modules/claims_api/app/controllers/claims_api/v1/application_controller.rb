@@ -6,6 +6,7 @@ require 'token_validation/v2/client'
 require 'claims_api/claim_logger'
 require 'mpi/errors/errors'
 require 'bgs_service/e_benefits_bnft_claim_status_web_service'
+require 'bgs_service/intent_to_file_web_service'
 
 module ClaimsApi
   module V1
@@ -19,7 +20,7 @@ module ClaimsApi
       service_tag 'lighthouse-claims'
       skip_before_action :verify_authenticity_token
       skip_after_action :set_csrf_header
-      before_action :authenticate, except: %i[schema] # rubocop:disable Rails/LexicallyScopedActionFilter
+      before_action :authenticate
       before_action :validate_json_format, if: -> { request.post? }
       before_action :validate_header_values_format, if: -> { header_request? }
       before_action :validate_veteran_identifiers
@@ -143,6 +144,23 @@ module ClaimsApi
         end
       end
 
+      def bgs_service
+        bgs = BGS::Services.new(
+          external_uid: target_veteran.participant_id,
+          external_key: target_veteran.participant_id
+        )
+        ClaimsApi::Logger.log('poa', detail: 'bgs-ext service built')
+        bgs
+      end
+
+      def local_bgs_service
+        external_key = target_veteran.participant_id.to_s
+        @local_bgs_service ||= ClaimsApi::LocalBGS.new(
+          external_uid: external_key,
+          external_key:
+        )
+      end
+
       def claims_service
         ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
       end
@@ -151,6 +169,14 @@ module ClaimsApi
         @bgs_claim_status_service ||= ClaimsApi::EbenefitsBnftClaimStatusWebService.new(
           external_uid: target_veteran.participant_id,
           external_key: target_veteran.participant_id
+        )
+      end
+
+      def bgs_itf_service
+        external_key = target_veteran.participant_id.to_s
+        @bgs_itf_service ||= ClaimsApi::IntentToFileWebService.new(
+          external_uid: external_key,
+          external_key:
         )
       end
 

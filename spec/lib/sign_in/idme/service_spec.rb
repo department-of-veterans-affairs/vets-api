@@ -391,7 +391,7 @@ describe SignIn::Idme::Service do
         let(:street) { nil }
 
         it 'does not return an address object' do
-          expect(subject.normalized_attributes(user_info, credential_level)[:address]).to eq(nil)
+          expect(subject.normalized_attributes(user_info, credential_level)[:address]).to be_nil
         end
       end
     end
@@ -456,7 +456,7 @@ describe SignIn::Idme::Service do
             credential_aal_highest: 2,
             credential_ial_highest: 'classic_loa3',
             email:,
-            mhv_uuid: mhv_correlation_id,
+            mhv_uuid: mhv_credential_uuid,
             mhv_icn:,
             mhv_assurance:,
             level_of_assurance: 3,
@@ -467,12 +467,12 @@ describe SignIn::Idme::Service do
           }
         )
       end
-      let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
+      let(:mhv_credential_uuid) { 'some-mhv-credential-uuid' }
       let(:mhv_icn) { 'some-mhv-icn' }
       let(:mhv_assurance) { 'some-mhv-assurance' }
       let(:expected_attributes) do
         expected_standard_attributes.merge({ mhv_icn:,
-                                             mhv_correlation_id:,
+                                             mhv_credential_uuid:,
                                              mhv_assurance: })
       end
 

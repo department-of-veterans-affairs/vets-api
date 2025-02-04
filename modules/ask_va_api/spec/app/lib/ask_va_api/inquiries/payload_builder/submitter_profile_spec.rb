@@ -21,7 +21,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
       }
     end
     let(:pronouns) do
-      { he_him_his: true }
+      { he_him_his: 'true' }
     end
     let(:params) do
       {
@@ -81,7 +81,6 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
           StateCode: 'CA'
         },
         ZipCode: '12345',
-        Province: nil,
         DateOfBirth: '1980-05-15',
         BusinessPhone: nil,
         PersonalPhone: '987-654-3210',
@@ -123,8 +122,8 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
       it 'builds the correct payload' do
         expect(subject.call[:BusinessPhone]).to eq('987-654-3210')
         expect(subject.call[:BusinessEmail]).to eq('test@example.com')
-        expect(subject.call[:PersonalPhone]).to eq(nil)
-        expect(subject.call[:PersonalEmail]).to eq(nil)
+        expect(subject.call[:PersonalPhone]).to be_nil
+        expect(subject.call[:PersonalEmail]).to be_nil
       end
     end
 

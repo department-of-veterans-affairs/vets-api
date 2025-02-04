@@ -10,15 +10,18 @@ ONLY_526_JSON_CLASSIFICATION_CODE = 'string'
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :job do
   subject { described_class }
 
+  # This needs to be modernized (using allow)
   before do
     Sidekiq::Job.clear_all
+    Flipper.disable(:validate_saved_claims_with_json_schemer)
+    Flipper.disable(:disability_526_expanded_contention_classification)
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
     Flipper.disable(:disability_compensation_production_tester)
     Flipper.disable(:disability_compensation_fail_submission)
-    Flipper.disable(:disability_526_expanded_contention_classification)
+    allow(Flipper).to receive(:enabled?).and_call_original
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -26,7 +29,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
   describe '.perform_async' do
     define_negated_matcher :not_change, :change
 
-    let(:saved_claim) { FactoryBot.create(:va526ez) }
+    let(:saved_claim) { create(:va526ez) }
     let(:submitted_claim_id) { 600_130_094 }
     let(:user_account) { create(:user_account, icn: '123498767V234859') }
     let(:submission) do
@@ -212,8 +215,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               described_class.drain
               submission.reload
 
-              final_classification_code = submission.form['form526']['form526']['disabilities'][0]['classificationCode']
-              expect(final_classification_code).to eq(ONLY_526_JSON_CLASSIFICATION_CODE)
+              final_code = submission.form['form526']['form526']['disabilities'][0]['classificationCode']
+              expect(final_code).to eq(ONLY_526_JSON_CLASSIFICATION_CODE)
             end
           end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
           expect(Form526JobStatus.last.status).to eq 'success'
@@ -228,8 +231,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               described_class.drain
               submission.reload
 
-              final_classification_code = submission.form['form526']['form526']['disabilities'][0]['classificationCode']
-              expect(final_classification_code).to eq(9012)
+              final_code = submission.form['form526']['form526']['disabilities'][0]['classificationCode']
+              expect(final_code).to eq(9012)
             end
           end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
         end
@@ -249,7 +252,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
               described_class.drain
             end
-            expect(Rails.logger).to have_received(:info).with('EP Merge total open EPs', id: submission.id, count: 1)
+            expect(Rails.logger).to have_received(:info).with('EP Merge total open EPs', id: submission.id,
+                                                                                         count: 1)
             expect(Rails.logger).to have_received(:info).with(
               'EP Merge open EP eligibility',
               { id: submission.id, feature_enabled: true, open_claim_review: false,
@@ -277,19 +281,23 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           context 'when using LH Benefits Claims API instead of EVSS' do
             before do
               Flipper.enable(:disability_compensation_lighthouse_claims_service_provider)
-              allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return('access_token')
+              allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
+                .and_return('access_token')
             end
 
             after { Flipper.disable(:disability_compensation_lighthouse_claims_service_provider) }
 
-            let(:open_claims_cassette) { 'lighthouse/benefits_claims/index/claims_with_single_open_disability_claim' }
+            let(:open_claims_cassette) do
+              'lighthouse/benefits_claims/index/claims_with_single_open_disability_claim'
+            end
 
             it 'logs the expected data for EP 400 merge eligibility' do
               subject.perform_async(submission.id)
               VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
                 described_class.drain
               end
-              expect(Rails.logger).to have_received(:info).with('EP Merge total open EPs', id: submission.id, count: 1)
+              expect(Rails.logger).to have_received(:info).with('EP Merge total open EPs', id: submission.id,
+                                                                                           count: 1)
               expect(Rails.logger).to have_received(:info).with(
                 'EP Merge open EP eligibility',
                 { id: submission.id, feature_enabled: true, open_claim_review: false,
@@ -490,7 +498,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
         it 'returns false to skip classification and continue other jobs' do
           subject.perform_async(submission.id)
-          expect(submission.update_contention_classification_all!).to eq false
+          expect(submission.update_contention_classification_all!).to be false
           expect(Rails.logger).to have_received(:info).with(
             "No disabilities found for classification on claim #{submission.id}"
           )
@@ -556,7 +564,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           expect(Form526JobStatus.last.status).to eq 'success'
           rrd_submission = Form526Submission.find(Form526JobStatus.last.form526_submission_id)
           expect(rrd_submission.form.dig('rrd_metadata', 'mas_packetId')).to eq '12345'
-          expect(StatsD).to have_received(:increment).with('worker.rapid_ready_for_decision.notify_mas.success').once
+          expect(StatsD).to have_received(:increment)
+            .with('worker.rapid_ready_for_decision.notify_mas.success').once
         end
 
         it 'sends an email for tracking purposes' do
@@ -572,7 +581,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             subject.perform_async(submission.id)
             described_class.drain
             expect(ActionMailer::Base.deliveries.last.subject).to eq "Failure: MA claim - #{submitted_claim_id}"
-            expect(StatsD).to have_received(:increment).with('worker.rapid_ready_for_decision.notify_mas.failure').once
+            expect(StatsD).to have_received(:increment)
+              .with('worker.rapid_ready_for_decision.notify_mas.failure').once
           end
         end
 
@@ -642,7 +652,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         let(:headers) { { 'content-type' => 'application/json' } }
 
         before do
-          allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+          allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token)
+            .and_return('fake_access_token')
         end
 
         it 'performs a successful submission' do
@@ -694,6 +705,29 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               .and_raise(error_class.new(status:))
             expect_retryable_error(error_class)
           end
+
+          it "throws a #{status} error if Lighthouse sends it back for rated disabilities" do
+            allow_any_instance_of(Flipper)
+              .to(receive(:enabled?))
+              .with('disability_compensation_lighthouse_rated_disabilities_provider_background', anything)
+              .and_return(true)
+            allow_any_instance_of(Flipper)
+              .to(receive(:enabled?))
+              .with(:validate_saved_claims_with_json_schemer)
+              .and_return(false)
+            allow_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm526)
+              .to(receive(:fail_submission_feature_enabled?))
+              .and_return(false)
+            allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:prepare_for_ep_merge!)
+              .and_return(nil)
+            allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:pending_eps?)
+              .and_return(false)
+            allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:classify_vagov_contentions)
+              .and_return(nil)
+            allow_any_instance_of(VeteranVerification::Service).to receive(:get_rated_disabilities)
+              .and_raise(error_class.new(status:))
+            expect_retryable_error(error_class)
+          end
         end
       end
     end
@@ -735,7 +769,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         described_class.drain
         job_status = Form526JobStatus.where(job_id: values[:job_id]).first
         expect(job_status.status).to eq 'success'
-        expect(job_status.error_class).to eq nil
+        expect(job_status.error_class).to be_nil
         expect(job_status.job_class).to eq 'SubmitForm526AllClaim'
         expect(Form526JobStatus.count).to eq 1
       end
@@ -745,7 +779,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_200_with_ep_not_valid') do
           subject.perform_async(submission.id)
-          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_non_retryable).once
+          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics)
+            .to receive(:increment_non_retryable).once
           expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
           expect(backup_klass.jobs.last['class']).to eq(backup_klass.to_s)
@@ -757,7 +792,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_max_ep_code') do
           subject.perform_async(submission.id)
-          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_non_retryable).once
+          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics)
+            .to receive(:increment_non_retryable).once
           expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
           expect(backup_klass.jobs.last['class']).to eq(backup_klass.to_s)
@@ -795,7 +831,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_pif_in_use') do
           subject.perform_async(submission.id)
-          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_non_retryable).once
+          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics)
+            .to receive(:increment_non_retryable).once
           expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
           expect(backup_klass.jobs.last['class']).to eq(backup_klass.to_s)

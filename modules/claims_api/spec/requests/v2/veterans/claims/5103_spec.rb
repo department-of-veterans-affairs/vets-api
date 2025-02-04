@@ -48,7 +48,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
               it 'returns a 202' do
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
-                    allow_any_instance_of(ClaimsApi::LocalBGS)
+                    allow_any_instance_of(ClaimsApi::PersonWebService)
                       .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
 
                     post sub_path, headers: auth_header
@@ -72,7 +72,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
             it 'returns a 404' do
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/benefit_claim/find_bnft_claim_400') do
-                  allow_any_instance_of(ClaimsApi::LocalBGS)
+                  allow_any_instance_of(ClaimsApi::PersonWebService)
                     .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
 
                   post error_sub_path, headers: auth_header
@@ -94,7 +94,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
 
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
-                  allow_any_instance_of(ClaimsApi::LocalBGS)
+                  allow_any_instance_of(ClaimsApi::PersonWebService)
                     .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
 
                   post sub_path, headers: auth_header
@@ -113,7 +113,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
 
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
-                  allow_any_instance_of(ClaimsApi::LocalBGS)
+                  allow_any_instance_of(ClaimsApi::PersonWebService)
                     .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
 
                   post sub_path, headers: auth_header
@@ -219,7 +219,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
               it 'returns a 200 response when successful' do
                 mock_ccg_for_fine_grained_scope(ews_scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
-                    allow_any_instance_of(ClaimsApi::LocalBGS)
+                    allow_any_instance_of(ClaimsApi::PersonWebService)
                       .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
 
                     post sub_path, headers: auth_header

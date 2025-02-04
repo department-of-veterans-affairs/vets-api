@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe Form526FailureStateSnapshotJob, type: :worker do
   before do
     Sidekiq::Job.clear_all
+    allow(Flipper).to receive(:enabled?).and_call_original
   end
 
   let!(:olden_times) { (Form526Submission::MAX_PENDING_TIME + 1.day).ago }

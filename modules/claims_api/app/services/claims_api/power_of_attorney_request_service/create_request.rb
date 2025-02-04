@@ -27,58 +27,81 @@ module ClaimsApi
       end
 
       def call
+        # https://github.com/DataDog/dd-trace-rb/blob/master/docs/UpgradeGuide.md#distributed-tracing
+        trace_digest = Datadog::Tracing.active_trace&.to_digest
+
         @vnp_proc_id = create_vnp_proc[:vnp_proc_id]
 
         # Parallelize create_vnp_form and create_vnp_ptcpnt
         form_promise = Concurrent::Promise.execute do
-          create_vnp_form
+          Datadog::Tracing.continue_trace!(trace_digest) do
+            create_vnp_form
+          end
         end
 
         ptcpnt_promise = Concurrent::Promise.execute do
-          create_vnp_ptcpnt(@veteran_participant_id)
+          Datadog::Tracing.continue_trace!(trace_digest) do
+            create_vnp_ptcpnt(@veteran_participant_id)
+          end
         end
 
         # Wait for both promises and store the participant ID
         form_promise.value!
         @veteran_vnp_ptcpnt_id = ptcpnt_promise.value![:vnp_ptcpnt_id]
 
-        create_vonapp_data(@form_data[:veteran], @veteran_vnp_ptcpnt_id)
+        create_vonapp_data(@form_data[:veteran], @veteran_vnp_ptcpnt_id, trace_digest, 'veteran')
 
-        if @has_claimant
-          @claimant_vnp_ptcpnt_id = create_vnp_ptcpnt(@claimant_participant_id)[:vnp_ptcpnt_id]
-          create_vonapp_data(@form_data[:claimant], @claimant_vnp_ptcpnt_id)
-        end
+        create_claimant(trace_digest) if @has_claimant
 
-        create_veteran_representative
+        veteran_rep_obj = create_veteran_representative
+        add_meta_ids(veteran_rep_obj)
       end
 
       private
 
-      def create_vonapp_data(person, vnp_ptcpnt_id)
+      def create_vonapp_data(person, vnp_ptcpnt_id, trace_digest, type) # rubocop:disable Metrics/MethodLength
         promises = []
+        @vnp_res_object ||= { 'meta' => {} }
+        @vnp_res_object['meta'][type] ||= {}
 
         promises << Concurrent::Promise.execute do
-          create_vnp_person(person, vnp_ptcpnt_id)
+          Datadog::Tracing.continue_trace!(trace_digest) do
+            create_vnp_person(person, vnp_ptcpnt_id)
+          end
         end
 
         promises << Concurrent::Promise.execute do
-          create_vnp_mailing_address(person[:address], vnp_ptcpnt_id)
+          Datadog::Tracing.continue_trace!(trace_digest) do
+            res = create_vnp_mailing_address(person[:address], vnp_ptcpnt_id)
+            @vnp_res_object['meta'][type.to_s]['vnp_mail_id'] = res[:vnp_ptcpnt_addrs_id] if res
+          end
         end
 
         if person[:email]
           promises << Concurrent::Promise.execute do
-            create_vnp_email_address(person[:email], vnp_ptcpnt_id)
+            Datadog::Tracing.continue_trace!(trace_digest) do
+              res = create_vnp_email_address(person[:email], vnp_ptcpnt_id)
+              @vnp_res_object['meta'][type.to_s]['vnp_email_id'] = res[:vnp_ptcpnt_addrs_id] if res
+            end
           end
         end
 
         if person[:phone]
           promises << Concurrent::Promise.execute do
-            create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
+            Datadog::Tracing.continue_trace!(trace_digest) do
+              res = create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
+              @vnp_res_object['meta'][type.to_s]['vnp_phone_id'] = res[:vnp_ptcpnt_phone_id] if res
+            end
           end
         end
 
         # Wait for all promises to complete and raise any errors that occurred
         promises.each(&:value!)
+      end
+
+      def create_claimant(trace_digest)
+        @claimant_vnp_ptcpnt_id = create_vnp_ptcpnt(@claimant_participant_id)[:vnp_ptcpnt_id]
+        create_vonapp_data(@form_data[:claimant], @claimant_vnp_ptcpnt_id, trace_digest, 'claimant')
       end
 
       def create_vnp_proc
@@ -304,6 +327,22 @@ module ClaimsApi
 
       def format_phone(phone)
         "#{phone[:areaCode]}#{phone[:phoneNumber]}"
+      end
+
+      def add_meta_ids(vet_obj)
+        return vet_obj if @vnp_res_object['meta'].blank?
+
+        vet_obj['meta'] ||= {}
+        vet_obj['meta'] = remove_nil_values(@vnp_res_object['meta'])
+
+        vet_obj
+      end
+
+      def remove_nil_values(res_object_hash)
+        res_object_hash.each_with_object({}) do |(key, value), result|
+          cleaned_value = value.is_a?(Hash) ? remove_nil_values(value) : value
+          result[key] = cleaned_value unless cleaned_value.nil?
+        end
       end
     end
   end

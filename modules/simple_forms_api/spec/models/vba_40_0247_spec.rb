@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/shared_examples_for_base_form'
 
-RSpec.describe 'SimpleFormsApi::VBA400247' do
+RSpec.describe SimpleFormsApi::VBA400247 do
+  it_behaves_like 'zip_code_is_us_based', %w[applicant_address]
+
   describe 'handle_attachments' do
     it 'saves the combined pdf' do
       original_pdf = double('HexaPDF::Document')
@@ -40,6 +43,22 @@ RSpec.describe 'SimpleFormsApi::VBA400247' do
 
       expect(original_pdf).to have_received(:write).with(original_file_path, optimize: true)
       expect(pages_mock).to have_received(:<<).at_least(:once).with(page_mock)
+    end
+  end
+
+  describe '#notification_first_name' do
+    let(:data) do
+      {
+        'applicant_full_name' => {
+          'first' => 'Applicant',
+          'last' => 'Eteranvay'
+
+        }
+      }
+    end
+
+    it 'returns the first name to be used in notifications' do
+      expect(described_class.new(data).notification_first_name).to eq 'Applicant'
     end
   end
 end

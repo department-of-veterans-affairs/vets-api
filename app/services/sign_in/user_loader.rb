@@ -31,6 +31,7 @@ module SignIn
       current_user.session_handle = access_token.session_handle
       current_user.save && user_identity.save
       current_user.invalidate_mpi_cache
+      current_user.validate_mpi_profile
       current_user.create_mhv_account_async
 
       current_user
@@ -82,7 +83,7 @@ module SignIn
     end
 
     def idme_or_logingov_service
-      sign_in[:service_name] == Constants::Auth::IDME || sign_in[:service_name] == Constants::Auth::LOGINGOV
+      [Constants::Auth::IDME, Constants::Auth::LOGINGOV].include?(sign_in[:service_name])
     end
 
     def user_is_verified?
