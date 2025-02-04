@@ -41,6 +41,8 @@ task yardoc: :environment do
   puts "#{cmd}\n\n"
   yardoc_output = `#{cmd}`.strip.split("\n")
 
+  puts 'exiting before other puts?'
+
   # non zero exit == parsing error
   if (yardoc_result = $CHILD_STATUS.exitstatus).positive?
     puts yardoc_output

@@ -4,7 +4,7 @@ on: # `on` parses to `true` in ruby
   pull_request:
     paths:
       # https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#patterns-to-match-file-paths
-      #- modules/burials/**/*.rb
+      - modules/burials/**/*.rb
       - modules/pensions/**/*.rb
 permissions:
   contents: read
