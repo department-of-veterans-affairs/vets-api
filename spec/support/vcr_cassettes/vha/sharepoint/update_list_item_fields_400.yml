@@ -3,7 +3,9 @@ http_interactions:
 - request:
     method: post
     uri: https://dvagov.sharepoint.com/sites/vhafinance/MDW/_api/Web/GetFolderByServerRelativeUrl('/sites/vhafinance/MDW/Submissions')/Files/add(url='20230829T161322_6598_Beer.pdf',overwrite=true)
-    body: ''
+    body:
+      encoding: UTF-8
+      base64_string: a_base_64d_pdf_file
     headers:
       Authorization: Bearer <TOKEN>
       Accept:
@@ -13,13 +15,13 @@ http_interactions:
       Content-Type:
       - octet/stream
       Content-Length:
-      - '0'
+      - '1621920'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 400
-      message: Bad Request
+      code: 200
+      message: OK
     headers:
       Cache-Control:
       - private, max-age=0
@@ -105,8 +107,8 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: Bad Request
     headers:
       Cache-Control:
       - private, max-age=0
