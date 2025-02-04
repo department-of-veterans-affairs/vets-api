@@ -1345,7 +1345,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     allow_any_instance_of(MPIData).to receive(:mvi_response)
                       .and_return(profile_with_edipi)
 
-                    post path, params: data, headers: auth_header
+                    post path, params: data, headers: headers.merge(auth_header)
                     expect(response).to have_http_status(:ok)
                   end
                 end
@@ -1370,7 +1370,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 allow_any_instance_of(MPIData)
                   .to receive(:mvi_response).and_return(multi_profile)
 
-                post path, params: data, headers: auth_header
+                post path, params: JSON.parse(data), headers: auth_header, as: :json
 
                 json_response = JSON.parse(response.body)
                 expect(response).to have_http_status(:unprocessable_entity)
@@ -3151,7 +3151,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       mock_acg(scopes) do |auth_header|
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         put("/services/claims/v1/forms/526/#{auto_claim.id}",
-            params: base64_params, headers: headers.merge(auth_header))
+            params: base64_params, headers: headers.merge(auth_header), as: :json)
         expect(response).to have_http_status(:ok)
         auto_claim.reload
         expect(auto_claim.file_data).to be_truthy
@@ -3184,7 +3184,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         count = auto_claim.supporting_documents.count
         post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
-             params: base64_params, headers: headers.merge(auth_header))
+             params: base64_params, headers: headers.merge(auth_header), as: :json)
         expect(response).to have_http_status(:ok)
         auto_claim.reload
         expect(auto_claim.supporting_documents.count).to eq(count + 2)
@@ -3220,7 +3220,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         )
         count = auto_claim.supporting_documents.count
         post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
-             params: base64_params, headers: headers.merge(auth_header))
+             params: base64_params, headers: headers.merge(auth_header), as: :json)
         expect(response).to have_http_status(:ok)
         auto_claim.reload
         expect(auto_claim.supporting_documents.count).to eq(count + 2)
