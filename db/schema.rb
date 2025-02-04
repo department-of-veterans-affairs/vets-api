@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_04_162258) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_04_175219) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -312,6 +312,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_162258) do
     t.string "accredited_individual_registration_number"
     t.string "power_of_attorney_holder_poa_code"
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
+  end
+
+  create_table "ar_user_account_accredited_individuals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "accredited_individual_registration_number", null: false
+    t.string "power_of_attorney_holder_type", null: false
+    t.string "user_account_email", null: false
+    t.string "user_account_icn"
+    t.index ["accredited_individual_registration_number", "power_of_attorney_holder_type", "user_account_email"], name: "ar_user_account_accredited_individuals_hardcoding", unique: true
+    t.index ["accredited_individual_registration_number", "power_of_attorney_holder_type", "user_account_email"], name: "index_ar_user_account_accredited_individuals_unique", unique: true
+    t.index ["power_of_attorney_holder_type", "user_account_email"], name: "ar_uniq_power_of_attorney_holder_type_user_account_email", unique: true
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
