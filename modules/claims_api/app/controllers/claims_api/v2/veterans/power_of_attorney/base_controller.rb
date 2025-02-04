@@ -25,7 +25,7 @@ module ClaimsApi
           if poa_code.blank?
             render json: { data: }
           else
-            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(data, root: :data)
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(data, view: :show, root: :data)
           end
         end
 
@@ -102,7 +102,7 @@ module ClaimsApi
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
             representative(poa_code).merge({ id: power_of_attorney.id, code: poa_code }),
-            root: :data
+            view: :show, root: :data
           ), status: :accepted, location: url_for(
             controller: 'power_of_attorney/base', action: 'show', id: power_of_attorney.id
           )
