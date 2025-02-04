@@ -35,5 +35,6 @@ jobs:
         run: |
           set +e
           bundle exec rake yardoc
-          set -e
-          exit "$?"
+          exitcode="$?"
+          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
+          exit "$exitcode"
