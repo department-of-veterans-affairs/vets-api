@@ -13,12 +13,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
   # This needs to be modernized (using allow)
   before do
     Sidekiq::Job.clear_all
-    Flipper.disable(:validate_saved_claims_with_json_schemer)
-    Flipper.disable(:disability_526_expanded_contention_classification)
-    Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
-    Flipper.disable(:disability_compensation_production_tester)
-    Flipper.disable(:disability_compensation_fail_submission)
     allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
+                                              anything).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE,
+                                              anything).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_fail_submission,
+                                              anything).and_return(false)
   end
 
   let(:user) { create(:user, :loa3) }
@@ -56,8 +58,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
     before do
       cassettes.each { |cassette| VCR.insert_cassette(cassette) }
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
+      allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND,
+                                                anything).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND,
+                                                anything).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:disability_526_migrate_contention_classification,
+                                                anything).and_return(false)
     end
 
     after do
@@ -248,6 +254,23 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                saved_claim_id: saved_claim.id)
       end
 
+      context 'when the migration endpoint is not enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(
+            :disability_526_migrate_contention_classification, anything
+          ).and_return(true)
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it 'logs a message indicating endpoint is not ready' do
+          subject.perform_async(submission.id)
+          described_class.drain
+          expect(Rails.logger).to have_received(:info).with(
+            'Migrated endpoint called but is not available'
+          )
+        end
+      end
+
       it 'does something when multi-contention api endpoint is hit' do
         subject.perform_async(submission.id)
 
@@ -262,54 +285,26 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         expect(classification_codes).to eq([9012, 8994, nil, nil])
       end
 
-      it 'calls va-gov-claim-classifier as default' do
+      it 'calls the expanded classification endpoint as default' do
         vro_client_mock = instance_double(VirtualRegionalOffice::Client)
         allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client_mock)
-        allow(vro_client_mock).to receive_messages(
-          classify_vagov_contentions_expanded: OpenStruct.new(body: 'expanded classification'),
-          classify_vagov_contentions: OpenStruct.new(body: 'regular response')
-        )
-
+        allow(vro_client_mock).to receive(:classify_vagov_contentions_expanded)
         expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
-        expect(vro_client_mock).to receive(:classify_vagov_contentions)
+        expect(vro_client_mock).to receive(:classify_vagov_contentions_expanded)
         subject.perform_async(submission.id)
         described_class.drain
       end
 
-      context 'when the expanded classification endpoint is enabled' do
-        before do
-          user = OpenStruct.new({ flipper_id: submission.user_uuid })
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:disability_526_expanded_contention_classification,
-                                                    user).and_return(true)
-        end
-
-        it 'calls the expanded classification endpoint' do
-          vro_client_mock = instance_double(VirtualRegionalOffice::Client)
-          allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client_mock)
-          allow(vro_client_mock).to receive_messages(
-            classify_vagov_contentions_expanded: OpenStruct.new(body: 'expanded classification'),
-            classify_vagov_contentions: OpenStruct.new(body: 'regular response')
-          )
-
-          expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
-          expect(vro_client_mock).to receive(:classify_vagov_contentions_expanded)
-          subject.perform_async(submission.id)
-          described_class.drain
-        end
-
-        it 'uses expanded classification to classify contentions' do
-          subject.perform_async(submission.id)
-          expect do
-            VCR.use_cassette('virtual_regional_office/expanded_classification') do
-              described_class.drain
-            end
-          end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
-          submission.reload
-
-          classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
-          expect(classification_codes).to eq([9012, 8994, nil, 8997])
-        end
+      it 'uses expanded classification to classify contentions' do
+        subject.perform_async(submission.id)
+        expect do
+          VCR.use_cassette('virtual_regional_office/expanded_classification') do
+            described_class.drain
+          end
+        end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+        submission.reload
+        classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+        expect(classification_codes).to eq([9012, 8994, nil, 8997])
       end
 
       context 'when the disabilities array is empty' do
