@@ -77,6 +77,43 @@ RSpec.describe 'VAOS::V2::Facilities', type: :request do
           end
         end
       end
+
+      context 'with sort by recent location' do
+        let(:user) { build(:user, :vaos) }
+
+        before do
+          Flipper.disable(:va_online_scheduling_use_vpg)
+        end
+
+        it 'returns facilities by recency then by alphabetical order' do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200_sort_by_recent_locations',
+                           match_requests_on: %i[method path query]) do
+            Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
+              get '/vaos/v2/facilities?ids[]=983&ids[]=983GB&ids[]=983GC&ids[]=983GD&sort_by=recentLocations',
+                  headers: inflection_header
+              expect(response).to have_http_status(:ok)
+              facilities = JSON.parse(response.body)['data']
+              expect(facilities.size).to eq(4)
+              expect(facilities.pluck('id')).to eq %w[983GC 983 983GD 983GB]
+            end
+          end
+        end
+
+        it 'returns facilities by alphabetical order on unsuccessful query for appointment' do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200_sort_by_recent_locations',
+                           match_requests_on: %i[method path query]) do
+            expect_any_instance_of(VAOS::V2::AppointmentsService)
+              .to receive(:get_sorted_recent_appointments)
+              .and_return(nil)
+            get '/vaos/v2/facilities?ids[]=983&ids[]=983GB&ids[]=983GC&ids[]=983GD&sort_by=recentLocations',
+                headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            facilities = JSON.parse(response.body)['data']
+            expect(facilities.size).to eq(4)
+            expect(facilities.pluck('id')).to eq %w[983 983GC 983GD 983GB]
+          end
+        end
+      end
     end
 
     describe 'SHOW facilities' do

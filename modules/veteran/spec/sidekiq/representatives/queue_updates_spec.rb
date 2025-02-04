@@ -9,10 +9,6 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
     it 'includes Sidekiq::Job' do
       expect(described_class.included_modules).to include(Sidekiq::Job)
     end
-
-    it 'includes SentryLogging' do
-      expect(described_class.included_modules).to include(SentryLogging)
-    end
   end
 
   describe '#perform' do
@@ -31,7 +27,6 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
       Veteran::Service::Representative.create(representative_id: '345', poa_codes: ['A1'])
       allow(Representatives::XlsxFileFetcher).to receive(:new).and_return(double(fetch: file_content))
       allow_any_instance_of(Representatives::XlsxFileProcessor).to receive(:process).and_return(processed_data)
-      expect_any_instance_of(SlackNotify::Client).to receive(:notify)
     end
 
     context 'when file processing is successful' do

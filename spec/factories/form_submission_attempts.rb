@@ -5,6 +5,7 @@ FactoryBot.define do
     form_submission
 
     benefits_intake_uuid { SecureRandom.uuid }
+    created_at { Time.zone.now }
 
     trait :pending do
       created_at { Time.zone.now }
