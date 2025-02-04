@@ -138,6 +138,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploader.upload!
   end
 
+  # temporarily commented out before v2 rolls out. will be updated before v2's release.
   # def form_matches_schema
   #   return unless form_is_string
   #
