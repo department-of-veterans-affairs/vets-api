@@ -1,4 +1,5 @@
 class PrepareArPosHolderData < ActiveRecord::Migration[7.2]
+  
   def change
     safety_assured do
       add_column :ar_power_of_attorney_requests, :accredited_individual_registration_number, :string
