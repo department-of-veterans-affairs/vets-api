@@ -34,9 +34,7 @@ module VANotify
       case notification_record.status
       when 'delivered'
         delivered(tags) if notification_type == 'error'
-      when 'temporary-failure'
-        temporary_failure(tags) if notification_type == 'error'
-      when 'permanent-failure'
+      when 'permanent-failure', 'temporary-failure'
         permanent_failure(tags) if notification_type == 'error'
       end
     end
@@ -45,9 +43,7 @@ module VANotify
       case notification_record.status
       when 'delivered'
         delivered_without_metadata
-      when 'temporary-failure'
-        temporary_failure_without_metadata
-      when 'permanent-failure'
+      when 'permanent-failure', 'temporary-failure'
         permanent_failure_without_metadata
       end
     end
@@ -59,13 +55,6 @@ module VANotify
                           form_number: metadata['form_number'] })
     end
 
-    def temporary_failure(tags)
-      StatsD.increment('temporary_failure', tags:)
-      Rails.logger.error('Error notification to user encountered a temporary failure',
-                         { notification_record_id: notification_record.id,
-                           form_number: metadata['form_number'] })
-    end
-
     def permanent_failure(tags)
       StatsD.increment('silent_failure', tags:)
       Rails.logger.error('Error notification to user failed to deliver',
@@ -75,10 +64,6 @@ module VANotify
 
     def delivered_without_metadata
       StatsD.increment('silent_failure_avoided', tags: ['service:none-provided', 'function:none-provided'])
-    end
-
-    def temporary_failure_without_metadata
-      StatsD.increment('temporary_failure', tags: ['service:none-provided', 'function:none-provided'])
     end
 
     def permanent_failure_without_metadata
