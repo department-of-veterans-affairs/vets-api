@@ -11,7 +11,7 @@ module VAProfile
         end
 
         def base_request_headers
-          super.merge('apiKey' => VAProfile::Configuration::SETTINGS.address_validation.api_key)
+          super.merge('apiKey' => VAProfile::Configuration::SETTINGS.v3.address_validation.api_key)
         end
 
         def service_name
