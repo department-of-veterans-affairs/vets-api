@@ -41,8 +41,6 @@ task yardoc: :environment do
   puts "#{cmd}\n\n"
   yardoc_output = `#{cmd}`.strip.split("\n")
 
-  puts 'exiting before other puts?'
-
   # non zero exit == parsing error
   if (yardoc_result = $CHILD_STATUS.exitstatus).positive?
     puts yardoc_output
@@ -53,8 +51,6 @@ task yardoc: :environment do
 
   # 'fail' if not 100% - mark this task as required in github to block merging
   percentage = yardoc_output.last.strip[/\d+\.\d+/].to_f
-  puts percentage
-
   if percentage < 100.0
     cmd = "yard stats --list-undoc #{paths}"
     puts "#{cmd}\n\n"
