@@ -67,7 +67,6 @@ module IvcChampva
       end
     end
 
-
     def handle_put_object_error(error)
       Rails.logger.error "S3 PutObject unexpected error: #{error.message}"
       { success: false, error_message: "S3 PutObject unexpected error: #{error.message.strip}" }
