@@ -968,6 +968,51 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                         end
                       end
                     end
+
+                    context 'when claimant phoneNumber has an 2 digits' do
+                      it 'returns a 422' do
+                        VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                          mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                            json = JSON.parse(request_body)
+                            claimant[:phone][:phoneNumber] = '55'
+                            json['data']['attributes']['claimant'] = claimant
+                            request_body = json.to_json
+                            post validate2122a_path, params: request_body, headers: auth_header
+                            expect(response).to have_http_status(:unprocessable_entity)
+                          end
+                        end
+                      end
+                    end
+
+                    context 'when claimant phoneNumber has 3 digits & dashes' do
+                      it 'returns a 422' do
+                        VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                          mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                            json = JSON.parse(request_body)
+                            claimant[:phone][:phoneNumber] = '5-5-5'
+                            json['data']['attributes']['claimant'] = claimant
+                            request_body = json.to_json
+                            post validate2122a_path, params: request_body, headers: auth_header
+                            expect(response).to have_http_status(:unprocessable_entity)
+                          end
+                        end
+                      end
+                    end
+
+                    context 'when claimant phoneNumber many digits & dashes & spaces' do
+                      it 'returns a 422' do
+                        VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                          mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                            json = JSON.parse(request_body)
+                            claimant[:phone][:phoneNumber] = '1-2-3-4-5 6 789 0-1-2-3 45'
+                            json['data']['attributes']['claimant'] = claimant
+                            request_body = json.to_json
+                            post validate2122a_path, params: request_body, headers: auth_header
+                            expect(response).to have_http_status(:unprocessable_entity)
+                          end
+                        end
+                      end
+                    end
                   end
                 end
               end
