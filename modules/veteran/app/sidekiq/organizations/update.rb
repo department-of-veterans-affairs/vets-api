@@ -283,7 +283,7 @@ module Organizations
     end
 
     def log_to_slack(message)
-      return unless Rails.env.production?
+      return unless Settings.vsp_environment == 'production'
 
       client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                        channel: '#benefits-representation-management-notifications',
