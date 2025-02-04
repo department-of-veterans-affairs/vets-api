@@ -129,7 +129,11 @@ module Mobile
         end
 
         def contact_information_service
-          VAProfile::V2::ContactInformation::Service.new @user
+          if Flipper.enabled?(:mobile_v2_contact_info, @user)
+            VAProfile::V2::ContactInformation::Service.new @user
+          else
+            VAProfile::ContactInformation::Service.new @user
+          end
         end
 
         def raise_timeout_error(_elapsed, _try)

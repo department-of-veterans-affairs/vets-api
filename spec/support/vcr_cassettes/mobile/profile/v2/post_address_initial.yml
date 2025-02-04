@@ -5,7 +5,7 @@ http_interactions:
       uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/addresses
       body:
         encoding: UTF-8
-        string: '{"bio":{"addressId":null,"addressLine1":"1494 Martin Luther King Rd","addressLine2":null,"addressLine3":null,"addressPOU":"CORRESPONDENCE","addressType":"Domestic","cityName":"Fulton","countryCodeISO2":null,"countryCodeISO3":"USA","countryName":"USA","county":{"countyCode":null,"countyName":null},"intPostalCode":null,"provinceName":null,"stateCode":"MS","zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2024-08-30T18:51:06.012Z","vet360Id":"1","effectiveStartDate":null,"effectiveEndDate":null}}'
+        string: '{"bio":{"addressId":null,"addressLine1":"140 Rock Creek Rd","addressLine2":null,"addressLine3":null,"addressPOU":"RESIDENCE","addressType":"Domestic","cityName":"Washington","country":{"countryName":null,"countryCodeFIPS":null,"countryCodeISO2":null,"countryCodeISO3":"USA"},"county":{"countyCode":null,"countyName":null},"province":{"provinceName":null,"provinceCode":null},"state":{"stateName":null,"stateCode":"DC"},"intPostalCode":null,"zipCode5":"20011","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2024-08-27T18:51:06.000Z","effectiveStartDate":"2024-08-27T18:51:06.000Z","effectiveEndDate":null}}'
       headers:
         Accept:
           - application/json
