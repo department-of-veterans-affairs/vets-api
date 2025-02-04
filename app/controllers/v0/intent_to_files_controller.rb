@@ -46,12 +46,11 @@ module V0
       render json: IntentToFileSerializer.new(response)
     end
 
-    # def active
-    #   # DBEX team 1 thinks this is unused
-    #   # # check dd to see if getting hit, ITF action:active
-    #   response = strategy.cache_or_service(@current_user.uuid, params[:type]) { service.get_active(params[:type]) }
-    #   render json: IntentToFileSerializer.new(response)
-    # end
+    def active
+      # TODO - see if we can remove
+      response = strategy.cache_or_service(@current_user.uuid, params[:type]) { service.get_active(params[:type]) }
+      render json: IntentToFileSerializer.new(response)
+    end
 
     def submit
       intent_to_file_provider = ApiProviderFactory.call(
@@ -98,12 +97,14 @@ module V0
         TYPES.include?(params[:type])
     end
 
-    # def service
-    #   EVSS::IntentToFile::Service.new(@current_user)
-    # end
-    #
-    # def strategy
-    #   EVSS::IntentToFile::ResponseStrategy.new
-    # end
+    def service
+      # TODO - see if we can remove
+      EVSS::IntentToFile::Service.new(@current_user)
+    end
+
+    def strategy
+      # TODO - see if we can remove
+      EVSS::IntentToFile::ResponseStrategy.new
+    end
   end
 end

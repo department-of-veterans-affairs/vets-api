@@ -4,6 +4,8 @@ require 'evss/logged_service_exception'
 
 module EVSS
   module PPIU
+
+    # TODO - see if we can remove
     class ServiceException < EVSS::LoggedServiceException
       ERROR_MAP = {
         fraud: 'evss.ppiu.potential_fraud',

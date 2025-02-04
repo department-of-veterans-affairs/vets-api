@@ -4,7 +4,7 @@ require 'evss/configuration'
 
 module EVSS
   module PPIU
-    ##
+    ##   # TODO - see if we can remove
     # HTTP client configuration for the {EVSS::PPIU::Service},
     # sets the base path and a service name for breakers and metrics.
     #

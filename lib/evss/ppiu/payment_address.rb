@@ -4,7 +4,7 @@ require 'common/models/base'
 
 module EVSS
   module PPIU
-    ##
+    ##  # TODO - see if we can remove
     # Model for the user's payment address
     #
     # @!attribute type
