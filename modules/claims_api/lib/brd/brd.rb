@@ -10,6 +10,19 @@ module ClaimsApi
   # Takes an optional request parameter
   # @param [] rails request object (used to determine environment)
   class BRD < LibraryBase
+    ##
+    # Some values where removed from the BRD list
+    #
+    # 'PT' => 'Azores', # Part of Portugal
+    # 'GB' => 'Great Britain'
+    # '' => Great Britain and Gibraltar"  This is on the list but two distinct countries now
+    # '' => "Leeward Islands" No single code, each island has thier own code
+    # "" => Netherlands Antilles" Dissolved in 2010, code is no longer used
+    # 'KN' => 'Nevis' Shares same code with St. Kitts
+    # "" => Serbia/Montenegro" Two distinct Countries
+    # 'IT' => 'Sicily', Part of Italy
+    # 'YE' => 'Yemen Arab Republic' Duplicate
+    ##
     COUNTRY_CODES = {
       'AF' => 'Afghanistan',
       'AL' => 'Albania',
@@ -22,7 +35,6 @@ module ClaimsApi
       'AU' => 'Australia',
       'AT' => 'Austria',
       'AZ' => 'Azerbaijan',
-      # 'PT' => 'Azores', # Part of Portugal
       'BS' => 'Bahamas',
       'BH' => 'Bahrain',
       'BD' => 'Bangladesh',
@@ -67,7 +79,6 @@ module ClaimsApi
       'EC' => 'Ecuador',
       'EG' => 'Egypt',
       'SV' => 'El Salvador',
-      # 'GB' => 'Great Britain',
       'GQ' => 'Equatorial Guinea',
       'ER' => 'Eritrea',
       'EE' => 'Estonia',
@@ -82,7 +93,6 @@ module ClaimsApi
       'DE' => 'Germany',
       'GH' => 'Ghana',
       'GI' => 'Gibraltar',
-      # "" => Great Britain and Gibraltar",  This is on the list but two distinct countries now
       'GR' => 'Greece',
       'GL' => 'Greenland',
       'GD' => 'Grenada',
@@ -116,7 +126,6 @@ module ClaimsApi
       'LA' => 'Laos',
       'LV' => 'Latvia',
       'LB' => 'Lebanon',
-      # "Leeward Islands" => "", No single code, each island has thier own code
       'LS' => 'Lesotho',
       'LR' => 'Liberia',
       'LY' => 'Libya',
@@ -143,8 +152,6 @@ module ClaimsApi
       'NA' => 'Namibia',
       'NP' => 'Nepal',
       'NL' => 'Netherlands',
-      # "" => Netherlands Antilles", Dissolved in 2010, code is no longer used
-      # 'KN' => 'Nevis',
       'NC' => 'New Caledonia',
       'NZ' => 'New Zealand',
       'NI' => 'Nicaragua',
@@ -172,9 +179,7 @@ module ClaimsApi
       'GB-SCT' => 'Scotland',
       'SN' => 'Senegal',
       'RS' => 'Serbia',
-      # "" => Serbia/Montenegro", Two distinct Countries
       'SC' => 'Seychelles',
-      # 'IT' => 'Sicily', Part of Italy
       'SL' => 'Sierra Leone',
       'SG' => 'Singapore',
       'SK' => 'Slovakia',
@@ -215,7 +220,6 @@ module ClaimsApi
       'VN' => 'Vietnam',
       'GB-WLS' => 'Wales',
       'WS' => 'Western Samoa',
-      # 'YE' => 'Yemen Arab Republic',
       'ZM' => 'Zambia',
       'ZW' => 'Zimbabwe'
     }.freeze
