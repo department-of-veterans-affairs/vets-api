@@ -29,6 +29,8 @@ serviceAccount:
   name:
 fsGroup:
 loadtestEnabled: false
+currentKubeMinorVersion: 26
+
 #Web configuration
 web:
   strategyType:

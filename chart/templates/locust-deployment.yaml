@@ -1,4 +1,6 @@
 {{- if .Values.loadtestEnabled }}
+{{- if gt .Capabilities.KubeVersion.Minor (toString .Values.currentKubeMinorVersion ) }}
+
 {{- $root := . -}}
 ---
 apiVersion: apps/v1
@@ -84,4 +86,5 @@ spec:
       - name: locust-script-volume
         configMap:
           name: {{ .Values.appName }}-locust-script
+{{- end }}
 {{- end }}
