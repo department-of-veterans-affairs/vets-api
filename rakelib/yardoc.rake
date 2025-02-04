@@ -59,10 +59,12 @@ task yardoc: :environment do
     puts yardoc_stats
     puts "\n"
     puts Rainbow('Warning. Documentation is missing.').yellow
-    exit!(1)
+    exit(1)
   end
 
   puts yardoc_output
   puts "\n"
   puts Rainbow('Passed. Everything looks documented!').green
+
+  exit!
 end
