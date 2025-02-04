@@ -143,12 +143,11 @@ module Form526ClaimFastTrackingConcern
     user = OpenStruct.new({ flipper_id: user_uuid })
     vro_client = VirtualRegionalOffice::Client.new
 
-    response = if Flipper.enabled?(:disability_526_expanded_contention_classification, user)
-                 vro_client.classify_vagov_contentions_expanded(params)
+    response = if Flipper.enabled?(:disability_526_migrate_contention_classification, user)
+                 Rails.logger.info('Migrated endpoint called but is not available')
                else
-                 vro_client.classify_vagov_contentions(params)
+                 vro_client.classify_vagov_contentions_expanded(params)
                end
-
     response.body
   end
 
