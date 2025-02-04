@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_28_030020) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_04_162258) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -309,11 +309,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_28_030020) do
     t.datetime "created_at", null: false
     t.string "claimant_type", null: false
     t.string "power_of_attorney_holder_type", null: false
-    t.uuid "power_of_attorney_holder_id", null: false
-    t.uuid "accredited_individual_id", null: false
-    t.index ["accredited_individual_id"], name: "idx_on_accredited_individual_id_a0a1fab1e0"
+    t.string "accredited_individual_registration_number"
+    t.string "power_of_attorney_holder_poa_code"
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
-    t.index ["power_of_attorney_holder_type", "power_of_attorney_holder_id"], name: "index_ar_power_of_attorney_requests_on_power_of_attorney_holder"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -1769,7 +1767,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_28_030020) do
   add_foreign_key "ar_power_of_attorney_forms", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_request_decisions", "user_accounts", column: "creator_id"
   add_foreign_key "ar_power_of_attorney_request_resolutions", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
-  add_foreign_key "ar_power_of_attorney_requests", "accredited_individuals"
   add_foreign_key "ar_power_of_attorney_requests", "user_accounts", column: "claimant_id"
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "claim_va_notifications", "saved_claims"
