@@ -19,7 +19,12 @@ module AccreditedRepresentativePortal
     private
 
     def unwrap_serializable_hash(data)
-      data[:attributes].merge!(id: data[:id])
+      # for now, we have some abstactions without ids,
+      # specifically policy_holder after moving the data to
+      # legacy tables for those
+      data[:attributes].tap do |attributes|
+        attributes[:id] = data[:id] unless data[:id].nil?
+      end
     end
   end
 end
