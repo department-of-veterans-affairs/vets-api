@@ -104,8 +104,10 @@ RSpec.describe ContentionClassification::Client do
         end
 
         it 'logs and re-raises the exception' do
-          expect(Rails.logger).to receive(:error)
-            .with(/ContentionClassification::Client Faraday error: #{error.message}/)
+          expect(Rails.logger).to receive(:error).with(
+            'ContentionClassification::Client Faraday error on path ' \
+            "#{Settings.contention_classification_api.expanded_contention_classification_path}: #{error.message}"
+          )
           expect { subject }.to raise_error(error.class)
         end
       end
