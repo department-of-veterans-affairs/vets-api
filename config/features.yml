@@ -393,6 +393,9 @@ features:
   debts_silent_failure_mailer:
     actor_type: user
     description: Enables silent failure mailer for the 5655
+  debts_sharepoint_error_logging:
+    actor_type: user
+    description: Logs Sharepoint error data
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission

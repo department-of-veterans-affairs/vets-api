@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FormProfiles::VA686c674 < FormProfile
+class FormProfiles::VA686c674v2 < FormProfile
   class FormAddress
     include Virtus.model
 
@@ -34,13 +34,12 @@ class FormProfiles::VA686c674 < FormProfile
   private
 
   def prefill_form_address
-    replace_pciu = Flipper.enabled?(:remove_pciu, user)
-    redis_prefill = if replace_pciu
-                      VAProfileRedis::V2::ContactInformation.for_user(user)
-                    else
-                      VAProfileRedis::ContactInformation.for_user(user)
-                    end
-    mailing_address = redis_prefill&.mailing_address if replace_pciu || user.vet360_id.present?
+    mailing_address = begin
+      VAProfileRedis::ContactInformation.for_user(user).mailing_address if user.vet360_id.present?
+    rescue
+      nil
+    end
+
     return if mailing_address.blank?
 
     @form_address = FormAddress.new(
