@@ -32,9 +32,4 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y pdftk-java
 
       - name: Run Yardoc
-        run: |
-          set +e
-          bundle exec rake yardoc
-          exitcode="$?"
-          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-          exit "$exitcode"
+        run: bundle exec rake yardoc
