@@ -39,7 +39,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
           .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
         allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
-        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(double('response', status: 200))
+        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+          double('response', 
+                 context: double('context', http_response: double('http_response', status_code: 200)))
+        )
 
         post '/ivc_champva/v1/forms', params: data
 

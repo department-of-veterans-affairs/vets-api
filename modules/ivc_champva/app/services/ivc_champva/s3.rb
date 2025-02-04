@@ -52,19 +52,21 @@ module IvcChampva
 
     private
 
-    def handle_put_object_response(response, key, file)
-      if response.status == 200
-        monitor.track_all_successful_s3_uploads(key)
-        { success: true }
-      else
-        error_message = "S3 PutObject failure for #{file}: Status code: #{response.status}"
-        if response.respond_to?(:body) && response.body.respond_to?(:read)
-          error_message += ", Body: #{response.body.read}"
-        end
-        Rails.logger.error error_message
-        { success: false, error_message: error_message }
-      end
+def handle_put_object_response(response, key, file)
+  status_code = response.context.http_response.status_code
+  if status_code == 200
+    monitor.track_all_successful_s3_uploads(key)
+    { success: true }
+  else
+    error_message = "S3 PutObject failure for #{file}: Status code: #{status_code}"
+    if response.respond_to?(:body) && response.body.respond_to?(:read)
+      error_message += ", Body: #{response.body.read}"
     end
+    Rails.logger.error error_message
+    { success: false, error_message: error_message }
+  end
+end
+
 
     def handle_put_object_error(error)
       Rails.logger.error "S3 PutObject unexpected error: #{error.message}"

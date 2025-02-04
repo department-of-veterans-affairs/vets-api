@@ -21,8 +21,12 @@ describe IvcChampva::S3 do
     let(:file_path) { 'spec/fixtures/files/doctors-note.pdf' }
 
     context 'when upload is successful' do
-      let(:response_double) { double('Aws::S3::Types::PutObjectOutput', status: 200) }
-
+      let(:http_response_double) { double('http_response', status_code: 200) }
+      let(:context_double)      { double('context', http_response: http_response_double) }
+      let(:response_double) do
+        double('Aws::S3::Types::PutObjectOutput', context: context_double)
+      end
+      
       before do
         allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(response_double)
       end
@@ -38,8 +42,14 @@ describe IvcChampva::S3 do
     end
 
     context 'when upload fails with non-200 status' do
+      let(:http_response_double) { double('http_response', status_code: 500) }
+      let(:context_double)      { double('context', http_response: http_response_double) }
       let(:response_double) do
-        double('Aws::S3::Types::PutObjectOutput', status: 500, body: double(read: 'Internal Server Error'))
+        double(
+          'Aws::S3::Types::PutObjectOutput',
+          context: context_double,
+          body: double(read: 'Internal Server Error')
+        )
       end
 
       before do
@@ -80,7 +90,11 @@ describe IvcChampva::S3 do
     end
 
     context 'when response body does not respond to read' do
-      let(:response_double) { double('Aws::S3::Types::PutObjectOutput', status: 500, body: 'Internal Server Error') }
+      let(:http_response_double) { double('http_response', status_code: 500) }
+      let(:context_double) { double('context', http_response: http_response_double) }
+      let(:response_double) do
+        double('Aws::S3::Types::PutObjectOutput', context: context_double, body: 'Internal Server Error')
+      end
 
       before do
         allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(response_double)
