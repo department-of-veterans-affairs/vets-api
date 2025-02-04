@@ -48,7 +48,7 @@ module VAOS
           validate_response_schema(response, 'appointments_index')
           appointments = response.body[:data]
 
-          if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay]
+          if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
             appointments = merge_all_travel_claims(start_date, end_date, appointments)
           end
 
@@ -90,7 +90,7 @@ module VAOS
           include[:facilities] = true
           include[:clinics] = true
 
-          if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay]
+          if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
             appointment = merge_one_travel_claim(appointment)
           end
 

@@ -540,7 +540,7 @@ describe VAOS::V2::AppointmentsService do
           VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                              allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
-              response = subject.get_appointments(start_date2, end_date2, nil, {}, { travel_pay: true })
+              response = subject.get_appointments(start_date2, end_date2, nil, {}, { travel_pay_claims: true })
 
               # The first not-cancelled appt with a start date
               appt_with_claim = response[:data][0]
@@ -787,7 +787,7 @@ describe VAOS::V2::AppointmentsService do
             allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
             VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200',
                              match_requests_on: %i[method path]) do
-              response = subject.get_appointment('70060', { travel_pay: true })
+              response = subject.get_appointment('70060', { travel_pay_claims: true })
               expect(response[:id]).to eq('70060')
               expect(response[:kind]).to eq('clinic')
               expect(response[:status]).to eq('proposed')
@@ -877,7 +877,7 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_with_avs',
                              allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
-              response = subject.get_appointment('70060', { travel_pay: true })
+              response = subject.get_appointment('70060', { travel_pay_claims: true })
 
               expect(response[:travelPayClaim]).not_to be_empty
               expect(response[:travelPayClaim]['claim']).not_to be_nil
@@ -894,7 +894,7 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_with_avs',
                              allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
-              response = subject.get_appointment('70060', { travel_pay: true })
+              response = subject.get_appointment('70060', { travel_pay_claims: true })
 
               expect(response[:travelPayClaim]).not_to be_empty
               expect(response[:travelPayClaim]['claim']).to be_nil
