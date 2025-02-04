@@ -72,8 +72,9 @@ module Vets
             results.any?
           end
         end
-      rescue
-        raise Common::Exceptions::InvalidFiltersSyntax, 'The syntax for your filters is invalid'
+      rescue => e
+        message = "The syntax for your filters is invalid: #{e.message}"
+        raise Common::Exceptions::InvalidFiltersSyntax, message
       end
     end
   end

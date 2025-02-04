@@ -33,15 +33,26 @@ RSpec.describe Vets::Collection do
       record2 = dummy_class.new(name: 'Alice', age: 30)
 
       collection = described_class.new([record1, record2])
-      expect(collection.instance_variable_get(:@records)).to eq([record2, record1])
+      expect(collection.records).to eq([record2, record1])
     end
 
     it 'raises an error if records are not all the same class' do
       record1 = dummy_class.new(name: 'Alice', age: 30)
       record2 = Object.new
 
-      expect { Vets::Collection.new([record1, record2]) }
+      expect { described_class.new([record1, record2]) }
         .to raise_error(ArgumentError, "All records must be instances of #{dummy_class}")
+    end
+
+    it 'returns an empty Collections if records are nil' do
+      collection = described_class.new(nil)
+      expect(collection.records).to eq([])
+
+    end
+
+    it 'returns an empty Collections if records are empty' do
+      collection = described_class.new([])
+      expect(collection.records).to eq([])
     end
   end
 
@@ -132,6 +143,7 @@ RSpec.describe Vets::Collection do
     let(:record2) { dummy_class.new(name: 'Bob', age: 25) }
     let(:record3) { dummy_class.new(name: 'Charlie', age: 35) }
     let(:record4) { dummy_class.new(name: 'David', age: 25) }
+    let(:record5) { dummy_class.new(name: nil, age: 21) }
 
     let(:collection) { described_class.new([record4, record1, record2, record3]) }
 
@@ -169,6 +181,18 @@ RSpec.describe Vets::Collection do
       expect { collection.order }
         .to raise_error(ArgumentError, 'Order must have at least one sort clause')
     end
+
+    it 'raises an error with null values ' do
+      collection = described_class.new([record4, record1, record5, record2, record3])
+
+      binding.pry
+
+      collection.order(age: :asc)
+
+
+    end
+
+
   end
 
   describe '#paginate' do
