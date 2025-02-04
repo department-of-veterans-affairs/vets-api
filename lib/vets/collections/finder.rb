@@ -58,7 +58,7 @@ module Vets
       def compare(object, conditions)
         conditions.to_hash.all? do |attribute, predicates|
           predicates.all? do |operation, operand|
-            object_value = object.send(attribute)
+            object_value = object.public_send(attribute)
             operator = OPERATIONS_MAP.fetch(operation)
 
             parsed_values = operand.try(:split, ',') || [operand]
