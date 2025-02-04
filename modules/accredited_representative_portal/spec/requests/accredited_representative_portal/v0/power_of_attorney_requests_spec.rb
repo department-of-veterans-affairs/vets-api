@@ -91,7 +91,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'accredited_individual' => {
               'id' => poa_requests[0].accredited_individual.id,
               'full_name' => "#{poa_requests[0].accredited_individual.first_name} " \
-                                "#{poa_requests[0].accredited_individual.last_name}"
+                             "#{poa_requests[0].accredited_individual.last_name}"
             }
           },
           {
@@ -109,7 +109,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             },
             'accredited_individual' => {
               'id' => poa_requests[1].accredited_individual.id,
-              'full_name' => "#{poa_requests[1].accredited_individual.first_name} #{poa_requests[1].accredited_individual.last_name}"
+              'full_name' => "#{poa_requests[1].accredited_individual.first_name} " \
+                             "#{poa_requests[1].accredited_individual.last_name}"
             }
           },
           {
@@ -128,7 +129,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             },
             'accredited_individual' => {
               'id' => poa_requests[2].accredited_individual.id,
-              'full_name' => "#{poa_requests[2].accredited_individual.first_name} #{poa_requests[2].accredited_individual.last_name}"
+              'full_name' => "#{poa_requests[2].accredited_individual.first_name} " \
+                             "#{poa_requests[2].accredited_individual.last_name}"
             }
           },
           {
@@ -144,7 +146,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             },
             'accredited_individual' => {
               'id' => poa_requests[3].accredited_individual.id,
-              'full_name' => "#{poa_requests[3].accredited_individual.first_name} #{poa_requests[3].accredited_individual.last_name}"
+              'full_name' => "#{poa_requests[3].accredited_individual.first_name} " \
+                             "#{poa_requests[3].accredited_individual.last_name}"
             }
           }
         ]
@@ -221,7 +224,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           },
           'accredited_individual' => {
             'id' => poa_request.accredited_individual.id,
-            'full_name' => "#{poa_request.accredited_individual.first_name} #{poa_request.accredited_individual.last_name}"
+            'full_name' => "#{poa_request.accredited_individual.first_name} " \
+                           "#{poa_request.accredited_individual.last_name}"
           }
         }
       )

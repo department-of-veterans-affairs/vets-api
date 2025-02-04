@@ -8,9 +8,9 @@ FactoryBot.define do
     accredited_individual_registration_number { Faker::Number.unique.number(digits: 8) }
     accredited_individual {
       create(:representative,
-              representative_id: accredited_individual_registration_number,
-              first_name: Faker::Name.unique.first_name,
-              last_name: Faker::Name.unique.last_name)
+             representative_id: accredited_individual_registration_number,
+             first_name: Faker::Name.unique.first_name,
+             last_name: Faker::Name.unique.last_name)
     }
 
     # Temporarily set a default value for power_of_attorney_holder_type
