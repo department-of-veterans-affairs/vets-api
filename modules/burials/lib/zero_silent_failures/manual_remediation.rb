@@ -15,6 +15,9 @@ module Burials
 
       # override - add additional stamps
       # @see ZeroSilentFailures::ManualRemediation::SavedClaim#stamps
+      #
+      # @param timestamp [String] the timestamp
+      # @return [Array<Hash>] an array containing stamp metadata
       def stamps(timestamp)
         base = super(timestamp)
         burials = [
@@ -32,6 +35,11 @@ module Burials
         base + burials
       end
 
+      ##
+      # Generates a submitted stamp annotation for a PDF form
+      #
+      # @param timestamp [String] the submission timestamp
+      # @return [Array<Hash>] an array containing stamp metadata
       def submitted_stamp(timestamp)
         [
           {
