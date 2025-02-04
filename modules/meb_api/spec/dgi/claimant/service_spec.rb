@@ -33,13 +33,13 @@ Rspec.describe MebApi::DGI::Claimant::Service do
       before do
         allow(faraday_response).to receive(:env)
       end
-    
+
       context 'with a successful submission and polling for Chapter33' do
         it 'successfully receives an Claimant object' do
           VCR.use_cassette('dgi/polling_post_claimant_info') do
             response = service.get_claimant_info('Chapter33')
             expect(response.status).to eq(201)
-            expect(response[:claimant_id]).to eq(nil)
+            expect(response[:claimant_id]).to be(nil)
           end
         end
       end
@@ -49,7 +49,7 @@ Rspec.describe MebApi::DGI::Claimant::Service do
           VCR.use_cassette('dgi/polling_with_id_post_claimant_info') do
             response = service.get_claimant_info('Chapter33')
             expect(response.status).to eq(201)
-            expect(response[:claimant_id]).to eq("600010259")
+            expect(response[:claimant_id]).to eq('600010259')
           end
         end
       end
