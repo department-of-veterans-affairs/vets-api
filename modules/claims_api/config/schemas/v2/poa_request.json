@@ -43,7 +43,7 @@
             "addressLine1",
             "city",
             "stateCode",
-            "country",
+            "countryCode",
             "zipCode"
           ],
           "properties" : {
@@ -69,10 +69,10 @@
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
             },
-            "country": {
-              "description": "Country of the address. USA is the value to use for United States based addresses, US will not work.",
+            "countryCode": {
+              "description": "Country code of the address.",
               "type": "string",
-              "example": "USA"
+              "example": "US"
             },
             "zipCode": {
               "description": "Zipcode (First 5 digits) of the address.",
@@ -158,8 +158,8 @@
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
             },
-            "country": {
-              "description": "Country of the address. Required if claimant information provided.",
+            "countryCode": {
+              "description": "Country code of the address. Required if claimant information provided.",
               "type": "string",
               "example": "USA"
             },

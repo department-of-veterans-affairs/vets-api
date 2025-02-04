@@ -337,7 +337,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             addressLine1: '2719 Hyperion Ave',
             addressLine2: 'Apt 2',
             city: 'Los Angeles',
-            country: 'USA',
+            countryCode: 'US',
             stateCode: 'CA',
             zipCode: '92264',
             zipCodeSuffix: '0200'
