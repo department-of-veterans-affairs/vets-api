@@ -155,6 +155,39 @@ RSpec.describe FormProfile, type: :model do
         'phoneNumber' => '4445551212',
         'emailAddress' => 'test2@test1.net'
       },
+      'nonPrefill' => {
+        'veteranSsnLastFour' => '1863',
+        'veteranVaFileNumberLastFour' => '1863'
+      },
+      'veteranInformation' => {
+        'fullName' => {
+          'first' => user.first_name.capitalize,
+          'last' => user.last_name.capitalize,
+          'suffix' => 'Jr.'
+        },
+        'ssn' => '796111863',
+        'birthDate' => '1809-02-12'
+      }
+    }
+  end
+
+  let(:v686_c_674_expected_v2) do
+    {
+      'veteranContactInformation' => {
+        'veteranAddress' => {
+          'addressLine1' => '140 Rock Creek Rd',
+          'countryName' => 'USA',
+          'city' => 'Washington',
+          'stateCode' => 'DC',
+          'zipCode' => '20011'
+        },
+        'phoneNumber' => '4445551212',
+        'emailAddress' => 'test2@test1.net'
+      },
+      'nonPrefill' => {
+        'veteranSsnLastFour' => '1863',
+        'veteranVaFileNumberLastFour' => '1863'
+      },
       'veteranInformation' => {
         'fullName' => {
           'first' => user.first_name.capitalize,
@@ -1786,6 +1819,15 @@ RSpec.describe FormProfile, type: :model do
               prefilled_data = described_class.for(form_id: '686C-674', user:).prefill[:form_data]
               v686_c_674_expected['veteranContactInformation'].delete('veteranAddress')
               expect(prefilled_data).to eq(v686_c_674_expected)
+            end
+          end
+
+          it 'omits address fields in 686c-674-V2 form' do
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                             allow_playback_repeats: true) do
+              prefilled_data = described_class.for(form_id: '686C-674-V2', user:).prefill[:form_data]
+              v686_c_674_expected_v2['veteranContactInformation'].delete('veteranAddress')
+              expect(prefilled_data).to eq(v686_c_674_expected_v2)
             end
           end
         end
