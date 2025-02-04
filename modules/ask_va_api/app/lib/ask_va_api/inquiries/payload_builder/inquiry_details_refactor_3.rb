@@ -1,0 +1,183 @@
+# frozen_string_literal: true
+
+module AskVAApi
+  module Inquiries
+    module PayloadBuilder
+      class InquiryDetails
+        attr_reader :inquiry_params
+
+        def initialize(inquiry_params)
+          @inquiry_params = inquiry_params
+        end
+
+        def call
+          {
+            inquiry_about: inquiry_about || 'Unknown inquiry type',
+            dependent_relationship: dependent_relationship || nil,
+            veteran_relationship: veteran_relationship || nil,
+            level_of_authentication: level_of_authentication || (role ? 'Business' : 'Personal')
+          }
+        end
+
+        private
+
+        def inquiry_about
+          if education_benefits? || general_question?
+            'A general question'
+          elsif for_myself_as_veteran?
+            'About Me, the Veteran'
+          elsif for_myself_as_dependent?
+            'For the dependent of a Veteran'
+          elsif for_dependent_as_veteran?
+            'For the dependent of a Veteran'
+          elsif for_veteran_as_dependent?
+            'On Behalf of a Veteran'
+          elsif for_dependent_as_dependent?
+            'For the dependent of a Veteran'
+          elsif for_veteran_as_other?
+            'On Behalf of a Veteran'
+          end
+        end
+
+        def dependent_relationship
+          if education_benefits? || general_question?
+            nil
+          elsif for_myself_as_veteran?
+            nil
+          elsif for_myself_as_dependent?
+            nil
+          elsif for_dependent_as_veteran?
+            veteran_relationship_to_family_member
+          elsif for_veteran_as_dependent?
+            nil
+          elsif for_dependent_as_dependent?
+            dependent_relationship_to_veteran
+          elsif for_veteran_as_other?
+            nil
+          end
+        end
+
+        def veteran_relationship
+
+          if education_benefits? || general_question?
+            your_role
+          elsif for_myself_as_veteran?
+            nil
+          elsif for_myself_as_dependent?
+            your_relationship_to_veteran
+          elsif for_dependent_as_veteran?
+            nil
+          elsif for_veteran_as_dependent?
+            your_relationship_to_veteran
+          elsif for_dependent_as_dependent?
+            nil
+          elsif for_veteran_as_other?
+            your_role
+          end
+        end
+
+        def level_of_authentication
+          # I have no idea what a good variable name is
+          purpose = your_role ? 'Business' : 'Personal'
+
+          if education_benefits? || general_question?
+            purpose
+          elsif for_myself_as_veteran?
+            purpose
+          elsif for_myself_as_dependent?
+            purpose
+          elsif for_dependent_as_veteran?
+            purpose
+          elsif for_veteran_as_dependent?
+            purpose
+          elsif for_dependent_as_dependent?
+            purpose
+          elsif for_veteran_as_other?
+            'Business'
+          end
+        end
+
+        def for_myself_as_veteran?
+          for_myself? && i_am_the_veteran?
+        end
+
+        def for_myself_as_dependent?
+          for_myself? && family_to_veteran? && your_relationship_to_veteran
+        end
+
+        def for_dependent_as_veteran?
+          for_others? && i_am_the_veteran? && veteran_relationship_to_family_member
+        end
+
+        def for_veteran_as_dependent?
+          for_others? && family_to_veteran? && question_about_veteran? && your_relationship_to_veteran
+        end
+
+        def for_dependent_as_dependent?
+          for_others? && family_to_veteran? && question_about_someone_else? && dependent_relationship_to_veteran
+        end
+
+        def for_veteran_as_other?
+          for_others? && your_role
+        end
+
+        def your_role
+          inquiry_params[:your_role]
+        end
+
+        def education_benefits?
+          category == 'Education benefits and work study' &&
+          topic != 'Veteran Readiness and Employment'
+        end
+
+        def category
+          inquiry_params[:select_category]
+        end
+
+        def topic
+          inquiry_params[:select_topic]
+        end
+
+        def general_question?
+          inquiry_params[:who_is_your_question_about] == "It's a general question"
+        end
+
+        def for_others?
+          inquiry_params[:who_is_your_question_about] == 'Someone else' || your_role
+        end
+
+        def for_myself?
+          inquiry_params[:who_is_your_question_about] == 'Myself' || inquiry_params[:who_is_your_question_about].nil?
+        end
+
+        def i_am_the_veteran?
+          inquiry_params[:relationship_to_veteran] == "I'm the Veteran"
+        end
+
+        def family_to_veteran?
+          inquiry_params[:relationship_to_veteran] == "I'm a family member of a Veteran"
+        end
+
+        def your_relationship_to_veteran
+          inquiry_params[:more_about_your_relationship_to_veteran]
+        end
+
+        def question_about_veteran?
+          inquiry_params[:is_question_about_veteran_or_someone_else] == 'Veteran'
+        end
+
+        def question_about_someone_else?
+          inquiry_params[:is_question_about_veteran_or_someone_else] == 'Someone else'
+        end
+
+        def veteran_relationship_to_family_member
+          inquiry_params[:about_your_relationship_to_family_member]
+        end
+
+        def dependent_relationship_to_veteran
+          inquiry_params[:their_relationship_to_veteran]
+        end
+      end
+    end
+  end
+end
