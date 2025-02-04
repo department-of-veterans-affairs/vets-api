@@ -263,11 +263,6 @@ module Organizations
     # @param org_address [Hash] the address provided by OGC
     # @return [Hash, Nil] the response from the address validation service
     def get_best_address_candidate(org_address)
-      if org_address.nil?
-        log_error('In #get_best_address_candidate, org_address is nil')
-        return nil
-      end
-
       candidate_address = build_validation_address(org_address)
       original_response = validate_address(candidate_address)
       return nil unless address_valid?(original_response)
@@ -285,8 +280,6 @@ module Organizations
       else
         original_response
       end
-    rescue => e
-      log_error("In #get_best_address_candidate, address: #{org_address}, error message: #{e.message}")
     end
 
     def log_to_slack(message)
