@@ -170,60 +170,6 @@ module AccreditedRepresentativePortal
           poa_codes: %w[
             XRO
           ]
-        },
-        {
-          first_name: 'Erin',
-          last_name: 'Trust',
-          representative_id: '10007',
-          poa_codes: %w[
-            EUM
-            TVB
-            XRO
-          ]
-        },
-        {
-          first_name: 'Eric',
-          last_name: 'Good',
-          representative_id: '10008',
-          poa_codes: %w[
-            EUM
-            UYX
-            FIX
-            SVS
-            MIM
-          ]
-        },
-        {
-          first_name: 'Hershel',
-          last_name: 'Kertzmann',
-          representative_id: '10009',
-          poa_codes: %w[
-            FIX
-            SVS
-            MIM
-            XRO
-          ]
-        },
-        {
-          first_name: 'Georgetta',
-          last_name: 'Roob',
-          representative_id: '10010',
-          poa_codes: %w[
-            EUM
-            GWI
-            FIX
-            SVS
-            XRO
-          ]
-        },
-        {
-          first_name: 'Horacio',
-          last_name: 'Schultz',
-          representative_id: '10011',
-          poa_codes: %w[
-            EUM
-            UYX
-          ]
         }
       ].freeze
 
