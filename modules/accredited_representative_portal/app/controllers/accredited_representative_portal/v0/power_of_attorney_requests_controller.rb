@@ -58,8 +58,6 @@ module AccreditedRepresentativePortal
       def scope_includes
         [
           :power_of_attorney_form,
-          :power_of_attorney_holder,
-          :accredited_individual,
           { resolution: :resolving }
         ]
       end

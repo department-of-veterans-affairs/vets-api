@@ -7,7 +7,9 @@ module AccreditedRepresentativePortal
         'veteran_service_organization'
       end
 
-      attribute :name
+      attribute :name do
+        nil # TODO: replace when org table is switched out
+      end
     end
   end
 end

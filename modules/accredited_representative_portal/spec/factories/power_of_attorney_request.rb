@@ -5,8 +5,17 @@ FactoryBot.define do
     association :claimant, factory: :user_account
     association :power_of_attorney_form, strategy: :build
 
-    association :power_of_attorney_holder, factory: %i[accredited_organization with_representatives], strategy: :create
-    accredited_individual { power_of_attorney_holder.accredited_individuals.first }
+    # Temporarily set a default value for power_of_attorney_holder_type
+    power_of_attorney_holder_type { 'AccreditedOrganization' }
+
+    before(:create) do |poa_request|
+      if poa_request.respond_to?(:accredited_individual_id)
+        poa_request.accredited_individual_id = AccreditedIndividual.first&.id || create(:accredited_individual).id
+      end
+      if poa_request.respond_to?(:power_of_attorney_holder_id)
+        poa_request.power_of_attorney_holder_id = SecureRandom.uuid
+      end
+    end
 
     transient do
       resolution_created_at { nil }
