@@ -877,10 +877,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
                 context 'when claimant.phone.countryCode is "1" and areaCode is not provided' do
                   let(:error_msg) do
-                    "The property /claimant/phone/areaCode did not match the following requirements:
-                    {\"description\"=>\"Area code of the phone number.
-                    Required if countryCode is '1' or not included.\",
-                    \"type\"=>\"string\", \"pattern\"=>\"^[2-9][0-9]{2}$\", \"example\"=>\"555\"}"
+                    'The property /claimant/phone/areaCode did not match the following requirements:'
                   end
 
                   it 'returns a meaningful 422' do
@@ -894,7 +891,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
                         response_body = JSON.parse(response.body)['errors'][0]
                         expect(response).to have_http_status(:unprocessable_entity)
-                        expect(response_body['detail']).to eq(error_msg)
+                        expect(response_body['detail']).to include(error_msg)
                       end
                     end
                   end

@@ -112,8 +112,11 @@
             },
             "phoneNumber": {
               "description": "Phone number.",
-              "type": "string", "pattern": "^\\d(?:[- ]*\\d){1,14}$",
-              "example": "555-5555"
+              "type": "string",
+              "pattern": "\\d(?:[- ]?*\\d){6,9}$",
+              "example": "555-5555",
+              "minLength": 1,
+              "maxLength": 14
             }
           },
           "if": {
@@ -220,8 +223,10 @@
             "phoneNumber": {
               "description": "Phone number.",
               "type": "string",
-              "pattern": "^\\d(?:[- ]*\\d){1,14}$",
-              "example": "555-5555"
+              "pattern": "\\d(?:[- ]?*\\d){6,9}$",
+              "example": "555-5555",
+              "minLength": 1,
+              "maxLength": 14
             }
           },
           "if": {
