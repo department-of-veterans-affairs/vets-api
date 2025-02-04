@@ -53,8 +53,13 @@ task yardoc: :environment do
 
   # 'fail' if not 100% - mark this task as required in github to block merging
   percentage = yardoc_output.last.strip[/\d+\.\d+/].to_f
+  puts percentage
+
   if percentage < 100
-    puts `yard stats --list-undoc #{paths}`
+    cmd = "yard stats --list-undoc #{paths}"
+    yardoc_stats = `#{cmd}`.strip.split("\n")
+    puts "#{cmd}\n\n"
+    puts yardoc_stats
     puts "\n"
     puts Rainbow('Warning. Documentation is missing.').yellow
     exit!(1)
