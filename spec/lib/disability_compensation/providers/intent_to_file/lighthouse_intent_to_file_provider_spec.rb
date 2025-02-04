@@ -9,12 +9,7 @@ RSpec.describe LighthouseIntentToFileProvider do
   let(:provider) { LighthouseIntentToFileProvider.new(current_user) }
 
   before do
-    # Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE)
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
-  end
-
-  after do
-    # Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE)
   end
 
   it_behaves_like 'intent to file provider'
