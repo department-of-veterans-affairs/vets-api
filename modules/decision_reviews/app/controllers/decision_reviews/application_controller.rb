@@ -51,6 +51,7 @@ module DecisionReviews
     def normalize_level(level, exception)
       # https://docs.sentry.io/platforms/ruby/usage/set-level/
       # valid sentry levels: log, debug, info, warning, error, fatal
+
       level = case exception
               when Pundit::NotAuthorizedError
                 'info'
