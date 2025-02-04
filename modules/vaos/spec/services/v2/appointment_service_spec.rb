@@ -44,6 +44,95 @@ describe VAOS::V2::AppointmentsService do
 
   let(:provider_name) { 'TEST PROVIDER NAME' }
 
+  let(:eps_appointments) do
+    [
+      {
+        id: '123',
+        state: 'submitted',
+        patient_id: '456',
+        referral: {
+          referral_number: 'ref123'
+        },
+        provider_service_id: 'DBKQ-H0a',
+        network_id: 'random-sandbox-network-id',
+        slot_ids: [
+          '5vuTac8v-practitioner-8-role-1|' \
+          '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
+          '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
+        ],
+        appointment_details: {
+          status: 'booked',
+          start: nil,
+          is_latest: false,
+          last_retrieved: '2024-12-01T10:00:00Z'
+        }
+      },
+      {
+        id: '124',
+        state: 'proposed',
+        patient_id: '457',
+        referral: {
+          referral_number: 'ref124'
+        },
+        provider_service_id: 'DBKQ-H0a',
+        network_id: 'random-sandbox-network-id',
+        slot_ids: [
+          '5vuTac8v-practitioner-8-role-1|' \
+          '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
+          '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
+        ],
+        appointment_details: {
+          status: 'booked',
+          start: '2024-12-02T10:00:00Z',
+          is_latest: false,
+          last_retrieved: '2024-12-02T10:00:00Z'
+        }
+      },
+      {
+        id: '125',
+        state: 'submitted',
+        patient_id: '458',
+        referral: {
+          referral_number: 'ref125'
+        },
+        provider_service_id: 'DBKQ-H0a',
+        network_id: 'random-sandbox-network-id',
+        slot_ids: [
+          '5vuTac8v-practitioner-8-role-1|' \
+          '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
+          '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
+        ],
+        appointment_details: {
+          status: 'booked',
+          start: '2024-12-03T10:00:00Z',
+          is_latest: false,
+          last_retrieved: '2024-12-03T10:00:00Z'
+        }
+      },
+      {
+        id: 'thedupe',
+        state: 'submitted',
+        patient_id: 'fake-patient-id',
+        referral: {
+          referral_number: '1234567890'
+        },
+        provider_service_id: 'DBKQ-H0a',
+        network_id: 'random-sandbox-network-id',
+        slot_ids: [
+          '5vuTac8v-practitioner-8-role-1|' \
+          '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
+          '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
+        ],
+        appointment_details: {
+          status: 'booked',
+          start: '2024-11-18T13:30:00Z',
+          is_latest: false,
+          last_retrieved: '2025-01-12T22:35:45Z'
+        }
+      }
+    ]
+  end
+
   mock_facility = {
     test: 'test',
     timezone: {
@@ -102,6 +191,9 @@ describe VAOS::V2::AppointmentsService do
                 expect(response[:id]).to be_a(String)
                 expect(response[:local_start_time])
                   .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+                expect(response[:pending]).to be(false)
+                expect(response[:past]).to be(true)
+                expect(response[:future]).to be(false)
               end
             end
           end
@@ -208,6 +300,9 @@ describe VAOS::V2::AppointmentsService do
                 expect(response[:id]).to be_a(String)
                 expect(response[:local_start_time])
                   .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+                expect(response[:pending]).to be(false)
+                expect(response[:past]).to be(true)
+                expect(response[:future]).to be(false)
               end
             end
           end
@@ -692,8 +787,8 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
-  describe '#get_recent_sorted_appointments' do
-    subject { instance_of_class.get_recent_sorted_appointments }
+  describe '#get_sorted_recent_appointments' do
+    subject { instance_of_class.get_sorted_recent_appointments }
 
     let(:instance_of_class) { described_class.new(user) }
     let(:mock_appointment_one) { double('Appointment', kind: 'clinic', start: '2022-12-02') }
@@ -709,6 +804,23 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns the recent sorted clinic appointments' do
         expect(subject).to eq([mock_appointment_three, mock_appointment_one, mock_appointment_two])
+        expect(instance_of_class).to have_received(:get_appointments).once
+      end
+    end
+
+    context 'when old appointments are available' do
+      before do
+        allow(instance_of_class)
+          .to receive(:get_appointments).with(anything, anything, 'booked,fulfilled,arrived,proposed')
+          .and_return({ data: [] })
+        allow(instance_of_class)
+          .to receive(:get_appointments).with(anything, anything, 'booked,fulfilled,arrived')
+          .and_return({ data: [mock_appointment_one, mock_appointment_two, mock_appointment_three] })
+      end
+
+      it 'returns the recent sorted clinic appointments' do
+        expect(subject).to eq([mock_appointment_three, mock_appointment_one, mock_appointment_two])
+        expect(instance_of_class).to have_received(:get_appointments).exactly(2).times
       end
     end
 
@@ -719,6 +831,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns nil' do
         expect(subject.first).to be_nil
+        expect(instance_of_class).to have_received(:get_appointments).exactly(2).times
       end
     end
   end
@@ -1048,6 +1161,68 @@ describe VAOS::V2::AppointmentsService do
           .and_raise(Common::Exceptions::BackendServiceException)
         timezone = subject.send(:get_facility_timezone, facility_location_id)
         expect(timezone).to be_nil
+      end
+    end
+  end
+
+  describe '#get_appointments merge' do
+    context 'when include eps is true' do
+      it 'merges eps appointments with vaos appointments' do
+        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to include('ref124', 'ref125')
+          expect(result[:data].map { |appt| appt[:id].to_s }).to include('101', '102', '186')
+        end
+      end
+
+      it 'merges eps appointments with vaos appointments and removes eps appointment with duplicate referralNumbers ' \
+         'but not the vaos appointment' do
+        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt[:id].to_s }).not_to include('thedupe')
+        end
+      end
+
+      it 'handles no matching referral number' do
+        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt[:referral][:referral_number] }).not_to include('nonexistent_referral')
+        end
+      end
+
+      it 'handles nil start date in eps appointments' do
+        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt[:id].to_s }).not_to include('123')
+        end
+      end
+
+      it 'handles empty eps_appointments' do
+        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([])
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map do |appt|
+            appt[:referral][:referral_number]
+          end).to include('0987654321', '1234567890', '1122334455', '6677889900', '1234567890')
+        end
+      end
+
+      it 'handles empty appointment data' do
+        VCR.use_cassette('vaos/eps/get_appointments_empty_data',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([{}])
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to be_empty
+        end
       end
     end
   end
@@ -1755,6 +1930,97 @@ describe VAOS::V2::AppointmentsService do
     it 'requires appointment' do
       expect do
         subject.send(:set_modality)
+      end.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#request' do
+    it 'sets pending to true if the appointment is a request' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'REQUEST'
+      expect(subject.send(:request?, appt)).to be(true)
+    end
+
+    it 'sets pending to true if the appointment is a community-care request' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'COMMUNITY_CARE_REQUEST'
+      expect(subject.send(:request?, appt)).to be(true)
+    end
+
+    it 'sets pending to false if the appointment is not a request' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'VA'
+      expect(subject.send(:request?, appt)).to be(false)
+    end
+
+    it 'requires appointment' do
+      expect do
+        subject.send(:request?, nil)
+      end.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#past' do
+    it 'sets past to true if the appointment is telehealth and within 240 minutes' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:kind] = 'telehealth'
+      appt[:start] = Time.now.utc - 241.minutes
+      expect(subject.send(:past?, appt)).to be(true)
+    end
+
+    it 'sets past to false if the appointment is telehealth and not within 240 minutes' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:kind] = 'telehealth'
+      appt[:start] = Time.now.utc - 239.minutes
+      expect(subject.send(:past?, appt)).to be(false)
+    end
+
+    it 'sets past to true if the appointment is not telehealth and within 60 minutes' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:kind] = 'clinic'
+      appt[:start] = Time.now.utc - 61.minutes
+      expect(subject.send(:past?, appt)).to be(true)
+    end
+
+    it 'sets past to false if the appointment is not telehealth and not within 60 minutes' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:kind] = 'clinic'
+      appt[:start] = Time.now.utc - 59.minutes
+      expect(subject.send(:past?, appt)).to be(false)
+    end
+
+    it 'requires appointment' do
+      expect do
+        subject.send(:past?, nil)
+      end.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#future' do
+    it 'sets future to true if the appointment is not a request and occurs after the beginning of the current day' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'VA'
+      appt[:start] = Time.now.utc + 1.day
+      expect(subject.send(:future?, appt)).to be(true)
+    end
+
+    it 'sets future to false if the appointment is not a request and occurs before the beginning of the current day' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'VA'
+      appt[:start] = Time.now.utc - 1.day
+      expect(subject.send(:future?, appt)).to be(false)
+    end
+
+    it 'sets future to false if the appointment is a request' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'REQUEST'
+      appt[:start] = Time.now.utc + 1.day
+      expect(subject.send(:future?, appt)).to be(false)
+    end
+
+    it 'requires appointment' do
+      expect do
+        subject.send(:future?, nil)
       end.to raise_error(ArgumentError)
     end
   end

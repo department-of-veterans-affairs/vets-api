@@ -285,23 +285,6 @@ RSpec/NoExpectationExample:
     - 'spec/sidekiq/pager_duty/poll_maintenance_windows_spec.rb'
     - 'spec/sidekiq/vre/create_ch31_submissions_report_job_spec.rb'
 
-# Offense count: 17
-RSpec/PendingWithoutReason:
-  Exclude:
-    - 'modules/appeals_api/spec/controllers/application_controller_spec.rb'
-    - 'modules/appeals_api/spec/services/appeals_api/pdf_construction/generator_spec.rb'
-    - 'modules/appeals_api/spec/sidekiq/appeals_api/add_icn_updater_spec.rb'
-    - 'modules/claims_api/spec/lib/claims_api/evidence_waiver_pdf_constructor/pdf_spec.rb'
-    - 'modules/claims_api/spec/lib/claims_api/v1/poa_pdf_constructor/individual_spec.rb'
-    - 'modules/vaos/spec/services/v1/fhir_service_spec.rb'
-    - 'modules/vba_documents/spec/sidekiq/report_unsuccessful_submissions_spec.rb'
-    - 'spec/lib/bb/generate_report_request_form_spec.rb'
-    - 'spec/lib/bgs/vnp_relationships_spec.rb'
-    - 'spec/lib/saml/ssoe_user_spec.rb'
-    - 'spec/requests/authentication/standard_authentication_spec.rb'
-    - 'spec/requests/breakers_integration_spec.rb'
-    - 'spec/sidekiq/facilities/mental_health_reload_job_spec.rb'
-
 # Offense count: 715
 RSpec/StubbedMock:
   Enabled: false

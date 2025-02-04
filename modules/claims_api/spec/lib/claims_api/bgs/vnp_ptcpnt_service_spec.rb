@@ -40,5 +40,16 @@ describe ClaimsApi::VnpPtcpntService do
         )
       end
     end
+
+    it 'responds appropriately with an invalid options' do
+      options[:vnp_proc_id] = 'not-an-id'
+      options[:jrn_lctn_id] = 0
+      options[:jrn_status_type_cd] = 'U'
+      VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_service/invalid_vnp_ptcpnt_create') do
+        expect do
+          subject.vnp_ptcpnt_create(options)
+        end.to raise_error(Common::Exceptions::UnprocessableEntity)
+      end
+    end
   end
 end

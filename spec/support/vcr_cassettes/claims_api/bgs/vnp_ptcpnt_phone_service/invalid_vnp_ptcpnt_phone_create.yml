@@ -1,0 +1,69 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://ptcpntPhoneService.services.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>xUid</vaws:ExternalUid>
+              <vaws:ExternalKey>xKey</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpPtcpntPhoneCreate><arg0>
+        <vnpProcId>not-an-id</vnpProcId><vnpPtcpntId/><phoneTypeNm>Daytime</phoneTypeNm><phoneNbr>2225552252</phoneNbr><efctvDt>2020-07-16T18:20:17Z</efctvDt></arg0>
+        </tns:vnpPtcpntPhoneCreate>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpPtcpntPhoneCreate"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Date:
+      - Fri, 24 Jan 2025 20:59:30 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><ns0:Fault xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"><faultcode>ns0:Server</faultcode><faultstring>
+        Exception Description: The object [not-an-id], of class [class java.lang.String], from mapping [org.eclipse.persistence.oxm.mappings.XMLDirectMapping[vnpProcId-->vnpProcId/text()]] with descriptor [XMLDescriptor(gov.va.vba.vonapp.dto.VnpPtcpntPhoneDTO --> [])], could not be converted to [class java.lang.Long].
+        Internal Exception: java.lang.NumberFormatException: For input string: "not-an-id"</faultstring></ns0:Fault></S:Body></S:Envelope>
+  recorded_at: Fri, 24 Jan 2025 20:59:30 GMT
+recorded_with: VCR 6.3.1

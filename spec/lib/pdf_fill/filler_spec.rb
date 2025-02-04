@@ -48,10 +48,6 @@ describe PdfFill::Filler, type: :model do
   describe '#fill_form' do
     [
       {
-        form_id: '21P-530EZ',
-        factory: :burial_claim
-      },
-      {
         form_id: '21P-0969',
         factory: :income_and_assets_claim,
         use_vets_json_schema: true
