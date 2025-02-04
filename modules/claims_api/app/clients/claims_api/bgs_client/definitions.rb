@@ -85,7 +85,7 @@ module ClaimsApi
           )
       end
 
-      module BenefitClaimWebService
+      module BenefitClaimWebService2
         DEFINITION =
           Service.new(
             bean: BenefitClaimWebServiceBean::DEFINITION,
