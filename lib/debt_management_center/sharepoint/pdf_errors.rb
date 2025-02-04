@@ -6,7 +6,7 @@ module DebtManagementCenter
       def on_complete(env)
         return if env.success?
 
-        Rails.logger.error("Sharepoint PDF failed path: #{env.url.path[%r{.*/Web/[^/]+}]}")
+        Rails.logger.error("Debt Management Center Sharepoint PDF failed: #{env.url.path[%r{.*/Web/[^/]+}]}")
         response_values = { status: env.status, detail: env.reason_phrase, source: 'SharepointRequest' }
         case env.status
         when 400..499
