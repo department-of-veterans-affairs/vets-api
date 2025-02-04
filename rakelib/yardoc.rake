@@ -22,13 +22,19 @@ task yardoc: :environment do
     exit!
   end
 
+  # only run on paths specified in GH action yaml
   yardoc_yaml = Rails.root.join('.github', 'workflows', 'yardoc.yml')
   config = YAML.load_file(yardoc_yaml)
 
-  # true == 'on' in GH yaml
+  # true == 'on' in GH action yaml
   paths = config[true]['pull_request']['paths'].select do |path|
     files.find { |file| File.fnmatch(path, file) }
   end
+  if paths.empty?
+    puts Rainbow('Finished. No watched paths changed.').yellow
+    exit!
+  end
+
   paths = paths.map { |g| "'#{g}'" }.join(' ')
 
   cmd = "yardoc #{paths}"
