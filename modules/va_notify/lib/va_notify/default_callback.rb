@@ -37,7 +37,7 @@ module VANotify
       when 'temporary-failure'
         temporary_failure(tags) if notification_type == 'error'
       when 'permanent-failure'
-        permanent_failure(tags) if notification_type == 'error'  
+        permanent_failure(tags) if notification_type == 'error'
       end
     end
 
@@ -48,7 +48,7 @@ module VANotify
       when 'temporary-failure'
         temporary_failure_without_metadata
       when 'permanent-failure'
-        permanent_failure_without_metadata  
+        permanent_failure_without_metadata
       end
     end
 
