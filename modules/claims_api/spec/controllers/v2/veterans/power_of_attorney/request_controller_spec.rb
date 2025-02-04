@@ -364,6 +364,22 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         ]
       }
     end
+    let(:claimant_information) do
+      {
+        claimant: {
+          address: {
+            addressLine1: '2719 Hyperion Ave',
+            addressLine2: 'Apt 2',
+            city: 'Los Angeles',
+            countryCode: 'US',
+            stateCode: 'CA',
+            zipCode: '92264',
+            zipCodeSuffix: '0200'
+          },
+          relationship: 'Spouse'
+        }
+      }
+    end
     let(:veteran_id) { '1012667145V762142' }
     let(:representative_data) do
       {
@@ -453,6 +469,33 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         expect(response).to have_http_status(:created)
         expect(JSON.parse(response.body)['data']['id']).not_to be_nil
         expect(JSON.parse(response.body)['data']['type']).to eq('power-of-attorney-request')
+      end
+    end
+
+    context 'handling countryCodes' do
+      it 'returns a 422 when the veteran countryCode has no match in the BRD countries list' do
+        mock_ccg(scopes) do |auth_header|
+          form_attributes[:veteran][:address][:countryCode] = '76'
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'The country provided is not valid.'
+          )
+        end
+      end
+
+      it 'returns a 422 when the claimant countryCode has no match in the BRD countries list' do
+        mock_ccg(scopes) do |auth_header|
+          form_attributes.merge!(claimant_information)
+          form_attributes[:claimant][:address][:countryCode] = '76'
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'The country provided is not valid.'
+          )
+        end
       end
     end
   end

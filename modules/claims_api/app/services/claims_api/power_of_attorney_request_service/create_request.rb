@@ -8,6 +8,7 @@ require 'bgs_service/vnp_ptcpnt_addrs_service'
 require 'bgs_service/vnp_ptcpnt_phone_service'
 require 'bgs_service/vnp_ptcpnt_service'
 require 'concurrent-ruby'
+require 'brd/brd'
 
 module ClaimsApi
   module PowerOfAttorneyRequestService
@@ -169,7 +170,7 @@ module ClaimsApi
               addrs_two_txt: address[:addressLine2],
               bad_addrs_ind: nil,
               city_nm: address[:city],
-              cntry_nm: address[:country],
+              cntry_nm: ClaimsApi::BRD::COUNTRY_CODES[(address[:countryCode]).to_s],
               county_nm: nil,
               eft_waiver_type_nm: nil,
               email_addrs_txt: nil,

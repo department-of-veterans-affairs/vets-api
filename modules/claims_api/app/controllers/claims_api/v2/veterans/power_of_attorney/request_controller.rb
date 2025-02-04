@@ -4,6 +4,7 @@ require 'bgs_service/manage_representative_service'
 require 'claims_api/common/exceptions/lighthouse/bad_gateway'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
+require 'brd/brd'
 
 module ClaimsApi
   module V2
@@ -105,6 +106,7 @@ module ClaimsApi
         end
 
         def create # rubocop:disable Metrics/MethodLength
+          validate_country_code
           # validate target veteran exists
           target_veteran
 
@@ -152,6 +154,24 @@ module ClaimsApi
         end
 
         private
+
+        def validate_country_code
+          # veteran and claimant if present
+          vet_cc = form_attributes.dig('veteran', 'address', 'countryCode')
+          claimant_cc = form_attributes.dig('claimant', 'address', 'countryCode')
+
+          if ClaimsApi::BRD::COUNTRY_CODES[vet_cc.to_s].blank?
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: 'The country provided is not valid.'
+            )
+          end
+
+          if claimant_cc.present? && ClaimsApi::BRD::COUNTRY_CODES[claimant_cc.to_s].blank?
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: 'The country provided is not valid.'
+            )
+          end
+        end
 
         def validate_decide_params!(proc_id:, decision:)
           if proc_id.blank?

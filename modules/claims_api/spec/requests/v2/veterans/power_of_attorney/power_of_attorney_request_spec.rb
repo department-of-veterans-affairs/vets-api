@@ -25,6 +25,8 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
         context 'when the Veteran ICN is not found in MPI' do
           it 'returns a meaningful 404' do
             mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
+                .to receive(:validate_country_code).and_return(nil)
               allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(false)
 
               detail = "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). " \
