@@ -138,13 +138,13 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploader.upload!
   end
 
-  def form_matches_schema
-    return unless form_is_string
+  # def form_matches_schema
+  #   return unless form_is_string
 
-    JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[form_id], parsed_form).each do |v|
-      errors.add(:form, v.to_s)
-    end
-  end
+  #   JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[form_id], parsed_form).each do |v|
+  #     errors.add(:form, v.to_s)
+  #   end
+  # end
 
   def to_pdf(form_id: FORM)
     self.form_id = form_id
