@@ -480,11 +480,13 @@ class Form526Submission < ApplicationRecord
   # or when we get a non_retryable_error response from claim establishment flow
   # @param invoker: string where the Received Email trigger is being called from
   def send_submitted_email(invoker)
-    Rails.logger.info("Form526SubmittedEmailJob called for user #{user_uuid},
+    if Flipper.enabled?(:disability_526_send_form526_submitted_email)
+      Rails.logger.info("Form526SubmittedEmailJob called for user #{user_uuid},
                                                           submission: #{id} from #{invoker}")
-    first_name = get_first_name
-    params = personalization_parameters(first_name)
-    Form526SubmittedEmailJob.perform_async(params)
+      first_name = get_first_name
+      params = personalization_parameters(first_name)
+      Form526SubmittedEmailJob.perform_async(params)
+    end
   end
 
   # Send the Received Confirmation Email - when we have confirmed VBMS can start processing the claim

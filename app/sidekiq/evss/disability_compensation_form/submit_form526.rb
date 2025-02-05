@@ -54,7 +54,7 @@ module EVSS
           )
 
           # send "Submitted" email without claim id here for backup path
-          if next_birls_jid.blank? && Flipper.enabled?(:disability_526_send_form526_submitted_email)
+          if next_birls_jid.blank?
             submission.send_submitted_email("#{self.class}#sidekiq_retries_exhausted backup path")
           end
         rescue => e
@@ -175,9 +175,7 @@ module EVSS
         submission.submitted_claim_id = response.claim_id
         submission.save
         # send "Submitted" email with claim id here for primary path
-        if Flipper.enabled?(:disability_526_send_form526_submitted_email)
-          submission.send_submitted_email("#{self.class}#response_handler primary path")
-        end
+        submission.send_submitted_email("#{self.class}#response_handler primary path")
       end
 
       def send_post_evss_notifications(submission, send_notifications)
@@ -246,7 +244,7 @@ module EVSS
           )
 
           # send "Submitted" email without claim id here for backup path
-          if next_birls_jid.blank? && Flipper.enabled?(:disability_526_send_form526_submitted_email)
+          if next_birls_jid.blank?
             submission.send_submitted_email("#{self.class}#non_retryable_error_handler backup path")
           end
         end
