@@ -9,8 +9,8 @@ class UserAuditLogger
   attr_reader :user_action_event, :acting_user_verification, :subject_user_verification,
               :status, :acting_ip_address, :acting_user_agent
 
-  # All parameters are kept explicit in the method signature for better clarity
-  def initialize(user_action_event:, acting_user_verification:, subject_user_verification:, # rubocop:disable Metrics/ParameterLists
+  # rubocop:disable Metrics/ParameterLists
+  def initialize(user_action_event:, acting_user_verification:, subject_user_verification:,
                  status:, acting_ip_address:, acting_user_agent:)
     @user_action_event = user_action_event
     @acting_user_verification = acting_user_verification
@@ -19,6 +19,7 @@ class UserAuditLogger
     @acting_ip_address = acting_ip_address
     @acting_user_agent = acting_user_agent
   end
+  # rubocop:enable Metrics/ParameterLists
 
   def perform
     validate_required_fields
