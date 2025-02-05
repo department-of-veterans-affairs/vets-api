@@ -104,24 +104,12 @@ RSpec.describe ApiProviderFactory do
         provider: api_provider,
         options: { icn: current_user.icn, auth_headers: },
         current_user:,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE
+        feature_toggle: nil
       )
-    end
-
-    it 'provides an EVSS claims service provider' do
-      expect(provider(:evss).class).to equal(EvssClaimsServiceProvider)
     end
 
     it 'provides a Lighthouse claims service provider' do
       expect(provider(:lighthouse).class).to equal(LighthouseClaimsServiceProvider)
-    end
-
-    it 'provides claims service provider based on Flipper' do
-      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE)
-      expect(provider.class).to equal(LighthouseClaimsServiceProvider)
-
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE)
-      expect(provider.class).to equal(EvssClaimsServiceProvider)
     end
 
     it 'throw error if provider unknown' do
