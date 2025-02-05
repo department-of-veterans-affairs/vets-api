@@ -596,20 +596,65 @@ RSpec.describe V1::SessionsController, type: :controller do
     end
 
     context 'when user has level of assurance 1' do
+      let(:loa) { :loa1 }
+
       before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
-      let(:user) { build(:user, :loa1, uuid:, idme_uuid: uuid) }
+      context 'when user has not accepted the current terms of use' do
+        let(:user) { build(:user, loa, uuid:, idme_uuid: uuid) }
+        let(:application) { 'some-applicaton' }
 
-      it 'redirects to expected auth page' do
-        expect(call_endpoint).to redirect_to(expected_redirect_url)
+        before do
+          SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: })
+        end
+
+        context 'and authentication occurred with a application in Settings.terms_of_use.enabled_clients' do
+          before do
+            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
+          end
+
+          context 'when the application is not in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
+            it 'redirects to terms of use page' do
+              expect(call_endpoint).to redirect_to(
+                'http://127.0.0.1:3001/terms-of-use?redirect_url=http%3A%2F%2F127.0.0.1%3A3001%2Fauth%2Flogin%2Fcallback'
+              )
+            end
+          end
+
+          context 'when the application is in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
+            let(:application) { 'mhv' }
+
+            it 'redirects to terms of use page with skip_mhv_account_creation query param' do
+              expect(call_endpoint).to redirect_to(a_string_including('skip_mhv_account_creation=true'))
+            end
+          end
+        end
+
+        context 'and authentication occurred with an application not in Settings.terms_of_use.enabled_clients' do
+          before do
+            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return('')
+          end
+
+          it 'redirects to expected auth page' do
+            expect(call_endpoint).to redirect_to(expected_redirect_url)
+          end
+        end
+      end
+
+      context 'when user has accepted the current terms of use' do
+        it 'redirects to expected auth page' do
+          expect(call_endpoint).to redirect_to(expected_redirect_url)
+        end
       end
     end
 
     context 'when user has level of assurance 3' do
+      let(:loa) { :loa3 }
+
       before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
       context 'when user has not accepted the current terms of use' do
-        let(:user) { build(:user, :loa3, uuid:, idme_uuid: uuid) }
+        let(:user) { build(:user, loa, uuid:, idme_uuid: uuid) }
         let(:application) { 'some-applicaton' }
 
         before do

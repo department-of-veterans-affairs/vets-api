@@ -694,6 +694,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             expect(data['id']).to eq('70060')
             expect(data['attributes']['kind']).to eq('clinic')
             expect(data['attributes']['status']).to eq('proposed')
+            expect(data['attributes']['pending']).to be(true)
+            expect(data['attributes']['past']).to be(true)
+            expect(data['attributes']['future']).to be(false)
             expect(data['attributes']['avsPath']).to be_nil
             expect(Rails.logger).to have_received(:info).with(
               'VAOS::V2::AppointmentsController appointment creation time: 2021-12-13T14:03:02Z',
@@ -892,6 +895,71 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             put '/vaos/v2/appointments/35952', params: { status: 'cancelled' }
             expect(response).to have_http_status(:bad_gateway)
             expect(JSON.parse(response.body)['errors'][0]['code']).to eq('VAOS_502')
+          end
+        end
+      end
+    end
+
+    describe 'POST appointments/submit' do
+      context 'referral appointment' do
+        let(:params) do
+          { referral_number: '12345',
+            provider_service_id: '9mN718pH',
+            id: 'J9BhspdR',
+            slot_id: '5vuTac8v-practitioner-4-role-1|2a82f6c9-e693-4091-826d' \
+                     '-97b392958301|2024-11-04T17:00:00Z|30m0s|1732735998236|ov',
+            network_id: 'sandbox-network-5vuTac8v',
+            name: {
+              family: 'Smith',
+              given: %w[
+                Sarah
+                Elizabeth
+              ]
+            },
+            birth_date: '1985-03-15',
+            email: 'sarah.smith@email.com',
+            gender: 'female',
+            phone_number: '407-555-8899',
+            address: {
+              city: 'Orlando',
+              country: 'USA',
+              line: [
+                '742 Sunshine Boulevard',
+                'Apt 15B'
+              ],
+              postal_code: '32801',
+              state: 'FL',
+              type: 'both',
+              text: 'text'
+            } }
+        end
+
+        it 'successfully submits referral appointment' do
+          VCR.use_cassette('vaos/v2/eps/post_access_token',
+                           match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/eps/post_submit_appointment',
+                             match_requests_on: %i[method path body]) do
+              post '/vaos/v2/appointments/submit', params:, headers: inflection_header
+
+              response_obj = JSON.parse(response.body)
+              expect(response).to have_http_status(:created)
+              expect(response_obj.dig('data', 'id')).to eql('J9BhspdR')
+            end
+          end
+        end
+
+        it 'handles EPS error response' do
+          VCR.use_cassette('vaos/v2/eps/post_access_token',
+                           match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/eps/post_submit_appointment_400',
+                             match_requests_on: %i[method path]) do
+              post '/vaos/v2/appointments/submit', params: { ** params, phone_number: nil }, headers: inflection_header
+
+              response_obj = JSON.parse(response.body)
+              expect(response).to have_http_status(:bad_request)
+              expect(response_obj['errors'].length).to be(1)
+              expect(response_obj['errors'][0]['detail']).to eql('missing patient attributes: phone')
+            end
           end
         end
       end

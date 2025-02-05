@@ -49,12 +49,32 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
     }
   end
 
+  it 'sets retry_for to 48 hours' do
+    expect(described_class.get_sidekiq_options['retry_for']).to eq(48.hours)
+  end
+
   describe '#perform' do
     let(:poa) do
       create(:power_of_attorney,
              auth_headers: auth_headers,
              form_data: claimant_form_data,
              status: ClaimsApi::PowerOfAttorney::SUBMITTED)
+    end
+
+    it 'logs out the details correctly for consent information' do
+      poa_code = poa.form_data['data']['attributes']['serviceOrganization']['poaCode']
+      consent_msg = 'Updating Access. recordConsent: false ' \
+                    "for representative #{poa_code}"
+
+      allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
+        .to receive(:assign_poa_to_dependent!).and_return(
+          true
+        )
+
+      detail_msg = ClaimsApi::ServiceBase.new.send(:form_logger_consent_detail, poa, poa_code)
+
+      expect(detail_msg).to eq(consent_msg)
+      described_class.new.perform(poa.id, 'Rep Data')
     end
 
     it "marks the POA status as 'updated'" do
@@ -64,7 +84,7 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
         )
 
       allow_any_instance_of(ClaimsApi::ServiceBase)
-        .to receive(:enable_vbms_access?).and_return(
+        .to receive(:allow_poa_access?).and_return(
           true
         )
 
@@ -73,6 +93,81 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
 
       poa.reload
       expect(poa.status).to eq(ClaimsApi::PowerOfAttorney::UPDATED)
+    end
+
+    describe 'allow_poa_access' do
+      let(:dependent_claimant_poa_assignment_service) do
+        instance_double(ClaimsApi::DependentClaimantPoaAssignmentService)
+      end
+
+      before do
+        allow(ClaimsApi::DependentClaimantPoaAssignmentService).to receive(:new)
+          .and_return(dependent_claimant_poa_assignment_service)
+        allow(dependent_claimant_poa_assignment_service).to receive(:assign_poa_to_dependent!).and_return(nil)
+      end
+
+      context 'when recordConsent is true and consentLimits are blank' do
+        before do
+          poa.form_data['recordConsent'] = true
+          poa.form_data['consentLimits'] = []
+          poa.save
+        end
+
+        it "sets allow_poa_access to 'Y'" do
+          expect(ClaimsApi::DependentClaimantPoaAssignmentService)
+            .to receive(:new)
+            .with(hash_including(allow_poa_access: 'Y'))
+
+          described_class.new.perform(poa.id)
+        end
+      end
+
+      context 'when recordConsent is false' do
+        before do
+          poa.form_data['recordConsent'] = false
+          poa.save
+        end
+
+        it "sets allow_poa_access to 'N'" do
+          expect(ClaimsApi::DependentClaimantPoaAssignmentService)
+            .to receive(:new)
+            .with(hash_including(allow_poa_access: 'N'))
+
+          described_class.new.perform(poa.id)
+        end
+      end
+
+      context 'when recordConsent is true but consentLimits are present' do
+        before do
+          poa.form_data['recordConsent'] = true
+          poa.form_data['consentLimits'] = %w[consentLimit1 consentLimit2]
+          poa.save
+        end
+
+        it "sets allow_poa_access to 'N'" do
+          expect(ClaimsApi::DependentClaimantPoaAssignmentService)
+            .to receive(:new)
+            .with(hash_including(allow_poa_access: 'N'))
+
+          described_class.new.perform(poa.id)
+        end
+      end
+
+      context 'when recordConsent is missing' do
+        before do
+          poa.form_data.delete('recordConsent')
+          poa.form_data['consentLimits'] = []
+          poa.save
+        end
+
+        it "sets allow_poa_access to 'N'" do
+          expect(ClaimsApi::DependentClaimantPoaAssignmentService)
+            .to receive(:new)
+            .with(hash_including(allow_poa_access: 'N'))
+
+          described_class.new.perform(poa.id)
+        end
+      end
     end
 
     context 'if an error occurs in the service call' do
