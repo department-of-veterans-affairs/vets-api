@@ -19,6 +19,7 @@ module AskVAApi
           }
         end
 
+        # rubocop:disable Layout/LineLength, Metrics/MethodLength
         private
 
         def inquiry_about
@@ -133,6 +134,8 @@ module AskVAApi
         def topic
           inquiry_params[:select_topic]
         end
+
+        # rubocop:enable Layout/LineLength, Metrics/MethodLength
       end
     end
   end
