@@ -58,7 +58,8 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
       'file' => 'sensitive binary content',
       'original_filename' => 'private_file.docx',
       'headers' => 'Content-Disposition: form-data; name="attachment"; filename="private_file.docx"',
-      'tempfile' => '#<File:/tmp/sensitive_file.docx>'
+      'tempfile' => '#<File:/tmp/sensitive_file.docx>',
+      'metadata' => { 'extra' => 'should_be_filtered' } # Nested hash
     }
 
     post '/test_params', params: { attachment: file_params }
@@ -74,6 +75,7 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
     expect(logs).to include('"original_filename":"[FILTERED]"')
     expect(logs).to include('"headers":"[FILTERED]"')
     expect(logs).to include('"tempfile":"[FILTERED]"')
+    expect(logs).to include('"metadata":{"extra":"[FILTERED]"}')
 
     expect(logs).to include('"attachment"')
   end
