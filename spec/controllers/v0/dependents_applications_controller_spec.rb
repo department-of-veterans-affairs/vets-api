@@ -42,7 +42,8 @@ RSpec.describe V0::DependentsApplicationsController do
   describe 'POST create' do
     context 'with valid params v1' do
       before do
-        Flipper.disable(:va_dependents_v2)
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
         allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
@@ -59,7 +60,8 @@ RSpec.describe V0::DependentsApplicationsController do
 
     context 'with valid params v2' do
       before do
-        Flipper.enable(:va_dependents_v2)
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
         allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
