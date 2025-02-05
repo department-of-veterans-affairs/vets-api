@@ -40,10 +40,6 @@ module RepresentationManagement
       end
     end
 
-    def entity
-      @entity ||= find_entity
-    end
-
     private
 
     def base_date
