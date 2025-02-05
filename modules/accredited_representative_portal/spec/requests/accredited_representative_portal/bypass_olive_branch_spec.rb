@@ -2,13 +2,20 @@
 
 require 'rails_helper'
 
-RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request do
-  before(:all) do
-    class BypassOliveBranchTestController < ActionController::API
-      def arp = render json: {}
-      def normal = render json: {}
-    end
+class BypassOliveBranchTestController < ActionController::API
+  def arp = render json: {}
+  def normal = render json: {}
+end
 
+RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request do
+  subject do
+    get "#{path_prefix}/bypass_olive_branch_test", headers: {
+      'X-Key-Inflection' => 'camel',
+      'Content-Type' => 'application/json'
+    }
+  end
+
+  before(:all) do
     Rails.application.routes.draw do
       get '/accredited_representative_portal/bypass_olive_branch_test', to: 'bypass_olive_branch_test#arp'
       get '/bypass_olive_branch_test', to: 'bypass_olive_branch_test#normal'
@@ -17,13 +24,6 @@ RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request
 
   after(:all) do
     Rails.application.reload_routes!
-  end
-
-  subject do
-    get "#{path_prefix}/bypass_olive_branch_test", headers: {
-      'X-Key-Inflection' => 'camel',
-      'Content-Type' => 'application/json'
-    }
   end
 
   context 'when the request is for an accredited representative portal route' do
@@ -46,5 +46,3 @@ RSpec.describe AccreditedRepresentativePortal::BypassOliveBranch, type: :request
     end
   end
 end
-
-
