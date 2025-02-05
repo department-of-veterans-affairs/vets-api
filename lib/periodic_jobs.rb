@@ -2,17 +2,17 @@
 
 require 'holidays'
 
+# jobs no located under app/*
+require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
+
 # @see https://crontab.guru/
 # @see https://en.wikipedia.org/wiki/Cron
+# @see https://github.com/sidekiq/sidekiq/wiki/Ent-Periodic-Jobs
 PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
   # Runs at midnight every Tuesday
   mgr.register('0 0 * * 2', 'LoadAverageDaysForClaimCompletionJob')
-
-  # TODO: Document these jobs
-  mgr.register('*/15 * * * *', 'CovidVaccine::ScheduledBatchJob')
-  mgr.register('*/15 * * * *', 'CovidVaccine::ExpandedScheduledSubmissionJob')
 
   # Update HigherLevelReview statuses with their Central Mail status
   mgr.register('5 * * * *', 'AppealsApi::HigherLevelReviewUploadStatusBatch')
@@ -64,6 +64,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Update FormSubmissionAttempt status from Lighthouse Benefits Intake API
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
+  mgr.register('0 0 * * *', '::BenefitsIntake::SubmissionStatusJob')
 
   # Generate FormSubmissionAttempt rememdiation statistics from Lighthouse Benefits Intake API
   mgr.register('0 1 * * 1', 'BenefitsIntakeRemediationStatusJob')
@@ -90,19 +91,19 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('20 0 * * *', 'TestUserDashboard::DailyMaintenance')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::GmtThresholdsImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::GmtThresholdsImport')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::StdCountyImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::StdCountyImport')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::StdIncomeThresholdImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::StdIncomeThresholdImport')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::StdStateImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::StdStateImport')
 
   # Import income limit data CSVs from S3
-  mgr.register('0 0 1 */3 *', 'IncomeLimits::StdZipcodeImport')
+  mgr.register('0 0 1 * *', 'IncomeLimits::StdZipcodeImport')
 
   # Import facilities data CSV from S3 daily at 4:30pmET
   mgr.register('30 16 * * *', 'HCA::StdInstitutionImportJob')
@@ -166,11 +167,10 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 16 * * *', 'VANotify::InProgressForms')
   mgr.register('0 1 * * *', 'VANotify::ClearStaleInProgressRemindersSent')
   mgr.register('0 * * * *', 'VANotify::InProgress1880Form')
-  mgr.register('0 * * * *', 'CovidVaccine::ExpandedSubmissionStateJob')
   mgr.register('0 * * * *', 'PagerDuty::CacheGlobalDowntime')
   mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')
   mgr.register('0 2 * * *', 'InProgressFormCleaner')
-  mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
+  # mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
   mgr.register('0 3 * * *', 'Form1095::New1095BsJob')
   mgr.register('0 2 * * *', 'Veteran::VSOReloader')
   mgr.register('15 2 * * *', 'Preneeds::DeleteOldUploads')
@@ -225,10 +225,10 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 
-  # Engine version: Hourly jobs that update DR SavedClaims with delete_date
-  mgr.register('10 * * * *', 'DecisionReviews::HlrStatusUpdaterJob')
-  mgr.register('15 * * * *', 'DecisionReviews::NodStatusUpdaterJob')
-  mgr.register('40 * * * *', 'DecisionReviews::ScStatusUpdaterJob')
+  # Engine version: Sync non-final DR SavedClaims to LH status
+  mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')
+  mgr.register('15 1-21/4 * * *', 'DecisionReviews::NodStatusUpdaterJob')
+  mgr.register('30 2-22/4 * * *', 'DecisionReviews::ScStatusUpdaterJob')
 
   # Engine version: Clean SavedClaim records that are past delete date
   mgr.register('0 5 * * *', 'DecisionReviews::DeleteSavedClaimRecordsJob')
@@ -243,4 +243,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
   # Daily 1900 job for Vye: clears deactivated BDNs every evening.
   mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
+
+  # Daily cleanup of > 12 month old UserAction records
+  mgr.register('45 3 * * *', 'UserActionEventsCleanupJob')
 }

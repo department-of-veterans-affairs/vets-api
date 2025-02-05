@@ -629,7 +629,7 @@ module EVSS
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssues' => input_disability['specialIssues'].presence,
-          'serviceRelevance' => "Caused by an in-service event, injury, or exposure\n"\
+          'serviceRelevance' => "Caused by an in-service event, injury, or exposure\n" \
                                 "#{input_disability['primaryDescription']}"
         }.compact
       end
@@ -649,7 +649,7 @@ module EVSS
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssues' => input_disability['specialIssues'].presence,
-          'serviceRelevance' => "Worsened because of military service\n"\
+          'serviceRelevance' => "Worsened because of military service\n" \
                                 "#{input_disability['worsenedDescription']}: #{input_disability['worsenedEffects']}"
         }.compact
       end
@@ -670,9 +670,9 @@ module EVSS
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssues' => input_disability['specialIssues'].presence,
-          'serviceRelevance' => "Caused by VA care\n"\
-                                "Event: #{input_disability['vaMistreatmentDescription']}\n"\
-                                "Location: #{input_disability['vaMistreatmentLocation']}\n"\
+          'serviceRelevance' => "Caused by VA care\n" \
+                                "Event: #{input_disability['vaMistreatmentDescription']}\n" \
+                                "Location: #{input_disability['vaMistreatmentLocation']}\n" \
                                 "TimeFrame: #{input_disability['vaMistreatmentDate']}"
         }.compact
       end
@@ -692,7 +692,7 @@ module EVSS
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'SECONDARY',
           'specialIssues' => input_disability['specialIssues'].presence,
-          'serviceRelevance' => "Caused by a service-connected disability\n"\
+          'serviceRelevance' => "Caused by a service-connected disability\n" \
                                 "#{input_disability['causedByDisabilityDescription']}"
         }.compact
 

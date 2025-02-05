@@ -32,10 +32,10 @@ module MebApi
 
         def request_headers
           {
-            "Accept": 'application/pdf',
-            "Authorization": "Bearer #{MebApi::AuthenticationTokenService.call}",
-            "Accept-Encoding": 'gzip, deflate, br',
-            "Connection": 'keep-alive'
+            Accept: 'application/pdf',
+            Authorization: "Bearer #{MebApi::AuthenticationTokenService.call}",
+            'Accept-Encoding': 'gzip, deflate, br',
+            Connection: 'keep-alive'
           }
         end
       end

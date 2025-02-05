@@ -6,7 +6,7 @@ require Vye::Engine.root / 'spec/rails_helper'
 RSpec.describe Vye::LoadData do
   let(:source) { :bdn_feed }
   let(:locator) { 'test' }
-  let(:bdn_clone) { FactoryBot.create(:vye_bdn_clone_base) }
+  let(:bdn_clone) { create(:vye_bdn_clone_base) }
   let(:records) do
     {
       profile: {

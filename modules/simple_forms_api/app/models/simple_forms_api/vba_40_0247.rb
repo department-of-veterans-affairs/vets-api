@@ -14,6 +14,14 @@ module SimpleFormsApi
       }
     end
 
+    def notification_first_name
+      data.dig('applicant_full_name', 'first')
+    end
+
+    def notification_email_address
+      data['applicant_email']
+    end
+
     def veteran_name
       first_name = data.dig('veteran_full_name', 'first') || ''
       middle_name = data.dig('veteran_full_name', 'middle') || ''

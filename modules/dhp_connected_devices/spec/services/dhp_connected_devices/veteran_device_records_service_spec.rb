@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe VeteranDeviceRecordsService, type: :service do
   describe 'veteran_device_records#create_or_activate' do
-    let!(:user) { create :user, :loa3 }
-    let!(:device) { create :device, :fitbit }
+    let!(:user) { create(:user, :loa3) }
+    let!(:device) { create(:device, :fitbit) }
 
     context 'when no veteran device record exists' do
       it 'create one' do
@@ -59,8 +59,8 @@ RSpec.describe VeteranDeviceRecordsService, type: :service do
   end
 
   describe 'veteran_device_records#deactivate' do
-    let!(:user) { create :user, :loa3 }
-    let!(:device) { create :device, :fitbit }
+    let!(:user) { create(:user, :loa3) }
+    let!(:device) { create(:device, :fitbit) }
 
     before do
       @vdr = VeteranDeviceRecord.create(icn: user.icn, device_id: device.id, active: true)
