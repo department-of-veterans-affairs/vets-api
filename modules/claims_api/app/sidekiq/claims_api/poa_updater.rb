@@ -6,6 +6,8 @@ require 'bgs_service/vet_record_web_service'
 
 module ClaimsApi
   class PoaUpdater < ClaimsApi::ServiceBase
+    sidekiq_options retry_for: 48.hours
+
     def perform(power_of_attorney_id, rep_id = nil) # rubocop:disable Metrics/MethodLength
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       process = ClaimsApi::Process.find_or_create_by(processable: poa_form,

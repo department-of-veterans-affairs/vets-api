@@ -39,4 +39,32 @@ RSpec.describe SimpleFormsApi::VBA210845 do
       end
     end
   end
+
+  describe '#notification_email_address' do
+    context 'preparer is veteran' do
+      let(:data) do
+        {
+          'authorizer_type' => 'veteran',
+          'veteran_email' => 'a@b.com'
+        }
+      end
+
+      it 'returns the veteran email address' do
+        expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
+      end
+    end
+
+    context 'preparer is nonVeteran' do
+      let(:data) do
+        {
+          'authorizer_type' => 'nonVeteran',
+          'authorizer_email' => 'a@b.com'
+        }
+      end
+
+      it 'returns the authorizer email address' do
+        expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
+      end
+    end
+  end
 end

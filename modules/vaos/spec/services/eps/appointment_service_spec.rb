@@ -17,6 +17,59 @@ describe Eps::AppointmentService do
     allow_any_instance_of(Eps::BaseService).to receive_messages(config: config, headers: headers)
   end
 
+  describe '#get_appointment' do
+    let(:success_response) do
+      double('Response', status: 200, body: { 'id' => appointment_id,
+                                              'state' => 'submitted',
+                                              'patientId' => icn })
+    end
+
+    context 'when the request is successful' do
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(success_response)
+      end
+
+      it 'returns appointment details' do
+        response = service.get_appointment(appointment_id:)
+        expect(response.id).to eq(appointment_id)
+        expect(response.state).to eq('submitted')
+        expect(response.patientId).to eq(icn)
+      end
+
+      context 'when retrieve_latest_details is true' do
+        before do
+          expect_any_instance_of(VAOS::SessionService).to receive(:perform)
+            .with(:get, "/#{config.base_path}/appointments/#{appointment_id}?retrieveLatestDetails=true", {}, headers)
+            .and_return(success_response)
+        end
+
+        it 'includes the retrieveLatestDetails query parameter' do
+          response = service.get_appointment(appointment_id:, retrieve_latest_details: true)
+          expect(response.id).to eq(appointment_id)
+        end
+      end
+    end
+
+    context 'when the endpoint fails to return appointments' do
+      let(:failed_appt_response) do
+        double('Response', status: 500, body: 'Unknown service exception')
+      end
+      let(:exception) do
+        Common::Exceptions::BackendServiceException.new(nil, {}, failed_appt_response.status,
+                                                        failed_appt_response.body)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
+      end
+
+      it 'throws exception' do
+        expect { service.get_appointment(appointment_id:) }.to raise_error(Common::Exceptions::BackendServiceException,
+                                                                           /VA900/)
+      end
+    end
+  end
+
   describe 'get_appointments' do
     context 'when requesting appointments for a logged in user' do
       let(:successful_appt_response) do
