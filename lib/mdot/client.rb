@@ -126,9 +126,7 @@ module MDOT
       save_error_details(error)
 
       code =
-        if !error
-          'default_exception'
-        elsif error.try(:status) == 401
+        if error.try(:status) == 401
           'MDOT_unauthorized'
         elsif error.try(:status) == 500
           'MDOT_internal_server_error'
