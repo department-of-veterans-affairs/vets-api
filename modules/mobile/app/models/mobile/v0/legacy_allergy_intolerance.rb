@@ -15,6 +15,7 @@ module Mobile
       attribute :recorder, Types::Hash
       attribute :notes, Types::Array
       attribute :reactions, Types::Array
+      attribute :category, Types::Array.of(Types::String)
     end
   end
 end
