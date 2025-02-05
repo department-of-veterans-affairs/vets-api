@@ -337,6 +337,18 @@ features:
     actor_type: user
     description: When enabled, CST does not show Attorney Fee, Secondary Action Required, or Stage 2 Development
     enable_in_development: false
+  cst_override_pmr_pending_tracked_items:
+    actor_type: user
+    description: When enabled, CST overrides PMR Pending tracked items to be NEEDED_FROM_OTHERS
+    enable_in_development: true
+  cst_override_reserve_records_website:
+    actor_type: user
+    description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on vets-website
+    enable_in_development: true
+  cst_override_reserve_records_mobile:
+    actor_type: user
+    description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
+    enable_in_development: true
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application
@@ -393,6 +405,9 @@ features:
   debts_silent_failure_mailer:
     actor_type: user
     description: Enables silent failure mailer for the 5655
+  debts_sharepoint_error_logging:
+    actor_type: user
+    description: Logs Sharepoint error data
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission

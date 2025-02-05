@@ -250,6 +250,9 @@ pension_burial:
   sftp:
     relative_path: "../VETSGOV_PENSION"
 
+bpds:
+  jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
+
 central_mail:
   upload:
     enabled: true
@@ -1516,6 +1519,12 @@ virtual_regional_office:
 disability_max_ratings_api:
   url: http://disability-max-ratings-api-dev.vfs.va.gov
   ratings_path: /disability-max-ratings
+  open_timeout: 5
+  read_timeout: 10
+
+contention_classification_api:
+  url: http://contention-classification-api-dev.vfs.va.gov/
+  expanded_contention_classification_path: expanded-contention-classification
   open_timeout: 5
   read_timeout: 10
 
