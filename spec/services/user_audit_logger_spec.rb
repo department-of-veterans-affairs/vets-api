@@ -7,17 +7,17 @@ RSpec.describe UserAuditLogger do
     let(:user_action_event) { create(:user_action_event) }
     let(:acting_user_verification) { create(:user_verification) }
     let(:subject_user_verification) { create(:user_verification) }
-    let(:ip_address) { Faker::Internet.ip_v4_address }
-    let(:user_agent) { Faker::Internet.user_agent }
+    let(:acting_ip_address) { Faker::Internet.ip_v4_address }
+    let(:acting_user_agent) { Faker::Internet.user_agent }
     let(:status) { :initial }
     let(:logger) do
       described_class.new(
-        user_action_event: user_action_event,
-        acting_user_verification: acting_user_verification,
-        subject_user_verification: subject_user_verification,
-        status: status,
-        acting_ip_address: ip_address,
-        acting_user_agent: user_agent
+        user_action_event:,
+        acting_user_verification:,
+        subject_user_verification:,
+        status:,
+        acting_ip_address:,
+        acting_user_agent:
       )
     end
 
@@ -30,8 +30,8 @@ RSpec.describe UserAuditLogger do
         acting_user_verification: acting_user_verification,
         subject_user_verification: subject_user_verification,
         status: 'initial',
-        acting_ip_address: ip_address,
-        acting_user_agent: user_agent
+        acting_ip_address: acting_ip_address,
+        acting_user_agent: acting_user_agent
       )
     end
 
@@ -79,15 +79,15 @@ RSpec.describe UserAuditLogger do
 
     context 'when required parameter is not provided' do
       it 'raises an argument error' do
-        expect do
+        expect {
           described_class.new(
             user_action_event: user_action_event,
             acting_user_verification: acting_user_verification,
             subject_user_verification: subject_user_verification
             # missing required parameters
           )
-        end.to raise_error(ArgumentError, /missing keywords: :status, :acting_ip_address, :acting_user_agent/)
+        }.to raise_error(ArgumentError, /missing keywords: :status, :acting_ip_address, :acting_user_agent/)
       end
     end
   end
-end
+end 
