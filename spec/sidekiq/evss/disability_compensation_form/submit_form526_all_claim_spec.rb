@@ -729,7 +729,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             .and_return(true)
         end
 
-        it 'behaves sends the submitted email' do
+        it 'behaves sends the submitted email in the backup path' do
           expect(Form526SubmittedEmailJob).to receive(:perform_async).once
           subject.perform_async(submission.id)
           described_class.drain
@@ -743,7 +743,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             .and_return(false)
         end
 
-        it 'behaves does not send the submitted email' do
+        it 'behaves does not send the submitted email in the backup path' do
           expect(Form526SubmittedEmailJob).not_to receive(:perform_async)
           subject.perform_async(submission.id)
           described_class.drain

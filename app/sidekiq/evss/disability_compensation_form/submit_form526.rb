@@ -52,11 +52,6 @@ module EVSS
             silence_errors_and_log_to_sentry: true,
             extra_content_for_sentry: { job_class: msg['class'].demodulize, job_id: msg['jid'] }
           )
-
-          # send "Submitted" email without claim id here for backup path
-          if next_birls_jid.blank?
-            submission.send_submitted_email("#{self.class}#sidekiq_retries_exhausted backup path")
-          end
         rescue => e
           log_exception_to_sentry(e)
         end
@@ -238,15 +233,10 @@ module EVSS
                                 OpenStruct.new({ flipper_id: submission.user_uuid })) ||
                Flipper.enabled?(:disability_compensation_fail_submission,
                                 OpenStruct.new({ flipper_id: submission.user_uuid }))
-          next_birls_jid = submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
+          submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
             silence_errors_and_log_to_sentry: true,
             extra_content_for_sentry: { job_class: self.class.to_s.demodulize, job_id: jid }
           )
-
-          # send "Submitted" email without claim id here for backup path
-          if next_birls_jid.blank?
-            submission.send_submitted_email("#{self.class}#non_retryable_error_handler backup path")
-          end
         end
       end
 
