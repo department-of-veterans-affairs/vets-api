@@ -73,6 +73,7 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
     expect(logs).to include('"file":"[FILTERED]"')
     expect(logs).to include('"original_filename":"[FILTERED]"')
     expect(logs).to include('"headers":"[FILTERED]"')
+    expect(logs).to include('"metadata":{"extra":"[FILTERED]"}')
 
     expect(logs).to include('"attachment"')
   end
