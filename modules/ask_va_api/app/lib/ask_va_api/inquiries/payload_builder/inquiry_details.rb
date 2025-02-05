@@ -19,12 +19,13 @@ module AskVAApi
             return general_inquiry(inquiry_params, inquiry_details)
           end
 
-          if inquiry_params[:who_is_your_question_about] == 'Myself'
-            return handle_self_inquiry(inquiry_params, inquiry_details)
+          if inquiry_params[:who_is_your_question_about] == 'Someone else' || inquiry_params[:your_role]
+            return handle_others_inquiry(inquiry_params, inquiry_details)
           end
 
-          if inquiry_params[:who_is_your_question_about] == 'Someone else'
-            handle_others_inquiry(inquiry_params, inquiry_details)
+          if inquiry_params[:who_is_your_question_about] == 'Myself' ||
+             inquiry_params[:who_is_your_question_about].nil?
+            handle_self_inquiry(inquiry_params, inquiry_details)
           end
         end
 
@@ -49,7 +50,7 @@ module AskVAApi
                      inquiry_about: details_hash[:inquiry_about],
                      dependent_relationship: details_hash[:dependent_relationship],
                      veteran_relationship: details_hash[:veteran_relationship],
-                     level_of_authentication: details_hash[:level_of_authentication] || 'Personal'
+                     level_of_authentication: details_hash[:inquiry_details][:level_of_authentication] || 'Personal'
                    })
         end
 

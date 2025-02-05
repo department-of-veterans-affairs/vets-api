@@ -89,12 +89,15 @@ module BenefitsDocuments
       user_account = UserAccount.find(@user.user_account_uuid)
       EvidenceSubmission.create(
         claim_id: document.claim_id,
-        tracked_item_id: document.tracked_item_id,
+        # Doing `.first` here since document.tracked_item_id is an array with 1 tracked item
+        # TODO update this and remove the first when the below pr is worked
+        # Created https://github.com/department-of-veterans-affairs/va.gov-team/issues/101200 for this work
+        tracked_item_id: document.tracked_item_id&.first,
         job_id:,
         job_class: self.class,
         upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
         user_account:,
-        template_metadata_ciphertext: { personalisation: create_personalisation(document) }.to_json
+        template_metadata: { personalisation: create_personalisation(document) }.to_json
       )
     end
 
@@ -103,16 +106,8 @@ module BenefitsDocuments
         document_type: document.document_type,
         file_name: document.file_name,
         obfuscated_file_name: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(document.file_name),
-        date_submitted: format_issue_instant_for_mailers(Time.zone.now),
+        date_submitted: BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(Time.zone.now),
         date_failed: nil }
-    end
-
-    def format_issue_instant_for_mailers(issue_instant)
-      # We want to return all times in EDT
-      timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
-
-      # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-      timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
     end
 
     def build_lh_doc(file, file_params)
@@ -120,7 +115,6 @@ module BenefitsDocuments
       tracked_item_ids = file_params[:trackedItemIds] || file_params[:tracked_item_ids]
       document_type = file_params[:documentType] || file_params[:document_type]
       password = file_params[:password]
-
       LighthouseDocument.new(
         first_name: @user.first_name,
         participant_id: @user.participant_id,
@@ -128,9 +122,10 @@ module BenefitsDocuments
         file_obj: file,
         uuid: SecureRandom.uuid,
         file_name: file.original_filename,
-        # We pull the string out of the array for the tracked item since lighthouse gives us an array
+        # We should pull the string out of the array for the tracked item since lighthouse gives us an array
         # NOTE there will only be one tracked item here
-        # TODO update this so that we only pass a tracked item instead of an array of tracked items
+        # TODO Update this so that we only pass a tracked item instead of an array of tracked items
+        # Created https://github.com/department-of-veterans-affairs/va.gov-team/issues/101200 for this work
         tracked_item_id: tracked_item_ids,
         document_type:,
         password:

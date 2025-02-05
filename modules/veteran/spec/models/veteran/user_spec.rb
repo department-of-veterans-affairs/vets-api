@@ -35,9 +35,9 @@ describe Veteran::User do
           .and_return({
                         person_poa_history: {
                           person_poa: [
-                            { begin_dt: Time.zone.now - 2.years, legacy_poa_cd: '233' },
-                            { begin_dt: Time.zone.now - 1.year, legacy_poa_cd: '133' },
-                            { begin_dt: Time.zone.now - 3.years, legacy_poa_cd: '333' }
+                            { begin_dt: 2.years.ago, legacy_poa_cd: '233' },
+                            { begin_dt: 1.year.ago, legacy_poa_cd: '133' },
+                            { begin_dt: 3.years.ago, legacy_poa_cd: '333' }
                           ]
                         }
                       })

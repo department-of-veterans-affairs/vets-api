@@ -120,6 +120,11 @@ RSpec.describe EVSSClaimService do
       user.save!
     end
 
+    let(:issue_instant) { Time.now.to_i }
+    let(:submitted_date) do
+      BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
+    end
+
     let(:upload_file) do
       f = Tempfile.new(['file with spaces', '.txt'])
       f.write('test')
@@ -141,16 +146,25 @@ RSpec.describe EVSSClaimService do
     end
 
     context 'when :cst_send_evidence_submission_failure_emails is enabled' do
-      before { Flipper.enable(:cst_send_evidence_submission_failure_emails) }
+      before do
+        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
+      end
 
-      it 'records evidence submission' do
+      it 'records evidence submission PENDING' do
         subject.upload_document(document)
         expect(EvidenceSubmission.count).to eq(1)
+        evidence_submission = EvidenceSubmission.first
+        current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
+        expect(evidence_submission.upload_status)
+          .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
+        expect(current_personalisation['date_submitted']).to eql(submitted_date)
       end
     end
 
     context 'when :cst_send_evidence_submission_failure_emails is disabled' do
-      before { Flipper.disable(:cst_send_evidence_submission_failure_emails) }
+      before do
+        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(false)
+      end
 
       it 'does not record evidence submission' do
         subject.upload_document(document)
