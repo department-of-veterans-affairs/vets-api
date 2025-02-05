@@ -86,5 +86,56 @@ module IvcChampva
                     "#{STATS_KEY}.failed_send_zsf_notification_to_pega",
                     call_location: caller_locations.first, **additional_context)
     end
+
+    def track_all_successful_s3_uploads(key)
+      additional_context = {
+        key:
+      }
+      track_request('info', "IVC ChampVA Forms - uploaded into S3 bucket #{key}",
+                    "#{STATS_KEY}.s3_upload.success",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    def track_s3_put_object_error(key, error, response = nil)
+      additional_context = {
+        key: key,
+        error_message: error.message,
+        error_class: error.class.name,
+        backtrace: error.backtrace&.join("\n") # Safe navigation operator
+      }
+      if response.respond_to?(:status)
+        additional_context[:status_code] = response.status
+        if response.respond_to?(:body) && response.body.respond_to?(:read)
+          additional_context[:response_body] = response.body.read
+        end
+      end
+      track_request('error', 'IVC ChampVA Forms - S3 PutObject failure',
+                    "#{STATS_KEY}.s3_upload.failure", # Consistent stats key
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    def track_s3_upload_file_error(key, error)
+      additional_context = {
+        key: key,
+        error_message: error.message,
+        error_class: error.class.name,
+        backtrace: error.backtrace&.join("\n") # Safe navigation operator
+      }
+      track_request('error', 'IVC ChampVA Forms - S3 UploadFile failure',
+                    "#{STATS_KEY}.s3_upload.failure", # Consistent stats key
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    ##
+    # Logs UUID and S3 error message when supporting docs fail to reach S3.
+    #
+    # @param [String] form_uuid UUID of the form submission with failed uploads
+    # @param [String] s3_err Error message received from a failed upload to S3
+    def track_s3_upload_error(form_uuid, s3_err)
+      additional_context = { form_uuid:, s3_err: }
+      track_request('warn', "IVC ChampVa Forms - failed to upload all documents for submission: #{form_uuid}",
+                    "#{STATS_KEY}.s3_upload_error",
+                    call_location: caller_locations.first, **additional_context)
+    end
   end
 end

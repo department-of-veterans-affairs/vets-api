@@ -24,7 +24,7 @@ module BenefitsIntake
         @call_location = call_location
         @additional_context = context.merge(additional_context)
 
-        case result
+        case result.to_s
         when 'failure'
           on_failure
         when 'success'
@@ -36,7 +36,7 @@ module BenefitsIntake
 
       private
 
-      attr_reader :additional_context, :call_location, :claim, :context
+      attr_reader :additional_context, :avoided, :call_location, :claim, :context
 
       # the type of SavedClaim to be queried
       def claim_class
@@ -50,36 +50,30 @@ module BenefitsIntake
       end
 
       # the email handler to be used
-      # @see VANotify::NotificationEmail
+      # @see VeteranFacingServices::NotificationEmail
       def notification_email
         nil
       end
 
       # handle a failure result
       def on_failure
-        avoided = false
-        if notification_email
-          notification_email.deliver(:error)
-          avoided = true
-        elsif claim.respond_to?('send_failure_email')
-          claim.send_failure_email
-          avoided = true
-        end
+        notification_email.deliver(:error) if notification_email.respond_to?('deliver')
+        claim.send_failure_email if claim.respond_to?('send_failure_email')
 
-        if avoided
-          monitor.log_silent_failure_avoided(additional_context, nil, call_location:)
-        else
-          monitor.log_silent_failure(additional_context, nil, call_location:)
-        end
+        avoided ||= notification_email.respond_to?('deliver') || claim.respond_to?('send_failure_email')
+        raise "#{self.class}: on_failure silent failure not avoided" unless avoided
+
+        monitor.log_silent_failure_avoided(additional_context, call_location:)
       rescue => e
         @additional_context = additional_context.merge({ message: e.message })
-        monitor.log_silent_failure(additional_context, nil, call_location:)
+        monitor.log_silent_failure(additional_context, call_location:)
         raise e
       end
 
       # handle a success result
       def on_success
-        true
+        notification_email.deliver(:received) if notification_email.respond_to?('deliver')
+        claim.send_received_email if claim.respond_to?('send_received_email')
       end
 
       # handle a stale result

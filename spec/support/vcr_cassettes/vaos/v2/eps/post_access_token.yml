@@ -1,0 +1,90 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://login.wellhive.com/oauth2/default/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&scope=care-nav&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJraWQiOiJlN2U4NGYwNGJlZDhlYjBlYzhiOGM5ZiIsInR5cCI6IkpXVCIsImFsZyI6IlJTNTEyIn0.eyJpc3MiOiIwb2Fva2h2ZXMyWDhyVmNmeTBqNiIsInN1YiI6IjBvYW9raHZlczJYOHJWY2Z5MGo2IiwiYXVkIjoiaHR0cHM6Ly9sb2dpbi53ZWxsaGl2ZS5jb20vb2F1dGgyL2RlZmF1bHQvdjEvdG9rZW4iLCJpYXQiOjE3MzU5Mjk0NjMsImV4cCI6MTczNTkyOTc2M30.S9zt1c6FNOgeef3LAnDBN7dvFZHouhNu2WqtEyzTmYZXmUx-RAvWBpwClWlDPJ9vaRGvoz9sxXNBaqFuJ9XJUp31LrdGDDkmknOvoVCoGnQ7l56m_b6Q05bcqz83HpdHdQKX15l1RXSMIduv6u4musdQZgPhUVGrO_07Ddca7eP5dnLQ0oHAcSqfcy1HAs-DZWkySa5pT4jt7NunfEbpqucKjNgrVOJhF4FSCPQOvxqDJXPW8cIDxgSFhHGJTOFNkDAMJwviLJqimMr7qTi2pNiKQ5t-yqPxQSQ4B4IPkXFwNV09Vw2O1Er8Exy0ieZ8aY3Eke1zR60KssYVr8N7tA
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 03 Jan 2025 18:37:44 GMT
+      Server:
+      - nginx
+      Content-Type:
+      - application/json
+      X-Okta-Request-Id:
+      - Z3gueEQvrfu2uTZorlgnbQAABJE
+      X-Xss-Protection:
+      - '0'
+      P3p:
+      - CP="HONK"
+      Content-Security-Policy:
+      - 'default-src ''self'' wellhiveapphigh.okta-gov.com login.wellhive.com *.oktacdn.com;
+        connect-src ''self'' wellhiveapphigh.okta-gov.com wellhiveapphigh-admin.okta-gov.com
+        login.wellhive.com *.oktacdn.com *.mixpanel.com *.mapbox.com *.mtls.okta-gov.com
+        wellhiveapphigh.kerberos.okta-gov.com *.authenticatorlocalprod.com:8769 http://localhost:8769
+        http://127.0.0.1:8769 *.authenticatorlocalprod.com:65111 http://localhost:65111
+        http://127.0.0.1:65111 *.authenticatorlocalprod.com:65121 http://localhost:65121
+        http://127.0.0.1:65121 *.authenticatorlocalprod.com:65131 http://localhost:65131
+        http://127.0.0.1:65131 *.authenticatorlocalprod.com:65141 http://localhost:65141
+        http://127.0.0.1:65141 *.authenticatorlocalprod.com:65151 http://localhost:65151
+        http://127.0.0.1:65151 https://oinmanager.okta.com data: data.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        pendo-static-5391521872216064.storage.googleapis.com; script-src ''unsafe-inline''
+        ''unsafe-eval'' ''self'' ''report-sample'' wellhiveapphigh.okta-gov.com login.wellhive.com
+        *.oktacdn.com; style-src ''unsafe-inline'' ''self'' wellhiveapphigh.okta-gov.com
+        login.wellhive.com *.oktacdn.com; frame-src ''self'' wellhiveapphigh.okta-gov.com
+        wellhiveapphigh-admin.okta-gov.com login.wellhive.com login.okta.com com-okta-authenticator:;
+        img-src ''self'' wellhiveapphigh.okta-gov.com login.wellhive.com *.oktacdn.com
+        *.tiles.mapbox.com *.mapbox.com data: data.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        pendo-static-5391521872216064.storage.googleapis.com blob:; font-src ''self''
+        wellhiveapphigh.okta-gov.com login.wellhive.com data: *.oktacdn.com fonts.gstatic.com;
+        frame-ancestors ''self'''
+      X-Rate-Limit-Limit:
+      - '1200'
+      X-Rate-Limit-Remaining:
+      - '1196'
+      X-Rate-Limit-Reset:
+      - '1735929497'
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Accept-Ch:
+      - Sec-CH-UA-Platform-Version
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=315360000; includeSubDomains
+      X-Robots-Tag:
+      - noindex,nofollow
+      Set-Cookie:
+      - JSESSIONID=BECCDFE05EA9356C721C94AE907F3CF0; Path=/; Secure; HttpOnly
+      - activate_ca_modal_triggered=""; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Path=/
+      - autolaunch_triggered=""; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Path=/
+      - sid="";Version=1;Path=/;Max-Age=0
+      - xids="";Version=1;Path=/;Max-Age=0
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"token_type":"Bearer","expires_in":900,"access_token":"eyJraWQiOiJxU25rY2x5aXk0YU1wdEhGa2FoZTJ4cFZjamFteGhiN3I3S0JLX1p5YTU4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULkVqUVVnRDBkMV9yREY2bnVwS0xHZnFkNW5lMndzMHpxME5QbjFucTBka0kiLCJpc3MiOiJodHRwczovL2xvZ2luLndlbGxoaXZlLmNvbS9vYXV0aDIvZGVmYXVsdCIsImF1ZCI6ImFwaTovL2RlZmF1bHQiLCJpYXQiOjE3MzU5Mjk0NjQsImV4cCI6MTczNTkzMDM2NCwiY2lkIjoiMG9hb2todmVzMlg4clZjZnkwajYiLCJzY3AiOlsiY2FyZS1uYXYiXSwid2gtZGlzcGxheV9uYW1lIjoiIiwic3ViIjoiMG9hb2todmVzMlg4clZjZnkwajYiLCJ3aC10YWJsZWF1X3VzZXJfaWQiOiIiLCJ3aC1wYXJ0bmVyX2lkIjoiNXZ1VGFjOHYiLCJ3aC1jb3Jwb3JhdGVfbWFuYWdlZCI6ZmFsc2V9.nD62fbEaULs2lMaVaDKZ70l7jPtQm4la6ulINcy63Rp18wgnbmesJD2unamABSOQEoaIs5aHhK_KAs7d3_CbluFuaZwbhNWuQQjzR89AQnGtCbC_vnmy5PrWa2O1a9sSLDmA27poQy1ZXsAXVNzDaTLAfbEiDxAUuG1hXAtEhmm0V8P_WMW3J7rfEBodjA4b2I38CTMrC_a0wOZ0Zz5OTeLt0mrYAMxKPxHsKJEx7PLQGTYOZ8182xDp4KSo6c_XUdUfsKOyALsfsBNwg8nX2Lq-3jekS36JPunkQGH1ODIigNWgyQrZtkfdcrwbpd_9eboDIbsDvjKrzJQsxiBmqQ","scope":"care-nav"}'
+  recorded_at: Fri, 03 Jan 2025 18:37:44 GMT
+recorded_with: VCR 6.3.1

@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sentry_logging'
 
 module Organizations
   class QueueUpdates
     include Sidekiq::Job
-    include SentryLogging
 
     SLICE_SIZE = 30
 
@@ -51,7 +49,7 @@ module Organizations
 
     def rows_to_process(rows)
       rows.map do |row|
-        org = Veteran::Service::Organization.find_by(poa: row[:id])
+        org = Veteran::Service::Organization.find_by!(poa: row[:id])
         diff = org.diff(row)
         row.merge(diff.merge({ address_exists: org.location.present? })) if diff.values.any?
       rescue ActiveRecord::RecordNotFound => e
@@ -61,7 +59,7 @@ module Organizations
     end
 
     def log_error(message)
-      log_message_to_sentry("QueueUpdates error: #{message}", :error)
+      Rails.logger.error("QueueUpdates error: #{message}")
     end
   end
 end

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sentry_logging'
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
 require 'va_profile/models/v3/validation_address'
@@ -13,16 +12,25 @@ module Organizations
   # and update records in the database accordingly.
   class Update
     include Sidekiq::Job
-    include SentryLogging
+
+    attr_accessor :slack_messages, :orgs_data
+
+    def initialize
+      @slack_messages = []
+    end
 
     # Processes each organization's data provided in JSON format.
     # This method parses the JSON, validates each organization's address, and updates the database records.
     # @param orgs_json [String] JSON string containing an array of organization data.
     def perform(orgs_json)
-      orgs_data = JSON.parse(orgs_json)
-      orgs_data.each { |org_data| process_org_data(org_data) }
+      @orgs_data = JSON.parse(orgs_json)
+      @orgs_data.each { |org_data| process_org_data(org_data) }
     rescue => e
-      log_error("Error processing job: #{e.message}")
+      log_error("Error processing job: #{e.message}", send_to_slack: true)
+    ensure
+      @slack_messages.unshift("Orgs processed: #{@orgs_data.size}") if @orgs_data&.any?
+      @slack_messages.unshift('Organizations::Update')
+      log_to_slack(@slack_messages.join("\n"))
     end
 
     private
@@ -31,20 +39,15 @@ module Organizations
     # If the address validation fails or an error occurs during the update, the error is logged and the process
     # is halted for the current organization.
     # @param org_data [Hash] The organization data including id and address.
-    def process_org_data(org_data) # rubocop:disable Metrics/MethodLength
+    def process_org_data(org_data)
       return unless record_can_be_updated?(org_data)
 
       address_validation_api_response = nil
 
       if org_data['address_changed']
+        api_response = get_best_address_candidate(org_data['address'])
 
-        api_response = if Flipper.enabled?(:va_v3_contact_information_service)
-                         get_best_address_candidate(org_data)
-                       else
-                         get_best_address_candidate(org_data['address'])
-                       end
-
-        # don't update the record if there is not a valid address with non-zero lat and long at this point
+        # Don't update the record if there is not a valid address with non-zero lat and long at this point
         if api_response.nil?
           return
         else
@@ -71,23 +74,19 @@ module Organizations
     # @param address [Hash] A hash containing the details of the organization's address.
     # @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
     def build_validation_address(address)
-      if Flipper.enabled?(:va_v3_contact_information_service)
-        validation_model = VAProfile::Models::V3::ValidationAddress
-        state_code = address['state']['state_code']
-        city = address['city_name']
-      else
-        validation_model = VAProfile::Models::ValidationAddress
-        state_code = address['state_province']['code']
-        city = address['city']
-      end
+      validation_model = if Flipper.enabled?(:va_v3_contact_information_service)
+                           VAProfile::Models::V3::ValidationAddress
+                         else
+                           VAProfile::Models::ValidationAddress
+                         end
 
       validation_model.new(
         address_pou: address['address_pou'],
         address_line1: address['address_line1'],
         address_line2: address['address_line2'],
         address_line3: address['address_line3'],
-        city: city,
-        state_code: state_code,
+        city: address['city'],
+        state_code: address['state']['state_code'],
         zip_code: address['zip_code5'],
         zip_code_suffix: address['zip_code4'],
         country_code_iso3: address['country_code_iso3']
@@ -114,7 +113,7 @@ module Organizations
     end
 
     # Updates the address record based on the org_data and validation response.
-    # If the record cannot be found, logs an error to Sentry.
+    # If the record cannot be found, logs an error to Datadog.
     # @param org_data [Hash] Original org_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
     def update_org_record(org_data, api_response)
@@ -138,6 +137,7 @@ module Organizations
         address = api_response['candidate_addresses'].first['address']
         geocode = api_response['candidate_addresses'].first['geocode']
         meta = api_response['candidate_addresses'].first['address_meta_data']
+
         build_address(address, geocode, meta).merge({ raw_address: org_data['address'].to_json })
       end
     end
@@ -155,7 +155,7 @@ module Organizations
         address_line3: address['address_line3'],
         city: address['city'],
         province: address['state_province']['name'],
-        state_code: address['state_province']['code'],
+        state_code: address['state_province']['state_code'],
         zip_code: address['zip_code5'],
         zip_suffix: address['zip_code4'],
         country_code_iso3: address['country']['iso3_code'],
@@ -179,7 +179,7 @@ module Organizations
         state_code: address['state']['state_code'],
         zip_code: address['zip_code5'],
         zip_suffix: address['zip_code4'],
-        country_code_iso3: address['country']['iso3_code'],
+        country_code_iso3: address['country']['country_code_iso3'],
         country_name: address['country']['country_name'],
         county_name: address.dig('county', 'county_name'),
         county_code: address.dig('county', 'county_code'),
@@ -189,10 +189,12 @@ module Organizations
       }
     end
 
-    # Logs an error to Sentry.
+    # Logs an error to Datadog and adds an error to be logged to slack.
     # @param error [Exception] The error string to be logged.
-    def log_error(error)
-      log_message_to_sentry("Organizations::Update: #{error}", :error)
+    def log_error(error, send_to_slack: false)
+      message = "Organizations::Update: #{error}"
+      Rails.logger.error(message)
+      @slack_messages << "----- #{message}" if send_to_slack
     end
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values
@@ -278,6 +280,15 @@ module Organizations
       else
         original_response
       end
+    end
+
+    def log_to_slack(message)
+      return unless Settings.vsp_environment == 'production'
+
+      client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
+                                       channel: '#benefits-representation-management-notifications',
+                                       username: 'Organizations::Update Bot')
+      client.notify(message)
     end
   end
 end
