@@ -33,7 +33,7 @@ module IvcChampva
     # If any uploads yield non-200 statuses when submitted to S3, it raise a StandardError.
     #
     # @return [Array<Integer, String>] An array with a status code and an optional error message string.
-    def handle_uploads
+    def handle_uploads #rubocop:disable Metrics/MethodLength
       results = @metadata['attachment_ids'].zip(@file_paths).map do |attachment_id, file_path|
         next if file_path.blank?
 
@@ -58,10 +58,14 @@ module IvcChampva
         # for these files, but user will see error on the FE saying submission failed.
         raise StandardError, "IVC ChampVa Forms - failed to upload all documents for submission: #{s3_err}"
       else
-        # array of arrays, e.g.: [[200], [400, 'S3 error']]
-        results
+        # we want to ensure arrays with a single 200 also have a `nil` for error message, so pad array.
+        # E.g., [200] becomes [200, nil] - this is so `.transpose` always works.
+        max_subarray_length = results.map(&:length).max # Should always be 2, but check anyway
+        padded_results = results.map { |subarray| subarray + [nil] * (max_subarray_length - subarray.length) }
+        # array of arrays, e.g.: [[200, nil], [400, 'S3 error']].
+        padded_results
       end
-    end
+    end #rubocop:enable Metrics/MethodLength
 
     private
 
