@@ -8,10 +8,10 @@ module GI
     # @return  [Integer] the LCPE data version
     attribute :version, Integer
 
-    # Builds a response with a ok status and a response's body
+    # Builds a response with a ok status, response's body, and version of LCPE data
     #
     # @param response returned from the rest call
-    # @return [GI::GIDSResponse]
+    # @return [GI::LCPE::Response]
     def self.from(response)
       version = response.body.delete(:version)
       Response.new(status: response.status, body: response.body, version:)
