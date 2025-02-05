@@ -3,6 +3,7 @@
 require 'mail_automation/client'
 require 'lighthouse/veterans_health/client'
 require 'virtual_regional_office/client'
+require 'contention_classification/client'
 
 # rubocop:disable Metrics/ModuleLength
 # For use with Form526Submission
@@ -141,12 +142,11 @@ module Form526ClaimFastTrackingConcern
 
   def classify_vagov_contentions(params)
     user = OpenStruct.new({ flipper_id: user_uuid })
-    vro_client = VirtualRegionalOffice::Client.new
 
     response = if Flipper.enabled?(:disability_526_migrate_contention_classification, user)
-                 Rails.logger.info('Migrated endpoint called but is not available')
+                 ContentionClassification::Client.new.classify_vagov_contentions_expanded(params)
                else
-                 vro_client.classify_vagov_contentions_expanded(params)
+                 VirtualRegionalOffice::Client.new.classify_vagov_contentions_expanded(params)
                end
     response.body
   end
