@@ -41,7 +41,7 @@ module Lighthouse
         failed_uploads.each do |upload|
           personalisation =
             create_personalisation(
-              JSON.parse(upload.template_metadata_ciphertext)['personalisation']
+              JSON.parse(upload.template_metadata)['personalisation']
             )
           # NOTE: The file_name in the personalisation that is passed in is obscured
           response = notify_client.send_email(
