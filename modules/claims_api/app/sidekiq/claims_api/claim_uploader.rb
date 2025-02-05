@@ -21,7 +21,7 @@ module ClaimsApi
         if auto_claim.status == errored_state_value
           msg = "Auto claim with id: #{auto_claim.id} is errored, " \
                 'not rescheduling the Claim Uploader job called with' \
-                "a #{record_type} id"
+                " a #{record_type} id"
           ClaimsApi::Logger.log('lighthouse_claim_uploader',
                                 detail: msg)
           slack_alert_on_failure('ClaimsApi::ClaimUploader', msg)
