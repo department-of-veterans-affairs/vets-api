@@ -9,17 +9,17 @@ RSpec.describe UserAuditLogger do
     let(:subject_user_verification) { create(:user_verification) }
     let(:ip_address) { Faker::Internet.ip_v4_address }
     let(:user_agent) { Faker::Internet.user_agent }
-    let(:config) do
-      {
+    let(:status) { :initial }
+    let(:logger) do
+      described_class.new(
         user_action_event: user_action_event,
         acting_user_verification: acting_user_verification,
         subject_user_verification: subject_user_verification,
-        status: :initial,
-        ip_address: ip_address,
-        user_agent: user_agent
-      }
+        status: status,
+        acting_ip_address: ip_address,
+        acting_user_agent: user_agent
+      )
     end
-    let(:logger) { described_class.new(config) }
 
     it 'creates a user action record' do
       expect { logger.perform }.to change(UserAction, :count).by(1)
@@ -35,18 +35,13 @@ RSpec.describe UserAuditLogger do
       )
     end
 
-    it 'allows setting different status values' do
-      config = {
-        user_action_event: user_action_event,
-        acting_user_verification: acting_user_verification,
-        subject_user_verification: subject_user_verification,
-        status: :error
-      }
+    context 'when config is valid' do
+      let(:status) { :error }
 
-      logger = described_class.new(config)
-      user_action = logger.perform
-
-      expect(user_action.status).to eq('error')
+      it 'allows setting different status values' do
+        user_action = logger.perform
+        expect(user_action.status).to eq('error')
+      end
     end
 
     context 'when user_action_event is nil' do
@@ -66,20 +61,13 @@ RSpec.describe UserAuditLogger do
       it 'raises a missing verification error' do
         expect { logger.perform }.to raise_error(
           UserAuditLogger::MissingSubjectVerificationError,
-          'Subject user must have a verification'
+          'Subject user verification must be present'
         )
       end
     end
 
     context 'when status is nil' do
-      let(:config) do
-        {
-          user_action_event: user_action_event,
-          acting_user_verification: acting_user_verification,
-          subject_user_verification: subject_user_verification,
-          status: nil
-        }
-      end
+      let(:status) { nil }
 
       it 'raises a missing status error' do
         expect { logger.perform }.to raise_error(
@@ -90,15 +78,15 @@ RSpec.describe UserAuditLogger do
     end
 
     context 'when required parameter is not provided' do
-      it 'raises a key error' do
-        config = {
-          user_action_event: user_action_event,
-          acting_user_verification: acting_user_verification,
-          subject_user_verification: subject_user_verification
-          # status is missing
-        }
-
-        expect { described_class.new(config) }.to raise_error(KeyError, /key not found: :status/)
+      it 'raises an argument error' do
+        expect do
+          described_class.new(
+            user_action_event: user_action_event,
+            acting_user_verification: acting_user_verification,
+            subject_user_verification: subject_user_verification
+            # missing required parameters
+          )
+        end.to raise_error(ArgumentError, /missing keywords: :status, :acting_ip_address, :acting_user_agent/)
       end
     end
   end

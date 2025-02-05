@@ -9,13 +9,14 @@ class UserAuditLogger
   attr_reader :user_action_event, :acting_user_verification, :subject_user_verification,
               :status, :acting_ip_address, :acting_user_agent
 
-  def initialize(config)
-    @user_action_event = config.fetch(:user_action_event)
-    @acting_user_verification = config.fetch(:acting_user_verification)
-    @subject_user_verification = config.fetch(:subject_user_verification)
-    @status = config.fetch(:status)
-    @acting_ip_address = config[:ip_address]
-    @acting_user_agent = config[:user_agent]
+  def initialize(user_action_event:, acting_user_verification:, subject_user_verification:,
+                 status:, acting_ip_address:, acting_user_agent:)
+    @user_action_event = user_action_event
+    @acting_user_verification = acting_user_verification
+    @subject_user_verification = subject_user_verification
+    @status = status
+    @acting_ip_address = acting_ip_address
+    @acting_user_agent = acting_user_agent
   end
 
   def perform
@@ -36,7 +37,7 @@ class UserAuditLogger
   end
 
   def validate_subject_verification
-    raise MissingSubjectVerificationError, 'Subject user must have a verification' if subject_user_verification.nil?
+    raise MissingSubjectVerificationError, 'Subject user verification must be present' if subject_user_verification.nil?
   end
 
   def validate_status
