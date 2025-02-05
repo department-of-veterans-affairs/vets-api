@@ -4,7 +4,7 @@ module PdfFill
   class ExtrasGenerator
     attr_reader :extras_redesign
 
-    def initialize(extras_redesign = false)
+    def initialize(extras_redesign: false)
       @generate_blocks = []
       @extras_redesign = extras_redesign
     end
@@ -18,8 +18,8 @@ module PdfFill
         i = metadata[:i]
         prefix += " Line #{i + 1}" if i.present?
 
-        pdf.text("#{prefix}:", {style: extras_redesign ? :normal : :bold})
-        pdf.text(value.to_s, {style: extras_redesign ? :bold : :normal})
+        pdf.text("#{prefix}:", { style: extras_redesign ? :normal : :bold })
+        pdf.text(value.to_s, { style: extras_redesign ? :bold : :normal })
       end
     end
 

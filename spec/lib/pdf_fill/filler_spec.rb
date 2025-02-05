@@ -74,7 +74,7 @@ describe PdfFill::Filler, type: :model do
     %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 21-674 21-0538 26-1880 5655].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].product([false])
-        form_types << ["overflow", true] if form_id == "21-0781V2"
+        form_types << ['overflow', true] if form_id == '21-0781V2'
         form_types.each do |type, extras_redesign|
           context "with #{type} test data" do
             let(:form_data) do
@@ -91,7 +91,7 @@ describe PdfFill::Filler, type: :model do
                 end
               end
 
-              file_path = described_class.fill_ancillary_form(form_data, 1, form_id, {extras_redesign:})
+              file_path = described_class.fill_ancillary_form(form_data, 1, form_id, { extras_redesign: })
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
