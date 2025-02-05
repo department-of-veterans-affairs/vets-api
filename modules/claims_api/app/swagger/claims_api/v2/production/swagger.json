@@ -9099,7 +9099,7 @@
     },
     "/veterans/{veteranId}/power-of-attorney": {
       "get": {
-        "summary": "Find current Power of Attorney for a Veteran.",
+        "summary": "Retrieves current power of attorney",
         "tags": [
           "Power of Attorney"
         ],
@@ -9121,7 +9121,7 @@
             "bearer_token": []
           }
         ],
-        "description": "Retrieves current Power of Attorney for Veteran or empty data if no POA is assigned.",
+        "description": "Retrieve a claimant’s currently appointed accredited representative with power of attorney (General POA) for the claimant. Returns empty data if no General POA is assigned.",
         "parameters": [
           {
             "name": "veteranId",
@@ -9386,7 +9386,7 @@
     },
     "/veterans/{veteranId}/2122/validate": {
       "post": {
-        "summary": "Validates a 2122 form submission.",
+        "summary": "Validates request to establish an organization as a claimant’s accredited representative",
         "tags": [
           "Power of Attorney"
         ],
@@ -9420,7 +9420,7 @@
             }
           }
         ],
-        "description": "Validates a request appointing an organization as Power of Attorney (21-22).\n",
+        "description": "Validate a request to establish an organization with power of attorney (VA Form 21-22). Use POST\n/veterans/{veteranId}/2122 to automatically establish submit VA Form 21-22.\n",
         "responses": {
           "200": {
             "description": "Valid request response",
@@ -10070,8 +10070,8 @@
     },
     "/veterans/{veteranId}/2122": {
       "post": {
-        "summary": "Appoint an organization Power of Attorney for a Veteran.",
-        "description": "Dependent Claimant Information:\n\n  - If dependent claimant information is included in the request, the dependentʼs relationship to the Veteran\n  will be validated.\n\n  - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n\n\nResponse Information:\n\n  - A 202 response indicates that the submission was accepted.\n\n  - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n\n",
+        "summary": "Automatically establishes an organization as a claimant’s accredited representative (VA Form 21-22)",
+        "description": "Submit VA Form 21-22 to automatically establish a VA accredited organization with power of attorney\n(General POA).\n",
         "tags": [
           "Power of Attorney"
         ],
@@ -10818,7 +10818,7 @@
     },
     "/veterans/{veteranId}/2122a/validate": {
       "post": {
-        "summary": "Validates a 2122a form submission.",
+        "summary": "Validates request to establish an individual as a claimant’s accredited representative (VA Form 21-22a)",
         "tags": [
           "Power of Attorney"
         ],
@@ -10852,7 +10852,7 @@
             }
           }
         ],
-        "description": "Validates a request appointing an individual as Power of Attorney (21-22a).\n",
+        "description": "Validate a request to establish an individual with power of attorney (VA Form 21-22a). Use POST\n/veterans/{veteranId}/2122a to automatically establish submit VA Form 21-22a.\n",
         "responses": {
           "200": {
             "description": "Valid request response",
@@ -11568,7 +11568,7 @@
     },
     "/veterans/{veteranId}/2122a": {
       "post": {
-        "summary": "Appoint an individual Power of Attorney for a Veteran.",
+        "summary": "Automatically establishes an individual as a claimant’s accredited representative (VA Form 21-22a)",
         "tags": [
           "Power of Attorney"
         ],
@@ -11602,7 +11602,7 @@
             }
           }
         ],
-        "description": "Dependent Claimant Information:\n\n  - If dependent claimant information is included in the request, the dependentʼs relationship to the Veteran\n  will be validated.\n\n  - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n\n\nResponse Information:\n\n  - A 202 response indicates that the submission was accepted.\n\n  - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n\n",
+        "description": "Submit VA Form 21-22 to automatically establish a VA accredited individual with power of attorney (General POA).\n",
         "responses": {
           "202": {
             "description": "Valid request response",
