@@ -197,22 +197,22 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
 
   describe 'when the claims_api_use_update_poa_relationship flipper is on' do
     let(:manage_rep_poa_update_service) { instance_double(ClaimsApi::ManageRepresentativeService) }
-    let(:successful_response) {
+    let(:successful_response) do
       {
-        "dateRequestAccepted"=>"2025-01-30T00:00:00-06:00",
-        "relationshipType"=>"Power of Attorney For",
-        "vetPtcpntId"=>"600049322",
-        "vsoPOACode"=>"045", 
-        "vsoPtcpntId"=>"45973"
-      } 
-    }
+        'dateRequestAccepted' => '2025-01-30T00:00:00-06:00',
+        'relationshipType' => 'Power of Attorney For',
+        'vetPtcpntId' => '600049322',
+        'vsoPOACode' => '045',
+        'vsoPtcpntId' => '45973'
+      }
+    end
 
     before do
       allow(Flipper).to receive(:enabled?).with(:claims_api_use_update_poa_relationship).and_return true
       allow(ClaimsApi::ManageRepresentativeService).to receive(:new).with(external_uid: anything,
-                                                                  external_key: anything)
-                                                            .and_return(manage_rep_poa_update_service)                                          
-      allow(manage_rep_poa_update_service).to receive(:update_birls_record).and_return(successful_response)
+                                                                          external_key: anything)
+                                                                    .and_return(manage_rep_poa_update_service)
+      allow(manage_rep_poa_update_service).to receive(:update_poa_relationship).and_return(successful_response)
     end
 
     it 'calls local bgs vet record service instead of bgs-ext' do

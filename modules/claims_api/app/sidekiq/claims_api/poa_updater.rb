@@ -19,7 +19,7 @@ module ClaimsApi
 
       response = update_birls_record(file_number, ssn, poa_code, poa_form)
 
-      if response[:return_code] == 'BMOD0001'
+      if response_is_successful?(response)
         # Clear out the error message if there were previous failures
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
         poa_form.save
@@ -42,6 +42,14 @@ module ClaimsApi
     end
 
     private
+
+    def response_is_successful?(response)
+      if Flipper.enabled?(:claims_api_use_update_poa_relationship)
+        response['dateRequestAccepted'].present?
+      else
+        response[:return_code] == 'BMOD0001'
+      end
+    end
 
     def bgs_ext_service(poa_form)
       BGS::Services.new(
@@ -80,10 +88,11 @@ module ClaimsApi
     end
 
     def update_birls_record(file_number, ssn, poa_code, poa_form)
-      if Flipper.enabled? :claims_api_use_update_poa_relationship
+      if Flipper.enabled?(:claims_api_use_update_poa_relationship)
         manage_rep_poa_update_service(poa_form).update_poa_relationship(
           pctpnt_id: poa_form.auth_headers['va_eauth_pid'],
           file_number:,
+          ssn:,
           poa_code:
         )
       else

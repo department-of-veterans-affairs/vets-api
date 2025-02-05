@@ -80,4 +80,13 @@ describe ClaimsApi::ManageRepresentativeService do
       end
     end
   end
+
+  describe '#update_poa_relationship' do
+    before do
+      allow_any_instance_of(subject).to receive(:make_request).and_return(true)
+    end
+    it 'formats the body correctly with valid parameters' do
+      resp = subject.update_poa_relationship()
+    end
+  end
 end
