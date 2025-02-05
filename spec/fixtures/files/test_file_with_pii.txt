@@ -14,7 +14,8 @@ Processing by TestParamsController#create as JSON
       "file"=>"Sensitive binary content here",
       "original_filename"=>"private_file.docx",
       "headers"=>"Content-Disposition: form-data; name=\"attachment\"; filename=\"private_file.docx\"\r\nContent-Type: application/msword\r\n",
-      "tempfile"=>"#<Tempfile:/tmp/RackMultipart20241231-96-nixrw6.pdf (closed)>"
+      "tempfile"=>"#<Tempfile:/tmp/RackMultipart20241231-96-nixrw6.pdf (closed)>",
+      "content_type"=>"application/pdf"
     }
   }
 
