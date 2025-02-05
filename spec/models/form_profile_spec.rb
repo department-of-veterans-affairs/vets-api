@@ -18,8 +18,6 @@ RSpec.describe FormProfile, type: :model do
     allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, anything).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, anything)
                                         .and_return(false)
-    allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT,
-                                              anything).and_return(false)
   end
 
   let(:street_check) { build(:street_check) }

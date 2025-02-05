@@ -144,20 +144,8 @@ RSpec.describe ApiProviderFactory do
   end
 
   context 'ppiu direct deposit' do
-    it 'provides an evss ppiu provider' do
-      expect(provider(:evss).class).to equal(EvssPPIUProvider)
-    end
-
     it 'provides a Lighthouse ppiu direct deposit provider' do
       expect(provider(:lighthouse).class).to equal(LighthousePPIUProvider)
-    end
-
-    it 'provides ppiu direct deposit provider based on Flipper' do
-      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
-      expect(provider.class).to equal(LighthousePPIUProvider)
-
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
-      expect(provider.class).to equal(EvssPPIUProvider)
     end
 
     it 'throw error if provider unknown' do
@@ -172,7 +160,7 @@ RSpec.describe ApiProviderFactory do
         provider: api_provider,
         options: {},
         current_user:,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT
+        feature_toggle: nil
       )
     end
   end

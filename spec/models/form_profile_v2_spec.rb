@@ -15,8 +15,13 @@ RSpec.describe FormProfile, type: :model do
     allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, anything).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_remove_pciu, anything).and_return(true)
     described_class.instance_variable_set(:@mappings, nil)
-    allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT,
-                                              anything).and_return(false)
+    Flipper.disable(:disability_526_toxic_exposure)
+  end
+
+  after do
+    Flipper.disable(:remove_pciu)
+    Flipper.disable(:va_v3_contact_information_service)
+    Flipper.disable(:disability_compensation_remove_pciu)
   end
 
   let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1781151') }
