@@ -1,11 +1,11 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: https://api.wellhive.com/care-navigation/v1/drive-times
+    method: get
+    uri: https://api.wellhive.com/care-navigation/v1/provider-services/9mN718pHa
     body:
-      encoding: UTF-8
-      string: '{"destinations":{"9mN718pH":{"latitude":28.08061,"longitude":-80.60322}},"origin":{"latitude":38.901,"longitude":-77.0347}}'
+      encoding: US-ASCII
+      string: ''
     headers:
       Accept:
         - application/json
@@ -20,15 +20,15 @@ http_interactions:
         - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 200
-      message: OK
+      code: 404
+      message: Not Found
     headers:
       Date:
-        - Sat, 11 Jan 2025 23:00:47 GMT
+        - Fri, 31 Jan 2025 21:00:23 GMT
       Content-Type:
         - application/json
       Content-Length:
-        - '227'
+        - '20'
       Connection:
         - keep-alive
       Content-Security-Policy:
@@ -36,15 +36,15 @@ http_interactions:
       Strict-Transport-Security:
         - max-age=6307200; includeSubDomains; preload
       Traceparent:
-        - 00-cab5b367bdd140ffb7c3a93edd26d666-41a9fd6aa52c5f56-01
+        - 00-c9182a0e90280e7cc9ea83a192c1b787-51faf4890f9e96d9-01
       X-Content-Type-Options:
         - nosniff
       X-Request-Id:
         - 2b7d2bc2-cb28-42f8-900c-4ba0fdfd93d7
       X-Wellhive-Trace-Id:
-        - cab5b367bdd140ffb7c3a93edd26d666
+        - c9182a0e90280e7cc9ea83a192c1b787
     body:
       encoding: UTF-8
-      string: '{"origin":{"latitude":40.7128,"longitude":-74.006},"destinations":{"9mN718pH":{"distanceInMiles":313,"driveTimeInSecondsWithoutTraffic":19096,"driveTimeInSecondsWithTraffic":19561,"latitude":44.475883,"longitude":-73.212074}}}'
-  recorded_at: Sat, 11 Jan 2025 23:00:46 GMT
+      string: '{"name":"Not Found"}'
+  recorded_at: Fri, 31 Jan 2025 21:00:23 GMT
 recorded_with: VCR 6.3.1
