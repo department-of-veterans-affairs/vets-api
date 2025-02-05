@@ -61,7 +61,8 @@ module IvcChampva
     # @param response [Aws::S3::Types::PutObjectOutput] the S3 response object.
     # @param key [String] the key of the uploaded file.
     # @param file [String] the path to the file uploaded.
-    # @return [Hash] a hash containing { success: true } on success, or { success: false, error_message: String } on failure.
+    # @return [Hash] a hash containing { success: true } on success, or { success: false, error_message: String } on 
+    # failure.
     def handle_put_object_response(response, key, file)
       status_code = response.context.http_response.status_code
       if status_code == 200
