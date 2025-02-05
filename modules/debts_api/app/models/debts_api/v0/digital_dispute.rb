@@ -30,7 +30,7 @@ module DebtsApi
       unless missing_keys.empty?
         errors.add(:veteran_information, "is missing required information: #{missing_keys.join(', ')}")
       end
-      binding.pry
+
       if veteran_information['email'].present? && veteran_information['email'] !~ URI::MailTo::EMAIL_REGEXP
         errors.add(:veteran_information, 'must include a valid email address')
       end
@@ -39,7 +39,7 @@ module DebtsApi
     def validate_selected_debts
       selected_debts.each_with_index do |debt, index|
         required_keys = %w[debt_type dispute_reason support_statement]
-        binding.pry
+
         required_keys.each do |key|
           errors.add(:selected_debts, "entry ##{index + 1}: #{key} cannot be blank") if debt[key].blank?
         end
