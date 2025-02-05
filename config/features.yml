@@ -27,10 +27,6 @@ features:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
     enable_in_development: true
-  all_claims_add_disabilities_enhancement:
-    actor_type: user
-    description: Enables enhancement to the 21-526EZ "Add Disabilities" page being implemented by the Conditions Team.
-    enable_in_development: true
   appointments_consolidation:
     actor_type: user
     description: For features being tested while merging logic for appointments between web and mobile
