@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'user_audit_logger_service'
+require 'user_audit_logger'
 
 module SignIn
   class TokenResponseGenerator
@@ -42,8 +42,8 @@ module SignIn
                                                client_assertion_type:).perform
       session_container = SessionCreator.new(validated_credential:).perform
 
+      create_user_audit_log(validated_credential:)
       sign_in_logger.info('session created', session_container.access_token.to_s)
-      audit_log_user_login(validated_credential:)
 
       TokenSerializer.new(session_container:, cookies:).perform
     end
@@ -78,12 +78,17 @@ module SignIn
       }
     end
 
-    def audit_log_user_login(validated_credential:)
-      UserAuditLoggerService.log_user_action(details: 'User logged in',
-                                             subject_user_verification: validated_credential.user_verification,
-                                             status: 'success',
-                                             acting_ip_address: cookies.request.remote_ip,
-                                             acting_user_agent: cookies.request.user_agent)
+    def create_user_audit_log(validated_credential:)
+      user_action_event = UserActionEvent.create(details: '[SiS] User logged in')
+      UserAuditLogger.new(user_action_event:,
+                          acting_user_verification: validated_credential.user_verification,
+                          subject_user_verification: validated_credential.user_verification,
+                          status: 'success',
+                          acting_ip_address: cookies.request.remote_ip,
+                          acting_user_agent: cookies.request.user_agent).perform
+      sign_in_logger.info('user audit log created', { user_action_event_id: user_action_event.id })
+    rescue UserAuditLogger::Error => e
+      raise SignIn::Errors::StandardError.new message: "UserAuditLogger error - #{e.message}"
     end
   end
 end
