@@ -38,6 +38,9 @@ development: &defaults
   gids_response:
     namespace: gids-response
     each_ttl: 900
+  lcpe_response:
+    namespace: lcpe-response
+    each_ttl: 1209600 # 2 weeks
   sm_store:
     namespace: sm-service
     each_ttl: 1200
