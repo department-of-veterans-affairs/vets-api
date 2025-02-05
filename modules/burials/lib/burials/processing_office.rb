@@ -4,6 +4,7 @@ require 'csv'
 
 module Burials
   # Handles processing office assignment based on zip codes
+  # - assemble the address lines for the nearest processing office
   class ProcessingOffice
     # Path to the CSV file containing zip code to facility mappings
     FILE = Rails.root.join(Burials::MODULE_PATH, 'config', 'zip_to_facility.csv')
