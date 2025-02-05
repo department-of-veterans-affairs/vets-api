@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_claims/service'
+require 'lighthouse/benefits_claims/constants'
 
 module V0
   class BenefitsClaimsController < ApplicationController
@@ -13,6 +14,10 @@ module V0
       check_for_birls_id
       check_for_file_number
 
+      claims['data'].each do |claim|
+        update_claim_type_language(claim)
+      end
+
       tap_claims(claims['data'])
 
       render json: claims
@@ -20,6 +25,14 @@ module V0
 
     def show
       claim = service.get_claim(params[:id])
+      update_claim_type_language(claim['data'])
+
+      # Manual status override for certain tracked items
+      # See https://github.com/department-of-veterans-affairs/va.gov-team/issues/101447
+      # This should be removed when the items are re-categorized by BGS
+      # We are not doing this in the Lighthouse service because we want web and mobile to have
+      # separate rollouts and testing.
+      claim = rename_rv1(claim) if Flipper.enabled?(:cst_override_reserve_records_website)
 
       # Document uploads to EVSS require a birls_id; This restriction should
       # be removed when we move to Lighthouse Benefits Documents for document uploads
@@ -100,6 +113,13 @@ module V0
       end
     end
 
+    def update_claim_type_language(claim)
+      language_map = BenefitsClaims::Constants::CLAIM_TYPE_LANGUAGE_MAP
+      if language_map.key?(claim.dig('attributes', 'claimType'))
+        claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
+      end
+    end
+
     def log_evidence_requests(claim_id, claim_info)
       tracked_items = claim_info['trackedItems']
 
@@ -111,6 +131,14 @@ module V0
                               tracked_item_type: ti['displayName'],
                               tracked_item_status: ti['status'] })
       end
+    end
+
+    def rename_rv1(claim)
+      tracked_items = claim.dig('data', 'attributes', 'trackedItems')
+      tracked_items&.select { |i| i['displayName'] == 'RV1 - Reserve Records Request' }&.each do |i|
+        i['status'] = 'NEEDED_FROM_OTHERS'
+      end
+      claim
     end
   end
 end

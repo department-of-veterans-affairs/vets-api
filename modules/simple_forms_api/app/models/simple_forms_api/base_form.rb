@@ -16,5 +16,9 @@ module SimpleFormsApi
     def notification_first_name
       data.dig('veteran_full_name', 'first')
     end
+
+    def notification_email_address
+      data.dig('veteran', 'email')
+    end
   end
 end

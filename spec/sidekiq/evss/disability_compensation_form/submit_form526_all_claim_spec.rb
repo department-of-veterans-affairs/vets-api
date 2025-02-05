@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'disability_compensation/factories/api_provider_factory'
 require 'virtual_regional_office/client'
+require 'contention_classification/client'
 
 # pulled from vets-api/spec/support/disability_compensation_form/submissions/only_526.json
 ONLY_526_JSON_CLASSIFICATION_CODE = 'string'
@@ -13,12 +14,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
   # This needs to be modernized (using allow)
   before do
     Sidekiq::Job.clear_all
-    Flipper.disable(:validate_saved_claims_with_json_schemer)
-    Flipper.disable(:disability_526_expanded_contention_classification)
-    # Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
-    Flipper.disable(:disability_compensation_production_tester)
-    Flipper.disable(:disability_compensation_fail_submission)
     allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
+                                              anything).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE,
+                                              anything).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_fail_submission,
+                                              anything).and_return(false)
   end
 
   let(:user) { create(:user, :loa3, icn: '123456') }
@@ -56,8 +59,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
     before do
       cassettes.each { |cassette| VCR.insert_cassette(cassette) }
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
+      allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND,
+                                                anything).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND,
+                                                anything).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:disability_526_migrate_contention_classification,
+                                                anything).and_return(false)
     end
 
     after do
@@ -191,341 +198,133 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
     end
 
-    context 'with contention classification enabled' do
-      context 'when diagnostic code is not set' do
-        let(:user) { create(:user, :loa3, icn: '123456') }
-        let(:submission) do
-          create(:form526_submission,
-                 :without_diagnostic_code,
-                 user_uuid: user.uuid,
-                 auth_headers_json: auth_headers.to_json,
-                 saved_claim_id: saved_claim.id)
-        end
-      end
-
-      context 'when diagnostic code is set' do
-        let(:user) { create(:user, :loa3, icn: '123456') }
-        let(:submission) do
-          create(:form526_submission,
-                 :non_rrd_with_mas_diagnostic_code,
-                 user_uuid: user.uuid,
-                 auth_headers_json: auth_headers.to_json,
-                 saved_claim_id: saved_claim.id)
-        end
-        it 'still completes form 526 submission when CC fails' do
-          allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
-                                                                    .and_return('access_token')
-          subject.perform_async(submission.id)
-          expect do
-            VCR.use_cassette('lighthouse/claims/200_response' ) do
-              VCR.use_cassette('virtual_regional_office/contention_classification_failure') do
-                described_class.drain
-              end
-            end
-          end.not_to change(backup_klass.jobs, :size)
-          expect(Form526JobStatus.last.status).to eq 'success'
-        end
-
-        it 'handles null response gracefully' do
-          subject.perform_async(submission.id)
-          expect do
-            VCR.use_cassette('virtual_regional_office/contention_classification_null_response') do
-              described_class.drain
-              submission.reload
-
-              final_code = submission.form['form526']['form526']['disabilities'][0]['classificationCode']
-              expect(final_code).to eq(ONLY_526_JSON_CLASSIFICATION_CODE)
-            end
-          end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
-          expect(Form526JobStatus.last.status).to eq 'success'
-        end
-
-        it 'updates Form526Submission form with id' do
-          expect(described_class).to be < EVSS::DisabilityCompensationForm::SubmitForm526
-          subject.perform_async(submission.id)
-
-          expect do
-            VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-              described_class.drain
-              submission.reload
-
-              final_code = submission.form['form526']['form526']['disabilities'][0]['classificationCode']
-              expect(final_code).to eq(9012)
-            end
-          end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
-        end
-
-        context 'when veteran has open claims' do
-          let(:open_claims_cassette) { 'evss/claims/claims' }
-
+    context 'Contention Classification' do
+      [
+        { new_endpoint_enabled: false, cassette_folder: 'virtual_regional_office' },
+        { new_endpoint_enabled: true, cassette_folder: 'contention_classification' }
+      ].each do |test_case|
+        context "new contention classification endpoint enabled: #{test_case[:new_endpoint_enabled]}" do
           before do
-            allow(Rails.logger).to receive(:info)
-            Timecop.freeze('2018-09-28T13:00:00ZZ')
+            allow(Flipper).to receive(:enabled?).with(:disability_526_migrate_contention_classification,
+                                                      anything).and_return(test_case[:new_endpoint_enabled])
           end
 
-          after { Timecop.return }
-
-          it 'logs the expected data for EP 400 merge eligibility' do
-            subject.perform_async(submission.id)
-            VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-              described_class.drain
-            end
-            expect(Rails.logger).to have_received(:info).with('EP Merge total open EPs', id: submission.id,
-                                                                                         count: 1)
-            expect(Rails.logger).to have_received(:info).with(
-              'EP Merge open EP eligibility',
-              { id: submission.id, feature_enabled: true, open_claim_review: false,
-                pending_ep_age: 365, pending_ep_status: 'UNDER REVIEW' }
-            )
-          end
-
-          context 'when the claim is not fully classified' do
-            it 'does not log EP 400 merge eligibility' do
-              subject.perform_async(submission.id)
-              VCR.use_cassette('virtual_regional_office/multi_contention_classification') do
-                described_class.drain
+          context 'with contention classification enabled' do
+            context 'when diagnostic code is not set' do
+              let(:submission) do
+                create(:form526_submission,
+                       :without_diagnostic_code,
+                       user_uuid: user.uuid,
+                       auth_headers_json: auth_headers.to_json,
+                       saved_claim_id: saved_claim.id)
               end
-              expect(Rails.logger).not_to have_received(:info).with(
-                'EP Merge total open EPs', id: submission.id, count: 1
-              )
-              expect(Rails.logger).not_to have_received(:info).with(
-                'EP Merge open EP eligibility',
-                { id: submission.id, feature_enabled: true, open_claim_review: false,
-                  pending_ep_age: 365, pending_ep_status: 'UNDER REVIEW' }
-              )
-            end
-          end
-
-          context 'when using LH Benefits Claims API instead of EVSS' do
-            before do
-              # Flipper.enable(:disability_compensation_lighthouse_claims_service_provider)
-              allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
-                .and_return('access_token')
             end
 
-            # after { Flipper.disable(:disability_compensation_lighthouse_claims_service_provider) }
-
-            let(:open_claims_cassette) do
-              'lighthouse/benefits_claims/index/claims_with_single_open_disability_claim'
-            end
-
-            it 'logs the expected data for EP 400 merge eligibility' do
-              subject.perform_async(submission.id)
-              VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-                described_class.drain
-              end
-              expect(Rails.logger).to have_received(:info).with('EP Merge total open EPs', id: submission.id,
-                                                                                           count: 1)
-              expect(Rails.logger).to have_received(:info).with(
-                'EP Merge open EP eligibility',
-                { id: submission.id, feature_enabled: true, open_claim_review: false,
-                  pending_ep_age: 365, pending_ep_status: 'INITIAL_REVIEW' }
-              )
-            end
-
-            context 'when the claim is not fully classified' do
-              it 'does not log EP 400 merge eligibility' do
+            context 'when diagnostic code is set' do
+              it 'still completes form 526 submission when CC fails' do
                 subject.perform_async(submission.id)
-                VCR.use_cassette('virtual_regional_office/multi_contention_classification') do
+                expect do
+                  VCR.use_cassette("#{test_case[:cassette_folder]}/contention_classification_failure") do
+                    described_class.drain
+                  end
+                end.not_to change(backup_klass.jobs, :size)
+                expect(Form526JobStatus.last.status).to eq 'success'
+              end
+
+              it 'handles null response gracefully' do
+                subject.perform_async(submission.id)
+                expect do
+                  VCR.use_cassette("#{test_case[:cassette_folder]}/contention_classification_null_response") do
+                    described_class.drain
+                    submission.reload
+
+                    final_code = submission.form['form526']['form526']['disabilities'][0]['classificationCode']
+                    expect(final_code).to eq(ONLY_526_JSON_CLASSIFICATION_CODE)
+                  end
+                end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+                expect(Form526JobStatus.last.status).to eq 'success'
+              end
+
+              it 'updates Form526Submission form with id' do
+                expect(described_class).to be < EVSS::DisabilityCompensationForm::SubmitForm526
+                subject.perform_async(submission.id)
+
+                expect do
+                  VCR.use_cassette("#{test_case[:cassette_folder]}/fully_classified_contention_classification") do
+                    described_class.drain
+                    submission.reload
+
+                    final_code = submission.form['form526']['form526']['disabilities'][0]['classificationCode']
+                    expect(final_code).to eq(9012)
+                  end
+                end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+              end
+            end
+          end
+
+          context 'with multi-contention classification enabled' do
+            let(:submission) do
+              create(:form526_submission,
+                     :with_mixed_action_disabilities_and_free_text,
+                     user_uuid: user.uuid,
+                     auth_headers_json: auth_headers.to_json,
+                     saved_claim_id: saved_claim.id)
+            end
+
+            it 'does something when multi-contention api endpoint is hit' do
+              subject.perform_async(submission.id)
+
+              expect do
+                VCR.use_cassette("#{test_case[:cassette_folder]}/multi_contention_classification") do
                   described_class.drain
                 end
-                expect(Rails.logger).not_to have_received(:info).with(
-                  'EP Merge total open EPs', id: submission.id, count: 1
-                )
-                expect(Rails.logger).not_to have_received(:info).with(
-                  'EP Merge open EP eligibility',
-                  { id: submission.id, feature_enabled: true, open_claim_review: false,
-                    pending_ep_age: 365, pending_ep_status: 'INITIAL_REVIEW' }
-                )
-              end
-            end
-          end
-
-          context 'when EP400 merge API call is enabled' do
-            before do
-              Flipper.enable(:disability_526_ep_merge_api, user)
-              allow(Flipper).to receive(:enabled?).and_call_original
-            end
-
-            it 'records the eligible claim ID and adds the EP400 special issue to the submission' do
-              subject.perform_async(submission.id)
-              VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-                described_class.drain
-              end
+              end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
               submission.reload
-              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to eq('600114692') # from claims.yml
-              expect(submission.disabilities.first).to include('specialIssues' => ['EMP'])
-              actor = OpenStruct.new({ flipper_id: submission.user_uuid })
-              expect(Flipper).to have_received(:enabled?).with(:disability_526_ep_merge_api, actor).once
+
+              classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+              expect(classification_codes).to eq([9012, 8994, nil, nil])
             end
 
-            context 'when the claim is not fully classified' do
-              it 'does not record an eligible claim id' do
-                subject.perform_async(submission.id)
-                VCR.use_cassette('virtual_regional_office/multi_contention_classification') do
+            it 'uses expanded classification to classify contentions' do
+              subject.perform_async(submission.id)
+              expect do
+                VCR.use_cassette("#{test_case[:cassette_folder]}/expanded_classification") do
                   described_class.drain
                 end
-                submission.reload
-                expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
-                expect(submission.disabilities.first['specialIssues']).to be_nil
-              end
-            end
-          end
-
-          context 'when pending claim has lifecycle status not considered open for EP400 merge' do
-            let(:open_claims_cassette) { 'evss/claims/claims_pending_decision_approval' }
-
-            it 'does not save any claim ID for EP400 merge' do
-              subject.perform_async(submission.id)
-              VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-                described_class.drain
-              end
+              end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
               submission.reload
-              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
+              classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+              expect(classification_codes).to eq([9012, 8994, nil, 8997])
             end
-          end
 
-          context 'when an EP 030 or 040 is included in the list of open claims' do
-            let(:open_claims_cassette) { 'evss/claims/claims_with_open_040' }
-
-            it 'does not save any claim ID for EP400 merge' do
-              subject.perform_async(submission.id)
-              VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-                described_class.drain
+            context 'when the disabilities array is empty' do
+              before do
+                allow(Rails.logger).to receive(:info)
               end
-              submission.reload
-              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
-            end
-          end
 
-          context 'when Caseflow appeals status API returns an open claim review' do
-            let(:caseflow_cassette) { 'caseflow/appeals_with_hlr_only' }
-
-            it 'does not save any claim ID for EP400 merge' do
-              subject.perform_async(submission.id)
-              VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-                described_class.drain
+              let(:submission) do
+                create(:form526_submission,
+                       :with_empty_disabilities,
+                       user_uuid: user.uuid,
+                       auth_headers_json: auth_headers.to_json,
+                       saved_claim_id: saved_claim.id)
               end
-              submission.reload
-              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
-            end
-          end
 
-          context 'when EP400 merge API call is disabled' do
-            before { Flipper.disable(:disability_526_ep_merge_api) }
-
-            it 'does not record any eligible claim ID or add an EP400 special issue to the submission' do
-              subject.perform_async(submission.id)
-              VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-                described_class.drain
+              it 'returns false to skip classification and continue other jobs' do
+                subject.perform_async(submission.id)
+                expect(submission.update_contention_classification_all!).to be false
+                expect(Rails.logger).to have_received(:info).with(
+                  "No disabilities found for classification on claim #{submission.id}"
+                )
               end
-              submission.reload
-              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
-              expect(submission.disabilities.first['specialIssues']).to be_nil
+
+              it 'does not call va-gov-claim-classifier' do
+                subject.perform_async(submission.id)
+                described_class.drain
+                expect(submission).not_to receive(:classify_vagov_contentions)
+              end
             end
           end
-        end
-      end
-    end
-
-    context 'with multi-contention classification enabled' do
-      let(:submission) do
-        create(:form526_submission,
-               :with_mixed_action_disabilities_and_free_text,
-               user_uuid: user.uuid,
-               auth_headers_json: auth_headers.to_json,
-               saved_claim_id: saved_claim.id)
-      end
-
-      it 'does something when multi-contention api endpoint is hit' do
-        subject.perform_async(submission.id)
-
-        expect do
-          VCR.use_cassette('virtual_regional_office/multi_contention_classification') do
-            described_class.drain
-          end
-        end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
-        submission.reload
-
-        classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
-        expect(classification_codes).to eq([9012, 8994, nil, nil])
-      end
-
-      it 'calls va-gov-claim-classifier as default' do
-        vro_client_mock = instance_double(VirtualRegionalOffice::Client)
-        allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client_mock)
-        allow(vro_client_mock).to receive_messages(
-          classify_vagov_contentions_expanded: OpenStruct.new(body: 'expanded classification'),
-          classify_vagov_contentions: OpenStruct.new(body: 'regular response')
-        )
-
-        expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
-        expect(vro_client_mock).to receive(:classify_vagov_contentions)
-        subject.perform_async(submission.id)
-        described_class.drain
-      end
-
-      context 'when the expanded classification endpoint is enabled' do
-        before do
-          user = OpenStruct.new({ flipper_id: submission.user_uuid })
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:disability_526_expanded_contention_classification,
-                                                    user).and_return(true)
-        end
-
-        it 'calls the expanded classification endpoint' do
-          vro_client_mock = instance_double(VirtualRegionalOffice::Client)
-          allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client_mock)
-          allow(vro_client_mock).to receive_messages(
-            classify_vagov_contentions_expanded: OpenStruct.new(body: 'expanded classification'),
-            classify_vagov_contentions: OpenStruct.new(body: 'regular response')
-          )
-
-          expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
-          expect(vro_client_mock).to receive(:classify_vagov_contentions_expanded)
-          subject.perform_async(submission.id)
-          described_class.drain
-        end
-
-        it 'uses expanded classification to classify contentions' do
-          subject.perform_async(submission.id)
-          expect do
-            VCR.use_cassette('virtual_regional_office/expanded_classification') do
-              described_class.drain
-            end
-          end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
-          submission.reload
-
-          classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
-          expect(classification_codes).to eq([9012, 8994, nil, 8997])
-        end
-      end
-
-      context 'when the disabilities array is empty' do
-        before do
-          allow(Rails.logger).to receive(:info)
-        end
-
-        let(:submission) do
-          create(:form526_submission,
-                 :with_empty_disabilities,
-                 user_uuid: user.uuid,
-                 auth_headers_json: auth_headers.to_json,
-                 saved_claim_id: saved_claim.id)
-        end
-
-        it 'returns false to skip classification and continue other jobs' do
-          subject.perform_async(submission.id)
-          expect(submission.update_contention_classification_all!).to be false
-          expect(Rails.logger).to have_received(:info).with(
-            "No disabilities found for classification on claim #{submission.id}"
-          )
-        end
-
-        it 'does not call va-gov-claim-classifier' do
-          subject.perform_async(submission.id)
-          described_class.drain
-          expect(submission).not_to receive(:classify_vagov_contentions)
         end
       end
     end
@@ -736,8 +535,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             allow_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm526)
               .to(receive(:fail_submission_feature_enabled?))
               .and_return(false)
-            allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:prepare_for_ep_merge!)
-              .and_return(nil)
             allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:pending_eps?)
               .and_return(false)
             allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:classify_vagov_contentions)

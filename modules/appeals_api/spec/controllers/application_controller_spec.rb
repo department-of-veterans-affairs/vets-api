@@ -67,7 +67,7 @@ describe AppealsApi::ApplicationController, type: :controller do
       expect(error['meta']).to eq({ 'extra' => 'metadata' })
     end
 
-    xit 'allows overriding error.attribute source with custom hash' do
+    it 'allows overriding error.attribute source with custom hash', skip: 'Failing Test, per commit history' do
       error = errors[1]
       expect(error['source']).to eq({ 'header' => 'abc123' })
     end
