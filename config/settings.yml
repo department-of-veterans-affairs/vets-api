@@ -250,6 +250,9 @@ pension_burial:
   sftp:
     relative_path: "../VETSGOV_PENSION"
 
+bpds:
+  jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
+
 central_mail:
   upload:
     enabled: true
