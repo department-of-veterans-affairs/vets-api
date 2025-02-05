@@ -34,6 +34,8 @@ ALLOWLIST = %w[
   os_name
   filter
   startedFormVersion
+  tempfile
+  content_type
 ].freeze
 
 Rails.application.config.filter_parameters = [
