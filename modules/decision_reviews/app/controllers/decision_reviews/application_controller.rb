@@ -68,6 +68,7 @@ module DecisionReviews
 
     def rails_logger(level, message, errors = nil, backtrace = nil)
       # rails logger uses 'warn' instead of 'warning'
+
       level = 'warn' if level == 'warning'
       if errors.present?
         error_details = errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
