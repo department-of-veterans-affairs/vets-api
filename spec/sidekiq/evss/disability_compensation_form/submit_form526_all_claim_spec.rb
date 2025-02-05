@@ -555,8 +555,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         context 'when disability_526_send_form526_submitted_email is enabled' do
           before do
             allow(Flipper).to receive(:enabled?)
-                                .with(:disability_526_send_form526_submitted_email)
-                                .and_return(true)
+              .with(:disability_526_send_form526_submitted_email)
+              .and_return(true)
           end
 
           it 'sends the submitted email' do
@@ -569,8 +569,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         context 'when disability_526_send_form526_submitted_email is disabled' do
           before do
             allow(Flipper).to receive(:enabled?)
-                                .with(:disability_526_send_form526_submitted_email)
-                                .and_return(false)
+              .with(:disability_526_send_form526_submitted_email)
+              .and_return(false)
           end
 
           it 'does not send the submitted email' do
@@ -725,8 +725,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       context 'when disability_526_send_form526_submitted_email is enabled' do
         before do
           allow(Flipper).to receive(:enabled?)
-                              .with(:disability_526_send_form526_submitted_email)
-                              .and_return(true)
+            .with(:disability_526_send_form526_submitted_email)
+            .and_return(true)
         end
 
         it 'behaves sends the submitted email' do
@@ -739,8 +739,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       context 'when disability_526_send_form526_submitted_email is disabled' do
         before do
           allow(Flipper).to receive(:enabled?)
-                              .with(:disability_526_send_form526_submitted_email)
-                              .and_return(false)
+            .with(:disability_526_send_form526_submitted_email)
+            .and_return(false)
         end
 
         it 'behaves does not send the submitted email' do

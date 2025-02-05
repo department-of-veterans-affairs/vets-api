@@ -476,7 +476,8 @@ class Form526Submission < ApplicationRecord
 
   # Send the Submitted Email - when the Veteran has clicked the "submit" button in va.gov
   # Primary Path: when the response from getting a claim id is successful
-  # Backup Path: when Form526StatusPollingJob reaches "paranoid_success" status
+  # Backup Path: when SubmitForm526 Job has exhausted,
+  # or when we get a non_retryable_error response from claim establishment flow
   # @param invoker: string where the Received Email trigger is being called from
   def send_submitted_email(invoker)
     Rails.logger.info("Form526SubmittedEmailJob called for user #{user_uuid},
