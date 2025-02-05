@@ -335,7 +335,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "f559385d-0abd-4a65-b14a-47c1a0e37ea2",
+                        "id": "6c2b2cb9-4284-4938-96f4-56d33846b445",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -520,7 +520,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-02-06"
+                              "anticipatedSeparationDate": "2025-02-07"
                             },
                             "confinements": [
                               {
@@ -566,7 +566,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "3c24c6e4-12ba-4765-b187-f051d9dc29e5",
+                        "id": "cf626ce3-fbf7-40f0-b717-20afbedfa605",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -730,7 +730,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2025-02-06",
+                                "activeDutyEndDate": "2025-02-07",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -751,7 +751,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-02-06"
+                              "anticipatedSeparationDate": "2025-02-07"
                             },
                             "confinements": [
                               {
@@ -3994,7 +3994,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2025-02-06",
+                              "activeDutyEndDate": "2025-02-07",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -4015,7 +4015,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2025-02-06"
+                            "anticipatedSeparationDate": "2025-02-07"
                           },
                           "confinements": [
                             {
@@ -8537,8 +8537,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2025-02-04",
-                      "expirationDate": "2026-02-04",
+                      "creationDate": "2025-02-05",
+                      "expirationDate": "2026-02-05",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9784,7 +9784,7 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "\\d(?:[- ]?*\\d){6,9}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 14
@@ -9924,7 +9924,7 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "\\d(?:[- ]?*\\d){6,9}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 14
@@ -10108,7 +10108,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "86ad5d89-281d-4bb6-a1bf-8028f687c9c3",
+                    "id": "021f7f4e-fb48-4fa3-8ad5-7b2bb20b9109",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -10473,7 +10473,7 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "\\d(?:[- ]?*\\d){6,9}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 14
@@ -10613,7 +10613,7 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "\\d(?:[- ]?*\\d){6,9}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 14
@@ -11225,7 +11225,7 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "\\d(?:[- ]?*\\d){6,9}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 14
@@ -11351,7 +11351,7 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "\\d(?:[- ]?*\\d){6,9}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 14
@@ -11598,7 +11598,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "96056478-c9ec-4151-aa71-42aba99f6fe7",
+                    "id": "6bb73960-a881-4525-90d3-946d4d142e25",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -11980,7 +11980,7 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "\\d(?:[- ]?*\\d){6,9}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 14
@@ -12106,7 +12106,7 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "\\d(?:[- ]?*\\d){6,9}$",
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
                                     "maxLength": 14
@@ -12390,8 +12390,8 @@
     },
     "/veterans/{veteranId}/power-of-attorney/{id}": {
       "get": {
-        "summary": "Checks status of Power of Attorney appointment form submission",
-        "description": "Gets the Power of Attorney appointment request status (21-22/21-22a)",
+        "summary": "Checks status of power of attorney submission (VA Forms 21-22 or 21-22a)",
+        "description": "Check the submissions status of a request to appoint power of attorney (VA Forms 21-22 or 21-22a).",
         "tags": [
           "Power of Attorney"
         ],
@@ -12442,10 +12442,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "14a9ae99-06d4-4cd0-baed-448eeb347e53",
+                    "id": "1160af78-2198-428f-a0c0-621f3404d321",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2025-02-04T15:12:15.875Z",
+                      "createdAt": "2025-02-05T21:38:36.298Z",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"

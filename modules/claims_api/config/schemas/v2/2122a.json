@@ -113,7 +113,7 @@
             "phoneNumber": {
               "description": "Phone number.",
               "type": "string",
-              "pattern": "\\d(?:[- ]?*\\d){6,9}$",
+              "pattern": "^\\d(?:[- ]?\\d){0,13}$",
               "example": "555-5555",
               "minLength": 1,
               "maxLength": 14
@@ -223,7 +223,7 @@
             "phoneNumber": {
               "description": "Phone number.",
               "type": "string",
-              "pattern": "\\d(?:[- ]?*\\d){6,9}$",
+              "pattern": "^\\d(?:[- ]?\\d){0,13}$",
               "example": "555-5555",
               "minLength": 1,
               "maxLength": 14
