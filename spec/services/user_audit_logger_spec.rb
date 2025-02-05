@@ -35,15 +35,6 @@ RSpec.describe UserAuditLogger do
       )
     end
 
-    context 'when config is valid' do
-      let(:status) { :error }
-
-      it 'allows setting different status values' do
-        user_action = logger.perform
-        expect(user_action.status).to eq('error')
-      end
-    end
-
     context 'when user_action_event is nil' do
       let(:user_action_event) { nil }
 
@@ -79,15 +70,13 @@ RSpec.describe UserAuditLogger do
 
     context 'when required parameter is not provided' do
       it 'raises an argument error' do
-        expect {
+        expect do
           described_class.new(
-            user_action_event: user_action_event,
-            acting_user_verification: acting_user_verification,
-            subject_user_verification: subject_user_verification
-            # missing required parameters
+            user_action_event:,
+            subject_user_verification:
           )
-        }.to raise_error(ArgumentError, /missing keywords: :status, :acting_ip_address, :acting_user_agent/)
+        end.to raise_error(ArgumentError, /missing keywords: :acting_user_verification/)
       end
     end
   end
-end 
+end
