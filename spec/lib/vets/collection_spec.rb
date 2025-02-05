@@ -47,13 +47,13 @@ RSpec.describe Vets::Collection do
     it 'returns an empty Collections if records are nil' do
       collection = described_class.new(nil)
       expect(collection.records).to eq([])
-      expect(collection.instance_variable_get(:@model_class)).to eq(nil)
+      expect(collection.instance_variable_get(:@model_class)).to be_nil
     end
 
     it 'returns an empty Collections if records are empty' do
       collection = described_class.new([])
       expect(collection.records).to eq([])
-      expect(collection.instance_variable_get(:@model_class)).to eq(nil)
+      expect(collection.instance_variable_get(:@model_class)).to be_nil
     end
   end
 
