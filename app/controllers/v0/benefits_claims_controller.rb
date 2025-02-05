@@ -8,6 +8,8 @@ module V0
     before_action { authorize :lighthouse, :access? }
     service_tag 'claims-shared'
 
+    SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
+
     def index
       claims = service.get_claims
 
@@ -33,6 +35,10 @@ module V0
       # We are not doing this in the Lighthouse service because we want web and mobile to have
       # separate rollouts and testing.
       claim = rename_rv1(claim) if Flipper.enabled?(:cst_override_reserve_records_website)
+
+      # https://github.com/department-of-veterans-affairs/va.gov-team/issues/98364
+      # This should be removed when the items are removed by BGS
+      claim = suppress_evidence_requests(claim) if Flipper.enabled?(:cst_suppress_evidence_requests_website)
 
       # Document uploads to EVSS require a birls_id; This restriction should
       # be removed when we move to Lighthouse Benefits Documents for document uploads
@@ -138,6 +144,14 @@ module V0
       tracked_items&.select { |i| i['displayName'] == 'RV1 - Reserve Records Request' }&.each do |i|
         i['status'] = 'NEEDED_FROM_OTHERS'
       end
+      claim
+    end
+
+    def suppress_evidence_requests(claim)
+      tracked_items = claim.dig('data', 'attributes', 'trackedItems')
+      return unless tracked_items
+
+      tracked_items.reject! { |i| SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
       claim
     end
   end

@@ -11,7 +11,6 @@ module BenefitsClaims
     STATSD_KEY_PREFIX = 'api.benefits_claims'
 
     FILTERED_STATUSES = %w[CANCELED ERRORED PENDING].freeze
-    SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
 
     def initialize(icn)
       @icn = icn
@@ -34,9 +33,6 @@ module BenefitsClaims
 
     def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       claim = config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
-      # https://github.com/department-of-veterans-affairs/va.gov-team/issues/98364
-      # This should be removed when the items are removed by BGS
-      suppress_evidence_requests(claim['data']) if Flipper.enabled?(:cst_suppress_evidence_requests_website)
       # Manual status override for certain tracked items
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
       # This should be removed when the items are re-categorized by BGS
@@ -283,13 +279,6 @@ module BenefitsClaims
         end
       end
       tracked_items
-    end
-
-    def suppress_evidence_requests(claim)
-      tracked_items = claim['attributes']['trackedItems']
-      return unless tracked_items
-
-      tracked_items.reject! { |i| SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
     end
 
     def handle_error(error, lighthouse_client_id, endpoint)

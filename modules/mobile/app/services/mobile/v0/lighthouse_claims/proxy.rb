@@ -8,6 +8,8 @@ module Mobile
   module V0
     module LighthouseClaims
       class Proxy < Mobile::V0::Claims::Proxy
+        SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
+
         def request_decision(id)
           claims_service.submit5103(id)
         end
@@ -35,14 +37,10 @@ module Mobile
         # separate rollouts and testing.
         def get_claim(id)
           claim = claims_service.get_claim(id)
-          if Flipper.enabled?(:cst_override_reserve_records_mobile)
-            tracked_items = claim.dig('data', 'attributes', 'trackedItems')
-            return claim unless tracked_items
-
-            tracked_items.select { |i| i['displayName'] == 'RV1 - Reserve Records Request' }.each do |i|
-              i['status'] = 'NEEDED_FROM_OTHERS'
-            end
-          end
+          claim = override_rv1(claim) if Flipper.enabled?(:cst_override_reserve_records_mobile)
+          # https://github.com/department-of-veterans-affairs/va.gov-team/issues/98364
+          # This should be removed when the items are removed by BGS
+          claim = suppress_evidence_requests(claim) if Flipper.enabled?(:cst_suppress_evidence_requests_mobile)
           claim
         end
 
@@ -65,6 +63,24 @@ module Mobile
                                   data: {})
           end
           claim.update(list_data: raw_claim)
+        end
+
+        def override_rv1(claim)
+          tracked_items = claim.dig('data', 'attributes', 'trackedItems')
+          return claim unless tracked_items
+
+          tracked_items.select { |i| i['displayName'] == 'RV1 - Reserve Records Request' }.each do |i|
+            i['status'] = 'NEEDED_FROM_OTHERS'
+          end
+          claim
+        end
+
+        def suppress_evidence_requests(claim)
+          tracked_items = claim.dig('data', 'attributes', 'trackedItems')
+          return unless tracked_items
+
+          tracked_items.reject! { |i| SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
+          claim
         end
       end
     end

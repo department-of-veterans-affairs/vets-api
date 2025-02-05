@@ -89,41 +89,6 @@ RSpec.describe BenefitsClaims::Service do
             end
           end
         end
-
-        context 'when :cst_suppress_evidence_requests_website is disabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(false)
-          end
-
-          it 'includes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
-            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-              response = @service.get_claim('600383363')
-              expect(response.dig('data', 'attributes', 'trackedItems').size).to eq(4)
-              expect(response.dig('data', 'attributes', 'trackedItems', 0,
-                                  'displayName')).to eq('Private Medical Record')
-              expect(response.dig('data', 'attributes', 'trackedItems', 1,
-                                  'displayName')).to eq('Submit buddy statement(s)')
-              expect(response.dig('data', 'attributes', 'trackedItems', 2, 'displayName')).to eq('Attorney Fees')
-            end
-          end
-        end
-
-        context 'when :cst_suppress_evidence_requests_website is enabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(true)
-          end
-
-          it 'excludes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
-            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-              response = @service.get_claim('600383363')
-              expect(response.dig('data', 'attributes', 'trackedItems').size).to eq(3)
-              expect(response.dig('data', 'attributes', 'trackedItems', 0,
-                                  'displayName')).to eq('Private Medical Record')
-              expect(response.dig('data', 'attributes', 'trackedItems', 1,
-                                  'displayName')).to eq('Submit buddy statement(s)')
-            end
-          end
-        end
       end
 
       describe "when requesting a user's power of attorney" do
