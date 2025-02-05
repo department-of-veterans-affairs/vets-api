@@ -17,7 +17,6 @@ RSpec.describe FormProfile, type: :model do
     Flipper.disable(:va_v3_contact_information_service)
     Flipper.disable(:remove_pciu)
     Flipper.disable('remove_pciu_2')
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
   end
 
   let(:street_check) { build(:street_check) }

@@ -14,7 +14,6 @@ RSpec.describe FormProfile, type: :model do
     Flipper.enable(:disability_compensation_remove_pciu)
     described_class.instance_variable_set(:@mappings, nil)
     Flipper.disable(:disability_526_toxic_exposure)
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
   end
 
   after do
