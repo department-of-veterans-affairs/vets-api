@@ -39,8 +39,10 @@ ALLOWLIST = %w[
 Rails.application.config.filter_parameters = [
   lambda do |k, v|
     case v
-    when Hash # Recursively iterate over each key value pair in hashes
-      v.transform_values { |nested_value| Rails.application.config.filter_parameters.first.call(k, nested_value) }
+    when Hash
+      v.each do |nested_key, nested_value|
+        v[nested_key] = Rails.application.config.filter_parameters.first.call(nested_key, nested_value)
+      end
     when Array # Recursively map all elements in arrays
       v.map { |element| Rails.application.config.filter_parameters.first.call(k, element) }
     when ActionDispatch::Http::UploadedFile # Base case
