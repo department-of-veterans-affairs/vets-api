@@ -52,6 +52,16 @@ module IvcChampva
 
     private
 
+    ##
+    # Handles the response from a put_object operation.
+    #
+    # Extracts the status code from the response and tracks successful uploads.
+    # If the status code is not 200, logs and returns an error message.
+    #
+    # @param response [Aws::S3::Types::PutObjectOutput] the S3 response object.
+    # @param key [String] the key of the uploaded file.
+    # @param file [String] the path to the file uploaded.
+    # @return [Hash] a hash containing { success: true } on success, or { success: false, error_message: String } on failure.
     def handle_put_object_response(response, key, file)
       status_code = response.context.http_response.status_code
       if status_code == 200
@@ -67,6 +77,13 @@ module IvcChampva
       end
     end
 
+    ##
+    # Handles errors raised during the put_object operation.
+    #
+    # Logs the error and returns an error message.
+    #
+    # @param error [Exception] the exception raised.
+    # @return [Hash] a hash containing { success: false, error_message: String }.
     def handle_put_object_error(error)
       Rails.logger.error "S3 PutObject unexpected error: #{error.message}"
       { success: false, error_message: "S3 PutObject unexpected error: #{error.message.strip}" }
