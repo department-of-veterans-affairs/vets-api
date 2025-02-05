@@ -76,7 +76,7 @@ describe PdfFill::Filler, type: :model do
         form_types = %w[simple kitchen_sink overflow].product([false])
         form_types << ['overflow', true] if form_id == '21-0781V2'
         form_types.each do |type, extras_redesign|
-          context "with #{type} test data" do
+          context "with #{type} test data with extras_redesign #{extras_redesign}" do
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")
             end
