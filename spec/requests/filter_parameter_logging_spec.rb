@@ -51,6 +51,7 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
     expect(logs).to include('"headers":"[FILTERED!]"')
   end
 
+
   it 'filters file parameters when represented as a hash' do
     file_params = {
       'content_type' => 'application/pdf',
