@@ -41,6 +41,11 @@ describe Eps::AppointmentService do
       end
     end
 
+    context 'and add provider data to appointments' do
+
+
+    end
+
     context 'when the endpoint fails to return appointments' do
       let(:failed_appt_response) do
         double('Response', status: 500, body: 'Unknown service exception')

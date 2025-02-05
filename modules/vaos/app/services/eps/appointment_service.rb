@@ -10,7 +10,9 @@ module Eps
     def get_appointments
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
                          {}, headers)
-      OpenStruct.new(response.body)
+      appointments = response.body.data
+      merged_appointments = merge_provider_data_with_appointments(appointments)
+      OpenStruct.new(merged_appointments)
     end
 
     ##
@@ -59,7 +61,7 @@ module Eps
       providers = get_provider_services(provider_ids)
 
       appointments.each do |appointment|
-        provider = providers.find { |provider| provider.id == appointment.providerServiceId }
+        provider = providers.find { |provider_data| provider_data.id == appointment.providerServiceId }
         appointment.provider = provider
       end
     end
