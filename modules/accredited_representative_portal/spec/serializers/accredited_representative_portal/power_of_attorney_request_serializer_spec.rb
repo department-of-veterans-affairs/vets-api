@@ -83,15 +83,15 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
       end
     end
 
-    # TODO: Uncomment this block after the attributes are installed in the DB
-    # describe ':power_of_attorney_holder' do
-    #   context 'when the holder is an AccreditedOrganization' do
-    #     it 'serializes the accredited organization' do
-    #       veteran_declined_holder_data = veteran_declined_data[:power_of_attorney_holder]
-    #       expect(veteran_declined_holder_data[:type]).to eq 'veteran_service_organization'
-    #       expect(veteran_declined_holder_data[:name]).to be_nil
-    #     end
-    #   end
-    # end
+
+    describe ':power_of_attorney_holder' do
+      context 'when the holder is an AccreditedOrganization' do
+        it 'serializes the accredited organization' do
+          veteran_declined_holder_data = veteran_declined_data[:power_of_attorney_holder]
+          expect(veteran_declined_holder_data[:type]).to eq 'veteran_service_organization'
+          expect(veteran_declined_holder_data[:name]).to eq veteran_declined_poa_request.accredited_organization.name
+        end
+      end
+    end
   end
 end

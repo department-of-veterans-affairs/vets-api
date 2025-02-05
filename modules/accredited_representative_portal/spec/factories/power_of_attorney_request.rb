@@ -13,7 +13,9 @@ FactoryBot.define do
              last_name: Faker::Name.unique.last_name)
     }
 
-    # Temporarily set a default value for power_of_attorney_holder_type
+    accredited_organization {
+      create(:organization)
+    }
     power_of_attorney_holder_type { 'AccreditedOrganization' }
 
     transient do
