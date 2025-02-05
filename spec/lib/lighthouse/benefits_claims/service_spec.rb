@@ -66,12 +66,12 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
 
-        context 'when :cst_suppress_evidence_requests is disabled' do
+        context 'when :cst_suppress_evidence_requests_website is disabled' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(false)
           end
 
-          it 'includes Attorney Fee, Secondary Action Required, and Stage 2 Development tracked items' do
+          it 'includes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
             VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
               response = @service.get_claim('600383363')
               expect(response.dig('data', 'attributes', 'trackedItems').size).to eq(3)
@@ -79,17 +79,17 @@ RSpec.describe BenefitsClaims::Service do
                                   'displayName')).to eq('Private Medical Record')
               expect(response.dig('data', 'attributes', 'trackedItems', 1,
                                   'displayName')).to eq('Submit buddy statement(s)')
-              expect(response.dig('data', 'attributes', 'trackedItems', 2, 'displayName')).to eq('Attorney Fee')
+              expect(response.dig('data', 'attributes', 'trackedItems', 2, 'displayName')).to eq('Attorney Fees')
             end
           end
         end
 
-        context 'when :cst_suppress_evidence_requests is enabled' do
+        context 'when :cst_suppress_evidence_requests_website is enabled' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(true)
           end
 
-          it 'excludes Attorney Fee, Secondary Action Required, and Stage 2 Development tracked items' do
+          it 'excludes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
             VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
               response = @service.get_claim('600383363')
               expect(response.dig('data', 'attributes', 'trackedItems').size).to eq(2)
