@@ -474,6 +474,18 @@ class Form526Submission < ApplicationRecord
     Account.lookup_by_user_uuid(user_uuid)
   end
 
+  # Send the Submitted Email - when the Veteran has clicked the "submit" button in va.gov
+  # Primary Path: when the response from getting a claim id is successful
+  # Backup Path: when Form526StatusPollingJob reaches "paranoid_success" status
+  # @param invoker: string where the Received Email trigger is being called from
+  def send_submitted_email(invoker)
+    Rails.logger.info("Form526SubmittedEmailJob called for user #{user_uuid},
+                                                          submission: #{id} from #{invoker}")
+    first_name = get_first_name
+    params = personalization_parameters(first_name)
+    Form526SubmittedEmailJob.perform_async(params)
+  end
+
   # Send the Received Confirmation Email - when we have confirmed VBMS can start processing the claim
   # Primary Path: when the poll for PollForm526PDF job is successful
   # Backup Path: when Form526StatusPollingJob reaches "paranoid_success" status

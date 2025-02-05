@@ -551,6 +551,34 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             expect_retryable_error(error_class)
           end
         end
+
+        context 'when disability_526_send_form526_submitted_email is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+                                .with(:disability_526_send_form526_submitted_email)
+                                .and_return(true)
+          end
+
+          it 'sends the submitted email' do
+            expect(Form526SubmittedEmailJob).to receive(:perform_async).once
+            subject.perform_async(submission.id)
+            described_class.drain
+          end
+        end
+
+        context 'when disability_526_send_form526_submitted_email is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+                                .with(:disability_526_send_form526_submitted_email)
+                                .and_return(false)
+          end
+
+          it 'does not send the submitted email' do
+            expect(Form526SubmittedEmailJob).not_to receive(:perform_async)
+            subject.perform_async(submission.id)
+            described_class.drain
+          end
+        end
       end
     end
 
@@ -692,6 +720,34 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         subject.perform_async(submission.id)
         expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
         expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+      end
+
+      context 'when disability_526_send_form526_submitted_email is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+                              .with(:disability_526_send_form526_submitted_email)
+                              .and_return(true)
+        end
+
+        it 'behaves sends the submitted email' do
+          expect(Form526SubmittedEmailJob).to receive(:perform_async).once
+          subject.perform_async(submission.id)
+          described_class.drain
+        end
+      end
+
+      context 'when disability_526_send_form526_submitted_email is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+                              .with(:disability_526_send_form526_submitted_email)
+                              .and_return(false)
+        end
+
+        it 'behaves does not send the submitted email' do
+          expect(Form526SubmittedEmailJob).not_to receive(:perform_async)
+          subject.perform_async(submission.id)
+          described_class.drain
+        end
       end
     end
 

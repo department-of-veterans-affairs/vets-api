@@ -568,6 +568,9 @@ features:
     actor_type: user
     description: enables a new form flow for 0781 and 0781a in the 526 submission workflow
     enable_in_development: true
+  disability_526_send_form526_submitted_email:
+    actor_type: user
+    description: enables sending submitted email in both primary and backup paths
   disability_526_send_received_email_from_backup_path:
     actor_type: user
     description: enables received email in complete success state of backup path
