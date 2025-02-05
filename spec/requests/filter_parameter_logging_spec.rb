@@ -51,7 +51,6 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
     expect(logs).to include('"headers":"[FILTERED!]"')
   end
 
-
   it 'filters file parameters when represented as a hash' do
     file_params = {
       'content_type' => 'application/pdf',
@@ -60,7 +59,6 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
       'headers' => 'Content-Disposition: form-data; name="attachment"; filename="private_file.docx"',
       # NOTE: tempfile and content_type are explicitly allowed to pass unfiltered:
       'tempfile' => '#<Tempfile:/tmp/RackMultipart20241231-96-nixrw6.pdf (closed)>',
-      'content_type' => 'application/pdf',
       'metadata' => { 'extra' => 'should_be_filtered' } # Nested hash
     }
 
