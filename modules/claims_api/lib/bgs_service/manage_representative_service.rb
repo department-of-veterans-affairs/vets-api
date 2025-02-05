@@ -90,14 +90,13 @@ module ClaimsApi
                    namespaces: { 'data' => '/data' }, transform_response: false)
     end
 
-    def update_poa_relationship(pctpnt_id:, file_number:, ssn:, poa_code:)
+    def update_poa_relationship(pctpnt_id:, file_number:, poa_code:)
       byebug
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.send('data:POARelationship') do
           xml.dateRequestAccepted Time.current.iso8601
           xml.vetPtcpntId pctpnt_id
           xml.vetFileNumber file_number
-          xml.vetSSN ssn
           xml.vsoPOACode poa_code
         end
       end

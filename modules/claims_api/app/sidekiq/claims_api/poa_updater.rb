@@ -80,17 +80,10 @@ module ClaimsApi
     end
 
     def update_birls_record(file_number, ssn, poa_code, poa_form)
-      if 1 == 1
+      if Flipper.enabled? :claims_api_use_update_poa_relationship
         manage_rep_poa_update_service(poa_form).update_poa_relationship(
           pctpnt_id: poa_form.auth_headers['va_eauth_pid'],
           file_number:,
-          ssn:,
-          poa_code:
-        )
-      elsif Flipper.enabled? :claims_api_use_vet_record_service
-        vet_record_service(poa_form).update_birls_record(
-          file_number:,
-          ssn:,
           poa_code:
         )
       else
