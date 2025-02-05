@@ -97,7 +97,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
               'type' => 'veteran_service_organization',
               'name' => poa_requests[0].accredited_organization.name,
               'id' => poa_requests[0].accredited_organization.poa
-            },
+            }
           },
           {
             'id' => poa_requests[1].id,
@@ -121,7 +121,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
               'type' => 'veteran_service_organization',
               'name' => poa_requests[1].accredited_organization.name,
               'id' => poa_requests[1].accredited_organization.poa
-            },
+            }
           },
           {
             'id' => poa_requests[2].id,
@@ -146,7 +146,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
               'type' => 'veteran_service_organization',
               'name' => poa_requests[2].accredited_organization.name,
               'id' => poa_requests[2].accredited_organization.poa
-            },
+            }
           },
           {
             'id' => poa_requests[3].id,
@@ -168,7 +168,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
               'type' => 'veteran_service_organization',
               'name' => poa_requests[3].accredited_organization.name,
               'id' => poa_requests[3].accredited_organization.poa
-            },
+            }
           }
         ]
       )
@@ -251,7 +251,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'type' => 'veteran_service_organization',
             'name' => poa_request.accredited_organization.name,
             'id' => poa_request.accredited_organization.poa
-          },
+          }
         }
       )
     end

@@ -83,7 +83,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
       end
     end
 
-
     describe ':power_of_attorney_holder' do
       context 'when the holder is an AccreditedOrganization' do
         it 'serializes the accredited organization' do
