@@ -19,7 +19,7 @@ jobs:
         run: exit 1
 
       - name: Check for Ready for Review label
-        if: !contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
+        if: "!contains(github.event.pull_request.labels.*.name, 'require-backend-approval')"
         run: exit 0
 
       - name: Configure AWS Credentials
