@@ -2,13 +2,13 @@
 
 module AccreditedRepresentativePortal
   module StagingSeeds
-    module Methods
-      RequestOptions = Struct.new(
-        :org, :rep, :claimant, :resolution_cycle,
-        :resolved_time, :unresolved_time, :totals,
-        keyword_init: true
-      )
+    RequestOptions = Struct.new(
+      :org, :rep, :claimant, :resolution_cycle,
+      :resolved_time, :unresolved_time, :totals,
+      keyword_init: true
+    )
 
+    module RequestMethods
       def create_claimants(count = 10)
         Array.new(count) do
           FactoryBot.create(:user_account)
@@ -28,47 +28,12 @@ module AccreditedRepresentativePortal
         options.totals[:requests] += 1
       end
 
-      def fetch_organizations
-        {
-          ct: Veteran::Service::Organization.find_by(poa: '008'),
-          digital: Veteran::Service::Organization
-            .where(can_accept_digital_poa_requests: true)
-            .where.not(poa: '008')
-            .limit(2),
-          non_digital: Veteran::Service::Organization
-            .where(can_accept_digital_poa_requests: false)
-            .limit(2)
-        }
-      end
-
-      def process_organizations(orgs, options)
-        [orgs[:ct], *orgs[:digital], *orgs[:non_digital]].each do |org|
-          matching_reps = Veteran::Service::Representative
-                          .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
-                          .limit(2)
-
-          matching_reps.each do |rep|
-            create_request_with_resolution(
-              RequestOptions.new(
-                org: org,
-                rep: rep,
-                claimant: options[:claimant_cycle].next,
-                resolution_cycle: options[:resolution_cycle],
-                resolved_time: options[:resolved_time],
-                unresolved_time: options[:unresolved_time],
-                totals: options[:totals]
-              )
-            )
-          end
-        end
-      end
-
       def create_poa_request(org, rep, claimant, created_at)
         request = PowerOfAttorneyRequest.new(
           claimant_id: claimant.id,
           claimant_type: 'veteran',
-          power_of_attorney_holder_type: 'AccreditedOrganization',
-          power_of_attorney_holder_poa_code: org.poa,
+          power_of_attorney_holder_type: org ? 'AccreditedOrganization' : 'AccreditedIndividual',
+          power_of_attorney_holder_poa_code: org&.poa,
           accredited_individual_registration_number: rep.representative_id,
           created_at: created_at
         )
@@ -104,6 +69,64 @@ module AccreditedRepresentativePortal
           power_of_attorney_request: request,
           resolving: resolving,
           created_at: request.created_at + 1.day
+        )
+      end
+    end
+
+    module OrganizationMethods
+      def fetch_organizations
+        {
+          ct: Veteran::Service::Organization.find_by(poa: '008'),
+          digital: Veteran::Service::Organization
+            .where(can_accept_digital_poa_requests: true)
+            .where.not(poa: '008')
+            .limit(2),
+          non_digital: Veteran::Service::Organization
+            .where(can_accept_digital_poa_requests: false)
+            .limit(2)
+        }
+      end
+
+      def process_organizations(orgs, options)
+        process_matched_orgs(orgs, options)
+        process_unmatched_reps(options)
+      end
+
+      private
+
+      def process_matched_orgs(orgs, options)
+        [orgs[:ct], *orgs[:digital], *orgs[:non_digital]].each do |org|
+          process_org_reps(org, options)
+        end
+      end
+
+      def process_org_reps(org, options)
+        matching_reps = Veteran::Service::Representative
+                        .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
+                        .limit(2)
+
+        matching_reps.each do |rep|
+          create_request_with_resolution(build_request_options(org, rep, options))
+        end
+      end
+
+      def process_unmatched_reps(options)
+        Veteran::Service::Representative
+          .where(representative_id: 'LR000')
+          .find_each do |rep|
+            create_request_with_resolution(build_request_options(nil, rep, options))
+          end
+      end
+
+      def build_request_options(org, rep, options)
+        RequestOptions.new(
+          org: org,
+          rep: rep,
+          claimant: options[:claimant_cycle].next,
+          resolution_cycle: options[:resolution_cycle],
+          resolved_time: options[:resolved_time],
+          unresolved_time: options[:unresolved_time],
+          totals: options[:totals]
         )
       end
     end
@@ -160,6 +183,11 @@ module AccreditedRepresentativePortal
           zip_code_suffix: nil
         }
       end
+    end
+
+    module Methods
+      include RequestMethods
+      include OrganizationMethods
     end
   end
 end

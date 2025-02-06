@@ -71,6 +71,7 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
       ct_requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest
                     .where(power_of_attorney_holder_poa_code: '008')
       expect(ct_requests).to exist
+      expect(ct_requests).to(be_all { |req| req.accredited_organization == ct_digital_org })
     end
 
     it 'creates both resolved and unresolved requests' do
@@ -78,10 +79,14 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
       expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.unresolved).to exist
     end
 
-    it 'does not create requests for reps without matching orgs' do
-      unmatched_requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest
-                           .where(accredited_individual_registration_number: 'LR000')
-      expect(unmatched_requests).not_to exist
+    it 'creates POA requests for reps without matching orgs' do
+      # verify request exists but has no org
+      requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest.where(
+        accredited_individual_registration_number: 'LR000'
+      )
+      expect(requests).to exist
+      # veroify no org
+      expect(requests).to(be_all { |req| req.accredited_organization.blank? })
     end
 
     it 'creates requests for multi-org reps' do
@@ -89,6 +94,8 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
                            .where(accredited_individual_registration_number: 'MR789')
       expect(multi_rep_requests.pluck(:power_of_attorney_holder_poa_code))
         .to include('008', 'ABC', 'XYZ')
+      # verify they all have orgs
+      expect(multi_rep_requests).to(be_all { |req| req.accredited_organization.present? })
     end
   end
 end
