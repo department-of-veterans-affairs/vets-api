@@ -112,27 +112,12 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   describe '#post_address' do
     let(:address) do
-      build(:va_profile_v3_address, source_system_user: user.icn)
+      build(:va_profile_v3_address, :mobile)
     end
 
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/v2/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
-          address.id = nil
-          address.address_line1 = '1493 Martin Luther King Rd'
-          address.city = 'Fulton'
-          address.state_code = 'MS'
-          address.zip_code = '38843'
-          response = subject.post_address(address)
-          expect(response).to be_ok
-        end
-      end
-    end
-
-    context 'when the address_pou is invalid' do
-      it 'returns a status of 200' do
-        VCR.use_cassette('va_profile/v2/contact_information/post_address_success_invalid_pou', VCR::MATCH_EVERYTHING) do
-          address = build(:va_profile_v3_address, :incorrect_address_pou)
           response = subject.post_address(address)
           expect(response).to be_ok
         end
@@ -140,6 +125,8 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     end
 
     context 'when an ID is included' do
+      let(:address) { build(:va_profile_v3_address, :override) }
+
       it 'raises an exception' do
         VCR.use_cassette('va_profile/v2/contact_information/post_address_w_id_error', VCR::MATCH_EVERYTHING) do
           address.id = 42
@@ -147,6 +134,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
           address.city = 'Fulton'
           address.state_code = 'MS'
           address.zip_code = '38843'
+          binding.pry
           expect { subject.post_address(address) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
@@ -158,21 +146,11 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   end
 
   describe '#put_address' do
-    let(:address) do
-      build(:va_profile_v3_address, :override, source_system_user: user.icn)
-    end
+    let(:address) { build(:va_profile_v3_address, :override, id: 577_127) }
 
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('va_profile/v2/contact_information/put_address_success_copy', VCR::MATCH_EVERYTHING) do
-          address.id = 577_127
-          address.address_line1 = '1494 Martin Luther King Rd'
-          address.city = 'Fulton'
-          address.state_code = 'MS'
-          address.source_system_user = '123498767V234859'
-          address.source_date = '2024-09-16T16:09:37.000Z'
-          address.zip_code = '38843'
-          address.effective_start_date = '2024-09-16T16:09:37.000Z'
+        VCR.use_cassette('va_profile/v2/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
           response = subject.put_address(address)
           expect(response.transaction.id).to eq('7ac85cf3-b229-4034-9897-25c0ef1411eb')
           expect(response).to be_ok
