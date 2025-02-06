@@ -288,11 +288,11 @@ module Form526ClaimFastTrackingConcern
     invoker = 'Form526ClaimFastTrackingConcern#all_rated_disabilities'
     api_provider = ApiProviderFactory.call(
       type: ApiProviderFactory::FACTORIES[:rated_disabilities],
-      provider: nil,
+      provider: :lighthouse,
       options: { auth_headers:, icn: },
       # Flipper id is needed to check if the feature toggle works for this user
       current_user: OpenStruct.new({ flipper_id: user_uuid }),
-      feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND
+      feature_toggle: nil
     )
 
     @all_rated_disabilities ||= begin
