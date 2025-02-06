@@ -25,7 +25,7 @@ module RepresentationManagement
     end
 
     def expiration_date
-      base_date + 60.days.strftime('%B %d, %Y')
+      (base_date + 60.days).strftime('%B %d, %Y')
     end
 
     def expiration_time
