@@ -54,6 +54,10 @@ describe IvcChampva::S3 do
 
       before do
         allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(response_double)
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_log_all_s3_uploads, @current_user)
+          .and_return(true)
+        Flipper.enable(:champva_log_all_s3_uploads)
       end
 
       it 'returns failure response with status code and body' do
@@ -74,6 +78,10 @@ describe IvcChampva::S3 do
         allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_raise(
           Aws::S3::Errors::ServiceError.new(nil, 'Service Unavailable')
         )
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_log_all_s3_uploads, @current_user)
+          .and_return(true)
+        Flipper.enable(:champva_log_all_s3_uploads)
       end
 
       it 'returns failure response with exception message' do
@@ -98,6 +106,10 @@ describe IvcChampva::S3 do
 
       before do
         allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(response_double)
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_log_all_s3_uploads, @current_user)
+          .and_return(true)
+        Flipper.enable(:champva_log_all_s3_uploads)
       end
 
       it 'returns failure response with status code' do
