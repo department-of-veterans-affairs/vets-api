@@ -1,7 +1,5 @@
 name: Require backend-review-group approval
 on:
-  pull_request:
-    types: [ready_for_review]
   pull_request_review:
     types: [submitted]
     branches: master
