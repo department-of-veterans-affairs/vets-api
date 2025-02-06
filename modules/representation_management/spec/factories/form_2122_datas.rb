@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :form_2122_base, class: 'RepresentationManagement::Form2122Base' do
     veteran_first_name { 'Vet' }
