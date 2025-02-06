@@ -19,6 +19,10 @@ jobs:
         if: github.event.pull_request.draft == true
         run: exit 1
 
+      - name: Draft Pull Request Check 2
+        if: github.event.pull_request.draft == "true"
+        run: exit 1
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
