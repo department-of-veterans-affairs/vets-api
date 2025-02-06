@@ -270,7 +270,6 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
       sign_in_as(user)
       allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:remove_pciu_2, instance_of(User)).and_return(true)
     end
 
     describe 'POST /v0/profile/telephones v2' do
@@ -451,7 +450,6 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
     #     Flipper.enable(:va_v3_contact_information_service)
     #   end
     #   after do
-    #     allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
     #   end
     #   let(:telephone) { build(:telephone, :contact_info_v2, vet360_id: user.vet360_id) }
 
