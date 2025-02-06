@@ -29,6 +29,8 @@ module Mobile
       end
 
       def handle_vet360_id
+        # Vet350 ID is not longer used for Contact Information v2 API service
+        # This should be removed after Contact Info v2 is live in prod
         if @current_user.vet360_id.blank?
           Mobile::V0::Vet360LinkingJob.perform_async(@current_user.uuid)
         elsif (mobile_user = Mobile::User.find_by(icn: @current_user.icn, vet360_linked: false))
