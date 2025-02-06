@@ -64,7 +64,7 @@ module SimpleFormsApi
 
     def send_email_now
       VANotify::EmailJob.perform_async(
-        form_data.dig(:form_data, :email),
+        form_data[:email],
         template_id,
         get_personalization,
         *email_args
@@ -74,7 +74,7 @@ module SimpleFormsApi
     def enqueue_email(at)
       VANotify::EmailJob.perform_at(
         at,
-        form_data.dig(:form_data, :email),
+        form_data[:email],
         template_id,
         get_personalization,
         *email_args
@@ -90,7 +90,7 @@ module SimpleFormsApi
 
     def get_personalization
       {
-        'first_name' => form_data.dig(:form_data, :full_name, :first)&.titleize,
+        'first_name' => form_data.dig(:full_name, :first)&.titleize,
         'form_number' => form_number,
         'form_name' => form_data[:form_name],
         'date_submitted' => date_submitted,
