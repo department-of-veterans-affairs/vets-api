@@ -42,7 +42,9 @@ module Lighthouse
         response = BenefitsDocuments::DocumentsStatusPollingService.call(lighthouse_document_request_ids)
 
         if response.status == 200
-          result = BenefitsDocuments::UpdateDocumentsStatusService.call(pending_evidence_submission_batch, response.body)
+          result = BenefitsDocuments::UpdateDocumentsStatusService.call(
+            pending_evidence_submission_batch, response.body
+          )
 
           if result && !result[:success]
             response_struct = OpenStruct.new(result[:response])
