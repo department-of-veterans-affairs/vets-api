@@ -8,7 +8,7 @@ module AccreditedRepresentativePortal
           claimants = create_claimants
           claimant_cycle = claimants.cycle
 
-          resolution_cycle = RESOLUTION_HISTORY_CYCLE.cycle
+          resolution_cycle = RESOLUTION_HISTORY_CYCLE
           resolved_time = RESOLVED_TIME_TRAVELER
           unresolved_time = UNRESOLVED_TIME_TRAVELER
 
@@ -35,14 +35,7 @@ module AccreditedRepresentativePortal
 
       private
 
-      RESOLUTION_HISTORY_CYCLE =
-        Enumerator.new do |yielder|
-          %i[expiration declination acceptance].permutation.each do |perm|
-            perm.each do |trait|
-              yielder << trait
-            end
-          end
-        end.cycle
+      RESOLUTION_HISTORY_CYCLE = %i[expiration decision].cycle
 
       RESOLVED_TIME_TRAVELER =
         Enumerator.new do |yielder|
@@ -82,28 +75,93 @@ module AccreditedRepresentativePortal
       end
 
       def create_poa_request(org, rep, claimant, created_at)
-        PowerOfAttorneyRequest.create!(
+        # Create request without form first
+        request = PowerOfAttorneyRequest.new(
           claimant_id: claimant.id,
           claimant_type: 'veteran',
           power_of_attorney_holder_type: 'AccreditedOrganization',
           power_of_attorney_holder_poa_code: org.poa,
           accredited_individual_registration_number: rep.representative_id,
-          power_of_attorney_form: build_poa_form,
           created_at: created_at
         )
-      end
 
-      def create_resolution(request, resolution_trait)
-        FactoryBot.create(
-          :power_of_attorney_request_resolution,
-          resolution_trait,
-          power_of_attorney_request_id: request.id,
-          created_at: request.created_at + 1.day
+        # Create form with request
+        form = AccreditedRepresentativePortal::PowerOfAttorneyForm.new(
+          data: build_poa_form_data.to_json,
+          power_of_attorney_request: request
         )
+
+        # Save both
+        form.save!
+        request.power_of_attorney_form = form
+        request.save!
+        
+        request
       end
 
-      def build_poa_form
-        FactoryBot.build(:power_of_attorney_form)
+      def create_resolution(request, resolution_type)
+        resolving = case resolution_type
+        when :expiration
+          exp = AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration.new
+          if exp.save
+            exp
+          end
+        when :decision
+          dec = AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.new(
+            type: AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision::Types::ACCEPTANCE,
+            creator_id: request.claimant_id
+          )
+          if dec.save
+            dec
+          end
+        else
+          raise "Unknown resolution type: #{resolution_type}"
+        end
+      
+        if resolving&.persisted?
+          resolution = AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.create!(
+            power_of_attorney_request: request,
+            resolving: resolving,
+            created_at: request.created_at + 1.day
+          )
+          resolution
+        else
+          raise "Failed to create resolving record"
+        end
+      end
+
+      def build_poa_form_data
+        {
+          authorizations: {
+            record_disclosure: true,
+            record_disclosure_limitations: [],
+            address_change: false
+          },
+          veteran: {
+            name: {
+              first: "Test",
+              middle: nil,
+              last: "Veteran"
+            },
+            address: {
+              address_line1: "123 Test St",
+              address_line2: nil,
+              city: "Testville",
+              state_code: "TS",
+              country: "US",
+              zip_code: "12345",
+              zip_code_suffix: nil
+            },
+            ssn: "123456789",
+            va_file_number: "123456789",
+            date_of_birth: "1980-01-01",
+            service_number: nil,
+            service_branch: "ARMY",
+            phone: "1234567890",
+            email: "test@example.com"
+          },
+          dependent: nil
+        }
       end
 
       def log_results(totals)
