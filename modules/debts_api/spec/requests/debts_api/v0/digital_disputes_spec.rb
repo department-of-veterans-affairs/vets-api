@@ -41,7 +41,7 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
                                                             'action:create', 'source_app:not_provided', 'status:422'] })
         expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.failure')
 
-        params.delete('contact_information')
+        params.delete('veteran_information')
 
         post(
           '/debts_api/v0/digital_disputes',
@@ -61,7 +61,7 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
 
       it 'returns an error when invalid email is submitted' do
         params = get_fixture_absolute('modules/debts_api/spec/fixtures/digital_disputes/standard_submission')
-        params['contact_information']['email'] = 'invalid_email'
+        params['veteran_information']['email'] = 'invalid_email'
 
         post(
           '/debts_api/v0/digital_disputes',
