@@ -2,8 +2,6 @@
 
 module Representatives
   class XlsxFileProcessor
-    include SentryLogging
-
     US_STATES_TERRITORIES = {
       'AL' => true,
       'AK' => true,
@@ -93,17 +91,21 @@ module Representatives
     end
 
     def process_sheet(xlsx, sheet_name)
+      processed_rep_ids = {}
       data = []
       column_map = build_column_index_map(xlsx.sheet(sheet_name).row(1))
 
       xlsx.sheet(sheet_name).each_with_index do |row, index|
         next if index.zero? || row.length < column_map.length
 
+        next if processed_rep_ids[row[column_map['Number']]]
+
         state_code = get_value(row, column_map, 'WorkState')
 
         next unless US_STATES_TERRITORIES[state_code]
 
         data << process_row(row, sheet_name, column_map)
+        processed_rep_ids[row[column_map['Number']]] = true
       end
 
       data
@@ -138,7 +140,7 @@ module Representatives
           address_line2: get_value(row, column_map, 'WorkAddress2'),
           address_line3: get_value(row, column_map, 'WorkAddress3'),
           city: get_value(row, column_map, 'WorkCity'),
-          state_province: { code: get_value(row, column_map, 'WorkState') },
+          state: { state_code: get_value(row, column_map, 'WorkState') },
           zip_code5:,
           zip_code4:,
           country_code_iso3: 'US'
@@ -200,7 +202,7 @@ module Representatives
     end
 
     def log_error(message)
-      log_message_to_sentry("XlsxFileProcessor error: #{message}", :error)
+      Rails.logger.error("XlsxFileProcessor error: #{message}")
     end
   end
 end

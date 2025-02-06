@@ -38,18 +38,54 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
         assert_schema_conform(200)
 
         expect(tracked_item_with_docs['documents'].count).to eq(1)
-        expect(tracked_item_with_docs['uploaded']).to eq(true)
+        expect(tracked_item_with_docs['uploaded']).to be(true)
         expect(tracked_item_with_no_docs['documents'].count).to eq(0)
-        expect(tracked_item_with_no_docs['uploaded']).to eq(false)
+        expect(tracked_item_with_no_docs['uploaded']).to be(false)
 
         uploaded_of_events = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').pluck('uploaded').compact
         date_of_events = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').pluck('date')
 
-        expect(uploaded_of_events).to eq([false, false, false, true, true, true, true, true])
-        expect(date_of_events).to eq(['2022-10-30', '2022-10-30', '2022-09-30', '2023-03-01', '2022-12-12',
-                                      '2022-10-30', '2022-10-30', '2022-10-11', '2022-09-30', '2022-09-30',
-                                      '2022-09-27', nil, nil, nil, nil, nil, nil, nil, nil])
+        expect(uploaded_of_events).to eq([false, false, false, false, true, true, true, true, true])
+        expect(date_of_events).to eq(['2022-10-30', '2022-10-30', '2022-10-30', '2022-09-30', '2023-03-01',
+                                      '2022-12-12', '2022-10-30', '2022-10-30', '2022-10-11', '2022-09-30',
+                                      '2022-09-30', '2022-09-27', nil, nil, nil, nil, nil, nil, nil, nil])
         expect(response.parsed_body.dig('data', 'attributes', 'claimTypeCode')).to eq('020NEW')
+      end
+
+      context 'when cst_override_reserve_records_mobile flipper is true' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(true)
+        end
+
+        it 'overrides the tracked item status to NEEDED_FROM_OTHERS', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+          VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+            get '/mobile/v0/claim/600117255', headers: sis_headers
+          end
+          tracked_item = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').select do |event|
+            event['trackedItemId'] == 360_057
+          end.first
+          expect(tracked_item['displayName']).to eq('RV1 - Reserve Records Request')
+          expect(tracked_item['type']).to eq('still_need_from_others_list')
+        end
+      end
+
+      context 'when cst_override_reserve_records_mobile flipper is false' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(false)
+        end
+
+        it 'leaves the tracked item status as NEEDED_FROM_YOU', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+          VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
+            get '/mobile/v0/claim/600117255', headers: sis_headers
+          end
+          tracked_item = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').select do |event|
+            event['trackedItemId'] == 360_057
+          end.first
+          expect(tracked_item['displayName']).to eq('RV1 - Reserve Records Request')
+          expect(tracked_item['type']).to eq('still_need_from_you_list')
+        end
       end
     end
 

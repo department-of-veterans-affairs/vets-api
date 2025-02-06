@@ -6,7 +6,7 @@ require 'evss/pciu_address/response_strategy'
 describe EVSS::PCIUAddress::ResponseStrategy do
   let(:user) { build(:user, :loa3) }
   let(:service) { EVSS::PCIUAddress::Service.new(user) }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:faraday_response) { instance_double(Faraday::Response) }
   let(:countries_response) { EVSS::PCIUAddress::CountriesResponse.new(200, faraday_response) }
 
   before do
