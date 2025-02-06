@@ -7,8 +7,6 @@ module SentryLogging
 
   def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
     level = normalize_level(level, nil)
-    formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
-    rails_logger(level, formatted_message)
 
     if Settings.sentry.dsn.present?
       set_sentry_metadata(extra_context, tags_context)
@@ -23,13 +21,6 @@ module SentryLogging
       set_sentry_metadata(extra_context, tags_context)
       Sentry.capture_exception(exception.cause.presence || exception, level:)
     end
-
-    if exception.is_a? Common::Exceptions::BackendServiceException
-      rails_logger(level, exception.message, exception.errors, exception.backtrace)
-    else
-      rails_logger(level, "#{exception.message}.")
-    end
-    rails_logger(level, exception.backtrace.join("\n")) unless exception.backtrace.nil?
   end
 
   def normalize_level(level, exception)
@@ -47,17 +38,6 @@ module SentryLogging
     return 'warning' if level == 'warn'
 
     level
-  end
-
-  def rails_logger(level, message, errors = nil, backtrace = nil)
-    # rails logger uses 'warn' instead of 'warning'
-    level = 'warn' if level == 'warning'
-    if errors.present?
-      error_details = errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
-      Rails.logger.send(level, message, error_details.merge(backtrace:))
-    else
-      Rails.logger.send(level, message)
-    end
   end
 
   def non_nil_hash?(h)

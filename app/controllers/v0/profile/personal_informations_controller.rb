@@ -40,7 +40,7 @@ module V0
 
       def log_errors_for(response)
         if response.gender.nil? || response.birth_date.nil?
-          log_message_to_sentry(
+          message_args = [
             'mpi missing data bug',
             :info,
             {
@@ -49,8 +49,10 @@ module V0
               gender: response.gender,
               birth_date: response.birth_date
             },
-            profile: 'pciu_profile'
-          )
+            { profile: 'pciu_profile' }
+          ]
+          log_message(*message_args)
+          log_message_to_sentry(*message_args)
         end
       end
     end

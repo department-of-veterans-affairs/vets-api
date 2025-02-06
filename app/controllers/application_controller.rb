@@ -10,6 +10,8 @@ class ApplicationController < ActionController::API
   include Headers
   include Instrumentation
   include Pundit::Authorization
+  include Logging
+  include ControllerLoggingContext
   include SentryLogging
   include SentryControllerLogging
   include Traceable

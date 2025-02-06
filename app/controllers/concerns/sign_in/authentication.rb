@@ -74,8 +74,9 @@ module SignIn
         access_token_cookie: cookie_access_token(access_token_cookie_name:)
       }.compact
 
-      log_message_to_sentry(error.message, :error, context) if context.present?
-      render json: { errors: error }, status: :unauthorized
+      message_args = [error.message, :error, context]
+      log_message(*message_args)
+      log_message_to_sentry(*message_args)
     end
 
     def scrub_bearer_token

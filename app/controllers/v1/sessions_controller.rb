@@ -399,7 +399,9 @@ module V1
       if invalid_message_timestamp_error?(message)
         Rails.logger.warn("SessionsController version:v1 context:#{context} message:#{message}")
       else
-        log_message_to_sentry(message, level, extra_context: context)
+        message_args = [message, level, { extra_context: context }]
+        log_message(*message_args)
+        log_message_to_sentry(*message_args)
       end
     end
 

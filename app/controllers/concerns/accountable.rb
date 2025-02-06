@@ -45,12 +45,12 @@ module Accountable
   end
 
   def no_account_log_message
-    log_message_to_sentry(
-      'No account found for user',
-      :warn,
-      { idme_uuid: @current_user.idme_uuid,
-        logingov_uuid: @current_user.logingov_uuid },
-      account_login_stats: 'no_account_found'
-    )
+    message_args = ['No account found for user',
+                    :warn,
+                    { idme_uuid: @current_user.idme_uuid,
+                      logingov_uuid: @current_user.logingov_uuid },
+                    { account_login_stats: 'no_account_found' }]
+    log_message(*message_args)
+    log_message_to_sentry(*message_args)
   end
 end

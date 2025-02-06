@@ -126,7 +126,9 @@ class EVSSClaimDocument < Common::Base
       file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
       password_regex = /(input_pw).*?(output)/
       sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
-      log_message_to_sentry(sanitized_message, 'warn')
+      message_args = [sanitized_message, 'warn']
+      log_message(*message_args)
+      log_message_to_sentry(*message_args)
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
     end
 
