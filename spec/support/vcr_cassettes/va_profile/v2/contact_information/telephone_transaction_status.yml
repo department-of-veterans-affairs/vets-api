@@ -2,9 +2,7 @@
 http_interactions:
 - request:
     method: get
-    # uri: <VETS360_URL>/contact-information-hub/contact-information/v2/telephones/status/c6ee12e2-d219-4d12-81e0-3eecdd5eb871
-    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/telephones/status/57d5364b-149a-4802-bc18-b9b0b0742db6
-    # uri: <VETS360_URL>/contact-information-hub/contact-information/v2/telephones/status/c915d801-5693-4860-b2df-83baa8c3c910
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/telephones/status/c6ee12e2-d219-4d12-81e0-3eecdd5eb871
     body:
       encoding: US-ASCII
       string: ''
