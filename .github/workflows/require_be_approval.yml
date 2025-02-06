@@ -11,16 +11,12 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
-      - name: Check author log
+      - name: Check pr
         run: |
-          echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
+          echo "pr_draft=${{ github.event.pull_request.draft }}"
 
       - name: Draft Pull Request Check
         if: github.event.pull_request.draft == true
-        run: exit 1
-
-      - name: Draft Pull Request Check 2
-        if: github.event.pull_request.draft == "true"
         run: exit 1
 
       - name: Configure AWS Credentials
