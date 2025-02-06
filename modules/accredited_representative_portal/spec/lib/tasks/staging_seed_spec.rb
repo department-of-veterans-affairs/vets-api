@@ -64,7 +64,7 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
     before { described_class.run }
 
     it 'creates POA requests for reps with matching organizations' do
-      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.count).to be.positive?
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.count).to be_positive
     end
 
     it 'creates POA requests for CT digital org' do
