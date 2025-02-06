@@ -161,7 +161,6 @@
     ],
     "student_information": [
       {
-        "remarks": "My remark",
         "student_networth_information": {
           "savings": "600000",
           "securities": "300000",
@@ -218,7 +217,7 @@
           "postal_code": "12345"
         },
         "student_income": false,
-        "ssn": "333445568",
+        "ssn": "000000000",
         "is_parent": true,
         "full_name": {
           "first": "Student",
@@ -286,7 +285,7 @@
           "middle": "C",
           "last": "Doe"
         },
-        "ssn": "333445555",
+        "ssn": "555443333",
         "birth_date": "2001-03-12"
       }
     ],
@@ -298,7 +297,7 @@
           "first": "Jane",
           "last": "Doe"
         },
-        "ssn": "333445555",
+        "ssn": "555443333",
         "birth_date": "1991-04-19"
       }
     ]

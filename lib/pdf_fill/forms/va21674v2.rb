@@ -825,10 +825,9 @@ module PdfFill
         created_at = options[:created_at] if options[:created_at].present?
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
-
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
-
         veteran_contact_information['phone_number'] = expand_phone_number(veteran_contact_information['phone_number'])
+        extract_middle_i(@form_data['veteran_information'], 'full_name')
         merge_dates
         merge_student_helpers
 
@@ -911,7 +910,7 @@ module PdfFill
 
         student_information['address']['postal_code'] =
           split_postal_code(student_information['address'])
-        student_information['address']['country_name'] =
+        student_information['address']['country'] =
           extract_country(student_information['address'])
 
         student_expected_earnings = student_information['student_expected_earnings_next_year']
