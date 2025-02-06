@@ -447,29 +447,3 @@ va_notify:
 accredited_representative_portal:
   pilot_user_email_poa_codes:
 
-
-vet360:
-  url: "https://int.vet360.va.gov"
-#   military_personnel:
-#     cache_enabled: false
-#     enabled: true
-#     timeout: 30
-#     mock: true
-  contact_information:
-    cache_enabled: true
-    enabled: true
-    timeout: 30
-    mock: false
-  address_validation:
-    url: "https://int.vet360.va.gov"
-    hostname: "int.vet360.va.gov"
-    api_key: "sQqjMggNejk1qszjN8ZLDHcWCD9MY2rt"
-  v3:
-    address_validation:
-      api_key: "sQqjMggNejk1qszjN8ZLDHcWCD9MY2rt"
-  host: localhost
-  port: 6379
-  app_data:
-    url: redis://localhost:6379
-  sidekiq:
-    url: redis://localhost:6379
