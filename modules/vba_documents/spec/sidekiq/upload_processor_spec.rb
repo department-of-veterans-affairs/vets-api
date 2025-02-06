@@ -257,10 +257,10 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(metadata['source']).to eq('test consumer via VA API')
       expect(metadata['numberAttachments']).to eq(1)
       expect(metadata['ICN']).to eq('2112')
-      
+
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('received')
-      
+
       # confirm UploadSubmission Db record has the icn stored in the metadata field
       expect(updated.metadata['ICN']).to eq('2112')
     end

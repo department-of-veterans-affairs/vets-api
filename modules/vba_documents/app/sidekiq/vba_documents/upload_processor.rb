@@ -46,19 +46,19 @@ module VBADocuments
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
       response = nil
 
-      begin        
+      begin
         @upload.update(metadata: @upload.metadata.merge(original_file_metadata(tempfile)))
         validate_payload_size(tempfile)
 
         # parse out multipart consumer supplied file into individual parts
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
-        
-        # Attempt to use consumer supplied file number field to look up the claiments ICN 
+
+        # Attempt to use consumer supplied file number field to look up the claiments ICN
         # asap for tracking consumer's impacted
         icn = find_icn(parts)
         @upload.update(metadata: @upload.metadata.merge({ 'ICN' => icn })) if icn.present?
 
-        inspector = VBADocuments::PDFInspector.new(pdf: parts) 
+        inspector = VBADocuments::PDFInspector.new(pdf: parts)
         @upload.update(uploaded_pdf: inspector.pdf_data)
 
         # Validations
@@ -99,9 +99,9 @@ module VBADocuments
 
     def read_original_metadata_file_number(parts)
       return unless parts.key?(META_PART_NAME) && parts[META_PART_NAME].is_a?(String)
-      
+
       metadata = JSON.parse(parts[META_PART_NAME])
-      return unless metadata.is_a?(Hash) && metadata.has_key?('fileNumber')
+      return unless metadata.is_a?(Hash) && metadata.key?('fileNumber')
 
       return if (FILE_NUMBER_REGEX =~ metadata['fileNumber'].strip).nil?
 
@@ -109,7 +109,6 @@ module VBADocuments
     end
 
     def find_icn(parts)
-
       consumer_file_number = read_original_metadata_file_number(parts)
 
       return if consumer_file_number.blank?
@@ -118,7 +117,7 @@ module VBADocuments
 
       # File Number is ssn, file number, or participant id.  Call BGS to get the veterans birthdate
       # rubocop:disable Rails/DynamicFindBy
-      bgs_vet = bgss.people.find_by_ssn(consumer_file_number) || 
+      bgs_vet = bgss.people.find_by_ssn(consumer_file_number) ||
                 bgss.people.find_by_file_number(consumer_file_number) ||
                 bgss.people.find_person_by_ptcpnt_id(consumer_file_number)
       # rubocop:enable Rails/DynamicFindBy
