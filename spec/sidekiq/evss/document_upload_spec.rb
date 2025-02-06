@@ -70,18 +70,13 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   let(:statsd_error_tags) { ['service:claim-status', "function: #{log_error_message}"] }
 
   context 'when :cst_send_evidence_submission_failure_emails is enabled' do
-    before { Flipper.enable(:cst_send_evidence_submission_failure_emails) }
+    before do
+      allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
+    end
 
     context 'when upload succeeds' do
       let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
       let(:file) { Rails.root.join('spec', 'fixtures', 'files', file_name).read }
-      let(:formatted_submit_date) do
-        # We want to return all times in EDT
-        timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
-
-        # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-        timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
-      end
       let(:evidence_submission_pending) do
         create(:bd_evidence_submission_pending,
                tracked_item_id:,
@@ -100,6 +95,8 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         allow(EvidenceSubmission).to receive(:find_by).with({ job_id: job_id.to_s })
                                                       .and_return(evidence_submission_pending)
         described_class.drain
+        evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
+        expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
       end
     end
 
@@ -112,10 +109,29 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
                job_id:,
                job_class: described_class)
       end
+      let(:error_message) { "#{job_class} failed to update EvidenceSubmission" }
+      let(:message) { "#{job_class} EvidenceSubmission updated" }
+      let(:tags) { ['service:claim-status', "function: #{error_message}"] }
+      let(:failed_date) do
+        BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
+      end
 
-      it 'updates an evidence submission record with a FAILED status' do
-        EVSS::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) {}
+      it 'updates an evidence submission record with a FAILED status with date_failed' do
+        EVSS::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) do
+          allow(EvidenceSubmission).to receive(:find_by)
+            .with({ job_id: })
+            .and_return(evidence_submission_pending)
+          expect(Rails.logger)
+            .to receive(:info)
+            .with(message)
+          expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation',
+                                                     tags: ['service:claim-status', "function: #{message}"])
+        end
         expect(EvidenceSubmission.va_notify_email_not_queued.length).to equal(1)
+        evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
+        current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
+        expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
+        expect(current_personalisation['date_failed']).to eql(failed_date)
       end
 
       it 'fails to create a failed evidence submission record when args malformed' do
@@ -127,21 +143,19 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   end
 
   context 'when :cst_send_evidence_submission_failure_emails is disabled' do
-    before { Flipper.disable(:cst_send_evidence_submission_failure_emails) }
+    before do
+      allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(false)
+    end
 
     let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
     let(:formatted_submit_date) do
-      # We want to return all times in EDT
-      timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
-
-      # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-      timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+      BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
     end
 
     it 'retrieves the file and uploads to EVSS' do
       allow(EVSSClaimDocumentUploader).to receive(:new) { uploader_stub }
       allow(EVSS::DocumentsService).to receive(:new) { client_stub }
-      file = File.read("#{::Rails.root}/spec/fixtures/files/#{file_name}")
+      file = Rails.root.join('spec', 'fixtures', 'files', file_name).read
       allow(uploader_stub).to receive(:retrieve_from_store!).with(file_name) { file }
       allow(uploader_stub).to receive(:read_for_upload) { file }
       expect(uploader_stub).to receive(:remove!).once
@@ -152,33 +166,33 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
 
     context 'when cst_send_evidence_failure_emails is enabled' do
       before do
-        Flipper.enable(:cst_send_evidence_failure_emails)
+        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_failure_emails).and_return(true)
       end
 
       it 'calls EVSS::FailureNotification' do
         described_class.within_sidekiq_retries_exhausted_block(msg) do
           expect(EVSS::FailureNotification).to receive(:perform_async).with(
             user_account.icn,
-            personalisation: {
+            {
               first_name: 'Bob',
               document_type: document_type,
-              file_name: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
+              filename: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
               date_submitted: formatted_submit_date,
               date_failed: formatted_submit_date
             }
           )
-
+          expect(EvidenceSubmission.count).to equal(0)
           expect(Rails.logger)
             .to receive(:info)
             .with(log_message)
-          expect(StatsD).to receive(:increment).with('silent_failure', tags: statsd_tags)
+          expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: statsd_tags)
         end
       end
     end
 
     context 'when cst_send_evidence_failure_emails is disabled' do
       before do
-        Flipper.disable(:cst_send_evidence_failure_emails)
+        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_failure_emails).and_return(false)
       end
 
       it 'does not call EVSS::Failure Notification' do

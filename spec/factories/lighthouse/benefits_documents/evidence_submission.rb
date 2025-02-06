@@ -23,7 +23,7 @@ FactoryBot.define do
     association :user_account, factory: :user_account
     created_at { DateTime.now.utc }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING] }
-    template_metadata_ciphertext do
+    template_metadata do
       { 'personalisation' => {
         'first_name' => 'test',
         'document_type' => 'L014',
@@ -40,7 +40,7 @@ FactoryBot.define do
     created_at { DateTime.now.utc }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
     job_class { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
-    template_metadata_ciphertext do
+    template_metadata do
       { 'personalisation' => {
         'first_name' => 'test',
         'document_type' => 'L014',

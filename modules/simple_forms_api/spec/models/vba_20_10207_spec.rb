@@ -90,4 +90,95 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
       end
     end
   end
+
+  describe '#notification_first_name' do
+    context 'preparer is veteran' do
+      let(:data) do
+        {
+          'preparer_type' => 'veteran',
+          'veteran_full_name' => {
+            'first' => 'Veteran',
+            'last' => 'Eteranvay'
+          }
+        }
+      end
+
+      it 'returns the veteran first name' do
+        expect(described_class.new(data).notification_first_name).to eq 'Veteran'
+      end
+    end
+
+    context 'preparer is non-veteran' do
+      let(:data) do
+        {
+          'preparer_type' => 'non-veteran',
+          'non_veteran_full_name' => {
+            'first' => 'Non-Veteran',
+            'last' => 'Eteranvay'
+          }
+        }
+      end
+
+      it 'returns the non-veteran first name' do
+        expect(described_class.new(data).notification_first_name).to eq 'Non-Veteran'
+      end
+    end
+
+    context 'preparer is third party' do
+      let(:data) do
+        {
+          'preparer_type' => 'third-party',
+          'third_party_full_name' => {
+            'first' => 'Third Party',
+            'last' => 'Eteranvay'
+          }
+        }
+      end
+
+      it 'returns the third party first name' do
+        expect(described_class.new(data).notification_first_name).to eq 'Third Party'
+      end
+    end
+  end
+
+  describe '#notification_email_address' do
+    context 'preparer is veteran' do
+      let(:data) do
+        {
+          'preparer_type' => 'veteran',
+          'veteran_email_address' => 'a@b.com'
+        }
+      end
+
+      it 'returns the veteran email address' do
+        expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
+      end
+    end
+
+    context 'preparer is third party veteran' do
+      let(:data) do
+        {
+          'preparer_type' => 'third-party-veteran',
+          'veteran_email_address' => 'a@b.com'
+        }
+      end
+
+      it 'returns the veteran email address' do
+        expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
+      end
+    end
+
+    context 'preparer is anything else' do
+      let(:data) do
+        {
+          'preparer_type' => 'space-alien',
+          'non_veteran_email_address' => 'a@b.com'
+        }
+      end
+
+      it 'returns the non-veteran email address' do
+        expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
+      end
+    end
+  end
 end

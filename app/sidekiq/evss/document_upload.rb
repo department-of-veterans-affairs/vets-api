@@ -12,6 +12,8 @@ class EVSS::DocumentUpload
   extend SentryLogging
   extend Logging::ThirdPartyTransaction::MethodWrapper
 
+  DD_ZSF_TAGS = ['service:claim-status', 'function: evidence upload to EVSS'].freeze
+
   attr_accessor :auth_headers, :user_uuid, :document_hash
 
   wrap_with_logging(
@@ -20,7 +22,7 @@ class EVSS::DocumentUpload
     :perform_document_upload_to_evss,
     :clean_up!,
     additional_class_logs: {
-      form: '526ez Document Upload to EVSS API',
+      form: 'Benefits Document Upload to EVSS API',
       upstream: "S3 bucket: #{Settings.evss.s3.bucket}",
       downstream: "EVSS API: #{EVSS::DocumentsService::BASE_URL}"
     }
@@ -75,12 +77,17 @@ class EVSS::DocumentUpload
 
   def self.update_evidence_submission(msg)
     evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
+    current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
     evidence_submission.update(
       upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
-      template_metadata_ciphertext: {
-        personalisation: update_personalisation(evidence_submission, msg['failed_at'])
+      template_metadata: {
+        personalisation: update_personalisation(current_personalisation, msg['failed_at'])
       }.to_json
     )
+    message = "#{name} EvidenceSubmission updated"
+    ::Rails.logger.info(message)
+    StatsD.increment('silent_failure_avoided_no_confirmation',
+                     tags: ['service:claim-status', "function: #{message}"])
   rescue => e
     error_message = "#{name} failed to update EvidenceSubmission"
     ::Rails.logger.info(error_message, { messsage: e.message })
@@ -88,25 +95,25 @@ class EVSS::DocumentUpload
   end
 
   def self.call_failure_notification(msg)
-    return unless Flipper.enabled?('cst_send_evidence_failure_emails')
+    return unless Flipper.enabled?(:cst_send_evidence_failure_emails)
 
     icn = UserAccount.find(msg['args'][1]).icn
 
-    EVSS::FailureNotification.perform_async(icn, personalisation: create_personalisation(msg))
+    EVSS::FailureNotification.perform_async(icn, create_personalisation(msg))
 
     ::Rails.logger.info('EVSS::DocumentUpload exhaustion handler email queued')
     StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   rescue => e
     ::Rails.logger.error('EVSS::DocumentUpload exhaustion handler email error',
                          { message: e.message })
-    StatsD.increment('silent_failure', tags: ['service:claim-status', 'function: evidence upload to EVSS'])
+    StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
     log_exception_to_sentry(e)
   end
 
   # Update personalisation here since an evidence submission record was previously created
   def self.update_personalisation(current_personalisation, failed_at)
     personalisation = current_personalisation.clone
-    personalisation.failed_date = format_issue_instant_for_mailers(failed_at)
+    personalisation['date_failed'] = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(failed_at)
     personalisation
   end
 
@@ -115,19 +122,12 @@ class EVSS::DocumentUpload
     first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
     document_type = msg['args'][2]['document_type']
     # Obscure the file name here since this will be used to generate a failed email
-    file_name = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][2]['file_name'])
-    date_submitted = format_issue_instant_for_mailers(msg['created_at'])
-    date_failed = format_issue_instant_for_mailers(msg['failed_at'])
+    # NOTE: the template that we use for va_notify.send_email uses `filename` but we can also pass in `file_name`
+    filename = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][2]['file_name'])
+    date_submitted = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(msg['created_at'])
+    date_failed = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(msg['failed_at'])
 
-    { first_name:, document_type:, file_name:, date_submitted:, date_failed: }
-  end
-
-  def self.format_issue_instant_for_mailers(issue_instant)
-    # We want to return all times in EDT
-    timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
-
-    # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-    timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+    { first_name:, document_type:, filename:, date_submitted:, date_failed: }
   end
 
   # This method allows format_issue_instant_for_mailers to be used by update_evidence_submission_status

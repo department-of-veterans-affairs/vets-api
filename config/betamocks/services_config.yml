@@ -1,6 +1,14 @@
 ---
 :services:
 
+# BGS
+- :name: "BGS"
+  :base_uri: <%= "#{URI(Settings.bgs.url).host}:#{URI(Settings.bgs.url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/VDC/ManageRepresentativeService"
+      :file_path: "/bgs/manage_representative_service/read_poa_request/default"
+
 #CRM API GET endpoint
 - :name: "CRM API GET endpoint"
   :base_uri: <%= "#{URI(Settings.ask_va_api.crm_api.base_url).host}:#{URI(Settings.ask_va_api.crm_api.base_url).port}" %>
@@ -17,6 +25,10 @@
     - :method: :post
       :path: "/veis/api/btsss/travelclaim/api/v1.2/Auth/access-token"
       :file_path: "/travel_pay/btsss_token/default"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims/search-by-appointment-date"
+      :file_path: "/travel_pay/claims/index/default"
       :response_delay: 0.3
     - :method: :get
       :path: "/veis/api/btsss/travelclaim/api/v1.2/claims"
@@ -660,6 +672,13 @@
         :uid_location: 'url'
         :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments'
     - :method: :get
+      :path: "/vaos/v1/patients/*/appointments/*"
+      :file_path: "vaos/appointments/get"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments\/^[a-zA-Z0-9]+'
+    - :method: :get
       :path: "/facilities/v2/facilities/*"
       :file_path: "vaos/facilities"
       :response_delay: 0.3
@@ -908,6 +927,9 @@
     - :method: :post
       :path: "/sts/oauth/v1/token"
       :file_path: "map/secure_token_service/token"
+    - :method: :get
+      :path: "/sts/oauth/v1/jwks"
+      :file_path: "map/secure_token_service/jwks"
 
 # Sign Up Service Terms API
 - :name: "MAP SUS"

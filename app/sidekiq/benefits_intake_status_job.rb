@@ -27,6 +27,8 @@ class BenefitsIntakeStatusJob
   end
 
   def perform
+    return if Flipper.enabled?(:benefits_intake_submission_status_job)
+
     Rails.logger.info('BenefitsIntakeStatusJob started')
     pending_form_submission_attempts = FormSubmissionAttempt.where(aasm_state: 'pending')
     total_handled, result = batch_process(pending_form_submission_attempts)
@@ -100,7 +102,6 @@ class BenefitsIntakeStatusJob
         # submission was successfully uploaded into a Veteran's eFolder within VBMS
         form_submission_attempt.update(lighthouse_updated_at:)
         form_submission_attempt.vbms!
-        monitor_success(form_id, saved_claim_id, uuid)
         log_result('success', form_id, uuid, time_to_transition)
         monitor_success(form_id, saved_claim_id, uuid)
       elsif time_to_transition > STALE_SLA.days

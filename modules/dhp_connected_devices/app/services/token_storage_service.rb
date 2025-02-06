@@ -104,7 +104,7 @@ class TokenStorageService
   end
 
   def token_file_path(prefix)
-    "#{::Rails.root}/modules/dhp_connected_devices/tmp/#{prefix}tokens.json"
+    Rails.root.join("modules/dhp_connected_devices/tmp/#{prefix}tokens.json").to_s
   end
 
   ##
@@ -147,12 +147,12 @@ class TokenStorageService
   # @raise TokenStorageError
   def unpack_payload(tokens_hash)
     unpacked_token = {
-      "payload": {
-        "access_token": tokens_hash[:access_token],
-        "refresh_token": tokens_hash[:refresh_token],
-        "scope": tokens_hash[:scope].gsub(' ', ','),
-        "expires_in": tokens_hash[:expires_in],
-        "received_at": Time.now.utc.strftime('%s%L')
+      payload: {
+        access_token: tokens_hash[:access_token],
+        refresh_token: tokens_hash[:refresh_token],
+        scope: tokens_hash[:scope].gsub(' ', ','),
+        expires_in: tokens_hash[:expires_in],
+        received_at: Time.now.utc.strftime('%s%L')
       }
     }
     JSON.dump(unpacked_token)
@@ -170,9 +170,7 @@ class TokenStorageService
     begin
       dirname = File.dirname(token_file_path)
       FileUtils.mkdir_p(dirname) unless File.directory?(dirname)
-      File.open(token_file_path, 'w+') do |file|
-        file.write(payload_json)
-      end
+      File.write(token_file_path, payload_json)
       true
     rescue => e
       raise TokenStorageError, "Error with storing locally: #{payload_json}, #{e}"
@@ -187,7 +185,7 @@ class TokenStorageService
   def get_locally(current_user, device_key)
     token_file_path = token_file_path(generate_prefix(current_user, device_key))
     begin
-      token = File.open(token_file_path, 'r').read
+      token = File.read(token_file_path)
       JSON.parse(token).deep_symbolize_keys!
     rescue => e
       raise TokenRetrievalError, "Error retrieving token locally for icn: #{current_user.icn}, #{e}"

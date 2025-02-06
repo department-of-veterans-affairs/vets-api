@@ -14,63 +14,54 @@ RSpec.describe SavedClaim::EducationBenefits::VA1995 do
     let(:user) { create(:user) }
 
     before do
+      allow(Flipper).to receive(:enabled?).and_call_original
       allow(Flipper).to receive(:enabled?).with(:form1995_confirmation_email).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     end
 
-    [true, false].each do |flipper_value|
-      context "when json_schemer flipper is #{flipper_value}" do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(flipper_value)
-        end
+    describe 'sends confirmation email for the 1995' do
+      it 'with benefit selected' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
 
-        describe 'sends confirmation email for the 1995' do
-          it 'with benefit selected' do
-            allow(VANotify::EmailJob).to receive(:perform_async)
+        subject = create(:va1995_full_form)
+        confirmation_number = subject.education_benefits_claim.confirmation_number
 
-            subject = create(:va1995_full_form)
-            confirmation_number = subject.education_benefits_claim.confirmation_number
+        subject.after_submit(user)
 
-            subject.after_submit(user)
+        expect(VANotify::EmailJob).to have_received(:perform_async).with(
+          'test@sample.com',
+          'form1995_confirmation_email_template_id',
+          {
+            'first_name' => 'FIRST',
+            'benefit' => 'Transfer of Entitlement Program (TOE)',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => confirmation_number,
+            'regional_office_address' => "P.O. Box 4616\nBuffalo, NY 14240-4616"
+          }
+        )
+      end
 
-            expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              'test@sample.com',
-              'form1995_confirmation_email_template_id',
-              {
-                'first_name' => 'FIRST',
-                'benefit' => 'Transfer of Entitlement Program (TOE)',
-                'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-                'confirmation_number' => confirmation_number,
-                'regional_office_address' => "P.O. Box 4616\nBuffalo, NY 14240-4616"
-              }
-            )
-          end
+      it 'without benefit selected' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
 
-          it 'without benefit selected' do
-            allow(VANotify::EmailJob).to receive(:perform_async)
+        subject = create(:va1995_full_form)
+        parsed_form_data = JSON.parse(subject.form)
+        parsed_form_data.delete('benefit')
+        subject.form = parsed_form_data.to_json
+        confirmation_number = subject.education_benefits_claim.confirmation_number
 
-            subject = create(:va1995_full_form)
-            parsed_form_data = JSON.parse(subject.form)
-            parsed_form_data.delete('benefit')
-            subject.form = parsed_form_data.to_json
-            confirmation_number = subject.education_benefits_claim.confirmation_number
+        subject.after_submit(user)
 
-            subject.after_submit(user)
-
-            expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              'test@sample.com',
-              'form1995_confirmation_email_template_id',
-              {
-                'first_name' => 'FIRST',
-                'benefit' => '',
-                'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-                'confirmation_number' => confirmation_number,
-                'regional_office_address' => "P.O. Box 4616\nBuffalo, NY 14240-4616"
-              }
-            )
-          end
-        end
+        expect(VANotify::EmailJob).to have_received(:perform_async).with(
+          'test@sample.com',
+          'form1995_confirmation_email_template_id',
+          {
+            'first_name' => 'FIRST',
+            'benefit' => '',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => confirmation_number,
+            'regional_office_address' => "P.O. Box 4616\nBuffalo, NY 14240-4616"
+          }
+        )
       end
     end
   end

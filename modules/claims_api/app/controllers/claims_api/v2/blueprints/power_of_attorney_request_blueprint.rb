@@ -38,14 +38,15 @@ module ClaimsApi
               actioned_date: request['dateRequestActioned'],
               status: request['secondaryStatus'],
               declined_reason: request['declinedReason'],
-              change_address_authorization: request['changeAddressAuth'],
-              health_info_authorization: request['healthInfoAuth']
+              consent_address_change: request['changeAddressAuth'] == 'Y',
+              record_consent: request['healthInfoAuth'] == 'Y'
             }
           end
 
           transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
         end
 
+        # rubocop:disable Naming/VariableNumber
         view :create do
           field :id do |request|
             request['id']
@@ -56,11 +57,58 @@ module ClaimsApi
           end
 
           field :attributes do |request|
-            request.except('id')
+            {
+              veteran: {
+                service_number: request.dig('veteran', 'serviceNumber'),
+                service_branch: request.dig('veteran', 'serviceBranch'),
+                address: {
+                  address_line_1: request.dig('veteran', 'address', 'addressLine1'),
+                  address_line_2: request.dig('veteran', 'address', 'addressLine2'),
+                  city: request.dig('veteran', 'address', 'city'),
+                  state_code: request.dig('veteran', 'address', 'stateCode'),
+                  country: request.dig('veteran', 'address', 'country'),
+                  zip_code: request.dig('veteran', 'address', 'zipCode'),
+                  zip_code_suffix: request.dig('veteran', 'address', 'zipCodeSuffix')
+                },
+                phone: {
+                  area_code: request.dig('veteran', 'phone', 'areaCode'),
+                  phone_number: request.dig('veteran', 'phone', 'phoneNumber')
+                },
+                email: request.dig('veteran', 'email'),
+                insurance_number: request.dig('veteran', 'insuranceNumber')
+              },
+              claimant: {
+                claimant_id: request.dig('claimant', 'claimantId'),
+                address: {
+                  address_line_1: request.dig('claimant', 'address', 'addressLine1'),
+                  address_line_2: request.dig('claimant', 'address', 'addressLine2'),
+                  city: request.dig('claimant', 'address', 'city'),
+                  state_code: request.dig('claimant', 'address', 'stateCode'),
+                  country: request.dig('claimant', 'address', 'country'),
+                  zip_code: request.dig('claimant', 'address', 'zipCode'),
+                  zip_code_suffix: request.dig('claimant', 'address', 'zipCodeSuffix')
+                },
+                phone: {
+                  area_code: request.dig('claimant', 'phone', 'areaCode'),
+                  phone_number: request.dig('claimant', 'phone', 'phoneNumber')
+                },
+                email: request.dig('claimant', 'email'),
+                relationship: request.dig('claimant', 'relationship')
+              },
+              poa: {
+                poa_code: request.dig('poa', 'poaCode'),
+                registration_number: request.dig('poa', 'registrationNumber'),
+                job_title: request.dig('poa', 'jobTitle')
+              },
+              record_consent: request['recordConsent'],
+              consent_limits: request['consentLimits'],
+              consent_address_change: request['consentAddressChange']
+            }
           end
 
           transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
         end
+        # rubocop:enable Naming/VariableNumber
       end
     end
   end

@@ -33,18 +33,10 @@ module Lighthouse
       def perform(user_icn, document_hash)
         @user_icn = user_icn
         @document_hash = document_hash
-        document = LighthouseDocument.new document_hash
+
         initialize_upload_document
-        Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
-          span.set_tag('Document File Size', file_body.size)
-          response = client.upload_document(file_body, document) # returns upload response which includes requestId
-          if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
-            update_evidence_submission_for_success(jid, response)
-          end
-        end
-        Datadog::Tracing.trace('Remove Upload Document') do
-          uploader.remove!
-        end
+        perform_document_upload_to_lighthouse
+        clean_up!
       end
 
       def self.verify_msg(msg)
@@ -63,10 +55,11 @@ module Lighthouse
 
       def self.update_evidence_submission_for_failure(msg)
         evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
+        current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
         evidence_submission.update(
           upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
-          template_metadata_ciphertext: {
-            personalisation: update_personalisation(evidence_submission, msg['failed_at'])
+          template_metadata: {
+            personalisation: update_personalisation(current_personalisation, msg['failed_at'])
           }.to_json
         )
         message = "#{name} EvidenceSubmission updated"
@@ -75,14 +68,16 @@ module Lighthouse
                          tags: ['service:claim-status', "function: #{message}"])
       rescue => e
         error_message = "#{name} failed to update EvidenceSubmission"
-        ::Rails.logger.info(error_message, { messsage: e.message })
+        ::Rails.logger.error(error_message, { messsage: e.message })
         StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
       end
 
       def self.call_failure_notification(msg)
+        return unless Flipper.enabled?(:cst_send_evidence_failure_emails)
+
         icn = msg['args'].first
 
-        Lighthouse::FailureNotification.perform_async(icn, personalisation: create_personalisation(msg))
+        Lighthouse::FailureNotification.perform_async(icn, create_personalisation(msg))
 
         ::Rails.logger.info("#{name} exhaustion handler email queued")
         StatsD.increment('silent_failure_avoided_no_confirmation',
@@ -94,18 +89,10 @@ module Lighthouse
         log_exception_to_sentry(e)
       end
 
-      def self.format_issue_instant_for_mailers(issue_instant)
-        # We want to return all times in EDT
-        timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
-
-        # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-        timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
-      end
-
       # Update personalisation here since an evidence submission record was previously created
       def self.update_personalisation(current_personalisation, failed_at)
         personalisation = current_personalisation.clone
-        personalisation.failed_date = format_issue_instant_for_mailers(failed_at)
+        personalisation['date_failed'] = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(failed_at)
         personalisation
       end
 
@@ -114,11 +101,12 @@ module Lighthouse
         first_name = msg['args'][1]['first_name'].titleize unless msg['args'][1]['first_name'].nil?
         document_type = msg['args'][1]['document_type']
         # Obscure the file name here since this will be used to generate a failed email
-        file_name = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][1]['file_name'])
-        date_submitted = format_issue_instant_for_mailers(msg['created_at'])
-        date_failed = format_issue_instant_for_mailers(msg['failed_at'])
+        # NOTE: the template that we use for va_notify.send_email uses `filename` but we can also pass in `file_name`
+        filename = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][1]['file_name'])
+        date_submitted = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(msg['created_at'])
+        date_failed = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(msg['failed_at'])
 
-        { first_name:, document_type:, file_name:, date_submitted:, date_failed: }
+        { first_name:, document_type:, filename:, date_submitted:, date_failed: }
       end
 
       private
@@ -133,6 +121,22 @@ module Lighthouse
 
       def validate_document!
         raise Common::Exceptions::ValidationErrors, document unless document.valid?
+      end
+
+      def perform_document_upload_to_lighthouse
+        Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
+          span.set_tag('Document File Size', file_body.size)
+          response = client.upload_document(file_body, document) # returns upload response which includes requestId
+          if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
+            update_evidence_submission_for_success(jid, response)
+          end
+        end
+      end
+
+      def clean_up!
+        Datadog::Tracing.trace('Remove Upload Document') do
+          uploader.remove!
+        end
       end
 
       def client
@@ -159,14 +163,13 @@ module Lighthouse
 
       def update_evidence_submission_for_success(job_id, response)
         evidence_submission = EvidenceSubmission.find_by(job_id:)
-        request_successful = response.dig(:data, :success)
+        request_successful = response.body.dig('data', 'success')
         if request_successful
-          request_id = response.dig(:data, :requestId)
+          request_id = response.body.dig('data', 'requestId')
           evidence_submission.update(
             upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
             request_id:
           )
-          evidence_submission.save!
         else
           raise StandardError
         end
