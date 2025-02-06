@@ -147,7 +147,7 @@ module RepresentationManagement
       end
 
       def in_progress_form_metadata
-        in_progress_form.metadata || {} # Ensure metadata is always a Hash
+        in_progress_form.metadata || {}
       end
 
       def feature_enabled
