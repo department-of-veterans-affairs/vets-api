@@ -90,7 +90,7 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
       context 'when a va gov claim with the same transaction id errs in the same hour' do
         before do
           create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now, transaction_id: 'transaction_1')
-          create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now, transaction_id: 'transaction_1')
+          create(:auto_established_claim_va_gov, :errored, created_at: 59.minutes.ago, transaction_id: 'transaction_1')
           allow_any_instance_of(ClaimsApi::ReportHourlyUnsuccessfulSubmissions).to receive(:notify).and_return(nil)
         end
 
