@@ -35,7 +35,7 @@ module VANotify
       when 'delivered'
         delivered(tags) if notification_type == 'error'
       when 'permanent-failure', 'temporary-failure'
-        # 'temporary-failure' is an end state for the notification and it will not be automatically retried by the VANotify API.
+        # 'temporary-failure' is an end state for the notification; VANotify API does not auto-retry these.
         permanent_failure(tags) if notification_type == 'error'
       end
     end
@@ -45,7 +45,7 @@ module VANotify
       when 'delivered'
         delivered_without_metadata
       when 'permanent-failure', 'temporary-failure'
-        # 'temporary-failure' is an end state for the notification and it will not be automatically retried by the VANotify API.
+        # 'temporary-failure' is an end state for the notification; VANotify API does not auto-retry these.
         permanent_failure_without_metadata
       end
     end
