@@ -79,16 +79,13 @@ module SignIn
     end
 
     def create_user_audit_log(user_verification:)
-      user_action_event = UserActionEvent.create!(details: '[SiS] User logged in')
+      user_action_event = UserActionEvent.find_by(details: 'User logged in')
       UserAuditLogger.new(user_action_event:,
                           acting_user_verification: user_verification,
                           subject_user_verification: user_verification,
                           status: 'success',
                           acting_ip_address: cookies.request.remote_ip,
                           acting_user_agent: cookies.request.user_agent).perform
-      sign_in_logger.info('user audit log created', { user_action_event_id: user_action_event.id })
-    rescue UserAuditLogger::Error => e
-      raise SignIn::Errors::StandardError.new message: "UserAuditLogger error - #{e.message}"
     end
   end
 end

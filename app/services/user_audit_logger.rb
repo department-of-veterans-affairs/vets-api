@@ -2,6 +2,7 @@
 
 class UserAuditLogger
   class Error < StandardError; end
+  class InvalidUserActionEventError < Error; end
   class MissingSubjectVerificationError < Error; end
   class MissingUserActionEventError < Error; end
   class MissingStatusError < Error; end
@@ -23,7 +24,10 @@ class UserAuditLogger
 
   def perform
     validate_required_fields
-    create_user_action
+    log_audit_entry
+    user_action
+  rescue Error => e
+    raise StandardError, "UserAuditLogger error - #{e.message}"
   end
 
   private
@@ -36,6 +40,7 @@ class UserAuditLogger
 
   def validate_user_action_event
     raise MissingUserActionEventError, 'User action event must be present' if user_action_event.nil?
+    raise InvalidUserActionEventError, 'User action event must be valid' unless user_action_event.valid?
   end
 
   def validate_subject_verification
@@ -46,8 +51,15 @@ class UserAuditLogger
     raise MissingStatusError, 'Status must be present' if status.nil?
   end
 
-  def create_user_action
-    UserAction.create!(
+  def log_audit_entry
+    Rails.logger.info('User audit log created', { user_action_event: user_action_event.id,
+                                                  user_action_event_details: user_action_event.details,
+                                                  status:,
+                                                  user_action: user_action.id })
+  end
+
+  def user_action
+    @user_action ||= UserAction.create!(
       user_action_event:,
       acting_user_verification:,
       subject_user_verification:,
