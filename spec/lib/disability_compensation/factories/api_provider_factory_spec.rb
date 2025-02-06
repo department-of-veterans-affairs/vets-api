@@ -11,34 +11,9 @@ RSpec.describe ApiProviderFactory do
   let(:icn) { current_user.icn.to_s }
 
   context 'rated_disabilities' do
-    it 'provides an EVSS rated disabilities provider' do
-      expect(provider(:evss).class).to equal(EvssRatedDisabilitiesProvider)
-    end
 
     it 'provides a Lighthouse rated disabilities provider' do
       expect(provider(:lighthouse).class).to equal(LighthouseRatedDisabilitiesProvider)
-    end
-
-    it 'provides rated disabilities provider based on Flipper' do
-      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
-      provider = ApiProviderFactory.call(
-        type: ApiProviderFactory::FACTORIES[:rated_disabilities],
-        provider: nil,
-        options: { icn:, auth_headers: },
-        current_user: nil,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
-      )
-      expect(provider.class).to equal(LighthouseRatedDisabilitiesProvider)
-
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
-      provider = ApiProviderFactory.call(
-        type: ApiProviderFactory::FACTORIES[:rated_disabilities],
-        provider: nil,
-        options: { icn:, auth_headers: },
-        current_user: nil,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
-      )
-      expect(provider.class).to equal(EvssRatedDisabilitiesProvider)
     end
 
     it 'returns the correct factory type' do
@@ -47,7 +22,7 @@ RSpec.describe ApiProviderFactory do
         provider: nil,
         options: { icn:, auth_headers: },
         current_user: nil,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
+        feature_toggle: nil
       )
       expect(factory.type).to equal(:rated_disabilities)
     end
@@ -59,7 +34,7 @@ RSpec.describe ApiProviderFactory do
           provider: :random,
           options: { icn:, auth_headers: },
           current_user: nil,
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
+          feature_toggle: nil
         )
       end.to raise_error NotImplementedError
     end

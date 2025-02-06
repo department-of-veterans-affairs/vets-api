@@ -1713,12 +1713,6 @@ features:
   disability_compensation_email_veteran_on_polled_lighthouse_doc_failure:
     actor_type: user
     description: Sends document upload failure emails when polled doc uploaded to Lighthouse has failed to process at Lighthouse
-  disability_compensation_lighthouse_rated_disabilities_provider_foreground:
-    actor_type: user
-    description: If enabled uses the lighthouse rated disabilities endpoint for foreground requests
-  disability_compensation_lighthouse_rated_disabilities_provider_background:
-    actor_type: user
-    description: If enabled uses the lighthouse rated disabilities endpoint for background tasks
   disability_compensation_lighthouse_document_service_provider:
     actor_type: user
     description: If enabled uses the lighthouse documents service

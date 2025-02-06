@@ -1351,52 +1351,13 @@ RSpec.describe Form526Submission do
       )
     end
 
-    context 'evss provider' do
-      before do
-        VCR.insert_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected')
-      end
-
-      after do
-        VCR.eject_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected')
-      end
-
-      context 'when all corresponding rated disabilities are not service-connected' do
-        let(:form_json_filename) { 'only_526_asthma.json' }
-
-        it 'returns true' do
-          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
-          expect(subject).to be_truthy
-        end
-      end
-
-      context 'when some but not all corresponding rated disabilities are not service-connected' do
-        let(:form_json_filename) { 'only_526_two_rated_disabilities.json' }
-
-        it 'returns false' do
-          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
-          expect(subject).to be_falsey
-        end
-      end
-
-      context 'when some disabilities do not have a ratedDisabilityId yet' do
-        let(:form_json_filename) { 'only_526_mixed_action_disabilities.json' }
-
-        it 'returns false' do
-          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
-          expect(subject).to be_falsey
-        end
-      end
-    end
-
     context 'Lighthouse provider' do
       before do
-        Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         VCR.insert_cassette('lighthouse/veteran_verification/disability_rating/200_Not_Connected_response')
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
       end
 
       after do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         VCR.eject_cassette('lighthouse/veteran_verification/disability_rating/200_Not_Connected_response')
       end
 

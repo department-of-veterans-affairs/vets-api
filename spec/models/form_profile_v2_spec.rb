@@ -1582,7 +1582,6 @@ RSpec.describe FormProfile, type: :model do
           end
 
           it 'returns prefilled 21-526EZ' do
-            Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
             Flipper.enable(:disability_526_toxic_exposure, user)
             expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)

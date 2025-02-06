@@ -41,7 +41,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     end
     let(:open_claims_cassette) { 'evss/claims/claims_without_open_compensation_claims' }
     let(:caseflow_cassette) { 'caseflow/appeals' }
-    let(:rated_disabilities_cassette) { 'evss/disability_compensation_form/rated_disabilities' }
+    let(:rated_disabilities_cassette) { 'lighthouse/claims/200_response' }
     let(:submit_form_cassette) { 'evss/disability_compensation_form/submit_form_v2' }
     let(:lh_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload_location' }
     let(:evss_get_pdf) { 'form526_backup/200_evss_get_pdf' }
@@ -56,8 +56,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
     before do
       cassettes.each { |cassette| VCR.insert_cassette(cassette) }
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
     end
 
     after do
@@ -536,10 +534,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           end
 
           it "throws a #{status} error if Lighthouse sends it back for rated disabilities" do
-            allow_any_instance_of(Flipper)
-              .to(receive(:enabled?))
-              .with('disability_compensation_lighthouse_rated_disabilities_provider_background', anything)
-              .and_return(true)
             allow_any_instance_of(Flipper)
               .to(receive(:enabled?))
               .with(:validate_saved_claims_with_json_schemer)
