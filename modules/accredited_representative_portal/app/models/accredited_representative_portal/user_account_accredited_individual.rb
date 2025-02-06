@@ -11,12 +11,8 @@ module AccreditedRepresentativePortal
     }
 
     validates :accredited_individual_registration_number, presence: true
-    validates :power_of_attorney_holder_type, presence: true, inclusion: {
-      in: power_of_attorney_holder_types.keys,
-      message: 'must be: veteran_service_organization'
-    }
     validates :user_account_email, presence: true,
-                                   format: { with: /\A[^@\s]+@[^@\s]+\z/, message: 'invalid email format' }
+                                   format: { with: URI::MailTo::EMAIL_REGEXP, message: 'invalid email format' }
   end
 end
 # rubocop:enable Rails/I18nLocaleTexts
