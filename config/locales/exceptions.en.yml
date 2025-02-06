@@ -960,6 +960,42 @@ en:
         code: IAM_SSOE_502
         detail: Received an an invalid response from the upstream server
         status: 502
+      SHAREPOINT_PDF_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: SHAREPOINT_PDF_400
+        detail: Malformed PDF request to SharePoint
+        status: 400
+      SHAREPOINT_PDF_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: SHAREPOINT_PDF_502
+        detail: Received an an invalid response from the upstream server
+        status: 502
+      SHAREPOINT_PDF_UNKNOWN:
+        <<: *external_defaults
+        title: Unexpected SharePoint Error
+        code: SHAREPOINT_PDF_UNKNOWN
+        detail: An unexpected error occurred while communicating with SharePoint
+        status: 500
+      SHAREPOINT_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: SHAREPOINT_400
+        detail: Malformed request to SharePoint
+        status: 400
+      SHAREPOINT_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: SHAREPOINT_502
+        detail: Received an an invalid response from the upstream server
+        status: 502
+      SHAREPOINT_UNKNOWN:
+        <<: *external_defaults
+        title: Unexpected SharePoint Error
+        code: SHAREPOINT_UNKNOWN
+        detail: An unexpected error occurred while communicating with SharePoint
+        status: 500
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway

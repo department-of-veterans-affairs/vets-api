@@ -16,7 +16,7 @@ module ClaimsApi
       PHONE_TYPE = 'Daytime'
       PTCPNT_TYPE = 'Person'
       REPRESENTATIVE_TYPE = 'Recognized Veterans Service Organization'
-      VDC_STATUS = 'Submitted'
+      VDC_STATUS = 'SUBMITTED'
 
       def initialize(veteran_participant_id, form_data, claimant_participant_id = nil, poa_key = :serviceOrganization)
         @veteran_participant_id = veteran_participant_id
