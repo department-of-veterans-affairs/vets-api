@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'staging_seed/methods'
 require_relative 'staging_seed/constants'
 
@@ -19,24 +21,24 @@ module AccreditedRepresentativePortal
           unresolved_time = UNRESOLVED_TIME_TRAVELER
 
           # CT Digital Organization
-          ct_org = Veteran::Service::Organization.find_by(poa: "008")
-          
+          ct_org = Veteran::Service::Organization.find_by(poa: '008')
+
           # Other Digital Organizations (limit 2)
           other_digital_orgs = Veteran::Service::Organization
-            .where(can_accept_digital_poa_requests: true)
-            .where.not(poa: "008")
-            .limit(2)
-          
+                               .where(can_accept_digital_poa_requests: true)
+                               .where.not(poa: '008')
+                               .limit(2)
+
           # Non-Digital Organizations (limit 2)
           non_digital_orgs = Veteran::Service::Organization
-            .where(can_accept_digital_poa_requests: false)
-            .limit(2)
+                             .where(can_accept_digital_poa_requests: false)
+                             .limit(2)
 
           # Create requests for each org type
           [ct_org, *other_digital_orgs, *non_digital_orgs].each do |org|
             matching_reps = Veteran::Service::Representative
-              .where("poa_codes && ARRAY[?]::varchar[]", [org.poa])
-              .limit(2)
+                            .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
+                            .limit(2)
 
             matching_reps.each do |rep|
               create_request_with_resolution(
