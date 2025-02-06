@@ -646,6 +646,34 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(call_endpoint).to redirect_to(expected_redirect_url)
         end
       end
+
+      context 'after redirecting the client' do
+        let(:user_audit_logger) { instance_double(UserAuditLogger, perform: user_action) }
+        let(:user_action_event) { create(:user_action_event, details: 'some-details') }
+        let(:user_action) { create(:user_action, user_action_event:) }
+        let(:expected_ip_address) { cookies.request.remote_ip }
+        let(:expected_user_agent) { cookies.request.user_agent }
+        let(:expected_rails_log) { '[SSOe] login - user audit log created' }
+        let(:expected_rails_log_payload) { { user_action_event_id: user_action_event.id } }
+
+        before do
+          allow(UserActionEvent).to receive(:create!).and_return(user_action_event)
+          allow(UserAuditLogger).to receive(:new).and_return(user_audit_logger)
+          allow(Rails.logger).to receive(:info).and_call_original
+        end
+
+        it 'creates a user audit log' do
+          expect(UserActionEvent).to receive(:create!).with(details: '[SSOe] User logged in')
+          expect(UserAuditLogger).to receive(:new).with(user_action_event:,
+                                                        acting_user_verification: user.user_verification,
+                                                        subject_user_verification: user.user_verification,
+                                                        status: 'success',
+                                                        acting_ip_address: expected_ip_address,
+                                                        acting_user_agent: expected_user_agent)
+          expect(Rails.logger).to receive(:info).with(expected_rails_log, expected_rails_log_payload)
+          call_endpoint
+        end
+      end
     end
 
     context 'when user has level of assurance 3' do
@@ -697,6 +725,34 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'when user has accepted the current terms of use' do
         it 'redirects to expected auth page' do
           expect(call_endpoint).to redirect_to(expected_redirect_url)
+        end
+      end
+
+      context 'after redirecting the client' do
+        let(:user_audit_logger) { instance_double(UserAuditLogger, perform: user_action) }
+        let(:user_action_event) { create(:user_action_event, details: 'some-details') }
+        let(:user_action) { create(:user_action, user_action_event:) }
+        let(:expected_ip_address) { cookies.request.remote_ip }
+        let(:expected_user_agent) { cookies.request.user_agent }
+        let(:expected_rails_log) { '[SSOe] login - user audit log created' }
+        let(:expected_rails_log_payload) { { user_action_event_id: user_action_event.id } }
+
+        before do
+          allow(UserActionEvent).to receive(:create!).and_return(user_action_event)
+          allow(UserAuditLogger).to receive(:new).and_return(user_audit_logger)
+          allow(Rails.logger).to receive(:info).and_call_original
+        end
+
+        it 'creates a user audit log' do
+          expect(UserActionEvent).to receive(:create!).with(details: '[SSOe] User logged in')
+          expect(UserAuditLogger).to receive(:new).with(user_action_event:,
+                                                        acting_user_verification: user.user_verification,
+                                                        subject_user_verification: user.user_verification,
+                                                        status: 'success',
+                                                        acting_ip_address: expected_ip_address,
+                                                        acting_user_agent: expected_user_agent)
+          expect(Rails.logger).to receive(:info).with(expected_rails_log, expected_rails_log_payload)
+          call_endpoint
         end
       end
     end

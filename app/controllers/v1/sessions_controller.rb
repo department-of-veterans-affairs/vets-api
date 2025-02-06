@@ -415,7 +415,7 @@ module V1
     end
 
     def create_user_audit_log(user_verification:)
-      user_action_event = UserActionEvent.create(details: '[SSOe] User logged in')
+      user_action_event = UserActionEvent.create!(details: '[SSOe] User logged in')
       UserAuditLogger.new(user_action_event:,
                           acting_user_verification: user_verification,
                           subject_user_verification: user_verification,
