@@ -335,7 +335,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "9b018515-5b9c-466a-85a1-99b5d13cd2e6",
+                        "id": "a648e738-563c-4f83-85d6-5f454575aad8",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -520,7 +520,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-02-06"
+                              "anticipatedSeparationDate": "2025-02-08"
                             },
                             "confinements": [
                               {
@@ -566,7 +566,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "e6b8f14e-b060-4c94-ad12-5313006069e2",
+                        "id": "abd79e03-bf90-48d1-948f-73cfa0613cfc",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -730,7 +730,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2025-02-06",
+                                "activeDutyEndDate": "2025-02-08",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -751,7 +751,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-02-06"
+                              "anticipatedSeparationDate": "2025-02-08"
                             },
                             "confinements": [
                               {
@@ -3994,7 +3994,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2025-02-06",
+                              "activeDutyEndDate": "2025-02-08",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -4015,7 +4015,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2025-02-06"
+                            "anticipatedSeparationDate": "2025-02-08"
                           },
                           "confinements": [
                             {
@@ -8537,8 +8537,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2025-02-04",
-                      "expirationDate": "2026-02-04",
+                      "creationDate": "2025-02-06",
+                      "expirationDate": "2026-02-06",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9428,7 +9428,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "62a55080-f2a9-4b86-af1f-dc44d59004e6",
+                    "id": "cf15ead4-14da-4b46-97e0-e54c7d24161d",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
@@ -9583,7 +9583,8 @@
                                     "countryCode": {
                                       "description": "Country code of the address.",
                                       "type": "string",
-                                      "example": "US"
+                                      "example": "US",
+                                      "pattern": "^[a-z,A-Z]{2,6}$"
                                     },
                                     "zipCode": {
                                       "description": "Zipcode (First 5 digits) of the address.",
@@ -9674,7 +9675,8 @@
                                     "countryCode": {
                                       "description": "Country code of the address. Required if claimant information provided.",
                                       "type": "string",
-                                      "example": "US"
+                                      "example": "US",
+                                      "pattern": "^[a-z,A-Z]{2,6}$"
                                     },
                                     "zipCode": {
                                       "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
@@ -10052,7 +10054,8 @@
                                   "countryCode": {
                                     "description": "Country code of the address.",
                                     "type": "string",
-                                    "example": "US"
+                                    "example": "US",
+                                    "pattern": "^[a-z,A-Z]{2,6}$"
                                   },
                                   "zipCode": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -10143,7 +10146,8 @@
                                   "countryCode": {
                                     "description": "Country code of the address. Required if claimant information provided.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US",
+                                    "pattern": "^[a-z,A-Z]{2,6}$"
                                   },
                                   "zipCode": {
                                     "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
@@ -12225,7 +12229,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ed6f69e8-ba1c-4a58-bed3-7854b5e7fcee",
+                    "id": "48269441-a2b3-4b84-a328-605274a75637",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -13723,7 +13727,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5e3d26fb-4748-473a-9d9e-04a19b41b7ad",
+                    "id": "e0a58f41-1f7a-4e0c-bcaa-ca34b3ebb027",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14571,10 +14575,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "42d61b8b-9d9d-4914-86e9-23104361bbd9",
+                    "id": "e08465c5-93df-4108-b217-5ed9e752a5ba",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2025-02-04T22:45:12.413Z",
+                      "createdAt": "2025-02-06T13:30:15.769Z",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"

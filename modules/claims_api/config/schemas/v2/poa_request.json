@@ -72,7 +72,8 @@
             "countryCode": {
               "description": "Country code of the address.",
               "type": "string",
-              "example": "US"
+              "example": "US",
+              "pattern": "^[a-z,A-Z]{2,6}$"
             },
             "zipCode": {
               "description": "Zipcode (First 5 digits) of the address.",
@@ -161,7 +162,8 @@
             "countryCode": {
               "description": "Country code of the address. Required if claimant information provided.",
               "type": "string",
-              "example": "USA"
+              "example": "US",
+              "pattern": "^[a-z,A-Z]{2,6}$"
             },
             "zipCode": {
               "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
