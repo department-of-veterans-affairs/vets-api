@@ -258,18 +258,24 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
     let(:travel_claim_status_resp) do
       Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408)
     end
+    let(:notify_client) { instance_double(VaNotify::Service) }
+    let(:forbidden_exception) { VANotify::Forbidden.new(403, 'test error message') }
 
     before do
       allow_any_instance_of(TravelClaim::Client).to receive(:claim_status).and_return(travel_claim_status_resp)
+      allow(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
+                                               .and_return(notify_client)
+      allow(notify_client).to receive(:send_sms).with(any_args).and_raise(forbidden_exception)
     end
 
     it 'logs silent_failure statsd error metrics' do
       worker = described_class.new
-
-      VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host]) do
+      VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host],
+                                                                   allow_playback_repeats: true) do
         expect { worker.perform(uuid, appt_date) }.to raise_error(VANotify::Forbidden)
       end
 
+      expect(notify_client).to have_received(:send_sms).with(any_args).exactly(4).times
       expect(StatsD).to have_received(:increment).with(@statsd_timeout).exactly(1).time
       expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SILENT_FAILURE,
                                                        { tags: @statsd_silent_failure_tag })

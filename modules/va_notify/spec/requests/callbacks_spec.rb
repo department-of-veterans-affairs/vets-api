@@ -85,11 +85,11 @@ RSpec.describe 'VANotify Callbacks', type: :request do
       context 'with multiple bearer tokens' do
         it 'authenticates a valid token' do
           allow(Rails.logger).to receive(:info)
-          service_specific_bearer_token = Settings.vanotify.service_callback_tokens.service_name
+          va_gov_bearer_token = Settings.vanotify.service_callback_tokens.va_gov
 
           post(callback_route,
                params: callback_params.to_json,
-               headers: { 'Authorization' => "Bearer #{service_specific_bearer_token}",
+               headers: { 'Authorization' => "Bearer #{va_gov_bearer_token}",
                           'Content-Type' => 'application/json' })
 
           expect(response).to have_http_status(:ok)
