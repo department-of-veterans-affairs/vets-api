@@ -1303,6 +1303,7 @@ vanotify:
     va_gov: va_gov_token
     1010_health_apps: 1010_health_apps_token
     ivc_forms: ivc_forms_token
+    benefits_disability: benefits_disability_token
 
 
 # Settings for connecting AFS Veteran Services
