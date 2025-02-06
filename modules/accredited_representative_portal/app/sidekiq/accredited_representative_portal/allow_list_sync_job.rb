@@ -41,6 +41,11 @@ module AccreditedRepresentativePortal
         raise InvalidRowCount, "CSV file exceeds maximum allowed rows of (#{MAX_CSV_ROWS})"
       end
 
+      # Build and validate all records before insert
+      new_records = csv_data.map do |row|
+        MODEL.new(row.to_h.slice(*SYNC_FIELDS)).tap(&:validate!)
+      end
+
       MODEL.transaction do
         # Get incoming registration numbers
         incoming_registration_numbers = csv_data.map { |row| row['accredited_individual_registration_number'] }
@@ -49,11 +54,6 @@ module AccreditedRepresentativePortal
         deleted_count = MODEL.where.not(
           accredited_individual_registration_number: incoming_registration_numbers
         ).delete_all
-
-        # Build and validate all records before insert
-        new_records = csv_data.map do |row|
-          MODEL.new(row.to_h.slice(*SYNC_FIELDS)).tap(&:validate!)
-        end
 
         # Insert with conflict handling
         inserted = MODEL.insert_all(
