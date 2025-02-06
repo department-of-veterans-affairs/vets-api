@@ -7,6 +7,7 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
     context 'form was submitted with a digital form submission tool' do
       let(:notification_type) { :confirmation }
       let(:form_submission_attempt) { build(:form_submission_attempt) }
+      let(:form_number) { 'abc-123' }
       let(:user_account) { build(:user_account) }
       let(:notification_email) { double(send: nil) }
 
@@ -16,6 +17,7 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
         described_class.new.perform(
           notification_type:,
           form_submission_attempt:,
+          form_number:,
           user_account:
         )
 
@@ -31,6 +33,7 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
             described_class.new.perform(
               notification_type: :error,
               form_submission_attempt:,
+              form_number:,
               user_account:
             )
           end.to raise_error(ArgumentError)
