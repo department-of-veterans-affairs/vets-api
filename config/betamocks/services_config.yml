@@ -27,6 +27,10 @@
       :file_path: "/travel_pay/btsss_token/default"
       :response_delay: 0.3
     - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims/search-by-appointment-date"
+      :file_path: "/travel_pay/claims/index/default"
+      :response_delay: 0.3
+    - :method: :get
       :path: "/veis/api/btsss/travelclaim/api/v1.2/claims"
       :file_path: "/travel_pay/claims/index/default"
       :response_delay: 0.3
@@ -667,6 +671,13 @@
       :cache_multiple_responses:
         :uid_location: 'url'
         :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments'
+    - :method: :get
+      :path: "/vaos/v1/patients/*/appointments/*"
+      :file_path: "vaos/appointments/get"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments\/^[a-zA-Z0-9]+'
     - :method: :get
       :path: "/facilities/v2/facilities/*"
       :file_path: "vaos/facilities"
