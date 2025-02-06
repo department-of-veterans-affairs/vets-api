@@ -18,21 +18,29 @@
     "nonMst": true,
     "other": false
   },
-  "eventsDetails": [
+  "events": [
     {
       "details": "Lorem ipsum dolor sit amet.",
       "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
-      "timing": "Summer of '70"
+      "timing": "Summer of '70",
+      "reports": { "police": true },
+      "agency": "SVI",
+      "city": "Dallas",
+      "state": "TX",
+      "township": "",
+      "country": "USA"
     },
     {
       "details": "Lorem ipsum dolor sit amet.",
       "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
-      "timing": "June 2007"
+      "timing": "June 2007",
+      "otherReports": "incident report"
     },
     {
       "details": "Lorem ipsum dolor sit amet..",
       "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
-      "timing": "February 14, 2020"
+      "timing": "February 14, 2020",
+      "reports": { "restricted": true }
     },
     {
       "details": "Lorem ipsum dolor sit amet..",
@@ -55,25 +63,6 @@
       "timing": "Summer of '69"
     }
   ],
-  "reports": {
-    "yes": true,
-    "no": false,
-    "restricted": true,
-    "unrestricted": false,
-    "neither": false,
-    "police": true,
-    "other": true
-  },
-  "reportsDetails": {
-    "police": {
-      "agency": "SVI",
-      "city": "Dallas",
-      "state": "TX",
-      "township": "",
-      "country": "USA"
-    },
-    "other": "incident report"
-  },
   "behaviors": {
     "reassignment": true,
     "absences": false,

@@ -18,37 +18,30 @@
     "nonMst": true,
     "other": false
   },
-  "eventsDetails": [
+  "events": [ 
     {
       "details": "Lorem ipsum dolor sit amet.",
       "location": "abcdefghijklmn opqrstuvwxyz1234a",
-      "timing": "Summer of '70"
-    },
-    {
-      "details": "Lorem ipsum dolor sit amet.",
-      "location": "abcdefghijklmn opqrstuvwxyz1234a",
-      "timing": "June 2007"
-    }
-  ],
-  "reports": {
-    "yes": true,
-    "no": false,
-    "restricted": true,
-    "unrestricted": false,
-    "neither": false,
-    "police": true,
-    "other": true
-  },
-  "reportsDetails": {
-    "police": {
+      "timing": "Summer of '70",
+      "reports": {
+        "restricted": true,
+        "unrestricted": false,
+        "neither": false,
+        "police": true
+      },
       "agency": "SVI",
       "city": "Dallas",
       "state": "TX",
       "township": "",
-      "country": "USA"
+      "country": "USA"    
     },
-    "other": "incident report"
-  },
+    {
+      "details": "Lorem ipsum dolor sit amet.",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a",
+      "timing": "June 2007",
+      "otherReports": "incident report"
+    }
+  ],
   "behaviors": {
     "reassignment": true,
     "absences": false,
