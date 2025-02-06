@@ -677,7 +677,7 @@ module PdfFill
           next if reports.empty? && other_report&.blank?
 
           report_filed ||= reports.except('none').values.include?(true)
-          no_report ||= reports['none']   
+          no_report ||= reports['none']
 
           set_report_types(other_report, report_filed, reports)
 
