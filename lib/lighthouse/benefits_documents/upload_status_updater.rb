@@ -21,7 +21,7 @@ module BenefitsDocuments
     # after it has been submitted to Lighthouse, while Lighthouse attempts to pass it on to
     # VBMS and then BGS. These data come from Lighthouse's '/uploads/status' endpoint.
     #
-    # @param lighthouse_document_upload [EvidenceSubmission] the VA.gov record of the document
+    # @param pending_evidence_submission [EvidenceSubmission] the VA.gov record of the document
     # submitted to Lighthouse for tracking.
     #
     # example lighthouse_document_status hash:
@@ -47,44 +47,30 @@ module BenefitsDocuments
     #  }
     #
 
-    def initialize(lighthouse_document_status_response, lighthouse_document_upload)
+    def self.call(*)
+      new(*).update_status
+    end
+
+    def initialize(lighthouse_document_status_response, pending_evidence_submission)
       @lighthouse_document_status_response = lighthouse_document_status_response
-      @lighthouse_document_upload = lighthouse_document_upload
+      @pending_evidence_submission = pending_evidence_submission
     end
 
     def update_status
       # Only save an upload's status if it has transitioned since the last Lighthouse poll
       return unless status_changed?
 
-      # Ensure start time and latest status response from API are saved, regardless if document is still in progress
-      @lighthouse_document_upload.update!(
-        upload_status: @lighthouse_document_status_response['status']
-      )
-
-      log_status
-
       process_failure if failed?
 
       process_upload if completed?
-    end
 
-    def get_failure_step
-      return unless failed? && @lighthouse_document_status_response['error']
-
-      @lighthouse_document_status_response['error']['step']
-    end
-
-    # Returns true if document is still processing in Lighthouse, and initiated more than a set number of hours ago
-    def processing_timeout?
-      return false if completed?
-
-      @lighthouse_document_upload.created_at < PROCESSING_TIMEOUT_WINDOW_IN_HOURS.hours.ago.utc
+      log_status
     end
 
     private
 
     def status_changed?
-      @lighthouse_document_status_response != @lighthouse_document_upload.upload_status
+      @lighthouse_document_status_response != @pending_evidence_submission.upload_status
     end
 
     def failed?
@@ -105,7 +91,7 @@ module BenefitsDocuments
     end
 
     def process_failure
-      @lighthouse_document_upload.update!(
+      @pending_evidence_submission.update!(
         upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
         failed_date: DateTime.now.utc,
         acknowledgement_date: (DateTime.current + 30.days).utc,
@@ -114,7 +100,7 @@ module BenefitsDocuments
     end
 
     def process_upload
-      @lighthouse_document_upload.update(
+      @pending_evidence_submission.update(
         upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
         delete_date: (DateTime.current + 60.days).utc
       )

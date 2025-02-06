@@ -5,43 +5,15 @@ require 'lighthouse/benefits_documents/upload_status_updater'
 
 module BenefitsDocuments
   class UpdateDocumentsStatusService
-    # Queries the Lighthouse Benefits Documents API's '/uploads/status' endpoint
-    # to check the progression of Lighthouse526DocumentUpload records submitted to Lighthouse.
-    #
-    # Once submitted to Lighthouse, they are forwarded to VBMS and, if successful, to BGS as well.
-    # All steps must complete before a document is considered to have been successfully processed.
-    # Whenever a document is submitted to Lighthouse, a 'request_id' corresponding to that document is returned,
-    # which is saved as lighthouse_document_request_id on a Lighthouse526DocumentUpload record.
-    #
-    # Lighthouse provides an endpoint, '/uploads/status', which takes an array of request ids and ressponds with
-    # a detailed JSON representiation of each document's upload progress to VBMS and BGS, including failures.
-    # This service class uses those data to update the status of each Lighthouse526DocumentUpload record,
-    # and log success, failure and timeout metrics to StatsD, where the data are used to drive dashboards.
-    #
-    # Documentation for Lighthouse's Benefits Documents API and '/uploads/status' endpoint is available here:
-    # https://dev-developer.va.gov/explore/api/benefits-documents/docs?version=current
-
-    # TODO: Determine polling statsd metrics (including commented statsd stuff further down in the doc)
-    # STATSD_BASE_KEY = 'api.form526.lighthouse_document_upload_processing_status'
-    # STATSD_DOCUMENT_COMPLETE_KEY = 'complete'
-    # STATSD_DOCUMENT_FAILED_KEY = 'failed'
-    # STATSD_PROCESSING_TIMEOUT_KEY = 'processing_timeout'
-    # STATSD_DOCUMENT_TYPE_KEY_MAP = {
-    #   Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE => 'veteran_upload',
-    #   Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE => 'bdd_instructions',
-    #   Lighthouse526DocumentUpload::FORM_0781_DOCUMENT_TYPE => 'form_0781',
-    #   Lighthouse526DocumentUpload::FORM_0781A_DOCUMENT_TYPE => 'form_0781a'
-    # }.freeze
-
     def self.call(*)
       new(*).process_status_updates
     end
 
-    # @param benefits_document_uploads [EvidenceSubmission] a collection of
+    # @param pending_evidence_submission_batch - EvidenceSubmission records with a upload_status of PENDING
     # EvidenceSubmission records polled for status updates on Lighthouse's '/uploads/status' endpoint
     # @param lighthouse_status_response [Hash] the parsed JSON response body from the endpoint
-    def initialize(benefits_document_uploads, lighthouse_status_response)
-      @benefits_document_uploads = benefits_document_uploads
+    def initialize(pending_evidence_submission_batch, lighthouse_status_response)
+      @pending_evidence_submission_batch = pending_evidence_submission_batch
       @lighthouse_status_response = lighthouse_status_response
     end
 
@@ -56,54 +28,16 @@ module BenefitsDocuments
 
     private
 
+    # Loop through each status respose that lighthosue returned and use the request Id in the stratus response to
+    # find the given PENDING evidence submission record. Then we call BenefitsDocuments::UploadStatusUpdater
+    # to update the PENDING evidence submission record accordingly.
     def update_documents_status
       @lighthouse_status_response.dig('data', 'statuses').each do |status_response|
-        update_document_status(status_response)
+        pending_evidence_submission = @pending_evidence_submission_batch.find_by!(
+          request_id: status_response['requestId']
+        )
+        BenefitsDocuments::UploadStatusUpdater.call(status_response, pending_evidence_submission)
       end
     end
-
-    def update_document_status(status_response)
-      document_upload = @benefits_document_uploads.find_by!(request_id: status_response['requestId'])
-      # statsd_document_base_key(STATSD_DOCUMENT_TYPE_KEY_MAP[document_upload.document_type])
-
-      status_updater = BenefitsDocuments::UploadStatusUpdater.new(status_response, document_upload)
-      status_updater.update_status
-
-      # if document_upload.completed?
-      #   # ex. 'api.form526.lighthouse_document_upload_processing_status.bdd_instructions.complete'
-      #   # StatsD.increment("#{@statsd_document_base_key}.#{STATSD_DOCUMENT_COMPLETE_KEY}")
-      # elsif document_upload.failed?
-      #   # log_failure(status_updater, document_upload)
-      # elsif status_updater.processing_timeout?
-      #   # Triggered when a document is still pending more than 24 hours after processing began
-      #   # ex. 'api.form526.lighthouse_document_upload_processing_status.bdd_instructions.processing_timeout'
-      #   # StatsD.increment("#{@statsd_document_base_key}.#{STATSD_PROCESSING_TIMEOUT_KEY}")
-      # end
-    end
-
-    # def statsd_document_base_key(statsd_document_type_key)
-    #   @statsd_document_base_key ||= "#{STATSD_BASE_KEY}.#{statsd_document_type_key}"
-    # end
-
-    # def log_failure(status_updater, document_upload)
-    #   # Because Lighthouse's processing steps are subject to change, these metrics must be dynamic.
-    #   # Currently, this should return either CLAIMS_EVIDENCE or BENEFITS_GATEWAY_SERVICE
-    #   failure_step = status_updater.get_failure_step
-
-    #   # ex. 'api.form526.lighthouse_document_upload_processing_status.bdd_instructions.failed.claims_evidence'
-    #   # StatsD.increment("#{@statsd_document_base_key}.#{STATSD_DOCUMENT_FAILED_KEY}.#{failure_step.downcase}")
-    #   return unless document_upload.form0781_types?
-
-    #   submission = document_upload.form526_submission
-    #   # Rails.logger.warn(
-    #   #   'Benefits Documents API responded with a failed document upload status', {
-    #   #     form526_submission_id: submission.id,
-    #   #     document_type: document_upload.document_type,
-    #   #     failure_step:,
-    #   #     lighthouse_document_request_id: document_upload.lighthouse_document_request_id,
-    #   #     user_uuid: submission.user_uuid
-    #   #   }
-    #   # )
-    # end
   end
 end

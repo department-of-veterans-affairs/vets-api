@@ -6,19 +6,19 @@ require 'lighthouse/benefits_documents/documents_status_polling_service'
 
 RSpec.describe BenefitsDocuments::UpdateDocumentsStatusService do
   describe '#call' do
-    let(:lighthouse_document_upload1) { create(:bd_evidence_submission, request_id: 1) }
-    let(:lighthouse_document_upload2) { create(:bd_evidence_submission, request_id: 2) }
-    let(:lighthouse_document_upload3) { create(:bd_evidence_submission, request_id: 3) }
+    let(:lighthouse_document_upload1) { create(:bd_evidence_submission_pending, request_id: 1) }
+    let(:lighthouse_document_upload2) { create(:bd_evidence_submission_pending, request_id: 2) }
+    let(:lighthouse_document_upload3) { create(:bd_evidence_submission_pending, request_id: 3) }
 
-    let :document_batch_ids do
+    let :pending_evidence_submission_ids do
       [
         lighthouse_document_upload1.request_id,
         lighthouse_document_upload2.request_id,
         lighthouse_document_upload3.request_id
       ]
     end
-    let(:document_batch) do
-      EvidenceSubmission.where(request_id: document_batch_ids)
+    let(:pending_evidence_submission_batch) do
+      EvidenceSubmission.where(request_id: pending_evidence_submission_ids)
     end
 
     describe 'process_status_updates' do
@@ -47,11 +47,15 @@ RSpec.describe BenefitsDocuments::UpdateDocumentsStatusService do
       end
 
       it 'updates the status of 2 records to FAILED and SUCCESS and leaves one in PENDING' do
-        described_class.call(document_batch, lighthouse_status_response)
+        expect(lighthouse_document_upload1.upload_status).to eq(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
+        expect(lighthouse_document_upload2.upload_status).to eq(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
+        expect(lighthouse_document_upload3.upload_status).to eq(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
+
+        described_class.call(pending_evidence_submission_batch, lighthouse_status_response)
+
         es1 = EvidenceSubmission.find_by(request_id: lighthouse_document_upload1.request_id)
         es2 = EvidenceSubmission.find_by(request_id: lighthouse_document_upload2.request_id)
         es3 = EvidenceSubmission.find_by(request_id: lighthouse_document_upload3.request_id)
-
         expect(es1.upload_status).to eq(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
         expect(es1.delete_date).not_to be_nil
         expect(es2.upload_status).to eq(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])

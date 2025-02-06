@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'lighthouse/benefits_documents/constants'
 
-RSpec.describe Lighthouse::EvidenceSubmissionDocumentUploadPollingJob, type: :job do
+RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUploadPollingJob, type: :job do
   let(:job) { described_class.perform_async }
   let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { user_account.id }

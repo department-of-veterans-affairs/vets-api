@@ -84,45 +84,4 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
       it_behaves_like('status updater', BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED], error_message)
     end
   end
-
-  describe '#get_failure_step' do
-    let(:failed_document_status) do
-      {
-        'status' => 'FAILED',
-        'time' => { 'startTime' => 499_152_060, 'endTime' => 499_153_000 },
-        'steps' => [
-          { 'name' => 'CLAIMS_EVIDENCE', 'status' => 'SUCCESS' },
-          { 'name' => 'BENEFITS_GATEWAY_SERVICE', 'status' => 'FAILED' }
-        ],
-        'error' => { 'detail' => 'BGS outage', 'step' => 'BENEFITS_GATEWAY_SERVICE' }
-      }
-    end
-
-    it 'returns the name of the step Lighthouse reported failed' do
-      status_updater = described_class.new(failed_document_status, lighthouse_document_upload)
-      expect(status_updater.get_failure_step).to eq('BENEFITS_GATEWAY_SERVICE')
-    end
-  end
-
-  describe '#processing_timeout?' do
-    shared_examples 'processing timeout' do |status, expected, expired|
-      it "returns #{expected}" do
-        status_updater = described_class.new(
-          {
-            'status' => status
-          },
-          expired ? lighthouse_document_upload_timeout : lighthouse_document_upload
-        )
-        expect(status_updater.processing_timeout?).to eq(expected)
-      end
-    end
-
-    context 'when the document has been in progress for more than 24 hours' do
-      it_behaves_like('processing timeout', 'IN_PROGRESS', true, true)
-    end
-
-    context 'when the document has been in progress for less than 24 hours' do
-      it_behaves_like('processing timeout', 'IN_PROGRESS', false, false)
-    end
-  end
 end
