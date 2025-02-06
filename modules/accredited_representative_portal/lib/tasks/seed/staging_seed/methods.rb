@@ -3,24 +3,64 @@
 module AccreditedRepresentativePortal
   module StagingSeeds
     module Methods
+      RequestOptions = Struct.new(
+        :org, :rep, :claimant, :resolution_cycle,
+        :resolved_time, :unresolved_time, :totals,
+        keyword_init: true
+      )
+
       def create_claimants(count = 10)
         Array.new(count) do
           FactoryBot.create(:user_account)
         end
       end
 
-      def create_request_with_resolution(org:, rep:, claimant:, resolution_cycle:, resolved_time:, unresolved_time:,
-                                         totals:)
+      def create_request_with_resolution(options)
         if rand < 0.5
-          created_at = resolved_time.next
-          request = create_poa_request(org, rep, claimant, created_at)
-          create_resolution(request, resolution_cycle.next)
-          totals[:resolutions] += 1
+          created_at = options.resolved_time.next
+          request = create_poa_request(options.org, options.rep, options.claimant, created_at)
+          create_resolution(request, options.resolution_cycle.next)
+          options.totals[:resolutions] += 1
         else
-          create_poa_request(org, rep, claimant, unresolved_time.next)
+          create_poa_request(options.org, options.rep, options.claimant, options.unresolved_time.next)
         end
 
-        totals[:requests] += 1
+        options.totals[:requests] += 1
+      end
+
+      def fetch_organizations
+        {
+          ct: Veteran::Service::Organization.find_by(poa: '008'),
+          digital: Veteran::Service::Organization
+            .where(can_accept_digital_poa_requests: true)
+            .where.not(poa: '008')
+            .limit(2),
+          non_digital: Veteran::Service::Organization
+            .where(can_accept_digital_poa_requests: false)
+            .limit(2)
+        }
+      end
+
+      def process_organizations(orgs, options)
+        [orgs[:ct], *orgs[:digital], *orgs[:non_digital]].each do |org|
+          matching_reps = Veteran::Service::Representative
+                          .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
+                          .limit(2)
+
+          matching_reps.each do |rep|
+            create_request_with_resolution(
+              RequestOptions.new(
+                org: org,
+                rep: rep,
+                claimant: options[:claimant_cycle].next,
+                resolution_cycle: options[:resolution_cycle],
+                resolved_time: options[:resolved_time],
+                unresolved_time: options[:unresolved_time],
+                totals: options[:totals]
+              )
+            )
+          end
+        end
       end
 
       def create_poa_request(org, rep, claimant, created_at)
@@ -34,7 +74,7 @@ module AccreditedRepresentativePortal
         )
 
         form = AccreditedRepresentativePortal::PowerOfAttorneyForm.new(
-          data: build_poa_form_data.to_json,
+          data: FormMethods.build_poa_form_data.to_json,
           power_of_attorney_request: request
         )
 
@@ -66,38 +106,58 @@ module AccreditedRepresentativePortal
           created_at: request.created_at + 1.day
         )
       end
+    end
+
+    module FormMethods
+      module_function
 
       def build_poa_form_data
         {
-          authorizations: {
-            record_disclosure: true,
-            record_disclosure_limitations: [],
-            address_change: false
-          },
-          veteran: {
-            name: {
-              first: 'Test',
-              middle: nil,
-              last: 'Veteran'
-            },
-            address: {
-              address_line1: '123 Test St',
-              address_line2: nil,
-              city: 'Testville',
-              state_code: 'TS',
-              country: 'US',
-              zip_code: '12345',
-              zip_code_suffix: nil
-            },
-            ssn: '123456789',
-            va_file_number: '123456789',
-            date_of_birth: '1980-01-01',
-            service_number: nil,
-            service_branch: 'ARMY',
-            phone: '1234567890',
-            email: 'test@example.com'
-          },
+          authorizations: build_authorizations,
+          veteran: build_veteran_info,
           dependent: nil
+        }
+      end
+
+      def build_authorizations
+        {
+          record_disclosure: true,
+          record_disclosure_limitations: [],
+          address_change: false
+        }
+      end
+
+      def build_veteran_info
+        {
+          name: build_name,
+          address: build_address,
+          ssn: '123456789',
+          va_file_number: '123456789',
+          date_of_birth: '1980-01-01',
+          service_number: nil,
+          service_branch: 'ARMY',
+          phone: '1234567890',
+          email: 'test@example.com'
+        }
+      end
+
+      def build_name
+        {
+          first: 'Test',
+          middle: nil,
+          last: 'Veteran'
+        }
+      end
+
+      def build_address
+        {
+          address_line1: '123 Test St',
+          address_line2: nil,
+          city: 'Testville',
+          state_code: 'TS',
+          country: 'US',
+          zip_code: '12345',
+          zip_code_suffix: nil
         }
       end
     end
