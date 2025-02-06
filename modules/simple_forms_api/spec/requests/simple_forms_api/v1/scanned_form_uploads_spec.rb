@@ -11,6 +11,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
   describe '#submit' do
     let(:form_number) { '21-0779' }
+    let(:form_name) { 'Request for Nursing Home Information in Connection with Claim for Aid and Attendance' }
     let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
     let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
     let(:random_string) { 'some-unique-simple-forms-file-seed' }
@@ -19,7 +20,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     let(:confirmation_code) { 'a-random-guid' }
     let(:attachment) { double }
     let(:params) do
-      { form_number:, confirmation_code:, form_data: {
+      { form_number:, form_name:, confirmation_code:, form_data: {
         full_name: {
           first: 'fake-first-name',
           last: 'fake-last-name'
