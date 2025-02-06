@@ -8,7 +8,7 @@ module DebtsApi
       def create
         StatsD.increment("#{V0::DigitalDispute::STATS_KEY}.initiated")
         digital_dispute = V0::DigitalDispute.new(digital_disputes_params, current_user)
-
+        binding.pry
         if digital_dispute.valid?
           # Just returning data back for now while we wait on our integration partner
           render json: digital_dispute.sanitized_json
