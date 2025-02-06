@@ -48,7 +48,7 @@ FactoryBot.define do
       is_voicemailable { true }
       is_text_permitted { true }
       is_textable { true }
-      is_tty { nil }
+      is_tty { false }
     end
 
     trait :contact_info_v2_mobile do
@@ -56,7 +56,7 @@ FactoryBot.define do
       is_textable { false }
       is_text_permitted { false }
       source_date { '2024-08-27T18:51:06.012Z' }
-      is_tty { nil }
+      is_tty { false }
     end
 
     trait :contact_info_v2_international do
