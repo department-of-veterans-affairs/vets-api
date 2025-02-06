@@ -178,30 +178,18 @@ RSpec.describe ApiProviderFactory do
   end
 
   context 'brd' do
-    def provider(api_provider = nil)
+    def provider(api_provider = :lighthouse)
       ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:brd],
         provider: api_provider,
         options: {},
         current_user:,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_BRD
+        feature_toggle: nil,
       )
-    end
-
-    it 'provides an EVSS brd provider' do
-      expect(provider(:evss).class).to equal(EvssBRDProvider)
     end
 
     it 'provides a Lighthouse brd provider' do
       expect(provider(:lighthouse).class).to equal(LighthouseBRDProvider)
-    end
-
-    it 'provides brd provider based on Flipper' do
-      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
-      expect(provider.class).to equal(LighthouseBRDProvider)
-
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
-      expect(provider.class).to equal(EvssBRDProvider)
     end
 
     it 'throw error if provider unknown' do
