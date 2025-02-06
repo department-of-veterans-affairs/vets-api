@@ -111,9 +111,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   end
 
   describe '#post_address' do
-    let(:address) do
-      build(:va_profile_v3_address, :mobile)
-    end
+    let(:address) { build(:va_profile_v3_address, :mobile) }
 
     context 'when successful' do
       it 'returns a status of 200' do
@@ -125,15 +123,11 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     end
 
     context 'when an ID is included' do
-      let(:address) { build(:va_profile_v3_address, :override) }
+      let(:address) { build(:va_profile_v3_address, :mobile, id: 42, effective_start_date: nil) }
+      let(:frozen_time) { Time.zone.parse('2024-08-27T18:51:06.012Z') }
 
       it 'raises an exception' do
         VCR.use_cassette('va_profile/v2/contact_information/post_address_w_id_error', VCR::MATCH_EVERYTHING) do
-          address.id = 42
-          address.address_line1 = '1493 Martin Luther King Rd'
-          address.city = 'Fulton'
-          address.state_code = 'MS'
-          address.zip_code = '38843'
           expect { subject.post_address(address) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
