@@ -38,7 +38,8 @@ module Mobile
           :is_text_permitted,
           :is_textable,
           :is_tty,
-          :is_voicemailable
+          :is_voicemailable,
+          :transaction_id
         )
       end
     end
