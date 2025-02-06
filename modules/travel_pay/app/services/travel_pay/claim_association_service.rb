@@ -37,7 +37,6 @@ module TravelPay
       faraday_response = client.get_claims_by_date(veis_token, btsss_token,
                                                    { 'start_date' => params['start_date'],
                                                      'end_date' => params['end_date'] })
-
       if faraday_response.status == 200
         raw_claims = faraday_response.body['data'].deep_dup
 
@@ -60,13 +59,16 @@ module TravelPay
       appt = params['appointment']
       # Because we only receive a single date/time but the external endpoint requires 2 dates
       # in this case both start and end dates are the same
-      validate_date_params(appt['start'], appt['start'])
+      validate_date_params(appt[:start], appt[:start])
 
       auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims_by_date(veis_token, btsss_token,
-                                                   { 'start_date' => appt['start'], 'end_date' => appt['start'] })
+                                                   { 'start_date' => appt[:start], 'end_date' => appt[:start] })
 
       claim_data = faraday_response.body['data']&.dig(0)
+
+      claim_data['claimStatus'] = claim_data['claimStatus'].underscore.titleize if claim_data
+
       appt['travelPayClaim'] = {}
       appt['travelPayClaim']['metadata'] = build_metadata(faraday_response.body)
       appt['travelPayClaim']['claim'] = claim_data if claim_data
@@ -110,9 +112,8 @@ module TravelPay
       appointments = []
       appts.each do |appt|
         claims.each do |cl|
-          if !cl['appointmentDateTime'].nil? &&
-             (DateTime.parse(cl['appointmentDateTime']).to_s == DateTime.parse(appt['start']).to_s)
-
+          if !cl['appointmentDateTime'].nil? && !appt[:start].nil? &&
+             (DateTime.parse(cl['appointmentDateTime']).to_s == DateTime.parse(appt[:start]).to_s)
             appt['travelPayClaim'] = {
               'metadata' => metadata,
               'claim' => cl

@@ -250,6 +250,9 @@ pension_burial:
   sftp:
     relative_path: "../VETSGOV_PENSION"
 
+bpds:
+  jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
+
 central_mail:
   upload:
     enabled: true
@@ -1176,6 +1179,9 @@ vanotify:
         form40_0247_confirmation_email: form40_0247_confirmation_email_template_id
         form40_0247_error_email: form40_0247_error_email_template_id
         form40_10007_error_email: form40_10007_error_email_template_id
+        form_upload_confirmation_email: form_upload_confirmation_template_id
+        form_upload_error_email: form_upload_error_template_id
+        form_upload_received_email: form_upload_received_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id
         form5490_confirmation_email: form5490_confirmation_email_template_id
@@ -1516,6 +1522,12 @@ virtual_regional_office:
 disability_max_ratings_api:
   url: http://disability-max-ratings-api-dev.vfs.va.gov
   ratings_path: /disability-max-ratings
+  open_timeout: 5
+  read_timeout: 10
+
+contention_classification_api:
+  url: http://contention-classification-api-dev.vfs.va.gov/
+  expanded_contention_classification_path: expanded-contention-classification
   open_timeout: 5
   read_timeout: 10
 
