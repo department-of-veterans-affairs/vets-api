@@ -132,6 +132,24 @@ module RepresentationManagement
         end
       end
 
+      def update_in_progress_form(key, value)
+        return if in_progress_form.blank?
+      
+        metadata = in_progress_form_metadata
+        metadata['submission'] ||= {}
+        metadata['submission']['hasAttemptedSubmit'] = true
+        metadata['submission'][key] = value
+        in_progress_form.update(metadata: metadata)
+      end
+
+      def in_progress_form
+        @in_progress_form ||= InProgressForm.form_for_user('2122', current_user)
+      end
+
+      def in_progress_form_metadata
+        in_progress_form.metadata || {} # Ensure metadata is always a Hash
+      end
+
       def feature_enabled
         routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
       end

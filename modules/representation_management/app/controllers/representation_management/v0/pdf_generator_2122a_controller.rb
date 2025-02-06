@@ -10,6 +10,7 @@ module RepresentationManagement
           Tempfile.create do |tempfile|
             tempfile.binmode
             RepresentationManagement::V0::PdfConstructor::Form2122a.new(tempfile).construct(form)
+            update_in_progress_form('status', 'applicationSubmitted') if current_user
             send_data tempfile.read,
                       filename: '21-22a.pdf',
                       type: 'application/pdf',
@@ -18,7 +19,9 @@ module RepresentationManagement
           end
           # The Tempfile is automatically deleted after the block ends
         else
-          render json: { errors: form.errors.full_messages }, status: :unprocessable_entity
+          errors = form.errors.full_messages
+          update_in_progress_form('errors', errors) if current_user
+          render json: { errors: errors }, status: :unprocessable_entity
         end
       end
 
