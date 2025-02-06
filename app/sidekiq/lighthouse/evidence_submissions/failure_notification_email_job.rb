@@ -58,6 +58,7 @@ module Lighthouse
       end
 
       # This will be used to send an upload failure email
+      # We created a new personalisation with the obfuscated_file_name so the filename is hidden in the email
       def create_personalisation(current_personalisation)
         {
           first_name: current_personalisation['first_name'],
@@ -69,6 +70,7 @@ module Lighthouse
       end
 
       def record_email_send_success(upload, response)
+        # Update evidence_submissions table record with the va_notify_id and va_notify_date
         upload.update(va_notify_id: response.id, va_notify_date: DateTime.now)
         message = "#{upload.job_class} va notify failure email queued"
         ::Rails.logger.info(message)
