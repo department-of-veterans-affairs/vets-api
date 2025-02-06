@@ -115,7 +115,7 @@ module Mobile
 
         def check_transaction_status!(transaction_id)
           @transaction_id = transaction_id
-
+          binding.pry
           transaction = AsyncTransaction::VAProfile::Base.refresh_transaction_status(
             @user,
             contact_information_service,
