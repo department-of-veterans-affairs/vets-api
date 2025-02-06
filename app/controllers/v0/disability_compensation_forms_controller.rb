@@ -42,7 +42,7 @@ module V0
           provider: provider,
           options: {},
           current_user: @current_user,
-          feature_toggle: nil,
+          feature_toggle: nil
         )
         api_provider.get_separation_locations
       end
