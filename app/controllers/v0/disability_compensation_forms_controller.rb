@@ -4,7 +4,6 @@ require 'evss/common_service'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/disability_compensation_form/form4142'
 require 'evss/disability_compensation_form/service'
-require 'evss/reference_data/service'
 require 'evss/reference_data/response_strategy'
 require 'disability_compensation/factories/api_provider_factory'
 
