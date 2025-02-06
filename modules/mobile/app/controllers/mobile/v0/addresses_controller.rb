@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'va_profile/address_validation/service'
+require 'va_profile/v3/address_validation/service'
 
 module Mobile
   module V0
@@ -58,7 +59,9 @@ module Mobile
           :address_pou,
           :address_type,
           :city,
+          :country_name,
           :country_code_iso3,
+          :county_code, :county_name,
           :id,
           :international_postal_code,
           :province,
@@ -70,7 +73,6 @@ module Mobile
 
         # No domestic or military addresses should have a province but some have been coming in as a string 'null'
         address_params['province'] = nil if address_params['address_type'].in?(['DOMESTIC', 'OVERSEAS MILITARY'])
-
         address_params
       end
 
