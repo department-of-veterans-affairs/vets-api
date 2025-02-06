@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pension_burial/tag_sentry'
 require 'lgy/tag_sentry'
 require 'claim_documents/monitor'
 require 'lighthouse/benefits_intake/service'
@@ -42,7 +41,6 @@ module V0
     def klass
       case form_id
       when '21P-527EZ', '21P-530EZ', '21P-530V2'
-        PensionBurial::TagSentry.tag_sentry
         PersistentAttachments::PensionBurial
       when '21-686C', '686C-674'
         PersistentAttachments::DependencyClaim
@@ -80,25 +78,10 @@ module V0
       file
     end
 
-    # rubocop:disable Metrics/MethodLength
     def stamped_pdf_valid?
-      extension = File.extname(@attachment&.file&.id)
-      allowed_types = PersistentAttachment::ALLOWED_DOCUMENT_TYPES
-
-      if allowed_types.exclude?(extension)
-        raise Common::Exceptions::UnprocessableEntity.new(
-          detail: I18n.t('errors.messages.extension_allowlist_error', extension:, allowed_types:),
-          source: 'PersistentAttachment.stamped_pdf_valid?'
-        )
-      elsif @attachment&.file&.size&.< PersistentAttachment::MINIMUM_FILE_SIZE
-        raise Common::Exceptions::UnprocessableEntity.new(
-          detail: 'File size must not be less than 1.0 KB',
-          source: 'PersistentAttachment.stamped_pdf_valid?'
-        )
-      end
-
-      document = PDFUtilities::DatestampPdf.new(@attachment.to_pdf).run(text: 'VA.GOV', x: 5, y: 5)
-      intake_service.valid_document?(document:)
+      validate_extension(File.extname(@attachment&.file&.id))
+      validate_min_file_size(@attachment&.file&.size)
+      validate_pdf_document(@attachment.to_pdf)
     rescue BenefitsIntake::Service::InvalidDocumentError => e
       @attachment.errors.add(:attachment, e.message)
       false
@@ -106,7 +89,28 @@ module V0
       @attachment.errors.add(:attachment, 'File is corrupt and cannot be uploaded')
       false
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def validate_extension(extension)
+      allowed_types = PersistentAttachment::ALLOWED_DOCUMENT_TYPES
+      unless allowed_types.include?(extension)
+        detail = I18n.t('errors.messages.extension_allowlist_error', extension:, allowed_types:)
+        source = 'PersistentAttachment.stamped_pdf_valid?'
+        raise Common::Exceptions::UnprocessableEntity.new(detail:, source:)
+      end
+    end
+
+    def validate_min_file_size(size)
+      unless size.to_i >= PersistentAttachment::MINIMUM_FILE_SIZE
+        detail = 'File size must not be less than 1.0 KB'
+        source = 'PersistentAttachment.stamped_pdf_valid?'
+        raise Common::Exceptions::UnprocessableEntity.new(detail:, source:)
+      end
+    end
+
+    def validate_pdf_document(pdf)
+      document = PDFUtilities::DatestampPdf.new(pdf).run(text: 'VA.GOV', x: 5, y: 5)
+      intake_service.valid_document?(document:)
+    end
 
     def intake_service
       @intake_service ||= BenefitsIntake::Service.new

@@ -6,9 +6,13 @@ require 'bgs_service/vet_record_web_service'
 
 module ClaimsApi
   class PoaUpdater < ClaimsApi::ServiceBase
-    def perform(power_of_attorney_id, rep_id = nil)
-      poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
+    sidekiq_options retry_for: 48.hours
 
+    def perform(power_of_attorney_id, rep_id = nil) # rubocop:disable Metrics/MethodLength
+      poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
+      process = ClaimsApi::Process.find_or_create_by(processable: poa_form,
+                                                     step_type: 'POA_UPDATE')
+      process.update!(step_status: 'IN_PROGRESS')
       ssn = poa_form.auth_headers['va_eauth_pnid']
 
       file_number = find_by_ssn(ssn, poa_form)
@@ -19,6 +23,8 @@ module ClaimsApi
       if response[:return_code] == 'BMOD0001'
         # Clear out the error message if there were previous failures
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
+        poa_form.save
+        process.update!(step_status: 'SUCCESS', error_messages: [], completed_at: Time.zone.now)
 
         ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Success')
 
@@ -28,10 +34,12 @@ module ClaimsApi
       else
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
         poa_form.vbms_error_message = "BGS Error: update_birls_record failed with code #{response[:return_code]}"
+        poa_form.save
+        process.update!(step_status: 'FAILED',
+                        error_messages: [{ title: 'BGS Error',
+                                           detail: poa_form.vbms_error_message }])
         ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Failed', error: response[:return_code])
       end
-
-      poa_form.save
     end
 
     private
