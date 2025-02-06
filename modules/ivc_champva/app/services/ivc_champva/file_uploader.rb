@@ -58,6 +58,7 @@ module IvcChampva
         # for these files, but user will see error on the FE saying submission failed.
         raise StandardError, "IVC ChampVa Forms - failed to upload all documents for submission: #{s3_err}"
       else
+        # array of arrays, e.g.: [[200], [400, 'S3 error']]
         results
       end
     end
