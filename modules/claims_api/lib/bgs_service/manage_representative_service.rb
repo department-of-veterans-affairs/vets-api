@@ -104,7 +104,7 @@ module ClaimsApi
       body = builder_to_xml(builder)
 
       make_request(endpoint: bean_name, action: 'updatePOARelationship', body:, key: 'POARelationshipReturnVO',
-                   namespaces: { 'data' => '/data' }, transform_response: false) 
+                   namespaces: { 'data' => '/data' }, transform_response: false)
     end
   end
 end

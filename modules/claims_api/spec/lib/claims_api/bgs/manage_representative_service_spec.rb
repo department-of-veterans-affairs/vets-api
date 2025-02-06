@@ -82,11 +82,23 @@ describe ClaimsApi::ManageRepresentativeService do
   end
 
   describe '#update_poa_relationship' do
-    before do
-      allow_any_instance_of(subject).to receive(:make_request).and_return(true)
-    end
     it 'formats the body correctly with valid parameters' do
-      resp = subject.update_poa_relationship()
+      VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_relationship') do
+        pctpnt_id = '600095701'
+        file_number = '796263749'
+        ssn = '123456789'
+        poa_code = '083'
+
+        res = subject.update_poa_relationship(
+          pctpnt_id: pctpnt_id,
+          file_number: file_number,
+          ssn: ssn,
+          poa_code: poa_code
+        )
+
+        expect(res['vetPtcpntId']).to eq(pctpnt_id)
+        expect(res['vsoPOACode']).to eq(poa_code)
+      end
     end
   end
 end
