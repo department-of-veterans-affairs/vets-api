@@ -134,7 +134,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
           address.city = 'Fulton'
           address.state_code = 'MS'
           address.zip_code = '38843'
-          binding.pry
           expect { subject.post_address(address) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
