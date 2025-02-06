@@ -47,28 +47,28 @@ describe PdfFill::Filler, type: :model do
   # see `fill_form_examples.rb` for documentation about options
   describe '#fill_form' do
     [
-      # {
-      #   form_id: '21P-530EZ',
-      #   factory: :burial_claim
-      # },
-      # {
-      #   form_id: '21P-0969',
-      #   factory: :income_and_assets_claim,
-      #   use_vets_json_schema: true
-      # },
-      # {
-      #   form_id: '10-10CG',
-      #   factory: :caregivers_assistance_claim,
-      #   input_data_fixture_dir: 'spec/fixtures/pdf_fill/10-10CG',
-      #   output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/10-10CG/signed',
-      #   fill_options: {
-      #     sign: true
-      #   }
-      # },
-      # {
-      #   form_id: '686C-674',
-      #   factory: :dependency_claim
-      # },
+      {
+        form_id: '21P-530EZ',
+        factory: :burial_claim
+      },
+      {
+        form_id: '21P-0969',
+        factory: :income_and_assets_claim,
+        use_vets_json_schema: true
+      },
+      {
+        form_id: '10-10CG',
+        factory: :caregivers_assistance_claim,
+        input_data_fixture_dir: 'spec/fixtures/pdf_fill/10-10CG',
+        output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/10-10CG/signed',
+        fill_options: {
+          sign: true
+        }
+      },
+      {
+        form_id: '686C-674',
+        factory: :dependency_claim
+      },
       {
         form_id: '686C-674-V2',
         factory: :dependency_claim
@@ -101,7 +101,8 @@ describe PdfFill::Filler, type: :model do
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
-
+                # puts "Generated PDF exists? #{File.exist?(extras_path)}"
+                # File.delete(extras_path) if File.exist?(extras_path)
                 expect(
                   FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
                 ).to eq(true)
