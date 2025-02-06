@@ -18,8 +18,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
                                               anything).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE,
-                                              anything).and_return(false)
+    # allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE,
+    #                                           anything).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_fail_submission,
                                               anything).and_return(false)
   end
@@ -45,6 +45,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     let(:open_claims_cassette) { 'evss/claims/claims_without_open_compensation_claims' }
     let(:caseflow_cassette) { 'caseflow/appeals' }
     let(:rated_disabilities_cassette) { 'evss/disability_compensation_form/rated_disabilities' }
+    let(:lh_rated_disabilities_cassette) { 'lighthouse/claims/200_response'}
     let(:submit_form_cassette) { 'evss/disability_compensation_form/submit_form_v2' }
     let(:lh_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload_location' }
     let(:evss_get_pdf) { 'form526_backup/200_evss_get_pdf' }
@@ -53,7 +54,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     let(:cassettes) do
       [open_claims_cassette, caseflow_cassette, rated_disabilities_cassette,
        submit_form_cassette, lh_upload, evss_get_pdf,
-       lh_intake_upload, lh_submission]
+       lh_intake_upload, lh_submission, lh_rated_disabilities_cassette]
     end
     let(:backup_klass) { Sidekiq::Form526BackupSubmissionProcess::Submit }
 
@@ -363,7 +364,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         end
         let(:mas_cassette) { 'mail_automation/mas_initiate_apcas_request' }
         let(:cassettes) do
-          [open_claims_cassette, rated_disabilities_cassette, submit_form_cassette, mas_cassette]
+          [open_claims_cassette, rated_disabilities_cassette, submit_form_cassette, mas_cassette, lh_rated_disabilities_cassette]
         end
 
         before do
@@ -452,6 +453,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       context 'with Lighthouse as submission provider' do
+        let(:user) { create(:user, :loa3, icn: '123498767V234859') }
         let(:submission) do
           create(:form526_submission,
                  :with_everything,
