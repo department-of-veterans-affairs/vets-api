@@ -58,7 +58,8 @@ module PdfFill
       '21-674' => PdfFill::Forms::Va21674,
       '21-0538' => PdfFill::Forms::Va210538,
       '26-1880' => PdfFill::Forms::Va261880,
-      '5655' => PdfFill::Forms::Va5655
+      '5655' => PdfFill::Forms::Va5655,
+      'one_debt_letter' => PdfFill::Forms::VaOneDebtLetter
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
     end
