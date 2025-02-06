@@ -151,4 +151,57 @@ RSpec.describe 'VirtualAgentClaimStatusController', type: :request do
       end
     end
   end
+
+  describe 'GET /v0/virtual_agent/claims/:id from lighthouse' do
+    context 'authorized' do
+      before do
+        sign_in_as(user)
+
+        @mock_cxdw_reporting_service = instance_double(V0::VirtualAgent::ReportToCxdw)
+        allow(@mock_cxdw_reporting_service).to receive(:report_to_cxdw)
+
+        allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return('fake_access_token')
+
+        allow(V0::VirtualAgent::ReportToCxdw)
+          .to receive(:new)
+          .and_return(@mock_cxdw_reporting_service)
+      end
+
+      context 'when cst_override_reserve_records_website flipper is true' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(true)
+        end
+
+        it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get('/v0/virtual_agent/claims/600383363')
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2,
+                                 'displayName')).to eq('RV1 - Reserve Records Request')
+          # In the cassette, this value is NEEDED_FROM_YOU
+          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
+        end
+      end
+
+      context 'when cst_override_reserve_records_website flipper is false' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(false)
+        end
+
+        it 'leaves the tracked item status as NEEDED_FROM_YOU' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get('/v0/virtual_agent/claims/600383363')
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2,
+                                 'displayName')).to eq('RV1 - Reserve Records Request')
+          # Do not override the cassette value
+          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_YOU')
+        end
+      end
+    end
+  end
 end
