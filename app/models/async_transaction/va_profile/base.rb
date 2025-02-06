@@ -67,7 +67,6 @@ module AsyncTransaction
       # @param tx_id [int] the transaction_id
       # @return [AsyncTransaction::VAProfile::Base]
       def self.refresh_transaction_status(user, service, tx_id = nil)
-        binding.pry
         transaction_record = find_transaction!(user.uuid, tx_id)
         return transaction_record if transaction_record.finished?
 
