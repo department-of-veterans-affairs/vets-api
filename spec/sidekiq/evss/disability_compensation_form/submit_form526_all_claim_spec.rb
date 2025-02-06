@@ -18,10 +18,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
                                               anything).and_return(false)
-    # allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE,
-    #                                           anything).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_fail_submission,
                                               anything).and_return(false)
+    allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
+                                                              .and_return('access_token')
   end
 
   let(:user) { create(:user, :loa3) }
@@ -51,10 +51,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     let(:evss_get_pdf) { 'form526_backup/200_evss_get_pdf' }
     let(:lh_intake_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload' }
     let(:lh_submission) { 'lighthouse/benefits_claims/submit526/200_synchronous_response' }
+    let(:lh_longer_icn_submission) { 'lighthouse/claims/200_response_longer_icn'}
     let(:cassettes) do
       [open_claims_cassette, caseflow_cassette, rated_disabilities_cassette,
        submit_form_cassette, lh_upload, evss_get_pdf,
-       lh_intake_upload, lh_submission, lh_rated_disabilities_cassette]
+       lh_intake_upload, lh_submission, lh_rated_disabilities_cassette, lh_longer_icn_submission]
     end
     let(:backup_klass) { Sidekiq::Form526BackupSubmissionProcess::Submit }
 
