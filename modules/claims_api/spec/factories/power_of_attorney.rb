@@ -5,6 +5,7 @@ FactoryBot.define do
                               parent: :claims_api_base_factory do
     id { SecureRandom.uuid }
     source_data { { name: 'Abe Lincoln', icn: '123', email: '1@2.com' } }
+    current_poa { '074' }
     form_data do
       json = JSON.parse(File
              .read(Rails.root.join(*'/modules/claims_api/spec/fixtures/form_2122_json_api.json'.split('/')).to_s))
