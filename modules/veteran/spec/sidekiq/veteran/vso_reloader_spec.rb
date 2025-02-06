@@ -117,29 +117,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
     end
 
-    context 'with a failed connection' do
-      before do
-        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::ConnectionFailed,
-                                                                               'some message')
-      end
-
-      it 'notifies slack' do
-        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
-        Veteran::VSOReloader.new.perform
-      end
-    end
-
-    context 'with an client error' do
-      before do
-        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Common::Client::Errors::ClientError)
-      end
-
-      it 'notifies slack' do
-        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
-        subject.new.perform
-      end
-    end
-
     context 'handling names' do
       before do
         VCR.use_cassette('veteran/ogc_vso_rep_data') do

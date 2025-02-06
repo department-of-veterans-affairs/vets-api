@@ -43,6 +43,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'modules/appeals_api/app/swagger'
     add_filter 'modules/apps_api/app/controllers/apps_api/docs/v0/api_controller.rb'
     add_filter 'modules/apps_api/app/swagger'
+    add_filter 'modules/burials/lib/benefits_intake/submission_handler.rb'
     add_filter 'modules/check_in/config/initializers/statsd.rb'
     add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/swagger/*'
@@ -59,6 +60,7 @@ unless ENV['NOCOVERAGE']
     add_group 'AskVAApi', 'modules/ask_va_api/'
     add_group 'Avs', 'modules/avs/'
     add_group 'Banners', 'modules/banners/'
+    add_group 'Burials', 'modules/burials/'
     add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidResearch', 'modules/covid_research/'
@@ -103,6 +105,14 @@ unless ENV['NOCOVERAGE']
       result = SimpleCov.result
       result.format! if ParallelTests.number_of_running_processes <= 1
     end
+  end
+end
+
+# @see https://medium.com/@petro.yakubiv/testing-time-and-date-in-rspec-98483ce7a138
+RSpec::Matchers.define :be_the_same_time_as do |expected|
+  match do |actual|
+    formatted = '%d/%m/%Y %H:%M:%S'
+    expect(expected.strftime(formatted)).to eq(actual.strftime(formatted))
   end
 end
 

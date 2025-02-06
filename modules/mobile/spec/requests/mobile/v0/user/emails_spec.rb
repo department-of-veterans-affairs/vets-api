@@ -7,12 +7,23 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
 
   let!(:user) { sis_user }
 
+  before do
+    allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+    Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.012Z'))
+  end
+
+  after do
+    Timecop.return
+  end
+
   describe 'POST /mobile/v0/user/emails' do
     context 'with a valid email that takes two tries to complete' do
       before do
-        VCR.use_cassette('mobile/profile/get_email_status_complete') do
-          VCR.use_cassette('mobile/profile/get_email_status_incomplete') do
-            VCR.use_cassette('mobile/profile/post_email_initial') do
+        VCR.use_cassette('mobile/profile/v2/get_email_status_complete', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('mobile/profile/v2/get_email_status_incomplete', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('mobile/profile/v2/post_email_initial', VCR::MATCH_EVERYTHING) do
               post '/mobile/v0/user/emails',
                    params: { id: 42, email_address: 'person42@example.com' }.to_json,
                    headers: sis_headers(json: true)
@@ -69,9 +80,9 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
   describe 'PUT /mobile/v0/user/emails' do
     context 'with a valid email that takes two tries to complete' do
       before do
-        VCR.use_cassette('mobile/profile/get_email_status_complete') do
-          VCR.use_cassette('mobile/profile/get_email_status_incomplete') do
-            VCR.use_cassette('mobile/profile/put_email_initial') do
+        VCR.use_cassette('mobile/profile/v2/get_email_status_complete', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('mobile/profile/v2/get_email_status_incomplete', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('mobile/profile/v2/put_email_initial', VCR::MATCH_EVERYTHING) do
               put '/mobile/v0/user/emails',
                   params: { id: 42, email_address: 'person42@example.com' }.to_json,
                   headers: sis_headers(json: true)
@@ -137,9 +148,9 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
         allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
         email.id = id_in_cassette
 
-        VCR.use_cassette('mobile/profile/get_email_status_complete') do
-          VCR.use_cassette('mobile/profile/get_email_status_incomplete') do
-            VCR.use_cassette('mobile/profile/delete_email_initial') do
+        VCR.use_cassette('mobile/profile/v2/get_email_status_complete', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('mobile/profile/v2/get_email_status_incomplete', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('mobile/profile/v2/delete_email_initial', VCR::MATCH_EVERYTHING) do
               delete '/mobile/v0/user/emails',
                      params: { id: 42, email_address: 'person42@example.com' }.to_json,
                      headers: sis_headers(json: true)
