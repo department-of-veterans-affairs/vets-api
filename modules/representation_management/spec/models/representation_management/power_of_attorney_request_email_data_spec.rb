@@ -6,11 +6,11 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestEmailData, type: 
   describe 'validations' do
     subject { described_class.new }
 
-    it { expect(subject).to validate_presence_of(:pdf_data) }
+    it { expect(subject).to validate_presence_of(:form_data) }
   end
 
   describe 'methods' do
-    subject { described_class.new(pdf_data: pdf_data) }
+    subject { described_class.new(form_data: form_data) }
 
     let(:organization) { create(:accredited_organization, name: 'Org Name') }
     let(:representative) do
@@ -19,7 +19,7 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestEmailData, type: 
              first_name: 'Rep',
              last_name: 'Name')
     end
-    let(:pdf_data) { build(:form_2122_data, organization_id: organization.id, representative_id: representative.id) }
+    let(:form_data) { build(:form_2122_data, organization_id: organization.id, representative_id: representative.id) }
 
     it 'returns the correct first name if there is no claimant' do
       expect(subject.first_name).to eq('Vet')
@@ -30,16 +30,16 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestEmailData, type: 
     end
 
     it 'returns the correct first name if there is a claimant' do
-      pdf_data_with_claimant = build(:form_2122_data, :with_claimant, organization_id: organization.id,
-                                                                      representative_id: representative.id)
-      subject = described_class.new(pdf_data: pdf_data_with_claimant)
+      form_data_with_claimant = build(:form_2122_data, :with_claimant, organization_id: organization.id,
+                                                                       representative_id: representative.id)
+      subject = described_class.new(form_data: form_data_with_claimant)
       expect(subject.first_name).to eq('Claim')
     end
 
     it 'returns the correct last name if there is a claimant' do
-      pdf_data_with_claimant = build(:form_2122_data, :with_claimant, organization_id: organization.id,
-                                                                      representative_id: representative.id)
-      subject = described_class.new(pdf_data: pdf_data_with_claimant)
+      form_data_with_claimant = build(:form_2122_data, :with_claimant, organization_id: organization.id,
+                                                                       representative_id: representative.id)
+      subject = described_class.new(form_data: form_data_with_claimant)
       expect(subject.last_name).to eq('Claimant')
     end
 
@@ -65,9 +65,20 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestEmailData, type: 
     end
 
     it 'returns the org name if there is no representative specified' do
-      pdf_data_with_no_rep = build(:form_2122_data, representative_id: nil, organization_id: organization.id)
-      subject = described_class.new(pdf_data: pdf_data_with_no_rep)
+      form_data_with_no_rep = build(:form_2122_data, representative_id: nil, organization_id: organization.id)
+      subject = described_class.new(form_data: form_data_with_no_rep)
       expect(subject.representative_name).to eq('Org Name')
+    end
+
+    it 'returns the veterans email if there is no claimant' do
+      expect(subject.email_address).to eq('veteran@example.com')
+    end
+
+    it 'returns the claimants email if there is a claimant' do
+      form_data_with_claimant = build(:form_2122_data, :with_claimant, organization_id: organization.id,
+                                                                       representative_id: representative.id)
+      subject = described_class.new(form_data: form_data_with_claimant)
+      expect(subject.email_address).to eq('claimant@example.com')
     end
   end
 end

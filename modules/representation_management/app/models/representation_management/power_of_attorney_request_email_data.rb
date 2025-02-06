@@ -4,16 +4,20 @@ module RepresentationManagement
   class PowerOfAttorneyRequestEmailData
     include ActiveModel::Model
 
-    attr_accessor :pdf_data
+    attr_accessor :form_data
 
-    validates :pdf_data, presence: true
+    validates :form_data, presence: true
+
+    def email_address
+      form_data.send("#{submitter}_email")
+    end
 
     def first_name
-      pdf_data.send("#{submitter}_first_name")
+      form_data.send("#{submitter}_first_name")
     end
 
     def last_name
-      pdf_data.send("#{submitter}_last_name")
+      form_data.send("#{submitter}_last_name")
     end
 
     def submit_date
@@ -33,10 +37,10 @@ module RepresentationManagement
     end
 
     def representative_name
-      if pdf_data.representative.present?
-        pdf_data.representative.full_name.strip
+      if form_data.representative.present?
+        form_data.representative.full_name.strip
       else
-        pdf_data.organization.name.strip
+        form_data.organization.name.strip
       end
     end
 
@@ -55,7 +59,7 @@ module RepresentationManagement
     end
 
     def find_submitter
-      pdf_data.claimant_first_name.present? ? 'claimant' : 'veteran'
+      form_data.claimant_first_name.present? ? 'claimant' : 'veteran'
     end
   end
 end
