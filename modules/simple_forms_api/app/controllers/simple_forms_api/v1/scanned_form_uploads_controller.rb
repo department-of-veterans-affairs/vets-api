@@ -10,7 +10,11 @@ module SimpleFormsApi
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
         check_for_changes
 
-        render json: upload_response
+        status, confirmation_number = upload_response
+
+        send_confirmation_email(params, confirmation_number) if status == 200
+
+        render json: { status:, confirmation_number: }
       end
 
       def upload_scanned_form
@@ -42,7 +46,7 @@ module SimpleFormsApi
           'Simple forms api - scanned form uploaded',
           { form_number: params[:form_number], status:, confirmation_number:, file_size: }
         )
-        { confirmation_number:, status: }
+        [status, confirmation_number]
       end
 
       def find_attachment_path(confirmation_code)
@@ -112,6 +116,17 @@ module SimpleFormsApi
                                                                         form_id: params[:form_number])
           prefill_data_service.check_for_changes
         end
+      end
+
+      def send_confirmation_email(params, confirmation_number)
+        config = {
+          form_number: params[:form_number],
+          form_data: params[:form_data],
+          date_submitted: Time.zone.today.strftime('%B %d, %Y'),
+          confirmation_number:
+        }
+        notification_email = SimpleFormsApi::FormUploadNotificationEmail.new(config, notification_type: :confirmation)
+        notification_email.send
       end
     end
   end
