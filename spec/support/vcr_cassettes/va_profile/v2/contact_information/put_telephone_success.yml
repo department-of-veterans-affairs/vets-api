@@ -5,7 +5,8 @@ http_interactions:
     uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/telephones
     body:
       encoding: UTF-8
-      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551235","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2024-08-27T18:51:06.012Z","sourceSystemUser":"123498767V234859","telephoneId":458781,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"voiceMailAcceptableInd":true,"effectiveStartDate":null,"effectiveEndDate":null}}'
+      # string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551235","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2024-08-27T18:51:06.012Z","sourceSystemUser":"123498767V234859","telephoneId":458781,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"voiceMailAcceptableInd":true,"effectiveStartDate":null,"effectiveEndDate":null}}'
+      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2024-08-27T18:51:06.000Z","sourceSystemUser":"123498767V234859","telephoneId":42,"textMessageCapableInd":null,"textMessagePermInd":null,"ttyInd":null,"voiceMailAcceptableInd":null,"effectiveStartDate":"2024-08-27T18:51:06.000Z","effectiveEndDate":null}}'
     headers:
       User-Agent:
       - Vets.gov Agent
@@ -59,6 +60,6 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"c915d801-5693-4860-b2df-83baa8c3c910","status":"RECEIVED"}'
+      string: '{"txAuditId":"57d5364b-149a-4802-bc18-b9b0b0742db6","status":"RECEIVED"}'
   recorded_at: Thu, 12 Sep 2024 23:46:47 GMT
 recorded_with: VCR 6.3.1

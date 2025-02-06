@@ -28,13 +28,9 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
       before do
         telephone.id = 42
 
-        VCR.use_cassette('mobile/profile/v2/get_phone_status_complete', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('mobile/profile/v2/get_phone_status_incomplete', VCR::MATCH_EVERYTHING) do
-            VCR.use_cassette('mobile/profile/v2/get_phone_status_incomplete_2', VCR::MATCH_EVERYTHING) do
-              VCR.use_cassette('mobile/profile/v2/post_phone_initial', VCR::MATCH_EVERYTHING) do
-                post('/mobile/v0/user/phones', params: telephone.to_json, headers:)
-              end
-            end
+        VCR.use_cassette('va_profile/v2/contact_information/telephone_transaction_status', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/v2/contact_information/post_telephone_success', VCR::MATCH_EVERYTHING) do
+            post('/mobile/v0/user/phones', params: telephone.to_json, headers:)
           end
         end
       end
@@ -49,7 +45,7 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
 
       it 'includes a transaction id' do
         id = JSON.parse(response.body).dig('data', 'attributes', 'transactionId')
-        expect(id).to eq('c3c6502d-f660-409c-9bc9-a7b7ce4f0bc5')
+        expect(id).to eq('57d5364b-149a-4802-bc18-b9b0b0742db6')
       end
     end
 
@@ -89,11 +85,9 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
       before do
         telephone.id = 42
 
-        VCR.use_cassette('mobile/profile/v2/get_phone_status_complete', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('mobile/profile/v2/get_phone_status_incomplete', VCR::MATCH_EVERYTHING) do
-            VCR.use_cassette('mobile/profile/v2/put_phone_initial', VCR::MATCH_EVERYTHING) do
-              put('/mobile/v0/user/phones', params: telephone.to_json, headers:)
-            end
+        VCR.use_cassette('va_profile/v2/contact_information/telephone_transaction_status', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/v2/contact_information/put_telephone_success', VCR::MATCH_EVERYTHING) do
+            put('/mobile/v0/user/phones', params: telephone.to_json, headers:)
           end
         end
       end
@@ -108,7 +102,7 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
 
       it 'includes a transaction id' do
         id = JSON.parse(response.body).dig('data', 'attributes', 'transactionId')
-        expect(id).to eq('c3c6502d-f660-409c-9bc9-a7b7ce4f0bc5')
+        expect(id).to eq('57d5364b-149a-4802-bc18-b9b0b0742db6')
       end
     end
 
@@ -147,13 +141,12 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
     context 'with a valid phone number' do
       before do
         telephone.id = 42
-        VCR.use_cassette('mobile/profile/v2/get_phone_status_complete', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('mobile/profile/v2/get_phone_status_incomplete', VCR::MATCH_EVERYTHING) do
-            VCR.use_cassette('mobile/profile/v2/delete_phone_initial', VCR::MATCH_EVERYTHING) do
-              delete '/mobile/v0/user/phones',
-                     params: telephone.to_json,
-                     headers:
-            end
+        VCR.use_cassette('va_profile/v2/contact_information/telephone_transaction_status', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/v2/contact_information/delete_telephone_success_2',
+                           VCR::MATCH_EVERYTHING) do
+            delete '/mobile/v0/user/phones',
+                   params: telephone.to_json,
+                   headers:
           end
         end
       end
@@ -168,7 +161,7 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
 
       it 'includes a transaction id' do
         id = JSON.parse(response.body).dig('data', 'attributes', 'transactionId')
-        expect(id).to eq('c3c6502d-f660-409c-9bc9-a7b7ce4f0bc5')
+        expect(id).to eq('57d5364b-149a-4802-bc18-b9b0b0742db6')
       end
     end
 

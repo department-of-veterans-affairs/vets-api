@@ -1,22 +1,20 @@
 ---
 http_interactions:
 - request:
-    method: post
+    method: put
     uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/telephones
     body:
       encoding: UTF-8
-      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2024-08-27T18:51:06.000Z","sourceSystemUser":"123498767V234859","telephoneId":42,"textMessageCapableInd":null,"textMessagePermInd":null,"ttyInd":null,"voiceMailAcceptableInd":null,"effectiveStartDate":"2024-08-27T18:51:06.000Z","effectiveEndDate":null}}'
+      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2024-08-27T18:51:06.000Z","sourceSystemUser":"123498767V234859","telephoneId":42,"textMessageCapableInd":null,"textMessagePermInd":null,"ttyInd":null,"voiceMailAcceptableInd":null,"effectiveStartDate":"2024-08-27T18:51:06.000Z","effectiveEndDate":"2024-08-27T18:51:06.000Z"}}'
     headers:
-      User-Agent:
-      - Vets.gov Agent
       Accept:
       - application/json
       Content-Type:
       - application/json
+      User-Agent:
+      - Vets.gov Agent
       Cufsystemname:
       - VETSGOV
-      Accept:
-      - application/json
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -28,10 +26,10 @@ http_interactions:
       - 'true'
       - 'true'
       Server-Timing:
-      - dtRpid;desc="-1358329057", dtSInfo;desc="0"
-      - dtRpid;desc="1252252207", dtSInfo;desc="0"
+      - dtRpid;desc="-1100306904", dtSInfo;desc="0"
+      - dtRpid;desc="-648559351", dtSInfo;desc="0"
       Vaprofiletxauditid:
-      - 9c796e46-7737-442a-a9ff-65f48b9892a3
+      - a3c299cf-6ae4-4c6f-b54d-e4a4d30d06e1
       X-Content-Type-Options:
       - nosniff
       X-Xss-Protection:
@@ -48,7 +46,7 @@ http_interactions:
       - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
         about: blob: ws: wss:'
       Date:
-      - Thu, 12 Sep 2024 23:42:20 GMT
+      - Wed, 11 Sep 2024 21:08:24 GMT
       Referrer-Policy:
       - no-referrer
       Content-Type:
@@ -60,5 +58,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"txAuditId":"57d5364b-149a-4802-bc18-b9b0b0742db6","status":"RECEIVED"}'
-  recorded_at: Thu, 12 Sep 2024 23:42:20 GMT
+  recorded_at: Wed, 11 Sep 2024 21:08:25 GMT
 recorded_with: VCR 6.3.1
