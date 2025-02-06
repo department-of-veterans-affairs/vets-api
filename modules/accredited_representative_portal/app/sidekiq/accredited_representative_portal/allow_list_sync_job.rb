@@ -41,19 +41,30 @@ module AccreditedRepresentativePortal
         raise InvalidRowCount, "CSV file exceeds maximum allowed rows of (#{MAX_CSV_ROWS})"
       end
 
+      stats = { deleted_count: 0, inserted_count: 0, errored: 0, errors: [] }
+
       # Build and validate all records before insert
       new_records = csv_data.map do |row|
         MODEL.new(row.to_h.slice(*SYNC_FIELDS)).tap(&:validate!)
-      end
+      rescue => e
+        stats[:errored] += 1
+        stats[:errors] << e.message
+        next # Skip this record
+      end.compact
+
+      return stats if new_records.empty?
 
       MODEL.transaction do
-        # Get incoming registration numbers
-        incoming_registration_numbers = csv_data.map { |row| row['accredited_individual_registration_number'] }
+        # Get incoming rows and convert them to hashes using sync fields
+        incoming_data_hashes = csv_data.map { |row| row.to_h.slice(*SYNC_FIELDS) }
 
-        # Delete records not in the incoming data
-        deleted_count = MODEL.where.not(
-          accredited_individual_registration_number: incoming_registration_numbers
-        ).delete_all
+        # Prepare the where.not conditions dynamically
+        delete_rel = MODEL.where.not(
+          incoming_data_hashes.map(&:symbolize_keys)
+        )
+
+        # Execute the deletion
+        deleted_count = delete_rel.delete_all
 
         # Insert with conflict handling
         inserted = MODEL.insert_all(
@@ -62,11 +73,11 @@ module AccreditedRepresentativePortal
           unique_by: SYNC_FIELDS
         )
 
-        {
-          deleted_count: deleted_count,
-          inserted_count: inserted.rows.length
-        }
+        stats[:deleted_count] = deleted_count
+        stats[:inserted_count] = inserted.count
       end
+
+      stats
     end
     # rubocop:enable Rails/SkipsModelValidations, Metrics/MethodLength
 
