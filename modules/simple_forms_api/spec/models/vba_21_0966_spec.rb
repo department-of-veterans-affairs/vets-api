@@ -87,4 +87,32 @@ RSpec.describe SimpleFormsApi::VBA210966 do
       end
     end
   end
+
+  describe '#notification_email_address' do
+    context 'preparer is surviving dependent' do
+      let(:data) do
+        {
+          'preparer_identification' => 'SURVIVING_DEPENDENT',
+          'surviving_dependent_email' => 'a@b.com'
+        }
+      end
+
+      it 'returns the surviving dependent email address' do
+        expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
+      end
+    end
+
+    context 'preparer is anyone else' do
+      let(:data) do
+        {
+          'preparer_identification' => 'space-alien',
+          'veteran_email' => 'a@b.com'
+        }
+      end
+
+      it 'returns the veteran email address' do
+        expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
+      end
+    end
+  end
 end

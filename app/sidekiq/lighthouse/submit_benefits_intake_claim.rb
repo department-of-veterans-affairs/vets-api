@@ -146,7 +146,7 @@ module Lighthouse
         timestamp:,
         page_number: 5,
         size: 9,
-        template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+        template: "#{Burials::MODULE_PATH}/lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
         multistamp: true
       )
     end

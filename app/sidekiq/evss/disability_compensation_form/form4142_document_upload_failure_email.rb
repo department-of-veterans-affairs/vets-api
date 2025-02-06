@@ -10,6 +10,13 @@ module EVSS
       STATSD_METRIC_PREFIX = 'api.form_526.veteran_notifications.form4142_upload_failure_email'
       ZSF_DD_TAG_FUNCTION  = '526_form_4142_upload_failure_email_sending'
 
+      VA_NOTIFY_CALLBACK_OPTIONS = {
+        callback_metadata: {
+          notification_type: 'error',
+          form_number: Form526Submission::FORM_526,
+          statsd_tags: { service: Form526Submission::ZSF_DD_TAG_SERVICE, function: ZSF_DD_TAG_FUNCTION }
+        }
+      }.freeze
       # retry for  2d 1h 47m 12s
       # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
       sidekiq_options retry: 16
@@ -78,13 +85,14 @@ module EVSS
         form526_submission = Form526Submission.find(form526_submission_id)
 
         with_tracking('Form4142DocumentUploadFailureEmail', form526_submission.saved_claim_id, form526_submission_id) do
-          notify_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key)
+          notify_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key,
+                                                VA_NOTIFY_CALLBACK_OPTIONS)
 
           email_address = form526_submission.veteran_email_address
           first_name = form526_submission.get_first_name
           date_submitted = form526_submission.format_creation_time_for_mailers
 
-          notify_response = notify_client.send_email(
+          va_notify_response = notify_client.send_email(
             email_address:,
             template_id: mailer_template_id,
             personalisation: {
@@ -92,8 +100,8 @@ module EVSS
               date_submitted:
             }
           )
-
-          log_mailer_dispatch(form526_submission_id, notify_response)
+          log_info = { form526_submission_id:, timestamp: Time.now.utc, va_notify_response: }
+          log_mailer_dispatch(log_info)
         end
       rescue => e
         retryable_error_handler(e)
@@ -112,17 +120,8 @@ module EVSS
         raise error
       end
 
-      def log_mailer_dispatch(form526_submission_id, email_response = {})
-        log_info = { form526_submission_id:, timestamp: Time.now.utc }
+      def log_mailer_dispatch(log_info)
         Rails.logger.info('Form4142DocumentUploadFailureEmail notification dispatched', log_info)
-
-        cl = caller_locations.first
-        call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
-        zsf_monitor.log_silent_failure_avoided(
-          log_info.merge(email_confirmation_id: email_response&.id),
-          Form526Submission.find(form526_submission_id).user_account_id,
-          call_location:
-        )
         StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
       end
 
