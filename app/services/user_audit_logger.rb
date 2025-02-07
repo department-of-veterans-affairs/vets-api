@@ -27,7 +27,8 @@ class UserAuditLogger
     log_audit_entry
     user_action
   rescue Error => e
-    raise StandardError, "UserAuditLogger error - #{e.message}"
+    Rails.logger.error('UserAuditLogger error', { error: e.message })
+    raise e
   end
 
   private
@@ -40,7 +41,6 @@ class UserAuditLogger
 
   def validate_user_action_event
     raise MissingUserActionEventError, 'User action event must be present' if user_action_event.nil?
-    raise InvalidUserActionEventError, 'User action event must be valid' unless user_action_event.valid?
   end
 
   def validate_subject_verification
