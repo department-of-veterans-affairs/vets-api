@@ -943,7 +943,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             loa3_user.attributes.merge(loa3_user.identity.attributes.merge(uuid: 'invalid', mhv_icn: '11111111111'))
           end
 
-          it 'logs a message to Sentry', :focus do
+          it 'logs a message to Sentry' do
             allow(saml_user).to receive(:changing_multifactor?).and_return(true)
             expect(Sentry).to receive(:set_extras).with(current_user_uuid: uuid, current_user_icn: '11111111111')
             expect(Sentry).to receive(:set_extras).with({ saml_uuid: 'invalid', saml_icn: '11111111111' })
@@ -1032,17 +1032,17 @@ RSpec.describe V1::SessionsController, type: :controller do
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_unknown_error) }
 
         it 'logs a generic error', :aggregate_failures do
+          message_args = ['Login Failed! Other SAML Response Error(s)',
+                          :error,
+                          { extra_context: [{ code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
+                                              tag: :unknown,
+                                              short_message: 'Other SAML Response Error(s)',
+                                              level: :error,
+                                              full_message: 'The status code of the Response was not Success, was Requester =>' \
+                                                            ' NoAuthnContext -> AuthnRequest without an authentication context.' }] }]
           expect(controller).to receive(:log_message_to_sentry)
-            .with(
-              'Login Failed! Other SAML Response Error(s)',
-              :error,
-              extra_context: [{ code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
-                                tag: :unknown,
-                                short_message: 'Other SAML Response Error(s)',
-                                level: :error,
-                                full_message: 'The status code of the Response was not Success, was Requester =>' \
-                                              ' NoAuthnContext -> AuthnRequest without an authentication context.' }]
-            )
+            .with(*message_args)
+
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
@@ -1081,28 +1081,28 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'logs status_detail message to sentry' do
+          message_args = ["<fim:FIMStatusDetail MessageID='could_not_perform_token_exchange'/>",
+                          :error,
+                          { extra_context: [
+                            { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
+                              tag: :unknown,
+                              short_message: 'Other SAML Response Error(s)',
+                              level: :error,
+                              full_message: 'Test1' },
+                            { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
+                              tag: :unknown,
+                              short_message: 'Other SAML Response Error(s)',
+                              level: :error,
+                              full_message: 'Test2' },
+                            { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
+                              tag: :unknown,
+                              short_message: 'Other SAML Response Error(s)',
+                              level: :error,
+                              full_message: 'Test3' }
+                          ] }]
           expect(controller).to receive(:log_message_to_sentry)
-            .with(
-              "<fim:FIMStatusDetail MessageID='could_not_perform_token_exchange'/>",
-              :error,
-              extra_context: [
-                { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
-                  tag: :unknown,
-                  short_message: 'Other SAML Response Error(s)',
-                  level: :error,
-                  full_message: 'Test1' },
-                { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
-                  tag: :unknown,
-                  short_message: 'Other SAML Response Error(s)',
-                  level: :error,
-                  full_message: 'Test2' },
-                { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
-                  tag: :unknown,
-                  short_message: 'Other SAML Response Error(s)',
-                  level: :error,
-                  full_message: 'Test3' }
-              ]
-            )
+            .with(*message_args)
+
           call_endpoint
         end
       end
@@ -1161,21 +1161,21 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'logs a generic error' do
+          message_args = ['Login Failed! Subject did not consent to attribute release Multiple SAML Errors',
+                          :warn,
+                          { extra_context: [{ code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE,
+                                              tag: :clicked_deny,
+                                              short_message: 'Subject did not consent to attribute release',
+                                              level: :warn,
+                                              full_message: 'Subject did not consent to attribute release' },
+                                            { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
+                                              tag: :unknown,
+                                              short_message: 'Other SAML Response Error(s)',
+                                              level: :error,
+                                              full_message: 'Other random error' }] }]
           expect(controller).to receive(:log_message_to_sentry)
-            .with(
-              'Login Failed! Subject did not consent to attribute release Multiple SAML Errors',
-              :warn,
-              extra_context: [{ code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE,
-                                tag: :clicked_deny,
-                                short_message: 'Subject did not consent to attribute release',
-                                level: :warn,
-                                full_message: 'Subject did not consent to attribute release' },
-                              { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
-                                tag: :unknown,
-                                short_message: 'Other SAML Response Error(s)',
-                                level: :error,
-                                full_message: 'Other random error' }]
-            )
+            .with(*message_args)
+
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end
@@ -1224,33 +1224,33 @@ RSpec.describe V1::SessionsController, type: :controller do
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
         it 'logs a generic user validation error', :aggregate_failures do
+          message_args = ['Login Failed! on User/Session Validation',
+                          :error,
+                          { extra_context: {
+                            code: UserSessionForm::VALIDATIONS_FAILED_ERROR_CODE,
+                            tag: :validations_failed,
+                            short_message: 'on User/Session Validation',
+                            level: :error,
+                            uuid: nil,
+                            user: {
+                              valid: false,
+                              errors: ["Uuid can't be blank"]
+                            },
+                            session: {
+                              valid: false,
+                              errors: ["Uuid can't be blank"]
+                            },
+                            identity: {
+                              valid: false,
+                              errors: ["Uuid can't be blank"],
+                              authn_context: 'http://idmanagement.gov/ns/assurance/loa/1/vets',
+                              loa: { current: 1, highest: 1 }
+                            },
+                            mvi: 'breakers is open for MVI'
+                          } }]
           expect(controller).to receive(:log_message_to_sentry)
-            .with(
-              'Login Failed! on User/Session Validation',
-              :error,
-              extra_context: {
-                code: UserSessionForm::VALIDATIONS_FAILED_ERROR_CODE,
-                tag: :validations_failed,
-                short_message: 'on User/Session Validation',
-                level: :error,
-                uuid: nil,
-                user: {
-                  valid: false,
-                  errors: ["Uuid can't be blank"]
-                },
-                session: {
-                  valid: false,
-                  errors: ["Uuid can't be blank"]
-                },
-                identity: {
-                  valid: false,
-                  errors: ["Uuid can't be blank"],
-                  authn_context: 'http://idmanagement.gov/ns/assurance/loa/1/vets',
-                  loa: { current: 1, highest: 1 }
-                },
-                mvi: 'breakers is open for MVI'
-              }
-            )
+            .with(*message_args)
+
           expect(call_endpoint).to redirect_to(expected_redirect)
           expect(response).to have_http_status(:found)
         end

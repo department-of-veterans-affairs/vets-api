@@ -5,8 +5,6 @@ module RandomFile
   pp 'LOADING RANDOM THINGY'
 
   def log_message(message, level, extra_context = {}, _tags_context = {})
-    pp 'running method from random file'
-    # binding.pry
     level = normalize_level(level, nil)
     formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
     rails_logger(level, formatted_message)

@@ -5,8 +5,6 @@ require 'sentry_logging'
 module SentryLogging
   extend self
 
-  pp 'OLD THING LOADING!!!!!!!!!!!!'
-
   def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
     level = normalize_sentry_level(level, nil)
 
