@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'evss/intent_to_file/service'
 
 describe EVSS::IntentToFile::Service do
-  # TODO remove this file
+  # TODO: remove this file
   describe '.find_by_user' do
     subject { described_class.new(user) }
 
