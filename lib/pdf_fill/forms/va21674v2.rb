@@ -952,10 +952,9 @@ module PdfFill
           next unless value.present?
       
           cleaned_value = value.to_s.gsub(/[^0-9]/, '').to_i
-      
           parent_object[key] = {
-            'first' => (cleaned_value / 1000).to_s,
-            'second' => ((cleaned_value / 100) % 10).to_s,
+            'first' => ((cleaned_value % 1000000) / 1000).to_s.rjust(2, '0')[-3..] || '00',
+            'second' => (cleaned_value % 1000).to_s.rjust(3, '0') || '000',
             'third' => '00'
           }
         end
@@ -980,11 +979,11 @@ module PdfFill
           next unless value.present?
       
           cleaned_value = value.to_s.gsub(/[^0-9]/, '').to_i
-      
-          first = (cleaned_value / 100000000).to_s                      # Million
-          second = ((cleaned_value / 100000) % 1000).to_s.rjust(3, '0') # Thousands
-          third = ((cleaned_value / 100) % 1000).to_s.rjust(3, '0')     # Hundreds
-          last = "00"                                                   # Always zero cents
+
+          first = (cleaned_value / 1000000).to_s[-2..],
+          second = ((cleaned_value % 1000000) / 1000).to_s.rjust(3, '0')[-3..],
+          third = (cleaned_value % 1000).to_s.rjust(3, '0'),
+          last = "00" 
       
           parent_object[key] = {
             'first' => first,

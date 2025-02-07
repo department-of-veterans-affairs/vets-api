@@ -47,7 +47,11 @@
           "other_annuities_income": "100",
           "all_other_income": "100"
         },
-        "school_information": {},
+        "school_information": {
+          "isSchoolAccredited": true,
+          "student_is_enrolled_full_time": false
+        },
+        "was_married": false,
         "view:program_examples": {},
         "address": {
           "view:military_base_description": {},
@@ -64,7 +68,8 @@
           "middle": "",
           "last": "Doe"
         },
-        "birth_date": "2001-04-12"
+        "birth_date": "2001-04-12",
+        "tuition_is_paid_by_gov_agency": true
       }
     ],
     "child_stopped_attending_school": [

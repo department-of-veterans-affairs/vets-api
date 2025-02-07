@@ -101,9 +101,6 @@ describe PdfFill::Filler, type: :model do
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
-                puts "Mock returned path: #{extras_path}"
-                # puts "Generated PDF exists? #{File.exist?(extras_path)}"
-                # File.delete(extras_path) if File.exist?(extras_path)
                 expect(
                   FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
                 ).to eq(true)

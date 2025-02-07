@@ -26,7 +26,7 @@ module PdfFillHelper
       if matching_field.nil?
         mismatches << "Field missing in PDF 2: #{field_1[:name]} (Value: #{field_1[:value]})"
       elsif field_1[:value] != matching_field[:value]
-        mismatches << "Field '#{field_1[:name]}' mismatch: PDF 1 = '#{field_1[:value]}', PDF 2 = '#{matching_field[:value]}'"
+        mismatches << "Field '#{field_1[:name]}' mismatch: temp PDF = '#{field_1[:value]}', test PDF = '#{matching_field[:value]}'"
       end
     end
   
