@@ -9,7 +9,7 @@ module V0
     service_tag 'intent-to-file'
 
     before_action :authorize_service
-    before_action :validate_type_param, only: %i[active submit]
+    before_action :validate_type_param, only: %i[submit]
 
     wrap_with_logging(
       :index,
