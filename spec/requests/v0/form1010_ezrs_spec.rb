@@ -133,8 +133,6 @@ RSpec.describe 'V0::Form1010Ezrs', type: :request do
           VCR.use_cassette('example_1', :record => :once) do
             get(veteran_prefill_data_v0_form1010_ezrs_path)
 
-            debugger
-
             expect(response.body.present?).to be(true)
           end
         end

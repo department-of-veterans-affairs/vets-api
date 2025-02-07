@@ -43,8 +43,6 @@ module HCA
           lookup_user_req(icn)
         end
 
-        debugger
-
         financial_info = parse_financial_info(response)
         providers = parse_insurance_providers(response)
         dependents = parse_dependents(response)
@@ -62,8 +60,6 @@ module HCA
         response = with_monitoring do
           lookup_user_req(icn)
         end
-
-        debugger
 
         {
           enrollment_status: get_xpath(
@@ -157,6 +153,7 @@ module HCA
           when 'All Other Income'
             income[:otherIncome] = amount
           end
+        end
 
         income
       end
