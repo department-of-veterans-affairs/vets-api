@@ -9,7 +9,7 @@ module Lighthouse
       include Sidekiq::Job
 
       # No need to retry since the schedule will run this periodically
-      sidekiq_options retry: false
+      sidekiq_options retry: 0
 
       STATSD_KEY_PREFIX = 'worker.cst.delete_evidence_submission_records'
 
