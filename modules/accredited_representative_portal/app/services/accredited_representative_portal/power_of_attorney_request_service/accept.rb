@@ -38,8 +38,8 @@ module AccreditedRepresentativePortal
           service_id: response.body.dig('data', 'id'),
           service_response: response.body.to_json
         )
+        PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
         form_submission
-      # TODO: call PowerOfAttorneyFormSubmissionJob.perform_async(poa_form_submission)
       # Invalid record - return error message with 400
       rescue ActiveRecord::RecordInvalid => e
         raise Error.new(e.message, :bad_request)
