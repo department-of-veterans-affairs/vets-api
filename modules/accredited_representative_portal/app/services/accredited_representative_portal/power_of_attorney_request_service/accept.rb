@@ -35,8 +35,9 @@ module AccreditedRepresentativePortal
           @resolution = poa_request.mark_accepted!(creator, reason)
         end
         response = service.submit2122(form_payload)
-        create_form_submission!(response.body)
-      # TODO: call PowerOfAttorneyFormSubmissionJob.perform_async(form_submission)
+        form_submission = create_form_submission!(response.body)
+        PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
+        form_submission
       # Invalid record - return error message with 400
       rescue ActiveRecord::RecordInvalid => e
         raise Error.new(e.message, :bad_request)
