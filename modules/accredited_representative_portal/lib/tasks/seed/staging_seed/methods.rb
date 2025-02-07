@@ -10,9 +10,8 @@ module AccreditedRepresentativePortal
 
     module RequestMethods
       def create_claimants(count = 10)
-        Array.new(count) do
-          FactoryBot.create(:user_account)
-        end
+        # just grab users to be claimants
+        UserAccount.limit(count).to_a
       end
 
       def create_request_with_resolution(options)
@@ -188,6 +187,12 @@ module AccreditedRepresentativePortal
     module Methods
       include RequestMethods
       include OrganizationMethods
+
+      def cleanup_existing_data
+        AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.destroy_all
+        AccreditedRepresentativePortal::PowerOfAttorneyForm.destroy_all
+        AccreditedRepresentativePortal::PowerOfAttorneyRequest.destroy_all
+      end
     end
   end
 end

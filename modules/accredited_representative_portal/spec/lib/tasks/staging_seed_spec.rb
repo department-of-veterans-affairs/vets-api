@@ -4,6 +4,9 @@ require 'rails_helper'
 require_relative '../../../lib/tasks/seed/staging_seed'
 
 RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
+  # claimants
+  let!(:test_accounts) { create_list(:user_account, 10) }
+
   # Digital VSOs
   let!(:ct_digital_org) do
     create(:organization,
@@ -87,6 +90,13 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
       expect(requests).to exist
       # veroify no org
       expect(requests).to(be_all { |req| req.accredited_organization.blank? })
+    end
+
+    it 'creates requests with proper claimant data' do
+      requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest.all
+
+      expect(requests).to(be_all { |req| req.claimant.is_a?(UserAccount) })
+      expect(requests).to(be_all { |req| req.claimant_type == 'veteran' })
     end
 
     it 'creates requests for multi-org reps' do

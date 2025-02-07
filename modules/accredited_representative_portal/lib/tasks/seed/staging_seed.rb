@@ -11,6 +11,8 @@ module AccreditedRepresentativePortal
 
       def run
         ActiveRecord::Base.transaction do
+          cleanup_existing_data
+
           options = build_seeding_options
           orgs = fetch_organizations
           process_organizations(orgs, options)
