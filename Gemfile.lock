@@ -224,6 +224,11 @@ GEM
       fiddle
     ast (2.4.2)
     attr_extras (7.1.0)
+    avro (1.12.0)
+      multi_json (~> 1.0)
+    avro_turf (1.18.0)
+      avro (>= 1.11.3, < 1.13)
+      excon (~> 0.104)
     awesome_print (1.9.2)
     aws-eventstream (1.3.0)
     aws-msk-iam-sasl-signer (0.1.1)
@@ -417,6 +422,7 @@ GEM
       tzinfo
     ethon (0.16.0)
       ffi (>= 1.15.0)
+    excon (0.112.0)
     factory_bot (6.5.0)
       activesupport (>= 5.0.0)
     factory_bot_rails (6.4.4)
@@ -1154,6 +1160,7 @@ DEPENDENCIES
   appeals_api!
   apps_api!
   ask_va_api!
+  avro_turf
   avs!
   awesome_print
   aws-msk-iam-sasl-signer (~> 0.1.1)
