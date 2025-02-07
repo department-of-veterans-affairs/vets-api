@@ -656,7 +656,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         let(:expected_audit_log_payload) do
           { user_action_event: user_action_event.id,
             user_action_event_details: user_action_event.details,
-            status: 'success',
+            status: :success,
             user_action: user_action.id }
         end
 
@@ -672,7 +672,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(UserAuditLogger).to receive(:new).with(user_action_event:,
                                                         acting_user_verification: user.user_verification,
                                                         subject_user_verification: user.user_verification,
-                                                        status: 'success',
+                                                        status: :success,
                                                         acting_ip_address: expected_ip_address,
                                                         acting_user_agent: expected_user_agent)
           expect(Rails.logger).to receive(:info).with(expected_audit_log, expected_audit_log_payload)
@@ -741,7 +741,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         let(:expected_audit_log_payload) do
           { user_action_event: user_action_event.id,
             user_action_event_details: user_action_event.details,
-            status: 'success',
+            status: :success,
             user_action: user_action.id }
         end
 
@@ -757,7 +757,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(UserAuditLogger).to receive(:new).with(user_action_event:,
                                                         acting_user_verification: user.user_verification,
                                                         subject_user_verification: user.user_verification,
-                                                        status: 'success',
+                                                        status: :success,
                                                         acting_ip_address: expected_ip_address,
                                                         acting_user_agent: expected_user_agent)
           expect(Rails.logger).to receive(:info).with(expected_audit_log, expected_audit_log_payload)

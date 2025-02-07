@@ -49,7 +49,7 @@ RSpec.describe SignIn::TokenResponseGenerator do
       let(:expected_audit_log_payload) do
         { user_action_event: user_action_event.id,
           user_action_event_details: user_action_event.details,
-          status: 'success',
+          status: :success,
           user_action: user_action.id }
       end
 
@@ -77,7 +77,7 @@ RSpec.describe SignIn::TokenResponseGenerator do
         expect(UserAuditLogger).to have_received(:new).with(user_action_event:,
                                                             acting_user_verification: user_verification,
                                                             subject_user_verification: user_verification,
-                                                            status: 'success',
+                                                            status: :success,
                                                             acting_ip_address: remote_ip,
                                                             acting_user_agent: user_agent)
         expect(Rails.logger).to have_received(:info).with(expected_audit_log, expected_audit_log_payload).once

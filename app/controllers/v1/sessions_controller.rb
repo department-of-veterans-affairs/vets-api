@@ -419,7 +419,7 @@ module V1
       UserAuditLogger.new(user_action_event:,
                           acting_user_verification: user_verification,
                           subject_user_verification: user_verification,
-                          status: 'success',
+                          status: :success,
                           acting_ip_address: cookies.request.remote_ip,
                           acting_user_agent: cookies.request.user_agent).perform
     end
