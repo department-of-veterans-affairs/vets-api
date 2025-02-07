@@ -12,7 +12,6 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
   end
 
   before do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
     Flipper.disable(:disability_compensation_production_tester)
   end
 

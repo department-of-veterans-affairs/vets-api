@@ -11,7 +11,6 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
 
   before do
     Sidekiq::Job.clear_all
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
     allow(Flipper).to receive(:enabled?).with(:form526_send_backup_submission_exhaustion_email_notice).and_return(false)
   end
 

@@ -11,11 +11,6 @@ RSpec.describe LighthouseGeneratePdfProvider do
 
   before do
     @provider = LighthouseGeneratePdfProvider.new(auth_headers)
-    Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
-  end
-
-  after do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
   end
 
   it_behaves_like 'generate pdf service provider'
