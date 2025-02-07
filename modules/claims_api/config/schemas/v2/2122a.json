@@ -116,7 +116,7 @@
               "pattern": "^\\d(?:[- ]?\\d){0,13}$",
               "example": "555-5555",
               "minLength": 1,
-              "maxLength": 14
+              "maxLength": 23
             }
           },
           "if": {
@@ -226,7 +226,7 @@
               "pattern": "^\\d(?:[- ]?\\d){0,13}$",
               "example": "555-5555",
               "minLength": 1,
-              "maxLength": 14
+              "maxLength": 23
             }
           },
           "if": {
