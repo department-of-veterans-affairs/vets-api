@@ -29,13 +29,13 @@ module AppealsApi
           }.freeze
 
           HOMELESS_LIVING_SITUATION = [
-            'I live or sleep in a place that is not meant for regular sleeping',
-            'I live in a shelter',
-            'I am staying with a friend or family member, because I am unable to own a home right now',
-            'In the next 30 days, I will have to leave a facility, like a homeless shelter',
-            'In the next 30 days, I will lose my home',
-            'None of these situations apply to me',
-            'Other'
+            'I LIVE OR SLEEP IN A PLACE THAT IS NOT MEANT FOR REGULAR SLEEPING',
+            'I LIVE IN A SHELTER',
+            'I AM STAYING WITH A FRIEND OR FAMILY MEMBER, BECAUSE I AM UNABLE TO OWN A HOME RIGHT NOW',
+            'IN THE NEXT 30 DAYS, I WILL HAVE TO LEAVE A FACILITY, LIKE A HOMELESS SHELTER',
+            'IN THE NEXT 30 DAYS, I WILL LOSE MY HOME',
+            'NONE OF THESE SITUATIONS APPLY TO ME',
+            'OTHER'
           ].freeze
 
           TREATMENT_LOCATIONS = [
