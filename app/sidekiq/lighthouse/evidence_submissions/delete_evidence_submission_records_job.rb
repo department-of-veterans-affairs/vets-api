@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'lighthouse/benefits_documents/constants'
 
 module Lighthouse
   module EvidenceSubmissions
@@ -14,7 +15,10 @@ module Lighthouse
 
       def perform
         record_count = EvidenceSubmission.all.count
-        deleted_records = EvidenceSubmission.where(delete_date: ..DateTime.now).destroy_all
+        deleted_records = EvidenceSubmission.where(
+          delete_date: ..DateTime.now,
+          upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]
+        ).destroy_all
 
         StatsD.increment("#{STATSD_KEY_PREFIX}.count", deleted_records.size)
         Rails.logger.info("#{self.class} deleted #{deleted_records.size} of #{record_count} EvidenceSubmission records")
