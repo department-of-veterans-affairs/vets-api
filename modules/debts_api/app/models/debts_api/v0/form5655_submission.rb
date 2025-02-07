@@ -75,9 +75,7 @@ module DebtsApi
         StatsD.increment("#{STATS_KEY}.vha.success")
       else
         # we are not registering a failure for Sharepoint requests
-        unless status.failure_info.include?('SharepointRequest')
-          submission.register_failure("VHA set completed state: #{status.failure_info}")
-        end
+        submission.register_failure("VHA set completed state: #{status.failure_info}")
         StatsD.increment("#{STATS_KEY}.vha.failure")
         Rails.logger.error('Batch FSR Processing Failed', status.failure_info)
       end
@@ -91,7 +89,7 @@ module DebtsApi
       update(error_message: message)
       Rails.logger.error("Form5655Submission id: #{id} failed", message)
       StatsD.increment("#{STATS_KEY}.failure")
-      StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:register_failure])
+      alert_silent_error unless message.include?('SharepointRequest')
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
       begin
         send_failed_form_email
@@ -99,6 +97,10 @@ module DebtsApi
         StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue.failure")
         Rails.logger.error("Failed to send failed form email: #{e.message}")
       end
+    end
+
+    def alert_silent_error
+      StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:register_failure])
     end
 
     def send_failed_form_email
