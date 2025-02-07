@@ -13,7 +13,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     Sidekiq::Job.clear_all
     allow(Flipper).to receive(:enabled?).with(:form526_send_backup_submission_exhaustion_email_notice).and_return(false)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
-                                                              .and_return('access_token')
+      .and_return('access_token')
   end
 
   let(:user) { create(:user, :loa3) }

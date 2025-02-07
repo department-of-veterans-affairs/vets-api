@@ -25,7 +25,7 @@ RSpec.describe LighthouseGeneratePdfProvider do
   before do
     @provider = LighthouseGeneratePdfProvider.new(user.icn)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
-                                                              .and_return('access_token')
+      .and_return('access_token')
   end
 
   it_behaves_like 'generate pdf service provider'
@@ -33,7 +33,7 @@ RSpec.describe LighthouseGeneratePdfProvider do
   it 'retrieves a generated 526 pdf from the Lighthouse API' do
     VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
       response = @provider.generate_526_pdf(submission.form['form526'].to_json, 'something')
-      expect(response).not_to eq(nil)
+      expect(response).not_to be_nil
     end
   end
 end

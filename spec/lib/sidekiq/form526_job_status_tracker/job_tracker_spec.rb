@@ -14,7 +14,7 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
   before do
     Flipper.disable(:disability_compensation_production_tester)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
-                                                              .and_return('access_token')
+      .and_return('access_token')
   end
 
   context 'with an exhausted callback message' do

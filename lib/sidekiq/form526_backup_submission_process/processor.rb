@@ -431,7 +431,7 @@ module Sidekiq
       end
 
       # 82245 - Adding provider to method. this should be removed when toxic exposure flipper is removed
-      def choose_provider(headers, provider, breakered: true)
+      def choose_provider(headers, _provider, breakered: true)
         ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:generate_pdf],
           provider: :lighthouse,
