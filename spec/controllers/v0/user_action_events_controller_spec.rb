@@ -22,16 +22,53 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
     end
 
     context 'when there are user actions' do
-      let(:user_action_event) { create(:user_action_event, details: 'Sample event') }
-      let(:user_action) do
-        create(:user_action, subject_user_verification_id: user_verification.id, user_action_event: user_action_event)
+      let(:user_action_event_one) { create(:user_action_event, details: 'Sample event 1') }
+      let(:user_action_event_two) { create(:user_action_event, details: 'Sample event 2') }
+
+      let!(:user_action_one) do
+        create(:user_action, subject_user_verification_id: user_verification.id,
+                             user_action_event: user_action_event_one, created_at: 2.days.ago)
       end
+      let!(:user_action_two) do
+        create(:user_action, subject_user_verification_id: user_verification.id,
+                             user_action_event: user_action_event_two, created_at: 1.day.ago)
+      end
+      let!(:user_action_three) do
+        create(:user_action, subject_user_verification_id: user_verification.id,
+                             user_action_event: user_action_event_one, created_at: 5.days.ago)
+      end
+
       let(:page) { 1 }
-      let(:per_page) { 10 }
+      let(:per_page) { 4 }
 
       it 'returns a successful response' do
         get :index, params: { start_date: 1.month.ago.to_date, end_date: Time.zone.today }
         expect(response).to have_http_status(:success)
+      end
+
+      it 'filters user actions based on the date range' do
+        create(:user_action,
+               created_at: 2.days.ago,
+               subject_user_verification_id: user_verification.id,
+               user_action_event: user_action_event_one)
+        create(:user_action,
+               created_at: 1.day.ago,
+               subject_user_verification_id: user_verification.id,
+               user_action_event: user_action_event_two)
+        create(:user_action,
+               created_at: 5.days.ago,
+               subject_user_verification_id: user_verification.id,
+               user_action_event: user_action_event_one)
+
+        get :index, params: { start_date: 3.days.ago.to_date, end_date: Time.zone.today }
+
+        expect(response).to have_http_status(:success)
+
+        json_response = JSON.parse(response.body)
+        puts json_response.length
+        expect(json_response.length).to eq(4)
+        expect(json_response.first['user_action_event']['details']).to eq('Sample event 2')
+        expect(json_response.third['user_action_event']['details']).to eq('Sample event 1')
       end
     end
   end
