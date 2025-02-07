@@ -1,0 +1,35 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <DISABILITY_MAX_RATINGS_URI>/disability-max-ratings
+    body:
+      encoding: UTF-8
+      string: '{"diagnostic_codes":[6260]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 10 Aug 2023 19:52:23 GMT
+      Server:
+      - uvicorn
+      Content-Length:
+      - '56'
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"ratings":[{"diagnostic_code":6260,"max_rating":10.0}]}'
+  recorded_at: Thu, 10 Aug 2023 19:52:24 GMT
+recorded_with: VCR 6.2.0

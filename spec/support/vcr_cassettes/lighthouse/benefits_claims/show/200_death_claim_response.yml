@@ -1,0 +1,142 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/claims/600229972
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer fake_access_token
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 28 Feb 2023 21:02:39 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '25'
+      Etag:
+      - W/"6571c42e57529000188d704a3cd1f46a"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - b20885293917fd081d24899644d2718d2ab4ccf9
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - d687047e-5004-43c1-babb-c2f52f2fda40
+      X-Runtime:
+      - '3.569014'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Upstream-Latency:
+      - '3573'
+      X-Kong-Proxy-Latency:
+      - '24'
+      Via:
+      - kong/3.0.2
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+                 "data":{
+                    "id":"600229972",
+                    "type":"claim",
+                    "attributes":{
+                       "claimTypeCode":"020NEW",
+                       "claimDate":"2022-09-27",
+                       "claimPhaseDates":{
+                          "phaseChangeDate":"2022-09-30",
+                          "currentPhaseBack":false,
+                          "latestPhaseType":"GATHERING_OF_EVIDENCE",
+                          "previousPhases":{
+                             "phase2CompleteDate":"2022-09-30",
+                             "phase1CompleteDate":"2022-09-30"
+                          }
+                       },
+                       "claimType":"Death",
+                       "closeDate":null,
+                       "contentions":[
+                          {
+                             "name":"Accommodation, paralysis of (eye) (New)"
+                          }
+                       ],
+                       "decisionLetterSent":false,
+                       "developmentLetterSent":true,
+                       "documentsNeeded":true,
+                       "endProductCode":"404",
+                       "evidenceWaiverSubmitted5103":false,
+                       "errors":[
+                          
+                       ],
+                       "jurisdiction":"National Work Queue",
+                       "lighthouseId":null,
+                       "maxEstClaimDate":"2023-08-14",
+                       "minEstClaimDate":"2023-03-22",
+                       "status":"EVIDENCE_GATHERING_REVIEW_DECISION",
+                       "submitterApplicationCode":"VBMS",
+                       "submitterRoleCode":"VBA",
+                       "supportingDocuments":[],
+                       "tempJurisdiction":null,
+                       "trackedItems":[
+                          {
+                              "closedDate": null,
+                              "description": "Please complete and return the enclosed VA Form 21-4142, Authorization to Disclose Information, so that we can obtain the authorization to request treatment records from your private medical sources listed on the received VA Form 21-4142a, General Release for Medical Provider Information.\n",
+                              "displayName": "PMR Pending",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2023-03-16",
+                              "suspenseDate": "2023-04-15",
+                              "id": 395084,
+                              "status": "NEEDED_FROM_YOU",
+                              "uploaded": true,
+                              "uploadsAllowed": true
+                           }
+                       ]
+                    }
+                 }
+              }'
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
+recorded_with: VCR 6.1.0
