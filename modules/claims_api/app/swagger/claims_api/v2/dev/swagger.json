@@ -14560,9 +14560,7 @@
                     "attributes": {
                       "createdAt": "2025-02-05T21:37:11.866Z",
                       "representative": {
-                        "serviceOrganization": {
-                          "poaCode": "074"
-                        }
+                        "poaCode": "074"
                       },
                       "status": "pending",
                       "errors": [],
@@ -14710,21 +14708,12 @@
                               "type": "object",
                               "additionalProperties": false,
                               "required": [
-                                "serviceOrganization"
+                                "poaCode"
                               ],
                               "properties": {
-                                "serviceOrganization": {
-                                  "type": "object",
-                                  "additionalProperties": true,
-                                  "required": [
-                                    "poaCode"
-                                  ],
-                                  "properties": {
-                                    "poa_code": {
-                                      "type": "string",
-                                      "description": "Power of Attorney Code submitted for Veteran"
-                                    }
-                                  }
+                                "poaCode": {
+                                  "type": "string",
+                                  "description": "Power of Attorney Code submitted for Veteran"
                                 }
                               }
                             }
