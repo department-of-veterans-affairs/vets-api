@@ -235,6 +235,21 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
         form5655_submission.register_failure(message)
         expect(form5655_submission.error_message).to eq(message)
       end
+
+      it 'alerts silent error when not sharepoint error' do
+        expect(form5655_submission).to receive(:alert_silent_error)
+        form5655_submission.register_failure(message)
+      end
+
+      it 'does not alert silent error when sharepoint error' do
+        message =
+          "VHA set completed state: [#<struct Sidekiq::Batch::Status::Failure jid=\"058f2988d02722166392ff66\", " \
+            "error_class=\"Common::Exceptions::BackendServiceException\", " \
+            "error_message=\"BackendServiceException: {:status=>500, :detail=>\\\"Internal Server Error\\\", " \
+            ":source=>\\\"SharepointRequest\\\", :code=>\\\"SHAREPOINT_PDF_502\\\"}\", backtrace=nil>]"
+        expect(form5655_submission).not_to receive(:alert_silent_error)
+        form5655_submission.register_failure(message)
+      end
     end
   end
 
