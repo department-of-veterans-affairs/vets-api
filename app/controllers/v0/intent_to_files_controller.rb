@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/intent_to_file/service'
+require 'evss/intent_to_file/response_strategy'
 require 'disability_compensation/factories/api_provider_factory'
 require 'logging/third_party_transaction'
 
@@ -29,7 +31,7 @@ module V0
     def index
       intent_to_file_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:intent_to_file],
-        provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
+        provider: :lighthouse,
         options: {},
         current_user: @current_user,
         feature_toggle: nil
@@ -44,10 +46,17 @@ module V0
       render json: IntentToFileSerializer.new(response)
     end
 
+    # def active
+    #   # DBEX team 1 thinks this is unused
+    #   # # check dd to see if getting hit, ITF action:active
+    #   response = strategy.cache_or_service(@current_user.uuid, params[:type]) { service.get_active(params[:type]) }
+    #   render json: IntentToFileSerializer.new(response)
+    # end
+
     def submit
       intent_to_file_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:intent_to_file],
-        provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
+        provider: :lighthouse,
         options: {},
         current_user: @current_user,
         feature_toggle: nil
@@ -88,5 +97,13 @@ module V0
       raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
         TYPES.include?(params[:type])
     end
+
+    # def service
+    #   EVSS::IntentToFile::Service.new(@current_user)
+    # end
+    #
+    # def strategy
+    #   EVSS::IntentToFile::ResponseStrategy.new
+    # end
   end
 end
