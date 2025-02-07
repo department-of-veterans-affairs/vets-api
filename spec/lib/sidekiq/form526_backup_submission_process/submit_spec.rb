@@ -12,6 +12,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   before do
     Sidekiq::Job.clear_all
     allow(Flipper).to receive(:enabled?).with(:form526_send_backup_submission_exhaustion_email_notice).and_return(false)
+    allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
+                                                              .and_return('access_token')
   end
 
   let(:user) { create(:user, :loa3) }
@@ -239,7 +241,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
         submission.saved_claim.form = new_form_data.to_json
         submission.saved_claim.save
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-          VCR.use_cassette('form526_backup/200_evss_get_pdf') do
+          VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
               jid = subject.perform_async(submission.id)
               last = subject.jobs.last
