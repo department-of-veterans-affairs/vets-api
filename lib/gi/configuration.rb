@@ -20,7 +20,7 @@ module GI
     end
 
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+      Faraday.new(base_path, headers: request_headers, request: request_options) do |conn|
         conn.use :breakers
         conn.request :json
         # Uncomment this out for generating curl output
@@ -34,6 +34,12 @@ module GI
 
         conn.adapter Faraday.default_adapter
       end
+    end
+
+    private
+
+    def request_headers
+      base_request_headers
     end
   end
 end

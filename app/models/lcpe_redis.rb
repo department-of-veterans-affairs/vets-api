@@ -9,12 +9,17 @@ class LCPERedis < Common::RedisStore
 
   redis_config_key :lcpe_response
 
-  def response_from_redis_or_service(key:, response:)
-    # self.class.delete(key) if response.response_headers['invalidate-redis-cache']
-    self.class.delete(key) if true
+  def response_from(key:, v_client:, response:)
+    v_gids = response.response_headers['Etag']
 
-    do_cached_with(key:) do
-      GI::LCPE::Response.from(response)
+    case response.status
+    when 304
+      cached_response = self.class.find(key) unless v_client == v_gids
+      GI::LCPE::Response.from(cached_response || response)
+    else
+      do_cached_with(key:) do
+        GI::LCPE::Response.from(response:, latest_version: v_gids)
+      end
     end
   end
 end

@@ -8,7 +8,11 @@ module V1
       private
 
       def service
-        GI::LCPE::Client.new
+        GI::LCPE::Client.new(version_id: version_id, lcpe_type: controller_name)
+      end
+
+      def version_id
+        request.headers['If-None-Match'] || params[:version]
       end
     end
   end

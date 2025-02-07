@@ -5,7 +5,11 @@ module V1
     module LCPE
       class ExamsController < GIDS::LCPEController
         def index
-          render json: service.get_exams_v1(scrubbed_params)
+          render (
+            json: service.get_exams_v1(scrubbed_params).tap do |exams|
+              response.set_header('ETag', exams.version)
+            end
+          )
         end
 
         def show
