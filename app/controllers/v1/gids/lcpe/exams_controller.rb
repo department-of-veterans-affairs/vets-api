@@ -5,15 +5,21 @@ module V1
     module LCPE
       class ExamsController < GIDS::LCPEController
         def index
-          render (
-            json: service.get_exams_v1(scrubbed_params).tap do |exams|
-              response.set_header('ETag', exams.version)
-            end
-          )
+          exams = service.get_exams_v1(scrubbed_params)
+          set_etag(exams.version) if versioning_required?
+          render json: exams
         end
 
         def show
           render json: service.get_exam_details_v1(scrubbed_params)
+        end
+
+        private
+
+        # versioning currently disabled for exams#show
+        # exclude :version (and not :id) from params
+        def versioning_required?
+          super && scrubbed_params.except(:version).blank?
         end
       end
     end
