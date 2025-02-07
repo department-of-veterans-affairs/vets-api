@@ -5,6 +5,7 @@ require 'evss/intent_to_file/response_strategy'
 require 'evss/intent_to_file/service'
 
 describe EVSS::IntentToFile::ResponseStrategy do
+  # TODO remove this file
   let(:user) { build(:user, :loa3) }
   let(:service) { EVSS::IntentToFile::Service.new(user) }
   let(:faraday_response) { instance_double(Faraday::Response) }
