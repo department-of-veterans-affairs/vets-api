@@ -620,6 +620,7 @@ app/uploaders/vets_shrine.rb @department-of-veterans-affairs/va-api-engineers @d
 app/validators/token_util.rb @department-of-veterans-affairs/backend-review-group
 app/uploaders/simple_forms_api/ @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/account_login_statistics_job.rb @department-of-veterans-affairs/octo-identity
+app/sidekiq/accredited_representative_portal/power_of_attorney_form_submission_job.rb @department-of-veterans-affairs/benefits-accredited-rep-facing-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/benefits_intake_remediation_status_job.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/benefits_intake_status_job.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/bgs @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group

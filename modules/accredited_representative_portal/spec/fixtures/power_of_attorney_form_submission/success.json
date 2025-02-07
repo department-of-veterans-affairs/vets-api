@@ -1,0 +1,38 @@
+{
+  "data": {
+    "id": "a4dd5bb0-d47b-4ca9-9afc-d7ce6a820985",
+    "type": "claimsApiPowerOfAttorneys",
+    "attributes": {
+      "dateRequestAccepted": "2025-01-16",
+      "previousPoa": "-",
+      "representative": {
+        "veteran": {
+          "address": {
+            "addressLine1": "123",
+            "addressLine2": "2a",
+            "city": "city",
+            "countryCode": "US",
+            "stateCode": "OR",
+            "zipCode": "12345",
+            "zipCodeSuffix": "6789"
+          }
+        },
+        "representative": {
+          "poaCode": "067",
+          "registrationNumber": "999999999999",
+          "type": "ATTORNEY",
+          "address": {
+            "addressLine1": "123",
+            "addressLine2": "2a",
+            "city": "city",
+            "countryCode": "US",
+            "stateCode": "OR",
+            "zipCode": "12345",
+            "zipCodeSuffix": "6789"
+          }
+        }
+      },
+      "status": "pending"
+    }
+  }
+}

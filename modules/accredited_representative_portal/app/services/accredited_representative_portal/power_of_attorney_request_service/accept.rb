@@ -25,8 +25,10 @@ module AccreditedRepresentativePortal
           service_id: response.body.dig('data', 'id'),
           service_response: response.body.to_json
         )
-        form_submission
-      # TODO: call PowerOfAttorneyFormSubmissionJob.perform_async(poa_form_submission)
+
+        form_submission.tap do |s|
+          PowerOfAttorneyFormSubmissionJob.perform_async(s.id)
+        end
       # Transient 5xx errors: delete objects created, re-raise error
       rescue *transient_error_types => e
         form_submission.delete
