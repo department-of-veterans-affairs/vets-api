@@ -39,11 +39,11 @@ module AppealsApi
           ].freeze
 
           TREATMENT_LOCATIONS = [
-            'Private health care provider',
-            'Va vet center',
-            'Community care',
-            'Va medical centers (VAMC) and community-based outpatient clinics (CBOC)',
-            'Department of defense (DOD) militart treatment facility(IES) (MTF)',
+            'PRIVATE HEALTH CARE PROVIDER',
+            'VA VET CENTER',
+            'COMMUNITY CARE',
+            'VA MEDICAL CENTERS (VAMC) AND COMMUNITY-BASED OUTPATIENT CLINICS (CBOC)',
+            'DEPARTMENT OF DEFENSE (DOD) MILITARY TREATMENT FACILITY(IES) (MTF)',
             'Other'
           ].freeze
 
