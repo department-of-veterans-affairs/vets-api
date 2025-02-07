@@ -3,6 +3,7 @@
 require 'hca/service'
 require 'bgs/service'
 require 'pdf_fill/filler'
+require 'lighthouse/facilities/v1/client'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
@@ -109,7 +110,11 @@ module V0
     end
 
     def lighthouse_facilities_service
-      @lighthouse_facilities_service ||= FacilitiesApi::V2::Lighthouse::Client.new
+      if Flipper.enabled?(:hca_ez_use_facilities_v2)
+        @lighthouse_facilities_service ||= FacilitiesApi::V2::Lighthouse::Client.new
+      end
+
+      @lighthouse_facilities_service ||= Lighthouse::Facilities::V1::Client.new
     end
 
     def lighthouse_facilities_params
