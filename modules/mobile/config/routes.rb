@@ -83,6 +83,7 @@ Mobile::Engine.routes.draw do
     post '/push/send', to: 'push_notifications#send_notification'
     get '/translations/download', to: 'translations#download'
     get '/user', to: 'users#show'
+    get '/user_action_events', to: 'user_action_events#index'
     get '/user/authorized-services', to: 'authorized_services#index'
     get '/user/contact-info', to: 'contact_info#show'
     post '/user/logged-in', to: 'users#logged_in'
