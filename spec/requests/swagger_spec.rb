@@ -1275,6 +1275,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'intent to file' do
+      let(:mhv_user) { create(:user, :loa3) }
       before do
         Flipper.disable('disability_compensation_production_tester')
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
