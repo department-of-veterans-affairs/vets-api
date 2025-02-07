@@ -943,7 +943,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             loa3_user.attributes.merge(loa3_user.identity.attributes.merge(uuid: 'invalid', mhv_icn: '11111111111'))
           end
 
-          it 'logs a message to Sentry' do
+          it 'logs a message to Sentry', :focus do
             allow(saml_user).to receive(:changing_multifactor?).and_return(true)
             expect(Sentry).to receive(:set_extras).with(current_user_uuid: uuid, current_user_icn: '11111111111')
             expect(Sentry).to receive(:set_extras).with({ saml_uuid: 'invalid', saml_icn: '11111111111' })

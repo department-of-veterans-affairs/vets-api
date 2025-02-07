@@ -2,6 +2,7 @@
 
 require 'feature_flipper'
 require 'aes_256_cbc_encryptor'
+require 'random_file'
 
 class ApplicationController < ActionController::API
   include AuthenticationAndSSOConcerns
@@ -10,8 +11,8 @@ class ApplicationController < ActionController::API
   include Headers
   include Instrumentation
   include Pundit::Authorization
-  include Logging
   include ControllerLoggingContext
+  include RandomFile
   include SentryLogging
   include SentryControllerLogging
   include Traceable

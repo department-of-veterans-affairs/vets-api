@@ -2,7 +2,7 @@
 
 module FormAttachmentCreate
   extend ActiveSupport::Concern
-  include Logging
+  include RandomFile
   include SentryLogging
 
   def create

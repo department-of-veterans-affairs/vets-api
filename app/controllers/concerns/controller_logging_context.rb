@@ -2,7 +2,7 @@
 
 module ControllerLoggingContext
   extend ActiveSupport::Concern
-
+  pp 'LOADING THE CONTEXT THINGY'
   included { before_action :set_context }
 
   private

@@ -77,6 +77,7 @@ module SignIn
       message_args = [error.message, :error, context]
       log_message(*message_args)
       log_message_to_sentry(*message_args)
+      render json: { errors: error }, status: :unauthorized
     end
 
     def scrub_bearer_token

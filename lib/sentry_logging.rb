@@ -5,8 +5,10 @@ require 'sentry_logging'
 module SentryLogging
   extend self
 
+  pp 'OLD THING LOADING!!!!!!!!!!!!'
+
   def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
-    level = normalize_level(level, nil)
+    level = normalize_sentry_level(level, nil)
 
     if Settings.sentry.dsn.present?
       set_sentry_metadata(extra_context, tags_context)
@@ -15,7 +17,7 @@ module SentryLogging
   end
 
   def log_exception_to_sentry(exception, extra_context = {}, tags_context = {}, level = 'error')
-    level = normalize_level(level, exception)
+    level = normalize_sentry_level(level, exception)
 
     if Settings.sentry.dsn.present?
       set_sentry_metadata(extra_context, tags_context)
@@ -23,7 +25,7 @@ module SentryLogging
     end
   end
 
-  def normalize_level(level, exception)
+  def normalize_sentry_level(level, exception)
     # https://docs.sentry.io/platforms/ruby/usage/set-level/
     # valid sentry levels: log, debug, info, warning, error, fatal
     level = case exception

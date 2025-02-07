@@ -8,6 +8,7 @@ module SentryControllerLogging
   private
 
   def set_tags_and_extra_context
+    # binding.pry
     Sentry.set_extras(request_uuid: request.uuid)
     Sentry.set_user(user_context) if current_user
     Sentry.set_tags(tags_context)

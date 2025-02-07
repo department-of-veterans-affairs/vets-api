@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
-module Logging
-  module_function
+module RandomFile
+  extend ActiveSupport::Concern
+  pp 'LOADING RANDOM THINGY'
 
   def log_message(message, level, extra_context = {}, _tags_context = {})
+    pp 'running method from random file'
+    # binding.pry
     level = normalize_level(level, nil)
     formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
     rails_logger(level, formatted_message)
@@ -21,12 +24,16 @@ module Logging
   end
 
   def normalize_level(level, exception)
-    case exception
-    when Pundit::NotAuthorizedError
-      'info'
-    else
-      level.to_s
-    end
+    level = case exception
+            when Pundit::NotAuthorizedError
+              'info'
+            else
+              level.to_s
+            end
+
+    return 'warn' if level == 'warning'
+
+    level
   end
 
   def rails_logger(level, message, errors = nil, backtrace = nil)
