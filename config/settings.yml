@@ -250,6 +250,9 @@ pension_burial:
   sftp:
     relative_path: "../VETSGOV_PENSION"
 
+bpds:
+  jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
+
 central_mail:
   upload:
     enabled: true
@@ -289,6 +292,9 @@ vet360:
     url: "https://sandbox-api.va.gov"
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
+  v3:
+    address_validation:
+      api_key: "<AV_KEY>"
   profile_information:
     enabled: true
     timeout: 30
@@ -1173,7 +1179,11 @@ vanotify:
         form40_0247_confirmation_email: form40_0247_confirmation_email_template_id
         form40_0247_error_email: form40_0247_error_email_template_id
         form40_10007_error_email: form40_10007_error_email_template_id
+        form_upload_confirmation_email: form_upload_confirmation_template_id
+        form_upload_error_email: form_upload_error_template_id
+        form_upload_received_email: form_upload_received_template_id
         form526_confirmation_email: fake_template_id
+        form526_submitted_email: fake_template_id
         form526_submission_failed_email: fake_template_id
         form5490_confirmation_email: form5490_confirmation_email_template_id
         form5495_confirmation_email: form5495_confirmation_email_template_id
@@ -1294,9 +1304,11 @@ vanotify:
   status_callback:
     bearer_token: fake_bearer_token
   service_callback_tokens:
-    service_name: service_name_fake_bearer_token
-    other_service: other_service_fake_bearer_token
-    third_service: third_service_fake_bearer_token
+    va_gov: va_gov_token
+    1010_health_apps: 1010_health_apps_token
+    ivc_forms: ivc_forms_token
+    benefits_disability: benefits_disability_token
+
 
 # Settings for connecting AFS Veteran Services
 # For locahost we can use the existing certs as long as we don't call out
@@ -1508,6 +1520,18 @@ virtual_regional_office:
   vagov_classification_path: contention-classification/va-gov-claim-classifier
   expanded_classification_path: contention-classification/expanded-contention-classification
   max_cfi_path: employee-experience/max-ratings
+
+disability_max_ratings_api:
+  url: http://disability-max-ratings-api-dev.vfs.va.gov
+  ratings_path: /disability-max-ratings
+  open_timeout: 5
+  read_timeout: 10
+
+contention_classification_api:
+  url: http://contention-classification-api-dev.vfs.va.gov/
+  expanded_contention_classification_path: expanded-contention-classification
+  open_timeout: 5
+  read_timeout: 10
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:

@@ -180,6 +180,9 @@ features:
   champva_vanotify_custom_confirmation_callback:
     actor_type: user
     description: Enables the custom callback_klass when sending IVC CHAMPVA confirmation emails with VA Notify
+  champva_log_all_s3_uploads:
+    actor_type: user
+    description: Enables logging for all s3 uploads using UUID or keys for monitoring
   champva_multiple_stamp_retry:
     actor_type: user
     description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
@@ -334,6 +337,18 @@ features:
     actor_type: user
     description: When enabled, CST does not show Attorney Fee, Secondary Action Required, or Stage 2 Development
     enable_in_development: false
+  cst_override_pmr_pending_tracked_items:
+    actor_type: user
+    description: When enabled, CST overrides PMR Pending tracked items to be NEEDED_FROM_OTHERS
+    enable_in_development: true
+  cst_override_reserve_records_website:
+    actor_type: user
+    description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on vets-website
+    enable_in_development: true
+  cst_override_reserve_records_mobile:
+    actor_type: user
+    description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
+    enable_in_development: true
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application
@@ -390,6 +405,9 @@ features:
   debts_silent_failure_mailer:
     actor_type: user
     description: Enables silent failure mailer for the 5655
+  debts_sharepoint_error_logging:
+    actor_type: user
+    description: Logs Sharepoint error data
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
@@ -523,10 +541,6 @@ features:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
     enable_in_development: true
-  disability_526_expanded_contention_classification:
-    actor_type: user
-    description: Enables the expanded contention classification service maintained by the Conditions Team.
-    enable_in_development: true
   disability_526_migrate_contention_classification:
     actor_type: user
     description: Enables the migration of contention classification service from VRO to the VA.gov infrastructure.
@@ -534,6 +548,7 @@ features:
   disability_526_max_cfi_service_switch:
     actor_type: user
     description: Enables the use of the new Max Ratings CFI service instead of the VRO client for fetching max ratings.
+    enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
@@ -561,6 +576,9 @@ features:
     actor_type: user
     description: enables a new form flow for 0781 and 0781a in the 526 submission workflow
     enable_in_development: true
+  disability_526_send_form526_submitted_email:
+    actor_type: user
+    description: enables sending submitted email in both primary and backup paths
   disability_526_send_received_email_from_backup_path:
     actor_type: user
     description: enables received email in complete success state of backup path
@@ -584,16 +602,16 @@ features:
     actor_type: user
     description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
     enable_in_development: true
+  facilities_use_address_typeahead:
+    actor_type: user
+    description: Use the address typeahead for the facility locator
+    enable_in_development: true
   facilities_ppms_suppress_all:
     actor_type: user
     description: Hide all ppms search options
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
-  facility_locator_lat_long_only:
-    actor_type: user
-    description: Send only lat/long values (no bounding box or address) to the API when querying for facilities.
-    enable_in_development: true
   facility_locator_mobile_map_update:
     actor_type: user
     description: Use new mobile map features for research
@@ -601,29 +619,6 @@ features:
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
-  facility_locator_rails_engine:
-    actor_type: user
-    description: Use rails engine routes for all Facility Locator API calls
-    enable_in_development: true
-  facility_locator_restore_community_care_pagination:
-    actor_type: user
-    description: Restores pagination for community care providers, emergency care, and pharmacies. (urgent care is excluded)
-    enable_in_development: true
-  facility_locator_show_community_cares:
-    actor_type: user
-    description: >
-      On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option
-      in the "Search for" box.
-    enable_in_development: true
-  facility_locator_show_health_connect_number:
-    actor_type: user
-    description: >
-      On https://www.va.gov/find-locations/ enable the health connect phone number display
-    enable_in_development: true
-  facility_locator_show_operational_hours_special_instructions:
-    actor_type: user
-    description: Display new field operationalHoursSpecialInstructions for VA facilities
-    enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
@@ -1557,10 +1552,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
-  va_online_scheduling_appointment_type_consolidation:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to enable appointment type consolidation logic.
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled
@@ -1606,9 +1597,6 @@ features:
   dhp_connected_devices_fitbit:
     actor_type: user
     description: Enables linking between VA.gov account and fitbit account
-  show_expandable_vamc_alert:
-    actor_type: user
-    description: Allows expandable alerts to be visible in vamc
   payment_history:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
@@ -1824,6 +1812,9 @@ features:
   burial_document_upload_update:
     actor_type: user
     description: Show updated document upload page
+  burial_location_of_death_update:
+    actor_type: user
+    description: Show updated location of death pattern
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
@@ -1952,7 +1943,7 @@ features:
   search_use_v2_gsa:
     actor_type: cookie_id
     description: Swaps the Search Service's for one with an updated api.gsa.gov address
-    enabled_in_development: true
+    enable_in_development: true
   remove_pciu:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information with PCIU backup calls
@@ -2014,3 +2005,6 @@ features:
   show_about_yellow_ribbon_program:
     actor_type: user
     description: If enabled, show additional info about the yellow ribbon program
+  vba_documents_final_status_field:
+    actor_type: user
+    description: Include final_status boolean field in Benefits Intake "show," "report," and "create" endpoint responses

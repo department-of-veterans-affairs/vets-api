@@ -149,11 +149,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
 
     let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
     let(:formatted_submit_date) do
-      # We want to return all times in EDT
-      timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
-
-      # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-      timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+      BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
     end
 
     it 'retrieves the file and uploads to EVSS' do
