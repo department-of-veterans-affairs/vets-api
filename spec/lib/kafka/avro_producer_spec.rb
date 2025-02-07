@@ -48,11 +48,10 @@ describe Kafka::AvroProducer do
       avro_turf = AvroTurf.new(schemas_path: 'spec/fixtures/avro_schemas')
       # Use test encoding for AvroTurf
       allow(avro_mock).to receive(:encode) do |payload, _options|
-        avro_turf.encode(payload, schema_name: 'test')
+        avro_turf.encode(payload, schema_name: 'test', validate: true)
       end
-      described_class.produce('topic-1', { data: { key: 'value1' } })
-      described_class.produce('topic-1', { data: { key: 'value2' } })
-      described_class.produce('topic-2', { data: { key: 'value1' } })
+      described_class.produce('topic-1', { 'data' => { 'key' => 'value1' } })
+      described_class.produce('topic-1', { 'data' => { 'key' => 'value2' } })
 
       avro_msg = described_class.producer.client.messages_for('topic-1').first[:payload]
       decoded_avro_msg = avro_turf.decode(avro_msg, schema_name: 'test')

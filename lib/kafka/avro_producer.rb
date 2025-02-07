@@ -13,7 +13,7 @@ module Kafka
     def self.produce(topic, payload, schema_version: 1)
       encoded_payload = avro.encode(
         payload,
-        subject: topic,
+        subject: "#{topic}-value",
         version: schema_version,
         validate: true
       )
