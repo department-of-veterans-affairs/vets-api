@@ -198,7 +198,7 @@ module PdfFill
           },
           'screenings' => {
             key: 'F[0].#subform[4].Tests_For_Sexually_Transmitted_Infections[0]'
-          },
+          }
         },
         'otherBehaviors' => { # question_num: 10A
           'socialEconomic' => {
