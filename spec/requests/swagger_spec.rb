@@ -1276,6 +1276,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     describe 'intent to file' do
       let(:mhv_user) { create(:user, :loa3) }
+
       before do
         Flipper.disable('disability_compensation_production_tester')
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
@@ -1290,7 +1291,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'supports creating an active compensation intent to file' do
         expect(subject).to validate(:post, '/v0/intent_to_file/{type}', 401, 'type' => 'compensation')
-        VCR.use_cassette('evss/intent_to_file/create_compensation') do
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
           expect(subject).to validate(
             :post,
             '/v0/intent_to_file/{type}',
