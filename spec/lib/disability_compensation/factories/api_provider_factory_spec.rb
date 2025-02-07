@@ -159,7 +159,7 @@ RSpec.describe ApiProviderFactory do
         provider: api_provider,
         options: {},
         current_user:,
-        feature_toggle: nil,
+        feature_toggle: nil
       )
     end
 
