@@ -163,7 +163,7 @@ module PdfFill
             question_suffix: 'A'
           }
         },
-        'behaviors' => { # question_num: 10A
+        'workBehaviors' => { # question_num: 10A
           'reassignment' => {
             key: 'F[0].#subform[3].Request_For_A_Change_In_Occupational_Series_Or_Duty_Assignment[0]'
           },
@@ -172,7 +172,9 @@ module PdfFill
           },
           'performance' => {
             key: 'F[0].#subform[3].Changes_In_Performance_Or_Performance_Evaluations[0]'
-          },
+          }
+        },
+        'healthBehaviors' => { # question_num: 10A
           'consultations' => {
             key: 'F[0].#subform[3].Increased_Decreased_Visits_To_A_Healthcare_Professional_Counselor_Or_Treatment_Facility[0]'
           },
@@ -197,6 +199,8 @@ module PdfFill
           'screenings' => {
             key: 'F[0].#subform[4].Tests_For_Sexually_Transmitted_Infections[0]'
           },
+        },
+        'otherBehaviors' => { # question_num: 10A
           'socialEconomic' => {
             key: 'F[0].#subform[4].Economic_Or_Social_Behavioral_Changes[0]'
           },
@@ -390,14 +394,14 @@ module PdfFill
             question_suffix: 'B[9]',
             question_text: 'ADDTIONAL INFORMATION ABOUT Disciplinary or legal difficulties.'
           },
-          'otherBehavior' => {
+          'unlisted' => {
             key: 'F[0].#subform[4].List_Additional_Behavioral_Changes[0]',
             limit: 784,
             question_num: 10,
             question_suffix: 'C',
             question_text: 'ADDTIONAL INFORMATION ABOUT Additional behavioral changes.'
           },
-          'otherBehaviorOverflow' => {
+          'unlistedOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'C',
@@ -620,8 +624,6 @@ module PdfFill
         set_treatment_selection
         set_option_indicator
 
-        format_other_behavior_details
-
         if @form_data['events']&.any?
           process_reports
           expand_collection('events', :format_event, 'eventOverflow')
@@ -709,14 +711,6 @@ module PdfFill
 
         @form_data['optionIndicator'] = valid_options.index_with { |_option| false }
         @form_data['optionIndicator'][selected_option] = true
-      end
-
-      def format_other_behavior_details
-        other_behavior = @form_data['otherBehaviors']
-        return if other_behavior.blank?
-
-        details = @form_data['behaviorsDetails']['otherBehavior']
-        @form_data['behaviorsDetails']['otherBehavior'] = "#{other_behavior}: #{details}"
       end
 
       def format_police_details(event)

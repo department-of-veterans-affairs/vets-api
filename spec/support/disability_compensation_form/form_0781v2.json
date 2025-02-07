@@ -50,18 +50,22 @@
         "timing": "2004"
       }
     ],
-    "behaviors": {
+    "workBehaviors": {
       "reassignment": true,
-      "performance": true,
+      "performance": true
+    },
+    "healthBehaviors": {
       "consultations": true,
       "episodes": true,
       "selfMedication": true,
       "substances": true,
       "appetite": true,
-      "screenings": true,
-      "relationships": true
+      "screenings": true
     },
-    "otherBehaviors": "Withdrawal",
+    "otherBehaviors": {
+      "relationships": true,
+      "unlisted": true
+    },
     "behaviorsDetails": {
       "reassignment": "Lorem ipsum dolor sit amet.",
       "performance": "Lorem ipsum dolor sit amet.",
@@ -70,7 +74,7 @@
       "appetite": "Lorem ipsum dolor sit amet.",
       "screenings": "Lorem ipsum dolor sit amet.",
       "relationships": "Lorem ipsum dolor sit amet.",
-      "otherBehavior": "Lorem ipsum dolor sit amet."
+      "unlisted": "Lorem ipsum dolor sit amet."
     },
     "evidence": {
       "counseling": true,

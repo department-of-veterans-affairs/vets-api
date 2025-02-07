@@ -42,10 +42,12 @@
       "otherReports": "incident report"
     }
   ],
-  "behaviors": {
+  "workBehaviors": {
     "reassignment": true,
     "absences": false,
-    "performance": true,
+    "performance": true
+  },
+  "healthBehaviors": {
     "consultations": false,
     "episodes": true,
     "medications": false,
@@ -53,12 +55,14 @@
     "substances": false,
     "appetite": true,
     "pregnancy": false,
-    "screenings": true,
+    "screenings": true
+  },
+  "otherBehaviors": {
     "socialEconomic": false,
     "relationships": true,
-    "misconduct": false
+    "misconduct": false,
+    "unlisted": true
   },
-  "otherBehaviors": "Lorem",
   "behaviorsDetails": {
     "reassignment": "requested duty assignment",
     "performance": "poor evaluations",
@@ -67,7 +71,7 @@
     "appetite": "skipping meals",
     "screenings": "positive tests",
     "relationships": "separation",
-    "otherBehavior": "Lorem ipsum dolor sit amet."
+    "unlisted": "Lorem ipsum dolor sit amet."
   },
   "evidence": {
     "crisisCenter": true,

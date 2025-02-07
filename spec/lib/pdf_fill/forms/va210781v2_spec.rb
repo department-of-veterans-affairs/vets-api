@@ -62,36 +62,6 @@ describe PdfFill::Forms::Va210781v2 do
     end
   end
 
-  describe '#format_other_behavior_details' do
-    context 'with no data' do
-      it 'does nothing and returns nil' do
-        new_form_class.instance_variable_set(:@form_data, {})
-
-        expect(new_form_class.send(:format_other_behavior_details)).to be_nil
-      end
-    end
-
-    context 'with data' do
-      let(:other_behavior) { 'Exhaustion' }
-      let(:details) { 'Always feeling tired' }
-      let :data do
-        {
-          'otherBehaviors' => other_behavior,
-          'behaviorsDetails' => { 'otherBehavior' => details }
-        }
-      end
-
-      it 'formats data correctly' do
-        new_form_class.instance_variable_set(:@form_data, data)
-        new_form_class.send(:format_other_behavior_details)
-
-        expect(new_form_class.instance_variable_get(:@form_data)['behaviorsDetails']['otherBehavior']).to eq(
-          "#{other_behavior}: #{details}"
-        )
-      end
-    end
-  end
-
   describe '#process_reports' do
     context 'when no events data are provided' do
       it 'does nothing and leaves the data unchanged' do

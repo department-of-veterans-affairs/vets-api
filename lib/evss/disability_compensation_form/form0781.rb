@@ -55,7 +55,8 @@ module EVSS
       def create_form_v2
         prepare_veteran_info.merge({
                                      'events' => @form_content['events'],
-                                     'behaviors' => @form_content['behaviors'],
+                                     'workBehaviors' => @form_content['workBehaviors'],
+                                     'healthBehaviors' => @form_content['healthBehaviors'],
                                      'otherBehaviors' => @form_content['otherBehaviors'],
                                      'behaviorsDetails' => @form_content['behaviorsDetails'],
                                      'evidence' => @form_content['evidence'],
