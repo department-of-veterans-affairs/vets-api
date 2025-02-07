@@ -84,7 +84,7 @@ class ApiProviderFactory
     new(**).call
   end
 
-  def initialize(type:, current_user:, feature_toggle:, provider: nil, options: {})
+  def initialize(type:, current_user:, feature_toggle: nil, provider: nil, options: {})
     @type = type
     @api_provider = provider
     @options = options
