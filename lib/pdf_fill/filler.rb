@@ -115,8 +115,8 @@ module PdfFill
     #
     # @return [String] The path to the filled PDF form.
     #
-    def fill_ancillary_form(form_data, claim_id, form_id)
-      process_form(form_id, form_data, FORM_CLASSES[form_id], claim_id)
+    def fill_ancillary_form(form_data, claim_id, form_id, fill_options = {})
+      process_form(form_id, form_data, FORM_CLASSES[form_id], claim_id, fill_options)
     end
 
     ##
@@ -134,7 +134,7 @@ module PdfFill
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
-      hash_converter = HashConverter.new(form_class.date_strftime)
+      hash_converter = HashConverter.new(form_class.date_strftime, fill_options.fetch(:extras_redesign, false))
       new_hash = hash_converter.transform_data(
         form_data: form_class.new(form_data).merge_fields(fill_options),
         pdftk_keys: form_class::KEY
