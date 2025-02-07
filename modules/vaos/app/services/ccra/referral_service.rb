@@ -9,7 +9,7 @@ module CCRA
     # @param icn [String] The ICN of the patient.
     # @param referral_status [String] The referral status of the patient.
     #
-    # @return [Array, Hash] Parsed JSON response (typically an array of referral objects)
+    # @return [Array<ReferralListEntry>] An array of ReferralListEntry objects representing the referral list.
     def get_vaos_referral_list(icn, referral_status)
       data = { ICN: icn, ReferralStatus: referral_status }
       with_monitoring do
@@ -19,7 +19,7 @@ module CCRA
           data,
           headers
         )
-        OpenStruct.new(response.body)
+        ReferralListEntry.build_collection(response.body)
       end
     end
 
@@ -28,7 +28,7 @@ module CCRA
     # @param id [String] The ID of the referral.
     # @param mode [String] The mode of the referral.
     #
-    # @return [Hash] Parsed JSON response with referral details.
+    # @return [ReferralDetail] A ReferralDetail object representing the detailed referral information.
     def get_referral(id, mode)
       data = { Id: id, Mode: mode }
       with_monitoring do
@@ -38,7 +38,7 @@ module CCRA
           data,
           headers
         )
-        OpenStruct.new(response.body)
+        ReferralDetail.new(response.body)
       end
     end
   end
