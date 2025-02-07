@@ -1504,6 +1504,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:shared_sessions) { false }
     let(:statsd_token_success) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS }
     let(:expected_error_status) { :bad_request }
+    let!(:user_action_event) { create(:user_action_event, details: 'User logged in') }
 
     before { allow(Rails.logger).to receive(:info) }
 

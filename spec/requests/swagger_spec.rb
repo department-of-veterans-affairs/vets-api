@@ -77,6 +77,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
                  client_id: client_config.client_id)
         end
         let(:client_config) { create(:client_config, enforced_terms: nil) }
+        let!(:user_action_event) { create(:user_action_event, details: 'User logged in') }
 
         it 'validates the authorization_code & returns tokens' do
           expect(subject).to validate(

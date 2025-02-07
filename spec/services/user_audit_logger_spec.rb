@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe UserAuditLogger do
   describe '#perform' do
     let(:user_action_event) { create(:user_action_event) }
+    let(:user_action) { create(:user_action, user_action_event:) }
     let(:acting_user_verification) { create(:user_verification) }
     let(:subject_user_verification) { create(:user_verification) }
     let(:acting_ip_address) { Faker::Internet.ip_v4_address }
@@ -21,18 +22,37 @@ RSpec.describe UserAuditLogger do
       )
     end
 
-    it 'creates a user action record' do
-      expect { logger.perform }.to change(UserAction, :count).by(1)
+    context 'when the job is successful' do
+      let(:expected_audit_log) { 'User audit log created' }
 
-      user_action = UserAction.last
-      expect(user_action).to have_attributes(
-        user_action_event: user_action_event,
-        acting_user_verification: acting_user_verification,
-        subject_user_verification: subject_user_verification,
-        status: 'initial',
-        acting_ip_address: acting_ip_address,
-        acting_user_agent: acting_user_agent
-      )
+      before do
+        allow(Rails.logger).to receive(:info).and_call_original
+      end
+
+      it 'creates a user action record' do
+        expect { logger.perform }.to change(UserAction, :count).by(1)
+
+        user_action = UserAction.last
+        expect(user_action).to have_attributes(
+          user_action_event: user_action_event,
+          acting_user_verification: acting_user_verification,
+          subject_user_verification: subject_user_verification,
+          status: 'initial',
+          acting_ip_address: acting_ip_address,
+          acting_user_agent: acting_user_agent
+        )
+      end
+
+      it 'creates a rails log' do
+        logger.perform
+
+        user_action = UserAction.last
+        expected_audit_log_payload = { user_action_event: user_action_event.id,
+                                       user_action_event_details: user_action_event.details,
+                                       status: :initial,
+                                       user_action: user_action.id }
+        expect(Rails.logger).to have_received(:info).with(expected_audit_log, expected_audit_log_payload)
+      end
     end
 
     context 'when user_action_event is nil' do
