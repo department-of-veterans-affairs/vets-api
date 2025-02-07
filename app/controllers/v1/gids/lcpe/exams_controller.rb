@@ -19,7 +19,7 @@ module V1
         # versioning currently disabled for exams#show
         # exclude :version (and not :id) from params
         def versioning_required?
-          super && scrubbed_params.except(:version).blank?
+          scrubbed_params.except(:version).blank?
         end
       end
     end
