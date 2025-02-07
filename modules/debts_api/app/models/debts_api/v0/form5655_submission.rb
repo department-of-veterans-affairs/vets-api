@@ -74,7 +74,10 @@ module DebtsApi
         submission.submitted!
         StatsD.increment("#{STATS_KEY}.vha.success")
       else
-        submission.register_failure("VHA set completed state: #{status.failure_info}")
+        # we are not registering a failure for Sharepoint requests
+        unless status.failure_info.include?('SharepointRequest')
+          submission.register_failure("VHA set completed state: #{status.failure_info}")
+        end
         StatsD.increment("#{STATS_KEY}.vha.failure")
         Rails.logger.error('Batch FSR Processing Failed', status.failure_info)
       end
