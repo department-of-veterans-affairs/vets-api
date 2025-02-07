@@ -10,7 +10,7 @@ require 'disability_compensation/providers/ppiu_direct_deposit/ppiu_provider'
 require 'disability_compensation/providers/ppiu_direct_deposit/evss_ppiu_provider'
 require 'disability_compensation/providers/ppiu_direct_deposit/lighthouse_ppiu_provider'
 require 'disability_compensation/providers/claims_service/claims_service_provider'
-require 'disability_compensation/providers/claims_service/evss_claims_service_provider'
+# require 'disability_compensation/providers/claims_service/evss_claims_service_provider'
 require 'disability_compensation/providers/claims_service/lighthouse_claims_service_provider'
 require 'disability_compensation/providers/brd/brd_provider'
 require 'disability_compensation/providers/brd/evss_brd_provider'
@@ -51,7 +51,6 @@ class ApiProviderFactory
   FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND =
     'disability_compensation_lighthouse_rated_disabilities_provider_background'
   FEATURE_TOGGLE_INTENT_TO_FILE = 'disability_compensation_lighthouse_intent_to_file_provider'
-  # FEATURE_TOGGLE_CLAIMS_SERVICE = 'disability_compensation_lighthouse_claims_service_provider'
 
   # PPIU calls out to Direct Deposit APIs in Lighthouse
   FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT = 'disability_compensation_lighthouse_ppiu_direct_deposit_provider'
