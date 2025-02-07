@@ -90,9 +90,9 @@ module ClaimsApi
                         status: 'errored', cid: '0oagdm49ygCSJTp8X297')
 
       last_hour = ClaimsApi::AutoEstablishedClaim
+                  .select('DISTINCT ON(transaction_id) *')
                   .where(created_at: 1.hour.ago..Time.zone.now,
                          status: 'errored', cid: '0oagdm49ygCSJTp8X297')
-      last_hour = last_hour.select('DISTINCT ON(transaction_id) *') if last_hour.count.positive?
 
       day_trans_ids = last_day&.pluck(:transaction_id)
 
