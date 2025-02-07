@@ -11,7 +11,6 @@ RSpec.describe ApiProviderFactory do
   let(:icn) { current_user.icn.to_s }
 
   context 'rated_disabilities' do
-
     it 'provides a Lighthouse rated disabilities provider' do
       expect(provider(:lighthouse).class).to equal(LighthouseRatedDisabilitiesProvider)
     end
