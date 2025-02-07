@@ -44,7 +44,7 @@ module AppealsApi
             'COMMUNITY CARE',
             'VA MEDICAL CENTERS (VAMC) AND COMMUNITY-BASED OUTPATIENT CLINICS (CBOC)',
             'DEPARTMENT OF DEFENSE (DOD) MILITARY TREATMENT FACILITY(IES) (MTF)',
-            'Other'
+            'OTHER'
           ].freeze
 
           LONG_SIGNATURE_THRESHOLD = 70
