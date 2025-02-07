@@ -51,15 +51,15 @@ describe IvcChampva::PdfStamper do
     context 'when stamping raises a PdfForms::PdftkError' do
       before do
         allow(described_class).to receive(:stamp_signature).and_return(nil)
-        allow(described_class).to receive(:stamp_auth_text).and_raise(PdfForms::PdftkError, 'pdftk error pii_stuff.pdf')
+        allow(described_class).to receive(:stamp_auth_text).and_raise(PdfForms::PdftkError, 'pdftk error ./some_pii.pdf')
         allow(described_class).to receive(:stamp_submission_date).and_return(nil)
       end
 
       it 'logs it with no PII and raises a PdfForms::PdftkError' do
-        expect { stamp_pdf }.to raise_error(PdfForms::PdftkError, 'pdftk error pii_stuff.pdf')
+        expect { stamp_pdf }.to raise_error(PdfForms::PdftkError, 'pdftk error ./some_pii.pdf')
         expect(described_class.monitor).to have_received(:track_pdf_stamper_error) do |_, message|
           expect(message).to include('PdftkError:')
-          expect(message).not_to include('pii_stuff')
+          expect(message).not_to include('some_pii')
         end
       end
     end
