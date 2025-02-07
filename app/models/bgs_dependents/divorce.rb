@@ -18,7 +18,7 @@ module BGSDependents
         ssn: @divorce_info['ssn'],
         birth_date: @divorce_info['birth_date'],
         type: 'divorce',
-        spouse_income: @is_v2 ? formatted_boolean(@divorce_info['former_spouse_income']) : formatted_boolean(@divorce_info['spouse_income'])
+        spouse_income: formatted_boolean(@divorce_info['spouse_income'])
       }.merge(@divorce_info['full_name']).with_indifferent_access
     end
   end

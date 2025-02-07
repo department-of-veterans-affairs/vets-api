@@ -57,6 +57,7 @@ module BGSDependents
 
     def initialize(child_info)
       @child_info = child_info
+      @is_v2 = Flipper.enabled?(:va_dependents_v2)
       self.attributes = child_attributes
     end
 
@@ -77,33 +78,42 @@ module BGSDependents
       dependent_address(
         dependents_application:,
         lives_with_vet: @child_info['does_child_live_with_you'],
-        alt_address: @child_info.dig('child_address_info', 'address')
+        alt_address: @is_v2 ? @child_info.dig('address') : @child_info.dig('child_address_info', 'address')
       )
     end
 
     private
 
     def child_attributes
+      place_of_birth = @is_v2 ? @child_info.dig('birth_location') : @child_info.dig('place_of_birth')
       {
         ssn: @child_info['ssn'],
         birth_date: @child_info['birth_date'],
         family_relationship_type: child_status,
-        place_of_birth_country: @child_info.dig('place_of_birth', 'country'),
-        place_of_birth_state: @child_info.dig('place_of_birth', 'state'),
-        place_of_birth_city: @child_info.dig('place_of_birth', 'city'),
-        reason_marriage_ended: @child_info.dig('previous_marriage_details', 'reason_marriage_ended'),
+        place_of_birth_country: place_of_birth.dig('country'),
+        place_of_birth_state: place_of_birth.dig('state'),
+        place_of_birth_city: place_of_birth.dig('city'),
+        reason_marriage_ended: @is_v2 ? @child_info.dig('marriage_end_reason') : @child_info.dig('previous_marriage_details', 'reason_marriage_ended'),
         ever_married_ind: marriage_indicator,
-        child_income: formatted_boolean(@child_info['child_income']),
+        child_income: formatted_boolean(@is_v2 ? @child_info['income_in_last_year'] : @child_info['child_income']),
         not_self_sufficient: formatted_boolean(@child_info['not_self_sufficient'])
       }.merge(@child_info['full_name'])
     end
 
     def child_status
-      CHILD_STATUS[@child_info['child_status']&.key(true)]
+      if @is_v2
+        CHILD_STATUS[@child_info['relationship_to_child']&.key(true)]
+      else
+        CHILD_STATUS[@child_info['child_status']&.key(true)]
+      end
     end
 
     def marriage_indicator
-      @child_info['previously_married'] == 'Yes' ? 'Y' : 'N'
+      if @is_v2
+        @child_info['has_child_ever_been_marries'] ? 'Y' : 'N'
+      else
+        @child_info['previously_married'] == 'Yes' ? 'Y' : 'N'
+      end
     end
   end
 end
