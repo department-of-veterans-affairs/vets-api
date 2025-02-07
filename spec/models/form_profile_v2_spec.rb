@@ -18,12 +18,6 @@ RSpec.describe FormProfile, type: :model do
     Flipper.disable(:disability_526_toxic_exposure)
   end
 
-  after do
-    Flipper.disable(:remove_pciu)
-    Flipper.disable(:va_v3_contact_information_service)
-    Flipper.disable(:disability_compensation_remove_pciu)
-  end
-
   let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1781151') }
   let(:contact_info) { form_profile.send :initialize_contact_information }
   let(:form_profile) do
