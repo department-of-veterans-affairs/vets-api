@@ -3,6 +3,7 @@
 require 'rails_helper'
 
 describe IntentToFileSerializer, type: :serializer do
+  # TODO: remove this file or update with LH response
   subject { serialize(intent_to_file_response, serializer_class: described_class) }
 
   let(:intent_to_file) { build_list(:evss_intent_to_file, 2) }
