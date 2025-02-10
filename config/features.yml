@@ -183,6 +183,9 @@ features:
   champva_vanotify_custom_confirmation_callback:
     actor_type: user
     description: Enables the custom callback_klass when sending IVC CHAMPVA confirmation emails with VA Notify
+  champva_log_all_s3_uploads:
+    actor_type: user
+    description: Enables logging for all s3 uploads using UUID or keys for monitoring
   champva_multiple_stamp_retry:
     actor_type: user
     description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
@@ -541,10 +544,6 @@ features:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
     enable_in_development: true
-  disability_526_expanded_contention_classification:
-    actor_type: user
-    description: Enables the expanded contention classification service maintained by the Conditions Team.
-    enable_in_development: true
   disability_526_migrate_contention_classification:
     actor_type: user
     description: Enables the migration of contention classification service from VRO to the VA.gov infrastructure.
@@ -580,6 +579,9 @@ features:
     actor_type: user
     description: enables a new form flow for 0781 and 0781a in the 526 submission workflow
     enable_in_development: true
+  disability_526_send_form526_submitted_email:
+    actor_type: user
+    description: enables sending submitted email in both primary and backup paths
   disability_526_send_received_email_from_backup_path:
     actor_type: user
     description: enables received email in complete success state of backup path
@@ -1093,6 +1095,9 @@ features:
     actor_type: user
     description: Enables/disables grouping medications related work
     enable_in_development: true
+  mhv_modern_cta_links:
+    actor_type: user
+    description: CTA widget links point to va.gov services
   mhv_medications_display_pending_meds:
     actor_type: user
     description: Enables/disables pending medications related work
@@ -1553,10 +1558,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
-  va_online_scheduling_appointment_type_consolidation:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to enable appointment type consolidation logic.
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled

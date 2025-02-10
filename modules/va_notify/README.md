@@ -283,6 +283,12 @@ Refer to the [VA Notify Error Status Mapping Table](https://github.com/departmen
 
 ---
 
+#### Module changes
+
+If the `va_notify` module does not provide the functionality you need feel free to reach out to us and explain what your team needs. While we can't guarantee that every request will be implemented, we will thoughtfully consider each request and do our best to accommodate your team without causing unintended issues for other teams.
+
+---
+
 #### Contact Us
 
 If you need any further clarification or help during the integration process, feel free to reach out:

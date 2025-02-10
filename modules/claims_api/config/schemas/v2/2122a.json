@@ -112,10 +112,12 @@
             },
             "phoneNumber": {
               "description": "Phone number.",
-              "type": "string", "pattern": "^[0-9]{1,14}$",
-              "example": "555-5555"
-            },
-            "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
+              "type": "string",
+              "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+              "example": "555-5555",
+              "minLength": 1,
+              "maxLength": 23
+            }
           },
           "if": {
             "properties": {
@@ -221,10 +223,11 @@
             "phoneNumber": {
               "description": "Phone number.",
               "type": "string",
-              "pattern": "^[0-9]{1,14}$",
-              "example": "555-5555"
-            },
-            "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
+              "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+              "example": "555-5555",
+              "minLength": 1,
+              "maxLength": 23
+            }
           },
           "if": {
             "properties": {
