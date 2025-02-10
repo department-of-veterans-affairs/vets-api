@@ -159,13 +159,13 @@ module ClaimsApi
           vet_cc = form_attributes.dig('veteran', 'address', 'countryCode')
           claimant_cc = form_attributes.dig('claimant', 'address', 'countryCode')
 
-          if ClaimsApi::BRD::COUNTRY_CODES[vet_cc.to_s].blank?
+          if ClaimsApi::BRD::COUNTRY_CODES[vet_cc.to_s.upcase].blank?
             raise ::Common::Exceptions::UnprocessableEntity.new(
               detail: 'The country provided is not valid.'
             )
           end
 
-          if claimant_cc.present? && ClaimsApi::BRD::COUNTRY_CODES[claimant_cc.to_s].blank?
+          if claimant_cc.present? && ClaimsApi::BRD::COUNTRY_CODES[claimant_cc.to_s.upcase].blank?
             raise ::Common::Exceptions::UnprocessableEntity.new(
               detail: 'The country provided is not valid.'
             )

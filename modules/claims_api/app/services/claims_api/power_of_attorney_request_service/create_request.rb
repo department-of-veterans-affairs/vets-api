@@ -170,7 +170,7 @@ module ClaimsApi
               addrs_two_txt: address[:addressLine2],
               bad_addrs_ind: nil,
               city_nm: address[:city],
-              cntry_nm: ClaimsApi::BRD::COUNTRY_CODES[(address[:countryCode]).to_s],
+              cntry_nm: ClaimsApi::BRD::COUNTRY_CODES[(address[:countryCode]).to_s.upcase],
               county_nm: nil,
               eft_waiver_type_nm: nil,
               email_addrs_txt: nil,

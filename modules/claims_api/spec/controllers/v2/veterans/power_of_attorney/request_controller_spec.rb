@@ -376,6 +376,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             zipCode: '92264',
             zipCodeSuffix: '0200'
           },
+          claimantId: '1012667145V762142',
           relationship: 'Spouse'
         }
       }
@@ -485,6 +486,15 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         end
       end
 
+      it 'returns a 201 when the veteran countryCode is lowercase but has a match' do
+        mock_ccg(scopes) do |auth_header|
+          form_attributes[:veteran][:address][:countryCode] = 'pk'
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:created)
+        end
+      end
+
       it 'returns a 422 when the claimant countryCode has no match in the BRD countries list' do
         mock_ccg(scopes) do |auth_header|
           form_attributes.merge!(claimant_information)
@@ -495,6 +505,56 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
             'The country provided is not valid.'
           )
+        end
+      end
+
+      describe '#validate_country_code' do
+        let(:min_form_attributes) do
+          {
+            'veteran' => {
+              'address' => {
+                'countryCode' => 'GB-WLS'
+              }
+            }
+          }
+        end
+
+        before do
+          allow(subject).to receive(:form_attributes).and_return(min_form_attributes)
+        end
+
+        it 'allows a countryCode with 6 characters and a dash' do
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'allows a countryCode with numbers and letters and a dash' do
+          min_form_attributes['veteran']['address']['countryCode'] = 'TR-01'
+
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'allows a countryCode when sent in lowercase' do
+          min_form_attributes['veteran']['address']['countryCode'] = 'gb'
+
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'allows a countryCode when sent in mixed case' do
+          min_form_attributes['veteran']['address']['countryCode'] = 'gb-WlS'
+
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'denies an invalid countryCode' do
+          min_form_attributes['veteran']['address']['countryCode'] = '%&-T)'
+
+          expect do
+            subject.send(:validate_country_code)
+          end.to raise_error(Common::Exceptions::UnprocessableEntity)
         end
       end
     end
