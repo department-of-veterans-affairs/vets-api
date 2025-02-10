@@ -128,7 +128,7 @@ module Lighthouse
           span.set_tag('Document File Size', file_body.size)
           response = client.upload_document(file_body, document) # returns upload response which includes requestId
           if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
-            update_evidence_submission_for_success(jid, response)
+            update_evidence_submission_for_in_progress(jid, response)
           end
         end
       end
@@ -161,13 +161,15 @@ module Lighthouse
         @file_body ||= perform_initial_file_read
       end
 
-      def update_evidence_submission_for_success(job_id, response)
+      # For lighthouse uploads if the response is successful then we leave the upload_status as PENDING
+      # and the polling job in Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUploadPollingJob
+      # will then make a call to lighthouse later to check on the status of the upload and update accordingly
+      def update_evidence_submission_for_in_progress(job_id, response)
         evidence_submission = EvidenceSubmission.find_by(job_id:)
         request_successful = response.body.dig('data', 'success')
         if request_successful
           request_id = response.body.dig('data', 'requestId')
           evidence_submission.update(
-            upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
             request_id:
           )
         else

@@ -138,7 +138,6 @@ module BenefitsClaims
       endpoint, path = submit_endpoint(options)
 
       body = prepare_submission_body(body, options[:transaction_id])
-
       response = config.post(
         path,
         body,
