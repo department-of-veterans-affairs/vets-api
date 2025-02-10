@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466/supplies
+    uri: <MDOT_URL>/supplies
     body:
       encoding: US-ASCII
       string: ''
