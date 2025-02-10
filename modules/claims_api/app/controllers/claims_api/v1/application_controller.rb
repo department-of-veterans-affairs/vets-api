@@ -235,7 +235,7 @@ module ClaimsApi
         vet
       end
 
-      def set_tags_and_extra_context
+      def set_sentry_tags_and_extra_context
         RequestStore.store['additional_request_attributes'] = { 'source' => 'claims_api' }
         Sentry.set_tags(source: 'claims_api')
       end

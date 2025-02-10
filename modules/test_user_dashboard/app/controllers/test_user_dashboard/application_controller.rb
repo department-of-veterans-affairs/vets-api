@@ -30,7 +30,7 @@ module TestUserDashboard
       false
     end
 
-    def set_tags_and_extra_context
+    def set_sentry_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'test-user-dashboard' }
       Sentry.set_tags(source: 'test-user-dashboard')
     end
