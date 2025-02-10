@@ -24,6 +24,13 @@ module Eps
       OpenStruct.new(response.body)
     end
 
+    def get_provider_services_by_ids(provider_ids:)
+      query_string = provider_ids.map { |id| "id=#{id}" }.join('&')
+      response = perform(:get, "/#{config.base_path}/provider-services?#{query_string}",
+                         {}, headers)
+      OpenStruct.new(response.body)
+    end
+
     ##
     # Get networks from EPS
     #

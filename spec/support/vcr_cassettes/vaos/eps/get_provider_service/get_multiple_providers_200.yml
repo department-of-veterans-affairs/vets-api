@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://api.wellhive.com/care-navigation/v1/provider-services?id=Aq7wgAux&id=9mN718pH
+      uri: https://api.wellhive.com/care-navigation/v1/provider-services?id=DBKQ-H0a&id=9mN718pH
       body:
         encoding: US-ASCII
         string: ''
@@ -13,9 +13,12 @@ http_interactions:
           - application/json
         User-Agent:
           - Vets.gov Agent
-        Authorization: Bearer <TOKEN>
+        Referer:
+          - https://review-instance.va.gov
+        X-Vamf-Jwt:
+          - stubbed_token
         X-Request-Id:
-          - 2b7d2bc2-cb28-42f8-900c-4ba0fdfd93d7
+          - ''
         Accept-Encoding:
           - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
     response:
@@ -27,8 +30,6 @@ http_interactions:
           - Sat, 11 Jan 2025 23:00:44 GMT
         Content-Type:
           - application/json
-        Content-Length:
-          - '856'
         Connection:
           - keep-alive
         Content-Security-Policy:
@@ -49,7 +50,7 @@ http_interactions:
           "count": 2,
           "providerServices": [
             {
-              "id": "9mN718pH",
+              "id": "DBKQ-123",
               "name": "Dr. Moreen S. Rafa @ FHA South Melbourne Medical Complex",
               "isActive": true,
               "individualProviders": [
@@ -101,7 +102,7 @@ http_interactions:
               }
             },
             {
-              "id": "Aq7wgAux",
+              "id": "DBKQ-456",
               "name": "Dr. Bruce Roly @ FHA Urology of Orlando",
               "isActive": true,
               "individualProviders": [

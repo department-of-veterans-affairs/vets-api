@@ -74,7 +74,7 @@ describe VAOS::V2::AppointmentsService do
         referral: {
           referral_number: 'ref124'
         },
-        provider_service_id: 'DBKQ-H0a',
+        provider_service_id: 'DBKQ-123',
         network_id: 'random-sandbox-network-id',
         slot_ids: [
           '5vuTac8v-practitioner-8-role-1|' \
@@ -95,7 +95,7 @@ describe VAOS::V2::AppointmentsService do
         referral: {
           referral_number: 'ref125'
         },
-        provider_service_id: 'DBKQ-H0a',
+        provider_service_id: 'DBKQ-456',
         network_id: 'random-sandbox-network-id',
         slot_ids: [
           '5vuTac8v-practitioner-8-role-1|' \
@@ -1172,6 +1172,7 @@ describe VAOS::V2::AppointmentsService do
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
           allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
           result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          puts result[:data]
           expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to include('ref124', 'ref125')
           expect(result[:data].map { |appt| appt[:id].to_s }).to include('101', '102', '186')
         end
@@ -1222,6 +1223,24 @@ describe VAOS::V2::AppointmentsService do
           allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([{}])
           result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
           expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to be_empty
+        end
+      end
+
+      it 'merges provider data correctly' do
+        VCR.use_cassette('vaos/eps/token_200',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_eps_appointments_200',
+                             match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+              VCR.use_cassette('vaos/eps/get_provider_service/get_multiple_providers_200',
+                               match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+                result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+                puts result[:data]
+                expect(result[:data].map { |appt| appt[:provider_name] }).to include('Provider Name')
+              end
+            end
+          end
         end
       end
     end

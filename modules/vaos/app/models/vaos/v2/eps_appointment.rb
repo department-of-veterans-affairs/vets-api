@@ -17,6 +17,7 @@ module VAOS
         @contact = params[:contact]
         @referral_id = referral_details[:referral_number]
         @referral = { referral_number: referral_details[:referral_number]&.to_s }
+        @provider_service_id = params[:provider_service_id]
       end
 
       def serializable_hash
@@ -30,7 +31,8 @@ module VAOS
           start: @start,
           contact: @contact,
           referral_id: @referral_id,
-          referral: @referral
+          referral: @referral,
+          provider_service_id: @provider_service_id
         }.compact
       end
 

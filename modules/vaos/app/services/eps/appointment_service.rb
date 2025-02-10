@@ -25,7 +25,7 @@ module Eps
     def get_appointments
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
                          {}, headers)
-      appointments = response.body.data
+      appointments = response.body['appointments']
       merged_appointments = merge_provider_data_with_appointments(appointments)
       OpenStruct.new(merged_appointments)
     end
@@ -72,10 +72,12 @@ module Eps
     private
 
     def merge_provider_data_with_appointments(appointments)
-      provider_ids = appointments.map(&:providerServiceId)
-      providers = get_provider_services(provider_ids)
+      provider_ids = appointments.map { |appointment| appointment['providerServiceId'] }.compact.uniq
+      providers = provider_services.get_provider_services_by_ids(provider_ids: provider_ids)
 
       appointments.each do |appointment|
+        next unless appointment.providerServiceId
+
         provider = providers.find { |provider_data| provider_data.id == appointment.providerServiceId }
         appointment.provider = provider
       end
@@ -96,6 +98,10 @@ module Eps
       end
 
       payload
+    end
+
+    def provider_services
+      @provider_services ||= Eps::ProviderService.new(user)
     end
   end
 end
