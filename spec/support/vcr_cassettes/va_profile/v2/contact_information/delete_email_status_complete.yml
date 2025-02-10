@@ -1,16 +1,14 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/telephones
+    method: get
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/emails/status/ea7989c5-60ef-40dc-aa6d-2fe6f7b1f0f9
     body:
-      encoding: UTF-8
-      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2024-08-27T18:51:06.000Z","sourceSystemUser":"123498767V234859","telephoneId":null,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":false,"voiceMailAcceptableInd":true,"effectiveStartDate":"2024-08-27T18:51:06.000Z","effectiveEndDate":null}}'
+      encoding: US-ASCII
+      string: ''
     headers:
       User-Agent:
       - Vets.gov Agent
-      Accept:
-      - application/json
       Content-Type:
       - application/json
       Cufsystemname:
@@ -28,10 +26,10 @@ http_interactions:
       - 'true'
       - 'true'
       Server-Timing:
-      - dtRpid;desc="-1358329057", dtSInfo;desc="0"
-      - dtRpid;desc="1252252207", dtSInfo;desc="0"
+      - dtRpid;desc="-2087296586", dtSInfo;desc="0"
+      - dtRpid;desc="-917195928", dtSInfo;desc="0"
       Vaprofiletxauditid:
-      - 9c796e46-7737-442a-a9ff-65f48b9892a3
+      - ea7989c5-60ef-40dc-aa6d-2fe6f7b1f0f9
       X-Content-Type-Options:
       - nosniff
       X-Xss-Protection:
@@ -48,7 +46,7 @@ http_interactions:
       - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
         about: blob: ws: wss:'
       Date:
-      - Thu, 12 Sep 2024 23:42:20 GMT
+      - Fri, 06 Sep 2024 19:16:40 GMT
       Referrer-Policy:
       - no-referrer
       Content-Type:
@@ -59,6 +57,6 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"57d5364b-149a-4802-bc18-b9b0b0742db6","status":"RECEIVED"}'
-  recorded_at: Thu, 12 Sep 2024 23:42:20 GMT
+      string: '{"txAuditId":"ea7989c5-60ef-40dc-aa6d-2fe6f7b1f0f9","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_SUCCESS","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"sourceDate":"2018-06-06T15:35:55.000Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","emailAddressText":"person42@example.com"},"txOutput":[{"txAuditId":"ea7989c5-60ef-40dc-aa6d-2fe6f7b1f0f9","sourceSystem":"VETSGOV","sourceDate":"2018-06-06T15:35:55.000Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","effectiveStartDate":"2018-06-06T15:35:55.000Z","vaProfileId":1,"emailAddressText":"person42@example.com"}]}'
+  recorded_at: Fri, 06 Sep 2024 19:16:39 GMT
 recorded_with: VCR 6.3.1
