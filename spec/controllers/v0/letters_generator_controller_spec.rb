@@ -28,6 +28,40 @@ RSpec.describe V0::LettersGeneratorController, type: :controller do
         expect(letters_response).to include(expected_important_key)
       end
     end
+
+    context 'when :cst_hide_service_verification_letter is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:cst_hide_service_verification_letter).and_return(true)
+      end
+
+      it 'excludes the Service Verification letter' do
+        VCR.use_cassette('lighthouse/letters_generator/index') do
+          get(:index)
+
+          letters_response = JSON.parse(response.body)
+          letter_types = letters_response['letters'].map { |l| l['letterType'] }
+          expect(letter_types).not_to include('service_verification')
+        end
+      end
+    end
+
+    context 'when :cst_hide_service_verification_letter is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:cst_hide_service_verification_letter).and_return(false)
+      end
+
+      it 'does not exclude the Service Verification letter' do
+        VCR.use_cassette('lighthouse/letters_generator/index') do
+          get(:index)
+
+          letters_response = JSON.parse(response.body)
+          letter_types = letters_response['letters'].map { |l| l['letterType'] }
+          expect(letter_types).to include('service_verification')
+        end
+      end
+    end
   end
 
   describe '#download' do
