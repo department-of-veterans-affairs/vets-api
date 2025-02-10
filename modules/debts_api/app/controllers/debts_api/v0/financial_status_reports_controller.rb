@@ -343,7 +343,7 @@ module DebtsApi
             :additional_comments,
             { bankruptcy: %i[date_discharged court_location docket_number] }
           ],
-          income: [:veteran_or_spouse],
+          income: [:veteran_or_spouse, :compensation_and_pension],
           gmt_data: %i[
             is_eligible_for_streamlined gmt_threshold error income_upper_threshold
             asset_threshold discretionary_income_threshold income_below_gmt
