@@ -19,6 +19,10 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
     headers
   end
 
+  it 'sets retry_for to 48 hours' do
+    expect(described_class.get_sidekiq_options['retry_for']).to eq(48.hours)
+  end
+
   context "when call to BGS 'update_birls_record' is successful" do
     context 'and the poaCode is retrieved successfully from the V2 2122a form data' do
       let(:poa) { create_poa }

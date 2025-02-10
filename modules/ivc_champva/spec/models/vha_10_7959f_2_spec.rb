@@ -56,7 +56,8 @@ RSpec.describe IvcChampva::VHA107959f2 do
             'last' => 'Surname'
           },
           'email' => 'email@address.com'
-        }
+        },
+        'primaryContactEmail' => 'email@address.com'
       )
     end
   end
