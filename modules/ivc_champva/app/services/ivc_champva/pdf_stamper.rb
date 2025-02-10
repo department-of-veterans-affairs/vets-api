@@ -118,12 +118,19 @@ module IvcChampva
       perform_multistamp(stamped_template_path, stamp_path)
     rescue => e
       Rails.logger.info "IVC Champva Forms - PdfStamper: multistamp handling error"
-      Rails.logger.error 'Simple forms api - Failed to generate stamped file', message: e.message
+      Rails.logger.error 'IVC Champva Forms - PdfStamper: Failed to generate stamped file', message: e.message
       Rails.logger.error e.backtrace.join("\n")
       raise
     ensure
-      Rails.logger.info "IVC Champva Forms - PdfStamper: multistamp deleting file in ensure block"
-      Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
+      begin
+        Rails.logger.info "IVC Champva Forms - PdfStamper: multistamp deleting temporary file in ensure block"
+        Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
+      rescue => e
+        Rails.logger.error "IVC Champva Forms - PdfStamper: multistamp error in ensure block, logging and swallowing"
+        Rails.logger.error 'IVC Champva Forms - PdfStamper: Failed to clean up temporary file', message: e.message
+        Rails.logger.error e.backtrace.join("\n")
+        # Don't re-raise an error here, as the original error is more important
+      end
     end
 
     def self.stamp(desired_stamp, stamped_template_path, append_to_stamp: false, text_only: true)
@@ -145,6 +152,7 @@ module IvcChampva
         current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
         Rails.logger.info "IVC Champva Forms - PdfStamper: renaming to stamped_template_path"
         File.rename(current_file_path, stamped_template_path)
+        # TODO clean up temporary file current_file_path
       end
     end
 
@@ -160,7 +168,7 @@ module IvcChampva
       File.rename(out_path, stamped_template_path)
     rescue
       Rails.logger.info "IVC Champva Forms - PdfStamper: perform_multistamp an error occurred, deleting file"
-      Common::FileHelpers.delete_file_if_exists(out_path)
+      Common::FileHelpers.delete_file_if_exists(out_path) # TODO make sure this is covered in a test
       Rails.logger.info "IVC Champva Forms - PdfStamper: perform_multistamp an error occurred, re-raising error"
       raise
     end

@@ -137,6 +137,57 @@ describe IvcChampva::PdfStamper do
     end
   end
 
+  describe '.multistamp' do
+    subject(:multistamp) { described_class.multistamp(stamped_template_path, signature_text, page_configuration) }
+
+    let(:stamped_template_path) { 'path/to/stamped_template.pdf' }
+    let(:signature_text) { 'Signature Text' }
+    let(:page_configuration) do
+      [
+        { type: :text, position: [40, 105] },
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page },
+        { type: :new_page }
+      ]
+    end
+
+    context 'when an error occurs during stamping' do
+      before do
+        allow(Prawn::Document).to receive(:generate).and_yield(pdf)
+        allow(pdf).to receive(:draw_text).and_raise(StandardError, 'error drawing text')
+        allow(pdf).to receive(:start_new_page)
+        allow(Common::FileHelpers).to receive(:random_file_path).and_return('tmp/000033337777BBBB111144448888CCCC')
+        allow(Common::FileHelpers).to receive(:delete_file_if_exists)
+      end
+
+      let(:pdf) { instance_double(Prawn::Document) }
+
+      it 'attempts to delete the temporary stamping file' do
+        expect(Common::FileHelpers).to receive(:delete_file_if_exists).with('tmp/000033337777BBBB111144448888CCCC')
+        expect { multistamp }.to raise_error(StandardError, 'error drawing text')
+      end
+
+      context 'when deleting the temporary stamping file fails' do
+        before do
+          allow(Common::FileHelpers).to receive(:delete_file_if_exists).and_raise(Errno::ENOENT, 'tmp/000033337777BBBB111144448888CCCC')
+        end
+
+        it 'proceeds gracefully' do
+          expect { multistamp }.to raise_error(StandardError, 'error drawing text')
+        end
+      end
+    end
+  end
+
+  describe '.stamp' do
+
+  end
+
+  describe '.perform_multistamp' do
+
+  end
+
   describe '.verify' do
     subject(:verify) { described_class.verify('template_path') { double } }
 
