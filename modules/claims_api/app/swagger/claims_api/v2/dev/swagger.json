@@ -335,7 +335,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "3dacbbcf-7e83-413d-9d79-1f2a9d7947c0",
+                        "id": "e41d2dda-1928-45ed-9735-3f6d0b429ce9",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -566,7 +566,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "1c2e0f1f-6ae9-4477-bad4-a27a1e1a5bee",
+                        "id": "c41ea0e7-e4d7-46d1-a0c8-85f8b007d465",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -9428,7 +9428,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "40ba6ff5-bf22-4622-8f68-54c26778de71",
+                    "id": "c0e16e08-4b69-44fb-8d2b-51b21c9e2fd7",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
@@ -9584,7 +9584,7 @@
                                       "description": "Country code of the address.",
                                       "type": "string",
                                       "example": "US",
-                                      "pattern": "^[A-Z0-9-]{2,6}$"
+                                      "pattern": "^[A-Za-z0-9-]{2,6}$"
                                     },
                                     "zipCode": {
                                       "description": "Zipcode (First 5 digits) of the address.",
@@ -9676,7 +9676,7 @@
                                       "description": "Country code of the address. Required if claimant information provided.",
                                       "type": "string",
                                       "example": "US",
-                                      "pattern": "^[A-Z0-9-]{2,6}$"
+                                      "pattern": "^[A-Za-z0-9-]{2,6}$"
                                     },
                                     "zipCode": {
                                       "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
@@ -10055,7 +10055,7 @@
                                     "description": "Country code of the address.",
                                     "type": "string",
                                     "example": "US",
-                                    "pattern": "^[A-Z0-9-]{2,6}$"
+                                    "pattern": "^[A-Za-z0-9-]{2,6}$"
                                   },
                                   "zipCode": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -10147,7 +10147,7 @@
                                     "description": "Country code of the address. Required if claimant information provided.",
                                     "type": "string",
                                     "example": "US",
-                                    "pattern": "^[A-Z0-9-]{2,6}$"
+                                    "pattern": "^[A-Za-z0-9-]{2,6}$"
                                   },
                                   "zipCode": {
                                     "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
@@ -12229,7 +12229,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ff3e98f5-85f3-4508-95b2-d3991357336f",
+                    "id": "dd5c5420-de25-42f1-817b-e51a428bf7bd",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -13727,7 +13727,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "710dc3a3-d515-4446-ae1c-8898594275d0",
+                    "id": "22b39d77-2dab-4261-9c95-b5c04e7ac9ba",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14575,10 +14575,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "dcc8e46b-7aa8-4cfc-9304-50ebd6f16e42",
+                    "id": "40c6ce24-e0bd-4d4e-9ed1-a8861f024077",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2025-02-10T18:38:11.436Z",
+                      "createdAt": "2025-02-10T19:17:03.439Z",
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
