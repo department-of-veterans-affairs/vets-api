@@ -22,9 +22,6 @@ module Pensions
   class MilitaryInformation < ::VAProfile::Prefill::MilitaryInformation
     ##
     # List of methods used for pre-filling military information in the form
-    #
-    # @constant
-    # @type [Array<String>]
     PREFILL_METHODS = ::VAProfile::Prefill::MilitaryInformation::PREFILL_METHODS + %w[
       first_uniformed_entry_date
       last_active_discharge_date
