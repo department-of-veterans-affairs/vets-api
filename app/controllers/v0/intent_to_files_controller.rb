@@ -41,8 +41,7 @@ module V0
       else
         response = intent_to_file_provider.get_intent_to_file(type, nil, nil)
       end
-      # render json: IntentToFileSerializer.new(response)
-      render json: DisabilityCompensation::ApiProvider::IntentToFilesResponse.new(response)
+      render json: IntentToFileSerializer.new(response)
     end
 
     def submit
@@ -60,8 +59,7 @@ module V0
       else
         response = intent_to_file_provider.create_intent_to_file(type, nil, nil)
       end
-      render json: DisabilityCompensation::ApiProvider::IntentToFilesResponse.new(response)
-      # render json: IntentToFileSerializer.new(response)
+      render json: IntentToFileSerializer.new(response)
     end
 
     private
