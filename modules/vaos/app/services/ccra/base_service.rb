@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ccra
-  # CCRA::BaseService provides common functionality for making REST API requests
+  # Ccra::BaseService provides common functionality for making REST API requests
   # to the CCRA service. It includes monitoring, configuration retrieval, and
   # common headers for requests.
   class BaseService < VAOS::SessionService
@@ -25,7 +25,7 @@ module Ccra
     #
     # @return [CCRA::Configuration] An instance of CCRA::Configuration loaded from settings.
     def config
-      @config ||= Ccra::Configuration.instance
+      @config ||= Configuration.instance
     end
   end
 end

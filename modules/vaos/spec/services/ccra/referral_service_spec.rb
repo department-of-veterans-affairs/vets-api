@@ -2,152 +2,98 @@
 
 require 'rails_helper'
 require 'common/exceptions'
+require_relative '../../../app/models/ccra/referral_list_entry'
+require_relative '../../../app/models/ccra/referral_detail'
 
 describe Ccra::ReferralService do
   subject { described_class.new(user) }
 
-  let(:user) { double('User', account_uuid: '1234') }
-
-  let(:headers) do
-    {
-      'Content-Type' => 'application/json',
-      'X-Request-ID' => 'request-id'
-    }
-  end
+  let(:user) { double('User', account_uuid: '1234', flipper_id: '1234') }
 
   before do
     allow(RequestStore.store).to receive(:[]).with('request_id').and_return('request-id')
     Settings.vaos ||= OpenStruct.new
     Settings.vaos.ccra ||= OpenStruct.new
     Settings.vaos.ccra.tap do |ccra|
-      ccra.api_url = 'http://test.example.com'
-      ccra.base_path = 'api/v1'
+      ccra.api_url = 'http://10.247.79.48'
+      ccra.base_path = 'csp/healthshare/ccraint/rest'
     end
-
-    stub_const('ReferralListEntry', Class.new do
-      def initialize(attrs)
-        @attrs = attrs
-      end
-
-      def self.build_collection(data)
-        Array(data).map { |item| new(item) }
-      end
-
-      def referral_id
-        @attrs['referralId']
-      end
-
-      def status
-        @attrs['status']
-      end
-
-      def service_type
-        @attrs['serviceType']
-      end
-    end)
-
-    stub_const('ReferralDetail', Class.new do
-      def initialize(attrs)
-        @attrs = attrs['Referral']
-      end
-
-      def category_of_care
-        @attrs['CategoryOfCare']
-      end
-
-      def referral_number
-        @attrs['ReferralNumber']
-      end
-
-      def status
-        @attrs['Status']
-      end
-    end)
   end
 
   describe '#get_vaos_referral_list' do
-    let(:icn) { '123456789' }
-    let(:referral_status) { 'ACTIVE' }
-    let(:response_body) do
-      [
-        {
-          'referralId' => '123',
-          'status' => 'ACTIVE',
-          'serviceType' => 'CARDIOLOGY'
-        }
-      ]
-    end
+    let(:icn) { '1012845331V153043' }
+    let(:referral_status) { "'S','BP','AP','AC','A','I'" }
 
-    context 'with successful response' do
-      before do
-        allow(subject).to receive(:perform)
-          .with(:post, '/api/v1/VAOS/patients/ReferralList',
-                { ICN: icn, ReferralStatus: referral_status }, headers)
-          .and_return(double('Response', body: response_body))
-      end
-
+    context 'with successful response', :vcr do
       it 'returns an array of ReferralListEntry objects' do
-        result = subject.get_vaos_referral_list(icn, referral_status)
-        expect(result).to be_an(Array)
-        expect(result.first).to be_a(ReferralListEntry)
-        expect(result.first.referral_id).to eq('123')
-        expect(result.first.status).to eq('ACTIVE')
-        expect(result.first.service_type).to eq('CARDIOLOGY')
+        VCR.use_cassette('vaos/ccra/post_referral_list_success') do
+          result = subject.get_vaos_referral_list(icn, referral_status)
+          expect(result).to be_an(Array)
+          expect(result.first).to be_a(Ccra::ReferralListEntry)
+          expect(result.first.referral_id).to eq('5682')
+          expect(result.first.type_of_care).to eq('CARDIOLOGY')
+        end
       end
     end
 
-    context 'with error response' do
-      before do
-        allow(subject).to receive(:perform)
-          .and_raise(Common::Exceptions::BackendServiceException.new('CCRA_502', { status: 502 }, 502))
+    context 'with empty response', :vcr do
+      let(:referral_status) { 'INVALID' }
+
+      it 'returns an empty array' do
+        VCR.use_cassette('vaos/ccra/post_referral_list_empty') do
+          result = subject.get_vaos_referral_list(icn, referral_status)
+          expect(result).to be_an(Array)
+          expect(result).to be_empty
+        end
       end
+    end
+
+    context 'with error response', :vcr do
+      let(:icn) { 'invalid' }
 
       it 'raises a BackendServiceException' do
-        expect { subject.get_vaos_referral_list(icn, referral_status) }
-          .to raise_error(Common::Exceptions::BackendServiceException)
+        VCR.use_cassette('vaos/ccra/post_referral_list_error') do
+          expect { subject.get_vaos_referral_list(icn, referral_status) }
+            .to raise_error(Common::Exceptions::BackendServiceException)
+        end
       end
     end
   end
 
   describe '#get_referral' do
-    let(:id) { '123456' }
+    let(:id) { '984_646372' }
     let(:mode) { '2' }
-    let(:response_body) do
-      {
-        'Referral' => {
-          'CategoryOfCare' => 'CARDIOLOGY',
-          'ReferralNumber' => 'VA0000005681',
-          'Status' => 'First Appointment Made'
-        }
-      }
-    end
 
-    context 'with successful response' do
-      before do
-        allow(subject).to receive(:perform)
-          .with(:post, '/api/v1/ReferralUtil/GetReferral',
-                { Id: id, Mode: mode }, headers)
-          .and_return(double('Response', body: response_body))
-      end
-
+    context 'with successful response', :vcr do
       it 'returns a ReferralDetail object' do
-        result = subject.get_referral(id, mode)
-        expect(result).to be_a(ReferralDetail)
-        expect(result.category_of_care).to eq('CARDIOLOGY')
-        expect(result.referral_number).to eq('VA0000005681')
-        expect(result.status).to eq('First Appointment Made')
+        VCR.use_cassette('vaos/ccra/post_get_referral_success') do
+          result = subject.get_referral(id, mode)
+          expect(result).to be_a(Ccra::ReferralDetail)
+          expect(result.type_of_care).to eq('CARDIOLOGY')
+          expect(result.referral_number).to eq('VA0000005681')
+        end
       end
     end
 
-    context 'with error response' do
-      before do
-        allow(subject).to receive(:perform)
-          .and_raise(Common::Exceptions::BackendServiceException.new('CCRA_502', { status: 502 }, 502))
+    context 'when referral not found', :vcr do
+      let(:id) { 'invalid_id' }
+
+      it 'raises not found error' do
+        VCR.use_cassette('vaos/ccra/post_get_referral_not_found') do
+          expect { subject.get_referral(id, mode) }
+            .to raise_error(Common::Exceptions::BackendServiceException)
+        end
       end
+    end
+
+    context 'with error response', :vcr do
+      let(:id) { 'error_id' }
 
       it 'raises a BackendServiceException' do
-        expect { subject.get_referral(id, mode) }
-          .to raise_error(Common::Exceptions::BackendServiceException)
+        VCR.use_cassette('vaos/ccra/post_get_referral_error') do
+          expect { subject.get_referral(id, mode) }
+            .to raise_error(Common::Exceptions::BackendServiceException)
+        end
       end
     end
   end

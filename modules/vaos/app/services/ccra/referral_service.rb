@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Ccra
-  # CCRA::ReferralService provides methods for interacting with the CCRA referral endpoints.
-  # It inherits from CCRA::BaseService for common REST functionality and configuration.
+  # Ccra::ReferralService provides methods for interacting with the CCRA referral endpoints.
+  # It inherits from Ccra::BaseService for common REST functionality and configuration.
   class ReferralService < BaseService
     # Fetches the VAOS Referral List.
     #
@@ -19,7 +19,7 @@ module Ccra
           data,
           headers
         )
-        ReferralListEntry.build_collection(response.body)
+        ReferralListEntry.build_collection(JSON.parse(response.body))
       end
     end
 
@@ -38,7 +38,7 @@ module Ccra
           data,
           headers
         )
-        ReferralDetail.new(response.body)
+        ReferralDetail.new(JSON.parse(response.body))
       end
     end
   end
