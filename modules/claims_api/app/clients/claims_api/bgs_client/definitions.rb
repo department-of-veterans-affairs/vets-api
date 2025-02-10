@@ -62,7 +62,7 @@ module ClaimsApi
           )
       end
 
-      # BGS gave the same name to this service and the one below (BenefitClaimWebService), so 
+      # BGS gave the same name to this service and the one below (BenefitClaimWebService), so
       # We changed the definition name to resemble the bean name.
       module BenefitClaimService
         DEFINITION =
