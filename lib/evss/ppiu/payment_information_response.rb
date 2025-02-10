@@ -5,7 +5,7 @@ require 'evss/ppiu/payment_information'
 
 module EVSS
   module PPIU
-    ##
+    ##  # TODO - see if we can remove
     # Model for payment information responses.
     #
     # @param status [Integer] The HTTP status code

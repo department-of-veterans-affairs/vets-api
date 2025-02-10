@@ -31,10 +31,10 @@ module V0
     def index
       intent_to_file_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:intent_to_file],
-        provider: nil,
+        provider: :lighthouse,
         options: {},
         current_user: @current_user,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE
+        feature_toggle: nil
       )
       type = params['itf_type'] || 'compensation'
       if Flipper.enabled?(:disability_compensation_production_tester, @current_user)
@@ -47,6 +47,7 @@ module V0
     end
 
     def active
+      # TODO - see if we can remove
       response = strategy.cache_or_service(@current_user.uuid, params[:type]) { service.get_active(params[:type]) }
       render json: IntentToFileSerializer.new(response)
     end
@@ -54,10 +55,10 @@ module V0
     def submit
       intent_to_file_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:intent_to_file],
-        provider: nil,
+        provider: :lighthouse,
         options: {},
         current_user: @current_user,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE
+        feature_toggle: nil
       )
       type = params['itf_type'] || 'compensation'
       if Flipper.enabled?(:disability_compensation_production_tester, @current_user)
@@ -88,13 +89,7 @@ module V0
     end
 
     def authorize_service
-      # Is this necessary if we've fully migrated to Lighthouse? EVSS tests still exist in the request spec,
-      # so it might be necessary until those are removed
-      if Flipper.enabled?(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE, @current_user)
-        authorize :lighthouse, :itf_access?
-      else
-        authorize :evss, :access_form526?
-      end
+      authorize :lighthouse, :itf_access?
     end
 
     def validate_type_param
@@ -103,10 +98,12 @@ module V0
     end
 
     def service
+      # TODO - see if we can remove
       EVSS::IntentToFile::Service.new(@current_user)
     end
 
     def strategy
+      # TODO - see if we can remove
       EVSS::IntentToFile::ResponseStrategy.new
     end
   end

@@ -9,6 +9,7 @@ require 'evss/ppiu/service_exception'
 
 module EVSS
   module PPIU
+    # TODO - see if we can remove
     # Proxy Service for EVSS's PPIU endpoints. For the foreseeable future, EVSS will only support
     # the 'CNP' (Compensation and Pension) payment type and is therefore statically assigned in the
     # request payloads.

@@ -18,13 +18,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
                                               anything).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE,
-                                              anything).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_fail_submission,
                                               anything).and_return(false)
+    allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
+                                                              .and_return('access_token')
   end
 
-  let(:user) { create(:user, :loa3) }
+  let(:user) { create(:user, :loa3, icn: '123456') }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -45,15 +45,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     let(:open_claims_cassette) { 'evss/claims/claims_without_open_compensation_claims' }
     let(:caseflow_cassette) { 'caseflow/appeals' }
     let(:rated_disabilities_cassette) { 'evss/disability_compensation_form/rated_disabilities' }
+    let(:lh_rated_disabilities_cassette) { 'lighthouse/claims/200_response'}
     let(:submit_form_cassette) { 'evss/disability_compensation_form/submit_form_v2' }
     let(:lh_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload_location' }
     let(:evss_get_pdf) { 'form526_backup/200_evss_get_pdf' }
     let(:lh_intake_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload' }
     let(:lh_submission) { 'lighthouse/benefits_claims/submit526/200_synchronous_response' }
+    let(:lh_longer_icn_submission) { 'lighthouse/claims/200_response_longer_icn'}
     let(:cassettes) do
       [open_claims_cassette, caseflow_cassette, rated_disabilities_cassette,
        submit_form_cassette, lh_upload, evss_get_pdf,
-       lh_intake_upload, lh_submission]
+       lh_intake_upload, lh_submission, lh_rated_disabilities_cassette, lh_longer_icn_submission]
     end
     let(:backup_klass) { Sidekiq::Form526BackupSubmissionProcess::Submit }
 
@@ -97,10 +99,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       def submit_it
+        # allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
+        #                                                           .and_return('access_token')
         subject.perform_async(submission.id)
-        VCR.use_cassette('virtual_regional_office/contention_classification_null_response') do
-          described_class.drain
-        end
+        # VCR.use_cassette('lighthouse/claims/200_response' ) do
+         VCR.use_cassette('virtual_regional_office/contention_classification_null_response') do
+            described_class.drain
+           end
+        # end
         submission.reload
         expect(Form526JobStatus.last.status).to eq 'success'
       end
@@ -116,7 +122,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
         it 'does not log or push metrics' do
           submit_it
-
           expect(Rails.logger).not_to have_received(:info).with('Flash Prototype Added', anything)
           expect(StatsD).not_to have_received(:increment).with('worker.flashes', anything)
         end
@@ -363,7 +368,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         end
         let(:mas_cassette) { 'mail_automation/mas_initiate_apcas_request' }
         let(:cassettes) do
-          [open_claims_cassette, rated_disabilities_cassette, submit_form_cassette, mas_cassette]
+          [open_claims_cassette, rated_disabilities_cassette, submit_form_cassette, mas_cassette, lh_rated_disabilities_cassette]
         end
 
         before do
@@ -452,6 +457,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       context 'with Lighthouse as submission provider' do
+        let(:user) { create(:user, :loa3, icn: '123498767V234859') }
         let(:submission) do
           create(:form526_submission,
                  :with_everything,

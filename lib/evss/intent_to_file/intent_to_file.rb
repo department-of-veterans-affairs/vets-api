@@ -4,7 +4,7 @@ require 'common/models/base'
 
 module EVSS
   module IntentToFile
-    ##
+    ##  # TODO - see if we can remove
     # Model for an intent to file
     #
     # @param args [Hash] Data to include in the intent to file

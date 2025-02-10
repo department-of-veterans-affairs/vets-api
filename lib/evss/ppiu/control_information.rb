@@ -4,7 +4,7 @@ require 'common/models/base'
 
 module EVSS
   module PPIU
-    ##
+    ##  # TODO - see if we can remove
     # Determines if the user can update their address.
     # Updates are only allowed when all member variables of this object are 'true'
     #

@@ -7,7 +7,7 @@ require 'evss/ppiu/payment_address'
 
 module EVSS
   module PPIU
-    ##
+    ##  # TODO - see if we can remove
     # Model for payment information
     #
     # @!attribute control_information
