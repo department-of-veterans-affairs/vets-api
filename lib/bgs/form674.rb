@@ -25,9 +25,22 @@ module BGS
       @proc_state = 'Ready' if Flipper.enabled?(:va_dependents_submit674)
     end
 
-    def submit(payload, student = nil)
+    def submit(payload)
       veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130SCHATTEBN').create
 
+      if Flipper.enabled?(:va_dependents_v2)
+        payload['dependents_application']['student_information'].each do |student|
+          process_claim(veteran, payload, student)
+        end
+      else
+        process_claim(veteran, payload)
+      end
+      
+    end
+
+    private
+
+    def process_claim(veteran, payload, student = nil)
       process_relationships(proc_id, veteran, payload, student)
 
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user:)
@@ -60,8 +73,6 @@ module BGS
         log_submit_failure(error)
       end
     end
-
-    private
 
     def benefit_claim_args(vnp_benefit_claim_record, veteran)
       {

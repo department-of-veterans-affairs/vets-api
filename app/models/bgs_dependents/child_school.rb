@@ -12,7 +12,7 @@ module BGSDependents
       @vnp_participant_id = vnp_participant_id
       @student = student
       @is_v2 = Flipper.enabled?(:va_dependents_v2)
-      self.attributes = dependents_application
+      self.attributes = @is_v2 ? student : dependents_application
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -48,6 +48,45 @@ module BGSDependents
         gradtn_dt: format_date(current_term_dates&.dig('expected_graduation_date')),
         full_time_studnt_type_cd: school_information&.dig('school_type'),
         part_time_school_subjct_txt: program_information&.dig('course_of_study')
+      }
+    end
+    # rubocop:enable Metrics/MethodLength
+
+    # this method is duplicated from the above because each line will be parsed 
+    # differently from v1.
+    # rubocop:disable Metrics/MethodLength
+    def params_for_686c_v2
+      {
+        vnp_proc_id: @proc_id,
+        vnp_ptcpnt_id: @vnp_participant_id,
+        last_term_start_dt: format_date(school_information&.dig('last_term_school_information', 'term_begin')),
+        last_term_end_dt: format_date(school_information&.dig('last_term_school_information', 'date_term_ended')),
+        prev_hours_per_wk_num: nil,
+        prev_sessns_per_wk_num: nil,
+        prev_school_nm: nil,
+        prev_school_cntry_nm: nil,
+        prev_school_addrs_one_txt: nil,
+        prev_school_addrs_two_txt: nil,
+        prev_school_addrs_three_txt: nil,
+        prev_school_city_nm: nil,
+        prev_school_postal_cd: nil,
+        prev_school_addrs_zip_nbr: nil,
+        curnt_school_nm: school_information&.dig('name'),
+        curnt_school_addrs_one_txt: nil,
+        curnt_school_addrs_two_txt: nil,
+        curnt_school_addrs_three_txt: nil,
+        curnt_school_postal_cd: nil,
+        curnt_school_city_nm: nil,
+        curnt_school_addrs_zip_nbr: nil,
+        curnt_school_cntry_nm: nil,
+        course_name_txt: nil,
+        curnt_sessns_per_wk_num: nil,
+        curnt_hours_per_wk_num: nil,
+        school_actual_expctd_start_dt: school_information&.dig('current_term_dates', 'official_school_start_date'),
+        school_term_start_dt: format_date(school_information&.dig('current_term_dates', 'expected_student_start_date')),
+        gradtn_dt: format_date(school_information&.dig('current_term_dates', 'expected_graduation_date')),
+        full_time_studnt_type_cd: nil,
+        part_time_school_subjct_txt: nil
       }
     end
     # rubocop:enable Metrics/MethodLength

@@ -113,13 +113,7 @@ module BGS
 
       claim_data = normalize_names_and_addresses!(claim.formatted_674_data(vet_info))
       
-      if Flipper.enabled?(:va_dependents_v2)
-        claim_data['dependents_application']['student_information'].each do |student|
-          BGS::Form674.new(user, claim).submit(claim_data, student)
-        end
-      else
-        BGS::Form674.new(user, claim).submit(claim_data)
-      end
+      BGS::Form674.new(user, claim).submit(claim_data)
     end
 
     def send_confirmation_email
