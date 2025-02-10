@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module CCRA
+module Ccra
   # CCRA::ReferralService provides methods for interacting with the CCRA referral endpoints.
   # It inherits from CCRA::BaseService for common REST functionality and configuration.
   class ReferralService < BaseService

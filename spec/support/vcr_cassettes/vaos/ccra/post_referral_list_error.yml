@@ -1,0 +1,31 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://10.247.79.48/csp/healthshare/ccraint/rest/VAOS/patients/ReferralList
+    body:
+      encoding: UTF-8
+      string: '{"ICN":"invalid","ReferralStatus":"''S'',''BP'',''AP'',''AC'',''A'',''I''"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      CACHE-CONTROL:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'self' 'unsafe-inline' 'unsafe-eval';
+      Date:
+      - Tue, 26 Nov 2024 17:05:45 GMT
+    body:
+      encoding: UTF-8
+      string: '{"error":"Invalid ICN format"}'
+    http_version: 
+  recorded_at: Tue, 26 Nov 2024 17:05:45 GMT 

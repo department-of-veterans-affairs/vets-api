@@ -1,0 +1,35 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://10.247.79.48/csp/healthshare/ccraint/rest/ReferralUtil/GetReferral
+    body:
+      encoding: UTF-8
+      string: '{"Id":"984_646372","Mode":"2"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      CACHE-CONTROL:
+      - no-cache
+      CONTENT-ENCODING:
+      - gzip
+      CONTENT-LENGTH:
+      - '3195'
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'self' 'unsafe-inline' 'unsafe-eval';
+      Date:
+      - Tue, 26 Nov 2024 17:06:42 GMT
+    body:
+      encoding: UTF-8
+      string: '{"Referral":{"APPTYesNo1":"Y","AffilitationCode":"CCN2","AffilitationDesc":"CCN2","AppointmentDate":"2024-06-01","CategoryOfCare":"CARDIOLOGY","ClinicallyIndicatedDate":"2024-03-28","EpisodeID":"5682","ReferralNumber":"VA0000005681","Status":"First Appointment Made"}}'
+    http_version: 
+  recorded_at: Tue, 26 Nov 2024 17:06:42 GMT 

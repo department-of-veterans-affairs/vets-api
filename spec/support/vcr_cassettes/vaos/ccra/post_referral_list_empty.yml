@@ -1,0 +1,35 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://10.247.79.48/csp/healthshare/ccraint/rest/VAOS/patients/ReferralList
+    body:
+      encoding: UTF-8
+      string: '{"ICN":"1012845331V153043","ReferralStatus":"''S'',''BP'',''AP'',''AC'',''A'',''I''"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      CACHE-CONTROL:
+      - no-cache
+      CONTENT-ENCODING:
+      - gzip
+      CONTENT-LENGTH:
+      - '0'
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'self' 'unsafe-inline' 'unsafe-eval';
+      Date:
+      - Tue, 26 Nov 2024 17:05:45 GMT
+    body:
+      encoding: UTF-8
+      string: '[]'
+    http_version: 
+  recorded_at: Tue, 26 Nov 2024 17:05:45 GMT 

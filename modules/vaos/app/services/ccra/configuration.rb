@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module CCRA
+module Ccra
   # CCRA::Configuration provides the configuration settings for the CCRA API.
   # It retrieves settings from the application configuration (e.g., Settings.vaos.ccra)
   # and delegates common REST parameters.

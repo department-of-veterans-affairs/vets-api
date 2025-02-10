@@ -1,0 +1,31 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://10.247.79.48/csp/healthshare/ccraint/rest/ReferralUtil/GetReferral
+    body:
+      encoding: UTF-8
+      string: '{"Id":"invalid_id","Mode":"2"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      CACHE-CONTROL:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'self' 'unsafe-inline' 'unsafe-eval';
+      Date:
+      - Tue, 26 Nov 2024 17:06:42 GMT
+    body:
+      encoding: UTF-8
+      string: '{"error":"Referral not found"}'
+    http_version: 
+  recorded_at: Tue, 26 Nov 2024 17:06:42 GMT 
