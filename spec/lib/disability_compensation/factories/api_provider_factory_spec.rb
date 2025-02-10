@@ -206,24 +206,12 @@ RSpec.describe ApiProviderFactory do
         provider: api_provider,
         options: { auth_headers: },
         current_user:,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
+        feature_toggle: nil
       )
-    end
-
-    it 'provides an EVSS generate_pdf provider' do
-      expect(provider(:evss).class).to equal(EvssGeneratePdfProvider)
     end
 
     it 'provides a Lighthouse generate_pdf provider' do
       expect(provider(:lighthouse).class).to equal(LighthouseGeneratePdfProvider)
-    end
-
-    it 'provides generate_pdf provider based on Flipper' do
-      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
-      expect(provider.class).to equal(LighthouseGeneratePdfProvider)
-
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
-      expect(provider.class).to equal(EvssGeneratePdfProvider)
     end
 
     it 'throw error if provider unknown' do
