@@ -62,7 +62,9 @@ module ClaimsApi
           )
       end
 
-      module BenefitClaimWebService
+      # BGS gave the same name to this service and the one below (BenefitClaimWebService), so 
+      # We changed the definition name to resemble the bean name.
+      module BenefitClaimService
         DEFINITION =
           Service.new(
             bean: BenefitClaimServiceBean::DEFINITION,
@@ -85,7 +87,7 @@ module ClaimsApi
           )
       end
 
-      module BenefitClaimWebService2
+      module BenefitClaimWebService
         DEFINITION =
           Service.new(
             bean: BenefitClaimWebServiceBean::DEFINITION,
