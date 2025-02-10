@@ -647,10 +647,21 @@ RSpec.describe User, type: :model do
         end
 
         describe '#active_mhv_ids' do
-          let(:user) { build(:user, :loa3) }
+          let(:user) { build(:user, :loa3, active_mhv_ids:) }
+          let(:active_mhv_ids) { [mhv_id] }
+          let(:mhv_id) { 'some-mhv-id' }
 
           it 'fetches active_mhv_ids from MPI' do
-            expect(user.active_mhv_ids).to be(user.send(:mpi_profile).active_mhv_ids)
+            expect(user.active_mhv_ids).to eq(active_mhv_ids)
+          end
+
+          context 'when user has duplicate ids' do
+            let(:active_mhv_ids) { [mhv_id, mhv_id] }
+            let(:expected_active_mhv_ids) { [mhv_id] }
+
+            it 'fetches unique active_mhv_ids from MPI' do
+              expect(user.active_mhv_ids).to eq(expected_active_mhv_ids)
+            end
           end
         end
 
