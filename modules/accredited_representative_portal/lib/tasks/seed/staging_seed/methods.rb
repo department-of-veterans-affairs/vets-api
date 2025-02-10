@@ -187,6 +187,8 @@ module AccreditedRepresentativePortal
       include OrganizationMethods
 
       def cleanup_existing_data
+        AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration.destroy_all
+        AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyForm.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyRequest.destroy_all
