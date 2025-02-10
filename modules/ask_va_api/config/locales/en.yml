@@ -127,6 +127,11 @@ en:
               - :service_number
               - :ssn
             - :suffix
+            - :branch_of_service
+            - :preferred_name
+            - :service_date_range:
+              - :from
+              - :to
           about_the_veteran:
             - :date_of_birth
             - :first

@@ -3,6 +3,13 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
+      module Statuses
+        ALL = [
+          PENDING = 'pending',
+          PROCESSED = 'processed'
+        ].freeze
+      end
+
       include PowerOfAttorneyRequests
 
       before_action do
@@ -17,14 +24,26 @@ module AccreditedRepresentativePortal
       end
 
       def index
-        includes = [
-          :power_of_attorney_form,
-          :power_of_attorney_holder,
-          :accredited_individual,
-          { resolution: :resolving }
-        ]
+        rel = poa_request_scope
+        status = params[:status].presence
 
-        poa_requests = poa_request_scope.includes(includes).limit(100)
+        rel =
+          case status
+          when Statuses::PENDING
+            rel.unresolved.order(created_at: :asc)
+          when Statuses::PROCESSED
+            rel.resolved.not_expired.order('resolution.created_at DESC')
+          when NilClass
+            rel
+          else
+            # Throw 400 for unexpected, non-blank statuses
+            raise ActionController::BadRequest, <<~MSG.squish
+              Invalid status parameter.
+              Must be one of (#{Statuses::ALL.join(', ')})
+            MSG
+          end
+
+        poa_requests = rel.includes(scope_includes).limit(100)
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
         render json: serializer.serializable_hash, status: :ok
       end
@@ -32,6 +51,17 @@ module AccreditedRepresentativePortal
       def show
         serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
         render json: serializer.serializable_hash, status: :ok
+      end
+
+      private
+
+      def scope_includes
+        [
+          :power_of_attorney_form,
+          :accredited_individual,
+          :accredited_organization,
+          { resolution: :resolving }
+        ]
       end
     end
   end

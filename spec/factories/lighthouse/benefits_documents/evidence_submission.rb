@@ -3,11 +3,6 @@
 require 'lighthouse/benefits_documents/constants'
 
 FactoryBot.define do
-  factory :bd_evidence_submission, class: 'EvidenceSubmission' do
-    association :user_account, factory: :user_account
-    created_at { DateTime.now.utc }
-  end
-
   factory :bd_evidence_submission_timeout, class: 'EvidenceSubmission' do
     association :user_account, factory: :user_account
     created_at { DateTime.new(1985, 10, 26).utc }
@@ -17,7 +12,7 @@ FactoryBot.define do
     association :user_account, factory: :user_account
     created_at { DateTime.now.utc }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING] }
-    template_metadata_ciphertext do
+    template_metadata do
       { 'personalisation' => {
         'first_name' => 'test',
         'document_type' => 'L014',
@@ -34,7 +29,7 @@ FactoryBot.define do
     created_at { DateTime.now.utc }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
     job_class { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
-    template_metadata_ciphertext do
+    template_metadata do
       { 'personalisation' => {
         'first_name' => 'test',
         'document_type' => 'L014',

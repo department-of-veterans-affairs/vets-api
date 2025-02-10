@@ -32,7 +32,7 @@ RSpec.describe V0::GIBillFeedbacksController, type: :controller do
         expect(Sentry).to receive(:set_tags).with(validation: 'gibft').at_least(:once)
         post(:create, params: { gi_bill_feedback: { form: { foo: 1 }.to_json } })
 
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed_body['errors'][0]['title'].include?('contains additional properties')).to be(true)
       end
     end

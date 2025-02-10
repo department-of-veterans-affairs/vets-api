@@ -84,8 +84,6 @@ module Burials
     # @param in_progress_form [InProgressForm]
     # @param claim [SavedClaim::Burial]
     # @param current_user [User]
-    # @param e [Error]
-    #
     def track_create_validation_error(in_progress_form, claim, current_user)
       additional_context = {
         confirmation_number: claim&.confirmation_number,
@@ -188,6 +186,28 @@ module Burials
 
       track_request('error', 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!',
                     "#{SUBMISSION_STATS_KEY}.exhausted", call_location:, **additional_context)
+    end
+
+    ##
+    # Tracks the failure to send a Submission in Progress email for a claim.
+    # @see Lighthouse::SubmitBenefitsIntakeClaim
+    #
+    # @param claim [Burials::SavedClaim]
+    # @param lighthouse_service [LighthouseService]
+    # @param e [Exception]
+    #
+    def track_send_submitted_email_failure(claim, lighthouse_service, e)
+      additional_context = {
+        confirmation_number: claim&.confirmation_number,
+        claim_id: claim&.id,
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        message: e&.message,
+        tags:
+      }
+
+      track_request('warn', 'Lighthouse::SubmitBenefitsIntakeClaim send_submitted_email failed',
+                    "#{SUBMISSION_STATS_KEY}.send_submitted_failed",
+                    call_location: caller_locations.first, **additional_context)
     end
   end
 end

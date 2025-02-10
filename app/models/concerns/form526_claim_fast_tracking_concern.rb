@@ -3,6 +3,7 @@
 require 'mail_automation/client'
 require 'lighthouse/veterans_health/client'
 require 'virtual_regional_office/client'
+require 'contention_classification/client'
 
 # rubocop:disable Metrics/ModuleLength
 # For use with Form526Submission
@@ -11,12 +12,9 @@ module Form526ClaimFastTrackingConcern
 
   RRD_STATSD_KEY_PREFIX = 'worker.rapid_ready_for_decision'
   MAX_CFI_STATSD_KEY_PREFIX = 'api.max_cfi'
-  EP_MERGE_STATSD_KEY_PREFIX = 'worker.ep_merge'
   FLASHES_STATSD_KEY = 'worker.flashes'
 
   FLASH_PROTOTYPES = ['Amyotrophic Lateral Sclerosis'].freeze
-  EP_MERGE_BASE_CODES = %w[010 110 020].freeze
-  EP_MERGE_SPECIAL_ISSUE = 'EMP'
   OPEN_STATUSES = [
     'CLAIM RECEIVED',
     'UNDER REVIEW',
@@ -25,8 +23,6 @@ module Form526ClaimFastTrackingConcern
     'CLAIM_RECEIVED',
     'INITIAL_REVIEW'
   ].freeze
-  CLAIM_REVIEW_BASE_CODES = %w[030 040].freeze
-  CLAIM_REVIEW_TYPES = %w[higherLevelReview supplementalClaim].freeze
 
   def claim_age_in_days(pending_ep)
     date = if pending_ep.respond_to?(:claim_date)
@@ -55,6 +51,7 @@ module Form526ClaimFastTrackingConcern
     self
   end
 
+  # TODO: Remove? This is unused.
   def rrd_status
     return 'processed' if rrd_claim_processed?
 
@@ -120,39 +117,15 @@ module Form526ClaimFastTrackingConcern
 
   def prepare_for_evss!
     begin
-      is_claim_fully_classified = update_contention_classification_all!
+      update_contention_classification_all!
     rescue => e
       Rails.logger.error("Contention Classification failed #{e.message}.")
       Rails.logger.error(e.backtrace.join('\n'))
     end
 
-    prepare_for_ep_merge! if is_claim_fully_classified
-
     return if pending_eps? || disabilities_not_service_connected?
 
     save_metadata(forward_to_mas_all_claims: true)
-  end
-
-  def prepare_for_ep_merge!
-    pending_eps = open_claims.select do |claim|
-      EP_MERGE_BASE_CODES.include?(claim['base_end_product_code']) && OPEN_STATUSES.include?(claim['status'])
-    end
-    Rails.logger.info('EP Merge total open EPs', id:, count: pending_eps.count)
-    return unless pending_eps.count == 1
-
-    feature_enabled = ep_merge_feature_enabled?
-    open_claim_review = open_claim_review?
-    Rails.logger.info(
-      'EP Merge open EP eligibility',
-      { id:, feature_enabled:, open_claim_review:,
-        pending_ep_age: claim_age_in_days(pending_eps.first), pending_ep_status: pending_eps.first['status'] }
-    )
-    if feature_enabled && !open_claim_review
-      save_metadata(ep_merge_pending_claim_id: pending_eps.first['id'])
-      add_ep_merge_special_issue!
-    end
-  rescue => e
-    Rails.logger.error("EP400 Merge eligibility failed #{e.message}.", backtrace: e.backtrace)
   end
 
   def update_form_with_classification_codes(classified_contentions)
@@ -169,14 +142,12 @@ module Form526ClaimFastTrackingConcern
 
   def classify_vagov_contentions(params)
     user = OpenStruct.new({ flipper_id: user_uuid })
-    vro_client = VirtualRegionalOffice::Client.new
 
-    response = if Flipper.enabled?(:disability_526_expanded_contention_classification, user)
-                 vro_client.classify_vagov_contentions_expanded(params)
+    response = if Flipper.enabled?(:disability_526_migrate_contention_classification, user)
+                 ContentionClassification::Client.new.classify_vagov_contentions_expanded(params)
                else
-                 vro_client.classify_vagov_contentions(params)
+                 VirtualRegionalOffice::Client.new.classify_vagov_contentions_expanded(params)
                end
-
     response.body
   end
 
@@ -249,7 +220,6 @@ module Form526ClaimFastTrackingConcern
 
   def send_post_evss_notifications!
     conditionally_notify_mas
-    conditionally_merge_ep
     log_flashes
     Rails.logger.info('Submitted 526Submission to eVSS', id:, saved_claim_id:, submitted_claim_id:)
   end
@@ -268,23 +238,6 @@ module Form526ClaimFastTrackingConcern
     return false if in_progress_form.nil?
 
     ClaimFastTracking::MaxCfiMetrics.new(in_progress_form, {}).create_or_load_metadata['cfiLogged']
-  end
-
-  def add_ep_merge_special_issue!
-    disabilities.each do |disability|
-      disability['specialIssues'] ||= []
-      disability['specialIssues'].append(EP_MERGE_SPECIAL_ISSUE).uniq!
-    end
-    update!(form_json: JSON.dump(form))
-  end
-
-  def ep_merge_feature_enabled?
-    actor = OpenStruct.new({ flipper_id: user_uuid })
-    if Flipper.enabled?(:disability_compensation_production_tester, actor)
-      Rails.logger.info("EP merge skipped for submission #{id}, user_uuid #{user_uuid}")
-      return false
-    end
-    Flipper.enabled?(:disability_526_ep_merge_api, actor)
   end
 
   private
@@ -325,30 +278,6 @@ module Form526ClaimFastTrackingConcern
       all_claims = api_provider.all_claims
       all_claims['open_claims']
     end
-  end
-
-  # Check both Benefits Claim service and Caseflow Appeals status APIs for open 030 or 040
-  # Offramps EP 400 Merge process if any are found, or if anything fails
-  def open_claim_review?
-    open_claim_review = open_claims.any? do |claim|
-      CLAIM_REVIEW_BASE_CODES.include?(claim['base_end_product_code']) && OPEN_STATUSES.include?(claim['status'])
-    end
-    if open_claim_review
-      StatsD.increment("#{EP_MERGE_STATSD_KEY_PREFIX}.open_claim_review")
-      return true
-    end
-
-    ssn = User.find(user_uuid)&.ssn
-    ssn ||= auth_headers['va_eauth_pnid'] if auth_headers['va_eauth_pnidtype'] == 'SSN'
-    decision_reviews = Caseflow::Service.new.get_appeals(OpenStruct.new({ ssn: })).body['data']
-    StatsD.increment("#{EP_MERGE_STATSD_KEY_PREFIX}.caseflow_api_called")
-    decision_reviews.any? do |review|
-      CLAIM_REVIEW_TYPES.include?(review['type']) && review['attributes']['active']
-    end
-  rescue => e
-    Rails.logger.error('EP Merge failed open claim review check', backtrace: e.backtrace)
-    Rails.logger.error(e.backtrace.join('\n'))
-    true
   end
 
   # fetch, memoize, and return all of the veteran's rated disabilities from EVSS
@@ -401,16 +330,6 @@ module Form526ClaimFastTrackingConcern
     send_rrd_alert_email("Failure: MA claim - #{submitted_claim_id}", e.to_s, nil,
                          Settings.rrd.mas_tracking.recipients)
     StatsD.increment("#{RRD_STATSD_KEY_PREFIX}.notify_mas.failure")
-  end
-
-  def conditionally_merge_ep
-    pending_claim_id = read_metadata(:ep_merge_pending_claim_id)
-    return if pending_claim_id.blank?
-
-    vro_client = VirtualRegionalOffice::Client.new
-    vro_client.merge_end_products(pending_claim_id:, ep400_id: submitted_claim_id)
-  rescue => e
-    Rails.logger.error("EP merge request failed #{e.message}.", backtrace: e.backtrace)
   end
 
   def log_flashes

@@ -33,7 +33,19 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(response).to have_http_status(:ok)
         # NOTE: There are 8 items in the VCR cassette, but some of them will
         # get filtered out by the service based on their 'status' values
-        expect(EVSSClaim.all.count).to equal(5)
+        expect(EVSSClaim.all.count).to equal(6)
+      end
+
+      it 'returns claimType language modifications' do
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+        parsed_body = JSON.parse(response.body)
+
+        expect(parsed_body['data']
+          .select { |claim| claim['attributes']['claimType'] == 'expenses related to death or burial' }.count).to eq 1
+        expect(parsed_body['data']
+          .select { |claim| claim['attributes']['claimType'] == 'Death' }.count).to eq 0
       end
     end
 
@@ -102,6 +114,42 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
   describe '#show' do
     context 'when successful' do
+      context 'when cst_override_reserve_records_website flipper is true' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(true)
+        end
+
+        it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2,
+                                 'displayName')).to eq('RV1 - Reserve Records Request')
+          # In the cassette, this value is NEEDED_FROM_YOU
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
+        end
+      end
+
+      context 'when cst_override_reserve_records_website flipper is false' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(false)
+        end
+
+        it 'leaves the tracked item status as NEEDED_FROM_YOU' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2,
+                                 'displayName')).to eq('RV1 - Reserve Records Request')
+          # Do not modify the cassette value
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_YOU')
+        end
+      end
+
       it 'returns a status of 200' do
         VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
           get(:show, params: { id: '600383363' })
@@ -162,8 +210,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                 { message_type: 'lh.cst.evidence_requests',
                   claim_id: '600383363',
                   tracked_item_id: 395_084,
-                  tracked_item_type: 'Request 1',
-                  tracked_item_status: 'NEEDED_FROM_YOU' })
+                  tracked_item_type: 'Private Medical Record',
+                  tracked_item_status: 'NEEDED_FROM_OTHERS' })
         expect(Rails.logger)
           .to have_received(:info)
           .with('Evidence Request Types',
@@ -172,6 +220,16 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                   tracked_item_id: 394_443,
                   tracked_item_type: 'Submit buddy statement(s)',
                   tracked_item_status: 'NEEDED_FROM_YOU' })
+      end
+
+      it 'returns claimType language modifications' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_death_claim_response') do
+          get(:show, params: { id: '600229972' })
+        end
+        parsed_body = JSON.parse(response.body)
+
+        expect(parsed_body['data']['attributes']['claimType'] == 'expenses related to death or burial').to be true
+        expect(parsed_body['data']['attributes']['claimType'] == 'Death').to be false
       end
     end
 

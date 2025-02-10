@@ -101,7 +101,7 @@ module SimpleFormsApi
 
     def check_missing_keys(config)
       all_keys = %i[form_data form_number date_submitted]
-      all_keys << :confirmation_number if needs_confirmation_number?(config)
+      all_keys << :confirmation_number if needs_confirmation_number?
       all_keys << :expiration_date if config[:form_number] == 'vba_21_0966_intent_api'
 
       missing_keys = all_keys.select { |key| config[key].nil? || config[key].to_s.strip.empty? }
@@ -145,8 +145,7 @@ module SimpleFormsApi
           email,
           template_id,
           get_personalization(first_name),
-          Settings.vanotify.services.va_gov.api_key,
-          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+          *email_args
         )
       else
         VANotify::EmailJob.perform_at(
@@ -168,8 +167,7 @@ module SimpleFormsApi
           user_account.id,
           template_id,
           get_personalization(first_name_from_user_account),
-          Settings.vanotify.services.va_gov.api_key,
-          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+          *email_args
         )
       else
         VANotify::UserAccountJob.perform_at(
@@ -427,6 +425,13 @@ module SimpleFormsApi
       end
     end
 
+    def email_args
+      [
+        Settings.vanotify.services.va_gov.api_key,
+        { callback_metadata: { notification_type:, form_number:, confirmation_number:, statsd_tags: } }
+      ]
+    end
+
     def statsd_tags
       { 'service' => 'veteran-facing-forms', 'function' => "#{form_number} form submission to Lighthouse" }
     end
@@ -435,8 +440,10 @@ module SimpleFormsApi
       notification_type == :error
     end
 
-    def needs_confirmation_number?(config)
-      config[:form_number] != 'vba_26_4555' && %w[REJECTED DUPLICATE].exclude?(config[:notification_type])
+    def needs_confirmation_number?
+      # All email templates require confirmation_number except :duplicate for 26-4555 (SAHSHA)
+      # Only 26-4555 supports the :duplicate notification_type
+      notification_type != :duplicate
     end
   end
 end
