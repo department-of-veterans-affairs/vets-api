@@ -14,7 +14,7 @@ module GI
       # @return [GI::GIDSResponse]
       def self.from(response)
         version = response.response_headers['Etag']
-        new(status: response.status, body: response.body, version: 4)
+        new(status: response.status, body: response.body, version:)
       end
     end
   end
