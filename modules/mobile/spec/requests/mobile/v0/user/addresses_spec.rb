@@ -201,7 +201,6 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
         end
 
         it 'returns a 200' do
-          puts response.body
           expect(response).to have_http_status(:ok)
         end
 
