@@ -878,16 +878,18 @@ module HCA
 
       request = build_form_for_user(user_identifier, form_id)
 
+      attachments = []
+
       veteran['attachments']&.each_with_index do |attachment, i|
         guid = attachment['confirmationCode']
         form_attachment = HCAAttachment.find_by(guid:) || Form1010EzrAttachment.find_by(guid:)
 
         next if form_attachment.nil?
 
-        request['va:form']['va:attachments'] ||= []
-        request['va:form']['va:attachments'] << add_attachment(form_attachment.get_file, i + 1, attachment['dd214'])
+        attachments << add_attachment(form_attachment.get_file, i + 1, attachment['dd214'])
       end
 
+      request['va:form']['va:attachments'] = attachments
       request['va:form']['va:summary'] = veteran_to_summary(veteran)
       request['va:form']['va:applications'] = {
         'va:applicationInfo' => [{
