@@ -35,7 +35,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
       subject.new.perform
       expect(vanotify_service).not_to receive(:send_email)
-      # This is 1 since is has already been queued
+      # This is still 1 since is has already been queued
       expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
     end
   end

@@ -28,7 +28,7 @@ module BenefitsDocuments
 
     private
 
-    # Loop through each status respose that lighthosue returned and use the request Id in the stratus response to
+    # Loop through each status response that lighthosue returned and use the request Id in the status response to
     # find the given PENDING evidence submission record. Then we call BenefitsDocuments::UploadStatusUpdater
     # to update the PENDING evidence submission record accordingly.
     def update_documents_status
