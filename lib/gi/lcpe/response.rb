@@ -7,7 +7,7 @@ module GI
     class Response < GIDSResponse
       # @return  [String] the latest LCPE data etag
       attribute :version, String
-  
+
       # Builds a response with a ok status and a response's body
       #
       # @param response returned from the rest call

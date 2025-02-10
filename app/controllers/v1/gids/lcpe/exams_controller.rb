@@ -4,7 +4,6 @@ module V1
   module GIDS
     module LCPE
       class ExamsController < GIDS::LCPEController
-        # versioning currently disabled for exams#show, exclude :version (and not :id)
         VERSIONING_PARAMS = %i[version].freeze
 
         def index

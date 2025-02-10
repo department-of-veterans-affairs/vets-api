@@ -13,11 +13,11 @@ class LCPERedis < Common::RedisStore
 
   class ClientCacheStaleError < StandardError; end
 
-  def initialize(*args, lcpe_type: nil, v_client: nil)
+  def initialize(*, lcpe_type: nil, v_client: nil)
     @lcpe_type = lcpe_type
     @v_client = v_client
     @cached = self.class.find(lcpe_type)
-    super(*args)
+    super(*)
   end
 
   def fresh_version_from(response)

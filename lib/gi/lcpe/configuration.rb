@@ -6,7 +6,7 @@ module GI
   module LCPE
     class Configuration < GI::Configuration
       attr_accessor :etag
-      
+
       private
 
       def request_headers

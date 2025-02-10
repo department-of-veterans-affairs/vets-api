@@ -14,6 +14,7 @@ module GI
       def initialize(version_id: nil, lcpe_type: nil)
         @v_client = version_id
         @redis_key = lcpe_type
+        super()
       end
 
       def get_licenses_and_certs_v1(params = {})
@@ -43,7 +44,7 @@ module GI
       end
 
       private
-      
+
       def versioning_enabled?
         redis_key.present?
       end

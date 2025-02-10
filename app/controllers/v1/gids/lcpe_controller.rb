@@ -11,7 +11,7 @@ module V1
 
       def service
         super if bypass_versioning?
-        
+
         lcpe_client
       end
 
@@ -37,7 +37,7 @@ module V1
       end
 
       def version_invalid
-        render json: { error: "Version invalid" }, status: :conflict
+        render json: { error: 'Version invalid' }, status: :conflict
       end
     end
   end
