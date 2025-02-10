@@ -17,10 +17,10 @@ module Ccra
       @type_of_care = attributes['CategoryOfCare']
       @referral_id = attributes['ID']
 
-      start_date = Date.parse(attributes['StartDate']) if attributes['StartDate'].present?
+      start_date = parse_date(attributes['StartDate'])
       days = attributes['SEOCNumberOfDays'].to_i if attributes['SEOCNumberOfDays'].present?
 
-      @expiration_date = start_date + days if start_date && days.positive?
+      @expiration_date = start_date + days if start_date && days&.positive?
     end
 
     ##
@@ -30,6 +30,21 @@ module Ccra
     # @return [Array<ReferralListEntry>] Array of ReferralListEntry objects.
     def self.build_collection(referrals)
       Array(referrals).map { |referral_data| new(referral_data) }
+    end
+
+    private
+
+    #
+    # Parses the provided date string into a Date object.
+    #
+    # @param date_string [String] the date string to parse.
+    # @return [Date, nil] the parsed Date if the input is valid; nil otherwise.
+    def parse_date(date_string)
+      return nil if date_string.blank?
+
+      Date.parse(date_string)
+    rescue Date::Error
+      nil
     end
   end
 end
