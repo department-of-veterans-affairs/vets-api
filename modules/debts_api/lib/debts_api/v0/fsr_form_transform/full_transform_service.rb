@@ -19,7 +19,7 @@ module DebtsApi
 
         def initialize(form)
           @assets = AssetCalculator.new(form).transform_assets
-          @income = IncomeCalculator.new(form).combined_monthly_income_statement_as_json
+          @income = IncomeCalculator.new(form).monthly_income_statements_as_json
           @expenses = ExpenseCalculator.build(form).transform_expenses
           @additional_data = AdditionalDataCalculator.new(form).get_data
           @discretionary_income = DiscretionaryIncomeCalculator.new(form).get_data
