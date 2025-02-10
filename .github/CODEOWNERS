@@ -820,7 +820,9 @@ config/spring.rb @department-of-veterans-affairs/va-api-engineers @department-of
 config/ssoe_idp_int_metadata_isam.xml @department-of-veterans-affairs/octo-identity
 config/storage.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 datadog-service-catalog @department-of-veterans-affairs/backend-review-group
+db/audit_migrate @department-of-veterans-affairs/octo-identity
 db/migrate @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+db/audit_schema.rb @department-of-veterans-affairs/octo-identity
 db/schema.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 db/seeds @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/deployment @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
