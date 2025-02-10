@@ -24,16 +24,8 @@ module RepresentationManagement
       base_date.strftime('%B %d, %Y')
     end
 
-    def submit_time
-      base_time
-    end
-
     def expiration_date
       (base_date + 60.days).strftime('%B %d, %Y')
-    end
-
-    def expiration_time
-      base_time
     end
 
     def representative_name
@@ -48,10 +40,6 @@ module RepresentationManagement
 
     def base_date
       Time.zone.now.in_time_zone('Eastern Time (US & Canada)')
-    end
-
-    def base_time
-      base_date.strftime('%I:%M %p')
     end
 
     def submitter

@@ -47,14 +47,6 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestEmailData, type: 
       expect(subject.submit_date).to eq(Time.zone.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'))
     end
 
-    it 'returns identical submit time and expiration time' do
-      expect(subject.submit_time).to eq(subject.expiration_time)
-    end
-
-    it 'returns the correct submit and expiration times' do
-      expect(subject.submit_time).to eq(Time.zone.now.in_time_zone('Eastern Time (US & Canada)').strftime('%I:%M %p'))
-    end
-
     it 'returns the correct expiration date' do
       matching_time = Time.zone.now.in_time_zone('Eastern Time (US & Canada)') + 60.days
       expect(subject.expiration_date).to eq(matching_time.strftime('%B %d, %Y'))
