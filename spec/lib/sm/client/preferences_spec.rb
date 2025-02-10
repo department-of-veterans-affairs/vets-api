@@ -51,7 +51,7 @@ describe 'sm client' do
 
     it 'fetches the signature preferences', :vcr do
       client_response = client.get_signature[:data]
-      expect(client_response[:include_signature]).to eq(true)
+      expect(client_response[:include_signature]).to be(true)
       expect(client_response[:signature_name]).to eq('Test Mark')
       expect(client_response[:signature_title]).to eq('Test Title API')
     end
@@ -64,7 +64,7 @@ describe 'sm client' do
       ).permit(:signature_name, :include_signature, :signature_title)
 
       client_response = client.post_signature(params)[:data]
-      expect(client_response[:include_signature]).to eq(false)
+      expect(client_response[:include_signature]).to be(false)
       expect(client_response[:signature_name]).to eq('Test Mark')
       expect(client_response[:signature_title]).to eq('Test Title API')
     end

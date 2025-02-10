@@ -131,7 +131,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Preferences', type: :request do
       expect(response).to be_successful
       expect(response.body).to be_a(String)
       attributes = JSON.parse(response.body)['data']['attributes']
-      expect(attributes['include_signature']).to eq(true)
+      expect(attributes['include_signature']).to be(true)
       expect(attributes['signature_name']).to eq('Test Mark')
       expect(attributes['signature_title']).to eq('Test Title API')
     end
