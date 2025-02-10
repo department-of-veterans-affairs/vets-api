@@ -376,10 +376,6 @@ features:
   claims_status_v1_bgs_enabled:
     actor_type: user
     description: enables calling BGS instead of EVSS for the claims status v1.
-  claims_status_v2_lh_benefits_docs_service_enabled:
-    actor_type: user
-    description: enable/disable the use of LH Benefits Documents API in our Claim Status v2 services.
-    enable_in_development: false
   claims_hourly_slack_error_report_enabled:
     actor: user
     description: Enable/disable the running of the hourly slack alert for errored submissions
