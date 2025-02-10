@@ -986,32 +986,6 @@ paths:
       summary: /v1/messaging/messages/categories
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
-  /v1/messaging/messages/signature:
-    get:
-      description: Gets user message signature preferences
-      operationId: get_signature
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/SecureMessageSignature.yml
-          description: OK
-        "401":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Unauthorized
-        "403":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Not authorized for access to secure messages
-      summary: /v1/messaging/messages/signature
-      parameters:
-        - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/messages/{id}:
     delete:
       description: Moves a secure message to the "Deleted" folder
@@ -1417,6 +1391,64 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/preferences/recipients
+  /v1/messaging/preferences/signature:
+    get:
+      description: Gets user message signature preferences
+      operationId: get_signature
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/SecureMessageSignature.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/preferences/signature
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+    post:
+      description: Update user message signature preferences
+      operationId: update_signature
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/SecureMessageSignatureUpdateRequest.yml
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/SecureMessageSignature.yml
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/preferences/signature
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
   /v1/prescriptions:
     get:
       description: List medications.
