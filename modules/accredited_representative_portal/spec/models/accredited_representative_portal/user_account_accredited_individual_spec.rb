@@ -22,11 +22,6 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
       expect(model.errors[:accredited_individual_registration_number]).to include("can't be blank")
     end
 
-    it 'requires valid POA type' do
-      expect { model.power_of_attorney_holder_type = 'invalid_type' }
-        .to raise_error(ArgumentError, "'invalid_type' is not a valid power_of_attorney_holder_type")
-    end
-
     it 'requires email' do
       model.user_account_email = nil
       expect(model).not_to be_valid
@@ -36,7 +31,7 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
     it 'validates email format' do
       model.user_account_email = 'not-an-email'
       expect(model).not_to be_valid
-      expect(model.errors[:user_account_email]).to include('invalid email format')
+      expect(model.errors[:user_account_email]).to include('is invalid')
     end
   end
 
@@ -47,8 +42,12 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
     end
 
     it 'raises ArgumentError for invalid type' do
-      expect { described_class.new(power_of_attorney_holder_type: 'invalid_type') }
-        .to raise_error(ArgumentError, "'invalid_type' is not a valid power_of_attorney_holder_type")
+      expect {
+        described_class.new(
+          power_of_attorney_holder_type: 'invalid_type',
+          accredited_individual_registration_number: 'REG001',
+        ).validate!
+      }.to raise_error(ActiveRecord::RecordInvalid, /Power of attorney holder type is not included in the list/)
     end
 
     it 'provides helper methods for checking type' do
