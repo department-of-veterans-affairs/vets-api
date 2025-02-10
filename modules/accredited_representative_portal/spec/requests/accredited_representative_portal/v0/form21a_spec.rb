@@ -92,7 +92,7 @@ Errors: The property '#/firstName' of type integer did not match the following t
     end
 
     context 'when service returns a blank response' do
-      it 'logs a blank response and returns no content status',
+      it 'logs the error and returns no content status',
          skip: 'Test has been flaky - see: ' \
                'https://github.com/department-of-veterans-affairs/vets-api/runs/36869589405' do
         allow(AccreditationService).to receive(:submit_form21a).and_return(
