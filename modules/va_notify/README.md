@@ -8,19 +8,22 @@ Depending on which business line you fall under, you may need to have a new Serv
 
 There are several options for interacting with the `VaNotify` module
 
-### Using the service class directly (inline/synchronous sending)
+### Using the `VANotify::Service` class directly (inline/synchronous sending)
 
-Example usage to send an email using the `VaNotify::Service` class (using va.gov's api key and template):
+Example usage to send an email using the `VaNotify::Service` class (using a theoretical api_key)
+
+Contact us in [#va-notify-public](https://dsva.slack.com/archives/C010R6AUPHT) if you're unsure if your team is setup with an api-key.
 
 ```ruby
-notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
+# Observe the argument passed to new, specifically `your_va_notify_service_name_here`
+notify_client = VaNotify::Service.new(Settings.vanotify.services.your_va_notify_service_name_here.api_key)
 
 # send email using an email address
 notify_client.send_email(
   {
     email_address: 'some_email@example.com',
-    template_id: Settings.vanotify.services.va_gov.template_id.some_template_name,
-    personalisation: {
+    template_id: Settings.vanotify.services.your_va_notify_service_name_here.template_id.some_template_name,
+    personalisation: { # using the British-English spelling
       'fname' => 'first_name',
       'date_submitted' => '01/02/2023',
     }
@@ -31,7 +34,7 @@ notify_client.send_email(
 notify_client.send_email(
   {
     recipient_identifier: { id_value: 'ICN_VALUE_HERE', id_type: 'ICN' },
-    template_id: Settings.vanotify.services.va_gov.template_id.some_template_name,
+    template_id: Settings.vanotify.services.your_va_notify_service_name_here.template_id.some_template_name,
     personalisation: {
       'fname' => 'first_name',
       'date_submitted' => '01/02/2023',
@@ -50,29 +53,29 @@ This class defaults to using the va.gov service's api key but you can provide yo
 ```ruby
     VANotify::EmailJob.perform_async(
       email,
-      Settings.vanotify.services.YOUR_SERVICE_NAME_HERE.template_id.YOUR_TEMPLATE_ID_HERE,
+      Settings.vanotify.services.your_vanotify_service_name_here.template_id.your_template_id_here,
       {
         'first_name' => parsed_form.dig('veteranFullName', 'first')&.upcase.presence,
         'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
         'confirmation_number' => guid
       },
-      Settings.vanotify.services.YOUR_SERVICE_NAME_HERE.api_key
+      Settings.vanotify.services.your_vanotify_service_name_here.api_key
     )
 ```
 
 ### API key details
 
 Api keys need to be structured using the following format:
-`NAME_OF_API_KEY-YOUR_SERVICE_UUID-API_KEY`
+`NAME_OF_API_KEY-YOUR_VANOTIFY_SERVICE_UUID-API_KEY`
 
 - `NAME_OF_API_KEY` - VANotify's internal name for your api key (Usually provided with key; if not, see [below](#name-of-api-key))
-- `YOUR_SERVICE_ID` - The UUID corresponding to your service
+- `YOUR_VANOTIFY_SERVICE_ID` - The UUID corresponding to your VANotify service
 - `API_KEY` - Actual API key
 
-Example for a service with the following attributes:
+Example for a VANotify service with the following attributes:
 
 - Name of Api key: `foo-bar-normal-key`
-- Service id: `aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa`
+- VANotify Service id: `aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa`
 - Api key: `bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb`
 
 Expected format: `foo-bar-normal-key-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb`
@@ -81,9 +84,9 @@ Expected format: `foo-bar-normal-key-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbb
 
 The value to use for the `NAME_OF_API_KEY` is typically provided when the API Key is issued.
 
-If this value is not known, please reach out via [#va-notify-public](https://dsva.slack.com/archives/C010R6AUPHT) and request the "api key name and type" and share a service_id in you request.
+If this value is not known, please reach out via [#va-notify-public](https://dsva.slack.com/archives/C010R6AUPHT) and request the "api key name and type" and share the service_id of your VANotify service in you request.
 
-Once a name and type is shared, details regarding API key type can be found in the VANotify Portal under `/developers/technical_information`
+Once an api_key name and type is shared, details regarding API key type can be found in the VANotify Portal under `/developers/technical_information`
 
 Please reach out via [#va-notify-public](https://dsva.slack.com/archives/C010R6AUPHT) if you have any questions.
 
@@ -105,20 +108,20 @@ When a client makes an API call to VA Notify, the API first authorizes the reque
 
 Our delivery workflow includes retries for errors that may be temporary in nature, like service availability. If your API request includes a recipient_identifier, then VA Notify kicks off our lookup integrations. First, we use MPI to do a deceased check and identify the correlated VA Profile ID. Once we have the VA Profile ID, we use VA Profile to retrieve the email address on file for the Veteran. If there are issues finding the Veteran’s profile or contact information, then VA Notify is unable to deliver the notification. This would indicate that the Veteran needs an alternative communication method or an updated email address. If an email address is successfully retrieved or the API request includes the email address directly, then the notification moves on to delivery via our email provider.
 
-There are a couple of reasons that can cause an email notification to fail such as hard bounces and soft bounces. Hard bounces indicate a permanent failure due to an invalid, unreachable email address. Soft bounces indicate a temporary failure, which could succeed after retry. However, there’s many reasons for soft bounces, some of which require manual effort by the recipient or recipient’s organization if they are utilizing a managed email service (e.g. a work email). Email settings could be blocking these notifications from being delivered. If your notification continues to soft bounce, it’s unlikely to succeed with more send attempts.
+There are a couple of reasons that can cause an email notification to fail such as hard bounces and soft bounces. Hard bounces indicate a permanent failure due to an invalid, unreachable email address. Soft bounces indicate a temporary failure. However, there’s many reasons for soft bounces, some of which require manual effort by the recipient or recipient’s organization if they are utilizing a managed email service (e.g. a work email). Email settings could be blocking these notifications from being delivered. If your notification continues to soft bounce, it’s unlikely to succeed with more send attempts.
 
 ## API Requests - VA system to system communication.
 
 ### VA Notify provides a Rails module that exposes two ways of integrating.
 
-1. Service class - eg `VaNotify::Service.new(some_api_key).send_email(some_args)` basic example [here](https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/va_notify#using-the-service-class-directly-inlinesynchronous-sending).
+1. Service class - eg `VaNotify::Service.new(Settings.vanotify.services.your_va_notify_service_name_here.api_key).send_email(some_args)` basic example [here](https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/va_notify#using-the-service-class-directly-inlinesynchronous-sending).
 2. Prebuilt sidekiq jobs eg `VANotify::EmailJob.perform_async(some_args)` basic example [here](https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/va_notify#using-the-wrapper-sidekiq-class-async-sending).
 
 Using option #1:
 
 - The VA Notify service class operates synchronously and will raise an exception whenever a request to the VA Notify API fails.
-  - If you are using the service class to process the user's request inline (like a form submission) the exception will propagate up through the application (unless you have error handling that catches the failure) and cause the entire request to fail (which will then show the user an error message).
-  - If you are using the service class within your own sidekiq job a VA Notify error will cause your sidekiq job to retry (unless you have error handling that catches the failure). You will need to have your own error handling in place to handle this scenario.
+  - If you are using the `VANotify::Service` class to process the user's request inline (like a form submission) the exception will propagate up through the application (unless you have error handling that catches the failure) and cause the entire request to fail (which will then show the user an error message).
+  - If you are using the `VANotify::Service` class within your own sidekiq job, a VA Notify error will cause your sidekiq job to retry (unless you have error handling that catches the failure). You will need to have your own error handling in place to handle this scenario.
 
 Using option #2:
 
@@ -163,10 +166,12 @@ Integrating callback logic allows teams to:
 
 #### How Teams Can Integrate with Callbacks
 
+Reminder: [Flippers](https://depo-platform-documentation.scrollhelp.site/developer-docs/flipper-ui-access) can help alleviate issues during rollout
+
 **Option 1: Default Callback Class**
 <a id="default-callback"></a>
 
-The Default Callback Class offers a standard, ready-to-use implementation for handling callbacks.
+The Default Callback Class offers a standard, ready-to-use implementation for handling callbacks
 
 Here are 2 example implementations, both using a Hash of `callback_options`:
 
@@ -188,14 +193,14 @@ VANotify::EmailJob.perform_async(
   user.va_profile_email,
   template_id,
   get_personalisation(first_name),
-  Settings.vanotify.services.va_gov.api_key,
+  Settings.vanotify.services.your_va_notify_service_name_here.api_key,
   callback_options #from above
 )
 
 # VANotify::Service
 # must specify API key, callback_options
 
-notify_client = VaNotify::Service.new(api_key, callback_options) # from above
+notify_client = VaNotify::Service.new(Settings.vanotify.services.your_va_notify_service_name_here.api_key, callback_options) # from above
 
 notify_response = notify_client.send_email(....)
 ```
@@ -217,14 +222,10 @@ module ExampleTeam
       when 'delivered'
         # success
         StatsD.increment('api.vanotify.notifications.delivered')
-      when 'permanent-failure'
+      when 'permanent-failure', 'temporary-failure'
         # delivery failed
         # possibly log error or increment metric and use the optional metadata - notification_record.callback_metadata
-        StatsD.increment('api.vanotify.notifications.permanent_failure')
-        Rails.logger.error(notification_id: notification.notification_id, source: notification.source_location,
-                           status: notification.status, status_reason: notification.status_reason)
-      when 'temporary-failure'
-        # the api will continue attempting to deliver - success is still possible
+        # temporary-failure is considered an end-state and will not be retried
         StatsD.increment('api.vanotify.notifications.permanent_failure')
         Rails.logger.error(notification_id: notification.notification_id, source: notification.source_location,
                            status: notification.status, status_reason: notification.status_reason)
@@ -250,7 +251,7 @@ if Flipper.enabled?(:custom_callback_handler)
     user.va_profile_email,
     template_id,
     get_personalization(first_name),
-    Settings.vanotify.services.va_gov.api_key,
+    Settings.vanotify.services.your_va_notify_service_name_here.api_key,
     { callback_klass: 'ExampleTeam::CustomNotificationCallback', callback_metadata: {  statsd_tags: { service: 'ExampleTeam' } } }
   )
 else
@@ -268,7 +269,7 @@ Here's a high-level overview of what happens behind the scenes when using VA Not
 
 2. Delivery Processing: VA Notify attempts to deliver the notification using its internal delivery workflow. This includes retries for temporary issues and contact lookups if an ICN is used.
 
-3. Callback Triggered: As the delivery progresses, VA Notify sends status updates to the configured callback URL. Updates may include statuses like "delivered," "failed," or "temporary failure".
+3. Callback Triggered: As the delivery progresses, VA Notify sends status updates to the configured callback URL. Updates may include statuses like "delivered," "failed," or "temporary failure" (an end-state).
 
 4. Processing Callback: Your application receives the callback and processes it to determine if further action is needed—such as notifying the user of a failed delivery, retrying, or marking the notification as successfully delivered.
 
@@ -279,6 +280,12 @@ Here's a high-level overview of what happens behind the scenes when using VA Not
 #### Delivery Status Reference
 
 Refer to the [VA Notify Error Status Mapping Table](https://github.com/department-of-veterans-affairs/vanotify-team/blob/main/Support/error_status_reason_mapping.md#error-table) for detailed status codes and their meanings.
+
+---
+
+#### Module changes
+
+If the `va_notify` module does not provide the functionality you need feel free to reach out to us and explain what your team needs. While we can't guarantee that every request will be implemented, we will thoughtfully consider each request and do our best to accommodate your team without causing unintended issues for other teams.
 
 ---
 
