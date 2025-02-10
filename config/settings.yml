@@ -1744,7 +1744,11 @@ ogc:
     api_key: fake_key
 
 accredited_representative_portal:
-  pilot_users_email_poa_codes: ~
+  allow_list:
+    github:
+      access_token: some_fake_token
+      repo: faked/fakeness
+      path: not_real.csv
 
 banners:
   drupal_username: banners_api
