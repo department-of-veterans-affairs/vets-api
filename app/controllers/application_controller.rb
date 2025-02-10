@@ -2,6 +2,7 @@
 
 require 'feature_flipper'
 require 'aes_256_cbc_encryptor'
+require 'shared_rails_logging'
 
 class ApplicationController < ActionController::API
   include AuthenticationAndSSOConcerns
@@ -10,6 +11,7 @@ class ApplicationController < ActionController::API
   include Headers
   include Instrumentation
   include Pundit::Authorization
+  include SharedRailsLogging
   include ControllerLoggingContext
   include SentryLogging
   include SentryControllerLogging

@@ -74,7 +74,8 @@ module ExceptionHandling
       Rails.logger.error "#{exception.message}.", backtrace: exception.backtrace
     elsif exception.is_a?(Common::Exceptions::BackendServiceException) && exception.generic_error?
       # Warn about VA900 needing to be added to exception.en.yml
-      log_message_to_sentry(exception.va900_warning, :warn, i18n_exception_hint: exception.va900_hint)
+      log_message(exception.va900_warning, :warn, { i18n_exception_hint: exception.va900_hint })
+      log_message_to_sentry(exception.va900_warning, :warn, { i18n_exception_hint: exception.va900_hint }, {}, false)
     end
   end
 
