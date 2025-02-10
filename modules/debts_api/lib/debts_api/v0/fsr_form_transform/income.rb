@@ -97,21 +97,21 @@ module DebtsApi
         end
 
         def tax_deductions
-          filter_reduce_by_name(deductions, TAX_FILTERS)
+          deduction_amounts_by_type(deductions, TAX_FILTERS)
         end
 
         def retirement_deductions
-          filter_reduce_by_name(deductions, RETIREMENT_FILTERS)
+          deduction_amounts_by_type(deductions, RETIREMENT_FILTERS)
         end
 
         def social_security_deductions
-          filter_reduce_by_name(deductions, SOCIAL_SEC_FILTERS)
+          deduction_amounts_by_type(deductions, SOCIAL_SEC_FILTERS)
         end
 
         def other_deductions
           {
             name: other_deductions_name(deductions, ALL_FILTERS),
-            amount: other_deductions_amt(deductions, ALL_FILTERS)
+            amount: other_deductions_amount(deductions, ALL_FILTERS)
           }
         end
 
@@ -128,7 +128,7 @@ module DebtsApi
           other_income_total = addl_inc + comp + edu + soc_sec_amt
 
           {
-            name: name_str(soc_sec_amt, comp, edu, @additional_income),
+            name: other_incomes_name(soc_sec_amt, comp, edu, @additional_income),
             amount: other_income_total.round(2)
           }
         end
@@ -138,7 +138,7 @@ module DebtsApi
         end
 
         # formerly filter_reduce_by_name
-        def filter_reduce_by_name(deductions, filters)
+        def deduction_amounts_by_type(deductions, filters)
           return 0.0 unless deductions&.any?
 
           deductions
@@ -157,7 +157,7 @@ module DebtsApi
         end
 
         # formerly other_deductions_amt
-        def other_deductions_amt(deductions, filters)
+        def other_deductions_amount(deductions, filters)
           return 0 if deductions.empty?
 
           deductions
@@ -166,14 +166,14 @@ module DebtsApi
         end
 
         # formerly name_str
-        def name_str(social_security, compensation, education, addl_inc)
+        def other_incomes_name(social_security, compensation, education, addl_inc)
           benefit_types = []
           benefit_types.push('Social Security') if social_security.positive?
           benefit_types.push('Disability Compensation') if compensation.positive?
           benefit_types.push('Education') if education.positive?
 
-          vet_addl_names = addl_inc&.pluck('name') || []
-          other_inc_names = [*benefit_types, *vet_addl_names]
+          addl_inc_names = addl_inc&.pluck('name') || []
+          other_inc_names = [*benefit_types, *addl_inc_names]
 
           other_inc_names&.join(', ') || ''
         end
