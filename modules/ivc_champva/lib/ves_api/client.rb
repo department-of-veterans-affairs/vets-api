@@ -42,14 +42,11 @@ module IvcChampva
       def headers(transaction_uuid, acting_user)
         {
           :content_type => 'application/json',
-          # 'apiKey' => Settings.ivc_champva.ves_api.api_key.to_s,
-          'apiKey' => 'fake-api-key',
+          'apiKey' => 'fake_api_key', # TODO: Settings.ivc_champva.ves_api.api_key.to_s,
           'transactionUUId' => transaction_uuid.to_s,
           'acting-user' => acting_user.to_s
         }
       end
-
-      private
 
       ##
       # Maps an address property received from the frontend into the structure
@@ -71,65 +68,90 @@ module IvcChampva
       end
 
       ##
-      # Converts the processed form data received from the frontend into the structure
+      # Converts the parsed form data received from the frontend into the structure
       # required by VES.
       #
-      # @param processed_form_data [hash] form data received from the frontend
+      # @param parsed_form_data [hash] form data received from the frontend
       #
-      def convert_to_champva_application(processed_form_data)
+      def convert_to_champva_application(parsed_form_data)
         # TODO: parsed_form_data is currently not exactly compatible with VES.
-        # the following still need to be addressed in addition to the mapping below:
+        # the following still need to be addressed upstream in addition to the mapping below:
         # - Dates: must be YYYY-MM-DD
         # - Phones: Must be (123) 123-1234
         # - Gender must match expected values e.g. "MALE"/"FEMALE" in all caps
         # - Relationship to vet must match expected values e.g. "CHILD", "CAREGIVER", "SPOUSE", "EX_SPOUSE"
-        # - For beneficiaries/applicants that are sponsor's child, must have `childType` e.g., "ADOPTED", "NATURAL", "STEPCHILD"
+        # - For beneficiaries/applicants that are sponsor's child, must have `childType` e.g., "ADOPTED",
+        #   "NATURAL", "STEPCHILD"
 
         # TODO: add safety to this/default values or possibly throw errors based
         # on certain missing values.
+
+        # Initialize the result hash
+        result = {}
+
+        # Set applicationType and UUID
+        result['applicationType'] = 'vha_10_10d' # TODO: verify this is correct
+        result['applicationUUID'] = SecureRandom.uuid # TODO: determine how we want to generate/track these
+
+        # Map veteran data using a helper method
+        result['sponsor'] = map_veteran(parsed_form_data['veteran'])
+
+        # Map applicant data
+        result['beneficiaries'] = parsed_form_data['applicants'].map { |applicant| map_applicant(applicant) }
+
+        # Map certification data
+        result['certification'] = map_certification(
+          parsed_form_data['certification'],
+          parsed_form_data['statement_of_truth_signature']
+        )
+
+        result
+      end
+
+      private
+
+      def map_veteran(veteran_data)
         {
-          'applicationType' => 'some_application_type',  # TODO: 10-10d
-          'applicationUUID' => 'some_unique_uuid',       # TODO: generate appropriate UUID
-          'sponsor' => {
-            'personUUID' => 'some_unique_uuid', # TODO: generate appropriate UUID
-            'firstName' => processed_form_data['veteran']['full_name']['first'],
-            'lastName' => processed_form_data['veteran']['full_name']['last'],
-            'middleInitial' => processed_form_data['veteran']['full_name']['middle'],
-            'ssn' => processed_form_data['veteran']['ssn_or_tin'],
-            'vaFileNumber' => processed_form_data['veteran']['va_claim_number'],
-            'dateOfBirth' => processed_form_data['veteran']['date_of_birth'],
-            'dateOfMarriage' => processed_form_data['veteran']['date_of_marriage'],
-            'isDeceased' => processed_form_data['veteran']['sponsor_is_deceased'],
-            'dateOfDeath' => processed_form_data['veteran']['date_of_death'],
-            'isDeathOnActiveService' => processed_form_data['veteran']['is_active_service_death'],
-            'address' => map_address_to_ves_fmt(processed_form_data['veteran']['address'])
-          },
-          'beneficiaries' => processed_form_data['applicants'].map do |applicant|
-            {
-              'personUUID' => 'some_unique_uuid', # TODO: generate appropriate UUID
-              'firstName' => applicant['applicant_name']['first'],
-              'lastName' => applicant['applicant_name']['last'],
-              'middleInitial' => applicant['applicant_name']['middle'],
-              'ssn' => applicant['ssn_or_tin'],
-              'emailAddress' => applicant['applicant_email_address'],
-              'phoneNumber' => applicant['applicant_phone'],
-              'gender' => applicant['applicant_gender']['gender'],
-              'enrolledInMedicare' => applicant['applicant_medicare_status']['eligibility'] == 'enrolled',
-              'hasOtherInsurance' => applicant['applicant_has_ohi']['has_ohi'] == 'yes',
-              'relationshipToSponsor' => applicant['vet_relationship'],
-              'childtype' => applicant['childtype'],
-              'address' => map_address_to_ves_fmt(applicant['applicant_address']),
-              'dateOfBirth' => applicant['applicant_dob']
-            }
-          end,
-          'certification' => {
-            'signature' => processed_form_data['statement_of_truth_signature'],
-            'signatureDate' => processed_form_data['certification']['date'],
-            'firstName' => processed_form_data['certification']['first_name'],
-            'lastName' => processed_form_data['certification']['last_name'],
-            'middleInitial' => processed_form_data['certification']['middle_initial'],
-            'phoneNumber' => processed_form_data['certification']['phone_number']
-          }
+          'personUUID' => SecureRandom.uuid, # TODO: determine how we want to generate/track these
+          'firstName' => veteran_data.dig('full_name', 'first'),
+          'lastName' => veteran_data.dig('full_name', 'last'),
+          'ssn' => veteran_data['ssn_or_tin'],
+          'dateOfBirth' => veteran_data['date_of_birth'],
+          'isDeceased' => veteran_data['sponsor_is_deceased'],
+          'dateOfDeath' => veteran_data['date_of_death'],
+          'address' => map_address_to_ves_fmt(veteran_data['address'])
+        }
+      end
+
+      def map_applicant(applicant_data)
+        {
+          'personUUID' => SecureRandom.uuid, # TODO: determine how we want to generate/track these
+          'firstName' => applicant_data.dig('applicant_name', 'first'),
+          'middleInitial' => applicant_data.dig('applicant_name', 'middle'),
+          'lastName' => applicant_data.dig('applicant_name', 'last'),
+          'ssn' => applicant_data.dig('applicant_ssn', 'ssn'),
+          'emailAddress' => applicant_data['applicant_email_address'],
+          'phoneNumber' => applicant_data['applicant_phone'],
+          'gender' => applicant_data.dig('applicant_gender', 'gender'),
+          'relationshipToSponsor' => applicant_data.dig('applicant_relationship_to_sponsor', 'relationship_to_veteran'),
+          'vetRelationship' => applicant_data['vet_relationship'],
+          'childtype' => applicant_data.dig('childtype', 'relationship_to_veteran'),
+          'address' => map_address_to_ves_fmt(applicant_data['applicant_address']),
+          'dateOfBirth' => applicant_data['applicant_dob'],
+          'enrolledInMedicare' => applicant_data.dig('applicant_medicare_status', 'eligibility') == 'enrolled',
+          'hasOtherInsurance' => applicant_data.dig('applicant_has_ohi', 'has_ohi') == 'yes',
+          'supportingDocuments' => applicant_data['applicant_supporting_documents'] || []
+        }
+      end
+
+      def map_certification(certification_data, signature)
+        {
+          'signature' => signature,
+          'signatureDate' => certification_data['date'],
+          'firstName' => certification_data['first_name'],
+          'lastName' => certification_data['last_name'],
+          'middleInitial' => certification_data['middle_initial'],
+          'phoneNumber' => certification_data['phone_number']
         }
       end
     end
