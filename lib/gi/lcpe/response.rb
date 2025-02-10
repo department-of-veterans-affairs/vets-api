@@ -12,7 +12,8 @@ module GI
       #
       # @param response returned from the rest call
       # @return [GI::GIDSResponse]
-      def self.from(response:, v_latest:)
+      def self.from(response)
+        version = response.response_headers['Etag']
         new(status: response.status, body: response.body, version: 4)
       end
     end

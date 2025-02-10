@@ -48,6 +48,10 @@ module GI
         redis_key.present?
       end
 
+      def lcpe_cache
+        @lcpe_cache ||= LCPERedis.new(lcpe_type: redis_key, v_client:)
+      end
+
       # query GIDS with cache version if more recent than client version
       def compare_versions
         return if [v_client, v_cache].all?(&:nil?)
@@ -56,26 +60,30 @@ module GI
       end
 
       def v_cache
-        @v_cache ||= LCPERedis.cached_version(redis_key)
+        @v_cache ||= lcpe_cache.cached_version
       end
 
+      # If versioning enabled, validate client has fresh collection before querying details
       def validate_client_version
         return yield unless versioning_enabled?
 
+        # client (and not vets-api cache) must have fresh version
         config.etag = v_client
         response = perform(:get, 'v1/lcpe/lacs', {})
         case response.status
         when 304
+          # version is fresh, redirect to query details
           yield
         else
-          LCPERedis.new.force_client_refresh_and_cache(key: redis_key, response:)
+          # version stale, client must refresh preloaded collection
+          lcpe_cache.force_client_refresh_and_cache(response)
         end
       end
 
-      # default to GIDS cache design if versioning not enabled
+      # default to GI::Client#gids_response if versioning not enabled
       def lcpe_response(response)
         if versioning_enabled?
-          LCPERedis.new.response_from(key: redis_key, v_client:, response:)
+          lcpe_cache.fresh_version_from(response)
         else
           gids_response(response)
         end

@@ -5,10 +5,12 @@ require 'gi/lcpe/client'
 module V1
   module GIDS
     class LCPEController < GIDSController
+      rescue_from LCPERedis::ClientCacheStaleError, with: :version_invalid
+
       private
 
       def service
-        super unless versioning_required?
+        super if bypass_versioning?
         
         lcpe_client
       end
@@ -23,6 +25,19 @@ module V1
 
       def set_etag(version)
         response.set_header('ETag', version)
+      end
+
+      # If additional filter params present, bypass versioning
+      def bypass_versioning?
+        scrubbed_params.except(versioning_params).present?
+      end
+
+      def versioning_params
+        self.class::VERSIONING_PARAMS
+      end
+
+      def version_invalid
+        render json: { error: "Version invalid" }, status: :conflict
       end
     end
   end
