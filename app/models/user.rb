@@ -355,7 +355,7 @@ class User < Common::RedisStore
     facilities = vha_facility_ids
     facilities.select do |f|
       Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
-        Settings.mhv.facility_specific.flatten.include?(f)
+        Settings.mhv.facility_specific.include?(f)
     end
   end
 
