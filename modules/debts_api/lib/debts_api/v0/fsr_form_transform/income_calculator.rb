@@ -6,12 +6,6 @@ module DebtsApi
   module V0
     module FsrFormTransform
       class IncomeCalculator
-        # Refactoring Steps
-        # 1. Remove duplicate instance variables related to `get_monthly_income`
-        # 2. Replace `calculate_income` parameters with respective instance variables
-        # 3. Refactor `transformed_income` to be stringify calculate_income output
-        # 4. Extract private methods from calculate_income
-        # 5. Move calculate_income hash to (vet|spouse)_income
 
         def initialize(form)
           @form = form
