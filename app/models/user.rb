@@ -354,8 +354,8 @@ class User < Common::RedisStore
   def va_treatment_facility_ids
     facilities = vha_facility_ids
     facilities.select do |f|
-      Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } || 
-      Settings.mhv.facility_specific.flatten.include?(f)
+      Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
+        Settings.mhv.facility_specific.flatten.include?(f)
     end
   end
 
