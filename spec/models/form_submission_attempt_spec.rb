@@ -31,21 +31,51 @@ RSpec.describe FormSubmissionAttempt, type: :model do
       end
 
       context 'is a simple form' do
-        let(:form_submission) { build(:form_submission, form_type: '21-4142') }
+        context 'is a digitized form' do
+          let(:form_submission) { build(:form_submission, form_type: '21-4142') }
 
-        it 'sends an error email' do
-          notification_email = double
-          allow(notification_email).to receive(:send)
-          allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
-            config,
-            notification_type:,
-            user_account: anything
-          ).and_return(notification_email)
-          form_submission_attempt = create(:form_submission_attempt, form_submission:)
+          it 'sends an error email' do
+            notification_email = double
+            allow(notification_email).to receive(:send)
+            allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
+              config,
+              notification_type:,
+              user_account: anything
+            ).and_return(notification_email)
+            form_submission_attempt = create(:form_submission_attempt, form_submission:)
 
-          form_submission_attempt.fail!
+            form_submission_attempt.fail!
 
-          expect(notification_email).to have_received(:send)
+            expect(notification_email).to have_received(:send)
+          end
+        end
+
+        context 'is an uploaded scanned pdf' do
+          let(:form_submission) { build(:form_submission, form_type: '21-0779') }
+          let(:config) do
+            {
+              form_number: anything,
+              form_name: anything,
+              first_name: anything,
+              email: anything,
+              date_submitted: anything,
+              confirmation_number: anything,
+              lighthouse_updated_at: anything
+            }
+          end
+
+          it 'sends an error email' do
+            send_notification_email_job = double
+            allow(send_notification_email_job).to receive(:perform)
+            allow(SimpleFormsApi::Notification::SendNotificationEmailJob).to receive(:new).and_return(
+              send_notification_email_job
+            )
+            form_submission_attempt = create(:form_submission_attempt, form_submission:)
+
+            form_submission_attempt.fail!
+
+            expect(send_notification_email_job).to have_received(:perform)
+          end
         end
       end
 
