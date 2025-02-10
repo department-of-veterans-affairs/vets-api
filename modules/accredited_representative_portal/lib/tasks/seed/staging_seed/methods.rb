@@ -53,22 +53,29 @@ module AccreditedRepresentativePortal
         resolving = case resolution_type
                     when :expiration
                       exp = AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration.new
-                      exp.save ? exp : nil
+                      exp.save! && exp
                     when :decision
+                      type = resolution_type_cycle.next
                       dec = AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.new(
-                        type: AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision::Types::ACCEPTANCE,
+                        type: type,
                         creator_id: request.claimant_id
                       )
-                      dec.save ? dec : nil
+                      dec.save! && dec
                     end
-
-        return unless resolving&.persisted?
-
-        AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.create!(
+        (res = AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.new(
           power_of_attorney_request: request,
           resolving: resolving,
           created_at: request.created_at + 1.day
-        )
+        )).save! && res
+      end
+
+      private
+
+      def resolution_type_cycle
+        [
+          AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision::Types::ACCEPTANCE,
+          AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision::Types::DECLINATION
+        ].cycle
       end
     end
 
@@ -88,7 +95,6 @@ module AccreditedRepresentativePortal
 
       def process_organizations(orgs, options)
         process_matched_orgs(orgs, options)
-        process_unmatched_reps(options)
       end
 
       private
@@ -107,14 +113,6 @@ module AccreditedRepresentativePortal
         matching_reps.each do |rep|
           create_request_with_resolution(build_request_options(org, rep, options))
         end
-      end
-
-      def process_unmatched_reps(options)
-        Veteran::Service::Representative
-          .where(representative_id: 'LR000')
-          .find_each do |rep|
-            create_request_with_resolution(build_request_options(nil, rep, options))
-          end
       end
 
       def build_request_options(org, rep, options)
