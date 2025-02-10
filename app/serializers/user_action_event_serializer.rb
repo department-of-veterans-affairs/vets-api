@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class UserActionSerializer
+class UserActionEventSerializer
   include JSONAPI::Serializer
 
   attribute :details, :created_at, :updated_at
