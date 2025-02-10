@@ -5,9 +5,16 @@ module RepresentationManagement
     class PdfGeneratorBaseController < ApplicationController
       service_tag 'representation-management'
       skip_before_action :authenticate
+      before_action :optional_authenticate
       before_action :feature_enabled
 
       private
+
+      def optional_authenticate
+        authenticate
+      rescue
+        # If authentication fails, current_user will stay nil
+      end
 
       def params_permitted
         [
@@ -133,17 +140,31 @@ module RepresentationManagement
       end
 
       def update_in_progress_form(key, value)
-        return if in_progress_form.blank?
-      
+        return if in_progress_form.nil?
+
         metadata = in_progress_form_metadata
         metadata['submission'] ||= {}
-        metadata['submission']['hasAttemptedSubmit'] = true
-        metadata['submission'][key] = value
+        metadata['submission']['has_attempted_submit'] = true
+
+        if key == 'status'
+          # Update successful submission
+          metadata.delete('saved_at')
+          metadata['submission']&.delete('error_message')
+          metadata['submission'][key] = value
+        else
+          # Udate failed submission
+          metadata['submission'][key] = if value.is_a?(String)
+                                          value
+                                        else
+                                          value.to_json
+                                        end
+        end
+
         in_progress_form.update(metadata: metadata)
       end
 
       def in_progress_form
-        @in_progress_form ||= InProgressForm.form_for_user('2122', current_user)
+        @in_progress_form ||= InProgressForm.form_for_user('21-22', current_user)
       end
 
       def in_progress_form_metadata
