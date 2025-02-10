@@ -109,6 +109,27 @@ class FormProfile
     dispute_debt: ['DISPUTE-DEBT']
   }.freeze
 
+  # Returns the appropriate form class namespace based on the given module name and Flipper settings
+  #
+  # @param module_name [String] The name of the module (e.g., 'pension', 'burial').
+  # @return [Module] The corresponding namespace module for form profiles, defaulting to FormProfiles.
+  #
+  # @example Usage
+  #   form_class_namespace('pension', current_user) #=> Pensions::FormProfiles (if flipper is enabled)
+  #   form_class_namespace('burial', current_user)  #=> Burials::FormProfiles (if flipper is enabled)
+  #   form_class_namespace('unknown', current_user)  #=> FormProfiles
+  #
+  def self.form_class_namespace(module_name)
+    namespaces = {
+      'pension' => Pensions::FormProfiles
+    }
+
+    namespace = namespaces[module_name]
+    return namespace if namespace && Flipper.enabled?(:"#{module_name}_form_profile_module_enabled", nil)
+
+    FormProfiles
+  end
+
   FORM_ID_TO_CLASS = {
     '0873' => ::FormProfiles::VA0873,
     '1010EZ' => ::FormProfiles::VA1010ez,
@@ -131,7 +152,7 @@ class FormProfile
     '686C-674' => ::FormProfiles::VA686c674,
     '686C-674-V2' => ::FormProfiles::VA686c674v2,
     '40-10007' => ::FormProfiles::VA4010007,
-    '21P-527EZ' => ::FormProfiles::VA21p527ez,
+    '21P-527EZ' => form_class_namespace('pension')::VA21p527ez,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,

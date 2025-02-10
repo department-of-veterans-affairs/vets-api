@@ -1868,6 +1868,9 @@ features:
   pension_confirmation_update:
     actor_type: user
     description: Show updated confirmation page
+  pension_form_profile_module_enabled:
+    actor_type: user
+    description: Use the module version of the FormProfile
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
