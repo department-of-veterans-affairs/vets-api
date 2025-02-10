@@ -36,6 +36,7 @@ module IvcChampva
       sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
 
       Rails.logger.error "IVC Champva Forms - PdfStamper: A pdftk error occurred: #{sanitized_message}"
+      Rails.logger.error e.backtrace.join("\n")
       monitor.track_pdf_stamper_error(form.data['uuid'], "PdftkError: #{sanitized_message}")
       raise
     rescue SystemCallError => e
@@ -45,10 +46,12 @@ module IvcChampva
       }) { |c| Errno.const_get(c).new.errno == e.errno }.to_s
 
       Rails.logger.error "IVC Champva Forms - PdfStamper: A system call error occurred: #{error_name}"
+      Rails.logger.error e.backtrace.join("\n")
       monitor.track_pdf_stamper_error(form.data['uuid'], "SystemCallError: #{error_name}")
       raise
     rescue => e
       Rails.logger.error "IVC Champva Forms - PdfStamper: An error occurred: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
       monitor.track_pdf_stamper_error(form.data['uuid'], "CatchAll: #{e.message}")
       raise
     ensure
@@ -116,6 +119,7 @@ module IvcChampva
     rescue => e
       Rails.logger.info "IVC Champva Forms - PdfStamper: multistamp handling error"
       Rails.logger.error 'Simple forms api - Failed to generate stamped file', message: e.message
+      Rails.logger.error e.backtrace.join("\n")
       raise
     ensure
       Rails.logger.info "IVC Champva Forms - PdfStamper: multistamp deleting file in ensure block"
