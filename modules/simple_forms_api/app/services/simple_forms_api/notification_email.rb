@@ -139,70 +139,54 @@ module SimpleFormsApi
     end
 
     def async_job_with_form_data(email, first_name, at, template_id)
-      if Flipper.enabled?(:simple_forms_notification_callbacks)
-        VANotify::EmailJob.perform_at(
-          at,
-          email,
-          template_id,
-          get_personalization(first_name),
-          Settings.vanotify.services.va_gov.api_key,
-          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
-        )
-      else
-        VANotify::EmailJob.perform_at(
-          at,
-          email,
-          template_id,
-          get_personalization(first_name)
-        )
-      end
+      VANotify::EmailJob.perform_at(
+        at,
+        email,
+        template_id,
+        get_personalization(first_name),
+        Settings.vanotify.services.va_gov.api_key,
+        { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+      )
     end
 
     def async_job_with_user_account(user_account, at, template_id)
       first_name_from_user_account = get_first_name_from_user_account
       return unless first_name_from_user_account
 
-      if Flipper.enabled?(:simple_forms_notification_callbacks)
-        VANotify::UserAccountJob.perform_at(
-          at,
-          user_account.id,
-          template_id,
-          get_personalization(first_name_from_user_account),
-          Settings.vanotify.services.va_gov.api_key,
-          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
-        )
-      else
-        VANotify::UserAccountJob.perform_at(
-          at,
-          user_account.id,
-          template_id,
-          get_personalization(first_name_from_user_account)
-        )
-      end
+      VANotify::UserAccountJob.perform_at(
+        at,
+        user_account.id,
+        template_id,
+        get_personalization(first_name_from_user_account),
+        Settings.vanotify.services.va_gov.api_key,
+        { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+      )
     end
 
     def send_email_now(template_id)
       email_from_form_data = get_email_address_from_form_data
       first_name_from_form_data = get_first_name_from_form_data
-
       # sync job and form data includes email
       if email_from_form_data && first_name_from_form_data
-        VANotify::EmailJob.perform_async(
-          email_from_form_data,
-          template_id,
-          get_personalization(first_name_from_form_data)
-        )
+        send_email(email: email_from_form_data, first_name: first_name_from_form_data, template_id:)
+
       # sync job and we have a User
       elsif user
         first_name = get_first_name_from_form_data || get_first_name_from_user
         return unless first_name
 
-        VANotify::EmailJob.perform_async(
-          user.va_profile_email,
-          template_id,
-          get_personalization(first_name)
-        )
+        send_email(email: user.va_profile_email, first_name:, template_id:)
       end
+    end
+
+    def send_email(email:, first_name:, template_id:)
+      VANotify::EmailJob.perform_async(
+        email,
+        template_id,
+        get_personalization(first_name),
+        Settings.vanotify.services.va_gov.api_key,
+        { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+      )
     end
 
     def get_email_address_from_form_data
