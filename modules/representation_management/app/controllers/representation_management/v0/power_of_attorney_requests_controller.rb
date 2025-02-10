@@ -6,28 +6,12 @@ module RepresentationManagement
       service_tag 'representation-management'
       before_action :feature_enabled
 
-      # Creates and enqueues an email with the provided "next steps" information. This action
-      # validates the input parameters and, if valid, queues an email using the VANotify service.
-      #
-      # @return [JSON] Returns a success message if the email is enqueued, otherwise returns validation errors.
-      #
       def create
         form = RepresentationManagement::Form2122Data.new(flatten_form_params)
-        # data = RepresentationManagement::PowerOfAttorneyRequestEmailData.new(form_data: form)
 
         if flatten_form_params[:veteran_service_number].present?
           render json: { errors: ['render_error_state_for_failed_submission'] }, status: :unprocessable_entity
         elsif form.valid?
-          # VANotify::EmailJob.perform_async(
-          #   data.email_address,
-          #   Settings.vanotify.services.va_gov.template_id.appoint_a_rep_v2_digital_submit_confirm_email_template_id,
-          #   {
-          #     'first_name' => data.first_name, 'last_name' => data.last_name,
-          #     'submit_date' => data.submit_date, 'submit_time' => data.submit_time,
-          #     'expiration_date' => data.expiration_date, 'expiration_time' => data.expiration_time,
-          #     'representative name' => data.entity_name
-          #   }
-          # )
           render json: { message: 'Email enqueued' }, status: :ok
         else
           render json: { errors: form.errors.full_messages }, status: :unprocessable_entity
