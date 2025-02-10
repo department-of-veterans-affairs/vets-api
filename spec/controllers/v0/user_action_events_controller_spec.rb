@@ -65,10 +65,10 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
         expect(response).to have_http_status(:success)
 
         json_response = JSON.parse(response.body)
-        puts json_response.length
-        expect(json_response.length).to eq(4)
-        expect(json_response.first['user_action_event']['details']).to eq('Sample event 2')
-        expect(json_response.third['user_action_event']['details']).to eq('Sample event 1')
+        puts json_response['included'].first['attributes']['details']
+        expect(json_response.length).to eq(2)
+        expect(json_response['included'].first['attributes']['details']).to eq('Sample event 2')
+        expect(json_response['included'].second['attributes']['details']).to eq('Sample event 1')
       end
     end
   end
