@@ -694,6 +694,7 @@ module PdfFill
         @form_data['noReportFiled'] = no_report && !report_filed ? 1 : nil
       end
 
+      # Numbers correspond to a predefined "export value" assigned to each checkbox option on the PDF form:
       def set_report_types(other_report, report_filed, reports)
         @form_data['reportFiled'] ||= report_filed ? 0 : nil
         @form_data['restrictedReport'] ||= reports['restricted'] ? 0 : nil
@@ -715,7 +716,7 @@ module PdfFill
 
       def format_police_details(event)
         fields = %w[agency city state township country]
-        fields.map { |field| event[field] }.compact.reject(&:empty?).join(', ')
+        fields.map { |field| event[field] }.compact_blank.join(', ')
       end
 
       def expand_collection(collection, format_method, overflow_key)
