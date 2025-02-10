@@ -7,41 +7,9 @@ module Lighthouse
   module EvidenceSubmissions
     class EvidenceSubmissionDocumentUploadPollingJob
       include Sidekiq::Job
-      # Job runs every hour; ensure retries happen within the same window to prevent duplicate polling of documents
-      # 7 retries = retry for ~42 minutes
-      # See Sidekiq documentation for exponential retry formula:
-      # https://github.com/sidekiq/sidekiq/wiki/Error-Handling#automatic-job-retry
-      sidekiq_options retry: 7
-
+      # Job runs every hour with 0 retries
+      sidekiq_options retry: 0
       POLLED_BATCH_DOCUMENT_COUNT = 100
-      # STATSD_KEY_PREFIX = ''
-
-      sidekiq_retries_exhausted do |msg, _ex|
-        job_id = msg['jid']
-        error_class = msg['error_class']
-        error_message = msg['error_message']
-
-        # TODO: Add statsD
-        # StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
-
-        Rails.logger.warn(
-          'Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUploadPollingJob retries exhausted',
-          { job_id:, error_class:, error_message:, timestamp: Time.now.utc }
-        )
-      rescue => e
-        Rails.logger.error(
-          'Failure in
-          Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUploadPollingJob#sidekiq_retries_exhausted',
-          {
-            messaged_content: e.message,
-            job_id:,
-            pre_exhaustion_failure: {
-              error_class:,
-              error_message:
-            }
-          }
-        )
-      end
 
       def perform
         pending_evidence_submissions = EvidenceSubmission.pending

@@ -70,25 +70,4 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
       expect(pending_es2.failed_date).to be_within(1.second).of(current_date_time.utc)
     end
   end
-
-  context 'retries exhausted' do
-    it 'logs exhaustion metadata to the Rails logger' do
-      exhaustion_time = DateTime.new(1985, 10, 26).utc
-      sidekiq_exhaustion_metadata = { 'jid' => 8_675_309, 'error_class' => 'ERROR',
-                                      'error_message' => 'An error occurred' }
-      Timecop.freeze(exhaustion_time) do
-        described_class.within_sidekiq_retries_exhausted_block(sidekiq_exhaustion_metadata) do
-          expect(Rails.logger).to receive(:warn).with(
-            'Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUploadPollingJob retries exhausted',
-            {
-              job_id: 8_675_309,
-              error_class: 'ERROR',
-              error_message: 'An error occurred',
-              timestamp: exhaustion_time
-            }
-          )
-        end
-      end
-    end
-  end
 end
