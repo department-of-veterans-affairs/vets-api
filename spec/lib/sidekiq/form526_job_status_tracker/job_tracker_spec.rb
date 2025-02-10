@@ -12,8 +12,8 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
   end
 
   before do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
-    Flipper.disable(:disability_compensation_production_tester)
+    allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester).and_return(false)
   end
 
   context 'with an exhausted callback message' do
@@ -78,6 +78,9 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
     it 'submits a backup submission to Central Mail via Lighthouse Benefits Intake API, if flipper enabled' do
       # Removing the additional_birls from the submission auth headers for this test
       # In order for it to kick off a backup submission, additional_birls must not exist
+      allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
+                                                instance_of(OpenStruct.new(:flipper_id))).and_return(false)
+
       allow_any_instance_of(Form526Submission).to receive(:birls_ids_that_havent_been_tried_yet).and_return([])
       form526_submission.auth_headers.delete('va_eauth_birlsfilenumber')
 

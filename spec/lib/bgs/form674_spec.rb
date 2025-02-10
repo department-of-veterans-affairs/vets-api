@@ -17,6 +17,7 @@ RSpec.describe BGS::Form674 do
   context 'The automated 674 flipper is turned on' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
     end
 
     # @TODO: may want to return something else

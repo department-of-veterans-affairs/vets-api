@@ -207,7 +207,9 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
   describe '#download_pdf' do
     let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10CG_from_response.pdf' }
     let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
-
+    before do
+      allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(true)
+    end
     after do
       FileUtils.rm_f(response_pdf)
     end

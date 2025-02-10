@@ -15,11 +15,7 @@ RSpec.describe EvssGeneratePdfProvider do
   end
 
   before do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
-  end
-
-  after do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
+    allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF).and_return(false)
   end
 
   it_behaves_like 'generate pdf service provider'
