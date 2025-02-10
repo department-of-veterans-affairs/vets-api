@@ -580,6 +580,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       uri.query = expected_redirect_params
       uri.to_s
     end
+    let!(:user_action_event) { create(:user_action_event, details: 'User logged in') }
 
     context 'when too much time passed to consume the SAML Assertion' do
       let(:error_code) { '005' }
@@ -646,6 +647,38 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(call_endpoint).to redirect_to(expected_redirect_url)
         end
       end
+
+      context 'after redirecting the client' do
+        let(:user_action) { create(:user_action, user_action_event:) }
+        let(:expected_ip_address) { cookies.request.remote_ip }
+        let(:expected_user_agent) { cookies.request.user_agent }
+        let(:expected_audit_log) { 'User audit log created' }
+        let(:expected_audit_log_payload) do
+          { user_action_event: user_action_event.id,
+            user_action_event_details: user_action_event.details,
+            status: :success,
+            user_action: user_action.id }
+        end
+
+        before do
+          allow(UserActionEvent).to receive(:find_by).and_return(user_action_event)
+          allow(UserAction).to receive(:create!).and_return(user_action)
+          allow(UserAuditLogger).to receive(:new).and_call_original
+          allow(Rails.logger).to receive(:info).and_call_original
+        end
+
+        it 'creates a user audit log' do
+          expect(UserActionEvent).to receive(:find_by).with(details: 'User logged in')
+          expect(UserAuditLogger).to receive(:new).with(user_action_event:,
+                                                        acting_user_verification: user.user_verification,
+                                                        subject_user_verification: user.user_verification,
+                                                        status: :success,
+                                                        acting_ip_address: expected_ip_address,
+                                                        acting_user_agent: expected_user_agent)
+          expect(Rails.logger).to receive(:info).with(expected_audit_log, expected_audit_log_payload)
+          call_endpoint
+        end
+      end
     end
 
     context 'when user has level of assurance 3' do
@@ -697,6 +730,38 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'when user has accepted the current terms of use' do
         it 'redirects to expected auth page' do
           expect(call_endpoint).to redirect_to(expected_redirect_url)
+        end
+      end
+
+      context 'after redirecting the client' do
+        let(:user_action) { create(:user_action, user_action_event:) }
+        let(:expected_ip_address) { cookies.request.remote_ip }
+        let(:expected_user_agent) { cookies.request.user_agent }
+        let(:expected_audit_log) { 'User audit log created' }
+        let(:expected_audit_log_payload) do
+          { user_action_event: user_action_event.id,
+            user_action_event_details: user_action_event.details,
+            status: :success,
+            user_action: user_action.id }
+        end
+
+        before do
+          allow(UserActionEvent).to receive(:find_by).and_return(user_action_event)
+          allow(UserAction).to receive(:create!).and_return(user_action)
+          allow(UserAuditLogger).to receive(:new).and_call_original
+          allow(Rails.logger).to receive(:info).and_call_original
+        end
+
+        it 'creates a user audit log' do
+          expect(UserActionEvent).to receive(:find_by).with(details: 'User logged in')
+          expect(UserAuditLogger).to receive(:new).with(user_action_event:,
+                                                        acting_user_verification: user.user_verification,
+                                                        subject_user_verification: user.user_verification,
+                                                        status: :success,
+                                                        acting_ip_address: expected_ip_address,
+                                                        acting_user_agent: expected_user_agent)
+          expect(Rails.logger).to receive(:info).with(expected_audit_log, expected_audit_log_payload)
+          call_endpoint
         end
       end
     end

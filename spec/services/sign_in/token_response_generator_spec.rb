@@ -5,7 +5,10 @@ require 'rails_helper'
 RSpec.describe SignIn::TokenResponseGenerator do
   subject(:generator) { described_class.new(params:, cookies:) }
 
-  let(:cookies) { double('cookies') }
+  let(:remote_ip) { '127.0.0.1' }
+  let(:user_agent) { 'Mozilla/5.0' }
+  let(:request) { double('request', remote_ip:, user_agent:) }
+  let(:cookies) { double('cookies', request:) }
 
   before { allow(Rails.logger).to receive(:info) }
 
@@ -24,9 +27,12 @@ RSpec.describe SignIn::TokenResponseGenerator do
       end
       let(:access_token) { session_container.access_token }
       let(:validated_credential) { create(:validated_credential) }
+      let(:user_verification) { validated_credential.user_verification }
       let(:session_container) { create(:session_container) }
       let(:code_validator) { instance_double(SignIn::CodeValidator, perform: validated_credential) }
       let(:session_creator) { instance_double(SignIn::SessionCreator, perform: session_container) }
+      let!(:user_action_event) { create(:user_action_event, details: 'User logged in') }
+      let(:user_action) { create(:user_action, user_action_event:) }
       let(:token_serializer) { instance_double(SignIn::TokenSerializer, perform: expected_token_response) }
       let(:expected_token_response) do
         {
@@ -39,10 +45,20 @@ RSpec.describe SignIn::TokenResponseGenerator do
         }
       end
       let(:expected_log_message) { '[SignInService] [SignIn::TokenResponseGenerator] session created' }
+      let(:expected_audit_log) { 'User audit log created' }
+      let(:expected_audit_log_payload) do
+        { user_action_event: user_action_event.id,
+          user_action_event_details: user_action_event.details,
+          status: :success,
+          user_action: user_action.id }
+      end
 
       before do
         allow(SignIn::CodeValidator).to receive(:new).and_return(code_validator)
         allow(SignIn::SessionCreator).to receive(:new).and_return(session_creator)
+        allow(UserActionEvent).to receive(:find_by).and_return(user_action_event)
+        allow(UserAction).to receive(:create!).and_return(user_action)
+        allow(UserAuditLogger).to receive(:new).and_call_original
         allow(SignIn::TokenSerializer).to receive(:new).and_return(token_serializer)
       end
 
@@ -53,6 +69,18 @@ RSpec.describe SignIn::TokenResponseGenerator do
       it 'logs the expected message' do
         subject.perform
         expect(Rails.logger).to have_received(:info).with(expected_log_message, access_token.to_s)
+      end
+
+      it 'creates a user audit log' do
+        subject.perform
+        expect(UserActionEvent).to have_received(:find_by).with(details: 'User logged in')
+        expect(UserAuditLogger).to have_received(:new).with(user_action_event:,
+                                                            acting_user_verification: user_verification,
+                                                            subject_user_verification: user_verification,
+                                                            status: :success,
+                                                            acting_ip_address: remote_ip,
+                                                            acting_user_agent: user_agent)
+        expect(Rails.logger).to have_received(:info).with(expected_audit_log, expected_audit_log_payload).once
       end
     end
 

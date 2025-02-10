@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'user_audit_logger'
+
 module SignIn
   class TokenResponseGenerator
     attr_reader :grant_type, :code, :code_verifier, :client_assertion, :client_assertion_type, :assertion,
@@ -40,6 +42,7 @@ module SignIn
                                                client_assertion_type:).perform
       session_container = SessionCreator.new(validated_credential:).perform
 
+      create_user_audit_log(user_verification: validated_credential.user_verification)
       sign_in_logger.info('session created', session_container.access_token.to_s)
 
       TokenSerializer.new(session_container:, cookies:).perform
@@ -73,6 +76,16 @@ module SignIn
           access_token:
         }
       }
+    end
+
+    def create_user_audit_log(user_verification:)
+      user_action_event = UserActionEvent.find_by(details: 'User logged in')
+      UserAuditLogger.new(user_action_event:,
+                          acting_user_verification: user_verification,
+                          subject_user_verification: user_verification,
+                          status: :success,
+                          acting_ip_address: cookies.request.remote_ip,
+                          acting_user_agent: cookies.request.user_agent).perform
     end
   end
 end
