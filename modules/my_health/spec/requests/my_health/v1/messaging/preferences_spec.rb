@@ -122,5 +122,35 @@ RSpec.describe 'MyHealth::V1::Messaging::Preferences', type: :request do
       end
       expect(JSON.parse(response.body)['errors'].first['code']).to eq('SM99')
     end
+
+    it 'GET #signature' do
+      VCR.use_cassette('sm_client/preferences/fetches_the_signature_preferences') do
+        get '/my_health/v1/messaging/preferences/signature'
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      attributes = JSON.parse(response.body)['data']['attributes']
+      expect(attributes['include_signature']).to eq(true)
+      expect(attributes['signature_name']).to eq('Test Mark')
+      expect(attributes['signature_title']).to eq('Test Title API')
+    end
+
+    it 'POST #update_signature' do
+      VCR.use_cassette('sm_client/preferences/sets_the_signature_preferences') do
+        params = {
+          messaging_preference: {
+            signature_name: 'Test Mark',
+            include_signature: false,
+            signature_title: 'Test Title API'
+          }
+        }
+        post '/my_health/v1/messaging/preferences/signature', params:
+      end
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)['data']['attributes'])
+        .to eq('include_signature' => false, 'signature_name' => 'Test Mark', 'signature_title' => 'Test Title API')
+    end
   end
 end
