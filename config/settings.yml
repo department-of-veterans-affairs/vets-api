@@ -314,7 +314,6 @@ mdot:
   url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
-  enabled: false
 
 # Settings for Decision Reviews
 decision_review:
