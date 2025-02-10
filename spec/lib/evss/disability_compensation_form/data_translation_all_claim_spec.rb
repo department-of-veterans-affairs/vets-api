@@ -15,6 +15,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     User.create(user)
     frozen_time = Time.zone.parse '2020-11-05 13:19:50 -0500'
     Timecop.freeze(frozen_time)
+    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
   end
 
   after { Timecop.return }
@@ -459,24 +460,14 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     end
 
     context 'when the banking info is redacted' do
-      let(:form_content) do
-        {
-          'form526' => {
-            'bankName' => 'test',
-            'bankAccountType' => 'checking',
-            'bankAccountNumber' => '**34567890',
-            'bankRoutingNumber' => '0987654321'
-          }
-        }
-      end
-
+      let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
       it 'gathers the banking info from the PPIU service' do
-        VCR.use_cassette('evss/ppiu/payment_information') do
+        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
           expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
             'accountType' => 'CHECKING',
-            'accountNumber' => '9876543211234',
-            'routingNumber' => '042102115',
-            'bankName' => 'Comerica'
+            'accountNumber' => '1234567890',
+            'routingNumber' => '031000503',
+            'bankName' => 'WELLS FARGO BANK'
           }
         end
       end
@@ -485,7 +476,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     context 'when not provided banking info' do
       context 'and the PPIU service has the account info' do
         it 'gathers the banking info from the PPIU service' do
-          VCR.use_cassette('evss/ppiu/payment_information') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
             expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
               'accountType' => 'CHECKING',
               'accountNumber' => '9876543211234',

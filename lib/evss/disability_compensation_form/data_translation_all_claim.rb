@@ -171,7 +171,7 @@ module EVSS
         # Call to either EVSS or Lighthouse PPIU/Direct Deposit data provider
         service = ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:ppiu],
-          provider: :lighthouse,
+          provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
           options: {},
           current_user: @user,
           feature_toggle: nil
