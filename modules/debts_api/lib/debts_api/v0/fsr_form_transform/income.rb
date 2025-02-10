@@ -79,37 +79,21 @@ module DebtsApi
         private
 
         def gross_salary
-          gross_salary = if @enhanced_fsr_active
-            @employment_records.map do |emp|
-              if emp['gross_monthly_income'].nil?
-                0
-              else
-                emp['gross_monthly_income'].to_f
-              end
-            end.sum
+          if @enhanced_fsr_active
+            @employment_records.sum { |emp| emp['gross_monthly_income'].to_f }
           else
-            @current_employment.sum do |emp|
-              emp["#{beneficiary_type}_gross_salary"].to_f
-            end
-          end
-          gross_salary.to_f.round(2)
+            @current_employment.sum { |emp| emp["#{beneficiary_type}_gross_salary"].to_f }
+          end.to_f.round(2)
         end
 
         def deductions
           if @enhanced_fsr_active
             @employment_records
               .select { |emp| emp['is_current'] }
-              .map do |emp|
-              if emp['deductions'].nil?
-                0
-              else
-                emp['deductions']
-              end
-            end
-            .flatten
+              .map { |emp| emp['deductions'] || 0 }
           else
-            @current_employment.pluck('deductions').flatten
-          end
+            @current_employment.pluck('deductions')
+          end.flatten
         end
 
         def tax_deductions
@@ -136,12 +120,12 @@ module DebtsApi
         end
 
         def other_income
-          addl_inc = @additional_income.sum { |i| i['amount'].to_f }
-          soc_sec_amt = @social_security
-          comp = @compensation_and_pension
-          edu =  @education
+          addl_inc = @additional_income.sum { |i| i['amount'].to_f }.to_f.round(2)
+          soc_sec_amt = @social_security.to_f.round(2)
+          comp = @compensation_and_pension.to_f.round(2)
+          edu =  @education.to_f.round(2)
 
-          other_income_total = addl_inc.to_f.round(2) + comp.to_f.round(2) + edu.to_f.round(2) + soc_sec_amt.to_f.round(2)
+          other_income_total = addl_inc + comp + edu + soc_sec_amt
 
           {
             name: name_str(soc_sec_amt, comp, edu, @additional_income),
@@ -193,7 +177,6 @@ module DebtsApi
 
           other_inc_names&.join(', ') || ''
         end
-
       end
     end
   end

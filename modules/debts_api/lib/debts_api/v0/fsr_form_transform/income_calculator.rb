@@ -6,7 +6,6 @@ module DebtsApi
   module V0
     module FsrFormTransform
       class IncomeCalculator
-
         # Refactoring Steps
         # 1. Remove duplicate instance variables related to `get_monthly_income`
         # 2. Replace `calculate_income` parameters with respective instance variables
@@ -24,10 +23,8 @@ module DebtsApi
           @enhanced_fsr_active = @form['view:enhanced_financial_status_report']
         end
 
-        def get_monthly_income
-          sp_sum = sp_income.income_statement.empty? ? 0 : sp_income.total_monthly_net_income
-          total_monthly_net_income = vet_income.total_monthly_net_income + sp_sum
-
+        # formerly get_monthly_income
+        def combined_monthly_income_statement
           {
             vetIncome: vet_income.income_statement,
             spIncome: sp_income.income_statement,
@@ -35,27 +32,33 @@ module DebtsApi
           }
         end
 
-        def vet_income
-          @vet_income ||= begin
-            Income.new(veteran_income_params)
-          end
-        end
-
-        def sp_income
-          @sp_income ||= begin
-            Income.new(spouse_income_params)
-          end
-        end
-
-        def get_transformed_income
+        # formerly get_transformed_income
+        def monthly_income_statements_as_json
           [vet_income.income_statement_as_json, sp_income.income_statement_as_json]
+        end
+
+        def total_monthly_net_income
+          sp_sum = sp_income.income_statement.empty? ? 0 : sp_income.total_monthly_net_income
+          vet_income.total_monthly_net_income + sp_sum
+        end
+
+        def total_annual_net_income
+          total_monthly_net_income.to_f * 12
         end
 
         private
 
+        def vet_income
+          @vet_income ||= Income.new(veteran_income_params)
+        end
+
+        def sp_income
+          @sp_income ||= Income.new(spouse_income_params)
+        end
+
         def veteran_income_params
           {
-            additional_income: @additional_income.fetch('addl_inc_records',[]),
+            additional_income: @additional_income.fetch('addl_inc_records', []),
             employment_records: @employment_history.dig('veteran', 'employment_records') || [],
             curr_employment: @form['curr_employment'] || [],
             social_security: @social_security['social_sec_amt'].to_f || 0,
@@ -78,7 +81,6 @@ module DebtsApi
             enhanced_fsr_active: @enhanced_fsr_active
           }
         end
-
       end
     end
   end
