@@ -84,7 +84,7 @@ module SimpleFormsApi
     def email_args
       [
         Settings.vanotify.services.va_gov.api_key,
-        { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+        { callback_metadata: { notification_type:, form_number:, confirmation_number:, statsd_tags: } }
       ]
     end
 
