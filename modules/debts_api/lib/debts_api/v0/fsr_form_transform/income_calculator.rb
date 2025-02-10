@@ -6,7 +6,6 @@ module DebtsApi
   module V0
     module FsrFormTransform
       class IncomeCalculator
-
         def initialize(form)
           @form = form
           @additional_income = @form['additional_income']
