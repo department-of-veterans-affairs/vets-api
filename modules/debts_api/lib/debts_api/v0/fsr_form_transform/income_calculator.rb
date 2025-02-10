@@ -20,20 +20,19 @@ module DebtsApi
         # formerly get_monthly_income
         def combined_monthly_income_statement
           {
-            vetIncome: vet_income.income_statement,
-            spIncome: sp_income.income_statement,
+            vetIncome: veteran_income.income_statement,
+            spIncome: spouse_income.income_statement,
             totalMonthlyNetIncome: total_monthly_net_income
           }
         end
 
         # formerly get_transformed_income
         def monthly_income_statements_as_json
-          [vet_income.income_statement_as_json, sp_income.income_statement_as_json]
+          [veteran_income.income_statement_as_json, spouse_income.income_statement_as_json]
         end
 
         def total_monthly_net_income
-          sp_sum = sp_income.income_statement.empty? ? 0 : sp_income.total_monthly_net_income
-          vet_income.total_monthly_net_income + sp_sum
+          veteran_income.total_monthly_net_income + spouse_income.total_monthly_net_income
         end
 
         def total_annual_net_income
@@ -42,12 +41,12 @@ module DebtsApi
 
         private
 
-        def vet_income
-          @vet_income ||= Income.new(veteran_income_params)
+        def veteran_income
+          @veteran_income ||= Income.new(veteran_income_params)
         end
 
-        def sp_income
-          @sp_income ||= Income.new(spouse_income_params)
+        def spouse_income
+          @spouse_income ||= Income.new(spouse_income_params)
         end
 
         def veteran_income_params
