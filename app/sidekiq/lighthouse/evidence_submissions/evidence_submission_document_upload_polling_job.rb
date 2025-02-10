@@ -14,6 +14,34 @@ module Lighthouse
       sidekiq_options retry: 7
 
       POLLED_BATCH_DOCUMENT_COUNT = 100
+      # STATSD_KEY_PREFIX = ''
+
+      sidekiq_retries_exhausted do |msg, _ex|
+        job_id = msg['jid']
+        error_class = msg['error_class']
+        error_message = msg['error_message']
+
+        # TODO: Add statsD
+        # StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+
+        Rails.logger.warn(
+          'Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUploadPollingJob retries exhausted',
+          { job_id:, error_class:, error_message:, timestamp: Time.now.utc }
+        )
+      rescue => e
+        Rails.logger.error(
+          'Failure in
+          Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUploadPollingJob#sidekiq_retries_exhausted',
+          {
+            messaged_content: e.message,
+            job_id:,
+            pre_exhaustion_failure: {
+              error_class:,
+              error_message:
+            }
+          }
+        )
+      end
 
       def perform
         pending_evidence_submissions = EvidenceSubmission.pending
