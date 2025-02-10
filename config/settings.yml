@@ -8,6 +8,9 @@ virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
 web_origin_regex: \Ahttps?:\/\/www\.va\.gov\z
 
+audit_db:
+  url: postgis:///vets_api_audit
+
 logingov:
   client_id: https://sqa.eauth.va.gov/isam/sps/saml20sp/saml20
   redirect_uri: http://localhost:3000/v0/sign_in/callback
