@@ -19,7 +19,7 @@ module V0
                      .order(created_at: :desc)
                      .page(page)
                      .per_page(per_page)
-      render json: UserActionSerializer.new(user_actions), include: [:user_action_event]
+      render json: user_actions, each_serializer: UserActionSerializer, include: [:user_action_event]
     end
   end
 end

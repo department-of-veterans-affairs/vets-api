@@ -42,7 +42,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
       let(:per_page) { 4 }
 
       it 'returns a successful response' do
-        get :index, params: { start_date: 1.month.ago.to_date, end_date: Time.zone.today }
+        get :index, params: { start_date: 1.month.ago.to_date, end_date: Time.zone.now }
         expect(response).to have_http_status(:success)
       end
 
@@ -60,7 +60,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
                subject_user_verification_id: user_verification.id,
                user_action_event: user_action_event_one)
 
-        get :index, params: { start_date: 3.days.ago.to_date, end_date: Time.zone.today }
+        get :index, params: { start_date: 3.days.ago.to_date, end_date: Time.zone.now }
 
         expect(response).to have_http_status(:success)
 
