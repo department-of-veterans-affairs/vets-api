@@ -108,7 +108,7 @@ module SimpleFormsApi
       'SA' => 'U.S. Space Force',
       'SF' => 'Signal Corps Tel Oper',
       'SP' => 'Special Guerilla Unit Laos',
-      'UT' => 'Utah Territorial Militia',
+      'UT' => 'Utah Territorial Militia'
     }.freeze
 
     DISCHARGE_TYPE = {
