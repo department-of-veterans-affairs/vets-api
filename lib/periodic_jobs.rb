@@ -247,8 +247,8 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Daily cleanup of > 12 month old UserAction records
   mgr.register('45 3 * * *', 'UserActionEventsCleanupJob')
 
-  # Update Evidence Submission Records for documents that were uploaded to Lighthouse and are in a PENDING status
-  mgr.register('5 0 * * *', 'Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUploadPollingJob')
+  # Hourly job. Updatse Evidence Submission Records for documents that were uploaded to Lighthouse and are in a PENDING status.
+  mgr.register('0 * * * *', 'Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUploadPollingJob')
 
   # Send Benefits Documents failure notification emails to Veteran for failed evidence submissions
   mgr.register('5 0 * * *', 'Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob')
