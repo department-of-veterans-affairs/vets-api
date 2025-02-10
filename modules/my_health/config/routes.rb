@@ -2,6 +2,8 @@
 
 MyHealth::Engine.routes.draw do
   namespace :v1 do
+    resources :tooltips, only: %i[index create update], controller: 'rx_tooltips', defaults: { format: :json }
+
     scope :medical_records do
       resources :vaccines, only: %i[index show], defaults: { format: :json } do
         get :pdf, on: :collection
