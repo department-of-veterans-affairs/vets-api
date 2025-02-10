@@ -1,98 +1,19 @@
 {
-  "veteran_was_married_before": true,
-  "spouse_was_married_before": true,
-  "view:selectable686_options": {
-    "add_spouse": true,
-    "add_child": true,
-    "report674": true,
-    "report_divorce": true,
-    "report_stepchild_not_in_household": true,
-    "report_death": true,
-    "report_marriage_of_child_under18": true,
-    "report_child18_or_older_is_not_attending_school": true
+  "veteran_information": {
+    "full_name": {
+      "first": "Mark",
+      "middle": "E",
+      "last": "Webb"
+    },
+    "ssn": "000000000",
+    "va_file_number": "000000000",
+    "birth_date": "1980-01-01"
   },
-  "dependents_application": {
-    "household_income": false,
-    "view:completed_child_stopped_attending_school": false,
-    "view:completed_married_child": false,
-    "view:completed_dependent": false,
-    "view:completed_household_child": false,
-    "report_divorce": {
-      "spouse_income": true,
-      "date": "2020-01-15",
-      "divorce_location": {
-        "outside_usa": false,
-        "location": {
-          "city": "Fakesville",
-          "state": "CT"
-        }
-      },
-      "reason_marriage_ended": "Other",
-      "explanation_of_other": "Other longer explanation of how the marriage could have ended",
-      "full_name": {
-        "first": "DivorcedSpouse",
-        "last": "Doe"
-      },
-      "birth_date": "1991-03-19"
-    },
-    "view:completed_student": false,
-    "view:selectable686_options": {
-      "add_spouse": true,
-      "add_child": false,
-      "report674": true,
-      "add_disabled_child": false,
-      "report_divorce": true,
-      "report_death": true,
-      "report_stepchild_not_in_household": true,
-      "report_marriage_of_child_under18": true,
-      "report_child18_or_older_is_not_attending_school": true
-    },
-    "children_to_add": [],
-    "view:additional_evidence_description": {},
-    "spouse_evidence_document_type": "61",
-    "view:completed_veteran_former_marriage": false,
-    "view:completed_spouse_former_marriage": false,
-    "does_live_with_spouse": {
-      "spouse_income": false,
-      "current_spouse_reason_for_separation": "OTHER",
-      "other": "The reason I live separately from my spouse is because we own several properties throughout the world",
-      "address": {
-        "view:military_base_description": {},
-        "country": "USA",
-        "street": "123 Fake St.",
-        "street2": "Suite 6",
-        "city": "Fakesville",
-        "state": "GA",
-        "postal_code": "12345"
-      },
-      "spouse_does_live_with_veteran": false
-    },
-    "current_marriage_information": {
-      "type": "OTHER",
-      "type_other": "We were married by a captain of a ship",
-      "view:marriage_type_information": {},
-      "outside_usa": true,
-      "location": {
-        "city": "Fakesville"
-      },
-      "date": "2024-01-19"
-    },
-    "spouse_information": {
-      "va_file_number": "003334455",
-      "service_number": "12345678",
-      "ssn": "333556678",
-      "birth_date": "1995-02-19",
-      "is_veteran": true,
-      "full_name": {
-        "first": "Spouse",
-        "middle": "H",
-        "last": "Doe"
-      }
-    },
+  "dependents_application" : {
     "veteran_contact_information": {
-      "phone_number": "8005556666",
-      "international_phone_number": "+37060112345",
-      "email_address": "nope@nope.org",
+      "phone_number": "1112223333",
+      "international_phone_number": "123456789012345",
+      "email_address": "nope@nopeeeeeeeeeeeeeeee.org",
       "electronic_correspondence": true,
       "veteran_address": {
         "view:military_base_description": {},
@@ -105,199 +26,61 @@
         "postal_code": "12345"
       }
     },
-    "view:add_or_remove_dependents": {
-      "add": true,
-      "remove": true
-    },
-    "spouse_marriage_history": [
-      {
-        "end_location": {
-          "location": {
-            "city": "City of Make believe",
-            "state": "AZ"
-          }
-        },
-        "start_location": {
-          "location": {
-            "city": "Fakesville",
-            "state": "KY"
-          }
-        },
-        "end_date": "2018-01-25",
-        "start_date": "2016-04-19",
-        "reason_marriage_ended": "Other",
-        "reason_marriage_ended_other": "other way",
-        "full_name": {
-          "first": "ExSpouse",
-          "middle": "C",
-          "last": "Doe"
-        }
-      }
-    ],
-    "veteran_marriage_history": [
-      {
-        "end_location": {
-          "outside_usa": true,
-          "location": {
-            "city": "Fakesville"
-          }
-        },
-        "start_location": {
-          "location": {
-            "city": "Fakesville",
-            "state": "LA"
-          }
-        },
-        "end_date": "2016-11-19",
-        "start_date": "2015-08-03",
-        "reason_marriage_ended": "Other",
-        "reason_marriage_ended_other": "other way",
-        "full_name": {
-          "first": "MyExSpouse",
-          "middle": "J",
-          "last": "Doe"
-        }
-      }
-    ],
-    "veteran_information": {
-      "full_name": {
-        "first": "Pauline",
-        "middle": "E",
-        "last": "Foster"
-      },
-      "ssn": "796330625",
-      "birth_date": "1976-06-09",
-      "ssn_last_four": "0625",
-      "va_file_last_four": "0625"
-    },
     "student_information": [
       {
-        "remarks": "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\"",
         "student_networth_information": {
-          "savings": "6000",
-          "securities": "3455",
-          "real_estate": "43332",
-          "other_assets": "3433",
-          "total_value": "23455"
+          "savings": "100",
+          "securities": "100",
+          "real_estate": "100",
+          "other_assets": "100",
+          "total_value": "100"
         },
         "student_expected_earnings_next_year": {
-          "earnings_from_all_employment": "1",
-          "annual_social_security_payments": "1",
-          "other_annuities_income": "1",
-          "all_other_income": "1"
-        },
-        "student_earnings_from_school_year": {
-          "earnings_from_all_employment": "2000.00",
-          "annual_social_security_payments": "$4000",
-          "other_annuities_income": "2000.86",
+          "earnings_from_all_employment": "100",
+          "annual_social_security_payments": "100",
+          "other_annuities_income": "100",
           "all_other_income": "100"
         },
-        "claims_or_receives_pension": true,
+        "student_earnings_from_school_year": {
+          "earnings_from_all_employment": "100",
+          "annual_social_security_payments": "100",
+          "other_annuities_income": "100",
+          "all_other_income": "100"
+        },
         "school_information": {
-          "last_term_school_information": {
-            "term_begin": "2000-03-12",
-            "date_term_ended": "2000-04-23"
-          },
-          "student_did_attend_school_last_term": true,
-          "current_term_dates": {
-            "official_school_start_date": "2024-10-19",
-            "expected_student_start_date": "2024-10-19",
-            "expected_graduation_date": "2024-11-01"
-          },
-          "is_school_accredited": true,
-          "view:accredited": {},
-          "date_full_time_ended": "2020-06-04",
+          "isSchoolAccredited": true,
           "student_is_enrolled_full_time": false,
-          "name": "Quest for Knowledge Trade programs"
+          "student_did_attend_school_last_term": false,
+          "current_term_dates": {
+            "official_school_start_date": "2024-09-25",
+            "expected_student_start_date": "2024-09-12",
+            "expected_graduation_date": "2028-05-18"
+          },
+          "last_term_school_information": {
+            "term_begin": "2025-01-12",
+            "date_term_ended": "2025-05-22"
+          }
         },
-        "benefit_payment_date": "2021-06-19",
-        "type_of_program_or_benefit": {
-          "ch35": true,
-          "fry": true,
-          "feca": true,
-          "other": true
-        },
-        "tuition_is_paid_by_gov_agency": true,
-        "view:program_examples": {},
         "was_married": false,
+        "view:program_examples": {},
         "address": {
           "view:military_base_description": {},
           "country": "USA",
-          "street": "123 Fake St.",
+          "street": "123 Fake St",
           "city": "Fakesville",
           "state": "AL",
           "postal_code": "12345"
         },
         "student_income": false,
-        "ssn": "333445568",
-        "is_parent": true,
+        "ssn": "000000000",
         "full_name": {
-          "first": "Student",
-          "last": "Doe"
+          "first": "Studentttttttttttt",
+          "middle": "",
+          "last": "Doeeeeeeeeeeeeeeeeee"
         },
-        "birth_date": "2001-04-12"
-      }
-    ],
-    "step_children": [
-      {
-        "supporting_stepchild": false,
-        "who_does_the_stepchild_live_with": {
-          "first": "Parent",
-          "last": "Doe"
-        },
-        "address": {
-          "view:military_base_description": {},
-          "country": "USA",
-          "street": "123 Fake St.",
-          "city": "Fakesville",
-          "state": "HI",
-          "postal_code": "12345"
-        },
-        "full_name": {
-          "first": "Stepchild",
-          "last": "Doe"
-        },
-        "ssn": "333567895",
-        "birth_date": "2001-08-04"
-      }
-    ],
-    "deaths": [
-      {
-        "deceased_dependent_income": false,
-        "dependent_death_location": {
-          "location": {
-            "city": "Fakesville",
-            "state": "AR"
-          }
-        },
-        "dependent_death_date": "2024-01-19",
-        "child_status": {
-          "child_under18": false,
-          "step_child": false,
-          "adopted": false,
-          "disabled": true,
-          "child_over18_in_school": false
-        },
-        "dependent_type": "child",
-        "full_name": {
-          "first": "John",
-          "last": "Doe"
-        },
-        "ssn": "333446666",
-        "birth_date": "1991-01-21"
-      }
-    ],
-    "child_marriage": [
-      {
-        "dependent_income": false,
-        "date_married": "2020-01-19",
-        "full_name": {
-          "first": "Child",
-          "middle": "C",
-          "last": "Doe"
-        },
-        "ssn": "333445555",
-        "birth_date": "2001-03-12"
+        "birth_date": "2001-04-12",
+        "tuition_is_paid_by_gov_agency": true,
+        "benefit_payment_date": "2001-06-19"
       }
     ],
     "child_stopped_attending_school": [
@@ -308,23 +91,22 @@
           "first": "Jane",
           "last": "Doe"
         },
-        "ssn": "333445555",
+        "ssn": "111111111",
         "birth_date": "1991-04-19"
       }
+    ],
+    "child_marriage": [
+      {
+        "dependent_income": false,
+        "date_married": "2020-01-01",
+        "full_name": {
+          "first": "Child",
+          "middle": "C",
+          "last": "Doe"
+        },
+        "ssn": "222222222",
+        "birth_date": "2001-03-12"
+      }
     ]
-  },
-  "veteran_information": {
-    "full_name": {
-      "first": "Mark",
-      "middle": "",
-      "last": "Webb"
-    },
-    "common_name": "Mark",
-    "va_profile_email": "vets.gov.user+228@gmail.com",
-    "email": "vets.gov.user+228@gmail.com",
-    "participant_id": "123",
-    "ssn": "000000000",
-    "va_file_number": "000000000",
-    "birth_date": "1980-01-01"
   }
 }
