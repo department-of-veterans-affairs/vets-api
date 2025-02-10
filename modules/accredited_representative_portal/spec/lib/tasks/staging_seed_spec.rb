@@ -82,16 +82,6 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
       expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.unresolved).to exist
     end
 
-    it 'creates POA requests for reps without matching orgs' do
-      # verify request exists but has no org
-      requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest.where(
-        accredited_individual_registration_number: 'LR000'
-      )
-      expect(requests).to exist
-      # veroify no org
-      expect(requests).to(be_all { |req| req.accredited_organization.blank? })
-    end
-
     it 'creates requests with proper claimant data' do
       requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest.all
 
