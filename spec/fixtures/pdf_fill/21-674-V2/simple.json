@@ -49,7 +49,8 @@
         },
         "school_information": {
           "isSchoolAccredited": true,
-          "student_is_enrolled_full_time": false
+          "student_is_enrolled_full_time": false,
+          "student_did_attend_school_last_term": false
         },
         "was_married": false,
         "view:program_examples": {},

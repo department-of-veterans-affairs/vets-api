@@ -89,7 +89,7 @@ module PdfFill
             limit: 4,
             first_key: 'school_information',
             'remarks' => {
-              key: 'form1[0].#subform[0].Remarks[0]',
+              key: 'form1[0].#subform[0].Remarks[%iterator%]',
               limit: 1000,
               question_num: 15,
               question_suffix: 'A',
@@ -98,28 +98,28 @@ module PdfFill
             'student_networth_information' => {
               'savings' => { # Update logic to seperate savings numbers
                 'first' => {
-                  key: 'form1[0].#subform[0].StudentSavings_FirstOne[0]',
+                  key: 'form1[0].#subform[0].StudentSavings_FirstOne[%iterator%]',
                   limit: 1,
                   question_num: 14,
                   question_suffix: 'A',
                   question_text: 'VALUE OF ESTATE > SAVINGS'
                 },
                 'second' => {
-                  key: 'form1[0].#subform[0].StudentSavings_SecondThree[0]',
+                  key: 'form1[0].#subform[0].StudentSavings_SecondThree[%iterator%]',
                   limit: 3,
                   question_num: 14,
                   question_suffix: 'A',
                   question_text: 'VALUE OF ESTATE > SAVINGS'
                 },
                 'third' => {
-                  key: 'form1[0].#subform[0].StudentSavings_ThirdThree[0]',
+                  key: 'form1[0].#subform[0].StudentSavings_ThirdThree[%iterator%]',
                   limit: 3,
                   question_num: 14,
                   question_suffix: 'A',
                   question_text: 'VALUE OF ESTATE > SAVINGS'
                 },
                 'last' => {
-                  key: 'form1[0].#subform[0].StudentSavings_LastTwo[0]',
+                  key: 'form1[0].#subform[0].StudentSavings_LastTwo[%iterator%]',
                   limit: 2,
                   question_num: 14,
                   question_suffix: 'A',
@@ -128,28 +128,28 @@ module PdfFill
               },
               'securities' => {
                 'first' => {
-                  key: 'form1[0].#subform[0].StudentSecurities_FirstOne[0]',
+                  key: 'form1[0].#subform[0].StudentSecurities_FirstOne[%iterator%]',
                   limit: 1,
                   question_num: 14,
                   question_suffix: 'B',
                   question_text: 'VALUE OF ESTATE > SECURITIES'
                 },
                 'second' => {
-                  key: 'form1[0].#subform[0].StudentSecurities_SecondThree[0]',
+                  key: 'form1[0].#subform[0].StudentSecurities_SecondThree[%iterator%]',
                   limit: 3,
                   question_num: 14,
                   question_suffix: 'B',
                   question_text: 'VALUE OF ESTATE > SECURITIES'
                 },
                 'third' => {
-                  key: 'form1[0].#subform[0].StudentSecurities_ThirdThree[0]',
+                  key: 'form1[0].#subform[0].StudentSecurities_ThirdThree[%iterator%]',
                   limit: 3,
                   question_num: 14,
                   question_suffix: 'B',
                   question_text: 'VALUE OF ESTATE > SECURITIES'
                 },
                 'last' => {
-                  key: 'form1[0].#subform[0].StudentSecurities_LastTwo[0]',
+                  key: 'form1[0].#subform[0].StudentSecurities_LastTwo[%iterator%]',
                   limit: 2,
                   question_num: 14,
                   question_suffix: 'B',
@@ -158,28 +158,28 @@ module PdfFill
               },
               'real_estate' => {
                 'first' => {
-                  key: 'form1[0].#subform[0].StudentRealEstate_FirstOne[0]',
+                  key: 'form1[0].#subform[0].StudentRealEstate_FirstOne[%iterator%]',
                   limit: 1,
                   question_num: 14,
                   question_suffix: 'C',
                   question_text: 'VALUE OF ESTATE > REAL ESTATE'
                 },
                 'second' => {
-                  key: 'form1[0].#subform[0].StudentRealEstate_SecondThree[0]',
+                  key: 'form1[0].#subform[0].StudentRealEstate_SecondThree[%iterator%]',
                   limit: 3,
                   question_num: 14,
                   question_suffix: 'C',
                   question_text: 'VALUE OF ESTATE > REAL ESTATE'
                 },
                 'third' => {
-                  key: 'form1[0].#subform[0].StudentRealEstate_ThirdThree[0]',
+                  key: 'form1[0].#subform[0].StudentRealEstate_ThirdThree[%iterator%]',
                   limit: 3,
                   question_num: 14,
                   question_suffix: 'C',
                   question_text: 'VALUE OF ESTATE > REAL ESTATE'
                 },
                 'last' => {
-                  key: 'form1[0].#subform[0].StudentRealEstate_LastTwo[0]',
+                  key: 'form1[0].#subform[0].StudentRealEstate_LastTwo[%iterator%]',
                   limit: 2,
                   question_num: 14,
                   question_suffix: 'C',
@@ -188,28 +188,28 @@ module PdfFill
               },
               'other_assets' => {
                 'first' => {
-                  key: 'form1[0].#subform[0].StudentOtherAssets_FirstOne[0]',
+                  key: 'form1[0].#subform[0].StudentOtherAssets_FirstOne[%iterator%]',
                   limit: 1,
                   question_num: 14,
                   question_suffix: 'D',
                   question_text: 'VALUE OF ESTATE > OTHER ASSETS'
                 },
                 'second' => {
-                  key: 'form1[0].#subform[0].StudentOtherAssets_SecondThree[0]',
+                  key: 'form1[0].#subform[0].StudentOtherAssets_SecondThree[%iterator%]',
                   limit: 3,
                   question_num: 14,
                   question_suffix: 'D',
                   question_text: 'VALUE OF ESTATE > OTHER ASSETS'
                 },
                 'third' => {
-                  key: 'form1[0].#subform[0].StudentOtherAssets_ThirdThree[0]',
+                  key: 'form1[0].#subform[0].StudentOtherAssets_ThirdThree[%iterator%]',
                   limit: 3,
                   question_num: 14,
                   question_suffix: 'D',
                   question_text: 'VALUE OF ESTATE > OTHER ASSETS'
                 },
                 'last' => {
-                  key: 'form1[0].#subform[0].StudentOtherAssets_LastTwo[0]',
+                  key: 'form1[0].#subform[0].StudentOtherAssets_LastTwo[%iterator%]',
                   limit: 2,
                   question_num: 14,
                   question_suffix: 'D',
@@ -218,28 +218,28 @@ module PdfFill
               },
               'total_value' => {
                 'first' => {
-                  key: 'form1[0].#subform[0].StudentTotalValues_FirstOne[0]',
+                  key: 'form1[0].#subform[0].StudentTotalValues_FirstOne[%iterator%]',
                   limit: 1,
                   question_num: 14,
                   question_suffix: 'E',
                   question_text: 'VALUE OF ESTATE > TOTAL VALUE'
                 },
                 'second' => {
-                  key: 'form1[0].#subform[0].StudentTotalValues_SecondThree[0]',
+                  key: 'form1[0].#subform[0].StudentTotalValues_SecondThree[%iterator%]',
                   limit: 3,
                   question_num: 14,
                   question_suffix: 'E',
                   question_text: 'VALUE OF ESTATE > TOTAL VALUE'
                 },
                 'third' => {
-                  key: 'form1[0].#subform[0].StudentTotalValues_ThirdThree[0]',
+                  key: 'form1[0].#subform[0].StudentTotalValues_ThirdThree[%iterator%]',
                   limit: 3,
                   question_num: 14,
                   question_suffix: 'E',
                   question_text: 'VALUE OF ESTATE > TOTAL VALUE'
                 },
                 'last' => {
-                  key: 'form1[0].#subform[0].StudentTotalValues_LastTwo[0]',
+                  key: 'form1[0].#subform[0].StudentTotalValues_LastTwo[%iterator%]',
                   limit: 2,
                   question_num: 14,
                   question_suffix: 'E',
@@ -439,21 +439,21 @@ module PdfFill
               'last_term_school_information' => {
                 'term_begin' => {
                   'month' => {
-                    key: 'form1[0].#subform[0].BeginDateofLastTerm.month[0]',
+                    key: 'form1[0].#subform[0].BeginDateofLastTerm.month[%iterator%]',
                     limit: 2,
                     question_num: 12,
                     question_suffix: 'B',
                     question_text: 'BEGINNING DATE OF LAST TERM (MM-DD-YYYY)'
                   },
                   'day' => {
-                    key: 'form1[0].#subform[0].BeginDateofLastTerm.day[0]',
+                    key: 'form1[0].#subform[0].BeginDateofLastTerm.day[%iterator%]',
                     limit: 2,
                     question_num: 12,
                     question_suffix: 'B',
                     question_text: 'BEGINNING DATE OF LAST TERM (MM-DD-YYYY)'
                   },
                   'year' => {
-                    key: 'form1[0].#subform[0].BeginDateofLastTerm.year[0]',
+                    key: 'form1[0].#subform[0].BeginDateofLastTerm.year[%iterator%]',
                     limit: 4,
                     question_num: 12,
                     question_suffix: 'B',
@@ -462,21 +462,21 @@ module PdfFill
                 },
                 'date_term_ended' => { # Update logic for helper
                   'month' => {
-                    key: 'form1[0].#subform[0].EndDateofLastTerm.month[0]',
+                    key: 'form1[0].#subform[0].EndDateofLastTerm.month[%iterator%]',
                     limit: 2,
                     question_num: 12,
                     question_suffix: 'C',
                     question_text: 'ENDING DATE OF LAST TERM (MM-DD-YYYY)'
                   },
                   'day' => {
-                    key: 'form1[0].#subform[0].EndDateofLastTerm.day[0]',
+                    key: 'form1[0].#subform[0].EndDateofLastTerm.day[%iterator%]',
                     limit: 2,
                     question_num: 12,
                     question_suffix: 'C',
                     question_text: 'ENDING DATE OF LAST TERM (MM-DD-YYYY)'
                   },
                   'year' => {
-                    key: 'form1[0].#subform[0].EndDateofLastTerm.year[0]',
+                    key: 'form1[0].#subform[0].EndDateofLastTerm.year[%iterator%]',
                     limit: 4,
                     question_num: 12,
                     question_suffix: 'C',
@@ -487,21 +487,21 @@ module PdfFill
               'current_term_dates' => {
                 'official_school_start_date' => {
                   'month' => {
-                    key: 'form1[0].#subform[0].OfficialStartDate.month[0]',
+                    key: 'form1[0].#subform[0].OfficialStartDate.month[%iterator%]',
                     limit: 2,
                     question_num: 11,
                     question_suffix: 'A',
                     question_text: 'OFFICIAL BEGINNING DATE OF REGULAR TERM OR COURSE (MM/DD/YYYY)'
                   },
                   'day' => {
-                    key: 'form1[0].#subform[0].OfficialStartDate.day[0]',
+                    key: 'form1[0].#subform[0].OfficialStartDate.day[%iterator%]',
                     limit: 2,
                     question_num: 11,
                     question_suffix: 'A',
                     question_text: 'OFFICIAL BEGINNING DATE OF REGULAR TERM OR COURSE (MM/DD/YYYY)'
                   },
                   'year' => {
-                    key: 'form1[0].#subform[0].OfficialStartDate.year[0]',
+                    key: 'form1[0].#subform[0].OfficialStartDate.year[%iterator%]',
                     limit: 4,
                     question_num: 11,
                     question_suffix: 'A',
@@ -556,8 +556,8 @@ module PdfFill
                 }
               },
               'is_school_accredited' => { # Update logic to change parent key name
-                'is_school_accredited_yes' => { key: 'form1[0].#subform[0].YES4[0]' },
-                'is_school_accredited_no' => { key: 'form1[0].#subform[0].NO4[0]' }
+                'is_school_accredited_yes' => { key: 'form1[0].#subform[0].YES4[%iterator%]' },
+                'is_school_accredited_no' => { key: 'form1[0].#subform[0].NO4[%iterator%]' }
               },
               'date_full_time_ended' => { # QUESTION - what does this map to? We already have date_term_ended and "dateChildLeftSchool": "2020-05-19"
                 key: '',
@@ -567,76 +567,76 @@ module PdfFill
                 question_text: ''
               },
               'student_is_enrolled_full_time' => {
-                'full_time_yes' => { key: 'form1[0].#subform[0].YES2[0]' },
-                'full_time_no' => { key: 'form1[0].#subform[0].NO2[0]' }
+                'full_time_yes' => { key: 'form1[0].#subform[0].YES2[%iterator%]' },
+                'full_time_no' => { key: 'form1[0].#subform[0].NO2[%iterator%]' }
               },
               'name' => { 
-                key: 'form1[0].#subform[0].FederalAssistanceProgram[0]',
+                key: 'form1[0].#subform[0].FederalAssistanceProgram[%iterator%]',
                 limit: 200,
                 question_num: 9,
                 question_suffix: 'A',
                 question_text: 'Federally funded school or program'
               },
               'student_did_attend_school_last_term' => {
-                'did_attend_yes' => { key: 'form1[0].#subform[0].YES3[0]' },
-                'did_attend_no' => { key: 'form1[0].#subform[0].NO3[0]' }
+                'did_attend_yes' => { key: 'form1[0].#subform[0].YES3[%iterator%]' },
+                'did_attend_no' => { key: 'form1[0].#subform[0].NO3[%iterator%]' }
               }
             },
             'type_of_program_or_benefit' => { # Update, need a check to make sure the right program is added to this field
-              key: 'form1[0].#subform[0].TypeOfProgramOrBenefit[0]',
+              key: 'form1[0].#subform[0].TypeOfProgramOrBenefit[%iterator%]',
               limit: 50,
               question_num: 9,
               question_suffix: 'B',
               question_text: 'Type of Program or Benefit'
             },
             'tuition_is_paid_by_gov_agency' => { # Update logic for new key name
-              'is_paid_yes' => { key: 'form1[0].#subform[0].YES1[0]' },
-              'is_paid_no' => { key: 'form1[0].#subform[0].NO1[0]' }
+              'is_paid_yes' => { key: 'form1[0].#subform[0].YES1[%iterator%]' },
+              'is_paid_no' => { key: 'form1[0].#subform[0].NO1[%iterator%]' }
             },
             'was_married' => { # Update logic for new key name
-              'was_married_yes' => { key: 'form1[0].#subform[0].YES[0]' },
-              'was_married_no' => { key: 'form1[0].#subform[0].NO[0]' }
+              'was_married_yes' => { key: 'form1[0].#subform[0].YES[%iterator%]' },
+              'was_married_no' => { key: 'form1[0].#subform[0].NO[%iterator%]' }
             },
             'address' => { # Update logic to remap fields - street, postalCode address_line1 = street
               'street' => {
-                key: 'form1[0].#subform[0].AddressofStudentStreet[0]',
+                key: 'form1[0].#subform[0].AddressofStudentStreet[%iterator%]',
                 limit: 30,
                 question_num: 8,
                 question_text: 'Address of Student > No & Street'
               },
               'street2' => {
-                key: 'form1[0].#subform[0].AddressofStudentAptNumber[0]',
+                key: 'form1[0].#subform[0].AddressofStudentAptNumber[%iterator%]',
                 limit: 5,
                 question_num: 8,
                 question_text: 'Address of Student > Apt/Unit Number'
               },
               'city' => {
-                key: 'form1[0].#subform[0].AddressofStudentCity[0]',
+                key: 'form1[0].#subform[0].AddressofStudentCity[%iterator%]',
                 limit: 18,
                 question_num: 8,
                 question_text: 'Address of Student > City'
               },
               'state' => {
-                key: 'form1[0].#subform[0].AddressofStudentState[0]',
+                key: 'form1[0].#subform[0].AddressofStudentState[%iterator%]',
                 limit: 2,
                 question_num: 8,
                 question_text: 'Address of Student > State'
               },
               'country' => {
-                key: 'form1[0].#subform[0].AddressofStudentCountry[0]',
+                key: 'form1[0].#subform[0].AddressofStudentCountry[%iterator%]',
                 limit: 2,
                 question_num: 8,
                 question_text: 'Address of Student > Country'
               },
               'postal_code' => {
                 'firstFive' => {
-                  key: 'form1[0].#subform[0].AddressofStudentPostCode_FirstFive0]',
+                  key: 'form1[0].#subform[0].AddressofStudentPostCode_FirstFive[%iterator%]',
                   limit: 5,
                   question_num: 8,
                   question_text: 'Address of Student > Zip Code (First Five Digits)'
                 },
                 'lastFour' => {
-                  key: 'form1[0].#subform[0].AddressofStudentPostCode_LastFour[0]',
+                  key: 'form1[0].#subform[0].AddressofStudentPostCode_LastFour[%iterator%]',
                   limit: 4,
                   question_num: 8,
                   question_text: 'Address of Student > Zip Code (Last Four Digits)'
@@ -645,21 +645,21 @@ module PdfFill
             },
             'ssn' => { # Update logic to change parent key
               'first' => {
-                key: 'form1[0].#subform[0].StudentSsn_FirstThree[0]',
+                key: 'form1[0].#subform[0].StudentSsn_FirstThree[%iterator%]',
                 limit: 3,
                 question_num: 5,
                 question_suffix: 'A',
                 question_text: 'STUDENT\'S IDENTIFICATION INFORMATION > SOCIAL SECURITY NUMBER'
               },
               'second' => {
-                key: 'form1[0].#subform[0].StudentSsn_MiddleTwo[0]',
+                key: 'form1[0].#subform[0].StudentSsn_MiddleTwo[%iterator%]',
                 limit: 2,
                 question_num: 5,
                 question_suffix: 'B',
                 question_text: 'STUDENT\'S IDENTIFICATION INFORMATION > SOCIAL SECURITY NUMBER'
               },
               'third' => {
-                key: 'form1[0].#subform[0].StudentSsn_LastFour[0]',
+                key: 'form1[0].#subform[0].StudentSsn_LastFour[%iterator%]',
                 limit: 4,
                 question_num: 5,
                 question_suffix: 'C',
@@ -668,21 +668,21 @@ module PdfFill
             },
             'full_name' => {
               'first' => {
-                key: 'form1[0].#subform[0].FirstNameofStudent[0]',
+                key: 'form1[0].#subform[0].FirstNameofStudent[%iterator%]',
                 limit: 12,
                 question_num: 4,
                 question_suffix: 'A',
                 question_text: 'STUDENT\'S NAME'
               },
               'middleInitial' => {
-                key: 'form1[0].#subform[0].MiddleInitialofStudent[0]',
+                key: 'form1[0].#subform[0].MiddleInitialofStudent[%iterator%]',
                 limit: 1,
                 question_num: 4,
                 question_suffix: 'B',
                 question_text: 'STUDENT\'S NAME'
               },
               'last' => {
-                key: 'form1[0].#subform[0].LastNameofStudent[0]',
+                key: 'form1[0].#subform[0].LastNameofStudent[%iterator%]',
                 limit: 18,
                 question_num: 4,
                 question_suffix: 'C',
@@ -691,69 +691,44 @@ module PdfFill
             },
             'birth_date' => { # Update logic in helper
               'month' => {
-                key: 'form1[0].#subform[0].Student_DOB.month[0]',
+                key: 'form1[0].#subform[0].Student_DOB.month[%iterator%]',
                 limit: 2,
                 question_num: 6,
                 question_suffix: 'A',
                 question_text: 'STUDENT\'S IDENTIFICATION INFORMATION > DATE OF BIRTH (MM-DD-YYYY)'
               },
               'day' => {
-                key: 'form1[0].#subform[0].Student_DOB.day[0]',
+                key: 'form1[0].#subform[0].Student_DOB.day[%iterator%]',
                 limit: 2,
                 question_num: 6,
                 question_suffix: 'B',
                 question_text: 'STUDENT\'S IDENTIFICATION INFORMATION > DATE OF BIRTH (MM-DD-YYYY)'
               },
               'year' => {
-                key: 'form1[0].#subform[0].Student_DOB.year[0]',
+                key: 'form1[0].#subform[0].Student_DOB.year[%iterator%]',
                 limit: 4,
                 question_num: 6,
                 question_suffix: 'C',
                 question_text: 'STUDENT\'S IDENTIFICATION INFORMATION > DATE OF BIRTH (MM-DD-YYYY)'
-              }
-            },
-            'child_marriage' => { # Update helper to get childMarriage > dateMarried. Child marriage is top level of the payload
-              limit: 4,
-              first_key: 'month',
-              'month' => {
-                key: 'form1[0].#subform[0].Student_Date_of_Marriage.month[0]',
-                limit: 2,
-                question_num: 7,
-                question_suffix: 'B',
-                question_text: 'DATE OF MARRIAGE'
-              },
-              'day' => {
-                key: 'form1[0].#subform[0].Student_Date_of_Marriage.day[0]',
-                limit: 2,
-                question_num: 7,
-                question_suffix: 'B',
-                question_text: 'DATE OF MARRIAGE'
-              },
-              'year' => {
-                key: 'form1[0].#subform[0].Student_Date_of_Marriage.year[0]',
-                limit: 4,
-                question_num: 7,
-                question_suffix: 'B',
-                question_text: 'DATE OF MARRIAGE'
               }
             },
             'benefit_payment_date' => { # Update logic, previously date_payments_began
               'month' => {
-                key: 'form1[0].#subform[0].DatePaymentsBegan.month[0]',
+                key: 'form1[0].#subform[0].DatePaymentsBegan.month[%iterator%]',
                 limit: 2,
                 question_num: 9,
                 question_suffix: 'C',
                 question_text: 'School Attendance Information > DATE PAYMENTS BEGAN (MM-DD-YYYY)'
               },
               'day' => {
-                key: 'form1[0].#subform[0].DatePaymentsBegan.day[0]',
+                key: 'form1[0].#subform[0].DatePaymentsBegan.day[%iterator%]',
                 limit: 2,
                 question_num: 9,
                 question_suffix: 'C',
                 question_text: 'School Attendance Information > DATE PAYMENTS BEGAN (MM-DD-YYYY)'
               },
               'year' => {
-                key: 'form1[0].#subform[0].DatePaymentsBegan.year[0]',
+                key: 'form1[0].#subform[0].DatePaymentsBegan.year[%iterator%]',
                 limit: 4,
                 question_num: 9,
                 question_suffix: 'C',
@@ -761,26 +736,51 @@ module PdfFill
               }
             }
           }, # end of student information
+          'child_marriage' => { # Update helper to get childMarriage > dateMarried. Child marriage is top level of the payload
+            limit: 4,
+            first_key: 'month',
+            'month' => {
+              key: 'form1[0].#subform[0].Student_Date_of_Marriage.month[%iterator%]',
+              limit: 2,
+              question_num: 7,
+              question_suffix: 'B',
+              question_text: 'DATE OF MARRIAGE'
+            },
+            'day' => {
+              key: 'form1[0].#subform[0].Student_Date_of_Marriage.day[%iterator%]',
+              limit: 2,
+              question_num: 7,
+              question_suffix: 'B',
+              question_text: 'DATE OF MARRIAGE'
+            },
+            'year' => {
+              key: 'form1[0].#subform[0].Student_Date_of_Marriage.year[%iterator%]',
+              limit: 4,
+              question_num: 7,
+              question_suffix: 'B',
+              question_text: 'DATE OF MARRIAGE'
+            }
+          },
           'child_stopped_attending_school' => {
             limit: 4,
             first_key: 'date_child_left_school',
             'date_child_left_school' => {
               'month' => {
-                key: 'form1[0].#subform[0].DateStoppedAttending.month[0]',
+                key: 'form1[0].#subform[0].DateStoppedAttending.month[%iterator%]',
                 limit: 2,
                 question_num: 10,
                 question_suffix: 'A',
                 question_text: 'School Attendance Information > Date student stopped attending continuously (MM-DD-YYYY)' # rubocop:disable Layout/LineLength
               },
               'day' => {
-                key: 'form1[0].#subform[0].DateStoppedAttending.day[0]',
+                key: 'form1[0].#subform[0].DateStoppedAttending.day[%iterator%]',
                 limit: 2,
                 question_num: 10,
                 question_suffix: 'A',
                 question_text: 'School Attendance Information >Date student stopped attending continuously (MM-DD-YYYY)'
               },
               'year' => {
-                key: 'form1[0].#subform[0].DateStoppedAttending.year[0]',
+                key: 'form1[0].#subform[0].DateStoppedAttending.year[%iterator%]',
                 limit: 4,
                 question_num: 10,
                 question_suffix: 'A',
@@ -841,49 +841,94 @@ module PdfFill
         # puts @form_data.keys if @form_data
         # puts @form_data['dependents_application'].keys if @form_data['dependents_application']
         # puts @form_data['dependents_application']['student_information'].class if @form_data.dig('dependents_application', 'student_information')
-        student_information = @form_data['dependents_application']['student_information'].first
         # puts "student_information class: #{student_information.class}"
         # school information is a child of student information
+        # student_information = @form_data['dependents_application']['student_information'].first
+
+        students_information = @form_data['dependents_application']['student_information']
+        if students_information.present?
+          students_information.each do |student_information|
+            school_information = student_information['school_information']
+            current_term_dates = school_information['current_term_dates']
+            last_term_school_information = school_information['last_term_school_information']
+
+            student_information['birth_date'] = split_date(student_information['birth_date'])
+
+            if last_term_school_information.present?
+              last_term_school_information['term_begin'] = split_date(last_term_school_information['term_begin'])
+              last_term_school_information['date_term_ended'] = split_date(last_term_school_information['date_term_ended'])
+            end
+
+            if current_term_dates.present?
+              current_term_dates['official_school_start_date'] =
+                split_date(current_term_dates['official_school_start_date'])
+              current_term_dates['expected_student_start_date'] =
+                split_date(current_term_dates['expected_student_start_date'])
+              current_term_dates['expected_graduation_date'] = split_date(current_term_dates['expected_graduation_date'])
+            end
+
+            if student_information['benefit_payment_date'].present?
+              benefit_payment_date = student_information['benefit_payment_date']
+              student_information['benefit_payment_date'] = split_date(benefit_payment_date)
+            end
+          end
+        end
         
-        school_information = student_information['school_information']
+        # school_information = student_information['school_information']
+        # current_term_dates = school_information['current_term_dates']
+        # last_term_school_information = school_information['last_term_school_information']
 
-        current_term_dates = school_information['current_term_dates']
-        child_stopped_attending_school = dependents_application['child_stopped_attending_school'].first
-        last_term_school_information = school_information['last_term_school_information']
-        child_marriage = dependents_application['child_marriage'].first
+        # student_information['birth_date'] =
+        #   split_date(student_information['birth_date'])
 
-        student_information['birth_date'] =
-          split_date(student_information['birth_date'])
+        # if last_term_school_information.present?
+        #   last_term_school_information['term_begin'] = split_date(last_term_school_information['term_begin'])
+        #   last_term_school_information['date_term_ended'] = split_date(last_term_school_information['date_term_ended'])
+        # end
 
-        if current_term_dates.present?
-          current_term_dates['official_school_start_date'] =
-            split_date(current_term_dates['official_school_start_date'])
-          current_term_dates['expected_student_start_date'] =
-            split_date(current_term_dates['expected_student_start_date'])
-          current_term_dates['expected_graduation_date'] = split_date(current_term_dates['expected_graduation_date'])
-        end
-
-        if child_stopped_attending_school.present?
-          child_stopped_attending_school['birth_date'] = split_date(child_stopped_attending_school['birth_date'])
-          child_stopped_attending_school['date_child_left_school'] =
-            split_date(child_stopped_attending_school['date_child_left_school'])
-        end
-
-        if last_term_school_information.present?
-          last_term_school_information['term_begin'] = split_date(last_term_school_information['term_begin'])
-          last_term_school_information['date_term_ended'] = split_date(last_term_school_information['date_term_ended'])
-        end
-
-        if child_marriage.present?
-          child_marriage['date_married'] =
-            split_date(child_marriage['date_married'])
-        end
+        # if current_term_dates.present?
+        #   current_term_dates['official_school_start_date'] =
+        #     split_date(current_term_dates['official_school_start_date'])
+        #   current_term_dates['expected_student_start_date'] =
+        #     split_date(current_term_dates['expected_student_start_date'])
+        #   current_term_dates['expected_graduation_date'] = split_date(current_term_dates['expected_graduation_date'])
+        # end
 
         # handle old format of fields before merging in front end, remove once merged
-        if student_information['benefit_payment_date'].present?
-          benefit_payment_date = student_information['benefit_payment_date']
-          student_information['benefit_payment_date'] = split_date(benefit_payment_date)
+        # if student_information['benefit_payment_date'].present?
+        #   benefit_payment_date = student_information['benefit_payment_date']
+        #   student_information['benefit_payment_date'] = split_date(benefit_payment_date)
+        # end
+
+        # child_stopped_attending_school = dependents_application['child_stopped_attending_school'].first
+
+        child_stopped_attending_school = @form_data['dependents_application']['child_stopped_attending_school']
+        if child_stopped_attending_school.present?
+          child_stopped_attending_school.each do |child_stopped_attending_school|
+            child_stopped_attending_school['birth_date'] = split_date(child_stopped_attending_school['birth_date'])
+            child_stopped_attending_school['date_child_left_school'] =
+              split_date(child_stopped_attending_school['date_child_left_school'])
+          end
         end
+
+        # child_stopped_attending_school['birth_date'] = split_date(child_stopped_attending_school['birth_date'])
+        #   child_stopped_attending_school['date_child_left_school'] =
+        #     split_date(child_stopped_attending_school['date_child_left_school'])
+
+        child_marriages = @form_data['dependents_application']['child_marriage']
+        if child_marriages.present?
+          child_marriages.each do |child_marriage|
+            child_marriage['date_married'] =
+              split_date(child_marriage['date_married'])
+          end
+        end
+
+        # child_marriage = dependents_application['child_marriage'].first
+
+        # if child_marriage.present?
+        #   child_marriage['date_married'] =
+        #     split_date(child_marriage['date_married'])
+        # end
 
         # if agency_or_program.present?
         #   agency_or_program['date_payments_began'] =
@@ -903,38 +948,70 @@ module PdfFill
 
       def merge_student_helpers
         dependents_application = @form_data['dependents_application']
-        student_information = dependents_application['student_information'].first
-        extract_middle_i(student_information, 'full_name')
-        student_information['ssn'] =
-          split_ssn(student_information['ssn'])
+        students_information = @form_data['dependents_application']['student_information']
+          if students_information.present?
+            students_information.each do |student_information|
+              extract_middle_i(student_information, 'full_name')
+              student_information['ssn'] = split_ssn(student_information['ssn'])
+              student_information['address']['postal_code'] =
+                split_postal_code(student_information['address'])
+              student_information['address']['country'] =
+                extract_country(student_information['address'])
+              student_expected_earnings = student_information['student_expected_earnings_next_year']
+              student_earnings = student_information['student_earnings_from_school_year']
+              student_networth = student_information['student_networth_information']
 
-        student_information['address']['postal_code'] =
-          split_postal_code(student_information['address'])
-        student_information['address']['country'] =
-          extract_country(student_information['address'])
+              if student_expected_earnings.present?
+                split_earnings(student_expected_earnings)
+              end
+      
+              if student_earnings.present?
+                split_earnings(student_earnings)
+              end
+      
+              if student_networth.present?
+                split_networth_information(student_networth)
+              end
+            end
+          end
+          
 
-        student_expected_earnings = student_information['student_expected_earnings_next_year']
-        student_earnings = student_information['student_earnings_from_school_year']
-        student_networth = student_information['student_networth_information']
+        # student_information = dependents_application['student_information'].first
+        # extract_middle_i(student_information, 'full_name')
+        # student_information['ssn'] =
+        #   split_ssn(student_information['ssn'])
 
-        if student_expected_earnings.present?
-          split_earnings(student_expected_earnings)
-        end
+        # student_information['address']['postal_code'] =
+        #   split_postal_code(student_information['address'])
+        # student_information['address']['country'] =
+        #   extract_country(student_information['address'])
 
-        if student_earnings.present?
-          split_earnings(student_earnings)
-        end
+        # student_expected_earnings = student_information['student_expected_earnings_next_year']
+        # student_earnings = student_information['student_earnings_from_school_year']
+        # student_networth = student_information['student_networth_information']
 
-        if student_networth.present?
-          split_networth_information(student_networth)
-        end
+        # if student_expected_earnings.present?
+        #   split_earnings(student_expected_earnings)
+        # end
+
+        # if student_earnings.present?
+        #   split_earnings(student_earnings)
+        # end
+
+        # if student_networth.present?
+        #   split_networth_information(student_networth)
+        # end
 
         format_checkboxes(dependents_application)
       end
 
       # override from form_helper
-      def select_checkbox(value)
-        value ? 'On' : 'Off'
+      def select_checkbox(value) # change nil back to Off
+        value ? 'On' : nil
+      end
+
+      def select_radio_button(value) # delete
+        value ? 0 : nil
       end
 
       def split_earnings(parent_object)
@@ -998,36 +1075,101 @@ module PdfFill
 
       # rubocop:disable Metrics/MethodLength
       def format_checkboxes(dependents_application)
-        student_information = dependents_application['student_information'].first
-        was_married = student_information['was_married']
-        student_information['was_married'] = {
-          'was_married_yes' => select_checkbox(was_married),
-          'was_married_no' => select_checkbox(!was_married)
-        }
+        # deaths = @form_data['dependents_application']['deaths']
+        # return if deaths.blank?
 
-        is_paid = student_information['tuition_is_paid_by_gov_agency']
-        student_information['tuition_is_paid_by_gov_agency'] = {
-          'is_paid_yes' => select_checkbox(is_paid),
-          'is_paid_no' => select_checkbox(!is_paid)
-        }
+        # deaths.each do |death|
+        #   # extract middle initial
+        #   death['full_name'] = extract_middle_i(death, 'full_name')
 
-        is_full_time = student_information['school_information']['student_is_enrolled_full_time']
-        student_information['school_information']['student_is_enrolled_full_time'] = {
-          'full_time_yes' => select_checkbox(is_full_time),
-          'full_time_no' => select_checkbox(!is_full_time)
-        }
+        #   # extract date
+        #   death['date'] = split_date(death['date'])
 
-        did_attend = student_information['school_information']['student_did_attend_school_last_term']
-        student_information['school_information']['student_did_attend_school_last_term'] = {
-          'did_attend_yes' => select_checkbox(did_attend),
-          'did_attend_no' => select_checkbox(!did_attend)
-        }
+        #   # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
+        #   death['location']['country'] = extract_country(death['location'])
 
-        is_school_accredited = student_information['school_information']['is_school_accredited']
-        student_information['school_information']['is_school_accredited'] = {
-          'is_school_accredited_yes' => select_radio_button(is_school_accredited),
-          'is_school_accredited_no' => select_radio_button(!is_school_accredited)
-        }
+        #   # expand dependent type
+        #   dependent_type = death['dependent_type']
+        #   if dependent_type == 'CHILD'
+        #     # ex. "dependent_type":"CHILD","child_status":{"child_under18":true,"step_child":true}
+        #     dependent_type = death['child_status']
+        #   end
+        #   death['dependent_type'] = {
+        #     'spouse' => select_radio_button(dependent_type == 'SPOUSE'),
+        #     'minor_child' => select_radio_button(dependent_type['child_under18']),
+        #     'stepchild' => select_radio_button(dependent_type['step_child']),
+        #     'adopted' => select_radio_button(dependent_type['adopted']),
+        #     'dependent_parent' => select_radio_button(dependent_type == 'DEPENDENT_PARENT'),
+        #     'child_incapable_self_support' => select_radio_button(dependent_type['disabled']),
+        #     '18_23_years_old_in_school' => select_radio_button(dependent_type['child_over18_in_school'])
+        #   }
+        # end
+
+        students_information = @form_data['dependents_application']['student_information']
+        if students_information.present?
+          students_information.each do |student_information|
+            was_married = student_information['was_married']
+            student_information['was_married'] = {
+              'was_married_yes' => select_checkbox(was_married),
+              'was_married_no' => select_checkbox(!was_married)
+            }
+
+            is_paid = student_information['tuition_is_paid_by_gov_agency']
+            student_information['tuition_is_paid_by_gov_agency'] = {
+              'is_paid_yes' => select_checkbox(is_paid),
+              'is_paid_no' => select_checkbox(!is_paid)
+            }
+
+            is_full_time = student_information['school_information']['student_is_enrolled_full_time']
+            student_information['school_information']['student_is_enrolled_full_time'] = {
+              'full_time_yes' => select_checkbox(is_full_time),
+              'full_time_no' => select_checkbox(!is_full_time)
+            }
+
+            did_attend = student_information['school_information']['student_did_attend_school_last_term']
+            student_information['school_information']['student_did_attend_school_last_term'] = {
+              'did_attend_yes' => select_checkbox(did_attend),
+              'did_attend_no' => select_checkbox(!did_attend)
+            }
+
+            is_school_accredited = student_information['school_information']['is_school_accredited']
+            student_information['school_information']['is_school_accredited'] = {
+              'is_school_accredited_yes' => select_radio_button(is_school_accredited),
+              'is_school_accredited_no' => select_radio_button(!is_school_accredited)
+            }
+          end
+        end
+
+        # student_information = dependents_application['student_information'].first
+        # was_married = student_information['was_married']
+        # student_information['was_married'] = {
+        #   'was_married_yes' => select_checkbox(was_married),
+        #   'was_married_no' => select_checkbox(!was_married)
+        # }
+
+        # is_paid = student_information['tuition_is_paid_by_gov_agency']
+        # student_information['tuition_is_paid_by_gov_agency'] = {
+        #   'is_paid_yes' => select_checkbox(is_paid),
+        #   'is_paid_no' => select_checkbox(!is_paid)
+        # }
+
+        # is_full_time = student_information['school_information']['student_is_enrolled_full_time']
+        # student_information['school_information']['student_is_enrolled_full_time'] = {
+        #   'full_time_yes' => select_checkbox(is_full_time),
+        #   'full_time_no' => select_checkbox(!is_full_time)
+        # }
+
+        # did_attend = student_information['school_information']['student_did_attend_school_last_term']
+        # student_information['school_information']['student_did_attend_school_last_term'] = {
+        #   'did_attend_yes' => select_checkbox(did_attend),
+        #   'did_attend_no' => select_checkbox(!did_attend)
+        # }
+
+        # is_school_accredited = student_information['school_information']['is_school_accredited']
+        # student_information['school_information']['is_school_accredited'] = {
+        #   'is_school_accredited_yes' => select_radio_button(is_school_accredited),
+        #   'is_school_accredited_no' => select_radio_button(!is_school_accredited)
+        # }
       end
       # rubocop:enable Metrics/MethodLength
     end
