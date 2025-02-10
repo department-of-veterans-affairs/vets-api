@@ -7,8 +7,8 @@ module V0
     def index
       user_verification = current_user.user_verification
 
-      start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : Time.zone.now
-      end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : Time.zone.today
+      start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : 1.month.ago.to_date
+      end_date = params[:end_date].present? ? Date.parse(params[:end_date]) : Time.zone.now
       page = params[:page] || 1
       per_page = params[:per_page] || 10
 
