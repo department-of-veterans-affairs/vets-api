@@ -206,7 +206,8 @@ module BGS
         ptcpnt_id: @user.participant_id,
         txt: note_text
       }.merge!(bgs_auth).except!(:jrn_status_type_cd)
-
+      # Add a log warning with the option_hash as payload
+      Rails.logger.info("674 manual review #{option_hash.inspect}", option_hash)
       service.notes.create_note(option_hash)
     rescue => e
       notify_of_service_exception(e, __method__, 1, :warn)
