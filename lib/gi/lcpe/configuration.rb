@@ -10,7 +10,7 @@ module GI
       private
 
       def request_headers
-        super unless etag
+        return super unless etag
 
         base_request_headers.merge('If-None-Match' => etag)
       end
