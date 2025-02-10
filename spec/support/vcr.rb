@@ -24,6 +24,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<LIGHTHOUSE_TV_API_KEY>') { Settings.claims_api.token_validation.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_BASE_URL>') { Settings.lighthouse.benefits_documents.host }
   c.filter_sensitive_data('<MDOT_KEY>') { Settings.mdot.api_key }
+  c.filter_sensitive_data('<MDOT_URL>') { Settings.mdot.url }
   c.filter_sensitive_data('<MHV_HOST>') { Settings.mhv.rx.host }
   c.filter_sensitive_data('<MHV_MR_HOST>') { Settings.mhv.medical_records.host }
   c.filter_sensitive_data('<MHV_MR_X_AUTH_KEY>') { Settings.mhv.medical_records.x_auth_key }
@@ -49,6 +50,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VEIS_AUTH_URL>') { Settings.travel_pay.veis.auth_url }
   c.filter_sensitive_data('<VRO_URL>') { Settings.virtual_regional_office.url }
   c.filter_sensitive_data('<VRO_API_KEY>') { Settings.virtual_regional_office.api_key }
+  c.filter_sensitive_data('<CONTENTION_CLASSIFICATION_API_URL>') { Settings.contention_classification_api.url }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')

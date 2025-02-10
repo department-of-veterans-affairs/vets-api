@@ -39,6 +39,20 @@ describe VANotify::DefaultCallback do
             end
           end
 
+          context 'temporary failed' do
+            let(:notification_record) do
+              build(:notification, status: 'temporary-failure', callback_metadata:)
+            end
+
+            it 'increments StatsD' do
+              allow(StatsD).to receive(:increment)
+
+              VANotify::DefaultCallback.new(notification_record).call
+
+              expect(StatsD).to have_received(:increment).with('silent_failure', tags:)
+            end
+          end
+
           context 'permanently failed' do
             let(:notification_record) do
               build(:notification, status: 'permanent-failure', callback_metadata:)
@@ -92,6 +106,20 @@ describe VANotify::DefaultCallback do
               VANotify::DefaultCallback.new(notification_record).call
 
               expect(StatsD).to have_received(:increment).with('silent_failure_avoided', tags:)
+            end
+          end
+
+          context 'temporary failed' do
+            let(:notification_record) do
+              build(:notification, status: 'temporary-failure', callback_metadata:)
+            end
+
+            it 'increments StatsD' do
+              allow(StatsD).to receive(:increment)
+
+              VANotify::DefaultCallback.new(notification_record).call
+
+              expect(StatsD).to have_received(:increment).with('silent_failure', tags:)
             end
           end
 
@@ -163,6 +191,20 @@ describe VANotify::DefaultCallback do
             end
           end
 
+          context 'temporary-failure' do
+            let(:notification_record) do
+              build(:notification, status: 'temporary-failure', callback_metadata:)
+            end
+
+            it 'does not increment StatsD' do
+              allow(StatsD).to receive(:increment)
+
+              VANotify::DefaultCallback.new(notification_record).call
+
+              expect(StatsD).not_to have_received(:increment)
+            end
+          end
+
           context 'permanent-failure' do
             let(:notification_record) do
               build(:notification, status: 'permanent-failure', callback_metadata:)
@@ -191,6 +233,21 @@ describe VANotify::DefaultCallback do
             VANotify::DefaultCallback.new(notification_record).call
 
             expect(StatsD).to have_received(:increment).with('silent_failure_avoided',
+                                                             tags: ['service:none-provided', 'function:none-provided'])
+          end
+        end
+
+        context 'temporary failed' do
+          let(:notification_record) do
+            build(:notification, status: 'temporary-failure')
+          end
+
+          it 'increments StatsD' do
+            allow(StatsD).to receive(:increment)
+
+            VANotify::DefaultCallback.new(notification_record).call
+
+            expect(StatsD).to have_received(:increment).with('silent_failure',
                                                              tags: ['service:none-provided', 'function:none-provided'])
           end
         end
@@ -244,6 +301,20 @@ describe VANotify::DefaultCallback do
             end
           end
 
+          context 'temporary failed' do
+            let(:notification_record) do
+              build(:notification, status: 'temporary-failure', callback_metadata:)
+            end
+
+            it 'increments StatsD' do
+              allow(StatsD).to receive(:increment)
+
+              VANotify::DefaultCallback.new(notification_record).call
+
+              expect(StatsD).to have_received(:increment).with('silent_failure', tags:)
+            end
+          end
+
           context 'permanently failed' do
             let(:notification_record) do
               build(:notification, status: 'permanent-failure', callback_metadata:)
@@ -271,6 +342,20 @@ describe VANotify::DefaultCallback do
           context 'delivered' do
             let(:notification_record) do
               build(:notification, status: 'delivered', callback_metadata:)
+            end
+
+            it 'does not increment StatsD' do
+              allow(StatsD).to receive(:increment)
+
+              VANotify::DefaultCallback.new(notification_record).call
+
+              expect(StatsD).not_to have_received(:increment)
+            end
+          end
+
+          context 'temporary-failure' do
+            let(:notification_record) do
+              build(:notification, status: 'temporary-failure', callback_metadata:)
             end
 
             it 'does not increment StatsD' do
@@ -310,6 +395,21 @@ describe VANotify::DefaultCallback do
             VANotify::DefaultCallback.new(notification_record).call
 
             expect(StatsD).to have_received(:increment).with('silent_failure_avoided',
+                                                             tags: ['service:none-provided', 'function:none-provided'])
+          end
+        end
+
+        context 'temporary failed' do
+          let(:notification_record) do
+            build(:notification, status: 'temporary-failure')
+          end
+
+          it 'increments StatsD' do
+            allow(StatsD).to receive(:increment)
+
+            VANotify::DefaultCallback.new(notification_record).call
+
+            expect(StatsD).to have_received(:increment).with('silent_failure',
                                                              tags: ['service:none-provided', 'function:none-provided'])
           end
         end
