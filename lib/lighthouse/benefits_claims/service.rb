@@ -12,6 +12,8 @@ module BenefitsClaims
 
     FILTERED_STATUSES = %w[CANCELED ERRORED PENDING].freeze
 
+    SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
+
     def initialize(icn)
       @icn = icn
       if icn.blank?

@@ -14,8 +14,6 @@ module V0
         before_action { authorize :lighthouse, :access? }
       end
 
-      SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
-
       def index
         render json: {
           data: poll_claims_from_lighthouse,
@@ -83,7 +81,7 @@ module V0
         tracked_items = claim.dig('data', 'attributes', 'trackedItems')
         return unless tracked_items
 
-        tracked_items.reject! { |i| SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
+        tracked_items.reject! { |i| BenefitsClaims::Service::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
         claim
       end
 

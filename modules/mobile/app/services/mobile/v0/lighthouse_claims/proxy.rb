@@ -8,8 +8,6 @@ module Mobile
   module V0
     module LighthouseClaims
       class Proxy < Mobile::V0::Claims::Proxy
-        SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
-
         def request_decision(id)
           claims_service.submit5103(id)
         end
@@ -79,7 +77,7 @@ module Mobile
           tracked_items = claim.dig('data', 'attributes', 'trackedItems')
           return unless tracked_items
 
-          tracked_items.reject! { |i| SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
+          tracked_items.reject! { |i| BenefitsClaims::Service::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
           claim
         end
       end
