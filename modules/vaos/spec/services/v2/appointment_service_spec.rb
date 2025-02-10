@@ -44,6 +44,95 @@ describe VAOS::V2::AppointmentsService do
 
   let(:provider_name) { 'TEST PROVIDER NAME' }
 
+  let(:eps_appointments) do
+    [
+      {
+        id: '123',
+        state: 'submitted',
+        patient_id: '456',
+        referral: {
+          referral_number: 'ref123'
+        },
+        provider_service_id: 'DBKQ-H0a',
+        network_id: 'random-sandbox-network-id',
+        slot_ids: [
+          '5vuTac8v-practitioner-8-role-1|' \
+          '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
+          '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
+        ],
+        appointment_details: {
+          status: 'booked',
+          start: nil,
+          is_latest: false,
+          last_retrieved: '2024-12-01T10:00:00Z'
+        }
+      },
+      {
+        id: '124',
+        state: 'proposed',
+        patient_id: '457',
+        referral: {
+          referral_number: 'ref124'
+        },
+        provider_service_id: 'DBKQ-H0a',
+        network_id: 'random-sandbox-network-id',
+        slot_ids: [
+          '5vuTac8v-practitioner-8-role-1|' \
+          '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
+          '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
+        ],
+        appointment_details: {
+          status: 'booked',
+          start: '2024-12-02T10:00:00Z',
+          is_latest: false,
+          last_retrieved: '2024-12-02T10:00:00Z'
+        }
+      },
+      {
+        id: '125',
+        state: 'submitted',
+        patient_id: '458',
+        referral: {
+          referral_number: 'ref125'
+        },
+        provider_service_id: 'DBKQ-H0a',
+        network_id: 'random-sandbox-network-id',
+        slot_ids: [
+          '5vuTac8v-practitioner-8-role-1|' \
+          '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
+          '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
+        ],
+        appointment_details: {
+          status: 'booked',
+          start: '2024-12-03T10:00:00Z',
+          is_latest: false,
+          last_retrieved: '2024-12-03T10:00:00Z'
+        }
+      },
+      {
+        id: 'thedupe',
+        state: 'submitted',
+        patient_id: 'fake-patient-id',
+        referral: {
+          referral_number: '1234567890'
+        },
+        provider_service_id: 'DBKQ-H0a',
+        network_id: 'random-sandbox-network-id',
+        slot_ids: [
+          '5vuTac8v-practitioner-8-role-1|' \
+          '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
+          '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
+        ],
+        appointment_details: {
+          status: 'booked',
+          start: '2024-11-18T13:30:00Z',
+          is_latest: false,
+          last_retrieved: '2025-01-12T22:35:45Z'
+        }
+      }
+    ]
+  end
+
   mock_facility = {
     test: 'test',
     timezone: {
@@ -539,6 +628,29 @@ describe VAOS::V2::AppointmentsService do
           expect(SchemaContract::Validation.last.status).to eq('success')
         end
       end
+
+      context 'includes travel claims' do
+        it 'returns a list of appointments with travel claim information attached' do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
+
+          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
+                             allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+              response = subject.get_appointments(start_date2, end_date2, nil, {}, { travel_pay_claims: true })
+
+              # The first not-cancelled appt with a start date
+              appt_with_claim = response[:data][0]
+              expect(appt_with_claim[:travelPayClaim]).not_to be_empty
+              expect(appt_with_claim[:travelPayClaim]['claim']).not_to be_nil
+              expect(appt_with_claim[:travelPayClaim]['metadata']['status']).to eq(200)
+            end
+          end
+        end
+      end
     end
 
     context 'when a MAP token error occurs' do
@@ -873,6 +985,50 @@ describe VAOS::V2::AppointmentsService do
           end
         end
       end
+
+      context 'when travel reimbursement claims are included' do
+        it 'returns an appointment with a travel claim attached if claim exists' do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
+
+          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_instance',
+                           match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_with_avs',
+                             allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+              response = subject.get_appointment('70060', { travel_pay_claims: true })
+
+              expect(response[:travelPayClaim]).not_to be_empty
+              expect(response[:travelPayClaim]['claim']).not_to be_nil
+              expect(response[:travelPayClaim]['metadata']['status']).to eq(200)
+            end
+          end
+        end
+
+        it 'returns an appointment without a travel claim attached if claim does not exist' do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
+
+          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_instance_no_claims',
+                           match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_with_avs',
+                             allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+              response = subject.get_appointment('70060', { travel_pay_claims: true })
+
+              expect(response[:travelPayClaim]).not_to be_empty
+              expect(response[:travelPayClaim]['claim']).to be_nil
+              expect(response[:travelPayClaim]['metadata']['status']).to eq(200)
+            end
+          end
+        end
+      end
     end
 
     context 'using VPG' do
@@ -1072,6 +1228,68 @@ describe VAOS::V2::AppointmentsService do
           .and_raise(Common::Exceptions::BackendServiceException)
         timezone = subject.send(:get_facility_timezone, facility_location_id)
         expect(timezone).to be_nil
+      end
+    end
+  end
+
+  describe '#get_appointments merge' do
+    context 'when include eps is true' do
+      it 'merges eps appointments with vaos appointments' do
+        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to include('ref124', 'ref125')
+          expect(result[:data].map { |appt| appt[:id].to_s }).to include('101', '102', '186')
+        end
+      end
+
+      it 'merges eps appointments with vaos appointments and removes eps appointment with duplicate referralNumbers ' \
+         'but not the vaos appointment' do
+        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt[:id].to_s }).not_to include('thedupe')
+        end
+      end
+
+      it 'handles no matching referral number' do
+        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt[:referral][:referral_number] }).not_to include('nonexistent_referral')
+        end
+      end
+
+      it 'handles nil start date in eps appointments' do
+        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt[:id].to_s }).not_to include('123')
+        end
+      end
+
+      it 'handles empty eps_appointments' do
+        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([])
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map do |appt|
+            appt[:referral][:referral_number]
+          end).to include('0987654321', '1234567890', '1122334455', '6677889900', '1234567890')
+        end
+      end
+
+      it 'handles empty appointment data' do
+        VCR.use_cassette('vaos/eps/get_appointments_empty_data',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([{}])
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to be_empty
+        end
       end
     end
   end

@@ -36,7 +36,6 @@ module VAOS
         params = date_params(start_date, end_date).merge(page_params(pagination_params))
                                                   .merge(status_params(statuses))
                                                   .compact
-
         cnp_count = 0
 
         with_monitoring do
@@ -48,10 +47,17 @@ module VAOS
 
           validate_response_schema(response, 'appointments_index')
           appointments = response.body[:data]
+
+          if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
+            appointments = merge_all_travel_claims(start_date, end_date, appointments)
+          end
+
           appointments.each do |appt|
             prepare_appointment(appt, include)
             cnp_count += 1 if cnp?(appt)
           end
+
+          appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
 
           if Flipper.enabled?(:appointments_consolidation, user)
             filterer = AppointmentsPresentationFilter.new
@@ -85,6 +91,11 @@ module VAOS
           # We always fetch facility and clinic information when getting a single appointment
           include[:facilities] = true
           include[:clinics] = true
+
+          if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
+            appointment = merge_one_travel_claim(appointment)
+          end
+
           prepare_appointment(appointment, include)
           OpenStruct.new(appointment)
         end
@@ -224,6 +235,17 @@ module VAOS
         facility_info[:timezone]&.[](:time_zone_id)
       end
 
+      def merge_appointments(eps_appointments, appointments)
+        normalized_new = eps_appointments.map(&:serializable_hash)
+        existing_referral_ids = appointments.to_set { |a| a.dig(:referral, :referral_number) }
+        date_and_time_for_referral_list = appointments.pluck(:start)
+        merged_data = appointments + normalized_new.reject do |a|
+          existing_referral_ids.include?(a.dig(:referral,
+                                               :referral_number)) && date_and_time_for_referral_list.include?(a[:start])
+        end
+        merged_data.sort_by { |appt| appt[:start] || '' }
+      end
+
       memoize :get_facility_timezone_memoized
 
       private
@@ -254,6 +276,7 @@ module VAOS
           { message:, status:, icn: sanitized_icn, context: }
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       # Modifies the appointment, extracting individual fields from the appointment. This currently includes:
@@ -988,6 +1011,40 @@ module VAOS
         return unless response.success? && response.body[:data].present?
 
         SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
+      end
+
+      def merge_all_travel_claims(start_date, end_date, appointments)
+        service = TravelPay::ClaimAssociationService.new(user)
+        service.associate_appointments_to_claims(
+          {
+            'start_date' => start_date,
+            'end_date' => end_date,
+            'appointments' => appointments
+          }
+        )
+      end
+
+      def merge_one_travel_claim(appointment)
+        service = TravelPay::ClaimAssociationService.new(user)
+        service.associate_single_appointment_to_claim({ 'appointment' => appointment })
+      end
+
+      def eps_appointments_service
+        @eps_appointments_service ||=
+          Eps::AppointmentService.new(user)
+      end
+
+      def eps_appointments
+        @eps_appointments ||= begin
+          appointments = eps_appointments_service.get_appointments
+          appointments = [] if appointments.blank? || appointments.all?(&:empty?)
+          appointments.reject! { |appt| appt.dig(:appointment_details, :start).nil? }
+          appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
+        end
+      end
+
+      def eps_serializer
+        @eps_serializer ||= VAOS::V2::EpsAppointment.new
       end
     end
   end
