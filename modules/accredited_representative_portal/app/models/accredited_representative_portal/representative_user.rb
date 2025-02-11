@@ -36,8 +36,8 @@ module AccreditedRepresentativePortal
     def power_of_attorney_holders
       @power_of_attorney_holders ||=
         PowerOfAttorneyHolder
-          .for_user(email:, icn:)
-          .freeze
+        .for_user(email:, icn:)
+        .freeze
     end
 
     def flipper_id
