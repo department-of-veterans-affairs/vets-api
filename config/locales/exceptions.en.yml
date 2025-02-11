@@ -2424,6 +2424,12 @@ en:
         detail: The upstream server returned an error code that is unmapped
         code: unmapped_service_exception
         status: 400
+      MDOT_internal_server_error:
+        <<: *defaults
+        title: Internal Server Error
+        detail: The system of record was unable to process this request.
+        code: MDOT_internal_server_error
+        status: 500
       MDOT_502:
         <<: *defaults
         title: Bad Gateway
@@ -2442,6 +2448,12 @@ en:
         detail: The request was malformed and could not be processed
         code: MDOT_malformed_request
         status: 400
+      MDOT_unauthorized:
+        <<: *defaults
+        title: Unauthorized
+        detail: We could not authenticate your credentials for this resource
+        code: MDOT_unauthorized
+        status: 401
       MDOT_forbidden:
         <<: *defaults
         title: Forbidden
