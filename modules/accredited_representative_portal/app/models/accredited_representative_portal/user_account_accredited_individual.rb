@@ -12,7 +12,7 @@ module AccreditedRepresentativePortal
     validates :user_account_email, presence: true,
                                    format: { with: URI::MailTo::EMAIL_REGEXP }
 
-    RECONCILE_ASSIGNMENT_SQL_TEMPLATE = <<~SQL
+    RECONCILE_ASSIGNMENT_SQL_TEMPLATE = <<~SQL.squish
       user_account_icn =
         CASE when user_account_email = :user_account_email THEN
           :user_account_icn
@@ -20,6 +20,7 @@ module AccreditedRepresentativePortal
     SQL
 
     class << self
+      # rubocop:disable Rails/SkipsModelValidations
       def reconcile_and_find_by(
         user_account_email:,
         user_account_icn:
@@ -32,14 +33,15 @@ module AccreditedRepresentativePortal
 
           assignment_sql =
             sanitize_sql_for_assignment([
-              RECONCILE_ASSIGNMENT_SQL_TEMPLATE,
-              user_account_email:,
-              user_account_icn:
-            ])
+                                          RECONCILE_ASSIGNMENT_SQL_TEMPLATE,
+                                          { user_account_email:,
+                                            user_account_icn: }
+                                        ])
 
           update_rel.update_all(assignment_sql)
           find_by(user_account_icn:)
         end
+        # rubocop:enable Rails/SkipsModelValidations
       end
     end
   end
