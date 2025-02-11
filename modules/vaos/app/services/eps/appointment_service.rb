@@ -31,9 +31,29 @@ module Eps
     ##
     # Create draft appointment in EPS
     #
+    # @param referral_id [String] The ID of the referral to create an appointment for
+    # @raise [ArgumentError] If referral_id is blank
+    # @raise [Common::Exceptions::ValidationErrors] If an appointment already exists for the referral
     # @return OpenStruct response from EPS create draft appointment endpoint
     #
     def create_draft_appointment(referral_id:)
+      raise ArgumentError, 'referral_id is required and cannot be blank' if referral_id.blank?
+
+      # Get all appointments and check for existing ones with this referral ID
+      existing_appointments = get_appointments
+      if existing_appointments.respond_to?(:each)
+        existing_appointment = existing_appointments.find do |appt|
+          appt.referral_id == referral_id &&
+            %w[cancelled no-show].exclude?(appt.status&.downcase)
+        end
+
+        if existing_appointment
+          raise Common::Exceptions::ValidationErrors.new(
+            detail: "An active appointment already exists for referral #{referral_id}"
+          )
+        end
+      end
+
       response = perform(:post, "/#{config.base_path}/appointments",
                          { patientId: patient_id, referralId: referral_id }, headers)
       OpenStruct.new(response.body)
