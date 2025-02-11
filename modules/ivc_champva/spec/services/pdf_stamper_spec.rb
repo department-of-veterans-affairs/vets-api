@@ -141,6 +141,7 @@ describe IvcChampva::PdfStamper do
     subject(:multistamp) { described_class.multistamp(stamped_template_path, signature_text, page_configuration) }
 
     let(:stamped_template_path) { 'path/to/stamped_template.pdf' }
+    let(:random_path) { 'tmp/000033337777BBBB111144448888CCCC' }
     let(:signature_text) { 'Signature Text' }
     let(:page_configuration) do
       [
@@ -157,20 +158,20 @@ describe IvcChampva::PdfStamper do
         allow(Prawn::Document).to receive(:generate).and_yield(pdf)
         allow(pdf).to receive(:draw_text).and_raise(StandardError, 'error drawing text')
         allow(pdf).to receive(:start_new_page)
-        allow(Common::FileHelpers).to receive(:random_file_path).and_return('tmp/000033337777BBBB111144448888CCCC')
+        allow(Common::FileHelpers).to receive(:random_file_path).and_return(random_path)
         allow(Common::FileHelpers).to receive(:delete_file_if_exists)
       end
 
       let(:pdf) { instance_double(Prawn::Document) }
 
       it 'attempts to delete the temporary stamping file' do
-        expect(Common::FileHelpers).to receive(:delete_file_if_exists).with('tmp/000033337777BBBB111144448888CCCC')
+        expect(Common::FileHelpers).to receive(:delete_file_if_exists).with(random_path)
         expect { multistamp }.to raise_error(StandardError, 'error drawing text')
       end
 
       context 'when deleting the temporary stamping file fails' do
         before do
-          allow(Common::FileHelpers).to receive(:delete_file_if_exists).and_raise(Errno::ENOENT, 'tmp/000033337777BBBB111144448888CCCC')
+          allow(Common::FileHelpers).to receive(:delete_file_if_exists).and_raise(Errno::ENOENT, random_path)
         end
 
         it 'proceeds gracefully' do
@@ -181,11 +182,76 @@ describe IvcChampva::PdfStamper do
   end
 
   describe '.stamp' do
+    subject(:stamp) { described_class.stamp(desired_stamp, stamped_template_path) }
 
+    let(:stamped_template_path) { 'path/to/stamped_template.pdf' }
+    let(:current_file_path) { 'path/to/current_file.pdf' }
+    let(:desired_stamp) do
+      {
+        coords: [10, 10],
+        text: 'Sample Text',
+        page: nil,
+        font_size: 12
+      }
+    end
+
+    context 'when an error occurs during stamping' do
+      before do
+        allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_instance)
+        allow(datestamp_instance).to receive(:run).and_return(current_file_path)
+        allow(File).to receive(:rename).and_raise(StandardError, 'rename error')
+        allow(Common::FileHelpers).to receive(:delete_file_if_exists)
+      end
+
+      let(:datestamp_instance) { instance_double(PDFUtilities::DatestampPdf) }
+
+      it 'attempts to delete the temporary stamping file' do
+        expect(Common::FileHelpers).to receive(:delete_file_if_exists).with(current_file_path)
+        expect { stamp }.to raise_error(StandardError, 'rename error')
+      end
+
+      context 'when deleting the temporary stamping file fails' do
+        before do
+          allow(Common::FileHelpers).to receive(:delete_file_if_exists).and_raise(Errno::ENOENT, current_file_path)
+        end
+
+        it 'proceeds gracefully' do
+          expect { stamp }.to raise_error(StandardError, 'rename error')
+        end
+      end
+    end
   end
 
   describe '.perform_multistamp' do
+    subject(:perform_multistamp) { described_class.perform_multistamp(stamped_template_path, stamp_path) }
 
+    let(:stamped_template_path) { 'path/to/stamped_template.pdf' }
+    let(:stamp_path) { 'path/to/stamp.pdf' }
+    let(:random_path) { 'tmp/000033337777BBBB111144448888CCCC' }
+    let(:out_path) { "#{random_path}.pdf" }
+
+    context 'when an error occurs during stamping' do
+      before do
+        allow(Common::FileHelpers).to receive(:random_file_path).and_return(random_path)
+        allow(Common::FileHelpers).to receive(:delete_file_if_exists)
+        allow(PdfFill::Filler::PDF_FORMS).to receive(:multistamp).and_raise(StandardError, 'pdftk error')
+      end
+
+      it 'attempts to delete the temporary stamping file' do
+        expect(Common::FileHelpers).to receive(:delete_file_if_exists).with(out_path)
+        expect { perform_multistamp }.to raise_error(StandardError, 'pdftk error')
+      end
+
+      context 'when deleting the temporary stamping file fails' do
+        before do
+          allow(Common::FileHelpers).to receive(:delete_file_if_exists).and_raise(Errno::ENOENT, out_path)
+        end
+
+        it 'proceeds gracefully' do
+          expect { perform_multistamp }.to raise_error(StandardError, 'pdftk error')
+        end
+      end
+    end
   end
 
   describe '.verify' do

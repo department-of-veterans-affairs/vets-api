@@ -120,6 +120,7 @@ module IvcChampva
       Rails.logger.info "IVC Champva Forms - PdfStamper: multistamp handling error"
       Rails.logger.error 'IVC Champva Forms - PdfStamper: Failed to generate stamped file', message: e.message
       Rails.logger.error e.backtrace.join("\n")
+      Rails.logger.info "IVC Champva Forms - PdfStamper: multistamp re-raising error"
       raise
     ensure
       begin
@@ -129,7 +130,7 @@ module IvcChampva
         Rails.logger.error "IVC Champva Forms - PdfStamper: multistamp error in ensure block, logging and swallowing"
         Rails.logger.error 'IVC Champva Forms - PdfStamper: Failed to clean up temporary file', message: e.message
         Rails.logger.error e.backtrace.join("\n")
-        # Don't re-raise an error here, as the original error is more important
+        # Don't re-raise an error here, the original error is more important
       end
     end
 
@@ -144,15 +145,28 @@ module IvcChampva
       y = coords[1]
       if page
         page_configuration = get_page_configuration(page, coords)
-        Rails.logger.info "IVC Champva Forms - PdfStamper: calling verified_multistamp"
+        Rails.logger.info "IVC Champva Forms - PdfStamper: stamp calling verified_multistamp"
         verified_multistamp(stamped_template_path, text, page_configuration, font_size)
       else
-        Rails.logger.info "IVC Champva Forms - PdfStamper: creating datestamp instance"
-        datestamp_instance = PDFUtilities::DatestampPdf.new(current_file_path, append_to_stamp:)
-        current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
-        Rails.logger.info "IVC Champva Forms - PdfStamper: renaming to stamped_template_path"
-        File.rename(current_file_path, stamped_template_path)
-        # TODO clean up temporary file current_file_path
+        begin
+          Rails.logger.info "IVC Champva Forms - PdfStamper: stamp creating datestamp instance"
+          datestamp_instance = PDFUtilities::DatestampPdf.new(current_file_path, append_to_stamp:)
+          current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
+          Rails.logger.info "IVC Champva Forms - PdfStamper: stamp renaming to stamped_template_path"
+          File.rename(current_file_path, stamped_template_path)
+        rescue
+          begin
+            Rails.logger.info "IVC Champva Forms - PdfStamper: stamp an error occurred, deleting temp file"
+            Common::FileHelpers.delete_file_if_exists(current_file_path)
+          rescue => e
+            Rails.logger.error "IVC Champva Forms - PdfStamper: stamp error in rescue, logging and swallowing"
+            Rails.logger.error 'IVC Champva Forms - PdfStamper: Failed to clean up temporary file', message: e.message
+            Rails.logger.error e.backtrace.join("\n")
+            # Don't re-raise an error here, the original error is more important
+          end
+          Rails.logger.info "IVC Champva Forms - PdfStamper: stamp re-raising error"
+          raise
+        end
       end
     end
 
@@ -167,9 +181,16 @@ module IvcChampva
       Rails.logger.info "IVC Champva Forms - PdfStamper: perform_multistamp post pdftk.multistamp rename"
       File.rename(out_path, stamped_template_path)
     rescue
-      Rails.logger.info "IVC Champva Forms - PdfStamper: perform_multistamp an error occurred, deleting file"
-      Common::FileHelpers.delete_file_if_exists(out_path) # TODO make sure this is covered in a test
-      Rails.logger.info "IVC Champva Forms - PdfStamper: perform_multistamp an error occurred, re-raising error"
+      begin
+        Rails.logger.info "IVC Champva Forms - PdfStamper: perform_multistamp an error occurred, deleting temp file"
+        Common::FileHelpers.delete_file_if_exists(out_path)
+      rescue => e
+        Rails.logger.error "IVC Champva Forms - PdfStamper: perform_multistamp error in rescue, logging and swallowing"
+        Rails.logger.error 'IVC Champva Forms - PdfStamper: Failed to clean up temporary file', message: e.message
+        Rails.logger.error e.backtrace.join("\n")
+        # Don't re-raise an error here, the original error is more important
+      end
+      Rails.logger.info "IVC Champva Forms - PdfStamper: perform_multistamp re-raising error"
       raise
     end
 
