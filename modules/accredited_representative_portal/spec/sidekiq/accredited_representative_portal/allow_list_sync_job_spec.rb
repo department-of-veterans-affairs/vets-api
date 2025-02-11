@@ -1,10 +1,31 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require Rails.root / 'modules/accredited_representative_portal/spec/rails_helper'
 
-# rubocop:disable Metrics/ModuleLength
-module AccreditedRepresentativePortal
-  RSpec.describe AllowListSyncJob, type: :job do
+RSpec.describe AccreditedRepresentativePortal::AllowListSyncJob, type: :job do
+  context 'vcr tests' do
+    it 'makes insertions and deletions when source changes' do
+      use_cassette('insertions_and_deletions', match_requests_on: %i[method uri]) do
+        record_class = AccreditedRepresentativePortal::UserAccountAccreditedIndividual
+
+        described_class.new.perform
+        record_class.find_each { |record| record.update!(user_account_icn: SecureRandom.uuid) }
+        before = record_class.all.to_a
+
+        described_class.new.perform
+        after = record_class.all.to_a
+
+        expect((before - after).size).to be(4)
+        expect((after - before).size).to be(4)
+
+        maintained_icns = record_class.where.not(user_account_icn: nil)
+        expect(maintained_icns.count).to be(16)
+      end
+    end
+  end
+
+  context 'client mock tests' do
     let(:csv_content) do
       <<~CSV
         accredited_individual_registration_number,power_of_attorney_holder_type,user_account_email
@@ -128,4 +149,3 @@ module AccreditedRepresentativePortal
     end
   end
 end
-# rubocop:enable Metrics/ModuleLength
