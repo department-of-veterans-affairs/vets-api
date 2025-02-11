@@ -10,7 +10,7 @@ class AddEventTypeToUserActionEvents < ActiveRecord::Migration[7.2]
               algorithm: :concurrently
 
     # Add slug column with unique constraint
-    add_column :user_action_events, :slug, :string, null: false
+    add_column :user_action_events, :slug, :string, null: false  # Added null: false here
     add_index :user_action_events, :slug, 
               unique: true, 
               algorithm: :concurrently
