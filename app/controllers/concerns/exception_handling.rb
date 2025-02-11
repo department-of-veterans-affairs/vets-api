@@ -4,9 +4,11 @@ require 'common/exceptions'
 require 'common/client/errors'
 require 'json_schema/json_api_missing_attribute'
 require 'datadog'
+require 'combined_logging'
 
 module ExceptionHandling
   extend ActiveSupport::Concern
+  include CombinedLogging
 
   # In addition to Common::Exceptions::BackendServiceException that have sentry_type :none the following exceptions
   # will also be skipped.
@@ -74,8 +76,7 @@ module ExceptionHandling
       Rails.logger.error "#{exception.message}.", backtrace: exception.backtrace
     elsif exception.is_a?(Common::Exceptions::BackendServiceException) && exception.generic_error?
       # Warn about VA900 needing to be added to exception.en.yml
-      log_message(exception.va900_warning, :warn, { i18n_exception_hint: exception.va900_hint })
-      log_message_to_sentry(exception.va900_warning, :warn, { i18n_exception_hint: exception.va900_hint }, {}, false)
+      log_message_all(exception.va900_warning, :warn, { i18n_exception_hint: exception.va900_hint }, {})
     end
   end
 

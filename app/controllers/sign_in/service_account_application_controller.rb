@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'shared_rails_logging'
-
 module SignIn
   class ServiceAccountApplicationController < ActionController::API
     include SignIn::Authentication
@@ -9,7 +7,6 @@ module SignIn
     include Pundit::Authorization
     include ExceptionHandling
     include Headers
-    include SharedRailsLogging
     include ControllerLoggingContext
     include SentryLogging
     include SentryControllerLogging
