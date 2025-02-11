@@ -76,8 +76,12 @@
                     "nationalCemeteryAdministration"
                   ]
                 },
-                "homeless": { "type": "boolean" },
+                "homeless": { 
+                  "type": "boolean",
+                  "description": "Indicates if the claimant is currently homeless or at risk of becoming homeless" 
+                },
                 "homelessLivingSituation": {
+                  "description": "Claimant's current living situation, provide all that apply",
                   "type": "array", 
                   "items": {
                     "type": "string",
@@ -92,8 +96,16 @@
                     ]
                   }
                 },
-                "homelessLivingSituationOther": {"type":  "string", "maxLength": 100 },
-                "homelessPointOfContact": {"type":  "string", "maxLength": 150 },
+                "homelessLivingSituationOther": {
+                  "description": "Details for homeless living situation other",
+                  "type":  "string", 
+                  "maxLength": 100
+                },
+                "homelessPointOfContact": {
+                  "description": "Name of person VA can contact in order to get in touch with claimant",
+                  "type":  "string", 
+                  "maxLength": 150 
+                },
                 "homelessPointOfContactPhone": {
                   "allOf": [
                     { "$ref": "#/definitions/phone" },
@@ -162,7 +174,10 @@
                           "OTHER"
                         ]
                       },
-                      "treatment_location_other": {"type":  "string", "maxLength": 115 }
+                      "treatment_location_other": {
+                        "description": "Details for treatment location other",
+                        "type":  "string", 
+                        "maxLength": 115 }
                     },
                     "evidenceType":{
                       "type": "array",
@@ -200,7 +215,6 @@
                                 "type": "boolean", 
                                 "description": "Don't have treatment date"
                               }
-                  
                             },
                             "required": [ "locationAndName" ]
                           }
