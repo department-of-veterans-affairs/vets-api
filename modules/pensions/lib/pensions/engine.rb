@@ -16,8 +16,8 @@ module Pensions
       end
     end
 
-    initializer 'pensions.military_information' do |app|
-      app.config.to_prepare do
+    initializer 'pensions.military_information', after: :load_config_initializers do |app|
+      app.config.after_initialize do
         require_relative '../pensions/military_information'
       end
     end

@@ -114,8 +114,8 @@ RSpec.describe Pensions::MilitaryInformation do
       )
 
       expect(Rails.logger).to receive(:error).with(
-        "Error fetching service branches for Pension prefill:
-        undefined method `branch_of_service' for an instance of String"
+        'Error fetching service branches for Pension prefill: ' \
+        "undefined method `branch_of_service' for an instance of String"
       )
       expect(described_class.new(nil).service_branches_for_pensions).to eq({})
     end
