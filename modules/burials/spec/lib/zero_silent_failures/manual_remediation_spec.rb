@@ -3,16 +3,16 @@
 require 'rails_helper'
 
 RSpec.describe Burials::ZeroSilentFailures::ManualRemediation do
-  let(:fake_claim) { FactoryBot.build(:burial_claim) }
+  let(:fake_claim) { build(:burial_claim) }
 
   context 'method override coverage' do
     it 'uses expected claim class' do
-      expect(SavedClaim::Burial).to receive(:find).with(fake_claim.id)
+      expect(Burials::SavedClaim).to receive(:find).with(fake_claim.id)
       described_class.new(fake_claim.id)
     end
 
     it 'returns expected stamps' do
-      allow(SavedClaim::Burial).to receive(:find).and_return(fake_claim)
+      allow(Burials::SavedClaim).to receive(:find).and_return(fake_claim)
       remediation = described_class.new(fake_claim.id)
 
       timestamp = Time.zone.now
@@ -34,7 +34,7 @@ RSpec.describe Burials::ZeroSilentFailures::ManualRemediation do
     end
 
     it 'returns additional metadata fields' do
-      allow(SavedClaim::Burial).to receive(:find).and_return(fake_claim)
+      allow(Burials::SavedClaim).to receive(:find).and_return(fake_claim)
       remediation = described_class.new(fake_claim.id)
 
       metadata = remediation.send('generate_metadata')

@@ -6,6 +6,7 @@ require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
 require 'bgs_service/person_web_service'
 require 'bgs_service/e_benefits_bnft_claim_status_web_service'
+require 'bgs_service/tracked_item_service'
 require 'concerns/claims_api/v2/claims_requests/supporting_documents'
 
 RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
@@ -22,23 +23,23 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
   let(:profile) do
     MPI::Responses::FindProfileResponse.new(
       status: :ok,
-      profile: FactoryBot.build(:mpi_profile,
-                                participant_id: nil,
-                                participant_ids: [])
+      profile: build(:mpi_profile,
+                     participant_id: nil,
+                     participant_ids: [])
     )
   end
   let(:bnft_claim_web_service) { ClaimsApi::EbenefitsBnftClaimStatusWebService }
   let(:profile_for_claimant_on_behalf_of_veteran) do
     MPI::Responses::FindProfileResponse.new(
       status: :ok,
-      profile: FactoryBot.build(:mpi_profile,
-                                participant_id: '8675309')
+      profile: build(:mpi_profile,
+                     participant_id: '8675309')
     )
   end
   let(:profile_erroneous_icn) do
     MPI::Responses::FindProfileResponse.new(
       status: :not_found,
-      profile: FactoryBot.build(:mpi_profile, icn: '667711332299')
+      profile: build(:mpi_profile, icn: '667711332299')
     )
   end
   let(:person_web_service) do
@@ -323,11 +324,11 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   expect(response).to have_http_status(:ok)
                   expect(json_response['data'].count).to eq(4)
                   expect(json_response['data'][0]['attributes']['lighthouseId']).to eq(lighthouse_claim.id)
-                  expect(json_response['data'][1]['attributes']['lighthouseId']).to eq(nil)
+                  expect(json_response['data'][1]['attributes']['lighthouseId']).to be_nil
                   expect(json_response['data'][2]['attributes']['lighthouseId']).to eq(lighthouse_claim_two.id)
                   expect(json_response['data'][3]['attributes']['lighthouseId']).to eq(lighthouse_claim_three.id)
                   expect(json_response['data'][3]['attributes']['claimType']).to eq('Compensation')
-                  expect(json_response['data'][3]['id']).to eq(nil)
+                  expect(json_response['data'][3]['id']).to be_nil
                 end
               end
             end
@@ -561,7 +562,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 get claim_by_id_path, headers: auth_header
                 json_response = JSON.parse(response.body)
                 expect(response).to have_http_status(:ok)
-                expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to eq(false)
+                expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to be(false)
                 expect(json_response['data']['attributes']['claimPhaseDates']['latestPhaseType'])
                   .to eq('CLAIM_RECEIVED')
                 expect(json_response['data']['attributes']['claimPhaseDates']['previousPhases']).to be_truthy
@@ -626,7 +627,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 json_response = JSON.parse(response.body)
                 expect(response).to have_http_status(:ok)
                 claim_attributes = json_response['data']['attributes']
-                expect(claim_attributes['claimPhaseDates']['currentPhaseBack']).to eq(false)
+                expect(claim_attributes['claimPhaseDates']['currentPhaseBack']).to be(false)
                 expect(claim_attributes['claimPhaseDates']['latestPhaseType']).to eq('CLAIM_RECEIVED')
                 expect(claim_attributes['claimPhaseDates']['previousPhases']).to be_truthy
               end
@@ -1122,7 +1123,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   expect(response).to have_http_status(:ok)
                   expect(json_response).to be_an_instance_of(Hash)
                   expect(json_response['data']['attributes']['status']).to eq('INITIAL_REVIEW')
-                  expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to eq(true)
+                  expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to be(true)
                   expect(json_response['data']['attributes']['claimPhaseDates']['latestPhaseType'])
                     .to eq('UNDER_REVIEW')
                 end
@@ -1395,7 +1396,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   expect(response).to have_http_status(:ok)
                   expect(json_response['data']['id']).to eq(claim_id_with_items)
                   expect(first_doc_id).to eq(293_439)
-                  expect(resp_tracked_items[1]['description']).to eq(nil)
+                  expect(resp_tracked_items[1]['description']).to be_nil
                   expect(resp_tracked_items[2]['description']).to start_with('On your application,')
                   expect(json_response['data']['attributes']['trackedItems'][0]['displayName']).to eq(
                     'STRs not available - substitute documents needed'
@@ -1406,8 +1407,8 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   expect(json_response['data']['attributes']['trackedItems'][2]['requestedDate']).to eq(
                     '2021-05-05'
                   )
-                  expect(json_response['data']['attributes']['trackedItems'][0]['overdue']).to eq(true)
-                  expect(json_response['data']['attributes']['trackedItems'][1]['overdue']).to eq(false)
+                  expect(json_response['data']['attributes']['trackedItems'][0]['overdue']).to be(true)
+                  expect(json_response['data']['attributes']['trackedItems'][1]['overdue']).to be(false)
                 end
               end
             end

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'pdf_fill/forms/va21p0969'
-require 'pdf_fill/forms/va21p530ez'
 require 'pdf_fill/forms/va214142'
 require 'pdf_fill/forms/va210781a'
 require 'pdf_fill/forms/va210781'
@@ -49,8 +48,6 @@ module PdfFill
     # Registers form classes for various form IDs.
     {
       '21P-0969' => PdfFill::Forms::Va21p0969,
-      '21P-530V2' => PdfFill::Forms::Va21p530ez,
-      '21P-530EZ' => PdfFill::Forms::Va21p530ez,
       '21-4142' => PdfFill::Forms::Va214142,
       '21-0781a' => PdfFill::Forms::Va210781a,
       '21-0781' => PdfFill::Forms::Va210781,
@@ -122,8 +119,8 @@ module PdfFill
     #
     # @return [String] The path to the filled PDF form.
     #
-    def fill_ancillary_form(form_data, claim_id, form_id)
-      process_form(form_id, form_data, FORM_CLASSES[form_id], claim_id)
+    def fill_ancillary_form(form_data, claim_id, form_id, fill_options = {})
+      process_form(form_id, form_data, FORM_CLASSES[form_id], claim_id, fill_options)
     end
 
     ##
@@ -141,7 +138,7 @@ module PdfFill
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
-      hash_converter = HashConverter.new(form_class.date_strftime)
+      hash_converter = HashConverter.new(form_class.date_strftime, fill_options.fetch(:extras_redesign, false))
       new_hash = hash_converter.transform_data(
         form_data: form_class.new(form_data).merge_fields(fill_options),
         pdftk_keys: form_class::KEY

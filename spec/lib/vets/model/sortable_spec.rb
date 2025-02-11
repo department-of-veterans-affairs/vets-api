@@ -86,6 +86,7 @@ RSpec.describe Vets::Model::Sortable do
     let(:user2) { dummy_class_with_data.new('Bob', 25) }
     let(:user3) { dummy_class_with_data.new('Charlie', 35) }
     let(:user4) { dummy_class_with_data.new('David', 20) }
+    let(:user5) { dummy_class_with_data.new(nil, 20) }
 
     before do
       dummy_class_with_data.default_sort_by(name: :asc)
@@ -124,6 +125,15 @@ RSpec.describe Vets::Model::Sortable do
 
         sorted = no_sort_users.sort
         expect(sorted).to eq([no_sort_user1, no_sort_user2, no_sort_user3, no_sort_user4])
+      end
+    end
+
+    context 'when a value is nil' do
+      it 'sorts the object with nil to the end' do
+        users = [user1, user2, user3, user4, user5]
+        sorted_users = users.sort
+
+        expect(sorted_users.last).to eq(user5)
       end
     end
   end

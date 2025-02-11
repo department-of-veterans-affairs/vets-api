@@ -61,10 +61,10 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
             service,
             transaction2.transaction_id
           )
-          expect(updated_transaction.persisted?).to eq(true)
+          expect(updated_transaction.persisted?).to be(true)
           parsed_metadata = JSON.parse(updated_transaction.metadata)
-          expect(parsed_metadata.is_a?(Array)).to eq(true)
-          expect(updated_transaction.metadata.present?).to eq(true)
+          expect(parsed_metadata.is_a?(Array)).to be(true)
+          expect(updated_transaction.metadata.present?).to be(true)
         end
       end
 
@@ -228,10 +228,10 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
             service,
             transaction2.transaction_id
           )
-          expect(updated_transaction.persisted?).to eq(true)
+          expect(updated_transaction.persisted?).to be(true)
           parsed_metadata = JSON.parse(updated_transaction.metadata)
-          expect(parsed_metadata.is_a?(Array)).to eq(true)
-          expect(updated_transaction.metadata.present?).to eq(true)
+          expect(parsed_metadata.is_a?(Array)).to be(true)
+          expect(updated_transaction.metadata.present?).to be(true)
         end
       end
 
@@ -267,6 +267,8 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
           address.city = 'Fulton'
           address.state_code = 'MS'
           address.zip_code = '38843'
+          address.effective_start_date = '2024-08-27T18:51:06.000Z'
+          address.source_date = '2024-08-27T18:51:06.000Z'
           response = service.post_address(address)
           transaction = AsyncTransaction::Vet360::Base.start(user, response)
           expect(transaction.user_uuid).to eq(user.uuid)

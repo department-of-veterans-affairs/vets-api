@@ -93,21 +93,21 @@ class FormProfile
     evss: ['21-526EZ'],
     hca: %w[1010ez 10-10EZR],
     pension_burial: %w[21P-530EZ 21P-527EZ],
-      dependents: %w[686C-674 686C-674-V2],
-      decision_review: %w[20-0995 20-0996 10182],
-      mdot: ['MDOT'],
-      fsr: ['5655'],
-      vre_counseling: ['28-8832'],
-      vre_readiness: ['28-1900'],
-      coe: ['26-1880'],
-      adapted_housing: ['26-4555'],
-      intent_to_file: ['21-0966'],
-      ivc_champva: ['10-7959C'],
-      form_upload_flow: ['FORM-UPLOAD-FLOW'],
-      acc_rep_management: %w[21-22 21-22A],
-      form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
-      dispute_debt: ['DISPUTE-DEBT']
-    }.freeze
+    dependents: %w[686C-674 686C-674-V2],
+    decision_review: %w[20-0995 20-0996 10182],
+    mdot: ['MDOT'],
+    fsr: ['5655'],
+    vre_counseling: ['28-8832'],
+    vre_readiness: ['28-1900'],
+    coe: ['26-1880'],
+    adapted_housing: ['26-4555'],
+    intent_to_file: ['21-0966'],
+    ivc_champva: ['10-7959C'],
+    form_upload_flow: ['FORM-UPLOAD-FLOW'],
+    acc_rep_management: %w[21-22 21-22A],
+    form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
+    dispute_debt: ['DISPUTE-DEBT']
+  }.freeze
 
   FORM_ID_TO_CLASS = {
     '0873' => ::FormProfiles::VA0873,
@@ -428,7 +428,7 @@ class FormProfile
     when Hash
       clean_hash!(value)
     when Array
-      value.map { |v| clean!(v) }.delete_if(&:blank?)
+      value.map { |v| clean!(v) }.compact_blank!
     else
       value
     end
@@ -437,6 +437,6 @@ class FormProfile
   def clean_hash!(hash)
     hash.deep_transform_keys! { |k| k.to_s.camelize(:lower) }
     hash.each { |k, v| hash[k] = clean!(v) }
-    hash.delete_if { |_k, v| v.blank? }
+    hash.compact_blank!
   end
 end

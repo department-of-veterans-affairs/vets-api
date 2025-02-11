@@ -48,10 +48,6 @@ describe PdfFill::Filler, type: :model do
   describe '#fill_form' do
     [
       {
-        form_id: '21P-530EZ',
-        factory: :burial_claim
-      },
-      {
         form_id: '21P-0969',
         factory: :income_and_assets_claim,
         use_vets_json_schema: true
@@ -84,8 +80,10 @@ describe PdfFill::Filler, type: :model do
       28-1900 21-674 21-674-V2 21-0538 26-1880 5655
     ].each do |form_id|
       context "form #{form_id}" do
-        %w[simple kitchen_sink overflow].each do |type|
-          context "with #{type} test data" do
+        form_types = %w[simple kitchen_sink overflow].product([false])
+        form_types << ['overflow', true] if form_id == '21-0781V2'
+        form_types.each do |type, extras_redesign|
+          context "with #{type} test data with extras_redesign #{extras_redesign}" do
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")
             end
@@ -100,21 +98,21 @@ describe PdfFill::Filler, type: :model do
                 end
               end
 
-              file_path = described_class.fill_ancillary_form(form_data, 1, form_id)
+              file_path = described_class.fill_ancillary_form(form_data, 1, form_id, { extras_redesign: })
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
-
+                fixture_pdf = extras_redesign ? 'overflow_redesign_extras.pdf' : 'overflow_extras.pdf'
                 expect(
-                  FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
-                ).to eq(true)
+                  FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/#{fixture_pdf}")
+                ).to be(true)
 
                 File.delete(extras_path)
               end
 
               expect(
                 pdfs_fields_match?(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
-              ).to eq(true)
+              ).to be(true)
 
               File.delete(file_path)
             end

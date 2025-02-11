@@ -2,14 +2,65 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequest < ApplicationRecord
+    module ClaimantTypes
+      ALL = [
+        DEPENDENT = 'dependent',
+        VETERAN = 'veteran'
+      ].freeze
+    end
+
+    EXPIRY_DURATION = 60.days
+
     belongs_to :claimant, class_name: 'UserAccount'
 
     has_one :power_of_attorney_form,
-            class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyForm',
-            inverse_of: :power_of_attorney_request
+            inverse_of: :power_of_attorney_request,
+            required: true
 
     has_one :resolution,
-            class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution',
+            class_name: 'PowerOfAttorneyRequestResolution',
             inverse_of: :power_of_attorney_request
+
+    belongs_to :accredited_organization, class_name: 'Veteran::Service::Organization',
+                                         foreign_key: :power_of_attorney_holder_poa_code,
+                                         primary_key: :poa,
+                                         optional: true
+    belongs_to :accredited_individual, class_name: 'Veteran::Service::Representative',
+                                       foreign_key: :accredited_individual_registration_number,
+                                       primary_key: :representative_id,
+                                       optional: true
+
+    before_validation :set_claimant_type
+
+    validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
+
+    def expires_at
+      created_at + EXPIRY_DURATION if unresolved?
+    end
+
+    def unresolved?
+      !resolved?
+    end
+
+    def resolved?
+      resolution.present?
+    end
+
+    scope :unresolved, -> { where.missing(:resolution) }
+    scope :resolved, -> { joins(:resolution) }
+    scope :not_expired, lambda {
+      where.not(resolution: { resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration' })
+    }
+
+    private
+
+    def set_claimant_type
+      self.claimant_type =
+        if power_of_attorney_form.parsed_data['dependent']
+          ClaimantTypes::DEPENDENT
+        elsif power_of_attorney_form.parsed_data['veteran']
+          ClaimantTypes::VETERAN
+        end
+    end
   end
 end

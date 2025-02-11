@@ -15,6 +15,7 @@ require 'bgs/service'
 require 'sign_in/logingov/service'
 require 'hca/enrollment_eligibility/constants'
 require 'form1010_ezr/service'
+require 'lighthouse/facilities/v1/client'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -26,7 +27,7 @@ RSpec.describe 'API doc validations', type: :request do
   end
 end
 
-RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :defined do
+RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore request] do
   include AuthenticatedSessionHelper
 
   subject { Apivore::SwaggerChecker.instance_for('/v0/apidocs.json') }
@@ -169,7 +170,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports getting an in-progress form' do
-      FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      create(:in_progress_form, user_uuid: mhv_user.uuid)
       stub_evss_pciu(mhv_user)
       expect(subject).to validate(
         :get,
@@ -200,7 +201,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports deleting an in-progress form' do
-      form = FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      form = create(:in_progress_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :delete,
         '/v0/in_progress_forms/{id}',
@@ -211,7 +212,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports getting an disability_compensation_in_progress form' do
-      FactoryBot.create(:in_progress_526_form, user_uuid: mhv_user.uuid)
+      create(:in_progress_526_form, user_uuid: mhv_user.uuid)
       stub_evss_pciu(mhv_user)
       VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
         expect(subject).to validate(
@@ -248,7 +249,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports deleting an disability_compensation_in_progress form' do
-      form = FactoryBot.create(:in_progress_526_form, user_uuid: mhv_user.uuid)
+      form = create(:in_progress_526_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :delete,
         '/v0/disability_compensation_in_progress_forms/{id}',
@@ -314,77 +315,110 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       expect(subject).to validate(:get, '/v0/education_benefits_claims/stem_claim_status', 200)
     end
 
-    describe 'using mulesoft' do
-      it 'supports adding an caregiver\'s assistance claim' do
-        expect_any_instance_of(Form1010cg::Service).to receive(:assert_veteran_status)
-        expect(Form1010cg::SubmissionJob).to receive(:perform_async)
+    describe '10-10CG' do
+      context 'submitting caregiver assistance claim form' do
+        it 'successfully submits a caregiver assistance claim' do
+          expect_any_instance_of(Form1010cg::Service).to receive(:assert_veteran_status)
+          expect(Form1010cg::SubmissionJob).to receive(:perform_async)
 
-        expect(subject).to validate(
-          :post,
-          '/v0/caregivers_assistance_claims',
-          200,
-          '_data' => {
-            'caregivers_assistance_claim' => {
-              'form' => build(:caregivers_assistance_claim).form
+          expect(subject).to validate(
+            :post,
+            '/v0/caregivers_assistance_claims',
+            200,
+            '_data' => {
+              'caregivers_assistance_claim' => {
+                'form' => build(:caregivers_assistance_claim).form
+              }
             }
-          }
-        )
+          )
+        end
 
-        expect(subject).to validate(
-          :post,
-          '/v0/caregivers_assistance_claims',
-          422,
-          '_data' => {
-            'caregivers_assistance_claim' => {
-              'form' => {}.to_json
+        it 'handles 422' do
+          expect(subject).to validate(
+            :post,
+            '/v0/caregivers_assistance_claims',
+            422,
+            '_data' => {
+              'caregivers_assistance_claim' => {
+                'form' => {}.to_json
+              }
             }
-          }
-        )
+          )
+        end
       end
-    end
 
-    it 'supports uploading a Form 10-10cg attachment' do
-      expect(subject).to validate(
-        :post,
-        '/v0/form1010cg/attachments',
-        400,
-        '_data' => {
-          'attachment' => {}
-        }
-      )
-
-      expect(subject).to validate(
-        :post,
-        '/v0/form1010cg/attachments',
-        422,
-        '_data' => {
-          'attachment' => {
-            file_data: fixture_file_upload('spec/fixtures/files/doctors-note.gif')
-          }
-        }
-      )
-
-      VCR.use_cassette 's3/object/put/834d9f51-d0c7-4dc2-9f2e-9b722db98069/doctors-note.pdf', {
-        record: :none,
-        allow_unused_http_interactions: false,
-        match_requests_on: %i[method host]
-      } do
-        expect(SecureRandom).to receive(:uuid).and_return(
-          '834d9f51-d0c7-4dc2-9f2e-9b722db98069'
-        )
-
-        allow(SecureRandom).to receive(:uuid).and_call_original
-
-        expect(subject).to validate(
-          :post,
-          '/v0/form1010cg/attachments',
-          200,
-          '_data' => {
-            'attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/files/doctors-note.pdf', 'application/pdf')
+      context 'supports uploading an attachment' do
+        it 'handles errors' do
+          expect(subject).to validate(
+            :post,
+            '/v0/form1010cg/attachments',
+            400,
+            '_data' => {
+              'attachment' => {}
             }
+          )
+        end
+
+        it 'handles 422' do
+          expect(subject).to validate(
+            :post,
+            '/v0/form1010cg/attachments',
+            422,
+            '_data' => {
+              'attachment' => {
+                file_data: fixture_file_upload('spec/fixtures/files/doctors-note.gif')
+              }
+            }
+          )
+        end
+
+        it 'handles success' do
+          VCR.use_cassette 's3/object/put/834d9f51-d0c7-4dc2-9f2e-9b722db98069/doctors-note.pdf', {
+            record: :none,
+            allow_unused_http_interactions: false,
+            match_requests_on: %i[method host]
+          } do
+            expect(SecureRandom).to receive(:uuid).and_return(
+              '834d9f51-d0c7-4dc2-9f2e-9b722db98069'
+            )
+
+            allow(SecureRandom).to receive(:uuid).and_call_original
+
+            expect(subject).to validate(
+              :post,
+              '/v0/form1010cg/attachments',
+              200,
+              '_data' => {
+                'attachment' => {
+                  'file_data' => fixture_file_upload('spec/fixtures/files/doctors-note.pdf', 'application/pdf')
+                }
+              }
+            )
+          end
+        end
+      end
+
+      context 'facilities' do
+        let(:mock_facility_response) do
+          {
+            'data' => [
+              { 'id' => 'vha_123', 'attributes' => { 'name' => 'Facility 1' } },
+              { 'id' => 'vha_456', 'attributes' => { 'name' => 'Facility 2' } }
+            ]
           }
-        )
+        end
+        let(:lighthouse_service) { double('Lighthouse::Facilities::V1::Client') }
+
+        it 'successfully returns list of facilities' do
+          expect(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(lighthouse_service)
+          expect(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/caregivers_assistance_claims/facilities',
+            200
+          )
+        end
       end
     end
 
@@ -678,8 +712,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
       context 'financial status report create' do
         it 'validates the route' do
-          pdf_stub = class_double('PdfFill::Filler').as_stubbed_const
-          allow(pdf_stub).to receive(:fill_ancillary_form).and_return(::Rails.root.join(
+          pdf_stub = class_double(PdfFill::Filler).as_stubbed_const
+          allow(pdf_stub).to receive(:fill_ancillary_form).and_return(Rails.root.join(
             *'/spec/fixtures/dmc/5655.pdf'.split('/')
           ).to_s)
           VCR.use_cassette('dmc/submit_fsr') do
@@ -701,9 +735,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     context 'HCA tests' do
       let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
       let(:test_veteran) do
-        json_string = File.read(
-          Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
-        )
+        json_string = Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json').read
         json = JSON.parse(json_string)
         json.delete('email')
         json.to_json
@@ -831,13 +863,22 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           }
         )
       end
+
+      it 'supports returning list of active facilities' do
+        VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+          expect(subject).to validate(
+            :get,
+            '/v0/health_care_applications/facilities',
+            200,
+            { '_query_string' => 'facilityIds[]=vha_757&facilityIds[]=vha_358' }
+          )
+        end
+      end
     end
 
     context 'Form1010Ezr tests' do
       let(:form) do
-        json_string = File.read(
-          Rails.root.join('spec', 'fixtures', 'form1010_ezr', 'valid_form.json')
-        )
+        json_string = Rails.root.join('spec', 'fixtures', 'form1010_ezr', 'valid_form.json').read
         json = JSON.parse(json_string)
         json.to_json
       end
@@ -1095,9 +1136,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
 
       let(:form526v2) do
-        File.read(
-          Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json')
-        )
+        Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json').read
       end
 
       it 'supports getting rated disabilities' do
@@ -1285,7 +1324,9 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         it 'when correct form id is passed, it supports creating mvi user' do
           VCR.use_cassette('mpi/add_person/add_person_success') do
             VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
-              expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
+              VCR.use_cassette('mpi/find_candidate/find_profile_with_identifier') do
+                expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
+              end
             end
           end
         end
@@ -2739,7 +2780,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         Flipper.disable(:remove_pciu)
       end
 
-      describe 'profiles v2', :skip_vet360, :initiate_vaprofile do
+      describe 'profiles v2', :initiate_vaprofile, :skip_vet360 do
         let(:mhv_user) { build(:user, :loa3) }
 
         before do
@@ -3011,7 +3052,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         end
       end
 
-      describe 'profile/status v2', :skip_vet360, :initiate_vaprofile do
+      describe 'profile/status v2', :initiate_vaprofile, :skip_vet360 do
         let(:user) { build(:user, :loa3) }
 
         before do
@@ -3387,42 +3428,92 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     describe 'dependents applications' do
-      let!(:user) { build(:user, ssn: '796043735') }
-
-      it 'supports getting dependent information' do
-        expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
-        VCR.use_cassette('bgs/claimant_web_service/dependents') do
-          expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
+      context 'when :va_dependents_v2 is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
         end
-      end
 
-      it 'supports adding a dependency claim' do
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(false)
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(false)
-        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
-        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+        let!(:user) { build(:user, ssn: '796043735') }
+
+        it 'supports getting dependent information' do
+          expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
+          VCR.use_cassette('bgs/claimant_web_service/dependents') do
+            expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
+          end
+        end
+
+        it 'supports adding a dependency claim' do
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(false)
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(false)
+          allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            expect(subject).to validate(
+              :post,
+              '/v0/dependents_applications',
+              200,
+              headers.merge(
+                '_data' => build(:dependency_claim).parsed_form
+              )
+            )
+          end
+
           expect(subject).to validate(
             :post,
             '/v0/dependents_applications',
-            200,
+            422,
             headers.merge(
-              '_data' => build(:dependency_claim).parsed_form
+              '_data' => {
+                'dependency_claim' => {
+                  'invalid-form' => { invalid: true }.to_json
+                }
+              }
             )
           )
         end
+      end
 
-        expect(subject).to validate(
-          :post,
-          '/v0/dependents_applications',
-          422,
-          headers.merge(
-            '_data' => {
-              'dependency_claim' => {
-                'invalid-form' => { invalid: true }.to_json
+      context 'when :va_dependents_v2 is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+        end
+
+        let!(:user) { build(:user, ssn: '796043735') }
+
+        it 'supports getting dependent information' do
+          expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
+          VCR.use_cassette('bgs/claimant_web_service/dependents') do
+            expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
+          end
+        end
+
+        it 'supports adding a dependency claim' do
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(false)
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(false)
+          allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            expect(subject).to validate(
+              :post,
+              '/v0/dependents_applications',
+              200,
+              headers.merge(
+                '_data' => build(:dependency_claim).parsed_form
+              )
+            )
+          end
+
+          expect(subject).to validate(
+            :post,
+            '/v0/dependents_applications',
+            422,
+            headers.merge(
+              '_data' => {
+                'dependency_claim' => {
+                  'invalid-form' => { invalid: true }.to_json
+                }
               }
-            }
+            )
           )
-        )
+        end
       end
     end
 
@@ -3533,8 +3624,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
     describe 'claim status tool' do
       let!(:claim) do
-        FactoryBot.create(:evss_claim, id: 1, evss_id: 189_625,
-                                       user_uuid: mhv_user.uuid, data: {})
+        create(:evss_claim, id: 1, evss_id: 189_625,
+                            user_uuid: mhv_user.uuid, data: {})
       end
 
       it 'uploads a document to support a claim' do
@@ -3741,6 +3832,70 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         end
       end
     end
+
+    context 'create' do
+      let(:mhv_user) { build(:user, :loa3) }
+
+      it 'returns unauthorized for unauthorized user' do
+        expect(subject).to validate(:post, '/travel_pay/v0/claims', 401)
+      end
+
+      it 'returns bad request for missing appointment date time' do
+        headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
+        VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[path method]) do
+          expect(subject).to validate(
+            :post,
+            '/travel_pay/v0/claims',
+            400,
+            headers
+          )
+        end
+      end
+
+      it 'returns 201 for successful response' do
+        headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
+        params = {
+          '_data' => {
+            'appointmentDatetime' => '2024-01-01T16:45:34.465Z'
+          }
+        }
+        VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[path method]) do
+          expect(subject).to validate(
+            :post,
+            '/travel_pay/v0/claims',
+            201,
+            headers.merge(params)
+          )
+        end
+      end
+    end
+  end
+
+  describe 'banners' do
+    describe 'GET /v0/banners' do
+      it 'requires path parameter' do
+        expect(subject).to validate(:get, '/v0/banners', 422, '_query_string' => 'type=full_width_banner_alert')
+      end
+
+      context 'when the service successfully returns banners' do
+        it 'supports getting banners without type parameter' do
+          VCR.use_cassette('banners/get_banners_success') do
+            expect(subject).to validate(:get, '/v0/banners', 200, '_query_string' => 'path=/some-va-path')
+          end
+        end
+
+        it 'supports getting banners with path and type parameters' do
+          VCR.use_cassette('banners/get_banners_with_type_success') do
+            expect(subject).to validate(
+              :get,
+              '/v0/banners',
+              200,
+              '_query_string' => 'path=full-va-path&type=full_width_banner_alert'
+            )
+          end
+        end
+      end
+    end
   end
 
   describe 'submission statuses' do
@@ -3778,6 +3933,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       subject.untested_mappings.delete('/v0/claim_letters/{document_id}')
       subject.untested_mappings.delete('/v0/coe/download_coe')
       subject.untested_mappings.delete('/v0/coe/document_download/{id}')
+      subject.untested_mappings.delete('/v0/caregivers_assistance_claims/download_pdf')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')
@@ -3789,7 +3945,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
   end
 end
 
-RSpec.describe 'the v1 API documentation', type: %i[apivore request], order: :defined do
+RSpec.describe 'the v1 API documentation', order: :defined, type: %i[apivore request] do
   include AuthenticatedSessionHelper
 
   subject { Apivore::SwaggerChecker.instance_for('/v1/apidocs.json') }

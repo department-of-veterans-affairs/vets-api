@@ -25,13 +25,13 @@ class InProgressForm < ApplicationRecord
   scope :submission_pending, -> { where(status: [nil, 'pending']) } # override to include nil
 
   scope :has_attempted_submit, lambda {
-                                 where("(metadata -> 'submission' ->> 'hasAttemptedSubmit')::boolean or "\
+                                 where("(metadata -> 'submission' ->> 'hasAttemptedSubmit')::boolean or " \
                                        "(metadata -> 'submission' ->> 'has_attempted_submit')::boolean")
                                }
   scope :has_errors,           -> { where("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
   scope :has_no_errors,        -> { where.not("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
   scope :has_error_message,    lambda {
-                                 where("(metadata -> 'submission' -> 'errorMessage')::text !='false' or "\
+                                 where("(metadata -> 'submission' -> 'errorMessage')::text !='false' or " \
                                        "(metadata -> 'submission' -> 'error_message')::text !='false' ")
                                }
   # the double quotes in return_url are part of the value
@@ -142,7 +142,7 @@ class InProgressForm < ApplicationRecord
 
   def default_expires_after
     case form_id
-    when '21-526EZ', '21P-527EZ', '21P-530EZ'
+    when '21-526EZ', '21P-527EZ', '21P-530EZ', '686C-674-V2'
       1.year
     else
       60.days

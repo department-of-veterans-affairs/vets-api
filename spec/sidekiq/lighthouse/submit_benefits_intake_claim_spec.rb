@@ -27,24 +27,50 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       allow(notification).to receive(:deliver)
     end
 
-    it 'submits the saved claim successfully' do
-      allow(service).to receive(:valid_document?).and_return(pdf_path)
-      allow(response).to receive(:success?).and_return(true)
+    context 'Feature burial_submitted_email_notification=false' do
+      it 'submits the saved claim successfully' do
+        allow(Flipper).to receive(:enabled?).with(:burial_submitted_email_notification).and_return(false)
+        allow(service).to receive(:valid_document?).and_return(pdf_path)
+        allow(response).to receive(:success?).and_return(true)
 
-      expect(job).to receive(:create_form_submission_attempt)
-      expect(job).to receive(:generate_metadata).once
-      expect(service).to receive(:upload_doc)
+        expect(job).to receive(:create_form_submission_attempt)
+        expect(job).to receive(:generate_metadata).once.and_call_original
+        expect(service).to receive(:upload_doc)
 
-      # burials only
-      expect(notification).to receive(:deliver).with(:confirmation)
+        # burials only
+        expect(notification).to receive(:deliver).with(:confirmation)
 
-      expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.success')
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.success')
 
-      job.perform(claim.id)
+        job.perform(claim.id)
 
-      expect(response.success?).to eq(true)
-      expect(claim.form_submissions).not_to eq(nil)
-      expect(claim.business_line).not_to eq(nil)
+        expect(response.success?).to be(true)
+        expect(claim.form_submissions).not_to be_nil
+        expect(claim.business_line).not_to be_nil
+      end
+    end
+
+    context 'Feature burial_submitted_email_notification=true' do
+      it 'submits the saved claim successfully' do
+        allow(Flipper).to receive(:enabled?).with(:burial_submitted_email_notification).and_return(true)
+        allow(service).to receive(:valid_document?).and_return(pdf_path)
+        allow(response).to receive(:success?).and_return(true)
+
+        expect(job).to receive(:create_form_submission_attempt)
+        expect(job).to receive(:generate_metadata).once.and_call_original
+        expect(service).to receive(:upload_doc)
+
+        # burials only
+        expect(notification).to receive(:deliver).with(:submitted)
+
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.success')
+
+        job.perform(claim.id)
+
+        expect(response.success?).to be(true)
+        expect(claim.form_submissions).not_to be_nil
+        expect(claim.business_line).not_to be_nil
+      end
     end
 
     it 'submits and gets a response error' do
@@ -56,7 +82,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       expect(Rails.logger).to receive(:warn)
       expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure')
       expect { job.perform(claim.id) }.to raise_error(Lighthouse::SubmitBenefitsIntakeClaim::BenefitsIntakeClaimError)
-      expect(response.success?).to eq(false)
+      expect(response.success?).to be(false)
     end
 
     it 'handles an invalid document' do
@@ -106,7 +132,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         timestamp:,
         page_number: 5,
         size: 9,
-        template: 'lib/pdf_fill/forms/pdfs/21P-530EZ.pdf',
+        template: anything,
         multistamp: true
       ).and_return(path)
       allow(service).to receive(:valid_document?).and_return(path)
@@ -141,7 +167,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         timestamp:,
         page_number: 5,
         size: 9,
-        template: 'lib/pdf_fill/forms/pdfs/21P-530EZ.pdf',
+        template: 'modules/burials/lib/pdf_fill/forms/pdfs/21P-530EZ.pdf',
         multistamp: true
       ).and_return(path)
       allow(service).to receive(:valid_document?).and_raise(BenefitsIntakeService::Service::InvalidDocumentError)

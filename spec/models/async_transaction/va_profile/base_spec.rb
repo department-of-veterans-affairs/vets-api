@@ -92,10 +92,10 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
             service,
             transaction2.transaction_id
           )
-          expect(updated_transaction.persisted?).to eq(true)
+          expect(updated_transaction.persisted?).to be(true)
           parsed_metadata = JSON.parse(updated_transaction.metadata)
-          expect(parsed_metadata.is_a?(Array)).to eq(true)
-          expect(updated_transaction.metadata.present?).to eq(true)
+          expect(parsed_metadata.is_a?(Array)).to be(true)
+          expect(updated_transaction.metadata.present?).to be(true)
         end
       end
 
@@ -186,7 +186,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
           service_method: :get_person_transaction_status
         }
       ].each do |transaction_test_data|
-        it "given a #{transaction_test_data[:factory_name]} model it calls "\
+        it "given a #{transaction_test_data[:factory_name]} model it calls " \
            "the #{transaction_test_data[:service_method]} service method" do
           transaction = create(transaction_test_data[:factory_name])
           service = double
@@ -343,10 +343,10 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
             service,
             transaction2.transaction_id
           )
-          expect(updated_transaction.persisted?).to eq(true)
+          expect(updated_transaction.persisted?).to be(true)
           parsed_metadata = JSON.parse(updated_transaction.metadata)
-          expect(parsed_metadata.is_a?(Array)).to eq(true)
-          expect(updated_transaction.metadata.present?).to eq(true)
+          expect(parsed_metadata.is_a?(Array)).to be(true)
+          expect(updated_transaction.metadata.present?).to be(true)
         end
       end
 
@@ -372,15 +372,11 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     describe '.start v2' do
       let(:user) { build(:user, :loa3) }
       let!(:user_verification) { create(:user_verification, idme_uuid: user.idme_uuid) }
-      let(:address) { build(:va_profile_v3_address, source_system_user: user.icn) }
+      let(:address) { build(:va_profile_v3_address, :mobile) }
 
       it 'returns an instance with the user uuid', :aggregate_failures do
         VCR.use_cassette('va_profile/v2/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
           service = VAProfile::V2::ContactInformation::Service.new(user)
-          address.address_line1 = '1493 Martin Luther King Rd'
-          address.city = 'Fulton'
-          address.state_code = 'MS'
-          address.zip_code = '38843'
           response = service.post_address(address)
           transaction = AsyncTransaction::VAProfile::Base.start(user, response)
           expect(transaction.user_uuid).to eq(user.uuid)

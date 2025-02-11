@@ -18,7 +18,7 @@ module AskVAApi
           @inquiry_details = InquiryDetails.new(inquiry_params).call
           @user = user
           @submitter_profile = SubmitterProfile.new(inquiry_params:, user:, inquiry_details:)
-          @veteran_profile = VeteranProfile.new(inquiry_params:, inquiry_details:)
+          @veteran_profile = VeteranProfile.new(inquiry_params:, user:, inquiry_details:)
           @translator = Translator.new
         end
 
@@ -97,7 +97,8 @@ module AskVAApi
             InstitutionName: inquiry_params[:school_obj]&.dig(:institution_name),
             SchoolFacilityCode: inquiry_params[:school_obj]&.dig(:school_facility_code),
             StateAbbreviation: inquiry_params[:school_obj]&.dig(:state_abbreviation),
-            RegionalOffice: nil
+            RegionalOffice: nil,
+            Update: inquiry_params[:use_school]
           }
         end
 

@@ -25,7 +25,7 @@ module ClaimsApi
           if poa_code.blank?
             render json: { data: }
           else
-            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(data, root: :data)
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(data, view: :show, root: :data)
           end
         end
 
@@ -37,9 +37,8 @@ module ClaimsApi
             )
           end
 
-          serialized_response = ClaimsApi::PowerOfAttorneySerializer.new(poa).serializable_hash
-          serialized_response[:data][:type] = serialized_response[:data][:type].to_s.camelize(:lower)
-          render json: serialized_response.deep_transform_keys! { |key| key.to_s.camelize(:lower).to_sym }
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(poa, view: :status, root: :data),
+                 status: :ok
         end
 
         private
@@ -102,7 +101,7 @@ module ClaimsApi
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
             representative(poa_code).merge({ id: power_of_attorney.id, code: poa_code }),
-            root: :data
+            view: :show, root: :data
           ), status: :accepted, location: url_for(
             controller: 'power_of_attorney/base', action: 'show', id: power_of_attorney.id
           )
@@ -111,11 +110,9 @@ module ClaimsApi
         def set_auth_headers
           headers = auth_headers.merge!({ VA_NOTIFY_KEY => icn_for_vanotify })
 
-          if allow_dependent_claimant?
-            add_dependent_to_auth_headers(headers)
-          else
-            auth_headers
-          end
+          add_dependent_to_auth_headers(headers) if allow_dependent_claimant?
+
+          headers
         end
 
         def add_dependent_to_auth_headers(headers)
@@ -228,17 +225,27 @@ module ClaimsApi
         end
 
         def icn_for_vanotify
-          params[:veteranId]
+          dependent_claimant_icn = claimant_icn
+          dependent_claimant_icn.presence || params[:veteranId]
         end
 
         def fetch_claimant
-          claimant_icn = form_attributes.dig('claimant', 'claimantId')
           if claimant_icn.present?
             mpi_profile = mpi_service.find_profile_by_identifier(identifier: claimant_icn,
                                                                  identifier_type: MPI::Constants::ICN)
           end
         rescue ArgumentError
           mpi_profile
+        end
+
+        def fetch_ptcpnt_id(vet_icn)
+          mpi_profile = mpi_service.find_profile_by_identifier(identifier: vet_icn,
+                                                               identifier_type: MPI::Constants::ICN)
+          mpi_profile.profile.participant_id
+        end
+
+        def claimant_icn
+          @claimant_icn ||= form_attributes.dig('claimant', 'claimantId')
         end
 
         def disable_jobs?

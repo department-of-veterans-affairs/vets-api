@@ -30,12 +30,12 @@ module VAOS
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointments[:data], 'appointments')
 
-        if !appointments[:meta][:failures]&.empty?
+        if appointments[:meta][:failures] && appointments[:meta][:failures].empty?
+          render json: { data: serialized, meta: appointments[:meta] }, status: :ok
+        else
           StatsDMetric.new(key: STATSD_KEY).save
           StatsD.increment(STATSD_KEY, tags: ["failures:#{appointments[:meta][:failures]}"])
           render json: { data: serialized, meta: appointments[:meta] }, status: :multi_status
-        else
-          render json: { data: serialized, meta: appointments[:meta] }, status: :ok
         end
       end
 
@@ -62,6 +62,25 @@ module VAOS
         render json: { data: serialized }, status: :created
       end
 
+      def create_draft
+        # TODO: validate referral_id from the cache from prior referrals response,
+        # TODO: validate that the referral doesn't already have a confirmed appointment #
+        # TODO: cache provider_id, appointment_type_id, end_date from prior referrals response and use here
+        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: draft_params[:referral_id])
+
+        provider = eps_provider_service.get_provider_service(provider_id: draft_params[:provider_id])
+
+        response_data = OpenStruct.new(
+          id: draft_appointment.id,
+          provider: provider,
+          slots: fetch_provider_slots,
+          drive_time: fetch_drive_times(provider)
+        )
+
+        serialized = Eps::DraftAppointmentSerializer.new(response_data)
+        render json: serialized, status: :created
+      end
+
       def update
         updated_appointment
         set_facility_error_msg(updated_appointment)
@@ -69,6 +88,20 @@ module VAOS
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(updated_appointment, 'appointments')
         render json: { data: serialized }
+      end
+
+      def submit_referral_appointment
+        params = submit_params
+        appointment = eps_appointment_service.submit_appointment(
+          params[:id],
+          { referral_number: params[:referral_number],
+            network_id: params[:network_id],
+            provider_service_id: params[:provider_service_id],
+            slot_ids: [params[:slot_id]],
+            additional_patient_attributes: patient_attributes(params) }
+        )
+
+        render json: Eps::DraftAppointmentSerializer.new(appointment), status: :created
       end
 
       private
@@ -85,6 +118,16 @@ module VAOS
       def mobile_facility_service
         @mobile_facility_service ||=
           VAOS::V2::MobileFacilityService.new(current_user)
+      end
+
+      def eps_appointment_service
+        @eps_appointment_service ||=
+          Eps::AppointmentService.new(current_user)
+      end
+
+      def eps_provider_service
+        @eps_provider_service ||=
+          Eps::ProviderService.new(current_user)
       end
 
       def appointments
@@ -188,6 +231,21 @@ module VAOS
         params.permit(:_include)
       end
 
+      def draft_params
+        params.require(:referral_id)
+        params.require(:provider_id)
+        params.require(:appointment_type_id)
+        params.require(:start_date)
+        params.require(:end_date)
+        params.permit(
+          :referral_id,
+          :provider_id,
+          :appointment_type_id,
+          :start_date,
+          :end_date
+        )
+      end
+
       # rubocop:disable Metrics/MethodLength
       def create_params
         @create_params ||= begin
@@ -280,14 +338,16 @@ module VAOS
         {
           clinics: ActiveModel::Type::Boolean.new.deserialize(included&.include?('clinics')),
           facilities: ActiveModel::Type::Boolean.new.deserialize(included&.include?('facilities')),
-          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs'))
+          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs')),
+          travel_pay_claims: ActiveModel::Type::Boolean.new.deserialize(included&.include?('travel_pay_claims'))
         }
       end
 
       def include_show_params
         included = appointment_show_params[:_include]&.split(',')
         {
-          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs'))
+          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs')),
+          travel_pay_claims: ActiveModel::Type::Boolean.new.deserialize(included&.include?('travel_pay_claims'))
         }
       end
 
@@ -317,11 +377,94 @@ module VAOS
       end
 
       def create_method_logging_name
-        if Flipper.enabled?(:va_online_scheduling_use_vpg) && Flipper.enabled?(:va_online_scheduling_enable_OH_requests)
+        if Flipper.enabled?(:va_online_scheduling_use_vpg) && Flipper.enabled?(:va_online_scheduling_OH_request)
           APPT_CREATE_VPG
         else
           APPT_CREATE_VAOS
         end
+      end
+
+      def submit_params
+        params.require(%i[id network_id provider_service_id slot_id referral_number])
+        params.permit(
+          :id,
+          :network_id,
+          :provider_service_id,
+          :slot_id,
+          :referral_number,
+          :birth_date,
+          :email,
+          :phone_number,
+          :gender,
+          address: submit_address_params,
+          name: [
+            :family,
+            { given: [] }
+          ]
+        )
+      end
+
+      def submit_address_params
+        [
+          :type,
+          { line: [] },
+          :city,
+          :state,
+          :postal_code,
+          :country,
+          :text
+        ]
+      end
+
+      def patient_attributes(params)
+        {
+          name: {
+            family: params.dig(:name, :family),
+            given: params.dig(:name, :given)
+          },
+          phone: params[:phone_number],
+          email: params[:email],
+          birthDate: params[:birth_date],
+          gender: params[:gender],
+          address: {
+            line: params.dig(:address, :line),
+            city: params.dig(:address, :city),
+            state: params.dig(:address, :state),
+            country: params.dig(:address, :country),
+            postalCode: params.dig(:address, :postal_code),
+            type: params.dig(:address, :type)
+          }
+        }
+      end
+
+      def fetch_provider_slots
+        eps_provider_service.get_provider_slots(
+          draft_params[:provider_id],
+          {
+            appointmentTypeId: draft_params[:appointment_type_id],
+            startOnOrAfter: draft_params[:start_date],
+            startBefore: draft_params[:end_date]
+          }
+        )
+      end
+
+      def fetch_drive_times(provider)
+        user_address = current_user.vet360_contact_info&.residential_address
+
+        return nil unless user_address&.latitude && user_address.longitude
+
+        eps_provider_service.get_drive_times(
+          destinations: {
+            provider.id => {
+              latitude: provider.location['latitude'],
+              longitude: provider.location['longitude']
+            }
+          },
+          origin: {
+            latitude: user_address.latitude,
+            longitude: user_address.longitude
+          }
+        )
       end
     end
   end
