@@ -17,7 +17,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
           claimant: {
             date_of_birth: '1980-12-31',
             relationship: 'Spouse',
-            phone: '5555555555',
+            phone: '555-555-5555', # This is a 10 digit phone number as submitted by the frontend
             email: 'claimant@example.com',
             name: {
               first: 'John',
@@ -40,7 +40,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
             date_of_birth: '1980-12-31',
             service_number: '123456789',
             service_branch: 'ARMY',
-            phone: '5555555555',
+            phone: '555-555-5555', # This is a 10 digit phone number as submitted by the frontend
             email: 'veteran@example.com',
             name: {
               first: 'John',

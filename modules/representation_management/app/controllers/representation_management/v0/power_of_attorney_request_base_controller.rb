@@ -87,7 +87,7 @@ module RepresentationManagement
           claimant_country: country_code,
           claimant_zip_code: address[:zip_code],
           claimant_zip_code_suffix: address[:zip_code_suffix],
-          claimant_phone: claimant[:phone],
+          claimant_phone: claimant[:phone]&.gsub(/\D/, ''),
           claimant_email: claimant[:email]
         }
       end
@@ -110,7 +110,7 @@ module RepresentationManagement
           veteran_country: country_code,
           veteran_zip_code: address[:zip_code],
           veteran_zip_code_suffix: address[:zip_code_suffix],
-          veteran_phone: veteran[:phone],
+          veteran_phone: veteran[:phone]&.gsub(/\D/, ''),
           veteran_email: veteran[:email] }
       end
 
