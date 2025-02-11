@@ -51,7 +51,9 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VRO_URL>') { Settings.virtual_regional_office.url }
   c.filter_sensitive_data('<VRO_API_KEY>') { Settings.virtual_regional_office.api_key }
   c.filter_sensitive_data('<CONTENTION_CLASSIFICATION_API_URL>') { Settings.contention_classification_api.url }
-  c.filter_sensitive_data('<ARP_ALLOW_LIST_ACCESS_TOKEN>') { Settings.accredited_representative_portal.allow_list.github.access_token }
+  c.filter_sensitive_data('<ARP_ALLOW_LIST_ACCESS_TOKEN>') do
+    Settings.accredited_representative_portal.allow_list.github.access_token
+  end
   c.filter_sensitive_data('<ARP_ALLOW_LIST_REPO>') { Settings.accredited_representative_portal.allow_list.github.repo }
   c.filter_sensitive_data('<ARP_ALLOW_LIST_PATH>') { Settings.accredited_representative_portal.allow_list.github.path }
   c.before_record do |i|
