@@ -66,13 +66,13 @@ module AccreditedRepresentativePortal
       where.not(resolution: { resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration' })
     }
 
-    scope :for_user, -> (user) {
+    scope :for_user, lambda { |user|
       for_power_of_attorney_holders(
         user.power_of_attorney_holders
       )
     }
 
-    scope :for_power_of_attorney_holders, -> (poa_holders) {
+    scope :for_power_of_attorney_holders, lambda { |poa_holders|
       names = PowerOfAttorneyHolder::PRIMARY_KEY_ATTRIBUTE_NAMES
       values = poa_holders.map do |poa_holder|
         poa_holder.to_h.values_at(names)
