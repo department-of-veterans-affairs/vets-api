@@ -1102,9 +1102,13 @@ features:
     actor_type: user
     description: Enables/disables pending medications related work
     enable_in_development: true
-  mhv_medications_display_refill_progress:
+  mhv_medicaitons_testing_gouping_list_count_staging:
     actor_type: user
     description: Enables/disables refill progress related work
+    enable_in_development: true
+  mhv_medicaitons_gouping_list_pagination_count:
+    actor_type: user
+    description: Enables/disables grouping list to a shorter count to activate pagination in staging for users with low count of grouped meds
     enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
