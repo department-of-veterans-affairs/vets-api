@@ -140,35 +140,30 @@ module RepresentationManagement
       end
 
       def update_in_progress_form(key, value)
-        return if in_progress_form.nil?
-
-        metadata = in_progress_form_metadata
+        form = InProgressForm.form_for_user('21-22', current_user)
+        return if form.nil?
+      
+        metadata = form.metadata
         metadata['submission'] ||= {}
         metadata['submission']['has_attempted_submit'] = true
-
-        if key == 'status'
-          # Update successful submission
+        metadata['submission'][key] = value
+      
+        if value == 'applicationSubmitted'
+          # Mark the form as successfully submitted.
+          # Removing `saved_at` ensures that the form no longer appears on the "My VA" page.
           metadata.delete('saved_at')
-          metadata['submission']&.delete('error_message')
-          metadata['submission'][key] = value
+      
+          # Clean up submission-related metadata to remove any lingering errors.
+          metadata['submission'].delete('errors')
+          metadata['submission'].delete('error_message')
+      
+          # Prevent the form from being incorrectly displayed as "in progress" or "expired":
+          # - `form_id` is set to a value that is NOT in `prefillsAvailable` (list of valid forms ids on the user object)
+          # - This prevents it from appearing on the "My VA" page and the "Appoint a Representative" introduction page.
+          form.update(status: 1, form_id: "SUBMITTED_2122", metadata: metadata)
         else
-          # Udate failed submission
-          metadata['submission'][key] = if value.is_a?(String)
-                                          value
-                                        else
-                                          value.to_json
-                                        end
+          form.update(metadata: metadata)
         end
-
-        in_progress_form.update(metadata: metadata)
-      end
-
-      def in_progress_form
-        @in_progress_form ||= InProgressForm.form_for_user('21-22', current_user)
-      end
-
-      def in_progress_form_metadata
-        in_progress_form.metadata || {}
       end
 
       def feature_enabled
