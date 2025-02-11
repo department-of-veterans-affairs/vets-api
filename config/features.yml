@@ -333,9 +333,13 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses DataDog's Real User Monitoring logging
     enable_in_development: false
-  cst_suppress_evidence_requests:
+  cst_suppress_evidence_requests_website:
     actor_type: user
-    description: When enabled, CST does not show Attorney Fee, Secondary Action Required, or Stage 2 Development
+    description: When enabled, CST does not show Attorney Fees, Secondary Action Required, or Stage 2 Development on website
+    enable_in_development: false
+  cst_suppress_evidence_requests_mobile:
+    actor_type: user
+    description: When enabled, CST does not show Attorney Fees, Secondary Action Required, or Stage 2 Development on mobile
     enable_in_development: false
   cst_override_pmr_pending_tracked_items:
     actor_type: user
