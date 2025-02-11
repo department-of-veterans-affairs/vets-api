@@ -266,6 +266,54 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
       end
+
+      describe 'when submitting a 2122' do
+        let(:lh_config) { double }
+        let(:attributes) do
+          {
+            veteran: {
+              address: {
+                addressLine1: '936 Gus Points',
+                city: 'Watersborough',
+                countryCode: 'US',
+                stateCode: 'CO',
+                zipCode: '36090'
+              },
+              recordConsent: true,
+              consentLimits: %w[DRUG_ABUSE ALCOHOLISM HIV SICKLE_CELL]
+            },
+            serviceOrganization: {
+              poaCode: '095',
+              registrationNumber: '999999999999'
+            }
+          }
+        end
+        let(:expected_data) { { data: { attributes: } } }
+
+        context 'successful submit' do
+          it 'submits the correct data to lighthouse' do
+            allow(Common::Client::Base).to receive(:configuration).and_return lh_config
+            @service = BenefitsClaims::Service.new('1012666183V089914')
+            expect(lh_config).to receive(:post).with(
+              '1012666183V089914/2122', expected_data, 'lh_client_id', 'key_path', {}
+            )
+            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/202_response.yml') do
+              @service.submit2122(attributes, 'lh_client_id', 'key_path')
+            end
+          end
+        end
+
+        context 'rep does not have poa for veteran' do
+          it 'returns a not_found response' do
+            @service = BenefitsClaims::Service.new('1012666183V089914')
+            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/404_response.yml') do
+              expect do
+                @service.submit2122(attributes, 'lh_client_id', 'key_path')
+              end.to raise_error(Common::Exceptions::ResourceNotFound)
+            end
+          end
+        end
+      end
     end
   end
 end

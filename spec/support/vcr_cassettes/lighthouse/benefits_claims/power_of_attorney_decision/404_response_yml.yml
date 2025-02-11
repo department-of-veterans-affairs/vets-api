@@ -1,0 +1,129 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/oauth2/claims/system/v1/token"
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2ExMXN6M3ByeExhNjU0RzJwOCIsInN1YiI6IjBvYTExc3ozcHJ4TGE2NTRHMnA4IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzZGc3Z3VpczJUWURsRmUycDcvdjEvdG9rZW4iLCJpYXQiOjE3Mzg3NjczNjQsImV4cCI6MTczODc2NzY2NH0.PHGlCQOfDBeqdfTeKnQ8A29GdxguSx46rZFXyaDqdaJmQBQ8njMxVX6OBc0zq5TALU4OZFwvjGFoOfuxvBveN64sVg-Ba3VpKogU_RlL1I6IoT-tAxcySwaAP_NYTuZLnxp1Rke_zn_xC7FxVo2iUF-MCb8teJEG-LeXelbLBN0zdmnzdde5k1_iM8bdARjujiv2AMIcUMs-x0j__v5r2XTwd5-g2wrZ2oCoqNbhmnN7eCgv9EkT9l7v9Sg8h_uvxiPjdFHn_ryOc0wWOxDrFDX_kJ2bcAwZogOgm8zKFlQRiwQhPhyGKQZYkdzW-KApiE5zwUha-XIibVPuAitjdg&scope=system%2Fclaim.read+system%2Fclaim.write+system%2F526-pdf.override+system%2F526.override
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 05 Feb 2025 14:56:05 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Ratelimit-Reset:
+      - '56'
+      X-Ratelimit-Limit-Minute:
+      - '240'
+      X-Ratelimit-Remaining-Minute:
+      - '238'
+      Ratelimit-Limit:
+      - '240'
+      Ratelimit-Remaining:
+      - '238'
+      Vary:
+      - Origin
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Etag:
+      - W/"462-fjZ/8c3uE12ylz+he/Ycl9gvkVM"
+      Access-Control-Allow-Origin:
+      - "*"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"eyJraWQiOiJjd3hWQkcxODBKazd2WXZfNU1IcTUwX2lCSk9ubFM5Z3dtQ1hKd2NlclFjIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULk5qeGt5ZURidGhwdEhfNHlSSndQeW9VSHJEWmZIUW5nWGRfOHRYZ1hzMGsiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNkZzdndWlzMlRZRGxGZTJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2NsYWltcyIsImlhdCI6MTczODc2NzM2NSwiZXhwIjoxNzM4NzY3NjY1LCJjaWQiOiIwb2ExMXN6M3ByeExhNjU0RzJwOCIsInNjcCI6WyJzeXN0ZW0vNTI2Lm92ZXJyaWRlIiwic3lzdGVtLzUyNi1wZGYub3ZlcnJpZGUiLCJzeXN0ZW0vY2xhaW0ud3JpdGUiLCJzeXN0ZW0vY2xhaW0ucmVhZCJdLCJzdWIiOiIwb2ExMXN6M3ByeExhNjU0RzJwOCIsImxhYmVsIjoiV2lsY29yZUhlZHJpY2sifQ.SLaOdk7GC_0kkz3GbuvF2CwtJrMwG9KHk1-_FsIAvDwIVkn6c5HtICoQMbvA0sYurxpTjntmE0Jqjqy8X2H-Wfqpd3U9-jxvxE2Ye1NRt8GG7scV3CBZ8tuquHjm-lQuMEA8mD9ubiTog_EgbZESMJHuTAfK5DyxlrWyatz7EjHUKU--UZxILOQ-aLCD7gCLxTsP4VuQ8hhiExrAT2nIjEtzzya7A788RHN3xpFEuqzkKuABUmI2DNNhCOh7oo6pF-n_GzlUPr199ukoQmj2plCl6aDXInqRPKWB2ILTml22tnlGVMqnBNis6cQgKp96UfsrWDOzwGBJfM3tYcM5qA","token_type":"Bearer","scope":"system/526.override
+        system/526-pdf.override system/claim.write system/claim.read","expires_in":300,"state":null}'
+  recorded_at: Wed, 05 Feb 2025 14:56:05 GMT
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/claims/v2/veterans/1012666183V089914/2122"
+    body:
+      encoding: UTF-8
+      string: '{"data":{"attributes":{"veteran":{"address":{"addressLine1":"87796
+        Kerluke Parks","city":"Carisatown","stateCode":"IA","countryCode":"US","zipCode":"62230"}},"serviceOrganization":{"poaCode":"095","registrationNumber":"1012667145V762142"}}}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Wed, 05 Feb 2025 14:56:06 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      Ratelimit-Limit:
+      - '120'
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Reset:
+      - '55'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Timing-Allow-Origin:
+      - https://sandbox.vets.gov,https://department-of-veterans-affairs.github.io,https://preview.va.gov,http://preview-sandbox.vfs.va.gov
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - bc27e0eacb557da327060489813391971306df46
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 24b25753-1c7d-41bb-a38a-bb51b208a6ac
+      X-Runtime:
+      - '0.223592'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"errors":[{"status":"404","title":"Resource not found","detail":"Could
+        not find an Accredited Representative with registration number: 1012667145V762142
+        and poa code: 095"}]}'
+  recorded_at: Wed, 05 Feb 2025 14:56:06 GMT
+recorded_with: VCR 6.3.1
