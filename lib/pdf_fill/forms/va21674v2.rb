@@ -40,7 +40,7 @@ module PdfFill
             question_text: 'VA FILE NUMBER'
           }
         }, # end veteran_information
-        'dependents_application' => { # Update to remove this key
+        'dependents_application' => {
           'veteran_contact_information' => {
             'phone_number' => {
               'phone_area_code' => {
@@ -96,7 +96,7 @@ module PdfFill
               question_text: 'REMARKS'
             },
             'student_networth_information' => {
-              'savings' => { # Update logic to seperate savings numbers
+              'savings' => {
                 'first' => {
                   key: 'form1[0].#subform[0].StudentSavings_FirstOne[%iterator%]',
                   limit: 1,
@@ -248,7 +248,7 @@ module PdfFill
               }
             },
             'student_expected_earnings_next_year' => {
-              'earnings_from_all_employment' => { # Update - All student information to multiple fields
+              'earnings_from_all_employment' => {
                 'first' => {
                   key: 'form1[0].#subform[0].ExpectedEarningsFromAllEmployment_FirstTwo[0]',
                   limit: 2,
@@ -460,7 +460,7 @@ module PdfFill
                     question_text: 'BEGINNING DATE OF LAST TERM (MM-DD-YYYY)'
                   }
                 },
-                'date_term_ended' => { # Update logic for helper
+                'date_term_ended' => {
                   'month' => {
                     key: 'form1[0].#subform[0].EndDateofLastTerm.month[%iterator%]',
                     limit: 2,
@@ -555,16 +555,9 @@ module PdfFill
                   }
                 }
               },
-              'is_school_accredited' => { # Update logic to change parent key name
+              'is_school_accredited' => {
                 'is_school_accredited_yes' => { key: 'form1[0].#subform[0].YES4[%iterator%]' },
                 'is_school_accredited_no' => { key: 'form1[0].#subform[0].NO4[%iterator%]' }
-              },
-              'date_full_time_ended' => { # QUESTION - what does this map to? We already have date_term_ended and "dateChildLeftSchool": "2020-05-19"
-                key: '',
-                limit: '',
-                question_num: '',
-                question_suffix: '',
-                question_text: ''
               },
               'student_is_enrolled_full_time' => {
                 'full_time_yes' => { key: 'form1[0].#subform[0].YES2[%iterator%]' },
@@ -582,22 +575,22 @@ module PdfFill
                 'did_attend_no' => { key: 'form1[0].#subform[0].NO3[%iterator%]' }
               }
             },
-            'type_of_program_or_benefit' => { # Update, need a check to make sure the right program is added to this field
+            'type_of_program_or_benefit' => {
               key: 'form1[0].#subform[0].TypeOfProgramOrBenefit[%iterator%]',
               limit: 50,
               question_num: 9,
               question_suffix: 'B',
               question_text: 'Type of Program or Benefit'
             },
-            'tuition_is_paid_by_gov_agency' => { # Update logic for new key name
+            'tuition_is_paid_by_gov_agency' => {
               'is_paid_yes' => { key: 'form1[0].#subform[0].YES1[%iterator%]' },
               'is_paid_no' => { key: 'form1[0].#subform[0].NO1[%iterator%]' }
             },
-            'was_married' => { # Update logic for new key name
+            'was_married' => {
               'was_married_yes' => { key: 'form1[0].#subform[0].YES[%iterator%]' },
               'was_married_no' => { key: 'form1[0].#subform[0].NO[%iterator%]' }
             },
-            'address' => { # Update logic to remap fields - street, postalCode address_line1 = street
+            'address' => {
               'street' => {
                 key: 'form1[0].#subform[0].AddressofStudentStreet[%iterator%]',
                 limit: 30,
@@ -643,7 +636,7 @@ module PdfFill
                 }
               }
             },
-            'ssn' => { # Update logic to change parent key
+            'ssn' => {
               'first' => {
                 key: 'form1[0].#subform[0].StudentSsn_FirstThree[%iterator%]',
                 limit: 3,
@@ -689,7 +682,7 @@ module PdfFill
                 question_text: 'STUDENT\'S NAME'
               }
             },
-            'birth_date' => { # Update logic in helper
+            'birth_date' => {
               'month' => {
                 key: 'form1[0].#subform[0].Student_DOB.month[%iterator%]',
                 limit: 2,
@@ -712,7 +705,7 @@ module PdfFill
                 question_text: 'STUDENT\'S IDENTIFICATION INFORMATION > DATE OF BIRTH (MM-DD-YYYY)'
               }
             },
-            'benefit_payment_date' => { # Update logic, previously date_payments_began
+            'benefit_payment_date' => {
               'month' => {
                 key: 'form1[0].#subform[0].DatePaymentsBegan.month[%iterator%]',
                 limit: 2,
@@ -736,7 +729,7 @@ module PdfFill
               }
             }
           }, # end of student information
-          'child_marriage' => { # Update helper to get childMarriage > dateMarried. Child marriage is top level of the payload
+          'child_marriage' => {
             limit: 4,
             first_key: 'month',
             'month' => {
@@ -837,14 +830,6 @@ module PdfFill
       # rubocop:disable Metrics/MethodLength
       def merge_dates
         dependents_application = @form_data['dependents_application']
-        # student_information = dependents_application['student_information']
-        # puts @form_data.keys if @form_data
-        # puts @form_data['dependents_application'].keys if @form_data['dependents_application']
-        # puts @form_data['dependents_application']['student_information'].class if @form_data.dig('dependents_application', 'student_information')
-        # puts "student_information class: #{student_information.class}"
-        # school information is a child of student information
-        # student_information = @form_data['dependents_application']['student_information'].first
-
         students_information = @form_data['dependents_application']['student_information']
         if students_information.present?
           students_information.each do |student_information|
@@ -873,34 +858,6 @@ module PdfFill
             end
           end
         end
-        
-        # school_information = student_information['school_information']
-        # current_term_dates = school_information['current_term_dates']
-        # last_term_school_information = school_information['last_term_school_information']
-
-        # student_information['birth_date'] =
-        #   split_date(student_information['birth_date'])
-
-        # if last_term_school_information.present?
-        #   last_term_school_information['term_begin'] = split_date(last_term_school_information['term_begin'])
-        #   last_term_school_information['date_term_ended'] = split_date(last_term_school_information['date_term_ended'])
-        # end
-
-        # if current_term_dates.present?
-        #   current_term_dates['official_school_start_date'] =
-        #     split_date(current_term_dates['official_school_start_date'])
-        #   current_term_dates['expected_student_start_date'] =
-        #     split_date(current_term_dates['expected_student_start_date'])
-        #   current_term_dates['expected_graduation_date'] = split_date(current_term_dates['expected_graduation_date'])
-        # end
-
-        # handle old format of fields before merging in front end, remove once merged
-        # if student_information['benefit_payment_date'].present?
-        #   benefit_payment_date = student_information['benefit_payment_date']
-        #   student_information['benefit_payment_date'] = split_date(benefit_payment_date)
-        # end
-
-        # child_stopped_attending_school = dependents_application['child_stopped_attending_school'].first
 
         child_stopped_attending_school = @form_data['dependents_application']['child_stopped_attending_school']
         if child_stopped_attending_school.present?
@@ -911,10 +868,6 @@ module PdfFill
           end
         end
 
-        # child_stopped_attending_school['birth_date'] = split_date(child_stopped_attending_school['birth_date'])
-        #   child_stopped_attending_school['date_child_left_school'] =
-        #     split_date(child_stopped_attending_school['date_child_left_school'])
-
         child_marriages = @form_data['dependents_application']['child_marriage']
         if child_marriages.present?
           child_marriages.each do |child_marriage|
@@ -922,18 +875,6 @@ module PdfFill
               split_date(child_marriage['date_married'])
           end
         end
-
-        # child_marriage = dependents_application['child_marriage'].first
-
-        # if child_marriage.present?
-        #   child_marriage['date_married'] =
-        #     split_date(child_marriage['date_married'])
-        # end
-
-        # if agency_or_program.present?
-        #   agency_or_program['date_payments_began'] =
-        #     split_date(agency_or_program['date_payments_began'])
-        # end
       end
       # rubocop:enable Metrics/MethodLength
 
@@ -974,43 +915,16 @@ module PdfFill
               end
             end
           end
-          
-
-        # student_information = dependents_application['student_information'].first
-        # extract_middle_i(student_information, 'full_name')
-        # student_information['ssn'] =
-        #   split_ssn(student_information['ssn'])
-
-        # student_information['address']['postal_code'] =
-        #   split_postal_code(student_information['address'])
-        # student_information['address']['country'] =
-        #   extract_country(student_information['address'])
-
-        # student_expected_earnings = student_information['student_expected_earnings_next_year']
-        # student_earnings = student_information['student_earnings_from_school_year']
-        # student_networth = student_information['student_networth_information']
-
-        # if student_expected_earnings.present?
-        #   split_earnings(student_expected_earnings)
-        # end
-
-        # if student_earnings.present?
-        #   split_earnings(student_earnings)
-        # end
-
-        # if student_networth.present?
-        #   split_networth_information(student_networth)
-        # end
 
         format_checkboxes(dependents_application)
       end
 
       # override from form_helper
-      def select_checkbox(value) # change nil back to Off
+      def select_checkbox(value)
         value ? 'On' : nil
       end
 
-      def select_radio_button(value) # delete
+      def select_radio_button(value)
         value ? 0 : nil
       end
 
@@ -1075,36 +989,6 @@ module PdfFill
 
       # rubocop:disable Metrics/MethodLength
       def format_checkboxes(dependents_application)
-        # deaths = @form_data['dependents_application']['deaths']
-        # return if deaths.blank?
-
-        # deaths.each do |death|
-        #   # extract middle initial
-        #   death['full_name'] = extract_middle_i(death, 'full_name')
-
-        #   # extract date
-        #   death['date'] = split_date(death['date'])
-
-        #   # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
-        #   death['location']['country'] = extract_country(death['location'])
-
-        #   # expand dependent type
-        #   dependent_type = death['dependent_type']
-        #   if dependent_type == 'CHILD'
-        #     # ex. "dependent_type":"CHILD","child_status":{"child_under18":true,"step_child":true}
-        #     dependent_type = death['child_status']
-        #   end
-        #   death['dependent_type'] = {
-        #     'spouse' => select_radio_button(dependent_type == 'SPOUSE'),
-        #     'minor_child' => select_radio_button(dependent_type['child_under18']),
-        #     'stepchild' => select_radio_button(dependent_type['step_child']),
-        #     'adopted' => select_radio_button(dependent_type['adopted']),
-        #     'dependent_parent' => select_radio_button(dependent_type == 'DEPENDENT_PARENT'),
-        #     'child_incapable_self_support' => select_radio_button(dependent_type['disabled']),
-        #     '18_23_years_old_in_school' => select_radio_button(dependent_type['child_over18_in_school'])
-        #   }
-        # end
-
         students_information = @form_data['dependents_application']['student_information']
         if students_information.present?
           students_information.each do |student_information|
@@ -1139,37 +1023,6 @@ module PdfFill
             }
           end
         end
-
-        # student_information = dependents_application['student_information'].first
-        # was_married = student_information['was_married']
-        # student_information['was_married'] = {
-        #   'was_married_yes' => select_checkbox(was_married),
-        #   'was_married_no' => select_checkbox(!was_married)
-        # }
-
-        # is_paid = student_information['tuition_is_paid_by_gov_agency']
-        # student_information['tuition_is_paid_by_gov_agency'] = {
-        #   'is_paid_yes' => select_checkbox(is_paid),
-        #   'is_paid_no' => select_checkbox(!is_paid)
-        # }
-
-        # is_full_time = student_information['school_information']['student_is_enrolled_full_time']
-        # student_information['school_information']['student_is_enrolled_full_time'] = {
-        #   'full_time_yes' => select_checkbox(is_full_time),
-        #   'full_time_no' => select_checkbox(!is_full_time)
-        # }
-
-        # did_attend = student_information['school_information']['student_did_attend_school_last_term']
-        # student_information['school_information']['student_did_attend_school_last_term'] = {
-        #   'did_attend_yes' => select_checkbox(did_attend),
-        #   'did_attend_no' => select_checkbox(!did_attend)
-        # }
-
-        # is_school_accredited = student_information['school_information']['is_school_accredited']
-        # student_information['school_information']['is_school_accredited'] = {
-        #   'is_school_accredited_yes' => select_radio_button(is_school_accredited),
-        #   'is_school_accredited_no' => select_radio_button(!is_school_accredited)
-        # }
       end
       # rubocop:enable Metrics/MethodLength
     end
