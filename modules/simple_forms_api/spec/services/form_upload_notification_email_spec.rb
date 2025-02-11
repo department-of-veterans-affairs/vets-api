@@ -92,9 +92,40 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
   end
 
   describe '#send' do
+    let(:template_id) { Settings.vanotify.services.va_gov.template_id.form_upload_confirmation_email }
+    let(:form_number) { '21-0779' }
+    let(:notification_type) { :confirmation }
+    let(:confirmation_number) { 'confirmation-number' }
+    let(:statsd_tags) do
+      {
+        'service' => 'veteran-facing-forms',
+        'function' => "#{form_number} form upload submission to Lighthouse"
+      }
+    end
     let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
+    let(:email) { 'fake@email.com' }
+    let(:full_name) { { first: 'fake', last: 'name' } }
+    let(:form_name) { 'fake-form' }
+    let(:form_data) do
+      { email:, full_name:, form_name: }
+    end
+    let(:expected_personalization) do
+      {
+        'first_name' => full_name[:first].titleize,
+        'form_number' => form_number,
+        'form_name' => form_name,
+        'date_submitted' => date_submitted,
+        'confirmation_number' => confirmation_number
+      }
+    end
+    let(:email_args) do
+      [
+        Settings.vanotify.services.va_gov.api_key,
+        { callback_metadata: { notification_type:, form_number:, confirmation_number:, statsd_tags: } }
+      ]
+    end
     let(:config) do
-      { form_number: '21-0779', form_data: {}, confirmation_number: 'confirmation-number', date_submitted: }
+      { form_number:, form_data:, confirmation_number:, date_submitted: }
     end
 
     context 'send at time is not specified' do
@@ -105,7 +136,12 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
 
         subject.send
 
-        expect(VANotify::EmailJob).to have_received(:perform_async)
+        expect(VANotify::EmailJob).to have_received(:perform_async).with(
+          email,
+          template_id,
+          expected_personalization,
+          *email_args
+        )
       end
     end
 
@@ -118,8 +154,13 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
 
         subject.send(at: time)
 
-        expect(VANotify::EmailJob).to have_received(:perform_at).with(time, anything, anything, anything, anything,
-                                                                      anything)
+        expect(VANotify::EmailJob).to have_received(:perform_at).with(
+          time,
+          email,
+          template_id,
+          expected_personalization,
+          *email_args
+        )
       end
     end
   end
