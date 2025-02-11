@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<GIDS_URL>/v1/lcpe/exams/1@acce9"
+    uri: "<GIDS_URL>/v1/lcpe/exams"
     body:
       encoding: US-ASCII
       string: ''
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       If-None-Match:
-      - '3'
+      - '0'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -23,7 +23,7 @@ http_interactions:
       message: Internal Server Error
     headers:
       Date:
-      - Tue, 11 Feb 2025 19:25:13 GMT
+      - Tue, 11 Feb 2025 19:13:21 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
@@ -31,7 +31,7 @@ http_interactions:
       Cache-Control:
       - no-store
       Expires:
-      - 2024-02-11 19:25:13 UTC
+      - 2024-02-11 19:13:21 UTC
       Pragma:
       - no-cache
       X-Content-Type-Options:
@@ -40,9 +40,9 @@ http_interactions:
       - SAMEORIGIN
       - SAMEORIGIN
       X-Request-Id:
-      - 616184dd-176a-4f6b-aa4d-f808251a016e
+      - f3b720cf-7e64-4d62-853d-63a2fa2903af
       X-Runtime:
-      - '0.102782'
+      - '0.144473'
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       Transfer-Encoding:
@@ -51,5 +51,5 @@ http_interactions:
       encoding: UTF-8
       string: '{"errors":[{"title":"Internal server error","detail":"Internal server
         error","code":"500","status":"500"}]}'
-  recorded_at: Tue, 11 Feb 2025 19:25:13 GMT
+  recorded_at: Tue, 11 Feb 2025 19:13:21 GMT
 recorded_with: VCR 6.3.1

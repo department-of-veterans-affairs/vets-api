@@ -14,6 +14,7 @@ module GI
       def initialize(version_id: nil, lcpe_type: nil)
         @v_client = version_id
         @redis_key = lcpe_type
+        config.allow_304 = versioning_enabled?
         super()
       end
 
@@ -50,7 +51,7 @@ module GI
       end
 
       def lcpe_cache
-        @lcpe_cache ||= LCPERedis.new(lcpe_type: redis_key, v_client:)
+        @lcpe_cache ||= LCPERedis.new(lcpe_type: redis_key)
       end
 
       # query GIDS with cache version if more recent than client version
@@ -84,7 +85,7 @@ module GI
       # default to GI::Client#gids_response if versioning not enabled
       def lcpe_response(response)
         if versioning_enabled?
-          lcpe_cache.fresh_version_from(response)
+          lcpe_cache.fresh_version_from(gids_response: response, v_client:)
         else
           gids_response(response)
         end

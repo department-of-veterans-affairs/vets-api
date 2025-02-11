@@ -20,7 +20,7 @@ module V1
       end
 
       def version_id
-        request.headers['If-None-Match'] || params[:version]
+        request.headers['If-None-Match']&.to_s || params[:version]
       end
 
       def set_etag(version)

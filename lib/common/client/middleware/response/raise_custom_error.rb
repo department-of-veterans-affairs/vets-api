@@ -7,11 +7,12 @@ module Common
         class BackendUnhandledException < StandardError; end
 
         class RaiseCustomError < Faraday::Middleware
-          attr_reader :error_prefix, :body, :status
+          attr_reader :error_prefix, :body, :status, :allow_304
 
           def initialize(app, options = {})
             # set the error prefix to something like 'RX' or 'SM'
             @error_prefix = options[:error_prefix] || 'VA'
+            @allow_304 = options[:allow_304] || false
             super(app)
           end
 
@@ -20,7 +21,7 @@ module Common
 
             @body = env[:body]
             @status = env.status.to_i
-            raise_error!
+            raise_error! unless successful_304?
           end
 
           private
@@ -48,6 +49,10 @@ module Common
               code: service_i18n_key,
               source: body['source']
             }
+          end
+
+          def successful_304?
+            allow_304 && status == 304
           end
         end
       end

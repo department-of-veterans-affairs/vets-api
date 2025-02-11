@@ -8,6 +8,8 @@ require 'common/client/middleware/response/snakecase'
 
 module GI
   class Configuration < Common::Client::Configuration::REST
+    attr_accessor :allow_304
+
     self.read_timeout = Settings.gids.read_timeout || 1
     self.open_timeout = Settings.gids.open_timeout || 1
 
@@ -28,7 +30,7 @@ module GI
 
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
         conn.response :snakecase
-        conn.response :raise_custom_error, error_prefix: service_name
+        conn.response :raise_custom_error, error_prefix: service_name, allow_304: allow_304
         conn.response :gids_errors
         conn.response :json_parser
 

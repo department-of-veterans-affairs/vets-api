@@ -9,42 +9,44 @@ class LCPERedis < Common::RedisStore
 
   redis_config_key :lcpe_response
 
-  attr_reader :lcpe_type, :v_client, :cached
+  attr_reader :lcpe_type
 
   class ClientCacheStaleError < StandardError; end
 
-  def initialize(*, lcpe_type: nil, v_client: nil)
+  def initialize(*, lcpe_type: nil)
     @lcpe_type = lcpe_type
-    @v_client = v_client
-    @cached = self.class.find(lcpe_type)
     super(*)
   end
+''
+  def fresh_version_from(gids_response:, v_client:)
+    v_fresh = gids_response.response_headers['Etag'].to_i
 
-  def fresh_version_from(response)
-    v_fresh = response.response_headers['Etag']
-
-    case response.status
+    case gids_response.status
     when 304
       # Forward 304 response from GIDS if client version fresh, otherwise send fresh version from cache
-      v_client == v_fresh ? GI::LCPE::Response.from(response) : cached.response
+      v_client.to_i == v_fresh ? gids_response : cached_response
     else
       # Refresh cache with latest version from GIDS
       invalidate_cache
       do_cached_with(key: lcpe_type) do
-        GI::LCPE::Response.from(response)
+        GI::LCPE::Response.from(gids_response)
       end
     end
   end
 
-  def force_client_refresh_and_cache(response)
-    v_fresh = response.response_headers['Etag']
+  def force_client_refresh_and_cache(gids_response)
+    v_fresh = gids_response.response_headers['Etag']
     # no need to cache if vets-api cache already has fresh version
-    cache(lcpe_type, GI::LCPE::Response.from(response)) unless v_fresh == cached_version
+    cache(lcpe_type, GI::LCPE::Response.from(gids_response)) unless v_fresh == cached_version
     raise ClientCacheStaleError
   end
 
+  def cached_response
+    self.class.find(lcpe_type)&.response
+  end
+
   def cached_version
-    cached&.response&.version
+    cached_response&.version
   end
 
   private
