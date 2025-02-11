@@ -108,10 +108,10 @@ RSpec.describe 'Mobile::V0::Letters', type: :request do
     end
 
     context 'with a valid evss response' do
-      context 'when :cst_hide_service_verification_letter is enabled' do
+      context 'when :letters_hide_service_verification_letter is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_hide_service_verification_letter).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:letters_hide_service_verification_letter).and_return(true)
         end
 
         it 'excludes service_verification and matches the letters schema' do
@@ -124,10 +124,10 @@ RSpec.describe 'Mobile::V0::Letters', type: :request do
         end
       end
 
-      context 'when :cst_hide_service_verification_letter is disabled' do
+      context 'when :letters_hide_service_verification_letter is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_hide_service_verification_letter).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:letters_hide_service_verification_letter).and_return(false)
         end
 
         it 'does not exclude service_verification and matches the letters schema' do

@@ -11,10 +11,10 @@ describe EVSS::Letters::Service do
 
     describe '#get_letters' do
       context 'with a valid evss response' do
-        context 'when :cst_hide_service_verification_letter is enabled' do
+        context 'when :letters_hide_service_verification_letter is enabled' do
           before do
             allow(Flipper).to receive(:enabled?).and_call_original
-            allow(Flipper).to receive(:enabled?).with(:cst_hide_service_verification_letter).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:letters_hide_service_verification_letter).and_return(true)
           end
 
           it 'excludes the service_verification letter and returns a letters response object' do
@@ -34,10 +34,10 @@ describe EVSS::Letters::Service do
           end
         end
 
-        context 'when :cst_hide_service_verification_letter is disabled' do
+        context 'when :letters_hide_service_verification_letter is disabled' do
           before do
             allow(Flipper).to receive(:enabled?).and_call_original
-            allow(Flipper).to receive(:enabled?).with(:cst_hide_service_verification_letter).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:letters_hide_service_verification_letter).and_return(false)
           end
 
           it 'returns a letters response object' do

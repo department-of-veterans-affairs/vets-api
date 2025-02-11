@@ -29,10 +29,10 @@ RSpec.describe V0::LettersDiscrepancyController, type: :controller do
     end
 
     context 'does log the differences between the services' do
-      context 'when :cst_hide_service_verification_letter is enabled' do
+      context 'when :letters_hide_service_verification_letter is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_hide_service_verification_letter).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:letters_hide_service_verification_letter).and_return(true)
         end
 
         it 'when Lighthouse returns more letters than EVSS' do
@@ -100,10 +100,10 @@ RSpec.describe V0::LettersDiscrepancyController, type: :controller do
         end
       end
 
-      context 'when :cst_hide_service_verification_letter is disabled' do
+      context 'when :letters_hide_service_verification_letter is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_hide_service_verification_letter).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:letters_hide_service_verification_letter).and_return(false)
         end
 
         it 'when Lighthouse returns more letters than EVSS' do

@@ -93,7 +93,7 @@ module Lighthouse
           proof_of_service
           service_verification
         ]
-        list = list.excluding('service_verification') if Flipper.enabled?(:cst_hide_service_verification_letter)
+        list = list.excluding('service_verification') if Flipper.enabled?(:letters_hide_service_verification_letter)
         list.to_set.freeze
       end
 

@@ -33,7 +33,7 @@ module EVSS
         with_monitoring do
           raw_response = perform(:get, '')
           response = EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
-          if Flipper.enabled?(:cst_hide_service_verification_letter)
+          if Flipper.enabled?(:letters_hide_service_verification_letter)
             response.letters.reject! do |l|
               l.letter_type == 'service_verification'
             end
