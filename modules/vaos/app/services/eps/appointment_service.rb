@@ -41,17 +41,17 @@ module Eps
 
       # Get all appointments and check for existing ones with this referral ID
       existing_appointments = get_appointments
-      if existing_appointments.respond_to?(:each)
-        existing_appointment = existing_appointments.find do |appt|
-          appt.referral_id == referral_id &&
-            %w[cancelled no-show].exclude?(appt.status&.downcase)
-        end
+      appointments = existing_appointments&.appointments || []
 
-        if existing_appointment
-          raise Common::Exceptions::ValidationErrors.new(
-            detail: "An active appointment already exists for referral #{referral_id}"
-          )
-        end
+      existing_appointment = appointments.find do |appt|
+        appt.referral_id == referral_id &&
+          %w[cancelled no-show].exclude?(appt.status&.downcase)
+      end
+
+      if existing_appointment
+        raise Common::Exceptions::ValidationErrors.new(
+          detail: "An active appointment already exists for referral #{referral_id}"
+        )
       end
 
       response = perform(:post, "/#{config.base_path}/appointments",
