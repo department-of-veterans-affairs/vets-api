@@ -31,12 +31,12 @@ module TravelPay
     # appointments: [VAOS::Appointment + travelPayClaim]
 
     def associate_appointments_to_claims(params = {})
-      validate_date_params(params['start_date'], params['end_date'])
+      date_range = try_parse_date_range(params['start_date'], params['end_date'])
+      date_range = date_range.transform_values { |t| strip_timezone(t).iso8601 }
 
       auth_manager.authorize => { veis_token:, btsss_token: }
-      faraday_response = client.get_claims_by_date(veis_token, btsss_token,
-                                                   { 'start_date' => params['start_date'],
-                                                     'end_date' => params['end_date'] })
+      faraday_response = client.get_claims_by_date(veis_token, btsss_token, date_range)
+
       if faraday_response.status == 200
         raw_claims = faraday_response.body['data'].deep_dup
 
@@ -59,11 +59,11 @@ module TravelPay
       appt = params['appointment']
       # Because we only receive a single date/time but the external endpoint requires 2 dates
       # in this case both start and end dates are the same
-      validate_date_params(appt[:start], appt[:start])
+      date_range = try_parse_date_range(appt[:local_start_time], appt[:local_start_time])
+      date_range = date_range.transform_values { |t| strip_timezone(t).iso8601 }
 
       auth_manager.authorize => { veis_token:, btsss_token: }
-      faraday_response = client.get_claims_by_date(veis_token, btsss_token,
-                                                   { 'start_date' => appt[:start], 'end_date' => appt[:start] })
+      faraday_response = client.get_claims_by_date(veis_token, btsss_token, date_range)
 
       claim_data = faraday_response.body['data']&.dig(0)
 
@@ -84,7 +84,7 @@ module TravelPay
     private
 
     def rescue_errors(e) # rubocop:disable Metrics/MethodLength
-      if e.is_a?(ArgumentError)
+      if e.is_a?(ArgumentError) || e.is_a?(InvalidComparableError)
         Rails.logger.error(message: e.message.to_s)
         {
           'status' => 400,
@@ -112,8 +112,20 @@ module TravelPay
       appointments = []
       appts.each do |appt|
         claims.each do |cl|
-          if !cl['appointmentDateTime'].nil? && !appt[:start].nil? &&
-             (DateTime.parse(cl['appointmentDateTime']).to_s == DateTime.parse(appt[:start]).to_s)
+          begin
+            claim_time = try_parse_date(cl['appointmentDateTime'])
+            appt_time = strip_timezone(appt[:local_start_time])
+          rescue InvalidComparableError
+            Rails.logger.warn(message: "Cannot compare start times. Claim Time: #{claim_time} | Appt Time: #{appt_time}")
+
+            appt['travelPayClaim'] = {
+              'metadata' => metadata
+            }
+
+            break
+          end
+
+          if claim_time.eql? appt_time
             appt['travelPayClaim'] = {
               'metadata' => metadata,
               'claim' => cl
@@ -147,16 +159,31 @@ module TravelPay
         'message' => faraday_response_body['message'] }
     end
 
-    def validate_date_params(start_date, end_date)
-      if start_date && end_date
-        DateTime.parse(start_date.to_s) && DateTime.parse(end_date.to_s)
-      else
+    def strip_timezone(time)
+      # take the time and parse it as a Time object if necessary
+      # convert it to an array of its parts - zone will be nil
+      # create a new time with those parts, using the nil timezone
+      Time.utc(*try_parse_date(time).to_a)
+    end
+
+    def try_parse_date(datetime)
+      raise InvalidComparableError.new('Provided datetime is nil.', datetime) if datetime.nil?
+
+      return datetime.to_time if datetime.is_a?(Time) || datetime.is_a?(Date)
+
+      Time.zone.parse(datetime) if datetime.is_a? String
+    rescue ArgumentError => e
+      raise ArgumentError,
+            message: "#{e}. Invalid date provided (given: #{datetime})."
+    end
+
+    def try_parse_date_range(start_date, end_date)
+      unless start_date && end_date
         raise ArgumentError,
               message: "Both start and end dates are required, got #{start_date}-#{end_date}."
       end
-    rescue Date::Error => e
-      raise ArgumentError,
-            message: "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date})."
+
+      { start_date: try_parse_date(start_date), end_date: try_parse_date(end_date) }
     end
 
     def auth_manager

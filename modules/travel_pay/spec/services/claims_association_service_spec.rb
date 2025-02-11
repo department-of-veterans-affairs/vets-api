@@ -63,6 +63,7 @@ describe TravelPay::ClaimAssociationService do
           locationId: '983',
           clinic: '1081',
           start: '2024-10-17T09:00:00Z',
+          local_start_time: '2024-10-17T09:00:00Z',
           cancellable: false
         },
         {
@@ -72,6 +73,7 @@ describe TravelPay::ClaimAssociationService do
           locationId: '983',
           clinic: '621',
           start: '2021-05-20T14:10:00Z',
+          local_start_time: '2021-05-20T14:10:00Z',
           end: '2021-05-20T14:20:00Z',
           minutesDuration: 10,
           slot: { 'id' => '3230323130353230313431303A323032313035323031343230',
@@ -87,6 +89,7 @@ describe TravelPay::ClaimAssociationService do
           locationId: '983',
           clinic: '408',
           start: '2021-06-02T16:00:00Z',
+          local_start_time: '2021-06-02T16:00:00Z',
           cancellable: false
         }
       ]
@@ -113,8 +116,8 @@ describe TravelPay::ClaimAssociationService do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token],
-              { 'start_date' => '2024-10-17T09:00:00Z',
-                'end_date' => '2024-12-15T16:45:00Z' })
+              { start_date: '2024-10-17T09:00:00Z',
+                end_date: '2024-12-15T16:45:00Z' })
         .and_return(claims_success_response)
 
       association_service = TravelPay::ClaimAssociationService.new(user)
@@ -140,8 +143,8 @@ describe TravelPay::ClaimAssociationService do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token],
-              { 'start_date' => '2024-10-17T09:00:00Z',
-                'end_date' => '2024-12-15T16:45:00Z' })
+              { start_date: '2024-10-17T09:00:00Z',
+                end_date: '2024-12-15T16:45:00Z' })
         .and_raise(Common::Exceptions::BackendServiceException.new(
                      'VA900',
                      { source: 'test' },
@@ -203,11 +206,10 @@ describe TravelPay::ClaimAssociationService do
       appts = association_service.associate_appointments_to_claims({ 'appointments' => appointments,
                                                                      'start_date' => '2024-10-17T09:00:00Z',
                                                                      'end_date' => 'banana' })
-
       appts.each do |appt|
         expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
         expect(appt['travelPayClaim']['metadata']['success']).to be(false)
-        expect(appt['travelPayClaim']['metadata']['message']).to include(/invalid date/i)
+        expect(appt['travelPayClaim']['metadata']['message']).to include(/datetime is nil./i)
       end
     end
   end
@@ -261,6 +263,7 @@ describe TravelPay::ClaimAssociationService do
         locationId: '983',
         clinic: '1081',
         start: '2024-01-01T16:45:34Z',
+        local_start_time: '2024-01-01T16:45:34Z',
         cancellable: false
       }
     end
@@ -274,6 +277,7 @@ describe TravelPay::ClaimAssociationService do
         locationId: '983',
         clinic: '1081',
         start: 'banana',
+        local_start_time: 'banana, but with a timezone',
         cancellable: false
       }
     end
@@ -290,8 +294,8 @@ describe TravelPay::ClaimAssociationService do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token],
-              { 'start_date' => '2024-01-01T16:45:34Z',
-                'end_date' => '2024-01-01T16:45:34Z' })
+              { start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-01-01T16:45:34Z' })
         .and_return(single_claim_success_response)
 
       association_service = TravelPay::ClaimAssociationService.new(user)
@@ -309,8 +313,8 @@ describe TravelPay::ClaimAssociationService do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token],
-              { 'start_date' => '2024-01-01T16:45:34Z',
-                'end_date' => '2024-01-01T16:45:34Z' })
+              { start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-01-01T16:45:34Z' })
         .and_return(no_claim_data_success)
 
       association_service = TravelPay::ClaimAssociationService.new(user)
@@ -328,8 +332,8 @@ describe TravelPay::ClaimAssociationService do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token],
-              { 'start_date' => '2024-01-01T16:45:34Z',
-                'end_date' => '2024-01-01T16:45:34Z' })
+              { start_date: '2024-01-01T16:45:34Z',
+                end_date: '2024-01-01T16:45:34Z' })
         .and_raise(Common::Exceptions::BackendServiceException.new(
                      'VA900',
                      { source: 'test' },
@@ -373,10 +377,9 @@ describe TravelPay::ClaimAssociationService do
       appt = association_service.associate_single_appointment_to_claim({
                                                                          'appointment' => single_appt_invalid
                                                                        })
-
       expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
       expect(appt['travelPayClaim']['metadata']['success']).to be(false)
-      expect(appt['travelPayClaim']['metadata']['message']).to include(/invalid date/i)
+      expect(appt['travelPayClaim']['metadata']['message']).to include(/datetime is nil./i)
     end
   end
 end

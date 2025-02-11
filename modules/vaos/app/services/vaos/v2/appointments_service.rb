@@ -53,11 +53,11 @@ module VAOS
             cnp_count += 1 if cnp?(appt)
           end
 
+          appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
+
           if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
             appointments = merge_all_travel_claims(start_date, end_date, appointments)
           end
-
-          appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
 
           if Flipper.enabled?(:appointments_consolidation, user)
             filterer = AppointmentsPresentationFilter.new
