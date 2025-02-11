@@ -6,6 +6,6 @@ class AddEventTypeToUserActionEvents < ActiveRecord::Migration[7.2]
     add_column :user_action_events, :slug, :string
 
     add_index :user_action_events, :event_type, algorithm: :concurrently
-    add_index :user_action_events, :slug, algorithm: :concurrently
+    add_index :user_action_events, :slug, unique: true, algorithm: :concurrently
   end
 end 

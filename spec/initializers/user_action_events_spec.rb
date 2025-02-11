@@ -2,9 +2,12 @@
 
 require 'rails_helper'
 
-RSpec.describe 'UserActionEvents initializer' do
-  before(:each) do
-    UserActionEvent.destroy_all  # Clean between tests
+RSpec.describe UserActionEvents do
+  before do
+    UserActionEvent.destroy_all
+    allow(YAML).to receive(:load_file).and_return(yaml_config)
+    allow(UserActionEvents::YamlValidator).to receive(:validate!).with(yaml_config)
+    # Clean between tests
   end
 
   before(:all) do
@@ -24,13 +27,8 @@ RSpec.describe 'UserActionEvents initializer' do
     }
   end
 
-  before do
-    allow(YAML).to receive(:load_file).and_return(yaml_config)
-    allow(UserActionEvents::YamlValidator).to receive(:validate!).with(yaml_config)
-  end
-
   it 'creates user action events from yaml config' do
-    load Rails.root.join('config/initializers/user_action_events.rb')
+    UserActionEvents.setup
 
     user_login = UserActionEvent.find_by(slug: 'user_login')
     expect(user_login).to have_attributes(
@@ -47,13 +45,13 @@ RSpec.describe 'UserActionEvents initializer' do
 
   it 'updates existing events if they already exist' do
     existing_event = create(:user_action_event,
-                          slug: 'user_login',
-                          event_type: 'authentication',
-                          details: 'Old description')
+                            slug: 'user_login',
+                            event_type: 'authentication',
+                            details: 'Old description')
 
-    load Rails.root.join('config/initializers/user_action_events.rb')
+    UserActionEvents.setup
 
     existing_event.reload
     expect(existing_event.details).to eq('Old description')
   end
-end 
+end

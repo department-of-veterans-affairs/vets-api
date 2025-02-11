@@ -23,7 +23,7 @@ module UserActionEvents
 
     def validate_event!(slug, event_config)
       raise "Invalid event config for #{slug}" unless event_config.is_a?(Hash)
-      
+
       REQUIRED_KEYS.each do |key|
         raise "Missing required key '#{key}' for event #{slug}" unless event_config.key?(key)
       end
@@ -33,4 +33,4 @@ module UserActionEvents
       end
     end
   end
-end 
+end

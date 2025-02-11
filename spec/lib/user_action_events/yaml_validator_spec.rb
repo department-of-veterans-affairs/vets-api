@@ -50,4 +50,4 @@ RSpec.describe UserActionEvents::YamlValidator do
       end
     end
   end
-end 
+end
