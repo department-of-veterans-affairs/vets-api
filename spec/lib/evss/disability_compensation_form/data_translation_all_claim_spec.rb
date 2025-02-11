@@ -461,6 +461,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
     context 'when the banking info is redacted' do
       let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
+
       it 'gathers the banking info from the PPIU service' do
         VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
           expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
@@ -475,6 +476,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
     context 'when not provided banking info' do
       let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
+
       context 'and the PPIU service has the account info' do
         it 'gathers the banking info from the PPIU service' do
           VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
