@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-# rubocop:disable Rails/I18nLocaleTexts
 module AccreditedRepresentativePortal
   class UserAccountAccreditedIndividual < ApplicationRecord
-    enum power_of_attorney_holder_type: {
-      veteran_service_organization: 'veteran_service_organization'
-      # Future supported types (commented for documentation):
+    enum :power_of_attorney_holder_type, {
+      ##
+      # Future supported types:
       # attorney: 'attorney',
       # claims_agent: 'claims_agent',
-    }
+      #
+      veteran_service_organization: 'veteran_service_organization'
+    }, validate: true
 
     validates :accredited_individual_registration_number, presence: true
     validates :user_account_email, presence: true,
-                                   format: { with: URI::MailTo::EMAIL_REGEXP, message: 'invalid email format' }
+                                   format: { with: URI::MailTo::EMAIL_REGEXP }
   end
 end
-# rubocop:enable Rails/I18nLocaleTexts
