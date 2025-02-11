@@ -186,9 +186,6 @@ features:
   champva_log_all_s3_uploads:
     actor_type: user
     description: Enables logging for all s3 uploads using UUID or keys for monitoring
-  champva_multiple_stamp_retry:
-    actor_type: user
-    description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
