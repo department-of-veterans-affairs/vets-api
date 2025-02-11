@@ -86,7 +86,7 @@ module VBADocuments
           processing_count: processing_records.for_consumer(consumer).count,
           success_count: success_records.for_consumer(consumer).count,
           vbms_count: vbms_records.for_consumer(consumer).count,
-          total: ,
+          total:,
           error_percent:
         }
       end
@@ -129,7 +129,7 @@ module VBADocuments
         pending_to_error: status_transition_times('pending', 'error'),
         pending_to_success: status_transition_times('pending', 'success'),
         pending_to_vbms: status_transition_times('pending', 'vbms'),
-        success_to_vbms:  status_transition_times('success', 'vbms')
+        success_to_vbms: status_transition_times('success', 'vbms')
       }
     end
 
