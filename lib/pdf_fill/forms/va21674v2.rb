@@ -948,10 +948,6 @@ module PdfFill
 
           cleaned_value = value.to_s.gsub(/[^0-9]/, '').to_i
 
-          # first = (cleaned_value / 1_000_000).to_s[-2..]
-          # second = ((cleaned_value % 1_000_000) / 1000).to_s.rjust(3, '0')[-3..]
-          # third = (cleaned_value % 1000).to_s.rjust(3, '0')
-          # last = '00'
           parent_object[key] = {
             'first' => (cleaned_value / 1_000_000).to_s[-2..],
             'second' => ((cleaned_value % 1_000_000) / 1000).to_s.rjust(3, '0')[-3..],
