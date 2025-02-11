@@ -2,12 +2,11 @@
 
 module EducationForm::Forms
   class VA10216 < Base
-    # rubocop:disable Lint/MissingSuper
     def initialize(education_benefits_claim)
       @education_benefits_claim = education_benefits_claim
       @applicant = education_benefits_claim.parsed_form
+      super(app)
     end
-    # rubocop:enable Lint/MissingSuper
 
     def institution_name
       @applicant['institutionDetails']['institutionName']
