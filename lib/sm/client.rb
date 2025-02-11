@@ -505,6 +505,15 @@ module SM
       end
     end
 
+    def get_session_tagged
+      Sentry.set_tags(error: 'mhv_sm_session')
+      requires_oh_messages = Flipper.enabled?(:mhv_secure_messaging_cerner_pilot) ? '1' : nil
+      path = append_requires_oh_messages_query('session', requires_oh_messages)
+      env = perform(:get, path, nil, auth_headers)
+      Sentry.get_current_scope.tags.delete(:error)
+      env
+    end
+
     private
 
     def reply_draft?(id)
