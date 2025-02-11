@@ -163,10 +163,9 @@ RSpec.describe 'MyHealth::V1::Messaging::Preferences', type: :request do
         post '/my_health/v1/messaging/preferences/signature', params:
       end
 
-      expect(response).to have_http_status(400)
+      expect(response).to have_http_status(:bad_request)
       expect(JSON.parse(response.body)['errors'][0]['detail']).to eq('Email Signature Name and Title is required')
       expect(JSON.parse(response.body)['errors'][0]['code']).to eq('SM154')
-
     end
   end
 end
