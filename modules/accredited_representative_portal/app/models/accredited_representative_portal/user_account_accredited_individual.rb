@@ -2,39 +2,43 @@
 
 module AccreditedRepresentativePortal
   class UserAccountAccreditedIndividual < ApplicationRecord
-    enum :power_of_attorney_holder_type, {
-      ##
-      # Future supported types:
-      # attorney: 'attorney',
-      # claims_agent: 'claims_agent',
-      #
-      veteran_service_organization: 'veteran_service_organization'
-    }, validate: true
+    enum(
+      :power_of_attorney_holder_type,
+      PowerOfAttorneyHolder::Types::ALL.zip(PowerOfAttorneyHolder::Types::ALL).to_h,
+      validate: true
+    )
 
     validates :accredited_individual_registration_number, presence: true
     validates :user_account_email, presence: true,
                                    format: { with: URI::MailTo::EMAIL_REGEXP }
 
-    # Syncs VSO registrations with user's VA identity and returns authorized registration numbers.
-    # For users with VA credentials (email/ICN), this:
-    # 1. Links their ICN to matching email records
-    # 2. Removes any existing ICN links from non-matching records
-    # 3. Returns registration numbers for authorized VSO associations
-    #
-    # @param email [String] VA email address
-    # @param icn [String] VA Identity Control Number
-    # @return [Array<String>] List of authorized VSO registration numbers
-    #
-    def self.authorize_vso_representative!(email:, icn:)
-      records = where(user_account_email: email).or(where(user_account_icn: icn))
+    RECONCILE_ASSIGNMENT_SQL_TEMPLATE = <<~SQL
+      user_account_icn =
+        CASE when user_account_email = :user_account_email THEN
+          :user_account_icn
+        END
+    SQL
 
-      records.each_with_object([]) do |record, registration_numbers|
-        if record.user_account_email == email
-          record.user_account_icn = icn
-          registration_numbers << record.accredited_individual_registration_number if record.save
-        else
-          record.user_account_icn = nil
-          record.save
+    class << self
+      def reconcile_and_find_by(
+        user_account_email:,
+        user_account_icn:
+      )
+        transaction do
+          update_rel =
+            where(user_account_email:).or(
+              where(user_account_icn:)
+            )
+
+          assignment_sql =
+            sanitize_sql_for_assignment([
+              RECONCILE_ASSIGNMENT_SQL_TEMPLATE,
+              user_account_email:,
+              user_account_icn:
+            ])
+
+          update_rel.update_all(assignment_sql)
+          find_by(user_account_icn:)
         end
       end
     end

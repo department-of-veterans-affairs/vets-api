@@ -33,6 +33,13 @@ module AccreditedRepresentativePortal
       @user_account ||= UserAccount.find_by(id: user_account_uuid)
     end
 
+    def power_of_attorney_holders
+      @power_of_attorney_holders ||=
+        PowerOfAttorneyHolder
+          .for_user(email:, icn:)
+          .freeze
+    end
+
     def flipper_id
       email&.downcase
     end
