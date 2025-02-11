@@ -130,6 +130,11 @@ RSpec.describe PowerOfAttorneyRequestCreation::Creator do
 
           expect(result[:errors]).to eq([PowerOfAttorneyRequestCreation::Creator::ACCREDITED_ENTITY_ERROR])
         end
+
+        it 'does not create new records' do
+          expect { subject.call }.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyRequest, :count)
+          expect { subject.call }.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyForm, :count)
+        end
       end
 
       context 'when the holder_type is not in the allowed list' do
@@ -139,6 +144,11 @@ RSpec.describe PowerOfAttorneyRequestCreation::Creator do
           result = subject.call
 
           expect(result[:errors]).to eq([PowerOfAttorneyRequestCreation::Creator::HOLDER_TYPE_ERROR])
+        end
+
+        it 'does not create new records' do
+          expect { subject.call }.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyRequest, :count)
+          expect { subject.call }.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyForm, :count)
         end
       end
 
