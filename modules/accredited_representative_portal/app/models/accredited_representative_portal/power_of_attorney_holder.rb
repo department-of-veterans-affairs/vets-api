@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/MethodLength
 module AccreditedRepresentativePortal
   class PowerOfAttorneyHolder <
     Data.define(
@@ -68,4 +69,4 @@ module AccreditedRepresentativePortal
     end
   end
 end
-
+# rubocop:enable Metrics/MethodLength
