@@ -134,5 +134,6 @@ module VetsAPI
     # These files do not contain auto-loaded ruby classes,
     #   they are loaded through app/sidekiq/education_form/forms/base.rb
     Rails.autoloaders.main.ignore(Rails.root.join('app', 'sidekiq', 'education_form', 'templates', '1990-disclosure'))
+    config.autoload_paths += %W[#{config.root}/app/lib]
   end
 end

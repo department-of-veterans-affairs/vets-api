@@ -1,0 +1,17 @@
+# Authentication Events
+user_login:
+  type: authentication
+  description: User logged in to the system
+
+user_logout:
+  type: authentication
+  description: "User logged out of the system"
+
+# Profile Events
+profile_update:
+  type: profile
+  description: User updated their profile information
+
+profile_view:
+  type: profile
+  description: "User viewed their profile" 
