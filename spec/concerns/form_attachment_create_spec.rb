@@ -47,14 +47,14 @@ RSpec.describe FormAttachmentCreate, type: :controller do
 
         expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).twice.and_return(true)
 
-        expect(@controller).to receive(:log_message_to_sentry).with(
+        expect(@controller).to receive(:log_message_all).with(
           'begin form attachment creation',
           :info,
           file_data_present: true,
           klass: 'ActionDispatch::Http::UploadedFile',
           debug_timestamp: anything
         )
-        expect(@controller).to receive(:log_message_to_sentry).with(
+        expect(@controller).to receive(:log_message_all).with(
           'finish form attachment creation',
           :info,
           serialized: true,
@@ -72,14 +72,14 @@ RSpec.describe FormAttachmentCreate, type: :controller do
       it 'logs validation failure when attachment is not a type of UploadedFile' do
         file_data = 'foo'
         expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
-        expect(@controller).to receive(:log_message_to_sentry).with(
+        expect(@controller).to receive(:log_message_all).with(
           'begin form attachment creation',
           :info,
           file_data_present: true,
           klass: 'String',
           debug_timestamp: anything
         )
-        expect(@controller).to receive(:log_message_to_sentry).with(
+        expect(@controller).to receive(:log_message_all).with(
           'form attachment error 1 - validate class',
           :info,
           phase: 'FAC_validate',
@@ -94,14 +94,14 @@ RSpec.describe FormAttachmentCreate, type: :controller do
 
         expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
 
-        expect(@controller).to receive(:log_message_to_sentry).with(
+        expect(@controller).to receive(:log_message_all).with(
           'begin form attachment creation',
           :info,
           file_data_present: true,
           klass: 'ActionDispatch::Http::UploadedFile',
           debug_timestamp: anything
         )
-        expect(@controller).to receive(:log_message_to_sentry).with(
+        expect(@controller).to receive(:log_message_all).with(
           'form attachment error 2 - save to cloud',
           :info,
           has_pass: false,
@@ -122,14 +122,14 @@ RSpec.describe FormAttachmentCreate, type: :controller do
 
         expect(Flipper).to receive(:enabled?).with(:hca_log_form_attachment_create).and_return(true)
 
-        expect(@controller).to receive(:log_message_to_sentry).with(
+        expect(@controller).to receive(:log_message_all).with(
           'begin form attachment creation',
           :info,
           file_data_present: true,
           klass: 'ActionDispatch::Http::UploadedFile',
           debug_timestamp: anything
         )
-        expect(@controller).to receive(:log_message_to_sentry).with(
+        expect(@controller).to receive(:log_message_all).with(
           'form attachment error 3 - save to db',
           :info,
           phase: 'FAC_db',

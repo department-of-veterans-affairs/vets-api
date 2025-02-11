@@ -7,9 +7,10 @@ require 'hca/enrollment_eligibility/service'
 require 'hca/enrollment_eligibility/status_matcher'
 require 'mpi/service'
 require 'hca/overrides_parser'
+require 'combined_logging'
 
 class HealthCareApplication < ApplicationRecord
-  include SentryLogging
+  include CombinedLogging
   include VA1010Forms::Utils
   include FormValidation
 
@@ -283,7 +284,7 @@ class HealthCareApplication < ApplicationRecord
       error_class: 'HealthCareApplication FailedWontRetry'
     )
 
-    log_message_to_sentry(
+    log_message_all(
       'HCA total failure',
       :error,
       {

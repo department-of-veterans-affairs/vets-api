@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'combined_logging'
+
 module FormAttachmentCreate
   extend ActiveSupport::Concern
-  include SentryLogging
+  include CombinedLogging
 
   def create
     debug_timestamp = Time.current.iso8601

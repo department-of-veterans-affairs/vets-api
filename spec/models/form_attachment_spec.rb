@@ -17,7 +17,7 @@ RSpec.describe FormAttachment do
       context 'when provided password is incorrect' do
         it 'logs a sanitized message to Sentry' do
           error_message = nil
-          allow_any_instance_of(FormAttachment).to receive(:log_message_to_sentry) do |_, message, _level|
+          allow_any_instance_of(FormAttachment).to receive(:log_message_all) do |_, message, _level|
             error_message = message
           end
 

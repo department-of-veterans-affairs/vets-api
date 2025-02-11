@@ -2,11 +2,12 @@
 
 require 'common/models/base'
 require 'pdf_info'
+require 'combined_logging'
 
 class EVSSClaimDocument < Common::Base
   include ActiveModel::Validations
   include ActiveModel::Validations::Callbacks
-  include SentryLogging
+  include CombinedLogging
 
   attribute :evss_claim_id, Integer
   attribute :tracked_item_id, Integer
@@ -126,7 +127,7 @@ class EVSSClaimDocument < Common::Base
       file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
       password_regex = /(input_pw).*?(output)/
       sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
-      log_message_to_sentry(sanitized_message, 'warn')
+      log_message_all(sanitized_message, 'warn')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
     end
 

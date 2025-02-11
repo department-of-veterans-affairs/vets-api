@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require 'combined_logging'
+
 class FormAttachment < ApplicationRecord
   include SetGuid
   include SentryLogging
+  include CombinedLogging
 
   has_kms_key
   has_encrypted :file_data, key: :kms_key, **lockbox_options
@@ -45,7 +48,7 @@ class FormAttachment < ApplicationRecord
       file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}i
       password_regex = /(input_pw).*?(output)/
       sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
-      log_message_to_sentry(sanitized_message, 'warn')
+      log_message_all(sanitized_message, 'warn')
       raise Common::Exceptions::UnprocessableEntity.new(
         detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
         source: 'FormAttachment.unlock_pdf'
