@@ -2,9 +2,9 @@
 
 dependent_claimant_data_hash = {
   authorizations: {
-    recordDisclosure: true,
-    recordDisclosureLimitations: [],
-    addressChange: true
+    record_disclosure: true,
+    record_disclosure_limitations: [],
+    address_change: true
   },
   dependent: {
     name: {
@@ -13,15 +13,15 @@ dependent_claimant_data_hash = {
       last: 'Doe'
     },
     address: {
-      addressLine1: '123 Main St',
-      addressLine2: 'Apt 1',
+      address_line1: '123 Main St',
+      address_line2: 'Apt 1',
       city: 'Springfield',
-      stateCode: 'IL',
+      state_code: 'IL',
       country: 'US',
-      zipCode: '62704',
-      zipCodeSuffix: '6789'
+      zip_code: '62704',
+      zip_code_suffix: '6789'
     },
-    dateOfBirth: '1980-12-31',
+    date_of_birth: '1980-12-31',
     relationship: 'Spouse',
     phone: '1234567890',
     email: 'veteran@example.com'
@@ -33,19 +33,19 @@ dependent_claimant_data_hash = {
       last: 'Doe'
     },
     address: {
-      addressLine1: '123 Main St',
-      addressLine2: 'Apt 1',
+      address_line1: '123 Main St',
+      address_line2: 'Apt 1',
       city: 'Springfield',
-      stateCode: 'IL',
+      state_code: 'IL',
       country: 'US',
-      zipCode: '62704',
-      zipCodeSuffix: '6789'
+      zip_code: '62704',
+      zip_code_suffix: '6789'
     },
     ssn: '123456789',
-    vaFileNumber: '123456789',
-    dateOfBirth: '1980-12-31',
-    serviceNumber: '123456789',
-    serviceBranch: 'ARMY',
+    va_file_number: '123456789',
+    date_of_birth: '1980-12-31',
+    service_number: '123456789',
+    service_branch: 'ARMY',
     phone: '1234567890',
     email: 'veteran@example.com'
   }
@@ -53,12 +53,12 @@ dependent_claimant_data_hash = {
 
 veteran_claimant_data_hash = {
   authorizations: {
-    recordDisclosure: true,
-    recordDisclosureLimitations: %w[
+    record_disclosure: true,
+    record_disclosure_limitations: %w[
       HIV
       DRUG_ABUSE
     ],
-    addressChange: true
+    address_change: true
   },
   dependent: nil,
   veteran: {
@@ -68,19 +68,19 @@ veteran_claimant_data_hash = {
       last: 'Doe'
     },
     address: {
-      addressLine1: '123 Main St',
-      addressLine2: 'Apt 1',
+      address_line1: '123 Main St',
+      address_line2: 'Apt 1',
       city: 'Springfield',
-      stateCode: 'IL',
+      state_code: 'IL',
       country: 'US',
-      zipCode: '62704',
-      zipCodeSuffix: '6789'
+      zip_code: '62704',
+      zip_code_suffix: '6789'
     },
     ssn: '123456789',
-    vaFileNumber: '123456789',
-    dateOfBirth: '1980-12-31',
-    serviceNumber: '123456789',
-    serviceBranch: 'ARMY',
+    va_file_number: '123456789',
+    date_of_birth: '1980-12-31',
+    service_number: '123456789',
+    service_branch: 'ARMY',
     phone: '1234567890',
     email: 'veteran@example.com'
   }
@@ -94,14 +94,14 @@ FactoryBot.define do
       data_hash do
         {
           authorizations: {
-            recordDisclosure: Faker::Boolean.boolean,
-            recordDisclosureLimitations: %w[
+            record_disclosure: Faker::Boolean.boolean,
+            record_disclosure_limitations: %w[
               ALCOHOLISM
               DRUG_ABUSE
               HIV
               SICKLE_CELL
             ].select { rand < 0.5 },
-            addressChange: Faker::Boolean.boolean
+            address_change: Faker::Boolean.boolean
           },
           dependent: nil,
           veteran: {
@@ -111,19 +111,19 @@ FactoryBot.define do
               last: Faker::Name.first_name
             },
             address: {
-              addressLine1: Faker::Address.street_address,
-              addressLine2: nil,
+              address_line1: Faker::Address.street_address,
+              address_line2: nil,
               city: Faker::Address.city,
-              stateCode: Faker::Address.state_abbr,
+              state_code: Faker::Address.state_abbr,
               country: 'US',
-              zipCode: Faker::Address.zip_code,
-              zipCodeSuffix: nil
+              zip_code: Faker::Address.zip_code,
+              zip_code_suffix: nil
             },
             ssn: Faker::Number.number(digits: 9).to_s,
-            vaFileNumber: Faker::Number.number(digits: 9).to_s,
-            dateOfBirth: Faker::Date.birthday(min_age: 21, max_age: 100).to_s,
-            serviceNumber: Faker::Number.number(digits: 9).to_s,
-            serviceBranch: %w[
+            va_file_number: Faker::Number.number(digits: 9).to_s,
+            date_of_birth: Faker::Date.birthday(min_age: 21, max_age: 100).to_s,
+            service_number: Faker::Number.number(digits: 9).to_s,
+            service_branch: %w[
               ARMY
               NAVY
               AIR_FORCE

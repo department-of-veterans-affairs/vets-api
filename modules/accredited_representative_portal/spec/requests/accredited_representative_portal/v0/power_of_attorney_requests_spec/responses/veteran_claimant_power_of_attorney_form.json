@@ -1,11 +1,11 @@
 {
   "authorizations": {
-    "recordDisclosure": true,
-    "recordDisclosureLimitations": [
+    "record_disclosure": true,
+    "record_disclosure_limitations": [
       "HIV",
       "DRUG_ABUSE"
     ],
-    "addressChange": true
+    "address_change": true
   },
   "claimant": {
     "name": {
@@ -14,19 +14,19 @@
       "last": "Doe"
     },
     "address": {
-      "addressLine1": "123 Main St",
-      "addressLine2": "Apt 1",
+      "address_line1": "123 Main St",
+      "address_line2": "Apt 1",
       "city": "Springfield",
-      "stateCode": "IL",
+      "state_code": "IL",
       "country": "US",
-      "zipCode": "62704",
-      "zipCodeSuffix": "6789"
+      "zip_code": "62704",
+      "zip_code_suffix": "6789"
     },
     "ssn": "123456789",
-    "vaFileNumber": "123456789",
-    "dateOfBirth": "1980-12-31",
-    "serviceNumber": "123456789",
-    "serviceBranch": "ARMY",
+    "va_file_number": "123456789",
+    "date_of_birth": "1980-12-31",
+    "service_number": "123456789",
+    "service_branch": "ARMY",
     "phone": "1234567890",
     "email": "veteran@example.com"
   }

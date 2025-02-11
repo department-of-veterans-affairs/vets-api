@@ -22,11 +22,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
           :in_progress_form,
           user_uuid: representative_user.uuid,
           form_data: { field: 'value' },
-          form_id:,
-          metadata: {
-            version: 1,
-            returnUrl: 'foo.com'
-          }
+          form_id:
         )
 
         get("/accredited_representative_portal/v0/in_progress_forms/#{form_id}")
@@ -37,7 +33,14 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
             },
             'metadata' => {
               'version' => 1,
-              'returnUrl' => 'foo.com',
+              'return_url' => 'foo.com',
+              'submission' => {
+                'status' => false,
+                'error_message' => false,
+                'id' => false,
+                'timestamp' => false,
+                'has_attempted_submit' => false
+              },
               'createdAt' => 1_646_370_367,
               'expiresAt' => 1_651_554_367,
               'lastUpdated' => 1_646_370_367,
@@ -54,7 +57,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
 
         put(
           "/accredited_representative_portal/v0/in_progress_forms/#{form_id}",
-          params: { 'formData' => { anotherField: 'foo' } }.to_json,
+          params: { 'form_data' => { another_field: 'foo' } }.to_json,
           headers:
         )
 
@@ -82,7 +85,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
         expect(parsed_response).to eq(
           {
             'formData' => {
-              'anotherField' => 'foo'
+              'another_field' => 'foo'
             },
             'metadata' => {
               'createdAt' => 1_646_456_767,
@@ -98,7 +101,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
 
         put(
           "/accredited_representative_portal/v0/in_progress_forms/#{form_id}",
-          params: { 'formData' => { anotherField: 'foo', sampleField: 'sample' } }.to_json,
+          params: { 'form_data' => { another_field: 'foo', sample_field: 'sample' } }.to_json,
           headers:
         )
 
@@ -126,8 +129,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
         expect(parsed_response).to eq(
           {
             'formData' => {
-              'anotherField' => 'foo',
-              'sampleField' => 'sample'
+              'another_field' => 'foo',
+              'sample_field' => 'sample'
             },
             'metadata' => {
               'createdAt' => 1_646_456_767,

@@ -11,18 +11,18 @@ module AccreditedRepresentativePortal
         # serialization layer.
         render json: {
           account: {
-            accountUuid: @current_user.user_account_uuid
+            account_uuid: @current_user.user_account_uuid
           },
           profile: {
-            firstName: @current_user.first_name,
-            lastName: @current_user.last_name,
+            first_name: @current_user.first_name,
+            last_name: @current_user.last_name,
             verified: @current_user.user_account.verified?,
-            signIn: {
-              serviceName: @current_user.sign_in[:service_name]
+            sign_in: {
+              service_name: @current_user.sign_in[:service_name]
             }
           },
-          prefillsAvailable: [],
-          inProgressForms: in_progress_forms
+          prefills_available: [],
+          in_progress_forms:
         }
       end
 
