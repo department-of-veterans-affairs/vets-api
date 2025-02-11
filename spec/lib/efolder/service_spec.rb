@@ -84,5 +84,18 @@ RSpec.describe Efolder::Service do
         end
       end
     end
+
+    it 'returns an empty array if UploadedDocumentService raises an error' do
+      allow_any_instance_of(BGS::Services).to receive(:uploaded_document).and_raise(Common::Exceptions::BadGateway)
+      VCR.use_cassette('bgs/people_service/person_data') do
+        expect(subject.list_documents).to be_empty
+      end
+    end
+
+    it 'uses SSN if BGS File Number is not found' do
+      VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
+        expect(subject.list_documents.to_json).to eq(get_fixture('vbms/list_documents').to_json)
+      end
+    end
   end
 end
