@@ -4,12 +4,12 @@ module SharedRailsLogging
   extend ActiveSupport::Concern
 
   def log_message(message, level, extra_context = {})
-    level = normalize_level(level, nil)
+    level = normalize_rails_level(level, nil)
     formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
-    rails_logger(level, formatted_message)
+    rails_logger_isolated(level, formatted_message)
   end
 
-  def normalize_level(level, exception)
+  def normalize_rails_level(level, exception)
     level = case exception
             when Pundit::NotAuthorizedError
               'info'
@@ -22,7 +22,7 @@ module SharedRailsLogging
     level
   end
 
-  def rails_logger(level, message, errors = nil, backtrace = nil)
+  def rails_logger_isolated(level, message, errors = nil, backtrace = nil)
     if errors.present?
       error_details = errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
       Rails.logger.send(level, message, error_details.merge(backtrace:))
