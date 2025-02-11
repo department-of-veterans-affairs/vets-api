@@ -474,14 +474,15 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     end
 
     context 'when not provided banking info' do
+      let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
       context 'and the PPIU service has the account info' do
         it 'gathers the banking info from the PPIU service' do
           VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
             expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
               'accountType' => 'CHECKING',
-              'accountNumber' => '9876543211234',
-              'routingNumber' => '042102115',
-              'bankName' => 'Comerica'
+              'accountNumber' => '1234567890',
+              'routingNumber' => '031000503',
+              'bankName' => 'WELLS FARGO BANK'
             }
           end
         end
@@ -497,7 +498,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
 
         it 'does not set payment information' do
-          expect(EVSS::PPIU::Service).to receive(:new).once.and_return(response)
+          expect(DirectDeposit::Client.new(user.icn)).to receive(:get_payment_info).once.and_return(response)
           expect(subject.send(:translate_banking_info)).to eq({})
         end
       end
