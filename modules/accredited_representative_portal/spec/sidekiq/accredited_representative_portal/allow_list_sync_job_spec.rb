@@ -37,11 +37,9 @@ module AccreditedRepresentativePortal
         CSV.parse(data, headers: true)
       end
 
-      # rubocop:disable RSpec/MessageChain
       before do
         allow_any_instance_of(described_class).to receive(:extract).and_return(csv_content)
       end
-      # rubocop:enable RSpec/MessageChain
 
       describe '#perform' do
         context 'with valid data' do
@@ -76,9 +74,9 @@ module AccreditedRepresentativePortal
           end
 
           it 'raises an ActiveRecord::RecordInvalid error' do
-            expect {
+            expect do
               described_class.new.perform
-            }.to raise_error(ActiveRecord::RecordInvalid, /Power of attorney holder type is not included in the list/)
+            end.to raise_error(ActiveRecord::RecordInvalid, /Power of attorney holder type is not included in the list/)
           end
         end
 
@@ -94,9 +92,9 @@ module AccreditedRepresentativePortal
           end
 
           it 'raises an ActiveRecord::RecordInvalid error' do
-            expect {
+            expect do
               described_class.new.perform
-            }.to raise_error(ActiveRecord::RecordInvalid, /Validation failed: User account email is invalid/)
+            end.to raise_error(ActiveRecord::RecordInvalid, /Validation failed: User account email is invalid/)
           end
         end
 
@@ -111,7 +109,7 @@ module AccreditedRepresentativePortal
 
         context 'when CSV has too many rows' do
           let(:csv_content) do
-            headers = "accredited_individual_registration_number,power_of_attorney_holder_type,user_account_email"
+            headers = 'accredited_individual_registration_number,power_of_attorney_holder_type,user_account_email'
             rows = (1..501).map do |i|
               "REG#{i.to_s.rjust(3, '0')},veteran_service_organization,rep#{i}@vso.org"
             end

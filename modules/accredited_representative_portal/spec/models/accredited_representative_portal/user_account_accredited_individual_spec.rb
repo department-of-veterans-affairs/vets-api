@@ -42,12 +42,12 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
     end
 
     it 'raises ArgumentError for invalid type' do
-      expect {
+      expect do
         described_class.new(
           power_of_attorney_holder_type: 'invalid_type',
-          accredited_individual_registration_number: 'REG001',
+          accredited_individual_registration_number: 'REG001'
         ).validate!
-      }.to raise_error(ActiveRecord::RecordInvalid, /Power of attorney holder type is not included in the list/)
+      end.to raise_error(ActiveRecord::RecordInvalid, /Power of attorney holder type is not included in the list/)
     end
 
     it 'provides helper methods for checking type' do
