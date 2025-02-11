@@ -169,6 +169,8 @@ module EVSS
       def response_handler(response)
         submission.submitted_claim_id = response.claim_id
         submission.save
+        # send "Submitted" email with claim id here for primary path
+        submission.send_submitted_email("#{self.class}#response_handler primary path")
       end
 
       def send_post_evss_notifications(submission, send_notifications)
