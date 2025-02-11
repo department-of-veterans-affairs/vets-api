@@ -423,7 +423,7 @@ ivc_champva:
   pega_api:
     api_key: fake_api_key
 
-form_upload_flow:
+form_upload:
   prefill: true
 
 # Settings for Expiry Scanner
