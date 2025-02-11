@@ -423,7 +423,7 @@ ivc_champva:
   pega_api:
     api_key: fake_api_key
 
-form_upload_flow:
+form_upload:
   prefill: true
 
 # Settings for Expiry Scanner
@@ -1746,9 +1746,9 @@ ogc:
 accredited_representative_portal:
   allow_list:
     github:
-      access_token: some_fake_token
-      repo: faked/fakeness
-      path: not_real.csv
+      access_token: ~
+      repo: ~
+      path: ~
 
 banners:
   drupal_username: banners_api
