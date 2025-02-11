@@ -30,7 +30,6 @@ module Swagger
           property :worsenedEffects, type: :string
           property :vaMistreatmentDescription, type: :string
           property :vaMistreatmentLocation, type: :string
-          property :vaMistreatmentDate, type: :string
         end
 
         swagger_schema :RatedDisability do

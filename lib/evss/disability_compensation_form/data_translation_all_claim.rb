@@ -664,7 +664,6 @@ module EVSS
       # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
       # @option input_disability [String] :vaMistreatmentDescription The disabilities description
       # @option input_disability [String] :vaMistreatmentLocation The location the disability occurred
-      # @option input_disability [String] :vaMistreatmentDate The Date the disability occurred
       # @return [Hash] Transformed disability to match EVSS's validation
       def map_va(input_disability)
         {
@@ -676,7 +675,6 @@ module EVSS
           'serviceRelevance' => "Caused by VA care\n" \
                                 "Event: #{input_disability['vaMistreatmentDescription']}\n" \
                                 "Location: #{input_disability['vaMistreatmentLocation']}\n" \
-                                "TimeFrame: #{input_disability['vaMistreatmentDate']}"
         }.compact
       end
 
