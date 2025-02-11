@@ -116,3 +116,4 @@ staging.benefits_claims.pem
 
 # ignore Yardoc generation
 .yardoc/
+Gemfile.lock
