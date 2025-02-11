@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FormProfiles::FormUploadFlow < FormProfile
+class FormProfiles::FormUpload < FormProfile
   def metadata
     {
       version: 0,
