@@ -40,6 +40,12 @@ module ClaimsApi
 
     protected
 
+    def form_logger_consent_detail(poa, poa_code)
+      "Updating Access. recordConsent: #{poa.form_data['recordConsent'] || false}" \
+        "#{poa.form_data['consentLimits'] ? ', consentLimits included' : nil}" \
+        " for representative #{poa_code}"
+    end
+
     def dependent_filing?(poa)
       poa.auth_headers.key?('dependent')
     end
@@ -118,9 +124,8 @@ module ClaimsApi
       auto_claim.save!
     end
 
-    def enable_vbms_access?(poa_form:)
-      record_consent = poa_form.form_data['recordConsent']
-      record_consent.present? && record_consent && poa_form.form_data['consentLimits'].blank?
+    def allow_poa_access?(poa_form_data:)
+      poa_form_data['recordConsent'] == true && poa_form_data['consentLimits'].blank?
     end
 
     def set_vbms_error_message(poa, error)
@@ -181,6 +186,10 @@ module ClaimsApi
             end
       # If there is a match return false because we will not retry
       NO_RETRY_ERROR_CODES.exclude?(msg)
+    end
+
+    def allow_address_change?(poa_form)
+      poa_form.form_data['consentAddressChange']
     end
 
     def will_retry_status_code?(error)

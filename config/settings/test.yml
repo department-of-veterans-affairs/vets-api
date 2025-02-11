@@ -1,3 +1,4 @@
+
 hostname: www.example.com # possible fallback for unsafe request.host
 virtual_hosts: ["www.example.com", "localhost", "127.0.0.1", "example.org"] # Safe host names
 vsp_environment: test
@@ -40,6 +41,9 @@ pension_burial:
   prefill: true
   sftp:
     relative_path: 'VETSGOV_PENSION'
+
+bpds:
+  jwt_secret: "FAKE_SECRET"
 
 hca:
   prefill: true
@@ -258,6 +262,10 @@ lighthouse:
         rsa_key: ~
   benefits_intake:
       api_key: fake_api_key
+
+vaos:
+  eps:
+    key_path: modules/health_quest/config/rsa/sandbox_rsa
 
 rrd:
   alerts:

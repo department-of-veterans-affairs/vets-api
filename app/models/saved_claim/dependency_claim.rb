@@ -35,6 +35,16 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   validate :validate_686_form_data, on: :run_686_form_jobs
   validate :address_exists
 
+  attr_accessor :use_v2
+
+  after_initialize do
+    self.form_id = if Flipper.enabled?(:va_dependents_v2)
+                     use_v2 || form_id == '686C-674-V2' ? '686C-674-V2' : self.class::FORM.upcase
+                   else
+                     self.class::FORM.upcase
+                   end
+  end
+
   def upload_pdf(form_id, doc_type: '148')
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
@@ -128,6 +138,15 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploader.upload!
   end
 
+  # temporarily commented out before v2 rolls out. will be updated before v2's release.
+  # def form_matches_schema
+  #   return unless form_is_string
+  #
+  #   JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[form_id], parsed_form).each do |v|
+  #     errors.add(:form, v.to_s)
+  #   end
+  # end
+
   def to_pdf(form_id: FORM)
     self.form_id = form_id
 
@@ -137,7 +156,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   # this failure email is not the ideal way to handle the Notification Emails as
   # part of the ZSF work, but with the initial timeline it handles the email as intended.
   # Future work will be integrating into the Va Notify common lib:
-  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/va_notify/notification_email.rb
+  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
 
   def send_failure_email(email) # rubocop:disable Metrics/MethodLength
     # if the claim is both a 686c and a 674, send a combination email.
