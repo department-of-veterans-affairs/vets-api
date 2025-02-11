@@ -91,6 +91,7 @@ module SimpleFormsApi
       def create_form_submission
         FormSubmission.create(
           form_type: params[:form_number],
+          form_data: params[:form_data].to_json,
           user_account: @current_user&.user_account
         )
       end

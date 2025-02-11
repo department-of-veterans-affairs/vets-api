@@ -1091,6 +1091,9 @@ features:
     actor_type: user
     description: Enables/disables grouping medications related work
     enable_in_development: true
+  mhv_modern_cta_links:
+    actor_type: user
+    description: CTA widget links point to va.gov services
   mhv_medications_display_pending_meds:
     actor_type: user
     description: Enables/disables pending medications related work
