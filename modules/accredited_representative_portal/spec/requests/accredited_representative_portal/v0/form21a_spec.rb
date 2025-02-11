@@ -31,7 +31,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
 
       it 'logs a successful submission and destroys in-progress form',
          skip: 'Test has been flaky - see: ' \
-               'https://github.com/department-of-veterans-affairs/vets-api/runs/36869589405' do
+               'https://github.com/department-of-veterans-affairs/va.gov-team/issues/102880' do
         get('/accredited_representative_portal/v0/in_progress_forms/21a')
         expect(response).to have_http_status(:ok)
         expect(parsed_response.keys).to contain_exactly('formData', 'metadata')
@@ -94,7 +94,7 @@ Errors: The property '#/firstName' of type integer did not match the following t
     context 'when service returns a blank response' do
       it 'logs the error and returns no content status',
          skip: 'Test has been flaky - see: ' \
-               'https://github.com/department-of-veterans-affairs/vets-api/runs/36869589405' do
+               'https://github.com/department-of-veterans-affairs/va.gov-team/issues/102880' do
         allow(AccreditationService).to receive(:submit_form21a).and_return(
           instance_double(Faraday::Response, success?: false, body: nil, status: 204)
         )
