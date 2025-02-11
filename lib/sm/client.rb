@@ -71,7 +71,6 @@ module SM
     def get_signature
       perform(:get, 'preferences/signature', nil, token_headers).body
     end
-    # @!endgroup
 
     ##
     # Update current message signature
