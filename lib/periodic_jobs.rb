@@ -249,4 +249,10 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # CST Daily job that deletes EvidenceSubmissions when their delete_date has been met
   mgr.register('0 6 * * *', 'Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJob')
+  
+  # Hourly job that updates Evidence Submission Records that were uploaded to Lighthouse and are in a PENDING status.
+  mgr.register('0 * * * *', 'Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUploadPollingJob')
+
+  # Daily cron job to send Failure Notification Emails to Veterans for their failed evidence submissions.
+  mgr.register('5 0 * * *', 'Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob')
 }
