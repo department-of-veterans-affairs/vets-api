@@ -43,7 +43,7 @@ RSpec.describe ClaimsApi::PoaVbmsSidekiq, vcr: 'bgs/person_web_service/find_by_s
         expect(dummy_class).to receive(:log_exception_to_sentry)
 
         expect { dummy_class.upload_to_vbms(power_of_attorney, '/some/random/path') }.to raise_error(
-          ::Common::Exceptions::FailedDependency
+          Common::Exceptions::FailedDependency
         )
       end
     end

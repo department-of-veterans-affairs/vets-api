@@ -8,7 +8,7 @@ module Mobile
       attribute :id, Types::String
       attribute :resourceType, Types::String
       attribute :type, Types::String
-
+      attribute :category, Types::Array.of(Types::String)
       attribute :clinicalStatus do
         attribute :coding, Types::Array do
           attribute :system, Types::String

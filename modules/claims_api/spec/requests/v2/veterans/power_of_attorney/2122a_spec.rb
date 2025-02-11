@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../../../rails_helper'
 require 'token_validation/v2/client'
-require 'bgs_service/local_bgs'
+require 'bgs_service/claimant_web_service'
 require 'bgs_service/org_web_service'
 
 RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
@@ -14,7 +14,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
   let(:individual_poa_code) { '072' }
   let(:organization_poa_code) { '067' }
   let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }
-  let(:local_bgs) { ClaimsApi::LocalBGS }
+  let(:claimant_web_service) { ClaimsApi::ClaimantWebService }
   let(:org_web_service) { ClaimsApi::OrgWebService }
 
   describe 'PowerOfAttorney' do
@@ -96,6 +96,14 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
         }
       end
 
+      context 'when not valid' do
+        it 'returns a 401' do
+          post validate2122a_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+          expect(response).to have_http_status(:unauthorized)
+        end
+      end
+
       context 'when a POA code isn\'t provided' do
         it 'returns a 422 error code' do
           mock_ccg(scopes) do |auth_header|
@@ -113,7 +121,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
             it 'returns a 202' do
               VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                 mock_ccg(scopes) do |auth_header|
-                  expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                  expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                     .and_return(bgs_poa)
                   allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                     .and_return({ person_poa_history: nil })
@@ -313,7 +321,8 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:representative][:address][:zipCode] = ''
                   claimant_data[:data][:attributes][:representative][:address][:countryCode] = 'AL'
-                  allow_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+                  allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                    .and_return(bgs_poa)
                   allow_any_instance_of(org_web_service)
                     .to receive(:find_poa_history_by_ptcpnt_id).and_return({ person_poa_history: nil })
                   VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
@@ -328,7 +337,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
           context 'when claimant data is included' do
             shared_context 'claimant data setup' do
               before do
-                allow_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+                allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
                 allow_any_instance_of(org_web_service)
                   .to receive(:find_poa_history_by_ptcpnt_id).and_return({ person_poa_history: nil })
               end
@@ -603,6 +612,39 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                 end
               end
 
+              describe 'with non-US countryCode provided without areaCode' do
+                let(:veteran) do
+                  {
+                    address: {
+                      addressLine1: '123',
+                      addressLine2: '2a',
+                      city: 'city',
+                      countryCode: 'US',
+                      stateCode: 'OR',
+                      zipCode: '12345',
+                      zipCodeSuffix: '6789'
+                    },
+                    phone: {
+                      countryCode: '44',
+                      phoneNumber: '3664242'
+                    }
+                  }
+                end
+                let(:request_body) do
+                  Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                  'power_of_attorney', '2122a', 'valid.json').read
+                end
+
+                it 'returns a success response' do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                    mock_ccg(scopes) do |auth_header|
+                      post validate2122a_path, params: request_body, headers: auth_header
+                      expect(response).to have_http_status(:ok)
+                    end
+                  end
+                end
+              end
+
               context 'when the Veteran ICN is found in MPI' do
                 context 'when the request data does not pass schema validation' do
                   let(:request_body) do
@@ -816,17 +858,165 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                       end
                     end
                   end
+
+                  describe 'phone number' do
+                    let(:request_body) do
+                      Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                      'power_of_attorney', '2122a', 'valid.json').read
+                    end
+
+                    let(:claimant) do
+                      {
+                        claimantId: '456',
+                        email: 'lillian@disney.com',
+                        relationship: 'Spouse',
+                        address: {
+                          addressLine1: '2688 S Camino Real',
+                          city: 'Palm Springs',
+                          stateCode: 'CA',
+                          countryCode: 'US',
+                          zipCode: '92264'
+                        },
+                        phone: {
+                          countryCode: '1',
+                          phoneNumber: '5551337'
+                        }
+                      }
+                    end
+                    let(:claimant_international) do
+                      {
+                        claimantId: '456',
+                        email: 'lillian@disney.com',
+                        relationship: 'Spouse',
+                        address: {
+                          addressLine1: '2688 S Camino Real',
+                          city: 'Palm Springs',
+                          stateCode: 'CA',
+                          countryCode: 'US',
+                          zipCode: '92264'
+                        },
+                        phone: {
+                          countryCode: '1',
+                          areaCode: '303',
+                          phoneNumber: '5551337'
+                        }
+                      }
+                    end
+
+                    context 'when claimant.phone.countryCode is "1" and areaCode is not provided' do
+                      let(:error_msg) { 'The property /claimant/phone did not contain the required key areaCode' }
+
+                      it 'returns a meaningful 422' do
+                        VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                          mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                            json = JSON.parse(request_body)
+                            claimant_international[:phone][:areaCode] = nil
+                            json['data']['attributes']['claimant'] = claimant
+                            request_body = json.to_json
+                            post validate2122a_path, params: request_body, headers: auth_header
+                            response_body = JSON.parse(response.body)['errors'][0]
+                            expect(response).to have_http_status(:unprocessable_entity)
+                            expect(response_body['detail']).to eq(error_msg)
+                          end
+                        end
+                      end
+                    end
+
+                    context 'when claimant.phone.countryCode is "1" and areaCode is provided' do
+                      let(:error_msg) { "If country code is blank or 1 'areaCode' must be filled in" }
+
+                      it 'returns a meaningful 422' do
+                        VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                          mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                            json = JSON.parse(request_body)
+                            claimant_international[:phone][:areaCode] = '555'
+                            json['data']['attributes']['claimant'] = claimant_international
+                            request_body = json.to_json
+                            post validate2122a_path, params: request_body, headers: auth_header
+                            expect(response).to have_http_status(:ok)
+                          end
+                        end
+                      end
+                    end
+
+                    context 'when claimant phoneNumber has parenthesis' do
+                      it 'returns a 422' do
+                        VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                          mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                            json = JSON.parse(request_body)
+                            claimant[:phone][:phoneNumber] = '(555)1337'
+                            json['data']['attributes']['claimant'] = claimant
+                            request_body = json.to_json
+                            post validate2122a_path, params: request_body, headers: auth_header
+                            expect(response).to have_http_status(:unprocessable_entity)
+                          end
+                        end
+                      end
+                    end
+
+                    context 'when claimant phoneNumber has an asterick' do
+                      it 'returns a 422' do
+                        VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                          mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                            json = JSON.parse(request_body)
+                            claimant[:phone][:phoneNumber] = '555*1337'
+                            json['data']['attributes']['claimant'] = claimant
+                            request_body = json.to_json
+                            post validate2122a_path, params: request_body, headers: auth_header
+                            expect(response).to have_http_status(:unprocessable_entity)
+                          end
+                        end
+                      end
+                    end
+
+                    context 'when claimant phoneNumber has an 2 digits' do
+                      it 'returns a 422' do
+                        VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                          mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                            json = JSON.parse(request_body)
+                            claimant[:phone][:phoneNumber] = '55'
+                            json['data']['attributes']['claimant'] = claimant
+                            request_body = json.to_json
+                            post validate2122a_path, params: request_body, headers: auth_header
+                            expect(response).to have_http_status(:unprocessable_entity)
+                          end
+                        end
+                      end
+                    end
+
+                    context 'when claimant phoneNumber has 3 digits & dashes' do
+                      it 'returns a 422' do
+                        VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                          mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                            json = JSON.parse(request_body)
+                            claimant[:phone][:phoneNumber] = '5-5-5'
+                            json['data']['attributes']['claimant'] = claimant
+                            request_body = json.to_json
+                            post validate2122a_path, params: request_body, headers: auth_header
+                            expect(response).to have_http_status(:unprocessable_entity)
+                          end
+                        end
+                      end
+                    end
+
+                    context 'when claimant phoneNumber many digits & dashes & spaces' do
+                      it 'returns a 422' do
+                        VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                          mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                            json = JSON.parse(request_body)
+                            claimant[:phone][:phoneNumber] = '1-2-3-4-5 6 789 0-1-2-3 45'
+                            json['data']['attributes']['claimant'] = claimant
+                            request_body = json.to_json
+                            post validate2122a_path, params: request_body, headers: auth_header
+                            expect(response).to have_http_status(:unprocessable_entity)
+                          end
+                        end
+                      end
+                    end
+                  end
                 end
               end
             end
-          end
-        end
-
-        context 'when not valid' do
-          it 'returns a 401' do
-            post validate2122a_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
-
-            expect(response).to have_http_status(:unauthorized)
           end
         end
       end

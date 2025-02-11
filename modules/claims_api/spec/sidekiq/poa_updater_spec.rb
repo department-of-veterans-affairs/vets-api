@@ -19,14 +19,17 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
     headers
   end
 
+  it 'sets retry_for to 48 hours' do
+    expect(described_class.get_sidekiq_options['retry_for']).to eq(48.hours)
+  end
+
   context "when call to BGS 'update_birls_record' is successful" do
     context 'and the poaCode is retrieved successfully from the V2 2122a form data' do
-      it "updates the form's status and creates 'ClaimsApi::PoaVBMSUpdater' job" do
+      let(:poa) { create_poa }
+
+      before do
         allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return false
         create_mock_lighthouse_service
-        expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
-
-        poa = create_poa
         poa.form_data = {
           representative: {
             poaCode: '072',
@@ -43,16 +46,26 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
           recordConsent: true,
           consentLimits: []
         }
+        poa.status = 'pending'
         poa.save!
+      end
 
+      it "does not update the form's status and creates 'ClaimsApi::PoaVBMSUpdater' job" do
+        expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
         subject.new.perform(poa.id)
         poa.reload
-        expect(poa.status).to eq('updated')
+        expect(poa.status).to eq('pending')
+      end
+
+      it 'updates the process status to SUCCESS' do
+        subject.new.perform(poa.id)
+        process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_UPDATE')
+        expect(process.step_status).to eq('SUCCESS')
       end
     end
 
     context 'and record consent is granted' do
-      it "updates the form's status and creates 'ClaimsApi::PoaVBMSUpdater' job" do
+      it "creates 'ClaimsApi::PoaVBMSUpdater' job" do
         create_mock_lighthouse_service
         expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
 
@@ -61,25 +74,31 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
         poa.save!
 
         subject.new.perform(poa.id)
-        poa.reload
-        expect(poa.status).to eq('updated')
       end
     end
   end
 
   context "when call to BGS 'update_birls_record' fails" do
-    it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
+    let(:poa) { create_poa }
+
+    before do
       create_mock_lighthouse_service
       allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record).and_return(
         return_code: 'some error code'
       )
+    end
+
+    it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
       expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-
-      poa = create_poa
-
       subject.new.perform(poa.id)
       poa.reload
       expect(poa.status).to eq('errored')
+    end
+
+    it 'updates the process status to FAILED' do
+      subject.new.perform(poa.id)
+      process = ClaimsApi::Process.find_by(processable: poa, step_type: 'POA_UPDATE')
+      expect(process.step_status).to eq('FAILED')
     end
   end
 
