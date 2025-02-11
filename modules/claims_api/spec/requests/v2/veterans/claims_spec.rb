@@ -66,7 +66,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
   describe 'Claims' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return true
       allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
       allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return false
       allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
@@ -637,7 +636,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
       end
 
       it 'uses BD when it should', vcr: 'claims_api/v2/claims_show' do
-        allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return true
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return false
         lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                    evss_id: '111111111')
