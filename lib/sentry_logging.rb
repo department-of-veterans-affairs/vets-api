@@ -5,6 +5,7 @@ require 'sentry_logging'
 module SentryLogging
   extend self
 
+  # rubocop:disable Style/OptionalBooleanParameter
   def log_message_to_sentry(message, level, extra_context = {}, tags_context = {}, log_to_rails = true)
     level = normalize_level(level, nil)
     if log_to_rails
@@ -17,6 +18,7 @@ module SentryLogging
       Sentry.capture_message(message, level:)
     end
   end
+  # rubocop:enable Style/OptionalBooleanParameter
 
   def log_exception_to_sentry(exception, extra_context = {}, tags_context = {}, level = 'error')
     level = normalize_level(level, exception)
