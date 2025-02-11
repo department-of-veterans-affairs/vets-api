@@ -1106,7 +1106,7 @@ features:
     actor_type: user
     description: Enables/disables refill progress related work
     enable_in_development: true
-  mhv_medicaitons_gouping_list_pagination_count:
+  mhv_medications_grouping_list_pagination_count:
     actor_type: user
     description: Enables/disables grouping list to a shorter count to activate pagination in staging for users with low count of grouped meds
     enable_in_development: true
