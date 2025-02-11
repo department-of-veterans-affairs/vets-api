@@ -12,7 +12,7 @@ module IvcChampva
     end
 
     def put_object(key, file, metadata = {})
-      Datadog::Tracing.trace('S3 Put File(s)') do
+      do
         metadata&.transform_values! { |value| value || '' }
 
         begin
@@ -36,7 +36,7 @@ module IvcChampva
     end
 
     def upload_file(key, file)
-      Datadog::Tracing.trace('S3 Upload File(s)') do
+      do
         obj = resource.bucket(bucket).object(key)
         obj.upload_file(file)
 

@@ -24,7 +24,7 @@ module IvcChampva
     end
 
     def send_email
-      Datadog::Tracing.trace('Send PEGA Status Update Email') do
+      do
         return false unless valid_environment?
 
         VANotify::EmailJob.perform_async(

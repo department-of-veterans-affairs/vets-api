@@ -16,9 +16,8 @@ module IvcChampva
       }.freeze
 
       def submit
-        Datadog::Tracing.trace('Start IVC File Submission') do
+         do
           form_id = get_form_id
-          Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
           parsed_form_data = JSON.parse(params.to_json)
           statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
 
@@ -157,9 +156,6 @@ module IvcChampva
 
         form = form_class.new(parsed_form_data)
         # DataDog Tracking
-        form.track_user_identity
-        form.track_current_user_loa(@current_user)
-        form.track_email_usage
 
         attachment_ids = Array.new(applicant_rounded_number) { form_id }
         attachment_ids.concat(supporting_document_ids(parsed_form_data))
