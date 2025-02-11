@@ -4,9 +4,9 @@ module PdfFill
   class ExtrasGenerator
     attr_reader :extras_redesign
 
-    def initialize(form_id: nil, extras_redesign: false)
+    def initialize(form_name: nil, extras_redesign: false)
       @generate_blocks = []
-      @form_id = form_id
+      @form_name = form_name
       @extras_redesign = extras_redesign
     end
 
@@ -72,8 +72,7 @@ module PdfFill
           [pdf.bounds.left, pdf.bounds.top],
           width: pdf.bounds.width
         ) do
-          formatted_form_id = @form_id.sub(/V2\z/, '')
-          pdf.text("<b>ATTACHMENT</b> to VA Form #{formatted_form_id}",
+          pdf.text("<b>ATTACHMENT</b> to VA Form #{@form_name}",
                    align: :left,
                    size: 14.5,
                    leading: 2,
