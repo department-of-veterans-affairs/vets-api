@@ -563,7 +563,7 @@ module PdfFill
                 'full_time_yes' => { key: 'form1[0].#subform[0].YES2[%iterator%]' },
                 'full_time_no' => { key: 'form1[0].#subform[0].NO2[%iterator%]' }
               },
-              'name' => { 
+              'name' => {
                 key: 'form1[0].#subform[0].FederalAssistanceProgram[%iterator%]',
                 limit: 200,
                 question_num: 9,
@@ -829,7 +829,6 @@ module PdfFill
 
       # rubocop:disable Metrics/MethodLength
       def merge_dates
-        dependents_application = @form_data['dependents_application']
         students_information = @form_data['dependents_application']['student_information']
         if students_information.present?
           students_information.each do |student_information|
@@ -841,7 +840,8 @@ module PdfFill
 
             if last_term_school_information.present?
               last_term_school_information['term_begin'] = split_date(last_term_school_information['term_begin'])
-              last_term_school_information['date_term_ended'] = split_date(last_term_school_information['date_term_ended'])
+              last_term_school_information['date_term_ended'] =
+                split_date(last_term_school_information['date_term_ended'])
             end
 
             if current_term_dates.present?
@@ -849,7 +849,8 @@ module PdfFill
                 split_date(current_term_dates['official_school_start_date'])
               current_term_dates['expected_student_start_date'] =
                 split_date(current_term_dates['expected_student_start_date'])
-              current_term_dates['expected_graduation_date'] = split_date(current_term_dates['expected_graduation_date'])
+              current_term_dates['expected_graduation_date'] =
+                split_date(current_term_dates['expected_graduation_date'])
             end
 
             if student_information['benefit_payment_date'].present?
@@ -890,32 +891,20 @@ module PdfFill
       def merge_student_helpers
         dependents_application = @form_data['dependents_application']
         students_information = @form_data['dependents_application']['student_information']
-          if students_information.present?
-            students_information.each do |student_information|
-              extract_middle_i(student_information, 'full_name')
-              student_information['ssn'] = split_ssn(student_information['ssn'])
-              student_information['address']['postal_code'] =
-                split_postal_code(student_information['address'])
-              student_information['address']['country'] =
-                extract_country(student_information['address'])
-              student_expected_earnings = student_information['student_expected_earnings_next_year']
-              student_earnings = student_information['student_earnings_from_school_year']
-              student_networth = student_information['student_networth_information']
-
-              if student_expected_earnings.present?
-                split_earnings(student_expected_earnings)
-              end
-      
-              if student_earnings.present?
-                split_earnings(student_earnings)
-              end
-      
-              if student_networth.present?
-                split_networth_information(student_networth)
-              end
-            end
+        if students_information.present?
+          students_information.each do |student_information|
+            extract_middle_i(student_information, 'full_name')
+            student_information['ssn'] = split_ssn(student_information['ssn'])
+            student_information['address']['postal_code'] = split_postal_code(student_information['address'])
+            student_information['address']['country'] = extract_country(student_information['address'])
+            student_expected_earnings = student_information['student_expected_earnings_next_year']
+            student_earnings = student_information['student_earnings_from_school_year']
+            student_networth = student_information['student_networth_information']
+            split_earnings(student_expected_earnings) if student_expected_earnings.present?
+            split_earnings(student_earnings) if student_earnings.present?
+            split_networth_information(student_networth) if student_networth.present?
           end
-
+        end
         format_checkboxes(dependents_application)
       end
 
@@ -929,67 +918,53 @@ module PdfFill
       end
 
       def split_earnings(parent_object)
-        return unless parent_object.present?
-        keys_to_process = [
-          'earnings_from_all_employment',
-          'annual_social_security_payments',
-          'other_annuities_income',
-          'all_other_income'
+        return if parent_object.blank?
+
+        keys_to_process = %w[
+          earnings_from_all_employment annual_social_security_payments
+          other_annuities_income all_other_income
         ]
-      
         keys_to_process.each do |key|
           value = parent_object[key]
-      
-          next unless value.present?
-      
+          next if value.blank?
+
           cleaned_value = value.to_s.gsub(/[^0-9]/, '').to_i
           parent_object[key] = {
-            'first' => ((cleaned_value % 1000000) / 1000).to_s.rjust(2, '0')[-3..] || '00',
+            'first' => ((cleaned_value % 1_000_000) / 1000).to_s.rjust(2, '0')[-3..] || '00',
             'second' => (cleaned_value % 1000).to_s.rjust(3, '0') || '000',
             'third' => '00'
           }
         end
-      
         parent_object
       end
 
       def split_networth_information(parent_object)
-        return unless parent_object.present?
-      
-        keys_to_process = [
-          'savings',
-          'securities',
-          'real_estate',
-          'other_assets',
-          'total_value'
-        ]
-      
+        return if parent_object.blank?
+
+        keys_to_process = %w[savings securities real_estate other_assets total_value]
         keys_to_process.each do |key|
           value = parent_object[key]
-      
-          next unless value.present?
-      
+          next if value.blank?
+
           cleaned_value = value.to_s.gsub(/[^0-9]/, '').to_i
 
-          first = (cleaned_value / 1000000).to_s[-2..],
-          second = ((cleaned_value % 1000000) / 1000).to_s.rjust(3, '0')[-3..],
-          third = (cleaned_value % 1000).to_s.rjust(3, '0'),
-          last = "00" 
-      
+          # first = (cleaned_value / 1_000_000).to_s[-2..]
+          # second = ((cleaned_value % 1_000_000) / 1000).to_s.rjust(3, '0')[-3..]
+          # third = (cleaned_value % 1000).to_s.rjust(3, '0')
+          # last = '00'
           parent_object[key] = {
-            'first' => first,
-            'second' => second,
-            'third' => third,
-            'last' => last
+            'first' => (cleaned_value / 1_000_000).to_s[-2..],
+            'second' => ((cleaned_value % 1_000_000) / 1000).to_s.rjust(3, '0')[-3..],
+            'third' => (cleaned_value % 1000).to_s.rjust(3, '0'),
+            'last' => '00'
           }
         end
-      
         parent_object
       end
 
       # rubocop:disable Metrics/MethodLength
       def format_checkboxes(dependents_application)
-        students_information = @form_data['dependents_application']['student_information']
+        students_information = dependents_application['student_information']
         if students_information.present?
           students_information.each do |student_information|
             was_married = student_information['was_married']

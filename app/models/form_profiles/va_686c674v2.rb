@@ -39,7 +39,6 @@ class FormProfiles::VA686c674v2 < FormProfile
     rescue
       nil
     end
-    
     return if mailing_address.blank?
 
     @form_address = FormAddress.new(
