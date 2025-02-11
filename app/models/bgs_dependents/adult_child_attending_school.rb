@@ -39,9 +39,8 @@ module BGSDependents
       @ssn = @source.dig('ssn')
       @full_name = @source.dig('full_name')
       @birth_date = @source.dig('birth_date')
-      @was_married = @source.dig('was_married')
+      @was_married = @is_v2 ? @source.dig('was_married') : @dependents_application['student_address_marriage_tuition']['was_married']
       @dependent_income = @source.dig('student_income')
-
       self.attributes = described_class_attribute_hash
     end
 
@@ -58,7 +57,7 @@ module BGSDependents
     # @return [Hash] the student's address
     #
     def address
-      @source['address']
+      @is_v2 ? @source['address'] : @dependents_application['student_address_marriage_tuition']['address']
     end
 
     private

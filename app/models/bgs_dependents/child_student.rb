@@ -54,12 +54,12 @@ module BGSDependents
         saving_amt: student_networth_information&.dig('savings'),
         real_estate_amt: student_networth_information&.dig('real_estate'),
         other_asset_amt: student_networth_information&.dig('other_assets'),
-        rmks: student&.dig('remarks'),
-        marage_dt: format_date(student&.dig('marriage_date')),
+        rmks: @student&.dig('remarks'),
+        marage_dt: format_date(@student&.dig('marriage_date')),
         agency_paying_tuitn_nm: nil,
         stock_bond_amt: student_networth_information&.dig('securities'),
-        govt_paid_tuitn_ind: convert_boolean(student&.dig('tuition_is_paid_by_gov_agency')),
-        govt_paid_tuitn_start_dt: format_date(student&.dig('benefit_payment_date')),
+        govt_paid_tuitn_ind: convert_boolean(@student&.dig('tuition_is_paid_by_gov_agency')),
+        govt_paid_tuitn_start_dt: format_date(@student&.dig('benefit_payment_date')),
         term_year_emplmt_income_amt: student_earnings_from_school_year&.dig('earnings_from_all_employment'),
         term_year_other_income_amt: student_earnings_from_school_year&.dig('all_other_income'),
         term_year_ssa_income_amt: student_earnings_from_school_year&.dig('annual_social_security_payments'),
@@ -68,8 +68,8 @@ module BGSDependents
         next_year_emplmt_income_amt: student_expected_earnings_next_year&.dig('earnings_from_all_employment'),
         next_year_other_income_amt: student_expected_earnings_next_year&.dig('all_other_income'),
         next_year_ssa_income_amt: student_expected_earnings_next_year&.dig('annual_social_security_payments'),
-        acrdtdSchoolInd: convert_boolean(student&.dig('school_information', 'is_school_accredited')),
-        atndedSchoolCntnusInd: convert_boolean(student&.dig('school_information', 'student_is_enrolled_full_time')), # rubocop:disable Layout/LineLength
+        acrdtdSchoolInd: convert_boolean(@student&.dig('school_information', 'is_school_accredited')),
+        atndedSchoolCntnusInd: convert_boolean(@student&.dig('school_information', 'student_is_enrolled_full_time')), # rubocop:disable Layout/LineLength
         stopedAtndngSchoolDt: nil # rubocop:disable Layout/LineLength
       }
     end

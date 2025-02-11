@@ -29,9 +29,11 @@ module BGS
       veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130SCHATTEBN').create
 
       if Flipper.enabled?(:va_dependents_v2)
-        payload['dependents_application']['student_information'].each do |student|
-          process_claim(veteran, payload, student)
+        claims = []
+        payload&.dig('dependents_application', 'student_information').to_a.each do |student|
+          claims << process_claim(veteran, payload, student)
         end
+        claims
       else
         process_claim(veteran, payload)
       end
@@ -56,7 +58,7 @@ module BGS
       log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
 
       benefit_claim_record = BenefitClaim.new(args: benefit_claim_args(vnp_benefit_claim_record, veteran)).create
-
+      
       begin
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
 

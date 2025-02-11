@@ -92,7 +92,7 @@ module BGSDependents
       is_v2 = Flipper.enabled?(:va_dependents_v2)
       # BGS will throw an error if we pass in a military postal code in for state
       if MILITARY_POST_OFFICE_TYPE_CODES.include?(address['city'])
-        address['military_postal_code'] = is_v2 ?  address.delete('state') : address.delete('state_code')
+        address['military_postal_code'] = is_v2 ? address.delete('state') : address.delete('state_code')
         address['military_post_office_type_code'] = address.delete('city')
       end
 
@@ -159,6 +159,7 @@ module BGSDependents
     end
 
     def create_address_params(proc_id, participant_id, payload)
+      is_v2 = Flipper.enabled?(:va_dependents_v2)
       address = generate_address(payload)
 
       {
@@ -173,7 +174,7 @@ module BGSDependents
         city_nm: address['city'],
         cntry_nm: is_v2 ? address['country'] : address['country_name'],
         postal_cd: is_v2 ? address['state'] : address['state_code'],
-        frgn_postal_cd: is_v2 ? address[postal_code] : address['international_postal_code'],
+        frgn_postal_cd: is_v2 ? address['postal_code'] : address['international_postal_code'],
         mlty_postal_type_cd: address['military_postal_code'],
         mlty_post_office_type_cd: address['military_post_office_type_code'],
         zip_prefix_nbr: is_v2 ? address['postal_code'] : address['zip_code'],
