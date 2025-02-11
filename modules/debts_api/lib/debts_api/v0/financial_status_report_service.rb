@@ -108,8 +108,7 @@ module DebtsApi
       form.delete('streamlined')
       request_start_time = Time.current
       response = perform(:post, 'financial-status-report/formtopdf', form)
-      Datadog::Statsd.timing("#{STATSD_KEY_PREFIX}.fsr.submit.vba.latency",
-                             Time.current - request_start_time)
+      StatsD.measure("#{STATSD_KEY_PREFIX}.fsr.submit.vba.latency", (Time.current - request_start_time) * 1000)
 
       fsr_response = DebtsApi::V0::FinancialStatusReportResponse.new(response.body)
       raise FailedFormToPdfResponse unless response.success?
@@ -134,7 +133,7 @@ module DebtsApi
         form_submission:,
         station_id: vha_form['facilityNum']
       )
-      Datadog::Statsd.timing("#{STATSD_KEY_PREFIX}.fsr.submit.vha.latency", Time.current - request_start_time)
+      StatsD.measure("#{STATSD_KEY_PREFIX}.fsr.submit.vha.latency", (Time.current - request_start_time) * 1000)
       vbs_response = vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
                                       { jsonDocument: vha_form.to_json })
       form_submission.submitted!
@@ -150,8 +149,7 @@ module DebtsApi
       request_start_time = Time.current
       vbs_request = DebtManagementCenter::VBS::Request.build
       Rails.logger.info('5655 Form Submitting to VBS API', submission_id: form_submission.id)
-      Datadog::Statsd.timing("#{STATSD_KEY_PREFIX}.fsr.submit.vbs.latency",
-                             Time.current - request_start_time)
+      StatsD.measure("#{STATSD_KEY_PREFIX}.fsr.submit.vbs.latency", (Time.current - request_start_time) * 1000)
 
       vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
                        { jsonDocument: form.to_json })
