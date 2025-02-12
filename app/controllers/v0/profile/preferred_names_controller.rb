@@ -8,6 +8,7 @@ module V0
       service_tag 'profile'
       before_action { authorize :demographics, :access? }
       before_action { authorize :mpi, :queryable? }
+      after_action :invalidate_mpi_cache
 
       def update
         preferred_name = VAProfile::Models::PreferredName.new preferred_name_params
@@ -23,6 +24,10 @@ module V0
       end
 
       private
+
+      def invalidate_mpi_cache
+        @current_user.invalidate_mpi_cache
+      end
 
       def service
         VAProfile::Demographics::Service.new @current_user

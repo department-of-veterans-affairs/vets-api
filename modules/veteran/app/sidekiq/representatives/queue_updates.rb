@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sentry_logging'
 
 module Representatives
   class QueueUpdates
     include Sidekiq::Job
-    include SentryLogging
 
     SLICE_SIZE = 30
 
@@ -27,9 +25,11 @@ module Representatives
     rescue => e
       log_error("Error in file fetching process: #{e.message}")
     ensure
-      @slack_messages.unshift("Processed #{@rows} rows in #{@slices} slices")
-      @slack_messages.unshift('Representatives::QueueUpdates')
-      log_to_slack(@slack_messages.join("\n"))
+      if @slack_messages.any? # Only report if we have errors
+        @slack_messages.unshift("Processed #{@rows} rows in #{@slices} slices")
+        @slack_messages.unshift('Representatives::QueueUpdates')
+        log_to_slack(@slack_messages.join("\n"))
+      end
     end
 
     private
@@ -76,11 +76,13 @@ module Representatives
 
     def log_error(message)
       message = "QueueUpdates error: #{message}"
-      log_message_to_sentry(message, :error)
+      Rails.logger.error(message)
       @slack_messages << "----- #{message}"
     end
 
     def log_to_slack(message)
+      return unless Settings.vsp_environment == 'production'
+
       client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                        channel: '#benefits-representation-management-notifications',
                                        username: 'Representatives::QueueUpdates Bot')

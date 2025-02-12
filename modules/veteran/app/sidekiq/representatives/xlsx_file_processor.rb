@@ -2,8 +2,6 @@
 
 module Representatives
   class XlsxFileProcessor
-    include SentryLogging
-
     US_STATES_TERRITORIES = {
       'AL' => true,
       'AK' => true,
@@ -204,7 +202,7 @@ module Representatives
     end
 
     def log_error(message)
-      log_message_to_sentry("XlsxFileProcessor error: #{message}", :error)
+      Rails.logger.error("XlsxFileProcessor error: #{message}")
     end
   end
 end

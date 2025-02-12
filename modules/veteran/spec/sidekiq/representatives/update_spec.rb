@@ -226,13 +226,9 @@ RSpec.describe Representatives::Update do
     context 'when JSON parsing fails' do
       let(:invalid_json_data) { 'invalid json' }
 
-      before do
-        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
-      end
-
-      it 'logs an error to Sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-          "Representatives::Update: Error processing job: unexpected token at 'invalid json'", :error
+      it 'logs an error' do
+        expect(Rails.logger).to receive(:error).with(
+          "Representatives::Update: Error processing job: unexpected token at 'invalid json'"
         )
 
         subject.perform(invalid_json_data)
@@ -246,13 +242,9 @@ RSpec.describe Representatives::Update do
       let(:email_changed) { false }
       let(:phone_number_changed) { false }
 
-      before do
-        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
-      end
-
-      it 'logs an error to Sentry' do
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-          'Representatives::Update: Update failed for Rep id: not_found: Representative not found.', :error
+      it 'logs an error' do
+        expect(Rails.logger).to receive(:error).with(
+          'Representatives::Update: Update failed for Rep id: not_found: Representative not found.'
         )
 
         subject.perform(json_data)
@@ -745,13 +737,9 @@ RSpec.describe Representatives::Update do
       context 'when JSON parsing fails' do
         let(:invalid_json_data) { 'invalid json' }
 
-        before do
-          expect_any_instance_of(SlackNotify::Client).to receive(:notify)
-        end
-
-        it 'logs an error to Sentry' do
-          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            "Representatives::Update: Error processing job: unexpected token at 'invalid json'", :error
+        it 'logs an error' do
+          expect(Rails.logger).to receive(:error).with(
+            "Representatives::Update: Error processing job: unexpected token at 'invalid json'"
           )
 
           subject.perform(invalid_json_data)
@@ -765,13 +753,9 @@ RSpec.describe Representatives::Update do
         let(:email_changed) { false }
         let(:phone_number_changed) { false }
 
-        before do
-          expect_any_instance_of(SlackNotify::Client).to receive(:notify)
-        end
-
-        it 'logs an error to Sentry' do
-          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-            'Representatives::Update: Update failed for Rep id: not_found: Representative not found.', :error
+        it 'logs an error' do
+          expect(Rails.logger).to receive(:error).with(
+            'Representatives::Update: Update failed for Rep id: not_found: Representative not found.'
           )
 
           subject.perform(json_data)

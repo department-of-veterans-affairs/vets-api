@@ -3,6 +3,7 @@
 require 'mail_automation/client'
 require 'lighthouse/veterans_health/client'
 require 'virtual_regional_office/client'
+require 'contention_classification/client'
 
 # rubocop:disable Metrics/ModuleLength
 # For use with Form526Submission
@@ -141,14 +142,12 @@ module Form526ClaimFastTrackingConcern
 
   def classify_vagov_contentions(params)
     user = OpenStruct.new({ flipper_id: user_uuid })
-    vro_client = VirtualRegionalOffice::Client.new
 
-    response = if Flipper.enabled?(:disability_526_expanded_contention_classification, user)
-                 vro_client.classify_vagov_contentions_expanded(params)
+    response = if Flipper.enabled?(:disability_526_migrate_contention_classification, user)
+                 ContentionClassification::Client.new.classify_vagov_contentions_expanded(params)
                else
-                 vro_client.classify_vagov_contentions(params)
+                 VirtualRegionalOffice::Client.new.classify_vagov_contentions_expanded(params)
                end
-
     response.body
   end
 

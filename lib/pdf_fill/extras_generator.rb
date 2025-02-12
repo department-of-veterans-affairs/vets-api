@@ -2,8 +2,12 @@
 
 module PdfFill
   class ExtrasGenerator
-    def initialize
+    attr_reader :extras_redesign
+
+    def initialize(form_name: nil, extras_redesign: false)
       @generate_blocks = []
+      @form_name = form_name
+      @extras_redesign = extras_redesign
     end
 
     def create_block(value, metadata)
@@ -15,8 +19,8 @@ module PdfFill
         i = metadata[:i]
         prefix += " Line #{i + 1}" if i.present?
 
-        pdf.text("#{prefix}:", style: :bold)
-        pdf.text(value.to_s, style: :normal)
+        pdf.text("#{prefix}:", { style: extras_redesign ? :normal : :bold })
+        pdf.text(value.to_s, { style: extras_redesign ? :bold : :normal })
       end
     end
 
@@ -62,6 +66,22 @@ module PdfFill
       pdf.font('Roboto')
     end
 
+    def set_header(pdf)
+      pdf.repeat :all do
+        pdf.bounding_box(
+          [pdf.bounds.left, pdf.bounds.top],
+          width: pdf.bounds.width
+        ) do
+          pdf.text("<b>ATTACHMENT</b> to VA Form #{@form_name}",
+                   align: :left,
+                   size: 14.5,
+                   leading: 2,
+                   inline_format: true)
+          pdf.stroke_horizontal_rule
+        end
+      end
+    end
+
     def generate
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
@@ -69,6 +89,8 @@ module PdfFill
       generate_blocks = sort_generate_blocks
       Prawn::Document.generate(file_path) do |pdf|
         set_font(pdf)
+
+        set_header(pdf) if extras_redesign
 
         box_height = 25
         pdf.bounding_box(

@@ -1,0 +1,62 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/emails/status/ea7989c5-60ef-40dc-aa6d-2fe6f7b1f0f9
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Content-Type:
+      - application/json
+      Cufsystemname:
+      - VETSGOV
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-2087296586", dtSInfo;desc="0"
+      - dtRpid;desc="-917195928", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - ea7989c5-60ef-40dc-aa6d-2fe6f7b1f0f9
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Fri, 06 Sep 2024 19:16:40 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"ea7989c5-60ef-40dc-aa6d-2fe6f7b1f0f9","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_SUCCESS","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"sourceDate":"2018-06-06T15:35:55.000Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","emailAddressText":"person42@example.com"},"txOutput":[{"txAuditId":"ea7989c5-60ef-40dc-aa6d-2fe6f7b1f0f9","sourceSystem":"VETSGOV","sourceDate":"2018-06-06T15:35:55.000Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","effectiveStartDate":"2018-06-06T15:35:55.000Z","vaProfileId":1,"emailAddressText":"person42@example.com"}]}'
+  recorded_at: Fri, 06 Sep 2024 19:16:39 GMT
+recorded_with: VCR 6.3.1

@@ -145,8 +145,7 @@ module SimpleFormsApi
           email,
           template_id,
           get_personalization(first_name),
-          Settings.vanotify.services.va_gov.api_key,
-          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+          *email_args
         )
       else
         VANotify::EmailJob.perform_at(
@@ -168,8 +167,7 @@ module SimpleFormsApi
           user_account.id,
           template_id,
           get_personalization(first_name_from_user_account),
-          Settings.vanotify.services.va_gov.api_key,
-          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+          *email_args
         )
       else
         VANotify::UserAccountJob.perform_at(
@@ -425,6 +423,13 @@ module SimpleFormsApi
       else
         form_data.dig('application', 'applicant', 'name', 'first')
       end
+    end
+
+    def email_args
+      [
+        Settings.vanotify.services.va_gov.api_key,
+        { callback_metadata: { notification_type:, form_number:, confirmation_number:, statsd_tags: } }
+      ]
     end
 
     def statsd_tags

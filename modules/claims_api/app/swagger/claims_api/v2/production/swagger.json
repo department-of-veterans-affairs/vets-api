@@ -335,7 +335,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "f7f66fc3-ea97-45a5-bb38-0a1037b74b7b",
+                        "id": "6c2b2cb9-4284-4938-96f4-56d33846b445",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -520,7 +520,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-01-30"
+                              "anticipatedSeparationDate": "2025-02-07"
                             },
                             "confinements": [
                               {
@@ -566,7 +566,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "74dc787d-aa66-4658-b87c-4153ecc968b9",
+                        "id": "cf626ce3-fbf7-40f0-b717-20afbedfa605",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -730,7 +730,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2025-01-30",
+                                "activeDutyEndDate": "2025-02-07",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -751,7 +751,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-01-30"
+                              "anticipatedSeparationDate": "2025-02-07"
                             },
                             "confinements": [
                               {
@@ -1523,7 +1523,7 @@
                               }
                             },
                             "treatments": {
-                              "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 1000 characters to successfully generate a PDF.",
+                              "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 10,000 characters to successfully generate a PDF.",
                               "type": "array",
                               "nullable": true,
                               "uniqueItems": true,
@@ -1646,7 +1646,7 @@
                                         "example": "2018-06-06"
                                       },
                                       "activeDutyEndDate": {
-                                        "description": "Date completed active duty.",
+                                        "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                                         "type": "string",
                                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "example": "2018-06-06"
@@ -2907,7 +2907,7 @@
                             }
                           },
                           "treatments": {
-                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 1000 characters to successfully generate a PDF.",
+                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 10,000 characters to successfully generate a PDF.",
                             "type": "array",
                             "nullable": true,
                             "uniqueItems": true,
@@ -3030,7 +3030,7 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.",
+                                      "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
@@ -3994,7 +3994,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2025-01-30",
+                              "activeDutyEndDate": "2025-02-07",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -4015,7 +4015,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2025-01-30"
+                            "anticipatedSeparationDate": "2025-02-07"
                           },
                           "confinements": [
                             {
@@ -5061,7 +5061,7 @@
                             }
                           },
                           "treatments": {
-                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 1000 characters to successfully generate a PDF.",
+                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 10,000 characters to successfully generate a PDF.",
                             "type": "array",
                             "nullable": true,
                             "uniqueItems": true,
@@ -5184,7 +5184,7 @@
                                       "example": "2018-06-06"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date completed active duty.",
+                                      "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                                       "type": "string",
                                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "2018-06-06"
@@ -6586,7 +6586,7 @@
                             }
                           },
                           "treatments": {
-                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 1000 characters to successfully generate a PDF.",
+                            "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 10,000 characters to successfully generate a PDF.",
                             "type": "array",
                             "nullable": true,
                             "maxItems": 5000,
@@ -8537,8 +8537,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2025-01-28",
-                      "expirationDate": "2026-01-28",
+                      "creationDate": "2025-02-05",
+                      "expirationDate": "2026-02-05",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -9099,7 +9099,7 @@
     },
     "/veterans/{veteranId}/power-of-attorney": {
       "get": {
-        "summary": "Find current Power of Attorney for a Veteran.",
+        "summary": "Retrieves current power of attorney",
         "tags": [
           "Power of Attorney"
         ],
@@ -9121,7 +9121,7 @@
             "bearer_token": []
           }
         ],
-        "description": "Retrieves current Power of Attorney for Veteran or empty data if no POA is assigned.",
+        "description": "Retrieve a claimant’s currently appointed accredited representative with power of attorney (General POA) for the claimant. Returns empty data if no General POA is assigned.",
         "parameters": [
           {
             "name": "veteranId",
@@ -9386,7 +9386,7 @@
     },
     "/veterans/{veteranId}/2122/validate": {
       "post": {
-        "summary": "Validates a 2122 form submission.",
+        "summary": "Validates request to establish an organization as a claimant’s accredited representative",
         "tags": [
           "Power of Attorney"
         ],
@@ -9420,7 +9420,7 @@
             }
           }
         ],
-        "description": "Validates a request appointing an organization as Power of Attorney (21-22).\n",
+        "description": "Validate a request to establish an organization with power of attorney (VA Form 21-22). Use POST\n/veterans/{veteranId}/2122 to automatically establish submit VA Form 21-22.\n",
         "responses": {
           "200": {
             "description": "Valid request response",
@@ -9784,12 +9784,10 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
-                                    "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "example": "555-5555",
+                                    "minLength": 1,
+                                    "maxLength": 14
                                   }
                                 },
                                 "if": {
@@ -9926,12 +9924,10 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
-                                    "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "example": "555-5555",
+                                    "minLength": 1,
+                                    "maxLength": 14
                                   }
                                 },
                                 "if": {
@@ -10070,8 +10066,8 @@
     },
     "/veterans/{veteranId}/2122": {
       "post": {
-        "summary": "Appoint an organization Power of Attorney for a Veteran.",
-        "description": "Dependent Claimant Information:\n\n  - If dependent claimant information is included in the request, the dependentʼs relationship to the Veteran\n  will be validated.\n\n  - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n\n\nResponse Information:\n\n  - A 202 response indicates that the submission was accepted.\n\n  - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n\n",
+        "summary": "Automatically establishes an organization as a claimant’s accredited representative (VA Form 21-22)",
+        "description": "Submit VA Form 21-22 to automatically establish a VA accredited organization with power of attorney\n(General POA).\n",
         "tags": [
           "Power of Attorney"
         ],
@@ -10112,7 +10108,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "cee0496e-0a27-4c19-b18b-3bba4821d900",
+                    "id": "021f7f4e-fb48-4fa3-8ad5-7b2bb20b9109",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -10477,12 +10473,10 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
-                                    "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "example": "555-5555",
+                                    "minLength": 1,
+                                    "maxLength": 14
                                   }
                                 },
                                 "if": {
@@ -10619,12 +10613,10 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
-                                    "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "example": "555-5555",
+                                    "minLength": 1,
+                                    "maxLength": 14
                                   }
                                 },
                                 "if": {
@@ -10818,7 +10810,7 @@
     },
     "/veterans/{veteranId}/2122a/validate": {
       "post": {
-        "summary": "Validates a 2122a form submission.",
+        "summary": "Validates request to establish an individual as a claimant’s accredited representative (VA Form 21-22a)",
         "tags": [
           "Power of Attorney"
         ],
@@ -10852,7 +10844,7 @@
             }
           }
         ],
-        "description": "Validates a request appointing an individual as Power of Attorney (21-22a).\n",
+        "description": "Validate a request to establish an individual with power of attorney (VA Form 21-22a). Use POST\n/veterans/{veteranId}/2122a to automatically establish submit VA Form 21-22a.\n",
         "responses": {
           "200": {
             "description": "Valid request response",
@@ -11233,12 +11225,10 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
-                                    "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "example": "555-5555",
+                                    "minLength": 1,
+                                    "maxLength": 14
                                   }
                                 },
                                 "if": {
@@ -11361,12 +11351,10 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
-                                    "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "example": "555-5555",
+                                    "minLength": 1,
+                                    "maxLength": 14
                                   }
                                 },
                                 "if": {
@@ -11568,7 +11556,7 @@
     },
     "/veterans/{veteranId}/2122a": {
       "post": {
-        "summary": "Appoint an individual Power of Attorney for a Veteran.",
+        "summary": "Automatically establishes an individual as a claimant’s accredited representative (VA Form 21-22a)",
         "tags": [
           "Power of Attorney"
         ],
@@ -11602,7 +11590,7 @@
             }
           }
         ],
-        "description": "Dependent Claimant Information:\n\n  - If dependent claimant information is included in the request, the dependentʼs relationship to the Veteran\n  will be validated.\n\n  - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n\n\nResponse Information:\n\n  - A 202 response indicates that the submission was accepted.\n\n  - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n\n",
+        "description": "Submit VA Form 21-22 to automatically establish a VA accredited individual with power of attorney (General POA).\n",
         "responses": {
           "202": {
             "description": "Valid request response",
@@ -11610,7 +11598,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b01df28a-6961-479f-ad9c-0c91feac5839",
+                    "id": "6bb73960-a881-4525-90d3-946d4d142e25",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -11992,12 +11980,10 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
-                                    "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "example": "555-5555",
+                                    "minLength": 1,
+                                    "maxLength": 14
                                   }
                                 },
                                 "if": {
@@ -12120,12 +12106,10 @@
                                   "phoneNumber": {
                                     "description": "Phone number.",
                                     "type": "string",
-                                    "pattern": "^[0-9]{1,14}$",
-                                    "example": "555-5555"
-                                  },
-                                  "phoneNumberExt": {
-                                    "type": "string",
-                                    "pattern": "^[a-zA-Z0-9]{1,10}$"
+                                    "pattern": "^\\d(?:[- ]?\\d){0,13}$",
+                                    "example": "555-5555",
+                                    "minLength": 1,
+                                    "maxLength": 14
                                   }
                                 },
                                 "if": {
@@ -12406,8 +12390,8 @@
     },
     "/veterans/{veteranId}/power-of-attorney/{id}": {
       "get": {
-        "summary": "Checks status of Power of Attorney appointment form submission",
-        "description": "Gets the Power of Attorney appointment request status (21-22/21-22a)",
+        "summary": "Checks status of power of attorney submission (VA Forms 21-22 or 21-22a)",
+        "description": "Check the submissions status of a request to appoint power of attorney (VA Forms 21-22 or 21-22a).",
         "tags": [
           "Power of Attorney"
         ],
@@ -12458,14 +12442,12 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9b3813b9-0811-4a6d-adc1-97b0c1df5cd2",
+                    "id": "1160af78-2198-428f-a0c0-621f3404d321",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2025-01-28T14:25:25.171Z",
+                      "createdAt": "2025-02-05T21:38:36.298Z",
                       "representative": {
-                        "serviceOrganization": {
-                          "poaCode": "074"
-                        }
+                        "poaCode": "074"
                       },
                       "status": "pending",
                       "errors": [],
@@ -12613,21 +12595,12 @@
                               "type": "object",
                               "additionalProperties": false,
                               "required": [
-                                "serviceOrganization"
+                                "poaCode"
                               ],
                               "properties": {
-                                "serviceOrganization": {
-                                  "type": "object",
-                                  "additionalProperties": true,
-                                  "required": [
-                                    "poaCode"
-                                  ],
-                                  "properties": {
-                                    "poa_code": {
-                                      "type": "string",
-                                      "description": "Power of Attorney Code submitted for Veteran"
-                                    }
-                                  }
+                                "poaCode": {
+                                  "type": "string",
+                                  "description": "Power of Attorney Code submitted for Veteran"
                                 }
                               }
                             }

@@ -5,8 +5,18 @@ FactoryBot.define do
     association :claimant, factory: :user_account
     association :power_of_attorney_form, strategy: :build
 
-    association :power_of_attorney_holder, factory: %i[accredited_organization with_representatives], strategy: :create
-    accredited_individual { power_of_attorney_holder.accredited_individuals.first }
+    accredited_individual_registration_number { Faker::Number.unique.number(digits: 8) }
+    accredited_individual {
+      create(:representative,
+             representative_id: accredited_individual_registration_number,
+             first_name: Faker::Name.unique.first_name,
+             last_name: Faker::Name.unique.last_name)
+    }
+
+    accredited_organization {
+      create(:organization)
+    }
+    power_of_attorney_holder_type { 'AccreditedOrganization' }
 
     transient do
       resolution_created_at { nil }

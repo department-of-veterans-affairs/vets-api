@@ -144,6 +144,7 @@ class SourceAppMiddleware
     view-payments
     view-representative
     virtual-agent
+    welcome-va-setup-review-information
     yellow-ribbon
     your-debt
   ].freeze

@@ -7,6 +7,7 @@ module Mobile
     class PreferredNamesController < ApplicationController
       before_action { authorize :demographics, :access_update? }
       before_action { authorize :mpi, :queryable? }
+      after_action :invalidate_mpi_cache
 
       def update
         preferred_name = VAProfile::Models::PreferredName.new preferred_name_params
@@ -21,6 +22,10 @@ module Mobile
       end
 
       private
+
+      def invalidate_mpi_cache
+        @current_user.invalidate_mpi_cache
+      end
 
       def service
         VAProfile::Demographics::Service.new @current_user

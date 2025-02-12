@@ -130,6 +130,8 @@ RSpec.describe 'VBADocument::V2::Uploads::Submit', retry: 3, type: :request do
         expect(uploaded_pdf['total_documents']).to eq(3)
         expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to be(false)
         expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to be(true)
+        expect(uploaded_pdf['content']['attachments'].first['dimensions']['height']).to eq(102)
+        expect(uploaded_pdf['content']['attachments'].first['dimensions']['width']).to eq(10)
         expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to be(false)
       end
     end

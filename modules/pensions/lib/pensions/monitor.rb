@@ -85,7 +85,6 @@ module Pensions
     # @param in_progress_form [InProgressForm]
     # @param claim [Pension::SavedClaim]
     # @param current_user [User]
-    # @param e [Error]
     #
     def track_create_validation_error(in_progress_form, claim, current_user)
       additional_context = {
@@ -146,7 +145,6 @@ module Pensions
     #
     # @param claim [Pension::SavedClaim]
     # @param current_user [User]
-    # @param e [Error]
     #
     def track_process_attachment_error(in_progress_form, claim, current_user)
       additional_context = {

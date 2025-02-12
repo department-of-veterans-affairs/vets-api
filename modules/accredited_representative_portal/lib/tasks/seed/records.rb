@@ -83,28 +83,23 @@ module AccreditedRepresentativePortal
       ORGANIZATIONS = [
         {
           name: 'Trustworthy Organization',
-          id: '23563963-e31c-4797-a259-e26b727072e1',
-          poa_code: 'YHZ'
+          poa: 'YHZ'
         },
         {
           name: 'Good Representatives R Us',
-          id: '41d36596-67d1-4b23-ab58-927447e88d07',
-          poa_code: 'SVS'
+          poa: 'SVS'
         },
         {
           name: 'We Help Vets',
-          id: '83b7de4d-a2cd-4b15-9e32-af48804c3e31',
-          poa_code: 'FIX'
+          poa: 'FIX'
         },
         {
           name: 'The Swift Reps',
-          id: '31f61e0f-8993-4c57-86f2-7f22e9ca9e68',
-          poa_code: 'MIM'
+          poa: 'MIM'
         },
         {
           name: 'Department of Veterans Fake Data',
-          id: '4e21e4b2-02e5-4a96-ace3-8b56b97a275c',
-          poa_code: 'GWI'
+          poa: 'GWI'
         }
       ].freeze
 
@@ -112,134 +107,68 @@ module AccreditedRepresentativePortal
         {
           first_name: 'Bob',
           last_name: 'Representative',
-          id: 'd9d7e941-7156-4eca-827c-bcabe731d7ea',
-          registration_number: '10000',
-          organization_ids: %w[
-            23563963-e31c-4797-a259-e26b727072e1
-            41d36596-67d1-4b23-ab58-927447e88d07
+          representative_id: '10000',
+          poa_codes: %w[
+            UYX
+            GWI
           ]
         },
         {
           first_name: 'Robert',
           last_name: 'Lowe',
-          id: '3f47a6c7-ce14-4ab5-9567-6e3803336fe1',
-          registration_number: '10001',
-          organization_ids: %w[
-            23563963-e31c-4797-a259-e26b727072e1
-            83b7de4d-a2cd-4b15-9e32-af48804c3e31
-            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
+          representative_id: '10001',
+          poa_codes: %w[
+            EUM
+            UYX
+            GWI
+            TVB
+            XRO
           ]
         },
         {
           first_name: 'Suzie',
           last_name: 'Lowe',
-          id: '90e83d10-8ce1-482b-8f06-45bea0cc7f3c',
-          registration_number: '10002',
-          organization_ids: %w[
-            41d36596-67d1-4b23-ab58-927447e88d07
-            83b7de4d-a2cd-4b15-9e32-af48804c3e31
-            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
-            4e21e4b2-02e5-4a96-ace3-8b56b97a275c
+          representative_id: '10002',
+          poa_codes: %w[
+            TVB
+            XRO
           ]
         },
         {
           first_name: 'Jewell',
           last_name: 'Armstrong',
-          id: 'a1e66cea-bd2d-4997-8b08-42770fc0ebce',
-          registration_number: '10003',
-          organization_ids: %w[
-            23563963-e31c-4797-a259-e26b727072e1
-            41d36596-67d1-4b23-ab58-927447e88d07
-            83b7de4d-a2cd-4b15-9e32-af48804c3e31
-            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
-            4e21e4b2-02e5-4a96-ace3-8b56b97a275c
+          representative_id: '10003',
+          poa_codes: %w[
+            EUM
+            XRO
           ]
         },
         {
           first_name: 'Odis',
           last_name: 'Cruickshank',
-          id: '96dc6994-1949-4f83-a6ad-a3bd9fd728e0',
-          registration_number: '10004',
-          organization_ids: %w[
-            23563963-e31c-4797-a259-e26b727072e1
-            83b7de4d-a2cd-4b15-9e32-af48804c3e31
+          representative_id: '10004',
+          poa_codes: %w[
+            EUM
+            UYX
+            SVS
+            MIM
           ]
         },
         {
           first_name: 'Catheryn',
           last_name: 'Baumbach',
-          id: '3205b046-ee94-4b3f-8ef5-f081b4f60e79',
-          registration_number: '10005',
-          organization_ids: [
-            '23563963-e31c-4797-a259-e26b727072e1'
+          representative_id: '10005',
+          poa_codes: %w[
+            FIX
+            SVS
           ]
         },
         {
           first_name: 'Erica',
           last_name: 'Representative',
-          id: 'c50410bb-7341-4d95-9a2f-aed22178ff08',
-          registration_number: '10006',
-          organization_ids: %w[
-            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
-            4e21e4b2-02e5-4a96-ace3-8b56b97a275c
-          ]
-        },
-        {
-          first_name: 'Erin',
-          last_name: 'Trust',
-          id: '595e4651-4bd0-4094-8007-f3711001efe5',
-          registration_number: '10007',
-          organization_ids: %w[
-            23563963-e31c-4797-a259-e26b727072e1
-            83b7de4d-a2cd-4b15-9e32-af48804c3e31
-            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
-            4e21e4b2-02e5-4a96-ace3-8b56b97a275c
-          ]
-        },
-        {
-          first_name: 'Eric',
-          last_name: 'Good',
-          id: 'c3063f49-f751-4b94-9d18-4a98f08c2926',
-          registration_number: '10008',
-          organization_ids: %w[
-            83b7de4d-a2cd-4b15-9e32-af48804c3e31
-            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
-          ]
-        },
-        {
-          first_name: 'Hershel',
-          last_name: 'Kertzmann',
-          id: '9e68bca2-10e1-48cc-be75-b1ce64d07ef4',
-          registration_number: '10009',
-          organization_ids: %w[
-            23563963-e31c-4797-a259-e26b727072e1
-            41d36596-67d1-4b23-ab58-927447e88d07
-            83b7de4d-a2cd-4b15-9e32-af48804c3e31
-            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
-            4e21e4b2-02e5-4a96-ace3-8b56b97a275c
-          ]
-        },
-        {
-          first_name: 'Georgetta',
-          last_name: 'Roob',
-          id: 'c6999376-28ca-45b9-a840-40c6c7c4edef',
-          registration_number: '10010',
-          organization_ids: %w[
-            23563963-e31c-4797-a259-e26b727072e1
-            41d36596-67d1-4b23-ab58-927447e88d07
-            83b7de4d-a2cd-4b15-9e32-af48804c3e31
-            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
-            4e21e4b2-02e5-4a96-ace3-8b56b97a275c
-          ]
-        },
-        {
-          first_name: 'Horacio',
-          last_name: 'Schultz',
-          id: '0ea9df23-a0b9-42bc-9629-b6ad66704825',
-          registration_number: '10011',
-          organization_ids: %w[
-            41d36596-67d1-4b23-ab58-927447e88d07
-            4e21e4b2-02e5-4a96-ace3-8b56b97a275c
+          representative_id: '10006',
+          poa_codes: %w[
+            XRO
           ]
         }
       ].freeze

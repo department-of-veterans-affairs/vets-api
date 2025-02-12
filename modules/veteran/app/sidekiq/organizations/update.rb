@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sentry_logging'
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
 require 'va_profile/models/v3/validation_address'
@@ -13,7 +12,6 @@ module Organizations
   # and update records in the database accordingly.
   class Update
     include Sidekiq::Job
-    include SentryLogging
 
     attr_accessor :slack_messages, :orgs_data
 
@@ -28,7 +26,7 @@ module Organizations
       @orgs_data = JSON.parse(orgs_json)
       @orgs_data.each { |org_data| process_org_data(org_data) }
     rescue => e
-      log_error("Error processing job: #{e.message}")
+      log_error("Error processing job: #{e.message}", send_to_slack: true)
     ensure
       @slack_messages.unshift("Orgs processed: #{@orgs_data.size}") if @orgs_data&.any?
       @slack_messages.unshift('Organizations::Update')
@@ -115,7 +113,7 @@ module Organizations
     end
 
     # Updates the address record based on the org_data and validation response.
-    # If the record cannot be found, logs an error to Sentry.
+    # If the record cannot be found, logs an error to Datadog.
     # @param org_data [Hash] Original org_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
     def update_org_record(org_data, api_response)
@@ -191,12 +189,12 @@ module Organizations
       }
     end
 
-    # Logs an error to Sentry.
+    # Logs an error to Datadog and adds an error to be logged to slack.
     # @param error [Exception] The error string to be logged.
-    def log_error(error)
+    def log_error(error, send_to_slack: false)
       message = "Organizations::Update: #{error}"
-      log_message_to_sentry(message, :error)
-      @slack_messages << "----- #{message}"
+      Rails.logger.error(message)
+      @slack_messages << "----- #{message}" if send_to_slack
     end
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values
@@ -265,11 +263,6 @@ module Organizations
     # @param org_address [Hash] the address provided by OGC
     # @return [Hash, Nil] the response from the address validation service
     def get_best_address_candidate(org_address)
-      if org_address.nil?
-        log_error('In #get_best_address_candidate, org_address is nil')
-        return nil
-      end
-
       candidate_address = build_validation_address(org_address)
       original_response = validate_address(candidate_address)
       return nil unless address_valid?(original_response)
@@ -287,11 +280,11 @@ module Organizations
       else
         original_response
       end
-    rescue => e
-      log_error("In #get_best_address_candidate, address: #{org_address}, error message: #{e.message}")
     end
 
     def log_to_slack(message)
+      return unless Settings.vsp_environment == 'production'
+
       client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                        channel: '#benefits-representation-management-notifications',
                                        username: 'Organizations::Update Bot')

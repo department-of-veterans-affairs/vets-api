@@ -9,12 +9,6 @@ module VirtualRegionalOffice
 
     STATSD_KEY_PREFIX = 'api.vro'
 
-    def classify_vagov_contentions(params)
-      with_monitoring do
-        perform(:post, Settings.virtual_regional_office.vagov_classification_path, params.to_json.to_s, headers_hash)
-      end
-    end
-
     def classify_vagov_contentions_expanded(params)
       with_monitoring do
         perform(:post, Settings.virtual_regional_office.expanded_classification_path, params.to_json.to_s, headers_hash)

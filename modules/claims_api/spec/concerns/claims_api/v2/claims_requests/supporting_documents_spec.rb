@@ -105,7 +105,6 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
   let(:file_number) { '796111863' }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return(false)
 
@@ -130,29 +129,6 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
       expect(result[0][:original_file_name]).to eq(supporting_doc_list[:data][:documents][0][:originalFileName])
       expect(result[0][:tracked_item_id]).to be_nil
       expect(result[0][:upload_date]).to eq('2024-07-16')
-    end
-  end
-
-  describe '#build_supporting_docs from EVSS Docs Service' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return(false)
-      allow(controller).to receive(:get_evss_documents).and_call_original
-      allow(controller).to receive(:get_evss_documents).and_return(evss_doc_list)
-    end
-
-    it 'builds and returns the correctly number of docs' do
-      result = controller.build_supporting_docs(bgs_claim, ssn)
-      expect(result.length).to eq(evss_doc_list['documents'].length)
-    end
-
-    it 'builds the correct doc output' do
-      result = controller.build_supporting_docs(bgs_claim, ssn)
-
-      expect(result[0][:document_id]).to eq(evss_doc_list['documents'][0]['document_id'])
-      expect(result[0][:document_type_label]).to eq(evss_doc_list['documents'][0]['document_type_label'])
-      expect(result[0][:original_file_name]).to be_nil
-      expect(result[0][:tracked_item_id]).to be_nil
-      expect(result[0][:upload_date]).to be_nil
     end
   end
 

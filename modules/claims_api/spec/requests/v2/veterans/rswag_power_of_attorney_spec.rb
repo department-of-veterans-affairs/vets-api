@@ -26,7 +26,7 @@ describe 'PowerOfAttorney',
   }
 
   path '/veterans/{veteranId}/power-of-attorney' do
-    get 'Find current Power of Attorney for a Veteran.' do
+    get 'Retrieves current power of attorney' do
       tags 'Power of Attorney'
       operationId 'findPowerOfAttorney'
       security [
@@ -35,7 +35,8 @@ describe 'PowerOfAttorney',
         { bearer_token: [] }
       ]
       produces 'application/json'
-      description 'Retrieves current Power of Attorney for Veteran or empty data if no POA is assigned.'
+      description 'Retrieve a claimant’s currently appointed accredited representative with power of attorney ' \
+                  '(General POA) for the claimant. Returns empty data if no General POA is assigned.'
 
       let(:Authorization) { 'Bearer token' }
 
@@ -189,8 +190,8 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/{veteranId}/power-of-attorney-request', production: false do
-    post 'Create a Power of Attorney appointment request' do
-      description 'Creates a Power of Attorney appointment request.'
+    post 'Creates power of attorney request for an accredited representative' do
+      description 'Request the appointment of an accredited representative, on behalf of a claimant.'
       tags 'Power of Attorney'
       operationId 'postPowerOfAttorneyRequest'
       security [
@@ -341,7 +342,7 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/power-of-attorney-requests', production: false do
-    post 'Search for Power of Attorney requests.' do
+    post 'Retrieves power of attorney requests for accredited representatives' do
       tags 'Power of Attorney'
       operationId 'searchPowerOfAttorneyRequests'
       security [
@@ -351,7 +352,8 @@ describe 'PowerOfAttorney',
       ]
       produces 'application/json'
       consumes 'application/json'
-      description 'Search for Power of Attorney requests'
+      description 'Search for power of attorney requests by specified POA codes. Optional filters include searching ' \
+                  'by status, city, state, and country.'
 
       let(:Authorization) { 'Bearer token' }
       let(:scopes) { %w[system/claim.read system/claim.write] }
@@ -474,7 +476,7 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/power-of-attorney-requests/{id}', production: false do
-    get 'Retrieves a Power of Attorney request' do
+    get 'Retrieves a power of attorney request' do
       tags 'Power of Attorney'
       operationId 'getPowerOfAttorneyRequest'
       security [
@@ -483,7 +485,7 @@ describe 'PowerOfAttorney',
         { bearer_token: [] }
       ]
       produces 'application/json'
-      description 'Retrieves a Power of Attorney request.'
+      description 'Retrieve a power of attorney request by id.'
 
       let(:Authorization) { 'Bearer token' }
       let(:scopes) { %w[system/claim.read system/claim.write] }
@@ -598,7 +600,7 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/power-of-attorney-requests/{id}/decide', production: false do
-    post 'Submit the decision for Power of Attorney requests.' do
+    post 'Submits representative decision for a power of attorney request' do
       tags 'Power of Attorney'
       operationId 'createPowerOfAttorneyRequestDecisions'
       security [
@@ -608,7 +610,8 @@ describe 'PowerOfAttorney',
       ]
       produces 'application/json'
       consumes 'application/json'
-      description 'Create the decision for Power of Attorney requests'
+      description 'Approve or decline a power of attorney request. If approved, the power of attorney request will ' \
+                  'be submitted to VA. The claimant will be notified of the decision by email.'
 
       parameter name: :id,
                 in: :path,
@@ -790,7 +793,7 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/{veteranId}/2122/validate' do
-    post 'Validates a 2122 form submission.' do
+    post 'Validates request to establish an organization as a claimant’s accredited representative' do
       tags 'Power of Attorney'
       operationId 'post2122Validate'
       security [
@@ -813,7 +816,8 @@ describe 'PowerOfAttorney',
       let(:scopes) { %w[system/claim.read system/claim.write] }
 
       pdf_description = <<~VERBIAGE
-        Validates a request appointing an organization as Power of Attorney (21-22).
+        Validate a request to establish an organization with power of attorney (VA Form 21-22). Use POST
+        /veterans/{veteranId}/2122 to automatically establish submit VA Form 21-22.
       VERBIAGE
 
       description pdf_description
@@ -949,16 +953,10 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/{veteranId}/2122' do
-    post 'Appoint an organization Power of Attorney for a Veteran.' do
+    post 'Automatically establishes an organization as a claimant’s accredited representative (VA Form 21-22)' do
       post_description = <<~VERBIAGE
-        Dependent Claimant Information:\n
-          - If dependent claimant information is included in the request, the dependentʼs relationship to the Veteran
-          will be validated.\n
-          - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n
-
-        Response Information:\n
-          - A 202 response indicates that the submission was accepted.\n
-          - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n
+        Submit VA Form 21-22 to automatically establish a VA accredited organization with power of attorney
+        (General POA).
       VERBIAGE
       description post_description
       tags 'Power of Attorney'
@@ -1141,7 +1139,7 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/{veteranId}/2122a/validate' do
-    post 'Validates a 2122a form submission.' do
+    post 'Validates request to establish an individual as a claimant’s accredited representative (VA Form 21-22a)' do
       tags 'Power of Attorney'
       operationId 'post2122aValidate'
       security [
@@ -1164,7 +1162,8 @@ describe 'PowerOfAttorney',
       let(:Authorization) { 'Bearer token' }
       parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a]
       pdf_description = <<~VERBIAGE
-        Validates a request appointing an individual as Power of Attorney (21-22a).
+        Validate a request to establish an individual with power of attorney (VA Form 21-22a). Use POST
+        /veterans/{veteranId}/2122a to automatically establish submit VA Form 21-22a.
       VERBIAGE
 
       description pdf_description
@@ -1311,7 +1310,7 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/{veteranId}/2122a' do
-    post 'Appoint an individual Power of Attorney for a Veteran.' do
+    post 'Automatically establishes an individual as a claimant’s accredited representative (VA Form 21-22a)' do
       tags 'Power of Attorney'
       operationId 'post2122a'
       security [
@@ -1333,14 +1332,7 @@ describe 'PowerOfAttorney',
       let(:Authorization) { 'Bearer token' }
       parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a]
       post_description = <<~VERBIAGE
-        Dependent Claimant Information:\n
-          - If dependent claimant information is included in the request, the dependentʼs relationship to the Veteran
-          will be validated.\n
-          - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n
-
-        Response Information:\n
-          - A 202 response indicates that the submission was accepted.\n
-          - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n
+        Submit VA Form 21-22 to automatically establish a VA accredited individual with power of attorney (General POA).
       VERBIAGE
       description post_description
       let(:scopes) { %w[system/claim.read system/claim.write] }
@@ -1514,8 +1506,8 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/{veteranId}/power-of-attorney/{id}' do
-    get 'Checks status of Power of Attorney appointment form submission' do
-      description 'Gets the Power of Attorney appointment request status (21-22/21-22a)'
+    get 'Checks status of power of attorney submission (VA Forms 21-22 or 21-22a)' do
+      description 'Check the submissions status of a request to appoint power of attorney (VA Forms 21-22 or 21-22a).'
       tags 'Power of Attorney'
       operationId 'getPowerOfAttorneyStatus'
       security [

@@ -11,7 +11,6 @@ describe ClaimsApi::PersonWebService do
 
   before do
     allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
-    allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return true
     allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
       .to receive(:get_auth_token).and_return('some-value-here')
   end

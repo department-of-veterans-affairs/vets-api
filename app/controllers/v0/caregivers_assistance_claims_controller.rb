@@ -90,9 +90,7 @@ module V0
       )
 
       # The Lighthouse Facilities api expects the facility ids param as `facilityIds`
-      permitted_params.to_h.tap do |hash|
-        hash['facilityIds'] = hash.delete('facility_ids') if hash.key?('facility_ids')
-      end
+      permitted_params.to_h.transform_keys { |key| key == 'facility_ids' ? 'facilityIds' : key }
     end
 
     def record_submission_attempt

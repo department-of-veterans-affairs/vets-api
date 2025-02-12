@@ -512,7 +512,10 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
         end
 
         context 'with a validation key' do
-          let(:address) { build(:va_profile_v3_address, :override) }
+          let(:address) do
+            build(:va_profile_v3_address, :override, country_name: nil)
+          end
+
           let(:frozen_time) { Time.zone.parse('2024-09-16T16:09:37.000Z') }
 
           before do

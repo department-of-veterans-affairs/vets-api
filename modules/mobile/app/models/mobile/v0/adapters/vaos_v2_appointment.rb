@@ -80,8 +80,7 @@ module Mobile
 
         attr_reader :appointment
 
-        def initialize(user, appointment)
-          @user = user
+        def initialize(appointment)
           @appointment = appointment
         end
 
@@ -279,11 +278,7 @@ module Mobile
           when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:va]
             convert_va_appointment_type
           when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:request]
-            if Flipper.enabled?(:va_online_scheduling_appointment_type_consolidation, @user)
-              APPOINTMENT_TYPES[:va]
-            else
-              appointment[:type]
-            end
+            APPOINTMENT_TYPES[:va]
           else
             appointment[:type]
           end

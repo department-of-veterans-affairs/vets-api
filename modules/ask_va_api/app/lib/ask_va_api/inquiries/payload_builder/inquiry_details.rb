@@ -50,7 +50,7 @@ module AskVAApi
                      inquiry_about: details_hash[:inquiry_about],
                      dependent_relationship: details_hash[:dependent_relationship],
                      veteran_relationship: details_hash[:veteran_relationship],
-                     level_of_authentication: details_hash[:level_of_authentication] || 'Personal'
+                     level_of_authentication: details_hash[:inquiry_details][:level_of_authentication] || 'Personal'
                    })
         end
 

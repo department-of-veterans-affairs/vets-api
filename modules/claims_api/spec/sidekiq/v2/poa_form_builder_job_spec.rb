@@ -19,6 +19,10 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
     allow_any_instance_of(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return false
   end
 
+  it 'sets retry_for to 48 hours' do
+    expect(described_class.get_sidekiq_options['retry_for']).to eq(48.hours)
+  end
+
   describe 'generating and uploading the signed pdf' do
     context '2122a veteran claimant' do
       before do

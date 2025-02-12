@@ -41,11 +41,6 @@ module Swagger
                    type: :boolean,
                    example: true,
                    description: 'Indicates person has granted permission to receive text messages to phone number.'
-          property :is_tty,
-                   type: :boolean,
-                   example: true,
-                   description: 'Indicates phone number has TTY capability (TeleTypewriter). This allows deaf or hard of
-                   hearing individuals to utilize typing versus voice over a phone connection.'
           property :is_voicemailable,
                    type: :boolean,
                    example: true,
@@ -111,11 +106,6 @@ module Swagger
                    type: :boolean,
                    example: true,
                    description: 'Indicates person has granted permission to receive text messages to phone number.'
-          property :is_tty,
-                   type: :boolean,
-                   example: true,
-                   description: 'Indicates phone number has TTY capability (TeleTypewriter). This allows deaf or hard of
-                   hearing individuals to utilize typing versus voice over a phone connection.'
           property :is_voicemailable,
                    type: :boolean,
                    example: true,

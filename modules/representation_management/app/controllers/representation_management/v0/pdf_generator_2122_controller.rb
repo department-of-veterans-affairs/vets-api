@@ -2,7 +2,9 @@
 
 module RepresentationManagement
   module V0
-    class PdfGenerator2122Controller < RepresentationManagement::V0::PdfGeneratorBaseController
+    class PdfGenerator2122Controller < RepresentationManagement::V0::PowerOfAttorneyRequestBaseController
+      skip_before_action :authenticate
+
       def create
         form = RepresentationManagement::Form2122Data.new(flatten_form_params)
 

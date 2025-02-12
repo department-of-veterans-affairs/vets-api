@@ -139,7 +139,7 @@ module PdfFill
             key: 'F[0].#subform[2].Other_Traumatic_Events[0]'
           }
         },
-        'eventsDetails' => {
+        'events' => {
           limit: 6,
           first_key: 'details',
           question_text: 'EVENT DETAILS',
@@ -163,7 +163,7 @@ module PdfFill
             question_suffix: 'A'
           }
         },
-        'behaviors' => { # question_num: 10A
+        'workBehaviors' => { # question_num: 10A
           'reassignment' => {
             key: 'F[0].#subform[3].Request_For_A_Change_In_Occupational_Series_Or_Duty_Assignment[0]'
           },
@@ -172,7 +172,9 @@ module PdfFill
           },
           'performance' => {
             key: 'F[0].#subform[3].Changes_In_Performance_Or_Performance_Evaluations[0]'
-          },
+          }
+        },
+        'healthBehaviors' => { # question_num: 10A
           'consultations' => {
             key: 'F[0].#subform[3].Increased_Decreased_Visits_To_A_Healthcare_Professional_Counselor_Or_Treatment_Facility[0]'
           },
@@ -196,7 +198,9 @@ module PdfFill
           },
           'screenings' => {
             key: 'F[0].#subform[4].Tests_For_Sexually_Transmitted_Infections[0]'
-          },
+          }
+        },
+        'otherBehaviors' => { # question_num: 10A
           'socialEconomic' => {
             key: 'F[0].#subform[4].Economic_Or_Social_Behavioral_Changes[0]'
           },
@@ -390,14 +394,14 @@ module PdfFill
             question_suffix: 'B[9]',
             question_text: 'ADDTIONAL INFORMATION ABOUT Disciplinary or legal difficulties.'
           },
-          'otherBehavior' => {
+          'unlisted' => {
             key: 'F[0].#subform[4].List_Additional_Behavioral_Changes[0]',
             limit: 784,
             question_num: 10,
             question_suffix: 'C',
             question_text: 'ADDTIONAL INFORMATION ABOUT Additional behavioral changes.'
           },
-          'otherBehaviorOverflow' => {
+          'unlistedOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'C',
@@ -618,13 +622,13 @@ module PdfFill
         split_phone(@form_data, 'veteranPhone')
 
         set_treatment_selection
-        set_reports_selection
         set_option_indicator
 
-        format_other_behavior_details
-        format_police_report_location
+        if @form_data['events']&.any?
+          process_reports
+          expand_collection('events', :format_event, 'eventOverflow')
+        end
 
-        expand_collection('eventsDetails', :format_event, 'eventOverflow')
         expand_collection('treatmentProvidersDetails', :format_provider, 'providerOverflow')
 
         expand_signature(@form_data['veteranFullName'], @form_data['signatureDate'])
@@ -662,17 +666,42 @@ module PdfFill
         @form_data['noTreatment'] = treated ? 0 : 1
       end
 
-      def set_reports_selection
-        reports = @form_data['reports']
-        return if reports.nil?
+      def process_reports
+        report_filed = false
+        no_report = false
+        police_reports = []
+        other_reports = []
+        reports_details = @form_data['reportsDetails'] ||= {}
 
-        @form_data['reportFiled'] = reports['yes'] ? 0 : nil
-        @form_data['noReportFiled'] = reports['no'] ? 1 : nil
-        @form_data['restrictedReport'] = reports['restricted'] ? 0 : nil
-        @form_data['unrestrictedReport'] = reports['unrestricted'] ? 1 : nil
-        @form_data['neitherReport'] = reports['neither'] ? 2 : nil
-        @form_data['policeReport'] = reports['police'] ? 3 : nil
-        @form_data['otherReport'] = reports['other'] ? 4 : nil
+        @form_data['events'].each do |event|
+          reports = event['reports'] || {}
+          other_report = event['otherReports']
+          next if reports.empty? && other_report&.blank?
+
+          report_filed ||= reports.except('none').values.include?(true)
+          no_report ||= reports['none']
+
+          set_report_types(other_report, report_filed, reports)
+
+          police_report = format_police_details(event)
+          police_reports << police_report unless police_report.empty?
+
+          other_reports << other_report if other_report.present?
+        end
+
+        reports_details['police'] = police_reports.join('; ') unless police_reports.empty?
+        reports_details['other'] = other_reports.join('; ') unless other_reports.empty?
+        @form_data['noReportFiled'] = no_report && !report_filed ? 1 : nil
+      end
+
+      # Numbers correspond to a predefined "export value" assigned to each checkbox option on the PDF form:
+      def set_report_types(other_report, report_filed, reports)
+        @form_data['reportFiled'] ||= report_filed ? 0 : nil
+        @form_data['restrictedReport'] ||= reports['restricted'] ? 0 : nil
+        @form_data['unrestrictedReport'] ||= reports['unrestricted'] ? 1 : nil
+        @form_data['neitherReport'] ||= reports['neither'] ? 2 : nil
+        @form_data['policeReport'] ||= reports['police'] ? 3 : nil
+        @form_data['otherReport'] ||= other_report ? 4 : nil
       end
 
       def set_option_indicator
@@ -685,19 +714,9 @@ module PdfFill
         @form_data['optionIndicator'][selected_option] = true
       end
 
-      def format_other_behavior_details
-        other_behavior = @form_data['otherBehaviors']
-        return if other_behavior.blank?
-
-        details = @form_data['behaviorsDetails']['otherBehavior']
-        @form_data['behaviorsDetails']['otherBehavior'] = "#{other_behavior}: #{details}"
-      end
-
-      def format_police_report_location
-        report = @form_data['reportsDetails']&.[]('police')
-        return if report.blank?
-
-        @form_data['reportsDetails']['police'] = report.values.reject(&:empty?).join(', ')
+      def format_police_details(event)
+        fields = %w[agency city state township country]
+        fields.map { |field| event[field] }.compact_blank.join(', ')
       end
 
       def expand_collection(collection, format_method, overflow_key)

@@ -1,0 +1,17 @@
+{
+  "confirmation_code": "123456",
+  "form_number": "21-0779",
+  "form_data": {
+    "id_number": {
+      "ssn": "234232345",
+      "va_file_number": "456454567"
+    },
+    "postal_code": "12345",
+    "full_name": {
+      "first": "John",
+      "last": "Veteran"
+    },
+    "email": "john@veteran.com",
+    "form_name": "Request for Nursing Home Information in Connection with Claim for Aid and Attendance"
+  }
+}

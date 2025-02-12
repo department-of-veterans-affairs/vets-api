@@ -138,7 +138,16 @@ shared_examples 'travel claims worker #perform' do |facility_type|
     end
   end
 
-  context "when #{facility_type} facility and send_sms returns an error" do
+  context "when #{facility_type} facility and send_sms returns an error after retrying" do
+    let(:notify_client) { instance_double(VaNotify::Service) }
+    let(:forbidden_exception) { VANotify::Forbidden.new(403, 'test error message') }
+
+    before do
+      allow(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
+                                               .and_return(notify_client)
+      allow(notify_client).to receive(:send_sms).with(any_args).and_raise(forbidden_exception)
+    end
+
     it 'handles the error' do
       worker = described_class.new
       expect(worker).to receive(:log_exception_to_sentry).with(
@@ -147,12 +156,14 @@ shared_examples 'travel claims worker #perform' do |facility_type|
         { error: :check_in_va_notify_job, team: 'check-in' }
       )
 
+      expect(notify_client).to receive(:send_sms).with(any_args).exactly(4).times
       expect(StatsD).not_to receive(:increment)
         .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
       expect(StatsD).to receive(:increment)
         .with(CheckIn::Constants::STATSD_NOTIFY_ERROR).exactly(1).time
 
-      VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host]) do
+      VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host],
+                                                                   allow_playback_repeats: true) do
         VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_200', match_requests_on: [:host]) do
           expect { worker.perform(uuid, appt_date) }.to raise_error(VANotify::Forbidden)
         end
@@ -160,7 +171,16 @@ shared_examples 'travel claims worker #perform' do |facility_type|
     end
   end
 
-  context "when #{facility_type} facility and both submit_claim & send_sms returns an error" do
+  context "when #{facility_type} facility and both submit_claim & send_sms returns an error after retrying" do
+    let(:notify_client) { instance_double(VaNotify::Service) }
+    let(:forbidden_exception) { VANotify::Forbidden.new(403, 'test error message') }
+
+    before do
+      allow(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
+                                               .and_return(notify_client)
+      allow(notify_client).to receive(:send_sms).with(any_args).and_raise(forbidden_exception)
+    end
+
     it 'logs the silent_failure error' do
       worker = described_class.new
       expect(worker).to receive(:log_exception_to_sentry).with(
@@ -169,6 +189,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
         { error: :check_in_va_notify_job, team: 'check-in' }
       )
 
+      expect(notify_client).to receive(:send_sms).with(any_args).exactly(4).times
       expect(StatsD).not_to receive(:increment)
         .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
       expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SILENT_FAILURE,
@@ -177,7 +198,8 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       expect(StatsD).to receive(:increment)
         .with(CheckIn::Constants::STATSD_NOTIFY_ERROR).exactly(1).time
 
-      VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host]) do
+      VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host],
+                                                                   allow_playback_repeats: true) do
         VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_400_multiple', match_requests_on: [:host]) do
           expect { worker.perform(uuid, appt_date) }.to raise_error(VANotify::Forbidden)
         end

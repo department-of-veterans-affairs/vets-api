@@ -135,6 +135,7 @@ module BenefitsIntake
     def update_attempt_record(uuid, status, submission)
       form_submission_attempt = pending_attempts_hash[uuid]
       lighthouse_updated_at = submission.dig('attributes', 'updated_at')
+      form_submission_attempt.update(lighthouse_updated_at:)
 
       case status
       when 'expired'
@@ -152,7 +153,7 @@ module BenefitsIntake
         form_submission_attempt.vbms!
       end
 
-      form_submission_attempt.update(lighthouse_updated_at:, error_message:)
+      form_submission_attempt.update(error_message:) if error_message
     end
 
     # monitoring of the submission attempt status

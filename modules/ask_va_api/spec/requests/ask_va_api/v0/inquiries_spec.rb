@@ -24,6 +24,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     allow(LogService).to receive(:new).and_return(logger)
     allow(logger).to receive(:call).and_yield(span)
     allow(span).to receive(:set_tag)
+    allow(span).to receive(:set_error)
     allow(Rails.logger).to receive(:error)
     allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
   end

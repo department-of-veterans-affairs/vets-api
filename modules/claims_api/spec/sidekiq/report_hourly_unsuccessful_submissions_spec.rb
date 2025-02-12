@@ -87,6 +87,20 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         subject.perform
       end
 
+      context 'when a va gov claim with the same transaction id errs in the same hour' do
+        before do
+          create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now, transaction_id: 'transaction_1')
+          create(:auto_established_claim_va_gov, :errored, created_at: 59.minutes.ago, transaction_id: 'transaction_1')
+          allow_any_instance_of(ClaimsApi::ReportHourlyUnsuccessfulSubmissions).to receive(:notify).and_return(nil)
+        end
+
+        it 'only alerts on one of the claims' do
+          subject.perform
+
+          expect(subject.instance_variable_get(:@va_gov_errored_claims)).to have_attributes(length: 1)
+        end
+      end
+
       it 'does not alert for claims with specific errors' do
         allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
                                                             .and_return(true)

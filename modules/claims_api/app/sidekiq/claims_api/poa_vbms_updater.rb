@@ -5,6 +5,9 @@ require 'bgs_service/corporate_update_web_service'
 
 module ClaimsApi
   class PoaVBMSUpdater < ClaimsApi::ServiceBase
+    LOG_TAG = 'poa_vbms_updater'
+    sidekiq_options retry_for: 48.hours
+
     def perform(power_of_attorney_id) # rubocop:disable Metrics/MethodLength
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       process = ClaimsApi::Process.find_or_create_by(processable: poa_form, step_type: 'POA_ACCESS_UPDATE')
@@ -14,9 +17,9 @@ module ClaimsApi
       poa_code = extract_poa_code(poa_form.form_data)
 
       ClaimsApi::Logger.log(
-        'poa_vbms_updater',
+        LOG_TAG,
         poa_id: power_of_attorney_id,
-        detail: 'Updating Access',
+        detail: form_logger_consent_detail(poa_form, poa_code),
         poa_code:,
         allow_poa_access: allow_poa_access?(poa_form_data: poa_form.form_data),
         allow_poa_c_add: allow_address_change?(poa_form)
@@ -51,10 +54,6 @@ module ClaimsApi
                       error_messages: [{ title: 'BGS Error',
                                          detail: poa_form.vbms_error_message }])
       ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BGS Error', error: e)
-    end
-
-    def allow_address_change?(poa_form)
-      poa_form.form_data['consentAddressChange']
     end
 
     def update_poa_access(poa_form:, participant_id:, poa_code:)
