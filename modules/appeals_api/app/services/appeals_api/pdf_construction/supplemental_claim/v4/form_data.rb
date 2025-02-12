@@ -50,7 +50,7 @@ module AppealsApi
             'I CONSENT' => 4,
             'I DO NOT CONSENT' => 1,
             'I REVOKE PRIOR CONSENT' => 3,
-            'NOT APPLICABLE AND/OR NOT ENROLLED IN VHA HEALTHCARE' => 2      
+            'NOT APPLICABLE AND/OR NOT ENROLLED IN VHA HEALTHCARE' => 2
           }.freeze
 
           LONG_SIGNATURE_THRESHOLD = 70

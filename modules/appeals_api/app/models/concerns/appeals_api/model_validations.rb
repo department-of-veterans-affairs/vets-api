@@ -101,7 +101,7 @@ module AppealsApi
             schema_pointer = "/data/attributes/evidenceSubmission/retrieveFrom[#{evidence_index}]/attributes/evidenceDates[#{date_index}]" # rubocop:disable Layout/LineLength
             start_date_str = evidence_date['startDate']
             end_date_str = evidence_date['endDate']
-            
+
             # End date is no longer required on what we are calling the v4 version(Expiration Date: 05/31/2027)
             # of the Supp claim form, so if it's not provided, don't validate the range
             next if end_date_str.nil?

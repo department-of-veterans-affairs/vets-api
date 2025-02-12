@@ -26,9 +26,9 @@ module AppealsApi
       return [''] if evidence_dates.blank?
 
       evidence_dates.map do |hash|
-        #end date is not required for the month format
+        # end date is not required for the month format
         if hash['endDate'].nil?
-          "#{Date.parse(hash['startDate']).strftime('%m-%Y')}"
+          Date.parse(hash['startDate']).strftime('%m-%Y')
         else
           "#{Date.parse(hash['startDate']).strftime('%m-%Y')} to #{Date.parse(hash['endDate']).strftime('%m-%Y')}"
         end
