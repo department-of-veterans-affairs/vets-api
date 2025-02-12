@@ -82,29 +82,28 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
 
     context 'when a matching record exists by ICN' do
       it 'updates the record and returns it' do
-
         result = described_class.reconcile_and_find_by(
           user_account_email: 'new_email@vso.org',
           user_account_icn: 'ICN001'
         )
 
         # returns nil but updates the matching record icn to nil
-        expect(result).to eq(nil)
-        expect(described_class.first.user_account_icn).to eq(nil)
+        expect(result).to be_nil
+        expect(described_class.first.user_account_icn).to be_nil
       end
     end
 
     context 'when no matching record exists' do
       it 'does not create a new record' do
-        expect {
+        expect do
           described_class.reconcile_and_find_by(
             user_account_email: 'new_user@vso.org',
             user_account_icn: 'ICN_NEW'
           )
-        }.to change { described_class.count }.by(0)
+        end.not_to(change(described_class, :count))
 
         new_record = described_class.find_by(user_account_email: 'new_user@vso.org')
-        expect(new_record).to eq(nil)
+        expect(new_record).to be_nil
       end
     end
 
