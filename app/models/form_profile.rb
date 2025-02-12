@@ -121,13 +121,13 @@ class FormProfile
   #
   def self.form_class_namespace(module_name)
     namespaces = {
-      'pension' => Pensions::FormProfiles
+      'pension' => 'Pensions::FormProfiles'.safe_constantize
     }
 
     namespace = namespaces[module_name]
-    return namespace if namespace && Flipper.enabled?(:"#{module_name}_form_profile_module_enabled", nil)
+    return namespace if defined?(namespace) && Flipper.enabled?(:"#{module_name}_form_profile_module_enabled", nil)
 
-    FormProfiles
+    ::FormProfiles
   end
 
   FORM_ID_TO_CLASS = {

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pensions/military_information'
+
 module Pensions
   # extends app/models/form_profile.rb, which handles form prefill
   class FormProfiles::VA21p527ez < ::FormProfile

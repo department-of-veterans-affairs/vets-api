@@ -4,9 +4,9 @@ require 'va_profile/prefill/military_information'
 require 'claims_api/service_branch_mapper'
 
 module Pension21p527ez
-  # ##
-  # # extends FormMilitaryInformation to add additional military information fields to Pension prefill.
-  # # @see app/models/form_profile.rb FormProfile::FormMilitaryInformation
+  ##
+  # extends FormMilitaryInformation to add additional military information fields to Pension prefill.
+  # @see app/models/form_profile.rb FormProfile::FormMilitaryInformation
   class PensionFormMilitaryInformation < FormProfile::FormMilitaryInformation
     include Virtus.model
 

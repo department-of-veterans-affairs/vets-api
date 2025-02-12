@@ -2,6 +2,7 @@
 
 require 'va_profile/prefill/military_information'
 require 'claims_api/service_branch_mapper'
+require 'pensions/form_military_information'
 
 module Pensions
   ##
