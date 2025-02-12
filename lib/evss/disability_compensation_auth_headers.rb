@@ -1,10 +1,18 @@
 # frozen_string_literal: true
 
-require 'lighthouse/base_headers'
+if Flipper.enabled?(:lighthouse_base_headers)
+  require 'lighthouse/base_headers'
+else
+  require 'evss/base_headers'
+end
 require 'formatters/date_formatter'
 
 module EVSS
-  class DisabilityCompensationAuthHeaders < Lighthouse::BaseHeaders
+  class DisabilityCompensationAuthHeaders < if Flipper.enabled?(:lighthouse_base_headers)
+                                              Lighthouse::BaseHeaders
+                                            else
+                                              EVSS::BaseHeaders
+                                            end
     # :nocov:
 
     def add_headers(auth_headers)

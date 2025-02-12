@@ -1,10 +1,18 @@
 # frozen_string_literal: true
 
-require 'lighthouse/base_headers'
+if Flipper.enabled?(:lighthouse_base_headers)
+  require 'lighthouse/base_headers'
+else
+  require 'evss/base_headers'
+end
 require 'formatters/date_formatter'
 
 module EVSS
-  class AuthHeaders < Lighthouse::BaseHeaders
+  class AuthHeaders < if Flipper.enabled?(:lighthouse_base_headers)
+                        Lighthouse::BaseHeaders
+                      else
+                        EVSS::BaseHeaders
+                      end
     attr_reader :transaction_id
 
     def initialize(user)
