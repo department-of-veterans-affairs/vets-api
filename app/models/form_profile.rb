@@ -109,27 +109,6 @@ class FormProfile
     vre_readiness: ['28-1900']
   }.freeze
 
-  # Returns the appropriate form class namespace based on the given module name and Flipper settings
-  #
-  # @param module_name [String] The name of the module (e.g., 'pension', 'burial').
-  # @return [Module] The corresponding namespace module for form profiles, defaulting to FormProfiles.
-  #
-  # @example Usage
-  #   form_class_namespace('pension', current_user) #=> Pensions::FormProfiles (if flipper is enabled)
-  #   form_class_namespace('burial', current_user)  #=> Burials::FormProfiles (if flipper is enabled)
-  #   form_class_namespace('unknown', current_user)  #=> FormProfiles
-  #
-  def self.form_class_namespace(module_name)
-    namespaces = {
-      'pension' => 'Pensions::FormProfiles'.safe_constantize
-    }
-
-    namespace = namespaces[module_name]
-    return namespace if defined?(namespace) && Flipper.enabled?(:"#{module_name}_form_profile_module_enabled", nil)
-
-    ::FormProfiles
-  end
-
   FORM_ID_TO_CLASS = {
     '0873' => ::FormProfiles::VA0873,
     '10-10EZR' => ::FormProfiles::VA1010ezr,
@@ -147,7 +126,7 @@ class FormProfile
     '21-686C' => ::FormProfiles::VA21686c,
     '21P-0516-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
-    '21P-527EZ' => form_class_namespace('pension')::VA21p527ez,
+    '21P-527EZ' => ::FormProfiles::VA21p527ez,
     '21P-530EZ' => ::FormProfiles::VA21p530ez,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
@@ -190,10 +169,35 @@ class FormProfile
     forms
   end
 
+  # Prepends the appropriate form class namespace based on the given form_class, form_id and Flipper settings
+  #
+  # @param form_class [Class] The name of the Class (e.g., ::FormProfiles::VA21p527ez).
+  # @param form_id [String] The name of the Form (e.g., '21P-527EZ').
+  # @return [Module] The corresponding namespace module for form profiles, defaulting to FormProfiles.
+  #
+  # @example Usage
+  #   prepend_module(::FormProfiles::VA21p527ez, '21P-527EZ') #=> Pensions::FormProfiles::VA21p527ez
+  #   prepend_module(::FormProfiles::VA21p530ez', '21P-530EZ')  #=> Burials::FormProfiles::VA21p530ez
+  #   prepend_module(::FormProfiles::VA4010007, '40-10007')  #=> ::FormProfiles::VA4010007 (no flipper)
+  #
+  def self.prepend_module(form_class, form_id)
+    namespaces = {
+      '21P-527EZ' => 'Pensions'
+    }
+
+    namespace = namespaces[form_id]
+    if defined?(namespace) && Flipper.enabled?(:"#{module_name}_form_profile_module_enabled", @user)
+      return form_class.prepend(namespace)
+    end
+
+    form_class
+  end
+
   # lookup FormProfile subclass by form_id and initialize (or use FormProfile if lookup fails)
   def self.for(form_id:, user:)
     form_id = form_id.upcase
-    FORM_ID_TO_CLASS.fetch(form_id, self).new(form_id:, user:)
+    form_class = FORM_ID_TO_CLASS.fetch(form_id, self)
+    prepend_module(form_class, form_id).new(form_id:, user:)
   end
 
   def initialize(form_id:, user:)
