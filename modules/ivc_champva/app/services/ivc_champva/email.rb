@@ -24,6 +24,7 @@ module IvcChampva
     end
 
     def send_email
+      begin
         return false unless valid_environment?
 
         VANotify::EmailJob.perform_async(
