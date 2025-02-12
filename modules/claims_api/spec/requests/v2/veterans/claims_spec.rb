@@ -66,7 +66,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
   describe 'Claims' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return true
       allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
       allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return false
       allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
@@ -637,7 +636,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
       end
 
       it 'uses BD when it should', vcr: 'claims_api/v2/claims_show' do
-        allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return true
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return false
         lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                    evss_id: '111111111')
@@ -857,8 +855,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                     VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
-                        .to receive(:benefits_documents_enabled?).and_return(true)
-                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
                         .to receive(:use_birls_id_file_number?).and_return(false)
 
                       expect_any_instance_of(bnft_claim_web_service)
@@ -902,8 +898,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                     VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
-                        .to receive(:benefits_documents_enabled?).and_return(true)
-                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
                         .to receive(:use_birls_id_file_number?).and_return(true)
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
                         .to receive(:target_veteran).and_return(no_ssn_target_veteran)
@@ -946,8 +940,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                     VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
-                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
-                        .to receive(:benefits_documents_enabled?).and_return(true)
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
                         .to receive(:use_birls_id_file_number?).and_return(true)
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)

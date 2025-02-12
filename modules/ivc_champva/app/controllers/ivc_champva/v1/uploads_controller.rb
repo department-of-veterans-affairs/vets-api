@@ -89,48 +89,31 @@ module IvcChampva
       #
       # @return [Array<Integer, String>] An array with 1 or more http status codes
       #   and an array with 1 or more message strings.
-      def handle_file_uploads(form_id, parsed_form_data) # rubocop:disable Metrics/MethodLength
-        if Flipper.enabled?(:champva_multiple_stamp_retry, @current_user)
-          attempt = 0
-          max_attempts = 1
+      def handle_file_uploads(form_id, parsed_form_data)
+        attempt = 0
+        max_attempts = 1
 
-          begin
-            file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-            hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
-            # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
-            statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
-
-            # Since some or all of the files failed to upload to S3, trigger retry
-            raise StandardError, error_messages if error_messages.compact.length.positive?
-          rescue => e
-            attempt += 1
-            error_message_downcase = e.message.downcase
-            Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
-
-            if should_retry?(error_message_downcase, attempt, max_attempts)
-              Rails.logger.error 'Retrying in 1 seconds...'
-              sleep 1
-              retry
-            end
-          end
-        else
+        begin
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
           hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 
-          # Retry attempt if specific error message is found
-          if error_messages.any? do |message|
-            message.is_a?(String) && message.include?('No such file or directory @ rb_sysopen')
-          end
-            file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-            hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
-            statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
+          # Since some or all of the files failed to upload to S3, trigger retry
+          raise StandardError, error_messages if error_messages.compact.length.positive?
+        rescue => e
+          attempt += 1
+          error_message_downcase = e.message.downcase
+          Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
+
+          if should_retry?(error_message_downcase, attempt, max_attempts)
+            Rails.logger.error 'Retrying in 1 seconds...'
+            sleep 1
+            retry
           end
         end
-
         [statuses, error_messages]
-      end # rubocop:enable Metrics/MethodLength
+      end
 
       def should_retry?(error_message_downcase, attempt, max_attempts)
         error_conditions = [
