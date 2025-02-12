@@ -39,7 +39,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
           .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
         allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
-        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
+        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+          double('response',
+                 context: double('context', http_response: double('http_response', status_code: 200)))
+        )
 
         post '/ivc_champva/v1/forms', params: data
 
@@ -298,7 +301,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         before do
           # TODO: add tests to cover when the `require_all_s3_success` feature is enabled
           allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:champva_multiple_stamp_retry, @current_user).and_return(true)
           allow(controller).to receive(:get_file_paths_and_metadata).and_return([file_paths, metadata])
           allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
         end
@@ -334,7 +336,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           let(:expected_error_message) { [nil, 'Upload failed'] } # All error message strings
 
           before do
-            # allow(Flipper).to receive(:enabled?).with(:champva_multiple_stamp_retry, @current_user).and_return(true)
             allow(file_uploader).to receive(:handle_uploads).and_return(error_response)
           end
 
@@ -343,7 +344,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
         end
 
-        context 'when champva_multiple_stamp_retry is enabled and a file repeatedly fails to load' do
+        context 'when a file repeatedly fails to load' do
           before do
             allow(file_uploader).to receive(:handle_uploads).and_raise(StandardError.new('Unable to find file'))
             # TODO: add tests to cover all other error conditions with handle_uploads, eg:
