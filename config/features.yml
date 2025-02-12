@@ -356,6 +356,10 @@ features:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
     enable_in_development: true
+  letters_hide_service_verification_letter:
+    actor_type: user
+    description: When enabled, CST does not include Service Verification in the list of letters on vets-website
+    enable_in_development: true
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application
@@ -483,15 +487,6 @@ features:
     actor_type: user
     description: Enable sending an email if a 4142 submission is not successful in Lighthouse
     enable_in_development: true
-  decision_review_hlr_new_api:
-    actor_type: user
-    description: Enable to switch to new HLR modularized Decision Review endpoint
-  decision_review_nod_new_api:
-    actor_type: user
-    description: Enable to switch to new NOD modularized Decision Review endpoint
-  decision_review_sc_new_api:
-    actor_type: user
-    description: Enable to switch to new Supplemental Claim modularized Decision Review endpoint
   decision_review_new_engine_4142_job:
     actor_type: user
     description: Enable to switch to new modularized Decision Review Form4142Submit job
