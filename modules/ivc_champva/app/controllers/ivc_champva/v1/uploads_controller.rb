@@ -16,6 +16,7 @@ module IvcChampva
       }.freeze
 
       def submit
+        begin
           form_id = get_form_id
           parsed_form_data = JSON.parse(params.to_json)
           statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
