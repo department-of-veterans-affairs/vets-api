@@ -78,10 +78,10 @@
                 },
                 "homeless": { 
                   "type": "boolean",
-                  "description": "Indicates if the claimant is currently homeless or at risk of becoming homeless" 
+                  "description": "Indicates if the claimant is currently homeless or at risk of becoming homeless." 
                 },
                 "homelessLivingSituation": {
-                  "description": "Claimant's current living situation, provide all that apply",
+                  "description": "Claimant's current living situation; provide all that apply. For Other: 'A living situation not described by the previous options.'",
                   "type": "array", 
                   "items": {
                     "type": "string",
@@ -102,14 +102,25 @@
                   "maxLength": 100
                 },
                 "homelessPointOfContact": {
-                  "description": "Name of person VA can contact in order to get in touch with claimant",
+                  "description": "The name of a contact that can be used by VA in order to get in touch with a homeless claimant.",
                   "type":  "string", 
                   "maxLength": 150 
                 },
                 "homelessPointOfContactPhone": {
+                  "description": "Phone number for the Claimant's point of contact in order to get in touch with a homeless claimant.",
                   "allOf": [
                     { "$ref": "#/definitions/phone" },
                     { "$comment": "the phone fields must not exceed 20 chars, when concatenated" }
+                  ]
+                },
+                "mstUpcomingEventDisclosure": {
+                  "description": "Allows the Claimant to indicate their consent for VBA to communicate with VHA regarding upcoming events related to the appeals process.",
+                  "type": "string",
+                  "enum": [ 
+                    "I CONSENT",
+                    "I DO NOT CONSENT",
+                    "I REVOKE PRIOR CONSENT",
+                    "NOT APPLICABLE AND/OR NOT ENROLLED IN VHA HEALTHCARE"
                   ]
                 },
                 "claimantType": {"type": "string", "enum": [ "veteran", "spouse_of_veteran", "child_of_veteran", "parent_of_veteran", "other"] },
@@ -162,7 +173,7 @@
                   "properties": {
                     "treatmentLocations":{
                       "type": "array",
-                      "description": "Identify where you have received treatment",
+                      "description": "Claimant’s treatment locations; provide all that apply. For Other: 'A treatment location not described by the previous options.'",
                       "items": { 
                         "type": "string",
                         "enum": [
@@ -174,7 +185,7 @@
                           "OTHER"
                         ]
                       },
-                      "treatment_location_other": {
+                      "treatmentLocationOther": {
                         "description": "Details for treatment location other",
                         "type":  "string", 
                         "maxLength": 115 }

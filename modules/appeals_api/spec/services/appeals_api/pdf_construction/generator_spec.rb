@@ -224,6 +224,19 @@ describe AppealsApi::PdfConstruction::Generator do
         include_examples 'shared SC v2/v3/v4 generator examples', 'v4', {
           international_phone: '+WWW-WWWWWWWWWWWWWWW'
         }
+        
+        describe 'no treatment end dates' do
+          let(:sc) { create(:no_treatment_end_dates_supplemental_claim, created_at: '2021-02-03T14:15:16Z') }
+          let(:fixture_name) { 'expected_200995_no_treatment_end_date.pdf' }
+          let(:generated_pdf) { described_class.new(sc, pdf_version: 'v4').generate }
+          let(:expected_pdf) { fixture_filepath("decision_reviews/v2/pdfs/v4/expected_200995_no_treatment_end_date.pdf") }
+
+
+          it 'generates the expected pdf' do
+            expect(generated_pdf).to match_pdf(expected_pdf)
+          end
+        end
+
       end
     end
   end

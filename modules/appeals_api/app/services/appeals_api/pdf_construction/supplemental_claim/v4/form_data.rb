@@ -8,7 +8,6 @@ module AppealsApi
       module V4
         class FormData
           BENEFIT_TYPE_CODES = {
-
             'education' => 1,
             'veteranReadinessAndEmployment' => 2,
             'pensionSurvivorsBenefits' => 3,
@@ -47,6 +46,13 @@ module AppealsApi
             'OTHER'
           ].freeze
 
+          MST_EVENT_DISCLOSURE = {
+            'I CONSENT' => 4,
+            'I DO NOT CONSENT' => 1,
+            'I REVOKE PRIOR CONSENT' => 3,
+            'NOT APPLICABLE AND/OR NOT ENROLLED IN VHA HEALTHCARE' => 2      
+          }.freeze
+
           LONG_SIGNATURE_THRESHOLD = 70
           LONG_EMAIL_THRESHOLD = 120
           MAX_SIGNATURE_LENGTH = 180
@@ -74,6 +80,10 @@ module AppealsApi
 
           def benefit_type_code
             BENEFIT_TYPE_CODES[supplemental_claim.benefit_type]
+          end
+
+          def mst_disclosure_code
+            MST_EVENT_DISCLOSURE[supplemental_claim.mst_disclosure]
           end
 
           def claimant_type_code

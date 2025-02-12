@@ -43,6 +43,8 @@ module AppealsApi
             treatment_location_other: 'form1[0].#subform[5].Other_Specify[0]',
             treatment_location_other_details: 'form1[0].#subform[5].OTHER_Specify[2]',
 
+            mst_disclosure_code: 'form1[0].#subform[5].RadioButtonList[3]',
+            
             evidence_submission_1_no_treatment_date: 'form1[0].#subform[5].Check_Box_Do_Not_Have_Date_s[0]',
             evidence_submission_2_no_treatment_date: 'form1[0].#subform[5].Check_Box_Do_Not_Have_Date_s[1]',
             evidence_submission_3_no_treatment_date: 'form1[0].#subform[5].Check_Box_Do_Not_Have_Date_s[2]',

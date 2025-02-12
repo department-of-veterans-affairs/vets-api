@@ -174,6 +174,10 @@ module AppealsApi
       data_attributes['benefitType']&.strip
     end
 
+    def mst_disclosure
+      data_attributes['mstUpcomingEventDisclosure']&.strip
+    end
+
     def claimant_type
       data_attributes['claimantType']&.strip
     end
