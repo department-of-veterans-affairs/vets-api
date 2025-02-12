@@ -31,9 +31,11 @@ module AccreditedRepresentativePortal
       def for_user(email:, icn:)
         [].tap do |poa_holders|
           records =
-            UserAccountAccreditedIndividual.reconcile_and_find_by(
-              user_account_email: email,
-              user_account_icn: icn
+            Array.wrap(
+              UserAccountAccreditedIndividual.reconcile_and_find_by(
+                user_account_email: email,
+                user_account_icn: icn
+              )
             )
 
           records.each do |record|
