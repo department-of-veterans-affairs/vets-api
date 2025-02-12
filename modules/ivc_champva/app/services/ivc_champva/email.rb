@@ -24,23 +24,21 @@ module IvcChampva
     end
 
     def send_email
-      begin
-        return false unless valid_environment?
+      return false unless valid_environment?
 
-        VANotify::EmailJob.perform_async(
-          data[:email],
-          (data[:template_id] ? EMAIL_TEMPLATE_MAP[data[:template_id]] : EMAIL_TEMPLATE_MAP[data[:form_number]]),
-          data.slice(:first_name, :last_name, :file_count, :pega_status, :date_submitted, :form_uuid),
-          Settings.vanotify.services.ivc_champva.api_key,
-          # If no callback_klass is provided, should fail safely per va_notify implementation.
-          # See: https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/va_notify#how-teams-can-integrate-with-callbacks
-          { callback_klass: data[:callback_klass], callback_metadata: data[:callback_metadata] }
-        )
-        true
-      rescue => e
-        Rails.logger.error "Pega Status Update Email Error: #{e.message}"
-        Rails.logger.error e.backtrace.join("\n")
-      end
+      VANotify::EmailJob.perform_async(
+        data[:email],
+        (data[:template_id] ? EMAIL_TEMPLATE_MAP[data[:template_id]] : EMAIL_TEMPLATE_MAP[data[:form_number]]),
+        data.slice(:first_name, :last_name, :file_count, :pega_status, :date_submitted, :form_uuid),
+        Settings.vanotify.services.ivc_champva.api_key,
+        # If no callback_klass is provided, should fail safely per va_notify implementation.
+        # See: https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/va_notify#how-teams-can-integrate-with-callbacks
+        { callback_klass: data[:callback_klass], callback_metadata: data[:callback_metadata] }
+      )
+      true
+    rescue => e
+      Rails.logger.error "Pega Status Update Email Error: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
     end
 
     private

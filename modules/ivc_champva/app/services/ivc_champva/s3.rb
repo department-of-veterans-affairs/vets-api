@@ -12,38 +12,34 @@ module IvcChampva
     end
 
     def put_object(key, file, metadata = {})
+      metadata&.transform_values! { |value| value || '' }
+
       begin
-        metadata&.transform_values! { |value| value || '' }
+        response = client.put_object(
+          bucket:,
+          key:,
+          body: File.read(file),
+          metadata: metadata
+        )
+        result = { success: true }
+      rescue => e
+        result = { success: false, error_message: "S3 PutObject failure for #{file}: #{e.message}" }
+      end
 
-        begin
-          response = client.put_object(
-            bucket:,
-            key:,
-            body: File.read(file),
-            metadata: metadata
-          )
-          result = { success: true }
-        rescue => e
-          result = { success: false, error_message: "S3 PutObject failure for #{file}: #{e.message}" }
-        end
-
-        if Flipper.enabled?(:champva_log_all_s3_uploads, @current_user)
-          response ? handle_put_object_response(response, key, file) : handle_put_object_error(e)
-        else
-          result
-        end
+      if Flipper.enabled?(:champva_log_all_s3_uploads, @current_user)
+        response ? handle_put_object_response(response, key, file) : handle_put_object_error(e)
+      else
+        result
       end
     end
 
     def upload_file(key, file)
-      begin
-        obj = resource.bucket(bucket).object(key)
-        obj.upload_file(file)
+      obj = resource.bucket(bucket).object(key)
+      obj.upload_file(file)
 
-        { success: true }
-      rescue => e
-        { success: false, error_message: "S3 UploadFile failure for #{file}: #{e.message}" }
-      end
+      { success: true }
+    rescue => e
+      { success: false, error_message: "S3 UploadFile failure for #{file}: #{e.message}" }
     end
 
     def monitor

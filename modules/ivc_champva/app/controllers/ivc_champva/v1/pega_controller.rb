@@ -9,32 +9,30 @@ module IvcChampva
       VALID_KEYS = %w[form_uuid file_names status case_id].freeze
 
       def update_status
-        begin
-          data = JSON.parse(params.to_json)
+        data = JSON.parse(params.to_json)
 
-          tags = ['service:veteran-ivc-champva-forms', 'function:form submission to Pega']
+        tags = ['service:veteran-ivc-champva-forms', 'function:form submission to Pega']
 
-          unless data.is_a?(Hash)
-            # Log the failure due to invalid JSON format
+        unless data.is_a?(Hash)
+          # Log the failure due to invalid JSON format
+          StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
+          render json: JSON.generate({ status: 500, error: 'Invalid JSON format: Expected a JSON object' })
+          return
+        end
+
+        response =
+          if valid_keys?(data)
+            update_data(data['form_uuid'], data['file_names'], data['status'], data['case_id'])
+          else
             StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
-            render json: JSON.generate({ status: 500, error: 'Invalid JSON format: Expected a JSON object' })
-            return
+            { json: { error_message: 'Invalid JSON keys' }, status: :bad_request }
           end
 
-          response =
-            if valid_keys?(data)
-              update_data(data['form_uuid'], data['file_names'], data['status'], data['case_id'])
-            else
-              StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
-              { json: { error_message: 'Invalid JSON keys' }, status: :bad_request }
-            end
-
-          render json: response[:json], status: response[:status]
-          rescue JSON::ParserError => e
-          # Log the JSON parsing error
-          StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
-          render json: { error_message: "JSON parsing error: #{e.message}" }, status: :internal_server_error
-        end
+        render json: response[:json], status: response[:status]
+      rescue JSON::ParserError => e
+        # Log the JSON parsing error
+        StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
+        render json: { error_message: "JSON parsing error: #{e.message}" }, status: :internal_server_error
       end
 
       private
