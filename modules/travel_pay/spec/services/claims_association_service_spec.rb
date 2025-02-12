@@ -63,7 +63,7 @@ describe TravelPay::ClaimAssociationService do
           locationId: '983',
           clinic: '1081',
           start: '2024-10-17T09:00:00Z',
-          local_start_time: '2024-10-17T09:00:00Z',
+          local_start_time: '2024-10-17T09:00:00-0700',
           cancellable: false
         },
         {
@@ -89,7 +89,7 @@ describe TravelPay::ClaimAssociationService do
           locationId: '983',
           clinic: '408',
           start: '2021-06-02T16:00:00Z',
-          local_start_time: '2021-06-02T16:00:00Z',
+          local_start_time: '2021-06-02T16:00:00.000-0400',
           cancellable: false
         }
       ]
@@ -209,7 +209,7 @@ describe TravelPay::ClaimAssociationService do
       appts.each do |appt|
         expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
         expect(appt['travelPayClaim']['metadata']['success']).to be(false)
-        expect(appt['travelPayClaim']['metadata']['message']).to include(/datetime is nil./i)
+        expect(appt['travelPayClaim']['metadata']['message']).to include(/Invalid date./i)
       end
     end
   end
@@ -379,7 +379,7 @@ describe TravelPay::ClaimAssociationService do
                                                                        })
       expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
       expect(appt['travelPayClaim']['metadata']['success']).to be(false)
-      expect(appt['travelPayClaim']['metadata']['message']).to include(/datetime is nil./i)
+      expect(appt['travelPayClaim']['metadata']['message']).to include(/Invalid date./i)
     end
   end
 end

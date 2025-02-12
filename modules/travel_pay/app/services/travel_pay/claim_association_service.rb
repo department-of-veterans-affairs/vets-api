@@ -155,7 +155,10 @@ module TravelPay
       # take the time and parse it as a Time object if necessary
       # convert it to an array of its parts - zone will be nil
       # create a new time with those parts, using the nil timezone
-      Time.utc(*try_parse_date(time).to_a)
+
+      t = try_parse_date(time)
+      time_parts = %i[year month day hour min sec]
+      Time.utc(*t.deconstruct_keys(time_parts).values)
     end
 
     def try_parse_date(datetime)
@@ -163,7 +166,10 @@ module TravelPay
 
       return datetime.to_time if datetime.is_a?(Time) || datetime.is_a?(Date)
 
-      Time.zone.parse(datetime) if datetime.is_a? String
+      # Disabled Rails/Timezone rule because we don't care about the tz in this dojo.
+      # If we parse it any other 'recommended' way, the time will be converted based
+      # on the timezone, and the datetimes won't match
+      Time.parse(datetime) if datetime.is_a? String # rubocop:disable Rails/TimeZone
     rescue ArgumentError => e
       raise ArgumentError,
             message: "#{e}. Invalid date provided (given: #{datetime})."
