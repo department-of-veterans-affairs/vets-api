@@ -10,14 +10,15 @@ module PowerOfAttorneyRequests
       requests_to_remind = fetch_requests_to_remind
       return unless requests_to_remind.any?
 
-      requests_to_remind.each_with_index do |request, index|
+      requests_to_remind.each do |request|
         # fetch the request claimant email address and first name
-        VANotify::EmailJob.perform_in(index.minutes + 1,
-                                      request.email_address,
-                                      Settings.vanotify.services.va_gov.template_id.appoint_a_representative_confirmation_email,
-                                      {
-                                        'first_name' => request.first_name
-                                      })
+        VANotify::EmailJob.perform_async(
+          request.email_address,
+          Settings.vanotify.services.va_gov.template_id.appoint_a_representative_confirmation_email,
+          {
+            'first_name' => request.first_name
+          }
+        )
       end
     rescue => e
       log_error("Error sending out expiration reminder emails: #{e.message}")
