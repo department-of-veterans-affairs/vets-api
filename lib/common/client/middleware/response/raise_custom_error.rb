@@ -7,7 +7,7 @@ module Common
         class BackendUnhandledException < StandardError; end
 
         class RaiseCustomError < Faraday::Middleware
-          attr_reader :error_prefix, :body, :status, :allow_304
+          attr_reader :error_prefix, :body, :status, :allow_not_modified
 
           def initialize(app, options = {})
             # set the error prefix to something like 'RX' or 'SM'

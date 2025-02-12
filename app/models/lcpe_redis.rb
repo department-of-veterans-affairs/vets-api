@@ -19,8 +19,6 @@ class LCPERedis < Common::RedisStore
   end
 
   def fresh_version_from(gids_response)
-    v_fresh = gids_response.response_headers['Etag']
-
     case gids_response.status
     when 304
       cached_response
