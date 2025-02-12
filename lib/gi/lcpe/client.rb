@@ -73,6 +73,7 @@ module GI
         response = perform(:get, 'v1/lcpe/lacs', {})
         case response.status
         when 304
+          config.etag = nil
           # version is fresh, redirect to query details
           gids_response(yield).body
         else
