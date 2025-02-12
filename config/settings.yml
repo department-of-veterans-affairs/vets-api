@@ -1736,7 +1736,7 @@ vaos:
     scopes: "care-nav"
   ccra:
     mock: false
-    api_url: "https://10.247.79.48"
+    api_url: "https://api.ccra.placeholder.va.local"
     base_path: "csp/healthshare/ccraint/rest"
 
 ogc:
