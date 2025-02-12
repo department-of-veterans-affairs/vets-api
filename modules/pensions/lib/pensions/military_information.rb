@@ -5,18 +5,6 @@ require 'claims_api/service_branch_mapper'
 
 module Pensions
   ##
-  # Extends FormMilitaryInformation to add additional military information fields to Pension prefill
-  # @see app/models/form_profile.rb FormProfile::FormMilitaryInformation
-  class FormMilitaryInformation < ::FormProfile::FormMilitaryInformation
-    include Virtus.model
-
-    attribute :first_uniformed_entry_date, String
-    attribute :last_active_discharge_date, String
-    attribute :service_branches_for_pensions, Hash
-    attribute :service_number, String
-  end
-
-  ##
   # Extends MilitaryInformation to add additional prefill methods to Pensions military information prefill
   # @see lib/va_profile/prefill/military_information.rb VAProfile::Prefill::MilitaryInformation
   class MilitaryInformation < ::VAProfile::Prefill::MilitaryInformation
