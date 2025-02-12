@@ -270,6 +270,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_10_175014) do
     t.index ["veteran_icn"], name: "index_appeals_api_supplemental_claims_on_veteran_icn"
   end
 
+  create_table "ar_power_of_attorney_form_submissions", force: :cascade do |t|
+    t.uuid "power_of_attorney_request_id", null: false
+    t.string "service_id"
+    t.text "service_response_ciphertext"
+    t.string "status", null: false
+    t.text "encrypted_kms_key"
+    t.datetime "status_updated_at"
+    t.text "error_message_ciphertext"
+    t.datetime "created_at", null: false
+  end
+
   create_table "ar_power_of_attorney_forms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "power_of_attorney_request_id", null: false
     t.text "encrypted_kms_key"
