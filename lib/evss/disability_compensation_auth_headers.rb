@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'evss/base_headers'
+require 'lighthouse/base_headers'
 require 'formatters/date_formatter'
 
 module EVSS
-  class DisabilityCompensationAuthHeaders < EVSS::BaseHeaders
+  class DisabilityCompensationAuthHeaders < Lighthouse::BaseHeaders
     # :nocov:
 
     def add_headers(auth_headers)

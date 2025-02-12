@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'evss/base_headers'
+require 'lighthouse/base_headers'
 require 'formatters/date_formatter'
 
 module EVSS
-  class AuthHeaders < EVSS::BaseHeaders
+  class AuthHeaders < Lighthouse::BaseHeaders
     attr_reader :transaction_id
 
     def initialize(user)
