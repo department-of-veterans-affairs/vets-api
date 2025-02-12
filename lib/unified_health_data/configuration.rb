@@ -22,7 +22,7 @@ module UnifiedHealthData
     end
 
     def token_path
-      "#{settings.host}/mhvapi/security/v1/login"
+      "#{settings.security_host}/mhvapi/security/v1/login"
     end
 
     def app_id
@@ -37,6 +37,11 @@ module UnifiedHealthData
       Faraday.new(base_path) do |conn|
         conn.request :json
         conn.response :json
+
+        # Uncomment this if you want curl command equivalent or response output to log
+        # conn.request(:curl, ::Logger.new($stdout), :warn) unless Rails.env.production?
+        # conn.response(:logger, ::Logger.new($stdout), bodies: true) unless Rails.env.production?
+
         conn.response :raise_custom_error
         conn.adapter Faraday.default_adapter
       end

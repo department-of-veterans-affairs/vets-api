@@ -7,9 +7,17 @@ module UnifiedHealthData
   class Service < Common::Client::Base
     configuration UnifiedHealthData::Configuration
 
+    def initialize(user)
+      @user = user
+    end
+
     def get_medical_records
       token = fetch_access_token
-      response = perform(:get, 'path/to/medical_records', nil, { 'Authorization' => "Bearer #{token}" })
+      patient_id = @user.icn
+      start_date = '2024-01-01'
+      end_date = '2024-12-31'
+      path = "#{config.base_path}labs?patient-id=#{patient_id}&start-date=#{start_date}&end-date=#{end_date}"
+      response = perform(:get, path, nil, { 'Authorization' => token })
       response.body.map do |record|
         attributes = UnifiedHealthData::MedicalRecord::Attributes.new(
           display: record['attributes']['display'],
@@ -39,7 +47,7 @@ module UnifiedHealthData
           userType: 'SYSTEM'
         }.to_json
       end
-      response.body['access_token']
+      response.headers['authorization']
     end
   end
 end

@@ -5,7 +5,7 @@ module Mobile
   module V1
     class LabsAndTestsController < ApplicationController
       def index
-        service = UnifiedHealthData::Service.new
+        service = UnifiedHealthData::Service.new @current_user
         medical_records = service.get_medical_records
         render json: medical_records.map { |record| serialize_record(record) }
       end
