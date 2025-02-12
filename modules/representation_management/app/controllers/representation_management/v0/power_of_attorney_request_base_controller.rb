@@ -140,10 +140,12 @@ module RepresentationManagement
       def delete_in_progress_form
         form = InProgressForm.form_for_user('21-22', current_user)
         return if form.nil?
-      
+
         form.delete
-      rescue StandardError => e
-        Rails.logger.error("Failed to delete InProgressForm 21-22#{", record ID: #{form.id}" if form&.id}: #{e.message}")
+      rescue => e
+        Rails.logger.error(
+          "Failed to delete InProgressForm 21-22#{", record ID: #{form.id}" if form&.id}: #{e.message}"
+        )
       end
 
       def feature_enabled

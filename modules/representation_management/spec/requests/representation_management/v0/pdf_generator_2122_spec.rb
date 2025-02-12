@@ -75,7 +75,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
 
       it 'deletes the in-progress form' do
         expect(InProgressForm).to have_received(:form_for_user).with('21-22', anything)
-      end      
+      end
     end
 
     context 'when user is not authenticated' do
