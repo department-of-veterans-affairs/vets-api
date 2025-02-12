@@ -23,11 +23,6 @@ RSpec.describe IvcChampva::Email, type: :service do
         allow(Rails).to receive(:env).and_return('staging')
       end
 
-      it 'traces the sending email process' do
-        expect(Datadog::Tracing).to receive(:trace).with('Send PEGA Status Update Email').and_yield
-        subject.send_email
-      end
-
       it 'enqueues VANotify::EmailJob with correct parameters' do
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           data[:email],
@@ -58,7 +53,6 @@ RSpec.describe IvcChampva::Email, type: :service do
       end
 
       it 'handles the error and logs it' do
-        allow(Datadog::Tracing).to receive(:trace).and_yield
         allow(Rails.logger).to receive(:error)
 
         expect { subject.send_email }.not_to raise_error
