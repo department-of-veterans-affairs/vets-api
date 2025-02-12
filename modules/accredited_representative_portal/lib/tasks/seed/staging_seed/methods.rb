@@ -4,7 +4,7 @@ module AccreditedRepresentativePortal
   module StagingSeeds
     RequestOptions = Struct.new(
       :org, :rep, :claimant, :resolution_cycle,
-      :resolved_time, :unresolved_time, :totals,
+      :resolved_time, :unresolved_time, :totals, :email_counter,
       keyword_init: true
     )
 
@@ -113,6 +113,18 @@ module AccreditedRepresentativePortal
                         .limit(2)
 
         matching_reps.each_with_index do |rep, i|
+          # Only create association if one doesn't exist
+          unless AccreditedRepresentativePortal::UserAccountAccreditedIndividual
+                 .exists?(accredited_individual_registration_number: rep.representative_id)
+            AccreditedRepresentativePortal::UserAccountAccreditedIndividual.create!(
+              accredited_individual_registration_number: rep.representative_id,
+              power_of_attorney_holder_type: 'veteran_service_organization',
+              user_account_email: "vets.gov.user+#{options[:email_counter]}@gmail.com"
+            )
+            options[:totals][:user_accounts] += 1
+            options[:email_counter] += 1
+          end
+
           create_request_with_resolution(build_request_options(org, rep, options), i)
         end
       end
@@ -194,6 +206,7 @@ module AccreditedRepresentativePortal
         AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyForm.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyRequest.destroy_all
+        AccreditedRepresentativePortal::UserAccountAccreditedIndividual.destroy_all
       end
     end
   end

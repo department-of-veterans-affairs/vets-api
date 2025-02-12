@@ -55,14 +55,6 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
            poa_codes: %w[008 ABC XYZ]) # Both digital and non-digital
   end
 
-  let!(:no_org_rep) do
-    create(:representative,
-           first_name: 'Lonely',
-           last_name: 'Rep',
-           representative_id: 'LR000',
-           poa_codes: ['ZZZ']) # No matching org
-  end
-
   describe '.run' do
     before { described_class.run }
 
@@ -96,6 +88,28 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
         .to include('008', 'ABC', 'XYZ')
       # verify they all have orgs
       expect(multi_rep_requests).to(be_all { |req| req.accredited_organization.present? })
+    end
+
+    it 'creates user account associations for all representatives' do
+      associations = AccreditedRepresentativePortal::UserAccountAccreditedIndividual.all
+      representatives = Veteran::Service::Representative.all
+
+      # Should create one association per rep
+      expect(associations.count).to eq(representatives.count)
+
+      # Check email pattern
+      expect(associations).to(be_all do |assoc|
+        assoc.user_account_email.match?(/vets\.gov\.user\+\d+@gmail\.com/)
+      end)
+
+      # Verify registration numbers match reps
+      expect(associations.pluck(:accredited_individual_registration_number))
+        .to match_array(representatives.pluck(:representative_id))
+
+      # Check holder type
+      expect(associations).to(be_all do |assoc|
+        assoc.power_of_attorney_holder_type == 'veteran_service_organization'
+      end)
     end
   end
 end
