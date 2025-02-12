@@ -12,6 +12,7 @@ module IvcChampva
     end
 
     def put_object(key, file, metadata = {})
+      begin
         metadata&.transform_values! { |value| value || '' }
 
         begin
