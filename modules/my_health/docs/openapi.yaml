@@ -71,14 +71,14 @@ paths:
         "200":
           content:
             application/json:
-            schema:
-              type: object
-              properties:
-                flag:
-                  type: boolean
-                  description: Indicates whether the BBMI email preference is enabled (`true`) or disabled (`false`).
-              example:
-                flag: true
+              schema:
+                type: object
+                properties:
+                  flag:
+                    type: boolean
+                    description: Indicates whether the BBMI email preference is enabled (`true`) or disabled (`false`).
+                example:
+                  flag: true
           description: OK
         "401":
           content:
@@ -757,7 +757,7 @@ paths:
   /v1/medical_records/vitals/{id}:
     get:
       description: Get a patient vital record
-      operationId: get_vaccine
+      operationId: get_vitals
       responses:
         "200":
           content:
