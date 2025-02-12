@@ -170,9 +170,6 @@ module DebtsApi
 
       form_submission.submitted!
       { status: vbs_response.status }
-    rescue => e
-      form_submission.register_failure("FinancialStatusReportService#submit_to_vbs: #{e.message}")
-      raise e
     end
 
     def send_vha_confirmation_email(_status, options)
