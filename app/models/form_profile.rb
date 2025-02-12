@@ -186,11 +186,11 @@ class FormProfile
     }
 
     namespace = namespaces[form_id]
-    if defined?(namespace) && Flipper.enabled?(:"#{module_name}_form_profile_module_enabled", @user)
-      return form_class.prepend(namespace)
+    if namespace && Flipper.enabled?(:"#{namespace.singularize.downcase}_form_profile_module_enabled", @user)
+      "#{namespace}::#{form_class}".constantize
+    else
+      form_class
     end
-
-    form_class
   end
 
   # lookup FormProfile subclass by form_id and initialize (or use FormProfile if lookup fails)
