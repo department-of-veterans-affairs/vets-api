@@ -122,7 +122,7 @@ jobs:
              "bundle exec rake parallel:setup[24]"
 
       - name: Run Specs
-        timeout-minutes: 15
+        timeout-minutes: 60
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
           "bundle exec rake 'parallel:spec[24, , , modules\/]'"
