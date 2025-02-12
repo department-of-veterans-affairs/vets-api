@@ -5,6 +5,7 @@ require 'bgs_service/person_web_service'
 require 'bgs_service/redis/find_poas_service'
 require 'bgs_service/benefit_claim_web_service'
 require 'bgs_service/benefit_claim_service'
+require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 
 module ClaimsApi
   class DependentClaimantPoaAssignmentService

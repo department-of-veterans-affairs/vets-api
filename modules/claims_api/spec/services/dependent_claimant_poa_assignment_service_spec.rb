@@ -133,5 +133,16 @@ Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
         end
       end
     end
+
+    describe '#dependent_claims' do
+      it 'creates the service' do
+        VCR.use_cassette('claims_api/bgs/e_benefits_bnft_claim_status_web/find_benefit_claims_status_by_ptcpnt_id') do
+          res = service.send(:dependent_claims)
+          expect(res[0][:appeal_possible]).to eq "No"
+          expect(res[0][:attention_needed]).to eq "No"
+          expect(res[0][:benefit_claim_id]).to eq "600537706"
+        end
+      end
+    end
   end
 end
