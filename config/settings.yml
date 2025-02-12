@@ -548,6 +548,11 @@ mhv:
     sts:
       service_account_id: c34b86f2130ff3cd4b1d309bc09d8740
       issuer: http://localhost:3000
+  uhd:
+    mock: true
+    host: https://mhv-api.example.com
+    app_id: fake-app-id
+    app_token: fake-app-token
 
 # Settings for alternate MHV integration for mobile app
 mhv_mobile:
