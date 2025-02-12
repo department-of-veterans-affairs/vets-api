@@ -38,8 +38,10 @@ module AccreditedRepresentativePortal
         )
 
         form = AccreditedRepresentativePortal::PowerOfAttorneyForm.new(
-          data: FormMethods.build_poa_form_data.to_json,
-          power_of_attorney_request: request
+          power_of_attorney_request: request,
+          data: FormMethods.build_poa_form_data.deep_transform_keys! do |key|
+            key.to_s.camelize(:lower)
+          end.to_json
         )
 
         form.save!
