@@ -85,11 +85,11 @@ module PdfFill
     end
 
     def add_page_numbers(pdf)
-      pdf.number_pages 'Page <page>',
+      pdf.number_pages('Page <page>',
                        start_count_at: @start_page,
                        at: [pdf.bounds.right - 50, 0],
                        align: :right,
-                       size: 9
+                       size: 9)
     end
 
     def generate_pdf(file_path, generate_blocks)

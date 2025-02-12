@@ -5,7 +5,7 @@ require 'pdf_fill/extras_generator'
 
 describe PdfFill::ExtrasGenerator do
   subject do
-    described_class.new(start_page: 8)
+    described_class.new
   end
 
   describe '#sort_generate_blocks' do
