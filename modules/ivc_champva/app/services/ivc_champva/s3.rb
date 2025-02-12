@@ -96,5 +96,6 @@ module IvcChampva
 
     def resource
       @resource ||= Aws::S3::Resource.new(client:)
+    end
   end
 end
