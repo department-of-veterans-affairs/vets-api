@@ -35,6 +35,7 @@ module IvcChampva
           render json: { error_message: "JSON parsing error: #{e.message}" }, status: :internal_server_error
           end
         end
+      end
 
       private
 
