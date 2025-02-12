@@ -32,8 +32,8 @@ module AccreditedRepresentativePortal
       # based on their email and ICN (Integration Control Number).
       #
       # Why this method exists:
-      # - The purpose of this method is to determine which organizations or individuals hold
-      #   power of attorney for a given user.
+      # - The purpose of this method is to determine which VSOs (veteran service organizations)
+      #   a given user (representative) belongs to.
       # - It first looks up the accredited representative using `reconcile_and_find_by`, which
       #   ensures that both email and ICN associations are accurate.
       # - If a match is found, it retrieves the accredited representative's registration number
