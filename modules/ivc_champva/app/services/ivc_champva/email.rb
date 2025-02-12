@@ -24,7 +24,6 @@ module IvcChampva
     end
 
     def send_email
-      do
         return false unless valid_environment?
 
         VANotify::EmailJob.perform_async(
@@ -49,4 +48,3 @@ module IvcChampva
       %w[production staging].include?(Rails.env)
     end
   end
-end

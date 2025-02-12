@@ -9,7 +9,6 @@ module IvcChampva
       VALID_KEYS = %w[form_uuid file_names status case_id].freeze
 
       def update_status
-        do
           data = JSON.parse(params.to_json)
 
           tags = ['service:veteran-ivc-champva-forms', 'function:form submission to Pega']
@@ -141,4 +140,3 @@ module IvcChampva
       end
     end
   end
-end

@@ -16,7 +16,6 @@ module IvcChampva
       }.freeze
 
       def submit
-         do
           form_id = get_form_id
           parsed_form_data = JSON.parse(params.to_json)
           statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
@@ -156,6 +155,9 @@ module IvcChampva
 
         form = form_class.new(parsed_form_data)
         # DataDog Tracking
+        form.track_user_identity
+        form.track_current_user_loa(@current_user)
+        form.track_email_usage
 
         attachment_ids = Array.new(applicant_rounded_number) { form_id }
         attachment_ids.concat(supporting_document_ids(parsed_form_data))
@@ -228,4 +230,3 @@ module IvcChampva
       end
     end
   end
-end

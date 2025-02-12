@@ -12,7 +12,6 @@ module IvcChampva
     end
 
     def put_object(key, file, metadata = {})
-      do
         metadata&.transform_values! { |value| value || '' }
 
         begin
@@ -36,7 +35,6 @@ module IvcChampva
     end
 
     def upload_file(key, file)
-      do
         obj = resource.bucket(bucket).object(key)
         obj.upload_file(file)
 
@@ -99,5 +97,4 @@ module IvcChampva
     def resource
       @resource ||= Aws::S3::Resource.new(client:)
     end
-  end
 end
