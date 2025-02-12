@@ -1,18 +1,22 @@
 # frozen_string_literal: true
 
-if Flipper.enabled?(:lighthouse_base_headers)
-  require 'lighthouse/base_headers'
-else
-  require 'evss/base_headers'
-end
+require 'evss/base_headers'
+require 'lighthouse/base_headers'
 require 'formatters/date_formatter'
 
 module EVSS
-  class DisabilityCompensationAuthHeaders < if Flipper.enabled?(:lighthouse_base_headers)
-                                              Lighthouse::BaseHeaders
-                                            else
-                                              EVSS::BaseHeaders
-                                            end
+  ParentClass = lambda do
+    if Flipper.enabled?(:lighthouse_base_headers)
+      Lighthouse::BaseHeaders
+    else
+      EVSS::BaseHeaders
+    end
+  rescue => e
+    Rails.logger.warn "Error checking Flipper flag: #{e.message}. Defaulting to EVSS::BaseHeaders"
+    EVSS::BaseHeaders
+  end
+
+  class DisabilityCompensationAuthHeaders < ParentClass.call
     # :nocov:
 
     def add_headers(auth_headers)
