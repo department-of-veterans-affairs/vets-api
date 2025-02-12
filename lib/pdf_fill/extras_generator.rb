@@ -8,7 +8,6 @@ module PdfFill
       @generate_blocks = []
       @form_name = form_name
       @extras_redesign = extras_redesign
-
       @start_page = start_page
     end
 
