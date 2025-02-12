@@ -139,32 +139,14 @@ module RepresentationManagement
         end
       end
 
-      def update_in_progress_form(key, value)
+      def delete_in_progress_form
         form = InProgressForm.form_for_user('21-22', current_user)
         return if form.nil?
       
-        metadata = form.metadata
-        metadata['submission'] ||= {}
-        metadata['submission']['has_attempted_submit'] = true
-        metadata['submission'][key] = value
-      
-        if value == 'applicationSubmitted'
-          # Mark the form as successfully submitted.
-          # Removing `saved_at` ensures that the form no longer appears on the "My VA" page.
-          metadata.delete('saved_at')
-      
-          # Clean up submission-related metadata to remove any lingering errors.
-          metadata['submission'].delete('errors')
-          metadata['submission'].delete('error_message')
-      
-          # Prevent the form from being incorrectly displayed as "in progress" or "expired":
-          # - `form_id` is set to a value that is NOT in `prefillsAvailable` (list of valid forms ids on the user object)
-          # - This prevents it from appearing on the "My VA" page and the "Appoint a Representative" introduction page.
-          form.update(status: 1, form_id: "SUBMITTED_2122", metadata: metadata)
-        else
-          form.update(metadata: metadata)
-        end
-      end
+        form.delete
+      rescue StandardError => e
+        Rails.logger.error("Failed to delete InProgressForm 21-22#{", record ID: #{form.id}" if form&.id}: #{e.message}")
+      end      
 
       def feature_enabled
         routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
