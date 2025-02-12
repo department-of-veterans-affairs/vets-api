@@ -163,13 +163,10 @@ module DebtsApi
 
       vbs_request = DebtManagementCenter::VBS::Request.build
       Rails.logger.info('5655 Form Submitting to VBS API', submission_id: form_submission.id)
-      vbs_response = measure_latency("#{STATSD_KEY_PREFIX}.fsr.submit.vba.latency") do
+      measure_latency("#{STATSD_KEY_PREFIX}.fsr.submit.vba.latency") do
         vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
                          { jsonDocument: form.to_json })
       end
-
-      form_submission.submitted!
-      { status: vbs_response.status }
     end
 
     def send_vha_confirmation_email(_status, options)
