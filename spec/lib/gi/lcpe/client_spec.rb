@@ -13,7 +13,7 @@ describe GI::LCPE::Client do
     context 'when versioning disabled' do
       let(:version_id) { nil }
       let(:lcpe_type) { nil }
-      
+
       it 'defaults to GI::GIDSResponse' do
         VCR.use_cassette('gi/lcpe/get_lacs_versioning_disabled') do
           allow(GI::GIDSResponse).to receive(:new)
@@ -26,7 +26,7 @@ describe GI::LCPE::Client do
     context 'when versioning enabled' do
       let(:version_id) { v_fresh }
       let(:lcpe_type) { 'lacs' }
-      
+
       it 'defaults to GI::LCPE::Response' do
         VCR.use_cassette('gi/lcpe/get_lacs_cache_nil') do
           allow(GI::LCPE::Response).to receive(:new).and_call_original
@@ -40,7 +40,7 @@ describe GI::LCPE::Client do
   describe '#get_license_and_cert_details_v1' do
     let(:response) { instance_double(GI::GIDSResponse) }
 
-    before do 
+    before do
       allow(GI::GIDSResponse).to receive(:new).and_return(response)
       allow(response).to receive(:body)
     end
@@ -92,7 +92,7 @@ describe GI::LCPE::Client do
     context 'when versioning disabled' do
       let(:version_id) { nil }
       let(:lcpe_type) { nil }
-      
+
       it 'defaults to GI::GIDSResponse' do
         VCR.use_cassette('gi/lcpe/get_exams_versioning_disabled') do
           allow(GI::GIDSResponse).to receive(:new)
@@ -105,7 +105,7 @@ describe GI::LCPE::Client do
     context 'when versioning enabled' do
       let(:version_id) { v_fresh }
       let(:lcpe_type) { 'exams' }
-      
+
       it 'defaults to GI::LCPE::Response' do
         VCR.use_cassette('gi/lcpe/get_exams_cache_nil') do
           allow(GI::LCPE::Response).to receive(:new).and_call_original

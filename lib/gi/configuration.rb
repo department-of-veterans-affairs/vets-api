@@ -28,7 +28,7 @@ module GI
 
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
         conn.response :snakecase
-        conn.response :raise_custom_error, error_prefix: service_name, allow_304: versioning_enabled?
+        conn.response :raise_custom_error, error_prefix: service_name, allow_not_modified: versioning_enabled?
         conn.response :gids_errors
         conn.response :json_parser
 

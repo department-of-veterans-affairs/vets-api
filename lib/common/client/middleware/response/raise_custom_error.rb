@@ -12,7 +12,7 @@ module Common
           def initialize(app, options = {})
             # set the error prefix to something like 'RX' or 'SM'
             @error_prefix = options[:error_prefix] || 'VA'
-            @allow_304 = options[:allow_304] || false
+            @allow_not_modified = options[:allow_not_modified] || false
             super(app)
           end
 
@@ -21,7 +21,7 @@ module Common
 
             @body = env[:body]
             @status = env.status.to_i
-            raise_error! unless successful_304?
+            raise_error! unless not_modified?
           end
 
           private
@@ -51,8 +51,8 @@ module Common
             }
           end
 
-          def successful_304?
-            allow_304 && status == 304
+          def not_modified?
+            allow_not_modified && status == 304
           end
         end
       end

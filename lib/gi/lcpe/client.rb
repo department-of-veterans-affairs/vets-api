@@ -84,7 +84,7 @@ module GI
       # default to GI::Client#gids_response if versioning not enabled
       def lcpe_response(response)
         if versioning_enabled?
-          lcpe_cache.fresh_version_from(gids_response: response, v_client:).body
+          lcpe_cache.fresh_version_from(response).body
         else
           gids_response(response)
         end

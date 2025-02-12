@@ -18,7 +18,7 @@ class LCPERedis < Common::RedisStore
     super(*)
   end
 
-  def fresh_version_from(gids_response:, v_client:)
+  def fresh_version_from(gids_response)
     v_fresh = gids_response.response_headers['Etag']
 
     case gids_response.status

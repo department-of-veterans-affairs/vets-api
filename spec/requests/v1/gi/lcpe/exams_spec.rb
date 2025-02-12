@@ -28,7 +28,7 @@ RSpec.describe 'V1::GI::LCPE::Exams', type: :request do
 
     context 'when versioning enabled' do
       context 'when client nil and cache nil' do
-        it 'returns 200 response with fresh version' do 
+        it 'returns 200 response with fresh version' do
           VCR.use_cassette('gi/lcpe/get_exams_cache_nil') do
             get v1_gi_lcpe_exams_url
             expect(response).to have_http_status(:ok)
@@ -50,7 +50,7 @@ RSpec.describe 'V1::GI::LCPE::Exams', type: :request do
           end
         end
 
-        it 'returns 200 response with fresh version' do 
+        it 'returns 200 response with fresh version' do
           VCR.use_cassette('gi/lcpe/get_exams_cache_stale') do
             get v1_gi_lcpe_exams_url, headers: { 'If-None-Match' => v_client }
             expect(response).to have_http_status(:ok)
@@ -70,7 +70,7 @@ RSpec.describe 'V1::GI::LCPE::Exams', type: :request do
           end
         end
 
-        it 'returns 200 response with fresh version' do 
+        it 'returns 200 response with fresh version' do
           VCR.use_cassette('gi/lcpe/get_exams_cache_fresh') do
             get v1_gi_lcpe_exams_url, headers: { 'If-None-Match' => v_client }
             expect(response).to have_http_status(:ok)
@@ -82,7 +82,7 @@ RSpec.describe 'V1::GI::LCPE::Exams', type: :request do
 
       context 'when client fresh and cache fresh' do
         let(:v_client) { v_fresh }
-        
+
         before do
           # render cache fresh
           VCR.use_cassette('gi/lcpe/get_exams_cache_nil') do
@@ -90,7 +90,7 @@ RSpec.describe 'V1::GI::LCPE::Exams', type: :request do
           end
         end
 
-        it 'returns 304 response with fresh version' do 
+        it 'returns 304 response with fresh version' do
           VCR.use_cassette('gi/lcpe/get_exams_cache_fresh') do
             get v1_gi_lcpe_exams_url, headers: { 'If-None-Match' => v_client }
             expect(response).to have_http_status(:not_modified)
