@@ -39,7 +39,12 @@ module VA1010Forms
     private
 
     def submission_body(formatted_form)
-      content = Gyoku.xml(formatted_form, unwrap: [:'va:attachments'])
+      content =
+        if Flipper.enabled?(:ezr_use_correct_format_for_file_uploads)
+          Gyoku.xml(formatted_form, unwrap: [:'va:attachments'])
+        else
+          Gyoku.xml(formatted_form)
+        end
       submission_body = soap.build_request(:save_submit_form, message: content).body
       log_payload_info(formatted_form, submission_body)
 
