@@ -51,7 +51,7 @@ RSpec.describe Crm::Service do
 
         context 'when on staging env' do
           before do
-            Settings.vsp_environment = 'staging'
+            allow(Settings).to receive(:vsp_environment).and_return('staging')
             allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
             allow_any_instance_of(Faraday::Connection).to receive(:get).with('eis/vagov.lob.ava/api/inquiries',
                                                                              icn: '123',
@@ -72,7 +72,7 @@ RSpec.describe Crm::Service do
       let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
 
       before do
-        Settings.vsp_environment = 'development'
+        allow(Settings).to receive(:vsp_environment).and_return('development')
         allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
         allow_any_instance_of(Faraday::Connection).to receive(:get).with('eis/vagov.lob.ava/api/inquiries',
                                                                          { icn: '123',
