@@ -20,6 +20,24 @@ module AccreditedRepresentativePortal
     SQL
 
     class << self
+      # The `reconcile_and_find_by` method is responsible for associating a user's account information
+      # based on their email and ICN.
+      #
+      # Why this method exists:
+      # - The primary lookup we perform is from `email => registration number`, which helps determine
+      #   the accredited representative associated with the logged-in user.
+      # - Tracking ICNs is currently a "nice-to-have" feature rather than a core requirement.
+      # - The method updates ICN tracking where applicable and removes outdated ICN associations when
+      #   an email no longer matches.
+      #
+      # How it works:
+      # - If a record exists with the given email, it updates the ICN to match the logged-in user's.
+      # - If a record exists with the given ICN but the email no longer matches, it clears the ICN field
+      #   to prevent incorrect associations.
+      #
+      # This ensures that our email-based lookup remains the primary mechanism for resolving
+      # accredited representatives, while also keeping ICN tracking clean and up to date.
+      #
       # rubocop:disable Rails/SkipsModelValidations
       def reconcile_and_find_by(
         user_account_email:,
