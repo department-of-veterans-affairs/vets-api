@@ -14,7 +14,6 @@ module GI
       def initialize(version_id: nil, lcpe_type: nil)
         @v_client = version_id
         @redis_key = lcpe_type
-        config.allow_304 = versioning_enabled?
         super()
       end
 
