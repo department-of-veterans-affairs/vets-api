@@ -7,6 +7,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
     let(:base_path) { '/representation_management/v0/pdf_generator2122' }
     let(:organization) { create(:organization) } # This is the legacy organization
     let(:representative) { create(:representative) } # This is the legacy representative
+    let(:user) { create(:user) }
     let(:params) do
       {
         pdf_generator2122: {
@@ -64,10 +65,32 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
       }
     end
 
-    context 'When submitting all fields with valid data' do
+    context 'when user is authenticated' do
       before do
+        sign_in(user)
+        form_double = double(id: 1, delete: true)
+        allow(InProgressForm).to receive(:form_for_user).and_return(form_double)
         post(base_path, params:)
       end
+
+      it 'deletes the in-progress form' do
+        expect(InProgressForm).to have_received(:form_for_user).with('21-22', anything)
+      end      
+    end
+
+    context 'when user is not authenticated' do
+      before do
+        allow(InProgressForm).to receive(:form_for_user).and_return(nil)
+        post(base_path, params:)
+      end
+
+      it 'does not attempt to delete an in-progress form' do
+        expect(InProgressForm).not_to have_received(:form_for_user)
+      end
+    end
+
+    context 'When submitting all fields with valid data' do
+      before { post(base_path, params:) }
 
       it 'responds with a ok status' do
         expect(response).to have_http_status(:ok)
