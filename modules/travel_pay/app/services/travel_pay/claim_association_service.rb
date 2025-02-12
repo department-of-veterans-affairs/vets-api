@@ -109,37 +109,29 @@ module TravelPay
     end
 
     def append_claims(appts, claims, metadata)
-      appointments = []
-      appts.each do |appt|
-        claims.each do |cl|
-          begin
-            claim_time = try_parse_date(cl['appointmentDateTime'])
-            appt_time = strip_timezone(appt[:local_start_time])
-          rescue InvalidComparableError
-            Rails.logger.warn(message: "Cannot compare start times. Claim Time: #{claim_time} | Appt Time: #{appt_time}")
+      appts.reduce([]) do |acc, appt|
+        appt['travelPayClaim'] = {
+          'metadata' => metadata
+        }
 
-            appt['travelPayClaim'] = {
-              'metadata' => metadata
-            }
-
-            break
-          end
-
-          if claim_time.eql? appt_time
-            appt['travelPayClaim'] = {
-              'metadata' => metadata,
-              'claim' => cl
-            }
-            break
-          else
-            appt['travelPayClaim'] = {
-              'metadata' => metadata
-            }
-          end
+        begin
+          matching_claim = find_matching_claim(claims, appt[:local_start_time])
+          appt['travelPayClaim']['claim'] = matching_claim if matching_claim.present?
+        rescue InvalidComparableError => e
+          Rails.logger.warn(message: "Cannot compare start times. #{e.message}")
         end
-        appointments.push(appt)
+
+        acc.push(appt)
       end
-      appointments
+    end
+
+    def find_matching_claim(claims, appt_start)
+      claims.find do |cl|
+        claim_time = try_parse_date(cl['appointmentDateTime'])
+        appt_time = strip_timezone(appt_start)
+
+        claim_time.eql? appt_time
+      end
     end
 
     def append_error(appts, metadata)
