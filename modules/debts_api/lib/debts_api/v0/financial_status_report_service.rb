@@ -163,7 +163,7 @@ module DebtsApi
 
       vbs_request = DebtManagementCenter::VBS::Request.build
       Rails.logger.info('5655 Form Submitting to VBS API', submission_id: form_submission.id)
-      measure_latency("#{STATSD_KEY_PREFIX}.fsr.submit.vba.latency") do
+      measure_latency("#{STATSD_KEY_PREFIX}.fsr.submit.vbs.latency") do
         vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
                          { jsonDocument: form.to_json })
       end
