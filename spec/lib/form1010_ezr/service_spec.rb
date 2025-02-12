@@ -342,6 +342,11 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       context "with the 'ezr_use_correct_format_for_file_uploads' flipper enabled" do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(true)
+        end
+
         it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending " \
            'order (if applicable)',
            run_at: 'Wed, 12 Feb 2025 18:40:51 GMT' do
@@ -371,7 +376,8 @@ RSpec.describe Form1010Ezr::Service do
 
       context "with the 'ezr_use_correct_format_for_file_uploads' flipper disabled" do
         before do
-          Flipper.disable(:ezr_use_correct_format_for_file_uploads)
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(false)
         end
 
         it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending " \

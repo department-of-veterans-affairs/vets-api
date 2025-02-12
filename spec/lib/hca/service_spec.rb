@@ -183,6 +183,11 @@ describe HCA::Service do
 
     context 'submitting with attachment' do
       context "with the 'ezr_use_correct_format_for_file_uploads' flipper enabled" do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(true)
+        end
+
         it 'works', run_at: 'Wed, 12 Feb 2025 20:53:32 GMT' do
           VCR.use_cassette(
             'hca/submit_with_attachment_formatted_correctly',
@@ -235,7 +240,8 @@ describe HCA::Service do
 
       context "with the 'ezr_use_correct_format_for_file_uploads' flipper disabled" do
         before do
-          Flipper.disable(:ezr_use_correct_format_for_file_uploads)
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(false)
         end
 
         it 'works', run_at: 'Wed, 17 Jul 2024 18:04:50 GMT' do
