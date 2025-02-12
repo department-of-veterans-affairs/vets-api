@@ -45,18 +45,5 @@ module AccreditedRepresentativePortal
         raise Common::Exceptions::Forbidden, detail: message
       end
     end
-
-    # Returns cached VSO registration numbers authorized for current user's VA identity.
-    # Caches authorization for 1 hour to avoid repeated lookups within a session.
-    # @return [Array<String>] Authorized VSO registration numbers
-    #
-    def authorized_vso_registrations
-      Rails.cache.fetch("user_#{current_user.id}_registration_numbers", expires_in: 1.hour) do
-        UserAccountAccreditedIndividual.authorize_vso_representative!(
-          email: current_user.email,
-          icn: current_user.icn
-        )
-      end
-    end
   end
 end
