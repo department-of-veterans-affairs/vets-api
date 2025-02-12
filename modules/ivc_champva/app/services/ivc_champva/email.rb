@@ -49,3 +49,4 @@ module IvcChampva
       %w[production staging].include?(Rails.env)
     end
   end
+end
