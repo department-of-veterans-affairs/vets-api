@@ -35,6 +35,7 @@ module IvcChampva
     end
 
     def upload_file(key, file)
+      begin
         obj = resource.bucket(bucket).object(key)
         obj.upload_file(file)
 
