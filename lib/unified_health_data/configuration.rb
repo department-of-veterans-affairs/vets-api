@@ -1,14 +1,46 @@
 # frozen_string_literal: true
 require 'common/client/configuration/rest'
+require 'common/client/middleware/request/camelcase'
+require 'common/client/middleware/response/json_parser'
+require 'common/client/middleware/response/raise_custom_error'
+require 'common/client/middleware/response/mhv_errors'
+require 'common/client/middleware/response/snakecase'
+require 'faraday/multipart'
 
 module UnifiedHealthData
   class Configuration < Common::Client::Configuration::REST
+    def settings
+      Settings.mhv.uhd
+    end
+
     def base_path
-      'https://api.unifiedhealthdata.example.com'
+      "#{settings.host}/mhvapi/v1/medicalrecords/"
     end
 
     def service_name
       'UnifiedHealthData'
     end
+
+    def token_path
+      "#{settings.host}/mhvapi/security/v1/login"
+    end
+
+    def app_id
+      settings.app_id
+    end
+
+    def app_token
+      settings.app_token
+    end
+
+    def connection
+      Faraday.new(base_path) do |conn|
+        conn.request :json
+        conn.response :json
+        conn.response :raise_custom_error
+        conn.adapter Faraday.default_adapter
+      end
+    end
+
   end
 end
