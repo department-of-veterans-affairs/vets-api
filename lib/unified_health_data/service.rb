@@ -30,11 +30,11 @@ module UnifiedHealthData
     private
 
     def fetch_access_token
-      response = connection.post(configuration.token_path) do |req|
+      response = connection.post(config.token_path) do |req|
         req.headers['Content-Type'] = 'application/json'
         req.body = {
-          appId: configuration.app_id,
-          appToken: configuration.app_token,
+          appId: config.app_id,
+          appToken: config.app_token,
           subject: 'VA.gov SCDF Proxy Client',
           userType: 'SYSTEM'
         }.to_json

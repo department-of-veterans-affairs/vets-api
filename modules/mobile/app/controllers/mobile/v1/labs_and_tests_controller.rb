@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'unified_health_data/service'
 
 module Mobile
   module V1
