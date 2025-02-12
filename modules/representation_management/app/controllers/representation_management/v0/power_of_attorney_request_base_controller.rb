@@ -8,6 +8,12 @@ module RepresentationManagement
 
       private
 
+      def optional_authenticate
+        authenticate
+      rescue
+        # If authentication fails, current_user will stay nil
+      end
+
       def params_permitted
         [
           :record_consent,
@@ -129,6 +135,15 @@ module RepresentationManagement
         else
           ''
         end
+      end
+
+      def delete_in_progress_form
+        form = InProgressForm.form_for_user('21-22', current_user)
+        return if form.nil?
+      
+        form.delete
+      rescue StandardError => e
+        Rails.logger.error("Failed to delete InProgressForm 21-22#{", record ID: #{form.id}" if form&.id}: #{e.message}")
       end
 
       def feature_enabled
