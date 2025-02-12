@@ -9,7 +9,7 @@ module IvcChampva
       VALID_KEYS = %w[form_uuid file_names status case_id].freeze
 
       def update_status
-          data = JSON.parse(params.to_json)
+        data = JSON.parse(params.to_json)
 
           tags = ['service:veteran-ivc-champva-forms', 'function:form submission to Pega']
 
@@ -29,12 +29,12 @@ module IvcChampva
             end
 
           render json: response[:json], status: response[:status]
-        rescue JSON::ParserError => e
+          rescue JSON::ParserError => e
           # Log the JSON parsing error
           StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
           render json: { error_message: "JSON parsing error: #{e.message}" }, status: :internal_server_error
+          end
         end
-      end
 
       private
 
