@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<GIDS_URL>/v1/lcpe/exams"
+    uri: "<GIDS_URL>/v1/lcpe/exams?state=MT"
     body:
       encoding: US-ASCII
       string: ''
@@ -29,18 +29,19 @@ http_interactions:
       Pragma:
       - no-cache
       Expires:
-      - 2023-12-30 18:37:49 UTC
+      - 2024-02-12 05:38:51 UTC
       Content-Type:
       - application/json; charset=utf-8
       Etag:
       - W/"534dd5bd640e41d1b980e482032af136"
       X-Request-Id:
-      - 582e7f03-6e42-4e4b-b809-a40cd2a4f2ab
+      - 1e2744f9-bc86-4fad-a559-8f2e99ec9559
       X-Runtime:
-      - '0.013559'
+      - '0.174013'
       Server-Timing:
-      - start_processing.action_controller;dur=0.01, sql.active_record;dur=1.05, instantiation.active_record;dur=0.32,
-        render.active_model_serializers;dur=0.59, process_action.action_controller;dur=7.19
+      - start_processing.action_controller;dur=0.03, sql.active_record;dur=37.49,
+        instantiation.active_record;dur=21.28, render.active_model_serializers;dur=2.37,
+        process_action.action_controller;dur=130.62
       Content-Length:
       - '1098'
     body:
@@ -56,5 +57,5 @@ http_interactions:
         ANALOGIES TEST"},{"enriched_id":"16@e477d","name":"PCAT-PHARMACY COLLEGE ADMISSON
         TEST"},{"enriched_id":"17@8479c","name":"ECE (4 hours)"},{"enriched_id":"18@07aaf","name":"ECE
         (6 hours)"},{"enriched_id":"19@a36f3","name":"ECE 8 HOURS NURSING"}]}'
-  recorded_at: Mon, 30 Dec 2024 18:37:49 GMT
+  recorded_at: Wed, 12 Feb 2025 05:38:51 GMT
 recorded_with: VCR 6.3.1

@@ -10,7 +10,7 @@ module V1
       private
 
       def service
-        super if bypass_versioning?
+        return super if bypass_versioning?
 
         lcpe_client
       end
@@ -20,7 +20,7 @@ module V1
       end
 
       def version_id
-        request.headers['If-None-Match']&.to_s || params[:version]
+        request.headers['If-None-Match'] || params[:version]
       end
 
       def set_etag(version)
@@ -29,7 +29,7 @@ module V1
 
       # If additional filter params present, bypass versioning
       def bypass_versioning?
-        scrubbed_params.except(versioning_params).present?
+        scrubbed_params.except(*versioning_params).present?
       end
 
       def versioning_params

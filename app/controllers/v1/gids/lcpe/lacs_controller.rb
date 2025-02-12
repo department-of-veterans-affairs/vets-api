@@ -8,7 +8,7 @@ module V1
 
         def index
           lacs = service.get_licenses_and_certs_v1(scrubbed_params)
-          set_etag(lacs.version) unless bypass_versioning?
+          set_etag(lacs[:version]) unless bypass_versioning?
           render json: lacs
         end
 

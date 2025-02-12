@@ -17,14 +17,13 @@ class LCPERedis < Common::RedisStore
     @lcpe_type = lcpe_type
     super(*)
   end
-''
+
   def fresh_version_from(gids_response:, v_client:)
-    v_fresh = gids_response.response_headers['Etag'].to_i
+    v_fresh = gids_response.response_headers['Etag']
 
     case gids_response.status
     when 304
-      # Forward 304 response from GIDS if client version fresh, otherwise send fresh version from cache
-      v_client.to_i == v_fresh ? gids_response : cached_response
+      cached_response
     else
       # Refresh cache with latest version from GIDS
       invalidate_cache
@@ -46,7 +45,7 @@ class LCPERedis < Common::RedisStore
   end
 
   def cached_version
-    cached_response&.version
+    cached_response&.body.try(:[], :version)
   end
 
   private

@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'gi/lcpe/client'
-require 'gi/gids_response'
 
 describe GI::LCPE::Client do
   let(:v_client) { nil }
@@ -19,7 +18,7 @@ describe GI::LCPE::Client do
     context 'when versioning disabled' do
       it 'gets list of licenses and certifications' do
         VCR.use_cassette('gi/lcpe/get_lacs_versioning_disabled') do
-          response = service.get_licenses_and_certs_v1({})
+          response = service.get_licenses_and_certs_v1({ state: 'MT' })
           lacs = response.body[:lacs]
           expect(lacs.class).to be(Array)
           expect(lacs.first.keys).to eq(%i[enriched_id lac_nm edu_lac_type_nm state])

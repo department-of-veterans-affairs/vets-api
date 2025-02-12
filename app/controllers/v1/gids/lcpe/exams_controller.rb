@@ -8,7 +8,7 @@ module V1
 
         def index
           exams = service.get_exams_v1(scrubbed_params)
-          set_etag(exams.version) unless bypass_versioning?
+          set_etag(exams[:version]) unless bypass_versioning?
           render json: exams
         end
 

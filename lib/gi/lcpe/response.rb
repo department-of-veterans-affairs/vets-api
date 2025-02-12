@@ -5,16 +5,15 @@ require 'gi/gids_response'
 module GI
   module LCPE
     class Response < GIDSResponse
-      # @return  [String] the latest LCPE data etag
-      attribute :version, String
+      attr_accessor :version
 
       # Builds a response with a ok status and a response's body
       #
       # @param response returned from the rest call
-      # @return [GI::GIDSResponse]
+      # @return [GI::LCPE::Response]
       def self.from(response)
-        version = response.response_headers['Etag']
-        new(status: response.status, body: response.body, version:)
+        version = response.response_headers[:etag]
+        new(status: response.status, body: response.body.merge(version:))
       end
     end
   end

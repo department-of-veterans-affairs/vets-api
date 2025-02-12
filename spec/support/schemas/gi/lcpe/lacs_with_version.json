@@ -1,0 +1,31 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "lacs": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enriched_id": { 
+              "type": "string"
+            },
+            "lac_nm": { 
+              "type": "string"
+            },
+            "edu_lac_type_nm": { 
+              "type": "string"
+            },
+            "state": { 
+              "type": "string"
+            }
+          }
+        }
+      },
+      "version": {
+        "type": "string"
+      }
+    }
+  }
+  

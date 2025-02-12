@@ -27,8 +27,7 @@ module GI
       def get_license_and_cert_details_v1(params = {})
         validate_client_version do
           lac_id = params[:id]
-          response = perform(:get, "v1/lcpe/lacs/#{lac_id}", params.except(:id))
-          gids_response(response)
+          perform(:get, "v1/lcpe/lacs/#{lac_id}", params.except(:id, :version))
         end
       end
 
@@ -67,7 +66,7 @@ module GI
 
       # If versioning enabled, validate client has fresh collection before querying details
       def validate_client_version
-        return yield unless versioning_enabled?
+        return gids_response(yield) unless versioning_enabled?
 
         # client (and not vets-api cache) must have fresh version
         config.etag = v_client
@@ -75,7 +74,7 @@ module GI
         case response.status
         when 304
           # version is fresh, redirect to query details
-          yield
+          gids_response(yield).body
         else
           # version stale, client must refresh preloaded collection
           lcpe_cache.force_client_refresh_and_cache(response)
@@ -85,7 +84,7 @@ module GI
       # default to GI::Client#gids_response if versioning not enabled
       def lcpe_response(response)
         if versioning_enabled?
-          lcpe_cache.fresh_version_from(gids_response: response, v_client:)
+          lcpe_cache.fresh_version_from(gids_response: response, v_client:).body
         else
           gids_response(response)
         end
