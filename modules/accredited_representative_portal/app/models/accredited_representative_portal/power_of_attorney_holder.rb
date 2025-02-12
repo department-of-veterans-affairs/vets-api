@@ -28,6 +28,25 @@ module AccreditedRepresentativePortal
     ].freeze
 
     class << self
+      # The `for_user` method retrieves the Power of Attorney (POA) holders associated with a user
+      # based on their email and ICN (Integration Control Number).
+      #
+      # Why this method exists:
+      # - The purpose of this method is to determine which organizations or individuals hold
+      #   power of attorney for a given user.
+      # - It first looks up the accredited representative using `reconcile_and_find_by`, which
+      #   ensures that both email and ICN associations are accurate.
+      # - If a match is found, it retrieves the accredited representative's registration number
+      #   and finds their associated POA organizations.
+      #
+      # How it works:
+      # - It queries `UserAccountAccreditedIndividual` to find a representative linked to the user.
+      # - If the `power_of_attorney_holder_type` is `VETERAN_SERVICE_ORGANIZATION`, it:
+      #   - Fetches the representative's POA codes.
+      #   - Uses these POA codes to retrieve associated organizations.
+      #   - Creates and returns a list of `PowerOfAttorneyHolder` instances, including whether
+      #     each organization can accept digital POA requests.
+      #
       def for_user(email:, icn:)
         [].tap do |poa_holders|
           records =
