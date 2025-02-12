@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
-module PowerOfAttorneyRequestCreation
-  class Creator
+module PowerOfAttorneyRequestService
+  class Create
     INDIVIDUAL = 'AccreditedIndividual'
     ORGANIZATION = 'AccreditedOrganization'
     ACCREDITED_ENTITY_ERROR = 'at least one of registration_number and poa_code is required'
     HOLDER_TYPE_ERROR = 'the holder_type is not an allowed value'
     HOLDER_TYPES = [INDIVIDUAL, ORGANIZATION].freeze
+
     def initialize(claimant:, form_data:, holder_type: ORGANIZATION, poa_code: nil, registration_number: nil)
       @claimant = claimant
       @form_data = form_data

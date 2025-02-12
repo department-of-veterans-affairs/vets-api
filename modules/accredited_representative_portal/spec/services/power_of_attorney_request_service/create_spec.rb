@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe PowerOfAttorneyRequestCreation::Creator do
+RSpec.describe PowerOfAttorneyRequestService::Create do
   describe '#call' do
     subject do
       described_class.new(claimant: claimant, form_data: form_data, holder_type: holder_type, poa_code: poa_code,
@@ -128,7 +128,7 @@ RSpec.describe PowerOfAttorneyRequestCreation::Creator do
         it 'returns a meaningful error' do
           result = subject.call
 
-          expect(result[:errors]).to eq([PowerOfAttorneyRequestCreation::Creator::ACCREDITED_ENTITY_ERROR])
+          expect(result[:errors]).to eq([PowerOfAttorneyRequestService::Create::ACCREDITED_ENTITY_ERROR])
         end
 
         it 'does not create new records' do
@@ -143,7 +143,7 @@ RSpec.describe PowerOfAttorneyRequestCreation::Creator do
         it 'returns a meaningful error' do
           result = subject.call
 
-          expect(result[:errors]).to eq([PowerOfAttorneyRequestCreation::Creator::HOLDER_TYPE_ERROR])
+          expect(result[:errors]).to eq([PowerOfAttorneyRequestService::Create::HOLDER_TYPE_ERROR])
         end
 
         it 'does not create new records' do
