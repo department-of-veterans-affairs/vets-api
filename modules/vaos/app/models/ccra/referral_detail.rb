@@ -4,7 +4,7 @@ module Ccra
   # ReferralDetail represents the detailed information for a single referral from CCRA.
   class ReferralDetail
     attr_reader :expiration_date, :type_of_care, :provider_name, :location,
-                :number_of_appointments, :referral_number
+                :referral_number
 
     ##
     # Initializes a new instance of ReferralDetail.
