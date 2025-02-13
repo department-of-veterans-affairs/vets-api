@@ -1,9 +1,6 @@
 # These owners will be the default owners for everything in
-
 # the repo. Unless a later match takes precedence
-
 # @department-of-veterans-affairs/backend-review-group and @department-of-veterans-affairs/va-api-engineers will be requested for
-
 # review when someone opens a pull request
 
 Brewfile @department-of-veterans-affairs/backend-review-group
