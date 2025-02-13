@@ -41,20 +41,52 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
       let(:page) { 1 }
       let(:per_page) { 4 }
 
-      it 'returns a successful response' do
-        get :index, params: { start_date: 1.month.ago.to_date, end_date: Time.zone.now }
-        expect(response).to have_http_status(:success)
+      context 'user actions' do
+        it 'returns user actions within date range' do
+          get :index, params: { start_date: 5.days.ago.to_date, end_date: Time.zone.now }
+
+          json_response = JSON.parse(response.body)
+          expect(json_response['data'].length).to eq(3)
+        end
+
+        it 'returns user actions by newest to oldest within date range' do
+          get :index, params: { start_date: 3.days.ago.to_date, end_date: Time.zone.now }
+
+          json_response = JSON.parse(response.body)
+          serialized_user_action = json_response['data'].first
+          expect(serialized_user_action['id']).to eq(user_action_two.id)
+          expect(serialized_user_action['type']).to eq('user_action')
+          expect(serialized_user_action['attributes']['user_action_event_id']).to eq(user_action_event_two.id)
+        end
       end
 
-      it 'filters user actions based on the date range' do
-        get :index, params: { start_date: 3.days.ago.to_date, end_date: Time.zone.now }
+      context 'user action events' do
+        it 'returns a successful response' do
+          get :index, params: { start_date: 1.month.ago.to_date, end_date: Time.zone.now }
+          expect(response).to have_http_status(:success)
+        end
 
-        expect(response).to have_http_status(:success)
+        it 'includes the user action event' do
+          get :index, params: { start_date: 3.days.ago.to_date, end_date: Time.zone.now }
+
+          expect(response).to have_http_status(:success)
+
+          json_response = JSON.parse(response.body)
+          expect(json_response.length).to eq(2)
+          expect(json_response['included'].first['attributes']['details']).to eq('Sample event 2')
+          expect(json_response['included'].second['attributes']['details']).to eq('Sample event 1')
+        end
+      end
+    end
+
+    context 'when there are no user actions' do
+      it 'returns unauthorized' do
+        get :index
 
         json_response = JSON.parse(response.body)
-        expect(json_response.length).to eq(2)
-        expect(json_response['included'].first['attributes']['details']).to eq('Sample event 2')
-        expect(json_response['included'].second['attributes']['details']).to eq('Sample event 1')
+        expect(response).to have_http_status(:ok)
+        expect(json_response['data'].length).to eq(0)
+        expect(json_response['included'].length).to eq(0)
       end
     end
   end
