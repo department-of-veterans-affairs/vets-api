@@ -819,13 +819,13 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
           stub_facilities
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
-                                                                      .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
+            .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_telehealth_info',
                            match_requests_on: %i[method path query], allow_playback_repeats: true) do
             get '/vaos/v2/appointments/75105', headers: inflection_header
             expect(response).to have_http_status(:ok)
             data = json_body_for(response)['attributes']
-            expect(data['telehealth']['displayLink']).to eq(true)
+            expect(data['telehealth']['displayLink']).to be(true)
 
             Timecop.unfreeze
           end
@@ -836,13 +836,13 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
           stub_facilities
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
-                                                                      .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
+            .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_telehealth_info',
                            match_requests_on: %i[method path query], allow_playback_repeats: true) do
             get '/vaos/v2/appointments/75105', headers: inflection_header
             expect(response).to have_http_status(:ok)
             data = json_body_for(response)['attributes']
-            expect(data['telehealth']['displayLink']).to eq(false)
+            expect(data['telehealth']['displayLink']).to be(false)
 
             Timecop.unfreeze
           end
@@ -853,13 +853,13 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
           stub_facilities
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
-                                                                      .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
+            .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_telehealth_info',
                            match_requests_on: %i[method path query], allow_playback_repeats: true) do
             get '/vaos/v2/appointments/75105', headers: inflection_header
             expect(response).to have_http_status(:ok)
             data = json_body_for(response)['attributes']
-            expect(data['telehealth']['displayLink']).to eq(true)
+            expect(data['telehealth']['displayLink']).to be(true)
 
             Timecop.unfreeze
           end
@@ -870,13 +870,13 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
           stub_facilities
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
-                                                                      .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
+            .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_telehealth_info',
                            match_requests_on: %i[method path query], allow_playback_repeats: true) do
             get '/vaos/v2/appointments/75105', headers: inflection_header
             expect(response).to have_http_status(:ok)
             data = json_body_for(response)['attributes']
-            expect(data['telehealth']['displayLink']).to eq(false)
+            expect(data['telehealth']['displayLink']).to be(false)
 
             Timecop.unfreeze
           end

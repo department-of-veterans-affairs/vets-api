@@ -1901,7 +1901,7 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#set_telehealth_visibility' do
-    let(:current_time) {'2022-09-21T12:00:00+00:00'.to_datetime}
+    let(:current_time) { '2022-09-21T12:00:00+00:00'.to_datetime }
 
     before do
       Timecop.freeze(current_time)
@@ -1918,32 +1918,32 @@ describe VAOS::V2::AppointmentsService do
       expect(appt.dig(:telehealth, :displayLink)).to be_nil
     end
 
-    it 'sets telehealth visibility to true if appointment is a telehealth type and current time is 30 minutes before start time' do
+    it 'sets telehealth visibility to true if current time is 30 minutes before start time' do
       appt = build(:appointment_form_v2, :telehealth).attributes
       appt[:start] = '2022-09-21T12:30:00+00:00'.to_datetime
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to eq(true)
+      expect(appt.dig(:telehealth, :displayLink)).to be(true)
     end
 
-    it 'sets telehealth visibility to true if appointment is a telehealth type and current time is within 4 hours of start time' do
+    it 'sets telehealth visibility to true if current time is within 4 hours of start time' do
       appt = build(:appointment_form_v2, :telehealth).attributes
       appt[:start] = '2022-09-21T08:00:00+00:00'.to_datetime
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to eq(true)
+      expect(appt.dig(:telehealth, :displayLink)).to be(true)
     end
 
-    it 'sets telehealth visibility to false if appointment is a telehealth type and current time is more than 30 minutes from start time' do
+    it 'sets telehealth visibility to false if current time is more than 30 minutes from start time' do
       appt = build(:appointment_form_v2, :telehealth).attributes
       appt[:start] = '2022-09-21T12:31:00+00:00'.to_datetime
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to eq(false)
+      expect(appt.dig(:telehealth, :displayLink)).to be(false)
     end
 
-    it 'sets telehealth visibility to false if appointment is a telehealth type and current time is more than 4 hours from start time' do
+    it 'sets telehealth visibility to false if current time is more than 4 hours from start time' do
       appt = build(:appointment_form_v2, :telehealth).attributes
       appt[:start] = '2022-09-21T07:59:00+00:00'.to_datetime
       subject.send(:set_telehealth_visibility, appt)
-      expect(appt.dig(:telehealth, :displayLink)).to eq(false)
+      expect(appt.dig(:telehealth, :displayLink)).to be(false)
     end
   end
 
