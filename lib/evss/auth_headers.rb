@@ -5,30 +5,29 @@ require 'evss/base_headers'
 require 'formatters/date_formatter'
 
 module EVSS
-  ParentClass = lambda do
-    if Flipper.enabled?(:lighthouse_base_headers)
-      Lighthouse::BaseHeaders
-    else
+  module HeaderInheritance
+    def self.determine_parent
+      if Flipper.enabled?(:lighthouse_base_headers)
+        Lighthouse::BaseHeaders
+      else
+        EVSS::BaseHeaders
+      end
+    rescue StandardError => e
+      Rails.logger.warn "Error checking Flipper flag: #{e.message}. Defaulting to EVSS::BaseHeaders"
       EVSS::BaseHeaders
     end
-  rescue => e
-    Rails.logger.warn "Error checking Flipper flag: #{e.message}. Defaulting to EVSS::BaseHeaders"
-    EVSS::BaseHeaders
   end
 
-  class AuthHeaders < ParentClass.call
-    attr_reader :transaction_id
-
+  class AuthHeaders
     def initialize(user)
+      @delegate = HeaderInheritance.determine_parent.new(user)
       @transaction_id = create_transaction_id
-      super(user)
+      @user = user
     end
 
     def to_h
       @headers ||= sanitize(
         'va_eauth_csid' => 'DSLogon',
-        # TODO: Change va_eauth_authenticationmethod to vets.gov
-        # once the EVSS team is ready for us to use it
         'va_eauth_authenticationmethod' => 'DSLogon',
         'va_eauth_pnidtype' => 'SSN',
         'va_eauth_assurancelevel' => @user.loa[:current].to_s,
@@ -46,7 +45,29 @@ module EVSS
       )
     end
 
+    def method_missing(method_name, *args, &block)
+      if @delegate.respond_to?(method_name)
+        @delegate.send(method_name, *args, &block)
+      else
+        super
+      end
+    end
+
+    def respond_to_missing?(method_name, include_private = false)
+      @delegate.respond_to?(method_name, include_private) || super
+    end
+
+    def kind_of?(klass)
+      @delegate.kind_of?(klass) || super
+    end
+
+    def is_a?(klass)
+      @delegate.is_a?(klass) || super
+    end
+
     private
+
+    attr_reader :delegate, :user, :transaction_id
 
     def create_transaction_id
       "vagov-#{SecureRandom.uuid}"
@@ -75,7 +96,6 @@ module EVSS
     def get_dependent_headers
       sponsor = get_user_relationship
       return {} unless sponsor
-
       {
         headOfFamily: {
           id: sponsor.ssn,
@@ -92,9 +112,6 @@ module EVSS
     def get_user_relationship
       veteran_relationships = @user.relationships&.select(&:veteran_status)
       return unless veteran_relationships.presence
-
-      # Makes sense to give the user the ability to select the relationship eventually, for now we return
-      # the first applicable relationship
       selected_relationship = veteran_relationships.first
       selected_relationship.get_full_attributes.profile
     end
