@@ -93,7 +93,7 @@ module BGS
       child_event_type(event_type)
     end
 
-    def generate_child_event(child_event)
+    def generate_child_event(child_event, event_type)
       formatted_info = child_event.format_info
       participant = bgs_service.create_participant(@proc_id)
 
@@ -127,18 +127,18 @@ module BGS
         if event_type == 'child_marriage'
           if @is_v2
             @dependents_application['child_marriage'].each do |child_marriage_details|
-              generate_child_event(BGSDependents::ChildMarriage.new(child_marriage_details))
+              generate_child_event(BGSDependents::ChildMarriage.new(child_marriage_details), event_type)
             end
           else
-            generate_child_event(BGSDependents::ChildMarriage.new(@dependents_application['child_marriage']))
+            generate_child_event(BGSDependents::ChildMarriage.new(@dependents_application['child_marriage']), event_type)
           end
         elsif event_type == 'not_attending_school'
           if @is_v2
             @dependents_application['child_stopped_attending_school'].each do |child_stopped_attending_school_details|
-              generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(child_stopped_attending_school_details))
+              generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(child_stopped_attending_school_details), event_type)
             end
           else
-            generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school']))
+            generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school']), event_type)
           end
         end
     end
