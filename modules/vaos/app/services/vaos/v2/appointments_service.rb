@@ -382,6 +382,8 @@ module VAOS
 
         set_modality(appointment)
 
+        set_telehealth_visibility(appointment) if telehealth?(appointment)
+
         appointment[:past] = past?(appointment)
         appointment[:future] = future?(appointment)
         appointment[:pending] = request?(appointment)
@@ -852,6 +854,14 @@ module VAOS
       # @param appointment [Hash] the appointment to modify
       def set_cancellable_false(appointment)
         appointment[:cancellable] = false
+      end
+
+      def set_telehealth_visibility(appointment)
+        if appointment[:telehealth].present?
+          #if current time is between 30 minutes prior to appointment.start and 4 hours after appointment.start, set telehealth_visible to true
+          appointment[:telehealth][:displayLink] = (appointment[:start].to_datetime - 30.minutes) <= Time.now.utc &&
+                                                    (appointment[:start].to_datetime + 4.hours) >= Time.now.utc
+        end
       end
 
       def set_modality(appointment)

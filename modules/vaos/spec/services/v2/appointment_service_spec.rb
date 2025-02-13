@@ -1900,6 +1900,53 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#set_telehealth_visibility' do
+    let(:current_time) {'2022-09-21T12:00:00+00:00'.to_datetime}
+
+    before do
+      Timecop.freeze(current_time)
+      Flipper.disable(:va_online_scheduling_use_vpg)
+    end
+
+    after do
+      Timecop.unfreeze
+    end
+
+    it 'sets telehealth visibility to nil if appointment is not a telehealth type' do
+      appt = appt_med
+      subject.send(:set_telehealth_visibility, appt)
+      expect(appt.dig(:telehealth, :displayLink)).to be_nil
+    end
+
+    it 'sets telehealth visibility to true if appointment is a telehealth type and current time is 30 minutes before start time' do
+      appt = build(:appointment_form_v2, :telehealth).attributes
+      appt[:start] = '2022-09-21T12:30:00+00:00'.to_datetime
+      subject.send(:set_telehealth_visibility, appt)
+      expect(appt.dig(:telehealth, :displayLink)).to eq(true)
+    end
+
+    it 'sets telehealth visibility to true if appointment is a telehealth type and current time is within 4 hours of start time' do
+      appt = build(:appointment_form_v2, :telehealth).attributes
+      appt[:start] = '2022-09-21T08:00:00+00:00'.to_datetime
+      subject.send(:set_telehealth_visibility, appt)
+      expect(appt.dig(:telehealth, :displayLink)).to eq(true)
+    end
+
+    it 'sets telehealth visibility to false if appointment is a telehealth type and current time is more than 30 minutes from start time' do
+      appt = build(:appointment_form_v2, :telehealth).attributes
+      appt[:start] = '2022-09-21T12:31:00+00:00'.to_datetime
+      subject.send(:set_telehealth_visibility, appt)
+      expect(appt.dig(:telehealth, :displayLink)).to eq(false)
+    end
+
+    it 'sets telehealth visibility to false if appointment is a telehealth type and current time is more than 4 hours from start time' do
+      appt = build(:appointment_form_v2, :telehealth).attributes
+      appt[:start] = '2022-09-21T07:59:00+00:00'.to_datetime
+      subject.send(:set_telehealth_visibility, appt)
+      expect(appt.dig(:telehealth, :displayLink)).to eq(false)
+    end
+  end
+
   describe '#set_modality' do
     it 'is vaInPersonVaccine for covid service_type' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
