@@ -423,7 +423,7 @@ ivc_champva:
   pega_api:
     api_key: fake_api_key
 
-form_upload_flow:
+form_upload:
   prefill: true
 
 # Settings for Expiry Scanner
@@ -522,7 +522,7 @@ ppms:
 mhv:
   # include ranges first, then individual exceptions to the ranges last.
   facility_range: [[358, 718], [720, 740], [742, 758]]
-  facility_specific: [["741MM"]] # 741 is excluded, but 741MM is included
+  facility_specific: ["741MM"] # 741 is excluded, but 741MM is included
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
