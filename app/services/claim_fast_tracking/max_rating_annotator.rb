@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'virtual_regional_office/client'
+require 'disability_max_ratings/client'
 
 module ClaimFastTracking
   class MaxRatingAnnotator
@@ -58,13 +59,16 @@ module ClaimFastTracking
 
     def self.get_ratings(diagnostic_codes, user)
       if Flipper.enabled?(:disability_526_max_cfi_service_switch, user)
-        Rails.logger.info('New Max Ratings service triggered by feature flag, but implementation is pending')
-        # TODO: Handle the new logic for max ratings when switching to the new service
+        disability_max_ratings_client = DisabilityMaxRatings::Client.new
+        response = disability_max_ratings_client.post_for_max_ratings(diagnostic_codes)
       else
         vro_client = VirtualRegionalOffice::Client.new
         response = vro_client.get_max_rating_for_diagnostic_codes(diagnostic_codes)
-        response.body['ratings']
       end
+      response.body['ratings']
+    rescue Faraday::TimeoutError
+      Rails.logger.error 'Get Max Ratings Failed: Request timed out.'
+      nil
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error "Get Max Ratings Failed  #{e.message}.", backtrace: e.backtrace
       nil

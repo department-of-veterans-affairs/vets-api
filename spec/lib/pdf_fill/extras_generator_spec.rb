@@ -83,4 +83,22 @@ describe PdfFill::ExtrasGenerator do
       File.delete(file_path)
     end
   end
+
+  describe '#add_page_numbers' do
+    subject { described_class.new(start_page: 8, extras_redesign: true) }
+
+    let(:pdf) { instance_double(Prawn::Document, bounds: double('Bounds', right: 400)) }
+
+    it 'adds page numbers starting at @start_page' do
+      expect(pdf).to receive(:number_pages).with(
+        'Page <page>',
+        start_count_at: 8,
+        at: [400 - 50, 0],
+        align: :right,
+        size: 9
+      )
+
+      subject.add_page_numbers(pdf)
+    end
+  end
 end

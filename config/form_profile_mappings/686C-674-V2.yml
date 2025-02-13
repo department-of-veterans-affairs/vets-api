@@ -1,0 +1,11 @@
+veteranInformation:
+  fullName: [identity_information, full_name]
+  ssn: [identity_information, ssn]
+  birthDate: [identity_information, date_of_birth]
+veteranContactInformation:
+  veteranAddress: [form_address]
+  phoneNumber: [contact_information, us_phone]
+  emailAddress: [contact_information, email]
+nonPrefill:
+  veteranSsnLastFour: [identity_information, ssn_last_four]
+  veteranVaFileNumberLastFour: [va_file_number_last_four]

@@ -331,17 +331,11 @@ module Sidekiq
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
 
-        form_version = submission.saved_claim.parsed_form['startedFormVersion']
-        if form_version.present?
-          transaction_id = submission.system_transaction_id
-          resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json,
-                                            transaction_id)
-          content = resp.env.response_body
-        else
-          resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:evss], form_json.to_json)
-          b64_enc_body = resp.body['pdf']
-          content = Base64.decode64(b64_enc_body)
-        end
+        transaction_id = submission.system_transaction_id
+        resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json,
+                                          transaction_id)
+        content = resp.env.response_body
+
         file = write_to_tmp_file(content)
         docs << { type: FORM_526_DOC_TYPE, file: }
       end
@@ -437,14 +431,14 @@ module Sidekiq
       end
 
       # 82245 - Adding provider to method. this should be removed when toxic exposure flipper is removed
-      def choose_provider(headers, provider, breakered: true)
+      def choose_provider(headers, _provider, breakered: true)
         ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:generate_pdf],
-          provider:,
+          provider: :lighthouse,
           # this sends the auth headers and if we want the "breakered" or "non-breakered" version
           options: { auth_headers: headers, breakered: },
           current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: @user_account.icn }),
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
+          feature_toggle: nil
         )
       end
     end

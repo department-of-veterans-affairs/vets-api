@@ -62,10 +62,35 @@ module ClaimsApi
           )
       end
 
-      module BenefitClaimWebService
+      # BGS gave the same name to this service and the one below (BenefitClaimWebService), so
+      # We changed the definition name to resemble the bean name.
+      module BenefitClaimService
         DEFINITION =
           Service.new(
             bean: BenefitClaimServiceBean::DEFINITION,
+            path: 'BenefitClaimWebService'
+          )
+      end
+
+      ##
+      # BenefitClaimWebServiceBean
+      #
+      ##
+      module BenefitClaimWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'BenefitClaimWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://benefitclaim.services.vetsnet.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module BenefitClaimWebService
+        DEFINITION =
+          Service.new(
+            bean: BenefitClaimWebServiceBean::DEFINITION,
             path: 'BenefitClaimWebService'
           )
       end
