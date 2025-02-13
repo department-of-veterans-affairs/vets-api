@@ -129,7 +129,7 @@ RSpec.shared_context 'shared data' do
                    Update: nil },
       SubmitterQuestion: 'fasfdas',
       SubmitterStateOfSchool: { Name: nil, StateCode: nil },
-      SubmitterStateProperty: { Name: nil, StateCode: nil },
+      SubmitterStateOfProperty: { Name: nil, StateCode: nil },
       SubmitterStateOfResidency: { Name: nil, StateCode: nil },
       SubmitterZipCodeOfResidency: '80122',
       UntrustedFlag: nil,

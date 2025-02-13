@@ -103,6 +103,9 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
+  hca_ez_use_facilities_v2:
+    actor_type: user
+    description: Use Lighthouse Facilities API V2 for EZ queries
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
@@ -190,9 +193,6 @@ features:
   champva_log_all_s3_uploads:
     actor_type: user
     description: Enables logging for all s3 uploads using UUID or keys for monitoring
-  champva_multiple_stamp_retry:
-    actor_type: user
-    description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
@@ -292,10 +292,10 @@ features:
     actor_type: user
     description: Uses person web service rather than local bgs
     enable_in_development: true
-  claims_api_use_vet_record_service:
+  claims_api_use_update_poa_relationship:
     actor_type: user
     description: Uses local_bgs rather than bgs-ext
-    enable_in_development: true
+    enable_in_development: true  
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
@@ -340,9 +340,13 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses DataDog's Real User Monitoring logging
     enable_in_development: false
-  cst_suppress_evidence_requests:
+  cst_suppress_evidence_requests_website:
     actor_type: user
-    description: When enabled, CST does not show Attorney Fee, Secondary Action Required, or Stage 2 Development
+    description: When enabled, CST does not show Attorney Fees, Secondary Action Required, or Stage 2 Development on website
+    enable_in_development: false
+  cst_suppress_evidence_requests_mobile:
+    actor_type: user
+    description: When enabled, CST does not show Attorney Fees, Secondary Action Required, or Stage 2 Development on mobile
     enable_in_development: false
   cst_override_pmr_pending_tracked_items:
     actor_type: user
@@ -355,6 +359,10 @@ features:
   cst_override_reserve_records_mobile:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
+    enable_in_development: true
+  letters_hide_service_verification_letter:
+    actor_type: user
+    description: When enabled, CST does not include Service Verification in the list of letters on vets-website
     enable_in_development: true
   coe_access:
     actor_type: user
@@ -380,10 +388,6 @@ features:
   claims_status_v1_bgs_enabled:
     actor_type: user
     description: enables calling BGS instead of EVSS for the claims status v1.
-  claims_status_v2_lh_benefits_docs_service_enabled:
-    actor_type: user
-    description: enable/disable the use of LH Benefits Documents API in our Claim Status v2 services.
-    enable_in_development: false
   claims_hourly_slack_error_report_enabled:
     actor: user
     description: Enable/disable the running of the hourly slack alert for errored submissions
@@ -487,15 +491,6 @@ features:
     actor_type: user
     description: Enable sending an email if a 4142 submission is not successful in Lighthouse
     enable_in_development: true
-  decision_review_hlr_new_api:
-    actor_type: user
-    description: Enable to switch to new HLR modularized Decision Review endpoint
-  decision_review_nod_new_api:
-    actor_type: user
-    description: Enable to switch to new NOD modularized Decision Review endpoint
-  decision_review_sc_new_api:
-    actor_type: user
-    description: Enable to switch to new Supplemental Claim modularized Decision Review endpoint
   decision_review_new_engine_4142_job:
     actor_type: user
     description: Enable to switch to new modularized Decision Review Form4142Submit job
@@ -616,9 +611,6 @@ features:
   facilities_ppms_suppress_all:
     actor_type: user
     description: Hide all ppms search options
-  facilities_ppms_suppress_pharmacies:
-    actor_type: user
-    description: Front End Flag to suppress the ability to search for pharmacies
   facility_locator_mobile_map_update:
     actor_type: user
     description: Use new mobile map features for research
@@ -1562,6 +1554,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
+  vaos_online_scheduling_use_va_date:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use VaDate/VaDateField.
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled

@@ -8,6 +8,9 @@ virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
 web_origin_regex: \Ahttps?:\/\/www\.va\.gov\z
 
+audit_db:
+  url: postgis:///vets_api_audit
+
 logingov:
   client_id: https://sqa.eauth.va.gov/isam/sps/saml20sp/saml20
   redirect_uri: http://localhost:3000/v0/sign_in/callback
@@ -420,7 +423,7 @@ ivc_champva:
   pega_api:
     api_key: fake_api_key
 
-form_upload_flow:
+form_upload:
   prefill: true
 
 # Settings for Expiry Scanner
@@ -519,7 +522,7 @@ ppms:
 mhv:
   # include ranges first, then individual exceptions to the ranges last.
   facility_range: [[358, 718], [720, 740], [742, 758]]
-  facility_specific: [["741MM"]] # 741 is excluded, but 741MM is included
+  facility_specific: ["741MM"] # 741 is excluded, but 741MM is included
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
