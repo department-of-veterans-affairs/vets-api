@@ -704,10 +704,10 @@ RSpec.describe FormProfile, type: :model do
         'primaryPhone' => '3035551234',
         'emailAddress' => 'person101@example.com'
       },
-      'bankAccountNumber' => '*********1234',
+      'bankAccountNumber' => '******7890',
       'bankAccountType' => 'Checking',
-      'bankName' => 'Comerica',
-      'bankRoutingNumber' => '*****2115',
+      'bankName' => 'WELLS FARGO BANK',
+      'bankRoutingNumber' => '*****0503',
       'startedFormVersion' => '2022',
       'syncModern0781Flow' => true
     }
@@ -1569,11 +1569,14 @@ RSpec.describe FormProfile, type: :model do
         end
 
         context 'when Vet360 prefill is enabled' do
+          let(:user) { build(:user, :loa3, icn: '1012666073V986297', suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1781151') }
+
           before do
             VAProfile::Configuration::SETTINGS.prefill = true # TODO: - is this missing in the failures above?
             expected_veteran_info = v21_526_ez_expected['veteran']
             expected_veteran_info['emailAddress'] = user.va_profile_email
             expected_veteran_info['primaryPhone'] = us_phone
+            allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
           end
 
           after do
@@ -1588,7 +1591,7 @@ RSpec.describe FormProfile, type: :model do
             expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             VCR.use_cassette('va_profile/v2/contact_information/get_address') do
               VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                VCR.use_cassette('evss/ppiu/payment_information') do
+                VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
                   VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                                    allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
                     VCR.use_cassette('virtual_regional_office/max_ratings') do
@@ -1610,7 +1613,7 @@ RSpec.describe FormProfile, type: :model do
             expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             VCR.use_cassette('va_profile/v2/contact_information/get_address') do
               VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                VCR.use_cassette('evss/ppiu/payment_information') do
+                VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
                   VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                                    allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
                     VCR.use_cassette('disability-max-ratings/max_ratings') do
