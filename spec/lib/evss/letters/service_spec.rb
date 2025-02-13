@@ -11,19 +11,49 @@ describe EVSS::Letters::Service do
 
     describe '#get_letters' do
       context 'with a valid evss response' do
-        it 'returns a letters response object' do
-          VCR.use_cassette('evss/letters/letters') do
-            response = subject.get_letters
-            expect(response).to be_ok
-            expect(response).to be_a(EVSS::Letters::LettersResponse)
-            expect(response.letters.count).to eq(8)
-            expect(response.letters.first.as_json).to eq('name' => 'Commissary Letter', 'letter_type' => 'commissary')
+        context 'when :letters_hide_service_verification_letter is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:letters_hide_service_verification_letter).and_return(true)
+          end
+
+          it 'excludes the service_verification letter and returns a letters response object' do
+            VCR.use_cassette('evss/letters/letters') do
+              response = subject.get_letters
+              expect(response).to be_ok
+              expect(response).to be_a(EVSS::Letters::LettersResponse)
+              expect(response.letters.count).to eq(7) # One fewer letter because we don't have service_verification
+              expect(response.letters.first.as_json).to eq('name' => 'Commissary Letter', 'letter_type' => 'commissary')
+            end
+          end
+
+          it 'increments letters total' do
+            VCR.use_cassette('evss/letters/letters') do
+              expect { subject.get_letters }.to trigger_statsd_increment('api.evss.get_letters.total')
+            end
           end
         end
 
-        it 'increments letters total' do
-          VCR.use_cassette('evss/letters/letters') do
-            expect { subject.get_letters }.to trigger_statsd_increment('api.evss.get_letters.total')
+        context 'when :letters_hide_service_verification_letter is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:letters_hide_service_verification_letter).and_return(false)
+          end
+
+          it 'returns a letters response object' do
+            VCR.use_cassette('evss/letters/letters') do
+              response = subject.get_letters
+              expect(response).to be_ok
+              expect(response).to be_a(EVSS::Letters::LettersResponse)
+              expect(response.letters.count).to eq(8)
+              expect(response.letters.first.as_json).to eq('name' => 'Commissary Letter', 'letter_type' => 'commissary')
+            end
+          end
+
+          it 'increments letters total' do
+            VCR.use_cassette('evss/letters/letters') do
+              expect { subject.get_letters }.to trigger_statsd_increment('api.evss.get_letters.total')
+            end
           end
         end
       end
