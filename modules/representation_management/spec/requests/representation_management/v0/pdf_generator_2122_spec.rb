@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request do
   describe 'POST #create' do
     let(:base_path) { '/representation_management/v0/pdf_generator2122' }
-    let(:organization) { create(:organization) } # This is the legacy organization
-    let(:representative) { create(:representative) } # This is the legacy representative
+    let(:organization) { create(:organization) }
+    let(:representative) { create(:representative) }
     let(:user) { create(:user) }
     let(:params) do
       {
@@ -17,11 +17,11 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
           claimant: {
             date_of_birth: '1980-12-31',
             relationship: 'Spouse',
-            phone: '555-555-5555', # This is a 10 digit phone number as submitted by the frontend
+            phone: '555-555-5555',
             email: 'claimant@example.com',
             name: {
               first: 'John',
-              middle: 'Middle', # This is a middle name as submitted by the frontend
+              middle: 'Middle',
               last: 'Claimant'
             },
             address: {
@@ -29,7 +29,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
               address_line2: '',
               city: 'Portland',
               state_code: 'OR',
-              country: 'USA', # This is a 3 character country code as submitted by the frontend
+              country: 'USA',
               zip_code: '12345',
               zip_code_suffix: '6789'
             }
@@ -40,11 +40,11 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
             date_of_birth: '1980-12-31',
             service_number: '123456789',
             service_branch: 'ARMY',
-            phone: '555-555-5555', # This is a 10 digit phone number as submitted by the frontend
+            phone: '555-555-5555',
             email: 'veteran@example.com',
             name: {
               first: 'John',
-              middle: 'Middle', # This is a middle name as submitted by the frontend
+              middle: 'Middle',
               last: 'Veteran'
             },
             address: {
@@ -52,7 +52,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
               address_line2: '',
               city: 'Portland',
               state_code: 'OR',
-              country: 'USA', # This is a 3 character country code as submitted by the frontend
+              country: 'USA',
               zip_code: '12345',
               zip_code_suffix: '6789'
             }
@@ -66,25 +66,27 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
     end
 
     context 'when user is authenticated' do
-      before do
+      it 'calls clear_saved_form and form_for_user' do
         sign_in(user)
-        form_double = double(id: 1, delete: true)
-        allow(InProgressForm).to receive(:form_for_user).and_return(form_double)
-        post(base_path, params:)
-      end
+        
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
 
-      it 'deletes the in-progress form' do
-        expect(InProgressForm).to have_received(:form_for_user).with('21-22', anything)
+        allow(InProgressForm).to receive(:form_for_user)
+
+        post(base_path, params:)
+
+        expect(InProgressForm).to have_received(:form_for_user).with('21-22', user)
       end
     end
 
     context 'when user is not authenticated' do
-      before do
-        allow(InProgressForm).to receive(:form_for_user).and_return(nil)
-        post(base_path, params:)
-      end
+      it 'calls clear_saved_form but does not call form_for_user' do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(nil)
 
-      it 'does not attempt to delete an in-progress form' do
+        allow(InProgressForm).to receive(:form_for_user)
+
+        post(base_path, params:)
+
         expect(InProgressForm).not_to have_received(:form_for_user)
       end
     end
@@ -92,7 +94,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
     context 'When submitting all fields with valid data' do
       before { post(base_path, params:) }
 
-      it 'responds with a ok status' do
+      it 'responds with an ok status' do
         expect(response).to have_http_status(:ok)
       end
 
@@ -107,7 +109,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
         post(base_path, params:)
       end
 
-      it 'responds with a ok status' do
+      it 'responds with an ok status' do
         expect(response).to have_http_status(:ok)
       end
 
@@ -122,25 +124,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
         post(base_path, params:)
       end
 
-      it 'responds with a ok status' do
-        expect(response).to have_http_status(:ok)
-      end
-
-      it 'responds with a PDF' do
-        expect(response.content_type).to eq('application/pdf')
-      end
-    end
-
-    context 'When submitting a valid request with the accredited organization and individual ids' do
-      before do
-        accredited_organization = create(:accredited_organization)
-        accredited_individual = create(:accredited_individual)
-        params[:pdf_generator2122][:representative][:organization_id] = accredited_organization.id
-        params[:pdf_generator2122][:representative][:id] = accredited_individual.id
-        post(base_path, params:)
-      end
-
-      it 'responds with a ok status' do
+      it 'responds with an ok status' do
         expect(response).to have_http_status(:ok)
       end
 

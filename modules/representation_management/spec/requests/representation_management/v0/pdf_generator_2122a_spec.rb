@@ -86,26 +86,29 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
       }
     end
 
-    context 'when user is authenticated' do
-      before do
-        sign_in(user)
-        form_double = double(id: 1, delete: true)
-        allow(InProgressForm).to receive(:form_for_user).and_return(form_double)
-        post(base_path, params:)
-      end
 
-      it 'deletes the in-progress form' do
-        expect(InProgressForm).to have_received(:form_for_user).with('21-22', anything)
+    context 'when user is authenticated' do
+      it 'calls clear_saved_form and form_for_user' do
+        sign_in(user)
+        
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
+
+        allow(InProgressForm).to receive(:form_for_user)
+
+        post(base_path, params:)
+
+        expect(InProgressForm).to have_received(:form_for_user).with('21-22', user)
       end
     end
 
     context 'when user is not authenticated' do
-      before do
-        allow(InProgressForm).to receive(:form_for_user).and_return(nil)
-        post(base_path, params:)
-      end
+      it 'calls clear_saved_form but does not call form_for_user' do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(nil)
 
-      it 'does not attempt to delete an in-progress form' do
+        allow(InProgressForm).to receive(:form_for_user)
+
+        post(base_path, params:)
+
         expect(InProgressForm).not_to have_received(:form_for_user)
       end
     end
