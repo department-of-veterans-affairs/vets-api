@@ -8,12 +8,6 @@ module RepresentationManagement
 
       private
 
-      def optional_authenticate
-        authenticate
-      rescue
-        # If authentication fails, current_user will stay nil
-      end
-
       def params_permitted
         [
           :record_consent,
