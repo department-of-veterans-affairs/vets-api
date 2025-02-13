@@ -57,7 +57,7 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
     end
   end
 
-  describe '.reconcile_and_find_by' do
+  describe '.for_user' do
     let!(:existing_record) do
       described_class.create!(
         accredited_individual_registration_number: 'REG002',
@@ -69,26 +69,26 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
 
     context 'when a matching record exists by email' do
       it 'updates the record and returns it' do
-        result = described_class.reconcile_and_find_by(
-          user_account_email: 'rep1@vso.org',
-          user_account_icn: 'ICN_NEW'
+        result = described_class.for_user(
+          email: 'rep1@vso.org',
+          icn: 'ICN_NEW'
         )
 
-        expect(result).to eq(existing_record.reload)
+        expect(result.first).to eq(existing_record.reload)
         # Ensures the ICN was updated
-        expect(result.user_account_icn).to eq('ICN_NEW')
+        expect(result.first.user_account_icn).to eq('ICN_NEW')
       end
     end
 
     context 'when a matching record exists by ICN' do
       it 'updates the record and returns it' do
-        result = described_class.reconcile_and_find_by(
-          user_account_email: 'new_email@vso.org',
-          user_account_icn: 'ICN001'
+        result = described_class.for_user(
+          email: 'new_email@vso.org',
+          icn: 'ICN001'
         )
 
-        # returns nil but updates the matching record icn to nil
-        expect(result).to be_nil
+        # returns [] but updates the matching record icn to nil
+        expect(result).to be_empty
         expect(described_class.first.user_account_icn).to be_nil
       end
     end
@@ -96,9 +96,9 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
     context 'when no matching record exists' do
       it 'does not create a new record' do
         expect do
-          described_class.reconcile_and_find_by(
-            user_account_email: 'new_user@vso.org',
-            user_account_icn: 'ICN_NEW'
+          described_class.for_user(
+            email: 'new_user@vso.org',
+            icn: 'ICN_NEW'
           )
         end.not_to(change(described_class, :count))
 
@@ -118,14 +118,14 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
       end
 
       it 'updates the correct record and does not merge incorrectly' do
-        result = described_class.reconcile_and_find_by(
-          user_account_email: 'rep2@vso.org',
-          user_account_icn: 'ICN001'
+        result = described_class.for_user(
+          email: 'rep2@vso.org',
+          icn: 'ICN001'
         )
 
-        expect(result).to eq(conflicting_record.reload)
-        expect(result.user_account_icn).to eq('ICN001')
-        expect(result.user_account_email).to eq('rep2@vso.org')
+        expect(result.first).to eq(conflicting_record.reload)
+        expect(result.first.user_account_icn).to eq('ICN001')
+        expect(result.first.user_account_email).to eq('rep2@vso.org')
       end
     end
   end
