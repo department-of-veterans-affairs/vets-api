@@ -1,0 +1,52 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: https://api.wellhive.com/care-navigation/v1/appointments/qdm61cJ5?retrieveLatestDetails=true
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Authorization: Bearer <TOKEN>
+        X-Request-Id:
+          - 53ea8b16-d757-43ac-9737-4e997d598ca5
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Mon, 10 Feb 2025 14:40:41 GMT
+        Content-Type:
+          - application/json
+        Content-Length:
+          - '436'
+        Connection:
+          - keep-alive
+        Content-Security-Policy:
+          - frame-ancestors 'none'
+        Strict-Transport-Security:
+          - max-age=6307200; includeSubDomains; preload
+        Traceparent:
+          - 00-7b911a3cdfb5b949039077659830af4f-23c90360f958b568-01
+        X-Content-Type-Options:
+          - nosniff
+        X-Request-Id:
+          - 53ea8b16-d757-43ac-9737-4e997d598ca5
+        X-Wellhive-Trace-Id:
+          - 7b911a3cdfb5b949039077659830af4f
+      body:
+        encoding: UTF-8
+        string: '{"id":"qdm61cJ5","state":"submitted","patientId":"care-nav-patient-casey","referral":{"referralNumber":"12345"},"providerServiceId":"Aq7wgAux","networkId":"sandbox-network-5vuTac8v","slotIds":["5vuTac8v-practitioner-3-role-3|0a7370c2-8ef5-40ad-9187-e424cf5c5c64|2024-11-21T18:00:00Z|30m0s|1738359408847|ov"],"appointmentDetails":{"status":"booked","start":"2024-11-21T18:00:00Z","isLatest":true,"lastRetrieved":"2025-02-10T14:35:44Z"}}
+
+        '
+    recorded_at: Mon, 10 Feb 2025 14:40:41 GMT
+recorded_with: VCR 6.3.1

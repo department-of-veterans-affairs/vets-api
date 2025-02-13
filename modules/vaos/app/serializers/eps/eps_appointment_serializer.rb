@@ -1,8 +1,14 @@
 # frozen_string_literal: true
 
 module Eps
-  class DraftAppointmentSerializer
+  class EpsAppointmentSerializer
     include JSONAPI::Serializer
+
+    attribute :appointment do |object|
+      next if object.appointment.nil?
+
+      VAOS::V2::EpsAppointment.new(object.appointment).serializable_hash
+    end
 
     attribute :provider do |object|
       next if object.provider.nil?
@@ -20,19 +26,6 @@ module Eps
         specialties: object.provider.specialties,
         visit_mode: object.provider.visit_mode,
         features: object.provider.features
-      }
-    end
-
-    attribute :slots do |object|
-      object.slots&.slots
-    end
-
-    attribute :drivetime do |object|
-      next if object.drive_time.nil?
-
-      {
-        origin: object.drive_time.origin,
-        destination: object.drive_time.destinations&.values&.first
       }
     end
   end

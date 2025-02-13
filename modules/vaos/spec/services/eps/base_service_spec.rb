@@ -5,7 +5,7 @@ require 'rails_helper'
 describe Eps::BaseService do
   let(:user) { double('User', account_uuid: '1234') }
   let(:service) { described_class.new(user) }
-  let(:mock_token_response) { double('Response', body: { 'access_token' => 'mock_token' }) }
+  let(:mock_token_response) { double('Response', body: { access_token: 'mock_token' }) }
   let(:blank_token_response) { double('Response', body: { 'access_token' => '' }) }
 
   describe '#headers' do
