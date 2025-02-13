@@ -11,12 +11,19 @@ module AccreditedRepresentativePortal
 
     EXPIRY_DURATION = 60.days
 
+    enum(
+      :claimant_type,
+      ClaimantTypes::ALL.index_by(&:itself),
+      validate: true
+    )
+
     belongs_to :claimant, class_name: 'UserAccount'
 
     has_one :power_of_attorney_form,
             inverse_of: :power_of_attorney_request,
             required: true
 
+    has_many :power_of_attorney_form_submissions
     has_one :power_of_attorney_form_submission
 
     has_one :resolution,
@@ -39,14 +46,20 @@ module AccreditedRepresentativePortal
 
     accepts_nested_attributes_for :power_of_attorney_form
 
-    enum(
-      :claimant_type,
-      ClaimantTypes::ALL.index_by(&:itself),
-      validate: true
-    )
+    def success_form_submission
+      power_of_attorney_form_submissions.succeeded.take
+    end
 
     def expires_at
-      created_at + EXPIRY_DURATION if unresolved?
+      created_at + EXPIRY_DURATION if pending?
+    end
+
+    def pending?
+      !resolved? || !success_form_submission
+    end
+
+    def processed?
+      declined? || expired? || success_form_submission
     end
 
     def unresolved?
@@ -85,6 +98,17 @@ module AccreditedRepresentativePortal
 
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
+    scope :pending, lambda {
+      left_joins(:power_of_attorney_form_submissions).unresolved.or(
+        where("ar_power_of_attorney_form_submissions.status != 'succeeded'")
+      )
+    }
+    scope :processed, lambda {
+      left_joins(:power_of_attorney_form_submissions).resolved.where(
+        'ar_power_of_attorney_form_submissions.status IS NULL OR ' \
+        "ar_power_of_attorney_form_submissions.status = 'succeeded'"
+      )
+    }
     scope :not_expired, lambda {
       where.not(resolution: { resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration' })
     }

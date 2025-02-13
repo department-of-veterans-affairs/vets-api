@@ -30,9 +30,9 @@ module AccreditedRepresentativePortal
         rel =
           case status
           when Statuses::PENDING
-            rel.unresolved.order(created_at: :asc)
+            rel.pending.order(created_at: :asc)
           when Statuses::PROCESSED
-            rel.resolved.not_expired.order('resolution.created_at DESC')
+            rel.processed.not_expired.order('resolution.created_at DESC')
           when NilClass
             rel
           else
