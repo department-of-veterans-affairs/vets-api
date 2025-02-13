@@ -75,7 +75,7 @@ Mitigation:
 - Code freeze, except for urgent bugs: Background jobs and Utilities
 - The old jobs will still be running, so no functionality will be lost if the new jobs run into errors
 
-### Phase 3: Delete Old Background Jobs
+### COMPLETE Phase 3: Delete Old Background Jobs
 
 Remove the old job classes from the schedule file. Add logging to those old classes so we know right away if anyone else is calling them somehow. After 2 weeks with no calls to the old job code, delete it.
 
@@ -103,7 +103,7 @@ Mitigation:
 - Code freeze, except for urgent bugs: Controllers, routes, and Utilities
 - Not a significant concern.
 
-### Phase 5: Transition to Engine Controllers
+### COMPLETE Phase 5: Transition to Engine Controllers
 
 Toggle the routes on the frontend to point to the engine routes/controllers. Leave the old routes and controllers in place, but add logging so we are alerted if anyone else is calling them. Keep an eye on traffic and form creation numbers to make sure behavior seems consistent.
 
@@ -117,11 +117,11 @@ Mitigation:
 - Code freeze, except for urgent bugs: Controllers, routes, and Utilities
 - Logging and alerts
 
-### Phase 6: Delete Old Controllers and Utilities
+### IN PROGRESS Phase 6: Delete Old Controllers and Utilities
 
 Delete old routes, controllers, and any primary utilities in the main app that are no longer used. At this point the change should be invisible to the system.
 
-### Phase 7: Migrate Existing Secondary Utilities to Engine
+### IN PROGRESS Phase 7: Migrate Existing Secondary Utilities to Engine
 
 Any secondary utilities that belong to the DR team and are not being referenced by any DR code in the main app should be migrated to the engine. Go slow, search for references, run all the tests, announce it in shared channels.
 
