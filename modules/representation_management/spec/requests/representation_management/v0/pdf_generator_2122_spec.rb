@@ -68,7 +68,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
     context 'when user is authenticated' do
       it 'calls clear_saved_form and form_for_user' do
         sign_in(user)
-        
+
         allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
 
         allow(InProgressForm).to receive(:form_for_user)
