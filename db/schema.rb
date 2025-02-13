@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_10_175014) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_11_192052) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -268,6 +268,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_10_175014) do
     t.string "veteran_icn"
     t.jsonb "metadata", default: {}
     t.index ["veteran_icn"], name: "index_appeals_api_supplemental_claims_on_veteran_icn"
+  end
+
+  create_table "ar_power_of_attorney_form_submissions", force: :cascade do |t|
+    t.uuid "power_of_attorney_request_id", null: false
+    t.string "service_id"
+    t.text "service_response_ciphertext"
+    t.string "status", null: false
+    t.text "encrypted_kms_key"
+    t.datetime "status_updated_at"
+    t.text "error_message_ciphertext"
+    t.datetime "created_at", null: false
   end
 
   create_table "ar_power_of_attorney_forms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1393,6 +1404,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_10_175014) do
     t.string "details", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "event_id"
+    t.integer "event_type"
   end
 
   create_table "user_actions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
