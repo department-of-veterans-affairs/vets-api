@@ -87,7 +87,7 @@ module BenefitsDocuments
 
     def record_evidence_submission(document, job_id)
       user_account = UserAccount.find(@user.user_account_uuid)
-      EvidenceSubmission.create(
+      EvidenceSubmission.create!(
         claim_id: document.claim_id,
         # Doing `.first` here since document.tracked_item_id is an array with 1 tracked item
         # TODO update this and remove the first when the below pr is worked

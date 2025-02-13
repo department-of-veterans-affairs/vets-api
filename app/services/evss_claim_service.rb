@@ -131,7 +131,7 @@ class EVSSClaimService
 
   def record_evidence_submission(document, job_id)
     user_account = UserAccount.find(@user.user_account_uuid)
-    EvidenceSubmission.create(
+    EvidenceSubmission.create!(
       claim_id: document.evss_claim_id,
       tracked_item_id: document.tracked_item_id,
       job_id:,
