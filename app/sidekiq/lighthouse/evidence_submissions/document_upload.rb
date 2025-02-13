@@ -56,7 +56,7 @@ module Lighthouse
       def self.update_evidence_submission_for_failure(msg)
         evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
         current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
-        evidence_submission.update!(
+        evidence_submission.update(
           upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
           template_metadata: {
             personalisation: update_personalisation(current_personalisation, msg['failed_at'])

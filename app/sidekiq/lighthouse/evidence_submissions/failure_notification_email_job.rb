@@ -71,7 +71,7 @@ module Lighthouse
 
       def record_email_send_success(upload, response)
         # Update evidence_submissions table record with the va_notify_id and va_notify_date
-        upload.update!(va_notify_id: response.id, va_notify_date: DateTime.now)
+        upload.update(va_notify_id: response.id, va_notify_date: DateTime.now)
         message = "#{upload.job_class} va notify failure email queued"
         ::Rails.logger.info(message)
         StatsD.increment('silent_failure_avoided_no_confirmation',
