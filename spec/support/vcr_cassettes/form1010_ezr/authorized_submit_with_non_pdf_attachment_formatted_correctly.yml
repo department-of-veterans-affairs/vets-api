@@ -1,0 +1,84 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <%= Settings.hca.endpoint %>
+    body:
+      encoding: UTF-8
+      string: <?xml version="1.0" encoding="UTF-8"?><soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns1="http://va.gov/schema/esr/voa/v1"
+        xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://va.gov/service/esr/voa/v1"><soap:Body><ns1:submitFormRequest><va:form
+        xmlns:va="http://va.gov/schema/esr/voa/v1"><va:formIdentifier><va:type>101</va:type><va:value>1010EZR</va:value><va:version>2986360436</va:version></va:formIdentifier><va:attachments><va:document><va:name>Attachment_1</va:name><va:format>JPG</va:format><va:type>5</va:type><va:content>/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAAFAAUDAREAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAAB//EAB0QAAICAwEBAQAAAAAAAAAAAAECAwQFERIGAAf/xAAVAQEBAAAAAAAAAAAAAAAAAAAEBf/EABwRAAIDAQEBAQAAAAAAAAAAAAECAwQSEQUAIv/aAAwDAQACEQMRAD8AMfSZnwPlcmI8h+U4m9HZjc1lrXLFQV41nlUx66dSC4dxoLrvk9aB+m3/AFbXnedHbpSMNzSRlWPVGIqzhlyEILCbjBi46gK5ByGzQejSrwtCa7F9lzJVSXrrLJHsab86VFBVeIMgKqgc+//Z</va:content></va:document></va:attachments><va:summary><eeSummary:associations
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:association><eeSummary:contactType>11</eeSummary:contactType><eeSummary:relationship>Stepson</eeSummary:relationship><eeSummary:givenName>FIRSTCHILDA</eeSummary:givenName><eeSummary:middleName>MIDDLECHILDA</eeSummary:middleName><eeSummary:familyName>LASTCHILDA</eeSummary:familyName><eeSummary:suffix>JR.</eeSummary:suffix></eeSummary:association><eeSummary:association><eeSummary:contactType>11</eeSummary:contactType><eeSummary:relationship>Stepdaughter</eeSummary:relationship><eeSummary:givenName>FIRSTCHILDB</eeSummary:givenName><eeSummary:middleName>MIDDLECHILDB</eeSummary:middleName><eeSummary:familyName>LASTCHILDB</eeSummary:familyName><eeSummary:suffix>SR.</eeSummary:suffix></eeSummary:association><eeSummary:association><eeSummary:address><eeSummary:city>Dulles</eeSummary:city><eeSummary:country>USA</eeSummary:country><eeSummary:line1>123
+        NW 8th St</eeSummary:line1><eeSummary:state>VA</eeSummary:state><eeSummary:zipCode>20101</eeSummary:zipCode><eeSummary:zipPlus4>0101</eeSummary:zipPlus4></eeSummary:address><eeSummary:contactType>10</eeSummary:contactType><eeSummary:relationship>SPOUSE</eeSummary:relationship><eeSummary:givenName>FIRSTSPOUSE</eeSummary:givenName><eeSummary:middleName>MIDDLESPOUSE</eeSummary:middleName><eeSummary:familyName>LASTSPOUSE</eeSummary:familyName><eeSummary:suffix>SR.</eeSummary:suffix></eeSummary:association></eeSummary:associations><eeSummary:demographics
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:appointmentRequestResponse>false</eeSummary:appointmentRequestResponse><eeSummary:contactInfo><eeSummary:addresses><eeSummary:address><eeSummary:city>Ontario</eeSummary:city><eeSummary:country>CAN</eeSummary:country><eeSummary:line1>7321
+        SW 7th St</eeSummary:line1><eeSummary:provinceCode>ON</eeSummary:provinceCode><eeSummary:postalCode>21534</eeSummary:postalCode><eeSummary:addressTypeCode>P</eeSummary:addressTypeCode></eeSummary:address><eeSummary:address><eeSummary:city>Ontario</eeSummary:city><eeSummary:country>CAN</eeSummary:country><eeSummary:line1>123
+        NW 5th St</eeSummary:line1><eeSummary:provinceCode>ON</eeSummary:provinceCode><eeSummary:postalCode>21231</eeSummary:postalCode><eeSummary:addressTypeCode>R</eeSummary:addressTypeCode></eeSummary:address></eeSummary:addresses><eeSummary:emails><eeSummary:email><eeSummary:address>foo@example.com</eeSummary:address><eeSummary:type>1</eeSummary:type></eeSummary:email></eeSummary:emails><eeSummary:phones><eeSummary:phone><eeSummary:phoneNumber>1231241234</eeSummary:phoneNumber><eeSummary:type>1</eeSummary:type></eeSummary:phone><eeSummary:phone><eeSummary:phoneNumber>1235551234</eeSummary:phoneNumber><eeSummary:type>4</eeSummary:type></eeSummary:phone></eeSummary:phones></eeSummary:contactInfo><eeSummary:maritalStatus>M</eeSummary:maritalStatus><eeSummary:preferredFacility>988</eeSummary:preferredFacility><eeSummary:acaIndicator>false</eeSummary:acaIndicator></eeSummary:demographics><eeSummary:enrollmentDeterminationInfo
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:eligibleForMedicaid>true</eeSummary:eligibleForMedicaid><eeSummary:noseThroatRadiumInfo><eeSummary:receivingTreatment>false</eeSummary:receivingTreatment></eeSummary:noseThroatRadiumInfo><eeSummary:serviceConnectionAward><eeSummary:serviceConnectedIndicator>false</eeSummary:serviceConnectedIndicator></eeSummary:serviceConnectionAward><eeSummary:specialFactors><eeSummary:agentOrangeInd>false</eeSummary:agentOrangeInd><eeSummary:envContaminantsInd>false</eeSummary:envContaminantsInd><eeSummary:campLejeuneInd>false</eeSummary:campLejeuneInd><eeSummary:radiationExposureInd>false</eeSummary:radiationExposureInd></eeSummary:specialFactors></eeSummary:enrollmentDeterminationInfo><eeSummary:financialsInfo
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:incomeTest><eeSummary:discloseFinancialInformation>true</eeSummary:discloseFinancialInformation></eeSummary:incomeTest><eeSummary:financialStatement><eeSummary:expenses><eeSummary:expense><eeSummary:amount>77.77</eeSummary:amount><eeSummary:expenseType>3</eeSummary:expenseType></eeSummary:expense><eeSummary:expense><eeSummary:amount>44.44</eeSummary:amount><eeSummary:expenseType>19</eeSummary:expenseType></eeSummary:expense><eeSummary:expense><eeSummary:amount>33.3</eeSummary:amount><eeSummary:expenseType>18</eeSummary:expenseType></eeSummary:expense></eeSummary:expenses><eeSummary:incomes><eeSummary:income><eeSummary:amount>123.33</eeSummary:amount><eeSummary:type>7</eeSummary:type></eeSummary:income><eeSummary:income><eeSummary:amount>90.11</eeSummary:amount><eeSummary:type>13</eeSummary:type></eeSummary:income><eeSummary:income><eeSummary:amount>10.1</eeSummary:amount><eeSummary:type>10</eeSummary:type></eeSummary:income></eeSummary:incomes><eeSummary:spouseFinancialsList><eeSummary:spouseFinancials><eeSummary:incomes><eeSummary:income><eeSummary:amount>64.1</eeSummary:amount><eeSummary:type>7</eeSummary:type></eeSummary:income><eeSummary:income><eeSummary:amount>35.1</eeSummary:amount><eeSummary:type>13</eeSummary:type></eeSummary:income><eeSummary:income><eeSummary:amount>12.3</eeSummary:amount><eeSummary:type>10</eeSummary:type></eeSummary:income></eeSummary:incomes><eeSummary:spouse><eeSummary:dob>04/06/1990</eeSummary:dob><eeSummary:relationship>2</eeSummary:relationship><eeSummary:startDate>05/10/2003</eeSummary:startDate><eeSummary:ssns><eeSummary:ssn><eeSummary:ssnText>111221234</eeSummary:ssnText></eeSummary:ssn></eeSummary:ssns><eeSummary:address><eeSummary:city>Dulles</eeSummary:city><eeSummary:country>USA</eeSummary:country><eeSummary:line1>123
+        NW 8th St</eeSummary:line1><eeSummary:state>VA</eeSummary:state><eeSummary:zipCode>20101</eeSummary:zipCode><eeSummary:zipPlus4>0101</eeSummary:zipPlus4></eeSummary:address><eeSummary:givenName>FIRSTSPOUSE</eeSummary:givenName><eeSummary:middleName>MIDDLESPOUSE</eeSummary:middleName><eeSummary:familyName>LASTSPOUSE</eeSummary:familyName><eeSummary:suffix>SR.</eeSummary:suffix></eeSummary:spouse><eeSummary:contributedToSpousalSupport>false</eeSummary:contributedToSpousalSupport><eeSummary:livedWithPatient>false</eeSummary:livedWithPatient></eeSummary:spouseFinancials></eeSummary:spouseFinancialsList><eeSummary:marriedLastCalendarYear>true</eeSummary:marriedLastCalendarYear><eeSummary:dependentFinancialsList><eeSummary:dependentFinancials><eeSummary:incomes><eeSummary:income><eeSummary:amount>991.9</eeSummary:amount><eeSummary:type>7</eeSummary:type></eeSummary:income><eeSummary:income><eeSummary:amount>981.2</eeSummary:amount><eeSummary:type>13</eeSummary:type></eeSummary:income><eeSummary:income><eeSummary:amount>91.9</eeSummary:amount><eeSummary:type>10</eeSummary:type></eeSummary:income></eeSummary:incomes><eeSummary:expenses><eeSummary:expense><eeSummary:amount>45.2</eeSummary:amount><eeSummary:expenseType>16</eeSummary:expenseType></eeSummary:expense></eeSummary:expenses><eeSummary:dependentInfo><eeSummary:dob>05/05/1982</eeSummary:dob><eeSummary:relationship>5</eeSummary:relationship><eeSummary:ssns><eeSummary:ssn><eeSummary:ssnText>111229876</eeSummary:ssnText></eeSummary:ssn></eeSummary:ssns><eeSummary:startDate>04/07/1992</eeSummary:startDate><eeSummary:givenName>FIRSTCHILDA</eeSummary:givenName><eeSummary:middleName>MIDDLECHILDA</eeSummary:middleName><eeSummary:familyName>LASTCHILDA</eeSummary:familyName><eeSummary:suffix>JR.</eeSummary:suffix></eeSummary:dependentInfo><eeSummary:livedWithPatient>false</eeSummary:livedWithPatient><eeSummary:incapableOfSelfSupport>true</eeSummary:incapableOfSelfSupport><eeSummary:attendedSchool>true</eeSummary:attendedSchool><eeSummary:contributedToSupport>false</eeSummary:contributedToSupport></eeSummary:dependentFinancials><eeSummary:dependentFinancials><eeSummary:incomes><eeSummary:income><eeSummary:amount>791.9</eeSummary:amount><eeSummary:type>7</eeSummary:type></eeSummary:income><eeSummary:income><eeSummary:amount>781.2</eeSummary:amount><eeSummary:type>13</eeSummary:type></eeSummary:income><eeSummary:income><eeSummary:amount>71.9</eeSummary:amount><eeSummary:type>10</eeSummary:type></eeSummary:income></eeSummary:incomes><eeSummary:expenses><eeSummary:expense><eeSummary:amount>1198.11</eeSummary:amount><eeSummary:expenseType>16</eeSummary:expenseType></eeSummary:expense></eeSummary:expenses><eeSummary:dependentInfo><eeSummary:dob>03/07/1996</eeSummary:dob><eeSummary:relationship>6</eeSummary:relationship><eeSummary:ssns><eeSummary:ssn><eeSummary:ssnText>222111234</eeSummary:ssnText></eeSummary:ssn></eeSummary:ssns><eeSummary:startDate>04/07/2003</eeSummary:startDate><eeSummary:givenName>FIRSTCHILDB</eeSummary:givenName><eeSummary:middleName>MIDDLECHILDB</eeSummary:middleName><eeSummary:familyName>LASTCHILDB</eeSummary:familyName><eeSummary:suffix>SR.</eeSummary:suffix></eeSummary:dependentInfo><eeSummary:livedWithPatient>false</eeSummary:livedWithPatient><eeSummary:incapableOfSelfSupport>false</eeSummary:incapableOfSelfSupport><eeSummary:attendedSchool>true</eeSummary:attendedSchool><eeSummary:contributedToSupport>false</eeSummary:contributedToSupport></eeSummary:dependentFinancials></eeSummary:dependentFinancialsList><eeSummary:numberOfDependentChildren>2</eeSummary:numberOfDependentChildren></eeSummary:financialStatement></eeSummary:financialsInfo><eeSummary:insuranceList
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:insurance><eeSummary:companyName>MyInsurance</eeSummary:companyName><eeSummary:policyHolderName>FirstName
+        ZZTEST</eeSummary:policyHolderName><eeSummary:policyNumber>P1234</eeSummary:policyNumber><eeSummary:groupNumber>G1234</eeSummary:groupNumber><eeSummary:insuranceMappingTypeName>PI</eeSummary:insuranceMappingTypeName></eeSummary:insurance><eeSummary:insurance><eeSummary:companyName>Medicare</eeSummary:companyName><eeSummary:enrolledInPartA>true</eeSummary:enrolledInPartA><eeSummary:insuranceMappingTypeName>MDCR</eeSummary:insuranceMappingTypeName><eeSummary:policyNumber>873462432</eeSummary:policyNumber><eeSummary:partAEffectiveDate>10/16/1999</eeSummary:partAEffectiveDate></eeSummary:insurance></eeSummary:insuranceList><eeSummary:militaryServiceInfo
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:dischargeDueToDisability>false</eeSummary:dischargeDueToDisability><eeSummary:militaryServiceSiteRecords><eeSummary:militaryServiceSiteRecord><eeSummary:site>988</eeSummary:site></eeSummary:militaryServiceSiteRecord></eeSummary:militaryServiceSiteRecords></eeSummary:militaryServiceInfo><eeSummary:prisonerOfWarInfo
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:powIndicator>false</eeSummary:powIndicator></eeSummary:prisonerOfWarInfo><eeSummary:purpleHeart
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:indicator>false</eeSummary:indicator></eeSummary:purpleHeart><eeSummary:personInfo
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:firstName>FIRSTNAME</eeSummary:firstName><eeSummary:middleName>MIDDLENAME</eeSummary:middleName><eeSummary:lastName>ZZTEST</eeSummary:lastName><eeSummary:suffix>JR.</eeSummary:suffix><eeSummary:gender>F</eeSummary:gender><eeSummary:dob>01/02/1986</eeSummary:dob><eeSummary:ssnText>111111234</eeSummary:ssnText></eeSummary:personInfo></va:summary><va:applications><va:applicationInfo><va:appDate>2025-02-12</va:appDate><va:appMethod>1</va:appMethod></va:applicationInfo></va:applications></va:form><va:identity
+        xmlns:va="http://va.gov/schema/esr/voa/v1"><va:authenticationLevel><va:type>102</va:type><va:value>Assurance
+        Level 2</va:value></va:authenticationLevel><va:veteranIdentifier><va:type>1</va:type><va:value>1013032368V065534</va:value></va:veteranIdentifier></va:identity></ns1:submitFormRequest></soap:Body></soap:Envelope>
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Date:
+      - Wed, 12 Feb 2025 19:00:16 GMT
+      Content-Length:
+      - '13118'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 12 Feb 2025 19:00:17 GMT
+      Content-Type:
+      - text/xml; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Oracle-Dms-Rid:
+      - '0'
+      X-Oracle-Dms-Ecid:
+      - 215a9ba4-11d9-4ac3-a17e-af8e5fc90dfd-0022aed5
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Cache-Control:
+      - max-age=0, no-store
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="646818239"
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><submitFormResponse
+        xmlns="http://va.gov/schema/esr/voa/v1" xmlns:ns0="http://jaxws.webservices.esr.med.va.gov/schemas"><status>100</status><formSubmissionId>440227675</formSubmissionId><message><type>Form
+        successfully received for EE processing</type></message><timeStamp>2025-02-12T13:00:17.891-06:00</timeStamp></submitFormResponse></S:Body></S:Envelope>
+  recorded_at: Wed, 12 Feb 2025 19:00:17 GMT
+recorded_with: VCR 6.3.1
