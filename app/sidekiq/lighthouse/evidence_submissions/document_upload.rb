@@ -99,7 +99,7 @@ module Lighthouse
       # This will be used by Lighthouse::FailureNotification
       def self.create_personalisation(msg)
         first_name = msg['args'][1]['first_name'].titleize unless msg['args'][1]['first_name'].nil?
-        document_type = doucument.description
+        document_type = LighthouseDocument.new(msg['args'][1]).description
         # Obscure the file name here since this will be used to generate a failed email
         # NOTE: the template that we use for va_notify.send_email uses `filename` but we can also pass in `file_name`
         filename = helpers.generate_obscured_file_name(msg['args'][1]['file_name'])
@@ -139,7 +139,7 @@ module Lighthouse
         end
       end
 
-      def helpers
+      def self.helpers
         BenefitsDocuments::Utilities::Helpers
       end
 
