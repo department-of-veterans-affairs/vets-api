@@ -109,6 +109,10 @@ module Lighthouse
         { first_name:, document_type:, filename:, date_submitted:, date_failed: }
       end
 
+      def self.helpers
+        BenefitsDocuments::Utilities::Helpers
+      end
+
       private
 
       def initialize_upload_document
@@ -137,10 +141,6 @@ module Lighthouse
         Datadog::Tracing.trace('Remove Upload Document') do
           uploader.remove!
         end
-      end
-
-      def self.helpers
-        BenefitsDocuments::Utilities::Helpers
       end
 
       def client
