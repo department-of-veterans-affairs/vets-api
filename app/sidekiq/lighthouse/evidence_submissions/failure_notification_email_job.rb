@@ -62,7 +62,7 @@ module Lighthouse
       def create_personalisation(current_personalisation)
         personalisation = current_personalisation.clone
         personalisation['file_name'] = current_personalisation['obfuscated_filename']
-        personalisation.delete['obfuscated_filename']
+        personalisation.delete('obfuscated_filename')
 
         personalisation
       end
