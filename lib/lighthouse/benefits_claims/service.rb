@@ -15,7 +15,7 @@ module BenefitsClaims
     SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
 
     def initialize(icn)
-      @icn = icn
+      @icn = 
       if icn.blank?
         raise ArgumentError, 'no ICN passed in for LH API request.'
       else
