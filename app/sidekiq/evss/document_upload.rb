@@ -172,10 +172,9 @@ class EVSS::DocumentUpload
 
   def update_evidence_submission_status(job_id)
     evidence_submission = EvidenceSubmission.find_by(job_id:)
-    evidence_submission.update(
-      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]
+    evidence_submission.update!(
+      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
+      delete_date: (DateTime.current + 60.days).utc
     )
-    evidence_submission.save!
-    evidence_submission
   end
 end
