@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module TravelPay
   module DateUtils
     def self.strip_timezone(time)
