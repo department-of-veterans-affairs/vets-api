@@ -27,7 +27,7 @@ module Eps
                          {}, headers)
       appointments = response.body['appointments']
       merged_appointments = merge_provider_data_with_appointments(appointments)
-      OpenStruct.new(merged_appointments)
+      OpenStruct.new(data: merged_appointments)
     end
 
     ##
@@ -76,11 +76,13 @@ module Eps
       providers = provider_services.get_provider_services_by_ids(provider_ids: provider_ids)
 
       appointments.each do |appointment|
-        next unless appointment.providerServiceId
+        next unless appointment['providerServiceId']
 
-        provider = providers.find { |provider_data| provider_data.id == appointment.providerServiceId }
-        appointment.provider = provider
+        provider = providers['providerServices'].find { |provider_data| provider_data['id'] == appointment['providerServiceId'] }
+        appointment['provider'] = provider
       end
+
+      appointments
     end
 
     def build_submit_payload(params)
