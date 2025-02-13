@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'evss/disability_compensation_form/data_translation_all_claim'
 require 'disability_compensation/factories/api_provider_factory'
+require 'lighthouse/direct_deposit/response'
 
 describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   subject { described_class.new(user, form_content, false) }
@@ -491,16 +492,10 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       context 'and the PPIU service does not have the account info' do
-        let(:response) do
-          OpenStruct.new(
-            get_payment_information: OpenStruct.new(
-              responses: [OpenStruct.new(payment_account: nil)]
-            )
-          )
-        end
+        let(:response) { Lighthouse::DirectDeposit::Response.new(200, nil, nil) }
 
         it 'does not set payment information' do
-          expect(DirectDeposit::Client).to receive(:new).and_return(response)
+          expect_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info).and_return(response)
           expect(subject.send(:translate_banking_info)).to eq({})
         end
       end
