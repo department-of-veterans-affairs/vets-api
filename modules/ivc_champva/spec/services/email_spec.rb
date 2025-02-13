@@ -13,7 +13,9 @@ RSpec.describe IvcChampva::Email, type: :service do
       last_name: 'Doe',
       file_count: 3,
       pega_status: 'Processed',
-      created_at: Time.zone.now.to_s
+      created_at: Time.zone.now.to_s,
+      date_submitted: Time.zone.now.to_s,
+      form_uuid: '4171e61a-03b5-49f3-8717-dbf340310473'
     }
   end
 
