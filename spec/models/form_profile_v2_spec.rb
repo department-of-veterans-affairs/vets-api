@@ -1569,7 +1569,10 @@ RSpec.describe FormProfile, type: :model do
         end
 
         context 'when Vet360 prefill is enabled' do
-          let(:user) { build(:user, :loa3, icn: '1012666073V986297', suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1781151') }
+          let(:user) do
+            build(:user, :loa3, icn: '1012666073V986297', suffix: 'Jr.', address: build(:va_profile_v3_address),
+                                vet360_id: '1781151')
+          end
 
           before do
             VAProfile::Configuration::SETTINGS.prefill = true # TODO: - is this missing in the failures above?

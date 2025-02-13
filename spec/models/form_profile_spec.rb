@@ -1866,7 +1866,9 @@ RSpec.describe FormProfile, type: :model do
 
           # NOTE: `increase only` and `all claims` use the same form prefilling
           context 'when Vet360 prefill is disabled' do
-            let(:user) { build(:user, :loa3, icn: '1012666073V986297', suffix: 'Jr.', address: build(:mpi_profile_address)) }
+            let(:user) do
+              build(:user, :loa3, icn: '1012666073V986297', suffix: 'Jr.', address: build(:mpi_profile_address))
+            end
 
             before do
               allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
@@ -1927,7 +1929,10 @@ RSpec.describe FormProfile, type: :model do
 
         context 'without ppiu' do
           context 'when Vet360 prefill is enabled' do
-            let(:user) { build(:user, :loa3, icn: '1012666073V986297', suffix: 'Jr.', address: build(:mpi_profile_address)) }
+            let(:user) do
+              build(:user, :loa3, icn: '1012666073V986297', suffix: 'Jr.', address: build(:mpi_profile_address))
+            end
+
             before do
               VAProfile::Configuration::SETTINGS.prefill = true # TODO: - is this missing in the failures above?
               expected_veteran_info = v21_526_ez_expected['veteran']
