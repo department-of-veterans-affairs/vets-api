@@ -1122,7 +1122,7 @@ rakelib/support/shell_command.rb @department-of-veterans-affairs/va-api-engineer
 rakelib/support/vic_load_test.rb @department-of-veterans-affairs/octo-identity
 rakelib/test_user_account.rake @department-of-veterans-affairs/octo-identity
 rakelib/vbms.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-script/github-actions @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+script @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/concerns/form_attachment_create_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/concerns/traceable_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/config/initializers/staccato_spec.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
