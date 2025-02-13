@@ -73,12 +73,16 @@ module AccreditedRepresentativePortal
     }
 
     scope :for_power_of_attorney_holders, lambda { |poa_holders|
-      names = PowerOfAttorneyHolder::PRIMARY_KEY_ATTRIBUTE_NAMES
+      return none unless poa_holders.present?
+
+      names = PowerOfAttorneyHolder::PRIMARY_KEY_ATTRIBUTE_NAMES.map do |name|
+        name.to_s.delete_prefix(PowerOfAttorneyHolder::PREFIX).to_sym
+      end
       values = poa_holders.map do |poa_holder|
-        poa_holder.to_h.values_at(names)
+        poa_holder.to_h.values_at(*names)
       end
 
-      where(names => values)
+      where(PowerOfAttorneyHolder::PRIMARY_KEY_ATTRIBUTE_NAMES => values)
     }
 
     private

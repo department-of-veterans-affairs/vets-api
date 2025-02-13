@@ -28,6 +28,26 @@ FactoryBot.define do
     user_account_uuid { create(:user_account).id }
     uuid { SecureRandom.uuid }
 
+    trait :with_power_of_attorney_holders do
+      transient do
+        poa_holders_count { 1 }
+        poa_holders { [] }
+      end
+
+      after(:build) do |user, evaluator|
+        list = if evaluator.poa_holders.present?
+                 evaluator.poa_holders
+               elsif evaluator.poa_holders_count.positive?
+                 build_list(
+                   :power_of_attorney_holder,
+                   evaluator.poa_holders_count
+                 )
+               end
+
+        user.instance_variable_set(:@power_of_attorney_holders, list)
+      end
+    end
+
     trait :with_in_progress_form do
       transient do
         in_progress_form_id { Faker::Form.id }

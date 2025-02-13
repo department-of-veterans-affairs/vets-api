@@ -1,29 +1,6 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  module PilotAllowlist
-    class << self
-      def get_user_poa_codes(user)
-        EMAIL_POA_CODES[user.email].to_a
-      end
-
-      ##
-      # While the allowlist is non-existent, authorize every user. The allowlist
-      # starts affecting authorization as soon as it has a single entry.
-      #
-      def inactive?
-        EMAIL_POA_CODES.empty?
-      end
-    end
-
-    EMAIL_POA_CODES =
-      Settings
-      .accredited_representative_portal
-      .pilot_user_email_poa_codes.to_h
-      .stringify_keys!
-      .freeze
-  end
-
   class PowerOfAttorneyRequestPolicy < ApplicationPolicy
     def show?
       authorize
@@ -40,8 +17,6 @@ module AccreditedRepresentativePortal
     private
 
     def authorize
-      return true if PilotAllowlist.inactive?
-
       ##
       # When the user is associated with any POA codes, then scenarios in which
       # they are trying to perform an operation against a POA request to which
@@ -52,28 +27,18 @@ module AccreditedRepresentativePortal
       # should be informed that they are not authorized to perform operations
       # against these resources.
       #
-      user_poa_codes.empty?
+      raise Pundit::NotAuthorizedError if user_poa_codes.empty?
+
+      user_poa_codes.include?(@record.power_of_attorney_holder_poa_code)
     end
 
     def user_poa_codes
-      @user_poa_codes ||= PilotAllowlist.get_user_poa_codes(@user)
+      @user_poa_codes ||= @user.power_of_attorney_holders.map(&:poa_code)
     end
 
     class Scope < ApplicationPolicy::Scope
       def resolve
-        return PowerOfAttorneyRequest if PilotAllowlist.inactive?
-
-        PowerOfAttorneyRequest
-          .preload(:power_of_attorney_holder)
-          .where(power_of_attorney_holder: {
-                   poa_code: user_poa_codes
-                 })
-      end
-
-      private
-
-      def user_poa_codes
-        @user_poa_codes ||= PilotAllowlist.get_user_poa_codes(@user)
+        @scope.for_user(@user)
       end
     end
   end
