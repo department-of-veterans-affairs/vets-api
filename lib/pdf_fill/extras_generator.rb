@@ -4,9 +4,10 @@ module PdfFill
   class ExtrasGenerator
     attr_reader :extras_redesign
 
-    def initialize(form_name: nil, extras_redesign: false)
+    def initialize(form_name: nil, submit_date: nil, extras_redesign: false)
       @generate_blocks = []
       @form_name = form_name
+      @submit_date = submit_date
       @extras_redesign = extras_redesign
     end
 
@@ -68,17 +69,15 @@ module PdfFill
 
     def set_header(pdf)
       pdf.repeat :all do
-        pdf.bounding_box(
-          [pdf.bounds.left, pdf.bounds.top],
-          width: pdf.bounds.width
-        ) do
-          pdf.text("<b>ATTACHMENT</b> to VA Form #{@form_name}",
-                   align: :left,
-                   size: 14.5,
-                   leading: 2,
-                   inline_format: true)
-          pdf.stroke_horizontal_rule
+        bound_width = pdf.bounds.width / 2
+        bound_height = 14.5
+        location = [pdf.bounds.left, pdf.bounds.top]
+        write_header_main(pdf, location, bound_width, bound_height)
+        if @submit_date.present?
+          location[0] += bound_width
+          write_header_submit_date(pdf, location, bound_width, bound_height)
         end
+        pdf.pad_top(2) { pdf.stroke_horizontal_rule }
       end
     end
 
@@ -105,6 +104,26 @@ module PdfFill
       end
 
       file_path
+    end
+
+    def write_header_main(pdf, location, bound_width, bound_height)
+      pdf.bounding_box(location, width: bound_width, height: bound_height) do
+        pdf.text("<b>ATTACHMENT</b> to VA Form #{@form_name}",
+                 align: :left,
+                 valign: :bottom,
+                 size: bound_height,
+                 inline_format: true)
+      end
+    end
+
+    def write_header_submit_date(pdf, location, bound_width, bound_height)
+      pdf.bounding_box(location, width: bound_width, height: bound_height) do
+        formatted = Date.strptime(@submit_date, '%Y-%m-%d').strftime('%m-%d-%Y')
+        pdf.text("Submitted on VA.gov on #{formatted}",
+                 align: :right,
+                 valign: :bottom,
+                 size: 10.5)
+      end
     end
   end
 end

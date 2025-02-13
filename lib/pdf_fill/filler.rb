@@ -135,6 +135,7 @@ module PdfFill
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
       hash_converter = HashConverter.new(form_id.sub(/V2\z/, ''), form_class.date_strftime,
+                                         form_data['signatureDate'],
                                          fill_options.fetch(:extras_redesign, false))
       new_hash = hash_converter.transform_data(
         form_data: form_class.new(form_data).merge_fields(fill_options),
