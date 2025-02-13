@@ -32,7 +32,7 @@ RSpec.describe BGS::Form674 do
             VCR.use_cassette('bgs/service/create_note') do
               modify_dependents = BGS::Form674.new(user_struct, saved_claim).submit(all_flows_v2_payload)
 
-              expect(modify_dependents[0]).to include(
+              expect(modify_dependents).to include(
                 :jrn_dt,
                 :jrn_lctn_id,
                 :jrn_obj_id,

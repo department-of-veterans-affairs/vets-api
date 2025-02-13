@@ -28,22 +28,7 @@ module BGS
     def submit(payload)
       veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130SCHATTEBN').create
 
-      if Flipper.enabled?(:va_dependents_v2)
-        claims = []
-        payload&.dig('dependents_application', 'student_information').to_a.each do |student|
-          claims << process_claim(veteran, payload, student)
-        end
-        claims
-      else
-        process_claim(veteran, payload)
-      end
-      
-    end
-
-    private
-
-    def process_claim(veteran, payload, student = nil)
-      process_relationships(proc_id, veteran, payload, student)
+      process_relationships(proc_id, veteran, payload)
 
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user:)
       vnp_benefit_claim_record = vnp_benefit_claim.create
@@ -58,7 +43,7 @@ module BGS
       log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
 
       benefit_claim_record = BenefitClaim.new(args: benefit_claim_args(vnp_benefit_claim_record, veteran)).create
-      
+
       begin
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
 
@@ -76,6 +61,8 @@ module BGS
       end
     end
 
+    private
+
     def benefit_claim_args(vnp_benefit_claim_record, veteran)
       {
         vnp_benefit_claim: vnp_benefit_claim_record,
@@ -87,18 +74,32 @@ module BGS
       }
     end
 
-    def process_relationships(proc_id, veteran, payload, student = nil)
-      dependent = DependentHigherEdAttendance.new(proc_id:, payload:, user: @user, student:).create
+    def process_relationships(proc_id, veteran, payload)
+      dependents = []
+      # use this to make sure the created dependent and student payload line up for process_674
+      # if it's nil, it is v1.
+      dependent_student_map = {} 
+      if Flipper.enabled?(:va_dependents_v2)
+        payload&.dig('dependents_application', 'student_information').to_a.each do |student|
+          dependent = DependentHigherEdAttendance.new(proc_id:, payload:, user: @user, student:).create
+          dependents << dependent
+          dependent_student_map[dependent[:vnp_participant_id]] = student
+        end
+      else
+        dependents << DependentHigherEdAttendance.new(proc_id:, payload:, user: @user, student: nil).create
+      end
 
       VnpRelationships.new(
         proc_id:,
         veteran:,
-        dependents: [dependent],
+        dependents: dependents,
         step_children: [],
         user: @user
       ).create_all
 
-      process_674(proc_id, dependent, payload, student)
+      dependents.each do |dependent|
+        process_674(proc_id, dependent, payload, dependent_student_map[dependent[:vnp_participant_id]])
+      end
     end
 
     def process_674(proc_id, dependent, payload, student = nil)
