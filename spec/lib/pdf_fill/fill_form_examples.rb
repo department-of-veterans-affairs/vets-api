@@ -14,6 +14,7 @@ require 'rails_helper'
 # - :input_data_fixture_dir (String): Directory path for input data fixtures. Default to "pdf_fill/#{form_id}".
 # - :output_pdf_fixture_dir (String): Directory path for output PDF fixtures. Default to "pdf_fill/#{form_id}".
 # - :fill_options (Hash): Options to be passed to the `fill_form` method. Default empty.
+# - :test_data_types (Array): Array of form data to validate. Defaults to %w[simple kitchen_sink overflow]
 #
 # Example Usage:
 #
@@ -23,16 +24,18 @@ require 'rails_helper'
 #   use_vets_json_schema: true,
 #   input_data_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures',
 #   output_pdf_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures'
+#   test_data_types: %w[simple]
 # }
 RSpec.shared_examples 'a form filler' do |options|
-  form_id, factory = options.values_at(:form_id, :factory)
+  form_id, factory, test_data_types = options.values_at(:form_id, :factory, :test_data_types)
+  test_data_types ||= %w[simple kitchen_sink overflow]
 
   describe PdfFill::Filler, type: :model do
     context "form #{form_id}", run_at: '2017-07-25 00:00:00 -0400' do
       let(:input_data_fixture_dir) { options[:input_data_fixture_dir] || "spec/fixtures/pdf_fill/#{form_id}" }
       let(:output_pdf_fixture_dir) { options[:output_pdf_fixture_dir] || "spec/fixtures/pdf_fill/#{form_id}" }
 
-      %w[simple kitchen_sink overflow].each do |type|
+      test_data_types.each do |type|
         context "with #{type} test data" do
           let(:form_data) do
             return get_fixture_absolute("#{input_data_fixture_dir}/#{type}") unless options[:use_vets_json_schema]
