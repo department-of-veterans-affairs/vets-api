@@ -17,6 +17,9 @@ module AccreditedRepresentativePortal
             inverse_of: :power_of_attorney_request,
             required: true
 
+    has_many :power_of_attorney_form_submissions
+    has_one :power_of_attorney_form_submission
+
     has_one :resolution,
             class_name: 'PowerOfAttorneyRequestResolution',
             inverse_of: :power_of_attorney_request
@@ -34,8 +37,20 @@ module AccreditedRepresentativePortal
 
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
 
+    def success_form_submission
+      power_of_attorney_form_submissions.succeeded.take
+    end
+
     def expires_at
-      created_at + EXPIRY_DURATION if unresolved?
+      created_at + EXPIRY_DURATION if pending?
+    end
+
+    def pending?
+      !resolved? || !success_form_submission
+    end
+
+    def processed?
+      declined? || expired? || success_form_submission
     end
 
     def unresolved?
@@ -46,8 +61,33 @@ module AccreditedRepresentativePortal
       resolution.present?
     end
 
+    def accepted?
+      resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestDecision) &&
+        resolution.resolving.type == PowerOfAttorneyRequestDecision::Types::ACCEPTANCE
+    end
+
+    def declined?
+      resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestDecision) &&
+        resolution.resolving.type == PowerOfAttorneyRequestDecision::Types::DECLINATION
+    end
+
+    def expired?
+      resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestExpiration)
+    end
+
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
+    scope :pending, lambda {
+      left_joins(:power_of_attorney_form_submissions).unresolved.or(
+        where("ar_power_of_attorney_form_submissions.status != 'succeeded'")
+      )
+    }
+    scope :processed, lambda {
+      left_joins(:power_of_attorney_form_submissions).resolved.where(
+        'ar_power_of_attorney_form_submissions.status IS NULL OR ' \
+        "ar_power_of_attorney_form_submissions.status = 'succeeded'"
+      )
+    }
     scope :not_expired, lambda {
       where.not(resolution: { resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration' })
     }
