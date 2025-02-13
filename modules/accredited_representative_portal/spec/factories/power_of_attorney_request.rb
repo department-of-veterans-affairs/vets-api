@@ -16,7 +16,7 @@ FactoryBot.define do
     accredited_organization {
       create(:organization)
     }
-    power_of_attorney_holder_type { 'AccreditedOrganization' }
+    power_of_attorney_holder_type { 'veteran_service_organization' }
 
     transient do
       resolution_created_at { nil }
