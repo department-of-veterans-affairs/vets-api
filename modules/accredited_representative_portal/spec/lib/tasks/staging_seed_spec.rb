@@ -111,5 +111,22 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
         assoc.power_of_attorney_holder_type == 'veteran_service_organization'
       end)
     end
+
+    it 'creates the expected pattern of requests per representative and organization' do
+      # Focus on CT org (008) and digital_only_rep who only works with CT
+      ct_rep_requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest
+                        .where(
+                          accredited_individual_registration_number: digital_only_rep.representative_id,
+                          power_of_attorney_holder_poa_code: ct_digital_org.poa
+                        )
+
+      # Total count for this org-rep pair
+      expect(ct_rep_requests.count).to eq(5)
+
+      # Resolution counts
+      expect(ct_rep_requests.unresolved.count).to eq(3)
+      resolved = ct_rep_requests.resolved
+      expect(resolved.count).to eq(2)
+    end
   end
 end

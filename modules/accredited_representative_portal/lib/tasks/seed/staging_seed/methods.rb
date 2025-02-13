@@ -112,20 +112,36 @@ module AccreditedRepresentativePortal
                         .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
                         .limit(2)
 
-        matching_reps.each_with_index do |rep, i|
-          # Only create association if one doesn't exist
-          unless AccreditedRepresentativePortal::UserAccountAccreditedIndividual
-                 .exists?(accredited_individual_registration_number: rep.representative_id)
-            AccreditedRepresentativePortal::UserAccountAccreditedIndividual.create!(
-              accredited_individual_registration_number: rep.representative_id,
-              power_of_attorney_holder_type: 'veteran_service_organization',
-              user_account_email: "vets.gov.user+#{options[:email_counter]}@gmail.com"
-            )
-            options[:totals][:user_accounts] += 1
-            options[:email_counter] += 1
-          end
+        matching_reps.each do |rep|
+          create_user_account_if_needed(rep, options)
+          create_requests_for_rep(org, rep, options)
+        end
+      end
 
-          create_request_with_resolution(build_request_options(org, rep, options), i)
+      def create_user_account_if_needed(rep, options)
+        return if AccreditedRepresentativePortal::UserAccountAccreditedIndividual
+                  .exists?(accredited_individual_registration_number: rep.representative_id)
+
+        AccreditedRepresentativePortal::UserAccountAccreditedIndividual.create!(
+          accredited_individual_registration_number: rep.representative_id,
+          power_of_attorney_holder_type: 'veteran_service_organization',
+          user_account_email: "vets.gov.user+#{options[:email_counter]}@gmail.com"
+        )
+        options[:totals][:user_accounts] += 1
+        options[:email_counter] += 1
+      end
+
+      def create_requests_for_rep(org, rep, options)
+        5.times do |i|
+          if i.even?
+            create_poa_request(org, rep, options[:claimant_cycle].next, options[:unresolved_time].next)
+            options[:totals][:requests] += 1
+          else
+            request = create_poa_request(org, rep, options[:claimant_cycle].next, options[:resolved_time].next)
+            create_resolution(request, :decision)
+            options[:totals][:requests] += 1
+            options[:totals][:resolutions] += 1
+          end
         end
       end
 
