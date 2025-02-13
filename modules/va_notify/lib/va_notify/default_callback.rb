@@ -22,13 +22,19 @@ module VANotify
     def call_with_metadata
       notification_type = metadata['notification_type']
 
-      if Flipper.enabled?(:va_notify_metadata_statsd_tags)
-        tags = validate_and_normalize_statsd_tags
-      else
-        statsd_tags = metadata['statsd_tags']
-        service = statsd_tags['service']
-        function = statsd_tags['function']
-        tags = ["service:#{service}", "function:#{function}"]
+      tags = begin
+        if Flipper.enabled?(:va_notify_metadata_statsd_tags)
+          validate_and_normalize_statsd_tags
+        else
+          statsd_tags = metadata['statsd_tags']
+          service = statsd_tags['service']
+          function = statsd_tags['function']
+          ["service:#{service}", "function:#{function}"]
+        end
+      rescue TypeError, KeyError, NoMethodError => e
+        Rails.logger.error("Invalid metadata format: #{e.message}", notification_record_id: notification_record.id)
+        # Provide default fallback tags to avoid error propagation.
+        ['service:none-provided', 'function:none-provided']
       end
 
       case notification_record.status
