@@ -13,7 +13,7 @@ module RepresentationManagement
           Tempfile.create do |tempfile|
             tempfile.binmode
             RepresentationManagement::V0::PdfConstructor::Form2122.new(tempfile).construct(form)
-            delete_in_progress_form if current_user
+            clear_saved_form('21-22')
             send_data tempfile.read,
                       filename: '21-22.pdf',
                       type: 'application/pdf',

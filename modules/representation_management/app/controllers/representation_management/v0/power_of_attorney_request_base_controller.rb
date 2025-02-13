@@ -131,17 +131,6 @@ module RepresentationManagement
         end
       end
 
-      def delete_in_progress_form
-        form = InProgressForm.form_for_user('21-22', current_user)
-        return if form.nil?
-
-        form.delete
-      rescue => e
-        Rails.logger.error(
-          "Failed to delete InProgressForm 21-22#{", record ID: #{form.id}" if form&.id}: #{e.message}"
-        )
-      end
-
       def feature_enabled
         routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
       end
