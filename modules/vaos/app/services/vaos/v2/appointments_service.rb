@@ -384,7 +384,7 @@ module VAOS
 
         set_telehealth_visibility(appointment) if telehealth?(appointment)
 
-        set_derived_appointment_fields(appointment)
+        set_derived_appointment_date_fields(appointment)
       end
 
       def find_and_merge_provider_name(appointment)
