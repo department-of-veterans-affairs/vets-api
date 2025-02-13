@@ -500,7 +500,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
 
         it 'does not set payment information' do
-          allow_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info).and_return(response)
+          expect(DirectDeposit::Client).to receive(:new).and_return(response)
           expect(subject.send(:translate_banking_info)).to eq({})
         end
       end
