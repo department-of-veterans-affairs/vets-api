@@ -15,7 +15,7 @@ module AccreditedRepresentativePortal
 
     shared_examples 'POA authorization' do |action, expected_result|
       if expected_result == :raises_error
-        it "raises Pundit::NotAuthorizedError when user has no POA codes" do
+        it 'raises Pundit::NotAuthorizedError when user has no POA codes' do
           expect { policy.public_send(action) }.to raise_error(Pundit::NotAuthorizedError)
         end
       else
@@ -28,16 +28,19 @@ module AccreditedRepresentativePortal
     describe '#show?' do
       context 'when user has no POA codes' do
         let(:user_poa_holders) { [] }
+
         it_behaves_like 'POA authorization', :show?, :raises_error
       end
 
       context 'when user has mismatched POA codes' do
         let(:user_poa_holders) { [build(:power_of_attorney_holder, poa_code: 'POA124')] }
+
         it_behaves_like 'POA authorization', :show?, false
       end
 
       context 'when user has matching POA codes' do
         let(:user_poa_holders) { [build(:power_of_attorney_holder, poa_code: 'POA123')] }
+
         it_behaves_like 'POA authorization', :show?, true
       end
     end
@@ -45,23 +48,23 @@ module AccreditedRepresentativePortal
     describe '#index?' do
       context 'when user has no POA codes' do
         let(:user_poa_holders) { [] }
+
         it_behaves_like 'POA authorization', :index?, :raises_error
       end
 
       context 'when user has mismatched POA codes' do
         let(:user_poa_holders) { [build(:power_of_attorney_holder, poa_code: 'POA124')] }
+
         it_behaves_like 'POA authorization', :index?, false
       end
 
       context 'when user has matching POA codes' do
         let(:user_poa_holders) { [build(:power_of_attorney_holder, poa_code: 'POA123')] }
+
         it_behaves_like 'POA authorization', :index?, true
       end
     end
 
-    # -----------------------------------------------
-    # Scope Tests (Merged into the same file)
-    # -----------------------------------------------
     describe 'Scope' do
       subject(:resolved_scope) { described_class::Scope.new(user, scope).resolve }
 

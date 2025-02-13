@@ -21,10 +21,9 @@ module AccreditedRepresentativePortal
       ].freeze
     end
 
-    PREFIX = "#{name.demodulize.underscore}_".freeze
     PRIMARY_KEY_ATTRIBUTE_NAMES = %i[
-      power_of_attorney_holder_type
-      power_of_attorney_holder_poa_code
+      type
+      poa_code
     ].freeze
 
     class << self
