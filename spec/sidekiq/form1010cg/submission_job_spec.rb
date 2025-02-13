@@ -285,7 +285,7 @@ RSpec.describe Form1010cg::SubmissionJob do
         error = StandardError.new
         expect_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:destroy!).and_raise(error)
 
-        expect(job).to receive(:log_exception_to_sentry).with(error)
+        expect(job).to receive(:log_exception_to_sentry).with(error, { claim_id: claim.id })
         job.perform(claim.id)
       end
     end
