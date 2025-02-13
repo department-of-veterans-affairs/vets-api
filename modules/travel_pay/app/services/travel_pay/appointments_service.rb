@@ -45,14 +45,17 @@ module TravelPay
         Rails.logger.error(message: 'Invalid appointment time provided (appointment time cannot be nil).')
         raise ArgumentError, message: 'Invalid appointment time provided (appointment time cannot be nil).'
       elsif date_string.present?
-        parsed_date_time = DateTime.parse(date_string)
-
+        parsed_date_time = DateUtils.strip_timezone(date_string)
         appointments.find do |appt|
-          !appt['appointmentDateTime'].nil? &&
-            parsed_date_time == DateTime.parse(appt['appointmentDateTime'])
+          begin
+            parsed_appt_time = DateUtils.strip_timezone(appt['appointmentDateTime'])
+          rescue TravelPay::InvalidComparableError => e
+            Rails.logger.warn("#{e} Appointment Datetime was nil for appointment #{appt['id'][0...8]}")
+          end
+          !appt['appointmentDateTime'].nil? && parsed_date_time.eql?(parsed_appt_time)
         end
       end
-    rescue DateTime::Error => e
+    rescue ArgumentError => e
       Rails.logger.error(message: "#{e} Invalid appointment time provided (given: #{date_string}).")
       raise ArgumentError, "#{e} Invalid appointment time provided (given: #{date_string})."
     end

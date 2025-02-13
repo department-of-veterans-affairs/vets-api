@@ -101,7 +101,6 @@ module TravelPay
 
       def get_appt_or_raise(appt_datetime)
         appt_not_found_msg = "No appointment found for #{appt_datetime}"
-
         Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{appt_datetime}")
         appt = appts_service.get_appointment_by_date_time({ 'appt_datetime' => appt_datetime })
 
