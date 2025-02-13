@@ -15,7 +15,7 @@ module IvcChampva
           conn.use :breakers
           # conn.use :instrumentation, name: 'dhp.fitbit.request.faraday'
 
-          # Uncomment this if you want curlggg command equivalent or response output to log
+          # Uncomment this if you want curl command equivalent or response output to log
           # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
           # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
