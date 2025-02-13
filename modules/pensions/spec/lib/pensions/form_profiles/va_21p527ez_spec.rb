@@ -11,8 +11,6 @@ RSpec.describe Pensions::FormProfiles::VA21p527ez, type: :model do
     allow(user).to receive(:authorize).with(:va_profile, :access?).and_return(true)
     allow(user).to receive(:can_access_id_card?).and_return(true)
     allow(Pensions::MilitaryInformation).to receive(:new).with(user).and_return(military_info_instance)
-    allow(military_info_instance).to receive(:public_send).and_return('2009-4-1')
-    allow(Pensions::FormMilitaryInformation).to receive(:new).and_return('military_info_object')
   end
 
   describe '#metadata' do
@@ -33,7 +31,7 @@ RSpec.describe Pensions::FormProfiles::VA21p527ez, type: :model do
           Pensions::MilitaryInformation::PREFILL_METHODS.count
         ).times
         form = described_class.new(form_id: form_id, user: user)
-        expect(form.initialize_military_information).to eq('military_info_object')
+        expect(form.initialize_military_information).to be_a(Pensions::FormMilitaryInformation)
       end
     end
 
@@ -53,12 +51,13 @@ RSpec.describe Pensions::FormProfiles::VA21p527ez, type: :model do
     let(:form) { described_class.new(form_id: form_id, user: user) }
 
     before do
-      allow(Pensions::MilitaryInformation::PREFILL_METHODS).to receive(:each).and_yield(:first_uniformed_entry_date)
+      allow(military_info_instance).to receive(:public_send).and_return('2009-4-1')
+      allow(Pensions::MilitaryInformation::PREFILL_METHODS).to receive(:each).and_yield('first_uniformed_entry_date')
     end
 
     it 'populates military information data correctly' do
       expect(form.send(:initialize_va_profile_prefill_military_information))
-        .to eq(first_uniformed_entry_date: '2009-4-1')
+        .to eq('first_uniformed_entry_date' => '2009-4-1')
     end
 
     context 'when an exception occurs' do

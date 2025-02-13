@@ -18,19 +18,20 @@ RSpec.describe Pensions::MilitaryInformation do
 
   describe '#format_service_branches_for_pensions' do
     it 'returns an object of valid branches' do
-branches = %w[army navy airForce coastGuard marineCorps spaceForce usphs noaa]
-pensions = described_class.new(user).format_service_branches_for_pensions(branches)
-expected_pensions = {
-  'army' => true,
-  'navy' => true,
-  'airForce' => true,
-  'coastGuard' => true,
-  'marineCorps' => true,
-  'spaceForce' => true,
-  'usphs' => true,
-  'noaa' => true
-}
-expect(pensions).to eq(expected_pensions)
+      branches = %w[army navy airForce coastGuard marineCorps spaceForce usphs noaa]
+      pensions = described_class.new(user).format_service_branches_for_pensions(branches)
+      expected_pensions = {
+        'army' => true,
+        'navy' => true,
+        'airForce' => true,
+        'coastGuard' => true,
+        'marineCorps' => true,
+        'spaceForce' => true,
+        'usphs' => true,
+        'noaa' => true
+      }
+      expect(pensions).to eq(expected_pensions)
+    end
 
     it 'filters out invalid branches' do
       expect(described_class.new(user).format_service_branches_for_pensions(['army', nil])).to eq({
