@@ -39,7 +39,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
           options: { auth_headers:, breakered: true },
           current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: account.icn }),
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
+          feature_toggle: nil
         }
       )
 
@@ -60,32 +60,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
           options: { auth_headers: submission.auth_headers, breakered: true },
           current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: account.icn }),
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
-        }
-      ).and_call_original
-
-      subject
-        .new(submission.id, get_upload_location_on_instantiation: false)
-        .get_form526_pdf
-    end
-
-    it 'pulls from the correct EVSS provider according to the startedFormVersion' do
-      allow_any_instance_of(EvssGeneratePdfProvider).to receive(:generate_526_pdf)
-        .and_return(Faraday::Response.new(status: 200,
-                                          body: { 'pdf' => Base64.encode64('526pdf') }))
-
-      new_form_data = submission.saved_claim.parsed_form
-      new_form_data['startedFormVersion'] = nil
-      submission.saved_claim.form = new_form_data.to_json
-      submission.saved_claim.save
-
-      expect(ApiProviderFactory).to receive(:call).with(
-        {
-          type: ApiProviderFactory::FACTORIES[:generate_pdf],
-          provider: ApiProviderFactory::API_PROVIDER[:evss],
-          options: { auth_headers: submission.auth_headers, breakered: true },
-          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: account.icn }),
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
+          feature_toggle: nil
         }
       ).and_call_original
 
