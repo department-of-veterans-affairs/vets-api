@@ -58,6 +58,35 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
           expect(serialized_user_action['type']).to eq('user_action')
           expect(serialized_user_action['attributes']['user_action_event_id']).to eq(user_action_event_two.id)
         end
+
+        context 'pagination' do
+          it 'paginates the correct number of user actions per page' do
+            # page 1
+            get :index, params: { start_date: 5.days.ago.to_date, end_date: Time.zone.now, page: 1, per_page: 2 }
+            json_response = JSON.parse(response.body)
+            expect(json_response['data'].length).to eq(2)
+
+            # page 2
+            get :index, params: { start_date: 5.days.ago.to_date, end_date: Time.zone.now, page: 2, per_page: 2 }
+            json_response = JSON.parse(response.body)
+            expect(json_response['data'].length).to eq(1)
+          end
+
+          it 'paginates user actions in order' do
+            # page 1
+            get :index, params: { start_date: 5.days.ago.to_date, end_date: Time.zone.now, page: 1, per_page: 2 }
+            json_response = JSON.parse(response.body)
+            expect(json_response['data'].length).to eq(2)
+            expect(json_response['data'].first['id']).to eq(user_action_two.id)
+            expect(json_response['data'].second['id']).to eq(user_action_one.id)
+
+            # page 2
+            get :index, params: { start_date: 5.days.ago.to_date, end_date: Time.zone.now, page: 2, per_page: 2 }
+            json_response = JSON.parse(response.body)
+            expect(json_response['data'].length).to eq(1)
+            expect(json_response['data'].first['id']).to eq(user_action_three.id)
+          end
+        end
       end
 
       context 'user action events' do
