@@ -57,12 +57,7 @@ describe 'sm client' do
     end
 
     it 'sets the signature preferences', :vcr do
-      params = ActionController::Parameters.new(
-        signature_name: 'Test Mark',
-        include_signature: false,
-        signature_title: 'Test Title API'
-      ).permit(:signature_name, :include_signature, :signature_title)
-
+      params = { signature_name: 'Test Mark', include_signature: false, signature_title: 'Test Title API' }
       client_response = client.post_signature(params)[:data]
       expect(client_response[:include_signature]).to be(false)
       expect(client_response[:signature_name]).to eq('Test Mark')

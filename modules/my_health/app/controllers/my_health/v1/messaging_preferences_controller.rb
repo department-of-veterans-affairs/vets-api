@@ -44,7 +44,8 @@ module MyHealth
       end
 
       def update_signature
-        updated_signature = params[:messaging_preference]
+        updated_signature = params.require(:messaging_preference).permit(:signature_name, :signature_title,
+                                                                         :include_signature)
         resource = client.post_signature(updated_signature)
         if resource[:data].nil?
           resource[:data] =
