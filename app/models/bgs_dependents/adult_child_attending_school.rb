@@ -40,7 +40,7 @@ module BGSDependents
       @full_name = @source.dig('full_name')
       @birth_date = @source.dig('birth_date')
       @was_married = @is_v2 ? @source.dig('was_married') : @dependents_application['student_address_marriage_tuition']['was_married']
-      @dependent_income = @source.dig('student_income')
+      @dependent_income = @is_v2 ? @source.dig('student_income') : @source.dig('dependent_income')
       self.attributes = described_class_attribute_hash
     end
 

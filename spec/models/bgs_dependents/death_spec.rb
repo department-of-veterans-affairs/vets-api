@@ -30,11 +30,17 @@ RSpec.describe BGSDependents::Death do
     }
   end
 
-  describe '#format_info' do
-    it 'formats death params for submission' do
-      formatted_info = described_class.new(death_info).format_info
+  context "with va_dependents_v2 off" do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+    end
+    
+    describe '#format_info' do
+      it 'formats death params for submission' do
+        formatted_info = described_class.new(death_info).format_info
 
-      expect(formatted_info).to eq(formatted_params_result)
+        expect(formatted_info).to eq(formatted_params_result)
+      end
     end
   end
 end

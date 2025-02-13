@@ -39,38 +39,44 @@ RSpec.describe BGSDependents::Child do
     }
   end
 
-  describe '#format_info' do
-    let(:format_info_output) do
-      {
-        'ssn' => '370947142',
-        'family_relationship_type' => 'Biological',
-        'place_of_birth_state' => 'CA',
-        'place_of_birth_city' => 'Slawson',
-        'reason_marriage_ended' => 'Death',
-        'ever_married_ind' => 'Y',
-        'birth_date' => '2009-03-03',
-        'place_of_birth_country' => nil,
-        'first' => 'John',
-        'middle' => 'oliver',
-        'last' => 'Hamm',
-        'suffix' => 'Sr.',
-        'child_income' => 'N',
-        'not_self_sufficient' => 'N'
-      }
+  context "with va_dependents_v2 off" do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+    end
+    
+    describe '#format_info' do
+      let(:format_info_output) do
+        {
+          'ssn' => '370947142',
+          'family_relationship_type' => 'Biological',
+          'place_of_birth_state' => 'CA',
+          'place_of_birth_city' => 'Slawson',
+          'reason_marriage_ended' => 'Death',
+          'ever_married_ind' => 'Y',
+          'birth_date' => '2009-03-03',
+          'place_of_birth_country' => nil,
+          'first' => 'John',
+          'middle' => 'oliver',
+          'last' => 'Hamm',
+          'suffix' => 'Sr.',
+          'child_income' => 'N',
+          'not_self_sufficient' => 'N'
+        }
+      end
+
+      it 'formats relationship params for submission' do
+        formatted_info = described_class.new(child_info).format_info
+
+        expect(formatted_info).to eq(format_info_output)
+      end
     end
 
-    it 'formats relationship params for submission' do
-      formatted_info = described_class.new(child_info).format_info
+    describe '#address' do
+      it 'formats address' do
+        address = described_class.new(child_info).address(all_flows_payload['dependents_application'])
 
-      expect(formatted_info).to eq(format_info_output)
-    end
-  end
-
-  describe '#address' do
-    it 'formats address' do
-      address = described_class.new(child_info).address(all_flows_payload['dependents_application'])
-
-      expect(address).to eq(address_result)
+        expect(address).to eq(address_result)
+      end
     end
   end
 end
