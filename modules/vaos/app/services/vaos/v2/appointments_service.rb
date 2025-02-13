@@ -882,8 +882,7 @@ module VAOS
           service_category_text: appointment.dig(:service_category, 0, :text),
           kind: appointment[:kind],
           atlas: appointment.dig(:telehealth, :atlas),
-          vvs_kind: appointment.dig(:telehealth, :vvs_kind),
-          gfe: appointment.dig(:extension, :patient_has_mobile_gfe)
+          vvs_kind: appointment.dig(:telehealth, :vvs_kind)
         }.to_json
         Rails.logger.warn("VAOS appointment id #{appointment[:id]} modality cannot be determined", context)
       end
@@ -895,7 +894,7 @@ module VAOS
         elsif %w[CLINIC_BASED STORE_FORWARD].include?(vvs_kind)
           'vaVideoCareAtAVaLocation'
         elsif vvs_kind.nil? || vvs_kind == 'MOBILE_ANY' || vvs_kind == 'ADHOC'
-          appointment.dig(:extension, :patient_has_mobile_gfe) ? 'vaVideoCareOnGfe' : 'vaVideoCareAtHome'
+          'vaVideoCareAtHome'
         end
       end
 
