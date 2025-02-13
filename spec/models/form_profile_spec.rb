@@ -814,10 +814,10 @@ RSpec.describe FormProfile, type: :model do
         'primaryPhone' => '4445551212',
         'emailAddress' => 'test2@test1.net'
       },
-      'bankAccountNumber' => '*********1234',
+      'bankAccountNumber' => '******7890',
       'bankAccountType' => 'Checking',
-      'bankName' => 'Comerica',
-      'bankRoutingNumber' => '*****2115',
+      'bankName' => 'WELLS FARGO BANK',
+      'bankRoutingNumber' => '*****0503',
       'startedFormVersion' => '2022',
       'syncModern0781Flow' => true
     }
@@ -1924,6 +1924,7 @@ RSpec.describe FormProfile, type: :model do
 
         context 'without ppiu' do
           context 'when Vet360 prefill is enabled' do
+            let(:user) { build(:user, :loa3, icn: '1012666073V986297', suffix: 'Jr.', address: build(:mpi_profile_address)) }
             before do
               VAProfile::Configuration::SETTINGS.prefill = true # TODO: - is this missing in the failures above?
               expected_veteran_info = v21_526_ez_expected['veteran']
@@ -1943,12 +1944,13 @@ RSpec.describe FormProfile, type: :model do
                   anything
                 )
                 .and_return(false)
+              allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
               expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
               expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
               expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                  VCR.use_cassette('evss/ppiu/payment_information') do
+                  VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
                     VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                                      allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
                       VCR.use_cassette('virtual_regional_office/max_ratings') do
