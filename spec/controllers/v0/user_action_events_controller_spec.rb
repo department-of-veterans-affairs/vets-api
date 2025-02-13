@@ -47,25 +47,11 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
       end
 
       it 'filters user actions based on the date range' do
-        create(:user_action,
-               created_at: 2.days.ago,
-               subject_user_verification_id: user_verification.id,
-               user_action_event: user_action_event_one)
-        create(:user_action,
-               created_at: 1.day.ago,
-               subject_user_verification_id: user_verification.id,
-               user_action_event: user_action_event_two)
-        create(:user_action,
-               created_at: 5.days.ago,
-               subject_user_verification_id: user_verification.id,
-               user_action_event: user_action_event_one)
-
         get :index, params: { start_date: 3.days.ago.to_date, end_date: Time.zone.now }
 
         expect(response).to have_http_status(:success)
 
         json_response = JSON.parse(response.body)
-        puts json_response['included'].first['attributes']['details']
         expect(json_response.length).to eq(2)
         expect(json_response['included'].first['attributes']['details']).to eq('Sample event 2')
         expect(json_response['included'].second['attributes']['details']).to eq('Sample event 1')
