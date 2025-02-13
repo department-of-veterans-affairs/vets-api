@@ -63,6 +63,8 @@ module Lighthouse
         personalisation = current_personalisation.clone
         personalisation['file_name'] = current_personalisation['obfuscated_filename']
         personalisation.delete['obfuscated_filename']
+
+        personalisation
       end
 
       def record_email_send_success(upload, response)
