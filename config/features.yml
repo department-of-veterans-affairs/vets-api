@@ -165,6 +165,10 @@ features:
     actor_type: user
     description: Send submission failure email to Veteran using VANotify.
     enable_in_development: true
+  ezr_use_correct_format_for_file_uploads:
+    actor_type: user
+    description: Correctly formats the `va:attachments` XML for file uploads
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -288,10 +292,10 @@ features:
     actor_type: user
     description: Uses person web service rather than local bgs
     enable_in_development: true
-  claims_api_use_vet_record_service:
+  claims_api_use_update_poa_relationship:
     actor_type: user
     description: Uses local_bgs rather than bgs-ext
-    enable_in_development: true
+    enable_in_development: true  
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
@@ -1094,6 +1098,10 @@ features:
     actor_type: user
     description: Enables/disables pending medications related work
     enable_in_development: true
+  mhv_medications_display_refill_progress:
+    actor_type: user
+    description: Enables/disables refill progress related work
+    enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
@@ -1550,6 +1558,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
+  vaos_online_scheduling_use_va_date:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use VaDate/VaDateField.
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled

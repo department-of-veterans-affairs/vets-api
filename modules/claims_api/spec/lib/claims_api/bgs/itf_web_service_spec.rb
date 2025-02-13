@@ -13,14 +13,15 @@ describe ClaimsApi::IntentToFileWebService do
     let(:itf) { build(:intent_to_file) }
     let(:participant_id) { '13367440' }
     let(:type) { 'C' }
-    let(:ssn) { '796043735' }
+    let(:ssn) { '796130115' }
     let(:options) do
       {
         intent_to_file_type_code: type,
-        participant_vet_id: participant_id,
-        received_date: Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S%:z'),
-        submitter_application_icn_type_code: ClaimsApi::IntentToFile::SUBMITTER_CODE,
-        ssn: ssn
+        participant_vet_id: '600043201',
+        received_date: '2025-02-07T13:12:40+00:00',
+        submitter_application_icn_type_code: 'LH-B',
+        ssn: ssn,
+        participant_claimant_id: '600043201'
       }
     end
     let(:erroneous_options) do
@@ -36,10 +37,10 @@ describe ClaimsApi::IntentToFileWebService do
     context 'happy path' do
       it 'returns an object with the appropriate attributes' do
         VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
-          res = subject.insert_intent_to_file(options:)
-          expect(res[:intent_to_file_id]).to eq('184058')
-          expect(res[:ptcpnt_clmant_id]).to eq('13367440')
-          expect(res[:ptcpnt_vet_id]).to eq('13367440')
+          res = subject.insert_intent_to_file(options)
+          expect(res[:intent_to_file_id]).to eq('294045')
+          expect(res[:ptcpnt_clmant_id]).to eq('600043201')
+          expect(res[:ptcpnt_vet_id]).to eq('600043201')
         end
       end
     end
@@ -47,7 +48,7 @@ describe ClaimsApi::IntentToFileWebService do
     context 'sad path' do
       it 'returns the correct error message when incorrect params are provided' do
         VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file_500') do
-          subject.insert_intent_to_file(erroneous_options:)
+          subject.insert_intent_to_file(erroneous_options)
         rescue => e
           expect(e).to be_a(Common::Exceptions::ServiceError)
           expect(e.message).to be('Unknown Service Error')
