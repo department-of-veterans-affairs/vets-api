@@ -71,8 +71,8 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds,
     end
 
     it 'creates both resolved and unresolved requests' do
-      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.resolved).to exist
-      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.unresolved).to exist
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.processed).to exist
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.not_processed).to exist
     end
 
     it 'creates requests with proper claimant data' do

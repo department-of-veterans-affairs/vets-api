@@ -18,7 +18,7 @@ module AccreditedRepresentativePortal
         let(:user_email) { nil }
 
         it 'does not raise ArgumentError' do
-          expect { subject }.not_to raise_error(ArgumentError)
+          expect { subject }.not_to raise_error
         end
       end
 
