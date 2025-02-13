@@ -77,9 +77,9 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
       expect(ct_requests).to(be_all { |req| req.accredited_organization == ct_digital_org })
     end
 
-    it 'creates both resolved and unresolved requests' do
-      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.resolved).to exist
-      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.unresolved).to exist
+    it 'creates both pending and processed requests' do
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.pending).to exist
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.processed).to exist
     end
 
     it 'creates requests with proper claimant data' do

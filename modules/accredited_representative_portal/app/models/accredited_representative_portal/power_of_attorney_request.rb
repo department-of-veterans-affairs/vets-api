@@ -35,33 +35,33 @@ module AccreditedRepresentativePortal
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
 
     def expires_at
-      created_at + EXPIRY_DURATION if unresolved?
+      created_at + EXPIRY_DURATION if pending?
     end
 
-    def unresolved?
-      !resolved?
+    def pending?
+      !processed?
     end
 
-    def resolved?
+    def processed?
       resolution.present?
     end
 
     def accepted?
-      resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestDecision) &&
+      processed? && resolution.resolving.is_a?(PowerOfAttorneyRequestDecision) &&
         resolution.resolving.type == PowerOfAttorneyRequestDecision::Types::ACCEPTANCE
     end
 
     def declined?
-      resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestDecision) &&
+      processed? && resolution.resolving.is_a?(PowerOfAttorneyRequestDecision) &&
         resolution.resolving.type == PowerOfAttorneyRequestDecision::Types::DECLINATION
     end
 
     def expired?
-      resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestExpiration)
+      processed? && resolution.resolving.is_a?(PowerOfAttorneyRequestExpiration)
     end
 
-    scope :unresolved, -> { where.missing(:resolution) }
-    scope :resolved, -> { joins(:resolution) }
+    scope :pending, -> { where.missing(:resolution) }
+    scope :processed, -> { joins(:resolution) }
     scope :not_expired, lambda {
       where.not(resolution: { resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration' })
     }
