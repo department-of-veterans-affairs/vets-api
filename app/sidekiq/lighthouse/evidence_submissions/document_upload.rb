@@ -92,19 +92,19 @@ module Lighthouse
       # Update personalisation here since an evidence submission record was previously created
       def self.update_personalisation(current_personalisation, failed_at)
         personalisation = current_personalisation.clone
-        personalisation['date_failed'] = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(failed_at)
+        personalisation['date_failed'] = helpers.format_date_for_mailers(failed_at)
         personalisation
       end
 
       # This will be used by Lighthouse::FailureNotification
       def self.create_personalisation(msg)
         first_name = msg['args'][1]['first_name'].titleize unless msg['args'][1]['first_name'].nil?
-        document_type = msg['args'][1]['document_type']
+        document_type = doucument.description
         # Obscure the file name here since this will be used to generate a failed email
         # NOTE: the template that we use for va_notify.send_email uses `filename` but we can also pass in `file_name`
-        filename = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][1]['file_name'])
-        date_submitted = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(msg['created_at'])
-        date_failed = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(msg['failed_at'])
+        filename = helpers.generate_obscured_file_name(msg['args'][1]['file_name'])
+        date_submitted = helpers.format_date_for_mailers(msg['created_at'])
+        date_failed = helpers.format_date_for_mailers(msg['failed_at'])
 
         { first_name:, document_type:, filename:, date_submitted:, date_failed: }
       end
@@ -137,6 +137,10 @@ module Lighthouse
         Datadog::Tracing.trace('Remove Upload Document') do
           uploader.remove!
         end
+      end
+
+      def helpers
+        BenefitsDocuments::Utilities::Helpers
       end
 
       def client
