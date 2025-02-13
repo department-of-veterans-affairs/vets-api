@@ -43,6 +43,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
 
       context 'user actions' do
         it 'returns user actions within date range' do
+          # No pagination param
           get :index, params: { start_date: 5.days.ago.to_date, end_date: Time.zone.now }
 
           json_response = JSON.parse(response.body)
