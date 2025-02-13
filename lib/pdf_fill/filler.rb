@@ -14,6 +14,7 @@ require 'pdf_fill/forms/va21674'
 require 'pdf_fill/forms/va210538'
 require 'pdf_fill/forms/va261880'
 require 'pdf_fill/forms/va5655'
+require 'pdf_fill/forms/va2210216'
 
 module PdfFill
   # Provides functionality to fill and process PDF forms.
@@ -58,7 +59,8 @@ module PdfFill
       '21-674' => PdfFill::Forms::Va21674,
       '21-0538' => PdfFill::Forms::Va210538,
       '26-1880' => PdfFill::Forms::Va261880,
-      '5655' => PdfFill::Forms::Va5655
+      '5655' => PdfFill::Forms::Va5655,
+      '22-10216' => PdfFill::Forms::Va2210216
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
     end
