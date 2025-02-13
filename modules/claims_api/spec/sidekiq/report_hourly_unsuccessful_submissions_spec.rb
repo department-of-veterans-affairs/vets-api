@@ -6,7 +6,14 @@ require 'claims_api/report_hourly_unsuccessful_submissions'
 describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
   subject { described_class.new }
 
+  let(:messenger) { instance_double(ClaimsApi::Slack::FailedSubmissionsMessenger) }
+
   describe '#perform' do
+    before do
+      allow(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).and_return(messenger)
+      allow(messenger).to receive(:notify!)
+    end
+
     context 'when no errored submissions exist' do
       before do
         # rubocop:disable Layout/LineLength
@@ -19,51 +26,46 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
       end
 
       it 'does not call notify method' do
-        # rubocop:disable RSpec/SubjectStub
-        expect(subject).not_to receive(:notify)
-        # rubocop:enable RSpec/SubjectStub
+        expect(messenger).not_to receive(:notify!)
+
         subject.perform
       end
     end
 
     context 'when errored submissions exist' do
       before do
-        # rubocop:disable Layout/LineLength
-        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled).and_return(true)
-        # rubocop:enable Layout/LineLength
+        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
+                                                            .and_return(true)
         allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return(double(pluck: ['poa1']))
         allow(ClaimsApi::IntentToFile).to receive(:where).and_return(double(pluck: ['itf1']))
         allow(ClaimsApi::EvidenceWaiverSubmission).to receive(:where).and_return(double(pluck: ['ews1']))
       end
 
       it 'calls notify with the correct parameters' do
-        # rubocop:disable RSpec/SubjectStub
-        expect(subject).to receive(:notify).with(
-          [],
-          [],
-          ['poa1'],
-          ['itf1'],
-          ['ews1'],
-          kind_of(String),
-          kind_of(String),
-          kind_of(String)
+        expect(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).with(
+          errored_disability_claims: [],
+          errored_va_gov_claims: [],
+          errored_poa: ['poa1'],
+          errored_itf: ['itf1'],
+          errored_ews: ['ews1'],
+          from: kind_of(String),
+          to: kind_of(String),
+          environment: kind_of(String)
         )
-        # rubocop:enable RSpec/SubjectStub
 
         subject.perform
       end
 
-      # rubocop:disable RSpec/NoExpectationExample
       it 'does not repeat an alert based on transaction id' do
         allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
                                                             .and_return(true)
 
-        claim_one = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                     transaction_id: 'transaction_1',
-                                                                     id: '1')
-        claim_two = create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
-                                                                     transaction_id: 'transaction_1',
-                                                                     id: '2')
+        create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                         transaction_id: 'transaction_1',
+                                                         id: '1')
+        create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
+                                                         transaction_id: 'transaction_1',
+                                                         id: '2')
         claim_three = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
                                                                        transaction_id: 'transaction_2',
                                                                        id: '3')
@@ -72,17 +74,17 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
                                                                       id: '4')
 
         expected_vagov_claims = [claim_three.id, claim_four.id]
-        expected_absent_values = [claim_one.id, claim_two.id]
 
-        expected_present_values = [
-          [],
-          expected_vagov_claims,
-          ['poa1'],
-          ['itf1'],
-          ['ews1']
-        ]
-
-        expected_results(expected_vagov_claims, expected_absent_values, expected_present_values)
+        expect(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).with(
+          errored_disability_claims: [],
+          errored_va_gov_claims: expected_vagov_claims,
+          errored_poa: ['poa1'],
+          errored_itf: ['itf1'],
+          errored_ews: ['ews1'],
+          from: kind_of(String),
+          to: kind_of(String),
+          environment: kind_of(String)
+        )
 
         subject.perform
       end
@@ -91,7 +93,6 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         before do
           create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now, transaction_id: 'transaction_1')
           create(:auto_established_claim_va_gov, :errored, created_at: 59.minutes.ago, transaction_id: 'transaction_1')
-          allow_any_instance_of(ClaimsApi::ReportHourlyUnsuccessfulSubmissions).to receive(:notify).and_return(nil)
         end
 
         it 'only alerts on one of the claims' do
@@ -105,12 +106,12 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
                                                             .and_return(true)
 
-        claim_one = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                     transaction_id: 'transaction_1',
-                                                                     id: '1')
-        claim_two = create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
-                                                                     transaction_id: 'transaction_1',
-                                                                     id: '2')
+        create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                         transaction_id: 'transaction_1',
+                                                         id: '1')
+        create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
+                                                         transaction_id: 'transaction_1',
+                                                         id: '2')
         claim_three = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
                                                                        transaction_id: 'transaction_2',
                                                                        id: '3')
@@ -118,58 +119,39 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
                                                                       transaction_id: 'transaction_3',
                                                                       id: '4')
 
-        claim_five = create(:auto_established_claim_va_gov,
-                            :errored,
-                            created_at: 30.seconds.ago,
-                            evss_response: [{ 'status' => '422',
-                                              'title' => 'Backend Service Exception',
-                                              'detail' => 'The Maximum number of EP codes have been ' \
-                                                          'reached for this benefit type claim code' }],
-                            transaction_id: 'transaction_4')
+        create(:auto_established_claim_va_gov,
+               :errored,
+               created_at: 30.seconds.ago,
+               evss_response: [{ 'status' => '422',
+                                 'title' => 'Backend Service Exception',
+                                 'detail' => 'The Maximum number of EP codes have been ' \
+                                             'reached for this benefit type claim code' }],
+               transaction_id: 'transaction_4')
 
-        claim_six = create(:auto_established_claim_va_gov,
-                           :errored,
-                           created_at: 120.seconds.ago,
-                           evss_response: [{ 'status' => '422',
-                                             'title' => 'Backend Service Exception',
-                                             'detail' => 'Claim could not be established. ' \
-                                                         'Retries will fail.' }],
-                           transaction_id: 'transaction_5')
+        create(:auto_established_claim_va_gov,
+               :errored,
+               created_at: 120.seconds.ago,
+               evss_response: [{ 'status' => '422',
+                                 'title' => 'Backend Service Exception',
+                                 'detail' => 'Claim could not be established. ' \
+                                             'Retries will fail.' }],
+               transaction_id: 'transaction_5')
 
         expected_vagov_claims = [claim_three.id, claim_four.id]
-        expected_absent_values = [claim_one.id, claim_two.id, claim_five.id, claim_six.id]
 
-        expected_present_values = [
-          [],
-          expected_vagov_claims,
-          ['poa1'],
-          ['itf1'],
-          ['ews1']
-        ]
-
-        expected_results(expected_vagov_claims, expected_absent_values, expected_present_values)
+        expect(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).with(
+          errored_disability_claims: [],
+          errored_va_gov_claims: expected_vagov_claims,
+          errored_poa: ['poa1'],
+          errored_itf: ['itf1'],
+          errored_ews: ['ews1'],
+          from: kind_of(String),
+          to: kind_of(String),
+          environment: kind_of(String)
+        )
 
         subject.perform
       end
-    end
-    # rubocop:enable RSpec/NoExpectationExample
-
-    def expected_results(expected_vagov_claims, expected_absent_values, expected_present_values)
-      # rubocop:disable RSpec/SubjectStub
-      expect(subject).to receive(:notify) do |*args|
-        args.each_with_index do |arg, idx|
-          if [5, 6, 7].include?(idx)
-            expect(arg).to be_a(String)
-          elsif idx == 1
-            expect(arg.flatten).to include(*expected_vagov_claims)
-            expect(arg.flatten).not_to include(*expected_absent_values)
-          else
-            expect(expected_present_values).to include(arg)
-            expect(expected_absent_values.flatten).not_to include(arg)
-          end
-        end
-      end
-      # rubocop:enable RSpec/SubjectStub
     end
 
     context 'when flipper is not enabled' do
@@ -184,18 +166,7 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
       end
 
       it 'does not run the alert' do
-        # rubocop:disable RSpec/SubjectStub
-        expect(subject).not_to receive(:notify).with(
-          ['claim1'],
-          ['claim2'],
-          ['poa1'],
-          ['itf1'],
-          ['ews1'],
-          kind_of(String),
-          kind_of(String),
-          kind_of(String)
-        )
-        # rubocop:enable RSpec/SubjectStub
+        expect(ClaimsApi::Slack::FailedSubmissionsMessenger).not_to receive(:new)
 
         subject.perform
       end
