@@ -141,7 +141,6 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
         post '/travel_pay/v0/claims', headers: headers, params: params
 
-        error_detail = JSON.parse(response.body)['errors'][0]['detail']
         expect(response).to have_http_status(:bad_request)
       end
     end
