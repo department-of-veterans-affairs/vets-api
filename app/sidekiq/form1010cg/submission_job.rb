@@ -54,13 +54,13 @@ module Form1010cg
       begin
         claim.destroy!
       rescue => e
-        log_exception_to_sentry(e)
+        log_exception_to_sentry(e, { claim_id: })
       end
     rescue CARMA::Client::MuleSoftClient::RecordParseError
       StatsD.increment("#{STATSD_KEY_PREFIX}record_parse_error", tags: ["claim_id:#{claim_id}"])
       self.class.send_failure_email(claim)
     rescue => e
-      log_exception_to_sentry(e)
+      log_exception_to_sentry(e, { claim_id: })
       StatsD.increment("#{STATSD_KEY_PREFIX}retries")
 
       raise
