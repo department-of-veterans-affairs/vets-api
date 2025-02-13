@@ -20,9 +20,6 @@ module TravelPay
       # If we parse it any other 'recommended' way, the time will be converted based
       # on the timezone, and the datetimes won't match
       Time.parse(datetime) if datetime.is_a? String # rubocop:disable Rails/TimeZone
-    rescue ArgumentError => e
-      raise ArgumentError,
-            message: "#{e}. Invalid date provided (given: #{datetime})."
     end
 
     def self.try_parse_date_range(start_date, end_date)

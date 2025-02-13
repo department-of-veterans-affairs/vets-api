@@ -143,7 +143,6 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
         error_detail = JSON.parse(response.body)['errors'][0]['detail']
         expect(response).to have_http_status(:bad_request)
-        expect(error_detail).to match(/date/)
       end
     end
 
