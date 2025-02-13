@@ -458,9 +458,10 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
   end
 
   def index_request_with(poa_codes:, auth_header:, filter: {})
+    headers = auth_header.merge 'Content-Type' => 'application/json'
     post v2_veterans_power_of_attorney_requests_path,
          params: { data: { attributes: { poaCodes: poa_codes, filter: } } }.to_json,
-         headers: auth_header
+         headers: headers
   end
 
   def show_request_with(id:, auth_header:)
@@ -468,16 +469,18 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
   end
 
   def decide_request_with(id:, decision:, auth_header:, representative_id: nil)
+    headers = auth_header.merge 'Content-Type' => 'application/json'
     post "/services/claims/v2/veterans/power-of-attorney-requests/#{id}/decide",
          params: { data: { attributes: { id: id,
                                          decision:,
                                          representativeId: representative_id } } }.to_json,
-         headers: auth_header
+         headers: headers
   end
 
   def create_request_with(veteran_id:, form_attributes:, auth_header:)
+    headers = auth_header.merge 'Content-Type' => 'application/json'
     post "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney-request",
          params: { data: { attributes: form_attributes } }.to_json,
-         headers: auth_header
+         headers: headers
   end
 end
