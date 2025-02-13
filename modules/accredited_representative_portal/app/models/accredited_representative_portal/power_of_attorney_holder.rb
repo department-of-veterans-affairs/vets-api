@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
 module AccreditedRepresentativePortal
   class PowerOfAttorneyHolder <
     Data.define(
@@ -28,59 +27,55 @@ module AccreditedRepresentativePortal
     ].freeze
 
     class << self
-      # The `for_user` method retrieves the Power of Attorney (POA) holders associated with a user
-      # based on their email and ICN (Integration Control Number).
-      #
-      # Why this method exists:
-      # - The purpose of this method is to determine which VSOs (veteran service organizations)
-      #   a given user (representative) belongs to.
-      # - It first looks up the accredited representative using `reconcile_and_find_by`, which
-      #   ensures that both email and ICN associations are accurate.
-      # - If a match is found, it retrieves the accredited representative's registration number
-      #   and finds their associated POA organizations.
-      #
-      # How it works:
-      # - It queries `UserAccountAccreditedIndividual` to find a representative linked to the user.
-      # - If the `power_of_attorney_holder_type` is `VETERAN_SERVICE_ORGANIZATION`, it:
-      #   - Fetches the representative's POA codes.
-      #   - Uses these POA codes to retrieve associated organizations.
-      #   - Creates and returns a list of `PowerOfAttorneyHolder` instances, including whether
-      #     each organization can accept digital POA requests.
+      ##
+      # Lookup power of attorney holder memberships by email:
+      # - User has many registrations
+      # - Registration has many power of attorney holders
+      #   - But only really for a VSO-type registration
+      #   - Else has one
       #
       def for_user(email:, icn:)
-        [].tap do |poa_holders|
-          records =
-            Array.wrap(
-              UserAccountAccreditedIndividual.reconcile_and_find_by(
-                user_account_email: email,
-                user_account_icn: icn
-              )
-            )
+        registrations = UserAccountAccreditedIndividual.for_user(email:, icn:)
+        registrations.flat_map(&method(:for_registration))
+      end
 
-          records.each do |record|
-            case record.power_of_attorney_holder_type
-            when Types::VETERAN_SERVICE_ORGANIZATION
-              representative_id = record.accredited_individual_registration_number
-              representative = Veteran::Service::Representative.find_by(representative_id:)
+      private
 
-              poa_codes = representative.poa_codes.to_a
-              organizations = Veteran::Service::Organization.find_by(poa: poa_codes)
+      def for_registration(registration)
+        number = registration.accredited_individual_registration_number
+        type = registration.power_of_attorney_holder_type
 
-              organizations.each do |organization|
-                poa_holder =
-                  PowerOfAttorneyHolder.new(
-                    type: record.power_of_attorney_holder_type,
-                    poa_code: organization.poa,
-                    can_accept_digital_poa_requests:
-                      organization.can_accept_digital_poa_requests
-                  )
+        case type
+        when Types::VETERAN_SERVICE_ORGANIZATION
+          ##
+          # Other types are 1:1 and will have no reason to introduce a
+          # complicated method that takes a block like this.
+          #
+          get_organizations(number) { |attrs| new(type:, **attrs) }
+        else
+          []
+        end
+      end
 
-                poa_holders.push(
-                  poa_holder
-                )
-              end
-            end
-          end
+      def get_organizations(registration_number)
+        representative =
+          Veteran::Service::Representative.veteran_service_officers.find_by(
+            representative_id: registration_number
+          )
+
+        return [] if representative.nil?
+
+        organizations =
+          Veteran::Service::Organization.where(
+            poa: representative.poa_codes
+          )
+
+        organizations.map do |organization|
+          yield(
+            poa_code: organization.poa,
+            can_accept_digital_poa_requests:
+              organization.can_accept_digital_poa_requests
+          )
         end
       end
     end
@@ -90,4 +85,3 @@ module AccreditedRepresentativePortal
     end
   end
 end
-# rubocop:enable Metrics/MethodLength
