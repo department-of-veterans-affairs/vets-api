@@ -50,13 +50,26 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
         end
 
         it 'returns user actions by newest to oldest within date range' do
+          # Filtering the start_date param
           get :index, params: { start_date: 3.days.ago.to_date, end_date: Time.zone.now }
 
           json_response = JSON.parse(response.body)
+          puts json_response
           serialized_user_action = json_response['data'].first
+          expect(json_response['data'].length).to eq(2)
           expect(serialized_user_action['id']).to eq(user_action_two.id)
           expect(serialized_user_action['type']).to eq('user_action')
           expect(serialized_user_action['attributes']['user_action_event_id']).to eq(user_action_event_two.id)
+
+          # Filtering the end_date param
+          get :index, params: { start_date: 3.days.ago.to_date, end_date: 2.days.ago.to_date }
+
+          json_response = JSON.parse(response.body)
+          expect(json_response['data'].length).to eq(1)
+          serialized_user_action = json_response['data'].first
+          expect(serialized_user_action['id']).to eq(user_action_one.id)
+          expect(serialized_user_action['type']).to eq('user_action')
+          expect(serialized_user_action['attributes']['user_action_event_id']).to eq(user_action_event_one.id)
         end
 
         context 'pagination' do
