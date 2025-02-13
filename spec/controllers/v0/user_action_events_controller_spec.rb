@@ -123,7 +123,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
     end
 
     context 'when there are no user actions' do
-      it 'returns unauthorized' do
+      it 'returns an empty array' do
         get :index
 
         json_response = JSON.parse(response.body)
