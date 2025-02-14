@@ -20,7 +20,7 @@ module SimpleFormsApi
       check_missing_keys(config)
       check_if_form_is_supported(config)
 
-      @form_data = config[:form_data]&.deep_symbolize_keys || {}
+      @form_data = config[:form_data]
       @form_number = config[:form_number]
       @confirmation_number = config[:confirmation_number]
       @date_submitted = config[:date_submitted]
