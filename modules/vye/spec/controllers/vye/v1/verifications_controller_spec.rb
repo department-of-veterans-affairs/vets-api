@@ -36,7 +36,6 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       )
       subject.send(:load_user_info)
     end
-    # rubocop:enable RSpec/SubjectStub
 
     describe 'cert_through_date calculation' do
       let!(:verification1) { create(:vye_verification, act_end: Date.new(2024, 4, 1), award: award) }
@@ -82,4 +81,142 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       end
     end
   end
+
+  # rubocop:disable Naming/VariableNumber
+  describe 'shay production bug 1' do
+    subject { described_class.new }
+
+    let(:cur_award_ind) { Vye::Award.cur_award_inds[:current] }
+    let(:now) { Time.parse('2025-02-05T12:00:00-00:00') }
+    let(:date_last_certified) { Date.new(2024, 10, 1) }
+
+    let(:award_begin_date_1) { Date.new(2024, 3, 9) }
+    let(:award_begin_date_2) { Date.new(2024, 3, 11) }
+    let(:award_begin_date_3) { Date.new(2024, 8, 19) }
+    let(:award_begin_date_4) { Date.new(2024, 10, 1) }
+    let(:award_begin_date_5) { Date.new(2024, 10, 12) }
+
+    let(:award_end_date_1) { Date.new(2024, 5, 11) }
+    let(:award_end_date_2) { Date.new(2024, 12, 14) }
+    let(:award_end_date_3) { Date.new(9999, 12, 31) }
+
+    let!(:user_profile) { create(:vye_user_profile, icn: current_user.icn) }
+    let!(:user_info) { create(:vye_user_info, user_profile:, date_last_certified:) }
+    let!(:award1) { create(:vye_award, user_info:, award_begin_date: award_begin_date_1, award_end_date: award_end_date_3, cur_award_ind:) }
+    let!(:award2) { create(:vye_award, user_info:, award_begin_date: award_begin_date_2, award_end_date: award_end_date_1, cur_award_ind:) }
+    let!(:award3) { create(:vye_award, user_info:, award_begin_date: award_begin_date_3, award_end_date: award_end_date_3, cur_award_ind:) }
+    let!(:award4) { create(:vye_award, user_info:, award_begin_date: award_begin_date_4, award_end_date: award_end_date_3, cur_award_ind:) }
+    let!(:award5) { create(:vye_award, user_info:, award_begin_date: award_begin_date_5, award_end_date: award_end_date_2, cur_award_ind:) }
+
+    let(:award_ids) { user_info.awards.pluck(:id) }
+    let(:params) { { award_ids: } }
+
+    before do
+      allow(subject).to receive_messages(params:, current_user:, head: :no_content)
+      subject.send(:load_user_info)
+    end
+
+    describe 'cert through date calculation bug 1' do
+      it 'calculates the transact date to be 2024-12-13' do
+        Timecop.freeze(Date.new(2025, 2, 5)) do
+          subject.create
+        end
+
+        expect(Vye::Verification.count).to eq(5)
+        expect(Vye::Award.count).to eq(5)
+      end
+    end
+  end
+
+  describe 'shay production bug 2' do
+    subject { described_class.new }
+
+    let(:cur_award_ind) { Vye::Award.cur_award_inds[:current] }
+    let(:now) { Time.parse('2025-01-29T12:00:00-00:00') }
+    let(:date_last_certified) { Date.new(2024, 12, 1) }
+
+    let(:award_begin_date_1) { Date.new(2024, 10, 5) }
+    let(:award_begin_date_2) { Date.new(2024, 10, 9) }
+    let(:award_begin_date_3) { Date.new(2024, 12, 7) }
+    let(:award_begin_date_4) { Date.new(2025, 1, 8) }
+    let(:award_begin_date_5) { Date.new(2025, 3, 5) }
+
+    let(:award_end_date_1) { Date.new(2024, 12, 11) }
+    let(:award_end_date_2) { Date.new(2025, 3, 1) }
+    let(:award_end_date_3) { Date.new(2025, 5, 3) }
+
+    let!(:user_profile) { create(:vye_user_profile, icn: current_user.icn) }
+    let!(:user_info) { create(:vye_user_info, user_profile:, date_last_certified:) }
+    let!(:award1) { create(:vye_award, user_info:, award_begin_date: award_begin_date_1, award_end_date: nil, cur_award_ind:) }
+    let!(:award2) { create(:vye_award, user_info:, award_begin_date: award_begin_date_2, award_end_date: nil, cur_award_ind:) }
+    let!(:award3) { create(:vye_award, user_info:, award_begin_date: award_begin_date_3, award_end_date: award_end_date_1, cur_award_ind:) }
+    let!(:award4) { create(:vye_award, user_info:, award_begin_date: award_begin_date_4, award_end_date: award_end_date_2, cur_award_ind:) }
+    let!(:award5) { create(:vye_award, user_info:, award_begin_date: award_begin_date_5, award_end_date: award_end_date_3, cur_award_ind:) }
+
+    let(:award_ids) { user_info.awards.pluck(:id) }
+    let(:params) { { award_ids: } }
+
+    before do
+      allow(subject).to receive_messages(params:, current_user:, head: :no_content)
+      subject.send(:load_user_info)
+    end
+
+    describe 'cert through date calculation bug 1' do
+      it 'calculates the transact date to be 2024-12-13' do
+        Timecop.freeze(Date.new(2025, 1, 29)) do
+          subject.create
+        end
+
+        expect(Vye::Verification.count).to eq(5)
+        expect(Vye::Award.count).to eq(5)
+      end
+    end
+  end
+
+  describe 'shay production bug 3' do
+    subject { described_class.new }
+
+    let(:cur_award_ind) { Vye::Award.cur_award_inds[:current] }
+    let(:now) { Time.parse('2025-01-01T12:00:00-00:00') }
+    let(:date_last_certified) { Date.new(2024, 12, 1) }
+
+    let(:award_begin_date_1) { Date.new(2024, 1, 16) }
+    let(:award_begin_date_2) { Date.new(2024, 5, 30) }
+    let(:award_begin_date_3) { Date.new(2024, 7, 1) }
+    let(:award_begin_date_4) { Date.new(2024, 8, 26) }
+    let(:award_begin_date_5) { Date.new(2024, 10, 1) }
+
+    let(:award_end_date_1) { Date.new(2024, 5, 9) }
+    let(:award_end_date_2) { Date.new(2024, 8, 2) }
+    let(:award_end_date_3) { Date.new(2024, 12, 14) }
+
+    let!(:user_profile) { create(:vye_user_profile, icn: current_user.icn) }
+    let!(:user_info) { create(:vye_user_info, user_profile:, date_last_certified:) }
+    let!(:award1) { create(:vye_award, user_info:, award_begin_date: award_begin_date_1, award_end_date: award_end_date_1, cur_award_ind:) }
+    let!(:award2) { create(:vye_award, user_info:, award_begin_date: award_begin_date_2, cur_award_ind:) }
+    let!(:award3) { create(:vye_award, user_info:, award_begin_date: award_begin_date_3, award_end_date: award_end_date_2, cur_award_ind:) }
+    let!(:award4) { create(:vye_award, user_info:, award_begin_date: award_begin_date_4, cur_award_ind:) }
+    let!(:award5) { create(:vye_award, user_info:, award_begin_date: award_begin_date_5, award_end_date: award_end_date_3, cur_award_ind:) }
+
+    let(:award_ids) { user_info.awards.pluck(:id) }
+    let(:params) { { award_ids: } }
+
+    before do
+      allow(subject).to receive_messages(params:, current_user:, head: :no_content)
+      subject.send(:load_user_info)
+    end
+
+    describe 'cert through date calculation bug 1' do
+      it 'calculates the transact date to be 2024-12-13' do
+        Timecop.freeze(Date.new(2025, 1, 1)) do
+          subject.create
+        end
+
+        expect(Vye::Verification.count).to eq(5)
+        expect(Vye::Award.count).to eq(5)
+      end
+    end
+  end
+  # rubocop:enable Naming/VariableNumber
+  # rubocop:enable RSpec/SubjectStub
 end
