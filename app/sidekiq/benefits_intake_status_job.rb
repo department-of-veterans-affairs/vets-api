@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-require 'burials/monitor'
 require 'lighthouse/benefits_intake/service'
 require 'pensions/monitor'
 require 'pensions/notification_email'
-require 'burials/notification_email'
 require 'pcpg/monitor'
 require 'dependents/monitor'
 require 'vre/monitor'
@@ -141,14 +139,6 @@ class BenefitsIntakeStatusJob
       benefits_intake_uuid: bi_uuid
     }
 
-    if form_id == '21P-530EZ' && Flipper.enabled?(:burial_received_email_notification)
-      unless claim
-        Burials::Monitor.new.log_silent_failure(context, nil, call_location: caller_locations.first)
-        return
-      end
-
-      Burials::NotificationEmail.new(claim.id).deliver(:received)
-    end
     if %w[21P-527EZ].include?(form_id) && Flipper.enabled?(:pension_received_email_notification)
       unless claim
         Pensions::Monitor.new.log_silent_failure(context, nil, call_location: caller_locations.first)
@@ -168,16 +158,6 @@ class BenefitsIntakeStatusJob
       benefits_intake_uuid: bi_uuid
     }
     call_location = caller_locations.first
-
-    if %w[21P-530EZ 21P-530V2].include?(form_id)
-      claim = SavedClaim::Burial.find(saved_claim_id)
-      if claim
-        Burials::NotificationEmail.new(claim.id).deliver(:error)
-        Burials::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
-      else
-        Burials::Monitor.new.log_silent_failure(context, nil, call_location:)
-      end
-    end
 
     if %w[21P-527EZ].include?(form_id)
       claim = Pensions::SavedClaim.find(saved_claim_id)

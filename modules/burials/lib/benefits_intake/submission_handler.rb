@@ -24,6 +24,24 @@ module Burials
       def notification_email
         @notification_email = Burials::NotificationEmail.new(claim.id)
       end
+
+      # handle a failure result
+      # inheriting class must assign @avoided before calling `super`
+      def on_failure
+        @avoided = notification_email.deliver(:error)
+        super
+      end
+
+      # handle a success result
+      def on_success
+        notification_email.deliver(:received)
+      end
+
+      # handle a stale result
+      def on_stale
+        true
+      end
+
     end
   end
 end
