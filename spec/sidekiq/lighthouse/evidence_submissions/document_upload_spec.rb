@@ -59,7 +59,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
 
   # Create Evidence Submission records from factory
   let(:evidence_submission_failed) do
-    create(:bd_evidence_submission_failed, job_class: described_class)
+    create(:bd_lh_evidence_submission_failed_type1_error)
   end
   let(:evidence_submission_pending) do
     create(:bd_evidence_submission_pending,

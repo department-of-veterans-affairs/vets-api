@@ -43,11 +43,34 @@ FactoryBot.define do
     end
   end
 
-  factory :bd_evidence_submission_failed, class: 'EvidenceSubmission' do
+  factory :bd_lh_evidence_submission_failed_type1_error, class: 'EvidenceSubmission' do
     association :user_account, factory: :user_account
     created_at { DateTime.now.utc }
+    job_class { Lighthouse::BenefitsDocuments::DocumentUpload }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
-    job_class { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
+    failed_date { DateTime.now.utc }
+    acknowledgement_date { DateTime.now.utc + 30.days }
+    error_message { 'Lighthouse::EvidenceSubmissions::DocumentUpload document upload failure' }
+    template_metadata do
+      { 'personalisation' => {
+        'first_name' => 'test',
+        'document_type' => 'Birth Certificate',
+        'file_name' => 'test.txt',
+        'obfuscated_file_name' => 'tesXXile.txt',
+        'date_submitted' => DateTime.now.utc.to_s,
+        'date_failed' => DateTime.now.utc.to_s
+      } }.to_json
+    end
+  end
+
+  factory :bd_evss_evidence_submission_failed_type1_error, class: 'EvidenceSubmission' do
+    association :user_account, factory: :user_account
+    created_at { DateTime.now.utc }
+    job_class { EVSS::DocumentUpload }
+    upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
+    failed_date { DateTime.now.utc }
+    acknowledgement_date { DateTime.now.utc + 30.days }
+    error_message { 'EVSS::DocumentUpload document upload failure' }
     template_metadata do
       { 'personalisation' => {
         'first_name' => 'test',
