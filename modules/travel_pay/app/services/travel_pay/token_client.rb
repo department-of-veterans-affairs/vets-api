@@ -15,10 +15,9 @@ module TravelPay
     # @return [Faraday::Response]
     #
     def request_veis_token
+      auth_url = Settings.travel_pay.veis.auth_url
+      tenant_id = Settings.travel_pay.veis.tenant_id
       log_to_statsd('token', 'veis') do
-        auth_url = Settings.travel_pay.veis.auth_url
-        tenant_id = Settings.travel_pay.veis.tenant_id
-
         response = connection(server_url: auth_url).post("#{tenant_id}/oauth2/token") do |req|
           req.headers[:content_type] = 'application/x-www-form-urlencoded'
           req.body = URI.encode_www_form(veis_params)
@@ -54,13 +53,12 @@ module TravelPay
     end
 
     def request_sts_token(user)
+      private_key_file = Settings.sign_in.sts_client.key_path
+      private_key = OpenSSL::PKey::RSA.new(File.read(private_key_file))
+
+      assertion = build_sts_assertion(user)
+      jwt = JWT.encode(assertion, private_key, 'RS256')
       log_to_statsd('token', 'sts') do
-        private_key_file = Settings.sign_in.sts_client.key_path
-        private_key = OpenSSL::PKey::RSA.new(File.read(private_key_file))
-
-        assertion = build_sts_assertion(user)
-        jwt = JWT.encode(assertion, private_key, 'RS256')
-
         # send to sis
         response = connection(server_url: host).post('/v0/sign_in/token') do |req|
           req.params['grant_type'] = 'urn:ietf:params:oauth:grant-type:jwt-bearer'
