@@ -389,39 +389,6 @@ RSpec.describe Form1010Ezr::Service do
           end
         end
 
-        context "with the 'ezr_use_correct_format_for_file_uploads' flipper disabled" do
-          before do
-            allow(Flipper).to receive(:enabled?).and_call_original
-            allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(false)
-          end
-
-          it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending " \
-             'order (if applicable)', run_at: 'Wed, 17 Jul 2024 18:17:30 GMT' do
-            VCR.use_cassette(
-              'form1010_ezr/authorized_submit_with_attachments',
-              { match_requests_on: %i[method uri body], erb: true }
-            ) do
-              submission_response = service.submit_sync(ezr_form_with_attachments)
-
-              expect(Rails.logger).to have_received(:info).with(
-                '1010EZR successfully submitted',
-                submission_id: submission_response[:formSubmissionId],
-                veteran_initials: {
-                  first_initial: 'F',
-                  middle_initial: 'M',
-                  last_initial: 'Z'
-                }
-              )
-              expect(Rails.logger).to have_received(:info).with(
-                'Payload for submitted 1010EZR: Body size of 362 KB with 2 attachment(s)'
-              )
-              expect(Rails.logger).to have_received(:info).with(
-                'Attachment sizes in descending order: 348 KB, 1.8 KB'
-              )
-            end
-          end
-        end
-
         context 'when the form includes a Mexican province' do
           let(:form) do
             get_fixture('form1010_ezr/valid_form_with_mexican_province').merge!(ves_fields)
@@ -493,6 +460,11 @@ RSpec.describe Form1010Ezr::Service do
           let(:form) { get_fixture('form1010_ezr/valid_form') }
 
           context "with the 'ezr_use_correct_format_for_file_uploads' flipper enabled" do
+            before do
+              allow(Flipper).to receive(:enabled?).and_call_original
+              allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(true)
+            end
+
             context 'with pdf attachments' do
               it 'increments StatsD and returns a success object', run_at: 'Wed, 12 Feb 2025 18:40:51 GMT' do
                 allow(StatsD).to receive(:increment)
@@ -560,7 +532,8 @@ RSpec.describe Form1010Ezr::Service do
 
         context "with the 'ezr_use_correct_format_for_file_uploads' flipper disabled" do
           before do
-            Flipper.disable(:ezr_use_correct_format_for_file_uploads)
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(false)
           end
 
           context 'with pdf attachments' do
