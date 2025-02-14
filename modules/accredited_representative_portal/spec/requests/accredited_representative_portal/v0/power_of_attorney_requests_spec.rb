@@ -16,13 +16,37 @@ veteran_claimant_power_of_attorney_form =
   load_response_fixture('veteran_claimant_power_of_attorney_form.json')
 
 RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsController, type: :request do
-  let(:test_user) { create(:representative_user, email: 'test@va.gov') }
+  let!(:poa_code) { 'x23' }
+
+  let!(:test_user) do
+    create(:representative_user, email: 'test@va.gov', icn: '123498767V234859')
+  end
+
+  let!(:accredited_individual) do
+    create(:user_account_accredited_individual,
+           user_account_email: test_user.email,
+           user_account_icn: test_user.icn,
+           poa_code: poa_code)
+  end
+
+  let!(:representative) do
+    create(:representative,
+           :vso,
+           representative_id: accredited_individual.accredited_individual_registration_number,
+           poa_codes: [poa_code])
+  end
+
+  let!(:vso) do
+    create(:organization, poa: poa_code)
+  end
+
   let(:poa_request) do
     resolution =
       create(
         :power_of_attorney_request_resolution,
         :declination,
-        :with_veteran_claimant
+        :with_veteran_claimant,
+        poa_code: poa_code
       )
 
     resolution.power_of_attorney_request
@@ -37,28 +61,32 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       memo <<
         create(
           :power_of_attorney_request,
-          :with_veteran_claimant
+          :with_veteran_claimant,
+          poa_code: poa_code
         )
 
       resolution_a =
         create(
           :power_of_attorney_request_resolution,
           :acceptance,
-          :with_dependent_claimant
+          :with_dependent_claimant,
+          poa_code: poa_code
         )
 
       resolution_b =
         create(
           :power_of_attorney_request_resolution,
           :declination,
-          :with_dependent_claimant
+          :with_dependent_claimant,
+          poa_code: poa_code
         )
 
       resolution_c =
         create(
           :power_of_attorney_request_resolution,
           :expiration,
-          :with_dependent_claimant
+          :with_dependent_claimant,
+          poa_code: poa_code
         )
 
       memo << resolution_a.power_of_attorney_request
@@ -179,14 +207,16 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     end
 
     context 'when providing a status param' do
-      let!(:pending_request1) { create(:power_of_attorney_request, created_at: time) }
-      let!(:pending_request2) { create(:power_of_attorney_request, created_at: time_plus_one_day) }
-      let!(:declined_request) { create(:power_of_attorney_request, :with_declination, resolution_created_at: time) }
+      let!(:pending_request1) { create(:power_of_attorney_request, created_at: time, poa_code: 'x23') }
+      let!(:pending_request2) { create(:power_of_attorney_request, created_at: time_plus_one_day, poa_code: 'x23') }
+      let!(:declined_request) do
+        create(:power_of_attorney_request, :with_declination, resolution_created_at: time, poa_code: 'x23')
+      end
       let!(:accepted_request) do
-        create(:power_of_attorney_request, :with_acceptance, resolution_created_at: time_plus_one_day)
+        create(:power_of_attorney_request, :with_acceptance, resolution_created_at: time_plus_one_day, poa_code: 'x23')
       end
       let!(:expired_request) do
-        create(:power_of_attorney_request, :with_expiration, resolution_created_at: time_plus_one_day)
+        create(:power_of_attorney_request, :with_expiration, resolution_created_at: time_plus_one_day, poa_code: 'x23')
       end
 
       it 'returns the list of pending power of attorney requests sorted by creation date ascending' do
