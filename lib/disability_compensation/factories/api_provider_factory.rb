@@ -3,6 +3,7 @@
 require 'disability_compensation/providers/rated_disabilities/evss_rated_disabilities_provider'
 require 'disability_compensation/providers/rated_disabilities/lighthouse_rated_disabilities_provider'
 require 'disability_compensation/providers/rated_disabilities/rated_disabilities_provider'
+require 'disability_compensation/providers/intent_to_file/evss_intent_to_file_provider'
 require 'disability_compensation/providers/intent_to_file/lighthouse_intent_to_file_provider'
 require 'disability_compensation/providers/intent_to_file/intent_to_file_provider'
 require 'disability_compensation/providers/ppiu_direct_deposit/ppiu_provider'
@@ -144,8 +145,6 @@ class ApiProviderFactory
 
   def claims_service_provider
     case api_provider
-    when API_PROVIDER[:evss]
-      EvssClaimsServiceProvider.new(@options[:auth_headers])
     when API_PROVIDER[:lighthouse]
       LighthouseClaimsServiceProvider.new(@options[:icn])
     else
