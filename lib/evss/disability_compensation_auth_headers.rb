@@ -5,7 +5,7 @@ require 'formatters/date_formatter'
 
 module EVSS
   class DisabilityCompensationAuthHeaders < Lighthouse::BaseHeaders
-     # :nocov:
+    # :nocov:
 
     def add_headers(auth_headers)
       auth_headers.merge(
@@ -25,7 +25,7 @@ module EVSS
           firstName: @user.first_name,
           lastName: @user.last_name,
           birthDate: Formatters::DateFormatter.format_date(@user.birth_date, :datetime_iso8601),
-          gender: gender
+          gender:
         }
       }.to_json
     end
