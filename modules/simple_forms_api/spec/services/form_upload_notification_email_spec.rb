@@ -104,14 +104,14 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
     end
     let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
     let(:email) { 'fake@email.com' }
-    let(:full_name) { { first: 'fake', last: 'name' } }
+    let(:full_name) { { 'first' => 'fake', 'last' => 'name' } }
     let(:form_name) { 'fake-form' }
     let(:form_data) do
-      { email:, full_name:, form_name: }
+      { 'email' => email, 'full_name' => full_name, 'form_name' => form_name }
     end
     let(:expected_personalization) do
       {
-        'first_name' => full_name[:first].titleize,
+        'first_name' => full_name['first'].titleize,
         'form_number' => form_number,
         'form_name' => form_name,
         'date_submitted' => date_submitted,
