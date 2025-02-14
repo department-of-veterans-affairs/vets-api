@@ -9,7 +9,11 @@ module EVSS
     def self.determine_parent(service_context = nil)
       case service_context
       when :poa
-        EVSS::BaseHeaders
+        if Flipper.enabled?(:claims_api_use_person_web_service)
+          Lighthouse::BaseHeaders
+        else
+          EVSS::BaseHeaders
+        end
       else
         if Flipper.enabled?(:lighthouse_base_headers)
           Lighthouse::BaseHeaders
@@ -23,12 +27,9 @@ module EVSS
     end
   end
 
-  class AuthHeaders
-    attr_reader :transaction_id
-
-    def initialize(user, service_context = nil)
-      @delegate = HeaderInheritance.determine_parent(service_context).new(user)
-      @transaction_id = create_transaction_id
+  class DisabilityCompensationAuthHeaders
+    def initialize(user)
+      @delegate = HeaderInheritance.determine_parent(:poa).new(user)
       @user = user
     end
 
