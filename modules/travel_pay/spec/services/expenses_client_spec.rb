@@ -5,6 +5,7 @@ require 'rails_helper'
 describe TravelPay::ExpensesClient do
   let(:user) { build(:user) }
 
+  expected_log_prefix = 'travel_pay.expense.response_time'
   before do
     @stubs = Faraday::Adapter::Test::Stubs.new
 
@@ -15,6 +16,7 @@ describe TravelPay::ExpensesClient do
     end
 
     allow_any_instance_of(TravelPay::ExpensesClient).to receive(:connection).and_return(conn)
+    allow(StatsD).to receive(:measure)
   end
 
   context '/expenses/mileage' do
@@ -41,6 +43,10 @@ describe TravelPay::ExpensesClient do
                                                           'tripType' => 'RoundTrip' }.to_json)
       actual_expense_id = new_expense_response.body['data']['expenseId']
 
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:add_mileage'])
       expect(actual_expense_id).to eq(expense_id)
     end
   end
