@@ -3,12 +3,14 @@
 require 'rails_helper'
 require 'lighthouse/benefits_documents/upload_status_updater'
 require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/benefits_documents/utilities/helpers'
 
 RSpec.describe BenefitsDocuments::UploadStatusUpdater do
   let(:lighthouse_document_upload) { create(:bd_evidence_submission_pending, job_class: 'BenefitsDocuments::Service') }
   let(:lighthouse_document_upload_timeout) { create(:bd_evidence_submission_timeout) }
   let(:past_date_time) { DateTime.new(1985, 10, 26) }
   let(:current_date_time) { DateTime.now.utc }
+  let(:issue_instant) { Time.now.to_i }
 
   describe '#update_status' do
     shared_examples 'status updater' do |status, error_message = nil|
@@ -19,6 +21,19 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
         }.compact
       end
       let(:status_updater) { described_class.new(document_status_response, lighthouse_document_upload) }
+      let(:date) do
+        BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
+      end
+      let(:updated_template_metadata) do
+        { 'personalisation' => {
+          'first_name' => 'test',
+          'document_type' => 'Birth Certificate',
+          'file_name' => 'testfile.txt',
+          'obfuscated_file_name' => 'tesXXile.txt',
+          'date_submitted' => date,
+          'date_failed' => date
+        } }.to_json
+      end
 
       it 'logs the document_status_response to the Rails logger' do
         Timecop.freeze(past_date_time) do
@@ -42,7 +57,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
             end
           end
 
-          it 'updates status, failed_date, and acknowledgement_date' do
+          it 'updates status, failed_date, acknowledgement_date and template_metadata' do
             Timecop.freeze(current_date_time) do
               expect { status_updater.update_status }
                 .to change(lighthouse_document_upload, :acknowledgement_date)
@@ -54,6 +69,9 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
                 .and change(lighthouse_document_upload, :upload_status)
                 .from(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
                 .to(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
+                .and change(lighthouse_document_upload, :template_metadata)
+                .from(lighthouse_document_upload.template_metadata)
+                .to(updated_template_metadata)
             end
           end
         end

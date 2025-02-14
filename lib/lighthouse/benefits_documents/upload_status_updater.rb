@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/benefits_documents/utilities/helpers'
 
 module BenefitsDocuments
   class UploadStatusUpdater
@@ -95,8 +96,18 @@ module BenefitsDocuments
         upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
         failed_date: DateTime.now.utc,
         acknowledgement_date: (DateTime.current + 30.days).utc,
-        error_message: @lighthouse_document_status_response['error']
+        error_message: @lighthouse_document_status_response['error'],
+        template_metadata: {
+          personalisation: update_personalisation
+        }.to_json
       )
+    end
+
+    # Update personalisation here since an evidence submission record was previously created
+    def update_personalisation
+      personalisation = JSON.parse(@pending_evidence_submission.template_metadata)['personalisation'].clone
+      personalisation['date_failed'] = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(DateTime.current)
+      personalisation
     end
 
     def process_upload
