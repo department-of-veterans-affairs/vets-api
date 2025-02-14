@@ -5,7 +5,6 @@ require 'rails_helper'
 RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request do
   describe 'POST #create' do
     let(:base_path) { '/representation_management/v0/pdf_generator2122a' }
-    let(:user) { create(:user) }
     let(:representative) do
       create(:accredited_individual,
              first_name: 'John',
@@ -86,30 +85,10 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
       }
     end
 
-    context 'when user is authenticated' do
-      it 'calls clear_saved_form and form_for_user' do
-        sign_in(user)
+    it 'clears the saved form' do
+      expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('21-22').once
 
-        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
-
-        allow(InProgressForm).to receive(:form_for_user)
-
-        post(base_path, params:)
-
-        expect(InProgressForm).to have_received(:form_for_user).with('21-22', user)
-      end
-    end
-
-    context 'when user is not authenticated' do
-      it 'calls clear_saved_form but does not call form_for_user' do
-        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(nil)
-
-        allow(InProgressForm).to receive(:form_for_user)
-
-        post(base_path, params:)
-
-        expect(InProgressForm).not_to have_received(:form_for_user)
-      end
+      post(base_path, params:)
     end
 
     context 'When submitting all fields with valid data' do
