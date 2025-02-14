@@ -26,21 +26,23 @@ module TravelPay
     # @return expenseId => string
     #
     def add_mileage_expense(veis_token, btsss_token, params = {})
-      btsss_url = Settings.travel_pay.base_url
-      correlation_id = SecureRandom.uuid
-      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      log_to_statsd('expense', 'add_mileage') do
+        btsss_url = Settings.travel_pay.base_url
+        correlation_id = SecureRandom.uuid
+        Rails.logger.debug(message: 'Correlation ID', correlation_id:)
 
-      connection(server_url: btsss_url).post('api/v1.2/expenses/mileage') do |req|
-        req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['BTSSS-Access-Token'] = btsss_token
-        req.headers['X-Correlation-ID'] = correlation_id
-        req.headers.merge!(claim_headers)
-        req.body = {
-          'claimId' => params['claim_id'],
-          'dateIncurred' => params['appt_date'],
-          'tripType' => params['trip_type'] || 'RoundTrip', # default to Round Trip if not specified
-          'description' => params['description'] || 'mileage' # this is required, default to mileage
-        }.to_json
+        connection(server_url: btsss_url).post('api/v1.2/expenses/mileage') do |req|
+          req.headers['Authorization'] = "Bearer #{veis_token}"
+          req.headers['BTSSS-Access-Token'] = btsss_token
+          req.headers['X-Correlation-ID'] = correlation_id
+          req.headers.merge!(claim_headers)
+          req.body = {
+            'claimId' => params['claim_id'],
+            'dateIncurred' => params['appt_date'],
+            'tripType' => params['trip_type'] || 'RoundTrip', # default to Round Trip if not specified
+            'description' => params['description'] || 'mileage' # this is required, default to mileage
+          }.to_json
+        end
       end
     end
   end
