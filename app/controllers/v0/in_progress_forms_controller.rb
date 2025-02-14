@@ -13,7 +13,9 @@ module V0
     end
 
     def show
-      render json: form_for_user&.data_and_metadata || camelized_prefill_for_user
+      json = form_for_user&.data_and_metadata || camelized_prefill_for_user
+      binding.pry
+      render json:
     end
 
     def update
@@ -23,6 +25,8 @@ module V0
       form.real_user_uuid = @current_user.uuid
 
       ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
+
+      binding.pry
 
       form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
 

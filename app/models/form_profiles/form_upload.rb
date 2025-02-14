@@ -7,6 +7,20 @@ class FormProfiles::FormUpload < FormProfile
     YAML.load_file(file)
   end
 
+  def prefill(*args)
+    super
+
+    # binding.pry
+  end
+
+  # def generate_prefill(_mappings)
+  #   prefill = super
+
+  #   binding.pry
+  #   last_uploaded_form = PersistentAttachments::VAForm.find(form_id:).last
+  #   prefill
+  # end
+
   def metadata
     {
       version: 0,
