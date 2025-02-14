@@ -14,23 +14,40 @@ module Vye
 
       def create
         authorize user_info, policy_class: UserInfoPolicy
+
         validate_award_ids!
+
+        transact_date = cert_through_date
         pending_verifications.each do |verification|
-          transact_date = cert_through_date(verification)  # Pass in the current verification
           verification.update!(transact_date:, source_ind:)
         end
+
         head :no_content
       end
 
       private
 
-      def cert_through_date(verification)
+      def cert_through_date
         current_date = Time.zone.today
-        # If we're on or past the final award, return that final date
-        return verification.act_end if current_date >= verification.act_end.to_date
-        return current_date.end_of_month if current_date.eql?(current_date.end_of_month)
-        # Otherwise, return the end of the previous month
-        current_date.prev_month.end_of_month
+
+        # Get final award end date
+        final_award_end = pending_verifications.map { |pv| pv.act_end.to_date }.max
+
+        if current_date >= final_award_end # If we're on or past the final award, return that final date
+          pending_verifications.find { |pv| pv.act_end.to_date == final_award_end }&.act_end
+        else
+          # Otherwise, return the end of the previous month
+          month_end = current_date.prev_month.end_of_month
+
+          # Find verification that includes this month end
+          max_past_date = Time.new(1970, 1, 1, 0, 0, 0, 0)
+          pending_verifications.each do |pv|
+            max_past_date = pv.act_end.to_date if pv.act_end.to_date < current_date &&
+                                                  pv.act_end.to_date > max_past_date
+          end
+
+          max_past_date.eql?(Time.new(1970, 1, 1, 0, 0, 0, 0)) ? month_end : max_past_date
+        end
       end
 
       def award_ids
