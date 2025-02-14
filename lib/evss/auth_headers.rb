@@ -16,6 +16,8 @@ module EVSS
       @headers ||= sanitize(
         'va_eauth_csid' => 'DSLogon',
         'va_eauth_authenticationmethod' => 'DSLogon',
+        # TODO: Change va_eauth_authenticationmethod to vets.gov
+        # once the EVSS team is ready for us to use it
         'va_eauth_pnidtype' => 'SSN',
         'va_eauth_assurancelevel' => @user.loa[:current].to_s,
         'va_eauth_firstName' => @user.first_name,
@@ -79,6 +81,8 @@ module EVSS
       veteran_relationships = @user.relationships&.select(&:veteran_status)
       return unless veteran_relationships.presence
 
+      # Makes sense to give the user the ability to select the relationship eventually, for now we return
+      # the first applicable relationship
       selected_relationship = veteran_relationships.first
       selected_relationship.get_full_attributes.profile
     end
