@@ -1,12 +1,18 @@
 {
-  "isMedicaidEligible": "1",
-  "spouseAddress": "4444 Elm St, Houston, TX, 77388, USA 2122122121",
+  "isMedicaidEligible": true,
+  "spouseAddress": {
+    "street": "4444 Elm St",
+    "city": "Houston",
+    "postalCode": "77388",
+    "country": "USA",
+    "state": "TX"
+  },
   "spousePhone": "2122122121",
   "cohabitedLastYear": true,
   "sameAddress": false,
   "medicarePartAEffectiveDate": "2000-01-01",
   "medicareClaimNumber": "0123456",
-  "isEnrolledMedicarePartA": "1",
+  "isEnrolledMedicarePartA": true,
   "isCoveredByHealthInsurance": true,
   "providers": [
     {
@@ -25,10 +31,14 @@
   "veteranGrossIncome": 60000,
   "veteranNetIncome": 0,
   "veteranOtherIncome": 0,
-  "spouseFullName": "Jane marie Jones",
+  "spouseFullName": {
+    "first": "Jane",
+    "middle": "marie",
+    "last": "Jones"
+  },
   "spouseDateOfBirth": "1977-01-01",
   "dateOfMarriage": "2000-01-01",
-  "maritalStatus": "1",
+  "maritalStatus": "Married",
   "purpleHeartRecipient": true,
   "isFormerPow": true,
   "postNov111998Combat": true,
@@ -44,16 +54,16 @@
   "lastDischargeDate": "2004-01-01",
   "dischargeType": "honorable",
   "vaCompensationType": "lowDisability",
-  "isAmericanIndianOrAlaskanNative": "2",
-  "isAsian": "1",
-  "isBlackOrAfricanAmerican": "3",
-  "isSpanishHispanicLatino": "1",
-  "isNativeHawaiianOrOtherPacificIslander": "5",
-  "isWhite": "4",
-  "hasDemographicNoAnswer": "6",
+  "isAmericanIndianOrAlaskanNative": true,
+  "isAsian": true,
+  "isBlackOrAfricanAmerican": true,
+  "isSpanishHispanicLatino": true,
+  "isNativeHawaiianOrOtherPacificIslander": true,
+  "isWhite": true,
+  "hasDemographicNoAnswer": true,
   "isEssentialAcaCoverage": true,
   "vaMedicalFacility": "520GA",
-  "wantsInitialVaContact": "1",
+  "wantsInitialVaContact": true,
   "email": "indiana@jones.com",
   "homePhone": "3462636183",
   "mobilePhone": "3462636184",
@@ -64,11 +74,16 @@
     "country": "USA",
     "state": "TX"
   },
-  "gender": "1",
+  "gender": "M",
   "mothersMaidenName": "Test Mom Name",
   "cityOfBirth": "Spring",
   "stateOfBirth": "TX",
-  "veteranFullName": "Indiana Bill Jones II",
+  "veteranFullName": {
+    "first": "Indiana",
+    "middle": "Bill",
+    "last": "Jones",
+    "suffix": "II"
+  },
   "veteranSocialSecurityNumber": "234221243",
   "veteranDateOfBirth": "1980-01-01",
   "privacyAgreementAccepted": true,
@@ -98,6 +113,5 @@
     "postalCode": "77388",
     "country": "USA",
     "state": "TX"
-  },
-  "placeOfBirth": "Spring, TX"
+  }
 }

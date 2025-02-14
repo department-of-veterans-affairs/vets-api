@@ -8,7 +8,7 @@ describe PdfFill::Forms::Va1010ez do
   include SchemaMatchers
 
   let(:form_data) do
-    get_fixture('pdf_fill/10-10EZ/simple')
+    get_fixture('pdf_fill/10-10EZ/kitchen_sink')
   end
 
   let(:form_class) do
