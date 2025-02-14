@@ -43,7 +43,7 @@ class LCPERedis < Common::RedisStore
   end
 
   def cached_version
-    cached_response&.body.try(:[], :version)
+    cached_response&.version
   end
 
   private

@@ -69,15 +69,15 @@ module GI
 
         # client (and not vets-api cache) must have fresh version
         config.etag = v_client
-        response = perform(:get, 'v1/lcpe/lacs', {})
-        case response.status
+        res = perform(:get, 'v1/lcpe/lacs', {})
+        case res.status
         when 304
           config.etag = nil
           # version is fresh, redirect to query details
           gids_response(yield).body
         else
           # version stale, client must refresh preloaded collection
-          lcpe_cache.force_client_refresh_and_cache(response)
+          lcpe_cache.force_client_refresh_and_cache(res)
         end
       end
 
