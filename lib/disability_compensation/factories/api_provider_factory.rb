@@ -3,7 +3,6 @@
 require 'disability_compensation/providers/rated_disabilities/evss_rated_disabilities_provider'
 require 'disability_compensation/providers/rated_disabilities/lighthouse_rated_disabilities_provider'
 require 'disability_compensation/providers/rated_disabilities/rated_disabilities_provider'
-require 'disability_compensation/providers/intent_to_file/evss_intent_to_file_provider'
 require 'disability_compensation/providers/intent_to_file/lighthouse_intent_to_file_provider'
 require 'disability_compensation/providers/intent_to_file/intent_to_file_provider'
 require 'disability_compensation/providers/ppiu_direct_deposit/ppiu_provider'
