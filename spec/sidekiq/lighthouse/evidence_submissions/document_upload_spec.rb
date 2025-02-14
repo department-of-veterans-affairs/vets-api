@@ -35,10 +35,10 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   end
   let(:user_account) { create(:user_account) }
   let(:job_id) { job }
-
   let(:client_stub) { instance_double(BenefitsDocuments::WorkerService) }
   let(:job_class) { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
   let(:issue_instant) { Time.now.to_i }
+  let(:current_date_time) { DateTime.now.utc }
   let(:msg) do
     {
       'jid' => job_id,
@@ -58,7 +58,9 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   end
 
   # Create Evidence Submission records from factory
-  let(:evidence_submission_failed) { create(:bd_evidence_submission_failed) }
+  let(:evidence_submission_failed) do
+    create(:bd_evidence_submission_failed, job_class: described_class)
+  end
   let(:evidence_submission_pending) do
     create(:bd_evidence_submission_pending,
            tracked_item_id: tracked_item_ids,
@@ -89,6 +91,9 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
             }
           }
         )
+      end
+      let(:failed_date) do
+        BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
       end
 
       it 'retrieves the file, uploads to Lighthouse and returns a success response' do
@@ -153,7 +158,13 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
         current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
         expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
+        expect(evidence_submission.error_message).to eql('Lighthouse::EvidenceSubmissions::DocumentUpload document upload failure')
         expect(current_personalisation['date_failed']).to eql(failed_date)
+
+        Timecop.freeze(current_date_time) do
+          expect(evidence_submission.failed_date).to be_within(1.second).of(current_date_time.utc)
+          expect(evidence_submission.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days).utc)
+        end
       end
 
       it 'fails to create a failed evidence submission record when args malformed' do

@@ -58,6 +58,9 @@ module Lighthouse
         current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
         evidence_submission.update(
           upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
+          failed_date: DateTime.now.utc,
+          acknowledgement_date: (DateTime.current + 30.days).utc,
+          error_message: 'Lighthouse::EvidenceSubmissions::DocumentUpload document upload failure',
           template_metadata: {
             personalisation: update_personalisation(current_personalisation, msg['failed_at'])
           }.to_json
