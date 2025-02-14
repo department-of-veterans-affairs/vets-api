@@ -112,6 +112,24 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
       end
     end
 
+    context 'When submitting a valid request with the accredited organization and individual ids' do
+      before do
+        accredited_organization = create(:accredited_organization)
+        accredited_individual = create(:accredited_individual)
+        params[:pdf_generator2122][:representative][:organization_id] = accredited_organization.id
+        params[:pdf_generator2122][:representative][:id] = accredited_individual.id
+        post(base_path, params:)
+      end
+
+      it 'responds with an ok status' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'responds with a PDF' do
+        expect(response.content_type).to eq('application/pdf')
+      end
+    end
+
     context 'when triggering validation errors' do
       context 'when submitting without the veteran first name for a single validation error' do
         before do
