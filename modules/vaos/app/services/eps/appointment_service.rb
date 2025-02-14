@@ -25,7 +25,7 @@ module Eps
     def get_appointments
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
                          {}, headers)
-      appointments = response.body['appointments']
+      appointments = response.body[:appointments]
       merged_appointments = merge_provider_data_with_appointments(appointments)
       OpenStruct.new(data: merged_appointments)
     end
@@ -72,32 +72,17 @@ module Eps
     private
 
     def merge_provider_data_with_appointments(appointments)
-      provider_ids = appointments.map { |appointment| appointment['providerServiceId'] }.compact.uniq
+      provider_ids = appointments.map { |appointment| appointment[:provider_service_id] }.compact.uniq
       providers = provider_services.get_provider_services_by_ids(provider_ids: provider_ids)
 
       appointments.each do |appointment|
-        next unless appointment['providerServiceId']
+        next unless appointment[:provider_service_id]
 
-        provider = providers['providerServices'].find { |provider_data| provider_data['id'] == appointment['providerServiceId'] }
-        appointment['provider'] = provider
+        provider = providers[:provider_services].find { |provider_data| provider_data[:id] == appointment[:provider_service_id] }
+        appointment[:provider] = provider
       end
 
-      format_appointment_data!(appointments)
-    end
-
-    def format_appointment_data!(obj)
-      case obj
-      when Array
-        obj.each { |e| format_appointment_data!(e) }
-      when Hash
-        new_hash = {}
-        obj.each do |key, value|
-          new_key = key.to_s.underscore.to_sym
-          new_hash[new_key] = format_appointment_data!(value)
-        end
-        obj.replace(new_hash)
-      end
-      obj
+      appointments
     end
 
     def build_submit_payload(params)
