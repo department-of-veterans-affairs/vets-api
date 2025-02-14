@@ -1,4 +1,4 @@
-require 'kafka/producer'
+require 'kafka/avro_producer'
 module Kafka
   class ExampleJob
     include Sidekiq::Job
@@ -6,7 +6,7 @@ module Kafka
     sidekiq_options retry: false
 
     def perform(topic, payload)
-      Kafka::Producer.produce(topic, payload)
+      Kafka::AvroProducer.produce(topic, payload)
     end
   end
 end
