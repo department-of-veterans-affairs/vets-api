@@ -1,0 +1,114 @@
+type: array
+items:
+  type: object
+  properties:
+    id:
+      type: integer
+      format: int64
+      description: Unique identifier for the radiology record.
+    reasonForStudy:
+      type: string
+      nullable: true
+      description: The reason for conducting the study.
+    radiologist:
+      type: string
+      description: Name of the radiologist.
+    clinicalHistory:
+      type: string
+      nullable: true
+      description: Clinical history related to the radiology procedure.
+    comments:
+      type: string
+      nullable: true
+      description: Additional comments on the study.
+    createdDate:
+      type: string
+      format: date-time
+      description: Timestamp when the record was created (ISO 8601 format).
+    impressionText:
+      type: string
+      nullable: true
+      description: Impression section from the radiology report.
+    inPatientOutPatient:
+      type: string
+      nullable: true
+      description: Indicates whether the patient was an inpatient or outpatient.
+    oplock:
+      type: integer
+      description: Versioning control number for the record.
+    stationNumber:
+      type: string
+      description: Station number where the procedure was performed.
+    patientId:
+      type: integer
+      format: int64
+      description: Unique identifier for the patient.
+    procedureName:
+      type: string
+      description: Name of the radiology procedure performed.
+    status:
+      type: string
+      description: The status of the radiology report (e.g., "Verified").
+    requestingProvider:
+      type: string
+      nullable: true
+      description: Name of the requesting healthcare provider.
+    reportText:
+      type: string
+      description: Full radiology report.
+    performingLocationStNum:
+      type: string
+      nullable: true
+      description: Station number of the performing location.
+    eventDate:
+      type: string
+      format: date-time
+      description: Timestamp of the event date (ISO 8601 format).
+    examDate:
+      type: string
+      format: date-time
+      nullable: true
+      description: Timestamp of the exam date (ISO 8601 format).
+    performingLocation:
+      type: string
+      nullable: true
+      description: Name of the location where the study was performed.
+example:
+  - id: 5621490
+    reasonForStudy: null
+    radiologist: "DOE,JOHN"
+    clinicalHistory: "this is 71 yr old pt had ab test in the past so he need to have recheck again."
+    comments: null
+    createdDate: "2020-11-13T20:52:28-05:00"
+    impressionText: "1. Osteopenia of the left forearm..."
+    inPatientOutPatient: null
+    oplock: 0
+    stationNumber: "994"
+    patientId: 616827
+    procedureName: "DEXA, PERIPHERAL STUDY"
+    status: "Verified"
+    requestingProvider: "DOE,JANE"
+    reportText: "1/6/04  STEWART, EARL H. SR. #404-42-7209..."
+    performingLocationStNum: "994"
+    eventDate: "2004-01-06T19:27:00-05:00"
+    examDate: null
+    performingLocation: "DAYT3"
+  - id: 5621491
+    reasonForStudy: null
+    radiologist: "DOE,JOHN"
+    clinicalHistory: "Pt with hx of dizzy spells, occ vision problems."
+    comments: null
+    createdDate: "2020-11-13T20:52:28-05:00"
+    impressionText: "No hemodynamic changes to suggest significant diameter stenosis."
+    inPatientOutPatient: null
+    oplock: 0
+    stationNumber: "994"
+    patientId: 616827
+    procedureName: "CAROTID DOPPLER (BILATERAL)"
+    status: "Verified"
+    requestingProvider: "DOE,JANE"
+    reportText: "CAROTID DOPPLER (REFERENCE VALUES)..."
+    performingLocationStNum: "994"
+    eventDate: "2001-02-16T18:16:00-05:00"
+    examDate: null
+    performingLocation: "DAYT3"

@@ -1367,7 +1367,9 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         it 'when correct form id is passed, it supports creating mvi user' do
           VCR.use_cassette('mpi/add_person/add_person_success') do
             VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
-              expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
+              VCR.use_cassette('mpi/find_candidate/find_profile_with_identifier') do
+                expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
+              end
             end
           end
         end

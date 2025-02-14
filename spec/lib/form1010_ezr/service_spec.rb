@@ -356,29 +356,69 @@ RSpec.describe Form1010Ezr::Service do
           end
         end
 
-        it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending " \
-           'order (if applicable)', run_at: 'Wed, 17 Jul 2024 18:17:30 GMT' do
-          VCR.use_cassette(
-            'form1010_ezr/authorized_submit_with_attachments',
-            { match_requests_on: %i[method uri body], erb: true }
-          ) do
-            submission_response = service.submit_sync(ezr_form_with_attachments)
+        context "with the 'ezr_use_correct_format_for_file_uploads' flipper enabled" do
+          before do
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(true)
+          end
 
-            expect(Rails.logger).to have_received(:info).with(
-              '1010EZR successfully submitted',
-              submission_id: submission_response[:formSubmissionId],
-              veteran_initials: {
-                first_initial: 'F',
-                middle_initial: 'M',
-                last_initial: 'Z'
-              }
-            )
-            expect(Rails.logger).to have_received(:info).with(
-              'Payload for submitted 1010EZR: Body size of 362 KB with 2 attachment(s)'
-            )
-            expect(Rails.logger).to have_received(:info).with(
-              'Attachment sizes in descending order: 348 KB, 1.8 KB'
-            )
+          it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending " \
+             'order (if applicable)',
+             run_at: 'Wed, 12 Feb 2025 18:40:51 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_with_attachments_formatted_correctly',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              submission_response = service.submit_sync(ezr_form_with_attachments)
+
+              expect(Rails.logger).to have_received(:info).with(
+                '1010EZR successfully submitted',
+                submission_id: submission_response[:formSubmissionId],
+                veteran_initials: {
+                  first_initial: 'F',
+                  middle_initial: 'M',
+                  last_initial: 'Z'
+                }
+              )
+              expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZR: ' \
+                                                                'Body size of 362 KB with 2 attachment(s)')
+              expect(Rails.logger).to have_received(:info).with(
+                'Attachment sizes in descending order: 348 KB, 1.8 KB'
+              )
+            end
+          end
+        end
+
+        context "with the 'ezr_use_correct_format_for_file_uploads' flipper disabled" do
+          before do
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(false)
+          end
+
+          it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending " \
+             'order (if applicable)', run_at: 'Wed, 17 Jul 2024 18:17:30 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_with_attachments',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              submission_response = service.submit_sync(ezr_form_with_attachments)
+
+              expect(Rails.logger).to have_received(:info).with(
+                '1010EZR successfully submitted',
+                submission_id: submission_response[:formSubmissionId],
+                veteran_initials: {
+                  first_initial: 'F',
+                  middle_initial: 'M',
+                  last_initial: 'Z'
+                }
+              )
+              expect(Rails.logger).to have_received(:info).with(
+                'Payload for submitted 1010EZR: Body size of 362 KB with 2 attachment(s)'
+              )
+              expect(Rails.logger).to have_received(:info).with(
+                'Attachment sizes in descending order: 348 KB, 1.8 KB'
+              )
+            end
           end
         end
 
@@ -451,6 +491,77 @@ RSpec.describe Form1010Ezr::Service do
 
         context 'submitting with attachments' do
           let(:form) { get_fixture('form1010_ezr/valid_form') }
+
+          context "with the 'ezr_use_correct_format_for_file_uploads' flipper enabled" do
+            context 'with pdf attachments' do
+              it 'increments StatsD and returns a success object', run_at: 'Wed, 12 Feb 2025 18:40:51 GMT' do
+                allow(StatsD).to receive(:increment)
+                expect(StatsD).to receive(:increment).with('api.1010ezr.submission_with_attachment')
+
+                VCR.use_cassette(
+                  'form1010_ezr/authorized_submit_with_attachments_formatted_correctly',
+                  { match_requests_on: %i[method uri body], erb: true }
+                ) do
+                  expect(service.submit_sync(ezr_form_with_attachments)).to eq(
+                    {
+                      success: true,
+                      formSubmissionId: 440_227_389,
+                      timestamp: '2025-02-12T12:40:53.043-06:00'
+                    }
+                  )
+                  expect(Rails.logger).to have_received(:info).with(
+                    'Payload for submitted 1010EZR: Body size of 362 KB with 2 attachment(s)'
+                  )
+                end
+              end
+            end
+
+            context 'with a non-pdf attachment' do
+              it 'increments StatsD and returns a success object', run_at: 'Wed, 12 Feb 2025 19:00:16 GMT' do
+                allow(StatsD).to receive(:increment)
+                expect(StatsD).to receive(:increment).with('api.1010ezr.submission_with_attachment')
+
+                VCR.use_cassette(
+                  'form1010_ezr/authorized_submit_with_non_pdf_attachment_formatted_correctly',
+                  { match_requests_on: %i[method uri body], erb: true }
+                ) do
+                  ezr_attachment = build(:form1010_ezr_attachment)
+                  ezr_attachment.set_file_data!(
+                    Rack::Test::UploadedFile.new(
+                      'spec/fixtures/files/sm_file1.jpg',
+                      'image/jpeg'
+                    )
+                  )
+                  ezr_attachment.save!
+
+                  form_with_non_pdf_attachment = form_with_ves_fields.merge(
+                    'attachments' => [
+                      {
+                        'confirmationCode' => ezr_attachment.guid
+                      }
+                    ]
+                  )
+
+                  expect(service.submit_sync(form_with_non_pdf_attachment)).to eq(
+                    {
+                      success: true,
+                      formSubmissionId: 440_227_675,
+                      timestamp: '2025-02-12T13:00:17.891-06:00'
+                    }
+                  )
+                  expect(Rails.logger).to have_received(:info).with(
+                    'Payload for submitted 1010EZR: Body size of 12.8 KB with 1 attachment(s)'
+                  )
+                end
+              end
+            end
+          end
+        end
+
+        context "with the 'ezr_use_correct_format_for_file_uploads' flipper disabled" do
+          before do
+            Flipper.disable(:ezr_use_correct_format_for_file_uploads)
+          end
 
           context 'with pdf attachments' do
             it 'increments StatsD and returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:32 GMT' do

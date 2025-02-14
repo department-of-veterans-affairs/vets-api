@@ -54,7 +54,14 @@ module Vets
         # Validate if the attribute value is comparable
         raise ArgumentError, "Attribute '#{attribute}' is not comparable." unless comparable?(attribute)
 
-        comparison_result = public_send(attribute) <=> other.public_send(attribute)
+        self_value = public_send(attribute)
+        other_value = other.public_send(attribute)
+
+        return  0 if !self_value && !other_value
+        return  1 unless self_value
+        return -1 unless other_value
+
+        comparison_result = self_value <=> other_value
         direction == :desc ? -comparison_result : comparison_result
       end
 

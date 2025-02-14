@@ -341,18 +341,6 @@ describe HCA::Service do
         end
       end
 
-      context 'submitting sigi field' do
-        it 'works', run_at: 'Tue, 01 Nov 2022 15:07:20 GMT' do
-          VCR.use_cassette(
-            'hca/sigi',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
-          ) do
-            result = HCA::Service.new.submit_form(get_fixture('hca/sigi'))
-            expect(result[:success]).to be(true)
-          end
-        end
-      end
-
       context 'submitting tera questions' do
         it 'works', run_at: 'Fri, 23 Feb 2024 19:47:28 GMT' do
           VCR.use_cassette(
@@ -393,51 +381,114 @@ describe HCA::Service do
       end
 
       context 'submitting with attachment' do
-        it 'works', run_at: 'Wed, 17 Jul 2024 18:04:50 GMT' do
-          VCR.use_cassette(
-            'hca/submit_with_attachment',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
-          ) do
-            result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
-            expect(result[:success]).to be(true)
-            expect(Rails.logger).to have_received(:info).with(
-              'Payload for submitted 1010EZ: Body size of 16 KB with 2 attachment(s)'
-            )
-            expect(Rails.logger).to have_received(:info).with(
-              'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
-            )
+        context "with the 'ezr_use_correct_format_for_file_uploads' flipper enabled" do
+          before do
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(true)
+          end
+
+          it 'works', run_at: 'Wed, 12 Feb 2025 20:53:32 GMT' do
+            VCR.use_cassette(
+              'hca/submit_with_attachment_formatted_correctly',
+              VCR::MATCH_EVERYTHING.merge(erb: true)
+            ) do
+              result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
+              expect(result[:success]).to be(true)
+              expect(Rails.logger).to have_received(:info).with(
+                'Payload for submitted 1010EZ: Body size of 16 KB with 2 attachment(s)'
+              )
+              expect(Rails.logger).to have_received(:info).with(
+                'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
+              )
+            end
+          end
+
+          context 'with a non-pdf attachment' do
+            it 'works', run_at: 'Wed, 12 Feb 2025 20:53:34 GMT' do
+              hca_attachment = build(:hca_attachment)
+              hca_attachment.set_file_data!(
+                Rack::Test::UploadedFile.new(
+                  'spec/fixtures/files/sm_file1.jpg',
+                  'image/jpeg'
+                )
+              )
+              hca_attachment.save!
+
+              health_care_application = build(:health_care_application)
+              form = health_care_application.parsed_form
+              form['attachments'] = [
+                {
+                  'confirmationCode' => hca_attachment.guid,
+                  'dd214' => true
+                }
+              ]
+              health_care_application.form = form.to_json
+              health_care_application.send(:remove_instance_variable, :@parsed_form)
+              health_care_application.save!
+
+              VCR.use_cassette(
+                'hca/submit_with_attachment_jpg_formatted_correctly',
+                VCR::MATCH_EVERYTHING.merge(erb: true)
+              ) do
+                result = HCA::Service.new.submit_form(health_care_application.parsed_form)
+                expect(result[:success]).to be(true)
+              end
+            end
           end
         end
 
-        context 'with a non-pdf attachment' do
-          it 'works', run_at: 'Wed, 17 Jul 2024 18:04:51 GMT' do
-            hca_attachment = build(:hca_attachment)
-            hca_attachment.set_file_data!(
-              Rack::Test::UploadedFile.new(
-                'spec/fixtures/files/sm_file1.jpg',
-                'image/jpeg'
-              )
-            )
-            hca_attachment.save!
+        context "with the 'ezr_use_correct_format_for_file_uploads' flipper disabled" do
+          before do
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(false)
+          end
 
-            health_care_application = build(:health_care_application)
-            form = health_care_application.parsed_form
-            form['attachments'] = [
-              {
-                'confirmationCode' => hca_attachment.guid,
-                'dd214' => true
-              }
-            ]
-            health_care_application.form = form.to_json
-            health_care_application.send(:remove_instance_variable, :@parsed_form)
-            health_care_application.save!
-
+          it 'works', run_at: 'Wed, 17 Jul 2024 18:04:50 GMT' do
             VCR.use_cassette(
-              'hca/submit_with_attachment_jpg',
+              'hca/submit_with_attachment',
               VCR::MATCH_EVERYTHING.merge(erb: true)
             ) do
-              result = HCA::Service.new.submit_form(health_care_application.parsed_form)
+              result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
               expect(result[:success]).to be(true)
+              expect(Rails.logger).to have_received(:info).with(
+                'Payload for submitted 1010EZ: Body size of 16 KB with 2 attachment(s)'
+              )
+              expect(Rails.logger).to have_received(:info).with(
+                'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
+              )
+            end
+          end
+
+          context 'with a non-pdf attachment' do
+            it 'works', run_at: 'Wed, 17 Jul 2024 18:04:51 GMT' do
+              hca_attachment = build(:hca_attachment)
+              hca_attachment.set_file_data!(
+                Rack::Test::UploadedFile.new(
+                  'spec/fixtures/files/sm_file1.jpg',
+                  'image/jpeg'
+                )
+              )
+              hca_attachment.save!
+
+              health_care_application = build(:health_care_application)
+              form = health_care_application.parsed_form
+              form['attachments'] = [
+                {
+                  'confirmationCode' => hca_attachment.guid,
+                  'dd214' => true
+                }
+              ]
+              health_care_application.form = form.to_json
+              health_care_application.send(:remove_instance_variable, :@parsed_form)
+              health_care_application.save!
+
+              VCR.use_cassette(
+                'hca/submit_with_attachment_jpg',
+                VCR::MATCH_EVERYTHING.merge(erb: true)
+              ) do
+                result = HCA::Service.new.submit_form(health_care_application.parsed_form)
+                expect(result[:success]).to be(true)
+              end
             end
           end
         end

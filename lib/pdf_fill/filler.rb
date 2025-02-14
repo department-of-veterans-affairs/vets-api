@@ -134,7 +134,10 @@ module PdfFill
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
-      hash_converter = HashConverter.new(form_class.date_strftime, fill_options.fetch(:extras_redesign, false))
+      start_page = form_class.const_defined?(:START_PAGE) ? form_class::START_PAGE : 1
+      hash_converter = HashConverter.new(form_id.sub(/V2\z/, ''), form_class.date_strftime,
+                                         fill_options.fetch(:extras_redesign, false), start_page)
+
       new_hash = hash_converter.transform_data(
         form_data: form_class.new(form_data).merge_fields(fill_options),
         pdftk_keys: form_class::KEY
