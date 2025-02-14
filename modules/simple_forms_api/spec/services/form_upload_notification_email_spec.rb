@@ -14,11 +14,17 @@ end
 
 describe SimpleFormsApi::FormUploadNotificationEmail do
   let(:lighthouse_updated_at) { Time.current }
+  let(:form_data) do
+    {
+      full_name: { first: 'Veteran' },
+      email: 'test@email.com'
+    }
+  end
 
   describe '#initialize' do
     context 'when all required arguments are passed in' do
       let(:config) do
-        { form_number: '21-0779', form_data: {}, confirmation_number: 'confirmation-number',
+        { form_number: '21-0779', form_data:, confirmation_number: 'confirmation-number',
           date_submitted: Time.zone.today.strftime('%B %d, %Y') }
       end
 
@@ -29,7 +35,7 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
 
     context 'missing form_number' do
       let(:config) do
-        { form_data: {}, confirmation_number: 'confirmation-number',
+        { form_data:, confirmation_number: 'confirmation-number',
           date_submitted: Time.zone.today.strftime('%B %d, %Y') }
       end
 
@@ -53,9 +59,39 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
       it_behaves_like 'an error notification email'
     end
 
+    context 'form_data is missing email' do
+      let(:config) do
+        {
+          form_data: { full_name: { first: 'Veteran' } },
+          form_number: '21-0779',
+          confirmation_number: 'confirmation-number',
+          date_submitted: Time.zone.today.strftime('%B %d, %Y')
+        }
+      end
+
+      it 'fails' do
+        expect { described_class.new(config, notification_type: :confirmation) }.to raise_error(ArgumentError)
+      end
+
+      it_behaves_like 'an error notification email'
+    end
+
+    context 'form_data is missing first_name' do
+      let(:config) do
+        { form_data: { email: 'test@email.com' }, form_number: '21-0779', confirmation_number: 'confirmation-number',
+          date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+      end
+
+      it 'fails' do
+        expect { described_class.new(config, notification_type: :confirmation) }.to raise_error(ArgumentError)
+      end
+
+      it_behaves_like 'an error notification email'
+    end
+
     context 'missing date_submitted' do
       let(:config) do
-        { form_number: '21-0779', form_data: {}, confirmation_number: 'confirmation-number' }
+        { form_number: '21-0779', form_data:, confirmation_number: 'confirmation-number' }
       end
 
       it 'fails' do
@@ -67,7 +103,7 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
 
     context 'missing confirmation_number' do
       let(:config) do
-        { form_number: '21-0779', form_data: {}, date_submitted: 'date-submitted' }
+        { form_number: '21-0779', form_data:, date_submitted: 'date-submitted' }
       end
 
       it 'fails' do
@@ -79,7 +115,7 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
 
     context 'form not supported' do
       let(:config) do
-        { form_number: 'nonsense', form_data: {}, confirmation_number: 'confirmation-number',
+        { form_number: 'nonsense', form_data:, confirmation_number: 'confirmation-number',
           date_submitted: Time.zone.today.strftime('%B %d, %Y') }
       end
 
@@ -104,14 +140,14 @@ describe SimpleFormsApi::FormUploadNotificationEmail do
     end
     let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
     let(:email) { 'fake@email.com' }
-    let(:full_name) { { 'first' => 'fake', 'last' => 'name' } }
+    let(:full_name) { { first: 'fake', last: 'name' } }
     let(:form_name) { 'fake-form' }
     let(:form_data) do
-      { 'email' => email, 'full_name' => full_name, 'form_name' => form_name }
+      { email:, full_name:, form_name: }
     end
     let(:expected_personalization) do
       {
-        'first_name' => full_name['first'].titleize,
+        'first_name' => full_name[:first].titleize,
         'form_number' => form_number,
         'form_name' => form_name,
         'date_submitted' => date_submitted,

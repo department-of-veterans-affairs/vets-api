@@ -20,7 +20,7 @@ module SimpleFormsApi
       check_missing_keys(config)
       check_if_form_is_supported(config)
 
-      @form_data = config[:form_data]
+      @form_data = config[:form_data].deep_symbolize_keys
       @form_number = config[:form_number]
       @confirmation_number = config[:confirmation_number]
       @date_submitted = config[:date_submitted]
@@ -48,6 +48,10 @@ module SimpleFormsApi
       all_keys = %i[form_data form_number date_submitted confirmation_number]
 
       missing_keys = all_keys.select { |key| config[key].nil? || config[key].to_s.strip.empty? }
+      email = config.dig(:form_data, :email)
+      first_name = config.dig(:form_data, :full_name, :first)
+      missing_keys << 'form_data: email' if email.nil? || email.to_s.strip.empty?
+      missing_keys << 'form_data: first_name' if first_name.nil? || first_name.to_s.strip.empty?
 
       if missing_keys.any?
         StatsD.increment('silent_failure', tags: statsd_tags) if error_notification?
@@ -64,7 +68,7 @@ module SimpleFormsApi
 
     def send_email_now
       VANotify::EmailJob.perform_async(
-        form_data['email'],
+        form_data[:email],
         template_id,
         get_personalization,
         *email_args
@@ -74,7 +78,7 @@ module SimpleFormsApi
     def enqueue_email(at)
       VANotify::EmailJob.perform_at(
         at,
-        form_data['email'],
+        form_data[:email],
         template_id,
         get_personalization,
         *email_args
@@ -90,9 +94,9 @@ module SimpleFormsApi
 
     def get_personalization
       {
-        'first_name' => form_data.dig('full_name', 'first')&.titleize,
+        'first_name' => form_data.dig(:full_name, :first)&.titleize,
         'form_number' => form_number,
-        'form_name' => form_data['form_name'],
+        'form_name' => form_data[:form_name],
         'date_submitted' => date_submitted,
         'confirmation_number' => confirmation_number
       }.tap do |personalization|
