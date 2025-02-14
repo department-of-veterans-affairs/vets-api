@@ -15,9 +15,9 @@ module EVSS
     def to_h
       @headers ||= sanitize(
         'va_eauth_csid' => 'DSLogon',
-        'va_eauth_authenticationmethod' => 'DSLogon',
         # TODO: Change va_eauth_authenticationmethod to vets.gov
         # once the EVSS team is ready for us to use it
+        'va_eauth_authenticationmethod' => 'DSLogon',
         'va_eauth_pnidtype' => 'SSN',
         'va_eauth_assurancelevel' => @user.loa[:current].to_s,
         'va_eauth_firstName' => @user.first_name,
