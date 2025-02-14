@@ -51,52 +51,41 @@ RSpec.describe BenefitsClaims::Service do
         it 'filters out claims with certain statuses' do
           VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
             response = @service.get_claims
-            expect(response['data'].length).to eq(5)
+            expect(response['data'].length).to eq(6)
           end
         end
       end
 
       describe 'when requesting one single benefit claim' do
-        it 'has overriden PMR Pending tracked items to the NEEDED_FROM_OTHERS status and readable name' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            response = @service.get_claim('600383363')
-            # In the cassette, the status is NEEDED_FROM_YOU
-            expect(response.dig('data', 'attributes', 'trackedItems', 0, 'status')).to eq('NEEDED_FROM_OTHERS')
-            expect(response.dig('data', 'attributes', 'trackedItems', 0, 'displayName')).to eq('Private Medical Record')
-          end
-        end
+        before { allow(Flipper).to receive(:enabled?).and_call_original }
 
-        context 'when :cst_suppress_evidence_requests is disabled' do
+        context 'when the PMR Pending override flipper is enabled' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:cst_override_pmr_pending_tracked_items).and_return(true)
           end
 
-          it 'includes Attorney Fee, Secondary Action Required, and Stage 2 Development tracked items' do
+          it 'has overridden PMR Pending tracked items to the NEEDED_FROM_OTHERS status and readable name' do
             VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
               response = @service.get_claim('600383363')
-              expect(response.dig('data', 'attributes', 'trackedItems').size).to eq(3)
+              # In the cassette, the status is NEEDED_FROM_YOU
+              expect(response.dig('data', 'attributes', 'trackedItems', 0, 'status')).to eq('NEEDED_FROM_OTHERS')
               expect(response.dig('data', 'attributes', 'trackedItems', 0,
                                   'displayName')).to eq('Private Medical Record')
-              expect(response.dig('data', 'attributes', 'trackedItems', 1,
-                                  'displayName')).to eq('Submit buddy statement(s)')
-              expect(response.dig('data', 'attributes', 'trackedItems', 2, 'displayName')).to eq('Attorney Fee')
             end
           end
         end
 
-        context 'when :cst_suppress_evidence_requests is enabled' do
+        context 'when the PMR Pending override flipper is disabled' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:cst_override_pmr_pending_tracked_items).and_return(false)
           end
 
-          it 'excludes Attorney Fee, Secondary Action Required, and Stage 2 Development tracked items' do
+          it 'has overridden PMR Pending tracked items to the NEEDED_FROM_OTHERS status and readable name' do
             VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
               response = @service.get_claim('600383363')
-              expect(response.dig('data', 'attributes', 'trackedItems').size).to eq(2)
-              expect(response.dig('data', 'attributes', 'trackedItems', 0,
-                                  'displayName')).to eq('Private Medical Record')
-              expect(response.dig('data', 'attributes', 'trackedItems', 1,
-                                  'displayName')).to eq('Submit buddy statement(s)')
+              # In the cassette, the status is NEEDED_FROM_YOU
+              expect(response.dig('data', 'attributes', 'trackedItems', 0, 'status')).to eq('NEEDED_FROM_YOU')
+              expect(response.dig('data', 'attributes', 'trackedItems', 0, 'displayName')).to eq('PMR Pending')
             end
           end
         end

@@ -24,6 +24,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   let(:file_name) { 'doctors-note.pdf' }
   let(:tracked_item_id) { 1234 }
   let(:document_type) { 'L023' }
+  let(:document_description) { 'Other Correspondence' }
   let(:document_data) do
     EVSSClaimDocument.new(
       va_eauth_firstName: 'First Name',
@@ -97,6 +98,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         described_class.drain
         evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
         expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
+        expect(evidence_submission.delete_date).not_to be_nil
       end
     end
 
@@ -149,11 +151,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
 
     let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
     let(:formatted_submit_date) do
-      # We want to return all times in EDT
-      timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
-
-      # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-      timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+      BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
     end
 
     it 'retrieves the file and uploads to EVSS' do
@@ -179,7 +177,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
             user_account.icn,
             {
               first_name: 'Bob',
-              document_type: document_type,
+              document_type: document_description,
               filename: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
               date_submitted: formatted_submit_date,
               date_failed: formatted_submit_date
