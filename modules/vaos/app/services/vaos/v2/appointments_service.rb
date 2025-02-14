@@ -1011,7 +1011,7 @@ module VAOS
 
       def eps_appointments
         @eps_appointments ||= begin
-          appointments = eps_appointments_service.get_appointments['data']
+          appointments = eps_appointments_service.get_appointments[:data]
           appointments = [] if appointments.blank? || appointments.all?(&:empty?)
           appointments.reject! { |appt| appt.dig(:appointment_details, :start).nil? }
           appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
