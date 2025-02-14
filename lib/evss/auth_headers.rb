@@ -17,11 +17,12 @@ module EVSS
           EVSS::BaseHeaders
         end
       end
-    rescue => e
+    rescue StandardError => e
       Rails.logger.warn "Error checking Flipper flag: #{e.message}. Defaulting to EVSS::BaseHeaders"
       EVSS::BaseHeaders
     end
   end
+end
 
   class AuthHeaders
     attr_reader :transaction_id
