@@ -3,7 +3,8 @@
 require 'sidekiq'
 
 module PowerOfAttorneyRequests
-  class SendExpiredEmailJob # This may change to a job that expires requests then sends an email
+  class SendExpiredEmailJob
+    # This may change to a job that expires requests then sends an email
     include Sidekiq::Job
 
     def perform
