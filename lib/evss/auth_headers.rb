@@ -6,11 +6,16 @@ require 'formatters/date_formatter'
 
 module EVSS
  module HeaderInheritance
-   def self.determine_parent
-     if Flipper.enabled?(:lighthouse_base_headers)
-       Lighthouse::BaseHeaders
-     else
+   def self.determine_parent(service_context = nil)
+     case service_context
+     when :poa
        EVSS::BaseHeaders
+     else
+       if Flipper.enabled?(:lighthouse_base_headers)
+         Lighthouse::BaseHeaders
+       else
+         EVSS::BaseHeaders
+       end
      end
    rescue StandardError => e
      Rails.logger.warn "Error checking Flipper flag: #{e.message}. Defaulting to EVSS::BaseHeaders"
@@ -21,8 +26,8 @@ module EVSS
  class AuthHeaders
    attr_reader :transaction_id
 
-   def initialize(user)
-     @delegate = HeaderInheritance.determine_parent.new(user)
+   def initialize(user, service_context = nil)
+     @delegate = HeaderInheritance.determine_parent(service_context).new(user)
      @transaction_id = create_transaction_id
      @user = user
    end
