@@ -9,7 +9,7 @@ web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,ht
 web_origin_regex: \Ahttps?:\/\/www\.va\.gov\z
 
 audit_db:
-  url: postgis:///vets_api_audit
+  url: ~
 
 logingov:
   client_id: https://sqa.eauth.va.gov/isam/sps/saml20sp/saml20
