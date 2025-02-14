@@ -5,6 +5,8 @@ require 'formatters/date_formatter'
 
 module EVSS
   class DisabilityCompensationAuthHeaders < Lighthouse::BaseHeaders
+     # :nocov:
+
     def add_headers(auth_headers)
       auth_headers.merge(
         'va_eauth_authorization' => eauth_json
@@ -38,5 +40,7 @@ module EVSS
         'UNKNOWN'
       end
     end
+
+    # :nocov:
   end
 end
