@@ -42,6 +42,35 @@ notify_client.send_email(
 
 Please note the spelling of the `personalisation` param.
 
+Example sequence flow when utilizing `VaNotify::Service`.
+
+```mermaid
+sequenceDiagram
+    box vets-api
+    participant Your teams vets-api module
+    participant VANotify module
+    end
+    box notification-api
+    participant VANotify API (outside of vets-api)
+    end
+
+    Your teams vets-api module->>+VANotify module: VaNotify::Service <br/> (synchronous call) <br/> Required params: recipient (email_address or user_account_id), <br/> template_id, personalisation (defined in template), api_key <br/> Optional params: callback_metadata
+    VANotify module->>+VANotify API (outside of vets-api): Create notification request
+    VANotify API (outside of vets-api)-->>-VANotify module: 201 successfully created with unique `notification_id` <br/> (after basic validation)
+    VANotify module->>VANotify module: VANotify::Notification record created
+    VANotify module-->>-Your teams vets-api module: Response containing message body and `notification_id`
+    VANotify API (outside of vets-api)->>+Relevant third party delivery service: Request notification send
+
+    create actor Recipient
+    Relevant third party delivery service->>Recipient: Attempt notification delivery
+
+    Relevant third party delivery service-->>+VANotify API (outside of vets-api): Updated delivery status <br/> (delivered, permanent-failure, etc)
+    VANotify API (outside of vets-api)-->>+VANotify module: Delivery status callback <br/> (if callbacks are configured for API key/service) <br/> VANotify::DefaultCallback will increment relevant StatsD metrics
+    VANotify module->>VANotify module: VANotify::Notification record updated
+    VANotify module-->>-Your teams vets-api module: Custom callback class called (if configured)
+
+```
+
 ### Using the wrapper sidekiq class (async sending)
 
 Example usage to send an email using the `VANotify::EmailJob` (there is also a `VANotify::UserAccountJob` for sending via an ICN, [without persisting or logging the ICN](#misc)).
@@ -58,6 +87,37 @@ This class defaults to using the va.gov service's api key but you can provide yo
       },
       Settings.vanotify.services.YOUR_SERVICE_NAME_HERE.api_key
     )
+```
+
+Example sequence flow when utilizing one of VANotify's sidekiq jobs (`VANotify::EmailJob` or `VANotify::UserAccountJob`).
+
+```mermaid
+sequenceDiagram
+    box vets-api
+    participant Your teams vets-api module
+    participant VANotify module
+    end
+    box notification-api
+    participant VANotify API (outside of vets-api)
+    end
+
+    Your teams vets-api module-)VANotify module: VANotify::EmailJob <br/> VANotify::UserAccountJob <br/> (asynchronous call) <br/> Required params: recipient (email_address or user_account_id), <br/> template_id, personalisation (defined in template), api_key <br/> Optional params: callback_metadata
+    activate VANotify API (outside of vets-api)
+    VANotify module->>+VANotify API (outside of vets-api): Create notification request
+    VANotify API (outside of vets-api)-->>+VANotify module: 201 successfully created with unique `notification_id` <br/> (after basic validation)
+    deactivate VANotify API (outside of vets-api)
+
+    VANotify module->>-VANotify module: VANotify::Notification record created
+    VANotify API (outside of vets-api)->>+Relevant third party delivery service: Request notification send
+
+    create actor Recipient
+    Relevant third party delivery service->>Recipient: Attempt notification delivery
+
+    Relevant third party delivery service-->>+VANotify API (outside of vets-api): Updated delivery status <br/> (delivered, permanent-failure, etc)
+    VANotify API (outside of vets-api)-->>+VANotify module: Delivery status callback <br/> (if callbacks are configured for API key/service) <br/> VANotify::DefaultCallback will increment relevant StatsD metrics
+    VANotify module->>VANotify module: VANotify::Notification record updated
+    VANotify module-->>-Your teams vets-api module: Custom callback class called (if configured)
+
 ```
 
 ### API key details
