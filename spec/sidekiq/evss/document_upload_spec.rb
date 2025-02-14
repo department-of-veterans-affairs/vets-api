@@ -36,12 +36,10 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   end
   let(:job_class) { 'EVSS::DocumentUpload' }
   let(:job_id) { job }
-
   let(:client_stub) { instance_double(EVSS::DocumentsService) }
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
   let(:issue_instant) { Time.now.to_i }
   let(:current_date_time) { DateTime.now.utc }
-
   let(:msg) do
     {
       'jid' => job_id,
@@ -105,7 +103,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
     end
 
     context 'when upload fails' do
-      let(:evidence_submission_failed) { create(:bd_evidence_submission_failed, job_class: EVSSClaimService) }
+      let(:evidence_submission_failed) { create(:bd_evidence_submission_failed, job_class: described_class) }
       let!(:evidence_submission_pending) do
         create(:bd_evidence_submission_pending,
                tracked_item_id:,
