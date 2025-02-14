@@ -21,7 +21,7 @@ module EVSS
           EVSS::BaseHeaders
         end
       end
-    rescue StandardError => e
+    rescue => e
       Rails.logger.warn "Error checking Flipper flag: #{e.message}. Defaulting to EVSS::BaseHeaders"
       EVSS::BaseHeaders
     end
@@ -53,9 +53,9 @@ module EVSS
       )
     end
 
-    def method_missing(method_name, *args, &block)
+    def method_missing(method_name, *, &)
       if @delegate.respond_to?(method_name)
-        @delegate.send(method_name, *args, &block)
+        @delegate.send(method_name, *, &)
       else
         super
       end
@@ -66,7 +66,7 @@ module EVSS
     end
 
     def kind_of?(klass)
-      @delegate.kind_of?(klass) || super
+      @delegate.is_a?(klass) || super
     end
 
     def is_a?(klass)
@@ -104,6 +104,7 @@ module EVSS
     def get_dependent_headers
       sponsor = get_user_relationship
       return {} unless sponsor
+
       {
         headOfFamily: {
           id: sponsor.ssn,
@@ -120,6 +121,7 @@ module EVSS
     def get_user_relationship
       veteran_relationships = @user.relationships&.select(&:veteran_status)
       return unless veteran_relationships.presence
+
       selected_relationship = veteran_relationships.first
       selected_relationship.get_full_attributes.profile
     end
