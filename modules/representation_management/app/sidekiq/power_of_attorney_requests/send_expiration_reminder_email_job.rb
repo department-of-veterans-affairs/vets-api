@@ -11,12 +11,17 @@ module PowerOfAttorneyRequests
       return unless requests_to_remind.any?
 
       requests_to_remind.each do |request|
-        # fetch the request claimant email address and first name
+        form = request.power_of_attorney_form
+        claimant = form.parsed_data['dependent'] || form.parsed_data['veteran']
+        next unless claimant && claimant['email']
+
+        first_name = claimant['name']['first']
+
         VANotify::EmailJob.perform_async(
-          request.email_address,
-          Settings.vanotify.services.va_gov.template_id.appoint_a_representative_confirmation_email,
+          claimant['email'],
+          Settings.vanotify.services.va_gov.template_id.appoint_a_rep_expiration_warning_email,
           {
-            'first_name' => request.first_name
+            'first_name' => first_name
           }
         )
       end
@@ -30,6 +35,7 @@ module PowerOfAttorneyRequests
       # I think we'll be queyring the power of attorney requests here but I'll confim that
       # when that work is completed and merged.
       # Find all requests that are greater than 30 days old but less than 31 days old.
+      PowerOfAttorneyRequest.unresolved.not_expired.where(created_at: 30.days.ago..31.days.ago)
     end
 
     def log_error(message)
