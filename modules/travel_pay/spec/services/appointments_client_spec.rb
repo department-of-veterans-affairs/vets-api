@@ -90,6 +90,7 @@ describe TravelPay::AppointmentsClient do
 
   context '/appointments' do
     expected_log_prefix = 'travel_pay.appointments.response_time'
+    expected_log_tag = ['travel_pay:get_all']
 
     it 'returns a response only with appointments with no claims' do
       @stubs.get('/api/v1.2/appointments?excludeWithClaims=true') do
@@ -111,7 +112,7 @@ describe TravelPay::AppointmentsClient do
       expect(StatsD).to have_received(:measure)
         .with(expected_log_prefix,
               kind_of(Numeric),
-              tags: ['travel_pay:get_all'])
+              tags: expected_log_tag)
       expect(actual_appt_ids).to eq(expected_ids)
     end
 
@@ -135,7 +136,7 @@ describe TravelPay::AppointmentsClient do
       expect(StatsD).to have_received(:measure)
         .with(expected_log_prefix,
               kind_of(Numeric),
-              tags: ['travel_pay:get_all'])
+              tags: expected_log_tag)
       expect(actual_appt_ids).to eq(expected_ids)
     end
   end
