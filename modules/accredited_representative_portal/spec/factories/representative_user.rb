@@ -4,6 +4,7 @@ FactoryBot.define do
   factory :representative_user, class: 'AccreditedRepresentativePortal::RepresentativeUser' do
     transient do
       sign_in_service_name { SignIn::Constants::Auth::IDME }
+      accredited_individual { nil }
     end
 
     authn_context { LOA::IDME_LOA3_VETS }
@@ -28,23 +29,12 @@ FactoryBot.define do
     user_account_uuid { create(:user_account).id }
     uuid { SecureRandom.uuid }
 
-    trait :with_power_of_attorney_holders do
-      transient do
-        poa_holders_count { 1 }
-        poa_holders { [] }
-      end
-
-      after(:build) do |user, evaluator|
-        list = if evaluator.poa_holders.present?
-                 evaluator.poa_holders
-               elsif evaluator.poa_holders_count.positive?
-                 build_list(
-                   :power_of_attorney_holder,
-                   evaluator.poa_holders_count
-                 )
-               end
-
-        user.instance_variable_set(:@power_of_attorney_holders, list)
+    after(:create) do |user, evaluator|
+      if evaluator.accredited_individual.present?
+        user.update!(
+          email: evaluator.accredited_individual.user_account_email,
+          icn: evaluator.accredited_individual.user_account_icn
+        )
       end
     end
 

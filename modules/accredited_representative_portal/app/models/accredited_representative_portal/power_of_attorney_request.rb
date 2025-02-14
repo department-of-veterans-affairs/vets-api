@@ -75,7 +75,7 @@ module AccreditedRepresentativePortal
     scope :for_power_of_attorney_holders, lambda { |poa_holders|
       return none if poa_holders.blank?
 
-      prefix = 'power_of_attorney_holder_'.freeze
+      prefix = 'power_of_attorney_holder_'
       names = PowerOfAttorneyHolder::PRIMARY_KEY_ATTRIBUTE_NAMES
       prefixed_names = names.map { |name| :"#{prefix}#{name}" }
       values = poa_holders.map { |poa_holder| poa_holder.to_h.values_at(*names) }
