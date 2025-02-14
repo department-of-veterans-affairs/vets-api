@@ -1307,6 +1307,10 @@ features:
     actor_type: user
     description: Enables the Wizard for VA Form 5655 (Financial Status Report)
     enable_in_development: true
+  show_financial_status_report_streamlined_waiver:
+    actor_type: user
+    description: Enables the Streamlined Waiver for VA Form 5655 (Financial Status Report)
+    enable_in_development: true
   show_form_i18n:
     actor_type: user
     description: Enables the internationalization features for forms
@@ -1720,9 +1724,6 @@ features:
   disability_compensation_lighthouse_document_service_provider:
     actor_type: user
     description: If enabled uses the lighthouse documents service
-  disability_compensation_lighthouse_claims_service_provider:
-    actor_type: user
-    description: If enabled uses the lighthouse claims service
   disability_compensation_lighthouse_intent_to_file_provider:
     actor_type: user
     description: If enabled uses the lighthouse intent to file endpoint
