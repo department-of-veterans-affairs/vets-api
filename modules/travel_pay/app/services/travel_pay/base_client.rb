@@ -49,9 +49,10 @@ module TravelPay
     # when calling the external Travel Pay API
     def log_to_statsd(service, tag_value)
       start_time = Time.current
-      yield
+      result = yield
       elapsed_time = Time.current - start_time
       StatsD.measure("travel_pay.#{service}.response_time", elapsed_time, tags: ["travel_pay:#{tag_value}"])
+      result
     end
   end
 end
