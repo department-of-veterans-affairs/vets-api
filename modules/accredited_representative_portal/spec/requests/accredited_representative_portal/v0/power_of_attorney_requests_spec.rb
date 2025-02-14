@@ -122,6 +122,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
               'type' => 'veteran_service_organization',
               'name' => poa_requests[1].accredited_organization.name,
               'id' => poa_requests[1].accredited_organization.poa
+            },
+            'powerOfAttorneyFormSubmission' => {
+              'status' => 'FAILED'
             }
           },
           {
