@@ -82,7 +82,22 @@ module Eps
         appointment['provider'] = provider
       end
 
-      appointments
+      format_appointment_data!(appointments)
+    end
+
+    def format_appointment_data!(obj)
+      case obj
+      when Array
+        obj.each { |e| format_appointment_data!(e) }
+      when Hash
+        new_hash = {}
+        obj.each do |key, value|
+          new_key = key.to_s.underscore.to_sym
+          new_hash[new_key] = format_appointment_data!(value)
+        end
+        obj.replace(new_hash)
+      end
+      obj
     end
 
     def build_submit_payload(params)
