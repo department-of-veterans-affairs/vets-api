@@ -22,7 +22,6 @@ module EVSS
       EVSS::BaseHeaders
     end
   end
-end
 
   class AuthHeaders
     attr_reader :transaction_id
@@ -53,9 +52,9 @@ end
       )
     end
 
-    def method_missing(method_name, *, &)
+    def method_missing(method_name, *args, &block)
       if @delegate.respond_to?(method_name)
-        @delegate.send(method_name, *, &)
+        @delegate.send(method_name, *args, &block)
       else
         super
       end
@@ -66,7 +65,7 @@ end
     end
 
     def kind_of?(klass)
-      @delegate.is_a?(klass) || super
+      @delegate.kind_of?(klass) || super
     end
 
     def is_a?(klass)
@@ -104,7 +103,6 @@ end
     def get_dependent_headers
       sponsor = get_user_relationship
       return {} unless sponsor
-
       {
         headOfFamily: {
           id: sponsor.ssn,
@@ -121,7 +119,6 @@ end
     def get_user_relationship
       veteran_relationships = @user.relationships&.select(&:veteran_status)
       return unless veteran_relationships.presence
-
       selected_relationship = veteran_relationships.first
       selected_relationship.get_full_attributes.profile
     end
