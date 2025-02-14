@@ -3,10 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
-  let(:notifier) { instance_double(Slack::Notifier) }
+  let(:notifier) { instance_double(ClaimsApi::Slack::Client) }
 
   before do
-    allow(Slack::Notifier).to receive(:new).and_return(notifier)
+    allow(ClaimsApi::Slack::Client).to receive(:new).and_return(notifier)
   end
 
   context 'when there is one type of each error' do
@@ -31,7 +31,7 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
         environment: environment
       )
 
-      expect(notifier).to receive(:post) do |args|
+      expect(notifier).to receive(:notify) do |_text, args|
         expect(args[:blocks]).to include(
           a_hash_including(
             text: {
@@ -109,7 +109,7 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
         environment: environment
       )
 
-      expect(notifier).to receive(:post) do |args|
+      expect(notifier).to receive(:notify) do |_text, args|
         expect(args[:blocks]).to include(
           a_hash_including(
             text: {
@@ -154,7 +154,7 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
           errored_itf: errored_itf
         )
 
-        expect(notifier).to receive(:post) do |args|
+        expect(notifier).to receive(:notify) do |_text, args|
           expect(args[:blocks]).to include(
             a_hash_including(
               text: {

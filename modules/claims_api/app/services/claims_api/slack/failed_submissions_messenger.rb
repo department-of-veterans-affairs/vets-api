@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'slack-notifier'
 require 'common/client/base'
 
 module ClaimsApi
@@ -18,11 +17,11 @@ module ClaimsApi
       end
 
       def notify!
-        notifier = ::Slack::Notifier.new(Settings.claims_api.slack.webhook_url,
-                                         channel: '#api-benefits-claims-alerts',
-                                         username: 'Failed Submissions Messenger')
+        notifier = ClaimsApi::Slack::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
+                                                channel: '#api-benefits-claims-alerts',
+                                                username: 'Failed Submissions Messenger')
 
-        notifier.post(blocks: build_blocks)
+        notifier.notify('fallback text', blocks: build_blocks)
       end
 
       private

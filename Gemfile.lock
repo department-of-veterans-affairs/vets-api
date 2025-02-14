@@ -1044,7 +1044,6 @@ GEM
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
     simpleidn (0.2.3)
-    slack-notifier (2.4.0)
     slack-notify (0.6.0)
       faraday (>= 0.9)
       json (>= 1.8)
@@ -1326,7 +1325,6 @@ DEPENDENCIES
   sign_in_service
   simple_forms_api!
   simplecov
-  slack-notifier
   slack-notify
   socksify
   staccato
