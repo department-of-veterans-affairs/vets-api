@@ -2,43 +2,43 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestPolicy < ApplicationPolicy
-    def show?
-      authorize
+    def index?
+      user_has_poa_access?
     end
 
-    def index?
-      authorize
+    def show?
+      user_has_access_to_record?
     end
 
     def create_decision?
-      authorize
+      user_has_poa_access?
     end
 
     private
 
-    def authorize
-      ##
-      # When the user is associated with any POA codes, then scenarios in which
-      # they are trying to perform an operation against a POA request to which
-      # they are not associated should be thought of as having an empty result
-      # (`404`).
-      #
-      # However, when the user is not associated with any POA codes, then they
-      # should be informed that they are not authorized to perform operations
-      # against these resources.
-      #
-      raise Pundit::NotAuthorizedError if user_poa_codes.empty?
+    def user_has_poa_access?
+      user_poa_codes.any?
+    end
 
-      user_poa_codes.include?(@record.power_of_attorney_holder_poa_code)
+    def user_has_access_to_record?
+      user_poa_codes.include?(record.power_of_attorney_holder_poa_code)
     end
 
     def user_poa_codes
-      @user_poa_codes ||= @user.power_of_attorney_holders.map(&:poa_code)
+      @user_poa_codes ||= user.power_of_attorney_holders.map(&:poa_code)
     end
 
-    class Scope < ApplicationPolicy::Scope
+    class Scope < Scope
       def resolve
-        @scope.for_user(@user)
+        return scope.none if user_poa_codes.empty?
+
+        scope.for_user(user)
+      end
+
+      private
+
+      def user_poa_codes
+        @user_poa_codes ||= user.power_of_attorney_holders.map(&:poa_code)
       end
     end
   end

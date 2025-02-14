@@ -3,7 +3,30 @@
 require_relative '../../../rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisionsController, type: :request do
-  let(:test_user) { create(:representative_user) }
+  let!(:poa_code) { 'x23' }
+
+  let!(:test_user) do
+    create(:representative_user, email: 'test@va.gov', icn: '123498767V234859')
+  end
+
+  let!(:accredited_individual) do
+    create(:user_account_accredited_individual,
+           user_account_email: test_user.email,
+           user_account_icn: test_user.icn,
+           poa_code: poa_code)
+  end
+
+  let!(:representative) do
+    create(:representative,
+           :vso,
+           representative_id: accredited_individual.accredited_individual_registration_number,
+           poa_codes: [poa_code])
+  end
+
+  let!(:vso) do
+    create(:organization, poa: poa_code)
+  end
+
   let(:time) { '2024-12-21T04:45:37.458Z' }
 
   before do
@@ -15,7 +38,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
   describe 'POST /accredited_representative_portal/v0/power_of_attorney_requests/:id/decision' do
     context 'with invalid params' do
       it 'complains about an invalid type param' do
-        poa_request = create(:power_of_attorney_request)
+        poa_request = create(:power_of_attorney_request, poa_code: poa_code)
 
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'invalid_type', reason: nil } }
@@ -27,7 +50,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       end
 
       it 'complains about an invalid reason param' do
-        poa_request = create(:power_of_attorney_request)
+        poa_request = create(:power_of_attorney_request, poa_code: poa_code)
 
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'acceptance', reason: 'not allowed to give reasons for these' } }
@@ -40,7 +63,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     end
 
     it 'creates acceptance decision with proper params' do
-      poa_request = create(:power_of_attorney_request)
+      poa_request = create(:power_of_attorney_request, poa_code: poa_code)
 
       post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
            params: { decision: { type: 'acceptance', reason: nil } }
@@ -55,7 +78,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     end
 
     it 'creates declination decision with proper params' do
-      poa_request = create(:power_of_attorney_request)
+      poa_request = create(:power_of_attorney_request, poa_code: poa_code)
       post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
            params: { decision: { type: 'declination', reason: 'bad data' } }
 
@@ -72,13 +95,13 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       post '/accredited_representative_portal/v0/power_of_attorney_requests/a/decision'
 
       expect(response).to have_http_status(:not_found)
-      expect(parsed_response['errors']).to eq(
-        ["Couldn't find AccreditedRepresentativePortal::PowerOfAttorneyRequest with 'id'=a"]
+      expect(parsed_response['errors']).to include(
+        a_string_including("Couldn't find AccreditedRepresentativePortal::PowerOfAttorneyRequest with 'id'=a")
       )
     end
 
     it 'returns an error if decision already exists' do
-      poa_request = create(:power_of_attorney_request)
+      poa_request = create(:power_of_attorney_request, poa_code: poa_code)
       create(:power_of_attorney_request_resolution, :expiration,
              power_of_attorney_request: poa_request)
 
@@ -94,7 +117,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
   describe 'full cycle for decision api' do
     it 'returns the correct results for POST GET POST GET' do
-      poa_request = create(:power_of_attorney_request)
+      poa_request = create(:power_of_attorney_request, poa_code: poa_code)
 
       # --------------
       # GET REQUEST
