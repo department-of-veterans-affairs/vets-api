@@ -382,6 +382,62 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
+  "/eps_appointments/{appointment-id}":
+    get:
+      tags:
+        - appointments
+      summary: Retrieve eps appointment by id
+      operationId: fetchAppointment
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          required: true
+          name: "id"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Appointment retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: "#/components/schemas/EpsAppointment"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
   "/facilities":
     get:
       tags:
@@ -1715,95 +1771,102 @@ components:
       type: object
       description: 'Draft appointment'
       properties:
-        appointment:
+        provider:
+          "$ref": "#/components/schemas/Provider"
+        slots:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              start:
+                type: string
+                format: date-time
+        drivetime:
           type: object
           properties:
-            provider:
+            origin:
               type: object
               properties:
-                id:
-                  type: string
-                name:
-                  type: string
-                isActive:
-                  type: boolean
-                individualProviders:
-                  type: array
-                  items:
-                    type: string
-                providerOrganization:
-                  type: string
-                location:
-                  type: object
-                  properties:
-                    address:
-                      type: string
-                networkIds:
-                  type: array
-                  items:
-                    type: string
-                schedulingNotes:
-                  type: string
-                appointmentTypes:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                      name:
-                        type: string
-                      isSelfSchedulable:
-                        type: boolean
-                specialties:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                      name:
-                        type: string
-                visitMode:
-                  type: string
-                features:
-                  type: object
-                  properties:
-                    isDigital:
-                      type: boolean
-            slots:
-              type: array
-              items:
-                type: object
-                properties:
-                  id:
-                    type: string
-                  start:
-                    type: string
-                    format: date-time
-            drivetime:
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+            destination:
               type: object
               properties:
-                origin:
-                  type: object
-                  properties:
-                    latitude:
-                      type: number
-                    longitude:
-                      type: number
-                destination:
-                  type: object
-                  properties:
-                    distanceInMiles:
-                      type: integer
-                    driveTimeInSecondsWithoutTraffic:
-                      type: number
-                    driveTimeInSecondsWithTraffic:
-                      type: number
-                    latitude:
-                      type: number
-                    longitude:
-                      type: number
+                distanceInMiles:
+                  type: integer
+                driveTimeInSecondsWithoutTraffic:
+                  type: number
+                driveTimeInSecondsWithTraffic:
+                  type: number
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+    EpsAppointment:
+      type: object
+      description: 'EPS appointment'
+      properties:
+        appointment:
+          "$ref": "#/components/schemas/Appointment"
+        provider:
+          "$ref": "#/components/schemas/Provider"
+    Provider:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        isActive:
+          type: boolean
+        individualProviders:
+          type: array
+          items:
+            type: string
+        providerOrganization:
+          type: string
+        location:
+          type: object
+          properties:
+            address:
+              type: string
+        networkIds:
+          type: array
+          items:
+            type: string
+        schedulingNotes:
+          type: string
+        appointmentTypes:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              isSelfSchedulable:
+                type: boolean
+        specialties:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+        visitMode:
+          type: string
+        features:
+          type: object
+          properties:
+            isDigital:
+              type: boolean
     SchedulingConfiguration:
       type: object
       required:
