@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request do
   describe 'POST #create' do
     let(:base_path) { '/representation_management/v0/pdf_generator2122' }
-    let(:organization) { create(:organization) }
-    let(:representative) { create(:representative) }
+    let(:organization) { create(:organization) } # This is the legacy organization
+    let(:representative) { create(:representative) } # This is the legacy representative
     let(:params) do
       {
         pdf_generator2122: {
@@ -16,11 +16,11 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
           claimant: {
             date_of_birth: '1980-12-31',
             relationship: 'Spouse',
-            phone: '555-555-5555',
+            phone: '555-555-5555', # This is a 10 digit phone number as submitted by the frontend
             email: 'claimant@example.com',
             name: {
               first: 'John',
-              middle: 'Middle',
+              middle: 'Middle', # This is a middle name as submitted by the frontend
               last: 'Claimant'
             },
             address: {
@@ -28,7 +28,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
               address_line2: '',
               city: 'Portland',
               state_code: 'OR',
-              country: 'USA',
+              country: 'USA', # This is a 3 character country code as submitted by the frontend
               zip_code: '12345',
               zip_code_suffix: '6789'
             }
@@ -39,11 +39,11 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
             date_of_birth: '1980-12-31',
             service_number: '123456789',
             service_branch: 'ARMY',
-            phone: '555-555-5555',
+            phone: '555-555-5555', # This is a 10 digit phone number as submitted by the frontend
             email: 'veteran@example.com',
             name: {
               first: 'John',
-              middle: 'Middle',
+              middle: 'Middle', # This is a middle name as submitted by the frontend
               last: 'Veteran'
             },
             address: {
@@ -51,7 +51,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
               address_line2: '',
               city: 'Portland',
               state_code: 'OR',
-              country: 'USA',
+              country: 'USA', # This is a 3 character country code as submitted by the frontend
               zip_code: '12345',
               zip_code_suffix: '6789'
             }
