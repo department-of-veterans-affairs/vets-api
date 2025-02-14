@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_11_192052) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -270,6 +270,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
     t.index ["veteran_icn"], name: "index_appeals_api_supplemental_claims_on_veteran_icn"
   end
 
+  create_table "ar_power_of_attorney_form_submissions", force: :cascade do |t|
+    t.uuid "power_of_attorney_request_id", null: false
+    t.string "service_id"
+    t.text "service_response_ciphertext"
+    t.string "status", null: false
+    t.text "encrypted_kms_key"
+    t.datetime "status_updated_at"
+    t.text "error_message_ciphertext"
+    t.datetime "created_at", null: false
+  end
+
   create_table "ar_power_of_attorney_forms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "power_of_attorney_request_id", null: false
     t.text "encrypted_kms_key"
@@ -309,11 +320,19 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
     t.datetime "created_at", null: false
     t.string "claimant_type", null: false
     t.string "power_of_attorney_holder_type", null: false
-    t.uuid "power_of_attorney_holder_id", null: false
-    t.uuid "accredited_individual_id", null: false
-    t.index ["accredited_individual_id"], name: "idx_on_accredited_individual_id_a0a1fab1e0"
+    t.string "accredited_individual_registration_number"
+    t.string "power_of_attorney_holder_poa_code"
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
-    t.index ["power_of_attorney_holder_type", "power_of_attorney_holder_id"], name: "index_ar_power_of_attorney_requests_on_power_of_attorney_holder"
+  end
+
+  create_table "ar_user_account_accredited_individuals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "accredited_individual_registration_number", null: false
+    t.string "power_of_attorney_holder_type", null: false
+    t.string "user_account_email", null: false
+    t.string "user_account_icn"
+    t.index ["accredited_individual_registration_number", "power_of_attorney_holder_type", "user_account_email"], name: "ar_user_account_accredited_individuals_hardcoding", unique: true
+    t.index ["accredited_individual_registration_number", "power_of_attorney_holder_type", "user_account_email"], name: "index_ar_user_account_accredited_individuals_unique", unique: true
+    t.index ["power_of_attorney_holder_type", "user_account_email"], name: "ar_uniq_power_of_attorney_holder_type_user_account_email", unique: true
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -539,6 +558,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
     t.boolean "shared_sessions", default: false, null: false
     t.string "service_levels", default: ["ial1", "ial2", "loa1", "loa3", "min"], array: true
     t.string "credential_service_providers", default: ["logingov", "idme", "dslogon", "mhv"], array: true
+    t.boolean "json_api_compatibility", default: true, null: false
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
@@ -667,8 +687,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
   create_table "evidence_submissions", force: :cascade do |t|
     t.string "job_id"
     t.string "job_class"
-    t.string "request_id"
-    t.string "claim_id"
+    t.integer "request_id"
+    t.integer "claim_id"
     t.uuid "user_account_id", null: false
     t.json "template_metadata_ciphertext"
     t.text "encrypted_kms_key"
@@ -680,7 +700,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
     t.datetime "acknowledgement_date"
     t.datetime "failed_date"
     t.string "error_message"
-    t.string "tracked_item_id"
+    t.integer "tracked_item_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_account_id"], name: "index_evidence_submissions_on_user_account_id"
@@ -1153,11 +1173,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
     t.datetime "delete_date"
     t.text "metadata"
     t.datetime "metadata_updated_at"
+    t.bigint "user_account_id"
+    t.uuid "bpd_uuid"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["delete_date"], name: "index_saved_claims_on_delete_date"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
     t.index ["id"], name: "index_partial_saved_claims_on_id_metadata_like_error", where: "(metadata ~~ '%error%'::text)"
+    t.index ["user_account_id"], name: "index_saved_claims_on_user_account_id"
   end
 
   create_table "schema_contract_validations", force: :cascade do |t|
@@ -1381,6 +1404,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
     t.string "details", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "event_id"
+    t.integer "event_type"
   end
 
   create_table "user_actions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1768,7 +1793,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
   add_foreign_key "ar_power_of_attorney_forms", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_request_decisions", "user_accounts", column: "creator_id"
   add_foreign_key "ar_power_of_attorney_request_resolutions", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
-  add_foreign_key "ar_power_of_attorney_requests", "accredited_individuals"
   add_foreign_key "ar_power_of_attorney_requests", "user_accounts", column: "claimant_id"
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "claim_va_notifications", "saved_claims"

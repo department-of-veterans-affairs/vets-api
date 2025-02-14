@@ -4,12 +4,27 @@ require 'common/exceptions/validation_errors'
 
 module Burials
   module V0
+    ###
+    # The Burial claim controller that handles form submissions
+    #
     class ClaimsController < ApplicationController
       skip_before_action(:authenticate)
       before_action :load_user, only: :create
+      before_action :check_flipper_flag
+
+      # Raises an exception if the burial module enabled flipper flag isn't enabled.
+      def check_flipper_flag
+        raise Common::Exceptions::Forbidden unless Flipper.enabled?(:burial_module_enabled, current_user)
+      end
 
       service_tag 'burial-application'
 
+      #
+      # Retrieves a claim by its GUID and returns it as a serialized JSON response
+      #
+      # @return [JSON]
+      # @raise [ActiveRecord::RecordNotFound]
+      # @raise [Exception]
       def show
         claim = claim_class.find_by!(guid: params[:id])
         render json: SavedClaimSerializer.new(claim)
@@ -21,6 +36,14 @@ module Burials
         raise e
       end
 
+      ##
+      # Creates a new claim instance, serializes it, and returns the result as JSON
+      #
+      # The `create` method initializes a new `SavedClaim` object using the
+      # form data passed in via vets-website API endpoint
+      #
+      # @return [JSON]
+      # @raise [Exception]
       def create
         claim = claim_class.new(form: filtered_params[:form])
         monitor.track_create_attempt(claim, current_user)
@@ -48,16 +71,29 @@ module Burials
 
       private
 
-      # an identifier that matches the parameter that the form will be set as in the JSON submission.
+      ##
+      # An identifier that matches the parameter that the form will be set as in the JSON submission
+      #
+      # @return  [String]
       def short_name
         'burial_claim'
       end
 
-      # a subclass of SavedClaim, runs json-schema validations and performs any storage and attachment processing
+      ##
+      # Returns the class used for claims within the Burials module
+      # A subclass of SavedClaim, runs json-schema validations and performs any storage and attachment processing
+      #
+      # @return [Burials::SavedClaim]
       def claim_class
         Burials::SavedClaim
       end
 
+      ##
+      # Processes attachments for the claim and initiates an async task for intake processing
+      #
+      # @param in_progress_form [Object]
+      # @param claim
+      # @raise [Exception]
       def process_and_upload_to_lighthouse(in_progress_form, claim)
         claim.process_attachments!
 
@@ -67,18 +103,22 @@ module Burials
         raise e
       end
 
-      # Filters out the parameters to form access.
+      ##
+      # Filters and permits the form parameters required for processing
+      #
+      # @return [ActionController::Parameters]
       def filtered_params
         params.require(short_name.to_sym).permit(:form)
       end
 
       ##
-      # include validation error on in_progress_form metadata.
+      # Include validation error on in_progress_form metadata.
       # `noop` if in_progress_form is `blank?`
       #
       # @param in_progress_form [InProgressForm]
       # @param claim [Pensions::SavedClaim]
       #
+      # @return [void]
       def log_validation_error_to_metadata(in_progress_form, claim)
         return if in_progress_form.blank?
 
@@ -91,7 +131,6 @@ module Burials
       # retreive a monitor for tracking
       #
       # @return [Burials::Monitor]
-      #
       def monitor
         @monitor ||= Burials::Monitor.new
       end

@@ -48,8 +48,9 @@ module ClaimsApi
         )
 
       ##
-      # BenefitClaimService
+      # BenefitClaimServiceBean
       #
+      ##
       module BenefitClaimServiceBean
         DEFINITION =
           Bean.new(
@@ -61,7 +62,9 @@ module ClaimsApi
           )
       end
 
-      module BenefitClaimWebService
+      # BGS gave the same name to this service and the one below (BenefitClaimWebService), so
+      # We changed the definition name to resemble the bean name.
+      module BenefitClaimService
         DEFINITION =
           Service.new(
             bean: BenefitClaimServiceBean::DEFINITION,
@@ -70,8 +73,32 @@ module ClaimsApi
       end
 
       ##
-      # ClaimantServiceBean
+      # BenefitClaimWebServiceBean
       #
+      ##
+      module BenefitClaimWebServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'BenefitClaimWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://benefitclaim.services.vetsnet.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module BenefitClaimWebService
+        DEFINITION =
+          Service.new(
+            bean: BenefitClaimWebServiceBean::DEFINITION,
+            path: 'BenefitClaimWebService'
+          )
+      end
+
+      ##
+      # ClaimantServiceBean
+      # http://bepdev.vba.va.gov/ClaimantServiceBean/ClaimantWebService?WSDL
+      ##
       module ClaimantServiceBean
         DEFINITION =
           Bean.new(
@@ -93,11 +120,12 @@ module ClaimsApi
 
       ##
       # ClaimManagementService
-      #
+      # http://bepdev.vba.va.gov/ClaimManagementService/ClaimManagementService?WSDL
+      ##
       module ClaimManagementServiceBean
         DEFINITION =
           Bean.new(
-            path: 'ClaimManagementServiceBean',
+            path: 'ClaimManagementService',
             namespaces: Namespaces.new(
               target: 'http://services.mapd.benefits.vba.va.gov/',
               data: nil
@@ -115,7 +143,8 @@ module ClaimsApi
 
       ##
       # ContentionServiceBean
-      #
+      # http://bepdev.vba.va.gov/ContentionService/ContentionService?WSDL
+      ##
       module ContentionServiceBean
         DEFINITION =
           Bean.new(
@@ -136,7 +165,8 @@ module ClaimsApi
       end
 
       # CorporateUpdateServiceBean
-      #
+      # http://bepdev.vba.va.gov/CorporateUpdateServiceBean/CorporateUpdateWebService?WSDL
+      ##
       module CorporateUpdateServiceBean
         DEFINITION =
           Bean.new(
@@ -268,7 +298,8 @@ module ClaimsApi
 
       ##
       # StandardDataWebServiceBean
-      #
+      # http://bepdev.vba.va.gov/StandardDataWebServiceBean/StandardDataWebService?WSDL
+      ##
       module StandardDataWebServiceBean
         DEFINITION =
           Bean.new(

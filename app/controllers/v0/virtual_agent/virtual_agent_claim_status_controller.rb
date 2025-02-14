@@ -3,12 +3,10 @@
 require 'date'
 require 'concurrent'
 require 'lighthouse/benefits_claims/service'
-require 'datadog_logging'
 
 module V0
   module VirtualAgent
     class VirtualAgentClaimStatusController < ApplicationController
-      include DatadogLogging
       include IgnoreNotFound
       service_tag 'virtual-agent'
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
@@ -56,7 +54,35 @@ module V0
       end
 
       def get_claim_from_lighthouse(id)
-        lighthouse_service.get_claim(id)
+        claim = lighthouse_service.get_claim(id)
+        # Manual status override for certain tracked items
+        # See https://github.com/department-of-veterans-affairs/va.gov-team/issues/101447
+        # This should be removed when the items are re-categorized by BGS
+        # We are not doing this in the Lighthouse service because we want web and mobile to have
+        # separate rollouts and testing.
+        claim = override_rv1(claim) if Flipper.enabled?(:cst_override_reserve_records_website)
+        # https://github.com/department-of-veterans-affairs/va.gov-team/issues/98364
+        # This should be removed when the items are removed by BGS
+        claim = suppress_evidence_requests(claim) if Flipper.enabled?(:cst_suppress_evidence_requests_website)
+        claim
+      end
+
+      def override_rv1(claim)
+        tracked_items = claim.dig('data', 'attributes', 'trackedItems')
+        return claim unless tracked_items
+
+        tracked_items.select { |i| i['displayName'] == 'RV1 - Reserve Records Request' }.each do |i|
+          i['status'] = 'NEEDED_FROM_OTHERS'
+        end
+        claim
+      end
+
+      def suppress_evidence_requests(claim)
+        tracked_items = claim.dig('data', 'attributes', 'trackedItems')
+        return unless tracked_items
+
+        tracked_items.reject! { |i| BenefitsClaims::Service::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
+        claim
       end
 
       def lighthouse_service
@@ -81,14 +107,12 @@ module V0
       def service_exception_handler(exception)
         context = 'An error occurred while attempting to retrieve the claim(s).'
         log_exception_to_sentry(exception, 'context' => context)
-        log_to_datadog(context, exception.message, exception.backtrace)
         render nothing: true, status: :service_unavailable
       end
 
       def report_exception_handler(exception)
         context = 'An error occurred while attempting to report the claim(s).'
         log_exception_to_sentry(exception, 'context' => context)
-        log_to_datadog(context, exception.message, exception.backtrace)
       end
 
       class ServiceException < RuntimeError; end

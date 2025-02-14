@@ -694,6 +694,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             expect(data['id']).to eq('70060')
             expect(data['attributes']['kind']).to eq('clinic')
             expect(data['attributes']['status']).to eq('proposed')
+            expect(data['attributes']['pending']).to be(true)
+            expect(data['attributes']['past']).to be(true)
+            expect(data['attributes']['future']).to be(false)
             expect(data['attributes']['avsPath']).to be_nil
             expect(Rails.logger).to have_received(:info).with(
               'VAOS::V2::AppointmentsController appointment creation time: 2021-12-13T14:03:02Z',
@@ -896,13 +899,78 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
       end
     end
+
+    describe 'POST appointments/submit' do
+      context 'referral appointment' do
+        let(:params) do
+          { referral_number: '12345',
+            provider_service_id: '9mN718pH',
+            id: 'J9BhspdR',
+            slot_id: '5vuTac8v-practitioner-4-role-1|2a82f6c9-e693-4091-826d' \
+                     '-97b392958301|2024-11-04T17:00:00Z|30m0s|1732735998236|ov',
+            network_id: 'sandbox-network-5vuTac8v',
+            name: {
+              family: 'Smith',
+              given: %w[
+                Sarah
+                Elizabeth
+              ]
+            },
+            birth_date: '1985-03-15',
+            email: 'sarah.smith@email.com',
+            gender: 'female',
+            phone_number: '407-555-8899',
+            address: {
+              city: 'Orlando',
+              country: 'USA',
+              line: [
+                '742 Sunshine Boulevard',
+                'Apt 15B'
+              ],
+              postal_code: '32801',
+              state: 'FL',
+              type: 'both',
+              text: 'text'
+            } }
+        end
+
+        it 'successfully submits referral appointment' do
+          VCR.use_cassette('vaos/v2/eps/post_access_token',
+                           match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/eps/post_submit_appointment',
+                             match_requests_on: %i[method path body]) do
+              post '/vaos/v2/appointments/submit', params:, headers: inflection_header
+
+              response_obj = JSON.parse(response.body)
+              expect(response).to have_http_status(:created)
+              expect(response_obj.dig('data', 'id')).to eql('J9BhspdR')
+            end
+          end
+        end
+
+        it 'handles EPS error response' do
+          VCR.use_cassette('vaos/v2/eps/post_access_token',
+                           match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/eps/post_submit_appointment_400',
+                             match_requests_on: %i[method path]) do
+              post '/vaos/v2/appointments/submit', params: { ** params, phone_number: nil }, headers: inflection_header
+
+              response_obj = JSON.parse(response.body)
+              expect(response).to have_http_status(:bad_request)
+              expect(response_obj['errors'].length).to be(1)
+              expect(response_obj['errors'][0]['detail']).to eql('missing patient attributes: phone')
+            end
+          end
+        end
+      end
+    end
   end
 
   context 'for eps referrals' do
+    let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
+
     describe 'POST create_draft' do
       context 'when the request is successful' do
-        let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
-
         let(:draft_params) do
           {
             referral_id: 'ref-123',
@@ -1023,7 +1091,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         it 'returns a successful response when all calls succeed' do
-          VCR.use_cassette 'vaos/eps/get_drive_times/200' do
+          VCR.use_cassette('vaos/eps/get_drive_times/200', match_requests_on: %i[method path body]) do
             VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
               VCR.use_cassette 'vaos/eps/get_provider_service/200' do
                 VCR.use_cassette 'vaos/eps/draft_appointment/200' do
@@ -1037,6 +1105,226 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               end
             end
           end
+        end
+      end
+
+      context 'when user address does not have coordinates' do
+        before do
+          allow_any_instance_of(User).to receive(:vet360_contact_info).and_return(nil)
+        end
+
+        let(:draft_params) do
+          {
+            referral_id: 'ref-123',
+            provider_id: '9mN718pH',
+            appointment_type_id: 'ov',
+            start_date: '2025-01-01T00:00:00Z',
+            end_date: '2025-01-03T00:00:00Z'
+          }
+        end
+
+        let(:draft_appointment_response) do
+          {
+            id: 'EEKoGzEf',
+            state: 'draft',
+            patientId: 'ref-123'
+          }
+        end
+
+        let(:provider_response) do
+          {
+            'id' => '9mN718pH',
+            'name' => 'Dr. Moreen S. Rafa @ FHA South Melbourne Medical Complex',
+            'isActive' => true,
+            'individualProviders' => [
+              {
+                'name' => 'Dr. Moreen S. Rafa',
+                'npi' => '91560381x'
+              }
+            ],
+            'providerOrganization' => {
+              'name' => 'Meridian Health (Sandbox 5vuTac8v)'
+            },
+            'location' => {
+              'name' => 'FHA South Melbourne Medical Complex',
+              'address' => '1105 Palmetto Ave, Melbourne, FL, 32901, US',
+              'latitude' => 28.08061,
+              'longitude' => -80.60322,
+              'timezone' => 'America/New_York'
+            },
+            'networkIds' => ['sandbox-network-5vuTac8v'],
+            'schedulingNotes' => 'New patients need to send their previous records to the office prior to their appt.',
+            'appointmentTypes' => [
+              {
+                'id' => 'ov',
+                'name' => 'Office Visit',
+                'isSelfSchedulable' => true
+              }
+            ],
+            'specialties' => [
+              {
+                'id' => '208800000X',
+                'name' => 'Urology'
+              }
+            ],
+            'visitMode' => 'phone',
+            'features' => {
+              'isDigital' => true,
+              'directBooking' => {
+                'isEnabled' => true,
+                'requiredFields' => %w[phone address name birthdate gender]
+              }
+            }
+          }
+        end
+
+        let(:slots_response) do
+          {
+            'count' => 2,
+            'slots' => [
+              {
+                'id' => '5vuTac8v-practitioner-1-role-2|e43a19a8-b0cb-4dcf-befa-8cc511c3999b|' \
+                        '2025-01-02T11:00:00Z|30m0s|1736636444704|ov',
+                'providerServiceId' => '9mN718pH',
+                'appointmentTypeId' => 'ov',
+                'start' => '2025-01-02T11:00:00Z',
+                'remaining' => 1
+              },
+              {
+                'id' => '5vuTac8v-practitioner-1-role-2|e43a19a8-b0cb-4dcf-befa-8cc511c3999b|' \
+                        '2025-01-02T15:30:00Z|30m0s|1736636444704|ov',
+                'providerServiceId' => '9mN718pH',
+                'appointmentTypeId' => 'ov',
+                'start' => '2025-01-02T15:30:00Z',
+                'remaining' => 1
+              }
+            ]
+          }
+        end
+
+        let(:expected_response) do
+          {
+            'data' => {
+              'id' => draft_appointment_response[:id],
+              'type' => 'draft_appointment',
+              'attributes' => {
+                'provider' => provider_response,
+                'slots' => slots_response['slots'],
+                'drivetime' => nil
+              }
+            }
+          }
+        end
+
+        it 'returns a successful response when all calls succeed' do
+          VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
+            VCR.use_cassette 'vaos/eps/get_provider_service/200' do
+              VCR.use_cassette 'vaos/eps/draft_appointment/200' do
+                VCR.use_cassette 'vaos/eps/token/token_200' do
+                  post '/vaos/v2/appointments/draft', params: draft_params
+
+                  expect(response).to have_http_status(:created)
+                  expect(JSON.parse(response.body)).to eq(expected_response)
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context 'when drive time coords are invalid' do
+        let(:draft_params) do
+          {
+            referral_id: 'ref-123',
+            provider_id: '9mN718pH',
+            appointment_type_id: 'ov',
+            start_date: '2025-01-01T00:00:00Z',
+            end_date: '2025-01-03T00:00:00Z'
+          }
+        end
+
+        it 'handles invalid_range response' do
+          VCR.use_cassette 'vaos/eps/get_drive_times/400_invalid_coords' do
+            VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
+              VCR.use_cassette 'vaos/eps/get_provider_service/200' do
+                VCR.use_cassette 'vaos/eps/draft_appointment/200' do
+                  VCR.use_cassette 'vaos/eps/token/token_200' do
+                    post '/vaos/v2/appointments/draft', params: draft_params
+
+                    expect(response).to have_http_status(:bad_request)
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context 'when provider ID is invalid' do
+        let(:draft_params) do
+          {
+            referral_id: 'ref-123',
+            provider_id: '9mN718pHa',
+            appointment_type_id: 'ov',
+            start_date: '2025-01-01T00:00:00Z',
+            end_date: '2025-01-03T00:00:00Z'
+          }
+        end
+
+        it 'handles provider-services 404 response' do
+          VCR.use_cassette 'vaos/eps/get_provider_service/404_unknown_provider' do
+            VCR.use_cassette 'vaos/eps/draft_appointment/200' do
+              VCR.use_cassette 'vaos/eps/token/token_200' do
+                post '/vaos/v2/appointments/draft', params: draft_params
+
+                expect(response).to have_http_status(:not_found)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when patient id is invalid' do
+        let(:draft_params) do
+          {
+            referral_id: 'ref-123',
+            provider_id: '9mN718pH',
+            appointment_type_id: 'ov',
+            start_date: '2025-01-01T00:00:00Z',
+            end_date: '2025-01-03T00:00:00Z'
+          }
+        end
+
+        it 'handles invalid patientId response as 400' do
+          VCR.use_cassette 'vaos/eps/draft_appointment/400_invalid_patientid' do
+            VCR.use_cassette 'vaos/eps/token/token_200' do
+              post '/vaos/v2/appointments/draft', params: draft_params
+
+              expect(response).to have_http_status(:bad_request)
+            end
+          end
+        end
+      end
+
+      context 'when missing provider_id' do
+        let(:draft_params) do
+          {
+            referral_id: 'ref-123',
+            appointment_type_id: 'ov',
+            start_date: '2025-01-01T00:00:00Z',
+            end_date: '2025-01-03T00:00:00Z'
+          }
+        end
+
+        it 'handles invalid patientId response as 400' do
+          post '/vaos/v2/appointments/draft', params: draft_params
+
+          response_obj = JSON.parse(response.body)
+          expect(response).to have_http_status(:bad_request)
+          expect(response_obj['errors'].length).to be(1)
+          expect(response_obj['errors'][0]['detail']).to eql(
+            'The required parameter "provider_id", is missing'
+          )
         end
       end
     end

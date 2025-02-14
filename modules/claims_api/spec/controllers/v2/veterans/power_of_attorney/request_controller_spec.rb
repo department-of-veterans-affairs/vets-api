@@ -227,9 +227,14 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
     context 'when procId is present and valid and decision is accepted' do
       let(:decision) { 'ACCEPTED' }
+      let(:service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Show) }
 
       before do
         allow(ClaimsApi::PowerOfAttorneyRequest).to(receive(:find_by).and_return(request_response))
+        allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
+          .to receive(:fetch_ptcpnt_id).with(anything).and_return('5196105942')
+        allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
+        allow(service).to receive(:get_poa_request).and_return({})
       end
 
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do
@@ -455,7 +460,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
   def index_request_with(poa_codes:, auth_header:, filter: {})
     post v2_veterans_power_of_attorney_requests_path,
          params: { data: { attributes: { poaCodes: poa_codes, filter: } } }.to_json,
-         headers: auth_header
+         headers: auth_header.merge('Content-Type' => 'application/json')
   end
 
   def show_request_with(id:, auth_header:)
@@ -467,12 +472,12 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
          params: { data: { attributes: { id: id,
                                          decision:,
                                          representativeId: representative_id } } }.to_json,
-         headers: auth_header
+         headers: auth_header.merge('Content-Type' => 'application/json')
   end
 
   def create_request_with(veteran_id:, form_attributes:, auth_header:)
     post "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney-request",
          params: { data: { attributes: form_attributes } }.to_json,
-         headers: auth_header
+         headers: auth_header.merge('Content-Type' => 'application/json')
   end
 end

@@ -26,7 +26,7 @@ describe 'PowerOfAttorney',
   }
 
   path '/veterans/{veteranId}/power-of-attorney' do
-    get 'Find current Power of Attorney for a Veteran.' do
+    get 'Retrieves current power of attorney' do
       tags 'Power of Attorney'
       operationId 'findPowerOfAttorney'
       security [
@@ -35,7 +35,8 @@ describe 'PowerOfAttorney',
         { bearer_token: [] }
       ]
       produces 'application/json'
-      description 'Retrieves current Power of Attorney for Veteran or empty data if no POA is assigned.'
+      description 'Retrieve a claimant’s currently appointed accredited representative with power of attorney ' \
+                  '(General POA) for the claimant. Returns empty data if no General POA is assigned.'
 
       let(:Authorization) { 'Bearer token' }
 
@@ -189,8 +190,8 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/{veteranId}/power-of-attorney-request', production: false do
-    post 'Create a Power of Attorney appointment request' do
-      description 'Creates a Power of Attorney appointment request.'
+    post 'Creates power of attorney request for an accredited representative' do
+      description 'Request the appointment of an accredited representative, on behalf of a claimant.'
       tags 'Power of Attorney'
       operationId 'postPowerOfAttorneyRequest'
       security [
@@ -341,7 +342,7 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/power-of-attorney-requests', production: false do
-    post 'Search for Power of Attorney requests.' do
+    post 'Retrieves power of attorney requests for accredited representatives' do
       tags 'Power of Attorney'
       operationId 'searchPowerOfAttorneyRequests'
       security [
@@ -351,7 +352,8 @@ describe 'PowerOfAttorney',
       ]
       produces 'application/json'
       consumes 'application/json'
-      description 'Search for Power of Attorney requests'
+      description 'Search for power of attorney requests by specified POA codes. Optional filters include searching ' \
+                  'by status, city, state, and country.'
 
       let(:Authorization) { 'Bearer token' }
       let(:scopes) { %w[system/claim.read system/claim.write] }
@@ -474,7 +476,7 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/power-of-attorney-requests/{id}', production: false do
-    get 'Retrieves a Power of Attorney request' do
+    get 'Retrieves a power of attorney request' do
       tags 'Power of Attorney'
       operationId 'getPowerOfAttorneyRequest'
       security [
@@ -483,7 +485,7 @@ describe 'PowerOfAttorney',
         { bearer_token: [] }
       ]
       produces 'application/json'
-      description 'Retrieves a Power of Attorney request.'
+      description 'Retrieve a power of attorney request by id.'
 
       let(:Authorization) { 'Bearer token' }
       let(:scopes) { %w[system/claim.read system/claim.write] }
@@ -598,7 +600,7 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/power-of-attorney-requests/{id}/decide', production: false do
-    post 'Submit the decision for Power of Attorney requests.' do
+    post 'Submits representative decision for a power of attorney request' do
       tags 'Power of Attorney'
       operationId 'createPowerOfAttorneyRequestDecisions'
       security [
@@ -608,7 +610,8 @@ describe 'PowerOfAttorney',
       ]
       produces 'application/json'
       consumes 'application/json'
-      description 'Create the decision for Power of Attorney requests'
+      description 'Approve or decline a power of attorney request. If approved, the power of attorney request will ' \
+                  'be submitted to VA. The claimant will be notified of the decision by email.'
 
       parameter name: :id,
                 in: :path,
@@ -648,22 +651,32 @@ describe 'PowerOfAttorney',
           schema JSON.load_file(File.expand_path('rswag/create/200.json', __dir__))
 
           let(:data) { body_schema[:example] }
-          let(:request_response) do
-            ClaimsApi::PowerOfAttorneyRequest.new(
-              id: '348fa995-5b29-4819-91af-13f1bb3c7d77',
-              proc_id: '3858322',
-              veteran_icn: '1012667169V030190',
-              claimant_icn: '',
-              poa_code: '067',
-              metadata: {},
-              power_of_attorney_id: nil
-            )
+          let(:poa_request_service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Show) }
+          let(:get_poa_request_response) do
+            {
+              'VSOUserEmail' => nil, 'VSOUserFirstName' => 'vets-api',
+              'VSOUserLastName' => 'vets-api', 'changeAddressAuth' => 'Y',
+              'claimantCity' => 'Portland', 'claimantCountry' => 'USA',
+              'claimantMilitaryPO' => nil, 'claimantMilitaryPostalCode' => nil,
+              'claimantState' => 'OR', 'claimantZip' => '56789',
+              'dateRequestActioned' => '2025-01-09T10:19:26-06:00',
+              'dateRequestReceived' => '2024-10-30T08:22:07-05:00',
+              'declinedReason' => nil, 'healthInfoAuth' => 'Y', 'poaCode' => '074',
+              'procID' => '3857362', 'secondaryStatus' => 'Accepted',
+              'vetFirstName' => 'ANDREA', 'vetLastName' => 'MITCHELL',
+              'vetMiddleName' => 'L', 'vetPtcpntID' => '600049322'
+            }
           end
 
           before do |example|
-            allow(ClaimsApi::PowerOfAttorneyRequest).to(
-              receive(:find_by).and_return(request_response)
-            )
+            create(:claims_api_power_of_attorney_request, id:,
+                                                          proc_id: '3857362',
+                                                          veteran_icn: '1012829932V238054',
+                                                          poa_code: '003')
+            allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController).to receive(:fetch_ptcpnt_id)
+              .with(anything).and_return('600049322')
+            allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(poa_request_service)
+            allow(poa_request_service).to receive(:get_poa_request).and_return(get_poa_request_response)
 
             mock_ccg(scopes) do
               VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
@@ -779,10 +792,10 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/2122a' do
-    post 'Appoint an individual Power of Attorney for a Veteran.' do
+  path '/veterans/{veteranId}/2122/validate' do
+    post 'Validates request to establish an organization as a claimant’s accredited representative' do
       tags 'Power of Attorney'
-      operationId 'post2122a'
+      operationId 'post2122Validate'
       security [
         { productionOauth: ['system/claim.read', 'system/claim.write'] },
         { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
@@ -790,78 +803,41 @@ describe 'PowerOfAttorney',
       ]
       consumes 'application/json'
       produces 'application/json'
-
       parameter name: 'veteranId',
                 in: :path,
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
                 description: 'ID of Veteran'
+      parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney2122]
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
-      parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a]
-      post_description = <<~VERBIAGE
-        Dependent Claimant Information:\n
-          - If dependent claimant information is included in the request, the dependentʼs relationship to the Veteran
-          will be validated.\n
-          - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n
-
-        Response Information:\n
-          - A 202 response indicates that the submission was accepted.\n
-          - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n
-      VERBIAGE
-      description post_description
       let(:scopes) { %w[system/claim.read system/claim.write] }
-      let(:poa_code) { '067' }
-      let(:bgs_poa) { { person_org_name: "#{poa_code} name-here" } }
 
-      request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                                    'power_of_attorney', '2122a', 'valid.json').read)
+      pdf_description = <<~VERBIAGE
+        Validate a request to establish an organization with power of attorney (VA Form 21-22). Use POST
+        /veterans/{veteranId}/2122 to automatically establish submit VA Form 21-22.
+      VERBIAGE
 
-      request_template_with_dependent = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
-                                                                   'veterans', 'power_of_attorney', '2122a',
-                                                                   'valid.json').read)
-
-      request_template_with_dependent['data']['attributes']['claimant'] = claimant_data
-
-      parameter name: :power_of_attorney_request, in: :body,
-                schema: SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a][:schema]
-
-      parameter in: :body, examples: {
-        'POA for Veteran' => {
-          value: request_template
-        },
-        'POA for Dependent Claimant' => {
-          value: request_template_with_dependent
-        }
-      }
+      description pdf_description
 
       describe 'Getting a successful response' do
-        response '202', 'Valid request response' do
+        response '200', 'Valid request response' do
+          let(:poa_code) { '083' }
+
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
-                                            'power_of_attorney', '2122a', 'submit.json').read)
+                                            'power_of_attorney', '2122', 'validate.json').read)
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'power_of_attorney', '2122a', 'valid.json').read
-            temp = JSON.parse(temp)
-
-            temp
-          end
-
-          let(:power_of_attorney_request) do
-            data
+                                   'power_of_attorney', '2122', 'valid.json').read
+            JSON.parse(temp)
           end
 
           before do |example|
-            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
-              .and_return({ person_poa_history: nil })
-            create(:veteran_representative, representative_id: '999999999999',
-                                            poa_codes: [poa_code],
-                                            first_name: 'Firstname',
-                                            last_name: 'Lastname',
-                                            phone: '555-555-5555')
+            create(:veteran_organization, poa: poa_code)
+            create(:veteran_representative, representative_id: '999999999999', poa_codes: [poa_code])
+
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
@@ -875,7 +851,7 @@ describe 'PowerOfAttorney',
             }
           end
 
-          it 'returns a valid 202 response' do |example|
+          it 'returns a valid 200 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
@@ -888,10 +864,8 @@ describe 'PowerOfAttorney',
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'power_of_attorney', '2122a', 'valid.json').read
-            temp = JSON.parse(temp)
-
-            temp
+                                   'power_of_attorney', '2122', 'valid.json').read
+            JSON.parse(temp)
           end
 
           let(:Authorization) { nil }
@@ -921,10 +895,8 @@ describe 'PowerOfAttorney',
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'power_of_attorney', '2122a', 'invalid_schema.json').read
-            temp = JSON.parse(temp)
-
-            temp
+                                   'power_of_attorney', '2122', 'invalid_schema.json').read
+            JSON.parse(temp)
           end
 
           before do |example|
@@ -954,10 +926,8 @@ describe 'PowerOfAttorney',
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'power_of_attorney', '2122a', 'valid.json').read
-            temp = JSON.parse(temp)
-
-            temp
+                                   'power_of_attorney', '2122', 'valid.json').read
+            JSON.parse(temp)
           end
 
           before do |example|
@@ -983,16 +953,10 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/{veteranId}/2122' do
-    post 'Appoint an organization Power of Attorney for a Veteran.' do
+    post 'Automatically establishes an organization as a claimant’s accredited representative (VA Form 21-22)' do
       post_description = <<~VERBIAGE
-        Dependent Claimant Information:\n
-          - If dependent claimant information is included in the request, the dependentʼs relationship to the Veteran
-          will be validated.\n
-          - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n
-
-        Response Information:\n
-          - A 202 response indicates that the submission was accepted.\n
-          - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n
+        Submit VA Form 21-22 to automatically establish a VA accredited organization with power of attorney
+        (General POA).
       VERBIAGE
       description post_description
       tags 'Power of Attorney'
@@ -1175,7 +1139,7 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/{veteranId}/2122a/validate' do
-    post 'Validates a 2122a form submission.' do
+    post 'Validates request to establish an individual as a claimant’s accredited representative (VA Form 21-22a)' do
       tags 'Power of Attorney'
       operationId 'post2122aValidate'
       security [
@@ -1198,7 +1162,8 @@ describe 'PowerOfAttorney',
       let(:Authorization) { 'Bearer token' }
       parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a]
       pdf_description = <<~VERBIAGE
-        Validates a request appointing an individual as Power of Attorney (21-22a).
+        Validate a request to establish an individual with power of attorney (VA Form 21-22a). Use POST
+        /veterans/{veteranId}/2122a to automatically establish submit VA Form 21-22a.
       VERBIAGE
 
       description pdf_description
@@ -1344,10 +1309,10 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/{veteranId}/2122/validate' do
-    post 'Validates a 2122 form submission.' do
+  path '/veterans/{veteranId}/2122a' do
+    post 'Automatically establishes an individual as a claimant’s accredited representative (VA Form 21-22a)' do
       tags 'Power of Attorney'
-      operationId 'post2122Validate'
+      operationId 'post2122a'
       security [
         { productionOauth: ['system/claim.read', 'system/claim.write'] },
         { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
@@ -1355,40 +1320,71 @@ describe 'PowerOfAttorney',
       ]
       consumes 'application/json'
       produces 'application/json'
+
       parameter name: 'veteranId',
                 in: :path,
                 required: true,
                 type: :string,
                 example: '1012667145V762142',
                 description: 'ID of Veteran'
-      parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney2122]
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
-      let(:scopes) { %w[system/claim.read system/claim.write] }
-
-      pdf_description = <<~VERBIAGE
-        Validates a request appointing an organization as Power of Attorney (21-22).
+      parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a]
+      post_description = <<~VERBIAGE
+        Submit VA Form 21-22 to automatically establish a VA accredited individual with power of attorney (General POA).
       VERBIAGE
+      description post_description
+      let(:scopes) { %w[system/claim.read system/claim.write] }
+      let(:poa_code) { '067' }
+      let(:bgs_poa) { { person_org_name: "#{poa_code} name-here" } }
 
-      description pdf_description
+      request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                                    'power_of_attorney', '2122a', 'valid.json').read)
+
+      request_template_with_dependent = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
+                                                                   'veterans', 'power_of_attorney', '2122a',
+                                                                   'valid.json').read)
+
+      request_template_with_dependent['data']['attributes']['claimant'] = claimant_data
+
+      parameter name: :power_of_attorney_request, in: :body,
+                schema: SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a][:schema]
+
+      parameter in: :body, examples: {
+        'POA for Veteran' => {
+          value: request_template
+        },
+        'POA for Dependent Claimant' => {
+          value: request_template_with_dependent
+        }
+      }
 
       describe 'Getting a successful response' do
-        response '200', 'Valid request response' do
-          let(:poa_code) { '083' }
-
+        response '202', 'Valid request response' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
-                                            'power_of_attorney', '2122', 'validate.json').read)
+                                            'power_of_attorney', '2122a', 'submit.json').read)
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'power_of_attorney', '2122', 'valid.json').read
-            JSON.parse(temp)
+                                   'power_of_attorney', '2122a', 'valid.json').read
+            temp = JSON.parse(temp)
+
+            temp
+          end
+
+          let(:power_of_attorney_request) do
+            data
           end
 
           before do |example|
-            create(:veteran_organization, poa: poa_code)
-            create(:veteran_representative, representative_id: '999999999999', poa_codes: [poa_code])
-
+            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
+              .and_return({ person_poa_history: nil })
+            create(:veteran_representative, representative_id: '999999999999',
+                                            poa_codes: [poa_code],
+                                            first_name: 'Firstname',
+                                            last_name: 'Lastname',
+                                            phone: '555-555-5555')
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
@@ -1402,7 +1398,7 @@ describe 'PowerOfAttorney',
             }
           end
 
-          it 'returns a valid 200 response' do |example|
+          it 'returns a valid 202 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
@@ -1415,8 +1411,10 @@ describe 'PowerOfAttorney',
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'power_of_attorney', '2122', 'valid.json').read
-            JSON.parse(temp)
+                                   'power_of_attorney', '2122a', 'valid.json').read
+            temp = JSON.parse(temp)
+
+            temp
           end
 
           let(:Authorization) { nil }
@@ -1446,8 +1444,10 @@ describe 'PowerOfAttorney',
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'power_of_attorney', '2122', 'invalid_schema.json').read
-            JSON.parse(temp)
+                                   'power_of_attorney', '2122a', 'invalid_schema.json').read
+            temp = JSON.parse(temp)
+
+            temp
           end
 
           before do |example|
@@ -1477,8 +1477,10 @@ describe 'PowerOfAttorney',
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'power_of_attorney', '2122', 'valid.json').read
-            JSON.parse(temp)
+                                   'power_of_attorney', '2122a', 'valid.json').read
+            temp = JSON.parse(temp)
+
+            temp
           end
 
           before do |example|
@@ -1504,8 +1506,8 @@ describe 'PowerOfAttorney',
   end
 
   path '/veterans/{veteranId}/power-of-attorney/{id}' do
-    get 'Checks status of Power of Attorney appointment form submission' do
-      description 'Gets the Power of Attorney appointment request status (21-22/21-22a)'
+    get 'Checks status of power of attorney submission (VA Forms 21-22 or 21-22a)' do
+      description 'Check the submissions status of a request to appoint power of attorney (VA Forms 21-22 or 21-22a).'
       tags 'Power of Attorney'
       operationId 'getPowerOfAttorneyStatus'
       security [
