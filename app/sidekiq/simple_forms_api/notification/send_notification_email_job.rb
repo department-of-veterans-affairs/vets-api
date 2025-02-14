@@ -17,7 +17,7 @@ module SimpleFormsApi
         @form_number = form_number
         form_submission = form_submission_attempt.form_submission
         @config = {
-          form_data: JSON.parse(form_submission.form_data),
+          form_data: JSON.parse(form_submission.form_data).deep_symbolize_keys,
           form_number:,
           confirmation_number: form_submission_attempt.benefits_intake_uuid,
           date_submitted: form_submission_attempt.created_at.strftime('%B %d, %Y'),

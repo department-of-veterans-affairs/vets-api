@@ -28,5 +28,10 @@ FactoryBot.define do
       created_at { 99.days.ago }
       aasm_state { 'pending' }
     end
+
+    trait :form_upload do
+      association :form_submission,
+                  form_data: { email: 'a@b.com', full_name: { first: 'Veteran', last: 'Eteranvay' } }.to_json
+    end
   end
 end

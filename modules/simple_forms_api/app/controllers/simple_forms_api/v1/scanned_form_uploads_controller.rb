@@ -12,7 +12,7 @@ module SimpleFormsApi
 
         status, confirmation_number = upload_response
 
-        send_confirmation_email(confirmation_number) if status == 200
+        send_confirmation_email(params, confirmation_number) if status == 200
 
         render json: { status:, confirmation_number: }
       end
@@ -119,20 +119,15 @@ module SimpleFormsApi
         end
       end
 
-      def send_confirmation_email(confirmation_number)
+      def send_confirmation_email(params, confirmation_number)
         config = {
           form_number: params[:form_number],
-          form_data:,
+          form_data: params[:form_data],
           date_submitted: Time.zone.today.strftime('%B %d, %Y'),
           confirmation_number:
         }
         notification_email = SimpleFormsApi::FormUploadNotificationEmail.new(config, notification_type: :confirmation)
         notification_email.send
-      end
-
-      def form_data
-        params.require(:form_data).permit(:postal_code, :email, :form_name, id_number: %i[ssn va_file_number],
-                                                                            full_name: %i[first last])
       end
     end
   end
