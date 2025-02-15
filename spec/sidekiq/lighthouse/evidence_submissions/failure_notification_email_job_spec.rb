@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'va_notify/service'
 require 'lighthouse/benefits_documents/utilities/helpers'
 
-
 RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, type: :job do
   subject { described_class }
 
@@ -71,8 +70,11 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       let(:tags) { ['service:claim-status', "function: #{message}"] }
       let(:message) { "#{evidence_submission_failed.job_class} va notify failure email queued" }
       let!(:evidence_submission_failed) { create(:bd_evss_evidence_submission_failed_type1_error) }
-      let(:personalisation) {BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed)}
-
+      let(:personalisation) do
+        {
+          BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed)
+        }
+      end
       let(:send_email_params) do 
         {
           recipient_identifier: {
@@ -83,6 +85,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
           personalisation: 
         }
       end
+
       before do
         allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
         allow(EvidenceSubmission).to receive(:va_notify_email_not_queued).and_return([evidence_submission_failed])
@@ -132,8 +135,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       let(:tags) { ['service:claim-status', "function: #{message}"] }
       let(:message) { "#{evidence_submission_failed.job_class} va notify failure email queued" }
       let!(:evidence_submission_failed) { create(:bd_lh_evidence_submission_failed_type1_error) }
-      let(:personalisation) {BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed)}
-
+      let(:personalisation) { BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed) }
       let(:send_email_params) do 
         {
           recipient_identifier: {
@@ -194,8 +196,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       let(:tags) { ['service:claim-status', "function: #{message}"] }
       let(:message) { "#{evidence_submission_failed.job_class} va notify failure email queued" }
       let!(:evidence_submission_failed) { create(:bd_lh_evidence_submission_failed_type2_error) }
-      let(:personalisation) {BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed)}
-
+      let(:personalisation) { BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed) }
       let(:send_email_params) do 
         {
           recipient_identifier: {
