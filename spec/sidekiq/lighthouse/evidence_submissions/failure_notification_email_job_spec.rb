@@ -71,18 +71,17 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       let(:message) { "#{evidence_submission_failed.job_class} va notify failure email queued" }
       let!(:evidence_submission_failed) { create(:bd_evss_evidence_submission_failed_type1_error) }
       let(:personalisation) do
-        {
-          BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed)
-        }
+        BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed)
       end
-      let(:send_email_params) do 
+      let(:send_email_params) do
         {
           recipient_identifier: {
             id_value: evidence_submission_failed.user_account.icn,
             id_type: 'ICN'
           },
-          template_id: Settings.vanotify.services.benefits_management_tools.template_id.evidence_submission_failure_email,
-          personalisation: 
+          template_id: Settings.vanotify.services.benefits_management_tools
+                               .template_id.evidence_submission_failure_email,
+          personalisation:
         }
       end
 
@@ -135,18 +134,21 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       let(:tags) { ['service:claim-status', "function: #{message}"] }
       let(:message) { "#{evidence_submission_failed.job_class} va notify failure email queued" }
       let!(:evidence_submission_failed) { create(:bd_lh_evidence_submission_failed_type1_error) }
-      let(:personalisation) { BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed) }
-      let(:send_email_params) do 
+      let(:personalisation) do
+        BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed)
+      end
+      let(:send_email_params) do
         {
           recipient_identifier: {
             id_value: evidence_submission_failed.user_account.icn,
             id_type: 'ICN'
           },
-          template_id: Settings.vanotify.services.benefits_management_tools.template_id.evidence_submission_failure_email,
-          personalisation: 
+          template_id: Settings.vanotify.services.benefits_management_tools
+                               .template_id.evidence_submission_failure_email,
+          personalisation:
         }
       end
-    
+
       before do
         allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
         allow(EvidenceSubmission).to receive(:va_notify_email_not_queued).and_return([evidence_submission_failed])
@@ -196,17 +198,21 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       let(:tags) { ['service:claim-status', "function: #{message}"] }
       let(:message) { "#{evidence_submission_failed.job_class} va notify failure email queued" }
       let!(:evidence_submission_failed) { create(:bd_lh_evidence_submission_failed_type2_error) }
-      let(:personalisation) { BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed) }
-      let(:send_email_params) do 
+      let(:personalisation) do
+        BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed)
+      end
+      let(:send_email_params) do
         {
           recipient_identifier: {
             id_value: evidence_submission_failed.user_account.icn,
             id_type: 'ICN'
           },
-          template_id: Settings.vanotify.services.benefits_management_tools.template_id.evidence_submission_failure_email,
-          personalisation: 
+          template_id: Settings.vanotify.services.benefits_management_tools
+                               .template_id.evidence_submission_failure_email,
+          personalisation:
         }
       end
+
       before do
         allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
         allow(EvidenceSubmission).to receive(:va_notify_email_not_queued).and_return([evidence_submission_failed])
