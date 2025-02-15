@@ -27,6 +27,20 @@ module DecisionReviews
       ZIP_REGEX = /^\d{5}(-\d{4})?$/
       NO_ZIP_PLACEHOLDER = '00000'
 
+      ERROR_MAP = {
+        504 => Common::Exceptions::GatewayTimeout,
+        503 => Common::Exceptions::ServiceUnavailable,
+        502 => Common::Exceptions::BadGateway,
+        500 => Common::Exceptions::ExternalServerInternalServerError,
+        429 => Common::Exceptions::TooManyRequests,
+        422 => Common::Exceptions::UnprocessableEntity,
+        413 => Common::Exceptions::PayloadTooLarge,
+        404 => Common::Exceptions::ResourceNotFound,
+        403 => Common::Exceptions::Forbidden,
+        401 => Common::Exceptions::Unauthorized,
+        400 => Common::Exceptions::BadRequest
+      }.freeze
+
       configuration ::DecisionReviewV1::Configuration
 
       ##
@@ -452,8 +466,8 @@ module DecisionReviews
                 DecisionReviewV1::ServiceException.new key: 'DR_502', response_values: source_hash
               when Common::Client::Errors::ClientError
                 Sentry.set_extras(body: error.body, status: error.status)
-                if error.status == 403
-                  Common::Exceptions::Forbidden.new source_hash
+                if ERROR_MAP.has_key? error.status
+                  ERROR_MAP[error.status].new(source_hash.merge(detail: error.body))
                 else
                   DecisionReviewV1::ServiceException.new(
                     key: "DR_#{error.status}",

@@ -36,10 +36,6 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
       }
     }
   end
-  let(:extra_error_log_message) do
-    'BackendServiceException: ' \
-      '{:source=>"Common::Client::Errors::ClientError raised in DecisionReviews::V1::Service", :code=>"DR_422"}'
-  end
 
   let(:response_error_body) do
     {
@@ -101,10 +97,9 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
         allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(error_log_args)
         expect(Rails.logger).to receive(:error).with(
-          message: "Exception occurred while submitting Supplemental Claim: #{extra_error_log_message}",
+          message: 'Exception occurred while submitting Supplemental Claim: Unprocessable Entity',
           backtrace: anything
         )
-        expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_995.overall_claim_submission.failure')
 
@@ -115,7 +110,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
           first_name last_name birls_id icn edipi mhv_correlation_id
           participant_id vet360_id ssn assurance_level birth_date
         ].each { |key| expect(pil.data['user'][key]).to be_truthy }
-        %w[message backtrace key response_values original_status original_body]
+        %w[message backtrace errors]
           .each { |key| expect(pil.data['error'][key]).to be_truthy }
         expect(pil.data['additional_data']['request']['body']).not_to be_empty
       end
