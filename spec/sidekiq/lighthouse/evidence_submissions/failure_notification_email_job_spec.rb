@@ -2,6 +2,8 @@
 
 require 'rails_helper'
 require 'va_notify/service'
+require 'lighthouse/benefits_documents/utilities/helpers'
+
 
 RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, type: :job do
   subject { described_class }
@@ -69,7 +71,18 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       let(:tags) { ['service:claim-status', "function: #{message}"] }
       let(:message) { "#{evidence_submission_failed.job_class} va notify failure email queued" }
       let!(:evidence_submission_failed) { create(:bd_evss_evidence_submission_failed_type1_error) }
+      let(:personalisation) {BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed)}
 
+      let(:send_email_params) do 
+        {
+          recipient_identifier: {
+            id_value: evidence_submission_failed.user_account.icn,
+            id_type: 'ICN'
+          },
+          template_id: Settings.vanotify.services.benefits_management_tools.template_id.evidence_submission_failure_email,
+          personalisation: 
+        }
+      end
       before do
         allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
         allow(EvidenceSubmission).to receive(:va_notify_email_not_queued).and_return([evidence_submission_failed])
@@ -80,7 +93,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       it 'successfully enqueues a failure notification mailer to send to the veteran' do
         expect(EvidenceSubmission.count).to eq(1)
         expect(EvidenceSubmission.va_notify_email_not_queued.length).to eq(1)
-        expect(vanotify_service).to receive(:send_email)
+        expect(vanotify_service).to receive(:send_email).with(send_email_params)
         expect(evidence_submission_failed).to receive(:update).and_call_original
         expect(Rails.logger).to receive(:info).with(message)
         expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: tags)
@@ -119,7 +132,19 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       let(:tags) { ['service:claim-status', "function: #{message}"] }
       let(:message) { "#{evidence_submission_failed.job_class} va notify failure email queued" }
       let!(:evidence_submission_failed) { create(:bd_lh_evidence_submission_failed_type1_error) }
+      let(:personalisation) {BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed)}
 
+      let(:send_email_params) do 
+        {
+          recipient_identifier: {
+            id_value: evidence_submission_failed.user_account.icn,
+            id_type: 'ICN'
+          },
+          template_id: Settings.vanotify.services.benefits_management_tools.template_id.evidence_submission_failure_email,
+          personalisation: 
+        }
+      end
+    
       before do
         allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
         allow(EvidenceSubmission).to receive(:va_notify_email_not_queued).and_return([evidence_submission_failed])
@@ -130,7 +155,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       it 'successfully enqueues a failure notification mailer to send to the veteran' do
         expect(EvidenceSubmission.count).to eq(1)
         expect(EvidenceSubmission.va_notify_email_not_queued.length).to eq(1)
-        expect(vanotify_service).to receive(:send_email)
+        expect(vanotify_service).to receive(:send_email).with(send_email_params)
         expect(evidence_submission_failed).to receive(:update).and_call_original
         expect(Rails.logger).to receive(:info).with(message)
         expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: tags)
@@ -169,7 +194,18 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       let(:tags) { ['service:claim-status', "function: #{message}"] }
       let(:message) { "#{evidence_submission_failed.job_class} va notify failure email queued" }
       let!(:evidence_submission_failed) { create(:bd_lh_evidence_submission_failed_type2_error) }
+      let(:personalisation) {BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(evidence_submission_failed)}
 
+      let(:send_email_params) do 
+        {
+          recipient_identifier: {
+            id_value: evidence_submission_failed.user_account.icn,
+            id_type: 'ICN'
+          },
+          template_id: Settings.vanotify.services.benefits_management_tools.template_id.evidence_submission_failure_email,
+          personalisation: 
+        }
+      end
       before do
         allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
         allow(EvidenceSubmission).to receive(:va_notify_email_not_queued).and_return([evidence_submission_failed])
@@ -180,7 +216,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       it 'successfully enqueues a failure notification mailer to send to the veteran' do
         expect(EvidenceSubmission.count).to eq(1)
         expect(EvidenceSubmission.va_notify_email_not_queued.length).to eq(1)
-        expect(vanotify_service).to receive(:send_email)
+        expect(vanotify_service).to receive(:send_email).with(send_email_params)
         expect(evidence_submission_failed).to receive(:update).and_call_original
         expect(Rails.logger).to receive(:info).with(message)
         expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: tags)
