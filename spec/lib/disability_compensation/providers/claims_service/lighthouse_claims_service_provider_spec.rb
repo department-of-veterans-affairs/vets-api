@@ -14,12 +14,7 @@ RSpec.describe LighthouseClaimsServiceProvider do
   end
 
   before do
-    Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE)
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
-  end
-
-  after do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE)
   end
 
   it_behaves_like 'claims service provider'

@@ -1,0 +1,16 @@
+type: object
+properties:
+  signatureName:
+    type: string
+    example: "Test"
+  signatureTitle:
+    type: string
+    example: ""
+  includeSignature:
+    type: boolean
+    example: false
+required:
+  - signatureName
+  - signatureTitle
+  - includeSignature
+  

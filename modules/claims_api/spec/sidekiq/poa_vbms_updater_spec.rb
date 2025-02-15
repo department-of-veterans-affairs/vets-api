@@ -59,6 +59,27 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       end
     end
 
+    context 'consent details' do
+      let(:allow_poa_c_add) { 'Y' }
+      let(:consent_address_change) { true }
+
+      it 'logs correct with consentLimits included' do
+        poa = create_poa(allow_poa_access: true)
+        poa.form_data['consentLimits'] = ['HIV']
+        poa.save
+        create_mock_lighthouse_service_no_access
+        poa_code = poa.form_data['serviceOrganization']['poaCode']
+        consent_msg = 'Updating Access. recordConsent: true' \
+                      ', consentLimits included ' \
+                      "for representative #{poa_code}"
+
+        detail_msg = ClaimsApi::ServiceBase.new.send(:form_logger_consent_detail, poa, poa_code)
+
+        expect(detail_msg).to eq(consent_msg)
+        subject.new.perform(poa.id)
+      end
+    end
+
     context 'when address change is not present' do
       let(:allow_poa_c_add) { 'N' }
       let(:consent_address_change) { nil }
@@ -130,6 +151,18 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       participant_id: user.participant_id,
       poa_code: '074',
       allow_poa_access: 'Y',
+      allow_poa_c_add:
+    ).and_return({ return_code: 'GUIE50000' })
+    service_double = instance_double(BGS::Services)
+    expect(service_double).to receive(:corporate_update).and_return(@corporate_update_stub)
+    expect(BGS::Services).to receive(:new).and_return(service_double)
+  end
+
+  def create_mock_lighthouse_service_no_access
+    expect(@corporate_update_stub).to receive(:update_poa_access).with(
+      participant_id: user.participant_id,
+      poa_code: '074',
+      allow_poa_access: 'N',
       allow_poa_c_add:
     ).and_return({ return_code: 'GUIE50000' })
     service_double = instance_double(BGS::Services)

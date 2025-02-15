@@ -829,39 +829,82 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         expect(subject).to validate(:post, '/v0/hca_attachments', 400, '')
       end
 
-      it 'supports submitting a health care application', run_at: '2017-01-31' do
-        VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+      context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is enabled" do
+        it 'supports submitting a health care application', run_at: '2017-01-31' do
+          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+            expect(subject).to validate(
+              :post,
+              '/v0/health_care_applications',
+              200,
+              '_data' => {
+                'form' => test_veteran
+              }
+            )
+          end
+
           expect(subject).to validate(
             :post,
             '/v0/health_care_applications',
-            200,
+            422,
+            '_data' => {
+              'form' => {}.to_json
+            }
+          )
+
+          allow_any_instance_of(HCA::Service).to receive(:submit_form) do
+            raise Common::Client::Errors::HTTPError, 'error message'
+          end
+
+          expect(subject).to validate(
+            :post,
+            '/v0/health_care_applications',
+            400,
             '_data' => {
               'form' => test_veteran
             }
           )
         end
+      end
 
-        expect(subject).to validate(
-          :post,
-          '/v0/health_care_applications',
-          422,
-          '_data' => {
-            'form' => {}.to_json
-          }
-        )
-
-        allow_any_instance_of(HCA::Service).to receive(:post) do
-          raise Common::Client::Errors::HTTPError, 'error message'
+      context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is disabled" do
+        before do
+          Flipper.disable(:va1010_forms_enrollment_system_service_enabled)
         end
 
-        expect(subject).to validate(
-          :post,
-          '/v0/health_care_applications',
-          400,
-          '_data' => {
-            'form' => test_veteran
-          }
-        )
+        it 'supports submitting a health care application', run_at: '2017-01-31' do
+          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+            expect(subject).to validate(
+              :post,
+              '/v0/health_care_applications',
+              200,
+              '_data' => {
+                'form' => test_veteran
+              }
+            )
+          end
+
+          expect(subject).to validate(
+            :post,
+            '/v0/health_care_applications',
+            422,
+            '_data' => {
+              'form' => {}.to_json
+            }
+          )
+
+          allow_any_instance_of(HCA::Service).to receive(:post) do
+            raise Common::Client::Errors::HTTPError, 'error message'
+          end
+
+          expect(subject).to validate(
+            :post,
+            '/v0/health_care_applications',
+            400,
+            '_data' => {
+              'form' => test_veteran
+            }
+          )
+        end
       end
 
       it 'supports returning list of active facilities' do
@@ -1324,7 +1367,9 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         it 'when correct form id is passed, it supports creating mvi user' do
           VCR.use_cassette('mpi/add_person/add_person_success') do
             VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
-              expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
+              VCR.use_cassette('mpi/find_candidate/find_profile_with_identifier') do
+                expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
+              end
             end
           end
         end
@@ -3426,42 +3471,92 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'dependents applications' do
-      let!(:user) { build(:user, ssn: '796043735') }
-
-      it 'supports getting dependent information' do
-        expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
-        VCR.use_cassette('bgs/claimant_web_service/dependents') do
-          expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
+      context 'when :va_dependents_v2 is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
         end
-      end
 
-      it 'supports adding a dependency claim' do
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(false)
-        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(false)
-        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
-        VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+        let!(:user) { build(:user, ssn: '796043735') }
+
+        it 'supports getting dependent information' do
+          expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
+          VCR.use_cassette('bgs/claimant_web_service/dependents') do
+            expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
+          end
+        end
+
+        it 'supports adding a dependency claim' do
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(false)
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(false)
+          allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            expect(subject).to validate(
+              :post,
+              '/v0/dependents_applications',
+              200,
+              headers.merge(
+                '_data' => build(:dependency_claim).parsed_form
+              )
+            )
+          end
+
           expect(subject).to validate(
             :post,
             '/v0/dependents_applications',
-            200,
+            422,
             headers.merge(
-              '_data' => build(:dependency_claim).parsed_form
+              '_data' => {
+                'dependency_claim' => {
+                  'invalid-form' => { invalid: true }.to_json
+                }
+              }
             )
           )
         end
+      end
 
-        expect(subject).to validate(
-          :post,
-          '/v0/dependents_applications',
-          422,
-          headers.merge(
-            '_data' => {
-              'dependency_claim' => {
-                'invalid-form' => { invalid: true }.to_json
+      context 'when :va_dependents_v2 is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+        end
+
+        let!(:user) { build(:user, ssn: '796043735') }
+
+        it 'supports getting dependent information' do
+          expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
+          VCR.use_cassette('bgs/claimant_web_service/dependents') do
+            expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
+          end
+        end
+
+        it 'supports adding a dependency claim' do
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(false)
+          allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(false)
+          allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '796043735' })
+          VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+            expect(subject).to validate(
+              :post,
+              '/v0/dependents_applications',
+              200,
+              headers.merge(
+                '_data' => build(:dependency_claim).parsed_form
+              )
+            )
+          end
+
+          expect(subject).to validate(
+            :post,
+            '/v0/dependents_applications',
+            422,
+            headers.merge(
+              '_data' => {
+                'dependency_claim' => {
+                  'invalid-form' => { invalid: true }.to_json
+                }
               }
-            }
+            )
           )
-        )
+        end
       end
     end
 
