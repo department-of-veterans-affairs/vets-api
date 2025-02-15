@@ -466,7 +466,7 @@ module DecisionReviews
                 DecisionReviewV1::ServiceException.new key: 'DR_502', response_values: source_hash
               when Common::Client::Errors::ClientError
                 Sentry.set_extras(body: error.body, status: error.status)
-                if ERROR_MAP.has_key? error.status
+                if ERROR_MAP.key? error.status
                   ERROR_MAP[error.status].new(source_hash.merge(detail: error.body))
                 else
                   DecisionReviewV1::ServiceException.new(
