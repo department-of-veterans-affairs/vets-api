@@ -62,7 +62,7 @@ module AskVAApi
             SchoolObj: build_school_object,
             SubmitterQuestion: inquiry_params[:question],
             SubmitterStateOfSchool: build_state_data(:school_obj, :state_abbreviation),
-            SubmitterStateProperty: build_state_data(:address, :state),
+            SubmitterStateOfProperty: build_state_data(:address, :state),
             SubmitterStateOfResidency: build_residency_state_data,
             SubmitterZipCodeOfResidency: inquiry_params[:postal_code],
             UntrustedFlag: nil,
