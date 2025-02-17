@@ -34,9 +34,6 @@ module PowerOfAttorneyRequests
     private
 
     def fetch_requests_to_inform_of_expiration
-      # I think we'll be queyring the power of attorney requests here but I'll confim that
-      # when that work is completed and merged.
-      # Find all unexpired requests that are greater than 60 days old.
       range = 61.days.ago..60.days.ago
       AccreditedRepresentativePortal::PowerOfAttorneyRequest.unresolved.where(created_at: range)
     end
