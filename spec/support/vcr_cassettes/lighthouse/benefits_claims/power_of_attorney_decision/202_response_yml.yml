@@ -1,0 +1,74 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/claims/v2/veterans/1012666183V089914/2122"
+    body:
+      encoding: UTF-8
+      string: '{"data":{"attributes":{"veteran":{"address":{"addressLine1":"1286 Deon
+        Plain","city":"Colbyville","stateCode":"AK","countryCode":"US","zipCode":"06942-1489"},"phone":{"areaCode":"849","phoneNumber":"2930519"},"email":"erline@walker.example","serviceNumber":"840907270"},"serviceOrganization":{"poaCode":"095","registrationNumber":"999999999999"},"recordConsent":false,"consentLimits":["ALCOHOLISM","DRUG_ABUSE"],"consentAddressChange":false}}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Fri, 14 Feb 2025 21:56:34 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '80'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      Ratelimit-Limit:
+      - '120'
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Reset:
+      - '26'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Timing-Allow-Origin:
+      - https://sandbox.vets.gov,https://department-of-veterans-affairs.github.io,https://preview.va.gov,http://preview-sandbox.vfs.va.gov
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - cda2e6d860437da9f7383e34b399d16a438e89cb
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 6603351e-9d87-47aa-a0dc-23acb80dc807
+      X-Runtime:
+      - '0.254150'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Not authorized","status":"401","detail":"Not authorized"}]}'
+  recorded_at: Fri, 14 Feb 2025 21:56:34 GMT
+recorded_with: VCR 6.3.1

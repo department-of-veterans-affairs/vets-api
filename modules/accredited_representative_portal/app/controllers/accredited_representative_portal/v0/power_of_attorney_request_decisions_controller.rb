@@ -21,18 +21,18 @@ module AccreditedRepresentativePortal
 
         case decision_params[:type]
         when 'acceptance'
-          raise UnprocessableEntity, 'Reason must be blank' if reason.present?
-
-          service = PowerOfAttorneyRequestService::Accept.new(@poa_request, creator, reason)
-          poa_form_submission = service.call
-          raise UnprocessableEntity, poa_form_submission.error_message if poa_form_submission.enqueue_failed?
+          PowerOfAttorneyRequestService::Accept.new(@poa_request, creator, reason).call
+          render json: {}, status: :ok
         when 'declination'
-          PowerOfAttorneyRequestService::Decline.new(@poa_request, creator, reason).call
+          @poa_request.decline!(creator, reason)
+          render json: {}, status: :ok
         else
-          raise UnprocessableEntity, 'Invalid type parameter - Types accepted: [acceptance declination]'
+          render json: {
+            errors: ['Invalid type parameter - Types accepted: [acceptance declination]']
+          }, status: :unprocessable_entity
         end
-
-        render json: {}, status: :ok
+      rescue PowerOfAttorneyRequestService::Accept::Error => e
+        render json: { errors: [e.message] }, status: e.status
       end
 
       private

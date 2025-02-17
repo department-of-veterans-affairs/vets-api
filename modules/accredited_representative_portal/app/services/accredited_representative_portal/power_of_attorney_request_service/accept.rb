@@ -3,11 +3,24 @@
 module AccreditedRepresentativePortal
   module PowerOfAttorneyRequestService
     class Accept
-      attr_reader :poa_request, :creator, :reason, :resolution
+      class Error < RuntimeError
+        attr_reader :status
+
+        def initialize(message, status)
+          @status = status
+          super(message)
+        end
+      end
+
+      TRANSIENT_ERROR_TYPES =
+        BenefitsClaims::ServiceException::ERROR_MAP.select { |key, _| key >= 500 }.values.freeze
+
+      attr_reader :poa_request, :creator, :reason, :resolution, :form_data
       attr_accessor :form_submission
 
       def initialize(poa_request, creator, reason)
         @poa_request = poa_request
+        @form_data = poa_request.power_of_attorney_form.parsed_data
         @creator = creator
         @reason = reason
       end
@@ -18,24 +31,26 @@ module AccreditedRepresentativePortal
           create_form_submission!
         end
 
-        service = BenefitsClaims::Service.new(poa_request.claimant.icn)
-        response = service.submit2122(attributes)
+        response = service.submit2122(form_payload)
 
         form_submission.update(
+          status: :enqueue_succeeded,
           service_id: response.body.dig('data', 'id'),
           service_response: response.body.to_json
         )
         form_submission
       # TODO: call PowerOfAttorneyFormSubmissionJob.perform_async(poa_form_submission)
       # Transient 5xx errors: delete objects created, re-raise error
-      rescue *transient_error_types => e
+      rescue *TRANSIENT_ERROR_TYPES
         form_submission.delete
         resolution.delete
-        raise e
+        raise
+      rescue ActiveRecord::RecordInvalid => e
+        raise Error.new(e.message, :unprocessable_entity)
       # All other errors: save error data on form submission
       rescue => e
-        create_error_submission(e.message)
-        raise e
+        update_submission_with_error(e.message)
+        raise
       end
 
       def create_resolution!
@@ -55,6 +70,12 @@ module AccreditedRepresentativePortal
         )
       end
 
+      private
+
+      def service
+        @service ||= BenefitsClaims::Service.new(poa_request.claimant.icn)
+      end
+
       def create_form_submission!
         @form_submission = PowerOfAttorneyFormSubmission.create!(
           power_of_attorney_request: poa_request,
@@ -63,8 +84,8 @@ module AccreditedRepresentativePortal
         )
       end
 
-      def create_error_submission(message)
-        PowerOfAttorneyFormSubmission.create(
+      def update_submission_with_error(message)
+        form_submission.update(
           service_response: message,
           error_message: message,
           status: :enqueue_failed,
@@ -72,25 +93,21 @@ module AccreditedRepresentativePortal
         )
       end
 
-      def attributes
+      def form_payload
         {}.tap do |a|
           a[:veteran] = veteran_data
-          a[:serviceOrganization] = service_org_data
+          a[:serviceOrganization] = organization_data
           a[:recordConsent] = form_data.dig('authorizations', 'recordDisclosure')
           a[:consentLimits] = form_data.dig('authorizations', 'recordDisclosureLimitations')
           a[:consentAddressChange] = form_data.dig('authorizations', 'addressChange')
         end
       end
 
-      def service_org_data
+      def organization_data
         {
           poaCode: poa_request.power_of_attorney_holder_poa_code,
           registrationNumber: poa_request.accredited_individual_registration_number
         }
-      end
-
-      def form_data
-        @form_data ||= JSON.parse(poa_request.power_of_attorney_form.data)
       end
 
       def veteran_data
@@ -127,10 +144,6 @@ module AccreditedRepresentativePortal
               address_json['zipCodeSuffix']
           end
         end
-      end
-
-      def transient_error_types
-        BenefitsClaims::ServiceException::ERROR_MAP.select { |key, _| key >= 500 }.values
       end
     end
   end
