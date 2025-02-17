@@ -1700,7 +1700,6 @@ veteran_readiness_and_employment:
       - VRE.VBAANC@va.gov
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
-
 vetext:
   mock: <%= ENV['VETEXT__MOCK'] %>
 vetext_push:
