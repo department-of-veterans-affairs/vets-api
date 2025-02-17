@@ -13,7 +13,7 @@ RSpec.describe SignIn::AttributeValidator do
       let(:current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
       it 'returns nil' do
-        expect(subject).to be nil
+        expect(subject).to be_nil
       end
     end
 

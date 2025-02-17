@@ -160,7 +160,7 @@ class User < Common::RedisStore
   end
 
   def mhv_user_account
-    @mhv_user_account ||= MHV::UserAccount::Creator.new(user_verification:).perform
+    @mhv_user_account ||= MHV::UserAccount::Creator.new(user_verification:, from_cache_only: true).perform
   rescue => e
     log_mhv_user_account_error(e.message)
     nil
@@ -207,7 +207,7 @@ class User < Common::RedisStore
   delegate :vet360_id, to: :mpi
 
   def active_mhv_ids
-    mpi_profile&.active_mhv_ids
+    mpi_profile&.active_mhv_ids&.uniq
   end
 
   def address
@@ -315,6 +315,13 @@ class User < Common::RedisStore
   end
 
   # Other MPI
+
+  def validate_mpi_profile
+    return unless mpi_profile?
+
+    raise MPI::Errors::AccountLockedError, 'Death Flag Detected' if mpi_profile.deceased_date
+    raise MPI::Errors::AccountLockedError, 'Theft Flag Detected' if mpi_profile.id_theft_flag
+  end
 
   def invalidate_mpi_cache
     return unless loa3? && mpi.mpi_response_is_cached? && mpi.mvi_response
@@ -435,7 +442,7 @@ class User < Common::RedisStore
       end
 
     [the_va_profile_email, email]
-      .reject(&:blank?)
+      .compact_blank
       .map(&:downcase)
       .uniq
   end
@@ -453,7 +460,7 @@ class User < Common::RedisStore
   # @return [Boolean]
   #
   def served_in_military?
-    edipi.present? && veteran? || military_person?
+    (edipi.present? && veteran?) || military_person?
   end
 
   def power_of_attorney
@@ -474,11 +481,11 @@ class User < Common::RedisStore
     MHV::AccountCreatorJob.perform_async(user_verification_id)
   end
 
-  private
-
   def can_create_mhv_account?
     loa3? && !needs_accepted_terms_of_use
   end
+
+  private
 
   def mpi_profile
     return nil unless identity && mpi

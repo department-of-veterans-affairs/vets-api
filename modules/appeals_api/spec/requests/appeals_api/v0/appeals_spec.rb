@@ -10,7 +10,7 @@ Rspec.describe 'AppealsApi::V0::Appeals', type: :request do
     let(:path) { '/services/appeals/v0/appeals' }
 
     context 'with the X-VA-SSN and X-VA-User header supplied' do
-      let(:user) { FactoryBot.create(:user, :loa3) }
+      let(:user) { create(:user, :loa3) }
       let(:user_headers) do
         {
           'X-VA-SSN' => '111223333',
@@ -49,7 +49,7 @@ Rspec.describe 'AppealsApi::V0::Appeals', type: :request do
     end
 
     context 'with an empty response' do
-      let(:user) { FactoryBot.create(:user, :loa3) }
+      let(:user) { create(:user, :loa3) }
       let(:user_headers) do
         {
           'X-VA-SSN' => '111223333',

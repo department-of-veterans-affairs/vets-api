@@ -24,7 +24,7 @@ describe FakeController do
     context 'when no rep is found' do
       it 'returns false' do
         ret = subject.valid_poa_code_for_current_user?(poa_code)
-        expect(ret).to eq(false)
+        expect(ret).to be(false)
       end
     end
 
@@ -37,7 +37,7 @@ describe FakeController do
 
         it 'returns true' do
           ret = subject.valid_poa_code_for_current_user?(poa_code)
-          expect(ret).to eq(true)
+          expect(ret).to be(true)
         end
       end
 
@@ -49,7 +49,7 @@ describe FakeController do
 
         it 'returns false' do
           ret = subject.valid_poa_code_for_current_user?(poa_code)
-          expect(ret).to eq(false)
+          expect(ret).to be(false)
         end
       end
     end
@@ -64,7 +64,7 @@ describe FakeController do
 
       it 'searches with middle name' do
         res = subject.valid_poa_code_for_current_user?(poa_code)
-        expect(res).to eq(true)
+        expect(res).to be(true)
       end
     end
 
@@ -81,7 +81,7 @@ describe FakeController do
 
         it 'returns true' do
           res = subject.valid_poa_code_for_current_user?(poa_code)
-          expect(res).to eq(true)
+          expect(res).to be(true)
         end
       end
 
@@ -111,7 +111,7 @@ describe FakeController do
 
       it 'finds the rep and returns true' do
         res = subject.valid_poa_code_for_current_user?(poa_code)
-        expect(res).to eq(true)
+        expect(res).to be(true)
       end
     end
   end

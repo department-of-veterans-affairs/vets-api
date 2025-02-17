@@ -19,6 +19,7 @@ RSpec.describe SignIn::ClientConfig, type: :model do
            enforced_terms:,
            terms_of_use_url:,
            service_levels:,
+           json_api_compatibility:,
            credential_service_providers:)
   end
   let(:client_id) { 'some-client-id' }
@@ -26,6 +27,7 @@ RSpec.describe SignIn::ClientConfig, type: :model do
   let(:certificates) { [] }
   let(:anti_csrf) { false }
   let(:shared_sessions) { false }
+  let(:json_api_compatibility) { false }
   let(:redirect_uri) { 'some-redirect-uri' }
   let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
   let(:access_token_duration) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
@@ -181,6 +183,18 @@ RSpec.describe SignIn::ClientConfig, type: :model do
       context 'when anti_csrf is nil' do
         let(:anti_csrf) { nil }
         let(:expected_error_message) { 'Validation failed: Anti csrf is not included in the list' }
+        let(:expected_error) { ActiveRecord::RecordInvalid }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+    end
+
+    describe '#json_api_compatibility' do
+      context 'when json_api_compatibility is nil' do
+        let(:json_api_compatibility) { nil }
+        let(:expected_error_message) { 'Validation failed: Json api compatibility is not included in the list' }
         let(:expected_error) { ActiveRecord::RecordInvalid }
 
         it 'raises validation error' do

@@ -26,8 +26,10 @@ AllCops:
     - '**/*.rb'
   Exclude:
     - db/schema.rb
+    - db/audit_schema.rb
     - db/seeds.rb
     - db/migrate/*.rb
+    - db/audit_migrate/*.rb
     - 'vendor/**/*'
     - modules/**/db/migrate/*.rb
     - 'tmp/**/*'

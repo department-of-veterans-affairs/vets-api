@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'mpi/responses/add_parser'
 
 describe MPI::Responses::AddParser do
-  let(:faraday_response) { instance_double('Faraday::Env') }
+  let(:faraday_response) { instance_double(Faraday::Env) }
   let(:parser) { described_class.new(faraday_response) }
   let(:mpi_codes) { { other: [{ codeSystemName: 'MVI', code: 'INTERR', displayName: 'Internal System Error' }] } }
   let(:error_details) do

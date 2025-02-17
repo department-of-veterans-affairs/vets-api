@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'disability_compensation/providers/intent_to_file/intent_to_file_provider'
-require 'disability_compensation/responses/intent_to_files_response'
+require 'disability_compensation/responses/claims_service_response'
 require 'lighthouse/benefits_claims/service'
 
 class LighthouseClaimsServiceProvider

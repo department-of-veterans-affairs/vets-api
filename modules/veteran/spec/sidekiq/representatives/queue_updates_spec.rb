@@ -9,10 +9,6 @@ RSpec.describe Representatives::QueueUpdates, type: :job do
     it 'includes Sidekiq::Job' do
       expect(described_class.included_modules).to include(Sidekiq::Job)
     end
-
-    it 'includes SentryLogging' do
-      expect(described_class.included_modules).to include(SentryLogging)
-    end
   end
 
   describe '#perform' do

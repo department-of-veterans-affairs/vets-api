@@ -87,7 +87,6 @@ Rails.application.reloader.to_prepare do
     VAOS::Configuration.instance.breakers_service,
     Vye::DGIB::Configuration.instance.breakers_service,
     IAMSSOeOAuth::Configuration.instance.breakers_service,
-    CovidVaccine::V0::VetextConfiguration.instance.breakers_service,
     VEText::Configuration.instance.breakers_service,
     PagerDuty::Configuration.instance.breakers_service,
     ClaimsApi::LocalBGS.breakers_service,

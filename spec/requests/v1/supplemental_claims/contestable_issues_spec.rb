@@ -46,6 +46,17 @@ RSpec.describe 'V1::SupplementalClaims::ContestableIssues', type: :request do
 
     subject { get '/v1/supplemental_claims/contestable_issues/compensation' }
 
+    it 'logs use of the old controller' do
+      warn_old_controller_args = {
+        message: 'Calling decision reviews controller outside module',
+        action: 'SC contestable issues index',
+        form_id: '995'
+      }
+      allow(Rails.logger).to receive(:warn)
+      expect(Rails.logger).to receive(:warn).with(warn_old_controller_args)
+      subject
+    end
+
     it 'fetches issues that the Veteran could contest via a supplemental claim' do
       VCR.use_cassette('decision_review/SC-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1') do
         allow(Rails.logger).to receive(:info)

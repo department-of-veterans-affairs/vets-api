@@ -127,7 +127,6 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         params = { 'appointmentDatetime' => '2024-01-01T16:45:34.465Z' }
 
         post '/travel_pay/v0/claims', headers: headers, params: params
-
         expect(response).to have_http_status(:created)
       end
     end
@@ -145,6 +144,22 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         error_detail = JSON.parse(response.body)['errors'][0]['detail']
         expect(response).to have_http_status(:bad_request)
         expect(error_detail).to match(/date/)
+      end
+    end
+
+    it 'returns a NotFound response if an appointment is not found' do
+      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+        .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+      VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
+        headers = { 'Authorization' => 'Bearer vagov_token' }
+        params = { 'appointmentDatetime' => '1970-01-01T00:00:00.000Z' }
+
+        post '/travel_pay/v0/claims', headers: headers, params: params
+
+        error_detail = JSON.parse(response.body)['errors'][0]['detail']
+        expect(response).to have_http_status(:not_found)
+        expect(error_detail).to match(/appointment/)
       end
     end
 

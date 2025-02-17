@@ -7,7 +7,9 @@ module MHV
     class Service < Common::Client::Base
       configuration Configuration
 
-      def create_account(icn:, email:, tou_occurred_at:, break_cache: false)
+      def create_account(icn:, email:, tou_occurred_at:, break_cache: false, from_cache_only: false)
+        return find_cached_response(icn) if from_cache_only
+
         params = build_create_account_params(icn:, email:, tou_occurred_at:)
 
         create_account_with_cache(icn:, force: break_cache, expires_in: 1.day) do
@@ -22,6 +24,17 @@ module MHV
       end
 
       private
+
+      def find_cached_response(icn)
+        account = Rails.cache.read("#{config.service_name}_#{icn}")
+
+        if account.present?
+          log_payload = { icn:, account:, from_cache: true, from_cache_only: true }
+          Rails.logger.info("#{config.logging_prefix} create_account success", log_payload)
+        end
+
+        account
+      end
 
       def create_account_with_cache(icn:, force:, expires_in:, &request)
         cache_hit = true

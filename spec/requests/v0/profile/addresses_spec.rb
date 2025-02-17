@@ -248,7 +248,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
       it 'effective_end_date is NOT included in the request body', :aggregate_failures do
         expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:put_address) do |_, address|
-          expect(address.effective_end_date).to eq(nil)
+          expect(address.effective_end_date).to be_nil
         end
 
         put('/v0/profile/addresses', params: address.to_json, headers:)
@@ -512,7 +512,10 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
         end
 
         context 'with a validation key' do
-          let(:address) { build(:va_profile_v3_address, :override) }
+          let(:address) do
+            build(:va_profile_v3_address, :override, country_name: nil)
+          end
+
           let(:frozen_time) { Time.zone.parse('2024-09-16T16:09:37.000Z') }
 
           before do
@@ -561,7 +564,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
         it 'effective_end_date is NOT included in the request body', :aggregate_failures do
           expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:put_address) do |_, address|
-            expect(address.effective_end_date).to eq(nil)
+            expect(address.effective_end_date).to be_nil
           end
 
           put('/v0/profile/addresses', params: address.to_json, headers:)

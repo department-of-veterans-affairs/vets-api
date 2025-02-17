@@ -44,7 +44,7 @@ RSpec.describe User, type: :model do
         let(:mpi_icn) { nil }
 
         it 'returns nil' do
-          expect(user.icn).to eq(nil)
+          expect(user.icn).to be_nil
         end
       end
     end
@@ -193,13 +193,13 @@ RSpec.describe User, type: :model do
 
   describe '#can_prefill_va_profile?' do
     it 'returns true if user has edipi or icn' do
-      expect(user.authorize(:va_profile, :access?)).to eq(true)
+      expect(user.authorize(:va_profile, :access?)).to be(true)
     end
 
     it 'returns false if user doesnt have edipi or icn' do
       expect(user).to receive(:edipi).and_return(nil)
 
-      expect(user.authorize(:va_profile, :access?)).to eq(false)
+      expect(user.authorize(:va_profile, :access?)).to be(false)
     end
   end
 
@@ -263,6 +263,50 @@ RSpec.describe User, type: :model do
       it 'can destroy a user in redis' do
         expect(subject.destroy).to eq(1)
         expect(described_class.find(subject.uuid)).to be_nil
+      end
+    end
+
+    describe 'validate_mpi_profile' do
+      let(:loa) { loa_three }
+      let(:id_theft_flag) { false }
+      let(:deceased_date) { nil }
+
+      before { stub_mpi(build(:mpi_profile, icn: user.icn, deceased_date:, id_theft_flag:)) }
+
+      context 'when the user is not loa3' do
+        let(:loa) { loa_one }
+
+        it 'does not attempt to validate the user mpi profile' do
+          expect(subject.validate_mpi_profile).to be_nil
+        end
+      end
+
+      context 'when the MPI profile has a deceased date' do
+        let(:deceased_date) { '20020202' }
+        let(:expected_error_message) { 'Death Flag Detected' }
+
+        it 'raises an MPI Account Locked error' do
+          expect { subject.validate_mpi_profile }
+            .to raise_error(MPI::Errors::AccountLockedError)
+            .with_message(expected_error_message)
+        end
+      end
+
+      context 'when the MPI profile has an identity theft flag' do
+        let(:id_theft_flag) { true }
+        let(:expected_error_message) { 'Theft Flag Detected' }
+
+        it 'raises an MPI Account Locked error' do
+          expect { subject.validate_mpi_profile }
+            .to raise_error(MPI::Errors::AccountLockedError)
+            .with_message(expected_error_message)
+        end
+      end
+
+      context 'when the MPI profile has no issues' do
+        it 'returns a nil value' do
+          expect(subject.validate_mpi_profile).to be_nil
+        end
       end
     end
 
@@ -603,10 +647,21 @@ RSpec.describe User, type: :model do
         end
 
         describe '#active_mhv_ids' do
-          let(:user) { build(:user, :loa3) }
+          let(:user) { build(:user, :loa3, active_mhv_ids:) }
+          let(:active_mhv_ids) { [mhv_id] }
+          let(:mhv_id) { 'some-mhv-id' }
 
           it 'fetches active_mhv_ids from MPI' do
-            expect(user.active_mhv_ids).to be(user.send(:mpi_profile).active_mhv_ids)
+            expect(user.active_mhv_ids).to eq(active_mhv_ids)
+          end
+
+          context 'when user has duplicate ids' do
+            let(:active_mhv_ids) { [mhv_id, mhv_id] }
+            let(:expected_active_mhv_ids) { [mhv_id] }
+
+            it 'fetches unique active_mhv_ids from MPI' do
+              expect(user.active_mhv_ids).to eq(expected_active_mhv_ids)
+            end
           end
         end
 
@@ -905,12 +960,12 @@ RSpec.describe User, type: :model do
   end
 
   describe '#va_treatment_facility_ids' do
-    let(:vha_facility_ids) { %w[200MHS 400 741 744] }
+    let(:vha_facility_ids) { %w[200MHS 400 741 744 741MM] }
     let(:mpi_profile) { build(:mpi_profile, { vha_facility_ids: }) }
     let(:user) { build(:user, :loa3, vha_facility_ids: nil, mpi_profile:) }
 
     it 'filters out fake vha facility ids that arent in Settings.mhv.facility_range' do
-      expect(user.va_treatment_facility_ids).to match_array(%w[400 744])
+      expect(user.va_treatment_facility_ids).to match_array(%w[400 744 741MM])
     end
   end
 
@@ -935,22 +990,22 @@ RSpec.describe User, type: :model do
       let(:user) { build(:user, :loa1) }
 
       it 'returns blank pciu_email' do
-        expect(user.pciu_email).to eq nil
+        expect(user.pciu_email).to be_nil
       end
 
       it 'returns blank pciu_primary_phone' do
-        expect(user.pciu_primary_phone).to eq nil
+        expect(user.pciu_primary_phone).to be_nil
       end
 
       it 'returns blank pciu_alternate_phone' do
-        expect(user.pciu_alternate_phone).to eq nil
+        expect(user.pciu_alternate_phone).to be_nil
       end
     end
   end
 
   describe '#account' do
     context 'when user has an existing Account record' do
-      let(:user) { create :user, :accountable }
+      let(:user) { create(:user, :accountable) }
 
       it 'returns the users Account record' do
         account = Account.find_by(idme_uuid: user.uuid)
@@ -960,7 +1015,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when user does not have an existing Account record' do
-      let(:user) { create :user, :loa3 }
+      let(:user) { create(:user, :loa3) }
 
       before do
         account = Account.find_by(idme_uuid: user.uuid)
@@ -1000,7 +1055,7 @@ RSpec.describe User, type: :model do
           let(:mpi_profile) { build(:mpi_profile, { birth_date: nil }) }
 
           it 'returns nil' do
-            expect(user.birth_date).to eq nil
+            expect(user.birth_date).to be_nil
           end
         end
 
@@ -1017,7 +1072,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'returns nil' do
-          expect(user.birth_date).to eq nil
+          expect(user.birth_date).to be_nil
         end
       end
     end
@@ -1032,7 +1087,7 @@ RSpec.describe User, type: :model do
       end
 
       it 'returns nil' do
-        expect(user.deceased_date).to eq nil
+        expect(user.deceased_date).to be_nil
       end
     end
 
@@ -1062,7 +1117,7 @@ RSpec.describe User, type: :model do
       let(:mpi_relationship_array) { [] }
 
       it 'returns nil' do
-        expect(user.relationships).to eq nil
+        expect(user.relationships).to be_nil
       end
     end
 
@@ -1136,7 +1191,7 @@ RSpec.describe User, type: :model do
 
         context 'when BGS relationship response does not contain information' do
           it 'returns an empty array' do
-            expect(user.relationships).to eq nil
+            expect(user.relationships).to be_nil
           end
         end
       end
@@ -1145,7 +1200,7 @@ RSpec.describe User, type: :model do
 
   describe '#fingerprint' do
     let(:fingerprint) { '196.168.0.0' }
-    let(:user) { create :user, fingerprint: }
+    let(:user) { create(:user, fingerprint:) }
 
     it 'returns expected user fingerprint' do
       expect(user.fingerprint).to eq(fingerprint)
@@ -1215,7 +1270,7 @@ RSpec.describe User, type: :model do
             let(:user_verification) { nil }
 
             it 'returns nil' do
-              expect(user.user_verification).to be nil
+              expect(user.user_verification).to be_nil
             end
           end
         end
@@ -1248,7 +1303,7 @@ RSpec.describe User, type: :model do
             let(:user_verification) { nil }
 
             it 'returns nil' do
-              expect(user.user_verification).to be nil
+              expect(user.user_verification).to be_nil
             end
           end
         end
@@ -1279,7 +1334,7 @@ RSpec.describe User, type: :model do
           let(:user_verification) { nil }
 
           it 'returns nil' do
-            expect(user.user_verification).to be nil
+            expect(user.user_verification).to be_nil
           end
         end
       end
@@ -1300,7 +1355,7 @@ RSpec.describe User, type: :model do
 
         context 'when the UserVerification is not locked' do
           it 'returns false' do
-            expect(user.credential_lock).to eq(false)
+            expect(user.credential_lock).to be(false)
           end
         end
 
@@ -1308,7 +1363,7 @@ RSpec.describe User, type: :model do
           let(:locked) { true }
 
           it 'returns true' do
-            expect(user.credential_lock).to eq(true)
+            expect(user.credential_lock).to be(true)
           end
         end
       end
@@ -1317,7 +1372,7 @@ RSpec.describe User, type: :model do
         let(:user) { build(:user, :loa1) }
 
         it 'returns nil' do
-          expect(user.credential_lock).to eq(nil)
+          expect(user.credential_lock).to be_nil
         end
       end
     end
@@ -1355,6 +1410,7 @@ RSpec.describe User, type: :model do
   describe '#mhv_user_account' do
     let(:user) { build(:user, :loa3) }
     let(:icn) { user.icn }
+    let(:expected_cache_key) { "mhv_account_creation_#{icn}" }
 
     let!(:user_verification) do
       create(:idme_user_verification, idme_uuid: user.idme_uuid, user_credential_email:, user_account:)
@@ -1379,55 +1435,58 @@ RSpec.describe User, type: :model do
     before do
       allow(Rails.logger).to receive(:info)
       allow(MHV::AccountCreation::Service).to receive(:new).and_return(mhv_client)
-      allow(mhv_client).to receive(:create_account).and_return(mhv_response)
+      allow(Rails.cache).to receive(:read).with(expected_cache_key).and_return(mhv_response)
     end
 
-    context 'when the user has all required attributes' do
-      it 'returns a MHVUserAccount with the expected attributes' do
-        mhv_user_account = user.mhv_user_account
+    context 'when the mhv response is cached' do
+      context 'when the user has all required attributes' do
+        it 'returns a MHVUserAccount with the expected attributes' do
+          mhv_user_account = user.mhv_user_account
 
-        expect(mhv_user_account).to be_a(MHVUserAccount)
-        expect(mhv_user_account.attributes).to eq(mhv_response.with_indifferent_access)
-      end
-    end
-
-    context 'when there is an error creating the account' do
-      shared_examples 'mhv_user_account error' do
-        let(:expected_log_message) { '[User] mhv_user_account error' }
-        let(:expected_log_payload) { { error_message: /#{expected_error_message}/, icn: user.icn } }
-
-        it 'logs and returns nil' do
-          expect(user.mhv_user_account).to be_nil
-          expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+          expect(mhv_user_account).to be_a(MHVUserAccount)
+          expect(mhv_user_account.attributes).to eq(mhv_response.with_indifferent_access)
         end
       end
 
-      context 'when the user does not have a terms_of_use_agreement' do
-        let(:terms_of_use_agreement) { nil }
-        let(:expected_error_message) { 'Current terms of use agreement must be present' }
+      context 'when there is an error creating the account' do
+        shared_examples 'mhv_user_account error' do
+          let(:expected_log_message) { '[User] mhv_user_account error' }
+          let(:expected_log_payload) { { error_message: /#{expected_error_message}/, icn: user.icn } }
 
-        it_behaves_like 'mhv_user_account error'
+          it 'logs and returns nil' do
+            expect(user.mhv_user_account).to be_nil
+            expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+          end
+        end
+
+        context 'when the user does not have a terms_of_use_agreement' do
+          let(:terms_of_use_agreement) { nil }
+          let(:expected_error_message) { 'Current terms of use agreement must be present' }
+
+          it_behaves_like 'mhv_user_account error'
+        end
+
+        context 'when the user has not accepted the terms of use' do
+          let(:terms_of_use_response) { 'declined' }
+          let(:expected_error_message) { "Current terms of use agreement must be 'accepted'" }
+
+          it_behaves_like 'mhv_user_account error'
+        end
+
+        context 'when the user does not have an icn' do
+          let(:icn) { nil }
+          let(:expected_error_message) { 'ICN must be present' }
+
+          it_behaves_like 'mhv_user_account error'
+        end
       end
+    end
 
-      context 'when the user has not accepted the terms of use' do
-        let(:terms_of_use_response) { 'declined' }
-        let(:expected_error_message) { "Current terms of use agreement must be 'accepted'" }
+    context 'when the mhv response is not cached' do
+      let(:mhv_response) { nil }
 
-        it_behaves_like 'mhv_user_account error'
-      end
-
-      context 'when the user does not have a user_credential_email' do
-        let(:user_credential_email) { nil }
-        let(:expected_error_message) { 'Email must be present' }
-
-        it_behaves_like 'mhv_user_account error'
-      end
-
-      context 'when the user does not have an icn' do
-        let(:icn) { nil }
-        let(:expected_error_message) { 'ICN must be present' }
-
-        it_behaves_like 'mhv_user_account error'
+      it 'returns nil' do
+        expect(user.mhv_user_account).to be_nil
       end
     end
   end

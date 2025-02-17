@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGSDependents::ChildStudent do
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:child_student_info) do
     described_class.new(all_flows_payload['dependents_application'], '3829729', '149471')
   end
@@ -27,7 +27,10 @@ RSpec.describe BGSDependents::ChildStudent do
       next_year_annty_income_amt: '3989',
       next_year_emplmt_income_amt: '12000',
       next_year_other_income_amt: '984',
-      next_year_ssa_income_amt: '3940'
+      next_year_ssa_income_amt: '3940',
+      acrdtdSchoolInd: 'Y',
+      atndedSchoolCntnusInd: 'N',
+      stopedAtndngSchoolDt: nil
     }
   end
 

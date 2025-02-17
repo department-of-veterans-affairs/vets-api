@@ -19,7 +19,7 @@ describe Common::RedisStore do
 
   describe 'configuration' do
     it 'has a configured redis namespace instance' do
-      expect(klass.redis_namespace).to be_kind_of(Redis::Namespace)
+      expect(klass.redis_namespace).to be_a(Redis::Namespace)
       expect(klass.redis_namespace.namespace).to eq('my_namespace')
     end
   end
@@ -112,21 +112,21 @@ describe Common::RedisStore do
 
     it 'freezes the instance after destroy is called' do
       subject.destroy
-      expect(subject.destroyed?).to eq(true)
-      expect(subject.frozen?).to eq(true)
+      expect(subject.destroyed?).to be(true)
+      expect(subject.frozen?).to be(true)
     end
 
     it 'duping a destroyed object returns destroyed == false, frozen == false' do
       subject.destroy
-      expect(subject.dup.destroyed?).to eq(false)
-      expect(subject.dup.frozen?).to eq(false)
+      expect(subject.dup.destroyed?).to be(false)
+      expect(subject.dup.frozen?).to be(false)
       expect(subject.dup.attributes).to eq(subject.attributes)
     end
 
     it 'cloning a destroyed object returns destroyed == true, frozen == true' do
       subject.destroy
-      expect(subject.clone.destroyed?).to eq(true)
-      expect(subject.clone.frozen?).to eq(true)
+      expect(subject.clone.destroyed?).to be(true)
+      expect(subject.clone.frozen?).to be(true)
       expect(subject.clone.attributes).to eq(subject.attributes)
     end
   end

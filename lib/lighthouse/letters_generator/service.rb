@@ -20,19 +20,6 @@ module Lighthouse
     end
 
     class Service < Common::Client::Base
-      LETTER_TYPES = %w[
-        benefit_summary
-        benefit_summary_dependent
-        benefit_verification
-        certificate_of_eligibility
-        civil_service
-        commissary
-        medicare_partd
-        minimum_essential_coverage
-        proof_of_service
-        service_verification
-      ].to_set.freeze
-
       BENEFICIARY_KEY_TRANFORMS = {
         awardEffectiveDateTime: :awardEffectiveDate,
         chapter35Eligibility: :hasChapter35Eligibility,
@@ -88,10 +75,27 @@ module Lighthouse
       end
 
       def valid_type?(letter_type)
-        LETTER_TYPES.include? letter_type.downcase
+        letter_types.include? letter_type.downcase
       end
 
       private
+
+      def letter_types
+        list = %w[
+          benefit_summary
+          benefit_summary_dependent
+          benefit_verification
+          certificate_of_eligibility
+          civil_service
+          commissary
+          medicare_partd
+          minimum_essential_coverage
+          proof_of_service
+          service_verification
+        ]
+        list = list.excluding('service_verification') if Flipper.enabled?(:letters_hide_service_verification_letter)
+        list.to_set.freeze
+      end
 
       def get_from_lighthouse(endpoint, params, log)
         Lighthouse::LettersGenerator.measure_time(log) do
@@ -120,6 +124,7 @@ module Lighthouse
       end
 
       def transform_letters(letters)
+        letters.select! { |l| valid_type?(l['letterType']) }
         letters.map do |letter|
           {
             letterType: letter['letterType'].downcase,

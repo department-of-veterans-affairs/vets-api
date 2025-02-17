@@ -35,24 +35,4 @@ describe VBADocuments::V2::UploadSerializer, type: :serializer do
       expect(attributes).not_to have_key('observers')
     end
   end
-
-  context 'when v2_upload_endpoint_enabled is true' do
-    before do
-      allow(Settings.vba_documents).to receive(:v2_upload_endpoint_enabled).and_return(true)
-    end
-
-    it 'does not include :location' do
-      expect(attributes).not_to have_key('location')
-    end
-  end
-
-  context 'when v2_upload_endpoint_enabled is false' do
-    before do
-      allow(Settings.vba_documents).to receive(:v2_upload_endpoint_enabled).and_return(false)
-    end
-
-    it 'includes :location' do
-      expect(attributes).to have_key('location')
-    end
-  end
 end

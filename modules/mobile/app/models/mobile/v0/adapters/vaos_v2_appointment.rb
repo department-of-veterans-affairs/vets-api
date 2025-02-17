@@ -185,16 +185,18 @@ module Mobile
         end
 
         def timezone
-          @timezone ||= begin
-            time_zone = appointment.dig(:location, :time_zone, :time_zone_id)
-            return time_zone if time_zone
+          @timezone ||= get_timezone
+        end
 
-            return nil unless facility_id
+        def get_timezone
+          time_zone = appointment.dig(:location, :time_zone, :time_zone_id)
+          return time_zone if time_zone
 
-            # not always correct if clinic is different time zone than parent
-            facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id[0..2]}"]
-            facility ? facility[:time_zone] : nil
-          end
+          return nil unless facility_id
+
+          # not always correct if clinic is different time zone than parent
+          facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id[0..2]}"]
+          facility ? facility[:time_zone] : nil
         end
 
         def cancel_id
@@ -275,6 +277,8 @@ module Mobile
             APPOINTMENT_TYPES[:cc]
           when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:va]
             convert_va_appointment_type
+          when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:request]
+            APPOINTMENT_TYPES[:va]
           else
             appointment[:type]
           end

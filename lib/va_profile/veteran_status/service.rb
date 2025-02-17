@@ -53,7 +53,7 @@ module VAProfile
       # @return [Boolean]
       #
       def military_person?
-        title38_status == 'V3' || title38_status == 'V6'
+        %w[V3 V6].include?(title38_status)
       end
 
       # VA Profile endpoints use the OID (Organizational Identifier), the EDIPI,

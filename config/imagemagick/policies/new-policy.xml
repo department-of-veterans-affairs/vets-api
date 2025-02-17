@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policy SYSTEM "policy.dtd">
+<policymap>
+  <!-- Updated resource limits -->
+  <policy domain="resource" name="width" value="32KP"/>
+  <policy domain="resource" name="height" value="32KP"/>
+  <policy domain="resource" name="area" value="256MP"/>
+  <!-- Additional resource limits -->
+  <policy domain="resource" name="file" value="64GiB"/>
+  <policy domain="resource" name="disk" value="16GiB"/>
+  <policy domain="resource" name="memory" value="2GiB"/>
+  <policy domain="resource" name="map" value="4GiB"/>
+</policymap>

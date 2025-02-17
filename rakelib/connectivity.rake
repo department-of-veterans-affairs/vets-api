@@ -74,7 +74,7 @@ namespace :connectivity do
 
   desc 'Check that logs are writeable'
   task logs: :environment do
-    if File.writable?(Rails.root.join('log'))
+    if Rails.root.join('log').writable?
       puts 'Logging directory is writeable.'
     else
       puts 'Logging directory is not writeable!'

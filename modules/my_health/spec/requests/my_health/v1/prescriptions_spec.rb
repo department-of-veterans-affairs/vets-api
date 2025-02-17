@@ -108,6 +108,52 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(item_index).not_to be_nil
       end
 
+      context 'Feature mhv_medications_display_pending_meds=true"' do
+        before do
+          Flipper.enable_actor(:mhv_medications_display_pending_meds, current_user)
+        end
+
+        it 'responds to GET #index with pending meds included in list' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_prescriptions_w_pending_meds') do
+            get '/my_health/v1/prescriptions?page=1&per_page=99'
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+          expect(JSON.parse(response.body)['data']).to be_truthy
+
+          pending_med = (JSON.parse(response.body)['data']).find do |rx|
+            rx['attributes']['prescription_source'] == 'PD'
+          end
+
+          expect(pending_med).to be_truthy
+        end
+      end
+
+      context 'Feature mhv_medications_display_pending_meds=false"' do
+        before do
+          Flipper.disable(:mhv_medications_display_pending_meds)
+        end
+
+        it 'responds to GET #index with pending meds not included in list' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_prescriptions_w_pending_meds') do
+            get '/my_health/v1/prescriptions?page=1&per_page=99'
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+          expect(JSON.parse(response.body)['data']).to be_truthy
+
+          pending_med = (JSON.parse(response.body)['data']).find do |rx|
+            rx['attributes']['prescription_source'] == 'PD'
+          end
+
+          expect(pending_med).to be_falsey
+        end
+      end
+
       context 'grouping medications' do
         before do
           Flipper.enable('mhv_medications_display_grouping')
@@ -207,13 +253,14 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
                            expired_date.present? &&
                            DateTime.parse(expired_date) != zero_date &&
                            DateTime.parse(expired_date) >= cut_off_date)
-          expect(meets_criteria).to eq(true)
+          expect(meets_criteria).to be(true)
         end
       end
 
       it 'responds to GET #index with filter metadata for specific disp_status' do
         VCR.use_cassette('rx_client/prescriptions/index_with_disp_status_filter') do
-          get '/my_health/v1/prescriptions?filter[[disp_status][eq]]=Active,Expired'
+          get '/my_health/v1/prescriptions?filter[[disp_status][eq]]=Active,Expired',
+              headers: { 'Content-Type' => 'application/json' }, as: :json
         end
         expect(response).to be_successful
         json_response = JSON.parse(response.body)
@@ -339,7 +386,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
 
       it 'responds to GET #index with filter and pagination' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_vagov') do
-          get '/my_health/v1/prescriptions?page=1&per_page=100&filter[[disp_status][eq]]=Active: Refill in Process'
+          get '/my_health/v1/prescriptions?page=1&per_page=100&filter[[disp_status][eq]]=Active: Refill in Process',
+              headers: { 'Content-Type' => 'application/json' }, as: :json
         end
 
         filtered_response = JSON.parse(response.body)['data'].select do |i|
@@ -427,7 +475,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
 
         it 'responds to GET #show of nested tracking resource when camel-inflected' do
           VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_a_list_of_tracking_history_for_a_prescription') do
-            get '/my_health/v1/prescriptions/13650541/trackings', headers: inflection_header
+            get '/my_health/v1/prescriptions/13650541/trackings',
+                headers: inflection_header.merge('Content-Type' => 'application/json'), as: :json
           end
 
           expect(response).to be_successful

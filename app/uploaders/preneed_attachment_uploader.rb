@@ -6,7 +6,7 @@ class PreneedAttachmentUploader < CarrierWave::Uploader::Base
   include CarrierWave::MiniMagick
 
   def size_range
-    1.byte...25.megabytes
+    (1.byte)...(25.megabytes)
   end
 
   process(convert: 'pdf', if: :not_pdf?)

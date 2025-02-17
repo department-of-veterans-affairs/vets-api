@@ -63,6 +63,7 @@ jobs:
       TERM: xterm-256color
       DOCKER_BUILDKIT: 1
       COMPOSE_DOCKER_CLI_BUILD: 1
+      COMPOSE_BASH_CMD: docker compose -f docker-compose.test.yml run web bash -c
     permissions: write-all
     runs-on: ubuntu-32-cores-latest
     outputs:
@@ -116,15 +117,15 @@ jobs:
           timeout_minutes: 10
           retry_wait_seconds: 3 # Seconds
           max_attempts: 3
-          command: |
-            docker compose -f docker-compose.test.yml run web bash \
-              -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 24  -e 'bin/rails db:reset'"
+          command: >
+             ${{ env.COMPOSE_BASH_CMD }}
+             "bundle exec rake parallel:setup[24]"
 
       - name: Run Specs
         timeout-minutes: 15
-        run: |
-          docker compose -f docker-compose.test.yml run web bash \
-          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 24 -o '--color --tty'"
+        run: >
+          ${{ env.COMPOSE_BASH_CMD }}
+          "bundle exec rake 'parallel:spec[24, , , modules\/]'"
 
       - name: Set Test Status
         id: test-status

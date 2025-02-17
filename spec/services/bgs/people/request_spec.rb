@@ -36,7 +36,7 @@ RSpec.describe BGS::People::Request do
             subject
           end
           cached_response = BGS::People::Request.find(participant_id).response
-          expect(cached_response.cache?).to eq(true)
+          expect(cached_response.cache?).to be(true)
           expect(cached_response.status).to eq(expected_status)
           expect(cached_response.participant_id).to eq(expected_participant_id)
         end
@@ -48,9 +48,9 @@ RSpec.describe BGS::People::Request do
         it 'returns a bgs people response without a found record' do
           VCR.use_cassette('bgs/people_service/no_person_data') do
             response = subject
-            expect(response.cache?).to eq(true)
+            expect(response.cache?).to be(true)
             expect(response.status).to eq(expected_status)
-            expect(response.participant_id).to eq(nil)
+            expect(response.participant_id).to be_nil
           end
         end
 
@@ -60,9 +60,9 @@ RSpec.describe BGS::People::Request do
           end
 
           cached_response = BGS::People::Request.find(participant_id).response
-          expect(cached_response.cache?).to eq(true)
+          expect(cached_response.cache?).to be(true)
           expect(cached_response.status).to eq(expected_status)
-          expect(cached_response.participant_id).to eq(nil)
+          expect(cached_response.participant_id).to be_nil
         end
       end
 
@@ -75,15 +75,15 @@ RSpec.describe BGS::People::Request do
         end
 
         it 'returns a bgs people response without a found record' do
-          expect(subject.participant_id).to eq(nil)
+          expect(subject.participant_id).to be_nil
           expect(subject.status).to eq(expected_status)
-          expect(subject.cache?).to eq(false)
+          expect(subject.cache?).to be(false)
         end
 
         it 'does not cache the response' do
           subject
 
-          expect(BGS::People::Request.find(participant_id)).to be(nil)
+          expect(BGS::People::Request.find(participant_id)).to be_nil
         end
       end
     end
@@ -93,9 +93,9 @@ RSpec.describe BGS::People::Request do
       let(:expected_status) { :no_id }
 
       it 'returns a bgs people response without a found record' do
-        expect(subject.participant_id).to eq(nil)
+        expect(subject.participant_id).to be_nil
         expect(subject.status).to eq(expected_status)
-        expect(subject.cache?).to eq(false)
+        expect(subject.cache?).to be(false)
       end
     end
   end

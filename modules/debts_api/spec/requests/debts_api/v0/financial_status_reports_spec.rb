@@ -37,7 +37,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports', type: :request do
         post('/debts_api/v0/financial_status_reports', params: valid_form_data)
         expect(response).to have_http_status(:not_found)
         expect(response.header['Content-Type']).to include('application/json')
-        expect(JSON.parse(response.body)).to eq(nil)
+        expect(JSON.parse(response.body)).to be_nil
       end
     end
 
@@ -83,7 +83,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports', type: :request do
         )
         expect(response).to have_http_status(:internal_server_error)
         expect(response.header['Content-Type']).to include('application/json')
-        expect(response.body).not_to eq(nil)
+        expect(response.body).not_to be_nil
       end
     end
 
@@ -106,7 +106,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports', type: :request do
         )
         expect(response).to have_http_status(:not_found)
         expect(response.header['Content-Type']).to include('application/json')
-        expect(JSON.parse(response.body)).to eq(nil)
+        expect(JSON.parse(response.body)).to be_nil
       end
     end
 

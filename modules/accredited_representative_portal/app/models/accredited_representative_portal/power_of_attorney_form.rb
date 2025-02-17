@@ -2,19 +2,63 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyForm < ApplicationRecord
-    self.ignored_columns += %w[city_bidx state_bidx zipcode_bidx]
-
     belongs_to :power_of_attorney_request,
-               class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequest',
+               class_name: 'PowerOfAttorneyRequest',
                inverse_of: :power_of_attorney_form
 
+    ##
+    # If we had a regular ID column, we could use `eager_encrypt` which would be
+    # more performant:
+    # https://github.com/ankane/kms_encrypted/blob/master/README.md?plain=1#L155
+    #
     has_kms_key
 
-    has_encrypted :data, key: :kms_key, **lockbox_options
+    has_encrypted(
+      :data,
+      :claimant_city,
+      :claimant_state_code,
+      :claimant_zip_code,
+      key: :kms_key,
+      **lockbox_options
+    )
 
-    blind_index :city
-    blind_index :state
-    blind_index :zipcode
+    blind_index(
+      :claimant_city,
+      :claimant_state_code,
+      :claimant_zip_code
+    )
+
+    validate :data_must_comply_with_schema
+    before_validation :set_location
+
+    ##
+    # Maybe can manage interdepencies between this and the POA reqeust without
+    # exposing this.
+    #
+    def parsed_data
+      @parsed_data ||= JSON.parse(data)
+    end
+
+    private
+
+    def set_location
+      claimant = parsed_data['dependent']
+      claimant ||= parsed_data['veteran']
+
+      address = claimant.to_h['address']
+      return unless address
+
+      self.claimant_city = address['city']
+      self.claimant_state_code = address['stateCode']
+      self.claimant_zip_code = address['zipCode']
+    end
+
+    def data_must_comply_with_schema
+      data_errors = JSONSchemer.schema(SCHEMA).validate(parsed_data)
+      return if data_errors.none?
+
+      errors.add :data, 'does not comply with schema'
+    end
 
     ##
     # TODO: Can couple this to the schema involved in user input during POA
@@ -39,11 +83,11 @@ module AccreditedRepresentativePortal
           "authorizations": {
             "type": "object",
             "properties": {
-              "record_disclosure": {
+              "recordDisclosure": {
                 "type": "boolean",
                 "example": true
               },
-              "record_disclosure_limitations": {
+              "recordDisclosureLimitations": {
                 "type": "array",
                 "items": {
                   "type": "string",
@@ -61,15 +105,15 @@ module AccreditedRepresentativePortal
                   "SICKLE_CELL"
                 ]
               },
-              "address_change": {
+              "addressChange": {
                 "type": "boolean",
                 "example": false
               }
             },
             "required": [
-              "record_disclosure",
-              "record_disclosure_limitations",
-              "address_change"
+              "recordDisclosure",
+              "recordDisclosureLimitations",
+              "addressChange"
             ]
           },
           "dependent": {
@@ -100,11 +144,11 @@ module AccreditedRepresentativePortal
               "address": {
                 "type": "object",
                 "properties": {
-                  "address_line1": {
+                  "addressLine1": {
                     "type": "string",
                     "example": "123 Main St"
                   },
-                  "address_line2": {
+                  "addressLine2": {
                     "type": ["string", "null"],
                     "example": "Apt 1"
                   },
@@ -112,7 +156,7 @@ module AccreditedRepresentativePortal
                     "type": "string",
                     "example": "Springfield"
                   },
-                  "state_code": {
+                  "stateCode": {
                     "type": "string",
                     "example": "IL"
                   },
@@ -120,26 +164,26 @@ module AccreditedRepresentativePortal
                     "type": "string",
                     "example": "US"
                   },
-                  "zip_code": {
+                  "zipCode": {
                     "type": "string",
                     "example": "62704"
                   },
-                  "zip_code_suffix": {
+                  "zipCodeSuffix": {
                     "type": ["string", "null"],
                     "example": "6789"
                   }
                 },
                 "required": [
-                  "address_line1",
-                  "address_line2",
+                  "addressLine1",
+                  "addressLine2",
                   "city",
-                  "state_code",
+                  "stateCode",
                   "country",
-                  "zip_code",
-                  "zip_code_suffix"
+                  "zipCode",
+                  "zipCodeSuffix"
                 ]
               },
-              "date_of_birth": {
+              "dateOfBirth": {
                 "type": "string",
                 "format": "date",
                 "example": "1980-12-31"
@@ -160,7 +204,7 @@ module AccreditedRepresentativePortal
             "required": [
               "name",
               "address",
-              "date_of_birth",
+              "dateOfBirth",
               "relationship",
               "phone",
               "email"
@@ -194,11 +238,11 @@ module AccreditedRepresentativePortal
               "address": {
                 "type": "object",
                 "properties": {
-                  "address_line1": {
+                  "addressLine1": {
                     "type": "string",
                     "example": "123 Main St"
                   },
-                  "address_line2": {
+                  "addressLine2": {
                     "type": ["string", "null"],
                     "example": "Apt 1"
                   },
@@ -206,7 +250,7 @@ module AccreditedRepresentativePortal
                     "type": "string",
                     "example": "Springfield"
                   },
-                  "state_code": {
+                  "stateCode": {
                     "type": "string",
                     "example": "IL"
                   },
@@ -214,43 +258,43 @@ module AccreditedRepresentativePortal
                     "type": "string",
                     "example": "US"
                   },
-                  "zip_code": {
+                  "zipCode": {
                     "type": "string",
                     "example": "62704"
                   },
-                  "zip_code_suffix": {
+                  "zipCodeSuffix": {
                     "type": ["string", "null"],
                     "example": "6789"
                   }
                 },
                 "required": [
-                  "address_line1",
-                  "address_line2",
+                  "addressLine1",
+                  "addressLine2",
                   "city",
-                  "state_code",
+                  "stateCode",
                   "country",
-                  "zip_code",
-                  "zip_code_suffix"
+                  "zipCode",
+                  "zipCodeSuffix"
                 ]
               },
               "ssn": {
                 "type": "string",
                 "example": "123456789"
               },
-              "va_file_number": {
+              "vaFileNumber": {
                 "type": ["string", "null"],
                 "example": "123456789"
               },
-              "date_of_birth": {
+              "dateOfBirth": {
                 "type": "string",
                 "format": "date",
                 "example": "1980-12-31"
               },
-              "service_number": {
+              "serviceNumber": {
                 "type": ["string", "null"],
                 "example": "123456789"
               },
-              "service_branch": {
+              "serviceBranch": {
                 "type": ["string", "null"],
                 "enum": [
                   "ARMY",
@@ -277,10 +321,10 @@ module AccreditedRepresentativePortal
               "name",
               "address",
               "ssn",
-              "va_file_number",
-              "date_of_birth",
-              "service_number",
-              "service_branch",
+              "vaFileNumber",
+              "dateOfBirth",
+              "serviceNumber",
+              "serviceBranch",
               "phone",
               "email"
             ]

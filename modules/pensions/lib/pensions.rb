@@ -26,11 +26,6 @@ module Pensions
   module PdfFill
   end
 
-  # TagSentry
-  # @see https://docs.sentry.io/platforms/ruby/enriching-events/tags/
-  module TagSentry
-  end
-
   # ZeroSilentFailures
   # @see lib/zero_silent_failures
   module ZeroSilentFailures

@@ -1,0 +1,62 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "physical_address": {
+        "type": "object",
+        "properties": {
+          "address_1": {
+              "type": ["string", "null"]
+          },
+          "address_2": {
+            "type": ["string", "null"]
+          },
+          "address_3": {
+            "type": ["string", "null"]
+          },
+          "city": {
+            "type": ["string", "null"]
+          },
+          "state": {
+            "type": ["string", "null"]
+          },
+          "zip": {
+            "type": ["string", "null"]
+          },
+          "country": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "mailing_address": {
+        "type": "object",
+        "properties": {
+          "address_1": {
+              "type": ["string", "null"]
+          },
+          "address_2": {
+            "type": ["string", "null"]
+          },
+          "address_3": {
+            "type": ["string", "null"]
+          },
+          "city": {
+            "type": ["string", "null"]
+          },
+          "state": {
+            "type": ["string", "null"]
+          },
+          "zip": {
+            "type": ["string", "null"]
+          },
+          "country": {
+            "type": ["string", "null"]
+          }
+        }
+      }
+    }
+  }

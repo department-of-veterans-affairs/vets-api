@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/shared_examples_for_base_form'
 
 RSpec.describe SimpleFormsApi::VBA210966 do
+  it_behaves_like 'zip_code_is_us_based', %w[veteran_mailing_address surviving_dependent_mailing_address]
+
   describe 'populate_veteran_data' do
     context 'data does not already have what it needs' do
       let(:expected_first_name) { 'Rory' }
@@ -51,46 +54,64 @@ RSpec.describe SimpleFormsApi::VBA210966 do
     end
   end
 
-  describe 'zip_code_is_us_based' do
-    subject(:zip_code_is_us_based) { described_class.new(data).zip_code_is_us_based }
+  describe '#notification_first_name' do
+    context 'preparer is surviving dependent' do
+      let(:data) do
+        {
+          'preparer_identification' => 'SURVIVING_DEPENDENT',
+          'surviving_dependent_full_name' => {
+            'first' => 'Surviving',
+            'last' => 'Dependent'
+          }
+        }
+      end
 
-    context 'veteran address is present and in US' do
-      let(:data) { { 'veteran_mailing_address' => { 'country' => 'USA' } } }
-
-      it 'returns true' do
-        expect(zip_code_is_us_based).to eq(true)
+      it 'returns the surviving dependent first name' do
+        expect(described_class.new(data).notification_first_name).to eq 'Surviving'
       end
     end
 
-    context 'veteran address is present and not in US' do
-      let(:data) { { 'veteran_mailing_address' => { 'country' => 'Canada' } } }
+    context 'preparer is not the surviving dependent' do
+      let(:data) do
+        {
+          'preparer_identification' => 'VETERAN',
+          'veteran_full_name' => {
+            'first' => 'Veteran',
+            'last' => 'Eteranvay'
+          }
+        }
+      end
 
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
+      it 'returns the veteran first name' do
+        expect(described_class.new(data).notification_first_name).to eq 'Veteran'
+      end
+    end
+  end
+
+  describe '#notification_email_address' do
+    context 'preparer is surviving dependent' do
+      let(:data) do
+        {
+          'preparer_identification' => 'SURVIVING_DEPENDENT',
+          'surviving_dependent_email' => 'a@b.com'
+        }
+      end
+
+      it 'returns the surviving dependent email address' do
+        expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
       end
     end
 
-    context 'surviving dependent is present and in US' do
-      let(:data) { { 'surviving_dependent_mailing_address' => { 'country' => 'USA' } } }
-
-      it 'returns true' do
-        expect(zip_code_is_us_based).to eq(true)
+    context 'preparer is anyone else' do
+      let(:data) do
+        {
+          'preparer_identification' => 'space-alien',
+          'veteran_email' => 'a@b.com'
+        }
       end
-    end
 
-    context 'surviving dependent is present and not in US' do
-      let(:data) { { 'surviving_dependent_mailing_address' => { 'country' => 'Canada' } } }
-
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
-      end
-    end
-
-    context 'no valid address is given' do
-      let(:data) { {} }
-
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
+      it 'returns the veteran email address' do
+        expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
       end
     end
   end

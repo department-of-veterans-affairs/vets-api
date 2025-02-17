@@ -6,7 +6,7 @@ require 'support/pagerduty/services/invalid'
 require 'pagerduty/models/service'
 
 describe PagerDuty::Models::Service do
-  let(:pagerduty_service) { build :pagerduty_service }
+  let(:pagerduty_service) { build(:pagerduty_service) }
 
   describe 'validations' do
     it 'has a valid factory' do
@@ -14,7 +14,7 @@ describe PagerDuty::Models::Service do
     end
 
     it 'validates for the :status to be one of the PagerDuty::Models::Service::STATUSES' do
-      invalid_service = build :pagerduty_service, status: 'some status'
+      invalid_service = build(:pagerduty_service, status: 'some status')
 
       expect(invalid_service).not_to be_valid
     end

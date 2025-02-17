@@ -56,7 +56,7 @@ describe HealthQuest::Resource::ClientModel::QuestionnaireResponse do
   describe 'object initialization' do
     it 'has attributes' do
       %i[user model identifier meta data source_reference subject_reference].each do |attribute|
-        expect(subject.manufacture(data, user).respond_to?(attribute)).to eq(true)
+        expect(subject.manufacture(data, user).respond_to?(attribute)).to be(true)
       end
     end
 

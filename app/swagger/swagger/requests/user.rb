@@ -104,9 +104,9 @@ module Swagger
                            type: :string,
                            enum: %w[OK DEACTIVATED MULTIPLE NONE],
                            example: 'OK',
-                           description: 'DEACTIVATED: user has at least one MHV id that is not active; '\
-                                        'NONE: user has no active MHV ids; '\
-                                        'MULTIPLE: user has multiple active MHV ids; '\
+                           description: 'DEACTIVATED: user has at least one MHV id that is not active; ' \
+                                        'NONE: user has no active MHV ids; ' \
+                                        'MULTIPLE: user has multiple active MHV ids; ' \
                                         'OK: user has one MHV id and its active'
                 end
                 property :veteran_status, type: :object do

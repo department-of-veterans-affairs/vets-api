@@ -7,6 +7,6 @@ FactoryBot.define do
     highest_rank { 'GEN' }
     national_guard_state { 'NY' }
 
-    date_range { attributes_for :date_range }
+    date_range { attributes_for(:date_range) }
   end
 end

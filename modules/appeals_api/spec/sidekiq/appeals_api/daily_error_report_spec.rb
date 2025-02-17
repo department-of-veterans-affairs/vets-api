@@ -36,7 +36,7 @@ describe AppealsApi::DailyErrorReport, type: :job do
     end
 
     it 'notifies slack when there are no recipients' do
-      messager_instance = instance_double('AppealsApi::Slack::Messager')
+      messager_instance = instance_double(AppealsApi::Slack::Messager)
 
       allow(YAML).to receive(:load_file).and_return({})
       allow(AppealsApi::Slack::Messager).to receive(:new).and_return(messager_instance)

@@ -85,6 +85,10 @@ module V0
         key :name, 'medical_copays'
         key :description, 'Veteran Medical Copay information for VA facilities'
       end
+      tag do
+        key :name, 'banners'
+        key :description, 'VAMC Situation Update Banners'
+      end
       key :host, Settings.hostname
       key :schemes, %w[https http]
       key :basePath, '/'
@@ -120,6 +124,7 @@ module V0
       Swagger::Requests::Appointments,
       Swagger::Requests::ContactUs::Inquiries,
       Swagger::Requests::BackendStatuses,
+      Swagger::Requests::Banners,
       Swagger::Requests::BB::HealthRecords,
       Swagger::Requests::BurialClaims,
       Swagger::Requests::BenefitsReferenceData,
@@ -252,6 +257,7 @@ module V0
       Swagger::Schemas::Vet360::States,
       Swagger::Schemas::Vet360::Zipcodes,
       Swagger::Schemas::VirtualAgentWebchatToken,
+      FacilitiesApi::V2::Schemas::Facilities,
       self
     ].freeze
 

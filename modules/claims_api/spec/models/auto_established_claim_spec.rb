@@ -45,7 +45,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
           'activeDutyEndDate' => '1990-04-05'
         }] } }
 
-        expect(auto_form.save).to eq(false)
+        expect(auto_form.save).to be(false)
         expect(auto_form.errors.messages).to include(:activeDutyBeginDate)
       end
     end
@@ -57,7 +57,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
           'activeDutyEndDate' => nil
         }] } }
 
-        expect(auto_form.save).to eq(true)
+        expect(auto_form.save).to be(true)
       end
     end
 
@@ -68,7 +68,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
           'activeDutyEndDate' => '1990-04-05'
         }] } }
 
-        expect(auto_form.save).to eq(false)
+        expect(auto_form.save).to be(false)
         expect(auto_form.errors.messages).to include(:activeDutyBeginDate)
       end
     end
@@ -407,7 +407,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
               payload = JSON.parse(pending_record.to_internal)
               transformed_ending_date = payload['form526']['veteran']['changeOfAddress']['endingDate']
 
-              expect(transformed_ending_date).to eq(nil)
+              expect(transformed_ending_date).to be_nil
             end
           end
 
@@ -419,7 +419,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
               payload = JSON.parse(pending_record.to_internal)
               untouched_ending_date = payload['form526']['veteran']['changeOfAddress']['endingDate']
 
-              expect(untouched_ending_date).to eq(nil)
+              expect(untouched_ending_date).to be_nil
             end
           end
 
@@ -547,6 +547,57 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       it 'removes any extra spaces from the areaCode' do
         phone_number = reserves['unitPhone']['areaCode']
         expect(phone_number).to eq('555')
+      end
+    end
+
+    context 'when the unitPhone number has more than 10 digits' do
+      let(:temp_form_data) do
+        pending_record.form_data.tap do |data|
+          data['serviceInformation']['reservesNationalGuardService']['unitPhone'] = {
+            'areaCode' => '555',
+            'phoneNumber' => '1231234x5555'
+          }
+        end
+      end
+      let(:payload) { JSON.parse(pending_record.to_internal) }
+      let(:reserves) { payload['form526']['serviceInformation']['reservesNationalGuardService'] }
+
+      before do
+        pending_record.form_data = temp_form_data
+      end
+
+      it 'adds the original phone number to overflowText and removes unitPhone' do
+        expect(payload['form526']['overflowText']).to eq("21E. unitPhone - 5551231234x5555\n")
+        expect(reserves['unitPhone']).to be_nil
+      end
+    end
+
+    context 'when both unitPhone and primaryPhone have more than 10 digits' do
+      let(:temp_form_data) do
+        pending_record.form_data.tap do |data|
+          data['serviceInformation']['reservesNationalGuardService']['unitPhone'] = {
+            'areaCode' => '555',
+            'phoneNumber' => '1231234x5555'
+          }
+          data['veteran']['homelessness']['pointOfContact']['primaryPhone'] = {
+            'areaCode' => '555',
+            'phoneNumber' => '1231234x5555'
+          }
+        end
+      end
+      let(:payload) { JSON.parse(pending_record.to_internal) }
+      let(:reserves) { payload['form526']['serviceInformation']['reservesNationalGuardService'] }
+      let(:point_of_contact) { payload['form526']['veteran']['homelessness']['pointOfContact'] }
+
+      before do
+        pending_record.form_data = temp_form_data
+      end
+
+      it 'adds the original phone numbers to overflowText and removes unitPhone and primaryPhone' do
+        expect(payload['form526']['overflowText'])
+          .to eq("21E. unitPhone - 5551231234x5555\n14F. pointOfContact.primaryPhone - 5551231234x5555\n")
+        expect(reserves['unitPhone']).to be_nil
+        expect(point_of_contact['primaryPhone']).to be_nil
       end
     end
 
@@ -786,19 +837,19 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
           payload = JSON.parse(pending_record.to_internal)
           disability_name = payload['form526']['disabilities'].first['name']
 
-          expect(disability_name.include?('abc 123')).to eq(true)
-          expect(disability_name.include?('`')).to eq(false)
-          expect(disability_name.include?('~')).to eq(false)
-          expect(disability_name.include?('!')).to eq(false)
-          expect(disability_name.include?('@')).to eq(false)
-          expect(disability_name.include?('#')).to eq(false)
-          expect(disability_name.include?('$')).to eq(false)
-          expect(disability_name.include?('%')).to eq(false)
-          expect(disability_name.include?('^')).to eq(false)
-          expect(disability_name.include?('&')).to eq(false)
-          expect(disability_name.include?('*')).to eq(false)
-          expect(disability_name.include?('=')).to eq(false)
-          expect(disability_name.include?('+')).to eq(false)
+          expect(disability_name.include?('abc 123')).to be(true)
+          expect(disability_name.include?('`')).to be(false)
+          expect(disability_name.include?('~')).to be(false)
+          expect(disability_name.include?('!')).to be(false)
+          expect(disability_name.include?('@')).to be(false)
+          expect(disability_name.include?('#')).to be(false)
+          expect(disability_name.include?('$')).to be(false)
+          expect(disability_name.include?('%')).to be(false)
+          expect(disability_name.include?('^')).to be(false)
+          expect(disability_name.include?('&')).to be(false)
+          expect(disability_name.include?('*')).to be(false)
+          expect(disability_name.include?('=')).to be(false)
+          expect(disability_name.include?('+')).to be(false)
         end
       end
 

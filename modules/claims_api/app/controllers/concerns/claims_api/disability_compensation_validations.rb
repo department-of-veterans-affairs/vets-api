@@ -47,8 +47,11 @@ module ClaimsApi
       # ensure the 'treatment.endDate' is after the 'treatment.startDate'
       # ensure any provided 'treatment.treatedDisabilityNames' match a provided 'disabilities.name'
       validate_form_526_treatments!
-      validate_form_526_direct_depost!
+      validate_form_526_direct_deposit!
+      validate_form_526_at_least_one_active_duty_end_date_within_180_days!
     end
+
+    private
 
     def validate_form_526_current_mailing_address!
       validate_form_526_current_mailing_address_country!
@@ -236,21 +239,21 @@ module ClaimsApi
     def validate_form_526_veteran_homelessness!
       if too_many_homelessness_attributes_provided?
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "Must define only one of 'veteran.homelessness.currentlyHomeless' or "\
+          detail: "Must define only one of 'veteran.homelessness.currentlyHomeless' or " \
                   "'veteran.homelessness.homelessnessRisk'"
         )
       end
 
       if unnecessary_homelessness_point_of_contact_provided?
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "If 'veteran.homelessness.pointOfContact' is defined, then one of "\
+          detail: "If 'veteran.homelessness.pointOfContact' is defined, then one of " \
                   "'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is required"
         )
       end
 
       if missing_point_of_contact?
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is "\
+          detail: "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is " \
                   "defined, then 'veteran.homelessness.pointOfContact' is required"
         )
       end
@@ -267,7 +270,7 @@ module ClaimsApi
       end
       if started_before_age_thirteen
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "If any 'serviceInformation.servicePeriods.activeDutyBeginDate' is "\
+          detail: "If any 'serviceInformation.servicePeriods.activeDutyBeginDate' is " \
                   "before the Veteran's 13th birthdate: #{age_thirteen}, the claim can not be processed."
         )
       end
@@ -575,7 +578,7 @@ module ClaimsApi
       end
     end
 
-    def validate_form_526_direct_depost!
+    def validate_form_526_direct_deposit!
       direct_deposit = form_attributes['directDeposit']
       return if direct_deposit.blank?
 
@@ -584,6 +587,24 @@ module ClaimsApi
         raise ::Common::Exceptions::InvalidFieldValue.new(
           'directDeposit.bankName',
           direct_deposit['bankName']
+        )
+      end
+    end
+
+    def validate_form_526_at_least_one_active_duty_end_date_within_180_days!
+      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
+
+      at_least_one_active_duty_end_date_within_180_days = service_periods.any? do |sp|
+        active_duty_end_date = sp['activeDutyEndDate']
+        next if active_duty_end_date.blank?
+
+        Date.parse(active_duty_end_date) <= 180.days.from_now.end_of_day
+      end
+
+      unless at_least_one_active_duty_end_date_within_180_days
+        raise ::Common::Exceptions::InvalidFieldValue.new(
+          'serviceInformation/servicePeriods/activeDutyEndDate',
+          'At least one active duty end date must be within 180 days from now.'
         )
       end
     end

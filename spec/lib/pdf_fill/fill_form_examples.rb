@@ -74,14 +74,14 @@ RSpec.shared_examples 'a form filler' do |options|
 
               expect(
                 FileUtils.compare_file(extras_path, "#{output_pdf_fixture_dir}/overflow_extras.pdf")
-              ).to eq(true)
+              ).to be(true)
 
               File.delete(extras_path)
             end
 
             expect(
               pdfs_fields_match?(file_path, "#{output_pdf_fixture_dir}/#{type}.pdf")
-            ).to eq(true)
+            ).to be(true)
 
             File.delete(file_path)
           end

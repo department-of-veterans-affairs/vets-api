@@ -5,9 +5,9 @@ require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm686cJob, type: :job do
   let(:job) { subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info) }
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:birth_date) { '1809-02-12' }
   let(:client_stub) { instance_double(BGS::Form686c) }
   let(:vet_info) do

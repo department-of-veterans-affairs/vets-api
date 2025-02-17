@@ -164,7 +164,7 @@ module VaNotify
       caller_locations.each do |location|
         next if ignored_files.any? { |path| location.path.include?(path) }
 
-        return "#{location.path}:#{location.lineno} in #{location.label}"
+        return "#{location.path}:#{location.lineno} in #{location.base_label}"
       end
     end
   end

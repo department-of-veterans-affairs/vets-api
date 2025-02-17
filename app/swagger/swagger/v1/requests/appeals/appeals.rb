@@ -47,7 +47,7 @@ class Swagger::V1::Requests::Appeals::Appeals
         key :required, true
         key :type, :string
         key :format, :uuid
-        key :pattern, "^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$"
+        key :pattern, '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       end
 
       response 200 do
@@ -138,7 +138,7 @@ class Swagger::V1::Requests::Appeals::Appeals
         key :required, true
         key :type, :string
         key :format, :uuid
-        key :pattern, "^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$"
+        key :pattern, '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       end
 
       response 200 do
@@ -216,7 +216,7 @@ class Swagger::V1::Requests::Appeals::Appeals
         key :required, true
         key :type, :string
         key :format, :uuid
-        key :pattern, "^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$"
+        key :pattern, '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       end
 
       response 200 do

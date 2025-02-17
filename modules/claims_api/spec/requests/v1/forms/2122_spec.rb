@@ -18,7 +18,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
   let(:multi_profile) do
     MPI::Responses::FindProfileResponse.new(
       status: :ok,
-      profile: FactoryBot.build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
+      profile: build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
     )
   end
   let(:pws) { ClaimsApi::PersonWebService }
@@ -104,7 +104,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                 token = JSON.parse(response.body)['data']['id']
                 poa = ClaimsApi::PowerOfAttorney.find(token)
                 expect(poa.source_data['name']).to eq('abraham lincoln')
-                expect(poa.source_data['icn'].present?).to eq(true)
+                expect(poa.source_data['icn'].present?).to be(true)
                 expect(poa.source_data['email']).to eq('abraham.lincoln@vets.gov')
               end
             end
@@ -160,7 +160,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                   VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
                     allow_any_instance_of(MPIData)
                       .to receive(:mvi_response).and_return(multi_profile)
-                    post path, params: data, headers: auth_header
+                    parsed_data = JSON.parse(data)
+                    post path, params: parsed_data, headers: auth_header, as: :json
 
                     response_body = JSON.parse response.body
                     expect(response).to have_http_status(:unprocessable_entity)
@@ -216,7 +217,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
                 expect(ClaimsApi::V1::PoaFormBuilderJob).to receive(:perform_async)
 
-                post path, params: params.to_json, headers: headers.merge(auth_header)
+                post path, params: params, headers: auth_header, as: :json
               end
             end
           end
@@ -282,11 +283,11 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
       context 'validate_veteran_identifiers' do
         context 'when Veteran identifiers are missing in MPI lookups' do
-          before do
-            stub_mpi(build(:mpi_profile, birth_date: nil, participant_id: nil))
-          end
+          let(:mpi_profile) { build(:mpi_profile, birth_date: nil, participant_id: nil) }
+          let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
           it 'returns an unprocessible entity status' do
+            allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
               .and_raise(ArgumentError)
             mock_acg(scopes) do |auth_header|
@@ -676,7 +677,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
           allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
           expect(power_of_attorney.file_data).to be_nil
           put("#{path}/#{power_of_attorney.id}",
-              params: base64_params, headers: headers.merge(auth_header))
+              params: base64_params, headers: headers.merge(auth_header), as: :json)
           power_of_attorney.reload
           expect(power_of_attorney.file_data).not_to be_nil
           expect(power_of_attorney.status).to eq('submitted')
@@ -712,7 +713,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                 .to receive(:find_by_ssn).and_raise(BGS::ShareError.new('HelloWorld'))
               expect(power_of_attorney.file_data).to be_nil
               put("#{path}/#{power_of_attorney.id}",
-                  params: base64_params, headers: headers.merge(auth_header))
+                  params: base64_params, headers: headers.merge(auth_header), as: :json)
               power_of_attorney.reload
               parsed = JSON.parse(response.body)
               expect(power_of_attorney.file_data).to be_nil
@@ -738,7 +739,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                   .to receive(:find_by_ssn).and_return(nil)
                 expect(power_of_attorney.file_data).to be_nil
                 put("#{path}/#{power_of_attorney.id}",
-                    params: base64_params, headers: headers.merge(auth_header))
+                    params: base64_params, headers: headers.merge(auth_header), as: :json)
                 power_of_attorney.reload
                 parsed = JSON.parse(response.body)
                 expect(power_of_attorney.file_data).to be_nil
@@ -758,7 +759,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                   .to receive(:find_by_ssn).and_return({ file_nbr: nil })
                 expect(power_of_attorney.file_data).to be_nil
                 put("#{path}/#{power_of_attorney.id}",
-                    params: base64_params, headers: headers.merge(auth_header))
+                    params: base64_params, headers: headers.merge(auth_header), as: :json)
                 power_of_attorney.reload
                 parsed = JSON.parse(response.body)
                 expect(power_of_attorney.file_data).to be_nil
@@ -778,7 +779,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                   .to receive(:find_by_ssn).and_return({ file_nbr: '' })
                 expect(power_of_attorney.file_data).to be_nil
                 put("#{path}/#{power_of_attorney.id}",
-                    params: base64_params, headers: headers.merge(auth_header))
+                    params: base64_params, headers: headers.merge(auth_header), as: :json)
                 power_of_attorney.reload
                 parsed = JSON.parse(response.body)
                 expect(power_of_attorney.file_data).to be_nil
@@ -990,9 +991,9 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
               expect(parsed['data']['attributes']['representative']['service_organization']['organization_name'])
                 .to eq('Some Great Organization')
               expect(parsed['data']['attributes']['representative']['service_organization']['first_name'])
-                .to eq(nil)
+                .to be_nil
               expect(parsed['data']['attributes']['representative']['service_organization']['last_name'])
-                .to eq(nil)
+                .to be_nil
               expect(parsed['data']['attributes']['representative']['service_organization']['phone_number'])
                 .to eq('555-555-5555')
             end
@@ -1028,7 +1029,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
               expect(parsed['data']['attributes']['representative']['service_organization']['last_name'])
                 .to eq('Testerson')
               expect(parsed['data']['attributes']['representative']['service_organization']['organization_name'])
-                .to eq(nil)
+                .to be_nil
               expect(parsed['data']['attributes']['representative']['service_organization']['phone_number'])
                 .to eq('555-555-5555')
             end

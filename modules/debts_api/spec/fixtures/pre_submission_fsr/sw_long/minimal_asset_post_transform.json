@@ -50,9 +50,9 @@
       "netTakeHomePay": "0.00",
       "otherIncome": {
         "name": "Disability Compensation, Education, Social Security",
-        "amount": "7951.00"
+        "amount": "7541.00"
       },
-      "totalMonthlyNetIncome": "7951.00"
+      "totalMonthlyNetIncome": "7541.00"
     },
     {
       "veteranOrSpouse": "SPOUSE",
@@ -81,13 +81,13 @@
     "utilities": "0.00",
     "otherLivingExpenses": {
       "name": "Clothing",
-      "amount": "6759.00"
+      "amount": "6799.00"
     },
     "expensesInstallmentContractsAndOtherDebts": "0.00",
-    "totalMonthlyExpenses": "6759.00"
+    "totalMonthlyExpenses": "6799.00"
   },
   "discretionaryIncome": {
-    "netMonthlyIncomeLessExpenses": "1192.00",
+    "netMonthlyIncomeLessExpenses": "742.00",
     "amountCanBePaidTowardDebt": "0.00"
   },
   "assets": {
@@ -107,7 +107,7 @@
   },
   "additionalData": {
     "bankruptcy": {},
-    "additionalComments": "\nIndividual expense amount: Clothing ($6,759.00)"
+    "additionalComments": "\nIndividual expense amount: Clothing ($6,799.00)"
   },
   "applicantCertifications": {
     "veteranSignature": "Mark  Webb",

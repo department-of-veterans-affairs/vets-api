@@ -5,9 +5,9 @@ require Vye::Engine.root / 'spec/rails_helper'
 
 RSpec.describe Vye::UserInfo, type: :model do
   describe 'create' do
-    let!(:bdn_clone) { FactoryBot.create(:vye_bdn_clone) }
-    let!(:user_profile) { FactoryBot.create(:vye_user_profile) }
-    let(:user_info) { FactoryBot.build(:vye_user_info, user_profile:, bdn_clone:) }
+    let!(:bdn_clone) { create(:vye_bdn_clone) }
+    let!(:user_profile) { create(:vye_user_profile) }
+    let(:user_info) { build(:vye_user_info, user_profile:, bdn_clone:) }
 
     it 'creates a record' do
       expect do
@@ -25,8 +25,8 @@ RSpec.describe Vye::UserInfo, type: :model do
       let(:award_begin_date) { Date.new(2024, 3, 30) }
       let(:today) { Date.new(2024, 3, 31) }
       let(:award_end_date) { Date.new(2024, 4, 1) }
-      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
-      let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
+      let!(:user_info) { create(:vye_user_info, date_last_certified:) }
+      let!(:award) { create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
 
       before do
         Timecop.travel(now)
@@ -50,8 +50,8 @@ RSpec.describe Vye::UserInfo, type: :model do
       let(:cur_award_ind) { Vye::Award.cur_award_inds[:current] }
       let(:award_begin_date) { Date.parse('2024-07-01') }
       let(:award_end_date) { Date.parse('2024-07-01') }
-      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
-      let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
+      let!(:user_info) { create(:vye_user_info, date_last_certified:) }
+      let!(:award) { create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
 
       before do
         Timecop.travel(now)
@@ -75,8 +75,8 @@ RSpec.describe Vye::UserInfo, type: :model do
       let(:cur_award_ind) { Vye::Award.cur_award_inds[:current] }
       let(:award_begin_date) { Date.parse('2024-06-01') }
       let(:award_end_date) { Date.parse('2024-06-29') }
-      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
-      let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
+      let!(:user_info) { create(:vye_user_info, date_last_certified:) }
+      let!(:award) { create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
 
       before do
         Timecop.travel(now)
@@ -100,8 +100,8 @@ RSpec.describe Vye::UserInfo, type: :model do
       let(:cur_award_ind) { Vye::Award.cur_award_inds[:current] }
       let(:award_begin_date) { Date.parse('2024-06-01') }
       let(:award_end_date) { Date.parse('2024-07-20') }
-      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
-      let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
+      let!(:user_info) { create(:vye_user_info, date_last_certified:) }
+      let!(:award) { create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
 
       before do
         Timecop.travel(now)
@@ -125,8 +125,8 @@ RSpec.describe Vye::UserInfo, type: :model do
       let(:cur_award_ind) { Vye::Award.cur_award_inds[:current] }
       let(:award_begin_date) { Date.parse('2024-07-01') }
       let(:award_end_date) { Date.parse('2024-07-20') }
-      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
-      let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
+      let!(:user_info) { create(:vye_user_info, date_last_certified:) }
+      let!(:award) { create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
 
       before do
         Timecop.travel(now)
@@ -147,18 +147,18 @@ RSpec.describe Vye::UserInfo, type: :model do
     describe 'case 4' do
       let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
       let(:date_last_certified) { Date.parse('2024-04-15') }
-      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:user_info) { create(:vye_user_info, date_last_certified:) }
       let!(:award1) do
         cur_award_ind = Vye::Award.cur_award_inds[:current]
         award_begin_date = Date.parse('2024-05-01')
         award_end_date = nil
-        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+        create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
       end
       let!(:award2) do
         cur_award_ind = Vye::Award.cur_award_inds[:future]
         award_begin_date = Date.parse('2024-07-01')
         award_end_date = Date.parse('2024-07-31')
-        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+        create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
       end
 
       before do
@@ -180,18 +180,18 @@ RSpec.describe Vye::UserInfo, type: :model do
     describe 'case 5' do
       let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
       let(:date_last_certified) { Date.parse('2024-05-15') }
-      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:user_info) { create(:vye_user_info, date_last_certified:) }
       let!(:award1) do
         cur_award_ind = Vye::Award.cur_award_inds[:current]
         award_begin_date = Date.parse('2024-05-01')
         award_end_date = nil
-        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+        create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
       end
       let!(:award2) do
         cur_award_ind = Vye::Award.cur_award_inds[:future]
         award_begin_date = Date.parse('2024-06-01')
         award_end_date = Date.parse('2024-08-01')
-        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+        create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
       end
 
       before do
@@ -213,12 +213,12 @@ RSpec.describe Vye::UserInfo, type: :model do
     describe 'case 6' do
       let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
       let(:date_last_certified) { nil }
-      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:user_info) { create(:vye_user_info, date_last_certified:) }
       let!(:award) do
         cur_award_ind = Vye::Award.cur_award_inds[:future]
         award_begin_date = Date.parse('2024-06-01')
         award_end_date = Date.parse('2024-07-15')
-        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+        create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
       end
 
       before do
@@ -240,12 +240,12 @@ RSpec.describe Vye::UserInfo, type: :model do
     describe 'case 7' do
       let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
       let(:date_last_certified) { Date.parse('2024-05-15') }
-      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:user_info) { create(:vye_user_info, date_last_certified:) }
       let!(:award) do
         cur_award_ind = Vye::Award.cur_award_inds[:future]
         award_begin_date = Date.parse('2024-06-01')
         award_end_date = Date.parse('2024-07-15')
-        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+        create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
       end
 
       before do
@@ -267,12 +267,12 @@ RSpec.describe Vye::UserInfo, type: :model do
     describe 'case 8' do
       let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
       let(:date_last_certified) { Date.parse('2024-05-15') }
-      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:user_info) { create(:vye_user_info, date_last_certified:) }
       let!(:award) do
         cur_award_ind = Vye::Award.cur_award_inds[:future]
         award_begin_date = Date.parse('2024-05-01')
         award_end_date = Date.parse('2024-06-30')
-        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+        create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
       end
 
       before do
@@ -294,12 +294,12 @@ RSpec.describe Vye::UserInfo, type: :model do
     describe 'case 9' do
       let(:now) { Time.parse('2024-07-19T12:00:00-00:00') }
       let(:date_last_certified) { Date.parse('2024-06-30') }
-      let!(:user_info) { FactoryBot.create(:vye_user_info, date_last_certified:) }
+      let!(:user_info) { create(:vye_user_info, date_last_certified:) }
       let!(:award) do
         cur_award_ind = Vye::Award.cur_award_inds[:future]
         award_begin_date = Date.parse('2024-07-01')
         award_end_date = Date.parse('2024-07-01')
-        FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
+        create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:)
       end
 
       before do

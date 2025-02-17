@@ -44,7 +44,7 @@ module AppealsApi
         stamped_pdf = AppealsApi::PdfConstruction::Generator.new(appeal, pdf_version:).generate
         appeal.update_status!(status: 'submitting')
         upload_to_central_mail(appeal, stamped_pdf)
-        File.delete(stamped_pdf) if File.exist?(stamped_pdf)
+        FileUtils.rm_f(stamped_pdf)
       rescue AppealsApi::UploadError => e
         handle_upload_error(appeal, e)
       rescue => e

@@ -90,6 +90,7 @@ module SignIn
 
     def hostname
       return localhost_hostname if Settings.vsp_environment == 'localhost'
+      return staging_hostname if Settings.review_instance_slug.present?
 
       "https://#{Settings.hostname}"
     end
@@ -163,6 +164,10 @@ module SignIn
       port = URI.parse("http://#{Settings.hostname}").port
 
       "http://localhost:#{port}"
+    end
+
+    def staging_hostname
+      'https://staging-api.va.gov'
     end
   end
 end

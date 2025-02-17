@@ -36,7 +36,7 @@ describe TestUserDashboard::UpdateUser do
       end
 
       it 'sets the test account to be checked in' do
-        expect(tud_account.checkout_time).to eq(nil)
+        expect(tud_account.checkout_time).to be_nil
       end
     end
   end

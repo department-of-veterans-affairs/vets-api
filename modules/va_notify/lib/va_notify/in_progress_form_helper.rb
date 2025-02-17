@@ -23,7 +23,7 @@ module VANotify
 
     def self.form_age(in_progress_form)
       case in_progress_form.updated_at
-      when 7.days.ago.beginning_of_day..7.days.ago.end_of_day
+      when 7.days.ago.all_day
         '&7_days'
       else
         ''

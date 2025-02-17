@@ -11,10 +11,10 @@ RSpec.describe Vye::Verification, type: :model do
 
   describe 'creates a report' do
     before do
-      old_bdn = FactoryBot.create(:vye_bdn_clone, is_active: true, export_ready: nil)
-      new_bdn = FactoryBot.create(:vye_bdn_clone, is_active: false, export_ready: nil)
+      old_bdn = create(:vye_bdn_clone, is_active: true, export_ready: nil)
+      new_bdn = create(:vye_bdn_clone, is_active: false, export_ready: nil)
 
-      FactoryBot.create_list(:vye_user_info, 7, :with_verified_awards, bdn_clone: old_bdn)
+      create_list(:vye_user_info, 7, :with_verified_awards, bdn_clone: old_bdn)
 
       new_bdn.activate!
 

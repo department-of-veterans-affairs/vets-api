@@ -64,6 +64,18 @@ RSpec.describe 'Mobile::V0::User::PreferredName', type: :request do
             end
           end
         end
+
+        it 'invalidates the cache for the mpi-profile-response', :aggregate_failures do
+          preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
+          VCR.use_cassette('mobile/va_profile/post_preferred_name_success', erb: { csd: }) do
+            VCR.use_cassette('mobile/demographics/logingov') do
+              expect_any_instance_of(User).to receive(:invalidate_mpi_cache)
+              put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: sis_headers)
+
+              expect(response).to have_http_status(:no_content)
+            end
+          end
+        end
       end
 
       context 'when text is blank' do
@@ -102,6 +114,18 @@ RSpec.describe 'Mobile::V0::User::PreferredName', type: :request do
           preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
           VCR.use_cassette('mobile/va_profile/post_preferred_name_success', erb: { csd: }) do
             VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+              put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: sis_headers)
+
+              expect(response).to have_http_status(:no_content)
+            end
+          end
+        end
+
+        it 'invalidates the cache for the mpi-profile-response', :aggregate_failures do
+          preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
+          VCR.use_cassette('mobile/va_profile/post_preferred_name_success', erb: { csd: }) do
+            VCR.use_cassette('mobile/demographics/logingov') do
+              expect_any_instance_of(User).to receive(:invalidate_mpi_cache)
               put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: sis_headers)
 
               expect(response).to have_http_status(:no_content)

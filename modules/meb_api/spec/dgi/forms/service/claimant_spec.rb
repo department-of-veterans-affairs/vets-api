@@ -24,7 +24,7 @@ Rspec.describe MebApi::DGI::Forms::Claimant::Service do
       }
     end
 
-    let(:user) { FactoryBot.create(:user, :loa3, user_details) }
+    let(:user) { create(:user, :loa3, user_details) }
     let(:service) { MebApi::DGI::Forms::Claimant::Service.new(user) }
 
     describe '#post_claimant_info' do
@@ -56,7 +56,7 @@ Rspec.describe MebApi::DGI::Forms::Claimant::Service do
         }
       end
 
-      let(:user) { FactoryBot.create(:user, :loa3, user_details) }
+      let(:user) { create(:user, :loa3, user_details) }
       let(:service) { MebApi::DGI::Forms::Claimant::Service.new(user) }
       let(:faraday_response) { double('faraday_connection') }
 

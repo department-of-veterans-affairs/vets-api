@@ -3,7 +3,7 @@
 module Veteran
   module V0
     class BaseAccreditedRepresentativesController < ApplicationController
-      service_tag 'lighthouse-veteran'
+      service_tag 'representation-management'
       skip_before_action :authenticate
       before_action :feature_enabled
       before_action :verify_sort

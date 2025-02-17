@@ -33,24 +33,53 @@ module Vye
     def tmp_path(filename) = tmp_dir / filename
 
     def download(filename, prefix: 'scanned')
+      Rails.logger.info("Vye::BatchTransfer::Chunk#download: starting for #{filename}")
       response_target = tmp_path filename
       key = "#{prefix}/#{filename}"
 
-      s3_client.get_object(response_target:, bucket:, key:)
+      Rails.logger.info(
+        "Vye::BatchTransfer::Chunk#download: s3_client.get_object(#{response_target}, #{bucket}, #{key})"
+      )
+
+      if Settings.vsp_environment.eql?('localhost')
+        FileUtils.cp(
+          Rails.root.join('modules', 'vye', 'spec', 'fixtures', 'bdn_sample', filename), response_target
+        )
+      else
+        s3_client.get_object(response_target:, bucket:, key:)
+      end
 
       yield response_target
     ensure
-      response_target.delete
+      # There's some rooted in the framework bug that will try to delete the file after it
+      # has already been deleted. Ignore the exception and move on.
+      begin
+        response_target&.delete
+      rescue Errno::ENOENT
+        nil
+      ensure
+        Rails.logger.info('Vye::BatchTransfer::Chunk#download: finished')
+      end
     end
 
     def upload(file, prefix: 'processed')
+      return if Settings.vsp_environment.eql?('localhost')
+
+      Rails.logger.info("Vye::BatchTransfer::Chunk#upload: starting for #{file}, #{prefix}")
+
       key = "#{prefix}/#{file.basename}"
       body = file.open('rb')
       content_type = 'text/plain'
 
       s3_client.put_object(bucket:, key:, body:, content_type:)
     ensure
-      body.close
+      begin
+        body&.close
+      rescue Errno::ENOENT
+        nil
+      ensure
+        Rails.logger.info('Vye::BatchTransfer::Chunk#upload: finished')
+      end
     end
 
     def upload_report(filename, &)
@@ -62,6 +91,7 @@ module Vye
     end
 
     def clear_from(bucket_sym: :internal, path: 'processed')
+      Rail.logger.info "Vye::SundownSweep::DeleteProcessedS3Files#clear_from(#{bucket_sym}, #{path})"
       bucket = { internal: self.bucket, external: external_bucket }[bucket_sym]
       prefix = "#{path}/"
       check_s3_location!(bucket:, path:)
@@ -114,6 +144,10 @@ module Vye
     def remove_aws_files_from_s3_buckets
       # remove from the scanned bucket
       [Vye::BatchTransfer::TimsChunk::FEED_FILENAME, Vye::BatchTransfer::BdnChunk::FEED_FILENAME].each do |filename|
+        Rails.logger.info(
+          "Vye::SundownSweep::DeleteProcessedS3Files#remove_aws_files_from_s3_buckets deleting #{filename}"
+        )
+
         delete_file_from_bucket(:internal, "scanned/#{filename}")
       end
 
@@ -129,12 +163,23 @@ module Vye
     def delete_inactive_bdns
       bdn_clone_ids = Vye::BdnClone.where(is_active: nil, export_ready: nil).pluck(:id)
       bdn_clone_ids.each do |bdn_clone_id|
+        Rails.logger.info(
+          "Vye::SundownSweep::ClearDeactivatedBdns#delete_inactive_bdns: processing BdnClone(#{bdn_clone_id})"
+        )
+
+        Rails.logger.info('Vye::SundownSweep::ClearDeactivatedBdns#delete_inactive_bdns: deleting DirectDepositChanges')
         Vye::DirectDepositChange.joins(:user_info).where(vye_user_infos: { bdn_clone_id: }).in_batches.delete_all
+        Rails.logger.info('Vye::SundownSweep::ClearDeactivatedBdns#delete_inactive_bdns: deleting AddressChanges')
         Vye::AddressChange.joins(:user_info).where(vye_user_infos: { bdn_clone_id: }).in_batches.delete_all
+        Rails.logger.info('Vye::SundownSweep::ClearDeactivatedBdns#delete_inactive_bdns: deleting Awards')
         Vye::Award.joins(:user_info).where(vye_user_infos: { bdn_clone_id: }).in_batches.delete_all
 
         # We're not worried about validations here because it wouldn't be in the table if it wasn't valid
         # rubocop:disable Rails/SkipsModelValidations
+        Rails.logger.info(
+          'Vye::SundownSweep::ClearDeactivatedBdns#delete_inactive_bdns: nullifying verification references'
+        )
+
         Vye::Verification
           .joins(:user_info)
           .where(vye_user_infos: { bdn_clone_id: })
@@ -143,9 +188,11 @@ module Vye
         # rubocop:enable Rails/SkipsModelValidations
 
         # nuke user infos
+        Rails.logger.info('Vye::SundownSweep::ClearDeactivatedBdns#delete_inactive_bdns: deleting UserInfos')
         Vye::UserInfo.where(bdn_clone_id:).delete_all
 
         # nuke bdn_clone
+        Rails.logger.info('Vye::SundownSweep::ClearDeactivatedBdns#delete_inactive_bdns: deleting BdnClone')
         Vye::BdnClone.find(bdn_clone_id).destroy
       end
     end

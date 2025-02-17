@@ -24,8 +24,8 @@ Rspec.describe 'DhpConnectedDevices::VeteranDeviceRecords', type: :request do
       it 'returns veteran device record' do
         get '/dhp_connected_devices/veteran-device-records'
         json = JSON.parse(response.body)
-        expect(json['connectionAvailable']).to eq(false)
-        expect(json['devices']).to eq(nil)
+        expect(json['connectionAvailable']).to be(false)
+        expect(json['devices']).to be_nil
       end
     end
 
@@ -45,9 +45,9 @@ Rspec.describe 'DhpConnectedDevices::VeteranDeviceRecords', type: :request do
       it 'returns veteran device record' do
         get '/dhp_connected_devices/veteran-device-records'
         json = JSON.parse(response.body)
-        expect(json['connectionAvailable']).to eq(true)
+        expect(json['connectionAvailable']).to be(true)
         expect(json['devices'].length).to eq(2)
-        expect(json['devices'][0]['connected']).to eq(true)
+        expect(json['devices'][0]['connected']).to be(true)
       end
     end
   end

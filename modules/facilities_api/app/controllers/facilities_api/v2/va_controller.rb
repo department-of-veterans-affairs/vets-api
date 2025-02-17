@@ -8,12 +8,6 @@ module FacilitiesApi
       params[:facilityIds] = params[:ids] if params[:ids].present?
       api_results = api.get_facilities(lighthouse_params)
 
-      if Flipper.enabled?(:facilities_locator_mobile_covid_online_scheduling) && covid_mobile_params?
-        api_results.each do |api_result|
-          api_result.tmp_covid_online_scheduling = mobile_api_get_by_id(api_result.id)
-        end
-      end
-
       render_json(serializer, lighthouse_params, api_results)
     end
 

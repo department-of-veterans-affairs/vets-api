@@ -14,7 +14,7 @@ describe Formatters::DateFormatter do
       let(:date) { nil }
 
       it 'returns nil' do
-        expect(subject).to be nil
+        expect(subject).to be_nil
       end
     end
 
@@ -28,7 +28,7 @@ describe Formatters::DateFormatter do
       end
 
       it 'returns nil' do
-        expect(subject).to be nil
+        expect(subject).to be_nil
       end
     end
 

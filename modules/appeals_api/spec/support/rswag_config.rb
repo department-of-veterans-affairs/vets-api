@@ -271,162 +271,162 @@ class AppealsApi::RswagConfig
     nbs_ref = '#/components/schemas/nonBlankString'
 
     {
-      'errorModel': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json'))),
-      'errorWithTitleAndDetail': {
-        'type': 'array',
-        'items': {
-          'type': 'object',
-          'properties': {
-            'title': {
-              'type': 'string'
+      errorModel: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json'))),
+      errorWithTitleAndDetail: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            title: {
+              type: 'string'
             },
-            'detail': {
-              'type': 'string'
+            detail: {
+              type: 'string'
             }
           }
         }
       },
       'X-VA-SSN': {
-        'description': 'social security number',
-        'type': 'string',
-        'minLength': 9,
-        'maxLength': 9,
-        'pattern': '^[0-9]{9}$'
+        description: 'social security number',
+        type: 'string',
+        minLength: 9,
+        maxLength: 9,
+        pattern: '^[0-9]{9}$'
       },
-      "X-VA-ICN": {
-        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
-        "type": 'string',
-        "minLength": 17,
-        "maxLength": 17,
-        "pattern": '^[0-9]{10}V[0-9]{6}$'
+      'X-VA-ICN': {
+        description: "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
+        type: 'string',
+        minLength: 17,
+        maxLength: 17,
+        pattern: '^[0-9]{10}V[0-9]{6}$'
       },
       'X-VA-First-Name': {
-        'allOf': [
-          { 'description': 'first name' },
-          { 'type': 'string' }
+        allOf: [
+          { description: 'first name' },
+          { type: 'string' }
         ]
       },
       'X-VA-Middle-Initial': {
-        'allOf': [
-          { 'description': 'middle initial' },
+        allOf: [
+          { description: 'middle initial' },
           { '$ref': nbs_ref }
         ]
       },
       'X-VA-Last-Name': {
-        'allOf': [
-          { 'description': 'last name' },
+        allOf: [
+          { description: 'last name' },
           { '$ref': nbs_ref }
         ]
       },
       'X-VA-Birth-Date': {
-        'description': "Veteran's birth date",
-        'type': 'string',
-        'format': 'date'
+        description: "Veteran's birth date",
+        type: 'string',
+        format: 'date'
       },
       'X-VA-NonVeteranClaimant-SSN': {
-        'type': 'string',
-        'description': 'Non-Veteran claimants\'s SSN',
-        'pattern': '^[0-9]{9}$'
+        type: 'string',
+        description: 'Non-Veteran claimants\'s SSN',
+        pattern: '^[0-9]{9}$'
       },
       'X-VA-NonVeteranClaimant-First-Name': {
-        'allOf': [
-          { 'description': 'first name' },
+        allOf: [
+          { description: 'first name' },
           { '$ref': nbs_ref }
         ]
       },
       'X-VA-NonVeteranClaimant-Middle-Initial': {
-        'allOf': [
-          { 'description': 'middle initial' },
+        allOf: [
+          { description: 'middle initial' },
           { '$ref': nbs_ref }
         ]
       },
       'X-VA-NonVeteranClaimant-Last-Name': {
-        'allOf': [
-          { 'description': 'last name' },
+        allOf: [
+          { description: 'last name' },
           { '$ref': nbs_ref }
         ]
       },
       'X-VA-NonVeteranClaimant-Birth-Date': {
-        'description': "Non-veteran claimant's birth date",
-        'type': 'string',
-        'format': 'date'
+        description: "Non-veteran claimant's birth date",
+        type: 'string',
+        format: 'date'
       },
       'X-VA-File-Number': {
-        'allOf': [
-          { 'description': 'VA file number (c-file / css)' },
-          { 'maxLength': 9 },
+        allOf: [
+          { description: 'VA file number (c-file / css)' },
+          { maxLength: 9 },
           { '$ref': nbs_ref }
         ]
       },
       'X-VA-Insurance-Policy-Number': {
-        'allOf': [
-          { "description": "Veteran's insurance policy number", "maxLength": 18 },
-          { "$ref": nbs_ref }
+        allOf: [
+          { description: "Veteran's insurance policy number", maxLength: 18 },
+          { '$ref': nbs_ref }
         ]
       },
       'X-VA-User': {
-        'description': 'VA username of the person making the request',
-        'type': 'string'
+        description: 'VA username of the person making the request',
+        type: 'string'
       },
       'X-Consumer-Username': {
-        'allOf': [
-          { 'description': 'Consumer Username (passed from Kong)' },
+        allOf: [
+          { description: 'Consumer Username (passed from Kong)' },
           { '$ref': nbs_ref }
         ]
       },
       'X-Consumer-ID': {
-        'allOf': [
-          { 'description': 'Consumer GUID' },
+        allOf: [
+          { description: 'Consumer GUID' },
           { '$ref': nbs_ref }
         ]
       },
-      'uuid': {
-        'type': 'string',
-        'pattern': '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$'
+      uuid: {
+        type: 'string',
+        pattern: '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$'
       },
-      'timeStamp': {
-        'type': 'string',
-        'pattern': '\\d{4}(-\\d{2}){2}T\\d{2}(:\\d{2}){2}\\.\\d{3}Z'
+      timeStamp: {
+        type: 'string',
+        pattern: '\\d{4}(-\\d{2}){2}T\\d{2}(:\\d{2}){2}\\.\\d{3}Z'
       },
-      'documentUploadMetadata': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'document_upload_metadata.json')))
+      documentUploadMetadata: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'document_upload_metadata.json')))
     }
   end
 
   def appealable_issues_response_schemas
     {
-      'appealableIssues': {
-        'type': 'object',
-        'properties': {
-          'data': {
-            'type': 'array',
-            'items': {
+      appealableIssues: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
               '$ref': '#/components/schemas/appealableIssue'
             }
           }
         }
       },
-      'appealableIssue': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'appealable_issue.json')))
+      appealableIssue: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'appealable_issue.json')))
     }
   end
 
   def contestable_issues_schema
     {
-      'contestableIssues': {
-        'type': 'object',
-        'properties': {
-          'data': {
-            'type': 'array',
-            'items': {
+      contestableIssues: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
               '$ref': '#/components/schemas/contestableIssue'
             }
           }
         }
       },
-      'contestableIssue': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'contestable_issue.json'))),
+      contestableIssue: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'contestable_issue.json'))),
       'X-VA-Receipt-Date': {
-        "description": '(yyyy-mm-dd) Date to limit the contestable issues',
-        "type": 'string',
-        "format": 'date'
+        description: '(yyyy-mm-dd) Date to limit the contestable issues',
+        type: 'string',
+        format: 'date'
       }
     }
   end
@@ -447,134 +447,134 @@ class AppealsApi::RswagConfig
 
     # ContestableIssuesShow is not part of the segmented HLR api, so we only add it for Decision Reviews
     schemas['hlrContestableIssuesShow'] = {
-      'type': 'object',
-      'properties': {
-        'data': {
-          'type': 'array',
-          'items': {
-            'type': 'object',
-            'description': 'A contestable issue (to contest this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)',
-            'properties': {
-              'type': {
-                'type': 'string',
-                'enum': [
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
+            type: 'object',
+            description: 'A contestable issue (to contest this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)',
+            properties: {
+              type: {
+                type: 'string',
+                enum: [
                   'contestableIssue'
                 ]
               },
-              'id': {
-                'type': 'string',
-                'nullable': true
+              id: {
+                type: 'string',
+                nullable: true
               },
-              'attributes': {
-                'type': 'object',
-                'properties': {
-                  'ratingIssueReferenceId': {
-                    'type': 'string',
-                    'nullable': true,
-                    'description': 'RatingIssue ID',
-                    'example': '2385'
+              attributes: {
+                type: 'object',
+                properties: {
+                  ratingIssueReferenceId: {
+                    type: 'string',
+                    nullable: true,
+                    description: 'RatingIssue ID',
+                    example: '2385'
                   },
-                  'ratingIssueProfileDate': {
-                    'type': 'string',
-                    'nullable': true,
-                    'format': 'date',
-                    'description': '(yyyy-mm-dd) RatingIssue profile date',
-                    'example': '2006-05-31'
+                  ratingIssueProfileDate: {
+                    type: 'string',
+                    nullable: true,
+                    format: 'date',
+                    description: '(yyyy-mm-dd) RatingIssue profile date',
+                    example: '2006-05-31'
                   },
-                  'ratingIssueDiagnosticCode': {
-                    'type': 'string',
-                    'nullable': true,
-                    'description': 'RatingIssue diagnostic code',
-                    'example': '5005'
+                  ratingIssueDiagnosticCode: {
+                    type: 'string',
+                    nullable: true,
+                    description: 'RatingIssue diagnostic code',
+                    example: '5005'
                   },
-                  'ratingDecisionReferenceId': {
-                    'type': 'string',
-                    'nullable': true,
-                    'description': 'The BGS ID for the contested rating decision. This may be populated while ratingIssueReferenceId is nil',
-                    'example': 'null'
+                  ratingDecisionReferenceId: {
+                    type: 'string',
+                    nullable: true,
+                    description: 'The BGS ID for the contested rating decision. This may be populated while ratingIssueReferenceId is nil',
+                    example: 'null'
                   },
-                  'decisionIssueId': {
-                    'type': 'integer',
-                    'nullable': true,
-                    'description': 'DecisionIssue ID',
-                    'example': nil
+                  decisionIssueId: {
+                    type: 'integer',
+                    nullable: true,
+                    description: 'DecisionIssue ID',
+                    example: nil
                   },
-                  'approxDecisionDate': {
-                    'type': 'string',
-                    'nullable': true,
-                    'format': 'date',
-                    'description': '(yyyy-mm-dd) Approximate decision date',
-                    'example': '2006-11-27'
+                  approxDecisionDate: {
+                    type: 'string',
+                    nullable: true,
+                    format: 'date',
+                    description: '(yyyy-mm-dd) Approximate decision date',
+                    example: '2006-11-27'
                   },
-                  'description': {
-                    'type': 'string',
-                    'nullable': true,
-                    'description': 'Description',
-                    'example': 'Service connection for hypertension is granted with an evaluation of 10 percent effective July 24, 2005.'
+                  description: {
+                    type: 'string',
+                    nullable: true,
+                    description: 'Description',
+                    example: 'Service connection for hypertension is granted with an evaluation of 10 percent effective July 24, 2005.'
                   },
-                  'rampClaimId': {
-                    'type': 'string',
-                    'nullable': true,
-                    'description': 'RampClaim ID',
-                    'example': 'null'
+                  rampClaimId: {
+                    type: 'string',
+                    nullable: true,
+                    description: 'RampClaim ID',
+                    example: 'null'
                   },
-                  'titleOfActiveReview': {
-                    'type': 'string',
-                    'nullable': true,
-                    'description': 'Title of DecisionReview that this issue is still active on',
-                    'example': 'null'
+                  titleOfActiveReview: {
+                    type: 'string',
+                    nullable: true,
+                    description: 'Title of DecisionReview that this issue is still active on',
+                    example: 'null'
                   },
-                  'sourceReviewType': {
-                    'type': 'string',
-                    'nullable': true,
-                    'description': 'The type of DecisionReview (HigherLevelReview, SupplementalClaim, Appeal) the issue was last decided on (if any)',
-                    'example': 'null'
+                  sourceReviewType: {
+                    type: 'string',
+                    nullable: true,
+                    description: 'The type of DecisionReview (HigherLevelReview, SupplementalClaim, Appeal) the issue was last decided on (if any)',
+                    example: 'null'
                   },
-                  'timely': {
-                    'type': 'boolean',
-                    'description': 'An issue is timely if the receipt date is within 372 dates of the decision date.',
-                    'example': false
+                  timely: {
+                    type: 'boolean',
+                    description: 'An issue is timely if the receipt date is within 372 dates of the decision date.',
+                    example: false
                   },
-                  'latestIssuesInChain': {
-                    'type': 'array',
-                    'description': 'Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be contested (the object itself that contains the latestIssuesInChain attribute).',
-                    'items': {
-                      'type': 'object',
-                      'properties': {
-                        'id': {
-                          'type': {
-                            "oneOf": [
-                              { 'type': 'string', 'nullable': true },
-                              { 'type': 'integer' }
+                  latestIssuesInChain: {
+                    type: 'array',
+                    description: 'Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be contested (the object itself that contains the latestIssuesInChain attribute).',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        id: {
+                          type: {
+                            oneOf: [
+                              { type: 'string', nullable: true },
+                              { type: 'integer' }
                             ],
-                            'example': nil
+                            example: nil
                           }
                         },
-                        'approxDecisionDate': {
-                          'type': 'string',
-                          'nullable': true,
-                          'format': 'date',
-                          'example': '2006-11-27'
+                        approxDecisionDate: {
+                          type: 'string',
+                          nullable: true,
+                          format: 'date',
+                          example: '2006-11-27'
                         }
                       }
                     }
                   },
-                  'ratingIssueSubjectText': {
-                    'type': 'string',
-                    'nullable': true,
-                    'description': 'Short description of RatingIssue',
-                    'example': 'Hypertension'
+                  ratingIssueSubjectText: {
+                    type: 'string',
+                    nullable: true,
+                    description: 'Short description of RatingIssue',
+                    example: 'Hypertension'
                   },
-                  'ratingIssuePercentNumber': {
-                    'type': 'string',
-                    'nullable': true,
-                    'description': 'Numerical rating for RatingIssue',
-                    'example': '10'
+                  ratingIssuePercentNumber: {
+                    type: 'string',
+                    nullable: true,
+                    description: 'Numerical rating for RatingIssue',
+                    example: '10'
                   },
-                  'isRating': {
-                    'type': 'boolean',
-                    'description': 'Whether or not this is a RatingIssue',
-                    'example': true
+                  isRating: {
+                    type: 'boolean',
+                    description: 'Whether or not this is a RatingIssue',
+                    example: true
                   }
                 }
               }
@@ -588,44 +588,44 @@ class AppealsApi::RswagConfig
 
   def hlr_response_schemas
     {
-      'hlrShow': {
-        'type': 'object',
-        'properties': {
-          'data': {
-            'properties': {
-              'id': {
+      hlrShow: {
+        type: 'object',
+        properties: {
+          data: {
+            properties: {
+              id: {
                 '$ref': '#/components/schemas/uuid'
               },
-              'type': {
-                'type': 'string',
-                'enum': ['higherLevelReview']
+              type: {
+                type: 'string',
+                enum: ['higherLevelReview']
               },
-              'attributes': {
-                'properties': {
-                  'status': {
-                    'type': 'string',
-                    'example': AppealsApi::HlrStatus::V2_STATUSES.first,
-                    'enum': AppealsApi::HlrStatus::V2_STATUSES
+              attributes: {
+                properties: {
+                  status: {
+                    type: 'string',
+                    example: AppealsApi::HlrStatus::V2_STATUSES.first,
+                    enum: AppealsApi::HlrStatus::V2_STATUSES
                   },
-                  'updateDate': {
-                    'description': 'The last time the submission was updated',
-                    'type': 'string',
-                    'format': 'date-time',
-                    'example': '2018-07-30T17:31:15.958Z'
+                  updateDate: {
+                    description: 'The last time the submission was updated',
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2018-07-30T17:31:15.958Z'
                   },
-                  'createDate': {
-                    'description': 'The time the submission was created',
-                    'type': 'string',
-                    'format': 'date-time',
-                    'example': '2018-07-30T17:31:15.958Z'
+                  createDate: {
+                    description: 'The time the submission was created',
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2018-07-30T17:31:15.958Z'
                   }
                 }
               }
             },
-            'required': %w[id type attributes]
+            required: %w[id type attributes]
           }
         },
-        'required': ['data']
+        required: ['data']
       }
     }
   end
@@ -643,164 +643,164 @@ class AppealsApi::RswagConfig
 
   def decision_reviews_nod_response_schemas
     {
-      'nodCreateResponse': {
-        'description': 'Successful response of a 10182 form submission',
-        'type': 'object',
-        'properties': {
-          'data': {
-            'properties': {
-              'id': {
-                'type': 'string',
-                'description': 'Unique ID of created NOD',
-                'example': '97751cb6-d06d-4179-87f6-75e3fc9d875c'
+      nodCreateResponse: {
+        description: 'Successful response of a 10182 form submission',
+        type: 'object',
+        properties: {
+          data: {
+            properties: {
+              id: {
+                type: 'string',
+                description: 'Unique ID of created NOD',
+                example: '97751cb6-d06d-4179-87f6-75e3fc9d875c'
               },
-              'type': {
-                'type': 'string',
-                'description': 'Name of record class',
-                'example': 'noticeOfDisagreement'
+              type: {
+                type: 'string',
+                description: 'Name of record class',
+                example: 'noticeOfDisagreement'
               },
-              'attributes': {
-                'type': 'object',
-                'properties': {
-                  'status': {
-                    'type': 'string',
-                    'description': 'Status of NOD',
-                    'example': AppealsApi::NodStatus::STATUSES.first,
-                    'enum': AppealsApi::NodStatus::STATUSES
+              attributes: {
+                type: 'object',
+                properties: {
+                  status: {
+                    type: 'string',
+                    description: 'Status of NOD',
+                    example: AppealsApi::NodStatus::STATUSES.first,
+                    enum: AppealsApi::NodStatus::STATUSES
                   },
-                  'createdAt': {
-                    'type': 'string',
-                    'description': 'Created timestamp of the NOD',
-                    'example': '2020-12-16T19:52:23.909Z'
+                  createdAt: {
+                    type: 'string',
+                    description: 'Created timestamp of the NOD',
+                    example: '2020-12-16T19:52:23.909Z'
                   },
-                  'updatedAt': {
-                    'type': 'string',
-                    'description': 'Updated timestamp of the NOD',
-                    'example': '2020-12-16T19:52:23.909Z'
+                  updatedAt: {
+                    type: 'string',
+                    description: 'Updated timestamp of the NOD',
+                    example: '2020-12-16T19:52:23.909Z'
                   }
                 }
               },
-              'formData': {
+              formData: {
                 '$ref': '#/components/schemas/nodCreate'
               }
             }
           },
-          'included': {
-            'type': 'array',
-            'items': {
+          included: {
+            type: 'array',
+            items: {
               '$ref': '#/components/schemas/contestableIssue'
             }
           }
         }
       },
-      'nodShowResponse': {
-        'type': 'object',
-        'properties': {
-          'data': {
-            'properties': {
-              'id': {
+      nodShowResponse: {
+        type: 'object',
+        properties: {
+          data: {
+            properties: {
+              id: {
                 '$ref': '#/components/schemas/uuid'
               },
-              'type': {
-                'type': 'string',
-                'enum': ['noticeOfDisagreement']
+              type: {
+                type: 'string',
+                enum: ['noticeOfDisagreement']
               },
-              'attributes': {
-                'properties': {
-                  'status': {
-                    'type': 'string',
-                    'example': AppealsApi::NodStatus::STATUSES.first,
-                    'enum': AppealsApi::NodStatus::STATUSES
+              attributes: {
+                properties: {
+                  status: {
+                    type: 'string',
+                    example: AppealsApi::NodStatus::STATUSES.first,
+                    enum: AppealsApi::NodStatus::STATUSES
                   },
-                  'updatedAt': {
-                    'description': 'The last time the submission was updated',
-                    'type': 'string',
-                    'format': 'date-time',
-                    'example': '2018-07-30T17:31:15.958Z'
+                  updatedAt: {
+                    description: 'The last time the submission was updated',
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2018-07-30T17:31:15.958Z'
                   },
-                  'createdAt': {
-                    'description': 'The time the submission was created',
-                    'type': 'string',
-                    'format': 'date-time',
-                    'example': '2018-07-30T17:31:15.958Z'
+                  createdAt: {
+                    description: 'The time the submission was created',
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2018-07-30T17:31:15.958Z'
                   }
                 }
               }
             },
-            'required': %w[id type attributes]
+            required: %w[id type attributes]
           }
         },
-        'required': ['data']
+        required: ['data']
       },
-      'nodEvidenceSubmissionResponse': {
-        'type': 'object',
-        'properties': {
-          'data': {
-            'properties': {
-              'id': {
-                'description': 'The document upload identifier',
-                'type': 'string',
-                'format': 'uuid',
-                'example': '6d8433c1-cd55-4c24-affd-f592287a7572'
+      nodEvidenceSubmissionResponse: {
+        type: 'object',
+        properties: {
+          data: {
+            properties: {
+              id: {
+                description: 'The document upload identifier',
+                type: 'string',
+                format: 'uuid',
+                example: '6d8433c1-cd55-4c24-affd-f592287a7572'
               },
-              'type': {
-                'description': 'JSON API type specification',
-                'type': 'string',
-                'example': 'evidenceSubmission'
+              type: {
+                description: 'JSON API type specification',
+                type: 'string',
+                example: 'evidenceSubmission'
               },
-              'attributes': {
-                'properties': {
-                  'status': {
-                    'type': 'string',
-                    'example': VBADocuments::UploadSubmission::ALL_STATUSES.first,
-                    'enum': VBADocuments::UploadSubmission::ALL_STATUSES
+              attributes: {
+                properties: {
+                  status: {
+                    type: 'string',
+                    example: VBADocuments::UploadSubmission::ALL_STATUSES.first,
+                    enum: VBADocuments::UploadSubmission::ALL_STATUSES
                   },
-                  'code': {
-                    'type': 'string',
-                    'nullable': true
+                  code: {
+                    type: 'string',
+                    nullable: true
                   },
-                  'detail': {
-                    'type': 'string',
-                    'nullable': true,
-                    'description': 'Human readable error detail. Only present if status = "error"'
+                  detail: {
+                    type: 'string',
+                    nullable: true,
+                    description: 'Human readable error detail. Only present if status = "error"'
                   },
-                  'appealType': {
-                    'description': 'Type of associated appeal',
-                    'type': 'string',
-                    'example': 'NoticeOfDisagreement'
+                  appealType: {
+                    description: 'Type of associated appeal',
+                    type: 'string',
+                    example: 'NoticeOfDisagreement'
                   },
-                  'appealId': {
-                    'description': 'GUID of associated appeal',
-                    'type': 'string',
-                    'format': 'uuid',
-                    'example': '2926ad2a-9372-48cf-8ec1-69e08e4799ef'
+                  appealId: {
+                    description: 'GUID of associated appeal',
+                    type: 'string',
+                    format: 'uuid',
+                    example: '2926ad2a-9372-48cf-8ec1-69e08e4799ef'
                   },
-                  'location': {
-                    'type': 'string',
-                    'nullable': true,
-                    'description': 'Location to which to PUT document Payload',
-                    'format': 'uri',
-                    'example': 'https://sandbox-api.va.gov/example_path_here/6d8433c1-cd55-4c24-affd-f592287a7572'
+                  location: {
+                    type: 'string',
+                    nullable: true,
+                    description: 'Location to which to PUT document Payload',
+                    format: 'uri',
+                    example: 'https://sandbox-api.va.gov/example_path_here/6d8433c1-cd55-4c24-affd-f592287a7572'
                   },
-                  'updatedAt': {
-                    'description': 'The last time the submission was updated',
-                    'type': 'string',
-                    'format': 'date-time',
-                    'example': '2018-07-30T17:31:15.958Z'
+                  updatedAt: {
+                    description: 'The last time the submission was updated',
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2018-07-30T17:31:15.958Z'
                   },
-                  'createdAt': {
-                    'description': 'The time the submission was created',
-                    'type': 'string',
-                    'format': 'date-time',
-                    'example': '2018-07-30T17:31:15.958Z'
+                  createdAt: {
+                    description: 'The time the submission was created',
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2018-07-30T17:31:15.958Z'
                   }
                 }
               }
             },
-            'required': %w[id type attributes]
+            required: %w[id type attributes]
           }
         },
-        'required': ['data']
+        required: ['data']
       }
     }
   end
@@ -811,51 +811,51 @@ class AppealsApi::RswagConfig
     schemas = deep_replace_key(schemas, :updatedAt, :updateDate)
     schemas.merge(
       {
-        'nodCreateResponse': {
-          'description': 'Successful response of a 10182 form submission',
-          'type': 'object',
-          'properties': {
-            'data': {
-              'properties': {
-                'id': {
-                  'type': 'string',
-                  'description': 'Unique ID of created NOD',
-                  'example': '97751cb6-d06d-4179-87f6-75e3fc9d875c'
+        nodCreateResponse: {
+          description: 'Successful response of a 10182 form submission',
+          type: 'object',
+          properties: {
+            data: {
+              properties: {
+                id: {
+                  type: 'string',
+                  description: 'Unique ID of created NOD',
+                  example: '97751cb6-d06d-4179-87f6-75e3fc9d875c'
                 },
-                'type': {
-                  'type': 'string',
-                  'description': 'Name of record class',
-                  'example': 'noticeOfDisagreement'
+                type: {
+                  type: 'string',
+                  description: 'Name of record class',
+                  example: 'noticeOfDisagreement'
                 },
-                'attributes': {
-                  'type': 'object',
-                  'properties': {
-                    'status': {
-                      'type': 'string',
-                      'description': 'Status of NOD',
-                      'example': AppealsApi::NodStatus::STATUSES.first,
-                      'enum': AppealsApi::NodStatus::STATUSES
+                attributes: {
+                  type: 'object',
+                  properties: {
+                    status: {
+                      type: 'string',
+                      description: 'Status of NOD',
+                      example: AppealsApi::NodStatus::STATUSES.first,
+                      enum: AppealsApi::NodStatus::STATUSES
                     },
-                    'createDate': {
-                      'type': 'string',
-                      'description': 'Created timestamp of the NOD',
-                      'example': '2020-12-16T19:52:23.909Z'
+                    createDate: {
+                      type: 'string',
+                      description: 'Created timestamp of the NOD',
+                      example: '2020-12-16T19:52:23.909Z'
                     },
-                    'updateDate': {
-                      'type': 'string',
-                      'description': 'Updated timestamp of the NOD',
-                      'example': '2020-12-16T19:52:23.909Z'
+                    updateDate: {
+                      type: 'string',
+                      description: 'Updated timestamp of the NOD',
+                      example: '2020-12-16T19:52:23.909Z'
                     }
                   }
                 },
-                'formData': {
+                formData: {
                   '$ref': '#/components/schemas/nodCreate'
                 }
               }
             },
-            'included': {
-              'type': 'array',
-              'items': {
+            included: {
+              type: 'array',
+              items: {
                 '$ref': '#/components/schemas/appealableIssue'
               }
             }
@@ -879,123 +879,123 @@ class AppealsApi::RswagConfig
 
   def decision_reviews_sc_response_schemas
     {
-      'scCreateResponse': {
-        'description': 'Successful response of a 200995 form submission',
-        'type': 'object',
-        'properties': {
-          'data': {
-            'properties': {
-              'id': {
-                'type': 'string',
-                'description': 'Unique ID of created SC',
-                'example': '97751cb6-d06d-4179-87f6-75e3fc9d875c'
+      scCreateResponse: {
+        description: 'Successful response of a 200995 form submission',
+        type: 'object',
+        properties: {
+          data: {
+            properties: {
+              id: {
+                type: 'string',
+                description: 'Unique ID of created SC',
+                example: '97751cb6-d06d-4179-87f6-75e3fc9d875c'
               },
-              'type': {
-                'type': 'string',
-                'description': 'Name of record class',
-                'example': 'supplementalClaim'
+              type: {
+                type: 'string',
+                description: 'Name of record class',
+                example: 'supplementalClaim'
               },
-              'attributes': {
-                'type': 'object',
-                'properties': {
-                  'status': {
-                    'type': 'string',
-                    'description': 'Status of SC',
-                    'example': AppealsApi::SupplementalClaim::STATUSES.first,
-                    'enum': AppealsApi::SupplementalClaim::STATUSES
+              attributes: {
+                type: 'object',
+                properties: {
+                  status: {
+                    type: 'string',
+                    description: 'Status of SC',
+                    example: AppealsApi::SupplementalClaim::STATUSES.first,
+                    enum: AppealsApi::SupplementalClaim::STATUSES
                   },
-                  'createdAt': {
-                    'type': 'string',
-                    'description': 'Created timestamp of the SC',
-                    'example': '2020-12-16T19:52:23.909Z'
+                  createdAt: {
+                    type: 'string',
+                    description: 'Created timestamp of the SC',
+                    example: '2020-12-16T19:52:23.909Z'
                   },
-                  'updatedAt': {
-                    'type': 'string',
-                    'description': 'Updated timestamp of the SC',
-                    'example': '2020-12-16T19:52:23.909Z'
+                  updatedAt: {
+                    type: 'string',
+                    description: 'Updated timestamp of the SC',
+                    example: '2020-12-16T19:52:23.909Z'
                   }
                 }
               },
-              'formData': { '$ref': '#/components/schemas/scCreate' }
+              formData: { '$ref': '#/components/schemas/scCreate' }
             }
           },
-          'included': {
-            'type': 'array',
-            'items': {
+          included: {
+            type: 'array',
+            items: {
               '$ref': '#/components/schemas/contestableIssue'
             }
           }
         }
       },
-      'scEvidenceSubmissionResponse': {
-        'type': 'object',
-        'properties': {
-          'data': {
-            'properties': {
-              'id': {
-                'description': 'The document upload identifier',
-                'type': 'string',
-                'format': 'uuid',
-                'example': '6d8433c1-cd55-4c24-affd-f592287a7572'
+      scEvidenceSubmissionResponse: {
+        type: 'object',
+        properties: {
+          data: {
+            properties: {
+              id: {
+                description: 'The document upload identifier',
+                type: 'string',
+                format: 'uuid',
+                example: '6d8433c1-cd55-4c24-affd-f592287a7572'
               },
-              'type': {
-                'description': 'JSON API type specification',
-                'type': 'string',
-                'example': 'evidenceSubmission'
+              type: {
+                description: 'JSON API type specification',
+                type: 'string',
+                example: 'evidenceSubmission'
               },
-              'attributes': {
-                'properties': {
-                  'status': {
-                    'type': 'string',
-                    'example': VBADocuments::UploadSubmission::ALL_STATUSES.first,
-                    'enum': VBADocuments::UploadSubmission::ALL_STATUSES
+              attributes: {
+                properties: {
+                  status: {
+                    type: 'string',
+                    example: VBADocuments::UploadSubmission::ALL_STATUSES.first,
+                    enum: VBADocuments::UploadSubmission::ALL_STATUSES
                   },
-                  'code': {
-                    'type': 'string',
-                    'nullable': true
+                  code: {
+                    type: 'string',
+                    nullable: true
                   },
-                  'detail': {
-                    'type': 'string',
-                    'nullable': true,
-                    'description': 'Human readable error detail. Only present if status = "error"'
+                  detail: {
+                    type: 'string',
+                    nullable: true,
+                    description: 'Human readable error detail. Only present if status = "error"'
                   },
-                  'appealType': {
-                    'description': 'Type of associated appeal',
-                    'type': 'string',
-                    'example': 'SupplementalClaim'
+                  appealType: {
+                    description: 'Type of associated appeal',
+                    type: 'string',
+                    example: 'SupplementalClaim'
                   },
-                  'appealId': {
-                    'description': 'GUID of associated appeal',
-                    'type': 'string',
-                    'format': 'uuid',
-                    'example': '2926ad2a-9372-48cf-8ec1-69e08e4799ef'
+                  appealId: {
+                    description: 'GUID of associated appeal',
+                    type: 'string',
+                    format: 'uuid',
+                    example: '2926ad2a-9372-48cf-8ec1-69e08e4799ef'
                   },
-                  'location': {
-                    'type': 'string',
-                    'nullable': true,
-                    'description': 'Location to which to PUT document Payload',
-                    'format': 'uri',
-                    'example': 'https://sandbox-api.va.gov/example_path_here/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+                  location: {
+                    type: 'string',
+                    nullable: true,
+                    description: 'Location to which to PUT document Payload',
+                    format: 'uri',
+                    example: 'https://sandbox-api.va.gov/example_path_here/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
                   },
-                  'updatedAt': {
-                    'description': 'The last time the submission was updated',
-                    'type': 'string',
-                    'format': 'date-time',
-                    'example': '2018-07-30T17:31:15.958Z'
+                  updatedAt: {
+                    description: 'The last time the submission was updated',
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2018-07-30T17:31:15.958Z'
                   },
-                  'createdAt': {
-                    'description': 'The time the submission was created',
-                    'type': 'string',
-                    'format': 'date-time',
-                    'example': '2018-07-30T17:31:15.958Z'
+                  createdAt: {
+                    description: 'The time the submission was created',
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2018-07-30T17:31:15.958Z'
                   }
                 }
               }
             },
-            'required': %w[id type attributes]
+            required: %w[id type attributes]
           }
         },
-        'required': ['data']
+        required: ['data']
       }
     }
   end
@@ -1006,49 +1006,49 @@ class AppealsApi::RswagConfig
     schemas = deep_replace_key(schemas, :updatedAt, :updateDate)
     schemas.merge(
       {
-        'scCreateResponse': {
-          'description': 'Successful response of a 200995 form submission',
-          'type': 'object',
-          'properties': {
-            'data': {
-              'properties': {
-                'id': {
-                  'type': 'string',
-                  'description': 'Unique ID of created supplemental claim',
-                  'example': '97751cb6-d06d-4179-87f6-75e3fc9d875c'
+        scCreateResponse: {
+          description: 'Successful response of a 200995 form submission',
+          type: 'object',
+          properties: {
+            data: {
+              properties: {
+                id: {
+                  type: 'string',
+                  description: 'Unique ID of created supplemental claim',
+                  example: '97751cb6-d06d-4179-87f6-75e3fc9d875c'
                 },
-                'type': {
-                  'type': 'string',
-                  'description': 'Type of record',
-                  'example': 'supplementalClaim'
+                type: {
+                  type: 'string',
+                  description: 'Type of record',
+                  example: 'supplementalClaim'
                 },
-                'attributes': {
-                  'type': 'object',
-                  'properties': {
-                    'status': {
-                      'type': 'string',
-                      'description': 'Status of created supplemental claim',
-                      'example': AppealsApi::SupplementalClaim::STATUSES.first,
-                      'enum': AppealsApi::SupplementalClaim::STATUSES
+                attributes: {
+                  type: 'object',
+                  properties: {
+                    status: {
+                      type: 'string',
+                      description: 'Status of created supplemental claim',
+                      example: AppealsApi::SupplementalClaim::STATUSES.first,
+                      enum: AppealsApi::SupplementalClaim::STATUSES
                     },
-                    'createDate': {
-                      'type': 'string',
-                      'description': 'Created timestamp of the supplemental claim',
-                      'example': '2020-12-16T19:52:23.909Z'
+                    createDate: {
+                      type: 'string',
+                      description: 'Created timestamp of the supplemental claim',
+                      example: '2020-12-16T19:52:23.909Z'
                     },
-                    'updateDate': {
-                      'type': 'string',
-                      'description': 'Updated timestamp of the supplemental claim',
-                      'example': '2020-12-16T19:52:23.909Z'
+                    updateDate: {
+                      type: 'string',
+                      description: 'Updated timestamp of the supplemental claim',
+                      example: '2020-12-16T19:52:23.909Z'
                     }
                   }
                 },
-                'formData': { '$ref': '#/components/schemas/scCreate' }
+                formData: { '$ref': '#/components/schemas/scCreate' }
               }
             },
-            'included': {
-              'type': 'array',
-              'items': {
+            included: {
+              type: 'array',
+              items: {
                 '$ref': '#/components/schemas/appealableIssue'
               }
             }
@@ -1062,21 +1062,21 @@ class AppealsApi::RswagConfig
     # Taken from 200995_headers.json
     {
       'X-Alternate-Signer-First-Name': {
-        'description': 'Alternate signer\'s first name',
-        'type': 'string',
-        'minLength': 1,
-        'maxLength': 30
+        description: 'Alternate signer\'s first name',
+        type: 'string',
+        minLength: 1,
+        maxLength: 30
       },
       'X-Alternate-Signer-Middle-Initial': {
-        'description': 'Alternate signer\'s middle initial',
-        'minLength': 1,
-        'maxLength': 1,
+        description: 'Alternate signer\'s middle initial',
+        minLength: 1,
+        maxLength: 1,
         '$ref': '#/components/schemas/nonBlankString'
       },
       'X-Alternate-Signer-Last-Name': {
-        'description': 'Alternate signer\'s last name',
-        'minLength': 1,
-        'maxLength': 40,
+        description: 'Alternate signer\'s last name',
+        minLength: 1,
+        maxLength: 40,
         '$ref': '#/components/schemas/nonBlankString'
       }
     }
@@ -1086,135 +1086,135 @@ class AppealsApi::RswagConfig
 
   def legacy_appeals_schema
     {
-      'legacyAppeals': {
-        'type': 'object',
-        'properties': {
-          'data': {
-            'type': 'array',
-            'items': {
+      legacyAppeals: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
               '$ref': '#/components/schemas/legacyAppeal'
             }
           }
         }
       },
-      'legacyAppeal': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'legacy_appeal.json')))
+      legacyAppeal: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'legacy_appeal.json')))
     }
   end
 
   def appeals_status_response_schemas
     {
-      'appeals': {
-        'type': 'array',
-        'items': { '$ref': '#/components/schemas/appeal' }
+      appeals: {
+        type: 'array',
+        items: { '$ref': '#/components/schemas/appeal' }
       },
-      'appeal': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'appeal.json'))),
-      'eta': {
-        'type': 'object',
-        'description': 'Estimated decision dates for each docket.',
-        'properties': {
-          'directReview': {
-            'format': 'date',
-            'example': '2020-02-01'
+      appeal: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'appeal.json'))),
+      eta: {
+        type: 'object',
+        description: 'Estimated decision dates for each docket.',
+        properties: {
+          directReview: {
+            format: 'date',
+            example: '2020-02-01'
           },
-          'evidenceSubmission': {
-            'format': 'date',
-            'example': '2024-06-01'
+          evidenceSubmission: {
+            format: 'date',
+            example: '2024-06-01'
           },
-          'hearing': {
-            'format': 'date',
-            'example': '2024-06-01'
+          hearing: {
+            format: 'date',
+            example: '2024-06-01'
           }
         }
       },
-      'alert': {
-        'type': 'object',
-        'description': 'Notification of a request for more information or of a change in the appeal status that requires action.',
-        'properties': {
-          'type': {
-            'type': 'string',
-            'description': 'Enum of notifications for an appeal. Acronyms used include cavc (Court of Appeals for Veteran Claims), vso (Veteran Service Organization), and dro (Decision Review Officer).',
-            'example': 'form9_needed',
-            'enum': %w[form9_needed scheduled_hearing hearing_no_show held_for_evidence cavc_option ramp_eligible ramp_ineligible decision_soon blocked_by_vso scheduled_dro_hearing dro_hearing_no_show evidentiary_period ama_post_decision]
+      alert: {
+        type: 'object',
+        description: 'Notification of a request for more information or of a change in the appeal status that requires action.',
+        properties: {
+          type: {
+            type: 'string',
+            description: 'Enum of notifications for an appeal. Acronyms used include cavc (Court of Appeals for Veteran Claims), vso (Veteran Service Organization), and dro (Decision Review Officer).',
+            example: 'form9_needed',
+            enum: %w[form9_needed scheduled_hearing hearing_no_show held_for_evidence cavc_option ramp_eligible ramp_ineligible decision_soon blocked_by_vso scheduled_dro_hearing dro_hearing_no_show evidentiary_period ama_post_decision]
           },
-          'details': {
-            'description': 'Further information about the alert',
-            'type': 'object'
+          details: {
+            description: 'Further information about the alert',
+            type: 'object'
           }
         }
       },
-      'event': {
-        'type': 'object',
-        'description': 'Event during the appeals process',
-        'properties': {
-          'type': {
-            'type': 'string',
-            'example': 'soc',
-            'description': 'Enum of possible event types. Acronyms used include, nod (Notice of Disagreement), soc (Statement of Case), ssoc (Supplemental Statement of Case), ftr (Failed to Report), bva (Board of Veteran Appeals), cavc (Court of Appeals for Veteran Claims), and dro (Decision Review Officer).',
-            'enum': %w[claim_decision nod soc form9 ssoc certified hearing_held hearing_no_show bva_decision field_grant withdrawn ftr ramp death merged record_designation reconsideration vacated other_close cavc_decision ramp_notice transcript remand_return ama_nod docket_change distributed_to_vlj bva_decision_effectuation dta_decision sc_request sc_decision sc_other_close hlr_request hlr_decision hlr_dta_error hlr_other_close statutory_opt_in]
+      event: {
+        type: 'object',
+        description: 'Event during the appeals process',
+        properties: {
+          type: {
+            type: 'string',
+            example: 'soc',
+            description: 'Enum of possible event types. Acronyms used include, nod (Notice of Disagreement), soc (Statement of Case), ssoc (Supplemental Statement of Case), ftr (Failed to Report), bva (Board of Veteran Appeals), cavc (Court of Appeals for Veteran Claims), and dro (Decision Review Officer).',
+            enum: %w[claim_decision nod soc form9 ssoc certified hearing_held hearing_no_show bva_decision field_grant withdrawn ftr ramp death merged record_designation reconsideration vacated other_close cavc_decision ramp_notice transcript remand_return ama_nod docket_change distributed_to_vlj bva_decision_effectuation dta_decision sc_request sc_decision sc_other_close hlr_request hlr_decision hlr_dta_error hlr_other_close statutory_opt_in]
           },
-          'date': {
-            'type': 'string',
-            'format': 'date',
-            'description': 'Date the event occurred',
-            'example': '2016-05-30'
+          date: {
+            type: 'string',
+            format: 'date',
+            description: 'Date the event occurred',
+            example: '2016-05-30'
           },
-          'details': {
-            'description': 'Further information about the event',
-            'type': 'object'
+          details: {
+            description: 'Further information about the event',
+            type: 'object'
           }
         }
       },
-      'issue': {
-        'type': 'object',
-        'description': 'Issues on appeal',
-        'properties': {
-          'active': {
-            'type': 'boolean',
-            'example': true,
-            'description': 'Whether the issue is presently under contention.'
+      issue: {
+        type: 'object',
+        description: 'Issues on appeal',
+        properties: {
+          active: {
+            type: 'boolean',
+            example: true,
+            description: 'Whether the issue is presently under contention.'
           },
-          'description': {
-            'type': 'string',
-            'example': 'Service connection, tinnitus',
-            'description': 'Description of the Issue'
+          description: {
+            type: 'string',
+            example: 'Service connection, tinnitus',
+            description: 'Description of the Issue'
           },
-          'diagnosticCode': {
-            'nullable': true,
-            'type': 'string',
-            'example': '6260',
-            'description': 'The CFR (Code of Federal Regulations) diagnostic code for the issue, if applicable'
+          diagnosticCode: {
+            nullable: true,
+            type: 'string',
+            example: '6260',
+            description: 'The CFR (Code of Federal Regulations) diagnostic code for the issue, if applicable'
           },
-          'lastAction': {
-            'nullable': true,
-            'type': 'string',
-            'description': 'Most recent decision made on this issue',
-            'enum': %w[field_grant withdrawn allowed denied remand cavc_remand]
+          lastAction: {
+            nullable: true,
+            type: 'string',
+            description: 'Most recent decision made on this issue',
+            enum: %w[field_grant withdrawn allowed denied remand cavc_remand]
           },
-          'date': {
-            'anyOf': [
-              'nullable': true,
-              'type': 'string',
-              'format': 'date',
-              'description': 'The date of the most recent decision on the issue',
-              'example': '2016-05-30'
+          date: {
+            anyOf: [
+              nullable: true,
+              type: 'string',
+              format: 'date',
+              description: 'The date of the most recent decision on the issue',
+              example: '2016-05-30'
             ]
           }
         }
       },
-      'evidence': {
-        'type': 'object',
-        'description': 'Documentation and other evidence that has been submitted in support of the appeal',
-        'properties': {
-          'description': {
-            'type': 'string',
-            'example': 'Service treatment records',
-            'description': 'Short text describing what the evidence is'
+      evidence: {
+        type: 'object',
+        description: 'Documentation and other evidence that has been submitted in support of the appeal',
+        properties: {
+          description: {
+            type: 'string',
+            example: 'Service treatment records',
+            description: 'Short text describing what the evidence is'
           },
-          'date': {
-            'type': 'string',
-            'format': 'date',
-            'description': 'Date the evidence was added to the case',
-            'example': '2017-09-30'
+          date: {
+            type: 'string',
+            format: 'date',
+            description: 'Date the evidence was added to the case',
+            example: '2017-09-30'
           }
         }
       }

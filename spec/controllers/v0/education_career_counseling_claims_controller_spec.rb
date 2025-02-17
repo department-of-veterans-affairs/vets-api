@@ -20,7 +20,7 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
       it 'validates successfully' do
         post(:create, params: form_params)
 
-        expect(response.code).to eq('200')
+        expect(response).to have_http_status(:ok)
       end
 
       it 'calls successfully submits the career counseling job' do
@@ -35,7 +35,7 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
         form_params = { education_career_counseling_claim: { form: test_form.form } }
 
         post(:create, params: form_params)
-        expect(response.code).to eq('200')
+        expect(response).to have_http_status(:ok)
       end
     end
 
@@ -43,13 +43,13 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
       it 'shows the validation errors' do
         post(:create, params: { education_career_counseling_claim: { form: { not_valid: 'not valid' } } })
 
-        expect(response.code).to eq('422')
+        expect(response).to have_http_status(:unprocessable_entity)
 
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
             'form - can\'t be blank'
           )
-        ).to eq(true)
+        ).to be(true)
       end
     end
   end

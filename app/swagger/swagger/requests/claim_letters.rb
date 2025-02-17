@@ -22,7 +22,7 @@ module Swagger
               key :type, :array
 
               items do
-                key :'$ref', :ClaimLetter
+                key :$ref, :ClaimLetter
               end
             end
           end

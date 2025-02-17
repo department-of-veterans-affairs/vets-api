@@ -10,11 +10,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
     Flipper.disable(:disability_compensation_use_api_provider_for_bdd_instructions)
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
+  let(:saved_claim) { create(:va526ez) }
   let(:submission) do
     create(:form526_submission, :with_uploads,
            user_uuid: user.uuid,

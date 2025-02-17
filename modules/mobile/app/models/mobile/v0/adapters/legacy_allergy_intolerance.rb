@@ -17,7 +17,8 @@ module Mobile
               patient: patient(allergy_info['patient']),
               recorder: recorder(allergy_info['recorder']),
               notes: notes(allergy_info['note']),
-              reactions: reactions(allergy_info['reaction'])
+              reactions: reactions(allergy_info['reaction']),
+              category: allergy_info['category']
             )
           end
         end

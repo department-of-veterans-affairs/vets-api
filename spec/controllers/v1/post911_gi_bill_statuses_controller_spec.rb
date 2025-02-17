@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'lighthouse/benefits_education/service'
 
 RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
-  let(:user) { FactoryBot.create(:user, :loa3, icn: '1000000000V100000') }
+  let(:user) { create(:user, :loa3, icn: '1000000000V100000') }
   let(:once) { { times: 1, value: 1 } }
   let(:tz) { ActiveSupport::TimeZone.new(BenefitsEducation::Service::OPERATING_ZONE) }
   let(:noon) { tz.parse('1st Feb 2018 12:00:00') }
@@ -16,7 +16,7 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
       # valid icn retrieved from
       # https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/benefits_test_accounts.md
       # 001	Tamara	E	Ellis	F	6/19/67	796130115	1012667145V762142
-      valid_user = FactoryBot.create(:user, :loa3, icn: '1012667145V762142')
+      valid_user = create(:user, :loa3, icn: '1012667145V762142')
       sign_in_as(valid_user)
 
       VCR.use_cassette('lighthouse/benefits_education/gi_bill_status/200_response') do

@@ -9,6 +9,7 @@ module V1
     include DecisionReviewV1::Appeals::Helpers
     include DecisionReview::SavedClaim::Service
     service_tag 'appeal-application'
+    before_action { log_non_module_controller(action: "SC #{action_name}", form_id: '995') }
 
     def show
       render json: decision_review_service.get_supplemental_claim(params[:id]).body

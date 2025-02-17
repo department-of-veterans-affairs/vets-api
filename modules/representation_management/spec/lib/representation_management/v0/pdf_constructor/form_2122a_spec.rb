@@ -108,7 +108,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
                                      'v0',
                                      'unflattened', # <- Important difference
                                      '2122a_conditions_and_limitations.pdf')
-      expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
+      expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to be(true)
     end
     # The Tempfile is automatically deleted after the block ends
   end
@@ -146,7 +146,20 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
                                      'v0',
                                      'unflattened', # <- Important difference
                                      '2122a_conditions_and_limitations_no_claimant.pdf')
-      expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
+      expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to be(true)
+    end
+    # The Tempfile is automatically deleted after the block ends
+  end
+
+  it 'constructs the pdf if the representative has no phone number' do
+    representative.update!(phone: nil)
+    form = RepresentationManagement::Form2122aData.new(data)
+    Tempfile.create do |tempfile|
+      tempfile.binmode
+      RepresentationManagement::V0::PdfConstructor::Form2122a.new(tempfile).construct(form)
+      reader = PDF::Reader.new(tempfile.path)
+      # Here we're just testing that the PDF is valid and has a version
+      expect(reader.pdf_version).not_to be_nil
     end
     # The Tempfile is automatically deleted after the block ends
   end

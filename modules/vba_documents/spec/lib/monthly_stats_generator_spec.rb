@@ -9,7 +9,6 @@ RSpec.describe VBADocuments::MonthlyStatsGenerator do
       stats_generator = described_class.new(month: 12, year: 2023)
       expect(stats_generator.instance_variable_get(:@month)).to eq(12)
       expect(stats_generator.instance_variable_get(:@year)).to eq(2023)
-      expect(stats_generator.instance_variable_get(:@stats)).to eq({})
     end
 
     it 'raises an ArgumentError when the month is nil' do
@@ -148,168 +147,168 @@ RSpec.describe VBADocuments::MonthlyStatsGenerator do
 
     before do
       # rubocop:disable Style/NumericLiterals
-      FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
-                        status: 'pending',
-                        consumer_name: 'Consumer1',
-                        metadata: {
-                          status: {
-                            pending: { start: 1703082497 }
-                          }
-                        })
+      create(:upload_submission, :skip_record_status_change_callback,
+             status: 'pending',
+             consumer_name: 'Consumer1',
+             metadata: {
+               status: {
+                 pending: { start: 1703082497 }
+               }
+             })
 
-      FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
-                        status: 'uploaded',
-                        consumer_name: 'Consumer1',
-                        uploaded_pdf: { total_pages: 2 },
-                        metadata: {
-                          size: 1280122,
-                          status: {
-                            pending: { start: 1703083533, end: 1703083534 },
-                            uploaded: { start: 1703083534 }
-                          }
-                        })
+      create(:upload_submission, :skip_record_status_change_callback,
+             status: 'uploaded',
+             consumer_name: 'Consumer1',
+             uploaded_pdf: { total_pages: 2 },
+             metadata: {
+               size: 1280122,
+               status: {
+                 pending: { start: 1703083533, end: 1703083534 },
+                 uploaded: { start: 1703083534 }
+               }
+             })
 
-      FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
-                        status: 'received',
-                        consumer_name: 'Consumer1',
-                        uploaded_pdf: { total_pages: 5 },
-                        metadata: {
-                          size: 833071,
-                          status: {
-                            pending: { start: 1703083616, end: 1703083616 },
-                            uploaded: { start: 1703083616, end: 1703083617 },
-                            received: { start: 1703083617 }
-                          }
-                        })
+      create(:upload_submission, :skip_record_status_change_callback,
+             status: 'received',
+             consumer_name: 'Consumer1',
+             uploaded_pdf: { total_pages: 5 },
+             metadata: {
+               size: 833071,
+               status: {
+                 pending: { start: 1703083616, end: 1703083616 },
+                 uploaded: { start: 1703083616, end: 1703083617 },
+                 received: { start: 1703083617 }
+               }
+             })
 
-      FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
-                        status: 'processing',
-                        consumer_name: 'Consumer1',
-                        uploaded_pdf: { total_pages: 103 },
-                        metadata: {
-                          size: 21902120,
-                          status: {
-                            pending: { start: 1703082646, end: 1703082647 },
-                            uploaded: { start: 1703082647, end: 1703082652 },
-                            received: { start: 1703082652, end: 1703083116 },
-                            processing: { start: 1703083116 }
-                          }
-                        })
+      create(:upload_submission, :skip_record_status_change_callback,
+             status: 'processing',
+             consumer_name: 'Consumer1',
+             uploaded_pdf: { total_pages: 103 },
+             metadata: {
+               size: 21902120,
+               status: {
+                 pending: { start: 1703082646, end: 1703082647 },
+                 uploaded: { start: 1703082647, end: 1703082652 },
+                 received: { start: 1703082652, end: 1703083116 },
+                 processing: { start: 1703083116 }
+               }
+             })
 
-      FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
-                        status: 'success',
-                        consumer_name: 'Consumer1',
-                        uploaded_pdf: { total_pages: 2 },
-                        metadata: {
-                          size: 511302,
-                          status: {
-                            pending: { start: 1703082142, end: 1703082143 },
-                            uploaded: { start: 1703082143, end: 1703082145 },
-                            received: { start: 1703082145, end: 1703082528 },
-                            processing: { start: 1703082528, end: 1703083804 },
-                            success: { start: 1703083804 }
-                          }
-                        })
+      create(:upload_submission, :skip_record_status_change_callback,
+             status: 'success',
+             consumer_name: 'Consumer1',
+             uploaded_pdf: { total_pages: 2 },
+             metadata: {
+               size: 511302,
+               status: {
+                 pending: { start: 1703082142, end: 1703082143 },
+                 uploaded: { start: 1703082143, end: 1703082145 },
+                 received: { start: 1703082145, end: 1703082528 },
+                 processing: { start: 1703082528, end: 1703083804 },
+                 success: { start: 1703083804 }
+               }
+             })
 
-      FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
-                        status: 'vbms',
-                        consumer_name: 'Consumer1',
-                        uploaded_pdf: { total_pages: 1 },
-                        metadata: {
-                          size: 191990,
-                          status: {
-                            pending: { start: 1703029866, end: 1703029877 },
-                            uploaded: { start: 1703029877, end: 1703029879 },
-                            received: { start: 1703029879, end: 1703033591 },
-                            processing: { start: 1703033591, end: 1703033591 },
-                            success: { start: 1703033591, end: 1703072988 },
-                            vbms: { start: 1703072988 }
-                          }
-                        })
+      create(:upload_submission, :skip_record_status_change_callback,
+             status: 'vbms',
+             consumer_name: 'Consumer1',
+             uploaded_pdf: { total_pages: 1 },
+             metadata: {
+               size: 191990,
+               status: {
+                 pending: { start: 1703029866, end: 1703029877 },
+                 uploaded: { start: 1703029877, end: 1703029879 },
+                 received: { start: 1703029879, end: 1703033591 },
+                 processing: { start: 1703033591, end: 1703033591 },
+                 success: { start: 1703033591, end: 1703072988 },
+                 vbms: { start: 1703072988 }
+               }
+             })
 
-      FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
-                        status: 'error',
-                        consumer_name: 'Consumer1',
-                        uploaded_pdf: { total_pages: 2 },
-                        metadata: {
-                          size: 1221122,
-                          status: {
-                            pending: { start: 1703080436, end: 1703080437 },
-                            uploaded: { start: 1703080437, end: 1703080438 },
-                            error: { start: 1703080438 }
-                          }
-                        })
+      create(:upload_submission, :skip_record_status_change_callback,
+             status: 'error',
+             consumer_name: 'Consumer1',
+             uploaded_pdf: { total_pages: 2 },
+             metadata: {
+               size: 1221122,
+               status: {
+                 pending: { start: 1703080436, end: 1703080437 },
+                 uploaded: { start: 1703080437, end: 1703080438 },
+                 error: { start: 1703080438 }
+               }
+             })
 
-      FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
-                        status: 'expired',
-                        consumer_name: 'Consumer1',
-                        metadata: {})
+      create(:upload_submission, :skip_record_status_change_callback,
+             status: 'expired',
+             consumer_name: 'Consumer1',
+             metadata: {})
 
-      FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
-                        status: 'success',
-                        consumer_name: 'Consumer2',
-                        uploaded_pdf: { total_pages: 2 },
-                        metadata: {
-                          size: 811009,
-                          status: {
-                            pending: { start: 1703081972, end: 1703081973 },
-                            uploaded: { start: 1703081973, end: 1703081977 },
-                            received: { start: 1703081977, end: 1703083979 },
-                            processing: { start: 1703083979, end: 1703083990 },
-                            success: { start: 1703083990 }
-                          }
-                        })
+      create(:upload_submission, :skip_record_status_change_callback,
+             status: 'success',
+             consumer_name: 'Consumer2',
+             uploaded_pdf: { total_pages: 2 },
+             metadata: {
+               size: 811009,
+               status: {
+                 pending: { start: 1703081972, end: 1703081973 },
+                 uploaded: { start: 1703081973, end: 1703081977 },
+                 received: { start: 1703081977, end: 1703083979 },
+                 processing: { start: 1703083979, end: 1703083990 },
+                 success: { start: 1703083990 }
+               }
+             })
 
-      FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
-                        status: 'vbms',
-                        consumer_name: 'Consumer2',
-                        uploaded_pdf: { total_pages: 3 },
-                        metadata: {
-                          size: 833071,
-                          status: {
-                            pending: { start: 1703029845, end: 1703029857 },
-                            uploaded: { start: 1703029857, end: 1703029859 },
-                            received: { start: 1703029859, end: 1703033591 },
-                            processing: { start: 1703033591, end: 1703033591 },
-                            success: { start: 1703033591, end: 1703058797 },
-                            vbms: { start: 1703058797 }
-                          }
-                        })
+      create(:upload_submission, :skip_record_status_change_callback,
+             status: 'vbms',
+             consumer_name: 'Consumer2',
+             uploaded_pdf: { total_pages: 3 },
+             metadata: {
+               size: 833071,
+               status: {
+                 pending: { start: 1703029845, end: 1703029857 },
+                 uploaded: { start: 1703029857, end: 1703029859 },
+                 received: { start: 1703029859, end: 1703033591 },
+                 processing: { start: 1703033591, end: 1703033591 },
+                 success: { start: 1703033591, end: 1703058797 },
+                 vbms: { start: 1703058797 }
+               }
+             })
 
-      FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
-                        status: 'error',
-                        consumer_name: 'Consumer2',
-                        uploaded_pdf: { total_pages: 3 },
-                        metadata: {
-                          size: 91223,
-                          status: {
-                            pending: { start: 1703080147, end: 1703080147 },
-                            uploaded: { start: 1703080147, end: 1703080148 },
-                            error: { start: 1703080148 }
-                          }
-                        })
+      create(:upload_submission, :skip_record_status_change_callback,
+             status: 'error',
+             consumer_name: 'Consumer2',
+             uploaded_pdf: { total_pages: 3 },
+             metadata: {
+               size: 91223,
+               status: {
+                 pending: { start: 1703080147, end: 1703080147 },
+                 uploaded: { start: 1703080147, end: 1703080148 },
+                 error: { start: 1703080148 }
+               }
+             })
 
-      FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
-                        status: 'error',
-                        consumer_name: 'Consumer2',
-                        uploaded_pdf: { total_pages: 2 },
-                        metadata: {
-                          size: 636333,
-                          status: {
-                            pending: { start: 1703076523, end: 1703076524 },
-                            uploaded: { start: 1703076524, end: 1703076525 },
-                            error: { start: 1703076525 }
-                          }
-                        })
+      create(:upload_submission, :skip_record_status_change_callback,
+             status: 'error',
+             consumer_name: 'Consumer2',
+             uploaded_pdf: { total_pages: 2 },
+             metadata: {
+               size: 636333,
+               status: {
+                 pending: { start: 1703076523, end: 1703076524 },
+                 uploaded: { start: 1703076524, end: 1703076525 },
+                 error: { start: 1703076525 }
+               }
+             })
 
-      FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
-                        status: 'expired',
-                        consumer_name: 'Consumer2',
-                        metadata: {})
+      create(:upload_submission, :skip_record_status_change_callback,
+             status: 'expired',
+             consumer_name: 'Consumer2',
+             metadata: {})
 
-      FactoryBot.create(:upload_submission, :skip_record_status_change_callback,
-                        status: 'forensics',
-                        consumer_name: nil) # record should be excluded
+      create(:upload_submission, :skip_record_status_change_callback,
+             status: 'forensics',
+             consumer_name: nil) # record should be excluded
     end
     # rubocop:enable Style/NumericLiterals
 
@@ -321,7 +320,7 @@ RSpec.describe VBADocuments::MonthlyStatsGenerator do
     end
 
     context 'when MonthlyStat record already exists for the month and year' do
-      before { FactoryBot.create(:monthly_stat, month:, year:, stats: {}) }
+      before { create(:monthly_stat, month:, year:, stats: {}) }
 
       it 'updates the existing record with the generated stats' do
         described_class.new(month:, year:).generate_and_save_stats

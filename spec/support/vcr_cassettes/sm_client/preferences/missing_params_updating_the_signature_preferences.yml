@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/preferences/signature"
+    body:
+      encoding: UTF-8
+      string: '{"signatureName":null,"signatureTitle":null,"includeSignature":true}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Tue, 11 Feb 2025 18:15:59 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '94'
+      X-Amzn-Requestid:
+      - ea1bb98a-4958-42eb-a542-a1a8498f9e6f
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - F1QLDGpyPHMFTww=
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      Pragma:
+      - no-cache
+      X-Amzn-Remapped-Date:
+      - Tue, 11 Feb 2025 18:15:59 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"errorCode":154,"developerMessage":"","message":"Email Signature Name
+        and Title is required"}'
+  recorded_at: Tue, 11 Feb 2025 18:16:00 GMT
+recorded_with: VCR 6.3.1

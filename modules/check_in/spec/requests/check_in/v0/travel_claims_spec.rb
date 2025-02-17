@@ -69,7 +69,7 @@ RSpec.describe 'CheckIn::V0::TravelClaims', type: :request do
       it 'enqueues the submission job and returns 202' do
         expect do
           post '/check_in/v0/travel_claims', params: post_params
-        end.to change(CheckIn::TravelClaimSubmissionWorker.jobs, :size).by(1)
+        end.to change(CheckIn::TravelClaimSubmissionJob.jobs, :size).by(1)
         expect(response).to have_http_status(:accepted)
         expect(response.body).to be_blank
       end

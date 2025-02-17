@@ -18,7 +18,7 @@ RSpec.describe SignIn::TokenParamsValidator, type: :model do
     shared_examples 'valid params' do
       it 'is valid with all required attributes' do
         expect(validator).to be_valid
-        expect(validator.perform).to eq(true)
+        expect(validator.perform).to be(true)
       end
     end
 

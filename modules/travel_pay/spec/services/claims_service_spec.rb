@@ -88,7 +88,7 @@ describe TravelPay::ClaimsService do
         claim_id = SecureRandom.uuid
         actual_claim = @service.get_claim_by_id(claim_id)
 
-        expect(actual_claim).to eq(nil)
+        expect(actual_claim).to be_nil
       end
 
       it 'throws an ArgumentException if claim_id is invalid format' do
@@ -237,7 +237,7 @@ describe TravelPay::ClaimsService do
 
       expect(claims_by_date[:data].count).to equal(3)
       expect(claims_by_date[:metadata]['status']).to equal(200)
-      expect(claims_by_date[:metadata]['success']).to eq(true)
+      expect(claims_by_date[:metadata]['success']).to be(true)
       expect(claims_by_date[:metadata]['message']).to eq('Data retrieved successfully.')
     end
 
@@ -257,7 +257,7 @@ describe TravelPay::ClaimsService do
 
       expect(claims_by_date[:data].count).to equal(1)
       expect(claims_by_date[:metadata]['status']).to equal(200)
-      expect(claims_by_date[:metadata]['success']).to eq(true)
+      expect(claims_by_date[:metadata]['success']).to be(true)
       expect(claims_by_date[:metadata]['message']).to eq('Data retrieved successfully.')
     end
 
@@ -291,7 +291,7 @@ describe TravelPay::ClaimsService do
 
       expect(claims_by_date[:data].count).to equal(0)
       expect(claims_by_date[:metadata]['status']).to equal(200)
-      expect(claims_by_date[:metadata]['success']).to eq(true)
+      expect(claims_by_date[:metadata]['success']).to be(true)
       expect(claims_by_date[:metadata]['message']).to eq('No claims found.')
     end
 

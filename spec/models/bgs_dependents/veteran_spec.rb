@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe BGSDependents::Veteran do
   let(:address) { { addrs_one_txt: '123 mainstreet', cntry_nm: 'USA', vnp_ptcpnt_addrs_id: '116343' } }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:veteran_response_result_sample) do
     {
       vnp_participant_id: '149500',
@@ -14,7 +14,7 @@ RSpec.describe BGSDependents::Veteran do
       file_number: '1234'
     }
   end
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
   let(:vet) { described_class.new('12345', user) }
   let(:formatted_params_result) do
     {

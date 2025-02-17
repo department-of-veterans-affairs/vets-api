@@ -21,7 +21,7 @@ RSpec.describe LoadAverageDaysForClaimCompletionJob, type: :job do
         LoadAverageDaysForClaimCompletionJob.new.perform
         rtn = AverageDaysForClaimCompletion.order('created_at DESC').first
 
-        expect(rtn.present?).to eq(true)
+        expect(rtn.present?).to be(true)
         expect(rtn.average_days).to eq(101.0)
       end
 
@@ -32,7 +32,7 @@ RSpec.describe LoadAverageDaysForClaimCompletionJob, type: :job do
         LoadAverageDaysForClaimCompletionJob.new.perform
         rtn = AverageDaysForClaimCompletion.order('created_at DESC').first
 
-        expect(rtn.present?).to eq(false)
+        expect(rtn.present?).to be(false)
       end
 
       it 'does not perform an insert if the web failure' do
@@ -42,7 +42,7 @@ RSpec.describe LoadAverageDaysForClaimCompletionJob, type: :job do
         LoadAverageDaysForClaimCompletionJob.new.perform
         rtn = AverageDaysForClaimCompletion.order('created_at DESC').first
 
-        expect(rtn.present?).to eq(false)
+        expect(rtn.present?).to be(false)
       end
     end
   end

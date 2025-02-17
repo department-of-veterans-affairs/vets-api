@@ -12,11 +12,12 @@ module AskVAApi
       end
 
       def call
-        case fetch_data
+        data = fetch_data
+        case data
         when Array
-          fetch_data.map { |data| entity_class.new(data) }
+          data.map { |info| entity_class.new(info) }
         else
-          fetch_data
+          data
         end
       end
 

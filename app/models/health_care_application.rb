@@ -6,10 +6,12 @@ require 'hca/user_attributes'
 require 'hca/enrollment_eligibility/service'
 require 'hca/enrollment_eligibility/status_matcher'
 require 'mpi/service'
+require 'hca/overrides_parser'
 
 class HealthCareApplication < ApplicationRecord
   include SentryLogging
   include VA1010Forms::Utils
+  include FormValidation
 
   FORM_ID = '10-10EZ'
   ACTIVEDUTY_ELIGIBILITY = 'TRICARE'
@@ -71,7 +73,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_sync
-    @parsed_form = override_parsed_form(parsed_form)
+    @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
@@ -240,7 +242,7 @@ class HealthCareApplication < ApplicationRecord
 
   def submit_async
     submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
-    @parsed_form = override_parsed_form(parsed_form)
+    @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     "HCA::#{submission_job}".constantize.perform_async(
       self.class.get_user_identifier(user),
@@ -315,8 +317,24 @@ class HealthCareApplication < ApplicationRecord
 
   def form_matches_schema
     if form.present?
-      JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM_ID], parsed_form).each do |v|
-        errors.add(:form, v.to_s)
+      schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
+
+      if Flipper.enabled?(:retry_form_validation)
+        validation_errors = validate_form_with_retries(schema, parsed_form)
+        validation_errors.each do |v|
+          errors.add(:form, v.to_s)
+        end
+      else
+        begin
+          JSON::Validator.fully_validate(schema, parsed_form).each do |v|
+            errors.add(:form, v.to_s)
+          end
+        rescue => e
+          PersonalInformationLog.create(data: { schema:, parsed_form: },
+                                        error_class: 'HealthCareApplication FormValidationError')
+          Rails.logger.error("[#{FORM_ID}] Error during schema validation!", { error: e.message, schema: })
+          raise
+        end
       end
     end
   end

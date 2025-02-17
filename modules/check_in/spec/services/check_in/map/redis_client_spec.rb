@@ -27,7 +27,7 @@ describe CheckIn::Map::RedisClient do
 
     context 'when cache does not exist' do
       it 'returns nil' do
-        expect(redis_client.token(patient_icn: '123')).to eq(nil)
+        expect(redis_client.token(patient_icn: '123')).to be_nil
       end
     end
 
@@ -58,7 +58,7 @@ describe CheckIn::Map::RedisClient do
 
       it 'returns nil' do
         Timecop.travel(expires_in.from_now) do
-          expect(redis_client.token(patient_icn:)).to eq(nil)
+          expect(redis_client.token(patient_icn:)).to be_nil
         end
       end
     end
@@ -71,7 +71,7 @@ describe CheckIn::Map::RedisClient do
     it 'saves the value in cache' do
       expect(
         redis_client.save_token(patient_icn:, token:, expires_in:)
-      ).to eq(true)
+      ).to be(true)
 
       val = Rails.cache.read(
         patient_icn,

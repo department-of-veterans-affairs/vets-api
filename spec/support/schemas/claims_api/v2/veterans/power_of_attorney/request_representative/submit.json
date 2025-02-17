@@ -6,8 +6,17 @@
     "data": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["attributes"],
+      "required": ["id", "type", "attributes"],
       "properties": {
+        "id": {
+          "type": ["string"],
+          "description": "The unique identifier for the power of attorney request"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["power-of-attorney-request"],
+          "description": "The type of the resource"
+        },
         "attributes": {
           "type": "object",
           "additionalProperties": false,
@@ -136,7 +145,7 @@
               "additionalProperties": false,
               "properties": {
                 "claimantId": {
-                  "type": "string",
+                  "type": ["string", "null"],
                   "example": "123456789",
                   "description": "Id of the claimant."
                 },
@@ -146,40 +155,40 @@
                   "properties" : {
                     "addressLine1": {
                       "description": "Street address with number and name. Required if claimant information provided.",
-                      "type": "string",
+                      "type": ["string", "null"],
                       "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                       "maxLength": 30
                     },
                     "addressLine2": {
-                      "type": "string",
+                      "type": ["string", "null"],
                       "maxLength": 5
                     },
                     "city": {
                       "description": "City for the address. Required if claimant information provided.",
-                      "type": "string",
+                      "type": ["string", "null"],
                       "example": "Portland",
                       "maxLength": 18
                     },
                     "stateCode": {
                       "description": "State for the address. Required if claimant information provided.",
-                      "type": "string",
+                      "type": ["string", "null"],
                       "pattern": "^[a-z,A-Z]{2}$",
                       "example": "OR"
                     },
                     "country": {
                       "description": "Country of the address. Required if claimant information provided.",
-                      "type": "string",
+                      "type": ["string", "null"],
                       "example": "USA"
                     },
                     "zipCode": {
                       "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
-                      "type": "string",
+                      "type": ["string", "null"],
                       "pattern": "^\\d{5}?$",
                       "example": "12345"
                     },
                     "zipCodeSuffix": {
                       "description": "Zipcode (Last 4 digits) of the address.",
-                      "type": "string",
+                      "type": ["string", "null"],
                       "pattern": "^\\d{4}?$",
                       "example": "6789"
                     }
@@ -196,26 +205,28 @@
                   "properties": {
                     "areaCode": {
                       "description": "Area code of the phone number.",
-                      "type": "string", "pattern": "^[2-9][0-9]{2}$",
+                      "type": ["string", "null"],
+                      "pattern": "^[2-9][0-9]{2}$",
                       "example": "555"
                     },
                     "phoneNumber": {
                       "description": "Phone number.",
-                      "type": "string", "pattern": "^[0-9]{1,14}$",
+                      "type": ["string", "null"],
+                      "pattern": "^[0-9]{1,14}$",
                       "example": "555-5555"
                     }
                   }
                 },
                 "email": {
                   "description": "Email address of the claimant.",
-                  "type": "string",
+                  "type": ["string", "null"],
                   "pattern": ".@.",
                   "maxLength": 61,
                   "example": "claimant@example.com"
                 },
                 "relationship": {
                   "description": "Relationship of claimant to the veteran. Required if claimant information provided.",
-                  "type": "string",
+                  "type": ["string", "null"],
                   "example": "Spouse"
                 }
               }
@@ -267,16 +278,6 @@
             "consentAddressChange": {
               "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
               "type": "boolean"
-            },
-            "id": {
-              "description": "The ID of the new Power of Attorney request.",
-              "type": "string",
-              "example": "12e13134-7229-4e44-90ae-bcea2a4525fa"
-            },
-            "type": {
-              "description": "The type of Power of Attorney request.",
-              "type": "string",
-              "example": "power-of-attorney-request"
             }
           }
         }

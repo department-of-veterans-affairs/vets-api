@@ -40,12 +40,10 @@ module Users
         end
       when Common::Client::Errors::ClientError
         client_error
-      when MPI::Errors::RecordNotFound
+      when MPI::Errors::RecordNotFound, MPI::Errors::DuplicateRecords
         mpi_error(404)
       when MPI::Errors::FailedRequestError
         mpi_error(503)
-      when MPI::Errors::DuplicateRecords
-        mpi_error(404)
       else
         standard_error
       end

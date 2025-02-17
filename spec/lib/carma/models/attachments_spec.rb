@@ -55,7 +55,7 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
 
       result = subject.to_hash
       expect(result[:data]).to eq(%i[hash_1 hash_2])
-      expect(result[:has_errors]).to eq(nil)
+      expect(result[:has_errors]).to be_nil
     end
   end
 
@@ -122,7 +122,7 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
       subject.submit!(carma_client)
 
       expect(subject.response).to eq(expected_response)
-      expect(subject.has_errors).to eq(false)
+      expect(subject.has_errors).to be(false)
       expect(subject.all[0].id).to eq(expected_response['results'][0]['id'])
       expect(subject.all[1].id).to eq(expected_response['results'][1]['id'])
     end
@@ -171,7 +171,7 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
         5.times { subject.submit!(carma_client) }
 
         expect(subject.response).to eq(expected_response)
-        expect(subject.has_errors).to eq(false)
+        expect(subject.has_errors).to be(false)
         expect(subject.all[0].id).to eq(expected_response['results'][0]['id'])
         expect(subject.all[1].id).to eq(expected_response['results'][1]['id'])
       end

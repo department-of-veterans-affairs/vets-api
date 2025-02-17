@@ -39,7 +39,11 @@ FactoryBot.define do
           {
             form_id: evaluator.in_progress_form_id,
             user_account: user.user_account,
-            user_uuid: user.uuid
+            user_uuid: user.uuid,
+            metadata: {
+              version: 1,
+              returnUrl: 'foo.com'
+            }
           }
         )
       end

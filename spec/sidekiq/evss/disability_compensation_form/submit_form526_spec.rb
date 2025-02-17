@@ -10,13 +10,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
     Flipper.disable(:disability_compensation_fail_submission)
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
 
   describe '.perform_async' do
-    let(:saved_claim) { FactoryBot.create(:va526ez) }
+    let(:saved_claim) { create(:va526ez) }
     let(:submitted_claim_id) { 600_130_094 }
     let(:submission) do
       create(:form526_submission,

@@ -7,7 +7,7 @@ RSpec.describe 'legacy Mobile::V0::Claim::RequestDecision', :skip_json_api_valid
     let!(:user) { sis_user(icn: '1008596379V859838') }
 
     before do
-      FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: user.uuid)
+      create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: user.uuid)
       Flipper.disable(:mobile_lighthouse_request_decision)
     end
 

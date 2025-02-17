@@ -9,7 +9,7 @@
 require 'claims_api/claim_logger'
 require 'claims_api/error/soap_error_handler'
 require 'claims_api/evss_bgs_mapper'
-require 'bgs_service/local_bgs_refactored'
+require 'bgs_service/find_definition'
 
 module ClaimsApi
   class LocalBGS
@@ -74,32 +74,6 @@ module ClaimsApi
       connection = Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode })
       wsdl = connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
       wsdl.status
-    end
-
-    def find_poa_by_participant_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId />
-      EOXML
-
-      { ptcpntId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'ClaimantServiceBean/ClaimantWebService', action: 'findPOAByPtcpntId', body:,
-                   key: 'return')
-    end
-
-    def find_poa_history_by_ptcpnt_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId />
-      EOXML
-
-      { ptcpntId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'OrgWebServiceBean/OrgWebService', action: 'findPoaHistoryByPtcpntId', body:,
-                   key: 'PoaHistory')
     end
 
     def header # rubocop:disable Metrics/MethodLength
@@ -169,10 +143,11 @@ module ClaimsApi
       end
     end
 
-    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
+    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true, use_mocks: false) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
       connection = log_duration event: 'establish_ssl_connection' do
         Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
           f.use :breakers
+          f.response :betamocks if use_mocks?(use_mocks)
           f.adapter Faraday.default_adapter
         end
       end
@@ -205,11 +180,11 @@ module ClaimsApi
     end
 
     def namespace(connection, endpoint)
-      ClaimsApi::LocalBGSRefactored::FindDefinition
+      ClaimsApi::FindDefinition
         .for_service(endpoint)
         .bean.namespaces.target
     rescue => e
-      unless e.is_a? ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
+      unless e.is_a? ClaimsApi::FindDefinition::NotDefinedError
         ClaimsApi::Logger.log('local_bgs', level: :error,
                                            detail: "local BGS FindDefinition Error: #{e.message}")
       end
@@ -315,6 +290,10 @@ module ClaimsApi
       result = Hash.from_xml(response.body).dig(*keys)
 
       result.is_a?(Array) ? result : result.to_h
+    end
+
+    def use_mocks?(use_mocks)
+      use_mocks && Settings.claims_api.bgs.mock_responses
     end
   end
 end

@@ -6,7 +6,8 @@ require 'bgs_service/intent_to_file_web_service'
 
 RSpec.describe 'ClaimsApi::V1::Forms::0966', type: :request do
   let(:headers) do
-    { 'X-VA-SSN': '796-10-4437',
+    { 'Content-Type': 'application/json',
+      'X-VA-SSN': '796-10-4437',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
       'X-Consumer-Username': 'TestConsumer',

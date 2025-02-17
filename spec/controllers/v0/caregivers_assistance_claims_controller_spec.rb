@@ -92,7 +92,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
       res_body = JSON.parse(response.body)
 
-      expect(response.status).to eq(422)
+      expect(response).to have_http_status(:unprocessable_entity)
 
       expect(res_body['errors']).to be_present
       expect(res_body['errors'].size).to eq(4)
@@ -197,7 +197,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       )
 
       post :create, params: { caregivers_assistance_claim: { form: claim.form } }
-      expect(response.code).to eq('503')
+      expect(response).to have_http_status(:service_unavailable)
       expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
         'Backend Service Outage'
       )
@@ -209,7 +209,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
 
     after do
-      File.delete(response_pdf) if File.exist?(response_pdf)
+      FileUtils.rm_f(response_pdf)
     end
 
     it_behaves_like '10-10CG request with missing param: caregivers_assistance_claim', :download_pdf
@@ -240,12 +240,12 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       # compare it with the pdf fixture
       expect(
         pdfs_fields_match?(response_pdf, expected_pdf)
-      ).to eq(true)
+      ).to be(true)
 
       # ensure that the tmp file was deleted
       expect(
         File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-      ).to eq(false)
+      ).to be(false)
     end
   end
 end

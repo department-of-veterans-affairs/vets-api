@@ -7,7 +7,7 @@ module ClaimsApi
   class ClaimUploader < ClaimsApi::ServiceBase
     sidekiq_options retry: true, unique_until: :success
 
-    def perform(uuid) # rubocop:disable Metrics/MethodLength
+    def perform(uuid, record_type) # rubocop:disable Metrics/MethodLength
       claim_object = ClaimsApi::SupportingDocument.find_by(id: uuid) ||
                      ClaimsApi::AutoEstablishedClaim.find_by(id: uuid)
 
@@ -17,7 +17,17 @@ module ClaimsApi
       if auto_claim.evss_id.nil?
         ClaimsApi::Logger.log('lighthouse_claim_uploader',
                               detail: "evss id: #{auto_claim&.evss_id} was nil, for uuid: #{uuid}")
-        self.class.perform_in(30.minutes, uuid)
+
+        if auto_claim.status == errored_state_value
+          msg = "Auto claim with id: #{auto_claim.id} is errored, " \
+                'not rescheduling the Claim Uploader job called with' \
+                " a #{record_type} id"
+          ClaimsApi::Logger.log('lighthouse_claim_uploader',
+                                detail: msg)
+          slack_alert_on_failure('ClaimsApi::ClaimUploader', msg)
+        else
+          self.class.perform_in(30.minutes, uuid, record_type)
+        end
       else
         auth_headers = auto_claim.auth_headers
         uploader = claim_object.uploader

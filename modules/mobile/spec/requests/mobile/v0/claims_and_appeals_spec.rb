@@ -63,13 +63,13 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
               nil_dates_claim = parsed_response_contents.last
               expect(open_claim.dig('attributes', 'updatedAt')).to eq('2022-09-30')
               expect(open_claim.dig('attributes', 'phase')).to eq(4)
-              expect(open_claim.dig('attributes', 'documentsNeeded')).to eq(false)
-              expect(open_claim.dig('attributes', 'developmentLetterSent')).to eq(true)
+              expect(open_claim.dig('attributes', 'documentsNeeded')).to be(false)
+              expect(open_claim.dig('attributes', 'developmentLetterSent')).to be(true)
               expect(open_claim.dig('attributes', 'claimTypeCode')).to eq('400PREDSCHRG')
               expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2021-03-22')
               expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2021-03-22')
-              expect(nil_dates_claim.dig('attributes', 'updatedAt')).to eq(nil)
-              expect(nil_dates_claim.dig('attributes', 'dateFiled')).to eq(nil)
+              expect(nil_dates_claim.dig('attributes', 'updatedAt')).to be_nil
+              expect(nil_dates_claim.dig('attributes', 'dateFiled')).to be_nil
             else
               expect(parsed_response_contents.length).to eq(60)
               expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(3)
@@ -77,26 +77,26 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
               closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600106271' }[0]
               decision_letter_sent_claim = parsed_response_contents.select { |entry| entry['id'] == '600096536' }[0]
               expect(open_claim.dig('attributes', 'updatedAt')).to eq('2017-09-28')
-              expect(open_claim.dig('attributes', 'phase')).to eq(nil)
-              expect(open_claim.dig('attributes', 'documentsNeeded')).to eq(nil)
-              expect(open_claim.dig('attributes', 'developmentLetterSent')).to eq(nil)
-              expect(open_claim.dig('attributes', 'claimTypeCode')).to eq(nil)
+              expect(open_claim.dig('attributes', 'phase')).to be_nil
+              expect(open_claim.dig('attributes', 'documentsNeeded')).to be_nil
+              expect(open_claim.dig('attributes', 'developmentLetterSent')).to be_nil
+              expect(open_claim.dig('attributes', 'claimTypeCode')).to be_nil
               expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2017-09-20')
             end
 
             open_appeal = parsed_response_contents.select { |entry| entry['id'] == '3294289' }[0]
-            expect(open_claim.dig('attributes', 'completed')).to eq(false)
-            expect(closed_claim.dig('attributes', 'completed')).to eq(true)
-            expect(open_appeal.dig('attributes', 'completed')).to eq(false)
+            expect(open_claim.dig('attributes', 'completed')).to be(false)
+            expect(closed_claim.dig('attributes', 'completed')).to be(true)
+            expect(open_appeal.dig('attributes', 'completed')).to be(false)
             expect(open_claim['type']).to eq('claim')
             expect(closed_claim['type']).to eq('claim')
             expect(open_appeal['type']).to eq('appeal')
             expect(open_appeal.dig('attributes', 'updatedAt')).to eq('2018-01-16')
             expect(open_appeal.dig('attributes', 'displayTitle')).to eq('disability compensation appeal')
-            expect(open_claim.dig('attributes', 'decisionLetterSent')).to eq(false)
-            expect(closed_claim.dig('attributes', 'decisionLetterSent')).to eq(false)
-            expect(open_appeal.dig('attributes', 'decisionLetterSent')).to eq(false)
-            expect(decision_letter_sent_claim.dig('attributes', 'decisionLetterSent')).to eq(true)
+            expect(open_claim.dig('attributes', 'decisionLetterSent')).to be(false)
+            expect(closed_claim.dig('attributes', 'decisionLetterSent')).to be(false)
+            expect(open_appeal.dig('attributes', 'decisionLetterSent')).to be(false)
+            expect(decision_letter_sent_claim.dig('attributes', 'decisionLetterSent')).to be(true)
           end
         end
       end
@@ -147,7 +147,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
             parsed_response_contents.each do |entry|
-              expect(entry.dig('attributes', 'completed')).to eq(true)
+              expect(entry.dig('attributes', 'completed')).to be(true)
             end
           end
         end
@@ -169,7 +169,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
             parsed_response_contents.each do |entry|
-              expect(entry.dig('attributes', 'completed')).to eq(false)
+              expect(entry.dig('attributes', 'completed')).to be(false)
             end
           end
         end
@@ -198,8 +198,8 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
             )
             open_appeal = parsed_response_contents.select { |entry| entry['id'] == '3294289' }[0]
             closed_appeal = parsed_response_contents.select { |entry| entry['id'] == '2348605' }[0]
-            expect(open_appeal.dig('attributes', 'completed')).to eq(false)
-            expect(closed_appeal.dig('attributes', 'completed')).to eq(true)
+            expect(open_appeal.dig('attributes', 'completed')).to be(false)
+            expect(closed_appeal.dig('attributes', 'completed')).to be(true)
             expect(open_appeal['type']).to eq('appeal')
             expect(closed_appeal['type']).to eq('appeal')
             expect(open_appeal.dig('attributes', 'displayTitle')).to eq('disability compensation appeal')
@@ -226,8 +226,8 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
               open_claim = parsed_response_contents.select { |entry| entry['id'] == '600114693' }[0]
               closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600106271' }[0]
             end
-            expect(open_claim.dig('attributes', 'completed')).to eq(false)
-            expect(closed_claim.dig('attributes', 'completed')).to eq(true)
+            expect(open_claim.dig('attributes', 'completed')).to be(false)
+            expect(closed_claim.dig('attributes', 'completed')).to be(true)
             expect(open_claim['type']).to eq('claim')
             expect(closed_claim['type']).to eq('claim')
           end
@@ -349,7 +349,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         assert_schema_conform(200)
         parsed_response_contents = response.parsed_body['data']
         open_claim = parsed_response_contents.select { |entry| entry['id'] == '600114693' }[0]
-        expect(open_claim.dig('attributes', 'completed')).to eq(false)
+        expect(open_claim.dig('attributes', 'completed')).to be(false)
         expect(open_claim['type']).to eq('claim')
       end
 
@@ -382,7 +382,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
           it 'returns error and does not cache' do
             VCR.use_cassette(error_claims_response_vcr_path) do
               get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-              expect(Mobile::V0::ClaimOverview.get_cached(user)).to eq(nil)
+              expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
               assert_schema_conform(502)
             end
           end
@@ -419,7 +419,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
           it 'returns error and does not cache' do
             VCR.use_cassette('mobile/appeals/server_error') do
               get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-              expect(Mobile::V0::ClaimOverview.get_cached(user)).to eq(nil)
+              expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
               assert_schema_conform(502)
             end
           end

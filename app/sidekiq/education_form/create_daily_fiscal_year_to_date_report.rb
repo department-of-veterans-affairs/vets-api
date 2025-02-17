@@ -109,9 +109,9 @@ module EducationForm
 
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{fiscal_year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
-      csv_array << ['RPO', 'BENEFIT TYPE'] + FORM_TYPE_HEADERS
-      csv_array << ['', ''] + ranges_header * num_form_types
-      csv_array << ['', ''] + submitted_header * num_form_types
+      csv_array << (['RPO', 'BENEFIT TYPE'] + FORM_TYPE_HEADERS)
+      csv_array << (['', ''] + (ranges_header * num_form_types))
+      csv_array << (['', ''] + (submitted_header * num_form_types))
 
       csv_array
     end
@@ -225,7 +225,7 @@ module EducationForm
 
       csv_array += create_csv_header
       csv_array += convert_submissions_to_csv_array
-      csv_array << ['', ''] + FORM_TYPE_HEADERS
+      csv_array << (['', ''] + FORM_TYPE_HEADERS)
 
       csv_array
     end

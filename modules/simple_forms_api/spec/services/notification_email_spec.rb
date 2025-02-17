@@ -34,18 +34,8 @@ describe SimpleFormsApi::NotificationEmail do
         end
 
         context 'notification_type is duplicate' do
-          let(:notification_type) { :duplicate }
-
           it 'does not require the confirmation_number' do
-            expect { described_class.new(config, notification_type:) }.not_to raise_error(ArgumentError)
-          end
-        end
-
-        context 'notification_type is rejeceted' do
-          let(:notification_type) { :rejected }
-
-          it 'does not require the confirmation_number' do
-            expect { described_class.new(config, notification_type:) }.not_to raise_error(ArgumentError)
+            expect { described_class.new(config, notification_type: :duplicate) }.not_to raise_error(ArgumentError)
           end
         end
       end
@@ -181,6 +171,7 @@ describe SimpleFormsApi::NotificationEmail do
 
       context 'send at time is specified' do
         context 'user_account is passed in' do
+          let(:confirmation_number) { 'confirmation_number' }
           let(:data) do
             fixture_path = Rails.root.join(
               'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_10210-min.json'
@@ -204,7 +195,7 @@ describe SimpleFormsApi::NotificationEmail do
               user_account.id,
               "form21_10210_#{notification_type}_email_template_id",
               {
-                'confirmation_number' => 'confirmation_number',
+                'confirmation_number' => confirmation_number,
                 'date_submitted' => time.strftime('%B %d, %Y'),
                 'first_name' => 'Bob',
                 'lighthouse_updated_at' => lighthouse_updated_at
@@ -214,6 +205,7 @@ describe SimpleFormsApi::NotificationEmail do
                 callback_metadata: {
                   form_number: 'vba_21_10210',
                   notification_type:,
+                  confirmation_number:,
                   statsd_tags: {
                     'function' => 'vba_21_10210 form submission to Lighthouse', 'service' => 'veteran-facing-forms'
                   }

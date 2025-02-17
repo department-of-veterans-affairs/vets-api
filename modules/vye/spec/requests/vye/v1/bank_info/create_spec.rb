@@ -9,8 +9,7 @@ RSpec.describe 'Vye::V1::DirectDeposit#create', type: :request do
   let(:headers) { { 'Content-Type' => 'application/json', 'X-Key-Inflection' => 'camel' } }
 
   let(:params) do
-    FactoryBot
-      .attributes_for(:vye_direct_deposit_change)
+    attributes_for(:vye_direct_deposit_change)
       .deep_transform_keys! { |key| key.to_s.camelize(:lower) }
       .slice('fullName', 'phone', 'email', 'acctNo', 'acctType', 'routingNo', 'bankName', 'bankPhone')
       .to_json
@@ -45,8 +44,8 @@ RSpec.describe 'Vye::V1::DirectDeposit#create', type: :request do
     end
 
     describe 'where current_user is in VYE' do
-      let!(:user_profile) { FactoryBot.create(:vye_user_profile, icn: current_user.icn) }
-      let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:) }
+      let!(:user_profile) { create(:vye_user_profile, icn: current_user.icn) }
+      let!(:user_info) { create(:vye_user_info, user_profile:) }
 
       it 'creates a new bank info' do
         post('/vye/v1/bank_info', headers:, params:)

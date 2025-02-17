@@ -74,6 +74,8 @@ Rails.application.configure do
   # Raises error for missing translations.
   config.i18n.raise_on_missing_translations = true
 
+  config.action_controller.raise_on_missing_callback_actions = true
+
   ConfigHelper.setup_action_mailer(config)
 
   config.rails_semantic_logger.semantic   = false

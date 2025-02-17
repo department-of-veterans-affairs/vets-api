@@ -3,7 +3,25 @@
 require 'rails_helper'
 
 RSpec.describe BenefitsIntakeStatusJob, type: :job do
+  before do
+    allow(Flipper).to receive(:enabled?).with(anything).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:benefits_intake_submission_status_job).and_return false
+  end
+
   describe '#perform' do
+    context 'other job flipper is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:benefits_intake_submission_status_job).and_return true
+      end
+
+      it 'does nothing' do
+        expect(Rails.logger).not_to receive(:info)
+        expect(Rails.logger).not_to receive(:error)
+        expect(BenefitsIntake::Service).not_to receive(:new)
+        BenefitsIntakeStatusJob.new.perform
+      end
+    end
+
     describe 'submission to the bulk status report endpoint' do
       context 'multiple attempts and multiple form submissions' do
         before do
@@ -209,6 +227,38 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
       end
 
       # end 'updating the form submission status'
+    end
+
+    describe 'updating the Burial form submission status' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:burial_received_email_notification).and_return(true)
+      end
+
+      it 'updates the burial status with vbms from the bulk status report endpoint' do
+        claim = build(:burial_claim)
+        pending_form_submission_attempts = create_list(:form_submission_attempt, 1, :pending)
+        batch_uuids = pending_form_submission_attempts.map(&:benefits_intake_uuid)
+        data = batch_uuids.map { |id| { 'id' => id, 'attributes' => { 'status' => 'vbms' } } }
+        response = double(success?: true, body: { 'data' => data })
+
+        status_job = BenefitsIntakeStatusJob.new
+
+        claim.update!(id: rand(100..1000))
+        pfsa = pending_form_submission_attempts.first
+        pfsa.form_submission.update!(form_type: claim.form_id, saved_claim_id: claim.id)
+
+        expect(status_job).to receive(:log_result).with('success', pfsa.form_submission.form_type,
+                                                        pfsa.benefits_intake_uuid, anything)
+        expect_any_instance_of(Burials::NotificationEmail).to receive(:deliver).with(:received)
+        expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
+          .with(uuids: batch_uuids).and_return(response)
+
+        status_job.perform
+
+        pending_form_submission_attempts.each do |form_submission_attempt|
+          expect(form_submission_attempt.reload.aasm_state).to eq 'vbms'
+        end
+      end
     end
 
     # end #perform

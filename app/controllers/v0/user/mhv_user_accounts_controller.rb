@@ -6,21 +6,18 @@ module V0
       service_tag 'identity'
       rescue_from MHV::UserAccount::Errors::UserAccountError, with: :render_mhv_account_errors
 
-      before_action :set_mhv_user_account, only: :show
-
       def show
-        return render_mhv_account_errors('not_found', status: :not_found) if @mhv_user_account.blank?
+        authorize MHVUserAccount
+        mhv_user_account = MHV::UserAccount::Creator.new(user_verification: current_user.user_verification,
+                                                         break_cache: true).perform
+
+        return render_mhv_account_errors('not_found', status: :not_found) if mhv_user_account.blank?
 
         log_result('success')
-        render json: MHVUserAccountSerializer.new(@mhv_user_account).serializable_hash, status: :ok
+        render json: MHVUserAccountSerializer.new(mhv_user_account).serializable_hash, status: :ok
       end
 
       private
-
-      def set_mhv_user_account
-        @mhv_user_account = MHV::UserAccount::Creator.new(user_verification: current_user.user_verification,
-                                                          break_cache: true).perform
-      end
 
       def render_mhv_account_errors(exception)
         errors = exception.as_json

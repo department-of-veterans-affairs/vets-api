@@ -198,7 +198,8 @@ class RepresentationManagement::RswagConfig
   end
 
   def veteran_service_organization_schema
-    build_organization_schema(uuid: false)
+    optional_attributes = { can_accept_digital_poa_requests: { type: :boolean, example: true } }
+    build_organization_schema(uuid: false, optional_attributes: optional_attributes)
   end
 
   def common_organization_attributes
@@ -211,8 +212,8 @@ class RepresentationManagement::RswagConfig
     )
   end
 
-  def build_organization_schema(uuid: true)
-    attributes = common_organization_attributes
+  def build_organization_schema(uuid: true, optional_attributes: {})
+    attributes = common_organization_attributes.merge(optional_attributes)
     accredited_data_structure('organization', attributes, uuid: uuid)
   end
 

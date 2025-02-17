@@ -20,7 +20,7 @@ module ClaimsApi
       service_tag 'lighthouse-claims'
       skip_before_action :verify_authenticity_token
       skip_after_action :set_csrf_header
-      before_action :authenticate, except: %i[schema] # rubocop:disable Rails/LexicallyScopedActionFilter
+      before_action :authenticate
       before_action :validate_json_format, if: -> { request.post? }
       before_action :validate_header_values_format, if: -> { header_request? }
       before_action :validate_veteran_identifiers

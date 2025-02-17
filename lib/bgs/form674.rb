@@ -18,8 +18,8 @@ module BGS
 
     def initialize(user, saved_claim)
       @user = user
-      @proc_id = vnp_proc_id
       @saved_claim = saved_claim
+      @proc_id = vnp_proc_id(saved_claim)
       @end_product_name = '130 - Automated School Attendance 674'
       @end_product_code = '130SCHATTEBN'
       @proc_state = 'Ready' if Flipper.enabled?(:va_dependents_submit674)
@@ -97,8 +97,9 @@ module BGS
       ).create
     end
 
-    def vnp_proc_id
-      vnp_response = bgs_service.create_proc(proc_state: 'MANUAL_VAGOV')
+    def vnp_proc_id(saved_claim)
+      set_to_manual = !Flipper.enabled?(:va_dependents_submit674) || saved_claim.submittable_686?
+      vnp_response = bgs_service.create_proc(proc_state: set_to_manual ? 'MANUAL_VAGOV' : 'Ready')
       bgs_service.create_proc_form(
         vnp_response[:vnp_proc_id],
         '21-674'

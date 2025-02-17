@@ -2,10 +2,14 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "description": "",
   "type": "object",
-  "required": ["permanent_address", "supplies"],
+  "required": ["supplies"],
+  "anyOf": [
+    { "required": ["permanent_address"] },
+    { "required": ["temporary_address"] }
+  ],
   "properties": {
     "permanent_address": {
-      "type": "object",
+      "type": ["object", "null"],
       "street": {
         "type": "string"
       },

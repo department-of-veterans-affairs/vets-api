@@ -9,7 +9,7 @@ FactoryBot.define do
     user_uuid { user.uuid }
     user_account_id { user_account.id }
     form_json do
-      JSON.parse(File.read(::Rails.root.join(*'/spec/fixtures/dmc/form5655_submission.json'.split('/')).to_s)).to_json
+      JSON.parse(File.read(Rails.root.join(*'/spec/fixtures/dmc/form5655_submission.json'.split('/')).to_s)).to_json
     end
   end
   factory :sw_form5655_submission, class: 'Form5655Submission' do
@@ -21,7 +21,7 @@ FactoryBot.define do
     user_account_id { user_account.id }
     form_json do
       JSON.parse(
-        File.read(::Rails.root.join(*'/spec/fixtures/dmc/sw_form5655_submission.json'.split('/')).to_s)
+        File.read(Rails.root.join(*'/spec/fixtures/dmc/sw_form5655_submission.json'.split('/')).to_s)
       ).to_json
     end
   end
@@ -34,7 +34,7 @@ FactoryBot.define do
     user_account_id { user_account.id }
     form_json do
       JSON.parse(
-        File.read(::Rails.root.join(*'/spec/fixtures/dmc/non_sw_form5655_submission.json'.split('/')).to_s)
+        File.read(Rails.root.join(*'/spec/fixtures/dmc/non_sw_form5655_submission.json'.split('/')).to_s)
       ).to_json
     end
   end

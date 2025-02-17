@@ -65,7 +65,9 @@ module SignIn
     end
 
     def token_json_response
-      { data: token_json_payload }
+      return { data: token_json_payload } if json_api_compatibility_client?
+
+      token_json_payload
     end
 
     def token_json_payload
@@ -95,6 +97,10 @@ module SignIn
 
     def anti_csrf_enabled_client?
       client_config.anti_csrf
+    end
+
+    def json_api_compatibility_client?
+      client_config.json_api_compatibility
     end
 
     def device_secret

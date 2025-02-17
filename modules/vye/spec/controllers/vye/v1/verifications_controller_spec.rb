@@ -23,10 +23,10 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
     let(:award_begin_date) { Date.new(2024, 3, 30) }
     let(:today) { Date.new(2024, 3, 31) } # This is not used only for documentation
     let(:award_end_date) { Date.new(2024, 4, 1) }
-    let!(:user_profile) { FactoryBot.create(:vye_user_profile, icn: current_user.icn) }
-    let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:, date_last_certified:) }
-    let!(:award) { FactoryBot.create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
-    let!(:award2) { FactoryBot.create(:vye_award, user_info:, cur_award_ind:) }
+    let!(:user_profile) { create(:vye_user_profile, icn: current_user.icn) }
+    let!(:user_info) { create(:vye_user_info, user_profile:, date_last_certified:) }
+    let!(:award) { create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:) }
+    let!(:award2) { create(:vye_award, user_info:, cur_award_ind:) }
     let(:award_ids) { user_info.awards.pluck(:id) }
     let!(:params) { { award_ids: } }
 

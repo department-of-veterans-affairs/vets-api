@@ -8,7 +8,7 @@ require 'common/client/errors'
 # Adds IAM sourced versions of ICN, EDIPI, and SEC ID and methods to use them
 # or hit MPI via the mpi_profile.
 #
-class IAMUser < ::User
+class IAMUser < User
   redis_store REDIS_CONFIG[:iam_user][:namespace]
   redis_ttl REDIS_CONFIG[:iam_user][:each_ttl]
   redis_key :uuid

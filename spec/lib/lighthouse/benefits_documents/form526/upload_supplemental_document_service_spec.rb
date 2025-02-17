@@ -41,7 +41,7 @@ RSpec.describe BenefitsDocuments::Form526::UploadSupplementalDocumentService do
         response = subject.call(file_body, lighthouse_document)
 
         expect(response.status).to eq(200)
-        expect(response.body.dig('data', 'success')).to eq(true)
+        expect(response.body.dig('data', 'success')).to be(true)
       end
     end
   end

@@ -9,11 +9,11 @@ FactoryBot.define do
     email { 'a@b.com' }
     phone_number { '1234567890' }
 
-    name { attributes_for :full_name }
-    address { attributes_for :address }
+    name { attributes_for(:full_name) }
+    address { attributes_for(:address) }
   end
 
   factory :claimant_foreign_address, parent: :claimant do
-    address { attributes_for :foreign_address }
+    address { attributes_for(:foreign_address) }
   end
 end
