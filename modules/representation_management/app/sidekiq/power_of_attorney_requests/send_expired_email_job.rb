@@ -38,7 +38,7 @@ module PowerOfAttorneyRequests
       # when that work is completed and merged.
       # Find all unexpired requests that are greater than 60 days old.
       range = 60.days.ago..Time.zone.now
-      AccreditedRepresentativePortal::PowerOfAttorneyRequest.unresolved.not_expired.where(created_at: range)
+      AccreditedRepresentativePortal::PowerOfAttorneyRequest.unresolved.where(created_at: range)
     end
 
     def log_error(message)

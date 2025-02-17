@@ -35,8 +35,8 @@ module PowerOfAttorneyRequests
       # I think we'll be queyring the power of attorney requests here but I'll confim that
       # when that work is completed and merged.
       # Find all requests that are greater than 30 days old but less than 31 days old.
-      range = 30.days.ago..31.days.ago
-      AccreditedRepresentativePortal::PowerOfAttorneyRequest.unresolved.not_expired.where(created_at: range)
+      range = 31.days.ago..30.days.ago
+      AccreditedRepresentativePortal::PowerOfAttorneyRequest.unresolved.where(created_at: range)
     end
 
     def log_error(message)

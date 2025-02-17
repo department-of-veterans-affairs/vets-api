@@ -24,7 +24,7 @@ RSpec.describe PowerOfAttorneyRequests::SendExpirationReminderEmailJob, type: :j
     end
 
     context 'when there are requests in the reminder range' do
-      let!(:request) { create(:power_of_attorney_request, created_at: 30.days.ago) }
+      let!(:request) { create(:power_of_attorney_request, created_at: 30.5.days.ago) }
       let(:claimant) { form.parsed_data['dependent'] || form.parsed_data['veteran'] }
 
       # before do
