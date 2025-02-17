@@ -48,7 +48,7 @@ namespace :settings do
     end
 
     if errors.empty?
-      puts "All config files have the same nested keys as the reference file."
+      puts "All config files have the same nested keys as settings.yml"
     else
       puts errors.join("\n")
       exit 1
