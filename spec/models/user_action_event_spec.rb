@@ -5,6 +5,8 @@ require 'rails_helper'
 RSpec.describe UserActionEvent, type: :model do
   describe 'validations' do
     it { is_expected.to validate_presence_of(:details) }
+    it { is_expected.to validate_presence_of(:event_id) }
+    it { is_expected.to validate_presence_of(:event_type) }
   end
 
   describe 'associations' do
