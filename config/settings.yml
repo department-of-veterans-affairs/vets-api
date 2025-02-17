@@ -117,8 +117,8 @@ check_in:
     service_name: LoROTA-API
     url: <%= ENV['CHECK_IN__LOROTA_V2__URL'] %>
   map_api:
-    url: https://veteran.apps-staging.va.gov
     service_name: MAP-API
+    url: https://veteran.apps-staging.va.gov
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: ~
@@ -370,10 +370,10 @@ edu:
 evss:
   alternate_service_name: wss-form526-services-web-v2
   aws:
-    url: http://fake.evss-reference-data-service.dev/v1
     cert_path: <%= ENV['EVSS__AWS__CERT_PATH'] %>
     key_path: <%= ENV['EVSS__AWS__KEY_PATH'] %>
     root_ca: <%= ENV['EVSS__AWS__ROOT_CA'] %>
+    url: http://fake.evss-reference-data-service.dev/v1
   cert_path: <%= ENV['EVSS__CERT_PATH'] %>
   disability_compensation_form:
     submit_timeout: 55
@@ -622,11 +622,11 @@ lighthouse:
       client_id: <%= ENV['LIGHTHOUSE__BENEFITS_CLAIMS__ACCESS_TOKEN__CLIENT_ID'] %>
       rsa_key: <%= ENV['LIGHTHOUSE__BENEFITS_CLAIMS__ACCESS_TOKEN__RSA_KEY'] %>
     form526:
-      host: https://staging-api.va.gov
       access_token:
         aud_claim_url: https://deptva-eval.okta.com/oauth2/ausdg7guis2TYDlFe2p7/v1/token
-        client_id: <%= ENV['LIGHTHOUSE__BENEFITS_CLAIMS__FORM_526__ACCESS_TOKEN__CLIENT_ID'] %>
-        rsa_key: <%= ENV['LIGHTHOUSE__BENEFITS_CLAIMS__FORM_526__ACCESS_TOKEN__RSA_KEY'] %>
+        client_id: <%= ENV['LIGHTHOUSE__BENEFITS_CLAIMS__FORM526__ACCESS_TOKEN__CLIENT_ID'] %>
+        rsa_key: <%= ENV['LIGHTHOUSE__BENEFITS_CLAIMS__FORM526__ACCESS_TOKEN__RSA_KEY'] %>
+      host: https://staging-api.va.gov
       use_mocks: false
     host: <%= ENV['LIGHTHOUSE__BENEFITS_CLAIMS__HOST'] %>
     use_mocks: <%= ENV['LIGHTHOUSE__BENEFITS_CLAIMS__USE_MOCKS'] %>
@@ -694,11 +694,11 @@ lighthouse:
       host: <%= ENV['LIGHTHOUSE__VETERAN_VERIFICATION__FORM526__HOST'] %>
       use_mocks: false
     host: <%= ENV['LIGHTHOUSE__VETERAN_VERIFICATION__HOST'] %>
-    status:
-      host: https://staging-api.va.gov
+    status: 
       access_token:
         client_id: ~
         rsa_key: ~
+      host: https://staging-api.va.gov
       use_mocks: false
     use_mocks: false
   veterans_health:
@@ -1179,15 +1179,15 @@ shrine:
       acl: private
       server_side_encryption: <%= ENV['SHRINE__CLAIMS__UPLOAD_OPTIONS__SERVER_SIDE_ENCRYPTION'] %>
   local:
-    type: ~
     path: ~
-  remotes3:
     type: ~
+  remotes3:
+    access_key_id: ~
     bucket: ~
     path: ~
     region: ~
-    access_key_id: ~
     secret_access_key: ~
+    type: ~
 sidekiq:
   github_api_key: <%= ENV['SIDEKIQ__GITHUB_API_KEY'] %>
   github_oauth_key: <%= ENV['SIDEKIQ__GITHUB_OAUTH_KEY'] %>
@@ -1540,16 +1540,16 @@ vanotify:
     bearer_token: <%= ENV['VANOTIFY__STATUS_CALLBACK__BEARER_TOKEN'] %>
 vaos:
   eps:
-    key_path: /fake/client/key/path
-    mock: false
-    client_id: "fake_client_id"
-    kid: "fake_kid"
-    grant_type: "client_credentials"
-    client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
-    audience_claim_url: "https://login.wellhive.com/oauth2/default/v1/token"
     access_token_url: "https://login.wellhive.com/oauth2/default/v1/token"
     api_url: "https://api.wellhive.com"
+    audience_claim_url: "https://login.wellhive.com/oauth2/default/v1/token"
     base_path: "care-navigation/v1"
+    client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+    client_id: "fake_client_id"
+    grant_type: "client_credentials"
+    key_path: /fake/client/key/path
+    kid: "fake_kid"
+    mock: false
     scopes: "care-nav"
 vba_documents:
   custom_metadata_allow_list: <%= ENV['VBA_DOCUMENTS__CUSTOM_METADATA_ALLOW_LIST'] %>
@@ -1600,38 +1600,38 @@ vbms:
 vbs:
   url: https://vbs.example.com/api/v1
 vet360:
-  url: "https://int.vet360.va.gov"
+  address_validation:
+    api_key: "<AV_KEY>"
+    hostname: "sandbox-api.va.gov"
+    url: "https://sandbox-api.va.gov"
   contact_information:
     cache_enabled: false
     enabled: true
-    timeout: 30
     mock: false
+    timeout: 30
   demographics:
     cache_enabled: false
     enabled: true
-    timeout: 30
     mock: true
+    timeout: 30
   military_personnel:
     cache_enabled: false
     enabled: true
-    timeout: 30
     mock: false
-  veteran_status:
-    cache_enabled: true
-    enabled: true
     timeout: 30
-    mock: false
-  address_validation:
-    url: "https://sandbox-api.va.gov"
-    hostname: "sandbox-api.va.gov"
-    api_key: "<AV_KEY>"
-  v3:
-    address_validation:
-      api_key: "<AV_KEY>"
   profile_information:
     enabled: true
     timeout: 30
     use_mocks: false
+  url: "https://int.vet360.va.gov"
+  v3:
+    address_validation:
+      api_key: "<AV_KEY>"
+  veteran_status:
+    cache_enabled: true
+    enabled: true
+    mock: false
+    timeout: 30
 veteran_onboarding:
   onboarding_threshold_days: <%= ENV['VETERAN_ONBOARDING__ONBOARDING_THRESHOLD_DAYS'] %>
 veteran_readiness_and_employment:
