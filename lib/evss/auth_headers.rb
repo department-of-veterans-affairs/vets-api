@@ -4,7 +4,7 @@ require 'evss/base_headers'
 require 'formatters/date_formatter'
 
 module EVSS
-  class AuthHeaders < Lighthouse::BaseHeaders
+  class AuthHeaders < EVSS::BaseHeaders
     attr_reader :transaction_id
 
     def initialize(user)
