@@ -1,23 +1,22 @@
 require 'avro_turf/messaging'
 
 module Kafka
-  class AvroProducer
-    attr_reader :producer, :avro
-
-    def initialize(producer: nil, avro: nil)
-      @producer = producer || KAFKA_PRODUCER
-      @avro = avro || AvroTurf::Messaging.new(registry_url: Settings.kafka_producer.schema_registry_url)
+  module Producer
+    def self.avro
+      @avro ||= AvroTurf::Messaging.new(registry_url: Settings.kafka_producer.schema_registry_url)
     end
 
-    def produce(topic, payload, schema_version: 1)
-      # avro_turf.encode(payload, schema_name: 'test', validate: true)
+    def self.producer
+      @producer ||= KAFKA_PRODUCER
+    end
+
+    def self.produce(topic, payload, schema_version: 1)
       encoded_payload = avro.encode(
         payload,
-        subject: "#{topic}-value",
+        subject: topic,
         version: schema_version,
         validate: true
       )
-
       producer.produce_sync(topic: topic, payload: encoded_payload)
     rescue => e
       # https://karafka.io/docs/WaterDrop-Error-Handling/

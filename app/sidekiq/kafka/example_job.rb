@@ -6,7 +6,7 @@ module Kafka
     sidekiq_options retry: false
 
     def perform(topic, payload)
-      Kafka::AvroProducer.produce(topic, payload)
+      Kafka::AvroProducer.new.produce(topic, payload)
     end
   end
 end

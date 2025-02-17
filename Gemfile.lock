@@ -372,6 +372,9 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.5.1)
     docile (1.4.0)
+    docker-api (2.4.0)
+      excon (>= 0.64.0)
+      multi_json
     dogstatsd-ruby (5.6.4)
     domain_name (0.6.20240107)
     down (5.4.2)
@@ -1068,6 +1071,10 @@ GEM
     swagger-blocks (3.0.0)
     terminal-table (3.0.2)
       unicode-display_width (>= 1.1.1, < 3)
+    testcontainers-compose (0.2.0)
+      testcontainers-core (~> 0.1)
+    testcontainers-core (0.2.0)
+      docker-api (~> 2.2)
     thor (1.3.2)
     thread_safe (0.3.6)
     thread_safe (0.3.6-java)
@@ -1337,6 +1344,7 @@ DEPENDENCIES
   super_diff
   swagger-blocks
   test_user_dashboard!
+  testcontainers-compose
   timecop
   travel_pay!
   tzinfo-data

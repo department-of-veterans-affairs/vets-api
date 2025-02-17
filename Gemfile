@@ -196,6 +196,7 @@ group :test do
   gem 'shoulda-matchers'
   gem 'simplecov', require: false
   gem 'super_diff'
+  gem 'testcontainers-compose'
   gem 'vcr'
   gem 'webrick'
 end
