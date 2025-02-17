@@ -1,16 +1,17 @@
+# frozen_string_literal: true
+
 require 'yaml'
 
 VALID_ENV_REGEX = /<%= ENV\['[A-Z0-9_]+(?:__[A-Z0-9_]+)*'\] %>/
 
 namespace :settings do
+  task validate: %i[validate_alphabetical validate_key_set validate_env_convention]
 
-  task :validate => [:validate_alphabetical, :validate_key_set, :validate_env_convention]
-
-  task :validate_alphabetical do
+  task validate_alphabetical: :environment do
     yaml_files = [
       'config/settings.yml',
       'config/settings/development.yml',
-      'config/settings/test.yml',
+      'config/settings/test.yml'
     ]
     errors = []
 
@@ -23,14 +24,14 @@ namespace :settings do
     end
 
     if errors.empty?
-      puts "All config files have keys in alphabetical order."
+      puts 'All config files have keys in alphabetical order.'
     else
       puts errors.join("\n")
       exit 1
     end
   end
 
-  task :validate_key_set do
+  task validate_key_set: :environment do
     reference_file = 'config/settings.yml'
     comparison_files = ['config/settings/development.yml', 'config/settings/test.yml']
 
@@ -43,36 +44,39 @@ namespace :settings do
       extra_keys = file_keys - reference_keys
 
       unless missing_keys.empty? && extra_keys.empty?
-        errors << "\nKey mismatch in #{file}:\n  Missing keys:\n    #{missing_keys.join("\n    ")}\n  Extra keys:\n    #{extra_keys.join("\n    ")}"
+        missing_keys_message = missing_keys.join("\n    ")
+        extra_keys_message = extra_keys.join("\n    ")
+        error_message = "\nKey mismatch in #{file}:\n  \
+                        Missing keys:\n    #{missing_keys_message}\n  \
+                        Extra keys:\n    #{extra_keys_message}"
+        errors << error_message
       end
     end
 
     if errors.empty?
-      puts "All config files have the same nested keys as settings.yml"
+      puts 'All config files have the same nested keys as settings.yml'
     else
       puts errors.join("\n")
       exit 1
     end
   end
 
-  task :validate_env_convention do
+  task validate_env_convention: :environment do
     yaml_files = [
       'config/settings.yml',
       'config/settings/development.yml',
-      'config/settings/test.yml',
+      'config/settings/test.yml'
     ]
     errors = []
 
     yaml_files.each do |file|
       data = YAML.load_file(file)
       invalid_env_keys = validate_envs(data)
-      unless invalid_env_keys.empty?
-        errors << "Invalid ENV format in #{file}:\n  #{invalid_env_keys.join("\n  ")}"
-      end
+      errors << "Invalid ENV format in #{file}:\n  #{invalid_env_keys.join("\n  ")}" unless invalid_env_keys.empty?
     end
 
     if errors.empty?
-      puts "All ENV keys match the required convention."
+      puts 'All ENV keys match the required convention.'
     else
       puts errors.join("\n")
       exit 1
@@ -81,7 +85,7 @@ namespace :settings do
 end
 
 # Recursively checks if keys in a hash are in alphabetical order
-def find_unordered_keys(hash, parent_key = "")
+def find_unordered_keys(hash, parent_key = '')
   return [] unless hash.is_a?(Hash)
 
   keys = hash.keys.map(&:to_s)
@@ -91,7 +95,7 @@ def find_unordered_keys(hash, parent_key = "")
 end
 
 # Recursively extract all nested keys from a hash
-def extract_keys(hash, parent_key = "")
+def extract_keys(hash, parent_key = '')
   return [] unless hash.is_a?(Hash)
 
   keys = hash.flat_map { |key, value| ["#{parent_key}#{key}"] + extract_keys(value, "#{parent_key}#{key}.") }
@@ -108,7 +112,7 @@ def validate_envs(yaml_data, parent_key = nil)
       errors.concat(validate_envs(value, env_key))
     elsif value.is_a?(String) && value.match?(VALID_ENV_REGEX)
       unless yaml_data[key] == "<%= ENV['#{env_key}'] %>"
-        incorrect_key = env_key.downcase.gsub('__','/')
+        incorrect_key = env_key.downcase.gsub('__', '/')
         errors << "ENV is incorrect for #{incorrect_key} should be: #{env_key}"
       end
     end
