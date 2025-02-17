@@ -70,7 +70,13 @@
           "last": "Doe"
         },
         "birth_date": "2001-04-12",
-        "tuition_is_paid_by_gov_agency": true
+        "tuition_is_paid_by_gov_agency": true,
+        "type_of_program_or_benefit": {
+          "ch35": false,
+          "fry": false,
+          "feca": false,
+          "other": false
+        }
       }
     ],
     "child_stopped_attending_school": [

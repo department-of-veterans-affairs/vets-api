@@ -900,12 +900,25 @@ module PdfFill
             student_expected_earnings = student_information['student_expected_earnings_next_year']
             student_earnings = student_information['student_earnings_from_school_year']
             student_networth = student_information['student_networth_information']
+            type_of_program_or_benefit = student_information['type_of_program_or_benefit']
+            get_program(type_of_program_or_benefit) if type_of_program_or_benefit.present?
             split_earnings(student_expected_earnings) if student_expected_earnings.present?
             split_earnings(student_earnings) if student_earnings.present?
             split_networth_information(student_networth) if student_networth.present?
           end
         end
         format_checkboxes(dependents_application)
+      end
+
+      def get_program(parent_object)
+        type_mapping = {
+          "ch35" => "Chapter 35",
+          "fry" => "Fry Scholarship",
+          "feca" => "FECA",
+          "other" => "Other Benefit"
+        }
+         selected_key = parent_object.find { |_, v| v }&.first
+         selected_key ? type_mapping[selected_key] : nil
       end
 
       # override from form_helper
