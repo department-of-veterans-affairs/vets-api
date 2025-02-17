@@ -4,7 +4,7 @@ require 'evss/base_headers'
 require 'formatters/date_formatter'
 
 module EVSS
-  class DisabilityCompensationAuthHeaders < Lighthouse::BaseHeaders
+  class DisabilityCompensationAuthHeaders < EVSS::BaseHeaders
     # :nocov:
 
     def add_headers(auth_headers)
