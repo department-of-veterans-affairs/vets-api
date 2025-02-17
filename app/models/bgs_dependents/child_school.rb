@@ -82,8 +82,8 @@ module BGSDependents
         course_name_txt: nil,
         curnt_sessns_per_wk_num: nil,
         curnt_hours_per_wk_num: nil,
-        school_actual_expctd_start_dt: school_information&.dig('current_term_dates', 'official_school_start_date'),
-        school_term_start_dt: format_date(school_information&.dig('current_term_dates', 'expected_student_start_date')),
+        school_actual_expctd_start_dt: school_information&.dig('current_term_dates', 'expected_student_start_date'),
+        school_term_start_dt: format_date(school_information&.dig('current_term_dates', 'official_school_start_date')),
         gradtn_dt: format_date(school_information&.dig('current_term_dates', 'expected_graduation_date')),
         full_time_studnt_type_cd: nil,
         part_time_school_subjct_txt: nil
