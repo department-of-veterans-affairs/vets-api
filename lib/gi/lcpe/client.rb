@@ -54,8 +54,8 @@ module GI
 
       # query GIDS with cache version if more recent than client version
       def compare_versions
-        return if [v_client, v_cache].all?(&:nil?)
-
+        return if [v_client, v_cache].all?(&:blank?)
+        byebug
         [v_client.to_i, v_cache.to_i].max.to_s
       end
 
