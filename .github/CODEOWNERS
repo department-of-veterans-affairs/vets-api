@@ -814,7 +814,6 @@ config/routes.rb @department-of-veterans-affairs/va-api-engineers @department-of
 config/settings @department-of-veterans-affairs/backend-review-group
 config/settings/development.yml @department-of-veterans-affairs/backend-review-group
 config/settings.local.yml.example @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-config/settings/production.yml @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 config/settings/test.yml @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 config/settings.yml @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 config/sidekiq.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
