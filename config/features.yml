@@ -296,6 +296,10 @@ features:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
     enable_in_development: true
+  lighthouse_claims_api_add_person_proxy:
+    actor_type: user
+    description: When enabled, will allow for add_person_proxy call in both versions
+    enable_in_development: true
   confirmation_page_new:
     actor_type: user
     description: Enables the 2024 version of the confirmation page view in simple forms

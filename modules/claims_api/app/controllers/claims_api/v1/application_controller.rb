@@ -232,7 +232,9 @@ module ClaimsApi
         vet.edipi = vet.edipi_mpi
         vet.participant_id = vet.participant_id_mpi
         vet.icn = vet&.mpi_icn
-        vet.recache_mpi_data # This will cache using the ICN as the KEY in Redis now if it is present
+        if Flipper.enabled?(:lighthouse_claims_api_add_person_proxy)
+          vet.recache_mpi_data # This will cache using the ICN as the KEY in Redis now if it is present
+        end
         vet
       end
 

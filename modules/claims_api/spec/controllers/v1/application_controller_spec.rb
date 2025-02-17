@@ -8,6 +8,8 @@ RSpec.describe ClaimsApi::V1::ApplicationController, type: :controller do
   let(:with_gender) { false }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(true)
+
     allow(controller).to receive(:header).with('X-VA-SSN').and_return('123456789')
     allow(controller).to receive(:header).with('X-VA-First-Name').and_return('Jake')
     allow(controller).to receive(:header).with('X-VA-Last-Name').and_return('Doe')
