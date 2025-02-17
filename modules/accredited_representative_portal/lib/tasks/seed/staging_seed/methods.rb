@@ -14,8 +14,8 @@ module AccreditedRepresentativePortal
         UserAccount.limit(count).to_a
       end
 
-      def create_request_with_resolution(options)
-        if rand < 0.5
+      def create_request_with_resolution(options, i)
+        if i.even?
           created_at = options.resolved_time.next
           request = create_poa_request(options.org, options.rep, options.claimant, created_at)
           create_resolution(request, options.resolution_cycle.next)
@@ -38,8 +38,10 @@ module AccreditedRepresentativePortal
         )
 
         form = AccreditedRepresentativePortal::PowerOfAttorneyForm.new(
-          data: FormMethods.build_poa_form_data.to_json,
-          power_of_attorney_request: request
+          power_of_attorney_request: request,
+          data: FormMethods.build_poa_form_data.deep_transform_keys! do |key|
+            key.to_s.camelize(:lower)
+          end.to_json
         )
 
         form.save!
@@ -110,8 +112,8 @@ module AccreditedRepresentativePortal
                         .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
                         .limit(2)
 
-        matching_reps.each do |rep|
-          create_request_with_resolution(build_request_options(org, rep, options))
+        matching_reps.each_with_index do |rep, i|
+          create_request_with_resolution(build_request_options(org, rep, options), i)
         end
       end
 

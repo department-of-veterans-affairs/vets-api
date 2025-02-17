@@ -165,6 +165,10 @@ features:
     actor_type: user
     description: Send submission failure email to Veteran using VANotify.
     enable_in_development: true
+  ezr_use_correct_format_for_file_uploads:
+    actor_type: user
+    description: Correctly formats the `va:attachments` XML for file uploads
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -288,10 +292,10 @@ features:
     actor_type: user
     description: Uses person web service rather than local bgs
     enable_in_development: true
-  claims_api_use_vet_record_service:
+  claims_api_use_update_poa_relationship:
     actor_type: user
     description: Uses local_bgs rather than bgs-ext
-    enable_in_development: true
+    enable_in_development: true  
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
@@ -355,6 +359,10 @@ features:
   cst_override_reserve_records_mobile:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
+    enable_in_development: true
+  letters_hide_service_verification_letter:
+    actor_type: user
+    description: When enabled, CST does not include Service Verification in the list of letters on vets-website
     enable_in_development: true
   coe_access:
     actor_type: user
@@ -483,15 +491,6 @@ features:
     actor_type: user
     description: Enable sending an email if a 4142 submission is not successful in Lighthouse
     enable_in_development: true
-  decision_review_hlr_new_api:
-    actor_type: user
-    description: Enable to switch to new HLR modularized Decision Review endpoint
-  decision_review_nod_new_api:
-    actor_type: user
-    description: Enable to switch to new NOD modularized Decision Review endpoint
-  decision_review_sc_new_api:
-    actor_type: user
-    description: Enable to switch to new Supplemental Claim modularized Decision Review endpoint
   decision_review_new_engine_4142_job:
     actor_type: user
     description: Enable to switch to new modularized Decision Review Form4142Submit job
@@ -1099,6 +1098,10 @@ features:
     actor_type: user
     description: Enables/disables pending medications related work
     enable_in_development: true
+  mhv_medications_display_refill_progress:
+    actor_type: user
+    description: Enables/disables refill progress related work
+    enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
@@ -1304,6 +1307,10 @@ features:
     actor_type: user
     description: Enables the Wizard for VA Form 5655 (Financial Status Report)
     enable_in_development: true
+  show_financial_status_report_streamlined_waiver:
+    actor_type: user
+    description: Enables the Streamlined Waiver for VA Form 5655 (Financial Status Report)
+    enable_in_development: true
   show_form_i18n:
     actor_type: user
     description: Enables the internationalization features for forms
@@ -1424,6 +1431,10 @@ features:
   use_veteran_models_for_appoint:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
+    enable_in_development: true
+  va1010_forms_enrollment_system_service_enabled:
+    actor_type: user
+    description: Enables the VA1010Forms enrollment system service
     enable_in_development: true
   va_notify_custom_errors:
     actor_type: user
@@ -1555,6 +1566,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
+  vaos_online_scheduling_use_va_date:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use VaDate/VaDateField.
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled
@@ -1713,9 +1728,6 @@ features:
   disability_compensation_lighthouse_document_service_provider:
     actor_type: user
     description: If enabled uses the lighthouse documents service
-  disability_compensation_lighthouse_claims_service_provider:
-    actor_type: user
-    description: If enabled uses the lighthouse claims service
   disability_compensation_lighthouse_intent_to_file_provider:
     actor_type: user
     description: If enabled uses the lighthouse intent to file endpoint
