@@ -17,28 +17,27 @@ module AccreditedRepresentativePortal
     private
 
     def user_has_poa_access?
-      user_poa_codes.any?
+      return false if user.power_of_attorney_holders.empty?
+
+      user.power_of_attorney_holders.any?(&:accepts_digital_power_of_attorney_requests?)
     end
 
     def user_has_access_to_record?
-      user_poa_codes.include?(record.power_of_attorney_holder_poa_code)
-    end
-
-    def user_poa_codes
-      @user_poa_codes ||= user.power_of_attorney_holders.map(&:poa_code)
+      user.power_of_attorney_holders.any? do |holder|
+        holder.poa_code == record.power_of_attorney_holder_poa_code &&
+          holder.accepts_digital_power_of_attorney_requests?
+      end
     end
 
     class Scope < Scope
       def resolve
-        return scope.none if user_poa_codes.empty?
+        return scope.none if user.power_of_attorney_holders.empty?
 
-        scope.for_user(user)
-      end
+        allowed_poa_codes = user.power_of_attorney_holders
+                                .select(&:accepts_digital_power_of_attorney_requests?)
+                                .map(&:poa_code)
 
-      private
-
-      def user_poa_codes
-        @user_poa_codes ||= user.power_of_attorney_holders.map(&:poa_code)
+        scope.where(power_of_attorney_holder_poa_code: allowed_poa_codes)
       end
     end
   end
