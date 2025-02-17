@@ -14,6 +14,17 @@ RSpec.describe BGSDependents::MarriageHistory do
       'full_name' => { 'first' => 'Billy', 'middle' => 'Yohan', 'last' => 'Johnson', 'suffix' => 'Sr.' }
     }
   end
+  let(:marriage_history_info_v2) do
+    {
+      'start_date' => '2007-04-03',
+      'start_location' => { 'location' => { 'state' => 'AK', 'city' => 'Rock Island' } },
+      'reason_marriage_ended' => 'Other',
+      'reason_marriage_ended_other' => 'Some other reason',
+      'end_date' => '2009-05-05',
+      'end_location' => { 'location' => { 'state' => 'IL', 'city' => 'Chicago' } },
+      'full_name' => { 'first' => 'Billy', 'middle' => 'Yohan', 'last' => 'Johnson', 'suffix' => 'Sr.' }
+    }
+  end
   let(:formatted_params_result) do
     {
       'start_date' => '2007-04-03',
@@ -36,10 +47,24 @@ RSpec.describe BGSDependents::MarriageHistory do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
-    
+
     describe '#format_info' do
       it 'formats marriage history params for submission' do
         formatted_info = described_class.new(marriage_history_info).format_info
+
+        expect(formatted_info).to eq(formatted_params_result)
+      end
+    end
+  end
+
+  context "with va_dependents_v2 turned off" do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+    end
+    
+    describe '#format_info' do
+      it 'formats marriage history params for submission' do
+        formatted_info = described_class.new(marriage_history_info_v2).format_info
 
         expect(formatted_info).to eq(formatted_params_result)
       end
