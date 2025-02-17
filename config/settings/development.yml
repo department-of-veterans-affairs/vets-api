@@ -1462,7 +1462,6 @@ vanotify:
         pega_team_zsf_email: pega_team_zsf_email
     lighthouse:
       api_key: fake_secret
-      connection_template:
       template_id:
         connection_template:
     oracle_health:

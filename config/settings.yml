@@ -143,6 +143,7 @@ check_in:
     client_secret: <%= ENV['CHECK_IN__TRAVEL_REIMBURSEMENT_API_V2__CLIENT_SECRET'] %>
     redis_token_expiry: 3540
     service_name: BTSSS-API
+    subscription_key: ~
     tenant_id: <%= ENV['CHECK_IN__TRAVEL_REIMBURSEMENT_API_V2__TENANT_ID'] %>
   vaos:
     mock: false
@@ -170,6 +171,8 @@ claims_api:
     use_mocks: <%= ENV['CLAIMS_API__BENEFITS_DOCUMENTS__USE_MOCKS'] %>
   bgs:
     mock_responses: false
+  claims_error_reporting:
+    environment_name:
   disability_claims_mock_override: <%= ENV['CLAIMS_API__DISABILITY_CLAIMS_MOCK_OVERRIDE'] %>
   evss_container:
     client_id: <%= ENV['CLAIMS_API__EVSS_CONTAINER__CLIENT_ID'] %>
@@ -318,6 +321,7 @@ edu:
     host: <%= ENV['EDU__SFTP__HOST'] %>
     pass: <%= ENV['EDU__SFTP__PASS'] %>
     port: <%= ENV['EDU__SFTP__PORT'] %>
+    relative: ~
     relative_307_path: <%= ENV['EDU__SFTP__RELATIVE_307_PATH'] %>
     relative_351_path: <%= ENV['EDU__SFTP__RELATIVE_351_PATH'] %>
     relative_path: ~
@@ -611,6 +615,7 @@ lighthouse:
   auth:
     ccg:
       client_id: <%= ENV['LIGHTHOUSE__AUTH__CCG__CLIENT_ID'] %>
+      rsa_key: <%= ENV['LIGHTHOUSE__AUTH__CCG__RSA_KEY'] %>
   benefits_claims:
     access_token:
       aud_claim_url: <%= ENV['LIGHTHOUSE__BENEFITS_CLAIMS__ACCESS_TOKEN__AUD_CLAIM_URL'] %>
@@ -1367,6 +1372,14 @@ vanotify:
       api_key: <%= ENV['VANOTIFY__SERVICES__BENEFITS_DISABILITY__API_KEY'] %>
       template_id:
         evidence_submission_failure_email: <%= ENV['VANOTIFY__SERVICES__BENEFITS_DISABILITY__TEMPLATE_ID__EVIDENCE_SUBMISSION_FAILURE_EMAIL'] %>
+        form0781_upload_failure_notification_template_id: <%= ENV['VANOTIFY__SERVICES__BENEFITS_DISABILITY__TEMPLATE_ID__FORM0781_UPLOAD_FAILURE_NOTIFICATION_TEMPLATE_ID'] %>
+        form4142_upload_failure_notification_template_id: <%= ENV['VANOTIFY__SERVICES__BENEFITS_DISABILITY__TEMPLATE_ID__FORM4142_UPLOAD_FAILURE_NOTIFICATION_TEMPLATE_ID'] %>
+        form526_document_upload_failure_notification_template_id: <%= ENV['VANOTIFY__SERVICES__BENEFITS_DISABILITY__TEMPLATE_ID__FORM526_DOCUMENT_UPLOAD_FAILURE_NOTIFICATION_TEMPLATE_ID'] %>
+        form526_submission_failure_notification_template_id: <%= ENV['VANOTIFY__SERVICES__BENEFITS_DISABILITY__TEMPLATE_ID__FORM526_SUBMISSION_FAILURE_NOTIFICATION_TEMPLATE_ID'] %>
+    benefits_management_tools:
+      api_key: <%= ENV['VANOTIFY__SERVICES__BENEFITS_MANAGEMENT_TOOLS__API_KEY'] %>
+      template_id:
+        evidence_submission_failure_email: <%= ENV['VANOTIFY__SERVICES__BENEFITS_MANAGEMENT_TOOLS__TEMPLATE_ID__EVIDENCE_SUBMISSION_FAILURE_EMAIL'] %>
     burials:
       api_key: <%= ENV['VANOTIFY__SERVICES__BURIALS__API_KEY'] %>
       email:

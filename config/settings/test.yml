@@ -321,6 +321,7 @@ edu:
     host:
     pass:
     port:
+    relative:
     relative_307_path:
     relative_351_path:
     relative_path: spool_files
