@@ -34,16 +34,14 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
              params: { decision: { type: 'acceptance', reason: 'not allowed to give reasons for these' } }
 
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(parsed_response['errors']).to eq(
-          ['Reason must be blank']
-        )
+        expect(parsed_response['errors']).to eq(['Validation failed: Reason must be blank'])
       end
 
       it 'rep does not have poa for veteran' do
         poa_request.update(power_of_attorney_holder_poa_code: '111',
                            accredited_individual_registration_number: '1111111111')
 
-        VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/404_response.yml') do
+        VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/404_response') do
           post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
                params: { decision: { type: 'acceptance', reason: nil } }
         end
@@ -55,7 +53,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     end
 
     it 'creates acceptance decision with veteran claimant' do
-      VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/202_response.yml') do
+      VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/202_response') do
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'acceptance', reason: nil } }
       end
@@ -130,7 +128,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
       # --------------
       # POST REQUEST
-      VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/202_response.yml') do
+      VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/202_response') do
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'acceptance', reason: nil } }
       end
@@ -158,7 +156,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(parsed_response['errors']).to eq(
-        ['Power of attorney request has already been taken']
+        ['Validation failed: Power of attorney request has already been taken']
       )
     end
   end
