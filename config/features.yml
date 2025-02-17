@@ -497,6 +497,9 @@ features:
   decision_review_new_engine_submit_upload_job:
     actor_type: user
     description: Enable to switch to new modularized Decision Review SubmitUpload job
+  decision_review_service_common_exceptions_enabled:
+    actor_type: user
+    description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.

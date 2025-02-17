@@ -466,15 +466,13 @@ module DecisionReviews
                 DecisionReviewV1::ServiceException.new key: 'DR_502', response_values: source_hash
               when Common::Client::Errors::ClientError
                 Sentry.set_extras(body: error.body, status: error.status)
-                if ERROR_MAP.key? error.status
+                if common_exceptions_flag_enabled? && ERROR_MAP.key?(error.status)
                   ERROR_MAP[error.status].new(source_hash.merge(detail: error.body))
+                elsif error.status == 403
+                  Common::Exceptions::Forbidden.new source_hash
                 else
-                  DecisionReviewV1::ServiceException.new(
-                    key: "DR_#{error.status}",
-                    response_values: source_hash,
-                    original_status: error.status,
-                    original_body: error.body
-                  )
+                  DecisionReviewV1::ServiceException.new(key: "DR_#{error.status}", response_values: source_hash,
+                                                         original_status: error.status, original_body: error.body)
                 end
               else
                 error
@@ -510,6 +508,10 @@ module DecisionReviews
 
       def remove_pii_from_json_schemer_errors(errors)
         errors.map { |error| error.slice 'data_pointer', 'schema', 'root_schema' }
+      end
+
+      def common_exceptions_flag_enabled?
+        Flipper.enabled? :decision_review_service_common_exceptions_enabled
       end
     end
   end

@@ -34,6 +34,8 @@ RSpec.describe DecisionReviews::SubmitUpload, type: :job do
   before do
     allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
     allow(MPI::Service).to receive(:new).and_return(mpi_service)
+
+    Flipper.disable :decision_review_service_common_exceptions_enabled
   end
 
   describe 'perform' do
@@ -224,7 +226,7 @@ RSpec.describe DecisionReviews::SubmitUpload, type: :job do
                 expect do
                   subject.perform_async(appeal_submission_upload.id)
                   subject.drain
-                end.to raise_error(Common::Exceptions::ServiceUnavailable)
+                end.to raise_error(DecisionReviewV1::ServiceException)
                   .and trigger_statsd_increment('shared.sidekiq.default.DecisionReviews_SubmitUpload.enqueue', times: 1)
                   .and trigger_statsd_increment('shared.sidekiq.default.DecisionReviews_SubmitUpload.dequeue', times: 1)
                   .and trigger_statsd_increment('decision_review.form_10182.evidence_upload_retrieval.success',
@@ -250,7 +252,7 @@ RSpec.describe DecisionReviews::SubmitUpload, type: :job do
                 expect do
                   subject.perform_async(appeal_submission_upload.id)
                   subject.drain
-                end.to raise_error(Common::Exceptions::ServiceUnavailable)
+                end.to raise_error(DecisionReviewV1::ServiceException)
                   .and trigger_statsd_increment('shared.sidekiq.default.DecisionReviews_SubmitUpload.enqueue', times: 1)
                   .and trigger_statsd_increment('shared.sidekiq.default.DecisionReviews_SubmitUpload.dequeue', times: 1)
                   .and trigger_statsd_increment('decision_review.form_10182.evidence_upload_retrieval.success',
@@ -408,7 +410,7 @@ RSpec.describe DecisionReviews::SubmitUpload, type: :job do
                 expect do
                   subject.perform_async(appeal_submission_upload.id)
                   subject.drain
-                end.to raise_error(Common::Exceptions::ResourceNotFound)
+                end.to raise_error(DecisionReviewV1::ServiceException)
                   .and trigger_statsd_increment('shared.sidekiq.default.DecisionReviews_SubmitUpload.enqueue', times: 1)
                   .and trigger_statsd_increment('shared.sidekiq.default.DecisionReviews_SubmitUpload.dequeue', times: 1)
                   .and trigger_statsd_increment('decision_review.form_995.evidence_upload_retrieval.success',
@@ -435,7 +437,7 @@ RSpec.describe DecisionReviews::SubmitUpload, type: :job do
                 expect do
                   subject.perform_async(appeal_submission_upload.id)
                   subject.drain
-                end.to raise_error(Common::Exceptions::ServiceUnavailable)
+                end.to raise_error(DecisionReviewV1::ServiceException)
                   .and trigger_statsd_increment('shared.sidekiq.default.DecisionReviews_SubmitUpload.enqueue', times: 1)
                   .and trigger_statsd_increment('shared.sidekiq.default.DecisionReviews_SubmitUpload.dequeue', times: 1)
                   .and trigger_statsd_increment('decision_review.form_995.evidence_upload_retrieval.success',

@@ -41,7 +41,10 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
     }
   end
 
-  before { sign_in_as(user) }
+  before do
+    sign_in_as(user)
+    Flipper.disable :decision_review_service_common_exceptions_enabled
+  end
 
   describe '#create' do
     def personal_information_logs
@@ -53,6 +56,10 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
       post '/decision_reviews/v1/notice_of_disagreements',
            params: test_request_body.to_json,
            headers:
+    end
+
+    let(:extra_error_log_message) do
+      'BackendServiceException: {:source=>"Common::Client::Errors::ClientError raised in DecisionReviews::V1::Service", :code=>"DR_422"}' # rubocop:disable Layout/LineLength
     end
 
     let(:test_request_body) do
@@ -130,9 +137,10 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
         allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(error_log_args)
         expect(Rails.logger).to receive(:error).with(
-          message: 'Exception occurred while submitting Notice Of Disagreement: Unprocessable Entity',
+          message: "Exception occurred while submitting Notice Of Disagreement: #{extra_error_log_message}",
           backtrace: anything
         )
+        expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_10182.overall_claim_submission.failure')
         expect(personal_information_logs.count).to be 0
@@ -143,7 +151,7 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
           first_name last_name birls_id icn edipi mhv_correlation_id
           participant_id vet360_id ssn assurance_level birth_date
         ].each { |key| expect(pil.data['user'][key]).to be_truthy }
-        %w[message backtrace errors]
+        %w[message backtrace key response_values original_status original_body]
           .each { |key| expect(pil.data['error'][key]).to be_truthy }
         expect(pil.data['additional_data']['request']['body']).not_to be_empty
 
