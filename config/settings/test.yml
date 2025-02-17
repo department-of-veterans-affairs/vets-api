@@ -55,7 +55,7 @@ bgs:
   env:
   external_uid: xUid
   external_key: xKey
-  mock_response_location: /cache/bgs
+  mock_response_location: "/cache/bgs"
   mock_responses: false
   ssl_verify_mode: peer
   url: https://something.fake.va.gov
@@ -73,7 +73,7 @@ bip:
     mock: false
     url: https://claims-uat.dev8.bip.va.gov
 bpds:
-  jwt_secret: 'FAKE_SECRET'
+  jwt_secret: FAKE_SECRET
 brd:
   api_key: testapikeyhere
   base_name: staging-api.va.gov/services
@@ -100,6 +100,8 @@ check_in:
     tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
     tmp_api_username: vetsapiTempUser
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    host:
+    timeout:
   lorota_v2:
     api_id: 22t00c6f97
     api_key: Xc7k35oE2H9aDeUEpeGa38PzAHyLT9jb5HiKeBfs
@@ -110,6 +112,7 @@ check_in:
     redis_token_expiry: 43200
     service_name: LoROTA-API
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    host:
   map_api:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
@@ -122,6 +125,11 @@ check_in:
     redis_token_expiry: 3540
     service_name: BTSSS-API
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
+    client_id:
+    client_number:
+    client_secret:
+    scope:
+    subscription_key:
   travel_reimbursement_api_v2:
     auth_url: https://login.microsoftonline.us
     auth_url_v2:
@@ -153,6 +161,7 @@ claims_api:
         aud_claim_url: https://fakeurlhere/fake/path/here
         client_id: fakekeyvaluehere
         rsa_key: path/to/fake/key.pem
+        secret_key:
     host: https://staging-api.va.gov
     use_mocks: false
   bgs:
@@ -161,9 +170,9 @@ claims_api:
     environment_name:
   disability_claims_mock_override: false
   evss_container:
-    client_id: ~
+    client_id:
     client_key: fakekeyvaluehere
-    client_secret: ~
+    client_secret:
   pdf_generator_526:
     content_type: application/vnd.api+json
     path: "/form-526ez-pdf-generator/v1/forms/"
@@ -174,8 +183,11 @@ claims_api:
   schema_dir: config/schemas
   slack:
     webhook_url: https://example.com
+    claims_error_reporting:
+    environment_name:
   token_validation:
     api_key:
+    url:
   v2_docs:
     enabled: false
   vanotify:
@@ -186,6 +198,13 @@ claims_api:
     services:
       lighthouse:
         api_key: fake-xxxxxx-zzzz-aaaa-bbbb-cccccccc-xxxxxx-zzzz-aaaa-bbbb-cccccccc
+  s3:
+    aws_access_key_id:
+    aws_secret_access_key:
+    bucket:
+    region:
+  user_info:
+    url:
 clamav:
   host: 0.0.0.0
   mock: true
@@ -208,6 +227,7 @@ coverband:
   github_oauth_secret:
   github_organization:
   github_team:
+  github_api_key:
 database_url: postgis:///vets-api
 decision_review:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
@@ -264,8 +284,9 @@ dhp:
     bucket: ''
     region: us-gov-west-1
 directory:
-  apikey: <fake_api_key>
+  apikey: "<fake_api_key>"
   url: http://example.com/services/apps/v0/
+  key:
 disability_max_ratings_api:
   open_timeout: 5
   ratings_path: "/disability-max-ratings"
@@ -294,7 +315,7 @@ edu:
     port:
     relative_307_path:
     relative_351_path:
-    relative_path: 'spool_files'
+    relative_path: spool_files
     user:
   slack:
     webhook_url: https://example.com
@@ -336,6 +357,7 @@ edu:
     - marelby.hernandez@va.gov
     - nawar.hussein@va.gov
     - engin.akman@va.gov
+  show_form:
 evss:
   alternate_service_name: wss-form526-services-web-v2
   aws:
@@ -393,8 +415,9 @@ flipper:
   github_oauth_key: xxx000
   github_oauth_secret: 000xxx
   github_organization: organization
-  github_team: 0000000
+  github_team: 0
   mute_logs: false
+  github_api_key:
 form1095_b:
   s3:
     aws_access_key_id:
@@ -438,6 +461,7 @@ form_10_10cg:
       aws_secret_access_key: my-aws-access-key
       bucket: my-bucket
       region: us-gov-west-1
+      enabled:
 form_mock_ae_design_patterns:
   prefill: true
 form_upload:
@@ -454,6 +478,9 @@ gids:
   open_timeout: 1
   read_timeout: 1
   url: https://dev.va.gov/gids
+  search:
+    open_timeout:
+    read_timeout:
 github_cvu:
   installation_id:
   integration_id:
@@ -487,6 +514,13 @@ hca:
   endpoint: https://test-foo.vets.gov
   prefill: true
   timeout: 30
+  ca:
+  future_discharge_testing:
+  s3:
+    aws_access_key_id:
+    aws_secret_access_key:
+    bucket:
+    region:
 hostname: www.example.com
 hqva_mobile:
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
@@ -501,11 +535,11 @@ hqva_mobile:
     health_api: health_api
     health_api_path: "/services/fhir/v0/r4"
     health_api_scopes:
-      - "launch launch/patient"
-      - "patient/Appointment.read"
-      - "patient/Location.read"
-      - "patient/Organization.read"
-      - "patient/Patient.read"
+    - launch launch/patient
+    - patient/Appointment.read
+    - patient/Location.read
+    - patient/Organization.read
+    - patient/Patient.read
     health_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7
     health_token_path: "/oauth2/health/system/v1/token"
     host: sandbox-api.va.gov
@@ -513,13 +547,13 @@ hqva_mobile:
     mock: false
     pgd_api: pgd_api
     pgd_api_scopes:
-      - launch launch/patient
-      - patient/Observation.read
-      - patient/Observation.write
-      - patient/Questionnaire.read
-      - patient/Questionnaire.write
-      - patient/QuestionnaireResponse.read
-      - patient/QuestionnaireResponse.write
+    - launch launch/patient
+    - patient/Observation.read
+    - patient/Observation.write
+    - patient/Questionnaire.read
+    - patient/Questionnaire.write
+    - patient/QuestionnaireResponse.read
+    - patient/QuestionnaireResponse.write
     pgd_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7
     pgd_path: "/services/pgd/v0/r4"
     pgd_token_path: "/oauth2/pgd/v1/token"
@@ -556,6 +590,8 @@ ivc_forms:
   s3:
     bucket: bucket
     region: region
+    aws_access_key_id:
+    aws_secret_access_key:
   sidekiq:
     missing_form_status_job:
       enabled: true
@@ -625,6 +661,8 @@ lighthouse:
   facilities:
     api_key: fake_key
     url: https://sandbox-api.va.gov
+    veterans_health:
+      url:
   letters_generator:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token
@@ -647,6 +685,7 @@ lighthouse:
         rsa_key: path/to/key
       host: https://sandbox-api.va.gov
       use_mocks: false
+      aud_claim_url:
     host: https://sandbox-api.va.gov
     status:
       access_token:
@@ -674,6 +713,7 @@ lighthouse:
       grant_type: client_credentials
     url: https://sandbox-api.va.gov
     use_mocks: false
+  rsa_key:
 lighthouse_health_immunization:
   access_token_url: https://sandbox-api.va.gov/oauth2/health/system/v1/token
   api_url: https://sandbox-api.va.gov/services/fhir/v0/r4
@@ -730,6 +770,26 @@ maintenance:
     vet360: PHVOGQ1
     vetext_vaccine: P9PG8HG
     vic: P7LW3MS
+    bgs:
+    caseflow:
+    cie:
+    dmc:
+    lighthouse_benefits_claims:
+    lighthouse_benefits_intake:
+    lighthouse_direct_deposit:
+    lighthouse_vshe:
+    pcie:
+    sahsha:
+    ssoe:
+    ssoe_oauth:
+    tc:
+    vaos:
+    vaoswarning:
+    vapro_contact_info:
+    vapro_health_care_contacts:
+    vapro_military_info:
+    vapro_notification_settings:
+    vapro_personal_info:
 map_services:
   appointments_client_id: 74b3145e1354555e
   chatbot_client_id: 2bb9803acfc3
@@ -750,7 +810,7 @@ mcp:
     job_interval: 90
   vbs:
     api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
-    base_path: /vbsapi
+    base_path: "/vbsapi"
     host: fake_url.com:9000
     mock: true
     mock_vista: false
@@ -759,7 +819,7 @@ mcp:
   vbs_client_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   vbs_v2:
     api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
-    base_path: /vbsapi
+    base_path: "/vbsapi"
     host: internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491
     mock: true
     mock_vista: false
@@ -796,6 +856,8 @@ mhv:
     app_token: xyz
     host: http://example.org
     x_auth_key: fake-x-auth-key
+    app_id:
+    mhv_x_api_key:
   rx:
     app_token: fake-app-token
     collection_caching_enabled: false
@@ -805,6 +867,10 @@ mhv:
     app_token: fake-app-token
     host: https://mhv-api.example.com
     mock: true
+    mhv_sm_x_api_key:
+  inherited_proofing:
+    app_token:
+    host:
 mhv_mobile:
   sm:
     app_token: fake-app-token
@@ -827,6 +893,7 @@ modules_appeals_api:
       enabled: false
     weekly_error:
       enabled: false
+      recipients:
   s3:
     aws_access_key_id: aws_access_key_id
     aws_secret_access_key: aws_secret_access_key
@@ -883,16 +950,22 @@ onsite_notifications:
 pension_burial:
   prefill: true
   sftp:
-    relative_path: 'VETSGOV_PENSION'
+    relative_path: VETSGOV_PENSION
 ppms:
   api_keys:
     fakekey: fakevalue
+    ocp-apim-subscription-key:
   open_timeout: 15
   read_timeout: 55
   url: https://some.fakesite.com
 preneeds:
   host: http://some.fakesite.com
   wsdl: config/preneeds/wsdl/preneeds.wsdl
+  s3:
+    aws_access_key_id:
+    aws_secret_access_key:
+    bucket:
+    region:
 redis:
   app_data:
     url: redis://localhost:6379
@@ -1031,10 +1104,14 @@ rrd:
     - fake_email
 salesforce:
   env: dev
+  consumer_key:
 salesforce-carma:
   url: https://fake-carma.salesforce.com
 salesforce-gibft:
   url: https://va--rdtcddev.cs33.my.salesforce.com/
+  consumer_key:
+  env:
+  signing_key_path:
 saml_ssoe:
   callback_url: http://localhost:3000/v1/sessions/callback
   cert_new_path:
@@ -1051,6 +1128,9 @@ saml_ssoe:
   response_encryption: false
   response_signing: false
   tou_decline_logout_app_key: https://dev-api.va.gov/agreements_declined
+  certificate:
+  certificate_new:
+  key:
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
   test_index: spec/fixtures/schema_contract/test_schema.json
@@ -1063,6 +1143,8 @@ search_click_tracking:
   access_key: TESTKEY
   affiliate: va
   url: https://api.gsa.gov/technology/searchgov/v2
+  mock:
+  module_code:
 search_gsa:
   access_key: TESTKEY
   affiliate: va
@@ -1081,6 +1163,13 @@ shrine:
   claims:
     path: moot
     type: memory
+    access_key_id:
+    bucket:
+    region:
+    secret_access_key:
+    upload_options:
+      acl:
+      server_side_encryption:
   local:
     type: local
     path: testing-local
@@ -1095,7 +1184,8 @@ sidekiq:
   github_oauth_key: xxx000
   github_oauth_secret: 000xxx
   github_organization: organization
-  github_team: 0000000
+  github_team: 0
+  github_api_key:
 sidekiq_admin_panel: false
 sign_in:
   arp_client_id: arp
@@ -1139,6 +1229,7 @@ travel_pay:
   service_name: BTSSS-API
   sts:
     service_account_id:
+    scope:
   subscription_key: api_key
   veis:
     auth_url: https://auth.veis.gov
@@ -1240,6 +1331,7 @@ vanotify:
         form4142_upload_failure_notification_template_id: form4142_upload_failure_notification_template_id
         form526_document_upload_failure_notification_template_id: form526_document_upload_failure_notification_template_id
         form526_submission_failure_notification_template_id: form526_submission_failure_notification_template_id
+        evidence_submission_failure_email:
     benefits_management_tools:
       api_key: fake_secret
       template_id:
@@ -1264,8 +1356,8 @@ vanotify:
       sms_sender_id: fake_secret
       template_id:
         claim_submission_duplicate_text: cie_fake_duplicate_template_id
-        claim_submission_error_text: cie_fake_error_template_id 
-        claim_submission_failure_text: ~
+        claim_submission_error_text: cie_fake_error_template_id
+        claim_submission_failure_text:
         claim_submission_success_text: cie_fake_success_template_id
         claim_submission_timeout_text: cie_fake_timeout_template_id
     dmc:
@@ -1301,13 +1393,13 @@ vanotify:
     lighthouse:
       api_key: fake_api_key
       template_id:
-        connection_template: ~
+        connection_template:
     oracle_health:
       sms_sender_id: oh_fake_sms_sender_id
       template_id:
         claim_submission_duplicate_text: oh_fake_duplicate_template_id
         claim_submission_error_text: oh_fake_error_template_id
-        claim_submission_failure_text: ~
+        claim_submission_failure_text:
         claim_submission_success_text: oh_fake_success_template_id
         claim_submission_timeout_text: oh_fake_timeout_template_id
     pensions:
@@ -1399,6 +1491,7 @@ vanotify:
         in_progress_reminder_email_generic: fake_template_id
         login_reactivation_email: reactivation_email_test_b
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
+        covid_vaccine_registration:
   status_callback:
     bearer_token: fake_bearer_token
 vaos:
@@ -1438,15 +1531,21 @@ vba_documents:
     in_flight_notification_hung_time_in_days: 14
     renotification_in_minutes: 240
     update_stalled_notification_in_minutes: 180
+    daily_notification_hour:
   sns:
     topic_arns:
     - vetsgov-arn
     - vagov-arn
+    region:
   v2_enabled: false
   v2_upload_endpoint_enabled: false
   webhooks:
     registration_max_retries: 3
     registration_next_run_in_minutes: 15
+    registration_next_run_minutes:
+    registration_rescue_in_minutes:
+  custom_metadata_allow_list:
+  enable_status_override:
 vbms:
   ca_cert: VBMS-Client-Signing-CA.crt
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
@@ -1627,7 +1726,79 @@ web_origin_regex: "\\Ahttps?:\\/\\/www\\.va\\.gov\\z"
 webhooks:
   require_https: true
 websockets:
-  require_https: ~
+  require_https:
   websocket_settings: false
 xlsx_file_fetcher:
   github_access_token:
+bing:
+  key:
+breakers_disabled:
+chip_api:
+  base_path:
+covid_vaccine:
+  enrollment_service:
+    job_enabled:
+form_upload_flow:
+  prefill:
+genisis:
+  base_url:
+  form_submission_path:
+  pass:
+  service_path:
+  user:
+kms_key_id:
+locators:
+  vha:
+  vha_access_satisfaction:
+pension_ipf_vanotify_status_callback:
+  bearer_token:
+public_key:
+rack_timeout:
+  service_timeout:
+  wait_overtime:
+  wait_timeout:
+va_forms:
+  drupal_password:
+  drupal_url:
+  drupal_username:
+  form_reloader:
+    enabled:
+  slack:
+    api_key:
+    channel_id:
+    enabled:
+va_profile:
+  address_validation:
+    api_key:
+    hostname:
+  contact_information:
+    cache_enabled:
+    enabled:
+    mock:
+    timeout:
+  demographics:
+    cache_enabled:
+    enabled:
+    mock:
+    timeout:
+  military_personnel:
+    cache_enabled:
+    enabled:
+    mock:
+    timeout:
+  prefill:
+  url:
+  v3:
+    address_validation:
+      api_key:
+  veteran_status:
+    mock:
+    timeout:
+veteran_onboarding:
+  onboarding_threshold_days:
+vetext:
+  mock:
+vff_simple_forms:
+  aws:
+    bucket:
+    region:
