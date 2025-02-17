@@ -51,7 +51,7 @@ module AccreditedRepresentativePortal
 
       def set_poa_request
         id = params[:id]
-        @poa_request = find_poa_request(id)
+        @poa_request = PowerOfAttorneyRequest.find(id)
 
         authorize @poa_request
       end
