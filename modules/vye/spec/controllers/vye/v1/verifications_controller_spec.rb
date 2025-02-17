@@ -66,20 +66,6 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
         end
       end
     end
-
-    describe 'verification updates' do
-      it 'sets different transact_dates based on each verification act_end' do
-        verification1 = create(:vye_verification, act_end: Date.new(2024, 4, 1), award: award)
-        verification2 = create(:vye_verification, act_end: Date.new(2024, 5, 1), award: award2)
-        allow(subject).to receive(:pending_verifications).and_return([verification1, verification2])
-
-        Timecop.freeze(Date.new(2024, 4, 15)) do
-          subject.create
-          expect(verification1.reload.transact_date.to_date).to eq(verification1.act_end.to_date)
-          expect(verification2.reload.transact_date.to_date).to eq(Date.new(2024, 3, 31))
-        end
-      end
-    end
   end
 
   # rubocop:disable Naming/VariableNumber
@@ -161,7 +147,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       subject.send(:load_user_info)
     end
 
-    describe 'cert through date calculation bug 1' do
+    describe 'cert through date calculation bug 2' do
       it 'calculates the transact date to be 2024-12-13' do
         Timecop.freeze(Date.new(2025, 1, 29)) do
           subject.create

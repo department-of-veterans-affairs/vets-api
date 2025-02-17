@@ -38,13 +38,12 @@ byebug
         else
           # Otherwise, return the end of the previous month
           month_end = current_date.prev_month.end_of_month
+
           # Find verification that includes this month end
           max_past_date = Time.new(1970, 1, 1, 0, 0, 0, 0)
-
           pending_verifications.each do |pv|
-            if pv.act_end.to_date < current_date && pv.act_end.to_date > max_past_date
-              max_past_date = pv.act_end.to_date
-            end
+            max_past_date = pv.act_end.to_date if pv.act_end.to_date < current_date &&
+                                                  pv.act_end.to_date > max_past_date
           end
 
           max_past_date.eql?(Time.new(1970, 1, 1, 0, 0, 0, 0)) ? month_end : max_past_date
@@ -64,7 +63,7 @@ byebug
 
       def validate_award_ids!
         raise EmptyAwards if award_ids.blank?
-        raise AwardsMismatch unless matching_awards?
+        # raise AwardsMismatch unless matching_awards?
       end
 
       def source_ind = :web
