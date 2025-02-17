@@ -167,12 +167,12 @@ claims_api:
         client_id: <%= ENV['CLAIMS_API__BENEFITS_DOCUMENTS__AUTH__CCG__CLIENT_ID'] %>
         rsa_key: <%= ENV['CLAIMS_API__BENEFITS_DOCUMENTS__AUTH__CCG__RSA_KEY'] %>
         secret_key: <%= ENV['CLAIMS_API__BENEFITS_DOCUMENTS__AUTH__CCG__SECRET_KEY'] %>
-    host:
+    host: <%= ENV['CLAIMS_API__BENEFITS_DOCUMENTS__HOST'] %>
     use_mocks: <%= ENV['CLAIMS_API__BENEFITS_DOCUMENTS__USE_MOCKS'] %>
   bgs:
     mock_responses: false
   claims_error_reporting:
-    environment_name:
+    environment_name: <%= ENV['CLAIMS_API__CLAIMS_ERROR_REPORTING__ENVIRONMENT_NAME'] %>
   disability_claims_mock_override: <%= ENV['CLAIMS_API__DISABILITY_CLAIMS_MOCK_OVERRIDE'] %>
   evss_container:
     client_id: <%= ENV['CLAIMS_API__EVSS_CONTAINER__CLIENT_ID'] %>
@@ -324,7 +324,7 @@ edu:
     relative: ~
     relative_307_path: <%= ENV['EDU__SFTP__RELATIVE_307_PATH'] %>
     relative_351_path: <%= ENV['EDU__SFTP__RELATIVE_351_PATH'] %>
-    relative_path: ~
+    relative_path: <%= ENV['EDU__SFTP__RELATIVE_PATH'] %>
     user: <%= ENV['EDU__SFTP__USER'] %>
   show_form: <%= ENV['EDU__SHOW_FORM'] %>
   slack:
@@ -346,7 +346,7 @@ edu:
       - sebastian.cooper@accenturefederal.com
       - david.rowley@accenturefederal.com
       - nick.barthelemy@accenturefederal.com
-    staging_emails:
+    staging_emails: ~
   staging_excel_contents:
     emails:
       - alex.chan1@va.gov
@@ -371,9 +371,9 @@ evss:
   alternate_service_name: wss-form526-services-web-v2
   aws:
     url: http://fake.evss-reference-data-service.dev/v1
-    cert_path: ~
-    key_path: ~
-    root_ca: ~
+    cert_path: <%= ENV['EVSS__AWS__CERT_PATH'] %>
+    key_path: <%= ENV['EVSS__AWS__KEY_PATH'] %>
+    root_ca: <%= ENV['EVSS__AWS__ROOT_CA'] %>
   cert_path: <%= ENV['EVSS__CERT_PATH'] %>
   disability_compensation_form:
     submit_timeout: 55
@@ -625,8 +625,8 @@ lighthouse:
       host: https://staging-api.va.gov
       access_token:
         aud_claim_url: https://deptva-eval.okta.com/oauth2/ausdg7guis2TYDlFe2p7/v1/token
-        client_id: ~
-        rsa_key: ~
+        client_id: <%= ENV['LIGHTHOUSE__BENEFITS_CLAIMS__FORM_526__ACCESS_TOKEN__CLIENT_ID'] %>
+        rsa_key: <%= ENV['LIGHTHOUSE__BENEFITS_CLAIMS__FORM_526__ACCESS_TOKEN__RSA_KEY'] %>
       use_mocks: false
     host: <%= ENV['LIGHTHOUSE__BENEFITS_CLAIMS__HOST'] %>
     use_mocks: <%= ENV['LIGHTHOUSE__BENEFITS_CLAIMS__USE_MOCKS'] %>
@@ -678,7 +678,7 @@ lighthouse:
     path: "/services/va-letter-generator/v1/"
     url: <%= ENV['LIGHTHOUSE__LETTERS_GENERATOR__URL'] %>
     use_mocks: <%= ENV['LIGHTHOUSE__LETTERS_GENERATOR__USE_MOCKS'] %>
-  rsa_key:
+  rsa_key: ~
   s3:
     bucket: <%= ENV['LIGHTHOUSE__S3__BUCKET'] %>
     region: <%= ENV['LIGHTHOUSE__S3__REGION'] %>
@@ -704,7 +704,7 @@ lighthouse:
   veterans_health:
     fast_tracker:
       api_key: <%= ENV['LIGHTHOUSE__VETERANS_HEALTH__FAST_TRACKER__API_KEY'] %>
-      api_scope: 
+      api_scope:
         - launch
         - patient/AllergyIntolerance.read
         - patient/DiagnosticReport.read
@@ -853,7 +853,7 @@ mhv:
     collection_caching_enabled: true
     mock: <%= ENV['MHV__BB__MOCK'] %>
   facility_range: <%= ENV['MHV__FACILITY_RANGE'] %>
-  facility_specific: 
+  facility_specific:
     - 741MM
   inherited_proofing:
     app_token: <%= ENV['MHV__INHERITED_PROOFING__APP_TOKEN'] %>
@@ -884,7 +884,7 @@ modules_appeals_api:
   documentation:
     path_enabled_flag: <%= ENV['MODULES_APPEALS_API__DOCUMENTATION__PATH_ENABLED_FLAG'] %>
     wip_docs: ~
-      # List of flags to indicate parts of documentation that are still WIP and not ready for production.
+      # List of flags to indicate parts of documentation that are still WIP and not ready for production. ~
       # See the rswag:appeals_api:dev rake task, spec_helper, and DocHelpers#wip_doc_enabled? for usage info to opt-in.
       # NOTE: Do not remove this key even if it's empty.
   evidence_submissions:
