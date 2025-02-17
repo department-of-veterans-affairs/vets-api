@@ -63,6 +63,19 @@ module AccreditedRepresentativePortal
       resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestExpiration)
     end
 
+    def decline!(creator, reason)
+      resolving = PowerOfAttorneyRequestDecision.create!(
+        type: PowerOfAttorneyRequestDecision::Types::DECLINATION, creator:
+      )
+      # This form triggers the uniqueness validation, while the `create_resolution!` form triggers
+      # a more obscure `RecordNotSaved` error that is less functional for getting validation errors.
+      PowerOfAttorneyRequestResolution.create!(
+        power_of_attorney_request: self,
+        resolving:,
+        reason:
+      )
+    end
+
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
     scope :not_expired, lambda {
