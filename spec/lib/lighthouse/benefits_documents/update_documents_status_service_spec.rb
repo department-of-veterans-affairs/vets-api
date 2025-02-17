@@ -6,9 +6,15 @@ require 'lighthouse/benefits_documents/documents_status_polling_service'
 
 RSpec.describe BenefitsDocuments::UpdateDocumentsStatusService do
   describe '#call' do
-    let(:lighthouse_document_upload1) { create(:bd_evidence_submission_pending, request_id: 1) }
-    let(:lighthouse_document_upload2) { create(:bd_evidence_submission_pending, request_id: 2) }
-    let(:lighthouse_document_upload3) { create(:bd_evidence_submission_pending, request_id: 3) }
+    let(:lighthouse_document_upload1) do
+      create(:bd_evidence_submission_pending, request_id: 1, job_class: 'BenefitsDocuments::Service')
+    end
+    let(:lighthouse_document_upload2) do
+      create(:bd_evidence_submission_pending, request_id: 2, job_class: 'BenefitsDocuments::Service')
+    end
+    let(:lighthouse_document_upload3) do
+      create(:bd_evidence_submission_pending, request_id: 3, job_class: 'BenefitsDocuments::Service')
+    end
 
     let :pending_evidence_submission_ids do
       [
