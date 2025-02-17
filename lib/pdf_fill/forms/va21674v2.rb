@@ -912,13 +912,13 @@ module PdfFill
 
       def get_program(parent_object)
         type_mapping = {
-          "ch35" => "Chapter 35",
-          "fry" => "Fry Scholarship",
-          "feca" => "FECA",
-          "other" => "Other Benefit"
+          'ch35' => 'Chapter 35',
+          'fry' => 'Fry Scholarship',
+          'feca' => 'FECA',
+          'other' => 'Other Benefit'
         }
-         selected_key = parent_object.find { |_, v| v }&.first
-         selected_key ? type_mapping[selected_key] : nil
+        selected_key = parent_object.find { |_, v| v }&.first
+        selected_key ? type_mapping[selected_key] : nil
       end
 
       # override from form_helper
