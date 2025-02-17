@@ -11,7 +11,7 @@ module ClaimsApi
         <ptcpntId>#{id}</ptcpntId>
       EOXML
 
-      make_request(endpoint: 'EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService',
+      make_request(endpoint: bean_name,
                    action: 'findBenefitClaimsStatusByPtcpntId', body:)
     end
 
@@ -20,7 +20,7 @@ module ClaimsApi
         <bnftClaimId>#{id}</bnftClaimId>
       EOXML
 
-      make_request(endpoint: 'EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService',
+      make_request(endpoint: bean_name,
                    action: 'findBenefitClaimDetailsByBnftClaimId', body:)
     end
 
