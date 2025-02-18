@@ -9,7 +9,7 @@ module AccreditedRepresentativePortal
       skip_after_action :verify_pundit_authorization
 
       def submit
-        debugger
+        # debugger
         # Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
         # check_for_changes
 
@@ -21,7 +21,7 @@ module AccreditedRepresentativePortal
       end
 
       def upload_scanned_form
-        debugger
+        # debugger
         # VetsJsonSchema::SCHEMAS["21-686C"]
         attachment = PersistentAttachments::VAForm.new
         attachment.form_id = params['form_id']
@@ -190,7 +190,7 @@ module AccreditedRepresentativePortal
       # end
 
       # def get_power_of_attorney_attributes(icn)
-      #   response = BenefitsClaims::Service.new(icn).get_power_of_attorney("0oa12kyc2fm04AX1P2p8", "/Users/patrick/Desktop/vets-api/private.pem", {auth_params: "eyJraWQiOiJjd3hWQkcxODBKazd2WXZfNU1IcTUwX2lCSk9ubFM5Z3dtQ1hKd2NlclFjIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULmtGMmZ2S1Jqd0hjb1NfVWE5M2xMb2lBWkRGTjlBZFo4MGFrMmlNQ0ZKYmsiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNkZzdndWlzMlRZRGxGZTJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2NsYWltcyIsImlhdCI6MTczOTI0MDk5MywiZXhwIjoxNzM5MjQxMjkzLCJjaWQiOiIwb2ExMm1vNTI2bDlGbEVLczJwOCIsInNjcCI6WyJzeXN0ZW0vY2xhaW0ud3JpdGUiLCJzeXN0ZW0vY2xhaW0ucmVhZCJdLCJzdWIiOiIwb2ExMm1vNTI2bDlGbEVLczJwOCIsImxhYmVsIjoiT2RkYmFsbEJyb3duIn0.0Iu1FMVuqIb6EJRWPeSSLvsg5CXeDIzqiB2UJiHe6YmCWk5RdjKjN-UrOmNLPGwIxLNcGFku4NHI4U-b3gejvOX74kI0nOg8wTLOAkwFDJf-F9lqqU17J_DWDntmyWJ1_sAHQP3-fH88h9dLocsHf9YHAp4yCRW2c1WFi6-8Ik6AguHGIgJ9hX7LqM1-jou6PuK4iTkQAAaiRcyf7597STRYPHRlX6M65rvkiqvRieab7MVKDZIqHz_ges24o6elV8jfMc61RDqw2nBrnPu9UjTE7MbfgxcW7rQTRXIj9OR_YFm2z6HbvbQMHXT1DtU8M7iBJYk43IP1FIJYJLHgFA"})
+      #   response = BenefitsClaims::Service.new(icn).get_power_of_attorney
       #   attributes = response["data"]["attributes"]
       #   raise if attrubtes.nil?
       #   attributes
@@ -198,18 +198,6 @@ module AccreditedRepresentativePortal
 
       # def get_rep_poa_codes
       # ar_user_account_accredited_individuals
-      # sql = ActiveRecord::Base.sanitize_sql_array([
-      #   <<-SQL.squish,
-      #   SELECT veteran_representatives.poa_codes
-      #   FROM veteran_representatives
-      #   LEFT JOIN ar_user_account_accredited_individuals
-      #   ON veteran_representatives.representative_id = ar_user_account_accredited_individuals.accredited_individual_registration_number
-      #   WHERE ar_user_account_accredited_individuals.icn = ?
-      #   SQL
-      #   current_user.identity.icn
-      # ])
-
-      # ActiveRecord::Base.connection.select_all(sql)
       # ["589"]
       # end
       # end
