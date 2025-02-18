@@ -285,7 +285,7 @@ class FormProfiles::VA526ez < FormProfile
     return {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
 
     provider = ApiProviderFactory.call(type: ApiProviderFactory::FACTORIES[:ppiu],
-                                       provider: :lighthouse,
+                                       provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
                                        current_user: user,
                                        feature_toggle: nil)
     response = provider.get_payment_information
