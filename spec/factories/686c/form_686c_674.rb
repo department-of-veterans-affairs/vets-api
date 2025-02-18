@@ -1018,6 +1018,7 @@ FactoryBot.define do
               'birth_date'=>'2005-01-01'}],
           'step_children'=>
             [{'who_does_the_stepchild_live_with'=>{'first'=>'first', 'middle'=>'middle', 'last'=>'name'},
+              "living_expenses_paid"=>"Half",
               'address'=>{'country'=>'USA', 'street'=>'456 fake street', 'street2'=>'line2', 'street3'=>'line3', 'city'=>'portland', 'state'=>'ME', 'postal_code'=>'04102'},
               'supporting_stepchild'=>false,
               'full_name'=>{'first'=>'test', 'middle'=>'middle', 'last'=>'stepchild'},

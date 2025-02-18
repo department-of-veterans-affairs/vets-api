@@ -33,11 +33,23 @@ RSpec.describe BGSDependents::StepChild do
     }
   end
 
-  describe '#format_info' do
-    it 'formats stepchild params for submission' do
-      formatted_info = described_class.new(stepchild_info).format_info
+  context 'with va_dependents_v2 off' do
+    describe '#format_info' do
+      it 'formats stepchild params for submission' do
+        formatted_info = described_class.new(stepchild_info).format_info
 
-      expect(formatted_info).to eq(formatted_params_result)
+        expect(formatted_info).to eq(formatted_params_result)
+      end
+    end
+  end
+
+  context 'with va_dependents_v2 off' do
+    describe '#format_info' do
+      it 'formats stepchild params for submission' do
+        formatted_info = described_class.new(stepchild_info).format_info
+
+        expect(formatted_info).to eq(formatted_params_result)
+      end
     end
   end
 end
