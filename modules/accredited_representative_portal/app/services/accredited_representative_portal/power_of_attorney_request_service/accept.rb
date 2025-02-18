@@ -13,10 +13,15 @@ module AccreditedRepresentativePortal
       end
 
       TRANSIENT_ERROR_TYPES =
-        BenefitsClaims::ServiceException::ERROR_MAP.select { |key, _| key >= 500 }.values.freeze
+        BenefitsClaims::ServiceException::ERROR_MAP.select do |key, _|
+          [429, 500, 502, 503, 504].include? key
+        end.values.freeze
+      FATAL_ERROR_TYPES =
+        BenefitsClaims::ServiceException::ERROR_MAP.select do |key, _|
+          [400, 401, 403, 404, 413, 422].include? key
+        end.values.freeze
 
       attr_reader :poa_request, :creator, :reason, :resolution, :form_data
-      attr_accessor :form_submission
 
       def initialize(poa_request, creator, reason)
         @poa_request = poa_request
@@ -26,48 +31,31 @@ module AccreditedRepresentativePortal
       end
 
       def call
-        ApplicationRecord.transaction do
-          create_resolution!
-          create_form_submission!
-        end
-
+        @resolution = poa_request.accept!(creator, reason)
         response = service.submit2122(form_payload)
 
         form_submission.update(
-          status: :enqueue_succeeded,
           service_id: response.body.dig('data', 'id'),
           service_response: response.body.to_json
         )
         form_submission
       # TODO: call PowerOfAttorneyFormSubmissionJob.perform_async(poa_form_submission)
-      # Transient 5xx errors: delete objects created, re-raise error
-      rescue *TRANSIENT_ERROR_TYPES
+      # Invalid record - return error message with 400
+      rescue ActiveRecord::RecordInvalid => e
+        raise Error.new(e.message, :bad_request)
+      # Transient 5xx errors: delete objects created, raise TransientError
+      rescue *TRANSIENT_ERROR_TYPES => e
         form_submission.delete
         resolution.delete
-        raise
-      rescue ActiveRecord::RecordInvalid => e
-        raise Error.new(e.message, :unprocessable_entity)
-      # All other errors: save error data on form submission
+        raise Error.new(e.message, BenefitsClaims::ServiceException::ERROR_MAP.invert[e.class])
+      # Fatal 4xx errors or validation error: save error message, raise FatalError
+      rescue *FATAL_ERROR_TYPES => e
+        update_submission_with_error(e.message)
+        raise Error.new(e.message, BenefitsClaims::ServiceException::ERROR_MAP.invert[e.class])
+      # All other errors: save error data on form submission, will result in a 500
       rescue => e
         update_submission_with_error(e.message)
         raise
-      end
-
-      def create_resolution!
-        resolving = PowerOfAttorneyRequestDecision.create!(
-          type: PowerOfAttorneyRequestDecision::Types::ACCEPTANCE, creator:
-        )
-        ##
-        # This form triggers the uniqueness validation, while the
-        # `@poa_request.create_resolution!` form triggers a more obscure
-        # `RecordNotSaved` error that is less functional for getting
-        # validation errors.
-        #
-        @resolution = PowerOfAttorneyRequestResolution.create!(
-          power_of_attorney_request: poa_request,
-          resolving:,
-          reason:
-        )
       end
 
       private
@@ -76,8 +64,8 @@ module AccreditedRepresentativePortal
         @service ||= BenefitsClaims::Service.new(poa_request.claimant.icn)
       end
 
-      def create_form_submission!
-        @form_submission = PowerOfAttorneyFormSubmission.create!(
+      def form_submission
+        @form_submission ||= PowerOfAttorneyFormSubmission.create!(
           power_of_attorney_request: poa_request,
           status: :enqueue_succeeded,
           status_updated_at: DateTime.current
@@ -106,6 +94,7 @@ module AccreditedRepresentativePortal
       def organization_data
         {
           poaCode: poa_request.power_of_attorney_holder_poa_code,
+          # TODO: update when allowing non-veteran claimant submissions
           registrationNumber: poa_request.accredited_individual_registration_number
         }
       end
