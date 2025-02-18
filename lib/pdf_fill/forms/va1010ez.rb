@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'pdf_fill/forms/form_base'
-
+# rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
     class Va1010ez < FormBase
@@ -90,31 +90,85 @@ module PdfFill
           key: 'F[0].P4[0].ScheduleFirstAppointment[0]'
         },
         'purpleHeartRecipient' => {
-          key: 'F[0].P5[0].RadioButtonList[6]'
+          key: 'F[0].P4[0].Section2_2A[0]'
         },
         'isFormerPow' => {
-          key: 'F[0].P5[0].RadioButtonList[7]'
+          key: 'F[0].P4[0].Section2_2B[0]'
         },
         'postNov111998Combat' => {
-          key: 'F[0].P5[0].RadioButtonList[8]'
+          key: 'F[0].P4[0].Section2_2C[0]'
         },
         'disabledInLineOfDuty' => {
-          key: 'F[0].P5[0].RadioButtonList[9]'
+          key: 'F[0].P4[0].Section2_2D[0]'
         },
         'swAsiaCombat' => {
-          key: 'F[0].P5[0].RadioButtonList[10]'
+          key: 'F[0].P4[0].Section2_2E[0]'
         },
-        'vietnamService' => {
-          key: 'F[0].P5[0].RadioButtonList[12]'
+        'vaCompensationType' => {
+          key: 'F[0].P4[0].Section2_2F[0]'
         },
-        'exposedToRadiation' => {
-          key: 'F[0].P5[0].RadioButtonList[13]'
+        'radiationCleanupEfforts' => {
+          key: 'F[0].P5[0].RadioButtonList[2]'
         },
-        'radiumTreatments' => {
-          key: 'F[0].P5[0].RadioButtonList[14]'
+        'gulfWarService' => {
+          key: 'F[0].P5[0].RadioButtonList[3]'
         },
-        'campLejeune' => {
-          key: 'F[0].P5[0].RadioButtonList[15]'
+        'combatOperationService' => {
+          key: 'F[0].P5[0].RadioButtonList[0]'
+        },
+        'exposedToAgentOrange' => {
+          key: 'F[0].P5[0].RadioButtonList[1]'
+        },
+        'gulfWarStartDate' => {
+          key: 'F[0].P5[0].FromDate_3B[0]'
+        },
+        'gulfWarEndDate' => {
+          key: 'F[0].P5[0].ToDate_3B[0]'
+        },
+        'agentOrangeStartDate' => {
+          key: 'F[0].P5[0].FromDate_3C[0]'
+        },
+        'agentOrangeEndDate' => {
+          key: 'F[0].P5[0].ToDate_3C[0]'
+        },
+        'exposureToAirPollutants' => {
+          key: 'F[0].P5[0].ExposedToTheFollowing[0]'
+        },
+        'exposureToChemicals' => {
+          key: 'F[0].P5[0].ExposedToTheFollowing[1]'
+        },
+        'exposureToRadiation' => {
+          key: 'F[0].P5[0].ExposedToTheFollowing[2]'
+        },
+        'exposureToShad' => {
+          key: 'F[0].P5[0].ExposedToTheFollowing[3]'
+        },
+        'exposureToOccupationalHazards' => {
+          key: 'F[0].P5[0].ExposedToTheFollowing[4]'
+        },
+        'exposureToAsbestos' => {
+          key: 'F[0].P5[0].ExposedToTheFollowing[5]'
+        },
+        'exposureToMustardGas' => {
+          key: 'F[0].P5[0].ExposedToTheFollowing[6]'
+        },
+        'exposureToContaminatedWater' => {
+          key: 'F[0].P5[0].ExposedToTheFollowing[7]'
+        },
+        'exposureToWarfareAgents' => {
+          key: 'F[0].P5[0].ExposedToTheFollowing[8]'
+        },
+        'exposureToOther' => {
+          key: 'F[0].P5[0].ExposedToTheFollowing[9]'
+        },
+        'otherToxicExposure' => {
+          key: 'F[0].P5[0].SpecifyOther[0]'
+        },
+        'toxicExposureStartDate' => {
+          key: 'F[0].P5[0].FromDate_3D[0]'
+        },
+        'toxicExposureEndDate' => {
+          key: 'F[0].P5[0].ToDate_3D[0]'
         },
         'isMedicaidEligible' => {
           key: 'F[0].P5[0].EligibleForMedicaid[0]'
@@ -125,43 +179,46 @@ module PdfFill
         'providers' =>
           {
             'insuranceName' => {
-              key: 'F[0].P5[0].TextField17[0]'
+              key: 'F[0].P5[0].HealthInsuranceInformation[0]'
             },
             'insurancePolicyHolderName' => {
-              key: 'F[0].P5[0].TextField18[0]'
+              key: 'F[0].P5[0].NameOfPolicyHodler[0]'
             },
             'insurancePolicyNumber' => {
-              key: 'F[0].P5[0].TextField19[0]'
+              key: 'F[0].P5[0].PolicyNumber[0]'
             },
             'insuranceGroupCode' => {
-              key: 'F[0].P5[0].TextField19[1]'
+              key: 'F[0].P5[0].GroupCode[0]'
             }
           },
         'dependents' =>
           {
             'fullName' => {
-              key: 'F[0].P5[0].TextField20[1]'
+              key: 'F[0].P5[0].ChildsName[0]'
             },
             'dependentRelation' => {
-              key: 'F[0].P5[0].RadioButtonList[3]'
+              key: 'F[0].P5[0].RelationshipToYou[0]'
             },
             'socialSecurityNumber' => {
-              key: 'F[0].P5[0].TextField20[4]'
+              key: 'F[0].P5[0].ChildsSSN[0]'
             },
             'dateOfBirth' => {
-              key: 'F[0].P5[0].DateTimeField3[0]'
+              key: 'F[0].P5[0].ChildsDOB[0]'
             },
             'becameDependent' => {
-              key: 'F[0].P5[0].DateTimeField7[0]'
+              key: 'F[0].P5[0].DateChildBecameYourDependent[0]'
             },
             'attendedSchoolLastYear' => {
-              key: 'F[0].P5[0].RadioButtonList[1]'
+              key: 'F[0].P5[0].DidChildAttendSchooLastYear[0]'
             },
             'disabledBefore18' => {
-              key: 'F[0].P5[0].RadioButtonList[0]'
+              key: 'F[0].P5[0].ChildPermanentlyDiasbledBefore18[0]'
             },
             'grossIncome' => {
               key: 'F[0].P6[0].NumericField2[2]'
+            },
+            'dependentEducationExpenses' => {
+              key: 'F[0].P5[0].ExpensesPaifByDependentCHild[0]'
             },
             'netIncome' => {
               key: 'F[0].P6[0].NumericField2[5]'
@@ -189,14 +246,20 @@ module PdfFill
           key: 'F[0].P4[0].LastDischargeDate[0]'
         },
         'medicarePartAEffectiveDate' => {
-          key: 'F[0].P5[0].DateTimeField1[0]'
+          key: 'F[0].P5[0].EffectiveDate[0]'
+        },
+        'spouseSocialSecurityNumber' => {
+          key: 'F[0].P5[0].SpousesSSN[0]'
         },
         'spouseDateOfBirth' => {
-          key: 'F[0].P5[0].DateTimeField6[0]'
+          key: 'F[0].P5[0].SpousesDOB[0]'
         },
         'dateOfMarriage' => {
           key: 'F[0].P5[0].DateOfMarriage[0]'
         },
+        'provideSupportLastYear' => {
+          key: 'F[0].P5[0].DidYouProvideSupportToChildNotLivingWithYou[0]'
+        }, # %w[1 2 Off]
         'discloseFinancialInformation' => {
           key: 'F[0].P6[0].Section6[0]'
         },
@@ -249,10 +312,17 @@ module PdfFill
         merge_ethnicity_choices
         merge_marital_status
         merge_spouse_address_phone_number
-        merge_yes_no('isSpanishHispanicLatino')
-        merge_yes_no('wantsInitialVaContact')
-        merge_yes_no('isMedicaidEligible')
-        merge_yes_no('isEnrolledMedicarePartA')
+        @form_data['provideSupportLastYear'] = map_radio_box_value(@form_data['provideSupportLastYear'])
+        @form_data['isSpanishHispanicLatino'] = map_radio_box_value(@form_data['isSpanishHispanicLatino'])
+        @form_data['wantsInitialVaContact'] = map_radio_box_value(@form_data['wantsInitialVaContact'])
+        @form_data['isMedicaidEligible'] = map_radio_box_value(@form_data['isMedicaidEligible'])
+        @form_data['isEnrolledMedicarePartA'] = map_radio_box_value(@form_data['isEnrolledMedicarePartA'])
+        merge_exposure
+        merge_military_service
+        merge_providers
+        merge_dependents
+        merge_tera
+        merge_service_connected_rating
         @form_data
       end
 
@@ -308,7 +378,35 @@ module PdfFill
         }
 
         ethnicity_map.each do |key, value|
-          @form_data[key] = @form_data[key] == true ? value : 'Off'
+          @form_data[key] = map_value_for_checkbox(@form_data[key], value)
+        end
+      end
+
+      def merge_service_connected_rating
+        @form_data['vaCompensationType'] = case @form_data['vaCompensationType']
+                                           when 'highDisability', 'lowDisability'
+                                             'YES'
+                                           when 'none'
+                                             'NO'
+                                           end
+      end
+
+      def merge_exposure
+        exposure_map = {
+          'exposureToAirPollutants' => '1',
+          'exposureToChemicals' => '2',
+          'exposureToRadiation' => '3',
+          'exposureToShad' => '4',
+          'exposureToOccupationalHazards' => '5',
+          'exposureToAsbestos' => '5',
+          'exposureToMustardGas' => '5',
+          'exposureToContaminatedWater' => '6',
+          'exposureToWarfareAgents' => '6',
+          'exposureToOther' => '7'
+        }
+
+        exposure_map.each do |key, value|
+          @form_data[key] = map_value_for_checkbox(@form_data[key], value)
         end
       end
 
@@ -317,9 +415,84 @@ module PdfFill
         @form_data['spouseAddress'] = "#{combine_full_address(@form_data['spouseAddress'])} #{spouse_phone}"
       end
 
+      def merge_tera
+        merge_yes_no('radiationCleanupEfforts')
+        merge_yes_no('gulfWarService')
+        merge_yes_no('combatOperationService')
+        merge_yes_no('exposedToAgentOrange')
+      end
+
+      def merge_military_service
+        merge_yes_no('purpleHeartRecipient')
+        merge_yes_no('isFormerPow')
+        merge_yes_no('postNov111998Combat')
+        merge_yes_no('disabledInLineOfDuty')
+        merge_yes_no('swAsiaCombat')
+      end
+
       def merge_yes_no(type)
-        @form_data[type] = @form_data[type] == true ? '1' : '2'
+        @form_data[type] = case @form_data[type]
+                           when true
+                             'YES'
+                           when false
+                             'NO'
+                           else
+                             'Off'
+                           end
+      end
+
+      def merge_providers
+        # TODO: Support more than one provider - planned work https://github.com/department-of-veterans-affairs/va.gov-team/issues/102910
+        providers = @form_data['providers']
+        return unless providers.is_a?(Array) && providers.any?
+
+        @form_data['providers'] = providers.first
+      end
+
+      def merge_dependents
+        # TODO: Support more than one dependent - planned work https://github.com/department-of-veterans-affairs/va.gov-team/issues/102890
+        dependents = @form_data['dependents']
+        return if dependents.blank?
+
+        dependent = dependents.first
+        dependent['fullName'] = combine_full_name(dependent['fullName'])
+        dependent['dependentRelation'] = map_dependent_relationship(dependent['dependentRelation'])
+        dependent['attendedSchoolLastYear'] = map_radio_box_value(dependent['attendedSchoolLastYear'])
+        dependent['disabledBefore18'] = map_radio_box_value(dependent['disabledBefore18'])
+        dependent['cohabitedLastYear'] = map_radio_box_value(dependent['cohabitedLastYear'])
+        @form_data['dependents'] = dependent
+      end
+
+      def map_value_for_checkbox(input, value)
+        input == true ? value : 'Off'
+      end
+
+      def map_radio_box_value(value)
+        case value
+        when true
+          '1'
+        when false
+          '2'
+        else
+          'Off'
+        end
+      end
+
+      def map_dependent_relationship(relationship)
+        case relationship
+        when 'Son'
+          '1'
+        when 'Daughter'
+          '2'
+        when 'Stepson'
+          '3'
+        when 'Stepdaughter'
+          '4'
+        else
+          'Off'
+        end
       end
     end
   end
 end
+# rubocop:enable Metrics/ClassLength

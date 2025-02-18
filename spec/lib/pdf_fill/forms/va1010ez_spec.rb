@@ -20,13 +20,13 @@ describe PdfFill::Forms::Va1010ez do
     factory: :health_care_application,
     input_data_fixture_dir: 'spec/fixtures/pdf_fill/10-10EZ',
     output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/10-10EZ/unsigned',
-    test_data_types: %w[simple]
+    test_data_types: %w[simple kitchen_sink]
   }
 
   describe '#merge_fields' do
     it 'merges the right fields' do
-      expect(form_class.merge_fields.to_json).to eq(
-        get_fixture('pdf_fill/10-10EZ/merge_fields').to_json
+      expect(JSON.parse(form_class.merge_fields.to_json)).to eq(
+        JSON.parse(get_fixture('pdf_fill/10-10EZ/merge_fields').to_json)
       )
     end
   end
