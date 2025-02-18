@@ -46,6 +46,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
 
           status_updater.update_status
         end
+        Timecop.unfreeze
       end
 
       if error_message
@@ -55,6 +56,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
               expect { status_updater.update_status }.to change(lighthouse_document_upload, :error_message)
                 .to(error_message.to_s)
             end
+            Timecop.unfreeze
           end
 
           it 'updates status, failed_date, acknowledgement_date and template_metadata' do
@@ -73,6 +75,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
                 .from(lighthouse_document_upload.template_metadata)
                 .to(updated_template_metadata)
             end
+            Timecop.unfreeze
           end
         end
       else # testing success status
@@ -87,6 +90,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
                 .from(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
                 .to(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
             end
+            Timecop.unfreeze
           end
         end
       end

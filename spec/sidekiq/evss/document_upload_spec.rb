@@ -142,6 +142,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
           expect(evidence_submission.failed_date).to be_within(1.second).of(current_date_time.utc)
           expect(evidence_submission.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days).utc)
         end
+        Timecop.unfreeze
       end
 
       it 'fails to create a failed evidence submission record when args malformed' do
