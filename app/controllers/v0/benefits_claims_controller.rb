@@ -27,13 +27,6 @@ module V0
       claim = service.get_claim(params[:id])
       update_claim_type_language(claim['data'])
 
-      # Manual status override for certain tracked items
-      # See https://github.com/department-of-veterans-affairs/va.gov-team/issues/101447
-      # This should be removed when the items are re-categorized by BGS
-      # We are not doing this in the Lighthouse service because we want web and mobile to have
-      # separate rollouts and testing.
-      claim = rename_rv1(claim) if Flipper.enabled?(:cst_override_reserve_records_website)
-
       # https://github.com/department-of-veterans-affairs/va.gov-team/issues/98364
       # This should be removed when the items are removed by BGS
       claim = suppress_evidence_requests(claim) if Flipper.enabled?(:cst_suppress_evidence_requests_website)
@@ -135,14 +128,6 @@ module V0
                               tracked_item_type: ti['displayName'],
                               tracked_item_status: ti['status'] })
       end
-    end
-
-    def rename_rv1(claim)
-      tracked_items = claim.dig('data', 'attributes', 'trackedItems')
-      tracked_items&.select { |i| i['displayName'] == 'RV1 - Reserve Records Request' }&.each do |i|
-        i['status'] = 'NEEDED_FROM_OTHERS'
-      end
-      claim
     end
 
     def suppress_evidence_requests(claim)

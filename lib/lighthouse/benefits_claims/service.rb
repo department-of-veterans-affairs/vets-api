@@ -279,6 +279,12 @@ module BenefitsClaims
           i['displayName'] = 'Private Medical Record'
         end
       end
+
+      if Flipper.enabled?(:cst_override_reserve_records)
+        tracked_items.select { |i| i['displayName'] == 'RV1 - Reserve Records Request' }.each do |i|
+          i['status'] = 'NEEDED_FROM_OTHERS'
+        end
+      end
       tracked_items
     end
 
