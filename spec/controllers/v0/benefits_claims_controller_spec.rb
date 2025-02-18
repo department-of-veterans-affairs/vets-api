@@ -150,10 +150,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
       end
 
-      context 'when :cst_suppress_evidence_requests_website is enabled' do
+      context 'when :cst_suppress_evidence_requests is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests).and_return(true)
         end
 
         it 'excludes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
@@ -169,10 +169,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
       end
 
-      context 'when :cst_suppress_evidence_requests_website is disabled' do
+      context 'when :cst_suppress_evidence_requests is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests).and_return(false)
         end
 
         it 'includes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
