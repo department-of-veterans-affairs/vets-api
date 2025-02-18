@@ -50,8 +50,8 @@ module SimpleFormsApi
       missing_keys = all_keys.select { |key| config[key].nil? || config[key].to_s.strip.empty? }
       email = config.dig(:form_data, :email)
       first_name = config.dig(:form_data, :full_name, :first)
-      missing_keys << 'form_data: email' if email.nil? || email.to_s.strip.empty?
-      missing_keys << 'form_data: first_name' if first_name.nil? || first_name.to_s.strip.empty?
+      missing_keys << 'form_data: email' if email.blank?
+      missing_keys << 'form_data: first_name' if first_name.blank?
 
       if missing_keys.any?
         StatsD.increment('silent_failure', tags: statsd_tags) if error_notification?
