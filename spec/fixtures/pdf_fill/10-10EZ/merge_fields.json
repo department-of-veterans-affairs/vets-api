@@ -78,12 +78,7 @@
   "mothersMaidenName": "Test",
   "cityOfBirth": "Spring",
   "stateOfBirth": "TX",
-  "veteranFullName": {
-    "first": "Indiana",
-    "middle": "Bill",
-    "last": "Jones",
-    "suffix": "II"
-  },
+  "veteranFullName": "Indiana Bill Jones II",
   "veteranSocialSecurityNumber": "234221243",
   "veteranDateOfBirth": "1980-01-01",
   "privacyAgreementAccepted": true,

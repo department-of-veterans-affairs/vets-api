@@ -72,6 +72,10 @@ class HealthCareApplication < ApplicationRecord
     async_submission_failed? && email.present?
   end
 
+  def form_id
+    self.class::FORM_ID
+  end
+
   def submit_sync
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
