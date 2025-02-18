@@ -12,4 +12,4 @@ class AddConstraintsToUserActionEvents < ActiveRecord::Migration[7.2]
       change_column_null :user_action_events, :event_type, false
     end
   end
-end 
+end
