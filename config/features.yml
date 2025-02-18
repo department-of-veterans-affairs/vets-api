@@ -295,7 +295,7 @@ features:
   claims_api_use_update_poa_relationship:
     actor_type: user
     description: Uses local_bgs rather than bgs-ext
-    enable_in_development: true  
+    enable_in_development: true
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
@@ -939,10 +939,6 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
-  mhv_account_creation_api_consumption:
-    actor_type: user
-    descriptiom: Enables access to alerts related to MHV Account Creation API
-    enable_in_development: true
   mhv_account_creation_after_login:
     actor_type: user
     descriptiom: Enables access to MHV Account Creation API
@@ -1431,6 +1427,10 @@ features:
   use_veteran_models_for_appoint:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
+    enable_in_development: true
+  va1010_forms_enrollment_system_service_enabled:
+    actor_type: user
+    description: Enables the VA1010Forms enrollment system service
     enable_in_development: true
   va_notify_custom_errors:
     actor_type: user
