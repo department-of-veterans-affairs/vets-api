@@ -6,18 +6,12 @@ module RepresentationManagement
       service_tag 'representation-management'
       before_action :feature_enabled
 
-      # Creates and enqueues an email with the provided "next steps" information. This action
-      # validates the input parameters and, if valid, queues an email using the VANotify service.
-      #
-      # @return [JSON] Returns a success message if the email is enqueued, otherwise returns validation errors.
-      #
       def create
         form = RepresentationManagement::Form2122Data.new(flatten_form_params)
 
         if flatten_form_params[:veteran_service_number].present?
           render json: { errors: ['render_error_state_for_failed_submission'] }, status: :unprocessable_entity
         elsif form.valid?
-
           render json: { message: 'Email enqueued' }, status: :ok
         else
           render json: { errors: form.errors.full_messages }, status: :unprocessable_entity
