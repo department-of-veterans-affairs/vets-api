@@ -1256,10 +1256,8 @@ describe VAOS::V2::AppointmentsService do
               VCR.use_cassette('vaos/eps/get_provider_service/get_multiple_providers_200_v2',
                               match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
                 result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
-                provider_names = result[:data].map { |appt| appt[:provider_name] }
-                provider_ids = result[:data].map { |appt| appt[:provider_service_id] }
-                expect(provider_names).not_to include('Dr. Moreen S. Rafa @ FHA South Melbourne Medical Complex')
-                expect(provider_ids).to include('DBKQ-123')
+                no_name_provider = result[:data].find {|x| x.provider_service_id == "DBKQ-123"}
+                expect(no_name_provider.provider_name).to eq('unknown')
               end
             end
           end

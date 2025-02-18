@@ -18,7 +18,7 @@ module VAOS
         @referral_id = referral_details[:referral_number]
         @referral = { referral_number: referral_details[:referral_number]&.to_s }
         @provider_service_id = params[:provider_service_id]
-        @provider_name = params.dig(:provider, :name)
+        @provider_name = params.dig(:provider, :name).presence || 'unknown'
       end
 
       def serializable_hash
