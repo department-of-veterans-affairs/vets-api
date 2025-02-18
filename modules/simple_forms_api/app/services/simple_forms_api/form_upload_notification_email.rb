@@ -47,7 +47,7 @@ module SimpleFormsApi
     def check_missing_keys(config)
       all_keys = %i[form_data form_number date_submitted confirmation_number]
 
-      missing_keys = all_keys.select { |key| config[key].nil? || config[key].to_s.strip.empty? }
+      missing_keys = all_keys.select { |key| config[key].blank? }
       email = config.dig(:form_data, :email)
       first_name = config.dig(:form_data, :full_name, :first)
       missing_keys << 'form_data: email' if email.blank?
