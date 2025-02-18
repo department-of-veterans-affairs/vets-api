@@ -44,5 +44,21 @@ module AccreditedRepresentativePortal
         .new(poa_request.accredited_organization)
         .serializable_hash
     end
+
+    attribute :power_of_attorney_form_submission,
+              if: ->(poa_request) { poa_request.accepted? } do |poa_request|
+      status =
+        case poa_request.power_of_attorney_form_submission&.status
+        when PowerOfAttorneyFormSubmission::Statuses::SUCCEEDED
+          'succeeded'
+        when PowerOfAttorneyFormSubmission::Statuses::ENQUEUE_FAILED,
+          PowerOfAttorneyFormSubmission::Statuses::FAILED
+          'failed'
+        else
+          'pending'
+        end
+
+      { status: }
+    end
   end
 end

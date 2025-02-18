@@ -58,6 +58,7 @@ module AccreditedRepresentativePortal
       def scope_includes
         [
           :power_of_attorney_form,
+          :power_of_attorney_form_submission,
           :accredited_individual,
           :accredited_organization,
           { resolution: :resolving }
