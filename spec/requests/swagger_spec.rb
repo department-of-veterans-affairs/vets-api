@@ -214,7 +214,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     it 'supports getting an disability_compensation_in_progress form' do
       create(:in_progress_526_form, user_uuid: mhv_user.uuid)
       stub_evss_pciu(mhv_user)
-      VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+      VCR.use_cassette('lighthouse/claims/200_response') do
         expect(subject).to validate(
           :get,
           '/v0/disability_compensation_in_progress_forms/{id}',
@@ -1137,13 +1137,13 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'supports getting rated disabilities' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 401)
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+        VCR.use_cassette('lighthouse/claims/200_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 200, headers)
         end
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
+        VCR.use_cassette('lighthouse/claims/400_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 400, headers)
         end
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
+        VCR.use_cassette('lighthouse/claims/500_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 502, headers)
         end
       end
