@@ -145,15 +145,17 @@ module BGS
 
     def step_child_parent(child_info)
       parent = bgs_service.create_participant(@proc_id)
-
+      child_status = @is_v2 ? child_info : child_info['child_status']
+      stepchild_parent = @is_v2 ? child_info['biological_parent_name'] : child_status['stepchild_parent']
+      household_date = @is_v2 ? child_info['date_entered_household'] : child_status['date_became_dependent']
       bgs_service.create_person(
         {
           vnp_proc_id: @proc_id,
           vnp_ptcpnt_id: parent[:vnp_ptcpnt_id],
-          first_nm: child_info['child_status']['stepchild_parent']['first'],
-          last_nm: child_info['child_status']['stepchild_parent']['last'],
-          brthdy_dt: format_date(child_info['child_status']['birth_date']),
-          ssn_nbr: child_info['child_status']['ssn']
+          first_nm: stepchild_parent['first'],
+          last_nm: stepchild_parent['last'],
+          brthdy_dt: format_date(child_status['birth_date']),
+          ssn_nbr: child_status['ssn']
         }
       )
 
@@ -162,8 +164,8 @@ module BGS
           vnp_participant_id: parent[:vnp_ptcpnt_id],
           participant_relationship_type_name: 'Spouse',
           family_relationship_type_name: 'Spouse',
-          event_date: child_info['child_status']['date_became_dependent'],
-          begin_date: child_info['child_status']['date_became_dependent'],
+          event_date:household_date,
+          begin_date: household_date,
           type: 'stepchild_parent'
         }
     end
