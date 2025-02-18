@@ -910,4 +910,10 @@ RSpec.describe HealthCareApplication, type: :model do
       end
     end
   end
+
+  describe '#form_id' do
+    it 'has form_id from FORM_ID const' do
+      expect(health_care_application.form_id).to eq described_class::FORM_ID
+    end
+  end
 end
