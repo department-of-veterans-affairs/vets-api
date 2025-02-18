@@ -90,9 +90,9 @@ module BGSDependents
         ssn: @child_info['ssn'],
         birth_date: @child_info['birth_date'],
         family_relationship_type: child_status,
-        place_of_birth_country: place_of_birth.dig('country'),
-        place_of_birth_state: place_of_birth.dig('state'),
-        place_of_birth_city: place_of_birth.dig('city'),
+        place_of_birth_country: @is_v2 ? place_of_birth.dig('location', 'country') : place_of_birth.dig('country'),
+        place_of_birth_state: @is_v2 ? place_of_birth.dig('location', 'state') : place_of_birth.dig('state'),
+        place_of_birth_city: @is_v2 ? place_of_birth.dig('location', 'city') : place_of_birth.dig('city'),
         reason_marriage_ended: @is_v2 ? @child_info.dig('marriage_end_reason') : @child_info.dig('previous_marriage_details', 'reason_marriage_ended'),
         ever_married_ind: marriage_indicator,
         child_income: formatted_boolean(@is_v2 ? @child_info['income_in_last_year'] : @child_info['child_income']),
@@ -110,7 +110,7 @@ module BGSDependents
 
     def marriage_indicator
       if @is_v2
-        @child_info['has_child_ever_been_marries'] ? 'Y' : 'N'
+        @child_info['has_child_ever_been_married'] ? 'Y' : 'N'
       else
         @child_info['previously_married'] == 'Yes' ? 'Y' : 'N'
       end
