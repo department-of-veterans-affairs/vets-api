@@ -10,7 +10,7 @@ module AppsApi
       request.format = :json if params[:format].nil? && request.headers['HTTP_ACCEPT'].nil?
     end
 
-    def set_tags_and_extra_context
+    def set_sentry_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'apps_api' }
       Sentry.set_tags(source: 'apps_api')
     end
