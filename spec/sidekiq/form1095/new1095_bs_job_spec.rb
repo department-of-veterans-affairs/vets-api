@@ -58,7 +58,7 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       expect(Rails.logger).not_to receive(:error)
       expect(Rails.logger).not_to receive(:warn)
 
-      subject.perform
+      expect { subject.perform }.to change { Form1095B.count }.from(0).to(1)
     end
 
     it 'saves multiple forms from a file' do
@@ -68,7 +68,17 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       expect(Rails.logger).not_to receive(:error)
       expect(Rails.logger).not_to receive(:warn)
 
-      subject.perform
+      expect { subject.perform }.to change { Form1095B.count }.from(0).to(8)
+    end
+
+    it 'does not save save data or raise errors when user data is missing icn' do
+      allow(objects).to receive(:collect).and_return(file_names3)
+      allow(Tempfile).to receive(:new).and_return(tempfile3)
+
+      expect(Rails.logger).not_to receive(:error)
+      expect(Rails.logger).not_to receive(:warn)
+
+       expect { subject.perform }.not_to change { Form1095B.count }.from(0)
     end
 
     it 'does not save invalid forms from S3 file' do
@@ -77,14 +87,14 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
 
       expect(Rails.logger).to receive(:error).at_least(:once)
 
-      subject.perform
+      expect { subject.perform }.not_to change { Form1095B.count }.from(0)
     end
 
     context 'saves form corrections from a corrected file' do
-      before do
-        create(:form1095_b, tax_year: 2020, veteran_icn: '23456789098765437')
-        create(:form1095_b, tax_year: 2020, veteran_icn: '23456789098765464')
+      let!(:form1) { create(:form1095_b, tax_year: 2020, veteran_icn: '23456789098765437') }
+      let!(:form2) { create(:form1095_b, tax_year: 2020, veteran_icn: '23456789098765464') }
 
+      before do
         allow(objects).to receive(:collect).and_return(file_names4)
         allow(Tempfile).to receive(:new).and_return(tempfile4)
       end
@@ -93,7 +103,65 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
         expect(Rails.logger).not_to receive(:error)
         expect(Rails.logger).not_to receive(:warn)
 
-        subject.perform
+        expect {
+          subject.perform
+        }.to change { [JSON.parse(form1.reload.form_data), JSON.parse(form2.reload.form_data)] }.from(
+          [{"first_name"=>"First",
+           "middle_name"=>"Middle",
+           "last_name"=>"Last",
+           "last_4_ssn"=>"1234",
+           "address"=>"123 Test st",
+           "city"=>"Hollywood",
+           "state"=>"CA",
+           "zip_code"=>"12345",
+           "country"=>"USA",
+           "is_beneficiary"=>false,
+           "is_corrected"=>false,
+           "coverage_months"=>[true, true, true, true, true, true, true, true, true, true, true, true, true]},
+          {"first_name"=>"First",
+           "middle_name"=>"Middle",
+           "last_name"=>"Last",
+           "last_4_ssn"=>"1234",
+           "address"=>"123 Test st",
+           "city"=>"Hollywood",
+           "state"=>"CA",
+           "zip_code"=>"12345",
+           "country"=>"USA",
+           "is_beneficiary"=>false,
+           "is_corrected"=>false,
+           "coverage_months"=>[true, true, true, true, true, true, true, true, true, true, true, true, true]}]
+        ).to(
+          [{"last_name"=>"Last",
+           "first_name"=>"First",
+           "middle_name"=>"Middle",
+           "last_4_ssn"=>"6788",
+           "birth_date"=>"19580317",
+           "address"=>"123 Test ST",
+           "city"=>"BRANDON",
+           "state"=>"FL",
+           "country"=>"USA",
+           "zip_code"=>"33511-2216",
+           "foreign_zip"=>"",
+           "province"=>"",
+           "coverage_months"=>[false, false, false, false, false, false, false, true, true, true, true, true, true],
+           "is_corrected"=>true,
+           "is_beneficiary"=>true},
+          {"last_name"=>"Lastnamé",
+           "first_name"=>"Fïrstnåme",
+           "middle_name"=>"",
+           "last_4_ssn"=>"6788",
+           "birth_date"=>"19580317",
+           "address"=>"123 Test ST",
+           "city"=>"BRANDON",
+           "state"=>"FL",
+           "country"=>"USA",
+           "zip_code"=>"33511-2216",
+           "foreign_zip"=>"",
+           "province"=>"",
+           "coverage_months"=>[true, false, false, false, false, false, false, false, false, false, false, false, false],
+           "is_corrected"=>true,
+           "is_beneficiary"=>true}]
+        )
       end
     end
   end
