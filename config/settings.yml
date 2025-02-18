@@ -1763,7 +1763,7 @@ vye:
     region: <%= ENV['VYE__S3__REGION'] %>
     secret_access_key: <%= ENV['VYE__S3__SECRET_ACCESS_KEY'] %>
   scrypt:
-    N: <%= ENV['VYE__SCRYPT__N'] %>
+    N: 16384
     length: 16
     p: 1
     r: 8

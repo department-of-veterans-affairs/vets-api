@@ -1789,11 +1789,11 @@ vye:
     region: ~
     secret_access_key: ~
   scrypt:
-    "N": 16384
+    N: 16384
     length: 16
     p: 1
     r: 8
-    salt: ~
+    salt: testing-vye-scrypt-salt
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
 web_origin_regex: "\\Ahttps?:\\/\\/www\\.va\\.gov\\z"
 webhooks:
