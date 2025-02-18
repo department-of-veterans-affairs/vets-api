@@ -50,7 +50,7 @@ module TravelPay
           begin
             parsed_appt_time = DateUtils.strip_timezone(appt['appointmentDateTime'])
           rescue TravelPay::InvalidComparableError => e
-            Rails.logger.warn("#{e} Appointment Datetime was nil for appointment #{appt['id'][0...8]}")
+            Rails.logger.warn("#{e} Appointment Datetime was nil")
           end
           !appt['appointmentDateTime'].nil? && parsed_date_time.eql?(parsed_appt_time)
         end
