@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# spec/controllers/disability_compensation_controller_spec.rb
-
 require 'rails_helper'
 
 RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :controller do
