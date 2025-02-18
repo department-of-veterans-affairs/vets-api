@@ -20,6 +20,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   let(:file_name) { 'doctors-note.pdf' }
   let(:tracked_item_ids) { 1234 }
   let(:document_type) { 'L029' }
+  let(:document_description) { 'Copy of a DD214' }
   let(:document_data) do
     LighthouseDocument.new(
       first_name: 'First Name',
@@ -202,7 +203,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
             user_account.icn,
             {
               first_name: 'Bob',
-              document_type: document_type,
+              document_type: document_description,
               filename: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
               date_submitted: formatted_submit_date,
               date_failed: formatted_submit_date
