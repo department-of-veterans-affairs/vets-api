@@ -54,6 +54,9 @@ VCR.configure do |c|
   c.filter_sensitive_data('<ARP_ALLOW_LIST_ACCESS_TOKEN>') do
     Settings.accredited_representative_portal.allow_list.github.access_token
   end
+  c.filter_sensitive_data('<ARP_ALLOW_LIST_BASE_URI>') do
+    Settings.accredited_representative_portal.allow_list.github.base_uri
+  end
   c.filter_sensitive_data('<ARP_ALLOW_LIST_REPO>') { Settings.accredited_representative_portal.allow_list.github.repo }
   c.filter_sensitive_data('<ARP_ALLOW_LIST_PATH>') { Settings.accredited_representative_portal.allow_list.github.path }
   c.before_record do |i|

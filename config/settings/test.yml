@@ -451,5 +451,6 @@ accredited_representative_portal:
   allow_list:
     github:
       access_token: some_fake_token
+      base_uri: https://not.real.com
       repo: faked/fakeness
       path: not_real.csv
