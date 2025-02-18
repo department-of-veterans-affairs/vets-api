@@ -29,7 +29,7 @@ module AccreditedRepresentativePortal
         else
           render json: {
             errors: ['Invalid type parameter - Types accepted: [acceptance declination]']
-          }, status: :unprocessable_entity
+          }, status: :bad_request
         end
       rescue PowerOfAttorneyRequestService::Accept::Error => e
         render json: { errors: [e.message] }, status: e.status
