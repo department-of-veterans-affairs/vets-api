@@ -14,9 +14,15 @@ jobs:
         if: github.event.pull_request.draft == true
         run: exit 1
 
-      - name: Check for Ready for Review label
-        if: "!contains(github.event.pull_request.labels.*.name, 'require-backend-approval')"
-        run: exit 0
+      - name: Check for 'require-backend-approval' label
+        run: |
+          LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name')
+          echo "Labels on PR: $LABELS"
+
+          if ! echo "$LABELS" | grep -q "require-backend-approval"; then
+            echo "Label 'require-backend-approval' not found. Exiting successfully."
+            exit 0
+          fi
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
