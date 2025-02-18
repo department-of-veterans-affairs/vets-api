@@ -24,17 +24,22 @@ module AccreditedRepresentativePortal
       end
 
       def index
-        rel = poa_request_scope
+        relation = policy_scope(PowerOfAttorneyRequest)
         status = params[:status].presence
 
-        rel =
+        relation =
           case status
           when Statuses::PENDING
-            rel.pending.order(created_at: :asc)
+            relation.not_processed.order(created_at: :asc)
           when Statuses::PROCESSED
-            rel.processed.not_expired.order('resolution.created_at DESC')
+            expired_condition =
+              { resolution: { resolving_type: PowerOfAttorneyRequestExpiration } }
+
+            relation
+              .processed.where.not(expired_condition)
+              .order(resolution: { created_at: :desc })
           when NilClass
-            rel
+            relation
           else
             # Throw 400 for unexpected, non-blank statuses
             raise ActionController::BadRequest, <<~MSG.squish
@@ -43,7 +48,8 @@ module AccreditedRepresentativePortal
             MSG
           end
 
-        poa_requests = rel.includes(scope_includes).limit(100)
+        # `limit(100)` in case pagination isn't introduced quickly enough.
+        poa_requests = relation.includes(scope_includes).limit(100)
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
         render json: serializer.serializable_hash, status: :ok
       end
