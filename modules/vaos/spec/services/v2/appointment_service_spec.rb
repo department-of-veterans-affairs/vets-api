@@ -1245,6 +1245,26 @@ describe VAOS::V2::AppointmentsService do
           end
         end
       end
+
+      it 'handles eps appointments with no provider name' do
+        VCR.use_cassette('vaos/eps/token_200',
+                        match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+            VCR.use_cassette('vaos/eps/get_eps_appointments_200',
+                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+              VCR.use_cassette('vaos/eps/get_provider_service/get_multiple_providers_200_v2',
+                              match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+                result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+                provider_names = result[:data].map { |appt| appt[:provider_name] }
+                provider_ids = result[:data].map { |appt| appt[:provider_service_id] }
+                expect(provider_names).not_to include('Dr. Moreen S. Rafa @ FHA South Melbourne Medical Complex')
+                expect(provider_ids).to include('DBKQ-123')
+              end
+            end
+          end
+        end
+      end
     end
   end
 
