@@ -100,7 +100,7 @@ module ClaimsApi
 
             ClaimsApi::Logger.log('526', claim_id: pending_claim.id, detail: 'Uploaded PDF to S3')
             ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id)
-            ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
+            ClaimsApi::ClaimUploader.perform_async(pending_claim.id, 'claim')
 
             render json: ClaimsApi::AutoEstablishedClaimSerializer.new(pending_claim)
 
@@ -135,7 +135,7 @@ module ClaimsApi
             claim_document = claim.supporting_documents.build
             claim_document.set_file_data!(document, EVSS_DOCUMENT_TYPE, params[:description])
             claim_document.save!
-            ClaimsApi::ClaimUploader.perform_async(claim_document.id)
+            ClaimsApi::ClaimUploader.perform_async(claim_document.id, 'document')
           end
 
           render json: ClaimsApi::ClaimDetailSerializer.new(claim, { params: { uuid: claim.id } })
