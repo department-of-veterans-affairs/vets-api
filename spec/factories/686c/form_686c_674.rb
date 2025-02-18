@@ -1055,13 +1055,13 @@ FactoryBot.define do
             'report_marriage_of_child_under18'=>true,
             'report_child18_or_older_is_not_attending_school'=>true},
           'veteran_information' => {
+            'birth_date' => '1809-02-12',
             'full_name' => {
-              'first'=>'Claude', 'middle'=>'Ralph', 'last'=>'Wells'
+              'first' => 'Wesley',
+              'last' => 'Ford',
+              'middle' => nil
             },
-            'ssn'=>'796161553',
-            'birth_date'=>'1929-06-06',
-            'ssn_last_four'=>'4321',
-            'va_file_last_four'=>'4321',
+            'ssn' => '987654321',
             'va_file_number' => '987654321'
           },
           'use_v2'=>true,
