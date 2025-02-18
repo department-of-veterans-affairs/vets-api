@@ -1304,7 +1304,7 @@ va_profile:
   url: https://int.vet360.va.gov
   v3:
     address_validation:
-      api_key: <AV_KEY>"
+      api_key: "<AV_KEY>"
   veteran_status:
     mock: false
     timeout: 30
