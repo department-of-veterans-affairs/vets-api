@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'datadog'
-require 'securerandom'
 
 module IvcChampva
   module V1
