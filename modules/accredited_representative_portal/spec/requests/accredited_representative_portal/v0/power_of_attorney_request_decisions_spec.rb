@@ -70,7 +70,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'invalid_type', reason: nil } }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:bad_request)
         expect(parsed_response['errors']).to eq([
                                                   'Invalid type parameter - Types accepted: [acceptance declination]'
                                                 ])
@@ -80,7 +80,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'acceptance', reason: 'not allowed to give reasons for these' } }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:bad_request)
         expect(parsed_response['errors']).to eq(['Validation failed: Reason must be blank'])
       end
     end
@@ -252,7 +252,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
            params: { decision: { type: 'acceptance', reason: nil } }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:bad_request)
       expect(parsed_response['errors']).to eq(
         ['Validation failed: Power of attorney request has already been taken']
       )

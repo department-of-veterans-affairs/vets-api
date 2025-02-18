@@ -61,6 +61,16 @@ module AccreditedRepresentativePortal
       resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestExpiration)
     end
 
+    def accept!(creator, reason)
+      resolving = PowerOfAttorneyRequestDecision.create!(
+        type: PowerOfAttorneyRequestDecision::Types::ACCEPTANCE, creator:
+      )
+      # This form triggers the uniqueness validation, while the `create_resolution!` form triggers
+      # a more obscure `RecordNotSaved` error that is less functional for getting validation errors.
+      ##
+      PowerOfAttorneyRequestResolution.create!(power_of_attorney_request: self, resolving:, reason:)
+    end
+
     def decline!(creator, reason)
       resolving = PowerOfAttorneyRequestDecision.create!(
         type: PowerOfAttorneyRequestDecision::Types::DECLINATION, creator:
