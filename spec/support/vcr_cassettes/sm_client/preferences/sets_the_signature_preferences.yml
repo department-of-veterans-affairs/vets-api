@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/preferences/signature"
+    body:
+      encoding: UTF-8
+      string: '{"signatureName":"Test Mark","signatureTitle":"Test Title API","includeSignature":false}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 10 Feb 2025 16:35:10 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '88'
+      X-Amzn-Requestid:
+      - 1ef5ede5-3a3f-478b-aa39-7bc80dce4169
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - Fxud1EUOvHMFSnA=
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      Pragma:
+      - no-cache
+      X-Amzn-Remapped-Date:
+      - Mon, 10 Feb 2025 16:35:10 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"signatureName":"Test Mark","includeSignature":false,"signatureTitle":"Test
+        Title API"}'
+  recorded_at: Mon, 10 Feb 2025 16:35:10 GMT
+recorded_with: VCR 6.3.1
