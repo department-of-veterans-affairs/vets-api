@@ -93,13 +93,13 @@ module AccreditedRepresentativePortal
             "succeeded_form_submission"."status" = :submission_status
       SQL
 
-      PROCESSED_JOIN_SQL =
+      processed_join_sql =
         ApplicationRecord.sanitize_sql(
           [
             processed_join_sql_template,
-            resolving_type: PowerOfAttorneyRequestDecision,
-            decision_type: PowerOfAttorneyRequestDecision::Types::ACCEPTANCE,
-            submission_status: PowerOfAttorneyFormSubmission::Statuses::SUCCEEDED
+            { resolving_type: PowerOfAttorneyRequestDecision,
+              decision_type: PowerOfAttorneyRequestDecision::Types::ACCEPTANCE,
+              submission_status: PowerOfAttorneyFormSubmission::Statuses::SUCCEEDED }
           ]
         )
 
@@ -111,13 +111,13 @@ module AccreditedRepresentativePortal
       # were chained prior.
       #
       included do
-        scope :processed, -> {
+        scope :processed, lambda {
           ##
           # Must be resolved, and either the resolution is not an acceptance, or if
           # it is, there must be a form submission that succeeded.
           #
           relation =
-            joins(PROCESSED_JOIN_SQL)
+            joins(processed_join_sql)
 
           relation.where.not(resolution: { id: nil }).merge(
             relation.where(resolution: { acceptance: { id: nil } }).or(
@@ -126,13 +126,13 @@ module AccreditedRepresentativePortal
           )
         }
 
-        scope :not_processed, -> {
+        scope :not_processed, lambda {
           ##
           # Must be unresolved, or the resolution is an acceptance and there also
           # must not be a form submission that succeeded.
           #
           relation =
-            joins(PROCESSED_JOIN_SQL)
+            joins(processed_join_sql)
 
           relation.where(resolution: { id: nil }).or(
             relation.where.not(resolution: { acceptance: { id: nil } }).merge(

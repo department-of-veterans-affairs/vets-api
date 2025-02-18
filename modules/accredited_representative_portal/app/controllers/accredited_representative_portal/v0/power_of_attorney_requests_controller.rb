@@ -30,14 +30,9 @@ module AccreditedRepresentativePortal
         relation =
           case status
           when Statuses::PENDING
-            relation.not_processed.order(created_at: :asc)
+            pending(relation)
           when Statuses::PROCESSED
-            expired_condition =
-              { resolution: { resolving_type: PowerOfAttorneyRequestExpiration } }
-
-            relation
-              .processed.where.not(expired_condition)
-              .order(resolution: { created_at: :desc })
+            processing(relation)
           when NilClass
             relation
           else
@@ -60,6 +55,18 @@ module AccreditedRepresentativePortal
       end
 
       private
+
+      def pending(relation)
+        relation
+          .not_processed
+          .order(created_at: :asc)
+      end
+
+      def processed(relation)
+        relation
+          .processed.where.not(resolution: { resolving_type: PowerOfAttorneyRequestExpiration })
+          .order(resolution: { created_at: :desc })
+      end
 
       def scope_includes
         [
