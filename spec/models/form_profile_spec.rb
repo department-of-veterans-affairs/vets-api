@@ -1891,12 +1891,6 @@ RSpec.describe FormProfile, type: :model do
             end
 
             it 'returns prefilled 21-526EZ when disability_526_max_cfi_service_switch is enabled' do
-              allow(Flipper).to receive(:enabled?)
-                .with(
-                  ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND,
-                  anything
-                )
-                .and_return(false)
               allow(Flipper).to receive(:enabled?).with(:disability_compensation_remove_pciu,
                                                         anything).and_return(false)
               allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch,
@@ -1950,12 +1944,6 @@ RSpec.describe FormProfile, type: :model do
             end
 
             it 'returns prefilled 21-526EZ when disability_526_max_cfi_service_switch is enabled' do
-              allow(Flipper).to receive(:enabled?)
-                .with(
-                  ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND,
-                  anything
-                )
-                .and_return(false)
               allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch,
                                                         anything).and_return(true)
               expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
