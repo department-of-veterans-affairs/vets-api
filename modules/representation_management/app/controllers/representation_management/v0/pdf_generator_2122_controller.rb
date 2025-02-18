@@ -4,6 +4,7 @@ module RepresentationManagement
   module V0
     class PdfGenerator2122Controller < RepresentationManagement::V0::PowerOfAttorneyRequestBaseController
       skip_before_action :authenticate
+      before_action :load_user
 
       def create
         form = RepresentationManagement::Form2122Data.new(flatten_form_params)
@@ -12,6 +13,7 @@ module RepresentationManagement
           Tempfile.create do |tempfile|
             tempfile.binmode
             RepresentationManagement::V0::PdfConstructor::Form2122.new(tempfile).construct(form)
+            clear_saved_form('21-22')
             send_data tempfile.read,
                       filename: '21-22.pdf',
                       type: 'application/pdf',
