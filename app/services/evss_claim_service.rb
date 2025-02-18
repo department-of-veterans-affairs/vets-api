@@ -145,7 +145,7 @@ class EVSSClaimService
   def create_personalisation(document)
     first_name = auth_headers['va_eauth_firstName'].titleize unless auth_headers['va_eauth_firstName'].nil?
     { first_name:,
-      document_type: document.document_type,
+      document_type: document.description,
       file_name: document.file_name,
       obfuscated_file_name: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(document.file_name),
       date_submitted: BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(Time.zone.now),

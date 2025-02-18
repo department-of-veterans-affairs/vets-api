@@ -93,6 +93,48 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
     }
   end
 
+  let(:no_service_verification_body) do
+    {
+      'data' => {
+        'id' => user.uuid,
+        'type' => 'letters',
+        'attributes' => {
+          'letters' =>
+            [
+              {
+                'name' => 'Commissary Letter',
+                'letterType' => 'commissary'
+              },
+              {
+                'name' => 'Proof of Service Letter',
+                'letterType' => 'proof_of_service'
+              },
+              {
+                'name' => 'Proof of Creditable Prescription Drug Coverage Letter',
+                'letterType' => 'medicare_partd'
+              },
+              {
+                'name' => 'Proof of Minimum Essential Coverage Letter',
+                'letterType' => 'minimum_essential_coverage'
+              },
+              {
+                'name' => 'Civil Service Preference Letter',
+                'letterType' => 'civil_service'
+              },
+              {
+                'name' => 'Benefit Summary and Service Verification Letter',
+                'letterType' => 'benefit_summary'
+              },
+              {
+                'name' => 'Benefit Verification Letter',
+                'letterType' => 'benefit_verification'
+              }
+            ]
+        }
+      }
+    }
+  end
+
   let(:beneficiary_body) do
     { 'data' =>
        { 'id' => user.uuid,
@@ -135,22 +177,55 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
     end
 
     context 'with a valid lighthouse response' do
-      it 'matches the letters schema' do
-        VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/letters', headers: sis_headers
-          expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)).to eq(letters_body)
-          expect(response.body).to match_json_schema('letters')
+      context 'when :letters_hide_service_verification_letter is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:letters_hide_service_verification_letter).and_return(true)
+        end
+
+        it 'excludes the Service Verification letter' do
+          VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/letters', headers: sis_headers
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)).to eq(no_service_verification_body)
+            expect(response.body).to match_json_schema('letters')
+          end
+        end
+
+        it 'excludes the Service Verification letter and filters unlisted letter types' do
+          VCR.use_cassette('mobile/lighthouse_letters/letters_with_extra_types_200',
+                           match_requests_on: %i[method uri]) do
+            get '/mobile/v0/letters', headers: sis_headers
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)).to eq(no_service_verification_body)
+            expect(response.body).to match_json_schema('letters')
+          end
         end
       end
 
-      it 'filters unlisted letter types' do
-        VCR.use_cassette('mobile/lighthouse_letters/letters_with_extra_types_200',
-                         match_requests_on: %i[method uri]) do
-          get '/mobile/v0/letters', headers: sis_headers
-          expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)).to eq(letters_body)
-          expect(response.body).to match_json_schema('letters')
+      context 'when :letters_hide_service_verification_letter is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:letters_hide_service_verification_letter).and_return(false)
+        end
+
+        it 'does not exclude the Service Verification letter and matches the letters schema' do
+          VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/letters', headers: sis_headers
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)).to eq(letters_body)
+            expect(response.body).to match_json_schema('letters')
+          end
+        end
+
+        it 'filters unlisted letter types' do
+          VCR.use_cassette('mobile/lighthouse_letters/letters_with_extra_types_200',
+                           match_requests_on: %i[method uri]) do
+            get '/mobile/v0/letters', headers: sis_headers
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)).to eq(letters_body)
+            expect(response.body).to match_json_schema('letters')
+          end
         end
       end
     end

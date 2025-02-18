@@ -49,8 +49,8 @@ module AccreditedRepresentativePortal
       return unless address
 
       self.claimant_city = address['city']
-      self.claimant_state_code = address['state_code']
-      self.claimant_zip_code = address['zip_code']
+      self.claimant_state_code = address['stateCode']
+      self.claimant_zip_code = address['zipCode']
     end
 
     def data_must_comply_with_schema
@@ -83,11 +83,11 @@ module AccreditedRepresentativePortal
           "authorizations": {
             "type": "object",
             "properties": {
-              "record_disclosure": {
+              "recordDisclosure": {
                 "type": "boolean",
                 "example": true
               },
-              "record_disclosure_limitations": {
+              "recordDisclosureLimitations": {
                 "type": "array",
                 "items": {
                   "type": "string",
@@ -105,15 +105,15 @@ module AccreditedRepresentativePortal
                   "SICKLE_CELL"
                 ]
               },
-              "address_change": {
+              "addressChange": {
                 "type": "boolean",
                 "example": false
               }
             },
             "required": [
-              "record_disclosure",
-              "record_disclosure_limitations",
-              "address_change"
+              "recordDisclosure",
+              "recordDisclosureLimitations",
+              "addressChange"
             ]
           },
           "dependent": {
@@ -144,11 +144,11 @@ module AccreditedRepresentativePortal
               "address": {
                 "type": "object",
                 "properties": {
-                  "address_line1": {
+                  "addressLine1": {
                     "type": "string",
                     "example": "123 Main St"
                   },
-                  "address_line2": {
+                  "addressLine2": {
                     "type": ["string", "null"],
                     "example": "Apt 1"
                   },
@@ -156,7 +156,7 @@ module AccreditedRepresentativePortal
                     "type": "string",
                     "example": "Springfield"
                   },
-                  "state_code": {
+                  "stateCode": {
                     "type": "string",
                     "example": "IL"
                   },
@@ -164,26 +164,26 @@ module AccreditedRepresentativePortal
                     "type": "string",
                     "example": "US"
                   },
-                  "zip_code": {
+                  "zipCode": {
                     "type": "string",
                     "example": "62704"
                   },
-                  "zip_code_suffix": {
+                  "zipCodeSuffix": {
                     "type": ["string", "null"],
                     "example": "6789"
                   }
                 },
                 "required": [
-                  "address_line1",
-                  "address_line2",
+                  "addressLine1",
+                  "addressLine2",
                   "city",
-                  "state_code",
+                  "stateCode",
                   "country",
-                  "zip_code",
-                  "zip_code_suffix"
+                  "zipCode",
+                  "zipCodeSuffix"
                 ]
               },
-              "date_of_birth": {
+              "dateOfBirth": {
                 "type": "string",
                 "format": "date",
                 "example": "1980-12-31"
@@ -204,7 +204,7 @@ module AccreditedRepresentativePortal
             "required": [
               "name",
               "address",
-              "date_of_birth",
+              "dateOfBirth",
               "relationship",
               "phone",
               "email"
@@ -238,11 +238,11 @@ module AccreditedRepresentativePortal
               "address": {
                 "type": "object",
                 "properties": {
-                  "address_line1": {
+                  "addressLine1": {
                     "type": "string",
                     "example": "123 Main St"
                   },
-                  "address_line2": {
+                  "addressLine2": {
                     "type": ["string", "null"],
                     "example": "Apt 1"
                   },
@@ -250,7 +250,7 @@ module AccreditedRepresentativePortal
                     "type": "string",
                     "example": "Springfield"
                   },
-                  "state_code": {
+                  "stateCode": {
                     "type": "string",
                     "example": "IL"
                   },
@@ -258,43 +258,43 @@ module AccreditedRepresentativePortal
                     "type": "string",
                     "example": "US"
                   },
-                  "zip_code": {
+                  "zipCode": {
                     "type": "string",
                     "example": "62704"
                   },
-                  "zip_code_suffix": {
+                  "zipCodeSuffix": {
                     "type": ["string", "null"],
                     "example": "6789"
                   }
                 },
                 "required": [
-                  "address_line1",
-                  "address_line2",
+                  "addressLine1",
+                  "addressLine2",
                   "city",
-                  "state_code",
+                  "stateCode",
                   "country",
-                  "zip_code",
-                  "zip_code_suffix"
+                  "zipCode",
+                  "zipCodeSuffix"
                 ]
               },
               "ssn": {
                 "type": "string",
                 "example": "123456789"
               },
-              "va_file_number": {
+              "vaFileNumber": {
                 "type": ["string", "null"],
                 "example": "123456789"
               },
-              "date_of_birth": {
+              "dateOfBirth": {
                 "type": "string",
                 "format": "date",
                 "example": "1980-12-31"
               },
-              "service_number": {
+              "serviceNumber": {
                 "type": ["string", "null"],
                 "example": "123456789"
               },
-              "service_branch": {
+              "serviceBranch": {
                 "type": ["string", "null"],
                 "enum": [
                   "ARMY",
@@ -321,10 +321,10 @@ module AccreditedRepresentativePortal
               "name",
               "address",
               "ssn",
-              "va_file_number",
-              "date_of_birth",
-              "service_number",
-              "service_branch",
+              "vaFileNumber",
+              "dateOfBirth",
+              "serviceNumber",
+              "serviceBranch",
               "phone",
               "email"
             ]
