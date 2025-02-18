@@ -53,11 +53,11 @@ module Efolder
         .get_documents
         .each do |claim|
           uploaded_docs = claim[:uplded_dcmnts]
-          if uploaded_docs.is_a?(Hash)
+          if uploaded_docs.is_a?(Hash) && uploaded_docs.key?(:uuid_txt)
             uuids << uploaded_docs[:uuid_txt]
           else
             uploaded_docs.each do |doc|
-              uuids << doc[:uuid_txt]
+              uuids << doc[:uuid_txt] if doc.is_a?(Hash) && doc.key?(:uuid_txt)
             end
           end
         end
