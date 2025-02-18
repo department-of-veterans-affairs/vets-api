@@ -57,7 +57,7 @@ module Efolder
             uuids << uploaded_docs[:uuid_txt]
           else
             uploaded_docs.each do |doc|
-              uuids << doc[:uuid_txt] if doc.is_a?(Hash)
+              uuids << doc[:uuid_txt] if doc.is_a?(Hash) && doc.key?(:uuid_txt)
             end
           end
         end
