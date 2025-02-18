@@ -133,7 +133,6 @@ Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
 
     describe '#bgs_claim_status_service' do
       it 'requires the service statement' do
-        # allow(service).to receive(:dependent_claims).and_call_original
         res = service.send(:bgs_claim_status_service)
         expect(res).to be_a(ClaimsApi::EbenefitsBnftClaimStatusWebService)
       end
@@ -141,7 +140,6 @@ Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
 
     describe '#benefit_claim_web_service' do
       it 'requires the service statement' do
-        # allow(service).to receive(:claim_details).with('1234446').and_call_original
         res = service.send(:benefit_claim_web_service)
         expect(res).to be_a(ClaimsApi::BenefitClaimWebService)
       end
@@ -149,7 +147,6 @@ Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
 
     describe '#benefit_claim_service' do
       it 'requires the service statement' do
-        # allow(service).to receive(:assign_poa_to_dependent!).and_call_original
         res = service.send(:benefit_claim_service)
         expect(res).to be_a(ClaimsApi::BenefitClaimService)
       end
