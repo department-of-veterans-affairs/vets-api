@@ -1283,31 +1283,31 @@ va_mobile:
   url: https://veteran.apps.va.gov
 va_profile:
   address_validation:
-    api_key: ~
-    hostname: ~
+    api_key: "<AV_KEY>"
+    hostname: sandbox-api.va.gov
   contact_information:
-    cache_enabled: ~
-    enabled: ~
-    mock: ~
-    timeout: ~
+    cache_enabled: false
+    enabled: true
+    mock: false
+    timeout: 30
   demographics:
-    cache_enabled: ~
-    enabled: ~
-    mock: ~
-    timeout: ~
+    cache_enabled: false
+    enabled: true
+    mock: true
+    timeout: 30
   military_personnel:
-    cache_enabled: ~
-    enabled: ~
-    mock: ~
-    timeout: ~
-  prefill: ~
-  url: ~
+    cache_enabled: false
+    enabled: true
+    mock: false
+    timeout: 30
+  prefill: true
+  url: https://int.vet360.va.gov
   v3:
     address_validation:
-      api_key: ~
+      api_key: <AV_KEY>"
   veteran_status:
-    mock: ~
-    timeout: ~
+    mock: false
+    timeout: 30
 vanotify:
   client_url: http://fakeapi.com
   links:
