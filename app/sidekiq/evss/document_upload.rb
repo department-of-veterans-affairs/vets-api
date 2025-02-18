@@ -113,21 +113,25 @@ class EVSS::DocumentUpload
   # Update personalisation here since an evidence submission record was previously created
   def self.update_personalisation(current_personalisation, failed_at)
     personalisation = current_personalisation.clone
-    personalisation['date_failed'] = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(failed_at)
+    personalisation['date_failed'] = helpers.format_date_for_mailers(failed_at)
     personalisation
   end
 
   # This will be used by EVSS::FailureNotification
   def self.create_personalisation(msg)
     first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
-    document_type = msg['args'][2]['document_type']
+    document_type = EVSSClaimDocument.new(msg['args'][2]).description
     # Obscure the file name here since this will be used to generate a failed email
     # NOTE: the template that we use for va_notify.send_email uses `filename` but we can also pass in `file_name`
-    filename = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][2]['file_name'])
-    date_submitted = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(msg['created_at'])
-    date_failed = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(msg['failed_at'])
+    filename = helpers.generate_obscured_file_name(msg['args'][2]['file_name'])
+    date_submitted = helpers.format_date_for_mailers(msg['created_at'])
+    date_failed = helpers.format_date_for_mailers(msg['failed_at'])
 
     { first_name:, document_type:, filename:, date_submitted:, date_failed: }
+  end
+
+  def self.helpers
+    BenefitsDocuments::Utilities::Helpers
   end
 
   private
@@ -172,10 +176,9 @@ class EVSS::DocumentUpload
 
   def update_evidence_submission_status(job_id)
     evidence_submission = EvidenceSubmission.find_by(job_id:)
-    evidence_submission.update(
-      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]
+    evidence_submission.update!(
+      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
+      delete_date: (DateTime.current + 60.days).utc
     )
-    evidence_submission.save!
-    evidence_submission
   end
 end

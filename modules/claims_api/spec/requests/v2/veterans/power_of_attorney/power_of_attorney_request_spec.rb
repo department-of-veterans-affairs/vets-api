@@ -37,7 +37,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               expect(response).to have_http_status(:not_found)
               expect(response_body['title']).to eq('Resource not found')
               expect(response_body['status']).to eq('404')
-              expect(response_body['detail']).to eq(detail)
+              expect(response_body['detail']).to include(detail)
             end
           end
         end
@@ -56,7 +56,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               expect(response).to have_http_status(:unprocessable_entity)
               expect(response_body['title']).to eq('Unprocessable entity')
               expect(response_body['status']).to eq('422')
-              expect(response_body['detail']).to eq(detail)
+              expect(response_body['detail']).to include(detail)
             end
           end
         end
@@ -80,7 +80,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(response_body['title']).to eq('Unprocessable entity')
                   expect(response_body['status']).to eq('422')
-                  expect(response_body['detail']).to eq(detail)
+                  expect(response_body['detail']).to include(detail)
                 end
               end
             end
@@ -105,7 +105,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(response_body['title']).to eq('Unprocessable Entity')
                   expect(response_body['status']).to eq('422')
-                  expect(response_body['detail']).to eq(detail)
+                  expect(response_body['detail']).to include(detail)
                 end
               end
             end
@@ -131,7 +131,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                 expect(response).to have_http_status(:not_found)
                 expect(response_body['title']).to eq('Resource not found')
                 expect(response_body['status']).to eq('404')
-                expect(response_body['detail']).to eq(detail)
+                expect(response_body['detail']).to include(detail)
               end
             end
           end

@@ -522,7 +522,7 @@ ppms:
 mhv:
   # include ranges first, then individual exceptions to the ranges last.
   facility_range: [[358, 718], [720, 740], [742, 758]]
-  facility_specific: [["741MM"]] # 741 is excluded, but 741MM is included
+  facility_specific: ["741MM"] # 741 is excluded, but 741MM is included
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
@@ -1128,6 +1128,7 @@ vanotify:
       api_key: fake_secret
       template_id:
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
+        appoint_a_representative_digital_submit_confirmation_email: appoint_a_rep_v2_digital_submit_confirm_email_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
