@@ -1748,6 +1748,7 @@ accredited_representative_portal:
   allow_list:
     github:
       access_token: ~
+      base_uri: ~
       repo: ~
       path: ~
 
