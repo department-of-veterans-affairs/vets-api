@@ -70,11 +70,12 @@ module ClaimsApi
           )
         end
 
-        claims_v1_logging('validate_identifiers', message: "multiple_ids: #{ids.size}, ' /
-                                'header_request: #{header_request?}, require_birls: #{require_birls}, ' /
-                                'birls_id: #{target_veteran&.birls_id.present?}, ' /
-                                'rid: #{request&.request_id}, ' /
-                                'ptcpnt_id: #{target_veteran&.participant_id.present?}")
+        claims_v1_logging('validate_identifiers', message: "multiple_ids: #{ids.size}, " \
+                                                           "header_request: #{header_request?}, " \
+                                                           "require_birls: #{require_birls}, " \
+                                                           "birls_id: #{target_veteran&.birls_id.present?}, " \
+                                                           "rid: #{request&.request_id}, " \
+                                                           "ptcpnt_id: #{target_veteran&.participant_id.present?}")
         if target_veteran.icn.blank?
           claims_v1_logging('unable_to_locate_icn',
                             message: 'unable_to_locate_icn on request in v1 application controller.')
@@ -99,12 +100,12 @@ module ClaimsApi
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
 
-        claims_v1_logging('validate_identifiers', message: "multiple_ids: #{ids.size}, ' /
-                                                  'header_request: #{header_request?}, ' /
-                                                  'birls_id: #{target_veteran&.birls_id.present?}, ' /
-                                                  'rid: #{request&.request_id}, ' /
-                                                  'mpi_res_ok: #{mpi_add_response&.ok?}, ' /
-                                                  'ptcpnt_id: #{target_veteran&.participant_id.present?}")
+        claims_v1_logging('validate_identifiers', message: "multiple_ids: #{ids.size}, " \
+                                                           "header_request: #{header_request?}, " \
+                                                           "birls_id: #{target_veteran&.birls_id.present?}, " \
+                                                           "rid: #{request&.request_id}, " \
+                                                           "mpi_res_ok: #{mpi_add_response&.ok?}, " \
+                                                           "ptcpnt_id: #{target_veteran&.participant_id.present?}")
       rescue MPI::Errors::ArgumentError
         claims_v1_logging('unable_to_locate_participant_id',
                           message: 'unable_to_locate_participant_id on request in v1 application controller.')
