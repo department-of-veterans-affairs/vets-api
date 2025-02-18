@@ -161,7 +161,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                   VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
                     allow_any_instance_of(MPIData)
                       .to receive(:mvi_response).and_return(multi_profile)
-                    post path, params: data, headers: auth_header
+                    parsed_data = JSON.parse(data)
+                    post path, params: parsed_data, headers: auth_header, as: :json
 
                     response_body = JSON.parse response.body
                     expect(response).to have_http_status(:unprocessable_entity)
@@ -217,7 +218,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
                 expect(ClaimsApi::V1::PoaFormBuilderJob).to receive(:perform_async)
 
-                post path, params: params.to_json, headers: headers.merge(auth_header)
+                post path, params: params, headers: auth_header, as: :json
               end
             end
           end
@@ -677,7 +678,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
           allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
           expect(power_of_attorney.file_data).to be_nil
           put("#{path}/#{power_of_attorney.id}",
-              params: base64_params, headers: headers.merge(auth_header))
+              params: base64_params, headers: headers.merge(auth_header), as: :json)
           power_of_attorney.reload
           expect(power_of_attorney.file_data).not_to be_nil
           expect(power_of_attorney.status).to eq('submitted')
@@ -713,7 +714,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                 .to receive(:find_by_ssn).and_raise(BGS::ShareError.new('HelloWorld'))
               expect(power_of_attorney.file_data).to be_nil
               put("#{path}/#{power_of_attorney.id}",
-                  params: base64_params, headers: headers.merge(auth_header))
+                  params: base64_params, headers: headers.merge(auth_header), as: :json)
               power_of_attorney.reload
               parsed = JSON.parse(response.body)
               expect(power_of_attorney.file_data).to be_nil
@@ -739,7 +740,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                   .to receive(:find_by_ssn).and_return(nil)
                 expect(power_of_attorney.file_data).to be_nil
                 put("#{path}/#{power_of_attorney.id}",
-                    params: base64_params, headers: headers.merge(auth_header))
+                    params: base64_params, headers: headers.merge(auth_header), as: :json)
                 power_of_attorney.reload
                 parsed = JSON.parse(response.body)
                 expect(power_of_attorney.file_data).to be_nil
@@ -759,7 +760,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                   .to receive(:find_by_ssn).and_return({ file_nbr: nil })
                 expect(power_of_attorney.file_data).to be_nil
                 put("#{path}/#{power_of_attorney.id}",
-                    params: base64_params, headers: headers.merge(auth_header))
+                    params: base64_params, headers: headers.merge(auth_header), as: :json)
                 power_of_attorney.reload
                 parsed = JSON.parse(response.body)
                 expect(power_of_attorney.file_data).to be_nil
@@ -779,7 +780,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
                   .to receive(:find_by_ssn).and_return({ file_nbr: '' })
                 expect(power_of_attorney.file_data).to be_nil
                 put("#{path}/#{power_of_attorney.id}",
-                    params: base64_params, headers: headers.merge(auth_header))
+                    params: base64_params, headers: headers.merge(auth_header), as: :json)
                 power_of_attorney.reload
                 parsed = JSON.parse(response.body)
                 expect(power_of_attorney.file_data).to be_nil

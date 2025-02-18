@@ -5,7 +5,7 @@ require 'lighthouse/benefits_documents/upload_status_updater'
 require 'lighthouse/benefits_documents/constants'
 
 RSpec.describe BenefitsDocuments::UploadStatusUpdater do
-  let(:lighthouse_document_upload) { create(:bd_evidence_submission_pending) }
+  let(:lighthouse_document_upload) { create(:bd_evidence_submission_pending, job_class: 'BenefitsDocuments::Service') }
   let(:lighthouse_document_upload_timeout) { create(:bd_evidence_submission_timeout) }
   let(:past_date_time) { DateTime.new(1985, 10, 26) }
   let(:current_date_time) { DateTime.now.utc }

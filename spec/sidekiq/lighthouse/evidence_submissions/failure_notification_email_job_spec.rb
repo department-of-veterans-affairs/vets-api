@@ -87,4 +87,35 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
       expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
     end
   end
+
+  context 'when there are multiple FAILED records without a va_notify_date' do
+    let(:message1) { "#{evidence_submission_failed1.job_class} va notify failure email queued" }
+    let(:message2) { "#{evidence_submission_failed2.job_class} va notify failure email queued" }
+    let(:tags1) { ['service:claim-status', "function: #{message1}"] }
+    let(:tags2) { ['service:claim-status', "function: #{message1}"] }
+    let!(:evidence_submission_failed1) { create(:bd_evidence_submission_failed) }
+    let!(:evidence_submission_failed2) { create(:bd_evidence_submission_failed) }
+
+    before do
+      allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
+      allow(EvidenceSubmission).to receive(:va_notify_email_not_queued).and_return([evidence_submission_failed1,
+                                                                                    evidence_submission_failed2])
+      allow(Rails.logger).to receive(:info)
+      allow(StatsD).to receive(:increment)
+    end
+
+    it 'successfully enqueues a failure notification mailer to send to the veteran' do
+      expect(EvidenceSubmission.count).to eq(2)
+      expect(EvidenceSubmission.va_notify_email_not_queued.length).to eq(2)
+      expect(vanotify_service).to receive(:send_email)
+      expect(evidence_submission_failed1).to receive(:update).and_call_original
+      expect(evidence_submission_failed2).to receive(:update).and_call_original
+      expect(Rails.logger).to receive(:info).with(message1)
+      expect(Rails.logger).to receive(:info).with(message2)
+      expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: tags1)
+      expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: tags2)
+      subject.new.perform
+      expect(EvidenceSubmission.va_notify_email_queued.length).to eq(2)
+    end
+  end
 end
