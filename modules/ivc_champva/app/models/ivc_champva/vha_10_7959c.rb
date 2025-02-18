@@ -31,7 +31,7 @@ module IvcChampva
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info'],
         'primaryContactEmail' => @data.dig('primary_contact_info', 'email').to_s,
-        'applicantEmail' => @data['applicant_email']&.to_s || ''
+        'applicantEmail' => @data['applicant_email'] || ''
       }
     end
 
