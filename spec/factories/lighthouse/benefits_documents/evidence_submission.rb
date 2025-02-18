@@ -34,7 +34,7 @@ FactoryBot.define do
     template_metadata do
       { 'personalisation' => {
         'first_name' => 'test',
-        'document_type' => 'L014',
+        'document_type' => 'Birth Certificate',
         'file_name' => 'testfile.txt',
         'obfuscated_file_name' => 'tesXXile.txt',
         'date_submitted' => DateTime.now.utc.to_s,
@@ -51,7 +51,7 @@ FactoryBot.define do
     template_metadata do
       { 'personalisation' => {
         'first_name' => 'test',
-        'document_type' => 'L014',
+        'document_type' => 'Birth Certificate',
         'file_name' => 'test.txt',
         'obfuscated_file_name' => 'tesXXile.txt',
         'date_submitted' => DateTime.now.utc.to_s,
