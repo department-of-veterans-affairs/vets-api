@@ -97,6 +97,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         described_class.drain
         evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
         expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
+        expect(evidence_submission.delete_date).not_to be_nil
       end
     end
 

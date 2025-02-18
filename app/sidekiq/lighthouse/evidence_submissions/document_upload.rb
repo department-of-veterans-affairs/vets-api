@@ -169,7 +169,7 @@ module Lighthouse
         request_successful = response.body.dig('data', 'success')
         if request_successful
           request_id = response.body.dig('data', 'requestId')
-          evidence_submission.update(
+          evidence_submission.update!(
             request_id:
           )
         else
