@@ -22,13 +22,6 @@ module AccreditedRepresentativePortal
 
         ApplicationRecord.transaction do
           resolving = PowerOfAttorneyRequestDecision.create!(type:, creator:)
-
-          ##
-          # This form triggers the uniqueness validation, while the
-          # `@poa_request.create_resolution!` form triggers a more obscure
-          # `RecordNotSaved` error that is less functional for getting
-          # validation errors.
-          #
           PowerOfAttorneyRequestResolution.create!(
             power_of_attorney_request: @poa_request,
             resolving:,
@@ -48,7 +41,11 @@ module AccreditedRepresentativePortal
         when 'declination'
           PowerOfAttorneyRequestDecision::Types::DECLINATION
         else
-          # So that validations will get their chance to complain.
+          log_warn(
+            "Invalid decision type: #{decision_params[:type]}",
+            'api.arp.poa_decision.invalid_type',
+            ["invalid_type:#{decision_params[:type]}"]
+          )
           decision_params[:type]
         end
       end
