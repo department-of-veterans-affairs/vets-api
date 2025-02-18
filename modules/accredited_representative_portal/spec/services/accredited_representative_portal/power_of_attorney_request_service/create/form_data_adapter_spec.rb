@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe PowerOfAttorneyRequestService::Create::FormDataAdapter do
+RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Create::FormDataAdapter do
   describe '#call' do
     subject { described_class.new(data: data, dependent: dependent, service_branch: service_branch) }
 

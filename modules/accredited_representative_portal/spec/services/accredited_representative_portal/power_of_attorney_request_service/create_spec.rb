@@ -2,10 +2,10 @@
 
 require 'rails_helper'
 
-RSpec.describe PowerOfAttorneyRequestService::Create do
+RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Create do
   describe '#call' do
     subject do
-      described_class.new(claimant: claimant, form_data: form_data, holder_type: holder_type, poa_code: poa_code,
+      described_class.new(claimant: claimant, form_data: form_data, poa_code: poa_code,
                           registration_number: registration_number)
     end
 
@@ -62,7 +62,6 @@ RSpec.describe PowerOfAttorneyRequestService::Create do
         }
       }
     end
-    let(:holder_type) { 'AccreditedOrganization' }
     let(:organization) { create(:organization, poa: 'B12') }
     let(:poa_code) { organization.poa }
     let(:representative) { create(:representative, representative_id: '86753') }
@@ -94,20 +93,10 @@ RSpec.describe PowerOfAttorneyRequestService::Create do
       expect(result[:request].accredited_individual).to eq(representative)
     end
 
-    it 'sets the power_of_attorney_holder_type type' do
+    it 'sets the power_of_attorney_holder_type' do
       result = subject.call
 
-      expect(result[:request].power_of_attorney_holder_type).to eq(holder_type)
-    end
-
-    context 'when only registration_number is provided' do
-      let(:poa_code) { nil }
-
-      it 'does not set the accredited_organization' do
-        result = subject.call
-
-        expect(result[:request].accredited_organization).to be_nil
-      end
+      expect(result[:request].power_of_attorney_holder_type).to eq('AccreditedOrganization')
     end
 
     context 'when only poa_code is provided' do
@@ -121,29 +110,15 @@ RSpec.describe PowerOfAttorneyRequestService::Create do
     end
 
     context 'when there are errors' do
-      context 'when both accredited_entity params are nil' do
-        let(:registration_number) { nil }
+      context 'when the poa_code is nil' do
         let(:poa_code) { nil }
 
         it 'returns a meaningful error' do
           result = subject.call
 
-          expect(result[:errors]).to eq([PowerOfAttorneyRequestService::Create::ACCREDITED_ENTITY_ERROR])
-        end
+          message = AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Create::ACCREDITED_ENTITY_ERROR
 
-        it 'does not create new records' do
-          expect { subject.call }.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyRequest, :count)
-          expect { subject.call }.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyForm, :count)
-        end
-      end
-
-      context 'when the holder_type is not in the allowed list' do
-        let(:holder_type) { 'testing' }
-
-        it 'returns a meaningful error' do
-          result = subject.call
-
-          expect(result[:errors]).to eq([PowerOfAttorneyRequestService::Create::HOLDER_TYPE_ERROR])
+          expect(result[:errors]).to eq([message])
         end
 
         it 'does not create new records' do
