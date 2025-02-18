@@ -3899,7 +3899,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
         params = {
           '_data' => {
-            'appointmentDatetime' => '2024-01-01T16:45:34.465Z'
+            'appointment_datetime' => '2024-01-01T16:45:34.465Z'
           }
         }
         VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[path method]) do
