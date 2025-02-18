@@ -6,19 +6,11 @@ module Ccra
   # common headers for requests.
   class BaseService < VAOS::SessionService
     include Common::Client::Concerns::Monitoring
+    include Common::Client::Concerns::TokenAuthentication
 
     STATSD_KEY_PREFIX = 'api.ccra'
-
-    ##
-    # Returns a hash of common headers for CCRA requests.
-    #
-    # @return [Hash] The headers including Authorization, Content-Type, and X-Request-ID.
-    def headers
-      {
-        'Content-Type' => 'application/json',
-        'X-Request-ID' => RequestStore.store['request_id']
-      }
-    end
+    REDIS_TOKEN_KEY = REDIS_CONFIG[:ccra_access_token][:namespace]
+    REDIS_TOKEN_TTL = REDIS_CONFIG[:ccra_access_token][:each_ttl]
 
     ##
     # Returns the configuration for the CCRA service.
