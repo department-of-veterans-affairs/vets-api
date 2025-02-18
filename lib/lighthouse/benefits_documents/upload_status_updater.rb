@@ -100,7 +100,7 @@ module BenefitsDocuments
     end
 
     def process_upload
-      @pending_evidence_submission.update(
+      @pending_evidence_submission.update!(
         upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
         delete_date: (DateTime.current + 60.days).utc
       )
