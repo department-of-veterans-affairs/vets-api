@@ -46,6 +46,8 @@ module SignIn
         mhv_icn: user_account.icn,
         idme_uuid: user_verification.idme_uuid || user_verification.backing_idme_uuid,
         logingov_uuid: user_verification.logingov_uuid,
+        mhv_credential_uuid: user_verification.mhv_uuid,
+        edipi: user_verification.dslogon_uuid,
         loa:,
         email: session.credential_email,
         authn_context:,

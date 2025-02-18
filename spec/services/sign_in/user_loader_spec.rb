@@ -70,6 +70,10 @@ RSpec.describe SignIn::UserLoader do
           it 'reloads user object with expected backing idme uuid' do
             expect(subject.idme_uuid).to eq user_verification.backing_idme_uuid
           end
+
+          it 'reloads user object with expected dslogon edipi' do
+            expect(subject.edipi).to eq user_verification.dslogon_uuid
+          end
         end
 
         context 'and user is authenticated with mhv' do
@@ -77,6 +81,10 @@ RSpec.describe SignIn::UserLoader do
 
           it 'reloads user object with expected backing idme uuid' do
             expect(subject.idme_uuid).to eq user_verification.backing_idme_uuid
+          end
+
+          it 'reloads user object with expected mhv credential uuid' do
+            expect(subject.mhv_credential_uuid).to eq user_verification.mhv_uuid
           end
         end
 
