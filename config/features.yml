@@ -295,7 +295,7 @@ features:
   claims_api_use_update_poa_relationship:
     actor_type: user
     description: Uses local_bgs rather than bgs-ext
-    enable_in_development: true  
+    enable_in_development: true
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
@@ -618,6 +618,10 @@ features:
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
+  facilities_use_fl_progressive_disclosure:
+    actor_type: user
+    description: Use progressive disclosure in the Facility Locator UI
+    enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
@@ -938,10 +942,6 @@ features:
   medical_copay_notifications:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
-    enable_in_development: true
-  mhv_account_creation_api_consumption:
-    actor_type: user
-    descriptiom: Enables access to alerts related to MHV Account Creation API
     enable_in_development: true
   mhv_account_creation_after_login:
     actor_type: user
@@ -1432,6 +1432,10 @@ features:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
     enable_in_development: true
+  va1010_forms_enrollment_system_service_enabled:
+    actor_type: user
+    description: Enables the VA1010Forms enrollment system service
+    enable_in_development: true
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
@@ -1873,6 +1877,9 @@ features:
   pension_confirmation_update:
     actor_type: user
     description: Show updated confirmation page
+  pension_form_profile_module_enabled:
+    actor_type: user
+    description: Use the module version of the FormProfile
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
