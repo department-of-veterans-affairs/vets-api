@@ -75,10 +75,56 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
     end
 
     it 'creates requests with proper claimant data' do
+      described_class.run
       requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest.all
+    
+      expect(requests).to(be_all do |req|
+        req.power_of_attorney_form.parsed_data['veteran'].present?
+      end)
 
-      expect(requests).to(be_all { |req| req.claimant.is_a?(UserAccount) })
-      expect(requests).to(be_all { |req| req.claimant_type == 'veteran' })
+      # expect dependent data if claimant_type is dependent
+      expect(requests.where(claimant_type: 'dependent')).to(be_all do |req|
+        req.power_of_attorney_form.parsed_data['dependent'].present?
+      end)
+
+      # Verify form data is structured correctly
+      forms = AccreditedRepresentativePortal::PowerOfAttorneyForm.all
+      expect(forms).to(be_all do |form|
+        data = form.parsed_data
+        data['veteran'].present? &&
+        data['authorizations'].present?
+      end)
+    end
+
+    it 'creates the expected mix of requests' do
+      described_class.run
+      
+      # Get all requests
+      requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest.all
+    
+      # Basic resolution counts
+      expect(requests.resolved.count).to be_positive
+      expect(requests.unresolved.count).to be_positive
+    
+      # Basic claimant type counts 
+      veteran_count = requests.where(claimant_type: 'veteran').count
+      dependent_count = requests.where(claimant_type: 'dependent').count
+    
+      expect(veteran_count).to be_positive
+      expect(dependent_count).to be_positive
+    
+      # Verify form data matches claimant type
+      veteran_requests = requests.where(claimant_type: 'veteran')
+      dependent_requests = requests.where(claimant_type: 'dependent')
+    
+      veteran_requests.each do |req|
+        expect(req.power_of_attorney_form.parsed_data['veteran']).to be_present
+        expect(req.power_of_attorney_form.parsed_data['dependent']).to be_nil
+      end
+    
+      dependent_requests.each do |req|
+        expect(req.power_of_attorney_form.parsed_data['dependent']).to be_present
+      end
     end
 
     it 'creates requests for multi-org reps' do

@@ -21,33 +21,37 @@ module AccreditedRepresentativePortal
           create_resolution(request, options.resolution_cycle.next)
           options.totals[:resolutions] += 1
         else
-          create_poa_request(options.org, options.rep, options.claimant, options.unresolved_time.next)
+          create_poa_request(options.org, options.rep, options.claimant, options.unresolved_time.next, i.even?)
         end
 
         options.totals[:requests] += 1
       end
 
-      def create_poa_request(org, rep, claimant, created_at)
+      def create_poa_request(org, rep, claimant, created_at, dependent_toggle)
         request = PowerOfAttorneyRequest.new(
           claimant_id: claimant.id,
-          claimant_type: 'veteran',
-          power_of_attorney_holder_type: org ? 'AccreditedOrganization' : 'AccreditedIndividual',
+          claimant_type: dependent_toggle ? 'dependent' : 'veteran',
+          power_of_attorney_holder_type: org ? 'veteran_service_organization' : 'individual_representative',
           power_of_attorney_holder_poa_code: org&.poa,
           accredited_individual_registration_number: rep.representative_id,
           created_at: created_at
         )
-
+      
+        form_data = {
+          authorizations: FormMethods.build_authorizations,
+          veteran: FormMethods.build_veteran_info,
+          dependent: dependent_toggle ? FormMethods.build_dependent_info : nil
+        }
+      
         form = AccreditedRepresentativePortal::PowerOfAttorneyForm.new(
           power_of_attorney_request: request,
-          data: FormMethods.build_poa_form_data.deep_transform_keys! do |key|
-            key.to_s.camelize(:lower)
-          end.to_json
+          data: form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }.to_json
         )
-
+      
         form.save!
         request.power_of_attorney_form = form
         request.save!
-
+      
         request
       end
 
@@ -134,10 +138,10 @@ module AccreditedRepresentativePortal
       def create_requests_for_rep(org, rep, options)
         5.times do |i|
           if i.even?
-            create_poa_request(org, rep, options[:claimant_cycle].next, options[:unresolved_time].next)
+            create_poa_request(org, rep, options[:claimant_cycle].next, options[:unresolved_time].next, i.even?)
             options[:totals][:requests] += 1
           else
-            request = create_poa_request(org, rep, options[:claimant_cycle].next, options[:resolved_time].next)
+            request = create_poa_request(org, rep, options[:claimant_cycle].next, options[:resolved_time].next, i.even?)
             create_resolution(request, :decision)
             options[:totals][:requests] += 1
             options[:totals][:resolutions] += 1
@@ -165,7 +169,20 @@ module AccreditedRepresentativePortal
         {
           authorizations: build_authorizations,
           veteran: build_veteran_info,
-          dependent: nil
+          dependent: build_dependent_info 
+        }
+      end
+
+      def build_dependent_info
+        {
+          name: build_name,
+          address: build_address,
+          ssn: '123456789',
+          va_file_number: '123456789', 
+          date_of_birth: '1980-01-01',
+          phone: '1234567890',
+          email: 'test@example.com',
+          relationship: 'Child'
         }
       end
 
