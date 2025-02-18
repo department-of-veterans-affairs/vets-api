@@ -4,6 +4,7 @@ require 'sm/client'
 
 module SM
   module ClientHelpers
+    #test 
     TOKEN = 'GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88='
 
     def authenticated_client
