@@ -15,7 +15,6 @@ RSpec.describe FormProfile, type: :model do
     allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, anything).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_remove_pciu, anything).and_return(true)
     described_class.instance_variable_set(:@mappings, nil)
-    Flipper.disable(:disability_526_toxic_exposure)
   end
 
   let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1781151') }
