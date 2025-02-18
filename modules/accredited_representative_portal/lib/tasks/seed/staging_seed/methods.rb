@@ -114,9 +114,16 @@ module AccreditedRepresentativePortal
       end
 
       def process_org_reps(org, options)
-        matching_reps = Veteran::Service::Representative
-                        .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
-                        .limit(2)
+        matching_reps = if org.poa == '008'
+                          # Get all CT reps without limit
+                          Veteran::Service::Representative
+                            .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
+                        else
+                          # limit for other orgs
+                          Veteran::Service::Representative
+                            .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
+                            .limit(2)
+                        end
 
         matching_reps.each do |rep|
           create_user_account_if_needed(rep, options)
