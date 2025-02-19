@@ -32,12 +32,12 @@ RSpec.describe AccreditationService do
         expect(response.status).to eq(200)
         expect(response.body).to eq(parsed_body.stringify_keys)
 
-        expect(monitor).to have_received(:with_tracing).with('api.arp.form21a.submit').once
+        expect(monitor).to have_received(:with_tracing).with('form21a.submit').once
         expect(monitor).to have_received(:track_event).with(
-          :info, 'Submitting Form 21a', 'api.arp.form21a.submit', ["user_uuid:#{user_uuid}"]
+          :info, 'Submitting Form 21a', 'form21a.submit', ["user_uuid:#{user_uuid}"]
         )
         expect(monitor).to have_received(:track_event).with(
-          :info, 'Form 21a Submission Success', 'api.arp.form21a.success', ["user_uuid:#{user_uuid}"]
+          :info, 'Form 21a Submission Success', 'form21a.success', ["user_uuid:#{user_uuid}"]
         )
       end
     end
@@ -52,10 +52,10 @@ RSpec.describe AccreditationService do
         expect(response.status).to eq(:service_unavailable) # 503
         expect(JSON.parse(response.body)['errors']).to eq('Accreditation Service unavailable')
 
-        expect(monitor).to have_received(:with_tracing).with('api.arp.form21a.submit').once
+        expect(monitor).to have_received(:with_tracing).with('form21a.submit').once
         expect(monitor).to have_received(:track_error).with(
           'Accreditation Service Connection Failed',
-          'api.arp.form21a.connection_failed',
+          'form21a.connection_failed',
           'Faraday::ConnectionFailed',
           ["user_uuid:#{user_uuid}", 'error:Accreditation Service connection failed']
         )
@@ -72,10 +72,10 @@ RSpec.describe AccreditationService do
         expect(response.status).to eq(:request_timeout) # 408
         expect(JSON.parse(response.body)['errors']).to eq('Accreditation Service request timed out')
 
-        expect(monitor).to have_received(:with_tracing).with('api.arp.form21a.submit').once
+        expect(monitor).to have_received(:with_tracing).with('form21a.submit').once
         expect(monitor).to have_received(:track_error).with(
           'Accreditation Service Timeout',
-          'api.arp.form21a.timeout',
+          'form21a.timeout',
           'Faraday::TimeoutError',
           ["user_uuid:#{user_uuid}", 'error:Request timed out']
         )

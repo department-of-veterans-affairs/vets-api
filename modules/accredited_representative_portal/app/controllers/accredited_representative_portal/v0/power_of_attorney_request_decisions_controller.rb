@@ -43,7 +43,7 @@ module AccreditedRepresentativePortal
         else
           log_warn(
             "Invalid decision type: #{decision_params[:type]}",
-            'api.arp.poa_decision.invalid_type',
+            'poa_decision.invalid_type',
             ["invalid_type:#{decision_params[:type]}"]
           )
           decision_params[:type]

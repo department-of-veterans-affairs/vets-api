@@ -45,15 +45,15 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
 
           expect(monitor).to have_received(:track_event).with(
             :info,
-            'Starting api.arp.arbitrary.arbitrary',
-            'api.arp.arbitrary.arbitrary.attempt',
+            'Starting arbitrary.arbitrary',
+            'arbitrary.arbitrary.attempt',
             array_including(anything)
           ).once
 
           expect(monitor).to have_received(:track_event).with(
             :info,
-            'Completed api.arp.arbitrary.arbitrary',
-            'api.arp.arbitrary.arbitrary.success',
+            'Completed arbitrary.arbitrary',
+            'arbitrary.arbitrary.success',
             array_including(anything)
           ).once
         end

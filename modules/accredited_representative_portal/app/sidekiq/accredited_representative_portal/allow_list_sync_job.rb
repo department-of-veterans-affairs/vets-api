@@ -8,7 +8,7 @@ module AccreditedRepresentativePortal
     # To not overload the DB.
     MAX_RECORD_COUNT = 500
     SERVICE_NAME = 'accredited-representative-portal'
-    METRIC = 'api.arp.allow_list_sync'
+    METRIC = 'allow_list_sync'
 
     Error = Class.new(RuntimeError)
 

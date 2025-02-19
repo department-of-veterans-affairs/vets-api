@@ -16,7 +16,7 @@ module AccreditedRepresentativePortal
         monitor.track(
           :warn,
           "Invalid form update: #{e.message}",
-          'api.arp.form.update.invalid',
+          'form.update.invalid',
           tags: ["form_id:#{params[:id]}"]
         )
         raise
@@ -36,7 +36,7 @@ module AccreditedRepresentativePortal
         monitor.track(
           :warn,
           "Form not found for deletion: #{e.message}",
-          'api.arp.form.delete.not_found',
+          'form.delete.not_found',
           tags: ["form_id:#{params[:id]}"]
         )
         raise

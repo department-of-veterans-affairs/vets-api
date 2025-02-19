@@ -17,7 +17,7 @@ module AccreditedRepresentativePortal
       end
 
       FORM_ID = '21a'
-      METRIC = 'api.arp.form21a'
+      METRIC = 'form21a'
 
       before_action :parse_request_body, :validate_form, only: [:submit]
 

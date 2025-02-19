@@ -30,7 +30,7 @@ module AccreditedRepresentativePortal
             rel
           else
             message = "Invalid status parameter. Must be one of (#{Statuses::ALL.join(', ')})"
-            log_warn(message, 'api.arp.poa_requests.invalid_status', ["status:#{status}"])
+            log_warn(message, 'poa_requests.invalid_status', ["status:#{status}"])
             raise ActionController::BadRequest, message.squish
           end
 

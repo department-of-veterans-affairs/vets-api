@@ -6,7 +6,7 @@
 
 class AccreditationService
   SERVICE_NAME = 'accredited-representative-portal'
-  METRIC = 'api.arp.form21a'
+  METRIC = 'form21a'
 
   # self.submit_form21a(parsed_body): Submits the given parsed body as JSON to the accreditation service.
   #   - Parameters:

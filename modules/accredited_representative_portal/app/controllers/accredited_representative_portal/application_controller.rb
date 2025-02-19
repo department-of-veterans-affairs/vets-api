@@ -18,14 +18,14 @@ module AccreditedRepresentativePortal
     after_action :verify_pundit_authorization
 
     rescue_from Pundit::NotAuthorizedError do |e|
-      track_exception(e, 'api.arp.auth.failure')
+      track_exception(e, 'auth.failure')
       render json: { errors: [e.message] }, status: :forbidden
     end
 
     private
 
     def track_request_execution
-      event = "api.arp.#{controller_name}.#{action_name}"
+      event = "#{controller_name}.#{action_name}"
 
       log_info("Starting #{event}", "#{event}.attempt", user_tags)
       yield
@@ -43,13 +43,13 @@ module AccreditedRepresentativePortal
     def handle_exceptions
       yield
     rescue Pundit::NotAuthorizedError => e
-      track_exception(e, 'api.arp.auth.failure')
+      track_exception(e, 'auth.failure')
       raise
     rescue Common::Exceptions::Forbidden => e
-      track_exception(e, 'api.arp.access.forbidden')
+      track_exception(e, 'access.forbidden')
       raise
     rescue => e
-      track_exception(e, 'api.arp.error', e.class.name)
+      track_exception(e, 'error', e.class.name)
       raise
     end
 

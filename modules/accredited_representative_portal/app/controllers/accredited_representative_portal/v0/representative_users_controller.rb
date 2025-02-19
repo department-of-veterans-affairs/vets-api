@@ -8,7 +8,7 @@ module AccreditedRepresentativePortal
       def show
         log_info(
           'Retrieved in progress forms count',
-          'api.arp.user.forms.count',
+          'user.forms.count',
           ["count:#{in_progress_forms.length}"]
         )
 
