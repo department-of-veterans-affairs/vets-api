@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+require_relative '../concerns/token_authentication'
+require_relative '../concerns/jwt_wrapper'
+
 module Eps
   class BaseService < VAOS::SessionService
     include Common::Client::Concerns::Monitoring
-    include Common::Client::Concerns::TokenAuthentication
+    include Concerns::TokenAuthentication
 
     STATSD_KEY_PREFIX = 'api.eps'
     REDIS_TOKEN_KEY = REDIS_CONFIG[:eps_access_token][:namespace]
