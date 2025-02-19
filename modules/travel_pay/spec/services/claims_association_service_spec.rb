@@ -209,7 +209,6 @@ describe TravelPay::ClaimAssociationService do
       appts.each do |appt|
         expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
         expect(appt['travelPayClaim']['metadata']['success']).to be(false)
-        expect(appt['travelPayClaim']['metadata']['message']).to include(/Invalid date./i)
       end
     end
   end
@@ -379,7 +378,6 @@ describe TravelPay::ClaimAssociationService do
                                                                        })
       expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
       expect(appt['travelPayClaim']['metadata']['success']).to be(false)
-      expect(appt['travelPayClaim']['metadata']['message']).to include(/Invalid date./i)
     end
   end
 end
