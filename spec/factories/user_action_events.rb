@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :user_action_event do
     details { Faker::Lorem.sentence }
-    event_id { "user_login_#{SecureRandom.hex(4)}" }
+    event_id { SecureRandom.uuid }
     event_type { 0 }
 
     trait :authentication do
