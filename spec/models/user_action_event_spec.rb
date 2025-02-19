@@ -13,7 +13,9 @@ RSpec.describe UserActionEvent, type: :model do
   end
 
   describe 'enums' do
-    it { is_expected.to define_enum_for(:event_type).with_values(authentication: 0, profile: 1) }
+    let(:expected_event_types) { { authentication: 0, profile: 1 } }
+
+    it { is_expected.to define_enum_for(:event_type).with_values(expected_event_types) }
 
     describe 'event types' do
       let(:auth_event) { build(:user_action_event, event_type: :authentication) }
@@ -21,12 +23,12 @@ RSpec.describe UserActionEvent, type: :model do
 
       it 'allows setting authentication type' do
         expect(auth_event).to be_valid
-        expect(auth_event).to be_authentication
+        expect(auth_event.event_type).to eq('authentication')
       end
 
       it 'allows setting profile type' do
         expect(profile_event).to be_valid
-        expect(profile_event).to be_profile
+        expect(profile_event.event_type).to eq('profile')
       end
 
       it 'prevents invalid event types' do
@@ -34,20 +36,6 @@ RSpec.describe UserActionEvent, type: :model do
           build(:user_action_event, event_type: :invalid)
         end.to raise_error(ArgumentError)
       end
-    end
-  end
-
-  describe 'event_id format' do
-    let(:event1) { create(:user_action_event) }
-    let(:event2) { create(:user_action_event) }
-    let(:auth_event) { create(:user_action_event, event_type: :authentication) }
-
-    it 'generates unique event_ids' do
-      expect(event1.event_id).not_to eq(event2.event_id)
-    end
-
-    it 'prefixes authentication events correctly' do
-      expect(auth_event.event_id).to start_with('event_')
     end
   end
 

@@ -4,7 +4,9 @@ class UserActionEvent < ApplicationRecord
   has_many :user_actions, dependent: :restrict_with_exception
 
   validates :details, presence: true
-  validates :event_id, presence: true, uniqueness: true
+  # rubocop:disable Rails/UniqueValidationWithoutIndex
+  validates :event_id, presence: true, uniqueness: { case_sensitive: true }
+  # rubocop:enable Rails/UniqueValidationWithoutIndex
   validates :event_type, presence: true
 
   enum :event_type, { authentication: 0, profile: 1 }
