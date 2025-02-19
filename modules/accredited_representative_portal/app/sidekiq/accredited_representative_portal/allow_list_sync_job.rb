@@ -35,10 +35,17 @@ module AccreditedRepresentativePortal
     private
 
     def extract
-      config = Settings.accredited_representative_portal.allow_list.github
-      Octokit::Client
-        .new(access_token: config.access_token)
-        .then { |client| client.contents(config.repo, path: config.path) }
+      config =
+        Settings.accredited_representative_portal.allow_list.github
+
+      client =
+        Octokit::Client.new(
+          api_endpoint: config.base_uri,
+          access_token: config.access_token
+        )
+
+      client
+        .contents(config.repo, path: config.path)
         .then { |contents| Base64.decode64(contents[:content]) }
         .then { |content| CSV.parse(content, headers: true) }
     end
