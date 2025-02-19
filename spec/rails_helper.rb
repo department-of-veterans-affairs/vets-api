@@ -83,10 +83,9 @@ VCR.configure do |c|
 end
 
 VCR.configure do |config|
-
   ignored_uris = [
-    "http://127.0.0.1:8126/v0.4/traces", # datadog
-    "http://169.254.169.254/latest/api/token" # ec2
+    'http://127.0.0.1:8126/v0.4/traces', # datadog
+    'http://169.254.169.254/latest/api/token' # ec2
   ]
 
   config.ignore_request do |request|
