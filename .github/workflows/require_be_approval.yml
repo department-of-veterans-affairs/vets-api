@@ -10,6 +10,9 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Draft Pull Request Check
         if: github.event.pull_request.draft == true
         run: exit 1
