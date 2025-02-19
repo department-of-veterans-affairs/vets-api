@@ -23,6 +23,8 @@ jobs:
             echo "Label 'require-backend-approval' not found. Exiting successfully."
             exit 0
           fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
