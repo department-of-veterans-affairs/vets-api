@@ -188,7 +188,8 @@ module VSPDanger
       exception_groups = %w[@department-of-veterans-affairs/octo-identity
                             @department-of-veterans-affairs/lighthouse-dash
                             @department-of-veterans-affairs/lighthouse-pivot
-                            @department-of-veterans-affairs/lighthouse-banana-peels]
+                            @department-of-veterans-affairs/lighthouse-banana-peels
+                            @department-of-veterans-affairs/accredited-representatives-admin]
 
       diff = fetch_git_diff
 
