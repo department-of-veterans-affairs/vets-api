@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require_relative '../vaos/middleware/response/errors'
+require_relative './middleware/eps_logging'
+require 'common/client/configuration/rest'
+
 module Eps
   class Configuration < Common::Client::Configuration::REST
     delegate :access_token_url, :api_url, :base_path, :grant_type, :scopes, :client_assertion_type, to: :settings
@@ -29,7 +33,7 @@ module Eps
         conn.response :betamocks if mock_enabled?
         conn.response :json, content_type: /\bjson$/
         conn.response :vaos_errors
-        conn.use :eps_logging
+        # conn.use :eps_logging
         conn.adapter Faraday.default_adapter
       end
     end
