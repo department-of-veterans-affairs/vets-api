@@ -36,12 +36,26 @@ module MebApi
       def claim_status
         forms_claimant_response = claimant_service.get_claimant_info(@form_type)
         claimant_id = forms_claimant_response['claimant_id']
-
-        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
-        response = valid_claimant_response?(forms_claimant_response) ? claim_status_response : forms_claimant_response
-        srlzer = valid_claimant_response?(forms_claimant_response) ? ClaimStatusSerializer : ToeClaimantInfoSerializer
-
-        render json: srlzer.new(response)
+        max_retries = 5
+        retry_count = 0
+        base_delay = 0.5 # Start with 500ms delay
+        begin
+          if claimant_id.nil? && retry_count < max_retries
+            retry_count += 1
+            delay = base_delay * (2 ** (retry_count - 1)) # Exponential backoff
+            Rails.logger.info("Claimant ID not found, retry attempt #{retry_count} of #{max_retries} after #{delay}s delay")
+            sleep(delay)
+            forms_claimant_response = claimant_service.get_claimant_info(@form_type)
+            claimant_id = forms_claimant_response['claimant_id']
+          end
+          claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
+          response = valid_claimant_response?(forms_claimant_response) ? claim_status_response : forms_claimant_response
+          srlzer = valid_claimant_response?(forms_claimant_response) ? ClaimStatusSerializer : ToeClaimantInfoSerializer
+          render json: srlzer.new(response)
+        rescue => e
+          Rails.logger.error("Error in claim_status: #{e.message}")
+          raise e
+        end
       end
 
       def claimant_info
