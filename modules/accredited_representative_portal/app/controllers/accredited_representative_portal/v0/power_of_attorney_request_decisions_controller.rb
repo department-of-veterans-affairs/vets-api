@@ -24,7 +24,7 @@ module AccreditedRepresentativePortal
           PowerOfAttorneyRequestService::Accept.new(@poa_request, creator, reason).call
           render json: {}, status: :ok
         when 'declination'
-          @poa_request.decline!(creator, reason)
+          @poa_request.mark_declined!(creator, reason)
           render json: {}, status: :ok
         else
           render json: {

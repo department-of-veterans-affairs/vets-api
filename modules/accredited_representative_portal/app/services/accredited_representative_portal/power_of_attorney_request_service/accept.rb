@@ -31,30 +31,26 @@ module AccreditedRepresentativePortal
       end
 
       def call
-        @resolution = poa_request.accept!(creator, reason)
+        ActiveRecord::Base.transaction do
+          @resolution = poa_request.mark_accepted!(creator, reason)
+        end
         response = service.submit2122(form_payload)
-
-        form_submission.update(
-          service_id: response.body.dig('data', 'id'),
-          service_response: response.body.to_json
-        )
-        form_submission
-      # TODO: call PowerOfAttorneyFormSubmissionJob.perform_async(poa_form_submission)
+        create_form_submission!(response.body)
+      # TODO: call PowerOfAttorneyFormSubmissionJob.perform_async(form_submission)
       # Invalid record - return error message with 400
       rescue ActiveRecord::RecordInvalid => e
         raise Error.new(e.message, :bad_request)
       # Transient 5xx errors: delete objects created, raise TransientError
       rescue *TRANSIENT_ERROR_TYPES => e
-        form_submission.delete
         resolution.delete
         raise Error.new(e.message, BenefitsClaims::ServiceException::ERROR_MAP.invert[e.class])
       # Fatal 4xx errors or validation error: save error message, raise FatalError
       rescue *FATAL_ERROR_TYPES => e
-        update_submission_with_error(e.message)
+        create_error_form_submission(e.message, response&.body)
         raise Error.new(e.message, BenefitsClaims::ServiceException::ERROR_MAP.invert[e.class])
       # All other errors: save error data on form submission, will result in a 500
       rescue => e
-        update_submission_with_error(e.message)
+        create_error_form_submission(e.message, nil)
         raise
       end
 
@@ -64,20 +60,23 @@ module AccreditedRepresentativePortal
         @service ||= BenefitsClaims::Service.new(poa_request.claimant.icn)
       end
 
-      def form_submission
-        @form_submission ||= PowerOfAttorneyFormSubmission.create!(
+      def create_form_submission!(response_body)
+        PowerOfAttorneyFormSubmission.create!(
           power_of_attorney_request: poa_request,
+          service_id: response_body.dig('data', 'id'),
+          service_response: response_body.to_json,
           status: :enqueue_succeeded,
           status_updated_at: DateTime.current
         )
       end
 
-      def update_submission_with_error(message)
-        form_submission.update(
-          service_response: message,
-          error_message: message,
+      def create_error_form_submission(message, response_body)
+        PowerOfAttorneyFormSubmission.create(
+          power_of_attorney_request: poa_request,
           status: :enqueue_failed,
-          status_updated_at: DateTime.current
+          status_updated_at: DateTime.current,
+          service_response: response_body,
+          error_message: message
         )
       end
 
