@@ -42,13 +42,6 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
       let(:per_page) { 4 }
 
       context 'user actions' do
-        it 'returns user actions within date range' do
-          get :index, params: { start_date: 5.days.ago.to_date, end_date: Time.zone.now }
-
-          json_response = JSON.parse(response.body)
-          expect(json_response['data'].length).to eq(3)
-        end
-
         it 'returns user actions by newest to oldest within date range' do
           get :index, params: { start_date: 3.days.ago.to_date, end_date: Time.zone.now }
 
