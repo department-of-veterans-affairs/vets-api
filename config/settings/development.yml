@@ -1311,6 +1311,8 @@ va_profile:
     address_validation:
       api_key: "<AV_KEY>"
   veteran_status:
+    cache_enabled: true
+    enabled: true
     mock: false
     timeout: 30
 vanotify:

@@ -654,7 +654,7 @@ lighthouse:
       client_id: ~
       rsa_key: ~
     host: https://sandbox-api.va.gov
-    use_mocks: false
+    use_mocks: true
   benefits_intake:
     api_key: fake_api_key
     host: https://sandbox-api.va.gov
@@ -1306,6 +1306,8 @@ va_profile:
     address_validation:
       api_key: "<AV_KEY>"
   veteran_status:
+    cache_enabled: true
+    enabled: true
     mock: false
     timeout: 30
 vanotify:

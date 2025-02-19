@@ -1286,8 +1286,10 @@ va_profile:
     address_validation:
       api_key: <%= ENV['VA_PROFILE__V3__ADDRESS_VALIDATION__API_KEY'] %>
   veteran_status:
-    mock: <%= ENV['VA_PROFILE__VETERAN_STATUS__MOCK'] %>
-    timeout: <%= ENV['VA_PROFILE__VETERAN_STATUS__TIMEOUT'] %>
+    cache_enabled: true
+    enabled: true
+    mock: false
+    timeout: 30
 vanotify:
   client_url: <%= ENV['VANOTIFY__CLIENT_URL'] %>
   links:
