@@ -1296,7 +1296,7 @@ describe VAOS::V2::AppointmentsService do
       end
 
       it 'merges provider data correctly' do
-        VCR.use_cassette('vaos/eps/token_200',
+        VCR.use_cassette('vaos/eps/token/token_200',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
           VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
@@ -1315,7 +1315,7 @@ describe VAOS::V2::AppointmentsService do
       end
 
       it 'handles eps appointments with no provider name' do
-        VCR.use_cassette('vaos/eps/token_200',
+        VCR.use_cassette('vaos/eps/token/token_200',
                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
           VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
                           match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
