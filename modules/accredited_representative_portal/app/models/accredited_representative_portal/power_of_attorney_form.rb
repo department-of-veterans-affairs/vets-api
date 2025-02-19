@@ -304,7 +304,8 @@ module AccreditedRepresentativePortal
                   "COAST_GUARD",
                   "SPACE_FORCE",
                   "NOAA",
-                  "USPHS"
+                  "USPHS",
+                  null
                 ],
                 "example": "ARMY"
               },
