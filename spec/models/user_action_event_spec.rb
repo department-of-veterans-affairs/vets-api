@@ -30,9 +30,9 @@ RSpec.describe UserActionEvent, type: :model do
       end
 
       it 'prevents invalid event types' do
-        expect { 
+        expect do
           build(:user_action_event, event_type: :invalid)
-        }.to raise_error(ArgumentError)
+        end.to raise_error(ArgumentError)
       end
     end
   end
@@ -67,7 +67,7 @@ RSpec.describe UserActionEvent, type: :model do
 
   describe 'event_id validations' do
     let(:event) { build(:user_action_event) }
-    
+
     it 'rejects duplicate event_ids' do
       create(:user_action_event, event_id: 'duplicate_id')
       duplicate_event = build(:user_action_event, event_id: 'duplicate_id')
