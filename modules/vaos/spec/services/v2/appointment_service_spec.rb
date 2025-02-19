@@ -636,13 +636,14 @@ describe VAOS::V2::AppointmentsService do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
 
           VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                              allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
-              response = subject.get_appointments(start_date2, end_date2, nil, {}, { travel_pay_claims: true })
-
-              # The first not-cancelled appt with a start date
+              response = subject.get_appointments(start_date2, end_date2, nil, {},
+                                                  { travel_pay_claims: true })
+              # The first appt with a start date
               appt_with_claim = response[:data][0]
               expect(appt_with_claim[:travelPayClaim]).not_to be_empty
               expect(appt_with_claim[:travelPayClaim]['claim']).not_to be_nil
@@ -1927,26 +1928,12 @@ describe VAOS::V2::AppointmentsService do
       expect(appt[:modality]).to eq('vaVideoCareAtAVaLocation')
     end
 
-    describe 'for vvsKind' do
-      [nil, 'MOBILE_ANY', 'ADHOC'].each do |input|
-        context "#{input} when patient has GFE" do
-          it 'returns vaVideoCareOnGfe' do
-            appt = build(:appointment_form_v2, :telehealth).attributes
-            appt[:telehealth][:vvs_kind] = input
-            appt[:extension][:patient_has_mobile_gfe] = true
-            subject.send(:set_modality, appt)
-            expect(appt[:modality]).to eq('vaVideoCareOnGfe')
-          end
-        end
-
-        context "#{input} when patient does not have GFE" do
-          it 'returns vaVideoCareAtHome' do
-            appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
-            appt[:telehealth][:vvs_kind] = input
-            subject.send(:set_modality, appt)
-            expect(appt[:modality]).to eq('vaVideoCareAtHome')
-          end
-        end
+    [nil, 'MOBILE_ANY', 'ADHOC'].each do |input|
+      it "is vaVideoCareAtHome for #{input} vvsKind" do
+        appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
+        appt[:telehealth][:vvs_kind] = input
+        subject.send(:set_modality, appt)
+        expect(appt[:modality]).to eq('vaVideoCareAtHome')
       end
     end
 

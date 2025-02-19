@@ -7,14 +7,14 @@ development:
   primary:
     url: <%= Settings.database_url %>
   audit:
-    url: <%= "#{Settings.audit_db.url}_development" %>
+    url: <%= URI(Settings.database_url).tap { |uri| uri.path = '/vets_api_audit_development'}.to_s %>
     migrations_paths: db/audit_migrate
 
 test:
   primary:
     url: <%= Settings.test_database_url %><%= ENV['TEST_ENV_NUMBER'] %>
   audit:
-    url: <%= "#{Settings.audit_db.url}_test#{ENV['TEST_ENV_NUMBER']}" %>
+    url: <%= URI(Settings.test_database_url).tap { |uri| uri.path = "/vets_api_audit_test#{ENV['TEST_ENV_NUMBER']}"}.to_s %>
     migrations_paths: db/audit_migrate
 
 production:
