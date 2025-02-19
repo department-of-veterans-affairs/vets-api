@@ -48,5 +48,20 @@ describe 'sm client' do
       expect { client.post_preferences(email_address: 'kamyar karshenas@va.gov', frequency: 'none') }
         .to raise_error(Common::Exceptions::BackendServiceException)
     end
+
+    it 'fetches the signature preferences', :vcr do
+      client_response = client.get_signature[:data]
+      expect(client_response[:include_signature]).to be(true)
+      expect(client_response[:signature_name]).to eq('Test Mark')
+      expect(client_response[:signature_title]).to eq('Test Title API')
+    end
+
+    it 'sets the signature preferences', :vcr do
+      params = { signature_name: 'Test Mark', include_signature: false, signature_title: 'Test Title API' }
+      client_response = client.post_signature(params)[:data]
+      expect(client_response[:include_signature]).to be(false)
+      expect(client_response[:signature_name]).to eq('Test Mark')
+      expect(client_response[:signature_title]).to eq('Test Title API')
+    end
   end
 end
