@@ -42,6 +42,7 @@ module UnifiedHealthData
         # conn.request(:curl, ::Logger.new($stdout), :warn) unless Rails.env.production?
         # conn.response(:logger, ::Logger.new($stdout), bodies: true) unless Rails.env.production?
 
+        conn.response :betamocks if settings.mock
         conn.response :raise_custom_error
         conn.adapter Faraday.default_adapter
       end
