@@ -19,6 +19,7 @@ module WardenGithubStrategyExtensions
       redirect = request.env['QUERY_STRING']&.split('=')&.[](1)
       custom_session[:redirect] = redirect if redirect.present?
     end
+
     super
   end
 
@@ -28,9 +29,9 @@ module WardenGithubStrategyExtensions
     if scope == :flipper
       # now we can grab the actual URL without the redirect param and redirect to the intended page
       session[:flipper_user] = load_user
-      # url = custom_session['return_to'].split('?').first
-      # url += "/#{custom_session[:redirect]}" if custom_session[:redirect]
-      # custom_session['return_to'] = url
+      url = custom_session['return_to'].split('?').first
+      url += "/#{custom_session[:redirect]}" if custom_session[:redirect]
+      custom_session['return_to'] = url
     end
 
     super

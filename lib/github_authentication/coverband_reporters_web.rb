@@ -3,6 +3,8 @@
 module GithubAuthentication
   class CoverbandReportersWeb
     def matches?(request)
+      return true if Rails.env.development?
+
       warden = request.env['warden']
       request.session[:coverband_user] ||= warden.user
 
