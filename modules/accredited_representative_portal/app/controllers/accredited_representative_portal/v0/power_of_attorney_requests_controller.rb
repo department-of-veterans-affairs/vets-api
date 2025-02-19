@@ -26,15 +26,13 @@ module AccreditedRepresentativePortal
           when NilClass
             poa_request_scope
           else
-            raise ActionController::BadRequest, <<~MSG.squish
-              Invalid status parameter.
-              Must be one of (#{Statuses::ALL.join(', ')})
-            MSG
+            message = "Invalid status parameter. Must be one of (#{Statuses::ALL.join(', ')})"
+            log_warn(message, 'api.arp.poa_requests.invalid_status', ["status:#{status}"])
+            raise ActionController::BadRequest, message.squish
           end
 
         @poa_requests = rel.includes(scope_includes).limit(100)
         serializer = PowerOfAttorneyRequestSerializer.new(@poa_requests)
-
         render json: serializer.serializable_hash, status: :ok
       end
 
@@ -52,7 +50,6 @@ module AccreditedRepresentativePortal
       def set_poa_request
         id = params[:id]
         @poa_request = PowerOfAttorneyRequest.find(id)
-
         authorize @poa_request
       end
 
