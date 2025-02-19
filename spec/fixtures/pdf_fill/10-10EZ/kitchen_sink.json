@@ -22,15 +22,15 @@
       "insuranceGroupCode": "1233444"
     }
   ],
-  "deductibleMedicalExpenses": 0,
-  "deductibleFuneralExpenses": 0,
-  "deductibleEducationExpenses": 0,
-  "spouseGrossIncome": 20,
-  "spouseNetIncome": 21,
-  "spouseOtherIncome": 22,
+  "deductibleMedicalExpenses": 989,
+  "deductibleFuneralExpenses": 2000,
+  "deductibleEducationExpenses": 1243,
+  "spouseGrossIncome": 21000,
+  "spouseNetIncome": 20000,
+  "spouseOtherIncome": 500,
   "veteranGrossIncome": 60000,
-  "veteranNetIncome": 0,
-  "veteranOtherIncome": 0,
+  "veteranNetIncome": 50000,
+  "veteranOtherIncome": 200,
   "spouseFullName": {
     "first": "Jane",
     "middle": "marie",
@@ -103,9 +103,9 @@
       "dependentEducationExpenses": 100,
       "disabledBefore18": false,
       "cohabitedLastYear": true,
-      "grossIncome": 10,
-      "netIncome": 11,
-      "otherIncome": 12
+      "grossIncome": 10000,
+      "netIncome": 9000,
+      "otherIncome": 101
     }
   ],
   "veteranHomeAddress": {

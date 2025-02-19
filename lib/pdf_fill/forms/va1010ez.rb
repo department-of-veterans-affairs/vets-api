@@ -214,17 +214,17 @@ module PdfFill
             'disabledBefore18' => {
               key: 'F[0].P5[0].ChildPermanentlyDiasbledBefore18[0]'
             },
-            'grossIncome' => {
-              key: 'F[0].P6[0].NumericField2[2]'
-            },
             'dependentEducationExpenses' => {
               key: 'F[0].P5[0].ExpensesPaifByDependentCHild[0]'
             },
+            'grossIncome' => {
+              key: 'F[0].P6[0].Section7_Child_Q1[0]'
+            },
             'netIncome' => {
-              key: 'F[0].P6[0].NumericField2[5]'
+              key: 'F[0].P6[0].Section7_Child_Q2[0]'
             },
             'otherIncome' => {
-              key: 'F[0].P6[0].NumericField2[8]'
+              key: 'F[0].P6[0].Section7_Child_Q3[0]'
             }
           },
         'spouseFullName' => {
@@ -259,7 +259,7 @@ module PdfFill
         },
         'provideSupportLastYear' => {
           key: 'F[0].P5[0].DidYouProvideSupportToChildNotLivingWithYou[0]'
-        }, # %w[1 2 Off]
+        },
         'discloseFinancialInformation' => {
           key: 'F[0].P6[0].Section6[0]'
         },
@@ -276,31 +276,31 @@ module PdfFill
           key: 'F[0].P5[0].MedicareClaimNumber[0]'
         },
         'spouseGrossIncome' => {
-          key: 'F[0].P6[0].NumericField2[1]'
+          key: 'F[0].P6[0].Section7_Spouse_Q1[0]'
         },
         'spouseNetIncome' => {
-          key: 'F[0].P6[0].NumericField2[4]'
+          key: 'F[0].P6[0].Section7_Spouse_Q2[0]'
         },
         'spouseOtherIncome' => {
-          key: 'F[0].P6[0].NumericField2[7]'
+          key: 'F[0].P6[0].Section7_Spouse_Q3[0]'
         },
         'veteranGrossIncome' => {
-          key: 'F[0].P6[0].NumericField2[0]'
+          key: 'F[0].P6[0].Section7_Veteran_Q1[0]'
         },
         'veteranNetIncome' => {
-          key: 'F[0].P6[0].NumericField2[3]'
+          key: 'F[0].P6[0].Section7_Veteran_Q2[0]'
         },
         'veteranOtherIncome' => {
-          key: 'F[0].P6[0].NumericField2[6]'
+          key: 'F[0].P6[0].Section7_Veteran_Q3[0]'
         },
         'deductibleMedicalExpenses' => {
-          key: 'F[0].P6[0].NumericField2[9]'
+          key: 'F[0].P6[0].Section8_Q1[0]'
         },
         'deductibleFuneralExpenses' => {
-          key: 'F[0].P6[0].NumericField2[10]'
+          key: 'F[0].P6[0].Section8_Q2[0]'
         },
         'deductibleEducationExpenses' => {
-          key: 'F[0].P6[0].NumericField2[11]'
+          key: 'F[0].P6[0].Section8_Q3[0]'
         }
       }.freeze
 
@@ -322,6 +322,7 @@ module PdfFill
         merge_providers
         merge_dependents
         merge_tera
+        merge_disclose_financial_info
         merge_service_connected_rating
         @form_data
       end
@@ -447,6 +448,23 @@ module PdfFill
         return unless providers.is_a?(Array) && providers.any?
 
         @form_data['providers'] = providers.first
+      end
+
+      def merge_disclose_financial_info
+        @form_data['discloseFinancialInformation'] = case @form_data['discloseFinancialInformation']
+                                                     when true
+                                                       'Yes, I will provide my household financial information' \
+                                                       ' for last calendar year. Complete applicable Sections' \
+                                                       ' VII and VIII. Sign and date the form in the Assignment' \
+                                                       ' of Benefits section.'
+                                                     when false
+                                                       'No, I do not wish to provide financial information' \
+                                                       'in Sections VII through VIII. If I am enrolled, I ' \
+                                                       ' agree to pay applicable VA copayments. Sign and date' \
+                                                       ' the form in the Assignment of Benefits section.'
+                                                     else
+                                                       'Off'
+                                                     end
       end
 
       def merge_dependents
