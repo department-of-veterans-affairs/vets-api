@@ -43,5 +43,16 @@ module TravelPay
     def mock_enabled?
       Settings.travel_pay.mock
     end
+
+    ##
+    # Helper function to measure xTIC latency
+    # when calling the external Travel Pay API
+    def log_to_statsd(service, tag_value)
+      start_time = Time.current
+      result = yield
+      elapsed_time = Time.current - start_time
+      StatsD.measure("travel_pay.#{service}.response_time", elapsed_time, tags: ["travel_pay:#{tag_value}"])
+      result
+    end
   end
 end

@@ -28,12 +28,13 @@ module TravelPay
                    else
                      "api/v1.2/appointments?#{params.to_query}"
                    end
-
-      connection(server_url: btsss_url).get(query_path) do |req|
-        req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['BTSSS-Access-Token'] = btsss_token
-        req.headers['X-Correlation-ID'] = correlation_id
-        req.headers.merge!(claim_headers)
+      log_to_statsd('appointments', 'get_all') do
+        connection(server_url: btsss_url).get(query_path) do |req|
+          req.headers['Authorization'] = "Bearer #{veis_token}"
+          req.headers['BTSSS-Access-Token'] = btsss_token
+          req.headers['X-Correlation-ID'] = correlation_id
+          req.headers.merge!(claim_headers)
+        end
       end
     end
   end

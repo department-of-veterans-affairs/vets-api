@@ -17,13 +17,14 @@ module TravelPay
     def request_veis_token
       auth_url = Settings.travel_pay.veis.auth_url
       tenant_id = Settings.travel_pay.veis.tenant_id
+      log_to_statsd('token', 'veis') do
+        response = connection(server_url: auth_url).post("#{tenant_id}/oauth2/token") do |req|
+          req.headers[:content_type] = 'application/x-www-form-urlencoded'
+          req.body = URI.encode_www_form(veis_params)
+        end
 
-      response = connection(server_url: auth_url).post("#{tenant_id}/oauth2/token") do |req|
-        req.headers[:content_type] = 'application/x-www-form-urlencoded'
-        req.body = URI.encode_www_form(veis_params)
+        response.body['access_token']
       end
-
-      response.body['access_token']
     end
 
     ##
@@ -38,15 +39,17 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
 
-      response = connection(server_url: btsss_url).post('api/v1.2/Auth/access-token') do |req|
-        req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['BTSSS-API-Client-Number'] = @client_number.to_s
-        req.headers['X-Correlation-ID'] = correlation_id
-        req.headers.merge!(claim_headers)
-        req.body = { authJwt: sts_token }
-      end
+      log_to_statsd('token', 'btsss') do
+        response = connection(server_url: btsss_url).post('api/v1.2/Auth/access-token') do |req|
+          req.headers['Authorization'] = "Bearer #{veis_token}"
+          req.headers['BTSSS-API-Client-Number'] = @client_number.to_s
+          req.headers['X-Correlation-ID'] = correlation_id
+          req.headers.merge!(claim_headers)
+          req.body = { authJwt: sts_token }
+        end
 
-      response.body['data']['accessToken']
+        response.body['data']['accessToken']
+      end
     end
 
     def request_sts_token(user)
@@ -55,14 +58,15 @@ module TravelPay
 
       assertion = build_sts_assertion(user)
       jwt = JWT.encode(assertion, private_key, 'RS256')
+      log_to_statsd('token', 'sts') do
+        # send to sis
+        response = connection(server_url: host).post('/v0/sign_in/token') do |req|
+          req.params['grant_type'] = 'urn:ietf:params:oauth:grant-type:jwt-bearer'
+          req.params['assertion'] = jwt
+        end
 
-      # send to sis
-      response = connection(server_url: host).post('/v0/sign_in/token') do |req|
-        req.params['grant_type'] = 'urn:ietf:params:oauth:grant-type:jwt-bearer'
-        req.params['assertion'] = jwt
+        response.body['data']['access_token']
       end
-
-      response.body['data']['access_token']
     end
 
     def build_sts_assertion(user)
