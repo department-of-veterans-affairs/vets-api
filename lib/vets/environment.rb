@@ -3,37 +3,34 @@
 # .to_s and .inspect are required to output a string
 # and still work with the predicate methods
 module Vets
-
   # Vets::Env provides methods to get and check the
   # current vsp_environment similar to Rails.env.
   class Environment
     class << self
       def current
-        ENV["VSP_ENVIRONMENT"] || "localhost"
+        ENV['VSP_ENVIRONMENT'] || 'localhost'
       end
 
       def to_s
         current
       end
 
-      def inspect
-        current.inspect
-      end
+      delegate :inspect, to: :current
 
       def development?
-        current == "development"
+        current == 'development'
       end
 
       def production?
-        current == "production"
+        current == 'production'
       end
 
       def staging?
-        current == "staging"
+        current == 'staging'
       end
 
       def sandbox?
-        current == "sandbox"
+        current == 'sandbox'
       end
 
       def local?
@@ -55,11 +52,11 @@ module Vets
       private
 
       def test?
-        current == "test"
+        current == 'test'
       end
 
       def localhost?
-        current == "localhost"
+        current == 'localhost'
       end
     end
   end
