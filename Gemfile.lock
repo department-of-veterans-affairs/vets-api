@@ -308,10 +308,10 @@ GEM
     combine_pdf (1.0.29)
       matrix
       ruby-rc4 (>= 0.1.5)
-    committee (5.4.0)
+    committee (5.5.1)
       json_schema (~> 0.14, >= 0.14.3)
       openapi_parser (~> 2.0)
-      rack (>= 1.5, < 3.1)
+      rack (>= 1.5, < 3.2)
     committee-rails (0.8.0)
       actionpack (>= 6.0)
       activesupport (>= 6.0)
@@ -814,7 +814,7 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (3.0.12)
+    rack (3.1.10)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -1279,7 +1279,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 3.0.0)
+  rack (~> 3.1.10)
   rack-attack
   rack-cors
   rack-test (= 2.2.0)
