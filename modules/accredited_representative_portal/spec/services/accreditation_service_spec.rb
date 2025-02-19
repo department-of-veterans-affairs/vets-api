@@ -7,6 +7,13 @@ require 'json'
 RSpec.describe AccreditationService do
   let(:parsed_body) { { field: 'value' } }
   let(:user_uuid) { 'test-user-uuid' }
+  let(:monitor) { instance_double(AccreditedRepresentativePortal::MonitoringService) }
+
+  before do
+    allow(AccreditedRepresentativePortal::MonitoringService).to receive(:new).and_return(monitor)
+    allow(monitor).to receive(:track_event)
+    allow(monitor).to receive(:track_error)
+  end
 
   describe '#submit_form21a' do
     context 'when the request is successful' do
@@ -18,6 +25,20 @@ RSpec.describe AccreditationService do
 
         expect(response.status).to eq(200)
         expect(response.body).to eq(parsed_body.stringify_keys)
+
+        expect(monitor).to have_received(:track_event).with(
+          :info,
+          'Submitting Form 21a',
+          'api.arp.form21a.submit',
+          ["user_uuid:#{user_uuid}"]
+        )
+
+        expect(monitor).to have_received(:track_event).with(
+          :info,
+          'Form 21a Submission Success',
+          'api.arp.form21a.success',
+          ["user_uuid:#{user_uuid}"]
+        )
       end
     end
 
@@ -26,15 +47,17 @@ RSpec.describe AccreditationService do
         stub_request(:post, Settings.ogc.form21a_service_url.url)
           .to_raise(Faraday::ConnectionFailed.new('Accreditation Service connection failed'))
 
-        expect(Rails.logger).to receive(:error).with(
-          "Accreditation Service connection failed for user with user_uuid=#{user_uuid}: " \
-          "Accreditation Service connection failed, URL: #{Settings.ogc.form21a_service_url.url}"
-        )
-
         response = described_class.submit_form21a(parsed_body, user_uuid)
 
         expect(response.status).to eq(:service_unavailable)
         expect(JSON.parse(response.body)['errors']).to eq('Accreditation Service unavailable')
+
+        expect(monitor).to have_received(:track_error).with(
+          'Accreditation Service Connection Failed',
+          'api.arp.form21a.connection_failed',
+          'Faraday::ConnectionFailed',
+          ["user_uuid:#{user_uuid}", 'error:Accreditation Service connection failed']
+        )
       end
     end
 
@@ -43,14 +66,17 @@ RSpec.describe AccreditationService do
         stub_request(:post, Settings.ogc.form21a_service_url.url)
           .to_raise(Faraday::TimeoutError.new('Request timed out'))
 
-        expect(Rails.logger).to receive(:error).with(
-          "Accreditation Service request timed out for user with user_uuid=#{user_uuid}: Request timed out"
-        )
-
         response = described_class.submit_form21a(parsed_body, user_uuid)
 
         expect(response.status).to eq(:request_timeout)
         expect(JSON.parse(response.body)['errors']).to eq('Accreditation Service request timed out')
+
+        expect(monitor).to have_received(:track_error).with(
+          'Accreditation Service Timeout',
+          'api.arp.form21a.timeout',
+          'Faraday::TimeoutError',
+          ["user_uuid:#{user_uuid}", 'error:Request timed out']
+        )
       end
     end
   end

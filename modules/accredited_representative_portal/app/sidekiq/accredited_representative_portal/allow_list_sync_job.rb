@@ -7,6 +7,7 @@ module AccreditedRepresentativePortal
 
     # To not overload the DB.
     MAX_RECORD_COUNT = 500
+    SERVICE_NAME = 'accredited-representative-portal'
 
     Error = Class.new(RuntimeError)
 
@@ -17,7 +18,10 @@ module AccreditedRepresentativePortal
     end
 
     def perform
+      monitor = MonitoringService.new(SERVICE_NAME)
+
       SemanticLogger.tagged do
+        monitor.track_event(:info, 'Allow List Sync Started', 'api.arp.allow_list_sync.attempt')
         csv = extract
         csv.size.between?(1, MAX_RECORD_COUNT) or
           raise RecordCountError, csv.size
@@ -25,9 +29,11 @@ module AccreditedRepresentativePortal
         attributes = transform!(csv)
         result = load(attributes)
 
-        logger.info(result)
+        monitor.track_event(:info, 'Allow List Sync Completed', 'api.arp.allow_list_sync.success',
+                            ["records:#{result}"])
       rescue => e
-        logger.error(e)
+        monitor.track_error('Allow List Sync Failed', 'api.arp.allow_list_sync.failure', e.class.name,
+                            ["error:#{e.message}"])
         raise
       end
     end
