@@ -16,11 +16,16 @@ module V1
       end
 
       def lcpe_client
-        GI::LCPE::Client.new(version_id:, lcpe_type: controller_name)
+        GI::LCPE::Client.new(v_client: preload_version_id, lcpe_type: controller_name)
       end
 
-      def version_id
-        (request.headers['If-None-Match'] || params[:version]).to_s
+      def preload_version_id
+        preload_version_from_enriched_id || request.headers['If-None-Match']&.to_s
+      end
+
+      # '<record id>@<preload version>'
+      def preload_version_from_enriched_id
+        params[:id]&.split('@')&.last
       end
 
       def set_etag(version)
@@ -29,11 +34,7 @@ module V1
 
       # If additional filter params present, bypass versioning
       def bypass_versioning?
-        scrubbed_params.except(*versioning_params).present?
-      end
-
-      def versioning_params
-        self.class::VERSIONING_PARAMS
+        scrubbed_params.except(:id).present?
       end
 
       def version_invalid

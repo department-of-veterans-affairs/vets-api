@@ -43,7 +43,7 @@ module GI
     end
 
     def versioning_enabled?
-      respond_to?(:etag) && etag.present?
+      try(:etag).present?
     end
   end
 end

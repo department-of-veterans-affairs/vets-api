@@ -4,8 +4,6 @@ module V1
   module GIDS
     module LCPE
       class ExamsController < GIDS::LCPEController
-        VERSIONING_PARAMS = %i[version].freeze
-
         def index
           exams = service.get_exams_v1(scrubbed_params)
           set_etag(exams[:version]) unless bypass_versioning?

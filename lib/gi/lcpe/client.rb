@@ -11,8 +11,8 @@ module GI
 
       attr_accessor :redis_key, :v_client
 
-      def initialize(version_id: nil, lcpe_type: nil)
-        @v_client = version_id
+      def initialize(v_client: nil, lcpe_type: nil)
+        @v_client = v_client
         @redis_key = lcpe_type
         super()
       end
@@ -26,7 +26,7 @@ module GI
       def get_license_and_cert_details_v1(params = {})
         validate_client_version do
           lac_id = params[:id]
-          perform(:get, "v1/lcpe/lacs/#{lac_id}", params.except(:id, :version))
+          perform(:get, "v1/lcpe/lacs/#{lac_id}", params.except(:id))
         end
       end
 
@@ -37,13 +37,15 @@ module GI
       end
 
       def get_exam_details_v1(params = {})
-        exam_id = params[:id]
-        response = perform(:get, "v1/lcpe/exams/#{exam_id}", params.except(:id))
-        gids_response(response)
+        validate_client_version do
+          exam_id = params[:id]
+          perform(:get, "v1/lcpe/exams/#{exam_id}", params.except(:id))
+        end
       end
 
       private
 
+      # LCPE::Client can be called from GIDSRedis, in which case versioning is disabled
       def versioning_enabled?
         redis_key.present?
       end
@@ -63,21 +65,20 @@ module GI
         @v_cache ||= lcpe_cache.cached_version
       end
 
-      # If versioning enabled, validate client has fresh collection before querying details
+      # Validate client has fresh collection before querying details
       def validate_client_version
-        return gids_response(yield) unless versioning_enabled?
-
         # client (and not vets-api cache) must have fresh version
         config.etag = v_client
-        res = perform(:get, 'v1/lcpe/lacs', {})
-        case res.status
+        validation_response = perform(:get, 'v1/lcpe/lacs', {})
+        case validation_response.status
         when 304
           config.etag = nil
           # version is fresh, redirect to query details
-          gids_response(yield).body
+          details_response = yield
+          gids_response(details_response).body
         else
           # version stale, client must refresh preloaded collection
-          lcpe_cache.force_client_refresh_and_cache(res)
+          lcpe_cache.force_client_refresh_and_cache(validation_response)
         end
       end
 
