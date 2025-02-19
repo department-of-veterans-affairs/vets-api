@@ -7,17 +7,17 @@ RSpec.describe Eps::DraftAppointmentSerializer do
     double(
       id: '1',
       name: 'Dr. Smith',
-      isActive: true,
-      individualProviders: ['Dr. Jones', 'Dr. Williams'],
-      providerOrganization: 'Medical Group',
+      is_active: true,
+      individual_providers: ['Dr. Jones', 'Dr. Williams'],
+      provider_organization: 'Medical Group',
       location: { address: '123 Medical St' },
-      networkIds: ['sandbox-network-5vuTac8v'],
-      schedulingNotes: 'Available weekdays',
-      appointmentTypes: [
+      network_ids: ['sandbox-network-5vuTac8v'],
+      scheduling_notes: 'Available weekdays',
+      appointment_types: [
         {
           id: 'ov',
           name: 'Office Visit',
-          isSelfSchedulable: true
+          is_self_schedulable: true
         }
       ],
       specialties: [
@@ -26,9 +26,9 @@ RSpec.describe Eps::DraftAppointmentSerializer do
           name: 'Urology'
         }
       ],
-      visitMode: 'in-person',
+      visit_mode: 'in-person',
       features: {
-        isDigital: true
+        is_digital: true
       }
     )
   end
@@ -48,16 +48,16 @@ RSpec.describe Eps::DraftAppointmentSerializer do
       origin: { latitude: 37.7749, longitude: -122.4194 },
       destinations: {
         '123' => {
-          distanceInMiles: 123,
-          driveTimeInSecondsWithoutTraffic: 19_096,
-          driveTimeInSecondsWithTraffic: 19_561,
+          distance_in_miles: 123,
+          drive_time_in_seconds_without_traffic: 19_096,
+          drive_time_in_seconds_with_traffic: 19_561,
           latitude: 44.475883,
           longitude: -73.212074
         },
         '456' => {
-          distanceInMiles: 456,
-          driveTimeInSecondsWithoutTraffic: 25_000,
-          driveTimeInSecondsWithTraffic: 27_000,
+          distance_in_miles: 456,
+          drive_time_in_seconds_without_traffic: 25_000,
+          drive_time_in_seconds_with_traffic: 27_000,
           latitude: 45.123456,
           longitude: -74.123456
         }
@@ -86,17 +86,17 @@ RSpec.describe Eps::DraftAppointmentSerializer do
             provider: {
               id: '1',
               name: 'Dr. Smith',
-              isActive: true,
-              individualProviders: ['Dr. Jones', 'Dr. Williams'],
-              providerOrganization: 'Medical Group',
+              is_active: true,
+              individual_providers: ['Dr. Jones', 'Dr. Williams'],
+              provider_organization: 'Medical Group',
               location: { address: '123 Medical St' },
-              networkIds: ['sandbox-network-5vuTac8v'],
-              schedulingNotes: 'Available weekdays',
-              appointmentTypes: [
+              network_ids: ['sandbox-network-5vuTac8v'],
+              scheduling_notes: 'Available weekdays',
+              appointment_types: [
                 {
                   id: 'ov',
                   name: 'Office Visit',
-                  isSelfSchedulable: true
+                  is_self_schedulable: true
                 }
               ],
               specialties: [
@@ -105,9 +105,9 @@ RSpec.describe Eps::DraftAppointmentSerializer do
                   name: 'Urology'
                 }
               ],
-              visitMode: 'in-person',
+              visit_mode: 'in-person',
               features: {
-                isDigital: true
+                is_digital: true
               }
             },
             slots: [
@@ -117,9 +117,9 @@ RSpec.describe Eps::DraftAppointmentSerializer do
             drivetime: {
               origin: { latitude: 37.7749, longitude: -122.4194 },
               destination: {
-                distanceInMiles: 123,
-                driveTimeInSecondsWithoutTraffic: 19_096,
-                driveTimeInSecondsWithTraffic: 19_561,
+                distance_in_miles: 123,
+                drive_time_in_seconds_without_traffic: 19_096,
+                drive_time_in_seconds_with_traffic: 19_561,
                 latitude: 44.475883,
                 longitude: -73.212074
               }
@@ -144,8 +144,8 @@ RSpec.describe Eps::DraftAppointmentSerializer do
         expect(provider_data).to include(
           id: '1',
           name: 'Dr. Smith',
-          isActive: true,
-          individualProviders: [
+          is_active: true,
+          individual_providers: [
             'Dr. Jones',
             'Dr. Williams'
           ]
@@ -174,17 +174,17 @@ RSpec.describe Eps::DraftAppointmentSerializer do
       it 'includes first destination when multiple destinations exist' do
         drivetime_data = serialized_json.dig(:data, :attributes, :drivetime)
         expect(drivetime_data[:destination]).to eq(
-          distanceInMiles: 123,
-          driveTimeInSecondsWithoutTraffic: 19_096,
-          driveTimeInSecondsWithTraffic: 19_561,
+          distance_in_miles: 123,
+          drive_time_in_seconds_without_traffic: 19_096,
+          drive_time_in_seconds_with_traffic: 19_561,
           latitude: 44.475883,
           longitude: -73.212074
         )
         # Verify the second destination is not included
         expect(drivetime_data[:destination]).not_to include(
           distanceInMiles: 456,
-          driveTimeInSecondsWithoutTraffic: 25_000,
-          driveTimeInSecondsWithTraffic: 27_000,
+          drive_time_in_seconds_without_traffic: 25_000,
+          drive_time_in_seconds_with_traffic: 27_000,
           latitude: 45.123456,
           longitude: -74.123456
         )

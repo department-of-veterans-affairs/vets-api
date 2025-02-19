@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe VAOS::V2::ProvidersController, type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
   let(:provider_id) { 'test-provider-id' }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
@@ -94,8 +95,8 @@ RSpec.describe VAOS::V2::ProvidersController, type: :request do
       it 'returns the provider information' do
         VCR.use_cassette('vaos/eps/providers/data_200', match_requests_on: %i[method path],
                                                         erb: { provider_id: }) do
-          VCR.use_cassette('vaos/eps/token_200', match_requests_on: %i[method path]) do
-            get "/vaos/v2/providers/#{provider_id}"
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            get "/vaos/v2/providers/#{provider_id}", headers: inflection_header
           end
         end
 
@@ -127,7 +128,7 @@ RSpec.describe VAOS::V2::ProvidersController, type: :request do
       it 'returns 400 bad request' do
         VCR.use_cassette('vaos/eps/providers/data_401', match_requests_on: %i[method path],
                                                         erb: { provider_id: }) do
-          VCR.use_cassette('vaos/eps/token_200', match_requests_on: %i[method path]) do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
             get "/vaos/v2/providers/#{provider_id}"
           end
         end
@@ -160,7 +161,7 @@ RSpec.describe VAOS::V2::ProvidersController, type: :request do
       it 'returns 502 bad gateway' do
         VCR.use_cassette('vaos/eps/providers/data_500', match_requests_on: %i[method path],
                                                         erb: { provider_id: }) do
-          VCR.use_cassette('vaos/eps/token_200', match_requests_on: %i[method path]) do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
             get "/vaos/v2/providers/#{provider_id}"
           end
         end
