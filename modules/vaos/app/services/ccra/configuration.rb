@@ -30,7 +30,7 @@ module Ccra
     #
     # @return [Boolean] True if mock responses are enabled; otherwise false.
     def mock_enabled?
-      [true, 'true'].include?(settings.mock)
+      settings.mock
     end
 
     ##
