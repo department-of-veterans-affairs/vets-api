@@ -72,6 +72,8 @@ module Eps
     private
 
     def merge_provider_data_with_appointments(appointments)
+      return [] if appointments.nil?
+
       provider_ids = appointments.pluck(:provider_service_id).compact.uniq
       providers = provider_services.get_provider_services_by_ids(provider_ids: provider_ids)
 
