@@ -61,6 +61,22 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
              status: ClaimsApi::PowerOfAttorney::SUBMITTED)
     end
 
+    it 'logs out the details correctly for consent information' do
+      poa_code = poa.form_data['data']['attributes']['serviceOrganization']['poaCode']
+      consent_msg = 'Updating Access. recordConsent: false ' \
+                    "for representative #{poa_code}"
+
+      allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
+        .to receive(:assign_poa_to_dependent!).and_return(
+          true
+        )
+
+      detail_msg = ClaimsApi::ServiceBase.new.send(:form_logger_consent_detail, poa, poa_code)
+
+      expect(detail_msg).to eq(consent_msg)
+      described_class.new.perform(poa.id, 'Rep Data')
+    end
+
     it "marks the POA status as 'updated'" do
       allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
         .to receive(:assign_poa_to_dependent!).and_return(

@@ -647,10 +647,21 @@ RSpec.describe User, type: :model do
         end
 
         describe '#active_mhv_ids' do
-          let(:user) { build(:user, :loa3) }
+          let(:user) { build(:user, :loa3, active_mhv_ids:) }
+          let(:active_mhv_ids) { [mhv_id] }
+          let(:mhv_id) { 'some-mhv-id' }
 
           it 'fetches active_mhv_ids from MPI' do
-            expect(user.active_mhv_ids).to be(user.send(:mpi_profile).active_mhv_ids)
+            expect(user.active_mhv_ids).to eq(active_mhv_ids)
+          end
+
+          context 'when user has duplicate ids' do
+            let(:active_mhv_ids) { [mhv_id, mhv_id] }
+            let(:expected_active_mhv_ids) { [mhv_id] }
+
+            it 'fetches unique active_mhv_ids from MPI' do
+              expect(user.active_mhv_ids).to eq(expected_active_mhv_ids)
+            end
           end
         end
 
@@ -949,12 +960,12 @@ RSpec.describe User, type: :model do
   end
 
   describe '#va_treatment_facility_ids' do
-    let(:vha_facility_ids) { %w[200MHS 400 741 744] }
+    let(:vha_facility_ids) { %w[200MHS 400 741 744 741MM] }
     let(:mpi_profile) { build(:mpi_profile, { vha_facility_ids: }) }
     let(:user) { build(:user, :loa3, vha_facility_ids: nil, mpi_profile:) }
 
     it 'filters out fake vha facility ids that arent in Settings.mhv.facility_range' do
-      expect(user.va_treatment_facility_ids).to match_array(%w[400 744])
+      expect(user.va_treatment_facility_ids).to match_array(%w[400 744 741MM])
     end
   end
 

@@ -8,20 +8,27 @@ require 'string_helpers'
 # rubocop:disable Metrics/ClassLength
 module Burials
   module PdfFill
+    # Forms module
     module Forms
+      # Burial 21P-530EZ PDF Filler class
       class Va21p530ez < ::PdfFill::Forms::FormBase
         include ::PdfFill::Forms::FormHelper
 
+        # The ID of the form being processed
         FORM_ID = '21P-530EZ'
+        # An external iterator used in data processing
         ITERATOR = ::PdfFill::HashConverter::ITERATOR
+        # The path to the PDF template for the form
         TEMPLATE = "#{Burials::MODULE_PATH}/lib/pdf_fill/forms/pdfs/#{FORM_ID}.pdf".freeze
 
+        # A mapping of care facilities to their labels
         PLACE_OF_DEATH_KEY = {
           'vaMedicalCenter' => 'VA MEDICAL CENTER',
           'stateVeteransHome' => 'STATE VETERANS HOME',
           'nursingHome' => 'NURSING HOME UNDER VA CONTRACT'
         }.freeze
 
+        # Mapping of the filled out form into JSON
         # rubocop:disable Layout/LineLength
         KEY = {
           'veteranFullName' => { # start veteran information
@@ -536,10 +543,23 @@ module Burials
         }.freeze
         # rubocop:enable Layout/LineLength
 
+        ##
+        # This method sanitizes a phone number by removing dashes
+        #
+        # @param phone [String] The phone number to be sanitized.
+        #
+        # @return [String]
         def sanitize_phone(phone)
           phone.gsub('-', '')
         end
 
+        ##
+        # Splits a phone number from a hash into its component parts
+        #
+        # @param hash [Hash]
+        # @param key [String, Symbol]
+        #
+        # @return [Hash]
         def split_phone(hash, key)
           phone = hash[key]
           return if phone.blank?
@@ -552,6 +572,13 @@ module Burials
           }
         end
 
+        ##
+        # Splits a postal code into its first five and last four digits if present
+        # If the postal code is blank, the method returns nil
+        #
+        # @param hash [Hash]
+        #
+        # @return [Hash]
         def split_postal_code(hash)
           postal_code = hash['claimantAddress']['postalCode']
           return if postal_code.blank?
@@ -562,7 +589,13 @@ module Burials
           }
         end
 
-        # override for how this pdf works, it needs the strings of yes/no
+        ##
+        # Expands a boolean checkbox value into a hash with "YES" or "NO" responses
+        #
+        # @param value [Boolean]
+        # @param key [String]
+        #
+        # @return [Hash]
         def expand_checkbox(value, key)
           {
             "has#{key}" => value == true ? 'YES' : nil,
@@ -570,10 +603,23 @@ module Burials
           }
         end
 
+        ##
+        # Expands a checkbox value within a hash and updates it in place
+        #
+        # @param hash [Hash]
+        # @param key [String]
+        #
+        # @return [Hash]
         def expand_checkbox_in_place(hash, key)
           hash.merge!(expand_checkbox(hash[key], StringHelpers.capitalize_only(key)))
         end
 
+        ##
+        # Expands tours of duty by formatting a few fields
+        #
+        # @param tours_of_duty [Array<Hash>]
+        #
+        # @return [Hash]
         def expand_tours_of_duty(tours_of_duty)
           return if tours_of_duty.blank?
 
@@ -584,6 +630,10 @@ module Burials
           end
         end
 
+        ##
+        # Converts the location of death by formatting facility details and adjusting specific location values
+        #
+        # @return [Hash]
         def convert_location_of_death
           location_of_death = @form_data['locationOfDeath']
           return if location_of_death.blank?
@@ -598,6 +648,10 @@ module Burials
           expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
         end
 
+        ##
+        # Expands the burial allowance request by ensuring values are formatted as 'On' or nil
+        #
+        # @return [void]
         def expand_burial_allowance
           burial_allowance = @form_data['burialAllowanceRequested']
           return if burial_allowance.blank?
@@ -611,6 +665,10 @@ module Burials
           }
         end
 
+        ##
+        # Expands cemetery location details by extracting relevant information
+        #
+        # @return [void]
         def expand_cemetery_location
           cemetery_location = @form_data['cemeteryLocation']
           return if cemetery_location.blank?
@@ -619,6 +677,10 @@ module Burials
           @form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
         end
 
+        ##
+        # Expands tribal land location details by extracting relevant information
+        #
+        # @return [void]
         def expand_tribal_land_location
           cemetery_location = @form_data['tribalLandLocation']
           return if cemetery_location.blank?
@@ -627,21 +689,44 @@ module Burials
           @form_data['stateCemeteryOrTribalTrustZip'] = cemetery_location['zip'] if cemetery_location['zip'].present?
         end
 
+        ##
+        # Extracts and normalizes the VA file number
+        #
         # VA file number can be up to 10 digits long; An optional leading 'c' or 'C' followed by
         # 7-9 digits. The file number field on the 4142 form has space for 9 characters so trim the
         # potential leading 'c' to ensure the file number will fit into the form without overflow.
+        #
+        # @param va_file_number [String, nil]
+        #
+        # @return [String, nil]
         def extract_va_file_number(va_file_number)
           return va_file_number if va_file_number.blank? || va_file_number.length < 10
 
           va_file_number.sub(/^[Cc]/, '')
         end
 
-        # override for on/off vs 1/off
+        ##
+        # Converts a boolean value into a checkbox selection
+        #
+        # This method returns 'On' if the value is truthy, otherwise it returns 'Off'
+        # Override for on/off vs 1/off @see FormHelper
+        #
+        # @param value [Boolean]
+        #
+        # @return [String]e
         def select_checkbox(value)
           value ? 'On' : 'Off'
         end
 
-        # override
+        ##
+        # Expands a value from a hash into a 'checkbox' structure
+        #
+        # Override for 'On' vs true @see FormHelper
+        #
+        # @param hash [Hash]
+        # @param key [Symbol]
+        #
+        # @return [void]
         def expand_checkbox_as_hash(hash, key)
           value = hash.try(:[], key)
           return if value.blank?
@@ -651,6 +736,10 @@ module Burials
           }
         end
 
+        ##
+        # Expands the 'confirmation' field in the form data
+        #
+        # @return [void]
         def expand_confirmation_question
           if @form_data['confirmation'].present?
             confirmation = @form_data['confirmation']
@@ -659,6 +748,10 @@ module Burials
           end
         end
 
+        ##
+        # Expands the 'cemetaryLocationQuestion' to other form_data fields
+        #
+        # @return [void]
         def expand_location_question
           cemetery_location = @form_data['cemetaryLocationQuestion']
           @form_data['cemetaryLocationQuestionCemetery'] = select_checkbox(cemetery_location == 'cemetery')
@@ -666,6 +759,12 @@ module Burials
           @form_data['cemetaryLocationQuestionNone'] = select_checkbox(cemetery_location == 'none')
         end
 
+        ##
+        # Combines the previous names and their corresponding service branches into a formatted string
+        #
+        # @param previous_names [Array<Hash>]
+        #
+        # @return [String, nil]
         def combine_previous_names_and_service(previous_names)
           return if previous_names.blank?
 
@@ -674,17 +773,31 @@ module Burials
           end.join('; ')
         end
 
+        ##
+        # Adjusts the spacing of the 'amountGovtContribution' value by right-justifying it
+        #
+        # @return [void, nil]
         def format_currency_spacing
           return if @form_data['amountGovtContribution'].blank?
 
           @form_data['amountGovtContribution'] = @form_data['amountGovtContribution'].rjust(5)
         end
 
+        ##
+        # Sets the 'cemeteryLocationQuestion' field to 'none' if the 'nationalOrFederal' field is present and truthy.
+        #
+        # @return [void, nil]
         def set_state_to_no_if_national
           national = @form_data['nationalOrFederal']
           @form_data['cemetaryLocationQuestion'] = 'none' if national
         end
 
+        ##
+        # The crux of the class, this method merges all the data that has been converted into @form_data
+        #
+        # @param _options [Hash]
+        #
+        # @return [Hash]
         # rubocop:disable Metrics/MethodLength
         def merge_fields(_options = {})
           expand_signature(@form_data['claimantFullName'])

@@ -695,9 +695,16 @@ module PdfFill
 
       def merge_planned_facility_label_helper
         target_facility_code = @form_data.dig 'veteran', 'plannedClinic'
+
         caregiver_facilities = VetsJsonSchema::CONSTANTS['caregiverProgramFacilities'].values.flatten
         selected_facility = caregiver_facilities.find { |facility| facility['code'] == target_facility_code }
-        display_value = selected_facility.nil? ? nil : "#{selected_facility['code']} - #{selected_facility['label']}"
+
+        display_value = if selected_facility.nil?
+                          target_facility_code
+                        else
+                          "#{selected_facility['code']} - #{selected_facility['label']}"
+                        end
+
         @form_data['helpers']['veteran']['plannedClinic'] = display_value
       end
 

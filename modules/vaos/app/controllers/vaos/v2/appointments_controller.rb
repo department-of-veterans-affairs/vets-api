@@ -338,14 +338,16 @@ module VAOS
         {
           clinics: ActiveModel::Type::Boolean.new.deserialize(included&.include?('clinics')),
           facilities: ActiveModel::Type::Boolean.new.deserialize(included&.include?('facilities')),
-          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs'))
+          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs')),
+          travel_pay_claims: ActiveModel::Type::Boolean.new.deserialize(included&.include?('travel_pay_claims'))
         }
       end
 
       def include_show_params
         included = appointment_show_params[:_include]&.split(',')
         {
-          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs'))
+          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs')),
+          travel_pay_claims: ActiveModel::Type::Boolean.new.deserialize(included&.include?('travel_pay_claims'))
         }
       end
 
