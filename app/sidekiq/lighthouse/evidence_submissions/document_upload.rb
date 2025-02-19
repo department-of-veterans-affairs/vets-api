@@ -92,21 +92,25 @@ module Lighthouse
       # Update personalisation here since an evidence submission record was previously created
       def self.update_personalisation(current_personalisation, failed_at)
         personalisation = current_personalisation.clone
-        personalisation['date_failed'] = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(failed_at)
+        personalisation['date_failed'] = helpers.format_date_for_mailers(failed_at)
         personalisation
       end
 
       # This will be used by Lighthouse::FailureNotification
       def self.create_personalisation(msg)
         first_name = msg['args'][1]['first_name'].titleize unless msg['args'][1]['first_name'].nil?
-        document_type = msg['args'][1]['document_type']
+        document_type = LighthouseDocument.new(msg['args'][1]).description
         # Obscure the file name here since this will be used to generate a failed email
         # NOTE: the template that we use for va_notify.send_email uses `filename` but we can also pass in `file_name`
-        filename = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][1]['file_name'])
-        date_submitted = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(msg['created_at'])
-        date_failed = BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(msg['failed_at'])
+        filename = helpers.generate_obscured_file_name(msg['args'][1]['file_name'])
+        date_submitted = helpers.format_date_for_mailers(msg['created_at'])
+        date_failed = helpers.format_date_for_mailers(msg['failed_at'])
 
         { first_name:, document_type:, filename:, date_submitted:, date_failed: }
+      end
+
+      def self.helpers
+        BenefitsDocuments::Utilities::Helpers
       end
 
       private
@@ -128,7 +132,7 @@ module Lighthouse
           span.set_tag('Document File Size', file_body.size)
           response = client.upload_document(file_body, document) # returns upload response which includes requestId
           if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
-            update_evidence_submission_for_success(jid, response)
+            update_evidence_submission_for_in_progress(jid, response)
           end
         end
       end
@@ -161,13 +165,15 @@ module Lighthouse
         @file_body ||= perform_initial_file_read
       end
 
-      def update_evidence_submission_for_success(job_id, response)
+      # For lighthouse uploads if the response is successful then we leave the upload_status as PENDING
+      # and the polling job in Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUploadPollingJob
+      # will then make a call to lighthouse later to check on the status of the upload and update accordingly
+      def update_evidence_submission_for_in_progress(job_id, response)
         evidence_submission = EvidenceSubmission.find_by(job_id:)
         request_successful = response.body.dig('data', 'success')
         if request_successful
           request_id = response.body.dig('data', 'requestId')
-          evidence_submission.update(
-            upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
+          evidence_submission.update!(
             request_id:
           )
         else

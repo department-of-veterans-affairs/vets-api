@@ -11,11 +11,11 @@ module SimpleFormsApi
 
       attr_reader :notification_type, :config, :form_number, :user_account
 
-      def perform(notification_type:, form_submission_attempt:, user_account:)
+      def perform(notification_type:, form_submission_attempt:, form_number:, user_account:)
         @notification_type = notification_type
         @user_account = user_account
+        @form_number = form_number
         form_submission = form_submission_attempt.form_submission
-        @form_number = V1::UploadsController::FORM_NUMBER_MAP[form_submission.form_type]
         @config = {
           form_data: JSON.parse(form_submission.form_data),
           form_number:,
@@ -24,13 +24,21 @@ module SimpleFormsApi
           lighthouse_updated_at: form_submission_attempt.lighthouse_updated_at&.strftime('%B %d, %Y')
         }
 
-        notification_email
+        if SimpleFormsApi::FormUploadNotificationEmail::SUPPORTED_FORMS.include? form_number
+          form_upload_notification_email
+        else
+          notification_email
+        end
       rescue => e
         StatsD.increment('silent_failure', tags: statsd_tags) if notification_type == :error
         raise e
       end
 
       private
+
+      def form_upload_notification_email
+        SimpleFormsApi::FormUploadNotificationEmail.new(config, notification_type:).send(at: time_to_send)
+      end
 
       def notification_email
         SimpleFormsApi::NotificationEmail.new(
@@ -43,12 +51,9 @@ module SimpleFormsApi
       def time_to_send
         now = Time.now.in_time_zone('Eastern Time (US & Canada)')
         if now.hour < HOUR_TO_SEND_NOTIFICATIONS
-          now.change(hour: HOUR_TO_SEND_NOTIFICATIONS,
-                     min: 0)
+          now.change(hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0)
         else
-          now.tomorrow.change(
-            hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0
-          )
+          now.tomorrow.change(hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0)
         end
       end
 

@@ -11,7 +11,8 @@ module BenefitsClaims
     STATSD_KEY_PREFIX = 'api.benefits_claims'
 
     FILTERED_STATUSES = %w[CANCELED ERRORED PENDING].freeze
-    SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fee', 'Secondary Action Required', 'Stage 2 Development'].freeze
+
+    SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
 
     def initialize(icn)
       @icn = icn
@@ -25,10 +26,6 @@ module BenefitsClaims
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
       claims['data'] = filter_by_status(claims['data'])
-      # Manual status override for PMR Pending items
-      # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
-      # This should be removed when the items are re-categorized by BGS
-      claims['data'].each { |claim| override_pmr_pending(claim) }
       claims
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -38,13 +35,10 @@ module BenefitsClaims
 
     def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       claim = config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
-      # https://github.com/department-of-veterans-affairs/va.gov-team/issues/98364
-      # This should be removed when the items are removed by BGS
-      suppress_evidence_requests(claim['data']) if Flipper.enabled?(:cst_suppress_evidence_requests)
-      # Manual status override for PMR Pending items
+      # Manual status override for certain tracked items
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
       # This should be removed when the items are re-categorized by BGS
-      override_pmr_pending(claim['data'])
+      override_tracked_items(claim['data'])
       claim
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -142,7 +136,6 @@ module BenefitsClaims
       endpoint, path = submit_endpoint(options)
 
       body = prepare_submission_body(body, options[:transaction_id])
-
       response = config.post(
         path,
         body,
@@ -276,22 +269,17 @@ module BenefitsClaims
       items.reject { |item| FILTERED_STATUSES.include?(item.dig('attributes', 'status')) }
     end
 
-    def override_pmr_pending(claim)
+    def override_tracked_items(claim)
       tracked_items = claim['attributes']['trackedItems']
       return unless tracked_items
 
-      tracked_items.select { |i| i['displayName'] == 'PMR Pending' }.each do |i|
-        i['status'] = 'NEEDED_FROM_OTHERS'
-        i['displayName'] = 'Private Medical Record'
+      if Flipper.enabled?(:cst_override_pmr_pending_tracked_items)
+        tracked_items.select { |i| i['displayName'] == 'PMR Pending' }.each do |i|
+          i['status'] = 'NEEDED_FROM_OTHERS'
+          i['displayName'] = 'Private Medical Record'
+        end
       end
       tracked_items
-    end
-
-    def suppress_evidence_requests(claim)
-      tracked_items = claim['attributes']['trackedItems']
-      return unless tracked_items
-
-      tracked_items.reject! { |i| SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
     end
 
     def handle_error(error, lighthouse_client_id, endpoint)

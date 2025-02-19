@@ -31,7 +31,7 @@ module Pensions
       default.merge(pensions)
     end
 
-    # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_class
+    # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_klass
     def callback_klass
       Pensions::NotificationCallback.to_s
     end

@@ -80,4 +80,25 @@ describe ClaimsApi::ManageRepresentativeService do
       end
     end
   end
+
+  describe '#update_poa_relationship' do
+    it 'formats the body correctly with valid parameters' do
+      VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_relationship') do
+        pctpnt_id = '600095701'
+        file_number = '796263749'
+        ssn = '123456789'
+        poa_code = '083'
+
+        res = subject.update_poa_relationship(
+          pctpnt_id: pctpnt_id,
+          file_number: file_number,
+          ssn: ssn,
+          poa_code: poa_code
+        )
+
+        expect(res['vetPtcpntId']).to eq(pctpnt_id)
+        expect(res['vsoPOACode']).to eq(poa_code)
+      end
+    end
+  end
 end

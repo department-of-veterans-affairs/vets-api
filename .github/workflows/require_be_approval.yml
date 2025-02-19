@@ -7,10 +7,17 @@ on:
 jobs:
   require-backend-approval:
     name: Require Backend Approval
-    if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
+      - name: Draft Pull Request Check
+        if: github.event.pull_request.draft == true
+        run: exit 1
+
+      - name: Check for Ready for Review label
+        if: "!contains(github.event.pull_request.labels.*.name, 'require-backend-approval')"
+        run: exit 0
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:

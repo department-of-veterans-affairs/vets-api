@@ -36,7 +36,6 @@ module VAOS
         params = date_params(start_date, end_date).merge(page_params(pagination_params))
                                                   .merge(status_params(statuses))
                                                   .compact
-
         cnp_count = 0
 
         with_monitoring do
@@ -48,12 +47,17 @@ module VAOS
 
           validate_response_schema(response, 'appointments_index')
           appointments = response.body[:data]
+
           appointments.each do |appt|
             prepare_appointment(appt, include)
             cnp_count += 1 if cnp?(appt)
           end
 
           appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
+
+          if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
+            appointments = merge_all_travel_claims(start_date, end_date, appointments)
+          end
 
           if Flipper.enabled?(:appointments_consolidation, user)
             filterer = AppointmentsPresentationFilter.new
@@ -87,7 +91,13 @@ module VAOS
           # We always fetch facility and clinic information when getting a single appointment
           include[:facilities] = true
           include[:clinics] = true
+
           prepare_appointment(appointment, include)
+
+          if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
+            appointment = merge_one_travel_claim(appointment)
+          end
+
           OpenStruct.new(appointment)
         end
       end
@@ -1002,6 +1012,22 @@ module VAOS
         return unless response.success? && response.body[:data].present?
 
         SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
+      end
+
+      def merge_all_travel_claims(start_date, end_date, appointments)
+        service = TravelPay::ClaimAssociationService.new(user)
+        service.associate_appointments_to_claims(
+          {
+            'start_date' => start_date,
+            'end_date' => end_date,
+            'appointments' => appointments
+          }
+        )
+      end
+
+      def merge_one_travel_claim(appointment)
+        service = TravelPay::ClaimAssociationService.new(user)
+        service.associate_single_appointment_to_claim({ 'appointment' => appointment })
       end
 
       def eps_appointments_service
