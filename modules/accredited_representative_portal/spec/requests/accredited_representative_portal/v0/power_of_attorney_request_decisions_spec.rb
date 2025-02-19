@@ -52,6 +52,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       end
     end
 
+    context 'when user’s VSO does accept digital POAs but is not associated with this POA request' do
+      it 'returns 404 Not Found' do
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{other_poa_request.id}/decision",
+             params: { decision: { type: 'acceptance', reason: nil } }
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
     context 'with invalid params' do
       it 'complains about an invalid type param' do
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
