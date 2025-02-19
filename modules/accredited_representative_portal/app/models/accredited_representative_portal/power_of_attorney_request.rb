@@ -69,16 +69,16 @@ module AccreditedRepresentativePortal
 
     scope :for_user, lambda { |user|
       for_power_of_attorney_holders(
-        user.power_of_attorney_holders
+        user.activated_power_of_attorney_holders
       )
     }
 
     scope :for_power_of_attorney_holders, lambda { |poa_holders|
-      return none if poa_holders.blank?
+      return none if poa_holders.empty?
 
-      prefix = 'power_of_attorney_holder_'
+      prefix = 'power_of_attorney_holder'
       names = PowerOfAttorneyHolder::PRIMARY_KEY_ATTRIBUTE_NAMES
-      prefixed_names = names.map { |name| :"#{prefix}#{name}" }
+      prefixed_names = names.map { |name| :"#{prefix}_#{name}" }
       values = poa_holders.map { |poa_holder| poa_holder.to_h.values_at(*names) }
 
       where(prefixed_names => values)

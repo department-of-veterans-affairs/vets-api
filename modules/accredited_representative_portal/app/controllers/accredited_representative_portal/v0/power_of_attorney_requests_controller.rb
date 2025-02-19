@@ -3,28 +3,31 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
-      module Statuses
-        ALL = [
-          PENDING = 'pending',
-          PROCESSED = 'processed'
-        ].freeze
-      end
-
       include PowerOfAttorneyRequests
 
-      before_action :authorize_poa_requests, only: [:index]
-      before_action :set_poa_request, only: [:show]
+      before_action do
+        authorize PowerOfAttorneyRequest
+      end
+
+      with_options only: :show do
+        before_action do
+          id = params[:id]
+          set_poa_request(id)
+        end
+      end
 
       def index
         status = params[:status].presence
+        rel = policy_scope(PowerOfAttorneyRequest)
+
         rel =
           case status
           when Statuses::PENDING
-            poa_request_scope.unresolved.order(created_at: :asc)
+            rel.unresolved.order(created_at: :asc)
           when Statuses::PROCESSED
-            poa_request_scope.resolved.not_expired.order('resolution.created_at DESC')
+            rel.resolved.not_expired.order('resolution.created_at DESC')
           when NilClass
-            poa_request_scope
+            rel
           else
             raise ActionController::BadRequest, <<~MSG.squish
               Invalid status parameter.
@@ -32,8 +35,8 @@ module AccreditedRepresentativePortal
             MSG
           end
 
-        @poa_requests = rel.includes(scope_includes).limit(100)
-        serializer = PowerOfAttorneyRequestSerializer.new(@poa_requests)
+        poa_requests = rel.includes(scope_includes).limit(100)
+        serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
 
         render json: serializer.serializable_hash, status: :ok
       end
@@ -45,15 +48,11 @@ module AccreditedRepresentativePortal
 
       private
 
-      def authorize_poa_requests
-        authorize PowerOfAttorneyRequest
-      end
-
-      def set_poa_request
-        id = params[:id]
-        @poa_request = PowerOfAttorneyRequest.find(id)
-
-        authorize @poa_request
+      module Statuses
+        ALL = [
+          PENDING = 'pending',
+          PROCESSED = 'processed'
+        ].freeze
       end
 
       def scope_includes

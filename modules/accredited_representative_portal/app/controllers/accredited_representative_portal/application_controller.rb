@@ -9,15 +9,10 @@ module AccreditedRepresentativePortal
     rescue_from Pundit::NotAuthorizedError do |e|
       log_auth_failure(e)
 
-      # Return 404 instead of 403 when user has qualifying VSOs but can't access a specific record.
-      # This implements the policy that 403s should only occur when the user has no VSOs that
-      # accept digital POAs, while all other access control should manifest as 404s or absences.
-      #
-      if current_user.power_of_attorney_holders.any?(&:accepts_digital_power_of_attorney_requests?)
-        render json: { errors: [{ status: 404, detail: 'Not found' }] }, status: :not_found
-      else
-        render json: { errors: [e.message] }, status: :forbidden
-      end
+      render(
+        json: { errors: [e.message] },
+        status: :forbidden
+      )
     end
 
     service_tag 'accredited-representative-portal' # ARP Datadog monitoring

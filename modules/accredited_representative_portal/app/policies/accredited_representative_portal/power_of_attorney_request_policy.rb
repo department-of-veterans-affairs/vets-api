@@ -7,7 +7,7 @@ module AccreditedRepresentativePortal
     end
 
     def show?
-      authorize && allowed_poa_codes.include?(record.power_of_attorney_holder_poa_code)
+      authorize
     end
 
     def create_decision?
@@ -17,28 +17,12 @@ module AccreditedRepresentativePortal
     private
 
     def authorize
-      user.power_of_attorney_holders.any?(&:accepts_digital_power_of_attorney_requests?)
+      user.activated_power_of_attorney_holders.any?
     end
 
-    def allowed_poa_codes
-      @allowed_poa_codes ||= user.power_of_attorney_holders
-                                 .select(&:accepts_digital_power_of_attorney_requests?)
-                                 .map(&:poa_code)
-    end
-
-    class Scope < Scope
+    class Scope < ApplicationPolicy::Scope
       def resolve
-        return scope.none unless user.power_of_attorney_holders.any?(&:accepts_digital_power_of_attorney_requests?)
-
-        scope.where(power_of_attorney_holder_poa_code: allowed_poa_codes)
-      end
-
-      private
-
-      def allowed_poa_codes
-        user.power_of_attorney_holders
-            .select(&:accepts_digital_power_of_attorney_requests?)
-            .map(&:poa_code)
+        scope.for_user(user)
       end
     end
   end
