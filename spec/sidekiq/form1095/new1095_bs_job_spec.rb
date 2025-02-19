@@ -71,7 +71,7 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       expect { subject.perform }.to change(Form1095B, :count).from(0).to(8)
     end
 
-    it 'does not save save data and deletes file when user data is missing icn' do
+    it 'does not log errors or save data but does deletes file when user data is missing icn' do
       allow(objects).to receive(:collect).and_return(file_names3)
       allow(Tempfile).to receive(:new).and_return(tempfile3)
 
@@ -87,7 +87,6 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       allow(Tempfile).to receive(:new).and_return(tempfile3)
       allow(tempfile3).to receive(:each_line).and_raise(RuntimeError, 'Bad file')
 
-      # happens once
       expect(Rails.logger).to receive(:error).once.with('Bad file.')
       expect(Rails.logger).to receive(:error).once # log_exception_to_sentry stacktrace error
       expect(Rails.logger).to receive(:error).once.with(
@@ -113,7 +112,7 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
 
         expect do
           subject.perform
-        end.to change { [JSON.parse(form1.reload.form_data), JSON.parse(form2.reload.form_data)] }
+        end.to change { [form1.reload.form_data, form2.reload.form_data] }
       end
     end
   end

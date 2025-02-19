@@ -109,8 +109,6 @@ module Form1095
     end
 
     def save_data?(form_data, corrected)
-      return true if form_data[:veteran_icn].blank?
-
       existing_form = Form1095B.find_by(veteran_icn: form_data[:veteran_icn], tax_year: form_data[:tax_year])
 
       if !corrected && existing_form.present? # returns true to indicate successful entry
@@ -133,6 +131,9 @@ module Form1095
 
     def process_line?(form, file_details)
       data = parse_form(form)
+      # we can't save records without icns and should not retain the file in cases
+      # where the icn is missing
+      return true if data[:veteran_icn].blank?
 
       corrected = !file_details[:isOg?]
 
