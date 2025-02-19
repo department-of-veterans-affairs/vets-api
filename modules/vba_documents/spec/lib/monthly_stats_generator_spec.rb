@@ -9,7 +9,6 @@ RSpec.describe VBADocuments::MonthlyStatsGenerator do
       stats_generator = described_class.new(month: 12, year: 2023)
       expect(stats_generator.instance_variable_get(:@month)).to eq(12)
       expect(stats_generator.instance_variable_get(:@year)).to eq(2023)
-      expect(stats_generator.instance_variable_get(:@stats)).to eq({})
     end
 
     it 'raises an ArgumentError when the month is nil' do

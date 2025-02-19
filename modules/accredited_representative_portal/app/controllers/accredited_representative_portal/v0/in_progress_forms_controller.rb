@@ -8,7 +8,7 @@ module AccreditedRepresentativePortal
       def update
         form = find_form || build_form
         form.update!(
-          form_data: params[:form_data],
+          form_data: params[:formData],
           metadata: params[:metadata]
         )
 

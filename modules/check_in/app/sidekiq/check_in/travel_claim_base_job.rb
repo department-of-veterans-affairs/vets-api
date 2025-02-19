@@ -3,7 +3,7 @@
 require 'sidekiq'
 
 module CheckIn
-  class TravelClaimBaseWorker
+  class TravelClaimBaseJob
     include Sidekiq::Job
     include SentryLogging
 
