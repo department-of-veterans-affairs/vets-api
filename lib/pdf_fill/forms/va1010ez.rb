@@ -47,7 +47,7 @@ module PdfFill
 
       KEY = {
         'veteranFullName' => {
-          key: 'F[0].P4[0].LastFirstMiddle[0]', question_num: 3
+          key: 'F[0].P4[0].LastFirstMiddle[0]'
         },
         'mothersMaidenName' => {
           key: 'F[0].P4[0].MothersMaidenName[0]'
