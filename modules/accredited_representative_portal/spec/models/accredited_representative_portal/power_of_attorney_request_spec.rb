@@ -16,7 +16,8 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequest, type: :mo
     expect(poa_request).not_to be_valid
     expect(poa_request.errors.full_messages).to eq(
       [
-        'Claimant type is not included in the list'
+        'Claimant type is not included in the list',
+        'Power of attorney form data does not comply with schema'
       ]
     )
   end
