@@ -1468,6 +1468,7 @@ vanotify:
       api_key: <%= ENV['VANOTIFY__SERVICES__VA_GOV__API_KEY'] %>
       template_id:
         appoint_a_representative_confirmation_email: <%= ENV['VANOTIFY__SERVICES__VA_GOV__TEMPLATE_ID__APPOINT_A_REPRESENTATIVE_CONFIRMATION_EMAIL'] %>
+        appoint_a_representative_digital_submit_confirmation_email: <%= ENV['VANOTIFY__SERVICES__VA_GOV__TEMPLATE_ID__APPOINT_A_REPRESENTATIVE_DIGITAL_SUBMIT_CONFIRMATION_EMAIL'] %>
         career_counseling_confirmation_email: <%= ENV['VANOTIFY__SERVICES__VA_GOV__TEMPLATE_ID__CAREER_COUNSELING_CONFIRMATION_EMAIL'] %>
         ch31_central_mail_form_confirmation_email: <%= ENV['VANOTIFY__SERVICES__VA_GOV__TEMPLATE_ID__CH31_CENTRAL_MAIL_FORM_CONFIRMATION_EMAIL'] %>
         ch31_vbms_form_confirmation_email: <%= ENV['VANOTIFY__SERVICES__VA_GOV__TEMPLATE_ID__CH31_VBMS_FORM_CONFIRMATION_EMAIL'] %>

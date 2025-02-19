@@ -21,7 +21,7 @@ ask_va_api:
     veis_api_path: eis/vagov.lob.ava/api
   prefill: true
 audit_db:
-  url: postgis:///vets_api_audit
+  url: ~
 authorization_server_scopes_api:
   auth_server:
     url: https://sandbox-api.va.gov/internal/auth/v2/server
@@ -1493,6 +1493,7 @@ vanotify:
       api_key: fake_secret
       template_id:
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
+        appoint_a_representative_digital_submit_confirmation_email: appoint_a_rep_v2_digital_submit_confirm_email_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
