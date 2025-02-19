@@ -82,6 +82,20 @@ VCR.configure do |c|
   end
 end
 
+VCR.configure do |config|
+  ignored_uris = [
+    'http://169.254.169.254/latest/api/token' # ec2
+  ]
+
+  config.ignore_request do |request|
+    ignored_uris.include?(request.uri)
+  end
+end
+
+Datadog.configure do |c|
+  c.tracing.enabled = false
+end
+
 ActiveRecord::Migration.maintain_test_schema!
 
 require 'sidekiq/testing'
