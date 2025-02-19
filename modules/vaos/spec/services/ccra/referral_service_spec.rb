@@ -18,12 +18,8 @@ describe Ccra::ReferralService do
     allow(Flipper).to receive(:enabled?).with(VAOS::SessionService::STS_OAUTH_TOKEN, user).and_return(true)
 
     # Allow any cache fetch call to return the access token if it matches our key, otherwise nil
-    allow(Rails.cache).to receive(:fetch) do |key, options|
-      if key == Ccra::BaseService::REDIS_TOKEN_KEY
-        access_token
-      else
-        nil
-      end
+    allow(Rails.cache).to receive(:fetch) do |key|
+      access_token if key == Ccra::BaseService::REDIS_TOKEN_KEY
     end
 
     Settings.vaos ||= OpenStruct.new
