@@ -15,7 +15,7 @@ describe Ccra::ReferralService do
     Settings.vaos ||= OpenStruct.new
     Settings.vaos.ccra ||= OpenStruct.new
     Settings.vaos.ccra.tap do |ccra|
-      ccra.api_url = 'http://10.247.79.48'
+      ccra.api_url = 'http://ccra.api.example.com'
       ccra.base_path = 'csp/healthshare/ccraint/rest'
     end
   end

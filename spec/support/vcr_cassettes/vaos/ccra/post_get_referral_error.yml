@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://10.247.79.48/csp/healthshare/ccraint/rest/ReferralUtil/GetReferral
+    uri: http://ccra.api.example.com/csp/healthshare/ccraint/rest/ReferralUtil/GetReferral
     body:
       encoding: UTF-8
       string: '{"Id":"984_646372","Mode":"invalid"}'
