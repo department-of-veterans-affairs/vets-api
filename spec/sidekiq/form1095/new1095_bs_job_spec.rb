@@ -71,21 +71,25 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       expect { subject.perform }.to change { Form1095B.count }.from(0).to(8)
     end
 
-    it 'does not save save data or raise errors when user data is missing icn' do
+    it 'does not save save data and deletes file when user data is missing icn' do
       allow(objects).to receive(:collect).and_return(file_names3)
       allow(Tempfile).to receive(:new).and_return(tempfile3)
 
       expect(Rails.logger).not_to receive(:error)
       expect(Rails.logger).not_to receive(:warn)
+      expect(bucket).to receive(:delete_objects)
 
        expect { subject.perform }.not_to change { Form1095B.count }.from(0)
     end
 
-    it 'does not save invalid forms from S3 file' do
+    it 'raises an error and does not delete file when error is encountered processing the file' do
       allow(objects).to receive(:collect).and_return(file_names3)
-      allow(Tempfile).to receive(:new).and_return(tempfile3)
+      allow(subject).to receive(:download_and_process_file?).and_return(false)
 
-      expect(Rails.logger).to receive(:error).at_least(:once)
+      expect(Rails.logger).to receive(:error).at_least(:once).with(
+        "failed to save  forms from file: #{file_names3.first}; successfully saved  forms"
+      )
+      expect(bucket).not_to receive(:delete_objects)
 
       expect { subject.perform }.not_to change { Form1095B.count }.from(0)
     end
