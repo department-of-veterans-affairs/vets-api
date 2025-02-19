@@ -8,6 +8,7 @@ module ClaimsApi
 
     def perform(poa_id, rep_id = nil) # rubocop:disable Metrics/MethodLength
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+      poa_code = extract_poa_code(poa.form_data)
 
       service = dependent_claimant_poa_assignment_service(
         poa.id,
@@ -15,8 +16,14 @@ module ClaimsApi
         poa.auth_headers
       )
 
-      ClaimsApi::Logger.log(LOG_TAG, poa_id: poa.id, record_consent: poa.form_data['recordConsent'],
-                                     consent_address_change: poa.form_data['consentAddressChange'])
+      ClaimsApi::Logger.log(
+        LOG_TAG,
+        poa_id: poa.id,
+        detail: form_logger_consent_detail(poa, poa_code),
+        poa_code:,
+        allow_poa_access: allow_poa_access?(poa_form_data: poa.form_data),
+        allow_poa_c_add: allow_address_change?(poa)
+      )
 
       begin
         service.assign_poa_to_dependent!
@@ -53,7 +60,7 @@ module ClaimsApi
     def dependent_claimant_poa_assignment_service(poa_id, form_data, auth_headers)
       ClaimsApi::DependentClaimantPoaAssignmentService.new(
         poa_id:,
-        poa_code: find_poa_code(form_data),
+        poa_code: extract_poa_code(form_data),
         veteran_participant_id: auth_headers['va_eauth_pid'],
         dependent_participant_id: auth_headers.dig('dependent', 'participant_id'),
         veteran_file_number: auth_headers['file_number'],
@@ -61,11 +68,6 @@ module ClaimsApi
         allow_poa_cadd: form_data['consentAddressChange'].present? ? 'Y' : nil,
         claimant_ssn: auth_headers.dig('dependent', 'ssn')
       )
-    end
-
-    def find_poa_code(data)
-      base = data.key?('serviceOrganization') ? 'serviceOrganization' : 'representative'
-      data.dig(base, 'poaCode')
     end
   end
 end

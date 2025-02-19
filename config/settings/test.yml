@@ -42,6 +42,9 @@ pension_burial:
   sftp:
     relative_path: 'VETSGOV_PENSION'
 
+bpds:
+  jwt_secret: "FAKE_SECRET"
+
 hca:
   prefill: true
 
