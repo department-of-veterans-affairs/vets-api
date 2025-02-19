@@ -933,9 +933,18 @@ FactoryBot.define do
             },
             'date'=>'2025-01-01'
           },
-          'does_live_with_spouse' => {
-            'spouse_income'=>true, 
-            'spouse_does_live_with_veteran'=>true 
+          "does_live_with_spouse" => {
+            "spouse_income" => true,
+            "current_spouse_reason_for_separation" => "OTHER",
+            "other" => "other reasons",
+            "address" => {
+              "country"=>"USA",
+              "street"=>"123 fake street",
+              "city"=>"portland",
+              "state"=>"ME",
+              "postal_code"=>"04102"
+            },
+            "spouse_does_live_with_veteran"=>false
           },
           'spouse_information' => {
             'va_file_number'=>'987654321',

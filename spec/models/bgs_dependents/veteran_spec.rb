@@ -46,7 +46,7 @@ RSpec.describe BGSDependents::Veteran do
       'state' => 'ME',
       'postal_code' => '04102',
       'vet_ind' => 'Y',
-      'martl_status_type_cd' => 'Married'
+      'martl_status_type_cd' => 'Separated'
     }
   end
 

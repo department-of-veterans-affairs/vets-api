@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe BGSDependents::Spouse do
   let(:veteran_spouse) { build(:spouse) }
   let(:spouse) { described_class.new(veteran_spouse['dependents_application']) }
-  let(:veteran_spouse_v2) {build(:form686c_674_v2)}
+  let(:veteran_spouse_v2) {build(:spouse_v2)}
   let(:spouse_v2) { described_class.new(veteran_spouse_v2['dependents_application']) }
   let(:format_info_output) do
     {
@@ -61,12 +61,10 @@ RSpec.describe BGSDependents::Spouse do
   let(:address_output_v2) do
     {
       'country' => 'USA',
-      'street' => '123 fake street',
-      'street2' => 'test2',
-      'street3' => 'test3',
-      'city' => 'portland',
-      'state' => 'ME',
-      'postal_code' => '04102'
+      'street' => '8200 Doby LN',
+      'city' => 'Pasadena',
+      'state' => 'CA',
+      'postal_code' => '21122'
     }
   end
 
@@ -101,7 +99,7 @@ RSpec.describe BGSDependents::Spouse do
       it 'formats relationship params for submission' do
         formatted_info = spouse_v2.format_info
 
-        expect(formatted_info).to include(format_info_output_v2)
+        expect(formatted_info).to include(format_info_output)
       end
     end
 
