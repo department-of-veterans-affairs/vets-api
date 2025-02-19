@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module CheckIn
-  class TravelClaimSubmissionWorker < TravelClaimBaseWorker
+  class TravelClaimSubmissionJob < TravelClaimBaseJob
     def perform(uuid, appointment_date)
       redis_client = TravelClaim::RedisClient.build
       mobile_phone = redis_client.patient_cell_phone(uuid:)
@@ -34,7 +34,7 @@ module CheckIn
                                         .submit_claim
 
       if should_handle_timeout(claims_resp)
-        TravelClaimStatusCheckWorker.perform_in(5.minutes, uuid, appointment_date)
+        TravelClaimStatusCheckJob.perform_in(5.minutes, uuid, appointment_date)
       else
         handle_response(claims_resp:, facility_type:)
       end

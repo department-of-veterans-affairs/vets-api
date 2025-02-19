@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module CheckIn
-  class TravelClaimStatusCheckWorker < TravelClaimBaseWorker
+  class TravelClaimStatusCheckJob < TravelClaimBaseJob
     SUCCESSFUL_CLAIM_STATUSES = %w[ApprovedForPayment ClaimPaid ClaimSubmitted
                                    InManualReview In-Process Saved SubmittedForPayment].freeze
     FAILED_CLAIM_STATUSES = %w[Appeal ClosedWithNoPayment Denied FiscalRescinded Incomplete OnHold

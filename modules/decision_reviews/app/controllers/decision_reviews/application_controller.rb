@@ -11,24 +11,14 @@ module DecisionReviews
     include Headers
     include Pundit::Authorization
     include Traceable
+    include ControllerLoggingContext
 
     protect_from_forgery with: :exception, if: -> { ActionController::Base.allow_forgery_protection }
     after_action :set_csrf_header, if: -> { ActionController::Base.allow_forgery_protection }
-    before_action :set_tags
 
     private
 
     attr_reader :current_user
-
-    def set_tags
-      RequestStore.store['request_id'] = request.uuid
-      RequestStore.store['additional_request_attributes'] = {
-        'remote_ip' => request.remote_ip,
-        'user_agent' => request.user_agent,
-        'user_uuid' => current_user&.uuid,
-        'source' => request.headers['Source-App-Name']
-      }
-    end
 
     def set_csrf_header
       token = form_authenticity_token
