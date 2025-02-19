@@ -33,7 +33,7 @@ module Eps
         conn.response :betamocks if mock_enabled?
         conn.response :json, content_type: /\bjson$/
         conn.response :vaos_errors
-        # conn.use :eps_logging
+        conn.use :eps_logging
         conn.adapter Faraday.default_adapter
       end
     end
