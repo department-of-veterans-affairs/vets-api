@@ -3,6 +3,18 @@
 require 'rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :request do
+  let(:monitor) { instance_double(AccreditedRepresentativePortal::MonitoringService) }
+  let(:span) { instance_double(Datadog::Tracing::SpanOperation) }
+
+  before do
+    allow(AccreditedRepresentativePortal::MonitoringService).to receive(:new).and_return(monitor)
+    allow(monitor).to receive(:track_event)
+    allow(monitor).to receive(:track_error)
+
+    allow(span).to receive(:set_tag)
+    allow(span).to receive(:set_error)
+  end
+
   describe 'GET /accredited_representative_portal/arbitrary' do
     subject do
       get '/accredited_representative_portal/arbitrary'
@@ -23,16 +35,27 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
     end
 
     after do
-      # We could have set up our test such that we can unset
-      # `ArbitraryController` as a const during cleanup. But we'll just leave it
-      # around and avoid the extra metaprogramming.
       Rails.application.reload_routes!
     end
 
     context 'when authenticated' do
       context 'with a valid audience' do
-        it 'allows access' do
+        it 'allows access and tracks the request' do
           expect(subject).to have_http_status(:ok)
+
+          expect(monitor).to have_received(:track_event).with(
+            :info,
+            'Starting api.arp.arbitrary.arbitrary',
+            'api.arp.arbitrary.arbitrary.attempt',
+            array_including(anything)
+          ).once
+
+          expect(monitor).to have_received(:track_event).with(
+            :info,
+            'Completed api.arp.arbitrary.arbitrary',
+            'api.arp.arbitrary.arbitrary.success',
+            array_including(anything)
+          ).once
         end
       end
 
@@ -50,7 +73,7 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
           allow(Rails.logger).to receive(:error)
         end
 
-        it 'denies access' do
+        it 'denies access and tracks the failure' do
           expect(subject).to have_http_status(:unauthorized)
           expect(subject.body).to eq(expected_response_body)
           expect(Rails.logger).to have_received(:error).with(expected_log_message, expected_log_payload)
@@ -64,6 +87,8 @@ module AccreditedRepresentativePortal
   class ArbitraryController < ApplicationController
     skip_after_action :verify_pundit_authorization
 
-    def arbitrary = head :ok
+    def arbitrary
+      head :ok
+    end
   end
 end

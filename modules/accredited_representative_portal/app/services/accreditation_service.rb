@@ -6,6 +6,7 @@
 
 class AccreditationService
   SERVICE_NAME = 'accredited-representative-portal'
+  METRIC = 'api.arp.form21a'
 
   # self.submit_form21a(parsed_body): Submits the given parsed body as JSON to the accreditation service.
   #   - Parameters:
@@ -16,46 +17,45 @@ class AccreditationService
   def self.submit_form21a(parsed_body, user_uuid)
     monitor = AccreditedRepresentativePortal::MonitoringService.new(SERVICE_NAME)
 
-    monitor.track_event(
-      :info,
-      'Submitting Form 21a',
-      'api.arp.form21a.submit',
-      ["user_uuid:#{user_uuid}"]
-    )
-
-    response = connection.post do |req|
-      req.headers['x-api-key'] = Settings.ogc.form21a_service_url.api_key
-      req.body = parsed_body.to_json
+    monitor.with_tracing("#{METRIC}.submit") do |span|
+      span.set_tag('user.uuid', user_uuid)
+      monitor.track_event(
+        :info,
+        'Submitting Form 21a',
+        "#{METRIC}.submit",
+        ["user_uuid:#{user_uuid}"]
+      )
+      response = connection.post do |req|
+        req.headers['x-api-key'] = Settings.ogc.form21a_service_url.api_key
+        req.body = parsed_body.to_json
+      end
+      monitor.track_event(
+        :info,
+        'Form 21a Submission Success',
+        "#{METRIC}.success",
+        ["user_uuid:#{user_uuid}"]
+      )
+      response
+    rescue Faraday::ConnectionFailed => e
+      monitor.track_error(
+        'Accreditation Service Connection Failed',
+        "#{METRIC}.connection_failed",
+        e.class.name,
+        ["user_uuid:#{user_uuid}",
+         "error:#{e.message}"]
+      )
+      Faraday::Response.new(status: :service_unavailable, body: { errors: 'Accreditation Service unavailable' }.to_json)
+    rescue Faraday::TimeoutError => e
+      monitor.track_error(
+        'Accreditation Service Timeout',
+        "#{METRIC}.timeout",
+        e.class.name,
+        ["user_uuid:#{user_uuid}",
+         "error:#{e.message}"]
+      )
+      Faraday::Response.new(status: :request_timeout,
+                            body: { errors: 'Accreditation Service request timed out' }.to_json)
     end
-
-    monitor.track_event(
-      :info,
-      'Form 21a Submission Success',
-      'api.arp.form21a.success',
-      ["user_uuid:#{user_uuid}"]
-    )
-
-    response
-  rescue Faraday::ConnectionFailed => e
-    monitor.track_error(
-      'Accreditation Service Connection Failed',
-      'api.arp.form21a.connection_failed',
-      e.class.name,
-      ["user_uuid:#{user_uuid}",
-       "error:#{e.message}"]
-    )
-
-    Faraday::Response.new(status: :service_unavailable, body: { errors: 'Accreditation Service unavailable' }.to_json)
-  rescue Faraday::TimeoutError => e
-    monitor.track_error(
-      'Accreditation Service Timeout',
-      'api.arp.form21a.timeout',
-      e.class.name,
-      ["user_uuid:#{user_uuid}",
-       "error:#{e.message}"]
-    )
-
-    Faraday::Response.new(status: :request_timeout, body: { errors: 'Accreditation Service request timed out' }.to_json)
   end
   # rubocop:enable Metrics/MethodLength
 

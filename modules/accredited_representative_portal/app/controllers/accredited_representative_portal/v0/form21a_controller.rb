@@ -17,6 +17,7 @@ module AccreditedRepresentativePortal
       end
 
       FORM_ID = '21a'
+      METRIC = 'api.arp.form21a'
 
       before_action :parse_request_body, :validate_form, only: [:submit]
 
@@ -37,7 +38,7 @@ module AccreditedRepresentativePortal
       def parse_request_body
         @parsed_request_body = JSON.parse(request.raw_post)
       rescue JSON::ParserError
-        log_error('Invalid JSON in request body', 'api.arp.form21a.invalid_json')
+        log_error('Invalid JSON in request body', "#{METRIC}.invalid_json")
         handle_json_error
       end
 
@@ -45,7 +46,7 @@ module AccreditedRepresentativePortal
         errors = JSON::Validator.fully_validate(schema, parsed_request_body)
         raise SchemaValidationError, errors if errors.any?
       rescue SchemaValidationError => e
-        log_error('Schema validation failed', 'api.arp.form21a.schema_validation_error', nil,
+        log_error('Schema validation failed', "#{METRIC}.schema_validation_error", nil,
                   user_tags(["errors:#{e.errors.join(';')}"]))
         handle_json_error(e.errors.join(', ').squeeze(' '))
       end
@@ -60,10 +61,10 @@ module AccreditedRepresentativePortal
         if response.success?
           render json: response.body, status: response.status
         elsif response.body.blank?
-          log_warn('Blank response from OGC service', 'api.arp.form21a.response.blank')
+          log_warn('Blank response from OGC service', "#{METRIC}.response.blank")
           render status: :no_content
         else
-          log_error('Failed to parse OGC service response', 'api.arp.form21a.response.parse_error')
+          log_error('Failed to parse OGC service response', "#{METRIC}.response.parse_error")
           render json: { errors: 'Failed to parse response' }, status: :bad_gateway
         end
       end

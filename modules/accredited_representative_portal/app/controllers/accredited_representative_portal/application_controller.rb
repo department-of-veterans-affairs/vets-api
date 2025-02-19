@@ -25,10 +25,11 @@ module AccreditedRepresentativePortal
     private
 
     def track_request_execution
-      event = "#{controller_name}.#{action_name}"
-      log_info("Starting #{event}", "api.arp.#{event}.attempt", user_tags)
+      event = "api.arp.#{controller_name}.#{action_name}"
+
+      log_info("Starting #{event}", "#{event}.attempt", user_tags)
       yield
-      log_info("Completed #{event}", "api.arp.#{event}.success", user_tags)
+      log_info("Completed #{event}", "#{event}.success", user_tags)
     end
 
     def track_exception(exception, metric, error_class = nil)
