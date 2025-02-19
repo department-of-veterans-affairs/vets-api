@@ -9,11 +9,12 @@ RSpec.describe 'V1::GI::LCPE::Lacs', type: :request do
 
   let(:v_fresh) { '3' }
   let(:v_stale) { '2' }
+  let(:enriched_id) { "1@#{v_client}" }
 
   describe 'GET v1/gi/lcpe/lacs' do
     let(:lcpe_type) { 'lacs' }
     let(:lcpe_cache) { LCPERedis.new(lcpe_type:) }
-    let(:service) { GI::LCPE::Client.new(version_id: v_client, lcpe_type:) }
+    let(:service) { GI::LCPE::Client.new(v_client:, lcpe_type:) }
 
     context 'when filter params present' do
       it 'bypasses versioning and returns lacs with 200 response' do
@@ -42,7 +43,7 @@ RSpec.describe 'V1::GI::LCPE::Lacs', type: :request do
         let(:v_client) { v_stale }
 
         before do
-          # render cache stale
+          # generate stale cache
           VCR.use_cassette('gi/lcpe/get_lacs_cache_nil') do
             service.get_licenses_and_certs_v1({})
             body = lcpe_cache.cached_response.body.merge(version: v_stale)
@@ -64,7 +65,7 @@ RSpec.describe 'V1::GI::LCPE::Lacs', type: :request do
         let(:v_client) { v_stale }
 
         before do
-          # render cache fresh
+          # generate fresh cache
           VCR.use_cassette('gi/lcpe/get_lacs_cache_nil') do
             service.get_licenses_and_certs_v1({})
           end
@@ -84,7 +85,7 @@ RSpec.describe 'V1::GI::LCPE::Lacs', type: :request do
         let(:v_client) { v_fresh }
 
         before do
-          # render cache fresh
+          # generate fresh cache
           VCR.use_cassette('gi/lcpe/get_lacs_cache_nil') do
             service.get_licenses_and_certs_v1({})
           end
@@ -107,7 +108,7 @@ RSpec.describe 'V1::GI::LCPE::Lacs', type: :request do
 
       it 'returns 409 conflict' do
         VCR.use_cassette('gi/lcpe/get_lacs_cache_stale') do
-          get "#{v1_gi_lcpe_lacs_url}/1@f9822", params: { version: v_client }
+          get "#{v1_gi_lcpe_lacs_url}/#{enriched_id}"
           expect(response).to have_http_status(:conflict)
         end
       end
@@ -119,7 +120,7 @@ RSpec.describe 'V1::GI::LCPE::Lacs', type: :request do
       it 'returns 200 response with lac details' do
         VCR.use_cassette('gi/lcpe/get_lacs_cache_fresh') do
           VCR.use_cassette('gi/lcpe/get_lac_details') do
-            get "#{v1_gi_lcpe_lacs_url}/1@f9822", params: { version: v_client }
+            get "#{v1_gi_lcpe_lacs_url}/#{enriched_id}"
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('gi/lcpe/lac')
           end

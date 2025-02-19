@@ -9,11 +9,12 @@ RSpec.describe 'V1::GI::LCPE::Exams', type: :request do
 
   let(:v_fresh) { '3' }
   let(:v_stale) { '2' }
+  let(:enriched_id) { "1@#{v_client}" }
 
   describe 'GET v1/gi/lcpe/exams' do
     let(:lcpe_type) { 'exams' }
     let(:lcpe_cache) { LCPERedis.new(lcpe_type:) }
-    let(:service) { GI::LCPE::Client.new(version_id: v_client, lcpe_type:) }
+    let(:service) { GI::LCPE::Client.new(v_client:, lcpe_type:) }
 
     context 'when filter params present' do
       it 'bypasses versioning and returns lacs with 200 response' do
@@ -42,7 +43,7 @@ RSpec.describe 'V1::GI::LCPE::Exams', type: :request do
         let(:v_client) { v_stale }
 
         before do
-          # render cache stale
+          # generate stale cache
           VCR.use_cassette('gi/lcpe/get_exams_cache_nil') do
             service.get_exams_v1({})
             body = lcpe_cache.cached_response.body.merge(version: v_stale)
@@ -64,7 +65,7 @@ RSpec.describe 'V1::GI::LCPE::Exams', type: :request do
         let(:v_client) { v_stale }
 
         before do
-          # render cache fresh
+          # generate fresh cache
           VCR.use_cassette('gi/lcpe/get_exams_cache_nil') do
             service.get_exams_v1({})
           end
@@ -84,7 +85,7 @@ RSpec.describe 'V1::GI::LCPE::Exams', type: :request do
         let(:v_client) { v_fresh }
 
         before do
-          # render cache fresh
+         # generate fresh cache
           VCR.use_cassette('gi/lcpe/get_exams_cache_nil') do
             service.get_exams_v1({})
           end
@@ -102,11 +103,28 @@ RSpec.describe 'V1::GI::LCPE::Exams', type: :request do
   end
 
   describe 'GET v1/gi/lcpe/exams/:id' do
-    it 'returns 200 response' do
-      VCR.use_cassette('gi/lcpe/get_exam_details') do
-        get "#{v1_gi_lcpe_exams_url}/1@acce9"
-        expect(response).to have_http_status(:ok)
-        expect(response).to match_response_schema('gi/lcpe/exam')
+    context 'when client requests details with stale cache' do
+      let(:v_client) { v_stale }
+
+      it 'returns 409 conflict' do
+        VCR.use_cassette('gi/lcpe/get_exams_cache_stale') do
+          get "#{v1_gi_lcpe_exams_url}/#{enriched_id}"
+          expect(response).to have_http_status(:conflict)
+        end
+      end
+    end
+
+    context 'when client requests details with fresh cache' do
+      let(:v_client) { v_fresh }
+
+      it 'returns 200 response with lac details' do
+        VCR.use_cassette('gi/lcpe/get_exams_cache_fresh') do
+          VCR.use_cassette('gi/lcpe/get_exam_details') do
+            get "#{v1_gi_lcpe_exams_url}/#{enriched_id}"
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('gi/lcpe/exam')
+          end
+        end
       end
     end
   end

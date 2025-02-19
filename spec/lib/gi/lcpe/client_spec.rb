@@ -8,6 +8,7 @@ describe GI::LCPE::Client do
   let(:client) { described_class.new(v_client:, lcpe_type:) }
   let(:v_fresh) { '3' }
   let(:v_stale) { '2' }
+  let(:enriched_id) { "1@#{v_client}" }
 
   describe '#get_licenses_and_certs_v1' do
     context 'when versioning disabled' do
@@ -39,49 +40,33 @@ describe GI::LCPE::Client do
 
   describe '#get_license_and_cert_details_v1' do
     let(:response) { instance_double(GI::GIDSResponse) }
+    let(:lcpe_type) { 'lacs' }
 
     before do
       allow(GI::GIDSResponse).to receive(:new).and_return(response)
       allow(response).to receive(:body)
     end
 
-    context 'when versioning disabled' do
-      let(:v_client) { nil }
-      let(:lcpe_type) { nil }
+    context 'when client version stale' do
+      let(:v_client) { v_stale }
 
-      it 'creates GI::GIDSReponse to be passed to GIDSRedis' do
-        VCR.use_cassette('gi/lcpe/get_lac_details') do
-          client.get_license_and_cert_details_v1({ id: '1@f9822' })
-          expect(GI::GIDSResponse).to have_received(:new)
-          expect(response).not_to have_received(:body)
+      it 'raises ClientCacheStaleError' do
+        VCR.use_cassette('gi/lcpe/get_lacs_cache_stale') do
+          expect { client.get_license_and_cert_details_v1({ id: enriched_id }) }
+            .to raise_error(LCPERedis::ClientCacheStaleError)
         end
       end
     end
 
-    context 'when versioning enabled' do
-      let(:lcpe_type) { 'lacs' }
+    context 'when client version fresh' do
+      let(:v_client) { v_fresh }
 
-      context 'when client version stale' do
-        let(:v_client) { v_stale }
-
-        it 'raises ClientCacheStaleError' do
-          VCR.use_cassette('gi/lcpe/get_lacs_cache_stale') do
-            expect { client.get_license_and_cert_details_v1({ id: '1@f9822', version: v_client }) }
-              .to raise_error(LCPERedis::ClientCacheStaleError)
-          end
-        end
-      end
-
-      context 'when client version fresh' do
-        let(:v_client) { v_fresh }
-
-        it 'creates GI::GIDSReponse and calls body' do
-          VCR.use_cassette('gi/lcpe/get_lacs_cache_fresh') do
-            VCR.use_cassette('gi/lcpe/get_lac_details') do
-              client.get_license_and_cert_details_v1({ id: '1@f9822', version: v_client })
-              expect(GI::GIDSResponse).to have_received(:new)
-              expect(response).to have_received(:body)
-            end
+      it 'creates GI::GIDSReponse and calls body' do
+        VCR.use_cassette('gi/lcpe/get_lacs_cache_fresh') do
+          VCR.use_cassette('gi/lcpe/get_lac_details') do
+            client.get_license_and_cert_details_v1({ id: enriched_id })
+            expect(GI::GIDSResponse).to have_received(:new)
+            expect(response).to have_received(:body)
           end
         end
       end
@@ -118,16 +103,35 @@ describe GI::LCPE::Client do
 
   describe '#get_exam_details_v1' do
     let(:response) { instance_double(GI::GIDSResponse) }
-    let(:v_client) { nil }
-    let(:lcpe_type) { nil }
+    let(:lcpe_type) { 'exams' }
 
-    it 'creates GI::GIDSReponse to be passed to GIDSRedis' do
-      VCR.use_cassette('gi/lcpe/get_exam_details') do
-        allow(GI::GIDSResponse).to receive(:new).and_return(response)
-        allow(response).to receive(:body)
-        client.get_exam_details_v1({ id: '1@acce9' })
-        expect(GI::GIDSResponse).to have_received(:new)
-        expect(response).not_to have_received(:body)
+    before do
+      allow(GI::GIDSResponse).to receive(:new).and_return(response)
+      allow(response).to receive(:body)
+    end
+
+    context 'when client version stale' do
+      let(:v_client) { v_stale }
+
+      it 'raises ClientCacheStaleError' do
+        VCR.use_cassette('gi/lcpe/get_exams_cache_stale') do
+          expect { client.get_exam_details_v1({ id: enriched_id }) }
+            .to raise_error(LCPERedis::ClientCacheStaleError)
+        end
+      end
+    end
+
+    context 'when client version fresh' do
+      let(:v_client) { v_fresh }
+
+      it 'creates GI::GIDSReponse and calls body' do
+        VCR.use_cassette('gi/lcpe/get_exams_cache_fresh') do
+          VCR.use_cassette('gi/lcpe/get_exam_details') do
+            client.get_exam_details_v1({ id: enriched_id })
+            expect(GI::GIDSResponse).to have_received(:new)
+            expect(response).to have_received(:body)
+          end
+        end
       end
     end
   end

@@ -69,7 +69,7 @@ module GI
       def validate_client_version
         # client (and not vets-api cache) must have fresh version
         config.etag = v_client
-        validation_response = perform(:get, 'v1/lcpe/lacs', {})
+        validation_response = perform(:get, "v1/lcpe/#{redis_key}", {})
         case validation_response.status
         when 304
           config.etag = nil
