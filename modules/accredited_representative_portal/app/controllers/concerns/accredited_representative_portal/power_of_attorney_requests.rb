@@ -38,7 +38,7 @@ module AccreditedRepresentativePortal
     end
 
     def poa_request_scope
-      policy_scope(PowerOfAttorneyRequest)
+      policy_scope(PowerOfAttorneyRequest.for_user(current_user))
     end
   end
 end

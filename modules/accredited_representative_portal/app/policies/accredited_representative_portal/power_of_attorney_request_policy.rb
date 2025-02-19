@@ -3,41 +3,42 @@
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestPolicy < ApplicationPolicy
     def index?
-      user_has_poa_access?
+      authorize
     end
 
     def show?
-      user_has_access_to_record?
+      authorize && allowed_poa_codes.include?(record.power_of_attorney_holder_poa_code)
     end
 
     def create_decision?
-      user_has_poa_access?
+      authorize
     end
 
     private
 
-    def user_has_poa_access?
-      return false if user.power_of_attorney_holders.empty?
-
+    def authorize
       user.power_of_attorney_holders.any?(&:accepts_digital_power_of_attorney_requests?)
     end
 
-    def user_has_access_to_record?
-      user.power_of_attorney_holders.any? do |holder|
-        holder.poa_code == record.power_of_attorney_holder_poa_code &&
-          holder.accepts_digital_power_of_attorney_requests?
-      end
+    def allowed_poa_codes
+      @allowed_poa_codes ||= user.power_of_attorney_holders
+                                 .select(&:accepts_digital_power_of_attorney_requests?)
+                                 .map(&:poa_code)
     end
 
     class Scope < Scope
       def resolve
-        return scope.none if user.power_of_attorney_holders.empty?
-
-        allowed_poa_codes = user.power_of_attorney_holders
-                                .select(&:accepts_digital_power_of_attorney_requests?)
-                                .map(&:poa_code)
+        return scope.none unless user.power_of_attorney_holders.any?(&:accepts_digital_power_of_attorney_requests?)
 
         scope.where(power_of_attorney_holder_poa_code: allowed_poa_codes)
+      end
+
+      private
+
+      def allowed_poa_codes
+        user.power_of_attorney_holders
+            .select(&:accepts_digital_power_of_attorney_requests?)
+            .map(&:poa_code)
       end
     end
   end
