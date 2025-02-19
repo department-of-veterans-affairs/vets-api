@@ -6,6 +6,7 @@ module PdfFill
   module Forms
     class Va1010ez < FormBase
       FORM_ID = HealthCareApplication::FORM_ID
+      OFF = 'Off'
 
       # TODO: These are also in HCA::EnrollmentEligibility::Service. Can we DRY it up?
       MARITAL_STATUS = {
@@ -375,7 +376,7 @@ module PdfFill
       end
 
       def merge_marital_status
-        @form_data['maritalStatus'] = MARITAL_STATUS[@form_data['maritalStatus']] || 'Off'
+        @form_data['maritalStatus'] = MARITAL_STATUS[@form_data['maritalStatus']] || OFF
       end
 
       def merge_place_of_birth
@@ -461,7 +462,7 @@ module PdfFill
 
       def merge_disclose_financial_info
         @form_data['discloseFinancialInformation'] =
-          DISCLOSE_FINANCIAL_INFORMATION[@form_data['discloseFinancialInformation']] || 'Off'
+          DISCLOSE_FINANCIAL_INFORMATION[@form_data['discloseFinancialInformation']] || OFF
       end
 
       def merge_dependents
@@ -471,7 +472,7 @@ module PdfFill
 
         dependent = dependents.first
         dependent['fullName'] = combine_full_name(dependent['fullName'])
-        dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[(dependent['dependentRelation'])] || 'Off'
+        dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[(dependent['dependentRelation'])] || OFF
         dependent['attendedSchoolLastYear'] = map_radio_box_value(dependent['attendedSchoolLastYear'])
         dependent['disabledBefore18'] = map_radio_box_value(dependent['disabledBefore18'])
         dependent['cohabitedLastYear'] = map_radio_box_value(dependent['cohabitedLastYear'])
@@ -479,7 +480,7 @@ module PdfFill
       end
 
       def map_value_for_checkbox(input, value)
-        input == true ? value : 'Off'
+        input == true ? value : OFF
       end
 
       def map_radio_box_value(value)
@@ -489,7 +490,7 @@ module PdfFill
         when false
           '2'
         else
-          'Off'
+          OFF
         end
       end
 
@@ -500,7 +501,7 @@ module PdfFill
         when false
           'NO'
         else
-          'Off'
+          OFF
         end
       end
     end
