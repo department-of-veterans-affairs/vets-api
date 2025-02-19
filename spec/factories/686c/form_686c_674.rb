@@ -1028,7 +1028,7 @@ FactoryBot.define do
             [{'deceased_dependent_income'=>false,
               'dependent_death_location'=>{'location'=>{'city'=>'portland', 'state'=>'ME'}},
               'dependent_death_date'=>'2024-08-01',
-              'dependent_type'=>'DEPENDENT_PARENT',
+              'dependent_type'=>'SPOUSE',
               'full_name'=>{'first'=>'first', 'middle'=>'middle', 'last'=>'last'},
               'ssn'=>'987654321',
               'birth_date'=>'1960-01-01'}],
