@@ -318,7 +318,7 @@ features:
     enable_in_development: true
   cst_show_document_upload_status:
     actor_type: user
-    description: When enabled, the frontend will be able to view the document upload status that comes from the evidence_submissions table.
+    description: When enabled, claims status tool will display the upload status that comes from the evidence_submissions table.
     enable_in_development: true
   cst_claim_phases:
     actor_type: user
