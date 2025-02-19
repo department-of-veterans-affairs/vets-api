@@ -51,8 +51,6 @@ module MebApi
           response = valid_claimant_response?(forms_claimant_response) ? claim_status_response : forms_claimant_response
           srlzer = valid_claimant_response?(forms_claimant_response) ? ClaimStatusSerializer : ToeClaimantInfoSerializer
           render json: srlzer.new(response)
-        rescue => e
-          raise e
         end
       end
 
