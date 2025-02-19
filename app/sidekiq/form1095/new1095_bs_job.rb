@@ -110,6 +110,7 @@ module Form1095
 
     def save_data?(form_data, corrected)
       return true if form_data[:veteran_icn].blank?
+
       existing_form = Form1095B.find_by(veteran_icn: form_data[:veteran_icn], tax_year: form_data[:tax_year])
 
       if !corrected && existing_form.present? # returns true to indicate successful entry
