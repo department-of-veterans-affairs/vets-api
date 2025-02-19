@@ -72,13 +72,15 @@ module Eps
     private
 
     def merge_provider_data_with_appointments(appointments)
-      provider_ids = appointments.map { |appointment| appointment[:provider_service_id] }.compact.uniq
+      provider_ids = appointments.pluck(:provider_service_id).compact.uniq
       providers = provider_services.get_provider_services_by_ids(provider_ids: provider_ids)
 
       appointments.each do |appointment|
         next unless appointment[:provider_service_id]
 
-        provider = providers[:provider_services].find { |provider_data| provider_data[:id] == appointment[:provider_service_id] }
+        provider = providers[:provider_services].find do |provider_data|
+          provider_data[:id] == appointment[:provider_service_id]
+        end
         appointment[:provider] = provider
       end
 

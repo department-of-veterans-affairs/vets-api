@@ -95,8 +95,6 @@ describe Eps::AppointmentService do
     end
 
     context 'and add provider data to appointments' do
-
-
     end
 
     context 'when the endpoint fails to return appointments' do

@@ -131,8 +131,7 @@ describe VAOS::V2::AppointmentsService do
             last_retrieved: '2025-01-12T22:35:45Z'
           }
         }
-      ]
-    )
+      ])
   end
 
   mock_facility = {
@@ -1278,7 +1277,9 @@ describe VAOS::V2::AppointmentsService do
       it 'handles empty eps_appointments' do
         VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(OpenStruct.new(data: []))
+          allow_any_instance_of(Eps::AppointmentService)
+            .to receive(:get_appointments)
+            .and_return(OpenStruct.new(data: []))
           result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
           expect(result[:data].map do |appt|
             appt[:referral][:referral_number]
@@ -1289,7 +1290,9 @@ describe VAOS::V2::AppointmentsService do
       it 'handles empty appointment data' do
         VCR.use_cassette('vaos/eps/get_appointments_empty_data',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(OpenStruct.new(data: []))
+          allow_any_instance_of(Eps::AppointmentService)
+            .to receive(:get_appointments)
+            .and_return(OpenStruct.new(data: []))
           result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
           expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to be_empty
         end
@@ -1297,17 +1300,25 @@ describe VAOS::V2::AppointmentsService do
 
       it 'merges provider data correctly' do
         VCR.use_cassette('vaos/eps/token/token_200',
-                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+                         match_requests_on: %i[method path query],
+                         allow_playback_repeats: true, tag: :force_utf8) do
           VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
-                           match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+                           match_requests_on: %i[method path query],
+                           allow_playback_repeats: true, tag: :force_utf8) do
             VCR.use_cassette('vaos/eps/get_eps_appointments_200',
-                             match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+                             match_requests_on: %i[method path query],
+                             allow_playback_repeats: true, tag: :force_utf8) do
               VCR.use_cassette('vaos/eps/get_provider_service/get_multiple_providers_200',
-                               match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+                               match_requests_on: %i[method path query],
+                               allow_playback_repeats: true, tag: :force_utf8) do
                 result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
                 provider_names = result[:data].map { |appt| appt[:provider_name] }
-                expect(provider_names).to include('Dr. Moreen S. Rafa @ FHA South Melbourne Medical Complex')
-                expect(provider_names).to include('Dr. Bruce Roly @ FHA Urology of Orlando')
+                expect(provider_names).to include(
+                  'Dr. Moreen S. Rafa @ FHA South Melbourne Medical Complex'
+                )
+                expect(provider_names).to include(
+                  'Dr. Bruce Roly @ FHA Urology of Orlando'
+                )
               end
             end
           end
@@ -1316,15 +1327,21 @@ describe VAOS::V2::AppointmentsService do
 
       it 'handles eps appointments with no provider name' do
         VCR.use_cassette('vaos/eps/token/token_200',
-                        match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+                         match_requests_on: %i[method path query],
+                         allow_playback_repeats: true, tag: :force_utf8) do
           VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
-                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+                           match_requests_on: %i[method path query],
+                           allow_playback_repeats: true, tag: :force_utf8) do
             VCR.use_cassette('vaos/eps/get_eps_appointments_200',
-                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+                             match_requests_on: %i[method path query],
+                             allow_playback_repeats: true, tag: :force_utf8) do
               VCR.use_cassette('vaos/eps/get_provider_service/get_multiple_providers_200_v2',
-                              match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+                               match_requests_on: %i[method path query],
+                               allow_playback_repeats: true, tag: :force_utf8) do
                 result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
-                no_name_provider = result[:data].find {|x| x.provider_service_id == 'DBKQ-123'}
+                no_name_provider = result[:data].find do |x|
+                  x.provider_service_id == 'DBKQ-123'
+                end
                 expect(no_name_provider.provider_name).to eq('unknown')
               end
             end
