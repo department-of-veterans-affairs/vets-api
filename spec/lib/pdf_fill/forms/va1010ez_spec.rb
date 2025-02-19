@@ -29,5 +29,73 @@ describe PdfFill::Forms::Va1010ez do
         JSON.parse(get_fixture('pdf_fill/10-10EZ/merge_fields').to_json)
       )
     end
+
+    context 'marital status' do
+      described_class::MARITAL_STATUS.each do |status, value|
+        context "when marital status is #{status}" do
+          let(:form_data) { { 'maritalStatus' => status } }
+
+          it "merges marital status to #{value}" do
+            expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+              'maritalStatus' => value
+            )
+          end
+        end
+      end
+
+      context 'when marital status is unknown' do
+        let(:form_data) { { 'maritalStatus' => 'Unknown' } }
+
+        it 'defaults to Off' do
+          expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+            'maritalStatus' => 'Off'
+          )
+        end
+      end
+    end
+
+    context 'sex' do
+      described_class::SEX.each do |sex, value|
+        context "when gender is #{sex}" do
+          let(:form_data) { { 'gender' => sex } }
+
+          it "merges gender to #{value}" do
+            expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+              'gender' => value
+            )
+          end
+        end
+      end
+    end
+
+    context 'disclose financial info' do
+      described_class::DISCLOSE_FINANCIAL_INFORMATION.each do |disclose, value|
+        context "when discloseFinancialInformation is #{disclose}" do
+          let(:form_data) { { 'discloseFinancialInformation' => disclose } }
+
+          it "merges disclose financial info to #{value}" do
+            expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+              'discloseFinancialInformation' => value
+            )
+          end
+        end
+      end
+    end
+
+    context 'disability status' do
+      described_class::DISABILITY_STATUS.each do |statuses, value|
+        Array(statuses).each do |status|
+          context "when vaCompensationType is #{status}" do
+            let(:form_data) { { 'vaCompensationType' => status } }
+
+            it "merges vaCompensationType to #{value}" do
+              expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+                'vaCompensationType' => value
+              )
+            end
+          end
+        end
+      end
+    end
   end
 end

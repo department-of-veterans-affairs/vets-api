@@ -7,6 +7,43 @@ module PdfFill
     class Va1010ez < FormBase
       FORM_ID = HealthCareApplication::FORM_ID
 
+      # TODO: These are also in HCA::EnrollmentEligibility::Service. Can we DRY it up?
+      MARITAL_STATUS = {
+        'Married' => '1',
+        'Never Married' => '2',
+        'Separated' => '3',
+        'Widowed' => '4',
+        'Divorced' => '5'
+      }.freeze
+
+      DEPENDENT_RELATIONSHIP = {
+        'Son' => '1',
+        'Daughter' => '2',
+        'Stepson' => '3',
+        'Stepdaughter' => '4'
+      }.freeze
+
+      DISABILITY_STATUS = {
+        %w[highDisability lowDisability] => 'YES',
+        %w[none] => 'NO'
+      }.freeze
+
+      SEX = {
+        'M' => '1',
+        'F' => '2'
+      }.freeze
+
+      DISCLOSE_FINANCIAL_INFORMATION = {
+        true => 'Yes, I will provide my household financial information' \
+                ' for last calendar year. Complete applicable Sections' \
+                ' VII and VIII. Sign and date the form in the Assignment' \
+                ' of Benefits section.',
+        false => 'No, I do not wish to provide financial information' \
+                 'in Sections VII through VIII. If I am enrolled, I ' \
+                 ' agree to pay applicable VA copayments. Sign and date' \
+                 ' the form in the Assignment of Benefits section.'
+      }.freeze
+
       KEY = {
         'veteranFullName' => {
           key: 'F[0].P4[0].LastFirstMiddle[0]', question_num: 3
@@ -334,30 +371,11 @@ module PdfFill
       end
 
       def merge_sex(type)
-        @form_data[type] = case @form_data[type]
-                           when 'M'
-                             '1'
-                           when 'F'
-                             '2'
-                           end
+        @form_data[type] = SEX[@form_data[type]]
       end
 
       def merge_marital_status
-        # TODO: These are also in HCA::EnrollmentEligibility::Service. Can we DRY it up?
-        @form_data['maritalStatus'] = case @form_data['maritalStatus']
-                                      when 'Married'
-                                        '1'
-                                      when 'Never Married'
-                                        '2'
-                                      when 'Separated'
-                                        '3'
-                                      when 'Widowed'
-                                        '4'
-                                      when 'Divorced'
-                                        '5'
-                                      else
-                                        'Off'
-                                      end
+        @form_data['maritalStatus'] = MARITAL_STATUS[@form_data['maritalStatus']] || 'Off'
       end
 
       def merge_place_of_birth
@@ -384,15 +402,13 @@ module PdfFill
       end
 
       def merge_service_connected_rating
-        @form_data['vaCompensationType'] = case @form_data['vaCompensationType']
-                                           when 'highDisability', 'lowDisability'
-                                             'YES'
-                                           when 'none'
-                                             'NO'
-                                           end
+        @form_data['vaCompensationType'] = DISABILITY_STATUS.find do |keys, _|
+          keys.include?(@form_data['vaCompensationType'])
+        end&.last
       end
 
       def merge_exposure
+        # exposure values correspond to true in the pdf options
         exposure_map = {
           'exposureToAirPollutants' => '1',
           'exposureToChemicals' => '2',
@@ -432,14 +448,7 @@ module PdfFill
       end
 
       def merge_yes_no(type)
-        @form_data[type] = case @form_data[type]
-                           when true
-                             'YES'
-                           when false
-                             'NO'
-                           else
-                             'Off'
-                           end
+        @form_data[type] = map_check_box(@form_data[type])
       end
 
       def merge_providers
@@ -451,20 +460,8 @@ module PdfFill
       end
 
       def merge_disclose_financial_info
-        @form_data['discloseFinancialInformation'] = case @form_data['discloseFinancialInformation']
-                                                     when true
-                                                       'Yes, I will provide my household financial information' \
-                                                       ' for last calendar year. Complete applicable Sections' \
-                                                       ' VII and VIII. Sign and date the form in the Assignment' \
-                                                       ' of Benefits section.'
-                                                     when false
-                                                       'No, I do not wish to provide financial information' \
-                                                       'in Sections VII through VIII. If I am enrolled, I ' \
-                                                       ' agree to pay applicable VA copayments. Sign and date' \
-                                                       ' the form in the Assignment of Benefits section.'
-                                                     else
-                                                       'Off'
-                                                     end
+        @form_data['discloseFinancialInformation'] =
+          DISCLOSE_FINANCIAL_INFORMATION[@form_data['discloseFinancialInformation']] || 'Off'
       end
 
       def merge_dependents
@@ -474,7 +471,7 @@ module PdfFill
 
         dependent = dependents.first
         dependent['fullName'] = combine_full_name(dependent['fullName'])
-        dependent['dependentRelation'] = map_dependent_relationship(dependent['dependentRelation'])
+        dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[(dependent['dependentRelation'])] || 'Off'
         dependent['attendedSchoolLastYear'] = map_radio_box_value(dependent['attendedSchoolLastYear'])
         dependent['disabledBefore18'] = map_radio_box_value(dependent['disabledBefore18'])
         dependent['cohabitedLastYear'] = map_radio_box_value(dependent['cohabitedLastYear'])
@@ -496,16 +493,12 @@ module PdfFill
         end
       end
 
-      def map_dependent_relationship(relationship)
-        case relationship
-        when 'Son'
-          '1'
-        when 'Daughter'
-          '2'
-        when 'Stepson'
-          '3'
-        when 'Stepdaughter'
-          '4'
+      def map_check_box(value)
+        case value
+        when true
+          'YES'
+        when false
+          'NO'
         else
           'Off'
         end
