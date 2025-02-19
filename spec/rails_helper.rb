@@ -82,6 +82,18 @@ VCR.configure do |c|
   end
 end
 
+VCR.configure do |config|
+
+  ignored_uris = [
+    "http://127.0.0.1:8126/v0.4/traces", # datadog
+    "http://169.254.169.254/latest/api/token" # ec2
+  ]
+
+  config.ignore_request do |request|
+    ignored_uris.include?(request.uri)
+  end
+end
+
 ActiveRecord::Migration.maintain_test_schema!
 
 require 'sidekiq/testing'
