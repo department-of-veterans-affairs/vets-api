@@ -20,7 +20,7 @@ end
 module VcrHelpers
   VCR_OPTIONS = {
     match_requests_on: %i[
-      method uri headers
+      method uri headers body
     ].freeze
   }.freeze
 
