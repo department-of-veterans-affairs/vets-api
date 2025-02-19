@@ -495,8 +495,8 @@ gids:
   open_timeout: 1
   read_timeout: 1
   search:
-    open_timeout: ~
-    read_timeout: ~
+    open_timeout: 4
+    read_timeout: 4
   url: https://dev.va.gov/gids
 github_cvu:
   installation_id: ~
@@ -1607,8 +1607,8 @@ vba_documents:
     topic_arns:
       - vetsgov-arn
       - vagov-arn
-  v2_enabled: false
-  v2_upload_endpoint_enabled: false
+  v2_enabled: true
+  v2_upload_endpoint_enabled: true
   webhooks:
     registration_max_retries: 3
     registration_next_run_in_minutes: 15
