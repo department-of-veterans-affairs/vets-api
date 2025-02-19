@@ -88,10 +88,10 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
 
     let!(:user_profile) { create(:vye_user_profile, icn: current_user.icn) }
     let!(:user_info) { create(:vye_user_info, user_profile:, date_last_certified:) }
-    let!(:award1) { create(:vye_award, user_info:, award_begin_date: award_begin_date_1, award_end_date: award_end_date_3, cur_award_ind:) }
+    # let!(:award1) { create(:vye_award, user_info:, award_begin_date: award_begin_date_1, award_end_date: award_end_date_3, cur_award_ind:) }
     let!(:award2) { create(:vye_award, user_info:, award_begin_date: award_begin_date_2, award_end_date: award_end_date_1, cur_award_ind:) }
-    let!(:award3) { create(:vye_award, user_info:, award_begin_date: award_begin_date_3, award_end_date: award_end_date_3, cur_award_ind:) }
-    let!(:award4) { create(:vye_award, user_info:, award_begin_date: award_begin_date_4, award_end_date: award_end_date_3, cur_award_ind:) }
+    # let!(:award3) { create(:vye_award, user_info:, award_begin_date: award_begin_date_3, award_end_date: award_end_date_3, cur_award_ind:) }
+    # let!(:award4) { create(:vye_award, user_info:, award_begin_date: award_begin_date_4, award_end_date: award_end_date_3, cur_award_ind:) }
     let!(:award5) { create(:vye_award, user_info:, award_begin_date: award_begin_date_5, award_end_date: award_end_date_2, cur_award_ind:) }
 
     let(:award_ids) { user_info.awards.pluck(:id) }
