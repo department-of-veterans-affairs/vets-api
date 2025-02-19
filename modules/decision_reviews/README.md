@@ -117,7 +117,7 @@ Mitigation:
 - Code freeze, except for urgent bugs: Controllers, routes, and Utilities
 - Logging and alerts
 
-### IN PROGRESS Phase 6: Delete Old Controllers and Utilities
+### COMPLETE Phase 6: Delete Old Controllers and Utilities
 
 Delete old routes, controllers, and any primary utilities in the main app that are no longer used. At this point the change should be invisible to the system.
 
@@ -136,7 +136,9 @@ Mitigation:
 
 - Automated testing, manual testing in Staging
 
-### Phase 8: Migrate Models to Engine
+### FUTURE WORK Phase 8: Migrate Models to Engine
+
+Update 2/25: Current team assessment is that this work would be more effort than warranted for the current benefit. If we move to a separate repo at some point we will revisit this work.
 
 Models are more complex to move, because models have representations in the database, and the expected name of a model table in the database changes when the model is moved to an engine, even though the engine and main app share the same database. I think we can migrate our models, possibly without changes to the database, but it will require more customization of the engine than we have done to this point.
 
@@ -146,7 +148,7 @@ If this is successful, repeat the process for all our models
 
 We don’t have a working proof of concept for this step (which we do for all the other steps) so risks and mitigations need more investigation.
 
-### Phase 9 (tentative): Remove Dependencies on Shared Code
+### IN PROGRESS Phase 9 (tentative): Remove Dependencies on Shared Code
 
 Some decision review code does rely on other classes written and maintained by the platform team in the main app. How much of this truly needs to be shared? This is a longer conversation the team can have once we see how far we can get by isolating our own code. Other teams (Pensions) have for now made the choice to rely on the shared SavedClaim model, for example, instead of trying to create their own version. Some amount of shared behavior is probably healthy given this is a single application that should behave consistently. How much?
 
