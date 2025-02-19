@@ -100,10 +100,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     end
 
     context 'when user is unauthorized (trying to access another VSO’s POA request)' do
-      it 'returns 403 Forbidden' do
+      it 'returns 404 Not Found' do
         get("/accredited_representative_portal/v0/power_of_attorney_requests/#{other_poa_request.id}")
 
-        expect(response).to have_http_status(:forbidden)
+        expect(response).to have_http_status(:not_found)
       end
     end
 
