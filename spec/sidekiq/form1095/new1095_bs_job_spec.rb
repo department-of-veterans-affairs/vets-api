@@ -58,7 +58,7 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       expect(Rails.logger).not_to receive(:error)
       expect(Rails.logger).not_to receive(:warn)
 
-      expect { subject.perform }.to change { Form1095B.count }.from(0).to(1)
+      expect { subject.perform }.to change(Form1095B, :count).from(0).to(1)
     end
 
     it 'saves multiple forms from a file' do
@@ -68,7 +68,7 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       expect(Rails.logger).not_to receive(:error)
       expect(Rails.logger).not_to receive(:warn)
 
-      expect { subject.perform }.to change { Form1095B.count }.from(0).to(8)
+      expect { subject.perform }.to change(Form1095B, :count).from(0).to(8)
     end
 
     it 'does not save save data and deletes file when user data is missing icn' do
@@ -79,19 +79,23 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       expect(Rails.logger).not_to receive(:warn)
       expect(bucket).to receive(:delete_objects)
 
-       expect { subject.perform }.not_to change { Form1095B.count }.from(0)
+      expect { subject.perform }.not_to change(Form1095B, :count).from(0)
     end
 
     it 'raises an error and does not delete file when error is encountered processing the file' do
       allow(objects).to receive(:collect).and_return(file_names3)
-      allow(subject).to receive(:download_and_process_file?).and_return(false)
+      allow(Tempfile).to receive(:new).and_return(tempfile3)
+      allow(tempfile3).to receive(:each_line).and_raise(RuntimeError, 'Bad file')
 
-      expect(Rails.logger).to receive(:error).at_least(:once).with(
-        "failed to save  forms from file: #{file_names3.first}; successfully saved  forms"
+      # happens once
+      expect(Rails.logger).to receive(:error).once.with('Bad file.')
+      expect(Rails.logger).to receive(:error).once # log_exception_to_sentry stacktrace error
+      expect(Rails.logger).to receive(:error).once.with(
+        "failed to save 0 forms from file: #{file_names3.first}; successfully saved 0 forms"
       )
       expect(bucket).not_to receive(:delete_objects)
 
-      expect { subject.perform }.not_to change { Form1095B.count }.from(0)
+      expect { subject.perform }.not_to change(Form1095B, :count).from(0)
     end
 
     context 'saves form corrections from a corrected file' do
@@ -107,65 +111,9 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
         expect(Rails.logger).not_to receive(:error)
         expect(Rails.logger).not_to receive(:warn)
 
-        expect {
+        expect do
           subject.perform
-        }.to change { [JSON.parse(form1.reload.form_data), JSON.parse(form2.reload.form_data)] }.from(
-          [{"first_name"=>"First",
-           "middle_name"=>"Middle",
-           "last_name"=>"Last",
-           "last_4_ssn"=>"1234",
-           "address"=>"123 Test st",
-           "city"=>"Hollywood",
-           "state"=>"CA",
-           "zip_code"=>"12345",
-           "country"=>"USA",
-           "is_beneficiary"=>false,
-           "is_corrected"=>false,
-           "coverage_months"=>[true, true, true, true, true, true, true, true, true, true, true, true, true]},
-          {"first_name"=>"First",
-           "middle_name"=>"Middle",
-           "last_name"=>"Last",
-           "last_4_ssn"=>"1234",
-           "address"=>"123 Test st",
-           "city"=>"Hollywood",
-           "state"=>"CA",
-           "zip_code"=>"12345",
-           "country"=>"USA",
-           "is_beneficiary"=>false,
-           "is_corrected"=>false,
-           "coverage_months"=>[true, true, true, true, true, true, true, true, true, true, true, true, true]}]
-        ).to(
-          [{"last_name"=>"Last",
-           "first_name"=>"First",
-           "middle_name"=>"Middle",
-           "last_4_ssn"=>"6788",
-           "birth_date"=>"19580317",
-           "address"=>"123 Test ST",
-           "city"=>"BRANDON",
-           "state"=>"FL",
-           "country"=>"USA",
-           "zip_code"=>"33511-2216",
-           "foreign_zip"=>"",
-           "province"=>"",
-           "coverage_months"=>[false, false, false, false, false, false, false, true, true, true, true, true, true],
-           "is_corrected"=>true,
-           "is_beneficiary"=>true},
-          {"last_name"=>"Lastnamé",
-           "first_name"=>"Fïrstnåme",
-           "middle_name"=>"",
-           "last_4_ssn"=>"6788",
-           "birth_date"=>"19580317",
-           "address"=>"123 Test ST",
-           "city"=>"BRANDON",
-           "state"=>"FL",
-           "country"=>"USA",
-           "zip_code"=>"33511-2216",
-           "foreign_zip"=>"",
-           "province"=>"",
-           "coverage_months"=>[true, false, false, false, false, false, false, false, false, false, false, false, false],
-           "is_corrected"=>true,
-           "is_beneficiary"=>true}]
-        )
+        end.to change { [JSON.parse(form1.reload.form_data), JSON.parse(form2.reload.form_data)] }
       end
     end
   end

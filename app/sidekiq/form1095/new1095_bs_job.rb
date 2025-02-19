@@ -166,7 +166,6 @@ module Form1095
 
       all_succeeded
     rescue => e
-      Rails.logger.error "#{e.message}."
       log_exception_to_sentry(e, 'context' => "Error processing file: #{file_details}, on line #{lines}")
       false
     end
