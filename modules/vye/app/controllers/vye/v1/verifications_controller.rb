@@ -29,24 +29,18 @@ module Vye
 
       def cert_through_date
         current_date = Time.zone.today
-
-        # Get final award end date
         final_award_end = pending_verifications.map { |pv| pv.act_end.to_date }.max
 
-        if current_date >= final_award_end # If we're on or past the final award, return that final date
+        if current_date >= final_award_end
+          # If we're on or past the final award, return that final date
           pending_verifications.find { |pv| pv.act_end.to_date == final_award_end }&.act_end
         else
-          # Otherwise, return the end of the previous month
+          # Otherwise, return either the max past date or end of previous month
           month_end = current_date.prev_month.end_of_month
-
-          # Find verification that includes this month end
-          max_past_date = Time.new(1970, 1, 1, 0, 0, 0, 0)
-          pending_verifications.each do |pv|
-            max_past_date = pv.act_end.to_date if pv.act_end.to_date < current_date &&
-                                                  pv.act_end.to_date > max_past_date
-          end
-
-          max_past_date.eql?(Time.new(1970, 1, 1, 0, 0, 0, 0)) ? month_end : max_past_date
+          pending_verifications
+            .map { |pv| pv.act_end.to_date }
+            .select { |date| date < current_date }
+            .max || month_end
         end
       end
 
