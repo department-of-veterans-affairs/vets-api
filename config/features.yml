@@ -300,6 +300,10 @@ features:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
     enable_in_development: true
+  lighthouse_claims_api_add_person_proxy:
+    actor_type: user
+    description: When enabled, will allow for add_person_proxy call in both versions
+    enable_in_development: true
   confirmation_page_new:
     actor_type: user
     description: Enables the 2024 version of the confirmation page view in simple forms
@@ -1877,6 +1881,9 @@ features:
   pension_confirmation_update:
     actor_type: user
     description: Show updated confirmation page
+  pension_form_profile_module_enabled:
+    actor_type: user
+    description: Use the module version of the FormProfile
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
