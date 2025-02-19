@@ -5,8 +5,33 @@ require_relative '../../../app/services/concerns/token_authentication'
 require_relative '../../../app/services/concerns/jwt_wrapper'
 require 'common/client/concerns/monitoring'
 
+# Base class for testing that implements perform
+# This is used so we don't have to implement all other functions of the service session class.
+class TestServiceBase
+  def perform(method, url, params, headers)
+    @last_request = OpenStruct.new(
+      method: method,
+      url: url,
+      params: params,
+      headers: headers
+    )
+
+    # Return mock response for token request
+    OpenStruct.new(
+      body: {
+        'access_token' => 'test-access-token',
+        'token_type' => 'Bearer',
+        'expires_in' => 3600,
+        'scope' => 'test.scope'
+      }
+    )
+  end
+
+  attr_reader :last_request
+end
+
 # Test class to include the TokenAuthentication concern
-class TestTokenService
+class TestTokenService < TestServiceBase
   include Concerns::TokenAuthentication
   include Common::Client::Concerns::Monitoring
 
@@ -19,18 +44,13 @@ class TestTokenService
 
   # Define token configuration
   def initialize
+    super()
     @config = OpenStruct.new(
       access_token_url: 'https://test.example.com/token',
       grant_type: 'client_credentials',
       scopes: 'test.scope',
       client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
     )
-  end
-
-  # Mock stub for perform
-  # Note: Perform in session service performs other functions beyond what we need testing
-  def perform(method, url, params, headers)
-    # Mock implementation for testing
   end
 end
 
@@ -39,28 +59,15 @@ RSpec.describe Concerns::TokenAuthentication do
 
   let(:request_id) { '123456-abcdef' }
   let(:jwt_wrapper) { instance_double(Concerns::JwtWrapper, sign_assertion: 'signed-jwt-token') }
-  let(:mock_token_response) do
-    OpenStruct.new(
-      body: {
-        'access_token' => 'test-access-token',
-        'token_type' => 'Bearer',
-        'expires_in' => 3600,
-        'scope' => 'test.scope'
-      }
-    )
-  end
 
   before do
     RequestStore.store['request_id'] = request_id
     allow(Concerns::JwtWrapper).to receive(:new).and_return(jwt_wrapper)
-    allow(subject).to receive(:perform).and_return(mock_token_response)
     Rails.cache.clear
   end
 
   describe '#headers' do
     it 'returns headers with authorization token' do
-      allow(subject).to receive(:token).and_return('test-access-token')
-
       expect(subject.headers).to eq(
         'Authorization' => 'Bearer test-access-token',
         'Content-Type' => 'application/json',
@@ -82,9 +89,10 @@ RSpec.describe Concerns::TokenAuthentication do
     it 'reuses cached token' do
       expect(Rails.cache).to receive(:fetch)
         .with(TestTokenService::REDIS_TOKEN_KEY, expires_in: TestTokenService::REDIS_TOKEN_TTL)
-        .and_return('test-access-token')
-      expect(subject).not_to receive(:get_token)
-      subject.token
+        .and_return('cached-token')
+
+      expect_any_instance_of(TestServiceBase).not_to receive(:perform)
+      expect(subject.token).to eq('cached-token')
     end
   end
 
@@ -97,21 +105,28 @@ RSpec.describe Concerns::TokenAuthentication do
         client_assertion: 'signed-jwt-token'
       )
 
-      expect(subject).to receive(:perform).with(
-        :post,
-        'https://test.example.com/token',
-        expected_params,
-        { 'Content-Type' => 'application/x-www-form-urlencoded' }
-      )
-
       subject.get_token
+      last_request = subject.last_request
+
+      expect(last_request.method).to eq(:post)
+      expect(last_request.url).to eq('https://test.example.com/token')
+      expect(last_request.params).to eq(expected_params)
+      expect(last_request.headers).to eq('Content-Type' => 'application/x-www-form-urlencoded')
     end
   end
 
   describe '#parse_token_response' do
     context 'with valid response' do
       it 'returns the access token' do
-        token = subject.send(:parse_token_response, mock_token_response)
+        response = OpenStruct.new(
+          body: {
+            'access_token' => 'test-access-token',
+            'token_type' => 'Bearer',
+            'expires_in' => 3600,
+            'scope' => 'test.scope'
+          }
+        )
+        token = subject.send(:parse_token_response, response)
         expect(token).to eq('test-access-token')
       end
     end
