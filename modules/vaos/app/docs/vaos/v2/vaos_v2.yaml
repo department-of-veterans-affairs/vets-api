@@ -1117,7 +1117,6 @@ components:
         - vaInPerson
         - vaInPersonVaccine
         - vaVideoCareAtHome
-        - vaVideoCareOnGfe
         - vaVideoCareAtAVaLocation
         - vaVideoCareAtAnAtlasLocation
         - vaPhone
