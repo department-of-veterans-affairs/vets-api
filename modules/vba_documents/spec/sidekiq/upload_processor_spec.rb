@@ -262,7 +262,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.status).to eq('received')
 
       # confirm UploadSubmission Db record has the icn stored in the metadata field
-      expect(updated.metadata['ICN']).to eq('2112')
+      expect(updated.metadata['icn']).to eq('2112')
     end
 
     it 'trims leading\trailing whitespace from consumer supplied fileNumber metadata part' do

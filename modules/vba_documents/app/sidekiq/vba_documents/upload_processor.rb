@@ -56,7 +56,7 @@ module VBADocuments
         # Attempt to use consumer supplied file number field to look up the claiments ICN
         # asap for tracking consumer's impacted
         icn = find_icn(parts)
-        @upload.update(metadata: @upload.metadata.merge({ 'ICN' => icn })) if icn.present?
+        @upload.update(metadata: @upload.metadata.merge({ 'icn' => icn })) if icn.present?
 
         inspector = VBADocuments::PDFInspector.new(pdf: parts)
         @upload.update(uploaded_pdf: inspector.pdf_data)
@@ -66,7 +66,6 @@ module VBADocuments
         validate_metadata(parts[META_PART_NAME], @upload.consumer_id, @upload.guid,
                           submission_version: @upload.metadata['version'].to_i)
         metadata = perfect_metadata(@upload, parts, timestamp)
-        metadata['ICN'] = icn if icn.present?
 
         pdf_validator_options = VBADocuments::DocumentRequestValidator.pdf_validator_options
         validate_documents(parts, pdf_validator_options)
@@ -95,17 +94,6 @@ module VBADocuments
         'sha256_checksum' => Digest::SHA256.file(tempfile).hexdigest,
         'md5_checksum' => Digest::MD5.file(tempfile).hexdigest
       }
-    end
-
-    def read_original_metadata_file_number(parts)
-      return unless parts.key?(META_PART_NAME) && parts[META_PART_NAME].is_a?(String)
-
-      metadata = JSON.parse(parts[META_PART_NAME])
-      return unless metadata.is_a?(Hash) && metadata.key?('fileNumber')
-
-      return if (FILE_NUMBER_REGEX =~ metadata['fileNumber'].strip).nil?
-
-      metadata['fileNumber'].strip
     end
 
     def find_icn(parts)
