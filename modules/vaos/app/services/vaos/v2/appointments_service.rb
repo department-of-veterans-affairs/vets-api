@@ -383,9 +383,9 @@ module VAOS
 
         set_modality(appointment)
 
-        appointment[:past] = past?(appointment)
-        appointment[:future] = future?(appointment)
-        appointment[:pending] = request?(appointment)
+        set_telehealth_visibility(appointment) if telehealth?(appointment)
+
+        set_derived_appointment_date_fields(appointment)
       end
 
       def find_and_merge_provider_name(appointment)
@@ -855,6 +855,15 @@ module VAOS
         appointment[:cancellable] = false
       end
 
+      def set_telehealth_visibility(appointment)
+        if appointment[:telehealth].present?
+          # if current time is between 30 minutes prior to appointment.start and 4 hours after appointment.start, set
+          # telehealth_visible to true
+          appointment[:telehealth][:displayLink] = (appointment[:start].to_datetime - 30.minutes) <= Time.now.utc &&
+                                                   (appointment[:start].to_datetime + 4.hours) >= Time.now.utc
+        end
+      end
+
       def set_modality(appointment)
         raise ArgumentError, 'Appointment cannot be nil' if appointment.nil?
 
@@ -875,6 +884,12 @@ module VAOS
 
         log_modality_failure(appointment) if modality.nil?
         appointment[:modality] = modality
+      end
+
+      def set_derived_appointment_date_fields(appointment)
+        appointment[:past] = past?(appointment)
+        appointment[:future] = future?(appointment)
+        appointment[:pending] = request?(appointment)
       end
 
       def log_modality_failure(appointment)

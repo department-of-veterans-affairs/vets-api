@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments
+    uri: <VA_MOBILE_URL>/vaos/v1/patients/1012846043V576341/appointments
     body:
       encoding: UTF-8
       string: '{"kind":"clinic","status":"proposed","locationId":"983","contact":{"telecom":[{"type":"phone","value":"2125688889"},{"type":"email","value":"judymorisooooooooooooon@gmail.com"}]},"serviceType":"audiology","requestedPeriods":[{"end":null,"2022-01-04T11:59:00Z":null},{"start":null,"2022-01-04T00:00:00Z":null}],"reasonCode":{"codeing":[{"code":"Routine
