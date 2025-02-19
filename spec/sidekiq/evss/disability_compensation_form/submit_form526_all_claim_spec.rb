@@ -18,10 +18,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
                                               anything).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE,
-                                              anything).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_fail_submission,
                                               anything).and_return(false)
+    allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
+      .and_return('access_token')
   end
 
   let(:user) { create(:user, :loa3) }
@@ -45,15 +45,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     let(:open_claims_cassette) { 'evss/claims/claims_without_open_compensation_claims' }
     let(:caseflow_cassette) { 'caseflow/appeals' }
     let(:rated_disabilities_cassette) { 'evss/disability_compensation_form/rated_disabilities' }
+    let(:lh_claims_cassette) { 'lighthouse/claims/200_response' }
     let(:submit_form_cassette) { 'evss/disability_compensation_form/submit_form_v2' }
     let(:lh_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload_location' }
     let(:evss_get_pdf) { 'form526_backup/200_evss_get_pdf' }
     let(:lh_intake_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload' }
     let(:lh_submission) { 'lighthouse/benefits_claims/submit526/200_synchronous_response' }
+    let(:lh_longer_icn_claims) { 'lighthouse/claims/200_response_longer_icn' }
     let(:cassettes) do
       [open_claims_cassette, caseflow_cassette, rated_disabilities_cassette,
        submit_form_cassette, lh_upload, evss_get_pdf,
-       lh_intake_upload, lh_submission]
+       lh_intake_upload, lh_submission, lh_claims_cassette, lh_longer_icn_claims]
     end
     let(:backup_klass) { Sidekiq::Form526BackupSubmissionProcess::Submit }
 
@@ -363,7 +365,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         end
         let(:mas_cassette) { 'mail_automation/mas_initiate_apcas_request' }
         let(:cassettes) do
-          [open_claims_cassette, rated_disabilities_cassette, submit_form_cassette, mas_cassette]
+          [open_claims_cassette, rated_disabilities_cassette, submit_form_cassette, mas_cassette,
+           lh_claims_cassette, lh_longer_icn_claims]
         end
 
         before do
@@ -452,6 +455,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       context 'with Lighthouse as submission provider' do
+        let(:user) { create(:user, :loa3, icn: '123498767V234859') }
         let(:submission) do
           create(:form526_submission,
                  :with_everything,
@@ -537,6 +541,34 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             allow_any_instance_of(VeteranVerification::Service).to receive(:get_rated_disabilities)
               .and_raise(error_class.new(status:))
             expect_retryable_error(error_class)
+          end
+        end
+
+        context 'when disability_526_send_form526_submitted_email is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:disability_526_send_form526_submitted_email)
+              .and_return(true)
+          end
+
+          it 'sends the submitted email' do
+            expect(Form526SubmittedEmailJob).to receive(:perform_async).once
+            subject.perform_async(submission.id)
+            described_class.drain
+          end
+        end
+
+        context 'when disability_526_send_form526_submitted_email is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:disability_526_send_form526_submitted_email)
+              .and_return(false)
+          end
+
+          it 'does not send the submitted email' do
+            expect(Form526SubmittedEmailJob).not_to receive(:perform_async)
+            subject.perform_async(submission.id)
+            described_class.drain
           end
         end
       end
@@ -680,6 +712,34 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         subject.perform_async(submission.id)
         expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
         expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+      end
+
+      context 'when disability_526_send_form526_submitted_email is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:disability_526_send_form526_submitted_email)
+            .and_return(true)
+        end
+
+        it 'behaves sends the submitted email in the backup path' do
+          expect(Form526SubmittedEmailJob).to receive(:perform_async).once
+          subject.perform_async(submission.id)
+          described_class.drain
+        end
+      end
+
+      context 'when disability_526_send_form526_submitted_email is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?)
+            .with(:disability_526_send_form526_submitted_email)
+            .and_return(false)
+        end
+
+        it 'behaves does not send the submitted email in the backup path' do
+          expect(Form526SubmittedEmailJob).not_to receive(:perform_async)
+          subject.perform_async(submission.id)
+          described_class.drain
+        end
       end
     end
 

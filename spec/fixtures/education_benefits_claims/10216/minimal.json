@@ -1,0 +1,13 @@
+{
+    "institutionDetails": {
+      "institutionName": "University of Testing",
+      "facilityCode": "12345678",
+      "termStartDate": "2024-03-15"
+    },
+    "studentRatioCalcChapter": {
+      "beneficiaryStudent": 25,
+      "numOfStudent": 500,
+      "VaBeneficiaryStudentsPercentage": 5.0,
+      "dateOfCalculation": "2024-03-01"
+    }
+  }
