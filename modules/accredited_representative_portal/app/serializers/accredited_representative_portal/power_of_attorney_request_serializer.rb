@@ -47,12 +47,15 @@ module AccreditedRepresentativePortal
 
     attribute :power_of_attorney_form_submission,
               if: ->(poa_request) { poa_request.accepted? } do |poa_request|
-      time = poa_request.created_at.to_i
       status =
-        case time % 3
-        when 0 then 'PENDING'
-        when 1 then 'FAILED'
-        when 2 then 'SUCCEEDED'
+        case poa_request.power_of_attorney_form_submission&.status
+        when PowerOfAttorneyFormSubmission::Statuses::SUCCEEDED
+          'succeeded'
+        when PowerOfAttorneyFormSubmission::Statuses::ENQUEUE_FAILED,
+          PowerOfAttorneyFormSubmission::Statuses::FAILED
+          'failed'
+        else
+          'pending'
         end
 
       { status: }

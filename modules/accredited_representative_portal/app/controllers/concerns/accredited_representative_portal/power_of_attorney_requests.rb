@@ -34,11 +34,7 @@ module AccreditedRepresentativePortal
     end
 
     def find_poa_request(id)
-      @poa_request = poa_request_scope.find(id)
-    end
-
-    def poa_request_scope
-      policy_scope(PowerOfAttorneyRequest)
+      @poa_request = policy_scope(PowerOfAttorneyRequest).find(id)
     end
   end
 end
