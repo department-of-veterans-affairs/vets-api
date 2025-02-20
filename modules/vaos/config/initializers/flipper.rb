@@ -7,7 +7,7 @@ module Flipper
   module Instrumentation
     class AppointmentsEventSubscriber
       # va_online_scheduling_poc_type_of_care used for temporary testing purposes in staging, will be removed
-      # va_online_scheduling_unit_testing used for unit testing purposes
+      # va_online_scheduling_subscriber_unit_testing used for unit testing purposes
       CRITICAL_FEATURES = %i[
         va_online_scheduling
         va_online_scheduling_cancel
@@ -15,7 +15,7 @@ module Flipper
         va_online_scheduling_direct
         va_online_scheduling_requests
         va_online_scheduling_poc_type_of_care
-        va_online_scheduling_unit_testing
+        va_online_scheduling_subscriber_unit_testing
       ].freeze
       RESTRICTED_OPERATIONS = %i[disable remove clear].freeze
       ALL_OPERATIONS = %i[enable disable add remove clear].freeze
