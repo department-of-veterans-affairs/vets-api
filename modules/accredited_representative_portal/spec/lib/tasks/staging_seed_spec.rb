@@ -55,14 +55,6 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
            poa_codes: %w[008 ABC XYZ]) # Both digital and non-digital
   end
 
-  let!(:no_org_rep) do
-    create(:representative,
-           first_name: 'Lonely',
-           last_name: 'Rep',
-           representative_id: 'LR000',
-           poa_codes: ['ZZZ']) # No matching org
-  end
-
   describe '.run' do
     before { described_class.run }
 
@@ -83,10 +75,56 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
     end
 
     it 'creates requests with proper claimant data' do
+      described_class.run
       requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest.all
 
-      expect(requests).to(be_all { |req| req.claimant.is_a?(UserAccount) })
-      expect(requests).to(be_all { |req| req.claimant_type == 'veteran' })
+      expect(requests).to(be_all do |req|
+        req.power_of_attorney_form.parsed_data['veteran'].present?
+      end)
+
+      # expect dependent data if claimant_type is dependent
+      expect(requests.where(claimant_type: 'dependent')).to(be_all do |req|
+        req.power_of_attorney_form.parsed_data['dependent'].present?
+      end)
+
+      # Verify form data is structured correctly
+      forms = AccreditedRepresentativePortal::PowerOfAttorneyForm.all
+      expect(forms).to(be_all do |form|
+        data = form.parsed_data
+        data['veteran'].present? &&
+        data['authorizations'].present?
+      end)
+    end
+
+    it 'creates the expected mix of requests' do
+      described_class.run
+
+      # Get all requests
+      requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest.all
+
+      # Basic resolution counts
+      expect(requests.resolved.count).to be_positive
+      expect(requests.unresolved.count).to be_positive
+
+      # Basic claimant type counts
+      veteran_count = requests.where(claimant_type: 'veteran').count
+      dependent_count = requests.where(claimant_type: 'dependent').count
+
+      expect(veteran_count).to be_positive
+      expect(dependent_count).to be_positive
+
+      # Verify form data matches claimant type
+      veteran_requests = requests.where(claimant_type: 'veteran')
+      dependent_requests = requests.where(claimant_type: 'dependent')
+
+      veteran_requests.each do |req|
+        expect(req.power_of_attorney_form.parsed_data['veteran']).to be_present
+        expect(req.power_of_attorney_form.parsed_data['dependent']).to be_nil
+      end
+
+      dependent_requests.each do |req|
+        expect(req.power_of_attorney_form.parsed_data['dependent']).to be_present
+      end
     end
 
     it 'creates requests for multi-org reps' do
@@ -96,6 +134,45 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
         .to include('008', 'ABC', 'XYZ')
       # verify they all have orgs
       expect(multi_rep_requests).to(be_all { |req| req.accredited_organization.present? })
+    end
+
+    it 'creates user account associations for all representatives' do
+      associations = AccreditedRepresentativePortal::UserAccountAccreditedIndividual.all
+      representatives = Veteran::Service::Representative.all
+
+      # Should create one association per rep
+      expect(associations.count).to eq(representatives.count)
+
+      # Check email pattern
+      expect(associations).to(be_all do |assoc|
+        assoc.user_account_email.match?(/vets\.gov\.user\+\d+@gmail\.com/)
+      end)
+
+      # Verify registration numbers match reps
+      expect(associations.pluck(:accredited_individual_registration_number))
+        .to match_array(representatives.pluck(:representative_id))
+
+      # Check holder type
+      expect(associations).to(be_all do |assoc|
+        assoc.power_of_attorney_holder_type == 'veteran_service_organization'
+      end)
+    end
+
+    it 'creates the expected pattern of requests per representative and organization' do
+      # Focus on CT org (008) and digital_only_rep who only works with CT
+      ct_rep_requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest
+                        .where(
+                          accredited_individual_registration_number: digital_only_rep.representative_id,
+                          power_of_attorney_holder_poa_code: ct_digital_org.poa
+                        )
+
+      # Total count for this org-rep pair
+      expect(ct_rep_requests.count).to eq(5)
+
+      # Resolution counts
+      expect(ct_rep_requests.unresolved.count).to eq(3)
+      resolved = ct_rep_requests.resolved
+      expect(resolved.count).to eq(2)
     end
   end
 end
