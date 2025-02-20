@@ -17,7 +17,7 @@ module AccreditedRepresentativePortal
     private
 
     def authorize
-      user.activated_power_of_attorney_holders.any?
+      user.activated_power_of_attorney_holders.size.positive?
     end
 
     class Scope < ApplicationPolicy::Scope
