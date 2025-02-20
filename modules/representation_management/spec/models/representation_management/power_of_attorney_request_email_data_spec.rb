@@ -10,7 +10,7 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestEmailData, type: 
   end
 
   describe 'methods' do
-    subject { described_class.new(form_data: form_data) }
+    subject { described_class.new(form_data:) }
 
     let(:organization) { create(:accredited_organization, name: 'Org Name') }
     let(:representative) do
