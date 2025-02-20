@@ -85,7 +85,7 @@ RSpec.describe 'V1::GI::LCPE::Exams', type: :request do
         let(:v_client) { v_fresh }
 
         before do
-         # generate fresh cache
+          # generate fresh cache
           VCR.use_cassette('gi/lcpe/get_exams_cache_nil') do
             service.get_exams_v1({})
           end
