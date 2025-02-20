@@ -40,6 +40,21 @@ describe DecisionReviewV1::Processor::Form4142Processor do
         expect(processor.instance_variable_get(:@pdf_path)).to be_a(String)
         expect(processor.instance_variable_get(:@request_body)).to be_a(Hash)
       end
+
+      context 'when more than 5 providers are submitted' do
+        let(:overflow_form_data) do
+          form4142.tap do |data|
+            # If the number of providers is greater than 5, the overflow page is added
+            extra_providers = data['providerFacility'].first.dup
+            data['providerFacility'] += [extra_providers] * 5
+          end
+        end
+
+        it 'does not raise a validation error' do
+          expect { described_class.new(form_data: overflow_form_data, submission_id: submission.id) }
+            .not_to raise_error
+        end
+      end
     end
 
     context 'with invalid form data' do
@@ -53,21 +68,6 @@ describe DecisionReviewV1::Processor::Form4142Processor do
       end
 
       context 'with invalid provider data' do
-        context 'when more than 5 providers are submitted' do
-          let(:invalid_form_data) do
-            form4142.tap do |data|
-              # Add providers to exceed the 5 provider limit
-              extra_providers = data['providerFacility'].first.dup
-              data['providerFacility'] += [extra_providers] * 5
-            end
-          end
-
-          it 'raises a validation error' do
-            expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id) }
-              .to raise_error(RuntimeError, /Form 4142 validation failed/)
-          end
-        end
-
         context 'when dates are malformed' do
           let(:invalid_form_data) do
             form4142.tap do |data|
