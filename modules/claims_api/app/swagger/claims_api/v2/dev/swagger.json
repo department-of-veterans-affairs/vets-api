@@ -10337,22 +10337,22 @@
                       "attributes": {
                         "veteran": {
                           "firstName": "[Vet First Name]",
-                          "lastName": "[Vet Last Name]",
-                          "middleName": null
+                          "middleName": null,
+                          "lastName": "[Vet Last Name]"
                         },
                         "claimant": {
-                          "city": "Charlottesville",
-                          "country": "USA",
-                          "militaryPo": null,
-                          "militaryPostalCode": null,
-                          "state": null,
-                          "zip": "00123"
+                          "firstName": null,
+                          "middleName": null,
+                          "lastName": null
+                        },
+                        "address": {
+                          "city": null,
+                          "stateCode": null,
+                          "zipCode": null,
+                          "countryCode": null
                         },
                         "representative": {
-                          "poaCode": "083",
-                          "vsoUserEmail": null,
-                          "vsoUserFirstName": "Joe",
-                          "vsoUserLastName": "BestRep"
+                          "poaCode": "083"
                         },
                         "receivedDate": "2012-11-23T16:49:16-06:00",
                         "actionedDate": "2024-05-25T13:45:00-05:00",
@@ -10368,22 +10368,22 @@
                       "attributes": {
                         "veteran": {
                           "firstName": "first",
-                          "lastName": "last",
-                          "middleName": null
+                          "middleName": null,
+                          "lastName": "last"
                         },
                         "claimant": {
-                          "city": "USAG J",
-                          "country": "USA",
-                          "militaryPo": "APO",
-                          "militaryPostalCode": "AP",
-                          "state": null,
-                          "zip": "01234"
+                          "firstName": null,
+                          "middleName": null,
+                          "lastName": null
+                        },
+                        "address": {
+                          "city": null,
+                          "stateCode": null,
+                          "zipCode": null,
+                          "countryCode": null
                         },
                         "representative": {
-                          "poaCode": "002",
-                          "vsoUserEmail": null,
-                          "vsoUserFirstName": "VDC USER",
-                          "vsoUserLastName": null
+                          "poaCode": "002"
                         },
                         "receivedDate": "2013-01-14T08:50:17-06:00",
                         "actionedDate": "2013-01-14T08:50:17-06:00",
@@ -10399,22 +10399,22 @@
                       "attributes": {
                         "veteran": {
                           "firstName": "first",
-                          "lastName": "last",
-                          "middleName": null
+                          "middleName": null,
+                          "lastName": "last"
                         },
                         "claimant": {
-                          "city": "Bourges",
-                          "country": "France",
-                          "militaryPo": null,
-                          "militaryPostalCode": null,
-                          "state": null,
-                          "zip": "00123"
+                          "firstName": null,
+                          "middleName": null,
+                          "lastName": null
+                        },
+                        "address": {
+                          "city": null,
+                          "stateCode": null,
+                          "zipCode": null,
+                          "countryCode": null
                         },
                         "representative": {
-                          "poaCode": "002",
-                          "vsoUserEmail": null,
-                          "vsoUserFirstName": "VDC USER",
-                          "vsoUserLastName": null
+                          "poaCode": "002"
                         },
                         "receivedDate": "2013-01-14T08:51:25-06:00",
                         "actionedDate": "2013-01-14T08:51:25-06:00",
@@ -10808,22 +10808,22 @@
                     "attributes": {
                       "veteran": {
                         "firstName": "ANDREA",
-                        "lastName": "MITCHELL",
-                        "middleName": "L"
+                        "middleName": "L",
+                        "lastName": "MITCHELL"
                       },
                       "claimant": {
-                        "city": "Portland",
-                        "country": "USA",
-                        "militaryPo": null,
-                        "militaryPostalCode": null,
-                        "state": "OR",
-                        "zip": "56789"
+                        "firstName": null,
+                        "middleName": null,
+                        "lastName": null
+                      },
+                      "address": {
+                        "city": null,
+                        "stateCode": null,
+                        "zipCode": null,
+                        "countryCode": null
                       },
                       "representative": {
-                        "poaCode": "074",
-                        "vsoUserEmail": null,
-                        "vsoUserFirstName": "vets-api",
-                        "vsoUserLastName": "vets-api"
+                        "poaCode": "074"
                       },
                       "receivedDate": "2024-10-30T08:22:07-05:00",
                       "actionedDate": "2025-01-09T10:19:26-06:00",
@@ -11115,22 +11115,22 @@
                     "attributes": {
                       "veteran": {
                         "firstName": "ANDREA",
-                        "lastName": "MITCHELL",
-                        "middleName": "L"
+                        "middleName": "L",
+                        "lastName": "MITCHELL"
                       },
                       "claimant": {
-                        "city": "Portland",
-                        "country": "USA",
-                        "militaryPo": null,
-                        "militaryPostalCode": null,
-                        "state": "OR",
-                        "zip": "56789"
+                        "firstName": null,
+                        "middleName": null,
+                        "lastName": null
+                      },
+                      "address": {
+                        "city": null,
+                        "stateCode": null,
+                        "zipCode": null,
+                        "countryCode": null
                       },
                       "representative": {
-                        "poaCode": "074",
-                        "vsoUserEmail": null,
-                        "vsoUserFirstName": "vets-api",
-                        "vsoUserLastName": "vets-api"
+                        "poaCode": "074"
                       },
                       "receivedDate": "2024-10-30T08:22:07-05:00",
                       "actionedDate": "2025-01-09T10:19:26-06:00",
