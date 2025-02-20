@@ -19,6 +19,10 @@ RSpec.describe LogService do
     allow(Rails.logger).to receive(:error)
   end
 
+  after do
+    nil
+  end
+
   describe '#call' do
     let(:action) { 'test.action' }
     let(:tags) { { 'sample_key' => 'sample_value' } }

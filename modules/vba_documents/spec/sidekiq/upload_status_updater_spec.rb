@@ -13,6 +13,10 @@ RSpec.describe VBADocuments::UploadStatusUpdater, type: :job do
        lastUpdated: '2018-04-25 00:02:39' }]
   end
 
+  after do
+    nil
+  end
+
   describe '#perform' do
     it 'updates the status of an inflight submission' do
       expect(CentralMail::Service).to receive(:new) { client_stub }

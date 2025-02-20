@@ -13,6 +13,8 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationPolicy do
     allow(Rails).to receive(:logger).and_return(mock_logger)
   end
 
+  after { nil }
+
   describe 'default permissions' do
     it 'disallows all actions by default' do
       expect(policy.index?).to be(false)

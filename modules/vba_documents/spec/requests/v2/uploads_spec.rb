@@ -25,6 +25,10 @@ RSpec.describe 'VBADocument::V2::Uploads', type: :request do
   end
   let(:fixture_path) { './modules/vba_documents/spec/fixtures/subscriptions/' }
 
+  after do
+    nil
+  end
+
   describe '#create /v2/uploads' do
     context 'uploads' do
       before do

@@ -110,6 +110,8 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
       ).and_return(cached_data)
     end
 
+    after { nil }
+
     context 'when PERSONAL inquiry_params is received' do
       it 'builds the correct payload' do
         expect(subject.call).to eq(expected_result)

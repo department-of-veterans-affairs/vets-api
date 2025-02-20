@@ -82,6 +82,8 @@ RSpec.describe AskVAApi::Profile::Retriever do
         allow(service).to receive(:call).and_return(failure)
       end
 
+      after { nil }
+
       it 'rescues from errors and calls ErrorHandler' do
         expect { retriever.call }.to raise_error(ErrorHandler::ServiceError)
       end

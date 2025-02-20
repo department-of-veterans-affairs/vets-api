@@ -106,6 +106,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
         )
       end
 
+      after { nil }
+
       it 'uploads a BDD Instruction PDF to Lighthouse' do
         expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
           .with(file_read, expected_lighthouse_document)

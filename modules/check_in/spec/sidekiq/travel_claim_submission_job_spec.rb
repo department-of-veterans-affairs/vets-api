@@ -148,6 +148,8 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       allow(notify_client).to receive(:send_sms).with(any_args).and_raise(forbidden_exception)
     end
 
+    after { nil }
+
     it 'handles the error' do
       worker = described_class.new
       expect(worker).to receive(:log_exception_to_sentry).with(
@@ -180,6 +182,8 @@ shared_examples 'travel claims worker #perform' do |facility_type|
                                                .and_return(notify_client)
       allow(notify_client).to receive(:send_sms).with(any_args).and_raise(forbidden_exception)
     end
+
+    after { nil }
 
     it 'logs the silent_failure error' do
       worker = described_class.new

@@ -40,6 +40,8 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
     end
   end
 
+  after { nil }
+
   def mock_faraday(status, body, success)
     allow(Faraday).to receive(:post).and_return(faraday_response)
     allow(faraday_response).to receive_messages(status:, body:, success?: success)

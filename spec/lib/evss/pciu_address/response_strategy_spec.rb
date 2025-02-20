@@ -13,6 +13,8 @@ describe EVSS::PCIUAddress::ResponseStrategy do
     allow(faraday_response).to receive_messages(status: 200, body: { cnp_countries: %w[Afghanistan Albania Algeria] })
   end
 
+  after { nil }
+
   describe '#cache_or_service' do
     context 'when the cache is empty' do
       it 'caches and return the response' do

@@ -32,6 +32,8 @@ module AskVAApi
                           ] })
           end
 
+          after { nil }
+
           it 'reads from file' do
             expect(retriever.call).to all(be_a(entity_class))
           end
@@ -44,6 +46,8 @@ module AskVAApi
           before do
             allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
           end
+
+          after { nil }
 
           context 'when successful' do
             before do

@@ -19,6 +19,8 @@ RSpec.describe Banners::Builder do
     allow(StatsD).to receive(:increment)
   end
 
+  after { nil }
+
   describe '.perform' do
     context 'when banner update succeeds' do
       before do

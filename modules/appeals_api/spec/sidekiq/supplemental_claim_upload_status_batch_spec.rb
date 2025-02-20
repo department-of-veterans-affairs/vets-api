@@ -13,6 +13,10 @@ describe AppealsApi::SupplementalClaimUploadStatusBatch, type: :job do
        lastUpdated: '2018-04-25 00:02:39' }]
   end
 
+  after do
+    nil
+  end
+
   describe '#perform' do
     before do
       allow(CentralMail::Service).to receive(:new) { client_stub }

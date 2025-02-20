@@ -9,6 +9,8 @@ module AskVAApi
       let(:static_data_service) { instance_double(Crm::CacheData) }
       let(:entity_class) { Entity }
 
+      after { nil }
+
       describe '#call' do
         let(:parent_id) { nil }
         let(:type) { 'category' }

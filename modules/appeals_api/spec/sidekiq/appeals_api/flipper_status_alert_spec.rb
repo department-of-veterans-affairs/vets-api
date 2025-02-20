@@ -24,6 +24,8 @@ describe AppealsApi::FlipperStatusAlert, type: :job do
       allow(messager_instance).to receive(:notify!)
     end
 
+    after { nil }
+
     it 'notifies Slack of missing config file when no config file found' do
       allow(File).to receive(:exist?).and_return(false)
       expected_notify = { warning: missing_file_message, file_path: config_file_path.to_s }

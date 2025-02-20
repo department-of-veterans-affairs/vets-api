@@ -22,6 +22,8 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
       ).and_return(cached_data)
     end
 
+    after { nil }
+
     context 'when the submitter is not the veteran' do
       let(:params) do
         {

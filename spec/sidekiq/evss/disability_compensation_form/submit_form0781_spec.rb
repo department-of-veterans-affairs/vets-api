@@ -354,6 +354,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
           )
         end
 
+        after { nil }
+
         context 'when a submission has both 0781 and 0781a' do
           context 'when the request is successful' do
             it 'uploads both documents to Lighthouse' do
@@ -740,6 +742,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
             }
           )
         end
+
+        after { nil }
 
         context 'when a request is successful' do
           it 'uploads to Lighthouse' do

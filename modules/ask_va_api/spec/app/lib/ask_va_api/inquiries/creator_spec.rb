@@ -31,6 +31,10 @@ RSpec.describe AskVAApi::Inquiries::Creator do
     allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
   end
 
+  after do
+    nil
+  end
+
   describe '#call' do
     context 'when the API call is successful' do
       before do

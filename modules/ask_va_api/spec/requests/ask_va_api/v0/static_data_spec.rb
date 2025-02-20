@@ -15,6 +15,10 @@ RSpec.describe 'AskVAApi StaticData', type: :request do
     allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
   end
 
+  after do
+    nil
+  end
+
   shared_examples_for 'common error handling' do |status, action, error_message|
     it 'logs and renders error and sets datadog tags' do
       expect(response).to have_http_status(status)
@@ -69,6 +73,8 @@ RSpec.describe 'AskVAApi StaticData', type: :request do
         allow(service).to receive(:call).and_return(failure)
         get announcements_path
       end
+
+      after { nil }
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                       'AskVAApi::Announcements::AnnouncementsRetrieverError: {"Data":null,"Message"' \

@@ -17,6 +17,8 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
     allow(service).to receive(:call)
   end
 
+  after { nil }
+
   describe '#call' do
     context 'when Crm raise an error' do
       let(:endpoint) { 'inquiries/1/replies' }

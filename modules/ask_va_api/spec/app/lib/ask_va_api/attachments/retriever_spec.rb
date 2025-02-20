@@ -9,6 +9,8 @@ RSpec.describe AskVAApi::Attachments::Retriever do
     let(:entity) { AskVAApi::Attachments::Entity }
     let(:service) { instance_double(Crm::Service) }
 
+    after { nil }
+
     context 'when successful' do
       before do
         allow(Crm::Service).to receive(:new).and_return(service)

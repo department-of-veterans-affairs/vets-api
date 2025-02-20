@@ -14,6 +14,10 @@ describe AppealsApi::NoticeOfDisagreementUploadStatusBatch, type: :job do
   end
   let(:cmp_status) { 'In Process' }
 
+  after do
+    nil
+  end
+
   describe '#perform' do
     before do
       allow(CentralMail::Service).to receive(:new) { client_stub }

@@ -24,6 +24,8 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryPayload do
     ).and_return(cached_data)
   end
 
+  after { nil }
+
   describe '#call' do
     let(:params) { inquiry_params[:inquiry] }
 

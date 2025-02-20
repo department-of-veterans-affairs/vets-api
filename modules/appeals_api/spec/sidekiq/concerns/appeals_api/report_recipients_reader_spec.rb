@@ -11,6 +11,8 @@ describe AppealsApi::ReportRecipientsReader do
     let(:recipient_file_path) { recipient_file_folder.join('error_report_daily.yml').to_s }
     let(:messager_instance) { instance_double(AppealsApi::Slack::Messager) }
 
+    after { nil }
+
     it 'loads no users when file is missing' do
       expected_notify = { warning: ':warning:  recipients file does not exist',
                           recipient_file: recipient_file_folder.join('file_does_not_exist.yml').to_s }

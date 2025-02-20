@@ -195,6 +195,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           )
         end
 
+        after { nil }
+
         it 'uploads the veteran evidence to Lighthouse' do
           expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
             .with(file.read, expected_lighthouse_document)

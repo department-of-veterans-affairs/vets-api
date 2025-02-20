@@ -16,6 +16,10 @@ RSpec.describe 'VBADocument::V1::Uploads', retry: 3, type: :request do
   let(:valid_metadata) { get_fixture('valid_metadata.json').read }
   let(:valid_doc) { get_fixture('valid_doc.pdf') }
 
+  after do
+    nil
+  end
+
   describe '#create /v1/uploads' do
     it 'returns a UUID and location' do
       with_settings(Settings.vba_documents.location,

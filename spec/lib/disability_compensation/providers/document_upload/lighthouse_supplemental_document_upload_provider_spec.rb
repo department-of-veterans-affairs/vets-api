@@ -49,6 +49,8 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
     )
   end
 
+  after { nil }
+
   it_behaves_like 'supplemental document upload provider'
 
   describe 'generate_upload_document' do

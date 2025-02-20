@@ -168,6 +168,8 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
       allow(person_web_service).to receive(:find_by_ssn).and_return({ file_nbr: '796111863' })
     end
 
+    after { nil }
+
     it 'calls local bgs services instead of bgs-ext' do
       controller.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
       expect(person_web_service).to have_received(:find_by_ssn)

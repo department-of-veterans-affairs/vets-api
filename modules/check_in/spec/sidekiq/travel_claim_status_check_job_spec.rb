@@ -268,6 +268,8 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       allow(notify_client).to receive(:send_sms).with(any_args).and_raise(forbidden_exception)
     end
 
+    after { nil }
+
     it 'logs silent_failure statsd error metrics' do
       worker = described_class.new
       VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host],

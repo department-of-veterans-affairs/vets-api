@@ -29,6 +29,10 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
   end
 
+  after do
+    nil
+  end
+
   shared_examples_for 'common error handling' do |status, action, error_message|
     it 'logs and renders error and sets datadog tags' do
       expect(response).to have_http_status(status)
@@ -240,6 +244,8 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           get "#{inquiry_path}/#{valid_id}"
         end
 
+        after { nil }
+
         it { expect(response).to have_http_status(:ok) }
         it { expect(JSON.parse(response.body)).to eq(expected_response) }
       end
@@ -260,6 +266,8 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           sign_in(authorized_user)
           get "#{inquiry_path}/#{invalid_id}"
         end
+
+        after { nil }
 
         it { expect(response).to have_http_status(:unprocessable_entity) }
 
@@ -341,6 +349,8 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
         sign_in(authorized_user)
         get '/ask_va_api/v0/profile'
       end
+
+      after { nil }
 
       it 'raise InvalidProfileError' do
         expect(response).to have_http_status(:unprocessable_entity)

@@ -7,6 +7,10 @@ describe AppealsApi::CleanUpPii, type: :job do
   let(:nod_service) { instance_double(AppealsApi::RemovePii) }
   let(:sc_service) { instance_double(AppealsApi::RemovePii) }
 
+  after do
+    nil
+  end
+
   describe '#perform' do
     before do
       allow(AppealsApi::RemovePii)

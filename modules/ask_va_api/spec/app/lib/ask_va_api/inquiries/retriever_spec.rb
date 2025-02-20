@@ -20,6 +20,8 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
     allow(service).to receive(:call)
   end
 
+  after { nil }
+
   describe '#call' do
     context 'when Crm raise an error' do
       let(:icn) { '123' }

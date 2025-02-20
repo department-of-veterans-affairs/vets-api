@@ -14,6 +14,10 @@ describe AppealsApi::NoticeOfDisagreementUploadStatusUpdater, type: :job do
        lastUpdated: '2018-04-25 00:02:39' }]
   end
 
+  after do
+    nil
+  end
+
   it_behaves_like 'a monitored worker'
 
   describe '#perform' do

@@ -54,6 +54,8 @@ RSpec.describe Crm::OptionsetDataJob, type: :job do
         allow(logger).to receive(:call)
       end
 
+      after { nil }
+
       it 'logs the error and continues processing when an error occurs' do
         described_class.new.perform
 

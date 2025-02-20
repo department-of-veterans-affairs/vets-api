@@ -23,7 +23,7 @@ describe EVSS::IntentToFile::ResponseStrategy do
                                                 } })
   end
 
-  after { Timecop.return }
+  after { Timecop.return, = nil }
 
   describe '#cache_or_service' do
     context 'when the cache is empty' do
