@@ -3966,6 +3966,31 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
   end
 
+  describe 'vet verification status' do
+    let(:user) { create(:user, :loa3, icn: '1012667145V762142') }
+    let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
+
+    before do
+      allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return('blahblech')
+    end
+
+    context 'unauthenticated user' do
+      it 'returns unauthorized status code' do
+        VCR.use_cassette('lighthouse/veteran_verification/status/401_response') do
+          expect(subject).to validate(:get, '/v0/profile/vet_verification_status', 401)
+        end
+      end
+    end
+
+    context 'loa3 user' do
+      it 'returns ok status code' do
+        VCR.use_cassette('lighthouse/veteran_verification/status/200_show_response') do
+          expect(subject).to validate(:get, '/v0/profile/vet_verification_status', 200, headers)
+        end
+      end
+    end
+  end
+
   context 'and' do
     it 'tests all documented routes' do
       # exclude these route as they return binaries
