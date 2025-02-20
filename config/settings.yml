@@ -422,6 +422,8 @@ ivc_champva:
   prefill: true
   pega_api:
     api_key: fake_api_key
+  ves_api:
+    api_key: fake_api_key
 
 form_upload:
   prefill: true
@@ -1745,7 +1747,12 @@ ogc:
     api_key: fake_key
 
 accredited_representative_portal:
-  pilot_users_email_poa_codes: ~
+  allow_list:
+    github:
+      access_token: ~
+      base_uri: ~
+      repo: ~
+      path: ~
 
 banners:
   drupal_username: banners_api
