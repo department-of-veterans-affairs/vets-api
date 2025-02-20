@@ -1192,7 +1192,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       it 'supports getting separation_locations' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 401)
         VCR.use_cassette('brd/separation_locations_503') do
-          expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 502, headers)
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 503, headers)
         end
         VCR.use_cassette('brd/separation_locations') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 200, headers)
