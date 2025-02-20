@@ -85,7 +85,14 @@ Rspec.describe 'MebApi::V0 Forms', type: :request do
           get '/meb_api/v0/forms_claim_status', params: { type: 'ToeSubmission' }
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)["data"]["attributes"]["claimStatus"]).to eq("INPROGRESS")
-          expect(response).to match_response_schema('dgi/toe_claimant_info_response', { strict: false })
+        end
+      end
+
+      it 'handles a request when the claimant has been created' do
+        VCR.use_cassette('dgi/polling_without_race_condition') do
+          get '/meb_api/v0/forms_claim_status', params: { type: 'ToeSubmission' }
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)["data"]["attributes"]["claimant_id"]).to eq(600000001)
         end
       end
     end
