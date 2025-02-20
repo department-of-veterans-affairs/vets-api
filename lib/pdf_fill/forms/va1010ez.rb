@@ -45,6 +45,29 @@ module PdfFill
                  ' the form in the Assignment of Benefits section.'
       }.freeze
 
+      # exposure values correspond to true for each key in the pdf options
+      EXPOSURE_MAP = {
+        'exposureToAirPollutants' => '1',
+        'exposureToChemicals' => '2',
+        'exposureToRadiation' => '3',
+        'exposureToShad' => '4',
+        'exposureToOccupationalHazards' => '5',
+        'exposureToAsbestos' => '5',
+        'exposureToMustardGas' => '5',
+        'exposureToContaminatedWater' => '6',
+        'exposureToWarfareAgents' => '6',
+        'exposureToOther' => '7'
+      }.freeze
+
+      ETHNICITY_MAP = {
+        'isAsian' => '1',
+        'isAmericanIndianOrAlaskanNative' => '2',
+        'isBlackOrAfricanAmerican' => '3',
+        'isWhite' => '4',
+        'isNativeHawaiianOrOtherPacificIslander' => '5',
+        'hasDemographicNoAnswer' => '6'
+      }.freeze
+
       KEY = {
         'veteranFullName' => {
           key: 'F[0].P4[0].LastFirstMiddle[0]'
@@ -372,7 +395,13 @@ module PdfFill
       end
 
       def merge_sex(type)
-        @form_data[type] = SEX[@form_data[type]]
+        value = SEX[@form_data[type]]
+        if value.nil?
+          Rails.logger.error('Invalid sex value when filling out 10-10EZ pdf.',
+                             { type:, value: @form_data[type] })
+        end
+
+        @form_data[type] = value
       end
 
       def merge_marital_status
@@ -388,16 +417,7 @@ module PdfFill
       end
 
       def merge_ethnicity_choices
-        ethnicity_map = {
-          'isAsian' => '1',
-          'isAmericanIndianOrAlaskanNative' => '2',
-          'isBlackOrAfricanAmerican' => '3',
-          'isWhite' => '4',
-          'isNativeHawaiianOrOtherPacificIslander' => '5',
-          'hasDemographicNoAnswer' => '6'
-        }
-
-        ethnicity_map.each do |key, value|
+        ETHNICITY_MAP.each do |key, value|
           @form_data[key] = map_value_for_checkbox(@form_data[key], value)
         end
       end
@@ -409,21 +429,7 @@ module PdfFill
       end
 
       def merge_exposure
-        # exposure values correspond to true in the pdf options
-        exposure_map = {
-          'exposureToAirPollutants' => '1',
-          'exposureToChemicals' => '2',
-          'exposureToRadiation' => '3',
-          'exposureToShad' => '4',
-          'exposureToOccupationalHazards' => '5',
-          'exposureToAsbestos' => '5',
-          'exposureToMustardGas' => '5',
-          'exposureToContaminatedWater' => '6',
-          'exposureToWarfareAgents' => '6',
-          'exposureToOther' => '7'
-        }
-
-        exposure_map.each do |key, value|
+        EXPOSURE_MAP.each do |key, value|
           @form_data[key] = map_value_for_checkbox(@form_data[key], value)
         end
       end

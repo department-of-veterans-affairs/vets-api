@@ -66,6 +66,20 @@ describe PdfFill::Forms::Va1010ez do
           end
         end
       end
+
+      context 'handles value not found in the map options' do
+        let(:form_data) { { 'gender' => 'invalid' } }
+
+        it 'sets gender to nil and logs key and value' do
+          expect(Rails.logger).to receive(:error)
+            .with('Invalid sex value when filling out 10-10EZ pdf.',
+                  { type: 'gender', value: form_data['gender'] })
+
+          expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+            'gender' => nil
+          )
+        end
+      end
     end
 
     context 'disclose financial info' do
@@ -84,7 +98,7 @@ describe PdfFill::Forms::Va1010ez do
 
     context 'disability status' do
       described_class::DISABILITY_STATUS.each do |statuses, value|
-        Array(statuses).each do |status|
+        statuses.each do |status|
           context "when vaCompensationType is #{status}" do
             let(:form_data) { { 'vaCompensationType' => status } }
 
