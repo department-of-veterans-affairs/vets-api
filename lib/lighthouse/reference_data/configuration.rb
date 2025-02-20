@@ -12,14 +12,14 @@ module Lighthouse
       # @return [String] Base path for ReferenceData URLs.
       #
       def base_path
-        "#{Settings.evss.url}/wss-referencedata-services-web/rest/referencedata/v1"
+        "#{Settings.lighthouse.url}/wss-referencedata-services-web/rest/referencedata/v1"
       end
 
       ##
       # @return [String] Service name to use in breakers and metrics.
       #
       def service_name
-        'EVSS/ReferenceData'
+        'Lighthouse/ReferenceData'
       end
 
       ##
@@ -27,7 +27,7 @@ module Lighthouse
       #
       def mock_enabled?
         # TODO: create mock data
-        Settings.evss.mock_reference || false
+        Settings.lighthouse.mock_reference || false
       end
     end
   end

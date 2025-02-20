@@ -974,6 +974,10 @@ lighthouse:
   cert_path: ~
   key_path: ~
   root_cert_path: ~
+  versions: # TBD review according to lighthouse
+    claims: 3.6
+    common: 11.6
+    documents: 3.7
   auth:
     ccg:
       client_id: ~
@@ -1047,6 +1051,8 @@ lighthouse:
     timeout: 30
   pciu_address:
     timeout: 30
+  ppiu:
+    timeout: 30
   veterans_health:
     url: https://sandbox-api.va.gov
     use_mocks: false
@@ -1094,6 +1100,9 @@ lighthouse:
   mock_letters: false
   mock_pciu: true
   mock_pciu_address: false
+  mock_ppiu: true
+  mock_reference: true
+  mock_vso_search: false
 
 mail_automation:
   url: https://viccs-api-test.ibm-intelligent-automation.com

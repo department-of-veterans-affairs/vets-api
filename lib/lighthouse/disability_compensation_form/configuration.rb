@@ -4,7 +4,7 @@ require 'lighthouse/configuration'
 
 module Lighthouse
   module DisabilityCompensationForm
-    # Configuration for the 526 form, used by the {EVSS::DisabilityCompensationForm::Service} to
+    # Configuration for the 526 form, used by the {Lighthouse::DisabilityCompensationForm::Service} to
     # set the base path, a default timeout, and a service name for breakers and metrics
     #
     class Configuration < Lighthouse::Configuration
