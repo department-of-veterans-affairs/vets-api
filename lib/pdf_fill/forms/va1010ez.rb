@@ -10,18 +10,18 @@ module PdfFill
 
       # TODO: These are also in HCA::EnrollmentEligibility::Service. Can we DRY it up?
       MARITAL_STATUS = {
-        'Married' => '1',
-        'Never Married' => '2',
-        'Separated' => '3',
-        'Widowed' => '4',
-        'Divorced' => '5'
+        'Married' => 1,
+        'Never Married' => 2,
+        'Separated' => 3,
+        'Widowed' => 4,
+        'Divorced' => 5
       }.freeze
 
       DEPENDENT_RELATIONSHIP = {
-        'Son' => '1',
-        'Daughter' => '2',
-        'Stepson' => '3',
-        'Stepdaughter' => '4'
+        'Son' => 1,
+        'Daughter' => 2,
+        'Stepson' => 3,
+        'Stepdaughter' => 4
       }.freeze
 
       DISABILITY_STATUS = {
@@ -30,8 +30,8 @@ module PdfFill
       }.freeze
 
       SEX = {
-        'M' => '1',
-        'F' => '2'
+        'M' => 1,
+        'F' => 2
       }.freeze
 
       DISCLOSE_FINANCIAL_INFORMATION = {
@@ -47,25 +47,25 @@ module PdfFill
 
       # exposure values correspond to true for each key in the pdf options
       EXPOSURE_MAP = {
-        'exposureToAirPollutants' => '1',
-        'exposureToChemicals' => '2',
-        'exposureToRadiation' => '3',
-        'exposureToShad' => '4',
-        'exposureToOccupationalHazards' => '5',
-        'exposureToAsbestos' => '5',
-        'exposureToMustardGas' => '5',
-        'exposureToContaminatedWater' => '6',
-        'exposureToWarfareAgents' => '6',
-        'exposureToOther' => '7'
+        'exposureToAirPollutants' => 1,
+        'exposureToChemicals' => 2,
+        'exposureToRadiation' => 3,
+        'exposureToShad' => 4,
+        'exposureToOccupationalHazards' => 5,
+        'exposureToAsbestos' => 5,
+        'exposureToMustardGas' => 5,
+        'exposureToContaminatedWater' => 6,
+        'exposureToWarfareAgents' => 6,
+        'exposureToOther' => 7
       }.freeze
 
       ETHNICITY_MAP = {
-        'isAsian' => '1',
-        'isAmericanIndianOrAlaskanNative' => '2',
-        'isBlackOrAfricanAmerican' => '3',
-        'isWhite' => '4',
-        'isNativeHawaiianOrOtherPacificIslander' => '5',
-        'hasDemographicNoAnswer' => '6'
+        'isAsian' => 1,
+        'isAmericanIndianOrAlaskanNative' => 2,
+        'isBlackOrAfricanAmerican' => 3,
+        'isWhite' => 4,
+        'isNativeHawaiianOrOtherPacificIslander' => 5,
+        'hasDemographicNoAnswer' => 6
       }.freeze
 
       KEY = {
@@ -492,9 +492,9 @@ module PdfFill
       def map_radio_box_value(value)
         case value
         when true
-          '1'
+          1
         when false
-          '2'
+          2
         else
           OFF
         end
