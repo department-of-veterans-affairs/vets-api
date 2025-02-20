@@ -114,8 +114,7 @@ module ClaimsApi
           @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile:)
 
           validate_json_schema(FORM_NUMBER)
-          validate_accredited_representative(poa_code, form_attributes.dig('representative', 'registrationNumber'),
-                                             )
+          validate_accredited_representative(poa_code)
           validate_accredited_organization(poa_code)
 
           # if we get here, the only errors not raised are form value validation errors
@@ -221,10 +220,9 @@ module ClaimsApi
           matching_request
         end
 
-        def validate_accredited_representative(poa_code, registration_number = nil)
-
-          @representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code
-                                                                     ).order(created_at: :desc).first
+        def validate_accredited_representative(poa_code)
+          @representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes)',
+                                                                     poa_code).order(created_at: :desc).first
           # there must be a representative to appoint. This representative can be an accredited attorney, claims agent,
           #   or representative.
           if @representative.nil?
