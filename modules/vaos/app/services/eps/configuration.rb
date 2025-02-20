@@ -13,7 +13,7 @@ module Eps
     end
 
     def mock_enabled?
-      [true, 'true'].include?(settings.mock)
+      settings.mock
     end
 
     def connection
