@@ -18,6 +18,11 @@ module TravelPay
 
     def self.raise_mapped_error(error)
       begin
+        if error.nil?
+          Rails.logger.warn(message: 'raise_mapped_error received nil error')
+          return
+        end
+
         status_code = error.response_status
         symbolized_body = error.response_body.deep_symbolize_keys
         message = symbolized_body[:message]
