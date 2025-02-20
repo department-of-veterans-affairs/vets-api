@@ -78,6 +78,19 @@ Rspec.describe 'MebApi::V0 Forms', type: :request do
     end
   end
 
+  describe 'GET /meb_api/v0/forms_claim_status' do
+    context 'when polling for a claimant id' do
+      it 'handles a request when the claimant has not been created yet' do
+        VCR.use_cassette('dgi/polling_with_race_condition') do
+          get '/meb_api/v0/forms_claim_status', params: { type: 'ToeSubmission' }
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)["data"]["attributes"]["claimStatus"]).to eq("INPROGRESS")
+          expect(response).to match_response_schema('dgi/toe_claimant_info_response', { strict: false })
+        end
+      end
+    end
+  end
+
   describe 'POST /meb_api/v0/forms_send_confirmation_email' do
     context 'when the feature flag is enabled' do
       it 'sends the confirmation email with provided name and email params' do
