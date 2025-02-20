@@ -6,6 +6,7 @@ module TravelPay
     service_tag 'travel-pay'
 
     before_action :authenticate
+    before_action :authorize
 
     ##
     # This before_action is feature flag driven and should be retired
@@ -26,6 +27,12 @@ module TravelPay
     before_action :block_if_flag_disabled
 
     protected
+
+    def authorize
+      unless @current_user.loa3?
+        raise Common::Exceptions::Forbidden, { detail: 'User not identity verified (LOA3/IAL2)' }
+      end
+    end
 
     def before_logger
       logger.info('travel-pay') { Utils::Logger.build(self).before }
