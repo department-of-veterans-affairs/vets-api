@@ -25,7 +25,7 @@ module AccreditedRepresentativePortal
           when Statuses::PENDING
             pending(relation)
           when Statuses::PROCESSED
-            processing(relation)
+            processed(relation)
           when NilClass
             relation
           else
@@ -63,9 +63,9 @@ module AccreditedRepresentativePortal
       end
 
       def processed(relation)
-        relation
-          .processed.where.not(resolution: { resolving_type: PowerOfAttorneyRequestExpiration })
-          .order(resolution: { created_at: :desc })
+        relation.processed.where.not(
+          resolution: { resolving_type: PowerOfAttorneyRequestExpiration.to_s }
+        ).order(resolution: { created_at: :desc })
       end
 
       def scope_includes

@@ -100,7 +100,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
       context 'when there is a resolution of type Acceptance' do
         it 'does include a submission' do
           submission_data = veteran_accepted_data[:powerOfAttorneyFormSubmission]
-          expect(submission_data[:status]).to be_in(%w[PENDING FAILED SUCCEEDED])
+          expect(submission_data[:status]).to be_in(%w[pending failed succeeded])
         end
       end
     end
