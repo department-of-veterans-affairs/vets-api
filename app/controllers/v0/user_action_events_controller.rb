@@ -19,8 +19,13 @@ module V0
                      .order(created_at: :desc)
                      .page(page)
                      .per_page(per_page)
-      render json: UserActionSerializer.new(user_actions, is_collection: true,
-                                                          include: [:user_action_event]).serializable_hash
+
+      serialized_data = UserActionSerializer.new(user_actions, is_collection: true,
+                                                               include: [:user_action_event]).serializable_hash
+
+      serialized_data[:current_page] = user_actions.current_page
+
+      render json: serialized_data
     end
   end
 end

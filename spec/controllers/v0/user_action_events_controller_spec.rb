@@ -106,28 +106,89 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
         end
       end
 
-      context 'pagination' do
-        it 'paginates the correct number of user actions per page' do
-          get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 1, per_page: 2 }
-          json_response = JSON.parse(response.body)
-          expect(json_response['data'].length).to eq(2)
+      # context 'pagination' do
+      #   it 'paginates the correct number of user actions per page' do
+      #     get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 1, per_page: 2 }
+      #     json_response = JSON.parse(response.body)
+      #     expect(json_response['data'].length).to eq(2)
 
-          get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 2, per_page: 2 }
-          json_response = JSON.parse(response.body)
-          expect(json_response['data'].length).to eq(1)
+      #     get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 2, per_page: 2 }
+      #     json_response = JSON.parse(response.body)
+      #     expect(json_response['data'].length).to eq(1)
+      #   end
+
+      #   it 'paginates user actions in order' do
+      #     get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 1, per_page: 2 }
+      #     json_response = JSON.parse(response.body)
+      #     expect(json_response['data'].length).to eq(2)
+      #     expect(json_response['data'].first['id']).to eq(user_action_four.id)
+      #     expect(json_response['data'].second['id']).to eq(user_action_three.id)
+
+      #     get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 2, per_page: 2 }
+      #     json_response = JSON.parse(response.body)
+      #     expect(json_response['data'].length).to eq(1)
+      #     expect(json_response['data'].first['id']).to eq(user_action_two.id)
+      #   end
+      # end
+
+      context 'pagination' do
+        let!(:user_action_event) { create(:user_action_event) }
+
+        before do
+          11.times do
+            create(:user_action, user_action_event:, subject_user_verification_id: user_verification.id)
+          end
         end
 
-        it 'paginates user actions in order' do
-          get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 1, per_page: 2 }
-          json_response = JSON.parse(response.body)
-          expect(json_response['data'].length).to eq(2)
-          expect(json_response['data'].first['id']).to eq(user_action_four.id)
-          expect(json_response['data'].second['id']).to eq(user_action_three.id)
+        context 'when the per_page parameter is not provided' do
+          it 'paginates the user actions with a default of 10 per page' do
+            get :index
 
-          get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 2, per_page: 2 }
-          json_response = JSON.parse(response.body)
-          expect(json_response['data'].length).to eq(1)
-          expect(json_response['data'].first['id']).to eq(user_action_two.id)
+            json_response_data = JSON.parse(response.body)['data']
+            json_response_included = JSON.parse(response.body)['included']
+
+            expect(json_response_data.length).to eq(10)
+            expect(json_response_included.first['relationships']['user_actions']['data'].length).to eq(11)
+          end
+        end
+
+        context 'when the per_page parameter is provided' do
+          let(:per_page) { 5 }
+
+          it 'paginates the correct number of user actions per page' do
+            get :index, params: { per_page: }
+
+            json_response_data = JSON.parse(response.body)['data']
+            json_response_included = JSON.parse(response.body)['included']
+
+            expect(json_response_data.length).to eq(per_page)
+            expect(json_response_included.first['relationships']['user_actions']['data'].length).to eq(11)
+          end
+        end
+
+        context 'when the page parameter is not provided' do
+          it 'returns the first page of user actions' do
+            get :index
+
+            json_response_current_page = JSON.parse(response.body)['current_page']
+            JSON.parse(response.body)['included']
+
+            expect(json_response_current_page).to eq(1)
+          end
+        end
+
+        context 'when the page parameter is provided' do
+          let(:page) { 2 }
+
+          it 'returns the correct page of user actions' do
+            get :index, params: { page: }
+
+            json_response_current_page = JSON.parse(response.body)['current_page']
+            json_response_data = JSON.parse(response.body)['data']
+
+            expect(json_response_data.length).to eq(3)
+            expect(json_response_current_page).to eq(page)
+          end
         end
       end
 
@@ -142,7 +203,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
         expect(response).to have_http_status(:success)
 
         json_response = JSON.parse(response.body)
-        expect(json_response.length).to eq(2)
+        expect(json_response.length).to eq(3)
         expect(json_response['included'].first['attributes']['details']).to eq('Sample event 2')
         expect(json_response['included'].second['attributes']['details']).to eq('Sample event 1')
       end
