@@ -233,7 +233,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
                 expect(ClaimsApi::V1::PoaFormBuilderJob).to receive(:perform_async)
 
-                post path, params: params, headers: auth_header, as: :json
+                post path, params:, headers: auth_header, as: :json
               end
             end
           end
@@ -449,15 +449,15 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
             {
               data: {
                 attributes: {
-                  veteran: { address: address },
+                  veteran: { address: },
                   serviceOrganization: {
                     poaCode: '074',
-                    address: address
+                    address:
                   },
                   claimant: {
                     firstName: 'John',
                     lastName: 'Doe',
-                    address: address,
+                    address:,
                     relationship: 'spouse'
                   }
                 }
@@ -511,15 +511,15 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
             {
               data: {
                 attributes: {
-                  veteran: { address: address },
+                  veteran: { address: },
                   serviceOrganization: {
                     poaCode: '074',
-                    address: address
+                    address:
                   },
                   claimant: {
                     firstName: 'John',
                     lastName: 'Doe',
-                    address: address,
+                    address:,
                     relationship: 'spouse'
                   }
                 }
