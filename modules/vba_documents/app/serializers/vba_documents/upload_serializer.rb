@@ -18,10 +18,7 @@ module VBADocuments
       detail.length > MAX_DETAIL_DISPLAY_LENGTH ? "#{detail[0..MAX_DETAIL_DISPLAY_LENGTH - 1]}..." : detail
     end
 
-    attribute :final_status, if: proc { |_, _|
-      # The final_status will be serialized only if the :vba_documents_final_status_field flag is enabled
-      Flipper.enabled?(:vba_documents_final_status_field)
-    } do |object, _|
+    attribute :final_status do |object|
       object.in_final_status?
     end
 
