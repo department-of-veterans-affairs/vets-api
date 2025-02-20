@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Eps
+module Eps 
   module Middleware
     ##
     # Faraday middleware that logs various semantically relevant attributes needed for debugging and audit purposes
