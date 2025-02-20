@@ -92,7 +92,7 @@ Rspec.describe 'MebApi::V0 Forms', type: :request do
         VCR.use_cassette('dgi/polling_without_race_condition') do
           get '/meb_api/v0/forms_claim_status', params: { type: 'ToeSubmission' }
           expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)['data']['attributes']['claimant_id']).to eq(600000001)
+          expect(JSON.parse(response.body)['data']['attributes']['claimant_id']).to eq(600_000_001)
         end
       end
     end
