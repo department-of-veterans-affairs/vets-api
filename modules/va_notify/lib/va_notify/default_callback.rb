@@ -32,7 +32,10 @@ module VANotify
           ["service:#{service}", "function:#{function}"]
         end
       rescue TypeError, KeyError => e
-        Rails.logger.error("VANotify: Invalid metadata format: #{e.message}", notification_record_id: notification_record.id)
+        Rails.logger.error(
+          "VANotify: Invalid metadata format: #{e.message}",
+          notification_record_id: notification_record.id
+        )
         # Invalid metadata is treated as if no metadata were provided.
         return call_without_metadata
       end
