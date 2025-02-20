@@ -22,7 +22,7 @@ RSpec.describe DecisionReview::Form4142Submit, type: :job do
     service
   end
 
-  let(:user_uuid) { create(:user, :loa3, ssn: '212222112').uuid }
+  let(:user_uuid) { create(:user, :loa3, ssn: '212222111').uuid }
   let(:mpi_profile) { build(:mpi_profile, vet360_id: Faker::Number.number) }
   let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
   let(:mpi_service) do
