@@ -37,6 +37,19 @@ module AskVAApi
             DateOfBirth: submitter_info[:date_of_birth]
           }
         end
+
+        def service_info(info)
+          {
+            BranchOfService: info[:branch_of_service],
+            SSN: info.dig(:social_or_service_num, :ssn) || info[:social_num],
+            EDIPI: user&.edipi,
+            ICN: user&.icn,
+            ServiceNumber: info.dig(:social_or_service_num, :service_number),
+            ClaimNumber: nil,
+            VeteranServiceStateDate: nil,
+            VeteranServiceEndDate: nil
+          }
+        end
       end
     end
   end
