@@ -23,10 +23,6 @@ module AskVAApi
           pronouns[:pronouns_not_listed_text].presence || pronouns.key('true')&.to_s&.tr('_', '/')
         end
 
-        def contact_field(field, inquiry_details, inquiry_params)
-          inquiry_details[:level_of_authentication] == 'Business' ? inquiry_params[field] : nil
-        end
-
         def fetch_state_code(state)
           return if state.nil?
 
