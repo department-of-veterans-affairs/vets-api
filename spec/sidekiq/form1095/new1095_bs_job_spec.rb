@@ -71,7 +71,7 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       expect { subject.perform }.to change(Form1095B, :count).from(0).to(8)
     end
 
-    it 'does not log errors or save data but does deletes file when user data is missing icn' do
+    it 'does not log errors or save form but does deletes file when user data is missing icn' do
       allow(objects).to receive(:collect).and_return(file_names3)
       allow(Tempfile).to receive(:new).and_return(tempfile3)
 
