@@ -29,6 +29,22 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
           their_relationship_to_veteran:
         }
       end
+      let(:general_question_result) do
+        {
+          inquiry_about: 'A general question',
+          dependent_relationship: nil,
+          veteran_relationship: nil,
+          level_of_authentication: 'Personal'
+        }
+      end
+      let(:about_me_veteran_result) do
+        {
+          inquiry_about: 'About Me, the Veteran',
+          dependent_relationship: nil,
+          veteran_relationship: nil,
+          level_of_authentication: 'Personal'
+        }
+      end
 
       context 'when category is education and topic is NOT VRE' do
         let(:select_category) { 'Education benefits and work study' }
@@ -37,12 +53,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
 
         it 'returns the correct info' do
           expect(builder.call)
-            .to eq({
-                     inquiry_about: 'A general question',
-                     dependent_relationship: nil,
-                     veteran_relationship: nil,
-                     level_of_authentication: 'Personal'
-                   })
+            .to eq(general_question_result)
         end
       end
 
@@ -53,12 +64,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
 
         it 'returns the correct info' do
           expect(builder.call)
-            .to eq({
-                     inquiry_about: 'A general question',
-                     dependent_relationship: nil,
-                     veteran_relationship: nil,
-                     level_of_authentication: 'Personal'
-                   })
+            .to eq(general_question_result)
         end
       end
 
@@ -69,12 +75,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
 
         it 'returns the correct info' do
           expect(builder.call)
-            .to eq({
-                     inquiry_about: 'A general question',
-                     dependent_relationship: nil,
-                     veteran_relationship: nil,
-                     level_of_authentication: 'Personal'
-                   })
+            .to eq(general_question_result)
         end
       end
 
@@ -86,12 +87,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
 
         it 'returns a payload structure to CRM API' do
           expect(builder.call)
-            .to eq({
-                     inquiry_about: 'About Me, the Veteran',
-                     dependent_relationship: nil,
-                     veteran_relationship: nil,
-                     level_of_authentication: 'Personal'
-                   })
+            .to eq(about_me_veteran_result)
         end
 
         context 'when who_is_your_question_about is nil' do
@@ -99,12 +95,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
 
           it 'returns a payload structure to CRM API' do
             expect(builder.call)
-              .to eq({
-                       inquiry_about: 'About Me, the Veteran',
-                       dependent_relationship: nil,
-                       veteran_relationship: nil,
-                       level_of_authentication: 'Personal'
-                     })
+              .to eq(about_me_veteran_result)
           end
         end
       end
