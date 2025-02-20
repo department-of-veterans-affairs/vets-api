@@ -18,18 +18,40 @@ module UnifiedHealthData
       end_date = '2024-12-31'
       path = "#{config.base_path}labs?patient-id=#{patient_id}&start-date=#{start_date}&end-date=#{end_date}"
       response = perform(:get, path, nil, { 'Authorization' => token })
-      response.body.map do |record|
+
+      vista_records = defined?(response.body['vista']['entry']) ? response.body['vista']['entry'] : []
+      oracle_health_records = defined?(response.body['oracle-health']['entry']) ? response.body['oracle-health']['entry'] : []
+      combined_records = vista_records + oracle_health_records
+
+      combined_records.map do |record|
+        # Get the name of the first organization resource if contained exists, otherwise set to nil
+        if record['resource']['contained'].nil?
+          location = nil
+        else
+          location_object = record['resource']['contained'].find { |resource| resource['resourceType'] == 'Organization' }
+          location = location_object.nil? ? nil : location_object['name']
+        end
+
+        if record['resource']['code']['coding']
+          # OH format
+          code = record['resource']['code']['coding'].find { |coding| coding['display'] == record['resource']['code']['text'] }
+        else
+          # vista format
+          code_array = record['resource']['category'].find { |category| category['coding'][0]['display'] == record['resource']['code']['text'] }
+          code = code_array['coding'][0]
+        end
+
         attributes = UnifiedHealthData::MedicalRecord::Attributes.new(
-          display: record['attributes']['display'],
-          test_code: record['attributes']['testCode'],
-          date_completed: record['attributes']['dateCompleted'],
-          sample_site: record['attributes']['sampleSite'],
-          encoded_data: record['attributes']['encodedData'],
-          location: record['attributes']['location']
+          display: code['display'],
+          test_code: code['code'],
+          date_completed: record['resource']['effectiveDateTime'],
+          sample_site: '',
+          encoded_data: '',
+          location: location
         )
         UnifiedHealthData::MedicalRecord.new(
-          id: record['id'],
-          type: record['type'],
+          id: record['resource']['id'],
+          type: record['resource']['resourceType'],
           attributes: attributes
         )
       end
