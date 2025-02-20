@@ -50,19 +50,6 @@ module AskVAApi
           }
         end
 
-        def service_info(info)
-          {
-            BranchOfService: info[:branch_of_service],
-            SSN: info.dig(:social_or_service_num, :ssn) || info[:social_num],
-            EDIPI: user&.edipi,
-            ICN: user&.icn,
-            ServiceNumber: info.dig(:social_or_service_num, :service_number),
-            ClaimNumber: nil,
-            VeteranServiceStateDate: nil,
-            VeteranServiceEndDate: nil
-          }
-        end
-
         def retrieve_contact_field(field, required_authentication_level)
           inquiry_details[:level_of_authentication] == required_authentication_level ? inquiry_params[field] : nil
         end
