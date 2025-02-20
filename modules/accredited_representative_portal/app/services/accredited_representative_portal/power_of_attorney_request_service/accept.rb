@@ -49,8 +49,8 @@ module AccreditedRepresentativePortal
         create_error_form_submission(e.message, response&.body)
         raise Error.new(e.message, BenefitsClaims::ServiceException::ERROR_MAP.invert[e.class])
       # All other errors: save error data on form submission, will result in a 500
-      rescue => e
-        create_error_form_submission(e.message, nil)
+      rescue
+        resolution.delete
         raise
       end
 
