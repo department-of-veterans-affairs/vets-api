@@ -1,0 +1,25 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "exams": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enriched_id": { 
+              "type": "string"
+            },
+            "name": { 
+              "type": "string"
+            }
+          }
+        }
+      },
+      "version": {
+        "type": "string"
+      }
+    }
+  }
+  
