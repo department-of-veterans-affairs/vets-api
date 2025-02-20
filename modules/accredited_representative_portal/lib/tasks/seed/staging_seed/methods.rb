@@ -35,7 +35,7 @@ module AccreditedRepresentativePortal
           power_of_attorney_holder_type: org ? 'veteran_service_organization' : 'individual_representative',
           power_of_attorney_holder_poa_code: org&.poa,
           accredited_individual_registration_number: rep.representative_id,
-          created_at: created_at
+          created_at:
         )
 
         form_data = {
@@ -65,14 +65,14 @@ module AccreditedRepresentativePortal
                     when :decision
                       type = resolution_type_cycle.next
                       dec = AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.new(
-                        type: type,
+                        type:,
                         creator_id: request.claimant_id
                       )
                       dec.save! && dec
                     end
         (res = AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.new(
           power_of_attorney_request: request,
-          resolving: resolving,
+          resolving:,
           created_at: request.created_at + 1.day
         )).save! && res
       end
@@ -160,8 +160,8 @@ module AccreditedRepresentativePortal
 
       def build_request_options(org, rep, options)
         RequestOptions.new(
-          org: org,
-          rep: rep,
+          org:,
+          rep:,
           claimant: options[:claimant_cycle].next,
           resolution_cycle: options[:resolution_cycle],
           resolved_time: options[:resolved_time],

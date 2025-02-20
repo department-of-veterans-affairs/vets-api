@@ -61,7 +61,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
         expect(Rails.logger)
           .to receive(:error)
           .with(error_message, { message: 'StandardError' })
-        expect(StatsD).to receive(:increment).with('silent_failure', tags: tags)
+        expect(StatsD).to receive(:increment).with('silent_failure', tags:)
         subject.new.perform
       end
     end
@@ -98,7 +98,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
         expect(vanotify_service).to receive(:send_email).with(send_email_params)
         expect(evidence_submission_failed).to receive(:update).and_call_original
         expect(Rails.logger).to receive(:info).with(message)
-        expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: tags)
+        expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
         subject.new.perform
         expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
       end
@@ -125,7 +125,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
         expect(Rails.logger)
           .to receive(:error)
           .with(error_message, { message: 'StandardError' })
-        expect(StatsD).to receive(:increment).with('silent_failure', tags: tags)
+        expect(StatsD).to receive(:increment).with('silent_failure', tags:)
         subject.new.perform
       end
     end
@@ -162,7 +162,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
         expect(vanotify_service).to receive(:send_email).with(send_email_params)
         expect(evidence_submission_failed).to receive(:update).and_call_original
         expect(Rails.logger).to receive(:info).with(message)
-        expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: tags)
+        expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
         subject.new.perform
         expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
       end
@@ -189,7 +189,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
         expect(Rails.logger)
           .to receive(:error)
           .with(error_message, { message: 'StandardError' })
-        expect(StatsD).to receive(:increment).with('silent_failure', tags: tags)
+        expect(StatsD).to receive(:increment).with('silent_failure', tags:)
         subject.new.perform
       end
     end
@@ -226,7 +226,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
         expect(vanotify_service).to receive(:send_email).with(send_email_params)
         expect(evidence_submission_failed).to receive(:update).and_call_original
         expect(Rails.logger).to receive(:info).with(message)
-        expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: tags)
+        expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
         subject.new.perform
         expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
       end

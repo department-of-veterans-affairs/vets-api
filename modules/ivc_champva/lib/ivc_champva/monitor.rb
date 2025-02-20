@@ -98,7 +98,7 @@ module IvcChampva
 
     def track_s3_put_object_error(key, error, response = nil)
       additional_context = {
-        key: key,
+        key:,
         error_message: error.message,
         error_class: error.class.name,
         backtrace: error.backtrace&.join("\n") # Safe navigation operator
@@ -116,7 +116,7 @@ module IvcChampva
 
     def track_s3_upload_file_error(key, error)
       additional_context = {
-        key: key,
+        key:,
         error_message: error.message,
         error_class: error.class.name,
         backtrace: error.backtrace&.join("\n") # Safe navigation operator

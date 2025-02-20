@@ -611,7 +611,7 @@ describe SimpleFormsApi::NotificationEmail do
       let(:config) do
         {
           form_number: 'vba_40_10007',
-          form_data: form_data,
+          form_data:,
           confirmation_number: '8679305',
           date_submitted: Time.zone.today.strftime('%B %d, %Y')
         }

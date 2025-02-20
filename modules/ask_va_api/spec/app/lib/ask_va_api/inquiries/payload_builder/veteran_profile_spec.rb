@@ -48,7 +48,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
           inquiry_about: 'For the dependent of a Veteran',
           dependent_relationship: nil,
           veteran_relationship: nil,
-          level_of_authentication: level_of_authentication
+          level_of_authentication:
         }
       end
       let(:expected_result) do
@@ -122,7 +122,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
           phone_number: '987-654-3210',
           postal_code: '12345',
           preferred_name: 'Test User',
-          pronouns: pronouns,
+          pronouns:,
           school_obj: {
             institution_name: 'University of California',
             school_facility_code: '123456',
@@ -137,7 +137,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
           inquiry_about: 'About Me, the Veteran',
           dependent_relationship: nil,
           veteran_relationship: nil,
-          level_of_authentication: level_of_authentication
+          level_of_authentication:
         }
       end
       let(:expected_result) do

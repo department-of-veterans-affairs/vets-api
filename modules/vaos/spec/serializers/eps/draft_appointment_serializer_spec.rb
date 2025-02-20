@@ -68,9 +68,9 @@ RSpec.describe Eps::DraftAppointmentSerializer do
   let(:draft_appointment) do
     double(
       id: 123,
-      provider: provider,
-      slots: slots,
-      drive_time: drive_time
+      provider:,
+      slots:,
+      drive_time:
     )
   end
 

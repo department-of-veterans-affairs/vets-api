@@ -26,7 +26,7 @@ module Vets
           pagination: {
             current_page: @page,
             per_page: @per_page,
-            total_pages: total_pages,
+            total_pages:,
             total_entries: @total_entries
           }
         }

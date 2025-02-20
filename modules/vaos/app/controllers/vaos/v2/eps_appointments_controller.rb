@@ -13,7 +13,7 @@ module VAOS
 
         response = OpenStruct.new({
                                     id: appointment[:id],
-                                    appointment: appointment,
+                                    appointment:,
                                     provider: unless appointment[:provider_service_id].nil?
                                                 provider_service.get_provider_service(
                                                   provider_id: appointment[:provider_service_id]

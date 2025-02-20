@@ -25,7 +25,7 @@ module RepresentationManagement
         #
         def construct(data, flatten: true)
           set_template_path
-          fill_and_combine_pdf(data, flatten: flatten)
+          fill_and_combine_pdf(data, flatten:)
         end
 
         protected
@@ -151,7 +151,7 @@ module RepresentationManagement
         #
         def fill_and_combine_pdf(data, flatten: true)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
-          template_tempfile = fill_template_form(pdftk, data, flatten: flatten)
+          template_tempfile = fill_template_form(pdftk, data, flatten:)
           # Only combine PDFs if needed.  Otherwise directly write the template to the output tempfile.
           if next_steps_page?
             next_steps_tempfile = generate_next_steps_page(data)
@@ -206,7 +206,7 @@ module RepresentationManagement
         def fill_template_form(pdftk, data, flatten: true)
           tempfile = Tempfile.new
           # This is the point where the flatten option is actually used, not just passed down the method chain.
-          pdftk.fill_form(@template_path, tempfile.path, template_options(data), flatten: flatten)
+          pdftk.fill_form(@template_path, tempfile.path, template_options(data), flatten:)
           @template_path = tempfile.path
           tempfile.rewind
           tempfile

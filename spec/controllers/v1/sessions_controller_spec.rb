@@ -175,7 +175,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
 
           context 'and the operation param is invalid' do
-            subject(:call_endpoint) { get(:new, params: params) }
+            subject(:call_endpoint) { get(:new, params:) }
 
             let(:params) { { type: 'idme_verified', clientId: '123123', operation: 'asdf' } }
 

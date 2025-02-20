@@ -26,12 +26,12 @@ RSpec.describe UserAuditLogger do
 
       user_action = UserAction.last
       expect(user_action).to have_attributes(
-        user_action_event: user_action_event,
-        acting_user_verification: acting_user_verification,
-        subject_user_verification: subject_user_verification,
+        user_action_event:,
+        acting_user_verification:,
+        subject_user_verification:,
         status: 'initial',
-        acting_ip_address: acting_ip_address,
-        acting_user_agent: acting_user_agent
+        acting_ip_address:,
+        acting_user_agent:
       )
     end
 

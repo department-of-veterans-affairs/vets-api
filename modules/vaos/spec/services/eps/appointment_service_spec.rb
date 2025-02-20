@@ -14,7 +14,7 @@ describe Eps::AppointmentService do
 
   before do
     allow(config).to receive(:base_path).and_return('api/v1')
-    allow_any_instance_of(Eps::BaseService).to receive_messages(config: config, headers: headers)
+    allow_any_instance_of(Eps::BaseService).to receive_messages(config:, headers:)
   end
 
   describe '#get_appointment' do
