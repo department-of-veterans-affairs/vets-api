@@ -134,7 +134,7 @@ describe 'Supplemental Claims', openapi_spec:, type: :request do
       response '200', 'Info about a single Supplemental Claim' do
         schema '$ref' => '#/components/schemas/scCreateResponse'
 
-        let(:uuid) { FactoryBot.create(:supplemental_claim).id }
+        let(:uuid) { create(:supplemental_claim).id }
 
         it_behaves_like 'rswag example', desc: 'returns a 200 response',
                                          response_wrapper: :normalize_appeal_response
@@ -290,7 +290,7 @@ describe 'Supplemental Claims', openapi_spec:, type: :request do
       produces 'application/json'
 
       response '202', 'Accepted. Location generated' do
-        let(:sc_uuid) { FactoryBot.create(:supplemental_claim).id }
+        let(:sc_uuid) { create(:supplemental_claim).id }
 
         schema '$ref' => '#/components/schemas/scEvidenceSubmissionResponse'
 
@@ -342,7 +342,7 @@ describe 'Supplemental Claims', openapi_spec:, type: :request do
       end
 
       response '422', 'Validation errors' do
-        let(:sc_uuid) { FactoryBot.create(:supplemental_claim).id }
+        let(:sc_uuid) { create(:supplemental_claim).id }
         let(:'X-VA-SSN') { '000000000' }
 
         schema '$ref' => '#/components/schemas/errorModel'
@@ -377,7 +377,7 @@ describe 'Supplemental Claims', openapi_spec:, type: :request do
 
         schema type: :object,
                description: 'Document upload failed',
-               xml: { 'name': 'Error' },
+               xml: { name: 'Error' },
                properties: {
                  Code: {
                    type: :string, description: 'Error code', example: 'Bad Digest'
@@ -417,7 +417,7 @@ describe 'Supplemental Claims', openapi_spec:, type: :request do
       response '200', 'Info about a single Supplemental Claim Evidence Submission.' do
         schema '$ref' => '#/components/schemas/scEvidenceSubmissionResponse'
 
-        let(:uuid) { FactoryBot.create(:sc_evidence_submission).guid }
+        let(:uuid) { create(:sc_evidence_submission).guid }
 
         it_behaves_like 'rswag example', desc: 'returns a 200 response',
                                          response_wrapper: :normalize_evidence_submission_response

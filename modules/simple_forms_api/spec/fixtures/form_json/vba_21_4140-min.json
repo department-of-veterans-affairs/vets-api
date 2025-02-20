@@ -1,0 +1,26 @@
+{
+   "veteran_id": {
+      "va_file_number": "12345678"
+   },
+   "service_number": "A12345678",
+   "home_phone": "1231231233",
+   "mobile_phone": "9876543210",
+   "email_address": "test@example.com",
+   "address": {
+      "country": "USA",
+      "street": "123 Fake St",
+      "street2": "Apt 123",
+      "street3": "Attn: Testing",
+      "city": "Los Angeles",
+      "state": "CA",
+      "postal_code": "90210"
+   },
+   "full_name": {
+      "first": "Rumpelstiltskin",
+      "middle": "Test",
+      "last": "Mephistopheles-Reinhardt"
+   },
+   "statement_of_truth_signature": "Example Test User",
+   "statement_of_truth_certified": true,
+   "form_number": "21-4140"
+}

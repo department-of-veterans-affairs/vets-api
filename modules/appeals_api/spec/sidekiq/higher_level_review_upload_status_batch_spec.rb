@@ -3,10 +3,10 @@
 require 'rails_helper'
 
 describe AppealsApi::HigherLevelReviewUploadStatusBatch, type: :job do
-  let(:client_stub) { instance_double('CentralMail::Service') }
+  let(:client_stub) { instance_double(CentralMail::Service) }
   let(:upload) { create(:higher_level_review_v2, status: :submitted) }
   let!(:uploads) { [upload] }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:faraday_response) { instance_double(Faraday::Response) }
   let(:cmp_status) { 'In Process' }
 
   describe '#perform' do

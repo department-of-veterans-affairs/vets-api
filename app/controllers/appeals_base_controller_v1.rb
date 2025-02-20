@@ -9,6 +9,14 @@ class AppealsBaseControllerV1 < ApplicationController
 
   private
 
+  def log_non_module_controller(action:, form_id:)
+    Rails.logger.warn({
+                        message: 'Calling decision reviews controller outside module',
+                        action:,
+                        form_id:
+                      })
+  end
+
   def decision_review_service
     DecisionReviewV1::Service.new
   end

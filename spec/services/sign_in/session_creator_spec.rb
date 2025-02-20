@@ -129,7 +129,7 @@ RSpec.describe SignIn::SessionCreator do
           let(:device_sso) { false }
 
           it 'returns nil for device_secret field on access token' do
-            expect(subject.session.hashed_device_secret).to eq(nil)
+            expect(subject.session.hashed_device_secret).to be_nil
           end
         end
 
@@ -248,7 +248,7 @@ RSpec.describe SignIn::SessionCreator do
           let(:device_sso) { false }
 
           it 'returns nil for device_secret field on access token' do
-            expect(subject.access_token.device_secret_hash).to eq(nil)
+            expect(subject.access_token.device_secret_hash).to be_nil
           end
         end
 

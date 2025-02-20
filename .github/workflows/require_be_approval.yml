@@ -7,10 +7,28 @@ on:
 jobs:
   require-backend-approval:
     name: Require Backend Approval
-    if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Draft Pull Request Check
+        if: github.event.pull_request.draft == true
+        run: exit 1
+
+      - name: Check for 'require-backend-approval' label
+        run: |
+          LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name')
+          echo "Labels on PR: $LABELS"
+
+          if ! echo "$LABELS" | grep -q "require-backend-approval"; then
+            echo "Label 'require-backend-approval' not found. Exiting successfully."
+            exit 0
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:

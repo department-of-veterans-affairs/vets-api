@@ -40,7 +40,7 @@ RSpec.describe Mobile::V0::ServiceGraph, type: :model do
 
   describe '#affected_services' do
     context 'with one window' do
-      let(:mobile_maintenance_evss) { FactoryBot.build(:mobile_maintenance_evss_first) }
+      let(:mobile_maintenance_evss) { build(:mobile_maintenance_evss_first) }
       let(:affected_services) { subject.affected_services([mobile_maintenance_evss]) }
 
       it 'finds the api services (leaves) that are downstream from the queried node' do
@@ -61,8 +61,8 @@ RSpec.describe Mobile::V0::ServiceGraph, type: :model do
     end
 
     context 'with two overlapping windows' do
-      let(:maintenance_bgs) { FactoryBot.build(:mobile_maintenance_bgs_first) }
-      let(:maintenance_mpi) { FactoryBot.build(:mobile_maintenance_mpi) }
+      let(:maintenance_bgs) { build(:mobile_maintenance_bgs_first) }
+      let(:maintenance_mpi) { build(:mobile_maintenance_mpi) }
       let(:affected_services) { subject.affected_services([maintenance_bgs, maintenance_mpi]) }
 
       it 'finds the api services (leaves) that are downstream from the queried node' do

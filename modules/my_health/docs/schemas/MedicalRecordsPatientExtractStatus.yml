@@ -1,0 +1,108 @@
+type: object
+properties:
+  patient:
+    type: object
+    description: Patient identifier details.
+    properties:
+      identifier:
+        type: string
+        description: Unique identifier of the patient.
+      assigningFacility:
+        type: string
+        description: The assigning facility for the identifier.
+      assigningAuthority:
+        type: string
+        description: The assigning authority for the identifier.
+      typeCode:
+        type: string
+        description: The type of identifier.
+      icn:
+        type: boolean
+        description: Indicates if the identifier is an ICN.
+  retrievedDate:
+    type: integer
+    format: int64
+    description: Timestamp when the status was retrieved.
+  lastRefreshDate:
+    type: integer
+    format: int64
+    nullable: true
+    description: Timestamp of the last refresh date (null if not refreshed).
+  facilityExtractStatusList:
+    type: array
+    description: List of extract status entries for each facility and data domain.
+    items:
+      type: object
+      properties:
+        icn:
+          type: string
+          description: Patient ICN associated with the extract.
+        stationNumber:
+          type: string
+          description: Facility identifier.
+        extract:
+          type: string
+          description: Type of data (e.g., "Appointments", "Allergy", "ImagingStudy").
+        lastModified:
+          type: integer
+          format: int64
+          description: Timestamp of the last modification of the extract.
+        recordCount:
+          type: integer
+          description: Number of records retrieved in the last extract.
+        lastRequested:
+          type: integer
+          format: int64
+          description: Timestamp of the last extract request.
+        lastCompleted:
+          type: integer
+          format: int64
+          description: Timestamp when the last request was fully processed.
+        loadStatus:
+          type: string
+          enum: ["OK", "ERROR"]
+          description: Status of the extract process.
+        errorMessage:
+          type: string
+          nullable: true
+          description: Error message if the extract failed.
+        lastSuccessfulCompleted:
+          type: integer
+          format: int64
+          nullable: true
+          description: Timestamp of the last successful extract.
+        upToDate:
+          type: boolean
+          description: Indicates if the extract is current.
+example:
+  patient:
+    identifier: "1012664643V006744"
+    assigningFacility: "200M"
+    assigningAuthority: "USVHA"
+    typeCode: "NI"
+    icn: true
+  retrievedDate: 1732138027402
+  lastRefreshDate: null
+  facilityExtractStatusList:
+    - icn: "1012664643V006744"
+      stationNumber: "0"
+      extract: "AppointmentsReminder"
+      lastModified: 1587054285453
+      recordCount: 0
+      lastRequested: 1587054283492
+      lastCompleted: 1587054285453
+      loadStatus: "OK"
+      errorMessage: null
+      lastSuccessfulCompleted: 1587054285453
+      upToDate: true
+    - icn: "1012664643V006744"
+      stationNumber: "0"
+      extract: "ImagingStudy"
+      lastModified: 1732137958411
+      recordCount: 0
+      lastRequested: 1732137957157
+      lastCompleted: 1732137958411
+      loadStatus: "ERROR"
+      errorMessage: "Failed query id 24816394 Error getting Studies with Filter. site Id&#x3a; 991"
+      lastSuccessfulCompleted: null
+      upToDate: true

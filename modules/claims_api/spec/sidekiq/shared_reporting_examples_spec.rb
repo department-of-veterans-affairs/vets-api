@@ -38,11 +38,11 @@ RSpec.shared_examples 'shared reporting behavior' do
   it 'includes ITF metrics' do
     with_settings(Settings.claims_api,
                   report_enabled: true) do
-      FactoryBot.create(:intent_to_file, status: 'submitted', cid: '0oa9uf05lgXYk6ZXn297')
-      FactoryBot.create(:intent_to_file, :itf_errored, cid: '0oa9uf05lgXYk6ZXn297')
+      create(:intent_to_file, status: 'submitted', cid: '0oa9uf05lgXYk6ZXn297')
+      create(:intent_to_file, :itf_errored, cid: '0oa9uf05lgXYk6ZXn297')
 
-      FactoryBot.create(:intent_to_file, status: 'submitted', cid: '0oadnb0o063rsPupH297')
-      FactoryBot.create(:intent_to_file, :itf_errored, cid: '0oadnb0o063rsPupH297')
+      create(:intent_to_file, status: 'submitted', cid: '0oadnb0o063rsPupH297')
+      create(:intent_to_file, :itf_errored, cid: '0oadnb0o063rsPupH297')
 
       job = described_class.new
       job.perform
@@ -60,10 +60,10 @@ RSpec.shared_examples 'shared reporting behavior' do
 
   it 'includes 526EZ claims from VaGov' do
     with_settings(Settings.claims_api, report_enabled: true) do
-      FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: 2.seconds.ago,
-                                                                  transaction_id: '467384632187')
-      FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: 3.seconds.ago,
-                                                                  transaction_id: '467384632186')
+      create(:auto_established_claim_va_gov, :errored, created_at: 2.seconds.ago,
+                                                       transaction_id: '467384632187')
+      create(:auto_established_claim_va_gov, :errored, created_at: 3.seconds.ago,
+                                                       transaction_id: '467384632186')
 
       job = described_class.new
       job.perform

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:8120/classifier
+    uri: <VRO_URL>/contention-classification/expanded-contention-classification
     body:
       encoding: UTF-8
       string: '{"diagnostic_code":5235,"claim_id":190,"form526_submission_id":179}'
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       X-Api-Key:
-      - 9d3868d1-ec15-4889-8002-2bff1b50ba62
+      - <VRO_API_KEY>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:

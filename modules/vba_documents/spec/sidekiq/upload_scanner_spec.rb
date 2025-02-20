@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe VBADocuments::UploadScanner, type: :job do
-  let(:upload) { FactoryBot.create(:upload_submission) }
-  let(:evidence_upload) { FactoryBot.create(:upload_submission, consumer_name: 'appeals_api_sc_evidence_submission') }
+  let(:upload) { create(:upload_submission) }
+  let(:evidence_upload) { create(:upload_submission, consumer_name: 'appeals_api_sc_evidence_submission') }
 
   before do
     s3_client = instance_double(Aws::S3::Resource)
@@ -60,7 +60,7 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
           processor = class_double(VBADocuments::UploadProcessor).as_stubbed_const
           expect(processor).to receive(:perform_async).with(upload.guid, caller: described_class.name)
 
-          Timecop.travel(Time.zone.now + 25.minutes) do
+          Timecop.travel(25.minutes.from_now) do
             described_class.new.perform
 
             expect(upload.reload.status).to eq('uploaded')
@@ -91,7 +91,7 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
           processor = class_double(VBADocuments::UploadProcessor).as_stubbed_const
           expect(processor).not_to receive(:perform_async).with(upload.guid)
 
-          Timecop.travel(Time.zone.now + 25.minutes) do
+          Timecop.travel(25.minutes.from_now) do
             described_class.new.perform
 
             expect(upload.reload.status).to eq('expired')

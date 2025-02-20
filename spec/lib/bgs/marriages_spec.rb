@@ -4,10 +4,10 @@ require 'rails_helper'
 require 'bgs/marriages'
 
 RSpec.describe BGS::Marriages do
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { create(:evss_user, :loa3) }
   let(:proc_id) { '3828033' }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
-  let(:spouse_payload) { FactoryBot.build(:spouse) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
+  let(:spouse_payload) { build(:spouse) }
 
   describe '#create' do
     context 'adding a spouse' do

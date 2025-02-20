@@ -93,6 +93,7 @@ en:
           - :veteran_postal_code
           - :veterans_location_of_residence
           - :who_is_your_question_about
+          - :your_health_facility
           - :your_location_of_residence
           - :your_role
           - :your_role_education
@@ -126,6 +127,11 @@ en:
               - :service_number
               - :ssn
             - :suffix
+            - :branch_of_service
+            - :preferred_name
+            - :service_date_range:
+              - :from
+              - :to
           about_the_veteran:
             - :date_of_birth
             - :first

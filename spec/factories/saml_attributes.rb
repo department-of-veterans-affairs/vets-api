@@ -68,9 +68,9 @@ FactoryBot.define do
     mhv_icn { ['1012853550V207686'] }
     mhv_profile {
       [
-        '{"accountType":"Premium","availableServices":{"21":"VA Medications",'\
-        '"4":"Secure Messaging","3":"VA Allergies","2":"Rx Refill",'\
-        '"12":"Blue Button (all VA data)","1":"Blue Button self entered data.",'\
+        '{"accountType":"Premium","availableServices":{"21":"VA Medications",' \
+        '"4":"Secure Messaging","3":"VA Allergies","2":"Rx Refill",' \
+        '"12":"Blue Button (all VA data)","1":"Blue Button self entered data.",' \
         '"11":"Blue Button (DoD) Military Service Information"}}'
       ]
     }
@@ -390,9 +390,9 @@ FactoryBot.define do
     va_eauth_isDelegate { ['false'] }
     va_eauth_secid { ['1008830476'] }
     va_eauth_gcIds {
-      ['1008830476V316605^NI^200M^USVHA^P|'\
-       '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|'\
-       '1008830476^PN^200PROV^USDVA^A|123456^PI^200CRNR^USVHA^A|'\
+      ['1008830476V316605^NI^200M^USVHA^P|' \
+       '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|' \
+       '1008830476^PN^200PROV^USDVA^A|123456^PI^200CRNR^USVHA^A|' \
        '123456^PI^200MHV^USVHA^C']
     }
     va_eauth_persontype { ['NOT_FOUND'] }
@@ -568,9 +568,9 @@ FactoryBot.define do
     va_eauth_isDelegate { ['false'] }
     va_eauth_secid { ['1013183292'] }
     va_eauth_gcIds {
-      ['1013183292V131165^NI^200M^USVHA^P|'\
-       '1013183292^PN^200PROV^USDVA^A|'\
-       '881571066e5741439652bc80759dd88c^PN^200VIDM^USDVA^A|'\
+      ['1013183292V131165^NI^200M^USVHA^P|' \
+       '1013183292^PN^200PROV^USDVA^A|' \
+       '881571066e5741439652bc80759dd88c^PN^200VIDM^USDVA^A|' \
        '15001594^PI^200MHS^USVHA^A']
     }
     va_eauth_persontype { ['NOT_FOUND'] }
@@ -596,9 +596,9 @@ FactoryBot.define do
     va_eauth_pnidtype { ['SSN'] }
     va_eauth_firstname { ['TRISTAN'] }
     va_eauth_mhvprofile {
-      ['{"accountType":"Premium","availableServices":{"21":"VA Medications",'\
-       '"4":"Secure Messaging","3":"VA Allergies","2":"Rx Refill",'\
-       '"12":"Blue Button (all VA data)","1":"Blue Button self entered data.",'\
+      ['{"accountType":"Premium","availableServices":{"21":"VA Medications",' \
+       '"4":"Secure Messaging","3":"VA Allergies","2":"Rx Refill",' \
+       '"12":"Blue Button (all VA data)","1":"Blue Button self entered data.",' \
        '"11":"Blue Button (DoD) Military Service Information"}}']
     }
     va_eauth_street { ['954 Bourbon Way'] }
@@ -641,16 +641,16 @@ FactoryBot.define do
     va_eauth_mhvuuid { ['12345748'] }
     va_eauth_suffix { ['NOT_FOUND'] }
     va_eauth_gcIds {
-      ['1012853550V207686^NI^200M^USVHA^P|'\
-       '552151510^PI^989^USVHA^A|'\
-       '943571^PI^979^USVHA^A|'\
-       '12345748^PI^200MH^USVHA^A|'\
-       '1012853550^PN^200PROV^USDVA^A|'\
-       '7219295^PI^983^USVHA^A|'\
-       '552161765^PI^984^USVHA^A|'\
-       '2107307560^NI^200DOD^USDOD^A|'\
-       '7b9b5861203244f0b99b02b771159044^PN^200VIDM^USDVA^A|'\
-       '0e1bb5723d7c4f0686f46ca4505642ad^PN^200VIDM^USDVA^A|'\
+      ['1012853550V207686^NI^200M^USVHA^P|' \
+       '552151510^PI^989^USVHA^A|' \
+       '943571^PI^979^USVHA^A|' \
+       '12345748^PI^200MH^USVHA^A|' \
+       '1012853550^PN^200PROV^USDVA^A|' \
+       '7219295^PI^983^USVHA^A|' \
+       '552161765^PI^984^USVHA^A|' \
+       '2107307560^NI^200DOD^USDOD^A|' \
+       '7b9b5861203244f0b99b02b771159044^PN^200VIDM^USDVA^A|' \
+       '0e1bb5723d7c4f0686f46ca4505642ad^PN^200VIDM^USDVA^A|' \
        '12345748^PI^200MHS^USVHA^A']
     }
     va_eauth_mhv_ien { ['12345748'] }
@@ -708,8 +708,8 @@ FactoryBot.define do
     va_eauth_isDelegate { ['false'] }
     va_eauth_secid { ['1008830476'] }
     va_eauth_gcIds {
-      ['1008830476V316605^NI^200M^USVHA^P|'\
-       '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|'\
+      ['1008830476V316605^NI^200M^USVHA^P|' \
+       '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|' \
        '1008830476^PN^200PROV^USDVA^A']
     }
     va_eauth_persontype { ['NOT_FOUND'] }
@@ -766,17 +766,17 @@ FactoryBot.define do
     va_eauth_isDelegate { ['false'] }
     va_eauth_secid { ['0000028007'] }
     va_eauth_gcIds {
-      ['1012740600V714187^NI^200M^USVHA^P|'\
-       '552151338^PI^989^USVHA^A|'\
-       '1005169255^NI^200DOD^USDOD^A|'\
-       '796123607^PI^200BRLS^USVBA^A|'\
-       '600043180^PI^200CORP^USVBA^A|'\
-       '0000028007^PN^200PROV^USDVA^A|'\
-       '0000001012740600V714187000000^PI^200ESR^USVHA^A|'\
-       '14384899^PI^200MHS^USVHA^A|'\
-       '1133902^PI^200VETS^USDVA^A|'\
-       '1655c16aa0784dbe973814c95bd69177^PN^200VIDM^USDVA^A|'\
-       '1306e31273604dd4a12aa67609a63bfe^PN^200VIDM^USDVA^A|'\
+      ['1012740600V714187^NI^200M^USVHA^P|' \
+       '552151338^PI^989^USVHA^A|' \
+       '1005169255^NI^200DOD^USDOD^A|' \
+       '796123607^PI^200BRLS^USVBA^A|' \
+       '600043180^PI^200CORP^USVBA^A|' \
+       '0000028007^PN^200PROV^USDVA^A|' \
+       '0000001012740600V714187000000^PI^200ESR^USVHA^A|' \
+       '14384899^PI^200MHS^USVHA^A|' \
+       '1133902^PI^200VETS^USDVA^A|' \
+       '1655c16aa0784dbe973814c95bd69177^PN^200VIDM^USDVA^A|' \
+       '1306e31273604dd4a12aa67609a63bfe^PN^200VIDM^USDVA^A|' \
        '796123607^AN^200CORP^USVBA^']
     }
     va_eauth_persontype { ['PAT|VET'] }
@@ -839,9 +839,9 @@ FactoryBot.define do
     va_eauth_transactionid { ['3oiTInhBKGiA/FbtYGVloGdOqUtvKCw4rcuchfwPNAo='] }
     va_eauth_suffix { ['NOT_FOUND'] }
     va_eauth_gcIds {
-      ['1013173963V366678^NI^200M^USVHA^P|'\
-       '363761e8857642f7b77ef7d99200e711^PN^200VIDM^USDVA^A|'\
-       '2106798217^NI^200DOD^USDOD^A|'\
+      ['1013173963V366678^NI^200M^USVHA^P|' \
+       '363761e8857642f7b77ef7d99200e711^PN^200VIDM^USDVA^A|' \
+       '2106798217^NI^200DOD^USDOD^A|' \
        '1013173963^PN^200PROV^USDVA^A']
     }
     va_eauth_mhv_ien { ['NOT_FOUND'] }
@@ -872,11 +872,11 @@ FactoryBot.define do
     va_eauth_state { ['WY'] }
     va_eauth_birlsfilenumber { ['NOT_FOUND'] }
     va_eauth_authorization {
-      ['{"authorizationResponse":{"id":"101174874",'\
-       '"idType":"SSN","lastName":"MCKIBBENS","firstName":"SOFIA",'\
-       '"middleName":"","cadencyName":"","deceased":false,'\
-       '"birthDate":"1946-10-20T08:00:00Z","gender":"FEMALE",'\
-       '"edi":1606997570,"benefits":[],"personnels":[],'\
+      ['{"authorizationResponse":{"id":"101174874",' \
+       '"idType":"SSN","lastName":"MCKIBBENS","firstName":"SOFIA",' \
+       '"middleName":"","cadencyName":"","deceased":false,' \
+       '"birthDate":"1946-10-20T08:00:00Z","gender":"FEMALE",' \
+       '"edi":1606997570,"benefits":[],"personnels":[],' \
        '"status":"VETERAN","personAssociatedSet":[]}}']
     }
     va_eauth_postalcode { ['82009'] }
@@ -901,10 +901,10 @@ FactoryBot.define do
     va_eauth_isDelegate { ['false'] }
     va_eauth_secid { ['1012779219'] }
     va_eauth_gcIds {
-      ['1012779219V964737^NI^200M^USVHA^P|'\
-       '38401^PI^451^USVHA^A|'\
-       '1606997570^NI^200DOD^USDOD^A|'\
-       '38401^PI^969^USVHA^A|'\
+      ['1012779219V964737^NI^200M^USVHA^P|' \
+       '38401^PI^451^USVHA^A|' \
+       '1606997570^NI^200DOD^USDOD^A|' \
+       '38401^PI^969^USVHA^A|' \
        '1012779219^PN^200PROV^USDVA^A']
     }
     va_eauth_persontype { ['NOT_FOUND'] }
@@ -956,12 +956,12 @@ FactoryBot.define do
     va_eauth_isDelegate { ['false'] }
     va_eauth_secid { ['1013062086'] }
     va_eauth_gcIds {
-      ['1013062086V794840^NI^200M^USVHA^P|'\
-       '15093546^PI^200MHS^USVHA^A|'\
-       '552151869^PI^989^USVHA^A|'\
-       '18277^PI^200VETS^USDVA^A|'\
-       '1013062086^PN^200PROV^USDVA^A|'\
-       '15093546^PI^200MH^USVHA^A|'\
+      ['1013062086V794840^NI^200M^USVHA^P|' \
+       '15093546^PI^200MHS^USVHA^A|' \
+       '552151869^PI^989^USVHA^A|' \
+       '18277^PI^200VETS^USDVA^A|' \
+       '1013062086^PN^200PROV^USDVA^A|' \
+       '15093546^PI^200MH^USVHA^A|' \
        '53f065475a794e14a32d707bfd9b215f^PN^200VIDM^USDVA^A']
     }
     va_eauth_persontype { ['NOT_FOUND'] }
@@ -1018,16 +1018,16 @@ FactoryBot.define do
     va_eauth_isDelegate { ['false'] }
     va_eauth_secid { ['1012827134'] }
     va_eauth_gcIds {
-      ['1012827134V054550^NI^200M^USVHA^P|'\
-       '10894456^PI^200MHS^USVHA^A|'\
-       '943523^PI^979^USVHA^A|'\
-       '552151501^PI^989^USVHA^A|'\
-       '666271151^PI^200BRLS^USVBA^A|'\
-       '1320002060^NI^200DOD^USDOD^A|'\
-       '20381^PI^200VETS^USDVA^A|'\
-       'aa478abc-e494-4ae1-8f87-d002f8fe1bbd^PN^200VLGN^USDVA^A|'\
-       '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|'\
-       '1012827134^PN^200PROV^USDVA^A|'\
+      ['1012827134V054550^NI^200M^USVHA^P|' \
+       '10894456^PI^200MHS^USVHA^A|' \
+       '943523^PI^979^USVHA^A|' \
+       '552151501^PI^989^USVHA^A|' \
+       '666271151^PI^200BRLS^USVBA^A|' \
+       '1320002060^NI^200DOD^USDOD^A|' \
+       '20381^PI^200VETS^USDVA^A|' \
+       'aa478abc-e494-4ae1-8f87-d002f8fe1bbd^PN^200VLGN^USDVA^A|' \
+       '54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|' \
+       '1012827134^PN^200PROV^USDVA^A|' \
        '600152411^PI^200CORP^USVBA^A']
     }
     va_eauth_persontype { ['NOT_FOUND'] }

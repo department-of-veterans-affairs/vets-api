@@ -34,6 +34,8 @@ class SourceAppMiddleware
     10207-pp
     10210-lay-witness-statement
     10-7959f-1-FMP
+    1330m2-medallions
+    1330m-medallions
     1990-edu-benefits
     1990e-edu-benefits
     1990ez-edu-benefits
@@ -51,10 +53,12 @@ class SourceAppMiddleware
     5490-edu-benefits
     5495-edu-benefits
     686C-674
+    686C-674-v2
     995-supplemental-claim
     appeals-testing
+    appoint-a-representative
     ask-a-question
-    ask-va-too
+    ask-va
     auth
     avs
     burial-poc-v6
@@ -73,6 +77,7 @@ class SourceAppMiddleware
     dependents-view-dependents
     dhp-consent-flow
     discharge-upgrade-instructions
+    discover-your-benefits
     ds-playground
     ds-v3-playground
     education-letters
@@ -81,6 +86,7 @@ class SourceAppMiddleware
     facilities
     feedback-tool
     find-a-representative
+    fmp-cover-sheet
     fry-dea
     gi
     hca
@@ -115,7 +121,7 @@ class SourceAppMiddleware
     proxy-rewrite
     public-outreach-materials
     rated-disabilities
-    representatives
+    representative
     request-debt-help-form-5655
     resources-and-support
     sahg
@@ -138,6 +144,7 @@ class SourceAppMiddleware
     view-payments
     view-representative
     virtual-agent
+    welcome-va-setup-review-information
     yellow-ribbon
     your-debt
   ].freeze

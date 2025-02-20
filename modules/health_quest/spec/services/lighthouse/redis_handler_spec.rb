@@ -42,7 +42,7 @@ describe HealthQuest::Lighthouse::RedisHandler do
       it 'returns nil' do
         allow(HealthQuest::SessionStore).to receive(:find).with(anything).and_return(nil)
 
-        expect(subject.build.get).to eq(nil)
+        expect(subject.build.get).to be_nil
       end
     end
   end

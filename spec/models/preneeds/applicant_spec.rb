@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Preneeds::Applicant do
   subject { described_class.new(params) }
 
-  let(:params) { attributes_for :applicant }
+  let(:params) { attributes_for(:applicant) }
 
   it 'specifies the permitted_params' do
     expect(described_class.permitted_params).to include(

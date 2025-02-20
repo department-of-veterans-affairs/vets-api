@@ -248,8 +248,8 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
           expect(response.parsed_body['data'].size).to eq(1)
-          expect(response.parsed_body.dig('data', 0, 'attributes', 'isTrackable')).to eq(true)
-          expect(response.parsed_body.dig('data', 0, 'attributes', 'isRefillable')).to eq(true)
+          expect(response.parsed_body.dig('data', 0, 'attributes', 'isTrackable')).to be(true)
+          expect(response.parsed_body.dig('data', 0, 'attributes', 'isRefillable')).to be(true)
         end
       end
 

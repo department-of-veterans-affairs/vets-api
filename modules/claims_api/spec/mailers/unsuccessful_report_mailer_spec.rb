@@ -22,8 +22,8 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
     it 'sends to the right people' do
       expect(subject.to).to eq(
         %w[
-          alex.wilson@oddball.io
           david.mazik@va.gov
+          drew.fisher@adhocteam.us
           emily.goodrich@oddball.io
           janet.coutinho@va.gov
           jennica.stiehl@oddball.io

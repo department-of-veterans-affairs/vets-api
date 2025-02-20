@@ -35,10 +35,10 @@ describe HealthQuest::Resource::Query do
     let(:query) { subject.new(opts) }
 
     it 'has a attributes' do
-      expect(query.respond_to?(:access_token)).to eq(true)
-      expect(query.respond_to?(:api)).to eq(true)
-      expect(query.respond_to?(:headers)).to eq(true)
-      expect(query.respond_to?(:resource_identifier)).to eq(true)
+      expect(query.respond_to?(:access_token)).to be(true)
+      expect(query.respond_to?(:api)).to be(true)
+      expect(query.respond_to?(:headers)).to be(true)
+      expect(query.respond_to?(:resource_identifier)).to be(true)
     end
   end
 

@@ -12,7 +12,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
     stub_claims_api_auth_token
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
 
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
@@ -86,7 +86,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
 
           claim_with_evss_response.reload
           expect(claim_with_evss_response.status).to eq('pending')
-          expect(claim_with_evss_response.evss_response).to eq(nil)
+          expect(claim_with_evss_response.evss_response).to be_nil
         end
       end
     end
@@ -162,7 +162,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         expect(claim.evss_response).to eq([{ 'key' => 'form526.submit.noRetryError',
                                              'severity' => 'FATAL',
                                              'text' => 'Claim could not be established. Retries will fail.' }])
-        expect(@should_retry).to eq(false)
+        expect(@should_retry).to be(false)
       end
 
       it 'does not retry when form526.InProcess error gets returned' do
@@ -192,7 +192,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         expect(claim.evss_response).to eq([{ 'key' => 'form526.InProcess',
                                              'severity' => 'FATAL',
                                              'text' => 'Form 526 is already in-process.' }])
-        expect(@should_retry).to eq(false)
+        expect(@should_retry).to be(false)
       end
 
       it 'does retry when form526.submit.establishClaim.serviceError gets returned' do
@@ -225,7 +225,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
                                              'severity' => 'FATAL',
                                              'text' => 'Error calling external service to establish the claim during submit.' }])
         # rubocop:enable Layout/LineLength
-        expect(@should_retry).to eq(true)
+        expect(@should_retry).to be(true)
       end
 
       it "does not retry when the message key is 'in progress' and are in an array" do
@@ -252,7 +252,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         expect(claim.status).to eq('errored')
         expect(claim.evss_response).to eq([{ 'key' => 'form526.InProcess', 'severity' => 'FATAL',
                                              'text' => 'Form 526 is already in-process' }])
-        expect(@should_retry).to eq(false)
+        expect(@should_retry).to be(false)
       end
 
       it 'does retry when 5xx error gets returned' do
@@ -284,7 +284,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
                                              'severity' => 'FATAL',
                                              'text' => 'Error calling external service to establish the claim during submit.' }])
         # rubocop:enable Layout/LineLength
-        expect(@should_retry).to eq(true)
+        expect(@should_retry).to be(true)
       end
     end
   end

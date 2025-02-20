@@ -8,7 +8,7 @@ RSpec.describe ExcelFileEvent, type: :model do
   it 'validates filename uniqueness' do
     create(:excel_file_event, filename: 'test_file.csv')
     duplicate = build(:excel_file_event, filename: 'test_file.csv')
-    expect(duplicate.valid?).to eq(false)
+    expect(duplicate.valid?).to be(false)
   end
 
   describe 'build_event' do

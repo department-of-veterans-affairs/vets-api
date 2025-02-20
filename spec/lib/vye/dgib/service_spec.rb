@@ -5,7 +5,7 @@ require 'vye/dgib/service'
 
 RSpec.describe Vye::DGIB::Service do
   include ActiveSupport::Testing::TimeHelpers
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:service) { described_class.new(user) }
 
   describe '#claimant_lookup' do

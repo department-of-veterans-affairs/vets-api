@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe Mobile::V0::Concerns::RedisCaching do
-  let(:user) { build :user }
+  let(:user) { build(:user) }
 
   describe '#get_cached' do
     it 'returns nil when nil value was set' do

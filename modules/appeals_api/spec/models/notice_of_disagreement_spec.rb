@@ -15,14 +15,14 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
     describe 'non-veteran claimant flag' do
       it 'saves non-veteran claimant status to metadata' do
-        expect(nod.metadata['non_veteran_claimant']).to eq(false)
+        expect(nod.metadata['non_veteran_claimant']).to be(false)
       end
 
       describe 'with non-veteran claimant' do
         let(:nod) { create(opts[:extra_factory]) }
 
         it 'saves non-veteran claimant status to metadata' do
-          expect(nod.metadata['non_veteran_claimant']).to eq(true)
+          expect(nod.metadata['non_veteran_claimant']).to be(true)
         end
       end
     end
@@ -368,7 +368,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
       describe '#validate_api_version_presence' do
         it 'throws an error when api_version is blank' do
-          nod_blank_api_version = FactoryBot.build(:extra_notice_of_disagreement_v2, api_version: '')
+          nod_blank_api_version = build(:extra_notice_of_disagreement_v2, api_version: '')
 
           expect(nod_blank_api_version.valid?).to be false
           expect(nod_blank_api_version.errors.size).to eq 1
@@ -377,7 +377,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       end
 
       describe '#requesting_extension?' do
-        it { expect(extra_notice_of_disagreement_v2.requesting_extension?).to eq true }
+        it { expect(extra_notice_of_disagreement_v2.requesting_extension?).to be true }
       end
 
       describe '#extension_reason' do
@@ -385,7 +385,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       end
 
       describe '#appealing_vha_denial?' do
-        it { expect(extra_notice_of_disagreement_v2.appealing_vha_denial?).to eq true }
+        it { expect(extra_notice_of_disagreement_v2.appealing_vha_denial?).to be true }
       end
 
       describe '#validate_requesting_extension' do

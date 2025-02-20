@@ -13,7 +13,7 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireFormatter do
 
   describe 'attributes' do
     it 'responds to questionnaires_array' do
-      expect(subject.build([]).respond_to?(:questionnaires_array)).to eq(true)
+      expect(subject.build([]).respond_to?(:questionnaires_array)).to be(true)
     end
   end
 

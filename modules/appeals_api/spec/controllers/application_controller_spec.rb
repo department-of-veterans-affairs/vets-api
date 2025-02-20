@@ -31,7 +31,7 @@ describe AppealsApi::ApplicationController, type: :controller do
       it 'returns a 404' do
         allow(controller).to receive(:sunset_date).and_return(Date.yesterday)
         get :index
-        expect(response.status).to eq(404)
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -39,7 +39,7 @@ describe AppealsApi::ApplicationController, type: :controller do
       it 'hits the endpoint' do
         allow(controller).to receive(:sunset_date).and_return(Date.tomorrow)
         get :index
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
       end
     end
   end
@@ -67,7 +67,7 @@ describe AppealsApi::ApplicationController, type: :controller do
       expect(error['meta']).to eq({ 'extra' => 'metadata' })
     end
 
-    xit 'allows overriding error.attribute source with custom hash' do
+    it 'allows overriding error.attribute source with custom hash', skip: 'Failing Test, per commit history' do
       error = errors[1]
       expect(error['source']).to eq({ 'header' => 'abc123' })
     end

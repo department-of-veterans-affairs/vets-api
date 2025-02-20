@@ -112,6 +112,58 @@ describe MDOT::Client, type: :mdot_helpers do
         end
       end
     end
+
+    context 'validates temporary OR permanent address' do
+      before do
+        VCR.insert_cassette(
+          cassette,
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        )
+      end
+
+      after { VCR.eject_cassette }
+
+      context 'with a null temporary_address value from system of record' do
+        let!(:cassette) { 'mdot/get_supplies_null_temp_address_200' }
+
+        it 'returns a valid response' do
+          response = subject.get_supplies
+          expect(response).to be_ok
+          expect(response).to be_an MDOT::Response
+        end
+      end
+
+      context 'with a no temporary_address from system of record' do
+        let(:cassette) { 'mdot/get_supplies_no_temp_address_200' }
+
+        it 'returns a valid response' do
+          response = subject.get_supplies
+          expect(response).to be_ok
+          expect(response).to be_an MDOT::Response
+        end
+      end
+
+      context 'with a null permanent_address value from system of record' do
+        let(:cassette) { 'mdot/get_supplies_null_perm_address_200' }
+
+        it 'returns a valid response' do
+          response = subject.get_supplies
+          expect(response).to be_ok
+          expect(response).to be_an MDOT::Response
+        end
+      end
+
+      context 'with a no permanent_address from system of record' do
+        let(:cassette) { 'mdot/get_supplies_no_perm_address_200' }
+
+        it 'returns a valid response' do
+          response = subject.get_supplies
+          expect(response).to be_ok
+          expect(response).to be_an MDOT::Response
+        end
+      end
+    end
   end
 
   describe '#submit_order' do

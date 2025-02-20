@@ -26,7 +26,7 @@ Rspec.describe MebApi::DGI::Automation::Service do
         }
       end
 
-      let(:user) { FactoryBot.create(:user, :loa3, user_details) }
+      let(:user) { create(:user, :loa3, user_details) }
       let(:service) { MebApi::DGI::Automation::Service.new(user) }
       let(:faraday_response) { double('faraday_connection') }
 

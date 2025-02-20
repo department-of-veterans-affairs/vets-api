@@ -77,7 +77,7 @@ RSpec.describe SignIn::SessionRevoker do
       let(:client_id) { client_config.client_id }
       let(:client_config) { create(:client_config, anti_csrf:) }
       let(:anti_csrf) { false }
-      let(:session_expiration) { Time.zone.now + 5.minutes }
+      let(:session_expiration) { 5.minutes.from_now }
 
       before do
         Timecop.freeze(Time.zone.now.floor)
@@ -145,7 +145,7 @@ RSpec.describe SignIn::SessionRevoker do
         end
 
         context 'and session is expired' do
-          let(:session_expiration) { Time.zone.now - 30.minutes }
+          let(:session_expiration) { 30.minutes.ago }
           let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError }
           let(:expected_error_message) { 'No valid Session found' }
 
@@ -194,7 +194,7 @@ RSpec.describe SignIn::SessionRevoker do
       let(:client_id) { client_config.client_id }
       let(:client_config) { create(:client_config, anti_csrf:) }
       let(:anti_csrf) { false }
-      let(:session_expiration) { Time.zone.now + 5.minutes }
+      let(:session_expiration) { 5.minutes.from_now }
 
       before do
         Timecop.freeze(Time.zone.now.floor)
@@ -241,7 +241,7 @@ RSpec.describe SignIn::SessionRevoker do
         end
 
         context 'and session is expired' do
-          let(:session_expiration) { Time.zone.now - 30.minutes }
+          let(:session_expiration) { 30.minutes.ago }
           let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError }
           let(:expected_error_message) { 'No valid Session found' }
 

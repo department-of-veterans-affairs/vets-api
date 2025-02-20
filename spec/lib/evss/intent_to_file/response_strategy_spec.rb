@@ -7,7 +7,7 @@ require 'evss/intent_to_file/service'
 describe EVSS::IntentToFile::ResponseStrategy do
   let(:user) { build(:user, :loa3) }
   let(:service) { EVSS::IntentToFile::Service.new(user) }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:faraday_response) { instance_double(Faraday::Response) }
   let(:itf_response) { EVSS::IntentToFile::IntentToFileResponse.new(200, faraday_response) }
   let(:itf_type) { 'compensation' }
 

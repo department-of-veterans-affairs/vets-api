@@ -26,7 +26,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::Uploader do
 
     it 'uses an AWS store', skip: 'TODO: Fix Flaky Test' do
       expect(described_class.storage).to eq(CarrierWave::Storage::AWS)
-      expect(new._storage?).to eq(true)
+      expect(new._storage?).to be(true)
       expect(new._storage).to eq(CarrierWave::Storage::AWS)
     end
 

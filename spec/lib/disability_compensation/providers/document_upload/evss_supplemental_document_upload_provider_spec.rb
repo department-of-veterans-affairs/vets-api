@@ -53,14 +53,14 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
   describe '#validate_upload_document' do
     context 'when the document is a valid EVSSClaimDocument' do
       it 'returns true' do
-        expect(provider.validate_upload_document(evss_claim_document)).to eq(true)
+        expect(provider.validate_upload_document(evss_claim_document)).to be(true)
       end
     end
 
     context 'when the document is an invalid EVSSClaimDocument' do
       it 'returns false' do
         allow_any_instance_of(EVSSClaimDocument).to receive(:valid?).and_return(false)
-        expect(provider.validate_upload_document(evss_claim_document)).to eq(false)
+        expect(provider.validate_upload_document(evss_claim_document)).to be(false)
       end
     end
   end

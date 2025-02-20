@@ -14,10 +14,10 @@ RSpec.describe SimpleFormsApi::FormRemediation::Configuration::Base do
   describe '#initialize' do
     it 'sets default values for instance variables' do
       expect(instance.id_type).to eq(:benefits_intake_uuid)
-      expect(instance.include_manifest).to eq(true)
-      expect(instance.include_metadata).to eq(false)
+      expect(instance.include_manifest).to be(true)
+      expect(instance.include_metadata).to be(false)
       expect(instance.parent_dir).to eq('')
-      expect(instance.presign_s3_url).to eq(true)
+      expect(instance.presign_s3_url).to be(true)
     end
   end
 

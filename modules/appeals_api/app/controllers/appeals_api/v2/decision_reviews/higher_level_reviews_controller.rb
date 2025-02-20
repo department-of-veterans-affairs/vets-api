@@ -34,6 +34,11 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
     render json: AppealsApi::HigherLevelReviewSerializer.new(veteran_hlrs).serializable_hash
   end
 
+  def show
+    @higher_level_review = with_status_simulation(@higher_level_review) if status_requested_and_allowed?
+    render_higher_level_review
+  end
+
   def create
     @higher_level_review.save
 
@@ -58,11 +63,6 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
 
   def schema
     render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(form_schema)
-  end
-
-  def show
-    @higher_level_review = with_status_simulation(@higher_level_review) if status_requested_and_allowed?
-    render_higher_level_review
   end
 
   def download

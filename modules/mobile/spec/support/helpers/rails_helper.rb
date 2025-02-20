@@ -23,7 +23,7 @@ RSpec.configure do |config|
     if content_type != 'application/pdf' && response.body.present? &&
        response.body != 'null' && !example.metadata[:skip_json_api_validation]
 
-      expect(JSONAPI.parse_response!(response.parsed_body)).to eq(nil)
+      expect(JSONAPI.parse_response!(response.parsed_body)).to be_nil
     end
   end
 end

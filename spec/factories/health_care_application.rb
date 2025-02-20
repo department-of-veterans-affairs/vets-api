@@ -3,9 +3,7 @@
 FactoryBot.define do
   factory :health_care_application do
     form {
-      File.read(
-        Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
-      )
+      Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json').read
     }
 
     trait :with_success do

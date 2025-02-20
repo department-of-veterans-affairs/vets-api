@@ -32,6 +32,11 @@ module V0
       render json: HCARatingInfoSerializer.new(hca_rating_info)
     end
 
+    def show
+      application = HealthCareApplication.find(params[:id])
+      render json: HealthCareApplicationSerializer.new(application)
+    end
+
     def create
       health_care_application.async_compatible = params[:async_all]
       health_care_application.google_analytics_client_id = params[:ga_client_id]
@@ -50,11 +55,6 @@ module V0
       else
         render json: result
       end
-    end
-
-    def show
-      application = HealthCareApplication.find(params[:id])
-      render json: HealthCareApplicationSerializer.new(application)
     end
 
     def enrollment_status
@@ -110,6 +110,10 @@ module V0
     end
 
     def lighthouse_facilities_service
+      if Flipper.enabled?(:hca_ez_use_facilities_v2)
+        @lighthouse_facilities_service ||= FacilitiesApi::V2::Lighthouse::Client.new
+      end
+
       @lighthouse_facilities_service ||= Lighthouse::Facilities::V1::Client.new
     end
 

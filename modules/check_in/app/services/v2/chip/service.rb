@@ -224,17 +224,7 @@ module V2
       #
       # @return [String] token
       def token
-        @token ||= begin
-          token = redis_client.get
-
-          return token if token.present?
-
-          resp = chip_client.token
-
-          Oj.load(resp.body)&.fetch('token').tap do |jwt_token|
-            redis_client.save(token: jwt_token)
-          end
-        end
+        @token ||= fetch_token
       end
 
       def identifier_params
@@ -294,6 +284,18 @@ module V2
           "check_in_lorota_v2_appointment_identifiers_#{check_in.uuid}",
           namespace: 'check-in-lorota-v2-cache'
         )
+      end
+
+      private
+
+      def fetch_token
+        token = redis_client.get
+        return token if token.present?
+
+        resp = chip_client.token
+        jwt_token = Oj.load(resp.body)&.fetch('token')
+        redis_client.save(token: jwt_token)
+        jwt_token
       end
     end
   end

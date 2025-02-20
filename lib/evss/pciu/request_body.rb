@@ -38,7 +38,7 @@ module EVSS
       end
 
       def remove_empty_attrs
-        @request_attrs = request_attrs.as_json.delete_if { |_k, v| v.blank? }
+        @request_attrs = request_attrs.as_json.compact_blank!
       end
 
       def convert_to_json

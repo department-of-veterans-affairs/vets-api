@@ -8,6 +8,7 @@ module EducationForm::Forms
       chapter33: 'CH33',
       chapter33Post911: 'CH33',
       chapter33FryScholarship: 'CH33',
+      chapter35: 'CH35',
       chapter1606: 'CH1606',
       chapter1607: 'CH1607',
       transferOfEntitlement: 'TransferOfEntitlement'
@@ -15,6 +16,12 @@ module EducationForm::Forms
 
     def school
       @applicant.newSchool
+    end
+
+    def header_abbreviated_form_type(header_form_type)
+      return 'CH33' if header_form_type.eql?('transferOfEntitlement')
+
+      FORM_TYPES[header_form_type&.to_sym]
     end
 
     def form_type
@@ -26,7 +33,7 @@ module EducationForm::Forms
     end
 
     def header_form_type
-      @applicant.rudisillReview == 'Yes' ? 'V1995R' : 'V1995'
+      @applicant.rudisillReview == 'Yes' ? '1995R' : 'V1995'
     end
   end
 end

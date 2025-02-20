@@ -6,7 +6,7 @@ require 'sftp_writer/remote'
 RSpec.describe SFTPWriter::Remote do
   describe '#close' do
     it 'returns if sftp has not started' do
-      expect(described_class.new({}, logger: {}).close).to eq(nil)
+      expect(described_class.new({}, logger: {}).close).to be_nil
     end
   end
 

@@ -32,8 +32,8 @@ describe 'Contestable Issues', openapi_spec:, type: :request do
                 required: true,
                 description: 'Scoping of appeal type for associated issues',
                 schema: {
-                  'type': 'string',
-                  'enum': %w[higher_level_reviews notice_of_disagreements supplemental_claims]
+                  type: 'string',
+                  enum: %w[higher_level_reviews notice_of_disagreements supplemental_claims]
                 },
                 example: 'higher_level_reviews'
 
@@ -43,8 +43,8 @@ describe 'Contestable Issues', openapi_spec:, type: :request do
                 in: :query,
                 description: 'Required if decision review type is Higher Level Review or Supplemental Claims.',
                 schema: {
-                  'type': 'string',
-                  'enum': %w[
+                  type: 'string',
+                  enum: %w[
                     compensation
                     pensionSurvivorsBenefits
                     fiduciary

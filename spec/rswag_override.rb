@@ -41,7 +41,7 @@ module Rswag
               v.each_pair do |_verb, value|
                 is_hash = value.is_a?(Hash)
                 if is_hash && value[:parameters]
-                  schema_param = value[:parameters]&.find { |p| (p[:in] == :body || p[:in] == :formData) && p[:schema] }
+                  schema_param = value[:parameters]&.find { |p| %i[body formData].include?(p[:in]) && p[:schema] }
                   mime_list = value[:consumes] || doc[:consumes]
                   if value && schema_param && mime_list
                     value[:requestBody] = { content: {} } unless value.dig(:requestBody, :content)
@@ -51,7 +51,7 @@ module Rswag
                     end
                   end
 
-                  value[:parameters].reject! { |p| p[:in] == :body || p[:in] == :formData }
+                  value[:parameters].reject! { |p| %i[body formData].include?(p[:in]) }
                 end
                 remove_invalid_operation_keys!(value)
               end
@@ -61,10 +61,8 @@ module Rswag
           if relevant_path?(url_path) # Added conditional
             file_path = File.join(@config.openapi_root, url_path)
             dirname = File.dirname(file_path)
-            FileUtils.mkdir_p dirname unless File.exist?(dirname)
-            File.open(file_path, 'w') do |file|
-              file.write(pretty_generate(doc))
-            end
+            FileUtils.mkdir_p dirname
+            File.write(file_path, pretty_generate(doc))
             @output.puts "Swagger doc generated at #{file_path}"
           end # Added conditional
         end
@@ -74,7 +72,7 @@ module Rswag
       private # Added methods
 
       def request_examples(value)
-        examples = value[:parameters]&.find { |p| (p[:in] == :body || p[:in] == :formData) && p[:examples] }
+        examples = value[:parameters]&.find { |p| %i[body formData].include?(p[:in]) && p[:examples] }
         if examples && examples[:examples]
           { examples: examples[:examples] }
         else

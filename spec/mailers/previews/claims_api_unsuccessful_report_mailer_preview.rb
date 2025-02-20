@@ -71,50 +71,50 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
 
   def make_claims
     # ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).destroy_all
-    FactoryBot.create(:auto_established_claim_v2, :errored)
-    FactoryBot.create(:auto_established_claim, :errored)
+    create(:auto_established_claim_v2, :errored)
+    create(:auto_established_claim, :errored)
 
-    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                transaction_id: '467384632184')
-    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                transaction_id: '467384632185')
-    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                transaction_id: '467384632186')
-    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                transaction_id: '467384632187')
-    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                transaction_id: '467384632187')
-    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
+    create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                     transaction_id: '467384632184')
+    create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                     transaction_id: '467384632185')
+    create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                     transaction_id: '467384632186')
+    create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                     transaction_id: '467384632187')
+    create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                     transaction_id: '467384632187')
+    create(:auto_established_claim_va_gov, created_at: Time.zone.now)
 
-    FactoryBot.create(:auto_established_claim_v2, :errored)
-    FactoryBot.create(:auto_established_claim_v2, :pending)
-    FactoryBot.create(:auto_established_claim, :pending)
-    FactoryBot.create(:auto_established_claim, :pending)
-    FactoryBot.create(:auto_established_claim_with_supporting_documents, :pending)
-    FactoryBot.create(:auto_established_claim, :pending)
+    create(:auto_established_claim_v2, :errored)
+    create(:auto_established_claim_v2, :pending)
+    create(:auto_established_claim, :pending)
+    create(:auto_established_claim, :pending)
+    create(:auto_established_claim_with_supporting_documents, :pending)
+    create(:auto_established_claim, :pending)
   end
 
   def make_poas
     # ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).destroy_all
-    FactoryBot.create(:power_of_attorney, :errored)
-    FactoryBot.create(:power_of_attorney, :errored)
-    FactoryBot.create(:power_of_attorney)
-    FactoryBot.create(:power_of_attorney)
+    create(:power_of_attorney, :errored)
+    create(:power_of_attorney, :errored)
+    create(:power_of_attorney)
+    create(:power_of_attorney)
   end
 
   def make_ews_submissions
     # ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to).destroy_all
-    FactoryBot.create(:evidence_waiver_submission, :errored)
-    FactoryBot.create(:evidence_waiver_submission)
-    FactoryBot.create(:evidence_waiver_submission, :errored)
-    FactoryBot.create(:evidence_waiver_submission)
+    create(:evidence_waiver_submission, :errored)
+    create(:evidence_waiver_submission)
+    create(:evidence_waiver_submission, :errored)
+    create(:evidence_waiver_submission)
   end
 
   def make_itfs
     # ClaimsApi::IntentToFile.where(created_at: @from..@to).destroy_all
-    FactoryBot.create(:intent_to_file, :itf_errored)
-    FactoryBot.create(:intent_to_file, :itf_errored)
-    FactoryBot.create(:intent_to_file)
+    create(:intent_to_file, :itf_errored)
+    create(:intent_to_file, :itf_errored)
+    create(:intent_to_file)
   end
 
   def gather_consumers

@@ -126,8 +126,6 @@ module LGY
           request_headers
         )
       end
-    rescue Common::Client::Errors::ClientError => e
-      raise e
     end
 
     def get_coe_documents
@@ -170,8 +168,6 @@ module LGY
           sahsha_request_headers
         )
       end
-    rescue Common::Client::Errors::ClientError => e
-      raise e
     end
 
     def request_headers

@@ -32,7 +32,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
 
       expect(subject.veteran).to be_instance_of(CARMA::Models::Veteran)
       expect(subject.veteran.icn).to eq('ABCD1234')
-      expect(subject.veteran.is_veteran).to eq(true)
+      expect(subject.veteran.is_veteran).to be(true)
     end
   end
 
@@ -46,7 +46,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
 
     it 'can be set to nil' do
       subject.primary_caregiver = nil
-      expect(subject.primary_caregiver).to eq(nil)
+      expect(subject.primary_caregiver).to be_nil
     end
   end
 
@@ -60,7 +60,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
 
     it 'can be set to nil' do
       subject.secondary_caregiver_one = nil
-      expect(subject.secondary_caregiver_one).to eq(nil)
+      expect(subject.secondary_caregiver_one).to be_nil
     end
   end
 
@@ -74,7 +74,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
 
     it 'can be set to nil' do
       subject.secondary_caregiver_two = nil
-      expect(subject.secondary_caregiver_two).to eq(nil)
+      expect(subject.secondary_caregiver_two).to be_nil
     end
   end
 
@@ -82,17 +82,17 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
     it 'initializes with defaults' do
       # Should default to empty described_class::Veteran
       expect(subject.veteran).to be_instance_of(CARMA::Models::Veteran)
-      expect(subject.veteran.icn).to eq(nil)
-      expect(subject.veteran.is_veteran).to eq(nil)
+      expect(subject.veteran.icn).to be_nil
+      expect(subject.veteran.is_veteran).to be_nil
 
       # Should default to nil
-      expect(subject.primary_caregiver).to eq(nil)
+      expect(subject.primary_caregiver).to be_nil
 
       # Should default to nil
-      expect(subject.secondary_caregiver_one).to eq(nil)
+      expect(subject.secondary_caregiver_one).to be_nil
 
       # Should default to nil
-      expect(subject.secondary_caregiver_two).to eq(nil)
+      expect(subject.secondary_caregiver_two).to be_nil
     end
 
     it 'accepts claim_id, submitted_at, veteran, primary_caregiver, secondary_caregiver_one, secondary_caregiver_two' do
@@ -120,7 +120,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
       expect(subject.claim_guid).to eq('my-uuid')
       expect(subject.submitted_at).to eq(claim_created_at)
       expect(subject.veteran.icn).to eq('VET1234')
-      expect(subject.veteran.is_veteran).to eq(true)
+      expect(subject.veteran.is_veteran).to be(true)
       expect(subject.primary_caregiver.icn).to eq('PC1234')
       expect(subject.secondary_caregiver_one.icn).to eq('SCO1234')
       expect(subject.secondary_caregiver_two.icn).to eq('SCT1234')

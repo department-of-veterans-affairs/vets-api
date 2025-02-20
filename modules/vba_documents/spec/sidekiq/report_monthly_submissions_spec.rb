@@ -24,7 +24,7 @@ RSpec.describe VBADocuments::ReportMonthlySubmissions, type: :job do
         12.times do |i|
           reporting_date = (i + 1).months.ago
           prior_twelve_months_stats <<
-            FactoryBot.create(:monthly_stat, month: reporting_date.month, year: reporting_date.year)
+            create(:monthly_stat, month: reporting_date.month, year: reporting_date.year)
         end
 
         allow(VBADocuments::MonthlyStatsGenerator).to receive(:new).and_return(monthly_stats_generator)

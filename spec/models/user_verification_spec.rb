@@ -87,7 +87,7 @@ RSpec.describe UserVerification, type: :model do
 
         context 'and idme_uuid is not defined' do
           it 'returns nil' do
-            expect(subject).to eq(nil)
+            expect(subject).to be_nil
           end
         end
 
@@ -125,7 +125,7 @@ RSpec.describe UserVerification, type: :model do
 
         context 'and logingov_uuid is not defined' do
           it 'returns nil' do
-            expect(subject).to eq(nil)
+            expect(subject).to be_nil
           end
         end
 
@@ -163,7 +163,7 @@ RSpec.describe UserVerification, type: :model do
 
         context 'and dslogon_uuid is not defined' do
           it 'returns nil' do
-            expect(subject).to eq(nil)
+            expect(subject).to be_nil
           end
         end
 
@@ -211,7 +211,7 @@ RSpec.describe UserVerification, type: :model do
 
         context 'and mhv_uuid is not defined' do
           it 'returns nil' do
-            expect(subject).to eq(nil)
+            expect(subject).to be_nil
           end
         end
 

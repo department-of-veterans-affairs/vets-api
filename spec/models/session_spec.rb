@@ -51,18 +51,18 @@ RSpec.describe Session, type: :model do
 
     context 'expire' do
       it 'extends a session' do
-        expect(subject.expire(3600)).to eq(true)
+        expect(subject.expire(3600)).to be(true)
         expect(subject.ttl).to eq(3600)
       end
 
       it 'extends the session when within maximum ttl' do
         subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME - 1.minute)
-        expect(subject.expire(1800)).to eq(true)
+        expect(subject.expire(1800)).to be(true)
       end
 
       it 'does not extend the session when beyond the maximum ttl' do
         subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME + 1.minute)
-        expect(subject.expire(1800)).to eq(false)
+        expect(subject.expire(1800)).to be(false)
         expect(subject.errors.messages).to include(:created_at)
       end
 
@@ -75,14 +75,14 @@ RSpec.describe Session, type: :model do
         increment = subject.redis_namespace_ttl - 60.seconds
         max_hours = described_class::MAX_SESSION_LIFETIME / 1800.seconds
         (1..max_hours).each do |hour|
-          Timecop.freeze(start_time + increment * hour)
-          expect(subject.expire(described_class.redis_namespace_ttl)).to eq(true)
+          Timecop.freeze(start_time + (increment * hour))
+          expect(subject.expire(described_class.redis_namespace_ttl)).to be(true)
           expect(subject.ttl).to eq(described_class.redis_namespace_ttl)
         end
 
         # now outside Session::MAX_SESSION_LIFETIME
-        Timecop.freeze(start_time + increment * max_hours + increment)
-        expect(subject.expire(described_class.redis_namespace_ttl)).to eq(false)
+        Timecop.freeze(start_time + (increment * max_hours) + increment)
+        expect(subject.expire(described_class.redis_namespace_ttl)).to be(false)
         expect(subject.errors.messages).to include(:created_at)
 
         Timecop.return
@@ -101,14 +101,14 @@ RSpec.describe Session, type: :model do
 
       it 'saves a session within the maximum ttl' do
         subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME - 1.minute)
-        expect(subject.save).to eq(true)
+        expect(subject.save).to be(true)
       end
 
       context 'when beyond the maximum ttl' do
         before { subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME + 1.minute) }
 
         it 'does not save' do
-          expect(subject.save).to eq(false)
+          expect(subject.save).to be(false)
           expect(subject.errors.messages).to include(:created_at)
         end
 
@@ -143,7 +143,7 @@ RSpec.describe Session, type: :model do
 
       it 'does not change the created_at timestamp' do
         orig_created_at = found_session.created_at
-        expect(found_session.save).to eq(true)
+        expect(found_session.save).to be(true)
         expect(found_session.created_at).to eq(orig_created_at)
       end
     end

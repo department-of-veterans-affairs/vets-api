@@ -29,19 +29,19 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
       expect(JSON.parse(response.body)).to eq(params)
     end
 
-    context 'when invalid contact_information' do
+    context 'when invalid veteran_information' do
       let(:params) do
         get_fixture_absolute('modules/debts_api/spec/fixtures/digital_disputes/standard_submission')
       end
 
-      it 'returns an error when there is no contact information provided' do
+      it 'returns an error when there is no veteran information provided' do
         expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.initiated')
         expect(StatsD).to receive(:increment).with('api.rack.request',
                                                    { tags: ['controller:debts_api/v0/digital_disputes',
                                                             'action:create', 'source_app:not_provided', 'status:422'] })
         expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.failure')
 
-        params.delete('contact_information')
+        params.delete('veteran_information')
 
         post(
           '/debts_api/v0/digital_disputes',
@@ -52,8 +52,8 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)).to eq(
           'errors' => {
-            'contact_information' => [
-              'is missing required information: email, phone_number, address_line1, city'
+            'veteran_information' => [
+              'is missing required information: email, mobile_phone, mailing_address'
             ]
           }
         )
@@ -61,7 +61,7 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
 
       it 'returns an error when invalid email is submitted' do
         params = get_fixture_absolute('modules/debts_api/spec/fixtures/digital_disputes/standard_submission')
-        params['contact_information']['email'] = 'invalid_email'
+        params['veteran_information']['email'] = 'invalid_email'
 
         post(
           '/debts_api/v0/digital_disputes',
@@ -72,7 +72,7 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)).to eq(
           'errors' => {
-            'contact_information' => [
+            'veteran_information' => [
               'must include a valid email address'
             ]
           }

@@ -112,7 +112,7 @@ describe AppealsApi::HigherLevelReview::Phone do
     end
 
     it 'has no error message when phone number is not too long' do
-      expect(phone(nil, '888', '5554444', nil).too_long_error_message).to be nil
+      expect(phone(nil, '888', '5554444', nil).too_long_error_message).to be_nil
     end
   end
 end

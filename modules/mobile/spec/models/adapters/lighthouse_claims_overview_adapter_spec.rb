@@ -26,7 +26,7 @@ describe Mobile::V0::Adapters::LighthouseClaimsOverview, :aggregate_failures do
     it 'documentsNeeded is false' do
       output = Mobile::V0::Adapters::LighthouseClaimsOverview.new.parse(waiver_true_claim)
 
-      expect(output.first.documents_needed).to eq(false)
+      expect(output.first.documents_needed).to be(false)
     end
   end
 
@@ -53,7 +53,7 @@ describe Mobile::V0::Adapters::LighthouseClaimsOverview, :aggregate_failures do
     it 'documentsNeeded is derived from documentsNeeded field' do
       output = Mobile::V0::Adapters::LighthouseClaimsOverview.new.parse(waiver_false_claim)
 
-      expect(output.first.documents_needed).to eq(true)
+      expect(output.first.documents_needed).to be(true)
     end
   end
 end

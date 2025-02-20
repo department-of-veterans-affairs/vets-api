@@ -20,9 +20,7 @@ namespace :vet360 do
   task :get_person, [:vet360_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     trx = VAProfile::ContactInformation::Service.new(user_struct(args[:vet360_id])).get_person
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc 'GET Vet360 email transaction status'
@@ -32,9 +30,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_email_transaction_status(args[:tx_audit_id])
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc 'GET Vet360 address transaction status'
@@ -44,9 +40,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_address_transaction_status(args[:tx_audit_id])
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc 'GET Vet360 telephone transaction status'
@@ -56,9 +50,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_telephone_transaction_status(args[:tx_audit_id])
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc 'GET Vet360 permission transaction status'
@@ -68,9 +60,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_permission_transaction_status(args[:tx_audit_id])
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   ## PUTs
@@ -89,7 +79,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    data = JSON.parse(ENV[ENV_VAR_NAME])
+    data = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = data['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -97,9 +87,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_email(email)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc "Update Vet360 telephone (from #{ENV_VAR_NAME})"
@@ -115,7 +103,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -123,9 +111,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_telephone(telephone)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc "Update Vet360 address (from #{ENV_VAR_NAME})"
@@ -143,7 +129,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -151,9 +137,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_address(address)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc "Update Vet360 permission (from #{ENV_VAR_NAME})"
@@ -168,7 +152,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -176,9 +160,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_permission(permission)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   ## POSTs
@@ -196,7 +178,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -204,9 +186,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_email(email)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc "Create Vet360 telephone (from #{ENV_VAR_NAME})"
@@ -224,7 +204,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -232,9 +212,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_telephone(telephone)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc "Create Vet360 address (from #{ENV_VAR_NAME})"
@@ -250,7 +228,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -258,9 +236,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_address(address)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc "Create Vet360 permission (from #{ENV_VAR_NAME})"
@@ -275,7 +251,7 @@ namespace :vet360 do
 
     ensure_data_var
 
-    body = JSON.parse(ENV[ENV_VAR_NAME])
+    body = JSON.parse(ENV.fetch(ENV_VAR_NAME, nil))
     vet360_id = body['vet360_id']
     ensure_var('vet360_id', vet360_id)
 
@@ -283,9 +259,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_permission(permission)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc <<~DESCRIPTION

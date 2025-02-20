@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Preneeds::DateRange do
   subject { described_class.new(params) }
 
-  let(:params) { attributes_for :date_range }
+  let(:params) { attributes_for(:date_range) }
 
   it 'specifies the permitted_params' do
     expect(described_class.permitted_params).to include(:from, :to)

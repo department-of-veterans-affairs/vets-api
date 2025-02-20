@@ -4,7 +4,11 @@ module Mobile::Concerns::SSOLogging
   extend ActiveSupport::Concern
 
   included do
-    after_action :log_sso_info, only: %i[create update destroy]
+    after_action do
+      next unless %w[create update destroy].include?(action_name)
+
+      log_sso_info
+    end
 
     def log_sso_info
       action = request.controller_instance.controller_path.classify.to_s

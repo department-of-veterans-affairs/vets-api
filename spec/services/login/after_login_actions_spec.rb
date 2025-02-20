@@ -101,7 +101,7 @@ RSpec.describe Login::AfterLoginActions do
       end
 
       context 'with existing login stats record' do
-        let(:account) { FactoryBot.create(:account) }
+        let(:account) { create(:account) }
 
         before do
           allow_any_instance_of(User).to receive(:account) { account }

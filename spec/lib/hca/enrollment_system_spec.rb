@@ -174,9 +174,7 @@ describe HCA::EnrollmentSystem do
   %w[veteran result].each do |file|
     let("test_#{file}") do
       JSON.parse(
-        File.read(
-          Rails.root.join('spec', 'fixtures', 'hca', "#{file}.json")
-        )
+        Rails.root.join('spec', 'fixtures', 'hca', "#{file}.json").read
       )
     end
   end

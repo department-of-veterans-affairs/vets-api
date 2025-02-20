@@ -6,6 +6,11 @@ module V0
     skip_before_action(:authenticate)
     before_action :load_user, only: :create
 
+    def show
+      gi_bill_feedback = GIBillFeedback.find(params[:id])
+      render json: GIBillFeedbackSerializer.new(gi_bill_feedback)
+    end
+
     def create
       gi_bill_feedback = GIBillFeedback.new(
         params.require(:gi_bill_feedback).permit(:form).merge(
@@ -21,11 +26,6 @@ module V0
 
       clear_saved_form(GIBillFeedback::FORM_ID)
 
-      render json: GIBillFeedbackSerializer.new(gi_bill_feedback)
-    end
-
-    def show
-      gi_bill_feedback = GIBillFeedback.find(params[:id])
       render json: GIBillFeedbackSerializer.new(gi_bill_feedback)
     end
   end

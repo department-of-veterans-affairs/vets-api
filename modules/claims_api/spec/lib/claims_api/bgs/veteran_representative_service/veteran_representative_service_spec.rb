@@ -4,18 +4,14 @@ require 'rails_helper'
 require 'bgs_service/veteran_representative_service'
 
 describe ClaimsApi::VeteranRepresentativeService do
-  let(:header_params) do
-    {
-      external_uid: 'xUid',
-      external_key: 'xKey'
-    }
-  end
+  subject { described_class.new(external_uid: 'xUid', external_key: 'xKey') }
 
   describe 'with a namespace param' do
     it 'does not raise ArgumentError' do
-      service = described_class.new(**header_params)
       expect do
-        service.send(:make_request, namespace: 'testspace', action: 'testAction', body: 'this is the body',
+        subject.send(:make_request, endpoint: 'endpoint', namespaces: { 'testspace' => '/test' },
+                                    action: 'testAction',
+                                    body: 'this is the body',
                                     key: 'ThisIsTheKey')
       end.not_to raise_error(ArgumentError)
     end
@@ -25,9 +21,8 @@ describe ClaimsApi::VeteranRepresentativeService do
     let(:params) { { ptcpnt_id: '123456' } }
 
     it 'raises ArgumentError' do
-      service = described_class.new(**header_params)
       expect do
-        service.send(:make_request, action: 'testAction', body: 'this is the body',
+        subject.send(:make_request, action: 'testAction', body: 'this is the body',
                                     key: 'ThisIsTheKey')
       end.to raise_error(ArgumentError)
     end

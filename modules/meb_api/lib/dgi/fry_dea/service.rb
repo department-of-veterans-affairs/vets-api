@@ -30,7 +30,7 @@ module MebApi
 
         def headers
           {
-            "Authorization": "Bearer #{MebApi::AuthenticationTokenService.call}"
+            Authorization: "Bearer #{MebApi::AuthenticationTokenService.call}"
           }
         end
       end

@@ -157,7 +157,7 @@ RSpec.describe CheckIn::V2::Session do
 
         Rails.cache.write(subject.build({}).key, 'jwt-123-1bc', namespace: 'check-in-lorota-v2-cache')
 
-        expect(subject.build({}).authorized?).to eq(true)
+        expect(subject.build({}).authorized?).to be(true)
       end
     end
 
@@ -167,7 +167,7 @@ RSpec.describe CheckIn::V2::Session do
         allow_any_instance_of(subject).to receive(:jwt).and_return(nil)
         allow_any_instance_of(subject).to receive(:uuid).and_return('d602d9eb-9a31-484f-9637-13ab0b507e0d')
 
-        expect(subject.build({}).authorized?).to eq(false)
+        expect(subject.build({}).authorized?).to be(false)
       end
     end
   end

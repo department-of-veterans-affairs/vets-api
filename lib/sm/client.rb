@@ -71,6 +71,16 @@ module SM
     def get_signature
       perform(:get, 'preferences/signature', nil, token_headers).body
     end
+
+    ##
+    # Update current message signature
+    #
+    # @return [Sting] json response
+    #
+    def post_signature(params)
+      request_body = MessagingSignature.new(params).to_h
+      perform(:post, 'preferences/signature', request_body, token_headers).body
+    end
     # @!endgroup
 
     ##

@@ -997,11 +997,11 @@ module Swagger
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Gets the most recent transactions for a user.'\
-                            ' Response will include an array of transactions that are still in progress,'\
-                            ' or that were just updated to COMPLETED during the course of this request.'\
-                            ' The array will be empty if no transactions are pending or updated.'\
-                            ' Only the most recent transaction for each profile field will be included'\
+          key :description, 'Gets the most recent transactions for a user.' \
+                            ' Response will include an array of transactions that are still in progress,' \
+                            ' or that were just updated to COMPLETED during the course of this request.' \
+                            ' The array will be empty if no transactions are pending or updated.' \
+                            ' Only the most recent transaction for each profile field will be included' \
                             ' so there may be up to 4 (Address, Email, Telephone, Permission).'
           key :operationId, 'getTransactionStatusesByUser'
           key :tags, %w[profile]

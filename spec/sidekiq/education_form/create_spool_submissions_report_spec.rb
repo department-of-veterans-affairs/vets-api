@@ -38,7 +38,7 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
 
       it 'checks for stem submissions' do
         data = subject.create_csv_array
-        expect(data[:stem_exists]).to eq(false)
+        expect(data[:stem_exists]).to be(false)
       end
     end
 

@@ -38,19 +38,4 @@ RSpec.describe VA1010Forms::Utils do
       end
     end
   end
-
-  describe '#override_parsed_form' do
-    context 'when the form contains a Mexican province as an address state' do
-      subject do
-        super().override_parsed_form(form_with_mexican_province)
-      end
-
-      let(:form_with_mexican_province) { get_fixture('form1010_ezr/valid_form_with_mexican_province') }
-
-      it 'returns the correct corresponding province abbreviation' do
-        expect(subject['veteranAddress']['state']).to eq('CHIH.')
-        expect(subject['veteranHomeAddress']['state']).to eq('CHIH.')
-      end
-    end
-  end
 end

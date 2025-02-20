@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'mpi/responses/profile_parser'
 
 describe MPI::Responses::ProfileParser do
-  let(:faraday_response) { instance_double('Faraday::Env') }
+  let(:faraday_response) { instance_double(Faraday::Env) }
   let(:parser) { MPI::Responses::ProfileParser.new(faraday_response) }
   let(:ack_detail_code) { 'AE' }
   let(:error_details) do

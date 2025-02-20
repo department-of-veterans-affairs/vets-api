@@ -30,6 +30,7 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::VBSSubmissionJob, type: :worker do
 
       before do
         allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission)
+        allow(Flipper).to receive(:enabled?).and_return(false)
       end
 
       it 'increments the retries exhausted counter and logs error information' do

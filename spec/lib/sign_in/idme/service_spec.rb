@@ -391,7 +391,7 @@ describe SignIn::Idme::Service do
         let(:street) { nil }
 
         it 'does not return an address object' do
-          expect(subject.normalized_attributes(user_info, credential_level)[:address]).to eq(nil)
+          expect(subject.normalized_attributes(user_info, credential_level)[:address]).to be_nil
         end
       end
     end

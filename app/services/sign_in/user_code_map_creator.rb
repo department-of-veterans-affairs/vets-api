@@ -66,15 +66,6 @@ module SignIn
       state_payload.scope == Constants::Auth::DEVICE_SSO
     end
 
-    def user_verifier_object
-      @user_verifier_object ||= OpenStruct.new({ idme_uuid:,
-                                                 logingov_uuid:,
-                                                 sign_in:,
-                                                 edipi:,
-                                                 mhv_credential_uuid:,
-                                                 icn: verified_icn })
-    end
-
     def user_code_map
       @user_code_map ||= UserCodeMap.new(login_code:,
                                          type: state_payload.type,
@@ -84,7 +75,13 @@ module SignIn
     end
 
     def user_verification
-      @user_verification ||= Login::UserVerifier.new(user_verifier_object).perform
+      @user_verification ||= Login::UserVerifier.new(login_type: sign_in[:service_name],
+                                                     auth_broker: sign_in[:auth_broker],
+                                                     mhv_uuid: mhv_credential_uuid,
+                                                     idme_uuid:,
+                                                     dslogon_uuid: edipi,
+                                                     logingov_uuid:,
+                                                     icn: verified_icn).perform
     end
 
     def user_account

@@ -5,7 +5,7 @@ class DecisionReviewEvidenceAttachmentUploader < CarrierWave::Uploader::Base
   include SetAWSConfig
 
   def size_range
-    1.byte...100_000_000.bytes
+    (1.byte)...(100_000_000.bytes)
   end
 
   def extension_allowlist

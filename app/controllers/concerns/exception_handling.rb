@@ -3,7 +3,7 @@
 require 'common/exceptions'
 require 'common/client/errors'
 require 'json_schema/json_api_missing_attribute'
-require 'ddtrace'
+require 'datadog'
 
 module ExceptionHandling
   extend ActiveSupport::Concern

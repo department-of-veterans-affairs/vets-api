@@ -447,7 +447,7 @@ RSpec.describe Form1010cg::Service do
     it "does not raise error if veteran's icn is found" do
       expect(subject).to receive(:icn_for).with('veteran').and_return(:ICN_123)
 
-      expect(subject.assert_veteran_status).to eq(nil)
+      expect(subject.assert_veteran_status).to be_nil
     end
   end
 

@@ -39,7 +39,7 @@ describe HealthQuest::Resource::ClientModel::Patient do
   describe 'object initialization' do
     it 'has attributes' do
       %i[model identifier meta user].each do |attribute|
-        expect(subject.manufacture(data, user).respond_to?(attribute)).to eq(true)
+        expect(subject.manufacture(data, user).respond_to?(attribute)).to be(true)
       end
     end
 

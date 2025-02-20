@@ -129,7 +129,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
     end
 
-    context 'with an client error' do
+    context 'with a client error' do
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Common::Client::Errors::ClientError)
       end

@@ -77,8 +77,7 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
     it 'logs the error' do
       VCR.use_cassette('uploads/validate_document') do
         expect(Rails.logger).to receive(:info).with('Creating PersistentAttachment FormID=21P-527EZ',
-                                                    hash_including(user_account_uuid: nil,
-                                                                   statsd: 'api.claim_documents.attempt'))
+                                                    hash_including(statsd: 'api.claim_documents.attempt'))
         expect(Rails.logger).not_to receive(:info).with(
           /^Success creating PersistentAttachment FormID=21P-527EZ AttachmentID=\d+/
         )

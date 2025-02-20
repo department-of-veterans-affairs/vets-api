@@ -27,7 +27,7 @@ RSpec.describe BGSDependents::Child do
       'not_self_sufficient' => false
     }
   end
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
 
   let(:address_result) do
     {

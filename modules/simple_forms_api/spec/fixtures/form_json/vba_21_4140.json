@@ -1,6 +1,6 @@
 {
    "veteran_id": {
-      "ssn": "547901234",
+      "ssn": "547-90-1234",
       "va_file_number": "12345678"
    },
    "service_number": "A12345678",
@@ -17,10 +17,9 @@
       "postal_code": "90210"
    },
    "full_name": {
-      "first": "Example",
+      "first": "Rumpelstiltskin",
       "middle": "Test",
-      "last": "Surnam/",
-      "suffix": "Jr."
+      "last": "Mephistopheles-Reinhardt"
    },
    "date_of_birth": "1979-02-27",
    "employers": [
@@ -59,7 +58,26 @@
             "state": "CA",
             "postal_code": "90210"
          }
-      }
+      },
+      {
+         "type_of_work": "Sub-contractor",
+         "hours_per_week": "60",
+         "lost_time": "56",
+         "highest_income": "600",
+         "date_range": {
+            "from": "2022-10-11",
+            "to": "2024-04-07"
+         },
+         "name": "Example Construction Company",
+         "address": {
+            "country": "CAN",
+            "street": "4321 Example Ave",
+            "city": "Test City",
+            "state": "NS",
+            "postal_code": "M4B 1G5"
+         }
+      },
+      {}
    ],
    "statement_of_truth_signature": "Example Test User",
    "statement_of_truth_certified": true,

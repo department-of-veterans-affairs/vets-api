@@ -156,18 +156,12 @@ module RepresentationManagement
             # Record Consent
             "#{PAGE2_KEY}.I_Authorize[1]": data.record_consent == true ? 1 : 0,
             # Item 20
-            # The values of these four checkboxes are unintuitive.  Our online form experience asks the user to select
-            # what details to share with the representative but the actual 21-22 form asks the user to select what
-            # details to withhold from the representative.  So we need to invert the values.
-            # See https://github.com/department-of-veterans-affairs/va.gov-team/issues/98295
-            "#{PAGE2_KEY}.Drug_Abuse[0]": \
-            data.consent_limits.present? && data.consent_limits.include?('DRUG_ABUSE') ? 0 : 1,
+            "#{PAGE2_KEY}.Drug_Abuse[0]": data.limitations_of_consent_checkbox('DRUG_ABUSE'),
             "#{PAGE2_KEY}.Alcoholism_Or_Alcohol_Abuse[0]": \
-            data.consent_limits.present? && data.consent_limits.include?('ALCOHOLISM') ? 0 : 1,
+            data.limitations_of_consent_checkbox('ALCOHOLISM'),
             "#{PAGE2_KEY}.Infection_With_The_Human_Immunodeficiency_Virus_HIV[0]": \
-            data.consent_limits.present? && data.consent_limits.include?('HIV') ? 0 : 1,
-            "#{PAGE2_KEY}.sicklecellanemia[0]": \
-            data.consent_limits.present? && data.consent_limits.include?('SICKLE_CELL') ? 0 : 1,
+            data.limitations_of_consent_checkbox('HIV'),
+            "#{PAGE2_KEY}.sicklecellanemia[0]": data.limitations_of_consent_checkbox('SICKLE_CELL'),
             # Consent Address Change
             "#{PAGE2_KEY}.I_Authorize[0]": data.consent_address_change == true ? 1 : 0
           }

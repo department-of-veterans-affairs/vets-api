@@ -19,7 +19,7 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
   describe 'configuration' do
     it 'uses an AWS store' do
       expect(described_class.storage).to eq(CarrierWave::Storage::AWS)
-      expect(subject._storage?).to eq(true)
+      expect(subject._storage?).to be(true)
       expect(subject._storage).to eq(CarrierWave::Storage::AWS)
     end
 
@@ -37,7 +37,7 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
 
   describe '#size_range' do
     it 'sets the store_dir to the initialized argument' do
-      expect(subject.size_range).to eq(1.byte...10.megabytes)
+      expect(subject.size_range).to eq((1.byte)...(10.megabytes))
     end
   end
 
@@ -95,7 +95,7 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
       let(:source_file) { Rack::Test::UploadedFile.new('spec/fixtures/files/doctors-note.jpg', 'image/jpg') }
 
       before do
-        expect(subject).to receive(:size_range).and_return(1.byte...3.bytes) # rubocop:disable RSpec/SubjectStub
+        expect(subject).to receive(:size_range).and_return((1.byte)...(3.bytes)) # rubocop:disable RSpec/SubjectStub
       end
 
       it 'raises an error' do
@@ -123,8 +123,8 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
 
       it 'stores file in aws' do
         VCR.use_cassette("s3/object/put/#{form_attachment_guid}/doctors-note.jpg", vcr_options) do
-          expect(subject.filename).to eq(nil)
-          expect(subject.file).to eq(nil)
+          expect(subject.filename).to be_nil
+          expect(subject.file).to be_nil
           expect(subject.versions).to eq({})
 
           subject.store!(source_file)

@@ -49,7 +49,7 @@ Models
 
 Each of these categories includes tests
 
-### Phase 1: Duplicate Background Jobs and Primary Utilities
+### COMPLETE - Phase 1: Duplicate Background Jobs and Primary Utilities
 
 Create copies of all our background jobs inside the engine, including tests. Create copies of any primary utilities in the engine, but allow them to reference secondary utilities that stay in the main application. Any model references should point to original models in the main application. Mount the engine in the main application (it should not do anything).
 
@@ -61,7 +61,7 @@ Mitigation:
 
 - Code freeze, except for urgent bugs: Background jobs and Utilities
 
-### Phase 2: Transition to Engine Scheduled Background Jobs
+### COMPLETE - Phase 2: Transition to Engine Scheduled Background Jobs
 
 Update the schedule file to ALSO reference the engine version of each job. All these jobs are idempotent (can be run multiple times with no overlapping effects) so this should be safe. Exclude any jobs that are not scheduled (form4142_submit and submit_upload), they are not safe to run multiple times.
 
@@ -75,7 +75,7 @@ Mitigation:
 - Code freeze, except for urgent bugs: Background jobs and Utilities
 - The old jobs will still be running, so no functionality will be lost if the new jobs run into errors
 
-### Phase 3: Delete Old Background Jobs
+### COMPLETE Phase 3: Delete Old Background Jobs
 
 Remove the old job classes from the schedule file. Add logging to those old classes so we know right away if anyone else is calling them somehow. After 2 weeks with no calls to the old job code, delete it.
 
@@ -87,7 +87,7 @@ Mitigation:
 
 - Code freeze, except for urgent bugs: Background jobs and Utilities
 
-### Phase 4: Duplicate Controllers and Necessary Utilities
+### COMPLETE - Phase 4: Duplicate Controllers and Necessary Utilities
 
 Duplicate all controllers, tests, and any primary utilities they reference. Allow them to reference secondary utilities that stay in the main application. Any model references should point to original models in the main application. Add routes to the engine that preserve the original routes but namespace them to the engine.
 
@@ -103,7 +103,7 @@ Mitigation:
 - Code freeze, except for urgent bugs: Controllers, routes, and Utilities
 - Not a significant concern.
 
-### Phase 5: Transition to Engine Controllers
+### COMPLETE Phase 5: Transition to Engine Controllers
 
 Toggle the routes on the frontend to point to the engine routes/controllers. Leave the old routes and controllers in place, but add logging so we are alerted if anyone else is calling them. Keep an eye on traffic and form creation numbers to make sure behavior seems consistent.
 
@@ -117,11 +117,11 @@ Mitigation:
 - Code freeze, except for urgent bugs: Controllers, routes, and Utilities
 - Logging and alerts
 
-### Phase 6: Delete Old Controllers and Utilities
+### COMPLETE Phase 6: Delete Old Controllers and Utilities
 
 Delete old routes, controllers, and any primary utilities in the main app that are no longer used. At this point the change should be invisible to the system.
 
-### Phase 7: Migrate Existing Secondary Utilities to Engine
+### IN PROGRESS Phase 7: Migrate Existing Secondary Utilities to Engine
 
 Any secondary utilities that belong to the DR team and are not being referenced by any DR code in the main app should be migrated to the engine. Go slow, search for references, run all the tests, announce it in shared channels.
 
@@ -136,7 +136,9 @@ Mitigation:
 
 - Automated testing, manual testing in Staging
 
-### Phase 8: Migrate Models to Engine
+### FUTURE WORK Phase 8: Migrate Models to Engine
+
+Update 2/25: Current team assessment is that this work would be more effort than warranted for the current benefit. If we move to a separate repo at some point we will revisit this work.
 
 Models are more complex to move, because models have representations in the database, and the expected name of a model table in the database changes when the model is moved to an engine, even though the engine and main app share the same database. I think we can migrate our models, possibly without changes to the database, but it will require more customization of the engine than we have done to this point.
 
@@ -146,7 +148,7 @@ If this is successful, repeat the process for all our models
 
 We don’t have a working proof of concept for this step (which we do for all the other steps) so risks and mitigations need more investigation.
 
-### Phase 9 (tentative): Remove Dependencies on Shared Code
+### IN PROGRESS Phase 9 (tentative): Remove Dependencies on Shared Code
 
 Some decision review code does rely on other classes written and maintained by the platform team in the main app. How much of this truly needs to be shared? This is a longer conversation the team can have once we see how far we can get by isolating our own code. Other teams (Pensions) have for now made the choice to rely on the shared SavedClaim model, for example, instead of trying to create their own version. Some amount of shared behavior is probably healthy given this is a single application that should behave consistently. How much?
 

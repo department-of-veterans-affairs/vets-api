@@ -237,7 +237,7 @@ describe ClaimsApi::BD do
                                                      pdf_path:, action: 'post', pctpnt_vet_id: '123456789')
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['fileNumber']).not_to be_truthy
-        expect(js['data']['fileNumber']).to eq(nil)
+        expect(js['data']['fileNumber']).to be_nil
       end
     end
 
@@ -272,16 +272,22 @@ describe ClaimsApi::BD do
       let(:file_number) { '796378782' }
 
       before do
-        allow(Rails).to receive(:logger).and_return(double('Logger', info: true))
+        allow(ClaimsApi::Logger).to receive(:log)
         allow(Faraday).to receive(:new).and_return(client)
         allow(client).to receive(:post).and_return(response)
       end
 
-      it 'logs the error and returns an empty hash' do
+      it 'returns an empty hash' do
         result = subject.search(claim_id, file_number)
-        expect(Rails.logger).to have_received(:info)
-          .with(%r{benefits_documents :: {"detail":"/search failure for claimId #{claim_id}, Gateway timeout"}})
+
         expect(result).to eq({})
+      end
+
+      it 'logs the Gateway timeout' do
+        subject.search(claim_id, file_number)
+
+        expect(ClaimsApi::Logger).to have_received(:log)
+          .with('benefits_documents', { detail: "/search failure for claimId #{claim_id}, Gateway timeout" })
       end
     end
   end

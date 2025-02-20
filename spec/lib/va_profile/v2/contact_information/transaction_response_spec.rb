@@ -132,7 +132,7 @@ describe VAProfile::V2::ContactInformation::TransactionResponse do
           end
 
           it 'returns nil' do
-            expect(subject.new_email).to eq(nil)
+            expect(subject.new_email).to be_nil
           end
         end
       end

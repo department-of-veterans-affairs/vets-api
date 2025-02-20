@@ -5,16 +5,18 @@ require 'rails_helper'
 describe TravelPay::ClaimsClient do
   let(:user) { build(:user) }
 
+  expected_log_prefix = 'travel_pay.claims.response_time'
+
   before do
     @stubs = Faraday::Adapter::Test::Stubs.new
 
-    conn = Faraday.new do |c|
+    @conn = Faraday.new do |c|
       c.adapter(:test, @stubs)
       c.response :json
       c.request :json
     end
 
-    allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(conn)
+    allow(StatsD).to receive(:measure)
   end
 
   context 'prod settings' do
@@ -38,7 +40,8 @@ describe TravelPay::ClaimsClient do
   context '/claims' do
     # GET
     it 'returns response from claims endpoint' do
-      @stubs.get('/api/v1/claims') do
+      allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
+      @stubs.get('/api/v1.2/claims') do
         [
           200,
           {},
@@ -82,11 +85,16 @@ describe TravelPay::ClaimsClient do
       claims_response = client.get_claims('veis_token', 'btsss_token')
       actual_claim_ids = claims_response.body['data'].pluck('id')
 
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:get_all'])
       expect(actual_claim_ids).to eq(expected_ids)
     end
 
     it 'returns response from claims/search endpoint' do
-      @stubs.get('api/v1.1/claims/search-by-appointment-date') do
+      allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
+      @stubs.get('api/v1.2/claims/search-by-appointment-date') do
         [
           200,
           {},
@@ -123,15 +131,20 @@ describe TravelPay::ClaimsClient do
                                                     'end_date' => '2024-02-01T16:45:34.465Z' })
       actual_ids = claims_response.body['data'].pluck('id')
 
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:get_by_date'])
       expect(actual_ids).to eq(expected)
     end
 
-    # POST create_claim
+    # PATCH submit_claim
     it 'returns a claim ID from the claims endpoint' do
+      allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
       claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
       body = { 'appointmentId' => 'fake_btsss_appt_id', 'claimName' => 'SMOC claim',
                'claimantType' => 'Veteran' }.to_json
-      @stubs.post('api/v1.1/claims') do
+      @stubs.post('api/v1.2/claims') do
         [
           200,
           {},
@@ -148,7 +161,25 @@ describe TravelPay::ClaimsClient do
       new_claim_response = client.create_claim('veis_token', 'btsss_token', body)
       actual_claim_id = new_claim_response.body['data']['claimId']
 
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:create'])
       expect(actual_claim_id).to eq(claim_id)
+    end
+
+    # PATCH submit_claim
+    it 'returns a claim ID from the claims endpoint after submitting a claim' do
+      claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+
+      expect_any_instance_of(Faraday::Connection).to receive(:patch).with("api/v1.2/claims/#{claim_id}/submit")
+
+      client = TravelPay::ClaimsClient.new
+      client.submit_claim('veis_token', 'btsss_token', claim_id)
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:submit'])
     end
   end
 end

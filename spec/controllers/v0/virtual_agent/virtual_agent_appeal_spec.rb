@@ -15,7 +15,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           get '/v0/virtual_agent/appeal'
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(JSON.parse(response.body)['data'].size).to equal(1)
           expect(res_body[0]).to include({
                                            'appeal_type' => 'Compensation',
@@ -37,7 +37,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           get '/v0/virtual_agent/appeal'
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(JSON.parse(response.body)['data'].size).to equal(1)
           expect(res_body[0]).to include({
                                            'appeal_type' => 'Compensation',
@@ -58,7 +58,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           get '/v0/virtual_agent/appeal'
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.size).to equal(0)
         end
       end
@@ -69,7 +69,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           get '/v0/virtual_agent/appeal'
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.size).to equal(1)
           expect(res_body[0]).to include({
                                            'appeal_type' => 'Compensation',
@@ -90,7 +90,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
 
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.size).to equal(0)
         end
       end
@@ -102,7 +102,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           get '/v0/virtual_agent/appeal'
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.size).to equal(0)
         end
       end
@@ -114,7 +114,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           get '/v0/virtual_agent/appeal'
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.size).to equal(1)
           expect(res_body[0]).to include(
             {
@@ -130,14 +130,14 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
       end
 
       describe 'get appeal or review based on appeal type' do
-        it 'returns appeal when appeal type is legacyAppeal ' do
+        it 'returns appeal when appeal type is legacyAppeal' do
           sign_in_as(user)
           # run job
           VCR.use_cassette('caseflow/virtual_agent_appeals/recent_open_compensation_appeal') do
             get '/v0/virtual_agent/appeal'
             res_body = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
-            expect(res_body).to be_kind_of(Array)
+            expect(res_body).to be_a(Array)
             expect(JSON.parse(response.body)['data'].size).to equal(1)
             expect(res_body[0]).to include({
                                              'appeal_type' => 'Compensation',
@@ -150,14 +150,14 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           end
         end
 
-        it 'returns appeal when appeal type is appeal ' do
+        it 'returns appeal when appeal type is appeal' do
           sign_in_as(user)
           # run job
           VCR.use_cassette('caseflow/virtual_agent_appeals/appeal_type_is_appeal') do
             get '/v0/virtual_agent/appeal'
             res_body = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
-            expect(res_body).to be_kind_of(Array)
+            expect(res_body).to be_a(Array)
             expect(JSON.parse(response.body)['data'].size).to equal(1)
             expect(res_body[0]).to include({
                                              'appeal_type' => 'Compensation',
@@ -170,14 +170,14 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           end
         end
 
-        it 'returns review when appeal type is higherLevelReview ' do
+        it 'returns review when appeal type is higherLevelReview' do
           sign_in_as(user)
           # run job
           VCR.use_cassette('caseflow/virtual_agent_appeals/appeal_type_is_higher_level_review') do
             get '/v0/virtual_agent/appeal'
             res_body = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
-            expect(res_body).to be_kind_of(Array)
+            expect(res_body).to be_a(Array)
             expect(JSON.parse(response.body)['data'].size).to equal(1)
             expect(res_body[0]).to include({
                                              'appeal_type' => 'Compensation',
@@ -190,14 +190,14 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           end
         end
 
-        it 'returns review when appeal type is supplementalClaim ' do
+        it 'returns review when appeal type is supplementalClaim' do
           sign_in_as(user)
           # run job
           VCR.use_cassette('caseflow/virtual_agent_appeals/appeal_type_is_supplemental_claim') do
             get '/v0/virtual_agent/appeal'
             res_body = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
-            expect(res_body).to be_kind_of(Array)
+            expect(res_body).to be_a(Array)
             expect(JSON.parse(response.body)['data'].size).to equal(1)
             expect(res_body[0]).to include({
                                              'appeal_type' => 'Compensation',
@@ -211,14 +211,14 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
         end
 
         describe 'returns multiple appeals as an array' do
-          it 'only returns active comp appeals ' do
+          it 'only returns active comp appeals' do
             sign_in_as(user)
             # run job
             VCR.use_cassette('caseflow/virtual_agent_appeals/three_appeals_two_open_comp') do
               get '/v0/virtual_agent/appeal'
               res_body = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
-              expect(res_body).to be_kind_of(Array)
+              expect(res_body).to be_a(Array)
               expect(res_body.length).to equal(2)
               expect(res_body).to eq([{
                                        'appeal_type' => 'Compensation',
@@ -245,7 +245,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
               get '/v0/virtual_agent/appeal'
               res_body = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
-              expect(res_body).to be_kind_of(Array)
+              expect(res_body).to be_a(Array)
               expect(res_body.length).to equal(5)
               expect(res_body).to eq([{
                                        'appeal_type' => 'Compensation',
@@ -306,7 +306,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           end
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.length).to equal(1)
           expect(res_body).to eq([{
                                    'appeal_type' => 'Compensation',
@@ -330,7 +330,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           end
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.length).to equal(1)
           expect(res_body).to eq([{
                                    'appeal_type' => 'Compensation',
@@ -356,7 +356,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           end
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.length).to equal(0)
           expect(res_body).to eq([])
         end
@@ -374,7 +374,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           end
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.length).to equal(3)
           expect(res_body).to eq([{
                                    'appeal_type' => 'Compensation',
@@ -416,7 +416,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           end
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.length).to equal(0)
           expect(res_body).to eq([])
         end

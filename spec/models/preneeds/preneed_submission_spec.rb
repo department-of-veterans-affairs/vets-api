@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Preneeds::PreneedSubmission, type: :model do
-  subject { build :preneed_submission }
+  subject { build(:preneed_submission) }
 
   describe 'when validating' do
     it 'has a valid factory' do

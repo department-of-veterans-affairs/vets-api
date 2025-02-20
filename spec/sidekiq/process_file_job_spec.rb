@@ -40,10 +40,10 @@ RSpec.describe ProcessFileJob do
       ProcessFileJob.new.perform(test_class_string, test_uploader.store_dir, test_uploader.filename)
 
       test_uploader.retrieve_from_store!('filename2')
-      expect(test_uploader.file.exists?).to eq(true)
+      expect(test_uploader.file.exists?).to be(true)
       # test old file deleted
       test_uploader.retrieve_from_store!('filename')
-      expect(test_uploader.file.exists?).to eq(false)
+      expect(test_uploader.file.exists?).to be(false)
     end
   end
 end

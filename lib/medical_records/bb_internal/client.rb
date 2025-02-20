@@ -145,7 +145,8 @@ module BBInternal
     # @return JSON [{ dateGenerated, status, patientId }]
     #
     def get_generate_ccd(icn, last_name)
-      response = perform(:get, "bluebutton/healthsummary/#{icn}/#{last_name}/xml", nil, token_headers)
+      escaped_last_name = URI::DEFAULT_PARSER.escape(last_name)
+      response = perform(:get, "bluebutton/healthsummary/#{icn}/#{escaped_last_name}/xml", nil, token_headers)
       response.body
     end
 
@@ -322,27 +323,22 @@ module BBInternal
     end
 
     ##
-    # Overriding MHVSessionBasedClient's method to ensure the thread blocks if patient ID is not yet set.
+    # Overriding MHVSessionBasedClient's method to ensure the thread blocks if ICN or patient ID are not yet set.
     #
     def invalid?(session)
-      super(session) || session.patient_id.blank?
+      super(session) || session.icn.blank? || session.patient_id.blank?
     end
 
     ##
     # Overriding MHVSessionBasedClient's method so we can get the patientId and store it as well.
     #
     def get_session
-      # Pull ICN out of the session var before it is overwritten in the super's save
-      icn = session.icn
+      # Call the superclass method to update or create the session
+      super
 
-      # Call MHVSessionBasedClient.get_session
-      @session = super
-
-      # Supplement session with patientId
-      patient = get_patient
-      session.patient_id = patient['ipas']&.first&.dig('patientId')
-      # Put ICN back into the session
-      session.icn = icn
+      # Add or update patientId in the session
+      patient_id = get_patient.dig('ipas', 0, 'patientId')
+      session.patient_id = patient_id if patient_id
 
       session.save
       session

@@ -102,7 +102,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
       end
 
       context 'with a user with id theft flag set' do
-        before { FactoryBot.create(:iam_user, :id_theft_flag) }
+        before { create(:iam_user, :id_theft_flag) }
 
         it 'returns unauthorized' do
           VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
@@ -169,10 +169,14 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
         let(:access_token) { create(:access_token, audience: ['vamobile']) }
         let(:bearer_token) { SignIn::AccessTokenJwtEncoder.new(access_token:).perform }
         let!(:user) { create(:user, :loa3, uuid: access_token.user_uuid) }
+        let(:deceased_date) { nil }
+        let(:id_theft_flag) { false }
+        let(:mpi_profile) { build(:mpi_profile, deceased_date:, id_theft_flag:) }
 
         before do
           request.headers['Authorization'] = "Bearer #{bearer_token}"
           request.headers['Authentication-Method'] = 'SIS'
+          allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile)
         end
 
         it 'uses SIS session authentication' do
@@ -192,6 +196,34 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
             get :index
 
             expect(response).to have_http_status(:unauthorized)
+          end
+        end
+
+        context 'when validating the user\'s MPI profile' do
+          context 'and the MPI profile has a deceased date' do
+            let(:deceased_date) { '20020202' }
+            let(:expected_error) { 'Death Flag Detected' }
+
+            it 'raises an MPI locked account error' do
+              get :index
+
+              expect(response).to have_http_status(:internal_server_error)
+              error_body = JSON.parse(response.body)['errors'].first
+              expect(error_body['meta']['exception']).to eq(expected_error)
+            end
+          end
+
+          context 'and the MPI profile has an id theft flag' do
+            let(:id_theft_flag) { true }
+            let(:expected_error) { 'Theft Flag Detected' }
+
+            it 'raises an MPI locked account error' do
+              get :index
+
+              expect(response).to have_http_status(:internal_server_error)
+              error_body = JSON.parse(response.body)['errors'].first
+              expect(error_body['meta']['exception']).to eq(expected_error)
+            end
           end
         end
       end

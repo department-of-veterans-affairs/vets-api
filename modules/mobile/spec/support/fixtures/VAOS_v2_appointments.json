@@ -305,7 +305,7 @@
       "code": null
     },
     "kind": "clinic",
-    "type": "VA",
+    "type": "REQUEST",
     "status": "proposed",
     "service_type": "socialWork",
     "patient_icn": "1012845331V153043",

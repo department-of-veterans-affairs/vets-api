@@ -8,7 +8,7 @@ FactoryBot.define do
     after(:build) do |supporting_document|
       supporting_document.set_file_data!(
         Rack::Test::UploadedFile.new(
-          ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
+          Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
         ),
         'docType',
         'description'

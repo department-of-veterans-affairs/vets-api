@@ -48,10 +48,18 @@ FactoryBot.define do
       zip_code { '11249' }
     end
 
+    trait :incorrect_address_pou do
+      address_line1 { '37 1st st' }
+      city { 'Brooklyn' }
+      state_code { 'NY' }
+      zip_code { '11249' }
+      address_pou { 'RESIDENCE/CHOICE' }
+    end
+
     trait :override do
-      address_pou { VAProfile::Models::V3::Address::CORRESPONDENCE }
+      address_pou { VAProfile::Models::V3::Address::RESIDENCE }
       address_line1 { '1494 Martin Luther King Rd' }
-      address_line2 { 'null' }
+      address_line2 { nil }
       city { 'Fulton' }
       state_code { 'MS' }
       zip_code { '38843' }
@@ -60,6 +68,18 @@ FactoryBot.define do
       source_system_user { '123498767V234859' }
       source_date { '2024-09-16T16:09:37.000Z' }
       effective_start_date { '2024-09-16T16:09:37.000Z' }
+    end
+
+    trait :mobile do
+      address_pou { VAProfile::Models::V3::Address::RESIDENCE }
+      address_line1 { '1493 Martin Luther King Rd' }
+      city { 'Fulton' }
+      country_name { 'USA' }
+      state_code { 'MS' }
+      zip_code { '38843' }
+      effective_start_date { '2024-08-27T18:51:06.00Z' }
+      source_system_user { '123498767V234859' }
+      source_date { '2024-08-27T18:51:06.000Z' }
     end
 
     trait :id_error do

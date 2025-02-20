@@ -24,7 +24,7 @@ RUN groupadd --gid $USER_ID nonroot \
 WORKDIR /app
 
 RUN apt-get update --fix-missing
-RUN apt-get install -y poppler-utils build-essential libpq-dev git curl wget ca-certificates-java file \
+RUN apt-get install -y poppler-utils build-essential libpq-dev libffi-dev libyaml-dev git curl wget ca-certificates-java file \
   imagemagick pdftk tesseract-ocr \
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -63,6 +63,12 @@ RUN bundle install \
   && find /usr/local/bundle/gems/ -name "*.o" -delete \
   && find /usr/local/bundle/gems/ -name ".git" -type d -prune -execdir rm -rf {} +
 COPY --chown=nonroot:nonroot . .
+
+# Make the ImageMagick script executable
+RUN chmod +x bin/merge_imagemagick_policy
+
+# Execute the merge policy script for ImageMagick
+RUN ruby -rbundler/setup bin/merge_imagemagick_policy
 
 EXPOSE 3000
 

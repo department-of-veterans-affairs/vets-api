@@ -43,7 +43,7 @@ module Common
       end
 
       def va900_hint
-        <<-MESSAGE.strip_heredoc
+        <<~MESSAGE
           Add the following to exceptions.en.yml
           #{response_values[:code]}:
             code: '#{response_values[:code]}'

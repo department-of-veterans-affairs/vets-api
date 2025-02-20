@@ -13,7 +13,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
 
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
@@ -74,7 +74,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
         service.perform(claim.id)
 
         claim.reload
-        expect(claim.uploader.blank?).to eq(false)
+        expect(claim.uploader.blank?).to be(false)
       end
     end
 
@@ -85,7 +85,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
         service.perform(claim.id)
 
         claim.reload
-        expect(claim.uploader.blank?).to eq(false)
+        expect(claim.uploader.blank?).to be(false)
       end
     end
   end
@@ -107,7 +107,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     it 'returns the file body correctly' do
       subject.perform_async(claim.id)
 
-      expect(service.send(:get_file_body, claim).blank?).to eq(false)
+      expect(service.send(:get_file_body, claim).blank?).to be(false)
       claim.reload
       expect(claim.uploader).to be_a(ClaimsApi::SupportingDocumentUploader)
     end

@@ -164,7 +164,7 @@ class SavedClaim::CoeClaim < SavedClaim
   def process_attachments!
     supporting_documents = parsed_form['files']
     if supporting_documents.present?
-      files = PersistentAttachment.where(guid: supporting_documents.map { |doc| doc['confirmationCode'] })
+      files = PersistentAttachment.where(guid: supporting_documents.pluck('confirmationCode'))
       files.find_each { |f| f.update(saved_claim_id: id) }
 
       prepare_document_data

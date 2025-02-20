@@ -241,6 +241,7 @@ module SAML
       redirect = previous&.payload_attr(:redirect) || params[:redirect]
       application = previous&.payload_attr(:application) || params[:application] || 'vaweb'
       post_login = previous&.payload_attr(:post_login) || params[:postLogin]
+      operation = previous&.payload_attr(:operation) || params[:operation] || 'authorize'
 
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
@@ -249,7 +250,8 @@ module SAML
                    transaction_id:,
                    redirect:,
                    application:,
-                   post_login: }.compact,
+                   post_login:,
+                   operation: }.compact,
 
         created_at: previous&.created_at
       )

@@ -35,7 +35,7 @@ module AppealsApi
     end
 
     def self.load_json_schema(filename)
-      MultiJson.load File.read Rails.root.join('modules', 'appeals_api', 'config', 'schemas', "#{filename}.json")
+      MultiJson.load Rails.root.join('modules', 'appeals_api', 'config', 'schemas', "#{filename}.json").read
     end
 
     def self.date_from_string(string)

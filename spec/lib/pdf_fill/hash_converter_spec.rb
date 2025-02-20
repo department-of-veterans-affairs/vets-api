@@ -5,7 +5,7 @@ require 'pdf_fill/hash_converter'
 
 describe PdfFill::HashConverter do
   let(:hash_converter) do
-    described_class.new('%m/%d/%Y')
+    described_class.new('test', '%m/%d/%Y')
   end
 
   describe '#set_value' do
@@ -234,7 +234,7 @@ describe PdfFill::HashConverter do
 
     it 'converts the hash correctly' do
       expect(
-        described_class.new('%m/%d/%Y').transform_data(
+        described_class.new('test', '%m/%d/%Y').transform_data(
           form_data:,
           pdftk_keys:
         )

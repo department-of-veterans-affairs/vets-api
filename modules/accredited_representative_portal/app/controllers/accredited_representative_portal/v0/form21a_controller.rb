@@ -5,6 +5,8 @@ module AccreditedRepresentativePortal
     # Form21aController handles the submission of Form 21a to the accreditation service.
     # It parses the request body, submits the form via AccreditationService, and processes the response.
     class Form21aController < ApplicationController
+      skip_after_action :verify_pundit_authorization
+
       class SchemaValidationError < StandardError
         attr_reader :errors
 

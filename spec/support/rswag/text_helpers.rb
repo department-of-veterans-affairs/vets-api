@@ -9,7 +9,7 @@ module Rswag
     private
 
     def project_environment
-      environment? ? "#{ENV['DOCUMENTATION_ENVIRONMENT']}/" : nil
+      environment? ? "#{ENV.fetch('DOCUMENTATION_ENVIRONMENT', nil)}/" : nil
     end
 
     def environment?

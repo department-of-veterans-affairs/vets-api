@@ -8,7 +8,7 @@ RSpec.describe Dependents::Monitor do
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
   let(:claim) { create(:dependency_claim) }
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
 
   let(:vet_info) do
     {

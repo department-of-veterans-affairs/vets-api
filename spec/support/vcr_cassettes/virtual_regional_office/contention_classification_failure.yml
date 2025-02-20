@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:8120/contention-classification/va-gov-claim-classifier
+    uri: <VRO_URL>/contention-classification/expanded-contention-classification
     body:
       encoding: UTF-8
       string: '{"claim_id":366,"form526_submission_id":366,"contentions":[{"contention_text":"Asthma,
@@ -17,7 +17,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       X-Api-Key:
-      - 9d3868d1-ec15-4889-8002-2bff1b50ba62
+      - <VRO_API_KEY>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:

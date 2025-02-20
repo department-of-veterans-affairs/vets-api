@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "required": ["errors"],
+  "properties": {
+    "errors": {
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "required": ["title", "detail", "status"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "enum": ["Resource not found"]
+          },
+          "detail": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["404"]
+          }
+        }
+      }
+    }
+  }
+}

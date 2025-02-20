@@ -16,6 +16,12 @@ module Pensions
       end
     end
 
+    initializer 'pensions.military_information' do |app|
+      app.config.to_prepare do
+        require_relative '../pensions/military_information'
+      end
+    end
+
     initializer 'pensions.pdf_fill.register_form' do |app|
       app.config.to_prepare do
         require 'pdf_fill/filler'

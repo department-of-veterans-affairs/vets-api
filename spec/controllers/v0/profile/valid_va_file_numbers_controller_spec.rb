@@ -12,9 +12,9 @@ RSpec.describe V0::Profile::ValidVAFileNumbersController, type: :controller do
           sign_in_as(user)
           get(:show)
 
-          expect(response.code).to eq('200')
           expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)['data']['attributes']['valid_va_file_number']).to eq(true)
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['data']['attributes']['valid_va_file_number']).to be(true)
         end
       end
     end
@@ -25,9 +25,9 @@ RSpec.describe V0::Profile::ValidVAFileNumbersController, type: :controller do
           allow_any_instance_of(User).to receive(:participant_id).and_return('11111111111')
           sign_in_as(user)
           get(:show)
-          expect(response.code).to eq('200')
           expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)['data']['attributes']['valid_va_file_number']).to eq(false)
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['data']['attributes']['valid_va_file_number']).to be(false)
         end
       end
     end

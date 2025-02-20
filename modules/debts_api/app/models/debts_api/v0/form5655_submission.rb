@@ -6,6 +6,7 @@ module DebtsApi
   class V0::Form5655Submission < ApplicationRecord
     class StaleUserError < StandardError; end
     STATS_KEY = 'api.fsr_submission'
+    SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID = Settings.vanotify.services.dmc.template_id.fsr_failed_email
     enum :state, { unassigned: 0, in_progress: 1, submitted: 2, failed: 3 }
 
     self.table_name = 'form5655_submissions'
@@ -87,8 +88,42 @@ module DebtsApi
       update(error_message: message)
       Rails.logger.error("Form5655Submission id: #{id} failed", message)
       StatsD.increment("#{STATS_KEY}.failure")
-      StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:register_failure])
+      alert_silent_error unless message.include?('SharepointRequest')
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
+      begin
+        send_failed_form_email
+      rescue => e
+        StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue.failure")
+        Rails.logger.error("Failed to send failed form email: #{e.message}")
+      end
+    end
+
+    def alert_silent_error
+      StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:register_failure])
+    end
+
+    def send_failed_form_email
+      if Flipper.enabled?(:debts_silent_failure_mailer)
+        StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
+        submission_email = ipf_form['personal_data']['email_address'].downcase
+
+        DebtManagementCenter::VANotifyEmailJob.perform_async(
+          submission_email,
+          SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
+          failure_email_personalization_info
+        )
+      end
+    end
+
+    def failure_email_personalization_info
+      name_info = ipf_form['personal_data']['veteran_full_name']
+      full_name = "#{name_info['first']} #{name_info['last']}"
+
+      {
+        'name' => full_name,
+        'time' => updated_at,
+        'date' => Time.zone.now.strftime('%m/%d/%Y')
+      }
     end
 
     def register_success

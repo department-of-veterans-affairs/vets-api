@@ -60,8 +60,8 @@ RSpec.describe 'V0::EVSSClaimsAsync', type: :request do
 
   describe '#show (single claim) is polled' do
     let!(:claim) do
-      FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255,
-                                     user_uuid: user.uuid)
+      create(:evss_claim, id: 1, evss_id: 600_117_255,
+                          user_uuid: user.uuid)
     end
 
     it 'returns claim from DB, kicks off job, returns updated claim when job is completed' do
@@ -106,8 +106,8 @@ RSpec.describe 'V0::EVSSClaimsAsync', type: :request do
 
     it 'user cannot access claim of another user' do
       sign_in_as(user)
-      FactoryBot.create(:evss_claim, id: 2, evss_id: 189_625,
-                                     user_uuid: 'xyz')
+      create(:evss_claim, id: 2, evss_id: 189_625,
+                          user_uuid: 'xyz')
       # check tagging of EVSSClaimsAsyncController.show RecordNotFound error
       allow(Sentry).to receive(:set_tags)
       expect(Sentry).to receive(:set_tags).with(team: 'benefits-memorial-1')

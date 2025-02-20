@@ -29,7 +29,7 @@ RSpec.describe V0::VeteranOnboardingsController, type: :controller do
     it 'updates the requested veteran_onboarding' do
       patch :update, params: { id: veteran_onboarding.to_param, veteran_onboarding: new_attributes }
       veteran_onboarding.reload
-      expect(veteran_onboarding.display_onboarding_flow).to eq(true)
+      expect(veteran_onboarding.display_onboarding_flow).to be(true)
     end
 
     it 'renders a successful response' do

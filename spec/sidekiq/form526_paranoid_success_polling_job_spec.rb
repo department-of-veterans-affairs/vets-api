@@ -130,7 +130,7 @@ RSpec.describe Form526ParanoidSuccessPollingJob, type: :job do
           paranoid_submission6.reload
 
           expect(paranoid_submission1.backup_submitted_claim_status).to eq 'paranoid_success'
-          expect(paranoid_submission2.backup_submitted_claim_status).to eq nil
+          expect(paranoid_submission2.backup_submitted_claim_status).to be_nil
           expect(paranoid_submission3.backup_submitted_claim_status).to eq 'rejected'
           expect(paranoid_submission4.backup_submitted_claim_status).to eq 'rejected'
           expect(paranoid_submission5.backup_submitted_claim_status).to eq 'rejected'

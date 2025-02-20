@@ -1,0 +1,52 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+    "exam": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "enriched_id": { 
+            "type": "string"
+          },
+          "name": { 
+            "type": "string"
+          },
+          "tests": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "object",
+              "properties" : {
+                "name": {
+                  "type": "string"
+                },
+                "fee": {
+                  "type": ["string", "null"]
+                },
+                "begin_date": {
+                  "type": ["string", "null"]
+                },
+                "end_date": {
+                  "type": ["string", "null"]
+                }
+              }
+            }
+          },
+          "institution": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "institution.json"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+  

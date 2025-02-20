@@ -69,11 +69,11 @@ describe Common::Base do
     end
 
     it 'identifies if values are changed?' do
-      expect(subject.changed?).to eq(false)
+      expect(subject.changed?).to be(false)
       expect(subject.changed).to eq([])
       expect(subject.changes).to eq({})
       subject.first_name = 'Jack'
-      expect(subject.changed?).to eq(true)
+      expect(subject.changed?).to be(true)
       expect(subject.changed).to eq([:first_name])
       expect(subject.changes).to eq(first_name: %w[Jill Jack])
     end

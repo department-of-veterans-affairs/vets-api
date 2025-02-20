@@ -32,7 +32,7 @@ RSpec.describe 'Mobile::V0::Appointments::CommunityCare::Eligibility', type: :re
 
         it 'returns true eligibility' do
           eligibility = response.parsed_body.dig('data', 'attributes', 'eligible')
-          expect(eligibility).to eq(true)
+          expect(eligibility).to be(true)
         end
 
         it 'returns expected schema' do
@@ -55,7 +55,7 @@ RSpec.describe 'Mobile::V0::Appointments::CommunityCare::Eligibility', type: :re
 
         it 'returns false eligibility' do
           eligibility = response.parsed_body.dig('data', 'attributes', 'eligible')
-          expect(eligibility).to eq(false)
+          expect(eligibility).to be(false)
         end
       end
     end

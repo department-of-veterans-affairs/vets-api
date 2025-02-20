@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'bgs/service'
 
 RSpec.describe BGS::Service do
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { create(:evss_user, :loa3) }
   let(:bgs_service) { BGS::Service.new(user_object) }
   let(:proc_id) { '3829671' }
   let(:participant_id) { '149456' }

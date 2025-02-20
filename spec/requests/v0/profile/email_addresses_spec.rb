@@ -282,7 +282,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
 
     describe 'POST /v0/profile/email_addresses/create_or_update v2' do
-      let(:email) { build(:email, :contact_info_v2, vet360_id: user.vet360_id) }
+      let(:email) { build(:email, :contact_info_v2) }
 
       it 'calls update_email' do
         expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:update_email).and_call_original
@@ -294,7 +294,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
 
     describe 'POST /v0/profile/email_addresses v2' do
-      let(:email) { build(:email, :contact_info_v2, vet360_id: user.vet360_id) }
+      let(:email) { build(:email, :contact_info_v2) }
 
       context 'with a 200 response' do
         it 'matches the email address schema', :aggregate_failures do
@@ -395,7 +395,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
 
     describe 'PUT /v0/profile/email_addresses v2' do
-      let(:email) { build(:email, :contact_info_v2, vet360_id: user.vet360_id) }
+      let(:email) { build(:email, :contact_info_v2) }
 
       context 'with a 200 response' do
         it 'matches the email address schema', :aggregate_failures do
@@ -462,9 +462,9 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
 
       context 'when effective_end_date is included' do
         let(:email) do
-          build(:email, :contact_info_v2, vet360_id: user.vet360_id,
-                                          email_address: 'person42@example.com',
-                                          effective_end_date: '2024-09-09T11:52:03.000-06:00')
+          build(:email, :contact_info_v2,
+                email_address: 'person42@example.com',
+                effective_end_date: '2024-09-09T11:52:03.000-06:00')
         end
         let(:id_in_cassette) { 42 }
 
@@ -477,7 +477,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
 
     describe 'DELETE /v0/profile/email_addresses v2', :skip_vet360 do
       let(:email) do
-        build(:email, vet360_id: user.vet360_id, email_address: 'person42@example.com')
+        build(:email, email_address: 'person42@example.com')
       end
 
       before do

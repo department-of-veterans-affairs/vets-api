@@ -35,7 +35,7 @@ RSpec.describe Form1010cg::Attachment, type: :model do
     end
 
     after do
-      File.delete(expected_local_file_path) if File.exist?(expected_local_file_path)
+      FileUtils.rm_f(expected_local_file_path)
     end
 
     it 'makes a local copy of the file' do
@@ -43,7 +43,7 @@ RSpec.describe Form1010cg::Attachment, type: :model do
         expect(subject.to_local_file).to eq(expected_local_file_path)
         expect(
           FileUtils.compare_file(expected_local_file_path, file_fixture_path)
-        ).to eq(true)
+        ).to be(true)
       end
     end
   end

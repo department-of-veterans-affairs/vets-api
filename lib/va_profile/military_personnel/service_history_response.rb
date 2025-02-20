@@ -42,7 +42,8 @@ module VAProfile
           'profile',
           'military_person',
           'military_service_history',
-          episode_type)
+          episode_type
+        )
 
         episodes&.map { |e| VAProfile::Models::ServiceHistory.build_from(e, episode_type) }
       end
@@ -52,7 +53,8 @@ module VAProfile
           'profile',
           'military_person',
           'military_service_history',
-          'uniformed_service_initial_entry_date')
+          'uniformed_service_initial_entry_date'
+        )
       end
 
       def self.get_release_from_active_duty_date(body)
@@ -60,11 +62,12 @@ module VAProfile
           'profile',
           'military_person',
           'military_service_history',
-          'release_from_active_duty_date')
+          'release_from_active_duty_date'
+        )
       end
 
       def self.sort_by_begin_date(service_episodes)
-        service_episodes.sort_by { |se| se.begin_date || Time.zone.today + 3650 }
+        service_episodes.sort_by { |se| se.begin_date || (Time.zone.today + 3650) }
       end
 
       def self.include_academy_attendance?(current_user)

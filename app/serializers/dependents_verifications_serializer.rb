@@ -22,7 +22,7 @@ class DependentsVerificationsSerializer
     diary_entries.any? do |diary_entry|
       diary_entry[:diary_lc_status_type] == 'PEND' &&
         diary_entry[:diary_reason_type] == '24' &&
-        diary_entry[:diary_due_date] < Time.zone.now + 7.years
+        diary_entry[:diary_due_date] < 7.years.from_now
     end
   end
 end

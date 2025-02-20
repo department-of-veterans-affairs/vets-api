@@ -1,0 +1,99 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "https://api.wellhive.com/care-navigation/v1/provider-services/Aq7wgAux"
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Referer:
+          - https://review-instance.va.gov
+        X-Vamf-Jwt:
+          - stubbed_token
+        X-Request-Id:
+          - ''
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - "Mon, 13 Dec 2021 23:28:26 GMT"
+        Content-Type:
+          - application/json
+        Content-Length:
+          - '653'
+        Server:
+          - openresty
+        X-Vamf-Version:
+          - 1.14.1
+        B3:
+          - "8c17e441da8d346f6934d442b0a0ac7c-e1581452019f7fc4-0"
+        Access-Control-Allow-Headers:
+          - x-vamf-jwt
+        X-Vamf-Build:
+          - 20a82ca
+        X-Vamf-Timestamp:
+          - "2021-11-26T16:29:10+0000"
+        Access-Control-Allow-Origin:
+          - "*"
+        Access-Control-Allow-Methods:
+          - GET,OPTIONS
+        Access-Control-Max-Age:
+          - '3600'
+        X-Envoy-Upstream-Service-Time:
+          - '424'
+        Strict-Transport-Security:
+          - max-age=63072000; includeSubDomains; preload
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "id": "test-provider-id",
+            "name": "Timothy Bob",
+            "isActive": true,
+            "individualProviders": [
+              {
+                "name": "Timothy Bob",
+                "npi": "test-npi"
+              }
+            ],
+            "providerOrganization": {
+              "name": "test-provider-org-name"
+            },
+            "location": {
+              "name": "Test Medical Complex",
+              "address": "207 Davishill Ln",
+              "latitude": 33.058736,
+              "longitude": -80.032819,
+              "timezone": "America/New_York"
+            },
+            "networkIds": [
+              "sandbox-network-test"
+            ],
+            "schedulingNotes": "New patients need to send their previous records to the office prior to their appt.",
+            "appointmentTypes": [
+              {
+                "id": "off",
+                "name": "Office Visit",
+                "isSelfSchedulable": true
+              }
+            ],
+            "specialties": [
+              {
+                "id": "test-id",
+                "name": "Urology"
+              }
+            ],
+            "visitMode": "phone"
+          }
+    recorded_at: "Mon, 13 Dec 2021 23:28:26 GMT"

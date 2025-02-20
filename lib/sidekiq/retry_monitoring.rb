@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sidekiq/retry_monitoring'
+
 module Sidekiq
   class RetryMonitoring
     def call(worker, params, _queue)

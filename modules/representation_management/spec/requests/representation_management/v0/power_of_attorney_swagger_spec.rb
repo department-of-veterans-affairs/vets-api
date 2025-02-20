@@ -25,7 +25,7 @@ RSpec.describe 'Power of Attorney API', openapi_spec: 'modules/representation_ma
         before do
           lh_response = {
             'data' => {
-              'type' => 'organization',
+              'type' => 'individual',
               'attributes' => {
                 'code' => 'abc'
               }

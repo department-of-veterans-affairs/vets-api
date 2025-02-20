@@ -88,7 +88,7 @@ describe TravelPay::ClaimsService do
         claim_id = SecureRandom.uuid
         actual_claim = @service.get_claim_by_id(claim_id)
 
-        expect(actual_claim).to eq(nil)
+        expect(actual_claim).to be_nil
       end
 
       it 'throws an ArgumentException if claim_id is invalid format' do
@@ -237,7 +237,7 @@ describe TravelPay::ClaimsService do
 
       expect(claims_by_date[:data].count).to equal(3)
       expect(claims_by_date[:metadata]['status']).to equal(200)
-      expect(claims_by_date[:metadata]['success']).to eq(true)
+      expect(claims_by_date[:metadata]['success']).to be(true)
       expect(claims_by_date[:metadata]['message']).to eq('Data retrieved successfully.')
     end
 
@@ -257,7 +257,7 @@ describe TravelPay::ClaimsService do
 
       expect(claims_by_date[:data].count).to equal(1)
       expect(claims_by_date[:metadata]['status']).to equal(200)
-      expect(claims_by_date[:metadata]['success']).to eq(true)
+      expect(claims_by_date[:metadata]['success']).to be(true)
       expect(claims_by_date[:metadata]['message']).to eq('Data retrieved successfully.')
     end
 
@@ -291,7 +291,7 @@ describe TravelPay::ClaimsService do
 
       expect(claims_by_date[:data].count).to equal(0)
       expect(claims_by_date[:metadata]['status']).to equal(200)
-      expect(claims_by_date[:metadata]['success']).to eq(true)
+      expect(claims_by_date[:metadata]['success']).to be(true)
       expect(claims_by_date[:metadata]['message']).to eq('No claims found.')
     end
 
@@ -347,8 +347,7 @@ describe TravelPay::ClaimsService do
                                                           'btsss_appt_id' => btsss_appt_id,
                                                           'claim_name' => 'SMOC claim'
                                                         })
-
-      expect(actual_claim_response['data']).to equal(new_claim_data['data'])
+      expect(actual_claim_response).to equal(new_claim_data['data'])
     end
 
     it 'throws an ArgumentException if btsss_appt_id is invalid format' do
@@ -359,6 +358,43 @@ describe TravelPay::ClaimsService do
 
       expect { @service.create_new_claim({ 'btsss_appt_id' => nil }) }
         .to raise_error(ArgumentError, /must provide/i)
+    end
+  end
+
+  context 'submit claim' do
+    let(:user) { build(:user) }
+    let(:response) do
+      Faraday::Response.new(
+        body: { 'data' => { 'claimId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                            'status' => 'InProcess' } }
+      )
+    end
+
+    let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+
+    before do
+      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+      @service = TravelPay::ClaimsService.new(auth_manager)
+    end
+
+    it 'returns submitted claim information' do
+      expect_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:submit_claim).once
+        .and_return(response)
+
+      @service.submit_claim('3fa85f64-5717-4562-b3fc-2c963f66afa6')
+    end
+
+    it 'raises an error if claim_id is missing' do
+      expect { @service.submit_claim }.to raise_error(ArgumentError)
+    end
+
+    it 'raises an error if invalid claim_id provided' do
+      # present, wrong format
+      expect { @service.submit_claim('claim_numero_uno') }.to raise_error(ArgumentError)
+
+      # empty
+      expect { @service.submit_claim('') }.to raise_error(ArgumentError)
     end
   end
 end

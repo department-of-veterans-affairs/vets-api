@@ -116,7 +116,7 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
 
       response '200', 'Info about a single Notice of Disagreement' do
         schema '$ref' => '#/components/schemas/nodShowResponse'
-        let(:id) { FactoryBot.create(:notice_of_disagreement_v0).id }
+        let(:id) { create(:notice_of_disagreement_v0).id }
 
         it_behaves_like 'rswag example',
                         desc: 'returns a 200 response',
@@ -127,7 +127,7 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
       response '403', 'Forbidden access with a veteran-scoped OAuth token to an unowned Notice of Disagreement' do
         schema '$ref' => '#/components/schemas/errorModel'
 
-        let(:id) { FactoryBot.create(:notice_of_disagreement_v0, veteran_icn: '1234567890V123456').id }
+        let(:id) { create(:notice_of_disagreement_v0, veteran_icn: '1234567890V123456').id }
 
         it_behaves_like 'rswag example',
                         desc: 'with a veteran-scoped OAuth token for a Veteran who does not own the Notice of Disagreement',
@@ -285,7 +285,7 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
 
       parameter name: :nod_es_body, in: :body, schema: { '$ref' => '#components/schemas/nodEvidenceSubmissionCreate' }
 
-      let(:nod) { FactoryBot.create(:notice_of_disagreement_v0, :board_review_evidence_submission) }
+      let(:nod) { create(:notice_of_disagreement_v0, :board_review_evidence_submission) }
       let(:nodId) { nod.id }
       let(:fileNumber) { nod.veteran.file_number }
       let(:nod_es_body) { { nodId:, fileNumber: } }
@@ -318,7 +318,7 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
 
       response '403', 'Forbidden attempt using a veteran-scoped OAuth token to create an Evidence Submission for a Notice of Disagreement belonging to another Veteran' do
         schema '$ref' => '#/components/schemas/errorModel'
-        let(:nod) { FactoryBot.create(:notice_of_disagreement_v0, :board_review_evidence_submission, veteran_icn: '1111111111V111111') }
+        let(:nod) { create(:notice_of_disagreement_v0, :board_review_evidence_submission, veteran_icn: '1111111111V111111') }
         let(:evidence_submission) { create(:evidence_submission_v0, supportable: nod) }
         let(:id) { evidence_submission.id }
 
@@ -355,7 +355,7 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
       response '422', 'Validation errors' do
         schema '$ref' => '#/components/schemas/errorModel'
 
-        let(:nod) { FactoryBot.create(:notice_of_disagreement_v0, :board_review_direct_review) }
+        let(:nod) { create(:notice_of_disagreement_v0, :board_review_direct_review) }
 
         it_behaves_like 'rswag example',
                         desc: 'Notice of Disagreement does not indicate an evidence submission',
@@ -436,7 +436,7 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
 
       response '200', 'Info about a single Notice of Disagreement Evidence Submission.' do
         schema '$ref' => '#/components/schemas/nodEvidenceSubmissionResponse'
-        let(:id) { FactoryBot.create(:evidence_submission).guid }
+        let(:id) { create(:evidence_submission).guid }
 
         it_behaves_like 'rswag example',
                         desc: 'returns a 200 response',
@@ -446,7 +446,7 @@ RSpec.describe 'Notice of Disagreements', openapi_spec:, type: :request do
 
       response '403', 'Forbidden attempt using a veteran-scoped OAuth token to view an Evidence Submission belonging to another Veteran' do
         schema '$ref' => '#/components/schemas/errorModel'
-        let(:nod) { FactoryBot.create(:notice_of_disagreement_v0, :board_review_evidence_submission, veteran_icn: '1111111111V111111') }
+        let(:nod) { create(:notice_of_disagreement_v0, :board_review_evidence_submission, veteran_icn: '1111111111V111111') }
         let(:evidence_submission) { create(:evidence_submission_v0, supportable: nod) }
         let(:id) { evidence_submission.id }
 

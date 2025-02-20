@@ -12,7 +12,7 @@ RSpec.describe 'IncomeLimits::V1::ValidateZipCode', type: :request do
       let(:zip) { '15222' }
 
       before do
-        zipcode_data = FactoryBot.create(:std_zipcode, zip_code: zip)
+        zipcode_data = create(:std_zipcode, zip_code: zip)
         allow(StdZipcode).to receive(:find_by).and_return(zipcode_data)
         get "/income_limits/v1/validateZipCode/#{zip}"
       end
@@ -23,7 +23,7 @@ RSpec.describe 'IncomeLimits::V1::ValidateZipCode', type: :request do
 
       it 'Validates a valid zip code' do
         data = parse_response(response)
-        expect(data['zip_is_valid']).to eq(true)
+        expect(data['zip_is_valid']).to be(true)
       end
     end
 
@@ -41,7 +41,7 @@ RSpec.describe 'IncomeLimits::V1::ValidateZipCode', type: :request do
 
       it 'Returns false when given an invalid zip code' do
         data = parse_response(response)
-        expect(data['zip_is_valid']).to eq(false)
+        expect(data['zip_is_valid']).to be(false)
       end
     end
   end

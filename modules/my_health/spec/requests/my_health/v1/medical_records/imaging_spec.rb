@@ -19,6 +19,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::ImagingController', type: :request
     bb_internal_client = BBInternal::Client.new(
       session: {
         user_id: 11_375_034,
+        icn: '1000000000V000000',
         patient_id: '11382904',
         expires_at: 1.hour.from_now,
         token: 'SESSION_TOKEN'
@@ -31,6 +32,8 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::ImagingController', type: :request
     VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
                         match_requests_on: %i[method sm_user_ignoring_path_param])
   end
+
+  after { VCR.eject_cassette }
 
   RSpec.shared_context 'redis setup' do
     let(:redis) { instance_double(Redis::Namespace) }

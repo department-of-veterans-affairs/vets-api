@@ -224,7 +224,6 @@ module VAProfile
           contact_info = VAProfileRedis::V2::ContactInformation.for_user(@user)
           model.id = contact_info.public_send(attr)&.id
           verb = model.id.present? ? 'put' : 'post'
-
           public_send("#{verb}_#{method_name}", model)
         end
 

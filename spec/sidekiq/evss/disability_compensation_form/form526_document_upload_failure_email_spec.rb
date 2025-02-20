@@ -60,7 +60,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
 
     describe 'logging' do
       before do
-        allow(notification_client).to receive(:send_email)
+        allow(notification_client).to receive(:send_email).and_return({})
       end
 
       it 'logs to the Rails logger' do
@@ -79,7 +79,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
               obscured_filename:,
               form526_submission_id: form526_submission.id,
               supporting_evidence_attachment_guid: form_attachment.guid,
-              timestamp: exhaustion_time
+              timestamp: exhaustion_time,
+              va_notify_response: {}
             }
           )
         end
@@ -91,12 +92,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
           subject.drain
         end.to trigger_statsd_increment(
           'api.form_526.veteran_notifications.document_upload_failure_email.success'
-        ).and trigger_statsd_increment(
-          'silent_failure_avoided_no_confirmation',
-          tags: [
-            'service:disability-application',
-            'function:526_evidence_upload_failure_email_queuing'
-          ]
         )
       end
 

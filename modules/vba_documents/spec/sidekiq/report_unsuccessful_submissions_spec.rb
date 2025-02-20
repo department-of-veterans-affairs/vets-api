@@ -8,12 +8,12 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
   let(:expired_hash) do
     { guid: '8ef145ee-3c6a-4215-b39a-af56c0d2c347', status: 'expired', consumer_name: 'test consumer' }
   end
-  let(:error_upload) { FactoryBot.create(:upload_submission, :status_error, consumer_name: 'test consumer') }
-  let(:expired) { FactoryBot.create(:upload_submission, expired_hash) }
-  let(:upload) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
+  let(:error_upload) { create(:upload_submission, :status_error, consumer_name: 'test consumer') }
+  let(:expired) { create(:upload_submission, expired_hash) }
+  let(:upload) { create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
 
   describe '#perform' do
-    xit 'sends mail' do
+    it 'sends mail', skip: 'Unknown reason for skip' do
       with_settings(Settings.vba_documents,
                     report_enabled: true) do
         Timecop.freeze
@@ -39,7 +39,7 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
       end
     end
 
-    xit 'calculate totals' do
+    it 'calculate totals', skip: 'Unknown reason for skip' do
       with_settings(Settings.vba_documents,
                     report_enabled: true) do
         error_upload

@@ -1,4 +1,0 @@
-veteran:
-  fullName: [identity_information, full_name]
-  ssn: [identity_information, ssn]
-  address: [contact_information, address]

@@ -61,6 +61,20 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
                      level_of_authentication: 'Personal'
                    })
         end
+
+        context 'when who_is_your_question_about is nil' do
+          let(:who_is_your_question_about) { nil }
+
+          it 'returns a payload structure to CRM API' do
+            expect(builder.call)
+              .to eq({
+                       inquiry_about: 'About Me, the Veteran',
+                       dependent_relationship: nil,
+                       veteran_relationship: nil,
+                       level_of_authentication: 'Personal'
+                     })
+          end
+        end
       end
 
       context 'when the dependent is the submitter' do

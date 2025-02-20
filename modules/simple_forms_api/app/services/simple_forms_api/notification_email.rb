@@ -100,10 +100,12 @@ module SimpleFormsApi
     private
 
     def check_missing_keys(config)
-      missing_keys = %i[form_data form_number confirmation_number date_submitted].select { |key| config[key].nil? }
-      if config[:form_number] == 'vba_21_0966_intent_api' && config[:expiration_date].nil?
-        missing_keys << :expiration_date
-      end
+      all_keys = %i[form_data form_number date_submitted]
+      all_keys << :confirmation_number if needs_confirmation_number?
+      all_keys << :expiration_date if config[:form_number] == 'vba_21_0966_intent_api'
+
+      missing_keys = all_keys.select { |key| config[key].nil? || config[key].to_s.strip.empty? }
+
       if missing_keys.any?
         StatsD.increment('silent_failure', tags: statsd_tags) if error_notification?
         raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}"
@@ -143,8 +145,7 @@ module SimpleFormsApi
           email,
           template_id,
           get_personalization(first_name),
-          Settings.vanotify.services.va_gov.api_key,
-          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+          *email_args
         )
       else
         VANotify::EmailJob.perform_at(
@@ -166,8 +167,7 @@ module SimpleFormsApi
           user_account.id,
           template_id,
           get_personalization(first_name_from_user_account),
-          Settings.vanotify.services.va_gov.api_key,
-          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+          *email_args
         )
       else
         VANotify::UserAccountJob.perform_at(
@@ -280,6 +280,7 @@ module SimpleFormsApi
                           default_personalization(first_name)
                         end
       personalization.except!('lighthouse_updated_at') unless lighthouse_updated_at
+      personalization.except!('confirmation_number') unless confirmation_number
       personalization
     end
 
@@ -374,7 +375,7 @@ module SimpleFormsApi
       if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
         form_data.dig('surviving_dependent_full_name', 'first')
       else
-        form_data.dig('veteran_full_name', 'first')
+        form_data.dig('veteran_full_name', 'first') || user&.first_name
       end
     end
 
@@ -424,12 +425,25 @@ module SimpleFormsApi
       end
     end
 
+    def email_args
+      [
+        Settings.vanotify.services.va_gov.api_key,
+        { callback_metadata: { notification_type:, form_number:, confirmation_number:, statsd_tags: } }
+      ]
+    end
+
     def statsd_tags
       { 'service' => 'veteran-facing-forms', 'function' => "#{form_number} form submission to Lighthouse" }
     end
 
     def error_notification?
       notification_type == :error
+    end
+
+    def needs_confirmation_number?
+      # All email templates require confirmation_number except :duplicate for 26-4555 (SAHSHA)
+      # Only 26-4555 supports the :duplicate notification_type
+      notification_type != :duplicate
     end
   end
 end

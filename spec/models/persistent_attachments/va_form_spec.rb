@@ -38,6 +38,22 @@ RSpec.describe PersistentAttachments::VAForm, :uploader_helpers do
       end
     end
 
+    context 'form_id 21P-0518-1' do
+      before { instance.form_id = '21P-0518-1' }
+
+      it 'returns 2' do
+        expect(instance.max_pages).to eq 2
+      end
+    end
+
+    context 'form_id 21P-0516-1' do
+      before { instance.form_id = '21P-0516-1' }
+
+      it 'returns 2' do
+        expect(instance.max_pages).to eq 2
+      end
+    end
+
     context 'default' do
       it 'returns 10' do
         expect(instance.max_pages).to eq 10
@@ -62,6 +78,22 @@ RSpec.describe PersistentAttachments::VAForm, :uploader_helpers do
       end
     end
 
+    context 'form_id 21P-0518-1' do
+      before { instance.form_id = '21P-0518-1' }
+
+      it 'returns 2' do
+        expect(instance.min_pages).to eq 2
+      end
+    end
+
+    context 'form_id 21P-0516-1' do
+      before { instance.form_id = '21P-0516-1' }
+
+      it 'returns 2' do
+        expect(instance.min_pages).to eq 2
+      end
+    end
+
     context 'default' do
       it 'returns 1' do
         expect(instance.min_pages).to eq 1
@@ -76,9 +108,9 @@ RSpec.describe PersistentAttachments::VAForm, :uploader_helpers do
       instance.file = file.open
       instance.save!
       shrine_file = instance.file
-      expect(shrine_file.exists?).to eq(true)
+      expect(shrine_file.exists?).to be(true)
       instance.destroy
-      expect(shrine_file.exists?).to eq(false)
+      expect(shrine_file.exists?).to be(false)
     end
   end
 end

@@ -102,7 +102,7 @@ describe ApplicationController, type: :controller do
       parsed_body = JSON.parse(response.body)
       expect(parsed_body['errors'].size).to eq(1)
       expect(parsed_body['errors'][0]['title']).to eq('Test 400')
-      expect(parsed_body['errors'][0]['detail']).to eq(nil)
+      expect(parsed_body['errors'][0]['detail']).to be_nil
       expect(parsed_body['errors'][0]['status']).to eq('400')
       expect(parsed_body['errors'][0]['status']).to be_a(String)
       expect(parsed_body['errors'][0]['source'].to_s).not_to include('{"pointer"=>')

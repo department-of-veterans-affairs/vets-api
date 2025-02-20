@@ -17,7 +17,7 @@ RSpec.describe 'Mobile::V0::Dependents::RequestDecisions', type: :request do
         get('/mobile/v0/dependents/request-decisions', headers: sis_headers)
       end
       assert_schema_conform(200)
-      expect(attributes['promptRenewal']).to eq(true)
+      expect(attributes['promptRenewal']).to be(true)
     end
 
     context 'when no diaries exist' do
@@ -28,7 +28,7 @@ RSpec.describe 'Mobile::V0::Dependents::RequestDecisions', type: :request do
         end
         assert_schema_conform(200)
         expect(attributes['diaries']).to eq([])
-        expect(attributes['promptRenewal']).to eq(false)
+        expect(attributes['promptRenewal']).to be(false)
       end
     end
 
@@ -41,7 +41,7 @@ RSpec.describe 'Mobile::V0::Dependents::RequestDecisions', type: :request do
         assert_schema_conform(200)
         expect(attributes['diaries'].count).to eq(1)
         expect(attributes.dig('diaries', 0, 'diaryLcStatusType')).to eq('CXCL')
-        expect(attributes['promptRenewal']).to eq(false)
+        expect(attributes['promptRenewal']).to be(false)
       end
     end
 
@@ -53,7 +53,7 @@ RSpec.describe 'Mobile::V0::Dependents::RequestDecisions', type: :request do
         end
         assert_schema_conform(200)
         expect(attributes['dependencyVerifications'].count).to eq(1)
-        expect(attributes['promptRenewal']).to eq(true)
+        expect(attributes['promptRenewal']).to be(true)
       end
     end
   end

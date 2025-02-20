@@ -10,6 +10,8 @@ RSpec.describe Lighthouse::FailureNotification, type: :job do
 
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
   let(:user_account) { create(:user_account) }
+  let(:document_type) { 'L029' }
+  let(:document_description) { 'Copy of a DD214' }
   let(:filename) { 'docXXXX-XXte.pdf' }
   let(:icn) { user_account.icn }
   let(:first_name) { 'Bob' }
@@ -38,8 +40,9 @@ RSpec.describe Lighthouse::FailureNotification, type: :job do
             recipient_identifier: { id_value: user_account.icn, id_type: 'ICN' },
             template_id: 'fake_template_id',
             personalisation: {
-              first_name: 'Bob',
-              filename: 'docXXXX-XXte.pdf',
+              first_name: first_name,
+              document_type: document_description,
+              filename: file_name,
               date_submitted: formatted_submit_date,
               date_failed: formatted_submit_date
             }

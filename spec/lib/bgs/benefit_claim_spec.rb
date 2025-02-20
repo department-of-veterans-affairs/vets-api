@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'bgs/benefit_claim'
 
 RSpec.describe BGS::BenefitClaim do
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { create(:evss_user, :loa3) }
   let(:proc_id) { '3828033' }
   let(:participant_id) { '146189' }
   let(:vet_hash) do
@@ -88,7 +88,7 @@ RSpec.describe BGS::BenefitClaim do
     end
 
     it 'removes apostrophes and other characters forbidden by BGS, from the names in the payload to BGS' do
-      user_object = FactoryBot.create(:evss_user, :loa3, first_name: "D'Añgelo", last_name: "O'Briën")
+      user_object = create(:evss_user, :loa3, first_name: "D'Añgelo", last_name: "O'Briën")
       expect_any_instance_of(BGS::Service)
         .to receive(:insert_benefit_claim)
         .with(a_hash_including({ first_name: 'DAngelo', last_name: 'OBrien' }))

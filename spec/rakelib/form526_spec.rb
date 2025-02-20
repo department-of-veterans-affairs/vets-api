@@ -16,11 +16,11 @@ describe 'form526 rake tasks', type: :request do
 
   let!(:in_progress_form) do
     form_json = JSON.parse(File.read('spec/support/disability_compensation_form/526_in_progress_form_maixmal.json'))
-    FactoryBot.create(:in_progress_form,
-                      user_uuid: user.uuid,
-                      form_id: '21-526EZ',
-                      form_data: to_case(:dasherize, to_case(:camelize, to_case(:dasherize, form_json['formData']))),
-                      metadata: to_case(:dasherize, to_case(:camelize, to_case(:dasherize, form_json['metadata']))))
+    create(:in_progress_form,
+           user_uuid: user.uuid,
+           form_id: '21-526EZ',
+           form_data: to_case(:dasherize, to_case(:camelize, to_case(:dasherize, form_json['formData']))),
+           metadata: to_case(:dasherize, to_case(:camelize, to_case(:dasherize, form_json['metadata']))))
   end
 
   before :all do
@@ -119,8 +119,8 @@ describe 'form526 rake tasks', type: :request do
   end
 
   describe 'rake form526:mpi' do
-    let(:submission) { create :form526_submission }
-    let(:profile) { build :mpi_profile }
+    let(:submission) { create(:form526_submission) }
+    let(:profile) { build(:mpi_profile) }
     let(:profile_response) { create(:find_profile_response, profile:) }
     let(:run_rake_task) do
       Rake::Task['form526:mpi'].reenable
@@ -135,7 +135,7 @@ describe 'form526 rake tasks', type: :request do
   end
 
   describe 'rake form526:pif_errors' do
-    let!(:submission) { create :form526_submission, :with_pif_in_use_error }
+    let!(:submission) { create(:form526_submission, :with_pif_in_use_error) }
     let :run_rake_task do
       Rake::Task['form526:pif_errors'].reenable
       Rake.application.invoke_task 'form526:pif_errors'

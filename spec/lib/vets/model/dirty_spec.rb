@@ -21,18 +21,18 @@ RSpec.describe Vets::Model::Dirty do
 
   describe '#changed?' do
     it 'returns false when no changes have been made' do
-      expect(user.changed?).to eq(false)
+      expect(user.changed?).to be(false)
     end
 
     it 'returns true when an attribute has been changed' do
       user.name = 'Bob'
-      expect(user.changed?).to eq(true)
+      expect(user.changed?).to be(true)
     end
 
     it 'returns false when changes are reverted back to original values' do
       user.name = 'Bob'
       user.name = 'Alice'
-      expect(user.changed?).to eq(false)
+      expect(user.changed?).to be(false)
     end
   end
 

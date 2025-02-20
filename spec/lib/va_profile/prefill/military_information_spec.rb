@@ -13,13 +13,13 @@ describe VAProfile::Prefill::MilitaryInformation do
       it 'returns if veteran was deployed to sw asia during gulf war' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200',
                          match_requests_on: %i[method body]) do
-          expect(subject.sw_asia_combat).to eq(false)
+          expect(subject.sw_asia_combat).to be(false)
         end
       end
 
       it 'returns false if there is no deployment location' do
         VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
-          expect(subject.sw_asia_combat).to eq(false)
+          expect(subject.sw_asia_combat).to be(false)
         end
       end
     end
@@ -34,7 +34,7 @@ describe VAProfile::Prefill::MilitaryInformation do
 
       it 'with an unknown character_of_discharge_code it returns nil' do
         VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
-          expect(subject.discharge_type).to eq(nil)
+          expect(subject.discharge_type).to be_nil
         end
       end
     end
@@ -62,7 +62,7 @@ describe VAProfile::Prefill::MilitaryInformation do
         it 'returns false' do
           VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                            match_requests_on: %i[method body]) do
-            expect(subject.post_nov111998_combat).to eq(false)
+            expect(subject.post_nov111998_combat).to be(false)
           end
         end
       end
@@ -71,7 +71,7 @@ describe VAProfile::Prefill::MilitaryInformation do
         it 'returns true' do
           VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200',
                            match_requests_on: %i[method body]) do
-            expect(subject.post_nov111998_combat).to eq(true)
+            expect(subject.post_nov111998_combat).to be(true)
           end
         end
       end
@@ -161,7 +161,7 @@ describe VAProfile::Prefill::MilitaryInformation do
                          match_requests_on: %i[method body]) do
           response = subject.currently_active_duty
 
-          expect(response).to eq(false)
+          expect(response).to be(false)
         end
       end
     end

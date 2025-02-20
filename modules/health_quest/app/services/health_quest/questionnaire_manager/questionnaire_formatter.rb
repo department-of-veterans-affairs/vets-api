@@ -66,7 +66,7 @@ module HealthQuest
       # @return [Array] an array of `code` objects
       #
       def codes(vcc)
-        vcc.map { |v| v['code'] }
+        vcc.pluck('code')
       end
     end
   end

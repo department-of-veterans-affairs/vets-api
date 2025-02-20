@@ -34,17 +34,35 @@ RSpec.describe Crm::Service do
           )
         end
 
-        before do
-          allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
-          allow_any_instance_of(Faraday::Connection).to receive(:get).with('eis/vagov.lob.ava/api/inquiries',
-                                                                           icn: '123',
-                                                                           organizationName: 'iris-dev')
-                                                                     .and_return(response)
+        context 'when on local/dev env' do
+          before do
+            allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
+            allow_any_instance_of(Faraday::Connection).to receive(:get).with('eis/vagov.lob.ava/api/inquiries',
+                                                                             icn: '123',
+                                                                             organizationName: 'iris-dev')
+                                                                       .and_return(response)
+          end
+
+          it 'returns a parsed response' do
+            res = JSON.parse(response.body, symbolize_names: true)
+            expect(service.call(endpoint:)[:data].first).to eq(res[:data].first)
+          end
         end
 
-        it 'returns a parsed response' do
-          res = JSON.parse(response.body, symbolize_names: true)
-          expect(service.call(endpoint:)[:data].first).to eq(res[:data].first)
+        context 'when on staging env' do
+          before do
+            allow(Settings).to receive(:vsp_environment).and_return('staging')
+            allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
+            allow_any_instance_of(Faraday::Connection).to receive(:get).with('eis/vagov.lob.ava/api/inquiries',
+                                                                             icn: '123',
+                                                                             organizationName: 'veft-preprod')
+                                                                       .and_return(response)
+          end
+
+          it 'returns a parsed response' do
+            res = JSON.parse(response.body, symbolize_names: true)
+            expect(service.call(endpoint:)[:data].first).to eq(res[:data].first)
+          end
         end
       end
     end
@@ -54,6 +72,7 @@ RSpec.describe Crm::Service do
       let(:exception) { Common::Exceptions::BackendServiceException.new(nil, {}, resp.status, resp.body) }
 
       before do
+        allow(Settings).to receive(:vsp_environment).and_return('development')
         allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
         allow_any_instance_of(Faraday::Connection).to receive(:get).with('eis/vagov.lob.ava/api/inquiries',
                                                                          { icn: '123',

@@ -8,7 +8,12 @@ module V0
     before_action :set_available_forms, only: :available_forms
 
     def available_forms
-      render json: { available_forms: @available_forms }
+      # we are currently restricting access to only the most recent tax year
+      last_year = Date.current.year - 1
+      last_years_tax_form = @available_forms.select { |form| form.tax_year == last_year }.map do |form|
+        { year: form.tax_year, last_updated: form.updated_at }
+      end
+      render json: { available_forms: last_years_tax_form }
     end
 
     def download_pdf
@@ -33,8 +38,7 @@ module V0
     end
 
     def set_available_forms
-      forms = Form1095B.available_forms(@current_user[:icn])
-      @available_forms = forms.map { |form| { year: form[0], last_updated: form[1] } }
+      @available_forms = Form1095B.available_forms(@current_user[:icn])
     end
 
     def download_params

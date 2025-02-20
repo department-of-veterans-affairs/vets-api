@@ -5,7 +5,7 @@ require 'claim_letters/claim_letter_downloader'
 module V0
   class VirtualAgentClaimLettersController < ApplicationController
     Sentry.set_tags(feature: 'claim-letters')
-    service_tag 'claim-status'
+    service_tag 'virtual-agent'
 
     def index
       docs = service.get_letters

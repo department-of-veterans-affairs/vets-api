@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe SavedClaim::DependencyVerificationClaim do
   let(:claim) { create(:dependency_verification_claim) }
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { create(:evss_user, :loa3) }
 
   describe '#regional_office' do
     it 'returns an empty array for regional office' do

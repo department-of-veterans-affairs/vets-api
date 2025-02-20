@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe CategorySerializer do
   subject { serialize(category, serializer_class: described_class) }
 
-  let(:category) { build :category }
+  let(:category) { build(:category) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:links) { data['links'] }

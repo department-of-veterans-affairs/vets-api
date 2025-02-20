@@ -3,62 +3,61 @@
 module AskVAApi
   module Inquiries
     module PayloadBuilder
-      class VeteranProfile
-        include SharedHelpers
-
+      class VeteranProfile < ProfileBuilderBase
         class VeteranProfileError < StandardError; end
-
-        attr_reader :inquiry_params, :inquiry_details
-
-        def initialize(inquiry_params:, inquiry_details:)
-          @inquiry_params = inquiry_params
-          @inquiry_details = inquiry_details
-          @translator = Translator.new
-        end
 
         def call
           base_profile
-            .merge(service_info)
+            .merge(contact_info)
+            .merge(school_info)
+            .merge(service_info(veteran_info))
         end
 
         private
 
-        def veteran_info
-          @veteran_info ||= inquiry_params[:about_the_veteran] || {}
-        end
-
+        # Builds the base profile payload
         def base_profile
           {
             FirstName: veteran_info[:first],
             MiddleName: veteran_info[:middle],
             LastName: veteran_info[:last],
-            PreferredName: veteran_info[:preferred_name],
+            PreferredName: preferred_name,
             Suffix: @translator.call(:suffix, veteran_info[:suffix]),
-            Country: nil,
-            Street: veteran_info[:street],
-            City: veteran_info[:city],
-            State: state_data,
-            ZipCode: inquiry_params[:veteran_postal_code],
+            Pronouns: formatted_pronouns(inquiry_params[:pronouns]) || inquiry_params[:pronouns_not_listed_text],
+            Country: country_data_or_default,
+            **address_data(veteran_address, postal_code, inquiry_params[:veterans_location_of_residence]),
             DateOfBirth: veteran_info[:date_of_birth]
           }
         end
 
-        def service_info
-          {
-            BranchOfService: veteran_info[:branch_of_service],
-            SSN: veteran_info.dig(:social_or_service_num, :ssn),
-            ServiceNumber: veteran_info.dig(:social_or_service_num, :service_number),
-            ClaimNumber: nil,
-            VeteranServiceStateDate: nil,
-            VeteranServiceEndDate: nil
-          }
+        # Determines if the inquiry is about the veteran
+        def about_me_veteran?
+          inquiry_details[:inquiry_about] == 'About Me, the Veteran'
         end
 
-        def state_data
-          {
-            Name: inquiry_params[:veterans_location_of_residence],
-            StateCode: fetch_state_code(inquiry_params[:veterans_location_of_residence])
-          }
+        # Returns veteran info based on inquiry context
+        def veteran_info
+          about_me_veteran? ? inquiry_params[:about_yourself] : inquiry_params[:about_the_veteran] || {}
+        end
+
+        # Returns the veteran's address based on inquiry context
+        def veteran_address
+          about_me_veteran? ? inquiry_params[:address] : {}
+        end
+
+        # Returns the postal code based on inquiry context
+        def postal_code
+          about_me_veteran? ? inquiry_params[:postal_code] : inquiry_params[:veteran_postal_code]
+        end
+
+        # Returns the preferred name based on inquiry context
+        def preferred_name
+          about_me_veteran? ? inquiry_params[:preferred_name] : veteran_info[:preferred_name]
+        end
+
+        # Returns country data or default values
+        def country_data_or_default
+          about_me_veteran? ? country_data(inquiry_params[:country]) : { Name: nil, CountryCode: nil }
         end
       end
     end

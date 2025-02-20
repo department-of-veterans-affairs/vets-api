@@ -33,7 +33,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
         let(:form_content_v1) { { 'form526' => {} } }
 
         it 'returns a nil value' do
-          expect(subject_v1.translate).to eq nil
+          expect(subject_v1.translate).to be_nil
         end
       end
     end
@@ -51,7 +51,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
         let(:form_content_v2) { { 'form526' => {} } }
 
         it 'returns a nil value' do
-          expect(subject_v2.translate).to eq nil
+          expect(subject_v2.translate).to be_nil
         end
       end
     end
@@ -123,7 +123,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
       let(:incidents) { [] }
 
       it 'returns a nil value' do
-        expect(subject_v1.send(:split_incidents, incidents)).to eq nil
+        expect(subject_v1.send(:split_incidents, incidents)).to be_nil
       end
     end
   end

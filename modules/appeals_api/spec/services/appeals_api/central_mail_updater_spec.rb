@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 describe AppealsApi::CentralMailUpdater do
-  let(:client_stub) { instance_double('CentralMail::Service') }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:client_stub) { instance_double(CentralMail::Service) }
+  let(:faraday_response) { instance_double(Faraday::Response) }
   let(:appeal_1) { create(:notice_of_disagreement) }
   let(:appeal_2) { create(:notice_of_disagreement) }
   let(:central_mail_response) do

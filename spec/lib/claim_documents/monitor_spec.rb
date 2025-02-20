@@ -14,10 +14,10 @@ RSpec.describe ClaimDocuments::Monitor do
 
   describe '#track_document_upload_attempt' do
     it 'logs an upload attempt' do
-      expect(StatsD).to receive(:increment).with("#{document_stats_key}.attempt", tags: ["form_id:#{form_id}"])
+      expect(StatsD).to receive(:increment).with("#{document_stats_key}.attempt", tags: include("form_id:#{form_id}"))
       expect(Rails.logger).to receive(:info).with(
         "Creating PersistentAttachment FormID=#{form_id}",
-        hash_including(user_account_uuid: current_user.user_account_uuid, statsd: "#{document_stats_key}.attempt")
+        hash_including(statsd: "#{document_stats_key}.attempt")
       )
 
       monitor.track_document_upload_attempt(form_id, current_user)
@@ -26,10 +26,10 @@ RSpec.describe ClaimDocuments::Monitor do
 
   describe '#track_document_upload_success' do
     it 'logs a successful upload' do
-      expect(StatsD).to receive(:increment).with("#{document_stats_key}.success", tags: ["form_id:#{form_id}"])
+      expect(StatsD).to receive(:increment).with("#{document_stats_key}.success", tags: include("form_id:#{form_id}"))
       expect(Rails.logger).to receive(:info).with(
         "Success creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment_id}",
-        hash_including(user_account_uuid: current_user.user_account_uuid, statsd: "#{document_stats_key}.success")
+        hash_including(statsd: "#{document_stats_key}.success")
       )
 
       monitor.track_document_upload_success(form_id, attachment_id, current_user)
@@ -38,10 +38,10 @@ RSpec.describe ClaimDocuments::Monitor do
 
   describe '#track_document_upload_failed' do
     it 'logs a failed upload' do
-      expect(StatsD).to receive(:increment).with("#{document_stats_key}.failure", tags: ["form_id:#{form_id}"])
+      expect(StatsD).to receive(:increment).with("#{document_stats_key}.failure", tags: include("form_id:#{form_id}"))
       expect(Rails.logger).to receive(:error).with(
         "Error creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment_id} #{error}",
-        hash_including(user_account_uuid: current_user.user_account_uuid, statsd: "#{document_stats_key}.failure")
+        hash_including(statsd: "#{document_stats_key}.failure")
       )
 
       monitor.track_document_upload_failed(form_id, attachment_id, current_user, error)

@@ -74,14 +74,15 @@
     "country": "USA",
     "state": "TX"
   },
-  "sigiGenders": "M",
   "gender": "M",
   "mothersMaidenName": "Test",
   "cityOfBirth": "Spring",
   "stateOfBirth": "TX",
   "veteranFullName": {
     "first": "Indiana",
-    "last": "Jones"
+    "middle": "Bill",
+    "last": "Jones",
+    "suffix": "II"
   },
   "veteranSocialSecurityNumber": "234221243",
   "veteranDateOfBirth": "1980-01-01",
