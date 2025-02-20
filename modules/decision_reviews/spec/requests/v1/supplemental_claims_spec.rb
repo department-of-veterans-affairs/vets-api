@@ -52,7 +52,10 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
     }
   end
 
-  before { sign_in_as(user) }
+  before do
+    sign_in_as(user)
+    Flipper.disable :decision_review_service_common_exceptions_enabled
+  end
 
   describe '#create' do
     def personal_information_logs
