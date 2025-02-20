@@ -3470,6 +3470,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
+
     describe 'dependents applications' do
       context 'when :va_dependents_v2 is disabled' do
         before do
