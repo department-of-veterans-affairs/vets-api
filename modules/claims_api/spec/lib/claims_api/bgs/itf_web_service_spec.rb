@@ -20,7 +20,7 @@ describe ClaimsApi::IntentToFileWebService do
         participant_vet_id: '600043201',
         received_date: '2025-02-07T13:12:40+00:00',
         submitter_application_icn_type_code: 'LH-B',
-        ssn: ssn,
+        ssn:,
         participant_claimant_id: '600043201'
       }
     end
