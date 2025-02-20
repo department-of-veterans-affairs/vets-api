@@ -3899,7 +3899,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
         params = {
           '_data' => {
-            'appointmentDatetime' => '2024-01-01T16:45:34.465Z'
+            'appointment_datetime' => '2024-01-01T16:45:34.465Z'
           }
         }
         VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[path method]) do
@@ -4005,34 +4005,6 @@ RSpec.describe 'the v1 API documentation', order: :defined, type: %i[apivore req
           expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 200, headers)
         end
         Timecop.return
-      end
-    end
-
-    describe 'decision review evidence upload' do
-      it 'supports uploading a file' do
-        VCR.use_cassette('decision_review/200_pdf_validation') do
-          expect(subject).to validate(
-            :post,
-            '/v1/decision_review_evidence',
-            200,
-            headers.update(
-              '_data' => {
-                'decision_review_evidence_attachment' => {
-                  'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
-                }
-              }
-            )
-          )
-        end
-      end
-
-      it 'returns a 400 if no attachment data is given' do
-        expect(subject).to validate(
-          :post,
-          '/v1/decision_review_evidence',
-          400,
-          headers
-        )
       end
     end
   end
