@@ -1,0 +1,64 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/addresses/status/7ac85cf3-b229-4034-9897-25c0ef1411eb
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Content-Type:
+      - application/json
+      Cufsystemname:
+      - VETSGOV
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1226134631", dtSInfo;desc="0"
+      - dtRpid;desc="-319107255", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - 48fdc11d-6956-447f-8fa0-c3098b7bc510
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Wed, 05 Feb 2025 15:50:06 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"code":"CORE103","key":"_CUF_NOT_FOUND","text":"The tx
+        for id/criteria 7ac85cf3-b229-4034-9897-25c0ef1411eb could not be found. Please
+        correct your request and try again!","severity":"ERROR"}],"status":"COMPLETED_FAILURE"}'
+  recorded_at: Wed, 05 Feb 2025 15:50:06 GMT
+recorded_with: VCR 6.3.1

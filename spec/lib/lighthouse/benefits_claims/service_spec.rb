@@ -89,41 +89,6 @@ RSpec.describe BenefitsClaims::Service do
             end
           end
         end
-
-        context 'when :cst_suppress_evidence_requests is disabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests).and_return(false)
-          end
-
-          it 'includes Attorney Fee, Secondary Action Required, and Stage 2 Development tracked items' do
-            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-              response = @service.get_claim('600383363')
-              expect(response.dig('data', 'attributes', 'trackedItems').size).to eq(4)
-              expect(response.dig('data', 'attributes', 'trackedItems', 0,
-                                  'displayName')).to eq('Private Medical Record')
-              expect(response.dig('data', 'attributes', 'trackedItems', 1,
-                                  'displayName')).to eq('Submit buddy statement(s)')
-              expect(response.dig('data', 'attributes', 'trackedItems', 2, 'displayName')).to eq('Attorney Fee')
-            end
-          end
-        end
-
-        context 'when :cst_suppress_evidence_requests is enabled' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests).and_return(true)
-          end
-
-          it 'excludes Attorney Fee, Secondary Action Required, and Stage 2 Development tracked items' do
-            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-              response = @service.get_claim('600383363')
-              expect(response.dig('data', 'attributes', 'trackedItems').size).to eq(3)
-              expect(response.dig('data', 'attributes', 'trackedItems', 0,
-                                  'displayName')).to eq('Private Medical Record')
-              expect(response.dig('data', 'attributes', 'trackedItems', 1,
-                                  'displayName')).to eq('Submit buddy statement(s)')
-            end
-          end
-        end
       end
 
       describe "when requesting a user's power of attorney" do
@@ -297,6 +262,68 @@ RSpec.describe BenefitsClaims::Service do
             VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
               raw_response = @service.submit526({}, '', '', { generate_pdf: true })
               expect(raw_response.body).to eq('No example available')
+            end
+          end
+        end
+      end
+
+      describe 'when submitting a 2122' do
+        let(:lh_config) { double }
+        let(:attributes) do
+          {
+            veteran: {
+              address: {
+                addressLine1: '936 Gus Points',
+                city: 'Watersborough',
+                countryCode: 'US',
+                stateCode: 'CO',
+                zipCode: '36090'
+              }
+            },
+            recordConsent: true,
+            consentLimits: %w[DRUG_ABUSE ALCOHOLISM HIV SICKLE_CELL],
+            serviceOrganization: {
+              poaCode: '095',
+              registrationNumber: '999999999999'
+            }
+          }
+        end
+        let(:expected_data) { { data: { attributes: } } }
+        let(:expected_response) do
+          {
+            'data' => {
+              'id' => '12beb731-3440-44d2-84ba-473bd75201aa',
+              'type' => 'organization',
+              'attributes' => {
+                'code' => '095',
+                'name' => 'Italian American War Veterans of the US, Inc.',
+                'phoneNumber' => '440-233-6527'
+              }
+            }
+          }
+        end
+
+        context 'successful submit' do
+          it 'submits the correct data to lighthouse' do
+            @service = BenefitsClaims::Service.new('1012666183V089914')
+            VCR.use_cassette(
+              'lighthouse/benefits_claims/power_of_attorney_decision/202_response',
+              match_requests_on: %i[method uri headers body]
+            ) do
+              expect(
+                @service.submit2122(attributes, 'lh_client_id', 'key_path').body
+              ).to eq expected_response
+            end
+          end
+        end
+
+        context 'rep does not have poa for veteran' do
+          it 'returns a not_found response' do
+            @service = BenefitsClaims::Service.new('1012666183V089914')
+            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/404_response') do
+              expect do
+                @service.submit2122(attributes, 'lh_client_id', 'key_path')
+              end.to raise_error(Common::Exceptions::ResourceNotFound)
             end
           end
         end

@@ -339,7 +339,7 @@ module VAOS
           clinics: ActiveModel::Type::Boolean.new.deserialize(included&.include?('clinics')),
           facilities: ActiveModel::Type::Boolean.new.deserialize(included&.include?('facilities')),
           avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs')),
-          travel_pay: ActiveModel::Type::Boolean.new.deserialize(included&.include?('travel_pay_claims'))
+          travel_pay_claims: ActiveModel::Type::Boolean.new.deserialize(included&.include?('travel_pay_claims'))
         }
       end
 
@@ -347,7 +347,7 @@ module VAOS
         included = appointment_show_params[:_include]&.split(',')
         {
           avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs')),
-          travel_pay: ActiveModel::Type::Boolean.new.deserialize(included&.include?('travel_pay_claims'))
+          travel_pay_claims: ActiveModel::Type::Boolean.new.deserialize(included&.include?('travel_pay_claims'))
         }
       end
 
@@ -424,14 +424,14 @@ module VAOS
           },
           phone: params[:phone_number],
           email: params[:email],
-          birthDate: params[:birth_date],
+          birth_date: params[:birth_date],
           gender: params[:gender],
           address: {
             line: params.dig(:address, :line),
             city: params.dig(:address, :city),
             state: params.dig(:address, :state),
             country: params.dig(:address, :country),
-            postalCode: params.dig(:address, :postal_code),
+            postal_code: params.dig(:address, :postal_code),
             type: params.dig(:address, :type)
           }
         }
@@ -456,8 +456,8 @@ module VAOS
         eps_provider_service.get_drive_times(
           destinations: {
             provider.id => {
-              latitude: provider.location['latitude'],
-              longitude: provider.location['longitude']
+              latitude: provider.location[:latitude],
+              longitude: provider.location[:longitude]
             }
           },
           origin: {

@@ -29,6 +29,8 @@ class SavedClaim < ApplicationRecord
   has_many :form_submissions, dependent: :nullify
   has_many :claim_va_notifications, dependent: :destroy
 
+  belongs_to :user_account, optional: true
+
   after_create :after_create_metrics
   after_destroy :after_destroy_metrics
 
