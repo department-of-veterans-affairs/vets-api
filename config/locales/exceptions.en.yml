@@ -490,6 +490,11 @@ en:
         <<: *validation_errors
         code: 'SM152'
         detail: 'Email address is invalid'
+      SM154:
+        <<: *validation_errors
+        code: 'SM154'
+        detail: 'Email Signature Name and Title is required'
+        status: 400
       SM172:
         <<: *external_defaults
         code: 'SM172'
