@@ -748,7 +748,7 @@ RSpec.describe HealthCareApplication, type: :model do
         end
 
         it 'logs message to sentry' do
-          expect(health_care_application).to receive(:log_message_to_sentry).with(
+          expect(health_care_application).to receive(:log_message_all).with(
             'HCA total failure',
             :error,
             {
@@ -778,7 +778,7 @@ RSpec.describe HealthCareApplication, type: :model do
           end
 
           it 'does not log message to sentry' do
-            expect(health_care_application).not_to receive(:log_message_to_sentry)
+            expect(health_care_application).not_to receive(:log_message_all)
             subject
           end
         end
@@ -796,7 +796,7 @@ RSpec.describe HealthCareApplication, type: :model do
           end
 
           it 'logs message to sentry' do
-            expect(health_care_application).to receive(:log_message_to_sentry).with(
+            expect(health_care_application).to receive(:log_message_all).with(
               'HCA total failure',
               :error,
               {
