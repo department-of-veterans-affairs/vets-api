@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../app/services/concerns/jwt_wrapper'
 
-describe Concerns::JwtWrapper do
+describe Common::JwtWrapper do
   subject { described_class.new(settings) }
 
   let(:rsa_key) { OpenSSL::PKey::RSA.new(2048) }

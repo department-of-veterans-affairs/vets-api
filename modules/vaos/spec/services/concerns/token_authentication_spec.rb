@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../app/services/concerns/token_authentication'
-require_relative '../../../app/services/concerns/jwt_wrapper'
-require 'common/client/concerns/monitoring'
 
 # Base class for testing that implements perform
 # This is used so we don't have to implement all other functions of the service session class.
@@ -32,7 +29,7 @@ end
 
 # Test class to include the TokenAuthentication concern
 class TestTokenService < TestServiceBase
-  include Concerns::TokenAuthentication
+  include TokenAuthentication
   include Common::Client::Concerns::Monitoring
 
   # Define needed Redis configuration
@@ -54,15 +51,15 @@ class TestTokenService < TestServiceBase
   end
 end
 
-RSpec.describe Concerns::TokenAuthentication do
+RSpec.describe TokenAuthentication do
   subject { TestTokenService.new }
 
   let(:request_id) { '123456-abcdef' }
-  let(:jwt_wrapper) { instance_double(Concerns::JwtWrapper, sign_assertion: 'signed-jwt-token') }
+  let(:jwt_wrapper) { instance_double(Common::JwtWrapper, sign_assertion: 'signed-jwt-token') }
 
   before do
     RequestStore.store['request_id'] = request_id
-    allow(Concerns::JwtWrapper).to receive(:new).and_return(jwt_wrapper)
+    allow(Common::JwtWrapper).to receive(:new).and_return(jwt_wrapper)
     Rails.cache.clear
   end
 
@@ -136,13 +133,13 @@ RSpec.describe Concerns::TokenAuthentication do
 
       it 'raises TokenError when response body is nil' do
         expect { subject.send(:parse_token_response, invalid_response) }
-          .to raise_error(Concerns::TokenAuthentication::TokenError, 'Invalid token response')
+          .to raise_error(TokenAuthentication::TokenError, 'Invalid token response')
       end
 
       it 'raises TokenError when access_token is blank' do
         invalid_response.body = { 'access_token' => '' }
         expect { subject.send(:parse_token_response, invalid_response) }
-          .to raise_error(Concerns::TokenAuthentication::TokenError, 'Invalid token response')
+          .to raise_error(TokenAuthentication::TokenError, 'Invalid token response')
       end
     end
   end

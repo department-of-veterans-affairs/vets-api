@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'common/exceptions'
-require_relative '../../../app/models/ccra/referral_list_entry'
-require_relative '../../../app/models/ccra/referral_detail'
 
 describe Ccra::ReferralService do
   subject { described_class.new(user) }
@@ -14,7 +11,7 @@ describe Ccra::ReferralService do
 
   before do
     allow(RequestStore.store).to receive(:[]).with('request_id').and_return('request-id')
-    allow_any_instance_of(Concerns::JwtWrapper).to receive(:sign_assertion).and_return(jwt_token)
+    allow_any_instance_of(Common::JwtWrapper).to receive(:sign_assertion).and_return(jwt_token)
     allow(Flipper).to receive(:enabled?).with(VAOS::SessionService::STS_OAUTH_TOKEN, user).and_return(true)
 
     # Allow any cache fetch call to return the access token if it matches our key, otherwise nil

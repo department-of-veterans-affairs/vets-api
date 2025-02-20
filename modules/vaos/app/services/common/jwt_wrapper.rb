@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Concerns
+module Common
   class JwtWrapper
     SIGNING_ALGORITHM = 'RS512'
 
