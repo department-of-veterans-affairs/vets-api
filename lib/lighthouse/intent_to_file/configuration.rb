@@ -13,21 +13,21 @@ module Lighthouse
       # @return [String] Base path for intent to file URLs.
       #
       def base_path
-        "#{Settings.evss.url}/wss-intenttofile-services-web/rest/intenttofile/v1"
+        "#{Settings.lighthouse.url}/wss-intenttofile-services-web/rest/intenttofile/v1"
       end
 
       ##
       # @return [String] Service name to use in breakers and metrics.
       #
       def service_name
-        'EVSS/IntentToFile'
+        'Lighthouse/IntentToFile'
       end
 
       ##
       # @return [Boolean] Should the service use mock data in lower environments.
       #
       def mock_enabled?
-        Settings.evss.mock_itf || false
+        Settings.lighthouse.mock_itf || false
       end
     end
   end
