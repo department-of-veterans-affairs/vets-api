@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Create do
   describe '#call' do
     subject do
-      described_class.new(claimant: claimant, form_data: form_data, poa_code: poa_code,
-                          registration_number: registration_number)
+      described_class.new(claimant:, form_data:, poa_code:,
+                          registration_number:)
     end
 
     let(:claimant) { create(:user_account_with_verification) }
