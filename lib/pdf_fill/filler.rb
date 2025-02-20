@@ -141,7 +141,8 @@ module PdfFill
       extras_generator = ExtrasGenerator.new(
         extras_redesign: fill_options.fetch(:extras_redesign, false),
         form_name: form_id.sub(/V2\z/, ''),
-        start_page: form_class::START_PAGE, sections: form_class::SECTIONS)
+        start_page: form_class::START_PAGE, sections: form_class::SECTIONS
+      )
       hash_converter = HashConverter.new(form_class.date_strftime, extras_generator)
       new_hash = hash_converter.transform_data(
         form_data: form_class.new(form_data).merge_fields(fill_options),
@@ -152,10 +153,7 @@ module PdfFill
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
 
       (form_id == SavedClaim::CaregiversAssistanceClaim::FORM ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
-        template_path,
-        file_path,
-        new_hash,
-        flatten: Rails.env.production?
+        template_path, file_path, new_hash, flatten: Rails.env.production?
       )
 
       combine_extras(file_path, hash_converter.extras_generator)
