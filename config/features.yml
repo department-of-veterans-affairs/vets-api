@@ -300,6 +300,10 @@ features:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
     enable_in_development: true
+  lighthouse_claims_api_add_person_proxy:
+    actor_type: user
+    description: When enabled, will allow for add_person_proxy call in both versions
+    enable_in_development: true
   confirmation_page_new:
     actor_type: user
     description: Enables the 2024 version of the confirmation page view in simple forms
@@ -311,6 +315,10 @@ features:
   cst_5103_update_enabled:
     actor_type: user
     description: When enabled, claims status tool will use the new 5103 alert designs and hides the ask your claim decision section
+    enable_in_development: true
+  cst_show_document_upload_status:
+    actor_type: user
+    description: When enabled, claims status tool will display the upload status that comes from the evidence_submissions table.
     enable_in_development: true
   cst_claim_phases:
     actor_type: user
@@ -1102,6 +1110,10 @@ features:
     actor_type: user
     description: Enables/disables refill progress related work
     enable_in_development: true
+  mhv_medications_remove_landing_page:
+    actor_type: user
+    description: Enables/disables removal of landing page
+    enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
@@ -1354,6 +1366,14 @@ features:
     actor_type: user
     description: Displays an alert to users on 5490 intro page that the Backend Service is Down.
     enable_in_development: false
+  show_one_va_debt_letter:
+    actor_type: user
+    description: Enables the One VA Debt Letter feature
+    enable_in_development: true
+  show_payment_history_mvp:
+    actor_type: user
+    description: Enables the Payment History MVP features for development
+    enable_in_development: true
   submission_pdf_s3_upload:
     actor_type: user
     description: Used to toggle use of uploading a submission pdf to S3 and returning a pre-signed url.
@@ -1574,6 +1594,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for changes made in the FE based on API source of truth changes.
+  va_online_scheduling_past_appt_date_range:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for modifying the date range selection on the Past appointments page.
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled
@@ -1881,6 +1905,9 @@ features:
   pension_confirmation_update:
     actor_type: user
     description: Show updated confirmation page
+  pension_form_profile_module_enabled:
+    actor_type: user
+    description: Use the module version of the FormProfile
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
