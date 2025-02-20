@@ -17,7 +17,7 @@ module ClaimsApi
     def va_notify_headers(alg)
       {
         typ: 'JWT',
-        alg: alg
+        alg:
       }
     end
 
