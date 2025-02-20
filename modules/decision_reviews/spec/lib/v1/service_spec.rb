@@ -11,7 +11,7 @@ describe DecisionReviews::V1::Service do
   let(:user) { build(:user, :loa3, ssn: ssn_with_mockdata) }
 
   before do
-    Flipper.disable :decision_review_service_common_exceptions_enabled
+    allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(false)
   end
 
   describe 'VetsJsonSchema used in service' do
@@ -184,7 +184,7 @@ describe DecisionReviews::V1::Service do
 
       describe 'with feature flag enabled' do
         before do
-          Flipper.enable :decision_review_service_common_exceptions_enabled
+          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
         end
 
         it 'throws a Common::Exception' do
@@ -209,7 +209,7 @@ describe DecisionReviews::V1::Service do
 
       describe 'with feature flag enabled' do
         before do
-          Flipper.enable :decision_review_service_common_exceptions_enabled
+          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
         end
 
         it 'throws a Common::Exception' do
@@ -260,7 +260,7 @@ describe DecisionReviews::V1::Service do
 
       describe 'with feature flag enabled' do
         before do
-          Flipper.enable :decision_review_service_common_exceptions_enabled
+          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
         end
 
         it 'throws a Common::Exception' do
@@ -320,7 +320,7 @@ describe DecisionReviews::V1::Service do
 
       describe 'with feature flag enabled' do
         before do
-          Flipper.enable :decision_review_service_common_exceptions_enabled
+          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
         end
 
         it 'throws a Common::Exception' do
@@ -343,7 +343,9 @@ describe DecisionReviews::V1::Service do
       end
 
       describe 'with feature flag enabled' do
-        before { Flipper.enable :decision_review_service_common_exceptions_enabled }
+        before do
+          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
+        end
 
         it 'throws a Common::Exception' do
           VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-422_V1') do
@@ -386,7 +388,9 @@ describe DecisionReviews::V1::Service do
       end
 
       describe 'with feature flag enabled' do
-        before { Flipper.enable :decision_review_service_common_exceptions_enabled }
+        before do
+          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
+        end
 
         it 'throws a Common::Exception' do
           VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-422_V1') do
@@ -436,7 +440,7 @@ describe DecisionReviews::V1::Service do
 
       describe 'with feature flag enabled' do
         before do
-          Flipper.enable :decision_review_service_common_exceptions_enabled
+          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
         end
 
         it 'throws a Common::Exception' do
@@ -494,7 +498,7 @@ describe DecisionReviews::V1::Service do
 
       describe 'with feature flag enabled' do
         before do
-          Flipper.enable :decision_review_service_common_exceptions_enabled
+          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
         end
 
         it 'throws a Common::Exception' do
@@ -536,7 +540,7 @@ describe DecisionReviews::V1::Service do
 
       describe 'with feature flag enabled' do
         before do
-          Flipper.enable :decision_review_service_common_exceptions_enabled
+          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
         end
 
         it 'throws a Common::Exception' do
@@ -636,7 +640,7 @@ describe DecisionReviews::V1::Service do
 
       describe 'with feature flag enabled' do
         before do
-          Flipper.enable :decision_review_service_common_exceptions_enabled
+          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
         end
 
         it 'throws a Common::Exception' do
@@ -687,7 +691,7 @@ describe DecisionReviews::V1::Service do
 
       describe 'with feature flag enabled' do
         before do
-          Flipper.enable :decision_review_service_common_exceptions_enabled
+          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
         end
 
         it 'throws a Common::Exception' do
@@ -747,7 +751,7 @@ describe DecisionReviews::V1::Service do
 
       describe 'with feature flag enabled' do
         before do
-          Flipper.enable :decision_review_service_common_exceptions_enabled
+          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
         end
 
         it 'throws a Common::Exception' do
@@ -771,7 +775,7 @@ describe DecisionReviews::V1::Service do
 
       describe 'with feature flag enabled' do
         before do
-          Flipper.enable :decision_review_service_common_exceptions_enabled
+          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
         end
 
         it 'throws a Common::Exception' do
@@ -813,7 +817,7 @@ describe DecisionReviews::V1::Service do
 
       describe 'with feature flag enabled' do
         before do
-          Flipper.enable :decision_review_service_common_exceptions_enabled
+          allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(true)
         end
 
         it 'throws a Common::Exception' do
