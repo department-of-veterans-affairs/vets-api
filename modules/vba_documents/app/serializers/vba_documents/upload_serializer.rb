@@ -18,9 +18,7 @@ module VBADocuments
       detail.length > MAX_DETAIL_DISPLAY_LENGTH ? "#{detail[0..MAX_DETAIL_DISPLAY_LENGTH - 1]}..." : detail
     end
 
-    attribute :final_status do |object|
-      object.in_final_status?
-    end
+    attribute :final_status, &:in_final_status?
 
     attribute :location, if: proc { |_, params|
       # The location will be serialized only if the :render_location key of params is true
