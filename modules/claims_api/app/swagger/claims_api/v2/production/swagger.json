@@ -9331,7 +9331,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:164:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:163:in `representative'"
                       }
                     }
                   ]
@@ -9787,7 +9787,7 @@
                                     "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
-                                    "maxLength": 14
+                                    "maxLength": 23
                                   }
                                 },
                                 "if": {
@@ -9927,7 +9927,7 @@
                                     "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
-                                    "maxLength": 14
+                                    "maxLength": 23
                                   }
                                 },
                                 "if": {
@@ -10476,7 +10476,7 @@
                                     "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
-                                    "maxLength": 14
+                                    "maxLength": 23
                                   }
                                 },
                                 "if": {
@@ -10616,7 +10616,7 @@
                                     "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
-                                    "maxLength": 14
+                                    "maxLength": 23
                                   }
                                 },
                                 "if": {
@@ -11228,7 +11228,7 @@
                                     "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
-                                    "maxLength": 14
+                                    "maxLength": 23
                                   }
                                 },
                                 "if": {
@@ -11354,7 +11354,7 @@
                                     "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
-                                    "maxLength": 14
+                                    "maxLength": 23
                                   }
                                 },
                                 "if": {
@@ -11983,7 +11983,7 @@
                                     "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
-                                    "maxLength": 14
+                                    "maxLength": 23
                                   }
                                 },
                                 "if": {
@@ -12109,7 +12109,7 @@
                                     "pattern": "^\\d(?:[- ]?\\d){0,13}$",
                                     "example": "555-5555",
                                     "minLength": 1,
-                                    "maxLength": 14
+                                    "maxLength": 23
                                   }
                                 },
                                 "if": {
