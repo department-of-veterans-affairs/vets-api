@@ -17,7 +17,7 @@ jobs:
       TERM: xterm-256color
       DOCKER_BUILDKIT: 1
       COMPOSE_DOCKER_CLI_BUILD: 1
-    runs-on: ubuntu-16-cores-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
