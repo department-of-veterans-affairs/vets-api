@@ -214,7 +214,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     it 'supports getting an disability_compensation_in_progress form' do
       create(:in_progress_526_form, user_uuid: mhv_user.uuid)
       stub_evss_pciu(mhv_user)
-      VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+      VCR.use_cassette('lighthouse/claims/200_response') do
         expect(subject).to validate(
           :get,
           '/v0/disability_compensation_in_progress_forms/{id}',
@@ -1170,12 +1170,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     describe 'disability compensation' do
       before do
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
-        # TODO: remove Flipper feature toggle when lighthouse provider is implemented
-        Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider_foreground')
         Flipper.disable('disability_compensation_prevent_submission_job')
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
         Flipper.disable('disability_compensation_production_tester')
-        Flipper.disable(:disability_compensation_staging_lighthouse_brd)
       end
 
       let(:form526v2) do
@@ -1184,13 +1180,13 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'supports getting rated disabilities' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 401)
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+        VCR.use_cassette('lighthouse/claims/200_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 200, headers)
         end
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
+        VCR.use_cassette('lighthouse/claims/400_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 400, headers)
         end
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
+        VCR.use_cassette('lighthouse/claims/500_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 502, headers)
         end
       end
@@ -1236,10 +1232,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'supports getting separation_locations' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 401)
-        VCR.use_cassette('evss/reference_data/get_intake_sites_500') do
+        VCR.use_cassette('brd/separation_locations_502') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 502, headers)
         end
-        VCR.use_cassette('evss/reference_data/get_intake_sites') do
+        VCR.use_cassette('brd/separation_locations') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 200, headers)
         end
       end

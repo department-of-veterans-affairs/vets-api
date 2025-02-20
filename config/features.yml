@@ -87,9 +87,6 @@ features:
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
-  disability_compensation_staging_lighthouse_brd:
-    actor_type: user
-    description: Switches to Lighthouse Staging BRD Service. NEVER ENABLE IN PRODUCTION.
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -1743,12 +1740,6 @@ features:
   disability_compensation_email_veteran_on_polled_lighthouse_doc_failure:
     actor_type: user
     description: Sends document upload failure emails when polled doc uploaded to Lighthouse has failed to process at Lighthouse
-  disability_compensation_lighthouse_rated_disabilities_provider_foreground:
-    actor_type: user
-    description: If enabled uses the lighthouse rated disabilities endpoint for foreground requests
-  disability_compensation_lighthouse_rated_disabilities_provider_background:
-    actor_type: user
-    description: If enabled uses the lighthouse rated disabilities endpoint for background tasks
   disability_compensation_lighthouse_document_service_provider:
     actor_type: user
     description: If enabled uses the lighthouse documents service
@@ -1764,9 +1755,6 @@ features:
   disability_compensation_remove_pciu:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)
-  disability_compensation_lighthouse_brd:
-    actor_type: user
-    description: If enabled uses the lighthouse Benefits Reference Data service
   disability_compensation_lighthouse_generate_pdf:
     actor_type: user
     description: If enabled uses the lighthouse Benefits Claims service to generate a 526 pdf
