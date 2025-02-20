@@ -25,7 +25,7 @@ RSpec.describe 'Mobile::V0::User::Demographics', type: :request do
                                                 { 'id' => user.uuid,
                                                   'type' => 'demographics',
                                                   'attributes' =>
-                                                   { 'gender_identity' => 'F', 'preferred_name' => 'SAM' } } })
+                                                   { 'gender_identity' => nil, 'preferred_name' => 'SAM' } } })
         end
       end
     end
@@ -49,7 +49,7 @@ RSpec.describe 'Mobile::V0::User::Demographics', type: :request do
                                                 { 'id' => user.uuid,
                                                   'type' => 'demographics',
                                                   'attributes' =>
-                                                   { 'gender_identity' => 'F', 'preferred_name' => 'SAM' } } })
+                                                   { 'gender_identity' => nil, 'preferred_name' => 'SAM' } } })
         end
       end
 
