@@ -28,6 +28,7 @@ Rails.application.routes.draw do
     unless Settings.vsp_environment == 'production'
       resources :client_configs, param: :client_id
       resources :service_account_configs, param: :service_account_id
+      get '/user_info', to: 'user_info#show'
     end
   end
 
