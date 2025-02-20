@@ -33,7 +33,7 @@ module AccreditedRepresentativePortal
 
     def handle_errors(e, poa_form_submission)
       log_exception_to_sentry(e)
-      poa_form_submission.update(error_message: e.message, status: :enqueue_failed)
+      poa_form_submission.update(error_message: e.message)
       raise e
     end
 
