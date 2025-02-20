@@ -7,10 +7,10 @@ require 'rails_helper'
 class TestServiceBase
   def perform(method, url, params, headers)
     @last_request = OpenStruct.new(
-      method: method,
-      url: url,
-      params: params,
-      headers: headers
+      method:,
+      url:,
+      params:,
+      headers:
     )
 
     # Return mock response for token request
