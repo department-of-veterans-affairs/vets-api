@@ -13,12 +13,13 @@ module Eps
     end
 
     def mock_enabled?
-      [true, 'true'].include?(settings.mock)
+      settings.mock
     end
 
     def connection
       Faraday.new(api_url, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
+        conn.request :camelcase
         conn.request :json
 
         if ENV['VAOS_EPS_DEBUG'] && !Rails.env.production?
@@ -27,6 +28,7 @@ module Eps
         end
 
         conn.response :betamocks if mock_enabled?
+        conn.response :snakecase
         conn.response :json, content_type: /\bjson$/
         conn.response :vaos_errors
         conn.use :eps_logging

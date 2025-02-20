@@ -25,6 +25,13 @@ module IvcChampva
 
           if @current_user && response[:status] == 200
             InProgressForm.form_for_user(params[:form_number], @current_user)&.destroy!
+            # TODO: Add feature toggle around this
+            # TODO: Make call to VES with parsed_form_data e.g.,
+
+            # ves_client = IvcChampva::VesApi::Client.new
+            # ves_client.submit_1010d('fake-id', 'fake-user', parsed_form_data)
+
+            # TODO: Add error handling for VES failures.
           end
 
           render json: response[:json], status: response[:status]
@@ -36,12 +43,13 @@ module IvcChampva
       end
 
       # Modified from claim_documents_controller.rb:
-      def unlock_file(file, file_password)
+      def unlock_file(file, file_password) # rubocop:disable Metrics/MethodLength
         return file unless File.extname(file) == '.pdf' && file_password
 
         pdftk = PdfForms.new(Settings.binaries.pdftk)
         tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
 
+        has_pdf_err = false
         begin
           pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
         rescue PdfForms::PdftkError => e
@@ -49,6 +57,11 @@ module IvcChampva
           password_regex = /(input_pw).*?(output)/
           sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
           log_message_to_sentry(sanitized_message, 'warn')
+          has_pdf_err = true
+        end
+
+        # This helps prevent leaking exception context to DataDog when we raise this error
+        if has_pdf_err
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
             source: 'IvcChampva::V1::UploadsController'
@@ -57,7 +70,6 @@ module IvcChampva
 
         file.tempfile.unlink
         file.tempfile = tmpf
-        file
       end
 
       def submit_supporting_documents

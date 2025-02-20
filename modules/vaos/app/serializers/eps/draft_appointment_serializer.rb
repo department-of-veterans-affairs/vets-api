@@ -10,15 +10,15 @@ module Eps
       {
         id: object.provider.id,
         name: object.provider.name,
-        isActive: object.provider.isActive,
-        individualProviders: object.provider.individualProviders,
-        providerOrganization: object.provider.providerOrganization,
+        is_active: object.provider.is_active,
+        individual_providers: object.provider.individual_providers,
+        provider_organization: object.provider.provider_organization,
         location: object.provider.location,
-        networkIds: object.provider.networkIds,
-        schedulingNotes: object.provider.schedulingNotes,
-        appointmentTypes: object.provider.appointmentTypes,
+        network_ids: object.provider.network_ids,
+        scheduling_notes: object.provider.scheduling_notes,
+        appointment_types: object.provider.appointment_types,
         specialties: object.provider.specialties,
-        visitMode: object.provider.visitMode,
+        visit_mode: object.provider.visit_mode,
         features: object.provider.features
       }
     end

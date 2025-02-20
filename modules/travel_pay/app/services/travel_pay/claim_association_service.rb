@@ -31,8 +31,8 @@ module TravelPay
     # appointments: [VAOS::Appointment + travelPayClaim]
 
     def associate_appointments_to_claims(params = {})
-      date_range = try_parse_date_range(params['start_date'], params['end_date'])
-      date_range = date_range.transform_values { |t| strip_timezone(t).iso8601 }
+      date_range = DateUtils.try_parse_date_range(params['start_date'], params['end_date'])
+      date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
 
       auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims_by_date(veis_token, btsss_token, date_range)
@@ -59,8 +59,8 @@ module TravelPay
       appt = params['appointment']
       # Because we only receive a single date/time but the external endpoint requires 2 dates
       # in this case both start and end dates are the same
-      date_range = try_parse_date_range(appt[:local_start_time], appt[:local_start_time])
-      date_range = date_range.transform_values { |t| strip_timezone(t).iso8601 }
+      date_range = DateUtils.try_parse_date_range(appt[:local_start_time], appt[:local_start_time])
+      date_range = date_range.transform_values { |t| DateUtils.strip_timezone(t).iso8601 }
 
       auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims_by_date(veis_token, btsss_token, date_range)
@@ -127,8 +127,8 @@ module TravelPay
 
     def find_matching_claim(claims, appt_start)
       claims.find do |cl|
-        claim_time = try_parse_date(cl['appointmentDateTime'])
-        appt_time = strip_timezone(appt_start)
+        claim_time = DateUtils.try_parse_date(cl['appointmentDateTime'])
+        appt_time = DateUtils.strip_timezone(appt_start)
 
         claim_time.eql? appt_time
       end
@@ -149,39 +149,6 @@ module TravelPay
       { 'status' => faraday_response_body['statusCode'],
         'success' => faraday_response_body['success'],
         'message' => faraday_response_body['message'] }
-    end
-
-    def strip_timezone(time)
-      # take the time and parse it as a Time object if necessary
-      # convert it to an array of its parts - zone will be nil
-      # create a new time with those parts, using the nil timezone
-
-      t = try_parse_date(time)
-      time_parts = %i[year month day hour min sec]
-      Time.utc(*t.deconstruct_keys(time_parts).values)
-    end
-
-    def try_parse_date(datetime)
-      raise InvalidComparableError.new('Provided datetime is nil.', datetime) if datetime.nil?
-
-      return datetime.to_time if datetime.is_a?(Time) || datetime.is_a?(Date)
-
-      # Disabled Rails/Timezone rule because we don't care about the tz in this dojo.
-      # If we parse it any other 'recommended' way, the time will be converted based
-      # on the timezone, and the datetimes won't match
-      Time.parse(datetime) if datetime.is_a? String # rubocop:disable Rails/TimeZone
-    rescue ArgumentError => e
-      raise ArgumentError,
-            message: "#{e}. Invalid date provided (given: #{datetime})."
-    end
-
-    def try_parse_date_range(start_date, end_date)
-      unless start_date && end_date
-        raise ArgumentError,
-              message: "Both start and end dates are required, got #{start_date}-#{end_date}."
-      end
-
-      { start_date: try_parse_date(start_date), end_date: try_parse_date(end_date) }
     end
 
     def auth_manager
