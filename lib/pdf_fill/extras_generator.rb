@@ -4,11 +4,12 @@ module PdfFill
   class ExtrasGenerator
     attr_reader :extras_redesign
 
-    def initialize(form_name: nil, extras_redesign: false, start_page: 1)
+    def initialize(extras_redesign: false, form_name: nil, start_page: 1, sections: nil)
       @generate_blocks = []
       @form_name = form_name
       @extras_redesign = extras_redesign
       @start_page = start_page
+      @sections = sections
     end
 
     def create_block(value, metadata)
@@ -26,7 +27,7 @@ module PdfFill
     end
 
     def add_text(value, metadata)
-      unless text?
+      unless text? || extras_redesign
         @generate_blocks << {
           metadata: {},
           block: lambda do |pdf|
@@ -35,6 +36,9 @@ module PdfFill
         }
       end
 
+      if @sections.present?
+        metadata[:section_index] = @sections.index { |sec| sec[:top_level_keys].include?(metadata[:top_level_key]) }
+      end
       @generate_blocks << {
         metadata:,
         block: create_block(value, metadata)
@@ -45,10 +49,17 @@ module PdfFill
       @generate_blocks.size.positive?
     end
 
+    def section_index(metadata)
+      return nil unless @sections.present? && metadata[:top_level_key].present?
+
+      @sections.index { |sec| sec[:top_level_keys].include?(metadata[:top_level_key]) }
+    end
+
     def sort_generate_blocks
       @generate_blocks.sort_by do |generate_block|
         metadata = generate_block[:metadata]
         [
+          metadata[:section_index] || -1,
           metadata[:question_num] || -1,
           metadata[:i] || 99_999,
           metadata[:question_suffix] || '',
@@ -101,7 +112,15 @@ module PdfFill
       end
     end
 
+    def render_new_section(pdf, section_index)
+      return unless @extras_redesign && @sections.present?
+
+      pdf.move_down(20)
+      pdf.text(@sections[section_index][:label], { size: 14 })
+    end
+
     def render_pdf_content(pdf, generate_blocks)
+      current_section_index = nil
       box_height = 25
       pdf.bounding_box(
         [pdf.bounds.left, pdf.bounds.top - box_height],
@@ -109,6 +128,11 @@ module PdfFill
         height: pdf.bounds.height - box_height
       ) do
         generate_blocks.each do |block|
+          section_index = block[:metadata][:section_index]
+          if section_index.present? && section_index != current_section_index
+            render_new_section(pdf, section_index)
+            current_section_index = section_index
+          end
           block[:block].call(pdf)
         end
       end
