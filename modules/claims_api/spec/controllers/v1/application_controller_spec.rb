@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-# require 'mock_redis'
 
 RSpec.describe ClaimsApi::V1::ApplicationController, type: :controller do
   let(:controller) { described_class.new }
