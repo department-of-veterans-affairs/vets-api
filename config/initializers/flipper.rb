@@ -7,7 +7,7 @@ require 'flipper/adapters/active_support_cache_store'
 require 'flipper/ui/action_patch'
 require 'flipper/instrumentation/event_subscriber'
 
-FLIPPER_FEATURE_CONFIG = YAML.safe_load(Rails.root.join('config', 'features.yml').read)
+FLIPPER_FEATURE_CONFIG ||= YAML.safe_load(Rails.root.join('config', 'features.yml').read)
 
 Rails.application.configure do
   config.flipper.test_help = false
@@ -15,8 +15,8 @@ Rails.application.configure do
 end
 
 Rails.application.reloader.to_prepare do
-  FLIPPER_ACTOR_USER = 'user'
-  FLIPPER_ACTOR_STRING = 'cookie_id'
+  FLIPPER_ACTOR_USER ||= 'user'
+  FLIPPER_ACTOR_STRING ||= 'cookie_id'
 
   # Modify Flipper::UI::Action to use our custom views
   Flipper::UI::Action.prepend(Flipper::UI::ActionPatch)
