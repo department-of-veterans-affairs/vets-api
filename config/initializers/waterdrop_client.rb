@@ -47,7 +47,7 @@ Rails.application.config.after_initialize do
                             end
       # Authentication to MSK via IAM OauthBearer token
       # Once we're ready to test connection to the Event Bus, this should be uncommented
-      # config.oauth.token_provider_listener = OAuthTokenRefresher.new
+      config.oauth.token_provider_listener = OAuthTokenRefresher.new
     end
 
     KAFKA_PRODUCER.monitor.subscribe(
