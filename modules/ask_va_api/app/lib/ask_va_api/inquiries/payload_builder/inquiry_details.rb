@@ -12,10 +12,10 @@ module AskVAApi
 
         def call
           {
-            inquiry_about: inquiry_about,
-            dependent_relationship: dependent_relationship,
-            veteran_relationship: veteran_relationship,
-            level_of_authentication: level_of_authentication
+            inquiry_about:,
+            dependent_relationship:,
+            veteran_relationship:,
+            level_of_authentication:
           }
         end
 
