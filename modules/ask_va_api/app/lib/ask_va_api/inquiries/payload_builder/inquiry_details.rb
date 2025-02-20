@@ -13,9 +13,11 @@ module AskVAApi
         def call
           inquiry_details = base_inquiry_details(inquiry_params[:your_role])
 
-          if education_benefits?(inquiry_params[:select_category],
-                                 inquiry_params[:select_topic]) ||
-             inquiry_params[:who_is_your_question_about] == "It's a general question"
+          if education_benefits_and_not_vrae(inquiry_params[:select_category],
+                                             inquiry_params[:select_topic]) ||
+             inquiry_params[:who_is_your_question_about] == "It's a general question" ||
+             benefits_outside_us_edu(inquiry_params[:select_category],
+                                     inquiry_params[:select_topic])
             return general_inquiry(inquiry_params, inquiry_details)
           end
 
@@ -31,8 +33,12 @@ module AskVAApi
 
         private
 
-        def education_benefits?(category, topic)
-          category == 'Education benefits and work study' && topic != 'Veteran Readiness and Employment'
+        def education_benefits_and_not_vrae(category, topic)
+          category == 'Education benefits and work study' && topic != 'Veteran Readiness and Employment (Chapter 31)'
+        end
+
+        def benefits_outside_us_edu(category, topic)
+          category == 'Benefits issues outside the U.S.' && topic == 'Education benefits and work study'
         end
 
         def base_inquiry_details(role)

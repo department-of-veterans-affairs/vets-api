@@ -46,6 +46,38 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
         end
       end
 
+      context 'when category is benefits outside us and topic edu' do
+        let(:select_category) { 'Benefits issues outside the U.S.' }
+        let(:select_topic) { 'Education benefits and work study' }
+        let(:who_is_your_question_about) { 'Myself' }
+
+        it 'returns the correct info' do
+          expect(builder.call)
+            .to eq({
+                     inquiry_about: 'A general question',
+                     dependent_relationship: nil,
+                     veteran_relationship: nil,
+                     level_of_authentication: 'Personal'
+                   })
+        end
+      end
+
+      context 'when who_is_your_question_about is a general question' do
+        let(:select_category) { 'Benefits issues outside the U.S.' }
+        let(:select_topic) { 'Education benefits and work study' }
+        let(:who_is_your_question_about) { "It's a general question" }
+
+        it 'returns the correct info' do
+          expect(builder.call)
+            .to eq({
+                     inquiry_about: 'A general question',
+                     dependent_relationship: nil,
+                     veteran_relationship: nil,
+                     level_of_authentication: 'Personal'
+                   })
+        end
+      end
+
       context 'when the veteran is the submitter' do
         let(:select_category) { 'Healthcare' }
         let(:select_topic) { 'Audiology and Hearing Aids' }
@@ -173,3 +205,38 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
     end
   end
 end
+
+# {"category_id"=>"75524deb-d864-eb11-bb24-000d3a579c45",
+#  "contact_preference"=>"Email",
+#  "date_of_death"=>"1999-02-01",
+#  "email_address"=>"test@test.com",
+#  "family_members_location_of_residence"=>"Alabama",
+#  "is_question_about_veteran_or_someone_else"=>"Someone else",
+#  "on_base_outside_us"=>"false",
+#  "phone_number"=>"3039751100",
+#  "preferred_name"=>"Glenny",
+#  "question"=>"test edu and vrae flow",
+#  "relationship_to_veteran"=>"I'm a family member of a Veteran",
+#  "select_category"=>"Education benefits and work study",
+#  "select_topic"=>"Veteran Readiness and Employment (Chapter 31)",
+#  "subject"=>"Test",
+#  "subtopic_id"=>"",
+#  "their_vre_information"=>"true",
+#  "their_vre_counselor"=>"Joe Smith",
+#  "their_relationship_to_veteran"=>"They're the Veteran's spouse",
+#  "topic_id"=>"b18831a7-8276-ef11-a671-001dd8097cca",
+#  "who_is_your_question_about"=>"Someone else",
+#  "pronouns"=>{"they_them_theirs"=>"true"},
+#  "about_yourself"=>{"first"=>"Yourself", "last"=>"Member"},
+#  "about_the_veteran"=>
+#   {"date_of_birth"=>"1950-01-01",
+#    "first"=>"Veteran",
+#    "last"=>"Member",
+#    "is_veteran_deceased"=>"true",
+#    "social_or_service_num"=>{"ssn"=>"997654321"}},
+#  "about_the_family_member"=>
+#   {"first"=>"Family",
+#    "last"=>"Member",
+#    "social_or_service_num"=>{"ssn"=>"123456799"},
+#    "date_of_birth"=>"2000-01-01"},
+#  "files"=>[{"file_name"=>nil, "file_content"=>nil}]}
