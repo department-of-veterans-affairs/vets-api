@@ -44,7 +44,6 @@ Style/GlobalVars:
   AllowedVariables:
     - $redis
 
-
 Style/HashSyntax:
   EnforcedShorthandSyntax: always
 
