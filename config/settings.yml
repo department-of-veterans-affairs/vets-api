@@ -255,6 +255,9 @@ pension_burial:
 
 bpds:
   jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
+  url: https://localhost:4000/api/v1/bpd
+  mock: false
+  schema_version: test
 
 central_mail:
   upload:
