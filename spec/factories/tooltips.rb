@@ -1,9 +1,22 @@
 FactoryBot.define do
   factory :tooltip do
-    user_account { nil }
-    tooltip_name { "MyString" }
-    last_signed_in { "2025-02-07 03:39:51" }
-    counter { 1 }
+    association :user_account
+    tooltip_name { "my_tooltip" }
+    last_signed_in { Time.now }
+    counter { 0 }
     hidden { false }
+
+    trait :hidden_tooltip do
+      hidden { true }
+    end
+
+    trait :high_counter_tooltip do
+      counter { 3 }
+      hidden { true }
+    end
+
+    trait :duplicate_name do
+      tooltip_name { "duplicate_name" }
+    end
   end
 end
