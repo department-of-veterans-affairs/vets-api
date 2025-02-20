@@ -1096,7 +1096,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               VCR.use_cassette 'vaos/eps/get_provider_service/200' do
                 VCR.use_cassette 'vaos/eps/draft_appointment/200' do
                   VCR.use_cassette 'vaos/eps/token/token_200' do
-                    post '/vaos/v2/appointments/draft', params: draft_params
+                    post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
                     expect(response).to have_http_status(:created)
                     expect(JSON.parse(response.body)).to eq(expected_response)
@@ -1221,7 +1221,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             VCR.use_cassette 'vaos/eps/get_provider_service/200' do
               VCR.use_cassette 'vaos/eps/draft_appointment/200' do
                 VCR.use_cassette 'vaos/eps/token/token_200' do
-                  post '/vaos/v2/appointments/draft', params: draft_params
+                  post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
                   expect(response).to have_http_status(:created)
                   expect(JSON.parse(response.body)).to eq(expected_response)

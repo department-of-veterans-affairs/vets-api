@@ -11,7 +11,7 @@ describe IvcChampva::S3 do
 
   let(:s3_instance) do
     IvcChampva::S3.new(
-      region: region,
+      region:,
       bucket: bucket_name
     )
   end

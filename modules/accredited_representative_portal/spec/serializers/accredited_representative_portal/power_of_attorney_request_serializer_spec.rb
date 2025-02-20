@@ -20,6 +20,13 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
 
   let(:pending_individual_poa_request) { create(:power_of_attorney_request) }
 
+  let(:veteran_accepted_resolution) do
+    create(:power_of_attorney_request_resolution, :acceptance, :with_veteran_claimant)
+  end
+  let(:veteran_accepted_poa_request) { veteran_accepted_resolution.power_of_attorney_request }
+  let(:veteran_accepted_response) { described_class.new(veteran_accepted_poa_request) }
+  let(:veteran_accepted_data) { veteran_accepted_response.serializable_hash }
+
   describe 'PowerOfAttorneyRequestSerializer' do
     it 'includes :id' do
       expect(veteran_declined_data[:id]).to eq veteran_declined_poa_request.id
@@ -79,6 +86,22 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
           pending_individual_response = described_class.new(pending_individual_poa_request)
           pending_individual_resolution_data = pending_individual_response.serializable_hash[:resolution]
           expect(pending_individual_resolution_data).to be_nil
+        end
+      end
+    end
+
+    describe ':power_of_attorney_form_submission' do
+      context 'when there is a resolution of type Expiration' do
+        it 'does not include a submission' do
+          submission_data = dependent_expiration_data[:powerOfAttorneyFormSubmission]
+          expect(submission_data).not_to be_present
+        end
+      end
+
+      context 'when there is a resolution of type Acceptance' do
+        it 'does include a submission' do
+          submission_data = veteran_accepted_data[:powerOfAttorneyFormSubmission]
+          expect(submission_data[:status]).to be_in(%w[PENDING FAILED SUCCEEDED])
         end
       end
     end

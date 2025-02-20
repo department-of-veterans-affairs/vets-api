@@ -3,18 +3,11 @@
 module SentryControllerLogging
   extend ActiveSupport::Concern
 
-  included { before_action :set_tags_and_extra_context }
+  included { before_action :set_sentry_tags_and_extra_context }
 
   private
 
-  def set_tags_and_extra_context
-    RequestStore.store['request_id'] = request.uuid
-    RequestStore.store['additional_request_attributes'] = {
-      'remote_ip' => request.remote_ip,
-      'user_agent' => request.user_agent,
-      'user_uuid' => current_user&.uuid,
-      'source' => request.headers['Source-App-Name']
-    }
+  def set_sentry_tags_and_extra_context
     Sentry.set_extras(request_uuid: request.uuid)
     Sentry.set_user(user_context) if current_user
     Sentry.set_tags(tags_context)
