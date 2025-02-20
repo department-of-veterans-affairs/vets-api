@@ -9,8 +9,8 @@ module V0
 
       start_date = params[:start_date].present? ? Date.parse(params[:start_date]) : 1.month.ago.to_date
       end_date = params[:end_date].present? ? Date.parse(params[:end_date]).end_of_day : Time.zone.now
-      page = params[:page].presence || 1
-      per_page = params[:per_page].presence || 10
+      page = (params[:page].presence || 1).to_i
+      per_page = (params[:per_page].presence || 10).to_i
 
       user_actions = UserAction
                      .where(subject_user_verification_id: user_verification.id)
@@ -23,9 +23,16 @@ module V0
       serialized_data = UserActionSerializer.new(user_actions, is_collection: true,
                                                                include: [:user_action_event]).serializable_hash
 
-      serialized_data[:current_page] = user_actions.current_page
+      render json: { data: serialized_data, meta: pagination_data(user_actions) }
+    end
 
-      render json: serialized_data
+    def pagination_data(user_actions)
+      {
+        current_page: user_actions.current_page,
+        total_pages: user_actions.total_pages,
+        per_page: user_actions.per_page,
+        total_count: user_actions.count
+      }
     end
   end
 end
