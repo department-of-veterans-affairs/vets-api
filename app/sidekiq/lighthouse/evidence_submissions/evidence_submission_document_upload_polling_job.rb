@@ -10,9 +10,41 @@ module Lighthouse
       # Job runs every hour with 0 retries
       sidekiq_options retry: 0
       POLLED_BATCH_DOCUMENT_COUNT = 100
+      STATSD_KEY_PREFIX = 'worker.lighthouse.cst_document_uploads'
+      STATSD_PENDING_DOCUMENTS_POLLED_KEY = 'pending_documents_polled'
+      STATSD_PENDING_DOCUMENTS_MARKED_SUCCESS_KEY = 'pending_documents_marked_completed'
+      STATSD_PENDING_DOCUMENTS_MARKED_FAILED_KEY = 'pending_documents_marked_failed'
+
+      sidekiq_retries_exhausted do |msg, _ex|
+        job_id = msg['jid']
+        error_class = msg['error_class']
+        error_message = msg['error_message']
+
+        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+
+        Rails.logger.warn(
+          'Lighthouse::EvidenceSubmissionDocumentUploadPollingJob retries exhausted',
+          { job_id:, error_class:, error_message:, timestamp: Time.now.utc }
+        )
+      rescue => e
+        Rails.logger.error(
+          'Failure in EvidenceSubmissionDocumentUploadPollingJob#sidekiq_retries_exhausted',
+          {
+            messaged_content: e.message,
+            job_id:,
+            pre_exhaustion_failure: {
+              error_class:,
+              error_message:
+            }
+          }
+        )
+      end
 
       def perform
+        successful_documents_before_polling = EvidenceSubmission.completed.count
+        failed_documents_before_polling = EvidenceSubmission.failed.count
         pending_evidence_submissions = EvidenceSubmission.pending
+        StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_POLLED_KEY}", pending_evidence_submissions.count)
 
         pending_evidence_submissions.in_batches(
           of: POLLED_BATCH_DOCUMENT_COUNT
@@ -25,6 +57,12 @@ module Lighthouse
 
           handle_error(response_struct, lighthouse_document_request_ids)
         end
+
+        documents_marked_success = EvidenceSubmission.completed.count - successful_documents_before_polling
+        StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_SUCCESS_KEY}", documents_marked_success)
+
+        documents_marked_failed = EvidenceSubmission.failed.count - failed_documents_before_polling
+        StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_FAILED_KEY}", documents_marked_failed)
       end
 
       private
@@ -53,6 +91,8 @@ module Lighthouse
       end
 
       def handle_error(response, lighthouse_document_request_ids)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.polling_error")
+
         Rails.logger.warn(
           'Lighthouse::EvidenceSubmissionDocumentUploadPollingJob status endpoint error',
           {
