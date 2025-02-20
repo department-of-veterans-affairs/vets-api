@@ -42,36 +42,6 @@ module IvcChampva
         render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
       end
 
-      # Modified from claim_documents_controller.rb:
-      def unlock_file(file, file_password) # rubocop:disable Metrics/MethodLength
-        return file unless File.extname(file) == '.pdf' && file_password
-
-        pdftk = PdfForms.new(Settings.binaries.pdftk)
-        tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
-
-        has_pdf_err = false
-        begin
-          pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
-        rescue PdfForms::PdftkError => e
-          file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
-          password_regex = /(input_pw).*?(output)/
-          sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
-          log_message_to_sentry(sanitized_message, 'warn')
-          has_pdf_err = true
-        end
-
-        # This helps prevent leaking exception context to DataDog when we raise this error
-        if has_pdf_err
-          raise Common::Exceptions::UnprocessableEntity.new(
-            detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
-            source: 'IvcChampva::V1::UploadsController'
-          )
-        end
-
-        file.tempfile.unlink
-        file.tempfile = tmpf
-      end
-
       def submit_supporting_documents
         if %w[10-10D 10-7959C 10-7959F-2 10-7959A].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
@@ -90,7 +60,51 @@ module IvcChampva
         end
       end
 
+      # Modified from claim_documents_controller.rb:
+      def unlock_file(file, file_password)
+        return file unless pdf_requires_unlock?(file, file_password)
+
+        pdftk = PdfForms.new(Settings.binaries.pdftk)
+        tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
+
+        process_pdf(file, file_password, pdftk, tmpf)
+
+        file.tempfile.unlink
+        file.tempfile = tmpf
+      end
+
       private
+
+      def pdf_requires_unlock?(file, file_password)
+        File.extname(file) == '.pdf' && file_password.present?
+      end
+
+      def process_pdf(file, file_password, pdftk, tmpf)
+        has_unlock_error = false
+        begin
+          pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
+        rescue PdfForms::PdftkError => e
+          sanitized_message = sanitize_error_message(e.message)
+          log_message_to_sentry(sanitized_message, 'warn')
+          has_unlock_error = true
+        end
+        raise_unlock_error if has_unlock_error
+      end
+
+      def raise_unlock_error
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
+          source: 'IvcChampva::V1::UploadsController'
+        )
+      end
+
+      def sanitize_error_message(message)
+        file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
+        password_regex = /(input_pw).*?(output)/
+
+        message.gsub(file_regex, '[FILTERED FILENAME]')
+               .gsub(password_regex, '\1 [FILTERED] \2')
+      end
 
       ##
       # Wraps handle_uploads and includes retry logic when file uploads get non-200s.
