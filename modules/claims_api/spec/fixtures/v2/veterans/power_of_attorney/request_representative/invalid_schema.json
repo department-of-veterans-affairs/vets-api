@@ -18,9 +18,7 @@
         "email": "test@example.com",
         "insuranceNumber": "678678987"
       },
-      "poa": {
-        "registrationNumber": "999999999999",
-        "jobTitle": "Best Rep Ever"
+      "representative": {
       },
       "recordConsent": true,
       "consentAddressChange": true,
