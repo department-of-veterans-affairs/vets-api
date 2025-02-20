@@ -49,6 +49,12 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       allow(s3_resource).to receive(:bucket).and_return(bucket)
       allow(bucket).to receive_messages(objects:, delete_objects: true, object:)
       allow(object).to receive(:get).and_return(nil)
+      time = Time.utc(2021, 9, 21, 0, 0, 0)
+      Timecop.freeze(time)
+    end
+
+    after do
+      Timecop.return
     end
 
     it 'saves valid form from S3 file' do
