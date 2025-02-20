@@ -618,16 +618,18 @@ module PdfFill
       SECTIONS = [
         {
           label: 'Section I: Veteran\'s Identification Information',
-          top_level_keys: [
-            'veteranFullName', 'vaFileNumber', 'veteranDateOfBirth', 'veteranServiceNumber', 'veteranPhone', 'veteranIntPhone', 'email', 'emailOverflow']
+          top_level_keys: %w[
+            veteranFullName vaFileNumber veteranDateOfBirth veteranServiceNumber veteranPhone veteranIntPhone
+            email emailOverflow
+          ]
         },
         {
           label: 'Section II: Traumatic Event(s) Information',
           top_level_keys: ['events']
         },
         {
-          label: 'Section III: Additional Information Associated with the In-service Traumatic Event(s)',           top_level_keys: [
-            'workBehaviors', 'healthBehaviors', 'otherBehaviors', 'behaviorsDetails', 'reportsDetails', 'evidence']
+          label: 'Section III: Additional Information Associated with the In-service Traumatic Event(s)',
+          top_level_keys: %w[workBehaviors healthBehaviors otherBehaviors behaviorsDetails reportsDetails evidence]
         },
         {
           label: 'Section IV: Treatment Information',
@@ -635,11 +637,11 @@ module PdfFill
         },
         {
           label: 'Section V: Remarks',
-          top_level_keys: ['additionalInformation', 'additionalInformationOverflow']
+          top_level_keys: %w[additionalInformation additionalInformationOverflow]
         },
         {
           label: 'Section VII: Certification and Signature',
-          top_level_keys: ['signature', 'signatureDate']
+          top_level_keys: %w[signature signatureDate]
         }
       ].freeze
 
