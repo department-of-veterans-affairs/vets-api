@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:5.0 #this version should align with available aws document-db versions for image: mongo:5.0
+    container_name: audit-db
+    environment:
+      MONGO_INITDB_DATABASE: audit-development
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data/audit-db:/data/db
