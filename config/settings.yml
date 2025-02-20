@@ -1740,6 +1740,10 @@ vaos:
     api_url: "https://api.wellhive.com"
     base_path: "care-navigation/v1"
     scopes: "care-nav"
+  ccra:
+    mock: false
+    api_url: "https://api.ccra.placeholder.va.local"
+    base_path: "csp/healthshare/ccraint/rest"
 
 ogc:
   form21a_service_url:
