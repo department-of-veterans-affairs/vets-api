@@ -29,6 +29,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
     allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
     allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return false
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return true
   end
 
   describe '#2122' do

@@ -80,23 +80,57 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
         end
       end
 
-      it 'logs the payload size, attachment count, and individual attachment sizes in descending ' \
-         'order (if applicable)', run_at: 'Wed, 17 Jul 2024 18:04:50 GMT' do
-        VCR.use_cassette(
-          'hca/submit_with_attachment',
-          VCR::MATCH_EVERYTHING.merge(erb: true)
-        ) do
-          described_class.new.submit(
-            create(:hca_app_with_attachment).parsed_form,
-            '10-10EZ'
-          )
+      context "with the 'ezr_use_correct_format_for_file_uploads' flipper enabled" do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(true)
+        end
 
-          expect(Rails.logger).to have_received(:info).with(
-            'Payload for submitted 1010EZ: Body size of 16 KB with 2 attachment(s)'
-          )
-          expect(Rails.logger).to have_received(:info).with(
-            'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
-          )
+        it 'logs the payload size, attachment count, and individual attachment sizes in descending ' \
+           'order (if applicable)', run_at: 'Wed, 12 Feb 2025 20:53:32 GMT' do
+          VCR.use_cassette(
+            'hca/submit_with_attachment_formatted_correctly',
+            VCR::MATCH_EVERYTHING.merge(erb: true)
+          ) do
+            described_class.new.submit(
+              create(:hca_app_with_attachment).parsed_form,
+              '10-10EZ'
+            )
+
+            expect(Rails.logger).to have_received(:info).with(
+              'Payload for submitted 1010EZ: Body size of 16 KB with 2 attachment(s)'
+            )
+            expect(Rails.logger).to have_received(:info).with(
+              'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
+            )
+          end
+        end
+      end
+
+      context "with the 'ezr_use_correct_format_for_file_uploads' flipper disabled" do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:ezr_use_correct_format_for_file_uploads).and_return(false)
+        end
+
+        it 'logs the payload size, attachment count, and individual attachment sizes in descending ' \
+           'order (if applicable)', run_at: 'Wed, 17 Jul 2024 18:04:50 GMT' do
+          VCR.use_cassette(
+            'hca/submit_with_attachment',
+            VCR::MATCH_EVERYTHING.merge(erb: true)
+          ) do
+            described_class.new.submit(
+              create(:hca_app_with_attachment).parsed_form,
+              '10-10EZ'
+            )
+
+            expect(Rails.logger).to have_received(:info).with(
+              'Payload for submitted 1010EZ: Body size of 16 KB with 2 attachment(s)'
+            )
+            expect(Rails.logger).to have_received(:info).with(
+              'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
+            )
+          end
         end
       end
     end

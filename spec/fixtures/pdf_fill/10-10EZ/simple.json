@@ -80,7 +80,9 @@
   "stateOfBirth": "TX",
   "veteranFullName": {
     "first": "Indiana",
-    "last": "Jones"
+    "middle": "Bill",
+    "last": "Jones",
+    "suffix": "II"
   },
   "veteranSocialSecurityNumber": "234221243",
   "veteranDateOfBirth": "1980-01-01",

@@ -1,0 +1,17 @@
+Award August 01 2024 – Dec 15 2024
+
+If the current date is Aug 31 or before Sept 30
+the user should have a cert through date of Aug 31
+
+If the current date is Sept 30 or before Oct 31
+The user should have a cert through date of Sept 30
+
+If the current date is Oct 31 or before Nov 30
+The user should have a cert through date of Oct 31
+
+If the current date is Nov 30 or before Dec 15
+The user should have a cert through date of Nov 30
+
+If the current date is Dec 15 or later
+The user should have a cert through date of Dec 15.
+The cert through date will always be either the end of a month or during the month, but never in the future. The entire purpose of this application is to verify that the user was in school last month during the time that is on record.

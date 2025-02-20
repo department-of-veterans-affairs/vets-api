@@ -18,7 +18,7 @@ describe Sidekiq::ErrorTag do
     req.request_id = '123'
     allow_any_instance_of(ApplicationController).to receive(:request).and_return(req)
 
-    ApplicationController.new.send(:set_tags_and_extra_context)
+    ApplicationController.new.send(:set_context)
   end
 
   it 'tags sentry before each sidekiq job' do

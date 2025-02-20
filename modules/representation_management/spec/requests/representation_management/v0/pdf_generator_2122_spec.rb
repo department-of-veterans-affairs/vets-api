@@ -64,12 +64,16 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
       }
     end
 
-    context 'When submitting all fields with valid data' do
-      before do
-        post(base_path, params:)
-      end
+    it 'clears the saved form' do
+      expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('21-22').once
 
-      it 'responds with a ok status' do
+      post(base_path, params:)
+    end
+
+    context 'When submitting all fields with valid data' do
+      before { post(base_path, params:) }
+
+      it 'responds with an ok status' do
         expect(response).to have_http_status(:ok)
       end
 
@@ -84,7 +88,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
         post(base_path, params:)
       end
 
-      it 'responds with a ok status' do
+      it 'responds with an ok status' do
         expect(response).to have_http_status(:ok)
       end
 
@@ -99,7 +103,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
         post(base_path, params:)
       end
 
-      it 'responds with a ok status' do
+      it 'responds with an ok status' do
         expect(response).to have_http_status(:ok)
       end
 
@@ -117,7 +121,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
         post(base_path, params:)
       end
 
-      it 'responds with a ok status' do
+      it 'responds with an ok status' do
         expect(response).to have_http_status(:ok)
       end
 

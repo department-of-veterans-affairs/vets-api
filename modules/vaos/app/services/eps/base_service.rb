@@ -39,9 +39,9 @@ module Eps
     private
 
     def parse_token_response(response)
-      raise TokenError, 'Invalid token response' if response.body.nil? || response.body['access_token'].blank?
+      raise TokenError, 'Invalid token response' if response.body.nil? || response.body[:access_token].blank?
 
-      response.body['access_token']
+      response.body[:access_token]
     end
 
     def token_params
