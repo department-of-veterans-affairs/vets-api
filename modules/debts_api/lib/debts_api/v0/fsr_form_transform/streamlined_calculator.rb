@@ -16,7 +16,7 @@ module DebtsApi
         def initialize(form)
           @form = form
           @gmt_data = @form['gmt_data']
-          @income_data = DebtsApi::V0::FsrFormTransform::IncomeCalculator.new(form).get_monthly_income
+          @income_data = DebtsApi::V0::FsrFormTransform::IncomeCalculator.new(form)
           @asset_data = DebtsApi::V0::FsrFormTransform::AssetCalculator.new(form).transform_assets
           @enhanced_expense_calculator = DebtsApi::V0::FsrFormTransform::EnhancedExpenseCalculator.new(
             re_camel(form)
@@ -41,14 +41,11 @@ module DebtsApi
         private
 
         def total_annual_income
-          vet_income = @income_data.dig(:vetIncome, :totalMonthlyNetIncome).to_f
-          spouse_income = @income_data.dig(:spIncome, :totalMonthlyNetIncome).to_f
-          total_income = (vet_income + spouse_income)
-          total_income * 12
+          @income_data.total_annual_net_income
         end
 
         def total_discretionary_income
-          monthly_net_income = @income_data[:totalMonthlyNetIncome]
+          monthly_net_income = @income_data.total_monthly_net_income
           monthly_expenses = @enhanced_expense_calculator['totalMonthlyExpenses']&.to_f
 
           monthly_net_income - monthly_expenses
