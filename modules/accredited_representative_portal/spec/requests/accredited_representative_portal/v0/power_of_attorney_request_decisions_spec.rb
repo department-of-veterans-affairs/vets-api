@@ -216,6 +216,24 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
       expect(response).to have_http_status(:gateway_timeout)
       expect(AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission.all).to be_empty
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.all).to be_empty
+    end
+  end
+
+  context 'internal server error' do
+    let(:error) { StandardError.new('boom') }
+    let(:lh_config) { double }
+
+    it 'returns an error, does not save anything' do
+      allow(Common::Client::Base).to receive(:configuration).and_return lh_config
+      allow(lh_config).to receive(:post).and_raise(error)
+
+      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+           params: { decision: { type: 'acceptance', reason: '' } }
+
+      expect(response).to have_http_status(:internal_server_error)
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission.all).to be_empty
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.all).to be_empty
     end
   end
 
