@@ -6,6 +6,9 @@ require 'vba_documents/health_checker'
 RSpec.describe 'VBADocument::V1::Healthcheck', type: :request do
   describe '#healthcheck' do
     context 'v1' do
+      let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
+      let(:cache) { Rails.cache }
+      
       it 'returns a successful health check' do
         s3_client = instance_double(Aws::S3::Client)
         allow(s3_client).to receive(:head_bucket).with(anything).and_return(true)

@@ -10,6 +10,8 @@ module VBADocuments
     skip_before_action(:authenticate)
 
     TRAFFIC_LIGHT_EMOJI = ':vertical_traffic_light:'
+    LAST_SLACK_NOTIFICATION_TS = 'benefits_intake_api:last_slack_healthcheck_notification_ts'
+    SLACK_NOTIFICATION_LIMIT_SECONDS = 1.hour.seconds.to_i
 
     def index
       render json: {
@@ -65,16 +67,15 @@ module VBADocuments
     end
 
     def healthcheck
-      http_status_code = 200
       s3_heathy = s3_is_healthy?
-      unless s3_heathy
+      if !s3_heathy && elapsed_seconds_since_last_slack_notify > SLACK_NOTIFICATION_LIMIT_SECONDS
         begin
-          http_status_code = 503
           slack_details = {
             class: self.class.name,
             warning: "#{TRAFFIC_LIGHT_EMOJI} Benefits Intake healthcheck failed: unable to connect to AWS S3 bucket."
           }
           VBADocuments::Slack::Messenger.new(slack_details).notify!
+          Rails.cache.write(LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
         rescue => e
           Rails.logger.error("Benefits Intake S3 failed Healthcheck slack notification failed: #{e.message}", e)
         end
@@ -83,7 +84,7 @@ module VBADocuments
         description: 'VBA Documents API health check',
         status: s3_heathy ? 'pass' : 'fail',
         time: Time.zone.now.to_formatted_s(:iso8601)
-      }, status: http_status_code
+      }, status: s3_heathy ? 200 : 503
     end
 
     # treat s3 as a Benefits Intake internal resource as opposed to an upstream service per VA
@@ -95,6 +96,11 @@ module VBADocuments
       true
     rescue
       false
+    end
+
+    def elapsed_seconds_since_last_slack_notify
+      last_slack_notify_ts = Rails.cache.read(LAST_SLACK_NOTIFICATION_TS)
+      Time.zone.now - (last_slack_notify_ts.nil? ? Time.zone.now : Time.zone.at(last_slack_notify_ts))
     end
 
     def upstream_healthcheck
