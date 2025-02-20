@@ -75,7 +75,6 @@ sample_client_api.update!(authentication: SignIn::Constants::Auth::API,
                           refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
 # Create Config for example Private Key JWT client
-sample_client_certificate = File.read('spec/fixtures/sign_in/sample_client.crt')
 sample_pkey_jwt_client = SignIn::ClientConfig.find_or_initialize_by(client_id: 'sample_client_pkey_jwt')
 sample_pkey_jwt_client.update!(authentication: SignIn::Constants::Auth::API,
                                anti_csrf: false,
@@ -85,7 +84,7 @@ sample_pkey_jwt_client.update!(authentication: SignIn::Constants::Auth::API,
                                access_token_audience: 'sample_client',
                                logout_redirect_uri: 'http://localhost:4567',
                                refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES,
-                               certificates: [sample_client_certificate])
+                               certificates: [File.read('spec/fixtures/sign_in/sample_client.crt')])
 
 # Create Config for example sts service account
 sample_sts_config = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: 'sample_sts_service_account')
