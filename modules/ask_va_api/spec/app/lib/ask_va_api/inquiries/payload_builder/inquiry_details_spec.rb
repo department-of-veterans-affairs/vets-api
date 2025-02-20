@@ -196,38 +196,3 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
     end
   end
 end
-
-# {"category_id"=>"75524deb-d864-eb11-bb24-000d3a579c45",
-#  "contact_preference"=>"Email",
-#  "date_of_death"=>"1999-02-01",
-#  "email_address"=>"test@test.com",
-#  "family_members_location_of_residence"=>"Alabama",
-#  "is_question_about_veteran_or_someone_else"=>"Someone else",
-#  "on_base_outside_us"=>"false",
-#  "phone_number"=>"3039751100",
-#  "preferred_name"=>"Glenny",
-#  "question"=>"test edu and vrae flow",
-#  "relationship_to_veteran"=>"I'm a family member of a Veteran",
-#  "select_category"=>"Education benefits and work study",
-#  "select_topic"=>"Veteran Readiness and Employment (Chapter 31)",
-#  "subject"=>"Test",
-#  "subtopic_id"=>"",
-#  "their_vre_information"=>"true",
-#  "their_vre_counselor"=>"Joe Smith",
-#  "their_relationship_to_veteran"=>"They're the Veteran's spouse",
-#  "topic_id"=>"b18831a7-8276-ef11-a671-001dd8097cca",
-#  "who_is_your_question_about"=>"Someone else",
-#  "pronouns"=>{"they_them_theirs"=>"true"},
-#  "about_yourself"=>{"first"=>"Yourself", "last"=>"Member"},
-#  "about_the_veteran"=>
-#   {"date_of_birth"=>"1950-01-01",
-#    "first"=>"Veteran",
-#    "last"=>"Member",
-#    "is_veteran_deceased"=>"true",
-#    "social_or_service_num"=>{"ssn"=>"997654321"}},
-#  "about_the_family_member"=>
-#   {"first"=>"Family",
-#    "last"=>"Member",
-#    "social_or_service_num"=>{"ssn"=>"123456799"},
-#    "date_of_birth"=>"2000-01-01"},
-#  "files"=>[{"file_name"=>nil, "file_content"=>nil}]}
