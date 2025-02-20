@@ -6,6 +6,7 @@ require 'hca/configuration'
 require 'hca/ezr_postfill'
 require 'va1010_forms/utils'
 require 'hca/overrides_parser'
+require 'va1010_forms/enrollment_system/service'
 
 module Form1010Ezr
   class Service < Common::Client::Base
@@ -38,15 +39,16 @@ module Form1010Ezr
 
     def submit_sync(parsed_form)
       res = with_monitoring do
-        es_submit(parsed_form, HealthCareApplication.get_user_identifier(@user), FORM_ID)
+        if Flipper.enabled?(:va1010_forms_enrollment_system_service_enabled)
+          VA1010Forms::EnrollmentSystem::Service.new(
+            HealthCareApplication.get_user_identifier(@user)
+          ).submit(parsed_form, FORM_ID)
+        else
+          es_submit(parsed_form, HealthCareApplication.get_user_identifier(@user), FORM_ID)
+        end
       end
-
       # Log the 'formSubmissionId' for successful submissions
-      Rails.logger.info(
-        '1010EZR successfully submitted',
-        submission_id: res[:formSubmissionId],
-        veteran_initials: veteran_initials(parsed_form)
-      )
+      log_successful_submission(res[:formSubmissionId], veteran_initials(parsed_form))
 
       if parsed_form['attachments'].present?
         StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.submission_with_attachment")
@@ -54,7 +56,8 @@ module Form1010Ezr
 
       res
     rescue => e
-      log_and_raise_error(e, parsed_form)
+      log_submission_failure(parsed_form)
+      raise e
     end
 
     # @param [HashWithIndifferentAccess] parsed_form JSON form data
@@ -66,7 +69,8 @@ module Form1010Ezr
 
       submit_async(parsed_form)
     rescue => e
-      log_and_raise_error(e, parsed_form)
+      log_submission_failure(parsed_form)
+      raise e
     end
 
     def log_submission_failure(parsed_form)
@@ -107,11 +111,8 @@ module Form1010Ezr
           )
         end
 
-        log_validation_errors(parsed_form)
+        log_validation_errors(validation_errors, parsed_form)
 
-        Rails.logger.error(
-          "10-10EZR form validation failed. Form does not match schema. Error list: #{validation_errors}"
-        )
         raise Common::Exceptions::SchemaValidationErrors, validation_errors
       end
     end
@@ -168,8 +169,13 @@ module Form1010Ezr
       end
     end
 
-    def log_validation_errors(parsed_form)
+    # @param [Hash] errors
+    def log_validation_errors(errors, parsed_form)
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.validation_error")
+
+      Rails.logger.error(
+        "10-10EZR form validation failed. Form does not match schema. Error list: #{errors}"
+      )
 
       PersonalInformationLog.create(
         data: parsed_form,
@@ -177,10 +183,12 @@ module Form1010Ezr
       )
     end
 
-    def log_and_raise_error(error, form)
-      log_submission_failure(form)
-      Rails.logger.error "10-10EZR form submission failed: #{error.message}"
-      raise error
+    def log_successful_submission(submission_id, veteran_initials)
+      Rails.logger.info(
+        '1010EZR successfully submitted',
+        submission_id:,
+        veteran_initials:
+      )
     end
   end
 end
