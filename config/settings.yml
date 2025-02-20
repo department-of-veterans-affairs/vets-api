@@ -970,6 +970,7 @@ hqva_mobile:
 # settings va.gov uses related to lighthouse api's
 lighthouse:
   url: ~ # TBD update according to ligthouse endpoint
+  alternate_service_name: "wss-form526-services-web-v2" # TBD lighthouse review
   cert_path: ~
   key_path: ~
   root_cert_path: ~
@@ -1015,6 +1016,9 @@ lighthouse:
     report:
       stale_sla: 10 # days
       batch_size: 1000
+  disability_compensation_form:
+    timeout: 55 # ~1 minute
+    submit_timeout: 355 # ~6 minutes
   letters_generator:
     url: https://sandbox-api.va.gov
     path: /services/va-letter-generator/v1/
@@ -1078,6 +1082,7 @@ lighthouse:
     uploads_enabled: false
     bucket: lighthouse_s3_bucket
     region: lighthouse_s3_region
+  mock_disabilities_form: true
 
 mail_automation:
   url: https://viccs-api-test.ibm-intelligent-automation.com
