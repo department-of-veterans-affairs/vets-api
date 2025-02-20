@@ -9,15 +9,15 @@ module Lighthouse
 
     # :nocov:
     def client_cert
-      OpenSSL::X509::Certificate.new File.read(Settings.evss.cert_path)
+      OpenSSL::X509::Certificate.new File.read(Settings.lighthouse.cert_path)
     end
 
     def client_key
-      OpenSSL::PKey::RSA.new File.read(Settings.evss.key_path)
+      OpenSSL::PKey::RSA.new File.read(Settings.lighthouse.key_path)
     end
 
     def root_ca
-      Settings.evss.root_cert_path
+      Settings.lighthouse.root_cert_path
     end
 
     def ssl_options
@@ -37,9 +37,9 @@ module Lighthouse
 
     def cert?
       # TODO(knkski): Is this logic correct?
-      Settings.evss.cert_path.present? ||
-        Settings.evss.key_path.present? ||
-        Settings.evss.root_cert_path.present?
+      Settings.lighthouse.cert_path.present? ||
+        Settings.lighthouse.key_path.present? ||
+        Settings.lighthouse.root_cert_path.present?
     end
 
     def set_evss_middlewares(faraday, snakecase: true)
