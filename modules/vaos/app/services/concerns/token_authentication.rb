@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 # TokenAuthentication provides common functionality for services that require
 # bearer token authentication. It handles token retrieval, caching, and header generation.
 module TokenAuthentication
