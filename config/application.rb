@@ -62,26 +62,26 @@ module VetsAPI
     config.active_support.escape_html_entities_in_json = false
 
     # CORS configuration; see also cors_preflight route
-    # config.middleware.insert_before 0, Rack::Cors, logger: -> { Rails.logger } do
-    #   allow do
-    #     regex = Regexp.new(Settings.web_origin_regex)
-    #     web_origins = Settings.web_origin.split(',') + Array(Settings.sign_in.web_origins)
+    config.middleware.insert_before 0, Rack::Cors, logger: -> { Rails.logger } do
+      allow do
+        regex = Regexp.new(Settings.web_origin_regex)
+        web_origins = Settings.web_origin.split(',') + Array(Settings.sign_in.web_origins)
 
-    #     origins { |source, _env| web_origins.include?(source) || source.match?(regex) }
-    #     resource '*', headers: :any,
-    #                   methods: :any,
-    #                   credentials: true,
-    #                   expose: %w[
-    #                     Timing-Allow-Origin
-    #                     X-RateLimit-Limit
-    #                     X-RateLimit-Remaining
-    #                     X-RateLimit-Reset
-    #                     X-Session-Expiration
-    #                     X-CSRF-Token
-    #                     X-Request-Id
-    #                   ]
-    #   end
-    # end
+        origins { |source, _env| web_origins.include?(source) || source.match?(regex) }
+        resource '*', headers: :any,
+                      methods: :any,
+                      credentials: true,
+                      expose: %w[
+                        Timing-Allow-Origin
+                        X-RateLimit-Limit
+                        X-RateLimit-Remaining
+                        X-RateLimit-Reset
+                        X-Session-Expiration
+                        X-CSRF-Token
+                        X-Request-Id
+                      ]
+      end
+    end
 
     # combats the "Flipper::Middleware::Memoizer appears to be running twice" error
     # followed suggestions to disable memoize config
