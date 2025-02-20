@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../app/services/concerns/jwt_wrapper'
 
-describe Eps::JwtWrapper do
-  subject { described_class.new }
+describe Concerns::JwtWrapper do
+  subject { described_class.new(settings) }
 
   let(:rsa_key) { OpenSSL::PKey::RSA.new(2048) }
   let(:settings) do
@@ -16,7 +17,6 @@ describe Eps::JwtWrapper do
   end
 
   before do
-    allow(Settings.vaos).to receive(:eps).and_return(settings)
     allow(File).to receive(:read).with('/path/to/key.pem').and_return(rsa_key)
   end
 
