@@ -31,10 +31,10 @@ module VANotify
           function = statsd_tags['function']
           ["service:#{service}", "function:#{function}"]
         end
-      rescue TypeError, KeyError, NoMethodError => e
-        Rails.logger.error("Invalid metadata format: #{e.message}", notification_record_id: notification_record.id)
-        # Provide default fallback tags to avoid error propagation.
-        ['service:none-provided', 'function:none-provided']
+      rescue TypeError, KeyError => e
+        Rails.logger.error("VANotify: Invalid metadata format: #{e.message}", notification_record_id: notification_record.id)
+        # Invalid metadata is treated as if no metadata were provided.
+        return call_without_metadata
       end
 
       case notification_record.status
