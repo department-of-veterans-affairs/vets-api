@@ -7,27 +7,6 @@ describe Eps::BaseService do
 
   let(:user) { double('User', account_uuid: '1234', icn: user_icn) }
   let(:service) { described_class.new(user) }
-<<<<<<< HEAD
-=======
-  let(:mock_token_response) { double('Response', body: { access_token: 'mock_token' }) }
-  let(:blank_token_response) { double('Response', body: { 'access_token' => '' }) }
-
-  describe '#headers' do
-    before do
-      allow(RequestStore.store).to receive(:[]).with('request_id').and_return('request-id')
-      allow(service).to receive(:token).and_return('test_token')
-    end
-
-    it 'returns the correct headers' do
-      expected_headers = {
-        'Authorization' => 'Bearer test_token',
-        'Content-Type' => 'application/json',
-        'X-Request-ID' => 'request-id'
-      }
-      expect(service.headers).to eq(expected_headers)
-    end
-  end
->>>>>>> origin/master
 
   describe '#config' do
     it 'returns the Eps::Configuration instance' do

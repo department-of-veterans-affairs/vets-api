@@ -9,7 +9,6 @@ describe Ccra::ReferralService do
   subject { described_class.new(user) }
 
   let(:user) { double('User', account_uuid: '1234', flipper_id: '1234') }
-<<<<<<< HEAD
   let(:jwt_token) { 'fake-jwt-token' }
   let(:access_token) { 'fake-access-token' }
 
@@ -23,17 +22,11 @@ describe Ccra::ReferralService do
       access_token if key == Ccra::BaseService::REDIS_TOKEN_KEY
     end
 
-=======
-
-  before do
-    allow(RequestStore.store).to receive(:[]).with('request_id').and_return('request-id')
->>>>>>> origin/master
     Settings.vaos ||= OpenStruct.new
     Settings.vaos.ccra ||= OpenStruct.new
     Settings.vaos.ccra.tap do |ccra|
       ccra.api_url = 'http://ccra.api.example.com'
       ccra.base_path = 'csp/healthshare/ccraint/rest'
-<<<<<<< HEAD
       ccra.key_path = '/path/to/key.pem'
       ccra.client_id = 'test_client'
       ccra.kid = 'test_kid'
@@ -42,8 +35,6 @@ describe Ccra::ReferralService do
       ccra.grant_type = 'client_credentials'
       ccra.scopes = 'test.scope'
       ccra.client_assertion_type = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
-=======
->>>>>>> origin/master
     end
   end
 
