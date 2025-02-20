@@ -857,6 +857,9 @@ maintenance:
     mvi: PCIPVGJ
     mhv: PP2ZZ2V
     form107959f1: P63EKXC
+    form107959f2: PZWR9XI
+    form107959c: PEP32F2
+    form1010d: P69N8ZY
     pega: P3ZJCBK
     search: PRG8HJI
     tims: PUL8OQ4
@@ -1740,6 +1743,10 @@ vaos:
     api_url: "https://api.wellhive.com"
     base_path: "care-navigation/v1"
     scopes: "care-nav"
+  ccra:
+    mock: false
+    api_url: "https://api.ccra.placeholder.va.local"
+    base_path: "csp/healthshare/ccraint/rest"
 
 ogc:
   form21a_service_url:
