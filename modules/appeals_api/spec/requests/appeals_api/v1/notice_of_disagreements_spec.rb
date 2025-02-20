@@ -16,6 +16,8 @@ Rspec.describe 'AppealsApi::V1::DecisionReviews::NoticeOfDisagreements', type: :
   let(:headers) { fixture_as_json 'decision_reviews/v1/valid_10182_headers.json' }
   let(:minimum_required_headers) { fixture_as_json 'decision_reviews/v1/valid_10182_headers_minimum.json' }
   let(:parsed) { JSON.parse(response.body) }
+  let(:client_stub) { instance_double(CentralMail::Service) }
+  let(:faraday_response) { instance_double(Faraday::Response) }
 
   describe '#create' do
     let(:path) { base_path 'notice_of_disagreements' }
@@ -57,9 +59,6 @@ Rspec.describe 'AppealsApi::V1::DecisionReviews::NoticeOfDisagreements', type: :
     end
 
     it 'create the job to build the PDF' do
-      client_stub = instance_double(CentralMail::Service)
-      faraday_response = instance_double(Faraday::Response)
-
       allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(client_stub).to receive(:upload).and_return(faraday_response)
       allow(faraday_response).to receive(:success?).and_return(true)

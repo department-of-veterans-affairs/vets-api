@@ -18,8 +18,10 @@ describe 'AppealsApi::V2::DecisionReviews::HigherLevelReviews', type: :request d
   let(:headers_minimum) { fixture_as_json 'decision_reviews/v2/valid_200996_headers_minimum.json' }
   let(:headers_invalid) { fixture_as_json 'decision_reviews/v2/invalid_200996_headers.json' }
   let(:parsed) { JSON.parse(response.body) }
+  let(:client_stub) { instance_double(CentralMail::Service) }
+  let(:faraday_response) { instance_double(Faraday::Response) }
 
-  before { Flipper.disable(:decision_review_hlr_form_v4_enabled) }
+  before { allow(Flipper).to receive(:enabled?).with(:decision_review_hlr_form_v4_enabled).and_return(false) }
 
   describe '#index' do
     let(:path) { base_path 'higher_level_reviews' }
@@ -221,9 +223,6 @@ describe 'AppealsApi::V2::DecisionReviews::HigherLevelReviews', type: :request d
     end
 
     it 'updates the appeal status once submitted to central mail' do
-      client_stub = instance_double(CentralMail::Service)
-      faraday_response = instance_double(Faraday::Response)
-
       allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(client_stub).to receive(:upload).and_return(faraday_response)
       allow(faraday_response).to receive(:success?).and_return(true)

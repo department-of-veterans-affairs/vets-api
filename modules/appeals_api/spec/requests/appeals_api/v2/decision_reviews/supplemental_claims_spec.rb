@@ -17,6 +17,8 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims', type: :req
   let(:max_headers) { fixture_as_json 'decision_reviews/v2/valid_200995_headers_extra.json' }
 
   let(:parsed) { JSON.parse(response.body) }
+  let(:client_stub) { instance_double(CentralMail::Service) }
+  let(:faraday_response) { instance_double(Faraday::Response) }
 
   describe '#index' do
     let(:path) { base_path 'supplemental_claims' }
@@ -388,9 +390,6 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims', type: :req
     end
 
     it 'updates the appeal status once submitted to central mail' do
-      client_stub = instance_double(CentralMail::Service)
-      faraday_response = instance_double(Faraday::Response)
-
       allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(client_stub).to receive(:upload).and_return(faraday_response)
       allow(faraday_response).to receive(:success?).and_return(true)
