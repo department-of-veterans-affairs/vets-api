@@ -316,6 +316,10 @@ features:
     actor_type: user
     description: When enabled, claims status tool will use the new 5103 alert designs and hides the ask your claim decision section
     enable_in_development: true
+  cst_show_document_upload_status:
+    actor_type: user
+    description: When enabled, claims status tool will display the upload status that comes from the evidence_submissions table.
+    enable_in_development: true
   cst_claim_phases:
     actor_type: user
     description: When enabled, claims status tool uses the new claim phase designs
