@@ -240,9 +240,5 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
         expect(subject.call).to eq(expected_result)
       end
     end
-
-    context "when it's about me the veteran" do
-      
-    end
   end
 end
