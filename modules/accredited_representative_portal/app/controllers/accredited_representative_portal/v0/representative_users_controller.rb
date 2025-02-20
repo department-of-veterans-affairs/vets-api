@@ -6,9 +6,12 @@ module AccreditedRepresentativePortal
       skip_after_action :verify_pundit_authorization
 
       def show
-        # TODO: Once we figure out how we're handling serialization and which
-        # library we're using, moving this serialization logic out to to a
-        # serialization layer.
+        log_info(
+          'Retrieved in progress forms count',
+          'api.arp.user.forms.count',
+          ["count:#{in_progress_forms.length}"]
+        )
+
         render json: {
           account: {
             accountUuid: @current_user.user_account_uuid
