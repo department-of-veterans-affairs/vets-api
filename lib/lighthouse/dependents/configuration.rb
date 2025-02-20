@@ -13,14 +13,14 @@ module Lighthouse
       # @return [String] Base path for dependents URLs.
       #
       def base_path
-        "#{Settings.evss.url}/wss-686-services-web-2.6/rest/"
+        "#{Settings.lighthouse.url}/wss-686-services-web-2.6/rest/"
       end
 
       ##
       # @return [String] Service name to use in breakers and metrics.
       #
       def service_name
-        'EVSS/Dependents'
+        'Lighthouse/Dependents'
       end
 
       ##

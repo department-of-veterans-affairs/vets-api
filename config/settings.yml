@@ -969,6 +969,7 @@ hqva_mobile:
 
 # settings va.gov uses related to lighthouse api's
 lighthouse:
+  url: ~ # TBD update according to ligthouse endpoint
   cert_path: ~
   key_path: ~
   root_cert_path: ~
