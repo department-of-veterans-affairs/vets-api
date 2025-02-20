@@ -4,7 +4,7 @@ require 'evss/configuration'
 
 module EVSS
   module IntentToFile
-    ##
+    ## TODO Remove this file
     # HTTP client configuration for the {IntentToFile::Service},
     # sets the base path and a service name for breakers and metrics.
     #

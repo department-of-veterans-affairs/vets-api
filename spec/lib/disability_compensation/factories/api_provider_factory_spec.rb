@@ -76,20 +76,8 @@ RSpec.describe ApiProviderFactory do
   end
 
   context 'intent_to_file' do
-    it 'provides an EVSS intent to file provider' do
-      expect(provider(:evss).class).to equal(EvssIntentToFileProvider)
-    end
-
     it 'provides a Lighthouse intent to file provider' do
       expect(provider(:lighthouse).class).to equal(LighthouseIntentToFileProvider)
-    end
-
-    it 'provides intent to file provider based on Flipper' do
-      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE)
-      expect(provider.class).to equal(LighthouseIntentToFileProvider)
-
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE)
-      expect(provider.class).to equal(EvssIntentToFileProvider)
     end
 
     it 'throw error if provider unknown' do
@@ -104,7 +92,7 @@ RSpec.describe ApiProviderFactory do
         provider: api_provider,
         options: {},
         current_user:,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE
+        feature_toggle: nil
       )
     end
   end
