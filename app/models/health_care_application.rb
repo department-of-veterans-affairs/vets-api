@@ -11,6 +11,7 @@ require 'hca/overrides_parser'
 class HealthCareApplication < ApplicationRecord
   include SentryLogging
   include VA1010Forms::Utils
+  include FormValidation
 
   FORM_ID = '10-10EZ'
   ACTIVEDUTY_ELIGIBILITY = 'TRICARE'
@@ -69,6 +70,10 @@ class HealthCareApplication < ApplicationRecord
 
   def send_failure_email?
     async_submission_failed? && email.present?
+  end
+
+  def form_id
+    self.class::FORM_ID
   end
 
   def submit_sync
@@ -317,15 +322,23 @@ class HealthCareApplication < ApplicationRecord
   def form_matches_schema
     if form.present?
       schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
-      begin
-        JSON::Validator.fully_validate(schema, parsed_form).each do |v|
+
+      if Flipper.enabled?(:retry_form_validation)
+        validation_errors = validate_form_with_retries(schema, parsed_form)
+        validation_errors.each do |v|
           errors.add(:form, v.to_s)
         end
-      rescue => e
-        PersonalInformationLog.create(data: { schema:, parsed_form: },
-                                      error_class: 'HealthCareApplication FormValidationError')
-        Rails.logger.error("[#{FORM_ID}] Error during schema validation!", { error: e.message, schema: })
-        raise
+      else
+        begin
+          JSON::Validator.fully_validate(schema, parsed_form).each do |v|
+            errors.add(:form, v.to_s)
+          end
+        rescue => e
+          PersonalInformationLog.create(data: { schema:, parsed_form: },
+                                        error_class: 'HealthCareApplication FormValidationError')
+          Rails.logger.error("[#{FORM_ID}] Error during schema validation!", { error: e.message, schema: })
+          raise
+        end
       end
     end
   end

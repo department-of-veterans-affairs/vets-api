@@ -85,7 +85,6 @@ module Pensions
     # @param in_progress_form [InProgressForm]
     # @param claim [Pension::SavedClaim]
     # @param current_user [User]
-    # @param e [Error]
     #
     def track_create_validation_error(in_progress_form, claim, current_user)
       additional_context = {
@@ -146,7 +145,6 @@ module Pensions
     #
     # @param claim [Pension::SavedClaim]
     # @param current_user [User]
-    # @param e [Error]
     #
     def track_process_attachment_error(in_progress_form, claim, current_user)
       additional_context = {
@@ -296,6 +294,30 @@ module Pensions
 
       track_request('warn', 'Lighthouse::PensionBenefitIntakeJob send_confirmation_email failed',
                     "#{SUBMISSION_STATS_KEY}.send_confirmation_failed",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    ##
+    # Tracks the failure to send a Submission in Progress email for a claim.
+    # @see PensionBenefitIntakeJob
+    #
+    # @param claim [Pension::SavedClaim]
+    # @param lighthouse_service [LighthouseService]
+    # @param user_account_uuid [String]
+    # @param e [Exception]
+    #
+    def track_send_submitted_email_failure(claim, lighthouse_service, user_account_uuid, e)
+      additional_context = {
+        confirmation_number: claim&.confirmation_number,
+        user_account_uuid:,
+        claim_id: claim&.id,
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        message: e&.message,
+        tags:
+      }
+
+      track_request('warn', 'Lighthouse::PensionBenefitIntakeJob send_submitted_email failed',
+                    "#{SUBMISSION_STATS_KEY}.send_submitted_failed",
                     call_location: caller_locations.first, **additional_context)
     end
 

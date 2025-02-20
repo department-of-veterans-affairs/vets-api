@@ -34,6 +34,18 @@ module MAP
         Settings.map_services.client_cert_path
       end
 
+      def jwks_cache_key
+        'map_public_jwks'
+      end
+
+      def jwks_cache_expiration
+        30.minutes
+      end
+
+      def public_jwks_path
+        '/sts/oauth/v1/jwks'
+      end
+
       def service_name
         'map_security_token_service'
       end
@@ -66,7 +78,7 @@ module MAP
         'icn'
       end
 
-      def logging_prefix
+      def log_prefix
         '[MAP][SecurityToken][Service]'
       end
 

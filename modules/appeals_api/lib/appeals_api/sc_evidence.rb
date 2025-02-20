@@ -29,5 +29,9 @@ module AppealsApi
         "#{Date.parse(hash['startDate']).strftime('%m-%Y')} to #{Date.parse(hash['endDate']).strftime('%m-%Y')}"
       end
     end
+
+    def no_treatment_date
+      attributes['noTreatmentDates']
+    end
   end
 end

@@ -45,7 +45,13 @@ module VANotify
       authenticate_with_http_token do |token|
         return false if bearer_token_secret.nil?
 
-        ActiveSupport::SecurityUtils.secure_compare(token, bearer_token_secret)
+        if Flipper.enabled?(:va_notify_custom_bearer_tokens)
+          service_callback_tokens.any? do |service_token|
+            ActiveSupport::SecurityUtils.secure_compare(token, service_token)
+          end
+        else
+          ActiveSupport::SecurityUtils.secure_compare(token, bearer_token_secret)
+        end
       end
     end
 
@@ -56,6 +62,10 @@ module VANotify
 
     def bearer_token_secret
       Settings.vanotify.status_callback.bearer_token
+    end
+
+    def service_callback_tokens
+      Settings.vanotify.service_callback_tokens.to_h.values
     end
 
     def notification_params

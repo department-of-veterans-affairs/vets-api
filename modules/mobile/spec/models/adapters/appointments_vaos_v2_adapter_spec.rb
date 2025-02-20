@@ -3,6 +3,25 @@
 require 'rails_helper'
 
 describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
+  let(:appointment_fixtures) do
+    Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'VAOS_v2_appointments.json').read
+  end
+  let(:raw_data) { JSON.parse(appointment_fixtures, symbolize_names: true) }
+
+  let(:booked_va_id) { '121134' }
+  let(:booked_cc_id) { '72106' }
+  let(:proposed_va_id) { '50956' }
+  let(:proposed_cc_id) { '72105' }
+  let(:cancelled_va_id) { '121133' }
+  let(:cancelled_proposed_va_id) { '53241' }
+  let(:phone_va_id) { '53352' }
+  let(:home_va_id) { '50094' }
+  let(:atlas_va_id) { '50095' }
+  let(:home_gfe_id) { '50096' }
+  let(:past_request_date_appt_id) { '53360' }
+  let(:future_request_date_appt_id) { '53359' }
+  let(:telehealth_onsite_id) { '50097' }
+
   def appointment_data(index = nil)
     appts = index ? raw_data[index] : raw_data
     Array.wrap(appts).map { |appt| OpenStruct.new(appt) }
@@ -20,25 +39,6 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     end
     subject.parse(Array.wrap(appointment)).first
   end
-
-  let(:appointment_fixtures) do
-    File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'VAOS_v2_appointments.json'))
-  end
-  let(:raw_data) { JSON.parse(appointment_fixtures, symbolize_names: true) }
-
-  let(:booked_va_id) { '121134' }
-  let(:booked_cc_id) { '72106' }
-  let(:proposed_va_id) { '50956' }
-  let(:proposed_cc_id) { '72105' }
-  let(:cancelled_va_id) { '121133' }
-  let(:cancelled_proposed_va_id) { '53241' }
-  let(:phone_va_id) { '53352' }
-  let(:home_va_id) { '50094' }
-  let(:atlas_va_id) { '50095' }
-  let(:home_gfe_id) { '50096' }
-  let(:past_request_date_appt_id) { '53360' }
-  let(:future_request_date_appt_id) { '53359' }
-  let(:telehealth_onsite_id) { '50097' }
 
   before do
     Timecop.freeze(Time.zone.parse('2022-08-25T19:25:00Z'))
@@ -133,6 +133,11 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   describe 'appointment_type' do
+    it 'sets va requests to VA' do
+      appt = appointment_by_id(proposed_va_id)
+      expect(appt.appointment_type).to eq('VA')
+    end
+
     it 'sets phone appointments to VA' do
       appt = appointment_by_id(phone_va_id)
       expect(appt.appointment_type).to eq('VA')
@@ -212,14 +217,14 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     let(:practitioner_list) do
       [
         {
-          "identifier": [{ "system": 'dfn-983', "value": '520647609' }],
-          "name": { "family": 'ENGHAUSER', "given": ['MATTHEW'] },
-          "practice_name": 'Site #983'
+          identifier: [{ system: 'dfn-983', value: '520647609' }],
+          name: { family: 'ENGHAUSER', given: ['MATTHEW'] },
+          practice_name: 'Site #983'
         },
         {
-          "identifier": [{ "system": 'dfn-983', "value": '520647609' }],
-          "name": { "family": 'FORTH', "given": ['SALLY'] },
-          "practice_name": 'Site #983'
+          identifier: [{ system: 'dfn-983', value: '520647609' }],
+          name: { family: 'FORTH', given: ['SALLY'] },
+          practice_name: 'Site #983'
         }
       ]
     end
@@ -262,21 +267,21 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       let(:practitioner_list) do
         [
           {
-            "identifier": [
+            identifier: [
               {
-                "system": 'http://hl7.org/fhir/sid/us-npi',
-                "value": '1780671644'
+                system: 'http://hl7.org/fhir/sid/us-npi',
+                value: '1780671644'
               }
             ],
-            "address": {
-              "type": 'physical',
-              "line": [
+            address: {
+              type: 'physical',
+              line: [
                 '161 MADISON AVE STE 7SW'
               ],
-              "city": 'NEW YORK',
-              "state": 'NY',
-              "postal_code": '10016-5448',
-              "text": '161 MADISON AVE STE 7SW,NEW YORK,NY,10016-5448'
+              city: 'NEW YORK',
+              state: 'NY',
+              postal_code: '10016-5448',
+              text: '161 MADISON AVE STE 7SW,NEW YORK,NY,10016-5448'
             }
           }
         ]

@@ -3,19 +3,26 @@
 class CreateExcelFilesMailer < ApplicationMailer
   def build(filename)
     date = Time.zone.now.strftime('%m/%d/%Y')
-    file_contents = File.read("tmp/#{filename}")
-    headers['Content-Disposition'] = "attachment; filename=#{filename}"
 
-    # rubocop:disable Layout/LineLength
-    recipients = Settings.vsp_environment.eql?('production') ? Settings.edu.production_excel_contents.emails : Settings.edu.staging_excel_contents.emails
-    subject = Settings.vsp_environment.eql?('production') ? "22-10282 Form CSV file for #{date}" : "Staging CSV file for #{date}"
-    # rubocop:enable Layout/LineLength
+    recipients = nil
+    subject = nil
+
+    if Settings.vsp_environment.eql?('production')
+      recipients = Settings.edu.production_excel_contents.emails
+      subject = "22-10282 Form CSV file for #{date}"
+    else
+      recipients = Settings.edu.staging_excel_contents.emails
+      subject = "(Staging) 22-10282 CSV file for #{date}"
+    end
+
+    attachments[filename] = File.read("tmp/#{filename}")
 
     mail(
       to: recipients,
-      subject: subject,
-      content_type: 'text/csv',
-      body: file_contents
-    )
+      subject: subject
+    ) do |format|
+      format.text { render plain: "CSV file for #{date} is attached." }
+      format.html { render html: "CSV file for #{date} is attached." }
+    end
   end
 end

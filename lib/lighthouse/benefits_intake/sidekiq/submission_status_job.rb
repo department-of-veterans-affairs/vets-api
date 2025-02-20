@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_intake/service'
-require 'dependents/benefits_intake/submission_handler'
-require 'pcpg/benefits_intake/submission_handler'
-require 'vre/benefits_intake/submission_handler'
 
 # Datadog Dashboard
 # https://vagov.ddog-gov.com/dashboard/4d8-3fn-dbp/benefits-intake-form-submission-tracking
@@ -33,6 +30,7 @@ module BenefitsIntake
     FORM_HANDLERS = {} # rubocop:disable Style/MutableConstant
 
     # Registers a form class with a specific form ID.
+    # @see config/initializers/benefits_intake_submission_status_handlers.rb
     #
     # @param form_id [String] The form ID to register.
     # @param form_handler [Class] The class associated with the form ID.
@@ -40,20 +38,19 @@ module BenefitsIntake
       FORM_HANDLERS[form_id] = form_handler
     end
 
-    # Registers handlers for various form IDs.
-    {
-      '686C-674' => Dependents::BenefitsIntake::SubmissionHandler,
-      '28-8832' => PCPG::BenefitsIntake::SubmissionHandler,
-      '28-1900' => VRE::BenefitsIntake::SubmissionHandler
-    }.each do |form_id, handler_class|
-      register_handler(form_id, handler_class)
-    end
-
+    # constructor
+    #
+    # @param batch_size [Integer] the number of records to process in a single request
     def initialize(batch_size: BATCH_SIZE)
       @batch_size = batch_size
     end
 
+    # execute the bulk status query to lighthouse
+    #
+    # @param form_id [String] process only form submission attempts for this form type
     def perform(form_id = nil)
+      return unless Flipper.enabled?(:benefits_intake_submission_status_job)
+
       log(:info, 'started')
 
       pending_attempts = FormSubmissionAttempt.where(aasm_state: 'pending').includes(:form_submission)
@@ -64,18 +61,29 @@ module BenefitsIntake
       batch_process(pending_attempts) unless pending_attempts.empty?
 
       log(:info, 'ended')
+    rescue => e
+      # catch and log, but not re-raise to avoid sidekiq exhaustion alerts
+      log(:error, 'ERROR', message: e.message)
     end
 
     private
 
-    attr_reader :batch_size, :form_id
+    attr_reader :batch_size
 
+    # utility function, @see Rails.logger
+    #
+    # @param level [Symbol|String] the logger function to call
+    # @param msg [String] the message to be logged
+    # @param payload [Hash] additional parameters to pass to log
     def log(level, msg, **payload)
       this = self.class.name
       message = format('%<class>s: %<msg>s', { class: this, msg: msg.to_s })
       Rails.logger.public_send(level, message, class: this, **payload)
     end
 
+    # process a set of pending attempts
+    #
+    # @param pending_attempts [Array<FormSubmissionAttempt>] list of pending attempts to process
     def batch_process(pending_attempts)
       intake_service = BenefitsIntake::Service.new
 
@@ -92,10 +100,10 @@ module BenefitsIntake
 
         handle_response(data)
       end
-    rescue => e
-      log(:error, 'ERROR processing batch', message: e.message)
     end
 
+    # mapping of benefits_intake_uuid to FormSubmissionAttempt
+    # improves lookup during processing
     def pending_attempts_hash
       @pah ||= FormSubmissionAttempt.where(aasm_state: 'pending').includes(:form_submission)
                                     .index_by(&:benefits_intake_uuid)
@@ -119,9 +127,15 @@ module BenefitsIntake
       end
     end
 
+    # perform aasm_state change on the attempt based on returned status
+    #
+    # @param uuid [UUID] the benefits_intake_uuid being processed
+    # @param status [String] the returned status
+    # @param submission [Hash] the full data hash returned for this record
     def update_attempt_record(uuid, status, submission)
       form_submission_attempt = pending_attempts_hash[uuid]
       lighthouse_updated_at = submission.dig('attributes', 'updated_at')
+      form_submission_attempt.update(lighthouse_updated_at:)
 
       case status
       when 'expired'
@@ -139,11 +153,15 @@ module BenefitsIntake
         form_submission_attempt.vbms!
       end
 
-      form_submission_attempt.update(lighthouse_updated_at:, error_message:)
+      form_submission_attempt.update(error_message:) if error_message
     end
 
+    # monitoring of the submission attempt status
+    #
+    # @param uuid [UUID] the benefits_intake_uuid being processed
+    # @param status [String] the returned status
     def monitor_attempt_status(uuid, status)
-      form_submission_attempt, result = attempt_status_result(uuid, status)
+      form_submission_attempt, result, queue_time = attempt_status_result(uuid, status)
       form_id = form_submission_attempt.form_submission.form_type
 
       metric = "#{STATS_KEY}.#{form_id}.#{result}"
@@ -155,25 +173,43 @@ module BenefitsIntake
         statsd: metric,
         form_id:,
         uuid:,
-        result:,
         status:,
-        time_to_transition: (Time.zone.now - form_submission_attempt.created_at).truncate,
+        result:,
+        queue_time:,
         error_message: form_submission_attempt.error_message
       }
       log(level, "UUID: #{uuid}, status: #{status}, result: #{result}", **payload)
     end
 
+    # call handler function to further process a submission status
+    #
+    # @param uuid [UUID] the benefits_intake_uuid being processed
+    # @param status [String] the returned status
     def handle_attempt_result(uuid, status)
-      form_submission_attempt, result = attempt_status_result(uuid, status)
+      form_submission_attempt, result, queue_time = attempt_status_result(uuid, status)
+      form_id = form_submission_attempt.form_submission.form_type
       saved_claim_id = form_submission_attempt.form_submission.saved_claim_id
 
       call_location = caller_locations.first
-      context = { benefits_intake_uuid: uuid }
+      context = {
+        form_id:,
+        uuid:,
+        status:,
+        result:,
+        queue_time:,
+        error_message: form_submission_attempt.error_message
+      }
+
       FORM_HANDLERS[form_id]&.new(saved_claim_id)&.handle(result, call_location:, **context)
     rescue => e
       log(:error, 'ERROR handling result', message: e.message)
     end
 
+    # utility function to retrieve submission transformed submission data
+    # - map status to the recorded result in the database
+    #
+    # @param uuid [UUID] the benefits_intake_uuid being processed
+    # @param status [String] the returned status
     def attempt_status_result(uuid, status)
       form_submission_attempt = pending_attempts_hash[uuid]
 
@@ -181,7 +217,7 @@ module BenefitsIntake
       result = STATUS_RESULT_MAP[status.to_sym] || 'pending'
       result = 'stale' if queue_time > STALE_SLA.days && result == 'pending'
 
-      [form_submission_attempt, result]
+      [form_submission_attempt, result, queue_time]
     end
 
     # end class SubmissionStatusJob

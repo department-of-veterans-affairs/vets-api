@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_18_222532) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -24,6 +24,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
   create_enum "itf_remediation_status", ["unprocessed"]
+  create_enum "user_action_status", ["initial", "success", "error"]
 
   create_table "account_login_stats", force: :cascade do |t|
     t.bigint "account_id", null: false
@@ -269,6 +270,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
     t.index ["veteran_icn"], name: "index_appeals_api_supplemental_claims_on_veteran_icn"
   end
 
+  create_table "ar_power_of_attorney_form_submissions", force: :cascade do |t|
+    t.uuid "power_of_attorney_request_id", null: false
+    t.string "service_id"
+    t.text "service_response_ciphertext"
+    t.string "status", null: false
+    t.text "encrypted_kms_key"
+    t.datetime "status_updated_at"
+    t.text "error_message_ciphertext"
+    t.datetime "created_at", null: false
+  end
+
   create_table "ar_power_of_attorney_forms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "power_of_attorney_request_id", null: false
     t.text "encrypted_kms_key"
@@ -308,11 +320,19 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
     t.datetime "created_at", null: false
     t.string "claimant_type", null: false
     t.string "power_of_attorney_holder_type", null: false
-    t.uuid "power_of_attorney_holder_id", null: false
-    t.uuid "accredited_individual_id", null: false
-    t.index ["accredited_individual_id"], name: "idx_on_accredited_individual_id_a0a1fab1e0"
+    t.string "accredited_individual_registration_number"
+    t.string "power_of_attorney_holder_poa_code"
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
-    t.index ["power_of_attorney_holder_type", "power_of_attorney_holder_id"], name: "index_ar_power_of_attorney_requests_on_power_of_attorney_holder"
+  end
+
+  create_table "ar_user_account_accredited_individuals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "accredited_individual_registration_number", null: false
+    t.string "power_of_attorney_holder_type", null: false
+    t.string "user_account_email", null: false
+    t.string "user_account_icn"
+    t.index ["accredited_individual_registration_number", "power_of_attorney_holder_type", "user_account_email"], name: "ar_user_account_accredited_individuals_hardcoding", unique: true
+    t.index ["accredited_individual_registration_number", "power_of_attorney_holder_type", "user_account_email"], name: "index_ar_user_account_accredited_individuals_unique", unique: true
+    t.index ["power_of_attorney_holder_type", "user_account_email"], name: "ar_uniq_power_of_attorney_holder_type_user_account_email", unique: true
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -538,6 +558,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
     t.boolean "shared_sessions", default: false, null: false
     t.string "service_levels", default: ["ial1", "ial2", "loa1", "loa3", "min"], array: true
     t.string "credential_service_providers", default: ["logingov", "idme", "dslogon", "mhv"], array: true
+    t.boolean "json_api_compatibility", default: true, null: false
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
@@ -661,6 +682,28 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
     t.index ["user_account_id"], name: "index_education_stem_automated_decisions_on_user_account_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
+  end
+
+  create_table "evidence_submissions", force: :cascade do |t|
+    t.string "job_id"
+    t.string "job_class"
+    t.integer "request_id"
+    t.integer "claim_id"
+    t.uuid "user_account_id", null: false
+    t.json "template_metadata_ciphertext"
+    t.text "encrypted_kms_key"
+    t.string "upload_status"
+    t.string "va_notify_id"
+    t.string "va_notify_status"
+    t.datetime "va_notify_date"
+    t.datetime "delete_date"
+    t.datetime "acknowledgement_date"
+    t.datetime "failed_date"
+    t.string "error_message"
+    t.integer "tracked_item_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_account_id"], name: "index_evidence_submissions_on_user_account_id"
   end
 
   create_table "evss_claims", id: :serial, force: :cascade do |t|
@@ -1130,11 +1173,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
     t.datetime "delete_date"
     t.text "metadata"
     t.datetime "metadata_updated_at"
+    t.bigint "user_account_id"
+    t.uuid "bpd_uuid"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["delete_date"], name: "index_saved_claims_on_delete_date"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
     t.index ["id"], name: "index_partial_saved_claims_on_id_metadata_like_error", where: "(metadata ~~ '%error%'::text)"
+    t.index ["user_account_id"], name: "index_saved_claims_on_user_account_id"
   end
 
   create_table "schema_contract_validations", force: :cascade do |t|
@@ -1354,6 +1400,28 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
     t.index ["icn"], name: "index_user_accounts_on_icn", unique: true
   end
 
+  create_table "user_action_events", force: :cascade do |t|
+    t.string "details", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "event_id"
+    t.integer "event_type"
+  end
+
+  create_table "user_actions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.bigint "user_action_event_id", null: false
+    t.enum "status", default: "initial", null: false, enum_type: "user_action_status"
+    t.bigint "subject_user_verification_id", null: false
+    t.text "acting_ip_address"
+    t.text "acting_user_agent"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "acting_user_verification_id"
+    t.index ["acting_user_verification_id"], name: "index_user_actions_on_acting_user_verification_id"
+    t.index ["subject_user_verification_id"], name: "index_user_actions_on_subject_user_verification_id"
+    t.index ["user_action_event_id"], name: "index_user_actions_on_user_action_event_id"
+  end
+
   create_table "user_credential_emails", force: :cascade do |t|
     t.bigint "user_verification_id"
     t.text "credential_email_ciphertext"
@@ -1394,7 +1462,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
   create_table "va_notify_notifications", force: :cascade do |t|
     t.uuid "notification_id", null: false
     t.text "reference"
-    t.text "to"
     t.text "status"
     t.datetime "completed_at"
     t.datetime "sent_at"
@@ -1409,6 +1476,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
     t.uuid "template_id"
     t.text "to_ciphertext"
     t.text "encrypted_kms_key"
+    t.index ["notification_id"], name: "index_va_notify_notifications_on_notification_id"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
@@ -1483,6 +1551,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
     t.string "address_line1"
     t.string "address_line2"
     t.string "address_line3"
+    t.boolean "can_accept_digital_poa_requests", default: false
     t.index ["location"], name: "index_veteran_organizations_on_location", using: :gist
     t.index ["name"], name: "index_veteran_organizations_on_name"
     t.index ["poa"], name: "index_veteran_organizations_on_poa", unique: true
@@ -1725,7 +1794,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
   add_foreign_key "ar_power_of_attorney_forms", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_request_decisions", "user_accounts", column: "creator_id"
   add_foreign_key "ar_power_of_attorney_request_resolutions", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
-  add_foreign_key "ar_power_of_attorney_requests", "accredited_individuals"
   add_foreign_key "ar_power_of_attorney_requests", "user_accounts", column: "claimant_id"
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "claim_va_notifications", "saved_claims"
@@ -1733,6 +1801,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
+  add_foreign_key "evidence_submissions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
   add_foreign_key "form526_submission_remediations", "form526_submissions"
   add_foreign_key "form526_submissions", "user_accounts"
@@ -1749,6 +1818,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
   add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
+  add_foreign_key "user_actions", "user_action_events"
+  add_foreign_key "user_actions", "user_verifications", column: "acting_user_verification_id"
+  add_foreign_key "user_actions", "user_verifications", column: "subject_user_verification_id"
   add_foreign_key "user_credential_emails", "user_verifications"
   add_foreign_key "user_verifications", "user_accounts"
   add_foreign_key "va_notify_in_progress_reminders_sent", "user_accounts"

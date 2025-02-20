@@ -121,6 +121,6 @@ FactoryBot.define do
     }
   end
   factory :va10203_full_form do
-    form { File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '10203', 'kitchen_sink.json')) }
+    form { Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '10203', 'kitchen_sink.json').read }
   end
 end

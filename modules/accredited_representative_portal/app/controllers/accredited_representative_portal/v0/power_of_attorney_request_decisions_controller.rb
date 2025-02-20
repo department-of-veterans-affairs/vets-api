@@ -3,27 +3,16 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestDecisionsController < ApplicationController
-      before_action :set_poa_request, only: :create
+      include PowerOfAttorneyRequests
 
-      ##
-      # TODO: We ought to centralize our exception rendering. Starting here for
-      # now.
-      #
-      concerning :ExceptionRendering do
-        included do
-          rescue_from ActiveRecord::RecordNotFound do |e|
-            render(
-              json: { errors: [e.message] },
-              status: :not_found
-            )
-          end
+      before_action do
+        authorize PowerOfAttorneyRequestDecision
+      end
 
-          rescue_from ActiveRecord::RecordInvalid do |e|
-            render(
-              json: { errors: e.record.errors.full_messages },
-              status: :unprocessable_entity
-            )
-          end
+      with_options only: :create do
+        before_action do
+          id = params[:power_of_attorney_request_id]
+          find_poa_request(id)
         end
       end
 
@@ -70,11 +59,6 @@ module AccreditedRepresentativePortal
 
       def creator
         current_user.user_account
-      end
-
-      def set_poa_request
-        id = params[:power_of_attorney_request_id]
-        @poa_request = PowerOfAttorneyRequest.find(id)
       end
     end
   end

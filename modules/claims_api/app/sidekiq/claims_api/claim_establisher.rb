@@ -46,12 +46,23 @@ module ClaimsApi
     rescue ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException,
            ::Common::Exceptions::BackendServiceException => e
       handle_exception(auto_claim:, orig_form_data:, e:)
+      raise e if expectation_failed_error?(e)
     rescue => e
       handle_exception(auto_claim:, orig_form_data:, e:)
       raise e
     end
 
     private
+
+    def expectation_failed_error?(e)
+      error_messages = get_error_message(e)
+
+      return error_messages.include?('417') if error_messages.is_a?(String)
+
+      return false if error_messages&.dig(:messages).nil?
+
+      error_messages[:messages].any? { |msg| msg[:text]&.include?('417') }
+    end
 
     def handle_exception(auto_claim:, orig_form_data:, e:)
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED

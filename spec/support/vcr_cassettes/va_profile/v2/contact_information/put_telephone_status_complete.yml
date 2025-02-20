@@ -1,0 +1,68 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/telephones/status/c915d801-5693-4860-b2df-83baa8c3c910
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Content-Type:
+      - application/json
+      Cufsystemname:
+      - VETSGOV
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1464160677", dtSInfo;desc="0"
+      - dtRpid;desc="307460208", dtSInfo;desc="0"
+      Vary:
+      - Access-Control-Request-Headers
+      - Access-Control-Request-Method
+      - Origin
+      Vaprofiletxauditid:
+      - 9f0b48f7-f193-4e93-a747-fd0af522cc65
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Thu, 06 Feb 2025 18:06:03 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"c915d801-5693-4860-b2df-83baa8c3c910","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_SUCCESS","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"sourceDate":"2024-08-27T18:51:06.000Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","effectiveStartDate":"2024-08-27T18:51:06.000Z","telephoneId":458781,"internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"303","phoneNumber":"5551235","voiceMailAcceptableInd":true},"txOutput":[{"createDate":"2023-04-07T16:39:34Z","updateDate":"2024-08-27T18:51:06.000Z","txAuditId":"c915d801-5693-4860-b2df-83baa8c3c910","sourceSystem":"VETSGOV","sourceDate":"2024-08-27T18:51:06.000Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","effectiveStartDate":"2024-08-27T18:51:06.000Z","vaProfileId":1781151,"telephoneId":458781,"country":{"countryName":"United
+        States","countryCodeFIPS":"US","countryCodeISO2":"US","countryCodeISO3":"USA"},"internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"303","phoneNumber":"5551235","carrier":"Multiple
+        OCN Listing","classification":{"classificationCode":4,"classificationName":"OTHER"}}]}'
+  recorded_at: Thu, 06 Feb 2025 18:06:04 GMT
+recorded_with: VCR 6.3.1

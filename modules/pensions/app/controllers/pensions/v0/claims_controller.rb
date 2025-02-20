@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pensions/tag_sentry'
 require 'pensions/monitor'
 
 module Pensions
@@ -42,8 +41,6 @@ module Pensions
 
       # POST creates and validates an instance of `claim_class`
       def create
-        Pensions::TagSentry.tag_sentry
-
         claim = claim_class.new(form: filtered_params[:form])
         monitor.track_create_attempt(claim, current_user)
 
@@ -69,6 +66,10 @@ module Pensions
 
       private
 
+      # link the form to the uploaded attachments and perform submission job
+      #
+      # @param in_progress_form [InProgressForm]
+      # @param claim [Pensions::SavedClaim]
       def process_and_upload_to_lighthouse(in_progress_form, claim)
         claim.process_attachments!
 
@@ -83,13 +84,11 @@ module Pensions
         params.require(short_name.to_sym).permit(:form)
       end
 
-      ##
       # include validation error on in_progress_form metadata.
       # `noop` if in_progress_form is `blank?`
       #
       # @param in_progress_form [InProgressForm]
       # @param claim [Pensions::SavedClaim]
-      #
       def log_validation_error_to_metadata(in_progress_form, claim)
         return if in_progress_form.blank?
 

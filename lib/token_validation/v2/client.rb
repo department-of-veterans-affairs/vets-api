@@ -13,10 +13,10 @@ module TokenValidation
       end
 
       def token_valid?(audience:, token:, scope:)
-        json = URI.encode_www_form({ 'aud': audience })
+        json = URI.encode_www_form({ aud: audience })
         headers = {
-          'apiKey': @api_key,
-          'Authorization': "Bearer #{token}",
+          apiKey: @api_key,
+          Authorization: "Bearer #{token}",
           'Content-Type': 'application/x-www-form-urlencoded'
         }
         response = perform(:post, 'v2/validation', json, headers)

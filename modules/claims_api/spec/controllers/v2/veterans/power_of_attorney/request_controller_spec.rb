@@ -227,9 +227,14 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
     context 'when procId is present and valid and decision is accepted' do
       let(:decision) { 'ACCEPTED' }
+      let(:service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Show) }
 
       before do
         allow(ClaimsApi::PowerOfAttorneyRequest).to(receive(:find_by).and_return(request_response))
+        allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
+          .to receive(:fetch_ptcpnt_id).with(anything).and_return('5196105942')
+        allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
+        allow(service).to receive(:get_poa_request).and_return({})
       end
 
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do
@@ -332,7 +337,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             addressLine1: '2719 Hyperion Ave',
             addressLine2: 'Apt 2',
             city: 'Los Angeles',
-            country: 'USA',
+            countryCode: 'US',
             stateCode: 'CA',
             zipCode: '92264',
             zipCodeSuffix: '0200'
@@ -357,6 +362,23 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           HIV
           ALCOHOLISM
         ]
+      }
+    end
+    let(:claimant_information) do
+      {
+        claimant: {
+          address: {
+            addressLine1: '2719 Hyperion Ave',
+            addressLine2: 'Apt 2',
+            city: 'Los Angeles',
+            countryCode: 'US',
+            stateCode: 'CA',
+            zipCode: '92264',
+            zipCodeSuffix: '0200'
+          },
+          claimantId: '1012667145V762142',
+          relationship: 'Spouse'
+        }
       }
     end
     let(:veteran_id) { '1012667145V762142' }
@@ -450,12 +472,98 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         expect(JSON.parse(response.body)['data']['type']).to eq('power-of-attorney-request')
       end
     end
+
+    context 'handling countryCodes' do
+      it 'returns a 422 when the veteran countryCode has no match in the BRD countries list' do
+        mock_ccg(scopes) do |auth_header|
+          form_attributes[:veteran][:address][:countryCode] = '76'
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'The country provided is not valid.'
+          )
+        end
+      end
+
+      it 'returns a 201 when the veteran countryCode is lowercase but has a match' do
+        mock_ccg(scopes) do |auth_header|
+          form_attributes[:veteran][:address][:countryCode] = 'pk'
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:created)
+        end
+      end
+
+      it 'returns a 422 when the claimant countryCode has no match in the BRD countries list' do
+        mock_ccg(scopes) do |auth_header|
+          form_attributes.merge!(claimant_information)
+          form_attributes[:claimant][:address][:countryCode] = '76'
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'The country provided is not valid.'
+          )
+        end
+      end
+
+      describe '#validate_country_code' do
+        let(:min_form_attributes) do
+          {
+            'veteran' => {
+              'address' => {
+                'countryCode' => 'GB-WLS'
+              }
+            }
+          }
+        end
+
+        before do
+          allow(subject).to receive(:form_attributes).and_return(min_form_attributes)
+        end
+
+        it 'allows a countryCode with 6 characters and a dash' do
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'allows a countryCode with numbers and letters and a dash' do
+          min_form_attributes['veteran']['address']['countryCode'] = 'TR-01'
+
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'allows a countryCode when sent in lowercase' do
+          min_form_attributes['veteran']['address']['countryCode'] = 'gb'
+
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'allows a countryCode when sent in mixed case' do
+          min_form_attributes['veteran']['address']['countryCode'] = 'gb-WlS'
+
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'denies an invalid countryCode' do
+          min_form_attributes['veteran']['address']['countryCode'] = '%&-T)'
+
+          expect do
+            subject.send(:validate_country_code)
+          end.to raise_error(Common::Exceptions::UnprocessableEntity)
+        end
+      end
+    end
   end
 
   def index_request_with(poa_codes:, auth_header:, filter: {})
     post v2_veterans_power_of_attorney_requests_path,
          params: { data: { attributes: { poaCodes: poa_codes, filter: } } }.to_json,
-         headers: auth_header
+         headers: auth_header.merge('Content-Type' => 'application/json')
   end
 
   def show_request_with(id:, auth_header:)
@@ -467,12 +575,12 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
          params: { data: { attributes: { id: id,
                                          decision:,
                                          representativeId: representative_id } } }.to_json,
-         headers: auth_header
+         headers: auth_header.merge('Content-Type' => 'application/json')
   end
 
   def create_request_with(veteran_id:, form_attributes:, auth_header:)
     post "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney-request",
          params: { data: { attributes: form_attributes } }.to_json,
-         headers: auth_header
+         headers: auth_header.merge('Content-Type' => 'application/json')
   end
 end

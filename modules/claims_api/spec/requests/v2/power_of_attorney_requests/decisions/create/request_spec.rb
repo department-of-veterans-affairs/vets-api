@@ -475,10 +475,6 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests::Decisions#create', :bgs,
         receive(:create)
       )
 
-      allow(ClaimsApi::PowerOfAttorneyRequestService::UpdatePowerOfAttorney).to(
-        receive(:perform)
-      )
-
       expect(ClaimsApi::PowerOfAttorneyRequest).to(
         receive(:find).and_return(
           OpenStruct.new(
@@ -554,10 +550,6 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests::Decisions#create', :bgs,
     before do
       allow(ClaimsApi::PowerOfAttorneyRequest::Decision).to(
         receive(:create)
-      )
-
-      allow(ClaimsApi::PowerOfAttorneyRequestService::UpdatePowerOfAttorney).to(
-        receive(:perform)
       )
 
       expect(ClaimsApi::PowerOfAttorneyRequest).to(

@@ -1,0 +1,130 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/oauth2/claims/system/v1/token"
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2ExMXN6M3ByeExhNjU0RzJwOCIsInN1YiI6IjBvYTExc3ozcHJ4TGE2NTRHMnA4IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzZGc3Z3VpczJUWURsRmUycDcvdjEvdG9rZW4iLCJpYXQiOjE3MzcwNDQxOTUsImV4cCI6MTczNzA0NDQ5NX0.qFw7mxw1RSxXvSc1tIPm78dRAuE5R3IRbL1Ojzs1q_x-90ybLNyTjXeqjhP_OIO8r3W4sLzvRXU73a20bWVrVT7501pHXqKBF-Z_J4bjkinV6YetRkAXKE67EchgzQ0H4GhWbhINRl3ZV4AvYEXYp3I7v7L76awfQ54jepTwjm5hHtqPn9RHEJ7CsXM3AnXQgszA6rHvPLp7tHTlhX3vofJwEBslJM8xzAclE68z4iodDiiqAImsykayEPk3kP7YIpLEOjHc5RUDUrHPtB-gyBnN8CwLpjL24l98iMRDGgZRm4kDH5Wg4OCZ_J6ehThOkSelVcQ3N00RFyyYfTfSqg&scope=system%2Fclaim.read+system%2Fclaim.write+system%2F526-pdf.override+system%2F526.override
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 16 Jan 2025 16:16:36 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '238'
+      Ratelimit-Limit:
+      - '240'
+      Ratelimit-Remaining:
+      - '238'
+      Ratelimit-Reset:
+      - '25'
+      X-Ratelimit-Limit-Minute:
+      - '240'
+      Vary:
+      - Origin
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Etag:
+      - W/"462-ePRIWe2RWQWPe0qc1THMTYGalj8"
+      Access-Control-Allow-Origin:
+      - "*"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"eyJraWQiOiJ0V3RPY1lURUpqVEl1UmdxX1lJZnFEVndjXzVXTWszUGM3VHVsc2luVlJ3IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULnRWNG5PM1NsYk1xdnJqOUE1bDZ6ZWNOQ0dWeDlKZlB6aUQ0NmhRdGZlUVEiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNkZzdndWlzMlRZRGxGZTJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2NsYWltcyIsImlhdCI6MTczNzA0NDE5NiwiZXhwIjoxNzM3MDQ0NDk2LCJjaWQiOiIwb2ExMXN6M3ByeExhNjU0RzJwOCIsInNjcCI6WyJzeXN0ZW0vNTI2Lm92ZXJyaWRlIiwic3lzdGVtLzUyNi1wZGYub3ZlcnJpZGUiLCJzeXN0ZW0vY2xhaW0ud3JpdGUiLCJzeXN0ZW0vY2xhaW0ucmVhZCJdLCJzdWIiOiIwb2ExMXN6M3ByeExhNjU0RzJwOCIsImxhYmVsIjoiV2lsY29yZUhlZHJpY2sifQ.R0S1pcm4Bh-4wU0yVCwJrk5ffOfl-iKud0SpjGrOzXEH9ug36E0w6dQPE6vq5FJDxIwcMn1ir3HLBZjKQObsClw7K12M5wGTnBQ9K93LikZSz4gV26NVBftuNKmj3c6WtgG4Quzyuxe3Minz7bULKLH5KcV4LLF0L0ygFBgY-d_fxY2P8iPGNuCZlAKjlMUZDafr3Ee5YNZfYx5NE83FonkQ0RlIpPhCiYxBXD6aEY8qftuuOLGtgK3HQ1GhVqnqex4ZYdVB9BkJWMGH8qR4zP-J3FMYMa54Li4VRcS9lM2t0x1z22iz5pEEwms89j9TsouruYcZD6o77Tt8x7GHaQ","token_type":"Bearer","scope":"system/526.override
+        system/526-pdf.override system/claim.write system/claim.read","expires_in":300,"state":null}'
+  recorded_at: Thu, 16 Jan 2025 16:16:36 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/claims/v2/veterans/123498767V234859/power-of-attorney/29b7c214-4a61-425e-97f2-1a56de869524"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 16 Jan 2025 16:16:37 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Reset:
+      - '24'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      Ratelimit-Limit:
+      - '120'
+      Etag:
+      - W/"67b28006fd457f0098fd70638e6794e8"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 1ba326afd549925de35cadf38f116636816403c7
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - c9890add-12b4-46c4-86f7-a6401c91bee3
+      X-Runtime:
+      - '0.425435'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"a4dd5bb0-d47b-4ca9-9afc-d7ce6a820985","type":"claimsApiPowerOfAttorneys","attributes":{"dateRequestAccepted":"2025-01-16","previousPoa":"-","representative":{"veteran":{"address":{"addressLine1":"123","addressLine2":"2a","city":"city","countryCode":"US","stateCode":"OR","zipCode":"12345","zipCodeSuffix":"6789"}},"representative":{"poaCode":"067","registrationNumber":"999999999999","type":"ATTORNEY","address":{"addressLine1":"123","addressLine2":"2a","city":"city","countryCode":"US","stateCode":"OR","zipCode":"12345","zipCodeSuffix":"6789"}}},"status":"pending"}}}'
+  recorded_at: Thu, 16 Jan 2025 16:16:37 GMT
+recorded_with: VCR 6.3.1
