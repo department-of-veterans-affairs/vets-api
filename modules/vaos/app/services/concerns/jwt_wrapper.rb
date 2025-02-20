@@ -35,7 +35,7 @@ module Concerns
 
     def jwt_headers
       {
-        kid: kid,
+        kid:,
         typ: 'JWT',
         alg: SIGNING_ALGORITHM
       }
