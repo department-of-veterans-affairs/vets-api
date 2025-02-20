@@ -1,0 +1,167 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <ARP_ALLOW_LIST_BASE_URI>/repos/<ARP_ALLOW_LIST_REPO>/contents/<ARP_ALLOW_LIST_PATH>
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - Octokit Ruby Gem 9.2.0
+      Content-Type:
+      - application/json
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 07 Feb 2025 05:50:21 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Cache-Control:
+      - private, max-age=60, s-maxage=60
+      Vary:
+      - Accept, Authorization, Cookie, X-GitHub-OTP,Accept-Encoding, Accept, X-Requested-With
+      Etag:
+      - W/"6c423d527c2aeb856029427888d17ebfd65c70d5"
+      Last-Modified:
+      - Fri, 07 Feb 2025 03:23:35 GMT
+      X-Oauth-Scopes:
+      - public_repo
+      X-Accepted-Oauth-Scopes:
+      - ''
+      Github-Authentication-Token-Expiration:
+      - 2025-02-14 01:35:23 UTC
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Github-Api-Version-Selected:
+      - '2022-11-28'
+      X-Ratelimit-Limit:
+      - '5000'
+      X-Ratelimit-Remaining:
+      - '4999'
+      X-Ratelimit-Reset:
+      - '1738911021'
+      X-Ratelimit-Used:
+      - '1'
+      X-Ratelimit-Resource:
+      - core
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
+        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
+        X-GitHub-Request-Id, Deprecation, Sunset
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      X-Frame-Options:
+      - deny
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - default-src 'none'
+      Transfer-Encoding:
+      - chunked
+      X-Github-Request-Id:
+      - C710:1BAA4D:7AC31A8:F6AAB36:67A59F1D
+      Server:
+      - github.com
+    body:
+      encoding: ASCII-8BIT
+      string: '{"name":"<ARP_ALLOW_LIST_PATH>","path":"<ARP_ALLOW_LIST_PATH>","sha":"6c423d527c2aeb856029427888d17ebfd65c70d5","size":1123,"url":"<ARP_ALLOW_LIST_BASE_URI>/repos/<ARP_ALLOW_LIST_REPO>/contents/<ARP_ALLOW_LIST_PATH>?ref=main","html_url":"https://github.com/<ARP_ALLOW_LIST_REPO>/blob/main/<ARP_ALLOW_LIST_PATH>","git_url":"<ARP_ALLOW_LIST_BASE_URI>/repos/<ARP_ALLOW_LIST_REPO>/git/blobs/6c423d527c2aeb856029427888d17ebfd65c70d5","download_url":"https://raw.githubusercontent.com/<ARP_ALLOW_LIST_REPO>/main/<ARP_ALLOW_LIST_PATH>","type":"file","content":"YWNjcmVkaXRlZF9pbmRpdmlkdWFsX3JlZ2lzdHJhdGlvbl9udW1iZXIscG93\nZXJfb2ZfYXR0b3JuZXlfaG9sZGVyX3R5cGUsdXNlcl9hY2NvdW50X2VtYWls\nClZTTzEyMyx2ZXRlcmFuX3NlcnZpY2Vfb3JnYW5pemF0aW9uLHZzbzFAdmEu\nZ292ClZTTzQ1Nix2ZXRlcmFuX3NlcnZpY2Vfb3JnYW5pemF0aW9uLHZzbzJA\ndmEuZ292ClZTTzc4OSx2ZXRlcmFuX3NlcnZpY2Vfb3JnYW5pemF0aW9uLGF0\ndG9ybmV5MUBsYXdmaXJtLmNvbQpWU085ODcsdmV0ZXJhbl9zZXJ2aWNlX29y\nZ2FuaXphdGlvbixjbGFpbWFudDFAdmEuZ292ClZTTzY1NCx2ZXRlcmFuX3Nl\ncnZpY2Vfb3JnYW5pemF0aW9uLHZzbzNAdmEuZ292ClZTTzMyMSx2ZXRlcmFu\nX3NlcnZpY2Vfb3JnYW5pemF0aW9uLGF0dG9ybmV5MkBsYXdmaXJtLmNvbQpW\nU08xMTEsdmV0ZXJhbl9zZXJ2aWNlX29yZ2FuaXphdGlvbix2c280QHZhLmdv\ndgpWU08yMjIsdmV0ZXJhbl9zZXJ2aWNlX29yZ2FuaXphdGlvbixhdHRvcm5l\neTNAbGF3ZmlybS5jb20KVlNPMzMzLHZldGVyYW5fc2VydmljZV9vcmdhbml6\nYXRpb24sY2xhaW1hbnQyQHZhLmdvdgpWU080NDQsdmV0ZXJhbl9zZXJ2aWNl\nX29yZ2FuaXphdGlvbix2c281QHZhLmdvdgpWU081NTUsdmV0ZXJhbl9zZXJ2\naWNlX29yZ2FuaXphdGlvbix2c282QHZhLmdvdgpWU082NjYsdmV0ZXJhbl9z\nZXJ2aWNlX29yZ2FuaXphdGlvbix2c283QHZhLmdvdgpWU083NzcsdmV0ZXJh\nbl9zZXJ2aWNlX29yZ2FuaXphdGlvbixhdHRvcm5leTRAbGF3ZmlybS5jb20K\nVlNPODg4LHZldGVyYW5fc2VydmljZV9vcmdhbml6YXRpb24sY2xhaW1hbnQz\nQHZhLmdvdgpWU085OTksdmV0ZXJhbl9zZXJ2aWNlX29yZ2FuaXphdGlvbix2\nc284QHZhLmdvdgpWU08xMTIsdmV0ZXJhbl9zZXJ2aWNlX29yZ2FuaXphdGlv\nbix2c285QHZhLmdvdgpWU08xMTQsdmV0ZXJhbl9zZXJ2aWNlX29yZ2FuaXph\ndGlvbix2c28xMEB2YS5nb3YKVlNPMTE1LHZldGVyYW5fc2VydmljZV9vcmdh\nbml6YXRpb24sY2xhaW1hbnQ0QHZhLmdvdgpWU08xMTYsdmV0ZXJhbl9zZXJ2\naWNlX29yZ2FuaXphdGlvbix2c28xMUB2YS5nb3YKVlNPMTE3LHZldGVyYW5f\nc2VydmljZV9vcmdhbml6YXRpb24sYXR0b3JuZXk1QGxhd2Zpcm0uY29tCg==\n","encoding":"base64","_links":{"self":"<ARP_ALLOW_LIST_BASE_URI>/repos/<ARP_ALLOW_LIST_REPO>/contents/<ARP_ALLOW_LIST_PATH>?ref=main","git":"<ARP_ALLOW_LIST_BASE_URI>/repos/<ARP_ALLOW_LIST_REPO>/git/blobs/6c423d527c2aeb856029427888d17ebfd65c70d5","html":"https://github.com/<ARP_ALLOW_LIST_REPO>/blob/main/<ARP_ALLOW_LIST_PATH>"}}'
+  recorded_at: Fri, 07 Feb 2025 05:50:21 GMT
+- request:
+    method: get
+    uri: <ARP_ALLOW_LIST_BASE_URI>/repos/<ARP_ALLOW_LIST_REPO>/contents/<ARP_ALLOW_LIST_PATH>
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - Octokit Ruby Gem 9.2.0
+      Content-Type:
+      - application/json
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 07 Feb 2025 05:51:21 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Cache-Control:
+      - private, max-age=60, s-maxage=60
+      Vary:
+      - Accept, Authorization, Cookie, X-GitHub-OTP,Accept-Encoding, Accept, X-Requested-With
+      Etag:
+      - W/"7ead51170aef2c0db3b9f4a3f485d1841dc0e393"
+      Last-Modified:
+      - Fri, 07 Feb 2025 05:51:16 GMT
+      X-Oauth-Scopes:
+      - public_repo
+      X-Accepted-Oauth-Scopes:
+      - ''
+      Github-Authentication-Token-Expiration:
+      - 2025-02-14 01:35:23 UTC
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Github-Api-Version-Selected:
+      - '2022-11-28'
+      X-Ratelimit-Limit:
+      - '5000'
+      X-Ratelimit-Remaining:
+      - '4998'
+      X-Ratelimit-Reset:
+      - '1738911021'
+      X-Ratelimit-Used:
+      - '2'
+      X-Ratelimit-Resource:
+      - core
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
+        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
+        X-GitHub-Request-Id, Deprecation, Sunset
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      X-Frame-Options:
+      - deny
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - default-src 'none'
+      Transfer-Encoding:
+      - chunked
+      X-Github-Request-Id:
+      - C744:D38BB:7D6DF96:FC0A745:67A59F59
+      Server:
+      - github.com
+    body:
+      encoding: ASCII-8BIT
+      string: '{"name":"<ARP_ALLOW_LIST_PATH>","path":"<ARP_ALLOW_LIST_PATH>","sha":"7ead51170aef2c0db3b9f4a3f485d1841dc0e393","size":1131,"url":"<ARP_ALLOW_LIST_BASE_URI>/repos/<ARP_ALLOW_LIST_REPO>/contents/<ARP_ALLOW_LIST_PATH>?ref=main","html_url":"https://github.com/<ARP_ALLOW_LIST_REPO>/blob/main/<ARP_ALLOW_LIST_PATH>","git_url":"<ARP_ALLOW_LIST_BASE_URI>/repos/<ARP_ALLOW_LIST_REPO>/git/blobs/7ead51170aef2c0db3b9f4a3f485d1841dc0e393","download_url":"https://raw.githubusercontent.com/<ARP_ALLOW_LIST_REPO>/main/<ARP_ALLOW_LIST_PATH>","type":"file","content":"YWNjcmVkaXRlZF9pbmRpdmlkdWFsX3JlZ2lzdHJhdGlvbl9udW1iZXIscG93\nZXJfb2ZfYXR0b3JuZXlfaG9sZGVyX3R5cGUsdXNlcl9hY2NvdW50X2VtYWls\nClZTTzEyMyx2ZXRlcmFuX3NlcnZpY2Vfb3JnYW5pemF0aW9uLHZzbzFAdmEu\nZ292ClZTTzQ1Nix2ZXRlcmFuX3NlcnZpY2Vfb3JnYW5pemF0aW9uLHZzbzJA\ndmEuZ292ClZTTzc4OSx2ZXRlcmFuX3NlcnZpY2Vfb3JnYW5pemF0aW9uLGF0\ndG9ybmV5MUBsYXdmaXJtLmNvbQpWU085ODcsdmV0ZXJhbl9zZXJ2aWNlX29y\nZ2FuaXphdGlvbixjbGFpbWFudDFAdmEuZ292ClZTTzY1NCx2ZXRlcmFuX3Nl\ncnZpY2Vfb3JnYW5pemF0aW9uLHZzbzNAdmEuZ292ClZTTzMyMSx2ZXRlcmFu\nX3NlcnZpY2Vfb3JnYW5pemF0aW9uLGF0dG9ybmV5MkBsYXdmaXJtLmNvbQpW\nU08xMTEsdmV0ZXJhbl9zZXJ2aWNlX29yZ2FuaXphdGlvbix2c280QHZhLmdv\ndgpWU08yMjIsdmV0ZXJhbl9zZXJ2aWNlX29yZ2FuaXphdGlvbixhdHRvcm5l\neTNAbGF3ZmlybS5jb20KVlNPMzMzMyx2ZXRlcmFuX3NlcnZpY2Vfb3JnYW5p\nemF0aW9uLGNsYWltYW50MjJAdmEuZ292ClZTTzQ0NDQsdmV0ZXJhbl9zZXJ2\naWNlX29yZ2FuaXphdGlvbix2c281NUB2YS5nb3YKVlNPNTU1NSx2ZXRlcmFu\nX3NlcnZpY2Vfb3JnYW5pemF0aW9uLHZzbzY2QHZhLmdvdgpWU082NjY2LHZl\ndGVyYW5fc2VydmljZV9vcmdhbml6YXRpb24sdnNvNzdAdmEuZ292ClZTTzc3\nNyx2ZXRlcmFuX3NlcnZpY2Vfb3JnYW5pemF0aW9uLGF0dG9ybmV5NEBsYXdm\naXJtLmNvbQpWU084ODgsdmV0ZXJhbl9zZXJ2aWNlX29yZ2FuaXphdGlvbixj\nbGFpbWFudDNAdmEuZ292ClZTTzk5OSx2ZXRlcmFuX3NlcnZpY2Vfb3JnYW5p\nemF0aW9uLHZzbzhAdmEuZ292ClZTTzExMix2ZXRlcmFuX3NlcnZpY2Vfb3Jn\nYW5pemF0aW9uLHZzbzlAdmEuZ292ClZTTzExNCx2ZXRlcmFuX3NlcnZpY2Vf\nb3JnYW5pemF0aW9uLHZzbzEwQHZhLmdvdgpWU08xMTUsdmV0ZXJhbl9zZXJ2\naWNlX29yZ2FuaXphdGlvbixjbGFpbWFudDRAdmEuZ292ClZTTzExNix2ZXRl\ncmFuX3NlcnZpY2Vfb3JnYW5pemF0aW9uLHZzbzExQHZhLmdvdgpWU08xMTcs\ndmV0ZXJhbl9zZXJ2aWNlX29yZ2FuaXphdGlvbixhdHRvcm5leTVAbGF3Zmly\nbS5jb20K\n","encoding":"base64","_links":{"self":"<ARP_ALLOW_LIST_BASE_URI>/repos/<ARP_ALLOW_LIST_REPO>/contents/<ARP_ALLOW_LIST_PATH>?ref=main","git":"<ARP_ALLOW_LIST_BASE_URI>/repos/<ARP_ALLOW_LIST_REPO>/git/blobs/7ead51170aef2c0db3b9f4a3f485d1841dc0e393","html":"https://github.com/<ARP_ALLOW_LIST_REPO>/blob/main/<ARP_ALLOW_LIST_PATH>"}}'
+  recorded_at: Fri, 07 Feb 2025 05:51:21 GMT
+recorded_with: VCR 6.3.1
