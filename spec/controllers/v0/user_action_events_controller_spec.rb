@@ -27,84 +27,124 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
 
       let!(:user_action_one) do
         create(:user_action, subject_user_verification_id: user_verification.id,
-                             user_action_event: user_action_event_one, created_at: 2.days.ago)
+                             user_action_event: user_action_event_one, created_at: 1.year.ago)
       end
       let!(:user_action_two) do
         create(:user_action, subject_user_verification_id: user_verification.id,
-                             user_action_event: user_action_event_two, created_at: 1.day.ago)
+                             user_action_event: user_action_event_two, created_at: 2.months.ago)
       end
       let!(:user_action_three) do
         create(:user_action, subject_user_verification_id: user_verification.id,
-                             user_action_event: user_action_event_one, created_at: 5.days.ago)
+                             user_action_event: user_action_event_one, created_at: 3.weeks.ago)
+      end
+      let!(:user_action_four) do
+        create(:user_action, subject_user_verification_id: user_verification.id,
+                             user_action_event: user_action_event_two, created_at: 4.days.ago)
       end
 
       let(:page) { 1 }
       let(:per_page) { 4 }
 
-      context 'user actions' do
-        it 'returns user actions by newest to oldest within date range' do
-          get :index, params: { start_date: 3.days.ago.to_date, end_date: Time.zone.now }
+      context 'when filtering by date range' do
+        let(:start_date) { 3.months.ago.to_date }
+        let(:end_date) { 2.weeks.ago.to_date }
 
-          json_response = JSON.parse(response.body)
-          puts json_response
-          serialized_user_action = json_response['data'].first
-          expect(json_response['data'].length).to eq(2)
-          expect(serialized_user_action['id']).to eq(user_action_two.id)
-          expect(serialized_user_action['type']).to eq('user_action')
-          expect(serialized_user_action['attributes']['user_action_event_id']).to eq(user_action_event_two.id)
+        it 'returns the results in descending order by created_at' do
+          get :index, params: { start_date: 3.months.ago.to_date }
 
-          get :index, params: { start_date: 3.days.ago.to_date, end_date: 2.days.ago.to_date }
+          json_response = JSON.parse(response.body)['data']
+          expect(json_response.length).to eq(3)
 
-          json_response = JSON.parse(response.body)
-          expect(json_response['data'].length).to eq(1)
-          serialized_user_action = json_response['data'].first
-          expect(serialized_user_action['id']).to eq(user_action_one.id)
-          expect(serialized_user_action['type']).to eq('user_action')
-          expect(serialized_user_action['attributes']['user_action_event_id']).to eq(user_action_event_one.id)
+          first_created_at = json_response.first['attributes']['created_at']
+          second_created_at = json_response.second['attributes']['created_at']
+          third_created_at = json_response.third['attributes']['created_at']
+          expect(first_created_at).to be > second_created_at
+          expect(second_created_at).to be > third_created_at
         end
 
-        context 'pagination' do
-          it 'paginates the correct number of user actions per page' do
-            get :index, params: { start_date: 5.days.ago.to_date, end_date: Time.zone.now, page: 1, per_page: 2 }
-            json_response = JSON.parse(response.body)
-            expect(json_response['data'].length).to eq(2)
+        context 'when the start date and/or end dates are provided' do
+          it 'returns user actions within the date range' do
+            get :index, params: { start_date:, end_date: }
 
-            get :index, params: { start_date: 5.days.ago.to_date, end_date: Time.zone.now, page: 2, per_page: 2 }
-            json_response = JSON.parse(response.body)
-            expect(json_response['data'].length).to eq(1)
+            json_response = JSON.parse(response.body)['data']
+            expect(json_response.length).to eq(2)
+            expect(json_response.first['id']).to eq(user_action_three.id)
+            expect(Time.zone.parse(json_response.first['attributes']['created_at'])).to be <= end_date
+            expect(json_response.second['id']).to eq(user_action_two.id)
+            expect(Time.zone.parse(json_response.second['attributes']['created_at'])).to be >= start_date
           end
+        end
 
-          it 'paginates user actions in order' do
-            get :index, params: { start_date: 5.days.ago.to_date, end_date: Time.zone.now, page: 1, per_page: 2 }
-            json_response = JSON.parse(response.body)
-            expect(json_response['data'].length).to eq(2)
-            expect(json_response['data'].first['id']).to eq(user_action_two.id)
-            expect(json_response['data'].second['id']).to eq(user_action_one.id)
+        context 'when the start date is not provided' do
+          let(:start_date) { nil }
+          let(:expected_start_date) { 1.month.ago.to_date }
 
-            get :index, params: { start_date: 5.days.ago.to_date, end_date: Time.zone.now, page: 2, per_page: 2 }
-            json_response = JSON.parse(response.body)
-            expect(json_response['data'].length).to eq(1)
-            expect(json_response['data'].first['id']).to eq(user_action_three.id)
+          it 'returns user actions within the past month' do
+            get :index, params: { start_date:, end_date: }
+
+            json_response = JSON.parse(response.body)['data']
+            expect(json_response.length).to eq(1)
+            expect(json_response.first['id']).to eq(user_action_three.id)
+            expect(Time.zone.parse(json_response.first['attributes']['created_at'])).to be >= expected_start_date
+          end
+        end
+
+        context 'when the end date is not provided' do
+          let(:end_date) { nil }
+          let(:expected_end_date) { Time.zone.now }
+
+          it 'returns user actions up to the current date' do
+            get :index, params: { start_date:, end_date: }
+
+            json_response = JSON.parse(response.body)['data']
+            expect(json_response.length).to eq(3)
+            expect(json_response.first['id']).to eq(user_action_four.id)
+            expect(Time.zone.parse(json_response.first['attributes']['created_at'])).to be <= expected_end_date
+            expect(json_response.second['id']).to eq(user_action_three.id)
+            expect(json_response.third['id']).to eq(user_action_two.id)
           end
         end
       end
 
-      context 'user action events' do
-        it 'returns a successful response' do
-          get :index, params: { start_date: 1.month.ago.to_date, end_date: Time.zone.now }
-          expect(response).to have_http_status(:success)
-        end
-
-        it 'includes the user action event' do
-          get :index, params: { start_date: 3.days.ago.to_date, end_date: Time.zone.now }
-
-          expect(response).to have_http_status(:success)
-
+      context 'pagination' do
+        it 'paginates the correct number of user actions per page' do
+          get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 1, per_page: 2 }
           json_response = JSON.parse(response.body)
-          expect(json_response.length).to eq(2)
-          expect(json_response['included'].first['attributes']['details']).to eq('Sample event 2')
-          expect(json_response['included'].second['attributes']['details']).to eq('Sample event 1')
+          expect(json_response['data'].length).to eq(2)
+
+          get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 2, per_page: 2 }
+          json_response = JSON.parse(response.body)
+          expect(json_response['data'].length).to eq(1)
         end
+
+        it 'paginates user actions in order' do
+          get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 1, per_page: 2 }
+          json_response = JSON.parse(response.body)
+          expect(json_response['data'].length).to eq(2)
+          expect(json_response['data'].first['id']).to eq(user_action_four.id)
+          expect(json_response['data'].second['id']).to eq(user_action_three.id)
+
+          get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 2, per_page: 2 }
+          json_response = JSON.parse(response.body)
+          expect(json_response['data'].length).to eq(1)
+          expect(json_response['data'].first['id']).to eq(user_action_two.id)
+        end
+      end
+
+      it 'returns a successful response' do
+        get :index, params: { start_date: 1.month.ago.to_date, end_date: Time.zone.now }
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'includes the user action event' do
+        get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now }
+
+        expect(response).to have_http_status(:success)
+
+        json_response = JSON.parse(response.body)
+        expect(json_response.length).to eq(2)
+        expect(json_response['included'].first['attributes']['details']).to eq('Sample event 2')
+        expect(json_response['included'].second['attributes']['details']).to eq('Sample event 1')
       end
     end
 
