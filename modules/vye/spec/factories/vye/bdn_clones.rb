@@ -36,11 +36,11 @@ FactoryBot.define do
 
       create(:vye_user_info, :with_address_changes, :with_verified_awards, :with_direct_deposit_changes, bdn_clone:)
       bdn_clone.user_infos.each do |u|
-        u.update!(created_at: created_at, updated_at: updated_at)
-        u.address_changes.update!(created_at: created_at, updated_at: updated_at)
-        u.direct_deposit_changes.update!(created_at: created_at, updated_at: updated_at)
-        u.awards.update!(created_at: created_at, updated_at: updated_at)
-        u.verifications.update!(created_at: created_at, updated_at: updated_at)
+        u.update!(created_at:, updated_at:)
+        u.address_changes.update!(created_at:, updated_at:)
+        u.direct_deposit_changes.update!(created_at:, updated_at:)
+        u.awards.update!(created_at:, updated_at:)
+        u.verifications.update!(created_at:, updated_at:)
       end
     end
 
