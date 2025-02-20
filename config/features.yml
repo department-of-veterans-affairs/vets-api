@@ -1570,7 +1570,7 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to use VaDate/VaDateField.
-  va_online_scheduling_FE_source_of_truth:
+  va_online_scheduling_fe_source_of_truth:
     actor_type: user
     enable_in_development: true
     description: Toggle for changes made in the FE based on API source of truth changes.
