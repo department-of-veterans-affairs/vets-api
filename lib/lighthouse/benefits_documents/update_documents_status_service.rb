@@ -23,6 +23,11 @@ module BenefitsDocuments
 
       return { success: true } if unknown_ids.blank?
 
+      Rails.logger.warn(
+        'Benefits Documents API cannot find these requestIds and cannot verify upload status', {
+          request_ids: unknown_ids
+        }
+      )
       { success: false, response: { status: 404, body: 'Upload Request Async Status Not Found', unknown_ids: } }
     end
 

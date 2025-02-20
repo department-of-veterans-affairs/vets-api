@@ -22,6 +22,13 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
       'step' => 'BENEFITS_GATEWAY_SERVICE'
     }
   end
+  let(:sidekiq_retries_exhausted_msg) do
+    {
+      'jid' => '123',
+      'error_class' => 'error_class',
+      'error_message' => 'error message'
+    }
+  end
   let(:issue_instant) { Time.now.to_i }
   let(:date_failed) do
     BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
@@ -30,6 +37,10 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
   context 'when there are EvidenceSubmission records' do
     before do
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+      allow(StatsD).to receive(:gauge)
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:warn)
+      allow(Rails.logger).to receive(:error)
     end
 
     it 'polls and updates status for each EvidenceSubmission record that is still pending to "complete"' do
@@ -46,6 +57,14 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
 
       expect(pending_es2.completed?).to be(true)
       expect(pending_es2.delete_date).to be_within(1.second).of((current_date_time + 60.days).utc)
+
+      expect(StatsD).to have_received(:gauge).with('worker.lighthouse.cst_document_uploads.pending_documents_polled', 2)
+      expect(StatsD).to have_received(:gauge).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_marked_completed', 2
+      )
+      expect(StatsD).to have_received(:gauge).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_marked_failed', 0
+      )
     end
 
     it 'polls and updates status for each failed EvidenceSubmission to "failed"' do
@@ -68,6 +87,28 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
       expect(pending_es2.failed_date).to be_within(1.second).of(current_date_time.utc)
       expect(pending_es2.error_message).to eq(error_message.to_s)
       expect(JSON.parse(pending_es2.template_metadata)['personalisation']['date_failed']).to eq(date_failed)
+
+      expect(StatsD).to have_received(:gauge).with('worker.lighthouse.cst_document_uploads.pending_documents_polled', 2)
+      expect(StatsD).to have_received(:gauge).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_marked_completed', 0
+      )
+      expect(StatsD).to have_received(:gauge).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_marked_failed', 2
+      )
+    end
+
+    it 'logs errors, warnings, and stats when retries are exhausted' do
+      freeze_time = Time.now.utc
+      Timecop.freeze(freeze_time) do
+        described_class.within_sidekiq_retries_exhausted_block(sidekiq_retries_exhausted_msg) do
+          expect(StatsD).to receive(:increment).with('worker.lighthouse.cst_document_uploads.exhausted')
+          expect(Rails.logger).to receive(:warn).with(
+            'Lighthouse::EvidenceSubmissionDocumentUploadPollingJob retries exhausted',
+            { job_id: sidekiq_retries_exhausted_msg['jid'], error_class: sidekiq_retries_exhausted_msg['error_class'],
+              error_message: sidekiq_retries_exhausted_msg['error_message'], timestamp: freeze_time }
+          )
+        end
+      end
     end
   end
 end
