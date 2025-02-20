@@ -106,31 +106,6 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
         end
       end
 
-      # context 'pagination' do
-      #   it 'paginates the correct number of user actions per page' do
-      #     get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 1, per_page: 2 }
-      #     json_response = JSON.parse(response.body)
-      #     expect(json_response['data'].length).to eq(2)
-
-      #     get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 2, per_page: 2 }
-      #     json_response = JSON.parse(response.body)
-      #     expect(json_response['data'].length).to eq(1)
-      #   end
-
-      #   it 'paginates user actions in order' do
-      #     get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 1, per_page: 2 }
-      #     json_response = JSON.parse(response.body)
-      #     expect(json_response['data'].length).to eq(2)
-      #     expect(json_response['data'].first['id']).to eq(user_action_four.id)
-      #     expect(json_response['data'].second['id']).to eq(user_action_three.id)
-
-      #     get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now, page: 2, per_page: 2 }
-      #     json_response = JSON.parse(response.body)
-      #     expect(json_response['data'].length).to eq(1)
-      #     expect(json_response['data'].first['id']).to eq(user_action_two.id)
-      #   end
-      # end
-
       context 'pagination' do
         let!(:user_action_event) { create(:user_action_event) }
 
