@@ -48,7 +48,7 @@ describe PdfFill::Forms::Va1010ez do
 
         it 'defaults to Off' do
           expect(JSON.parse(form_class.merge_fields.to_json)).to include(
-            'maritalStatus' => 'Off'
+            'maritalStatus' => described_class::OFF
           )
         end
       end
