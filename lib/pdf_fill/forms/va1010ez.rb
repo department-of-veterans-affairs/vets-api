@@ -1,11 +1,72 @@
 # frozen_string_literal: true
 
 require 'pdf_fill/forms/form_base'
-
+# rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
     class Va1010ez < FormBase
       FORM_ID = HealthCareApplication::FORM_ID
+      OFF = 'Off'
+
+      # TODO: These are also in HCA::EnrollmentEligibility::Service. Can we DRY it up?
+      MARITAL_STATUS = {
+        'Married' => 1,
+        'Never Married' => 2,
+        'Separated' => 3,
+        'Widowed' => 4,
+        'Divorced' => 5
+      }.freeze
+
+      DEPENDENT_RELATIONSHIP = {
+        'Son' => 1,
+        'Daughter' => 2,
+        'Stepson' => 3,
+        'Stepdaughter' => 4
+      }.freeze
+
+      DISABILITY_STATUS = {
+        %w[highDisability lowDisability] => 'YES',
+        %w[none] => 'NO'
+      }.freeze
+
+      SEX = {
+        'M' => 1,
+        'F' => 2
+      }.freeze
+
+      DISCLOSE_FINANCIAL_INFORMATION = {
+        true => 'Yes, I will provide my household financial information' \
+                ' for last calendar year. Complete applicable Sections' \
+                ' VII and VIII. Sign and date the form in the Assignment' \
+                ' of Benefits section.',
+        false => 'No, I do not wish to provide financial information' \
+                 'in Sections VII through VIII. If I am enrolled, I ' \
+                 ' agree to pay applicable VA copayments. Sign and date' \
+                 ' the form in the Assignment of Benefits section.'
+      }.freeze
+
+      # exposure values correspond to true for each key in the pdf options
+      EXPOSURE_MAP = {
+        'exposureToAirPollutants' => 1,
+        'exposureToChemicals' => 2,
+        'exposureToRadiation' => 3,
+        'exposureToShad' => 4,
+        'exposureToOccupationalHazards' => 5,
+        'exposureToAsbestos' => 5,
+        'exposureToMustardGas' => 5,
+        'exposureToContaminatedWater' => 6,
+        'exposureToWarfareAgents' => 6,
+        'exposureToOther' => 7
+      }.freeze
+
+      ETHNICITY_MAP = {
+        'isAsian' => 1,
+        'isAmericanIndianOrAlaskanNative' => 2,
+        'isBlackOrAfricanAmerican' => 3,
+        'isWhite' => 4,
+        'isNativeHawaiianOrOtherPacificIslander' => 5,
+        'hasDemographicNoAnswer' => 6
+      }.freeze
 
       KEY = {
         'veteranFullName' => {
@@ -305,16 +366,151 @@ module PdfFill
       }.freeze
 
       def merge_fields(_options = {})
-        merge_full_name
+        merge_full_name('veteranFullName')
+        merge_full_name('spouseFullName')
+        merge_sex('gender')
+        merge_place_of_birth
+        merge_ethnicity_choices
+        merge_marital_status
+        merge_spouse_address_phone_number
+        @form_data['provideSupportLastYear'] = map_radio_box_value(@form_data['provideSupportLastYear'])
+        @form_data['isSpanishHispanicLatino'] = map_radio_box_value(@form_data['isSpanishHispanicLatino'])
+        @form_data['wantsInitialVaContact'] = map_radio_box_value(@form_data['wantsInitialVaContact'])
+        @form_data['isMedicaidEligible'] = map_radio_box_value(@form_data['isMedicaidEligible'])
+        @form_data['isEnrolledMedicarePartA'] = map_radio_box_value(@form_data['isEnrolledMedicarePartA'])
+        merge_exposure
+        merge_military_service
+        merge_providers
+        merge_dependents
+        merge_tera
+        merge_disclose_financial_info
+        merge_service_connected_rating
         @form_data
       end
 
       private
 
-      def merge_full_name
-        @form_data['veteranFullName'] =
-          combine_full_name(@form_data['veteranFullName'])
+      def merge_full_name(type)
+        @form_data[type] = combine_full_name(@form_data[type])
+      end
+
+      def merge_sex(type)
+        value = SEX[@form_data[type]]
+        if value.nil?
+          Rails.logger.error('Invalid sex value when filling out 10-10EZ pdf.',
+                             { type:, value: @form_data[type] })
+        end
+
+        @form_data[type] = value
+      end
+
+      def merge_marital_status
+        @form_data['maritalStatus'] = MARITAL_STATUS[@form_data['maritalStatus']] || OFF
+      end
+
+      def merge_place_of_birth
+        @form_data['placeOfBirth'] =
+          combine_full_address({
+                                 'city' => @form_data['cityOfBirth'],
+                                 'state' => @form_data['stateOfBirth']
+                               })
+      end
+
+      def merge_ethnicity_choices
+        ETHNICITY_MAP.each do |key, value|
+          @form_data[key] = map_value_for_checkbox(@form_data[key], value)
+        end
+      end
+
+      def merge_service_connected_rating
+        @form_data['vaCompensationType'] = DISABILITY_STATUS.find do |keys, _|
+          keys.include?(@form_data['vaCompensationType'])
+        end&.last
+      end
+
+      def merge_exposure
+        EXPOSURE_MAP.each do |key, value|
+          @form_data[key] = map_value_for_checkbox(@form_data[key], value)
+        end
+      end
+
+      def merge_spouse_address_phone_number
+        spouse_phone = @form_data['spousePhone']
+        @form_data['spouseAddress'] = "#{combine_full_address(@form_data['spouseAddress'])} #{spouse_phone}"
+      end
+
+      def merge_tera
+        merge_yes_no('radiationCleanupEfforts')
+        merge_yes_no('gulfWarService')
+        merge_yes_no('combatOperationService')
+        merge_yes_no('exposedToAgentOrange')
+      end
+
+      def merge_military_service
+        merge_yes_no('purpleHeartRecipient')
+        merge_yes_no('isFormerPow')
+        merge_yes_no('postNov111998Combat')
+        merge_yes_no('disabledInLineOfDuty')
+        merge_yes_no('swAsiaCombat')
+      end
+
+      def merge_yes_no(type)
+        @form_data[type] = map_check_box(@form_data[type])
+      end
+
+      def merge_providers
+        # TODO: Support more than one provider - planned work https://github.com/department-of-veterans-affairs/va.gov-team/issues/102910
+        providers = @form_data['providers']
+        return unless providers.is_a?(Array) && providers.any?
+
+        @form_data['providers'] = providers.first
+      end
+
+      def merge_disclose_financial_info
+        @form_data['discloseFinancialInformation'] =
+          DISCLOSE_FINANCIAL_INFORMATION[@form_data['discloseFinancialInformation']] || OFF
+      end
+
+      def merge_dependents
+        # TODO: Support more than one dependent - planned work https://github.com/department-of-veterans-affairs/va.gov-team/issues/102890
+        dependents = @form_data['dependents']
+        return if dependents.blank?
+
+        dependent = dependents.first
+        dependent['fullName'] = combine_full_name(dependent['fullName'])
+        dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[(dependent['dependentRelation'])] || OFF
+        dependent['attendedSchoolLastYear'] = map_radio_box_value(dependent['attendedSchoolLastYear'])
+        dependent['disabledBefore18'] = map_radio_box_value(dependent['disabledBefore18'])
+        dependent['cohabitedLastYear'] = map_radio_box_value(dependent['cohabitedLastYear'])
+        @form_data['dependents'] = dependent
+      end
+
+      def map_value_for_checkbox(input, value)
+        input == true ? value : OFF
+      end
+
+      def map_radio_box_value(value)
+        case value
+        when true
+          1
+        when false
+          2
+        else
+          OFF
+        end
+      end
+
+      def map_check_box(value)
+        case value
+        when true
+          'YES'
+        when false
+          'NO'
+        else
+          OFF
+        end
       end
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
