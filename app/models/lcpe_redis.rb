@@ -13,33 +13,34 @@ class LCPERedis < Common::RedisStore
 
   class ClientCacheStaleError < StandardError; end
 
+  # default nil for lcpe_type because Common::RedisStore.find raises ArgumentError otherwise
   def initialize(*, lcpe_type: nil)
     @lcpe_type = lcpe_type
     super(*)
   end
 
-  def fresh_version_from(gids_response)
-    case gids_response.status
+  def fresh_version_from(raw_response)
+    case raw_response.status
     when 304
       cached_response
     else
       # Refresh cache with latest version from GIDS
-      invalidate_cache
+      clear_cache if raw_response.success?
       do_cached_with(key: lcpe_type) do
-        GI::LCPE::Response.from(gids_response)
+        GI::LCPE::Response.from(raw_response)
       end
     end
   end
 
-  def force_client_refresh_and_cache(gids_response)
-    v_fresh = gids_response.response_headers['Etag']
+  def force_client_refresh_and_cache(raw_response)
+    v_fresh = raw_response.response_headers['Etag']
     # no need to cache if vets-api cache already has fresh version
-    cache(lcpe_type, GI::LCPE::Response.from(gids_response)) unless v_fresh == cached_version
+    cache(lcpe_type, GI::LCPE::Response.from(raw_response)) unless v_fresh == cached_version
     raise ClientCacheStaleError
   end
 
   def cached_response
-    self.class.find(lcpe_type)&.response
+    @cached_resopnse ||= self.class.find(lcpe_type)&.response
   end
 
   def cached_version
@@ -48,7 +49,7 @@ class LCPERedis < Common::RedisStore
 
   private
 
-  def invalidate_cache
+  def clear_cache
     self.class.delete(lcpe_type)
   end
 end
