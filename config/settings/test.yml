@@ -1371,7 +1371,7 @@ va_profile:
   url: https://int.vet360.va.gov
   v3:
     address_validation:
-      api_key: ~
+      api_key: "<AV_KEY>"
   veteran_status:
     cache_enabled: true
     enabled: true
