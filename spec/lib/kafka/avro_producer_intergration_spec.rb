@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'kafka/avro_producer'
 require 'testcontainers'
 require 'net/http'
 
-fdescribe Kafka::AvroProducer, type: :integration do
+describe Kafka::AvroProducer, type: :integration do
   compose = Testcontainers::ComposeContainer.new(filepath: 'spec/fixtures/kafka/')
   let(:detected_errors) { [] }
   let(:acknowledged_messages) { [] }
@@ -32,7 +34,7 @@ fdescribe Kafka::AvroProducer, type: :integration do
     end
   end
 
-  let(:avro_producer) { described_class.new(producer: producer) }
+  let(:avro_producer) { described_class.new(producer:) }
 
   def execute_shell_command(command)
     stdout, stderr, status = Open3.capture3(command)
@@ -84,7 +86,15 @@ fdescribe Kafka::AvroProducer, type: :integration do
     # Create test topic
     compose.exec(
       service_name: 'kafka',
-      command: 'kafka-topics.sh --create --topic test --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server localhost:19092'
+      command: [
+        'kafka-topics.sh',
+        '--create',
+        '--topic test',
+        '--partitions 1',
+        '--replication-factor 1',
+        '--if-not-exists',
+        '--bootstrap-server localhost:19092'
+      ].join(' ')
     )
   end
 

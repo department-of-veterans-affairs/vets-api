@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'aws_msk_iam_sasl_signer'
 require 'flipper'
 require 'waterdrop'
@@ -63,7 +65,9 @@ Rails.application.config.after_initialize do
       producer_id = event[:producer_id]
       case event[:type]
       when 'librdkafka.dispatch_error'
-        Rails.logger.error "Waterdrop [#{producer_id}]: Message with label: #{event[:delivery_report].label} failed to be delivered"
+        Rails.logger.error(
+          "Waterdrop [#{producer_id}]: Message with label: #{event[:delivery_report].label} failed to be delivered"
+        )
       else
         Rails.logger.error "Waterdrop [#{producer_id}]: #{event[:type]} occurred"
       end
