@@ -71,7 +71,7 @@ module DebtsApi
                              selected_debt_id],
           veteran_information: [:email,
                                 {
-                                  mobile_phone: mobile_phone,
+                                  mobile_phone:,
                                   mailing_address: address
                                 }]
         )

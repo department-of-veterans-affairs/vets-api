@@ -90,10 +90,10 @@ describe ClaimsApi::ManageRepresentativeService do
         poa_code = '083'
 
         res = subject.update_poa_relationship(
-          pctpnt_id: pctpnt_id,
-          file_number: file_number,
-          ssn: ssn,
-          poa_code: poa_code
+          pctpnt_id:,
+          file_number:,
+          ssn:,
+          poa_code:
         )
 
         expect(res['vetPtcpntId']).to eq(pctpnt_id)
