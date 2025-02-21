@@ -32,10 +32,6 @@ module AccreditedRepresentativePortal
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
     accepts_nested_attributes_for :power_of_attorney_form
 
-    def success_form_submission
-      power_of_attorney_form_submissions.succeeded.take
-    end
-
     module ClaimantTypes
       ALL = [
         DEPENDENT = 'dependent',

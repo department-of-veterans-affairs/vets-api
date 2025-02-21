@@ -50,12 +50,12 @@ module AccreditedRepresentativePortal
       status =
         case poa_request.power_of_attorney_form_submission&.status
         when PowerOfAttorneyFormSubmission::Statuses::SUCCEEDED
-          'succeeded'
+          'SUCCEEDED'
         when PowerOfAttorneyFormSubmission::Statuses::ENQUEUE_FAILED,
           PowerOfAttorneyFormSubmission::Statuses::FAILED
-          'failed'
+          'FAILED'
         else
-          'pending'
+          'PENDING'
         end
 
       { status: }
