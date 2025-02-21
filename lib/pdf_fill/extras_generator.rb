@@ -7,7 +7,7 @@ module PdfFill
     def initialize(form_name: nil, submit_date: nil, extras_redesign: false)
       @generate_blocks = []
       @form_name = form_name
-      @submit_date = submit_date
+      @submit_date = format_date(submit_date)
       @extras_redesign = extras_redesign
     end
 
@@ -118,12 +118,22 @@ module PdfFill
 
     def write_header_submit_date(pdf, location, bound_width, bound_height)
       pdf.bounding_box(location, width: bound_width, height: bound_height) do
-        formatted = Date.strptime(@submit_date, '%Y-%m-%d').strftime('%m-%d-%Y')
-        pdf.text("Submitted on VA.gov on #{formatted}",
+        pdf.text("Submitted on VA.gov on #{@submit_date}",
                  align: :right,
                  valign: :bottom,
                  size: 10.5)
       end
+    end
+
+    def format_date(date)
+      return nil if date.blank?
+
+      return "#{date['month']}-#{date['day']}-#{date['year']}" if date.is_a?(Hash)
+      return date.strftime('%m-%d-%Y') if date.is_a?(Date)
+      Date.parse(date).strftime('%m-%d-%Y')
+    rescue
+      Rails.logger.error("Error formatting submit date for PdfFill: #{date}")
+      nil
     end
   end
 end
