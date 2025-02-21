@@ -19,26 +19,18 @@ module VANotify
 
     private
 
+    # rubocop:disable Metrics/MethodLength
     def call_with_metadata
       notification_type = metadata['notification_type']
 
-      tags = begin
-        if Flipper.enabled?(:va_notify_metadata_statsd_tags)
-          validate_and_normalize_statsd_tags
-        else
-          statsd_tags = metadata['statsd_tags']
-          service = statsd_tags['service']
-          function = statsd_tags['function']
-          ["service:#{service}", "function:#{function}"]
-        end
-      rescue TypeError, KeyError => e
-        Rails.logger.error(
-          "VANotify: Invalid metadata format: #{e.message}",
-          notification_record_id: notification_record.id
-        )
-        # Invalid metadata is treated as if no metadata were provided.
-        return call_without_metadata
-      end
+      tags = if Flipper.enabled?(:va_notify_metadata_statsd_tags)
+               validate_and_normalize_statsd_tags
+             else
+               statsd_tags = metadata['statsd_tags']
+               service = statsd_tags['service']
+               function = statsd_tags['function']
+               ["service:#{service}", "function:#{function}"]
+             end
 
       case notification_record.status
       when 'delivered'
@@ -47,7 +39,15 @@ module VANotify
         # 'temporary-failure' is an end state for the notification; VANotify API does not auto-retry these.
         permanent_failure(tags) if notification_type == 'error'
       end
+    rescue TypeError, KeyError => e
+      Rails.logger.error(
+        "VANotify: Invalid metadata format: #{e.message}",
+        notification_record_id: notification_record.id
+      )
+      # Invalid metadata is treated as if no metadata were provided.
+      call_without_metadata
     end
+    # rubocop:enable Metrics/MethodLength
 
     def call_without_metadata
       case notification_record.status
