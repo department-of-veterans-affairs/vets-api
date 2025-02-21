@@ -2044,7 +2044,7 @@ features:
     description: If enabled, use updated gi design
   gi_ct_collab: 
     actor_type: user
-    description: If enabled, use EDU/EDM team GI Comparison Tool homepage
+    description: If enabled, use VEBT/EDM team GI Comparison Tool homepage
   show_rudisill_1995:
     actor_type: user
     description: If enabled, show rudisill review in 22-1995
