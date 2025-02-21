@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# Function to display help text
+show_help() {
+    echo "Usage: $0 [--filter-rspec] <url>"
+    echo
+    echo "Extracts the run id from the provided url and retrieves the log of a failed GitHub Actions run."
+    echo
+    echo "Arguments:"
+    echo "  GHWR_URL        The URL of the GitHub Actions run."
+    echo
+    echo "Options:"
+    echo "  --filter-rspec  Filter the logs to show only rspec results."
+    echo
+    echo "Example:"
+    echo "  $0 --filter-rspec https://github.com/department-of-veterans-affairs/vets-api/runs/123456789"
+}
+
+# Check if the GitHub CLI is installed
+if ! command -v gh &> /dev/null; then
+    echo "Error: GitHub CLI (gh) is not installed. Please install it from https://cli.github.com/ and try again."
+    exit 1
+fi
+
+# Initialize variables
+FILTER_RSPEC=false
+
+# Parse options
+while [[ "$1" == --* ]]; do
+    case "$1" in
+        --filter-rspec)
+            FILTER_RSPEC=true
+            shift
+            ;;
+        --help)
+            show_help
+            exit 0
+            ;;
+        *)
+            echo "Error: Unknown option $1"
+            show_help
+            exit 1
+            ;;
+    esac
+done
+
+# Check if the correct number of arguments is provided
+if [ "$#" -ne 1 ]; then
+    echo "Error: Invalid number of arguments."
+    show_help
+    exit 1
+fi
+
+GHWR_URL=$1
+
+# Validate the URL format
+if ! [[ "$GHWR_URL" =~ ^https://github\.com/.*/runs/[0-9]+/?(job/[0-9]+)?$ ]]; then
+    echo "Error: Invalid URL format. Please provide a URL in the format: https://github.com/owner/repo/runs/123456789 or https://github.com/owner/repo/runs/123456789/job/1234"
+    exit 1
+fi
+
+# Extract GHWR_ID from the provided URL
+GHWR_ID=$(echo "$GHWR_URL" | awk -F'runs/' '{if ($2) {split($2, a, /[^0-9]/); print a[1]}}')
+
+# Extract the repo from the provided URL
+REPO=$(echo "$GHWR_URL" | awk -F'/' '{print $4"/"$5}')
+
+# Check if GHWR_ID was successfully extracted
+if [ -z "$GHWR_ID" ]; then
+    echo "Error: Unable to extract GHWR_ID from the provided URL."
+    exit 1
+fi
+
+# Retrieve the log of the failed GitHub Actions run
+LOG=$(gh run view -R "$REPO" --log-failed "$GHWR_ID")
+
+# Filter the log if --filter-rspec option is set
+if $FILTER_RSPEC; then
+    echo "$LOG" | grep -A2 -E "rspec [']?\./"
+else
+    echo "$LOG"
+fi
