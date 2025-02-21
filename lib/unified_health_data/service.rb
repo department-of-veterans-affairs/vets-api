@@ -41,8 +41,8 @@ module UnifiedHealthData
             test_code: obs['code']['text'],
             sample_site: 'blood',
             encoded_data: '',
-            value_quantity: obs['valueQuantity'] ? "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}" : '',
-            reference_range: obs['referenceRange'] ? obs['referenceRange'].map { |range| range['text'] }.join(', ') : '',
+            value_quantity: obs['valueQuantity'] ? "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}".strip : '',
+            reference_range: obs['referenceRange'] ? obs['referenceRange'].map { |range| range['text'] }.join(', ').strip : '',
             status: obs['status'],
             comments: obs['note']&.map { |note| note['text'] }&.join(', ') || ''
           )
