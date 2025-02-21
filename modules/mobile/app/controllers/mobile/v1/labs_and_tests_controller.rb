@@ -27,6 +27,7 @@ module Mobile
             sample_site: record.attributes.sample_site,
             encoded_data: record.attributes.encoded_data,
             location: record.attributes.location,
+            ordered_by: record.attributes.ordered_by,
             observations: record.attributes.observations.map do |obs|
               {
                 test_code: obs.test_code,

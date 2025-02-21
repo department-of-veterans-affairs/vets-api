@@ -39,7 +39,7 @@ module UnifiedHealthData
         observations = record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
           UnifiedHealthData::MedicalRecord::Attributes::Observation.new(
             test_code: obs['code']['text'],
-            sample_site: 'blood',
+            sample_site: '',
             encoded_data: '',
             value_quantity: obs['valueQuantity'] ? "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}".strip : '',
             reference_range: obs['referenceRange'] ? obs['referenceRange'].map { |range| range['text'] }.join(', ').strip : '',
@@ -48,6 +48,17 @@ module UnifiedHealthData
           )
         end
 
+        ordered_by = if record['resource']['contained']
+                       practitioner_object = record['resource']['contained'].find { |resource| resource['resourceType'] == 'Practitioner' }
+                       Rails.logger.info("Practitioner object: #{practitioner_object}")
+                       if practitioner_object
+                         name = practitioner_object['name'].first
+                         Rails.logger.info("Practitioner name: #{name}")
+                         Rails.logger.info "#{name['given'].join(' ')} #{name['family']}"
+                         "#{name['given'].join(' ')} #{name['family']}"
+                       end
+                     end
+
         attributes = UnifiedHealthData::MedicalRecord::Attributes.new(
           display: code['display'],
           test_code: record['resource']['code']['text'],
@@ -55,8 +66,10 @@ module UnifiedHealthData
           sample_site: '',
           encoded_data: '',
           location:,
-          observations:
+          ordered_by:,
+          observations:,
         )
+
         UnifiedHealthData::MedicalRecord.new(
           id: record['resource']['id'],
           type: record['resource']['resourceType'],

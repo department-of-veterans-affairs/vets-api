@@ -11,15 +11,16 @@ module UnifiedHealthData
     end
 
     class Attributes
-      attr_accessor :display, :test_code, :date_completed, :sample_site, :encoded_data, :location, :observations
+      attr_accessor :display, :test_code, :date_completed, :sample_site, :encoded_data, :location, :ordered_by, :observations
 
-      def initialize(display:, test_code:, date_completed:, sample_site:, encoded_data:, location:, observations:)
+      def initialize(display:, test_code:, date_completed:, sample_site:, encoded_data:, location:, ordered_by:, observations:)
         @display = display
         @test_code = test_code
         @date_completed = date_completed
         @sample_site = sample_site
         @encoded_data = encoded_data
         @location = location
+        @ordered_by = ordered_by
         @observations = observations
       end
 
