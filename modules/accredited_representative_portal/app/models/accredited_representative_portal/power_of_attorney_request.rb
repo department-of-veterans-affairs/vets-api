@@ -29,15 +29,15 @@ module AccreditedRepresentativePortal
 
     before_validation :set_claimant_type
 
-    validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
-    accepts_nested_attributes_for :power_of_attorney_form
-
     module ClaimantTypes
       ALL = [
         DEPENDENT = 'dependent',
         VETERAN = 'veteran'
       ].freeze
     end
+
+    validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
+    accepts_nested_attributes_for :power_of_attorney_form
 
     enum(
       :claimant_type,
