@@ -14,7 +14,7 @@ describe Eps::AppointmentService do
 
   before do
     allow(config).to receive(:base_path).and_return('api/v1')
-    allow_any_instance_of(Eps::BaseService).to receive_messages(config: config, headers: headers)
+    allow_any_instance_of(Eps::BaseService).to receive_messages(config:, headers:)
   end
 
   describe '#get_appointment' do
@@ -175,11 +175,11 @@ describe Eps::AppointmentService do
 
       it 'submits the appointment successfully' do
         expected_payload = {
-          networkId: valid_params[:network_id],
-          providerServiceId: valid_params[:provider_service_id],
-          slotIds: valid_params[:slot_ids],
+          network_id: valid_params[:network_id],
+          provider_service_id: valid_params[:provider_service_id],
+          slot_ids: valid_params[:slot_ids],
           referral: {
-            referralNumber: valid_params[:referral_number]
+            referral_number: valid_params[:referral_number]
           }
         }
 
@@ -197,13 +197,13 @@ describe Eps::AppointmentService do
         params_with_attributes = valid_params.merge(additional_patient_attributes: patient_attributes)
 
         expected_payload = {
-          networkId: valid_params[:network_id],
-          providerServiceId: valid_params[:provider_service_id],
-          slotIds: valid_params[:slot_ids],
+          network_id: valid_params[:network_id],
+          provider_service_id: valid_params[:provider_service_id],
+          slot_ids: valid_params[:slot_ids],
           referral: {
-            referralNumber: valid_params[:referral_number]
+            referral_number: valid_params[:referral_number]
           },
-          additionalPatientAttributes: patient_attributes
+          additional_patient_attributes: patient_attributes
         }
 
         expect_any_instance_of(VAOS::SessionService).to receive(:perform)
