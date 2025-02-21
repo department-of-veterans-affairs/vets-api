@@ -15,6 +15,7 @@ module Mobile
         UnifiedHealthData::Service.new(@current_user)
       end
 
+      # TODO separate serializer?
       def serialize_record(record)
         {
           id: record.id,
@@ -25,7 +26,18 @@ module Mobile
             date_completed: record.attributes.date_completed,
             sample_site: record.attributes.sample_site,
             encoded_data: record.attributes.encoded_data,
-            location: record.attributes.location
+            location: record.attributes.location,
+            observations: record.attributes.observations.map do |obs|
+              {
+                test_code: obs.test_code,
+                sample_site: obs.sample_site,
+                encoded_data: obs.encoded_data,
+                value_quantity: obs.value_quantity,
+                reference_range: obs.reference_range,
+                status: obs.status,
+                comments: obs.comments
+              }
+            end
           }
         }
       end

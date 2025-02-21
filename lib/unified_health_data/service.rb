@@ -13,8 +13,7 @@ module UnifiedHealthData
 
     def get_medical_records
       token = fetch_access_token
-      # patient_id = @user.icn
-      patient_id = '1014135410V826374'
+      patient_id = @user.icn
       start_date = '2024-01-01'
       end_date = '2024-12-31'
       path = "#{config.base_path}labs?patient-id=#{patient_id}&start-date=#{start_date}&end-date=#{end_date}"
@@ -34,13 +33,12 @@ module UnifiedHealthData
         end
 
         observations = record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
-          Rails.logger.debug "Observation: #{obs}"
           UnifiedHealthData::MedicalRecord::Attributes::Observation.new(
             test_code: obs['code']['text'],
             sample_site: 'blood',
             encoded_data: '',
-            value_quantity: "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}",
-            reference_range: obs['referenceRange'].map { |range| range['text'] }.join(', '),
+            value_quantity: obs['valueQuantity'] ? "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}" : '',
+            reference_range: obs['referenceRange'] ? obs['referenceRange'].map { |range| range['text'] }.join(', ') : '',
             status: obs['status'],
             comments: obs['note']&.map { |note| note['text'] }&.join(', ') || ''
           )
@@ -52,13 +50,13 @@ module UnifiedHealthData
           date_completed: record['resource']['effectiveDateTime'],
           sample_site: '',
           encoded_data: '',
-          location: location,
-          observations: observations
+          location:,
+          observations:
         )
         UnifiedHealthData::MedicalRecord.new(
           id: record['resource']['id'],
           type: record['resource']['resourceType'],
-          attributes: attributes
+          attributes:
         )
       end
     end
