@@ -19,7 +19,7 @@ class CreateExcelFilesMailer < ApplicationMailer
 
     mail(
       to: recipients,
-      subject: subject
+      subject:
     ) do |format|
       format.text { render plain: "CSV file for #{date} is attached." }
       format.html { render html: "CSV file for #{date} is attached." }

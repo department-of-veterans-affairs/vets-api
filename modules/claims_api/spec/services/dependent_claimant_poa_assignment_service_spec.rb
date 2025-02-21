@@ -2,9 +2,6 @@
 
 require 'rails_helper'
 require 'bgs_service/local_bgs'
-require 'bgs_service/benefit_claim_web_service'
-require 'bgs_service/benefit_claim_service'
-require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 
 Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
   describe '#assign_poa_to_dependent!' do
@@ -131,6 +128,34 @@ Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
             expect(service).to have_received(:assign_poa_to_dependent_via_update_benefit_claim?)
           end
         end
+      end
+    end
+
+    describe '#bgs_claim_status_service' do
+      it 'requires the service statement' do
+        res = service.send(:bgs_claim_status_service)
+        expect(res).to be_a(ClaimsApi::EbenefitsBnftClaimStatusWebService)
+      end
+    end
+
+    describe '#benefit_claim_web_service' do
+      it 'requires the service statement' do
+        res = service.send(:benefit_claim_web_service)
+        expect(res).to be_a(ClaimsApi::BenefitClaimWebService)
+      end
+    end
+
+    describe '#benefit_claim_service' do
+      it 'requires the service statement' do
+        res = service.send(:benefit_claim_service)
+        expect(res).to be_a(ClaimsApi::BenefitClaimService)
+      end
+    end
+
+    describe '#person_web_service' do
+      it 'requires the service statement' do
+        res = service.send(:person_web_service)
+        expect(res).to be_a(ClaimsApi::PersonWebService)
       end
     end
   end
