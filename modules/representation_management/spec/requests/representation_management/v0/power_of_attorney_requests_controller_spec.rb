@@ -87,7 +87,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
 
       context 'when submitting with a veteran service number - TEMPORARY FOR FRONTEND TESTING' do
         before do
-          post(base_path, params: params)
+          post(base_path, params:)
         end
 
         it 'responds with the unprocessable_entity status' do

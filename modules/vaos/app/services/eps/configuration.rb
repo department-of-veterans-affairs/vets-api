@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require_relative '../vaos/middleware/response/errors'
+require_relative './middleware/eps_logging'
+require 'common/client/configuration/rest'
+
 module Eps
   class Configuration < Common::Client::Configuration::REST
     delegate :access_token_url, :api_url, :base_path, :grant_type, :scopes, :client_assertion_type, to: :settings
@@ -13,7 +17,7 @@ module Eps
     end
 
     def mock_enabled?
-      [true, 'true'].include?(settings.mock)
+      settings.mock
     end
 
     def connection
