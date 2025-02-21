@@ -17,7 +17,17 @@ module Mobile
       end
 
       def update
-        render json: { error: 'This field no longer exists and cannot be updated.' }, status: :gone
+        render json: {
+          errors: [
+            {
+              detail: 'This field no longer exists and cannot be updated',
+              source: 'Mobile::V0::GenderIdentityController#update',
+              code: '410',
+              status: '410',
+              title: 'Gone'
+            }
+          ]
+        }, status: :gone
       end
 
       private

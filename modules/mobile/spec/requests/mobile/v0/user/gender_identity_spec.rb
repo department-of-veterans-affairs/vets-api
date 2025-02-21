@@ -40,7 +40,16 @@ RSpec.describe 'Mobile::V0::User::GenderIdentity', type: :request do
           VCR.use_cassette('mobile/va_profile/post_gender_identity_success', erb: { csd: }) do
             put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
             expect(response).to have_http_status(:gone)
-            expect(JSON.parse(response.body)['error']).to eq 'This field no longer exists and cannot be updated.'
+          end
+        end
+
+        it 'matches the errors schema' do
+          gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
+
+          VCR.use_cassette('mobile/va_profile/post_gender_identity_success', erb: { csd: }) do
+            put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
+            expect(response).to match_response_schema('errors')
+            expect(errors_for(response)).to include 'This field no longer exists and cannot be updated'
           end
         end
       end
@@ -72,7 +81,16 @@ RSpec.describe 'Mobile::V0::User::GenderIdentity', type: :request do
           VCR.use_cassette('mobile/va_profile/post_gender_identity_success', erb: { csd: }) do
             put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
             expect(response).to have_http_status(:gone)
-            expect(JSON.parse(response.body)['error']).to eq 'This field no longer exists and cannot be updated.'
+          end
+        end
+
+        it 'matches the errors schema' do
+          gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
+
+          VCR.use_cassette('mobile/va_profile/post_gender_identity_success', erb: { csd: }) do
+            put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
+            expect(response).to match_response_schema('errors')
+            expect(errors_for(response)).to include 'This field no longer exists and cannot be updated'
           end
         end
       end
