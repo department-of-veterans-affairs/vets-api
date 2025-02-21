@@ -800,7 +800,7 @@ config/initializers/strong_migrations.rb @department-of-veterans-affairs/va-api-
 config/initializers/veteran_facing_services_notification_callbacks.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/vbms.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/warden_github.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-config/initializers/warterdrop_client.rb @department-of-veterans-affairs/ves-submission-traceability @department-of-veterans-affairs/backend-review-group
+config/initializers/waterdrop_client.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/ves-submission-traceability
 config/mpi_schema @department-of-veterans-affairs/octo-identity
 config/locales @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/pension_burial @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
