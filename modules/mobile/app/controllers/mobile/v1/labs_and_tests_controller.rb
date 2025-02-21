@@ -31,7 +31,6 @@ module Mobile
             observations: record.attributes.observations.map do |obs|
               {
                 test_code: obs.test_code,
-                sample_site: obs.sample_site,
                 encoded_data: obs.encoded_data,
                 value_quantity: obs.value_quantity,
                 reference_range: obs.reference_range,

@@ -36,10 +36,13 @@ module UnifiedHealthData
         code_array = record['resource']['category'].find { |category| category['coding'][0]['code'] != 'LAB' }
         code = code_array['coding'][0]
 
+        # Get the sample site from the contained Specimen resource
+        specimen = record['resource']['contained'].find { |resource| resource['resourceType'] == 'Specimen' }
+        sample_site = specimen ? specimen['type']&.dig('text') : ''
+
         observations = record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
           UnifiedHealthData::MedicalRecord::Attributes::Observation.new(
             test_code: obs['code']['text'],
-            sample_site: '',
             encoded_data: '',
             value_quantity: obs['valueQuantity'] ? "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}".strip : '',
             reference_range: obs['referenceRange'] ? obs['referenceRange'].map { |range| range['text'] }.join(', ').strip : '',
@@ -50,11 +53,8 @@ module UnifiedHealthData
 
         ordered_by = if record['resource']['contained']
                        practitioner_object = record['resource']['contained'].find { |resource| resource['resourceType'] == 'Practitioner' }
-                       Rails.logger.info("Practitioner object: #{practitioner_object}")
                        if practitioner_object
                          name = practitioner_object['name'].first
-                         Rails.logger.info("Practitioner name: #{name}")
-                         Rails.logger.info "#{name['given'].join(' ')} #{name['family']}"
                          "#{name['given'].join(' ')} #{name['family']}"
                        end
                      end
@@ -63,7 +63,7 @@ module UnifiedHealthData
           display: code['display'],
           test_code: record['resource']['code']['text'],
           date_completed: record['resource']['effectiveDateTime'],
-          sample_site: '',
+          sample_site: sample_site,
           encoded_data: '',
           location:,
           ordered_by:,
