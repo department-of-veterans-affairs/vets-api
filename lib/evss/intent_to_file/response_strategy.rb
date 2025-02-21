@@ -5,6 +5,7 @@ require_relative 'intent_to_file_response'
 
 module EVSS
   module IntentToFile
+    ## TODO Remove this file
     class ResponseStrategy < Common::RedisStore
       include Common::CacheAside
       redis_config_key :intent_to_file_response
