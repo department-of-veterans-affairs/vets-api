@@ -46,10 +46,10 @@ bd:
 benefits_intake_service:
   api_key: <%= ENV['BENEFITS_INTAKE_SERVICE__API_KEY'] %>
   aws:
-    access_key_id: <%= ENV['BENEFITS_INTAKE_SERVICE__AWS__ACCESS_KEY_ID'] %>
-    bucket: <%= ENV['BENEFITS_INTAKE_SERVICE__AWS__BUCKET'] %>
-    region: <%= ENV['BENEFITS_INTAKE_SERVICE__AWS__REGION'] %>
-    secret_access_key: <%= ENV['BENEFITS_INTAKE_SERVICE__AWS__SECRET_ACCESS_KEY'] %>
+    access_key_id: ~
+    bucket: ~
+    region: ~
+    secret_access_key: ~
   enabled: true
   url: <%= ENV['BENEFITS_INTAKE_SERVICE__URL'] %>
 betamocks:
@@ -207,7 +207,7 @@ claims_api:
     aws_access_key_id: <%= ENV['CLAIMS_API__S3__AWS_ACCESS_KEY_ID'] %>
     aws_secret_access_key: <%= ENV['CLAIMS_API__S3__AWS_SECRET_ACCESS_KEY'] %>
     bucket: <%= ENV['CLAIMS_API__S3__BUCKET'] %>
-    region: <%= ENV['CLAIMS_API__S3__REGION'] %>
+    region: us-gov-west-1
   schema_dir: config/schemas
   slack:
     webhook_url: <%= ENV['CLAIMS_API__SLACK__WEBHOOK_URL'] %>
@@ -268,7 +268,7 @@ decision_review:
     aws_access_key_id: <%= ENV['DECISION_REVIEW__S3__AWS_ACCESS_KEY_ID'] %>
     aws_secret_access_key: <%= ENV['DECISION_REVIEW__S3__AWS_SECRET_ACCESS_KEY'] %>
     bucket: <%= ENV['DECISION_REVIEW__S3__BUCKET'] %>
-    region: <%= ENV['DECISION_REVIEW__S3__REGION'] %>
+    region: us-gov-west-1
   url: <%= ENV['DECISION_REVIEW__URL'] %>
   v1:
     url: <%= ENV['DECISION_REVIEW__V1__URL'] %>
@@ -453,7 +453,7 @@ form1095_b:
     aws_access_key_id: <%= ENV['FORM1095_B__S3__AWS_ACCESS_KEY_ID'] %>
     aws_secret_access_key: <%= ENV['FORM1095_B__S3__AWS_SECRET_ACCESS_KEY'] %>
     bucket: <%= ENV['FORM1095_B__S3__BUCKET'] %>
-    region: <%= ENV['FORM1095_B__S3__REGION'] %>
+    region: us-gov-west-1
 form526_backup:
   api_key: <%= ENV['FORM526_BACKUP__API_KEY'] %>
   aws:
@@ -468,7 +468,7 @@ form526_export:
   aws:
     access_key_id: <%= ENV['FORM526_EXPORT__AWS__ACCESS_KEY_ID'] %>
     bucket: <%= ENV['FORM526_EXPORT__AWS__BUCKET'] %>
-    region: <%= ENV['FORM526_EXPORT__AWS__REGION'] %>
+    region: us-gov-west-1
     secret_access_key: <%= ENV['FORM526_EXPORT__AWS__SECRET_ACCESS_KEY'] %>
 form_10_10cg:
   carma:
@@ -555,7 +555,7 @@ hca:
     aws_access_key_id: <%= ENV['HCA__S3__AWS_ACCESS_KEY_ID'] %>
     aws_secret_access_key: <%= ENV['HCA__S3__AWS_SECRET_ACCESS_KEY'] %>
     bucket: <%= ENV['HCA__S3__BUCKET'] %>
-    region: <%= ENV['HCA__S3__REGION'] %>
+    region: us-gov-west-1
   timeout: 30
 hostname: <%= ENV['HOSTNAME'] %>
 hqva_mobile:
@@ -637,7 +637,7 @@ ivc_forms:
     aws_access_key_id: <%= ENV['IVC_FORMS__S3__AWS_ACCESS_KEY_ID'] %>
     aws_secret_access_key: <%= ENV['IVC_FORMS__S3__AWS_SECRET_ACCESS_KEY'] %>
     bucket: <%= ENV['IVC_FORMS__S3__BUCKET'] %>
-    region: <%= ENV['IVC_FORMS__S3__REGION'] %>
+    region: us-gov-west-1
   sidekiq:
     missing_form_status_job:
       enabled: true
@@ -725,7 +725,7 @@ lighthouse:
     aws_access_key_id: <%= ENV['LIGHTHOUSE__S3__AWS_ACCESS_KEY_ID'] %>
     aws_secret_access_key: <%= ENV['LIGHTHOUSE__S3__AWS_SECRET_ACCESS_KEY'] %>
     bucket: <%= ENV['LIGHTHOUSE__S3__BUCKET'] %>
-    region: <%= ENV['LIGHTHOUSE__S3__REGION'] %>
+    region: us-gov-west-1
     uploads_enabled: <%= ENV['LIGHTHOUSE__S3__UPLOADS_ENABLED'] %>
   staging_api_key: <%= ENV['LIGHTHOUSE__STAGING_API_KEY'] %>
   veteran_verification:
@@ -1030,7 +1030,7 @@ preneeds:
     aws_access_key_id: <%= ENV['PRENEEDS__S3__AWS_ACCESS_KEY_ID'] %>
     aws_secret_access_key: <%= ENV['PRENEEDS__S3__AWS_SECRET_ACCESS_KEY'] %>
     bucket: <%= ENV['PRENEEDS__S3__BUCKET'] %>
-    region: <%= ENV['PRENEEDS__S3__REGION'] %>
+    region: us-gov-west-1
   wsdl: config/preneeds/wsdl/preneeds.wsdl
 rack_timeout:
   service_timeout: <%= ENV['RACK_TIMEOUT__SERVICE_TIMEOUT'] %>
@@ -1050,7 +1050,7 @@ reports:
   aws:
     access_key_id: <%= ENV['REPORTS__AWS__ACCESS_KEY_ID'] %>
     bucket: <%= ENV['REPORTS__AWS__BUCKET'] %>
-    region: <%= ENV['REPORTS__AWS__REGION'] %>
+    region: us-gov-west-1
     secret_access_key: <%= ENV['REPORTS__AWS__SECRET_ACCESS_KEY'] %>
   send_email: true
   spool10203_submission:
@@ -1235,7 +1235,7 @@ shrine:
     access_key_id: <%= ENV['SHRINE__CLAIMS__ACCESS_KEY_ID'] %>
     bucket: <%= ENV['SHRINE__CLAIMS__BUCKET'] %>
     path: "/"
-    region: <%= ENV['SHRINE__CLAIMS__REGION'] %>
+    region: us-gov-west-1
     secret_access_key: <%= ENV['SHRINE__CLAIMS__SECRET_ACCESS_KEY'] %>
     type: s3
     upload_options:
@@ -1245,12 +1245,12 @@ shrine:
     path: <%= ENV['SHRINE__LOCAL__PATH'] %>
     type: <%= ENV['SHRINE__LOCAL__TYPE'] %>
   remotes3:
-    access_key_id: <%= ENV['SHRINE__REMOTES3__ACCESS_KEY_ID'] %>
-    bucket: <%= ENV['SHRINE__REMOTES3__BUCKET'] %>
-    path: <%= ENV['SHRINE__REMOTES3__PATH'] %>
-    region: <%= ENV['SHRINE__REMOTES3__REGION'] %>
-    secret_access_key: <%= ENV['SHRINE__REMOTES3__SECRET_ACCESS_KEY'] %>
-    type: <%= ENV['SHRINE__REMOTES3__TYPE'] %>
+    access_key_id: ~
+    bucket: ~
+    path: ~
+    region: ~
+    secret_access_key: ~
+    type: ~
 sidekiq:
   github_api_key: <%= ENV['SIDEKIQ__GITHUB_API_KEY'] %>
   github_oauth_key: <%= ENV['SIDEKIQ__GITHUB_OAUTH_KEY'] %>
@@ -1800,7 +1800,7 @@ vetext_push:
 vff_simple_forms:
   aws:
     bucket: <%= ENV['VFF_SIMPLE_FORMS__AWS__BUCKET'] %>
-    region: <%= ENV['VFF_SIMPLE_FORMS__AWS__REGION'] %>
+    region: us-gov-west-1
 vha:
   sharepoint:
     authentication_url: https://accounts.accesscontrol.windows.net
@@ -1816,7 +1816,7 @@ vic:
   s3:
     aws_access_key_id: <%= ENV['VIC__S3__AWS_ACCESS_KEY_ID'] %>
     aws_secret_access_key: <%= ENV['VIC__S3__AWS_SECRET_ACCESS_KEY'] %>
-    region: <%= ENV['VIC__S3__REGION'] %>
+    region: us-gov-west-1
   signing_key_path: <%= ENV['VIC__SIGNING_KEY_PATH'] %>
   url: <%= ENV['VIC__URL'] %>
 virtual_agent:
@@ -1853,7 +1853,7 @@ vye:
   s3:
     access_key_id: <%= ENV['VYE__S3__ACCESS_KEY_ID'] %>
     bucket: <%= ENV['VYE__S3__BUCKET'] %>
-    region: <%= ENV['VYE__S3__REGION'] %>
+    region: us-gov-west-1
     secret_access_key: <%= ENV['VYE__S3__SECRET_ACCESS_KEY'] %>
   scrypt:
     N: 16384
