@@ -14,7 +14,9 @@ describe TravelPay::ServiceError do
 
     it 'returns custom server error if response_body is nil' do
       expect(Rails.logger).to receive(:error).with(
-        message: "raise_mapped_error received nil response_body. status: #{error.response_status}, returning 500. message: #{error.message}"
+        message: 'raise_mapped_error received nil response_body. ' \
+                 "status: #{error.response_status}, " \
+                 "returning 500. message: #{error.message}"
       )
 
       expect { TravelPay::ServiceError.raise_mapped_error(error) }.to raise_error(

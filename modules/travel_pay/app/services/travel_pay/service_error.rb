@@ -24,10 +24,12 @@ module TravelPay
       rescue
         if error.response_body.nil?
           Rails.logger.error(
-            message: "raise_mapped_error received nil response_body. status: #{error.response_status}, returning 500. message: #{error.message.to_s}"
+            message: 'raise_mapped_error received nil response_body. ' \
+                     "status: #{error.response_status}, returning 500. " \
+                     "message: #{error.message}"
           )
           raise Common::Exceptions::ExternalServerInternalServerError.new(
-            errors: [{ title: error.message.to_s, status: 500 }]
+            errors: [{ title: error.message, status: 500 }]
           )
         else
           raise Common::Exceptions::ServiceError
