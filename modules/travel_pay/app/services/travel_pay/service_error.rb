@@ -18,16 +18,20 @@ module TravelPay
 
     def self.raise_mapped_error(error)
       begin
-        if error.nil?
-          Rails.logger.warn(message: 'raise_mapped_error received nil error')
-          return
-        end
-
         status_code = error.response_status
         symbolized_body = error.response_body.deep_symbolize_keys
         message = symbolized_body[:message]
       rescue
-        raise Common::Exceptions::ServiceError
+        if error.response_body.nil?
+          Rails.logger.error(
+            message: "raise_mapped_error received nil response_body. status: #{error.response_status}, returning 500. message: #{error.message.to_s}"
+          )
+          raise Common::Exceptions::ExternalServerInternalServerError.new(
+            errors: [{ title: error.message.to_s, status: 500 }]
+          )
+        else
+          raise Common::Exceptions::ServiceError
+        end
       end
 
       # Log here
