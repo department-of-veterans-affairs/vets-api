@@ -32,7 +32,7 @@ module Kafka
 
         # Authentication to MSK via IAM OauthBearer token
         # Once we're ready to test connection to the Event Bus, this should be uncommented
-        # config.oauth.token_provider_listener = OAuthTokenRefresher.new
+        config.oauth.token_provider_listener = OAuthTokenRefresher.new unless Rails.env.test?
       end
       setup_instrumentation
     end
