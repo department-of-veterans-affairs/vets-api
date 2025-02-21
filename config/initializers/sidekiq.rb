@@ -9,7 +9,6 @@ require 'sidekiq/set_request_id'
 require 'sidekiq/set_request_attributes'
 require 'datadog/statsd' # gem 'dogstatsd-ruby'
 require 'admin/redis_health_checker'
-require 'flipper'
 
 Rails.application.reloader.to_prepare do
   Sidekiq::Enterprise.unique! if Rails.env.production?
@@ -52,7 +51,7 @@ Rails.application.reloader.to_prepare do
     end
 
     config.on(:shutdown) do
-      KAFKA_PRODUCER.close if Flipper.enabled?(:kafka_producer)
+      Kafka::ProducerManager.instance.producer&.close
     end
   end
 

@@ -14,5 +14,5 @@ on_worker_boot do
 end
 
 on_worker_shutdown do
-  KAFKA_PRODUCER.close if Flipper.enabled?(:kafka_producer)
+  Kafka::ProducerManager.instance.producer&.close
 end

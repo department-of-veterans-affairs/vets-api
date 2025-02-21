@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require 'avro_turf/messaging'
+require 'kafka/producer_manager'
 
 module Kafka
   class AvroProducer
     attr_reader :producer, :avro
 
     def initialize(producer: nil, avro: nil)
-      @producer = producer || KAFKA_PRODUCER
+      @producer = producer || Kafka::ProducerManager.instance.producer
       @avro = avro || AvroTurf::Messaging.new(registry_url: Settings.kafka_producer.schema_registry_url)
     end
 
