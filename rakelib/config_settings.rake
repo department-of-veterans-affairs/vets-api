@@ -89,7 +89,6 @@ namespace :settings do
       'config/settings/development.yml',
       'config/settings/test.yml'
     ]
-    errors = []
 
     # Load all YAML data
     yaml_data = yaml_files.map { |file| YAML.load_file(file) }
@@ -107,10 +106,10 @@ namespace :settings do
     matching_keys = matching_keys.map { |key| { key => yaml_data.first[key] } }
 
     if matching_keys.any?
-      puts "Keys with identical values across all files:"
+      puts 'Keys with identical values across all files:'
       matching_keys.each { |hash| puts hash.to_yaml }
     else
-      puts "No keys have matching values across all files."
+      puts 'No keys have matching values across all files.'
     end
   end
 end
