@@ -97,7 +97,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
       )
     end
 
-    it 'logs errors, warnings, and stats when retries are exhausted' do
+    it 'logs warnings, and stats when retries are exhausted' do
       freeze_time = Time.now.utc
       Timecop.freeze(freeze_time) do
         described_class.within_sidekiq_retries_exhausted_block(sidekiq_retries_exhausted_msg) do

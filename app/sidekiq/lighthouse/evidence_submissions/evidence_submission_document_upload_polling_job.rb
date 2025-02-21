@@ -19,24 +19,13 @@ module Lighthouse
         job_id = msg['jid']
         error_class = msg['error_class']
         error_message = msg['error_message']
+        timestamp = Time.now.utc
 
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
         Rails.logger.warn(
           'Lighthouse::EvidenceSubmissionDocumentUploadPollingJob retries exhausted',
-          { job_id:, error_class:, error_message:, timestamp: Time.now.utc }
-        )
-      rescue => e
-        Rails.logger.error(
-          'Failure in EvidenceSubmissionDocumentUploadPollingJob#sidekiq_retries_exhausted',
-          {
-            messaged_content: e.message,
-            job_id:,
-            pre_exhaustion_failure: {
-              error_class:,
-              error_message:
-            }
-          }
+          { job_id:, error_class:, error_message:, timestamp: }
         )
       end
 
