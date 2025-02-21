@@ -47,6 +47,7 @@ module Ccra
           conn.response(:logger, ::Logger.new($stdout), bodies: true)
         end
 
+        conn.response :betamocks if mock_enabled?
         conn.response :json, content_type: /\bjson$/
         conn.response :vaos_errors
         conn.adapter Faraday.default_adapter
