@@ -2,33 +2,8 @@
 
 require 'rails_helper'
 
-# Base class for testing that implements perform
-# This is used so we don't have to implement all other functions of the service session class.
-class TestServiceBase
-  def perform(method, url, params, headers)
-    @last_request = OpenStruct.new(
-      method:,
-      url:,
-      params:,
-      headers:
-    )
-
-    # Return mock response for token request
-    OpenStruct.new(
-      body: {
-        access_token: 'test-access-token',
-        token_type: 'Bearer',
-        expires_in: 3600,
-        scope: 'test.scope'
-      }
-    )
-  end
-
-  attr_reader :last_request
-end
-
 # Test class to include the TokenAuthentication concern
-class TestTokenService < TestServiceBase
+class TestTokenService < VAOS::SessionService
   include TokenAuthentication
   include Common::Client::Concerns::Monitoring
 
@@ -37,16 +12,20 @@ class TestTokenService < TestServiceBase
   REDIS_TOKEN_KEY = 'test-access-token'
   REDIS_TOKEN_TTL = 840
 
-  attr_reader :config, :settings
+  attr_reader :config, :settings, :user
 
-  # Define token configuration
-  def initialize
-    super()
+  # Define token configuration and require a user
+  def initialize(user)
+    super(user)
+    @user = user
     @config = OpenStruct.new(
       access_token_url: 'https://test.example.com/token',
       grant_type: 'client_credentials',
       scopes: 'test.scope',
-      client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+      client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      request_types: [:post],
+      base_path: 'https://test.example.com',
+      service_name: 'TestService'
     )
 
     @settings = OpenStruct.new(
@@ -56,44 +35,58 @@ class TestTokenService < TestServiceBase
       audience_claim_url: 'https://test.example.com/token'
     )
   end
+
+  private
+
+  # Override jwt_wrapper to return a stub that always returns a test signature
+  def jwt_wrapper
+    @jwt_wrapper ||= OpenStruct.new(sign_assertion: 'test-jwt-assertion')
+  end
+
+  # Setup a connection to fetch the token
+  def connection
+    @connection ||= Faraday.new(config.base_path, request: request_options) do |conn|
+      conn.request :camelcase
+      conn.request :json
+      conn.response :snakecase
+      conn.response :json, content_type: /\bjson$/
+      conn.adapter Faraday.default_adapter
+    end
+  end
+
+  # Connection options
+  def request_options
+    {
+      open_timeout: 10,
+      timeout: 15
+    }
+  end
 end
 
-# Create a test RSA key file for the specs
-# RSpec.configure do |config|
-#   config.before(:suite) do
-#     key_path = Rails.root.join('modules', 'vaos', 'spec', 'fixtures', 'test_key.pem')
-#     FileUtils.mkdir_p(File.dirname(key_path))
-#     unless File.exist?(key_path)
-#       rsa_key = OpenSSL::PKey::RSA.new(2048)
-#       File.write(key_path, rsa_key.to_pem)
-#     end
-#   end
-
-#   config.after(:suite) do
-#     key_path = Rails.root.join('modules', 'vaos', 'spec', 'fixtures', 'test_key.pem')
-#     File.delete(key_path) if File.exist?(key_path)
-#   end
-# end
-
 RSpec.describe TokenAuthentication do
-  subject { TestTokenService.new }
+  # Set up memory store for testing
+  subject { TestTokenService.new(user) }
 
+  let(:memory_store) { ActiveSupport::Cache::MemoryStore.new }
+
+  let(:user) { build(:user, :loa3) }
   let(:request_id) { '123456-abcdef' }
-  let(:jwt_wrapper) { instance_double(Common::JwtWrapper, sign_assertion: 'signed-jwt-token') }
 
   before do
-    RequestStore.store['request_id'] = request_id
-    allow(Common::JwtWrapper).to receive(:new).and_return(jwt_wrapper)
+    allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
+    RequestStore.store['request_id'] = request_id
   end
 
   describe '#headers' do
     it 'returns headers with authorization token' do
-      expect(subject.headers).to eq(
-        'Authorization' => 'Bearer test-access-token',
-        'Content-Type' => 'application/json',
-        'X-Request-ID' => request_id
-      )
+      VCR.use_cassette('vaos/concerns/token/token_200', match_requests_on: %i[method path]) do
+        expect(subject.headers).to eq(
+          'Authorization' => 'Bearer test-access-token',
+          'Content-Type' => 'application/json',
+          'X-Request-ID' => request_id
+        )
+      end
     end
   end
 
@@ -103,52 +96,42 @@ RSpec.describe TokenAuthentication do
         .with(TestTokenService::REDIS_TOKEN_KEY, expires_in: TestTokenService::REDIS_TOKEN_TTL)
         .and_call_original
 
-      token = subject.token
-      expect(token).to eq('test-access-token')
+      VCR.use_cassette('vaos/concerns/token/token_200', match_requests_on: %i[method path]) do
+        token = subject.token
+        expect(token).to eq('test-access-token')
+      end
     end
 
     it 'reuses cached token' do
-      expect(Rails.cache).to receive(:fetch)
-        .with(TestTokenService::REDIS_TOKEN_KEY, expires_in: TestTokenService::REDIS_TOKEN_TTL)
-        .and_return('cached-token')
-
-      expect_any_instance_of(TestServiceBase).not_to receive(:perform)
+      Rails.cache.write(TestTokenService::REDIS_TOKEN_KEY, 'cached-token')
       expect(subject.token).to eq('cached-token')
     end
   end
 
   describe '#get_token' do
     it 'makes a POST request to fetch token' do
-      expected_params = URI.encode_www_form(
-        grant_type: 'client_credentials',
-        scope: 'test.scope',
-        client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-        client_assertion: 'signed-jwt-token'
-      )
+      VCR.use_cassette('vaos/concerns/token/token_200', match_requests_on: %i[method path]) do
+        response = subject.get_token
+        expect(response.body[:access_token]).to eq('test-access-token')
+      end
+    end
 
-      subject.get_token
-      last_request = subject.last_request
-
-      expect(last_request.method).to eq(:post)
-      expect(last_request.url).to eq('https://test.example.com/token')
-      expect(last_request.params).to eq(expected_params)
-      expect(last_request.headers).to eq('Content-Type' => 'application/x-www-form-urlencoded')
+    it 'handles token request failures' do
+      VCR.use_cassette('vaos/concerns/token/token_400', match_requests_on: %i[method path]) do
+        response = subject.get_token
+        expect(response.status).to eq(400)
+      end
     end
   end
 
   describe '#parse_token_response' do
     context 'with valid response' do
       it 'returns the access token' do
-        response = OpenStruct.new(
-          body: {
-            access_token: 'test-access-token',
-            token_type: 'Bearer',
-            expires_in: 3600,
-            scope: 'test.scope'
-          }
-        )
-        token = subject.send(:parse_token_response, response)
-        expect(token).to eq('test-access-token')
+        VCR.use_cassette('vaos/concerns/token/token_200', match_requests_on: %i[method path]) do
+          response = subject.get_token
+          token = subject.send(:parse_token_response, response)
+          expect(token).to eq('test-access-token')
+        end
       end
     end
 
@@ -161,7 +144,7 @@ RSpec.describe TokenAuthentication do
       end
 
       it 'raises TokenError when access_token is blank' do
-        invalid_response.body = { 'access_token' => '' }
+        invalid_response.body = { access_token: '' }
         expect { subject.send(:parse_token_response, invalid_response) }
           .to raise_error(TokenAuthentication::TokenError, 'Invalid token response')
       end

@@ -37,9 +37,6 @@ module TokenAuthentication
       Rails.cache.fetch(self.class::REDIS_TOKEN_KEY, expires_in: self.class::REDIS_TOKEN_TTL) do
         token_response = get_token
         parse_token_response(token_response)
-      rescue => e
-        Rails.logger.error("Error fetching token: #{e.message}")
-        nil
       end
     end
 
