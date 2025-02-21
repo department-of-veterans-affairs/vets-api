@@ -20,7 +20,7 @@ module VAOS
           data = VAOS::V2::VAOSSerializer.new.serialize(relationships, 'relationship')
           data.each { |relationship| relationship.delete(:id) }
 
-          { data: data, meta: partial_errors(response) }
+          { data:, meta: partial_errors(response) }
         end
       end
 

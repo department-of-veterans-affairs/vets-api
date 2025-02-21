@@ -48,7 +48,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     it 'makes the request' do
       expect(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
 
-      post '/simple_forms_api/v1/submit_scanned_form', params: params
+      post('/simple_forms_api/v1/submit_scanned_form', params:)
 
       expect(response).to have_http_status(:ok)
     end
@@ -56,7 +56,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     it 'stamps the pdf' do
       expect(pdf_stamper).to receive(:stamp_pdf)
 
-      post '/simple_forms_api/v1/submit_scanned_form', params: params
+      post('/simple_forms_api/v1/submit_scanned_form', params:)
 
       expect(response).to have_http_status(:ok)
     end
@@ -73,7 +73,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
         benefits_intake_uuid: anything
       )
 
-      post '/simple_forms_api/v1/submit_scanned_form', params: params
+      post('/simple_forms_api/v1/submit_scanned_form', params:)
 
       expect(response).to have_http_status(:ok)
     end
@@ -93,7 +93,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
       expect(prefill_data_service).to receive(:check_for_changes)
 
-      post '/simple_forms_api/v1/submit_scanned_form', params: params
+      post('/simple_forms_api/v1/submit_scanned_form', params:)
 
       expect(response).to have_http_status(:ok)
     end
