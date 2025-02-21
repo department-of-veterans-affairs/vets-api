@@ -982,6 +982,30 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
         end
 
+        context "when 'unitName' is blank space" do
+          let(:unit_name) { ' ' }
+
+          it 'returns a successful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService']['unitName'] =
+                    unit_name
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                  response_body = JSON.parse(response.body)
+                  claim_id = response_body['data']['id']
+                  claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+                  claim.to_internal
+                  expect(claim.form_data['serviceInformation']['reservesNationalGuardService']['unitName']).to eq(' ')
+                end
+              end
+            end
+          end
+        end
+
         context "when 'unitName' is nil" do
           let(:unit_name) { nil }
 
@@ -1008,6 +1032,22 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 VCR.use_cassette('claims_api/brd/countries') do
                   par = json_data
                   par['data']['attributes']['serviceInformation']['reservesNationalGuardService'].delete('unitName')
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'serviceInformation' is not present" do
+          it 'returns a unsuccessful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes'].delete('serviceInformation')
 
                   post path, params: par.to_json, headers: headers.merge(auth_header)
                   expect(response).to have_http_status(:unprocessable_entity)
@@ -2363,6 +2403,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           context "when feature flag is #{flipped}" do
             before do
               allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(flipped)
               if flipped
                 expect_any_instance_of(ClaimsApi::StandardDataService)
                   .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
@@ -2408,6 +2449,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         [true, false].each do |flipped|
           context "when feature flag is #{flipped}" do
             before do
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(flipped)
               allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
               if flipped
                 expect_any_instance_of(ClaimsApi::StandardDataService)
@@ -2566,6 +2608,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         [true, false].each do |flipped|
           context "when feature flag is #{flipped}" do
             before do
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(flipped)
               allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
               if flipped
                 allow_any_instance_of(ClaimsApi::StandardDataService)
@@ -3296,6 +3339,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         }
 
         allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(true)
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         allow_any_instance_of(ClaimsApi::BD).to(
           receive(:upload).and_raise(Common::Exceptions::BackendServiceException.new(

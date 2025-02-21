@@ -29,6 +29,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
     allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
     allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return false
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return true
   end
 
   describe '#2122' do
@@ -217,7 +218,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
                 expect(ClaimsApi::V1::PoaFormBuilderJob).to receive(:perform_async)
 
-                post path, params: params, headers: auth_header, as: :json
+                post path, params:, headers: auth_header, as: :json
               end
             end
           end
@@ -433,15 +434,15 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
             {
               data: {
                 attributes: {
-                  veteran: { address: address },
+                  veteran: { address: },
                   serviceOrganization: {
                     poaCode: '074',
-                    address: address
+                    address:
                   },
                   claimant: {
                     firstName: 'John',
                     lastName: 'Doe',
-                    address: address,
+                    address:,
                     relationship: 'spouse'
                   }
                 }
@@ -495,15 +496,15 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
             {
               data: {
                 attributes: {
-                  veteran: { address: address },
+                  veteran: { address: },
                   serviceOrganization: {
                     poaCode: '074',
-                    address: address
+                    address:
                   },
                   claimant: {
                     firstName: 'John',
                     lastName: 'Doe',
-                    address: address,
+                    address:,
                     relationship: 'spouse'
                   }
                 }

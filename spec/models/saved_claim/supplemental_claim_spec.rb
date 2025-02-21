@@ -15,7 +15,7 @@ RSpec.describe SavedClaim::SupplementalClaim, type: :model do
     let!(:saved_claim_sc) do
       SavedClaim::SupplementalClaim.create!(
         form_id: '20-0995',
-        guid: guid,
+        guid:,
         form: form_data.to_json,
         form_start_date: Time.current
       )
