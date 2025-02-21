@@ -7,7 +7,7 @@ module AccreditedRepresentativePortal
     include Sidekiq::Job
     include SentryLogging
 
-    sidekiq_options retry: 2
+    sidekiq_options retry_for: 48.hours
 
     attr_reader :response
 
