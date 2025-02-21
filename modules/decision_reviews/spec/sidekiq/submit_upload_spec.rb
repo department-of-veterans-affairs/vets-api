@@ -35,7 +35,7 @@ RSpec.describe DecisionReviews::SubmitUpload, type: :job do
     allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
     allow(MPI::Service).to receive(:new).and_return(mpi_service)
 
-    Flipper.disable :decision_review_service_common_exceptions_enabled
+    allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(false)
   end
 
   describe 'perform' do

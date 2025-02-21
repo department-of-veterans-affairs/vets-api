@@ -54,10 +54,7 @@ RSpec.describe 'DecisionReviews::V2::HigherLevelReviews', type: :request do
     'BackendServiceException: {:source=>"Common::Client::Errors::ClientError raised in DecisionReviews::V1::Service", :code=>"DR_422"}' # rubocop:disable Layout/LineLength
   end
 
-  before do
-    sign_in_as(user)
-    Flipper.disable :decision_review_service_common_exceptions_enabled
-  end
+  before { sign_in_as(user) }
 
   describe '#create' do
     def personal_information_logs
@@ -96,6 +93,10 @@ RSpec.describe 'DecisionReviews::V2::HigherLevelReviews', type: :request do
     end
 
     context 'when an error occurs with the api call' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(false)
+      end
+
       it 'adds to the PersonalInformationLog' do
         VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422_V1') do
           expect(personal_information_logs.count).to be 0

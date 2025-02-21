@@ -52,10 +52,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
     }
   end
 
-  before do
-    sign_in_as(user)
-    Flipper.disable :decision_review_service_common_exceptions_enabled
-  end
+  before { sign_in_as(user) }
 
   describe '#create' do
     def personal_information_logs
@@ -99,6 +96,8 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
     end
 
     it 'adds to the PersonalInformationLog when an exception is thrown' do
+      allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(false)
+
       VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-422_V1') do
         expect(personal_information_logs.count).to be 0
         allow(Rails.logger).to receive(:error)
