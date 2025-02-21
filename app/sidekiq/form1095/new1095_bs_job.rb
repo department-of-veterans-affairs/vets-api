@@ -182,7 +182,6 @@ module Form1095
 
       file_details = parse_file_name(file_name)
 
-      # should this be true?
       return false if file_details.blank?
 
       return true if file_details[:tax_year] < Form1095B.current_tax_year
