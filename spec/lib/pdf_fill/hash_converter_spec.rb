@@ -5,8 +5,9 @@ require 'pdf_fill/hash_converter'
 
 describe PdfFill::HashConverter do
   let(:hash_converter) do
-    described_class.new('test', '%m/%d/%Y')
+    described_class.new('%m/%d/%Y', extras_generator)
   end
+  let(:extras_generator) { instance_double(PdfFill::ExtrasGenerator) }
 
   describe '#set_value' do
     def verify_extras_text(text, metadata)
@@ -36,7 +37,7 @@ describe PdfFill::HashConverter do
 
     context 'with a dollar value' do
       it 'adds text to the extras page' do
-        verify_extras_text('$bar', question_num: 1, question_text: 'foo', i: nil)
+        verify_extras_text('$bar', question_num: 1, question_text: 'foo', i: nil, top_level_key: nil)
 
         call_set_value(
           {
@@ -53,7 +54,7 @@ describe PdfFill::HashConverter do
 
     context "with a value that's over limit" do
       it 'adds text to the extras page' do
-        verify_extras_text('bar', question_num: 1, question_text: 'foo', i: nil)
+        verify_extras_text('bar', question_num: 1, question_text: 'foo', i: nil, top_level_key: nil)
 
         call_set_value(
           {
@@ -69,7 +70,7 @@ describe PdfFill::HashConverter do
       end
 
       it 'formats date' do
-        verify_extras_text('02/15/1995', question_num: 1, question_text: 'foo', i: nil)
+        verify_extras_text('02/15/1995', question_num: 1, question_text: 'foo', i: nil, top_level_key: nil)
 
         call_set_custom_value(
           '1995-2-15',
@@ -87,7 +88,7 @@ describe PdfFill::HashConverter do
       end
 
       it 'does not format string with date' do
-        verify_extras_text('It was on 1995-2-15', question_num: 1, question_text: 'foo', i: nil)
+        verify_extras_text('It was on 1995-2-15', question_num: 1, question_text: 'foo', i: nil, top_level_key: nil)
 
         call_set_custom_value(
           'It was on 1995-2-15',
@@ -104,7 +105,7 @@ describe PdfFill::HashConverter do
       end
 
       it 'displays boolean as string' do
-        verify_extras_text('true', question_num: 1, question_text: 'foo', i: nil)
+        verify_extras_text('true', question_num: 1, question_text: 'foo', i: nil, top_level_key: nil)
 
         call_set_custom_value(
           [true],
@@ -122,7 +123,7 @@ describe PdfFill::HashConverter do
 
       context 'with an index' do
         it 'adds text with line number' do
-          verify_extras_text('bar', question_num: 1, question_text: 'foo', i: 0)
+          verify_extras_text('bar', question_num: 1, question_text: 'foo', i: 0, top_level_key: nil)
 
           call_set_value(
             {
@@ -234,7 +235,7 @@ describe PdfFill::HashConverter do
 
     it 'converts the hash correctly' do
       expect(
-        described_class.new('test', '%m/%d/%Y').transform_data(
+        described_class.new('%m/%d/%Y', extras_generator).transform_data(
           form_data:,
           pdftk_keys:
         )
