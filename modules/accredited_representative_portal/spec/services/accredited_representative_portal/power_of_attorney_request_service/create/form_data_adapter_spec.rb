@@ -137,7 +137,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
       it 'sets the value to nil' do
         data[:claimant_address_line2] = ''
 
-        expect(subject.call[:data]['dependent']['addressLine2']).to eq(nil)
+        expect(subject.call[:data]['dependent']['addressLine2']).to be_nil
         expect(subject.call[:errors]).to eq([])
       end
     end
