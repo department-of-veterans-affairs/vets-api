@@ -218,16 +218,4 @@ RSpec.describe SavedClaim::DependencyClaim do
       expect(subject.form_id).to eq('686C-674-V2')
     end
   end
-
-  context 'v2 form' do
-    subject { described_class.new(form: all_flows_payload.to_json, use_v2: true) }
-
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
-
-    it 'has a form id of 686C-674-V2' do
-      expect(subject.form_id).to eq('686C-674-V2')
-    end
-  end
 end

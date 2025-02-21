@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe BGSDependents::Spouse do
   let(:veteran_spouse) { build(:spouse) }
   let(:spouse) { described_class.new(veteran_spouse['dependents_application']) }
-  let(:veteran_spouse_v2) {build(:spouse_v2)}
+  let(:veteran_spouse_v2) { build(:spouse_v2) }
   let(:spouse_v2) { described_class.new(veteran_spouse_v2['dependents_application']) }
   let(:format_info_output) do
     {

@@ -107,11 +107,11 @@ module BGSDependents
     # BGS will not accept address lines longer than 20 characters
     def adjust_address_lines_for!(address:)
       is_v2 = Flipper.enabled?(:va_dependents_v2)
-      if is_v2
-        all_lines = "#{address['street']} #{address['street2']} #{address['street3']}"
-      else
-        all_lines = "#{address['address_line1']} #{address['address_line2']} #{address['address_line3']}"
-      end
+      all_lines = if is_v2
+                    "#{address['street']} #{address['street2']} #{address['street3']}"
+                  else
+                    "#{address['address_line1']} #{address['address_line2']} #{address['address_line3']}"
+                  end
       new_lines = all_lines.gsub(/\s+/, ' ').scan(/.{1,19}(?: |$)/).map(&:strip)
 
       address['address_line1'] = new_lines[0]
@@ -119,14 +119,15 @@ module BGSDependents
       address['address_line3'] = new_lines[2]
     end
 
+    # rubocop:disable Metrics/MethodLength
     # This method converts ISO 3166-1 Alpha-3 country codes to ISO 3166-1 country names.
     def adjust_country_name_for!(address:)
       is_v2 = Flipper.enabled?(:va_dependents_v2)
-      
+
       # international postal code is only in v1, return if country is usa in v2
       return if address['international_postal_code'].blank? || address['country'] == 'USA'
 
-      #handle v1 and v2 country naming
+      # handle v1 and v2 country naming
       country_name = address['country_name'] || address['country']
       return if country_name.blank? || country_name.size != 3
 
@@ -153,11 +154,13 @@ module BGSDependents
         else
           IsoCountryCodes.find(country_name).name
         end
-      
+
       address['country'] = address['country_name'] if is_v2
       address
     end
+    # rubocop:enable Metrics/MethodLength
 
+    # rubocop:disable Metrics/MethodLength
     def create_address_params(proc_id, participant_id, payload)
       is_v2 = Flipper.enabled?(:va_dependents_v2)
       address = generate_address(payload)
@@ -182,6 +185,7 @@ module BGSDependents
         email_addrs_txt: payload['email_address']
       }
     end
+    # rubocop:enable Metrics/MethodLength
 
     def formatted_boolean(bool_attribute)
       return nil if bool_attribute.nil?

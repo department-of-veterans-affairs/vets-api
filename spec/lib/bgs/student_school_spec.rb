@@ -88,7 +88,7 @@ RSpec.describe BGS::StudentSchool do
     }
   end
 
-  context "with va_dependents_v2 off" do
+  context 'with va_dependents_v2 off' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
@@ -115,7 +115,7 @@ RSpec.describe BGS::StudentSchool do
     end
   end
 
-  context "with va_dependents_v2 on" do
+  context 'with va_dependents_v2 on' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
     end

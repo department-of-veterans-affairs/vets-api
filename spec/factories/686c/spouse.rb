@@ -53,7 +53,7 @@ FactoryBot.define do
     initialize_with do
       {
         'view:selectable686_options' => {
-          'add_spouse' => true,
+          'add_spouse' => true
         },
         'dependents_application' => {
           'household_income' => true,
@@ -67,8 +67,8 @@ FactoryBot.define do
             'date' => '2014-03-04'
           },
           'does_live_with_spouse' => {
-            'spouse_income' => true, 
-            'spouse_does_live_with_veteran' => true 
+            'spouse_income' => true,
+            'spouse_does_live_with_veteran' => true
           },
           'spouse_information' => {
             'va_file_number' => '00000000',
@@ -83,8 +83,8 @@ FactoryBot.define do
               'suffix' => 'Sr.'
             }
           },
-          'veteran_contact_information' => 
-            {'phone_number' => '5555555555',
+          'veteran_contact_information' => {
+            'phone_number' => '5555555555',
             'international_phone_number' => '5555555556',
             'email_address' => 'test@test.com',
             'electronic_correspondence' => true,
@@ -94,7 +94,8 @@ FactoryBot.define do
               'city' => 'Pasadena',
               'state' => 'CA',
               'postal_code' => '21122'
-            }},
+            }
+          },
           'veteran_information' => {
             'birth_date' => '1809-02-12',
             'full_name' => {
@@ -107,7 +108,7 @@ FactoryBot.define do
           },
           'use_v2' => true,
           'days_till_expires' => 365,
-          'privacy_agreement_accepted' => true,
+          'privacy_agreement_accepted' => true
         },
         'veteran_information' => {
           'birth_date' => '1809-02-12',
@@ -118,7 +119,7 @@ FactoryBot.define do
           },
           'ssn' => '987654321',
           'va_file_number' => '987654321'
-        },
+        }
       }
     end
   end

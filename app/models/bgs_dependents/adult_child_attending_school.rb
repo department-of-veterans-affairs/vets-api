@@ -35,12 +35,12 @@ module BGSDependents
       @dependents_application = dependents_application
       @is_v2 = Flipper.enabled?(:va_dependents_v2)
       # with v2 handling, dependents_application is one to many hashes within the student_information array
-      @source = @is_v2 ? @dependents_application : @dependents_application.dig('student_name_and_ssn')
-      @ssn = @source.dig('ssn')
-      @full_name = @source.dig('full_name')
-      @birth_date = @source.dig('birth_date')
-      @was_married = @is_v2 ? @source.dig('was_married') : @dependents_application['student_address_marriage_tuition']['was_married']
-      @dependent_income = @is_v2 ? @source.dig('student_income') : @source.dig('dependent_income')
+      @source = @is_v2 ? @dependents_application : @dependents_application['student_name_and_ssn']
+      @ssn = @source['ssn']
+      @full_name = @source['full_name']
+      @birth_date = @source['birth_date']
+      @was_married = @is_v2 ? @source['was_married'] : @dependents_application['student_address_marriage_tuition']['was_married'] # rubocop:disable Layout/LineLength
+      @dependent_income = @is_v2 ? @source['student_income'] : @source['dependent_income']
       self.attributes = described_class_attribute_hash
     end
 

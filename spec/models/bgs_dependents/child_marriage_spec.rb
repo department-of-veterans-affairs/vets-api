@@ -27,7 +27,7 @@ RSpec.describe BGSDependents::ChildMarriage do
     }
   end
 
-  context "va_dependents_v2 is off" do
+  context 'va_dependents_v2 is off' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
@@ -41,7 +41,7 @@ RSpec.describe BGSDependents::ChildMarriage do
     end
   end
 
-  context "va_dependents_v2 is on" do
+  context 'va_dependents_v2 is on' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
     end

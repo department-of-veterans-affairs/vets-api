@@ -52,7 +52,7 @@ module BGSDependents
     end
     # rubocop:enable Metrics/MethodLength
 
-    # this method is duplicated from the above because each line will be parsed 
+    # this method is duplicated from the above because each line will be parsed
     # differently from v1.
     # rubocop:disable Metrics/MethodLength
     def params_for_686c_v2

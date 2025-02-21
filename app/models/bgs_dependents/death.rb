@@ -13,7 +13,7 @@ module BGSDependents
         ssn: @death_info['ssn'],
         birth_date: @death_info['birth_date'],
         vet_ind: 'N',
-        dependent_income: @is_v2 ? formatted_boolean(@death_info['deceased_dependent_income']) : formatted_boolean(@death_info['dependent_income'])
+        dependent_income: formatted_boolean(@is_v2 ? @death_info['deceased_dependent_income'] : @death_info['dependent_income']) # rubocop:disable Layout/LineLength
       }.merge(@death_info['full_name']).with_indifferent_access
     end
   end

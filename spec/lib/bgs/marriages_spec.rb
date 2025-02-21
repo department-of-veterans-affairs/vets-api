@@ -11,8 +11,7 @@ RSpec.describe BGS::Marriages do
   let(:spouse_payload) { build(:spouse) }
   let(:spouse_payload_v2) { build(:spouse_v2) }
 
-
-  context "with va_dependents_v2 off" do
+  context 'with va_dependents_v2 off' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
@@ -95,11 +94,11 @@ RSpec.describe BGS::Marriages do
     end
   end
 
-  context "with va_dependents_v2 on" do
+  context 'with va_dependents_v2 on' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
     end
-    
+
     describe '#create' do
       context 'adding a spouse' do
         it 'returns hash for spouse who lives with veteran' do

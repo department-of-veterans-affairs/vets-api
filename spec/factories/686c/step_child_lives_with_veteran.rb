@@ -56,7 +56,7 @@ FactoryBot.define do
     initialize_with do
       {
         'view:selectable686_options' => {
-          'add_child' => true,
+          'add_child' => true
         },
         'dependents_application' => {
           'household_income' => true,
@@ -68,27 +68,28 @@ FactoryBot.define do
             'veteran_address' => {
               'country' => 'USA',
               'street' => 'One E 161 St',
-              'city' => 'Bronx', 
-              'state' => 'NY', 
+              'city' => 'Bronx',
+              'state' => 'NY',
               'postal_code' => '10451'
             }
           },
-          'children_to_add' => 
-            [{'income_in_last_year' => false,
-              'does_child_live_with_you' => true,
-              'has_child_ever_been_married' => false,
-              'relationship_to_child' => {'stepchild' => true},
-              'birth_location' => {'location' => {'state' => 'AZ', 'city' => 'Sedona', 'postal_code' => '86336'}},
-              'ssn' => '333224444',
-              'date_entered_household' => '2021-09-02',
-              'biological_parent_name'=>{'first' => 'Patricia', 'last' => 'StepParent'},
-              'biological_parent_ssn' => '987654321',
-              'biological_parent_dob' => "1988-06-12",
-              'full_name' => {
-                'first' => 'pol',
-                'last' => 'testerman',
-              },
-              'birth_date' => '2021-02-16'}],
+          'children_to_add' => [{
+            'income_in_last_year' => false,
+            'does_child_live_with_you' => true,
+            'has_child_ever_been_married' => false,
+            'relationship_to_child' => { 'stepchild' => true },
+            'birth_location' => { 'location' => { 'state' => 'AZ', 'city' => 'Sedona', 'postal_code' => '86336' } },
+            'ssn' => '333224444',
+            'date_entered_household' => '2021-09-02',
+            'biological_parent_name' => { 'first' => 'Patricia', 'last' => 'StepParent' },
+            'biological_parent_ssn' => '987654321',
+            'biological_parent_dob' => '1988-06-12',
+            'full_name' => {
+              'first' => 'pol',
+              'last' => 'testerman'
+            },
+            'birth_date' => '2021-02-16'
+          }],
           'veteran_information' => {
             'birth_date' => '1809-02-12',
             'full_name' => {
@@ -101,7 +102,7 @@ FactoryBot.define do
           },
           'use_v2' => true,
           'days_till_expires' => 365,
-          'privacy_agreement_accepted' => true,
+          'privacy_agreement_accepted' => true
         },
         'veteran_information' => {
           'birth_date' => '1809-02-12',
@@ -112,7 +113,7 @@ FactoryBot.define do
           },
           'ssn' => '987654321',
           'va_file_number' => '987654321'
-        },
+        }
       }
     end
   end

@@ -54,7 +54,7 @@ RSpec.describe BGSDependents::Base do
     }
   end
 
-  context "with va_dependents_v2 turned off" do
+  context 'with va_dependents_v2 turned off' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
@@ -120,7 +120,7 @@ RSpec.describe BGSDependents::Base do
     end
   end
 
-  context "with va_dependents_v2 turned on" do
+  context 'with va_dependents_v2 turned on' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
     end

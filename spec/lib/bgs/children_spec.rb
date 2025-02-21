@@ -9,7 +9,7 @@ RSpec.describe BGS::Children do
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:all_flows_payload_v2) { build(:form686c_674_v2) }
 
-  context "with va_dependents_v2 off" do
+  context 'with va_dependents_v2 off' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
@@ -166,13 +166,13 @@ RSpec.describe BGS::Children do
         end
       end
     end
-  end  
+  end
 
-  context "with va_dependents_v2 on" do
+  context 'with va_dependents_v2 on' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
     end
-    
+
     context 'adding children' do
       let(:adopted_payload) { build(:adopted_child_lives_with_veteran_v2) }
       let(:add_step_child_payload) { build(:step_child_lives_with_veteran_v2) }

@@ -23,6 +23,7 @@ module BGS
 
     private
 
+    # rubocop:disable Metrics/MethodLength
     def report_deaths
       @dependents_application['deaths'].each do |death_info|
         death = BGSDependents::Death.new(death_info)
@@ -32,7 +33,7 @@ module BGS
 
         formatted_info = death.format_info
         if @is_v2
-          death_info['dependent_death_location']['location']['state_code'] = death_info['dependent_death_location']['location'].delete('state')
+          death_info['dependent_death_location']['location']['state_code'] = death_info['dependent_death_location']['location'].delete('state') # rubocop:disable Layout/LineLength
         else
           death_info['location']['state_code'] = death_info['location'].delete('state')
         end
@@ -52,6 +53,7 @@ module BGS
         )
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def report_divorce
       divorce = BGSDependents::Divorce.new(@dependents_application['report_divorce'])

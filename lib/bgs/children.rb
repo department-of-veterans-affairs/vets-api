@@ -124,25 +124,26 @@ module BGS
     end
 
     def child_event_type(event_type)
-        if event_type == 'child_marriage'
-          if @is_v2
-            @dependents_application['child_marriage'].each do |child_marriage_details|
-              generate_child_event(BGSDependents::ChildMarriage.new(child_marriage_details), event_type)
-            end
-          else
-            generate_child_event(BGSDependents::ChildMarriage.new(@dependents_application['child_marriage']), event_type)
+      if event_type == 'child_marriage'
+        if @is_v2
+          @dependents_application['child_marriage'].each do |child_marriage_details|
+            generate_child_event(BGSDependents::ChildMarriage.new(child_marriage_details), event_type)
           end
-        elsif event_type == 'not_attending_school'
-          if @is_v2
-            @dependents_application['child_stopped_attending_school'].each do |child_stopped_attending_school_details|
-              generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(child_stopped_attending_school_details), event_type)
-            end
-          else
-            generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school']), event_type)
-          end
+        else
+          generate_child_event(BGSDependents::ChildMarriage.new(@dependents_application['child_marriage']), event_type)
         end
+      elsif event_type == 'not_attending_school'
+        if @is_v2
+          @dependents_application['child_stopped_attending_school'].each do |child_stopped_attending_school_details|
+            generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(child_stopped_attending_school_details), event_type) # rubocop:disable Layout/LineLength
+          end
+        else
+          generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school']), event_type) # rubocop:disable Layout/LineLength
+        end
+      end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def step_child_parent(child_info)
       parent = bgs_service.create_participant(@proc_id)
       child_status = @is_v2 ? child_info : child_info['child_status']
@@ -164,11 +165,12 @@ module BGS
           vnp_participant_id: parent[:vnp_ptcpnt_id],
           participant_relationship_type_name: 'Spouse',
           family_relationship_type_name: 'Spouse',
-          event_date:household_date,
+          event_date: household_date,
           begin_date: household_date,
           type: 'stepchild_parent'
         }
     end
+    # rubocop:enable Metrics/MethodLength
 
     def format_date(date)
       return nil if date.nil?

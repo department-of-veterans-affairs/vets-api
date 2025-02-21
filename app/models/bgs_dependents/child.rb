@@ -78,22 +78,22 @@ module BGSDependents
       dependent_address(
         dependents_application:,
         lives_with_vet: @child_info['does_child_live_with_you'],
-        alt_address: @is_v2 ? @child_info.dig('address') : @child_info.dig('child_address_info', 'address')
+        alt_address: @is_v2 ? @child_info['address'] : @child_info.dig('child_address_info', 'address')
       )
     end
 
     private
 
     def child_attributes
-      place_of_birth = @is_v2 ? @child_info.dig('birth_location') : @child_info.dig('place_of_birth')
+      place_of_birth = @is_v2 ? @child_info['birth_location'] : @child_info['place_of_birth']
       {
         ssn: @child_info['ssn'],
         birth_date: @child_info['birth_date'],
         family_relationship_type: child_status,
-        place_of_birth_country: @is_v2 ? place_of_birth.dig('location', 'country') : place_of_birth.dig('country'),
-        place_of_birth_state: @is_v2 ? place_of_birth.dig('location', 'state') : place_of_birth.dig('state'),
-        place_of_birth_city: @is_v2 ? place_of_birth.dig('location', 'city') : place_of_birth.dig('city'),
-        reason_marriage_ended: @is_v2 ? @child_info.dig('marriage_end_reason') : @child_info.dig('previous_marriage_details', 'reason_marriage_ended'),
+        place_of_birth_country: @is_v2 ? place_of_birth.dig('location', 'country') : place_of_birth['country'],
+        place_of_birth_state: @is_v2 ? place_of_birth.dig('location', 'state') : place_of_birth['state'],
+        place_of_birth_city: @is_v2 ? place_of_birth.dig('location', 'city') : place_of_birth['city'],
+        reason_marriage_ended: @is_v2 ? @child_info['marriage_end_reason'] : @child_info.dig('previous_marriage_details', 'reason_marriage_ended'), # rubocop:disable Layout/LineLength
         ever_married_ind: marriage_indicator,
         child_income: formatted_boolean(@is_v2 ? @child_info['income_in_last_year'] : @child_info['child_income']),
         not_self_sufficient: formatted_boolean(@child_info['not_self_sufficient'])

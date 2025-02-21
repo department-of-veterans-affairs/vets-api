@@ -4,12 +4,15 @@ require 'rails_helper'
 
 RSpec.describe BGSDependents::ChildSchool do
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
-  let(:all_flows_payload_v2) { build(:form686c_674_v2)}
+  let(:all_flows_payload_v2) { build(:form686c_674_v2) }
   let(:child_school_info) do
     described_class.new(all_flows_payload['dependents_application'], '3829729', '149471')
   end
   let(:child_school_info_v2) do
-    described_class.new(all_flows_payload_v2['dependents_application'],'3829729', '149471', all_flows_payload_v2['dependents_application']['student_information'][0])
+    described_class.new(all_flows_payload_v2['dependents_application'],
+                        '3829729',
+                        '149471',
+                        all_flows_payload_v2['dependents_application']['student_information'][0])
   end
   let(:formatted_params_result) do
     {
@@ -72,7 +75,7 @@ RSpec.describe BGSDependents::ChildSchool do
     }
   end
 
-  context "with va_dependents_v2 off" do
+  context 'with va_dependents_v2 off' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
@@ -86,11 +89,11 @@ RSpec.describe BGSDependents::ChildSchool do
     end
   end
 
-  context "with va_dependents_v2 on" do
+  context 'with va_dependents_v2 on' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
     end
-    
+
     describe '#params for 686c' do
       it 'formats child school params for submission' do
         formatted_info = child_school_info_v2.params_for_686c_v2
