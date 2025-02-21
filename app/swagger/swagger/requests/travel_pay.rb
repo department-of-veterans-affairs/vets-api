@@ -60,6 +60,38 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/travel_pay/v0/claims' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::BadRequestError
+
+          key :description, 'Submit a travel reimbursment claim'
+          key :operationId, 'postTravelPayClaim'
+          key :tags, %w[travel_pay]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :appointmentDatetime
+            key :in, :body
+            key :description, 'Appointment claim start time'
+            key :required, true
+            schema do
+              property :appointmentDatetime do
+                key :type, :string
+              end
+            end
+          end
+
+          response 201 do
+            key :description, 'Successfully submitted claim for a user'
+            schema do
+              key :$ref, :TravelPayClaimSummary
+            end
+          end
+        end
+      end
     end
   end
 end

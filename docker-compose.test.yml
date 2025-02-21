@@ -35,6 +35,7 @@ services:
       GIT_URL:             "${GIT_URL}"
       JENKINS_URL:         "${JENKINS_URL}"
       DANGER_GITHUB_API_TOKEN: "${DANGER_GITHUB_API_TOKEN}"
+      DISABLE_BOOTSNAP: "true"
     depends_on:
       - postgres
       - redis

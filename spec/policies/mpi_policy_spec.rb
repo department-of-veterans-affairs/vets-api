@@ -97,6 +97,14 @@ describe MPIPolicy do
       end
     end
 
+    context 'with a user who is missing a SSN' do
+      let(:user) { build(:user, ssn: nil) }
+
+      it 'denies access' do
+        expect(subject).not_to permit(user, :mvi)
+      end
+    end
+
     context 'with a user who already has the birls and participant ids' do
       let(:user) { build(:user, :loa3) }
 

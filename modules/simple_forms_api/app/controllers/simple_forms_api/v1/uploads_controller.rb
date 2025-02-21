@@ -132,7 +132,7 @@ module SimpleFormsApi
           when 'VALIDATED', 'ACCEPTED'
             send_sahsha_email(parsed_form_data, :confirmation, reference_number)
           when 'REJECTED'
-            send_sahsha_email(parsed_form_data, :rejected)
+            send_sahsha_email(parsed_form_data, :rejected, reference_number)
           when 'DUPLICATE'
             send_sahsha_email(parsed_form_data, :duplicate)
           end

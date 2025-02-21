@@ -1,0 +1,43 @@
+type: object
+properties:
+  status:
+    type: string
+    description: Current status of the study job (e.g., "NEW", "PROCESSING", "COMPLETE", "ERROR").
+  statusText:
+    type: string
+    description: String representation of percentage complete.
+  studyIdUrn:
+    type: string
+    description: Unique identifier for the study.
+  percentComplete:
+    type: integer
+    nullable: true
+    description: Percentage complete of the study download.
+  fileSize:
+    type: string
+    nullable: true
+    description: Human-readable file size (e.g., "20MB", "1.5GB").
+  fileSizeNumber:
+    type: integer
+    format: int64
+    nullable: true
+    description: Numeric file size in bytes.
+  startDate:
+    type: string
+    format: date-time
+    nullable: true
+    description: Timestamp when the study job started.
+  endDate:
+    type: string
+    format: date-time
+    nullable: true
+    description: Timestamp when the study job ended.
+example:
+  - status: "COMPLETE"
+    statusText: "100"
+    studyIdUrn: "5df3a7b7-7ead-45ff-b466-8b29a01ba94d"
+    percentComplete: 100
+    fileSize: "253.91 KB"
+    fileSizeNumber: 260003
+    startDate: 1734360572036
+    endDate: 1734360578627

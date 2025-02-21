@@ -685,6 +685,89 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
 
+      describe 'activeDutyEndDate within 180 days' do
+        let(:json_data) { JSON.parse data }
+
+        before do
+          allow_any_instance_of(ClaimsApi::DisabilityCompensationValidations)
+            .to receive(:validate_form_526_location_codes!).and_return(nil)
+          allow_any_instance_of(ClaimsApi::DisabilityCompensationValidations)
+            .to receive(:validate_form_526_current_mailing_address!).and_return(nil)
+        end
+
+        context 'when activeDutyEndDate is beyond 180 days from now' do
+          let(:service_periods) do
+            [
+              {
+                'activeDutyBeginDate' => 4.years.ago.to_date.to_s,
+                'activeDutyEndDate' => 181.days.from_now.to_date.to_s,
+                'serviceBranch' => 'Navy'
+              }
+            ]
+          end
+
+          it 'returns a bad request response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                par = json_data
+                par['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
+
+                post path, params: par.to_json, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:bad_request)
+              end
+            end
+          end
+        end
+
+        context 'when activeDutyEndDate is exactly 180 days from now' do
+          let(:service_periods) do
+            [
+              {
+                'activeDutyBeginDate' => 4.years.ago.to_date.to_s,
+                'activeDutyEndDate' => 180.days.from_now.to_date.to_s,
+                'serviceBranch' => 'Navy'
+              }
+            ]
+          end
+
+          it 'returns a successful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                par = json_data
+                par['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
+
+                post path, params: par.to_json, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:ok)
+              end
+            end
+          end
+        end
+
+        context 'when activeDutyEndDate is less than 180 days from now' do
+          let(:service_periods) do
+            [
+              {
+                'activeDutyBeginDate' => 4.years.ago.to_date.to_s,
+                'activeDutyEndDate' => 179.days.from_now.to_date.to_s,
+                'serviceBranch' => 'Navy'
+              }
+            ]
+          end
+
+          it 'returns a successful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                par = json_data
+                par['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
+
+                post path, params: par.to_json, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:ok)
+              end
+            end
+          end
+        end
+      end
+
       # lines 89-92 in disability_compensation_validations.rb checks phone number for dash
       context 'when reservesNationalGuardService information is submitted' do
         let(:json_data) { JSON.parse data }
@@ -899,6 +982,30 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
         end
 
+        context "when 'unitName' is blank space" do
+          let(:unit_name) { ' ' }
+
+          it 'returns a successful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService']['unitName'] =
+                    unit_name
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                  response_body = JSON.parse(response.body)
+                  claim_id = response_body['data']['id']
+                  claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+                  claim.to_internal
+                  expect(claim.form_data['serviceInformation']['reservesNationalGuardService']['unitName']).to eq(' ')
+                end
+              end
+            end
+          end
+        end
+
         context "when 'unitName' is nil" do
           let(:unit_name) { nil }
 
@@ -925,6 +1032,22 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 VCR.use_cassette('claims_api/brd/countries') do
                   par = json_data
                   par['data']['attributes']['serviceInformation']['reservesNationalGuardService'].delete('unitName')
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'serviceInformation' is not present" do
+          it 'returns a unsuccessful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes'].delete('serviceInformation')
 
                   post path, params: par.to_json, headers: headers.merge(auth_header)
                   expect(response).to have_http_status(:unprocessable_entity)
@@ -1370,7 +1493,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 allow_any_instance_of(MPIData)
                   .to receive(:mvi_response).and_return(multi_profile)
 
-                post path, params: data, headers: auth_header
+                parsed_data = JSON.parse(data)
+                post path, params: parsed_data, headers: auth_header, as: :json
 
                 json_response = JSON.parse(response.body)
                 expect(response).to have_http_status(:unprocessable_entity)
@@ -2279,6 +2403,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           context "when feature flag is #{flipped}" do
             before do
               allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(flipped)
               if flipped
                 expect_any_instance_of(ClaimsApi::StandardDataService)
                   .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
@@ -2324,6 +2449,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         [true, false].each do |flipped|
           context "when feature flag is #{flipped}" do
             before do
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(flipped)
               allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
               if flipped
                 expect_any_instance_of(ClaimsApi::StandardDataService)
@@ -2482,6 +2608,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         [true, false].each do |flipped|
           context "when feature flag is #{flipped}" do
             before do
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(flipped)
               allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
               if flipped
                 allow_any_instance_of(ClaimsApi::StandardDataService)
@@ -3151,7 +3278,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       mock_acg(scopes) do |auth_header|
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         put("/services/claims/v1/forms/526/#{auto_claim.id}",
-            params: base64_params, headers: headers.merge(auth_header))
+            params: base64_params, headers: headers.merge(auth_header), as: :json)
         expect(response).to have_http_status(:ok)
         auto_claim.reload
         expect(auto_claim.file_data).to be_truthy
@@ -3184,7 +3311,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         count = auto_claim.supporting_documents.count
         post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
-             params: base64_params, headers: headers.merge(auth_header))
+             params: base64_params, headers: headers.merge(auth_header), as: :json)
         expect(response).to have_http_status(:ok)
         auto_claim.reload
         expect(auto_claim.supporting_documents.count).to eq(count + 2)
@@ -3212,6 +3339,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         }
 
         allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(true)
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         allow_any_instance_of(ClaimsApi::BD).to(
           receive(:upload).and_raise(Common::Exceptions::BackendServiceException.new(
@@ -3220,7 +3348,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         )
         count = auto_claim.supporting_documents.count
         post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
-             params: base64_params, headers: headers.merge(auth_header))
+             params: base64_params, headers: headers.merge(auth_header), as: :json)
         expect(response).to have_http_status(:ok)
         auto_claim.reload
         expect(auto_claim.supporting_documents.count).to eq(count + 2)

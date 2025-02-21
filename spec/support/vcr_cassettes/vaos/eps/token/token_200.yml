@@ -1,0 +1,43 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://login.wellhive.com/oauth2/default/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&scope=care-nav&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJraWQiOiJlN2U4NGYwNGJlZDhlYjBlYzhiOGM5ZiIsInR5cCI6IkpXVCIsImFsZyI6IlJTNTEyIn0.eyJpc3MiOiIwb2Fva2h2ZXMyWDhyVmNmeTBqNiIsInN1YiI6IjBvYW9raHZlczJYOHJWY2Z5MGo2IiwiYXVkIjoiaHR0cHM6Ly9sb2dpbi53ZWxsaGl2ZS5jb20vb2F1dGgyL2RlZmF1bHQvdjEvdG9rZW4iLCJpYXQiOjE3MzY1NTM5MDMsImV4cCI6MTczNjU1NDIwM30.aZtcJEF7dWVb5k1aFYa6r4Q1oGxQ2CYAeQx8RWO4m04hBi-9DA317dwSAjRS9PuGUqHDNKK1EjD7H-Uhn5g45WFHAOq_IdMje9FpgKhiocMeQITA1E6b1zXt7-CC-qpVSO9IXdOBKBQacTYjm1exZBuYOS735z1T5bEPbXDMLUh-zTvy5Tnzgtp9-ZNW69NUcslmRuD2r2MEz2QFWqWkYyv4kBn2_u5kZEmwdoXSD_I2jh92zv1EtYw5CTBXHLDqHN1tDoHT2Bb6iX36r_vmATtgwuyWVWOkhoZZUl1oJo-pk0FfhBqBvghGnMC6aCYFMNZU7gst-DYwplXAxyQtrg
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 11 Jan 2025 00:05:30 GMT
+      Server:
+      - nginx
+      Content-Type:
+      - application/json
+      X-Okta-Request-Id:
+      - Z4G1yij6v8TmeZ4XfmSYkAAAAKk
+      Set-Cookie:
+      - JSESSIONID=B0CB1C0B2506252C25BF9FC547F98B20; Path=/; Secure; HttpOnly
+      - activate_ca_modal_triggered=""; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Path=/
+      - autolaunch_triggered=""; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Path=/
+      - sid="";Version=1;Path=/;Max-Age=0
+      - xids="";Version=1;Path=/;Max-Age=0
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"token_type":"Bearer","expires_in":900,"access_token":"eyJraWQiOiJxU25rY2x5aXk0YU1wdEhGa2FoZTJ4cFZjamFteGhiN3I3S0JLX1p5YTU4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULlFoVjRIcWY4MXJPdDJFbUc0c0d0TlctTklaandmWnNFYUZQbEEtSjRLMFUiLCJpc3MiOiJodHRwczovL2xvZ2luLndlbGxoaXZlLmNvbS9vYXV0aDIvZGVmYXVsdCIsImF1ZCI6ImFwaTovL2RlZmF1bHQiLCJpYXQiOjE3MzY1NTM5MzAsImV4cCI6MTczNjU1NDgzMCwiY2lkIjoiMG9hb2todmVzMlg4clZjZnkwajYiLCJzY3AiOlsiY2FyZS1uYXYiXSwid2gtZGlzcGxheV9uYW1lIjoiIiwic3ViIjoiMG9hb2todmVzMlg4clZjZnkwajYiLCJ3aC10YWJsZWF1X3VzZXJfaWQiOiIiLCJ3aC1wYXJ0bmVyX2lkIjoiNXZ1VGFjOHYiLCJ3aC1jb3Jwb3JhdGVfbWFuYWdlZCI6ZmFsc2V9.Y5Geg6toOiA-QAHrD7aXb3QJPH23L0xZZAWaBfJF5vuoCIH5jBto8Ymlk1ehKfQVRsXUQDm2k1OmIlmW-0LleMwL5dBcdqzQ7DOOj4yrK2SUq50NuooBjcqVIG1gQCqR7RuPfUfRk5tFvdNmr_Xn8YzhSW9yvEg605aMdFh5Dpb01AlCKRYlqFDRtz-eZln2LA3Lu491zeNxUhXN7TAjvGBm6XeOzlzl4YHIk4p1dGXddpODLjJ9uzZsOPI-tdQbszVd41yfiic4c6vvWAxLCoC97MPvNstFe0rZq0S6LgHwxFM2Y0dRTBA9efHD1cfksvmfFDsudHj2alVmsxpt-Q","scope":"care-nav"}'
+  recorded_at: Sat, 11 Jan 2025 00:05:30 GMT
+recorded_with: VCR 6.3.1

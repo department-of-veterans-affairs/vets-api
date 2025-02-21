@@ -19,12 +19,13 @@ module AskVAApi
             return general_inquiry(inquiry_params, inquiry_details)
           end
 
-          if inquiry_params[:who_is_your_question_about] == 'Myself'
-            return handle_self_inquiry(inquiry_params, inquiry_details)
+          if inquiry_params[:who_is_your_question_about] == 'Someone else' || inquiry_params[:your_role]
+            return handle_others_inquiry(inquiry_params, inquiry_details)
           end
 
-          if inquiry_params[:who_is_your_question_about] == 'Someone else'
-            handle_others_inquiry(inquiry_params, inquiry_details)
+          if inquiry_params[:who_is_your_question_about] == 'Myself' ||
+             inquiry_params[:who_is_your_question_about].nil?
+            handle_self_inquiry(inquiry_params, inquiry_details)
           end
         end
 
@@ -49,17 +50,17 @@ module AskVAApi
                      inquiry_about: details_hash[:inquiry_about],
                      dependent_relationship: details_hash[:dependent_relationship],
                      veteran_relationship: details_hash[:veteran_relationship],
-                     level_of_authentication: details_hash[:level_of_authentication] || 'Personal'
+                     level_of_authentication: details_hash[:inquiry_details][:level_of_authentication] || 'Personal'
                    })
         end
 
         def handle_self_inquiry(inquiry_params, inquiry_details)
           if inquiry_params[:relationship_to_veteran] == "I'm the Veteran"
-            build_inquiry_details(inquiry_details: inquiry_details, inquiry_about: 'About Me, the Veteran')
+            build_inquiry_details(inquiry_details:, inquiry_about: 'About Me, the Veteran')
           elsif inquiry_params[:relationship_to_veteran] == "I'm a family member of a Veteran" &&
                 inquiry_params[:more_about_your_relationship_to_veteran]
             build_inquiry_details(
-              inquiry_details: inquiry_details,
+              inquiry_details:,
               inquiry_about: 'For the dependent of a Veteran',
               veteran_relationship: inquiry_params[:more_about_your_relationship_to_veteran]
             )
@@ -70,7 +71,7 @@ module AskVAApi
           if inquiry_params[:relationship_to_veteran] == "I'm the Veteran" &&
              inquiry_params[:about_your_relationship_to_family_member]
             build_inquiry_details(
-              inquiry_details: inquiry_details,
+              inquiry_details:,
               inquiry_about: 'For the dependent of a Veteran',
               dependent_relationship: inquiry_params[:about_your_relationship_to_family_member]
             )
@@ -78,7 +79,7 @@ module AskVAApi
             handle_family_inquiry(inquiry_params, inquiry_details)
           elsif inquiry_params[:your_role]
             build_inquiry_details(
-              inquiry_details: inquiry_details,
+              inquiry_details:,
               inquiry_about: 'On Behalf of a Veteran',
               veteran_relationship: inquiry_params[:your_role],
               level_of_authentication: 'Business'
@@ -90,14 +91,14 @@ module AskVAApi
           if inquiry_params[:is_question_about_veteran_or_someone_else] == 'Veteran' &&
              inquiry_params[:more_about_your_relationship_to_veteran]
             build_inquiry_details(
-              inquiry_details: inquiry_details,
+              inquiry_details:,
               inquiry_about: 'On Behalf of a Veteran',
               veteran_relationship: inquiry_params[:more_about_your_relationship_to_veteran]
             )
           elsif inquiry_params[:is_question_about_veteran_or_someone_else] == 'Someone else' &&
                 inquiry_params[:their_relationship_to_veteran]
             build_inquiry_details(
-              inquiry_details: inquiry_details,
+              inquiry_details:,
               inquiry_about: 'For the dependent of a Veteran',
               dependent_relationship: inquiry_params[:their_relationship_to_veteran]
             )

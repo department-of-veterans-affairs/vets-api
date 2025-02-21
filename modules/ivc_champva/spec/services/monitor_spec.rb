@@ -82,6 +82,48 @@ RSpec.describe IvcChampva::Monitor do
       end
     end
 
+    describe '#track_s3_upload_file_error' do
+      it 'logs sidekiq success' do
+        payload = {
+          key: 'test_form.pdf',
+          file_path: 'test_form.pdf'
+        }
+
+        expect(monitor).to receive(:track_s3_upload_file_error).with(
+          payload[:key],
+          payload[:file_path]
+        )
+        monitor.track_s3_upload_file_error(payload[:key], payload[:file_path])
+      end
+    end
+
+    describe '#track_all_successful_s3_uploads' do
+      it 'logs sidekiq success' do
+        payload = {
+          key: 'test_form.pdf'
+        }
+
+        expect(monitor).to receive(:track_all_successful_s3_uploads).with(
+          payload[:key]
+        )
+        monitor.track_all_successful_s3_uploads(payload[:key])
+      end
+    end
+
+    describe '#track_s3_put_object_error' do
+      let(:error) { StandardError.new('Test Error Message') }
+      let(:key) { 'test_file.pdf' }
+
+      it 'tracks S3 PutObject error' do
+        key = 'test_file.pdf'
+        expect(monitor).to receive(:track_s3_put_object_error).with(
+          key, error, nil # Expectation is correct with nil
+        )
+
+        monitor.track_s3_put_object_error(key, error, nil) # Call with nil
+      end
+    end
+
     describe '#track_email_sent' do
       it 'logs sidekiq success' do
         payload = {

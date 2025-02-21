@@ -2,7 +2,6 @@
 
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
-require 'pensions/tag_sentry'
 require 'pensions/monitor'
 require 'pensions/notification_email'
 require 'pdf_utilities/datestamp_pdf'
@@ -65,7 +64,11 @@ module Pensions
 
       @pension_monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
-      send_confirmation_email
+      if Flipper.enabled?(:pension_submitted_email_notification)
+        send_submitted_email
+      else
+        send_confirmation_email
+      end
 
       @intake_service.uuid
     rescue => e
@@ -87,7 +90,6 @@ module Pensions
     # @param (see #perform)
     #
     def init(saved_claim_id, user_account_uuid)
-      Pensions::TagSentry.tag_sentry
       @pension_monitor = Pensions::Monitor.new
 
       @user_account_uuid = user_account_uuid
@@ -217,6 +219,15 @@ module Pensions
       Pensions::NotificationEmail.new(@claim.id).deliver(:confirmation)
     rescue => e
       @pension_monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
+    end
+
+    ##
+    # VANotify job to send Submission in Progress email to veteran
+    #
+    def send_submitted_email
+      Pensions::NotificationEmail.new(@claim.id).deliver(:submitted)
+    rescue => e
+      @pension_monitor.track_send_submitted_email_failure(@claim, @intake_service, @user_account_uuid, e)
     end
 
     ##

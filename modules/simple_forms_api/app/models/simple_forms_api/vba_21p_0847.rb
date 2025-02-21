@@ -20,6 +20,14 @@ module SimpleFormsApi
       }
     end
 
+    def notification_first_name
+      data.dig('preparer_name', 'first')
+    end
+
+    def notification_email_address
+      data['preparer_email']
+    end
+
     def zip_code_is_us_based
       @data.dig('preparer_address', 'country') == 'USA'
     end

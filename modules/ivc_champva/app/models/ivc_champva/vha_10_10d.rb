@@ -35,7 +35,8 @@ module IvcChampva
         'ssn_or_tin' => @data.dig('veteran', 'ssn_or_tin'),
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info'],
-        'hasApplicantOver65' => @data['has_applicant_over65'].to_s
+        'hasApplicantOver65' => @data['has_applicant_over65'].to_s,
+        'primaryContactEmail' => @data.dig('primary_contact_info', 'email').to_s
       }
     end
 
