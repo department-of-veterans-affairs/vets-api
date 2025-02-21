@@ -47,6 +47,9 @@ module AccreditedRepresentativePortal
       ].freeze
     end
 
+    validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
+    accepts_nested_attributes_for :power_of_attorney_form
+
     enum(
       :claimant_type,
       ClaimantTypes::ALL.index_by(&:itself),
