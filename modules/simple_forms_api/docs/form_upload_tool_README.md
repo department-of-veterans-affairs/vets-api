@@ -36,7 +36,7 @@ The Form Upload tool launched with support for four forms: `21-0779`, `21-509`, 
 
 ### 4. Follow the instructions in the `vets-website` repo.
 
-- [Follow the instructions here](link-not-yet-available) to enable the form on the front-end.
+- [Follow the instructions here](https://github.com/department-of-veterans-affairs/vets-website/blob/56ef89fee0e645df5c39e1285df295cd9eed8818/src/applications/simple-forms/form-upload/README.md) to enable the form on the front-end.
 
   **Why?**  
   The front end needs a few pieces of data to be able to accurately render the tool for additional forms.
