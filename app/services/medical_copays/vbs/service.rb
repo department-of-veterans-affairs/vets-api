@@ -129,8 +129,11 @@ module MedicalCopays
         Rails.cache.read(cache_key)
       end
 
-      def send_statement_notifications(statements_json_byte)
-        CopayNotifications::ParseNewStatementsJob.perform_async(statements_json_byte)
+      def send_statement_notifications(_statements_json_byte)
+        # Commenting for now since we are causingissues in production
+        # when the child job runs: "NewStatementNotificationJob"
+        # CopayNotifications::ParseNewStatementsJob.perform_async(statements_json_byte)
+        true
       end
 
       def settings
