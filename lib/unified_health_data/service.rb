@@ -64,7 +64,7 @@ module UnifiedHealthData
           test_code: record['resource']['code']['text'],
           date_completed: record['resource']['effectiveDateTime'],
           sample_site: sample_site,
-          encoded_data: '',
+          encoded_data: record['resource']['presentedForm'] ? record['resource']['presentedForm'].first.dig('data') : '',
           location:,
           ordered_by:,
           observations:,
