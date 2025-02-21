@@ -68,7 +68,7 @@ module Form1010cg
 
     class << self
       def send_failure_email(claim)
-        unless can_send_failure_email?(claim)
+        unless claim.parsed_form.dig('veteran', 'email')
           StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
           return
         end
@@ -89,14 +89,6 @@ module Form1010cg
         )
 
         StatsD.increment("#{STATSD_KEY_PREFIX}submission_failure_email_sent")
-      end
-
-      private
-
-      def can_send_failure_email?(claim)
-        Flipper.enabled?(:caregiver_use_va_notify_on_submission_failure) && claim.parsed_form.dig(
-          'veteran', 'email'
-        )
       end
     end
   end
