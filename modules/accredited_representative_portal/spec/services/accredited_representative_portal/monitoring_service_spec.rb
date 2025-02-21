@@ -1,75 +1,100 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'statsd-instrument'
 
-RSpec.describe AccreditedRepresentativePortal::MonitoringService do
-  subject { described_class.new(service_name) }
+module AccreditedRepresentativePortal
+  module Monitoring
+    RSpec.describe Service do
+      let(:logger) { instance_double(Logging::Monitor) }
+      let(:service) { described_class.new(user_context: user_context, default_tags: default_tags) }
+      let(:user_context) { instance_double('UserContext', uuid: '123') } # rubocop:disable RSpec/VerifiedDoubleReference
+      let(:default_tags) { ['env:test'] }
 
-  let(:service_name) { 'test-service' }
-  let(:monitor) { instance_double(Logging::Monitor) }
-  let(:span) { instance_double(Datadog::Tracing::SpanOperation) }
+      before do
+        allow(::Logging::Monitor).to receive(:new).and_return(logger)
+        allow(logger).to receive(:track)
+        allow(StatsD).to receive(:measure)
+      end
 
-  before do
-    allow(Logging::Monitor).to receive(:new).with(service_name).and_return(monitor)
-    allow(monitor).to receive(:track)
+      describe '#track_request' do
+        it 'logs a request with default message and tags' do
+          service.track_request
 
-    # Mock Datadog APM Tracing
-    allow(Datadog::Tracing).to receive(:trace).and_yield(span)
-    allow(span).to receive(:service=)
-    allow(span).to receive(:resource=)
-    allow(span).to receive(:set_tag)
-    allow(span).to receive(:set_error)
-  end
+          expect(logger).to have_received(:track).with(
+            :info, 'Request recorded', Monitoring::Metric::POA,
+            tags: contain_exactly('env:test', 'service:accredited-representative-portal', 'user:123')
+          )
+        end
 
-  describe '#track_event' do
-    it 'logs and traces an event' do
-      subject.track_event(:info, 'Test message', 'test.metric', ['test:tag'])
+        it 'logs a request with custom message and tags' do
+          service.track_request(message: 'Custom Message', tags: [Monitoring::Tag::Operation::CREATE])
 
-      # Ensure monitor logs the event
-      expect(monitor).to have_received(:track).with(:info, 'Test message', 'api.arp.test.metric', tags: ['test:tag'])
+          expect(logger).to have_received(:track).with(
+            :info, 'Custom Message', Monitoring::Metric::POA,
+            tags: contain_exactly('env:test', 'service:accredited-representative-portal',
+                                  'user:123', 'operation:create')
+          )
+        end
+      end
 
-      # Ensure Datadog tracing is applied
-      expect(Datadog::Tracing).to have_received(:trace).with('api.arp.test.metric')
-      expect(span).to have_received(:set_tag).with('event.message', 'Test message')
-      expect(span).to have_received(:set_tag).with('event.level', :info)
-      expect(span).to have_received(:set_tag).with('event.tags', 'test:tag')
-    end
-  end
+      describe '#track_error' do
+        it 'logs an ActiveRecord validation error with correct tag' do
+          error = ActiveRecord::RecordInvalid.new
+          service.track_error(message: 'Validation failed', error: error)
 
-  describe '#track_error' do
-    it 'logs and traces an error with error class' do
-      subject.track_error('Test error message', 'test.metric.error', 'TestError', ['test:tag'])
+          expect(logger).to have_received(:track).with(
+            :error, 'Validation failed', Monitoring::Metric::POA,
+            tags: contain_exactly(
+              'env:test', 'service:accredited-representative-portal', 'user:123',
+              Monitoring::Tag::Level::ERROR,
+              Monitoring::Tag::Error::VALIDATION
+            )
+          )
+        end
 
-      # Ensure monitor logs the error
-      expect(monitor).to have_received(:track).with(:error, 'Test error message', 'api.arp.test.metric.error',
-                                                    tags: ['test:tag', 'error:TestError'])
+        it 'logs a timeout error with correct tag' do
+          error = Timeout::Error.new
+          service.track_error(message: 'Timeout occurred', error: error)
 
-      # Ensure Datadog tracing is applied
-      expect(Datadog::Tracing).to have_received(:trace).with('api.arp.test.metric.error')
-      expect(span).to have_received(:set_error).with(instance_of(StandardError))
-      expect(span).to have_received(:set_tag).with('error.class', 'TestError')
-      expect(span).to have_received(:set_tag).with('error.tags', 'test:tag, error:TestError')
-    end
+          expect(logger).to have_received(:track).with(
+            :error, 'Timeout occurred', AccreditedRepresentativePortal::Monitoring::Metric::POA,
+            tags: contain_exactly(
+              'env:test', 'service:accredited-representative-portal', 'user:123',
+              Monitoring::Tag::Level::ERROR,
+              Monitoring::Tag::Error::TIMEOUT
+            )
+          )
+        end
 
-    it 'logs and traces an error without an error class' do
-      subject.track_error('Test error message', 'test.metric.error')
+        it 'logs a 404 Not Found error with correct tag' do
+          error = ActiveRecord::RecordNotFound.new
+          service.track_error(message: 'Resource not found', error: error)
 
-      # Ensure monitor logs the error
-      expect(monitor).to have_received(:track).with(:error, 'Test error message', 'api.arp.test.metric.error', tags: [])
+          expect(logger).to have_received(:track).with(
+            :error, 'Resource not found', Monitoring::Metric::POA,
+            tags: contain_exactly(
+              'env:test', 'service:accredited-representative-portal', 'user:123',
+              Monitoring::Tag::Level::ERROR,
+              Monitoring::Tag::Error::NOT_FOUND
+            )
+          )
+        end
 
-      # Ensure Datadog tracing is applied
-      expect(Datadog::Tracing).to have_received(:trace).with('api.arp.test.metric.error')
-      expect(span).to have_received(:set_error).with(instance_of(StandardError))
-    end
-  end
+        it 'logs an unexpected error as http_server error' do
+          error = StandardError.new('Something went wrong')
+          service.track_error(message: 'Unexpected error', error: error)
 
-  describe '#with_tracing' do
-    it 'starts a Datadog trace and yields a span' do
-      expect { |b| subject.with_tracing('test.tracing', &b) }.to yield_with_args(span)
-
-      expect(Datadog::Tracing).to have_received(:trace).with('api.arp.test.tracing')
-      expect(span).to have_received(:service=).with(service_name)
-      expect(span).to have_received(:resource=).with('test.tracing')
+          expect(logger).to have_received(:track).with(
+            :error, 'Unexpected error', Monitoring::Metric::POA,
+            tags: contain_exactly(
+              'env:test', 'service:accredited-representative-portal', 'user:123',
+              Monitoring::Tag::Level::ERROR,
+              Monitoring::Tag::Error::HTTP_SERVER
+            )
+          )
+        end
+      end
     end
   end
 end

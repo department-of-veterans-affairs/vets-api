@@ -30,7 +30,6 @@ module AccreditedRepresentativePortal
             rel
           else
             message = "Invalid status parameter. Must be one of (#{Statuses::ALL.join(', ')})"
-            log_warn(message, 'poa_requests.invalid_status', ["status:#{status}"])
             raise ActionController::BadRequest, message.squish
           end
 
@@ -51,10 +50,6 @@ module AccreditedRepresentativePortal
           PENDING = 'pending',
           PROCESSED = 'processed'
         ].freeze
-      end
-
-      def authorize_poa_requests
-        authorize PowerOfAttorneyRequest
       end
 
       def scope_includes

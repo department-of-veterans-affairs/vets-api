@@ -6,12 +6,6 @@ module AccreditedRepresentativePortal
       skip_after_action :verify_pundit_authorization
 
       def show
-        log_info(
-          'Retrieved in progress forms count',
-          'user.forms.count',
-          ["count:#{in_progress_forms.length}"]
-        )
-
         render json: {
           account: {
             accountUuid: @current_user.user_account_uuid

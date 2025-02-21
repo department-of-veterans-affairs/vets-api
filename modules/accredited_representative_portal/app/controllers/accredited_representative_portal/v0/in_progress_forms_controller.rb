@@ -11,15 +11,8 @@ module AccreditedRepresentativePortal
           form_data: params[:formData],
           metadata: params[:metadata]
         )
+
         render json: InProgressFormSerializer.new(form)
-      rescue ActiveRecord::RecordInvalid => e
-        monitor.track(
-          :warn,
-          "Invalid form update: #{e.message}",
-          'form.update.invalid',
-          tags: ["form_id:#{params[:id]}"]
-        )
-        raise
       end
 
       def show
@@ -31,15 +24,8 @@ module AccreditedRepresentativePortal
         form = find_form or
           raise Common::Exceptions::RecordNotFound, params[:id]
         form.destroy
+
         head :no_content
-      rescue Common::Exceptions::RecordNotFound => e
-        monitor.track(
-          :warn,
-          "Form not found for deletion: #{e.message}",
-          'form.delete.not_found',
-          tags: ["form_id:#{params[:id]}"]
-        )
-        raise
       end
 
       private
@@ -52,6 +38,10 @@ module AccreditedRepresentativePortal
         build_form_for_user(params[:id], @current_user)
       end
 
+      # NOTE: The in-progress form module can upstream this convenience that
+      # allows the caller to not know about details like legacy foreign key
+      # relations. It is totally analogous to the query convenience
+      # `form_for_user` that they expose.
       def build_form_for_user(form_id, user)
         InProgressForm.new.tap do |form|
           form.real_user_uuid = user.uuid
