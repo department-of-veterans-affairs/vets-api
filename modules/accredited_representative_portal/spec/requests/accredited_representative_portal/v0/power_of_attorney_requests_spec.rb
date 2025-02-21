@@ -278,7 +278,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
               'id' => poa_requests[1].accredited_organization.poa
             },
             'powerOfAttorneyFormSubmission' => {
-              'status' => 'pending'
+              'status' => 'PENDING'
             }
           },
           {
