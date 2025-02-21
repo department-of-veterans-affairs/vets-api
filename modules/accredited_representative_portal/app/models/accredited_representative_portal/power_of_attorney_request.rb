@@ -37,6 +37,12 @@ module AccreditedRepresentativePortal
 
     accepts_nested_attributes_for :power_of_attorney_form
 
+    enum(
+      :claimant_type,
+      ClaimantTypes::ALL.index_by(&:itself),
+      validate: true
+    )
+
     def expires_at
       created_at + EXPIRY_DURATION if unresolved?
     end
