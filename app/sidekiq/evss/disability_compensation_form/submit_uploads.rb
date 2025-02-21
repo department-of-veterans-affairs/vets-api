@@ -95,7 +95,7 @@ module EVSS
           type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
           options: {
             form526_submission: submission,
-            document_type: document_type,
+            document_type:,
             statsd_metric_prefix: STATSD_KEY_PREFIX,
             supporting_evidence_attachment:
           },

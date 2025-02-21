@@ -9,7 +9,7 @@ web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,ht
 web_origin_regex: \Ahttps?:\/\/www\.va\.gov\z
 
 audit_db:
-  url: postgis:///vets_api_audit
+  url: ~
 
 logingov:
   client_id: https://sqa.eauth.va.gov/isam/sps/saml20sp/saml20
@@ -81,6 +81,7 @@ sign_in:
   vaweb_client_id: vaweb
   vamobile_client_id: vamobile
   arp_client_id: arp
+  user_info_clients: ['okta_test']
   sts_client:
     base_url: http://localhost:3000
     key_path: spec/fixtures/sign_in/sts_client.pem
@@ -422,6 +423,8 @@ ivc_champva:
   prefill: true
   pega_api:
     api_key: fake_api_key
+  ves_api:
+    api_key: fake_api_key
 
 form_upload:
   prefill: true
@@ -522,7 +525,7 @@ ppms:
 mhv:
   # include ranges first, then individual exceptions to the ranges last.
   facility_range: [[358, 718], [720, 740], [742, 758]]
-  facility_specific: [["741MM"]] # 741 is excluded, but 741MM is included
+  facility_specific: ["741MM"] # 741 is excluded, but 741MM is included
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
@@ -855,6 +858,9 @@ maintenance:
     mvi: PCIPVGJ
     mhv: PP2ZZ2V
     form107959f1: P63EKXC
+    form107959f2: PZWR9XI
+    form107959c: PEP32F2
+    form1010d: P69N8ZY
     pega: P3ZJCBK
     search: PRG8HJI
     tims: PUL8OQ4
@@ -1128,6 +1134,7 @@ vanotify:
       api_key: fake_secret
       template_id:
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
+        appoint_a_representative_digital_submit_confirmation_email: appoint_a_rep_v2_digital_submit_confirm_email_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
@@ -1737,6 +1744,10 @@ vaos:
     api_url: "https://api.wellhive.com"
     base_path: "care-navigation/v1"
     scopes: "care-nav"
+  ccra:
+    mock: false
+    api_url: "https://api.ccra.placeholder.va.local"
+    base_path: "csp/healthshare/ccraint/rest"
 
 ogc:
   form21a_service_url:
@@ -1744,7 +1755,12 @@ ogc:
     api_key: fake_key
 
 accredited_representative_portal:
-  pilot_users_email_poa_codes: ~
+  allow_list:
+    github:
+      access_token: ~
+      base_uri: ~
+      repo: ~
+      path: ~
 
 banners:
   drupal_username: banners_api

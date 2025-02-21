@@ -4,10 +4,11 @@ module PdfFill
   class ExtrasGenerator
     attr_reader :extras_redesign
 
-    def initialize(form_name: nil, extras_redesign: false)
+    def initialize(form_name: nil, extras_redesign: false, start_page: 1)
       @generate_blocks = []
       @form_name = form_name
       @extras_redesign = extras_redesign
+      @start_page = start_page
     end
 
     def create_block(value, metadata)
@@ -82,28 +83,43 @@ module PdfFill
       end
     end
 
+    def add_page_numbers(pdf)
+      pdf.number_pages('Page <page>',
+                       start_count_at: @start_page,
+                       at: [pdf.bounds.right - 50, 0],
+                       align: :right,
+                       size: 9)
+    end
+
+    def generate_pdf(file_path, generate_blocks)
+      Prawn::Document.generate(file_path) do |pdf|
+        set_font(pdf)
+        set_header(pdf) if extras_redesign
+
+        render_pdf_content(pdf, generate_blocks)
+        add_page_numbers(pdf) if extras_redesign
+      end
+    end
+
+    def render_pdf_content(pdf, generate_blocks)
+      box_height = 25
+      pdf.bounding_box(
+        [pdf.bounds.left, pdf.bounds.top - box_height],
+        width: pdf.bounds.width,
+        height: pdf.bounds.height - box_height
+      ) do
+        generate_blocks.each do |block|
+          block[:block].call(pdf)
+        end
+      end
+    end
+
     def generate
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/extras_#{SecureRandom.uuid}.pdf"
       generate_blocks = sort_generate_blocks
-      Prawn::Document.generate(file_path) do |pdf|
-        set_font(pdf)
-
-        set_header(pdf) if extras_redesign
-
-        box_height = 25
-        pdf.bounding_box(
-          [pdf.bounds.left, pdf.bounds.top - box_height],
-          width: pdf.bounds.width,
-          height: pdf.bounds.height - box_height
-        ) do
-          generate_blocks.each do |block|
-            block[:block].call(pdf)
-          end
-        end
-      end
-
+      generate_pdf(file_path, generate_blocks)
       file_path
     end
   end
