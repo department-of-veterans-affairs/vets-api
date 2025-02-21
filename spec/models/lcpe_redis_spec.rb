@@ -13,8 +13,8 @@ describe LCPERedis do
   let(:raw_response) do
     double('FaradayResponse', body: {}, status:, response_headers:, success?: success )
   end
-  let(:response_headers) { { 'Etag' => v_fresh } }
   let(:status) { 200 }
+  let(:response_headers) { { 'Etag' => v_fresh } }
   let(:success) { true }
   
   describe '.initialize' do
@@ -33,7 +33,7 @@ describe LCPERedis do
 
       it 'returns cached response' do
         load_cache(fresh_response)
-        # stub Common::RedisStore.find because it instantiates new response object
+        # stub Common::RedisStore.find because otherwise it instantiates new response object
         allow(subject).to receive(:cached_response).and_return(fresh_response)
         expect(subject.fresh_version_from(raw_response)).to eq(fresh_response)
       end
@@ -59,7 +59,7 @@ describe LCPERedis do
         let(:status) { 500 }
         let(:success) { false }
   
-        it 'invalidates cache and caches new response' do
+        it 'returns response without caching' do
           expect(described_class).not_to receive(:delete)
           expect(lcpe_response).to receive(:cache?).and_return(false)
           expect(subject.fresh_version_from(raw_response)).to eq(lcpe_response)
@@ -72,7 +72,6 @@ describe LCPERedis do
     context 'when redis cache stale' do
       it 'caches gids response and raises error' do
         load_cache(stale_response)
-        allow(subject).to receive(:cached_response).and_return(stale_response)
         allow(GI::LCPE::Response).to receive(:from).with(raw_response).and_return(fresh_response)
         expect(subject).to receive(:cache).with(lcpe_type, fresh_response)
         expect { subject.force_client_refresh_and_cache(raw_response) }
