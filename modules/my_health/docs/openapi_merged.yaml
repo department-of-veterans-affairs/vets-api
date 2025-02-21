@@ -1275,32 +1275,6 @@ paths:
       summary: /v1/messaging/messages/categories
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
-  /v1/messaging/messages/signature:
-    get:
-      description: Gets user message signature preferences
-      operationId: get_signature
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SecureMessageSignature'
-          description: OK
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errors'
-          description: Unauthorized
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errors'
-          description: Not authorized for access to secure messages
-      summary: /v1/messaging/messages/signature
-      parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
   /v1/messaging/messages/{id}:
     delete:
       description: Moves a secure message to the "Deleted" folder
@@ -1701,6 +1675,63 @@ paths:
                 $ref: '#/components/schemas/Errors'
           description: Not authorized for access to secure messages
       summary: /v1/messaging/preferences/recipients
+  /v1/messaging/preferences/signature:
+    get:
+      description: Gets user message signature preferences
+      operationId: get_signature
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureMessageSignature'
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/preferences/signature
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+    post:
+      description: Update user message signature preferences
+      operationId: update_signature
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecureMessageSignatureUpdateRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureMessageSignature'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/preferences/signature
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
   /v1/prescriptions:
     get:
       description: List medications.
@@ -3000,32 +3031,6 @@ components:
                     - MEDICATIONS
                     - TEST_RESULTS
                     - EDUCATION
-    SecureMessageSignature:
-      type: object
-      required:
-        - data
-      properties:
-        data:
-          type: object
-          required:
-            - signatureName
-            - includeSignature
-            - signatureTitle
-          properties:
-            signatureName:
-              type: string
-              example: My Signature Name
-            includeSignature:
-              type: boolean
-            signatureTitle:
-              type: string
-              example: My Signature Title
-        errors:
-          type: object
-          example: {}
-        metadata:
-          type: object
-          example: {}
     SecureMessageReplyRequest:
       type: object
       required:
@@ -3458,6 +3463,48 @@ components:
               preferred_team:
                 type: boolean
                 description: Indicates if the team is preferred (displayed in contact list if `true`)
+    SecureMessageSignature:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - signatureName
+            - includeSignature
+            - signatureTitle
+          properties:
+            signatureName:
+              type: string
+              example: My Signature Name
+            includeSignature:
+              type: boolean
+            signatureTitle:
+              type: string
+              example: My Signature Title
+        errors:
+          type: object
+          example: {}
+        metadata:
+          type: object
+          example: {}
+    SecureMessageSignatureUpdateRequest:
+      type: object
+      properties:
+        signatureName:
+          type: string
+          example: Test
+        signatureTitle:
+          type: string
+          example: ''
+        includeSignature:
+          type: boolean
+          example: false
+      required:
+        - signatureName
+        - signatureTitle
+        - includeSignature
     PrescriptionTrackingItem:
       type: object
       properties:

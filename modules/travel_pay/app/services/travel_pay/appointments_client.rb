@@ -22,18 +22,18 @@ module TravelPay
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
-
       query_path = if params.empty?
                      'api/v1.2/appointments'
                    else
                      "api/v1.2/appointments?#{params.to_query}"
                    end
-
-      connection(server_url: btsss_url).get(query_path) do |req|
-        req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['BTSSS-Access-Token'] = btsss_token
-        req.headers['X-Correlation-ID'] = correlation_id
-        req.headers.merge!(claim_headers)
+      log_to_statsd('appointments', 'get_all') do
+        connection(server_url: btsss_url).get(query_path) do |req|
+          req.headers['Authorization'] = "Bearer #{veis_token}"
+          req.headers['BTSSS-Access-Token'] = btsss_token
+          req.headers['X-Correlation-ID'] = correlation_id
+          req.headers.merge!(claim_headers)
+        end
       end
     end
   end

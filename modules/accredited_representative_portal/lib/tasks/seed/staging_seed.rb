@@ -18,8 +18,9 @@ module AccreditedRepresentativePortal
           process_organizations(orgs, options)
 
           Rails.logger.info(
-            "Seeding complete: Created #{options[:totals][:requests]} requests " \
-            "and #{options[:totals][:resolutions]} resolutions"
+            "Seeding complete: Created #{options[:totals][:requests]} requests, " \
+            "#{options[:totals][:resolutions]} resolutions, and " \
+            "#{options[:totals][:user_accounts]} user account associations"
           )
         end
       end
@@ -27,14 +28,15 @@ module AccreditedRepresentativePortal
       private
 
       def build_seeding_options
-        total_created = { requests: 0, resolutions: 0 }
+        total_created = { requests: 0, resolutions: 0, user_accounts: 0 }
 
         {
           claimant_cycle: create_claimants.cycle,
           resolution_cycle: RESOLUTION_HISTORY_CYCLE,
           resolved_time: RESOLVED_TIME_TRAVELER,
           unresolved_time: UNRESOLVED_TIME_TRAVELER,
-          totals: total_created
+          totals: total_created,
+          email_counter: 0
         }
       end
     end
