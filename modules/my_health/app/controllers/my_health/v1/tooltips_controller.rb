@@ -23,15 +23,14 @@ module MyHealth
       end
 
       def update
-        # Check if at least one parameter is present
-        unless params[:hidden].present? || params[:increment_counter].present?
-          render json: { error: "At least one of 'hidden' or 'increment_counter' must be provided." }, status: :unprocessable_entity
+        unless params[:tooltip].present?
+          render json: { error: "Request body must contain a 'tooltip' object." }, status: :bad_request
           return
         end
 
         if @tooltip.update(tooltip_params)
-          if params[:increment_counter] == 'true'
-            # Check for session uniqueness before incrementing
+          if params[:tooltip][:increment_counter] == 'true'
+            # Check for session uniqueness before incrementing. Business logic: if there are 3 unique sessions the hidden counter will be switched to true, purpose is to hide the tooltip in the view.
             if @tooltip.last_signed_in != current_user.last_signed_in
               @tooltip.counter += 1
               @tooltip.last_signed_in = current_user.last_signed_in
@@ -39,10 +38,13 @@ module MyHealth
               @tooltip.save
             end
           end
+          # User can choose to hide the tooltip before reaching 3 unique sessions.
+          @tooltip.update(hidden: params[:tooltip][:hidden]) if params[:tooltip][:hidden].present?
           render json: @tooltip
         else
           render json: { errors: @tooltip.errors.full_messages }, status: :unprocessable_entity
         end
+
       rescue ActiveRecord::RecordNotFound => e
         log_and_render_error(e, "Tooltip not found")
       rescue ActiveRecord::RecordInvalid => e
@@ -63,6 +65,7 @@ module MyHealth
         render json: { error: 'Tooltip not found' }, status: :not_found unless @tooltip
       end
 
+      # only allow the tooltip_name and hidden attributes to be modified via params object.
       def tooltip_params
         params.require(:tooltip).permit(:tooltip_name, :hidden)
       end
