@@ -6,12 +6,10 @@ describe Ccra::ReferralService do
   subject { described_class.new(user) }
 
   let(:user) { double('User', account_uuid: '1234', flipper_id: '1234') }
-  let(:jwt_token) { 'fake-jwt-token' }
   let(:access_token) { 'fake-access-token' }
 
   before do
     allow(RequestStore.store).to receive(:[]).with('request_id').and_return('request-id')
-    allow_any_instance_of(Common::JwtWrapper).to receive(:sign_assertion).and_return(jwt_token)
     allow(Flipper).to receive(:enabled?).with(VAOS::SessionService::STS_OAUTH_TOKEN, user).and_return(true)
 
     # Allow any cache fetch call to return the access token if it matches our key, otherwise nil
@@ -25,14 +23,6 @@ describe Ccra::ReferralService do
     Settings.vaos.ccra.tap do |ccra|
       ccra.api_url = 'http://ccra.api.example.com'
       ccra.base_path = 'csp/healthshare/ccraint/rest'
-      ccra.key_path = '/path/to/key.pem'
-      ccra.client_id = 'test_client'
-      ccra.kid = 'test_kid'
-      ccra.audience_claim_url = 'https://test.example.com'
-      ccra.access_token_url = 'https://test.example.com/token'
-      ccra.grant_type = 'client_credentials'
-      ccra.scopes = 'test.scope'
-      ccra.client_assertion_type = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
     end
   end
 
