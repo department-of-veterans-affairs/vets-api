@@ -32,14 +32,8 @@ module UnifiedHealthData
           location = location_object.nil? ? nil : location_object['name']
         end
 
-        if record['resource']['code']['coding']
-          # OH format
-          code = record['resource']['code']['coding'].find { |coding| coding['display'] == record['resource']['code']['text'] }
-        else
-          # vista format
-          code_array = record['resource']['category'].find { |category| category['coding'][0]['display'] == record['resource']['code']['text'] }
-          code = code_array['coding'][0]
-        end
+        code_array = record['resource']['category'].find { |category| category['coding'][0]['code'] != 'LAB' }
+        code = code_array['coding'][0]
 
         attributes = UnifiedHealthData::MedicalRecord::Attributes.new(
           display: code['display'],
