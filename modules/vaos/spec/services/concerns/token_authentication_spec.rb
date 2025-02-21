@@ -16,10 +16,10 @@ class TestServiceBase
     # Return mock response for token request
     OpenStruct.new(
       body: {
-        'access_token' => 'test-access-token',
-        'token_type' => 'Bearer',
-        'expires_in' => 3600,
-        'scope' => 'test.scope'
+        access_token: 'test-access-token',
+        token_type: 'Bearer',
+        expires_in: 3600,
+        scope: 'test.scope'
       }
     )
   end
@@ -37,7 +37,7 @@ class TestTokenService < TestServiceBase
   REDIS_TOKEN_KEY = 'test-access-token'
   REDIS_TOKEN_TTL = 840
 
-  attr_reader :config
+  attr_reader :config, :settings
 
   # Define token configuration
   def initialize
@@ -48,8 +48,32 @@ class TestTokenService < TestServiceBase
       scopes: 'test.scope',
       client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
     )
+
+    @settings = OpenStruct.new(
+      key_path: Rails.root.join('modules', 'vaos', 'spec', 'fixtures', 'test_key.pem').to_s,
+      client_id: 'test-client-id',
+      kid: 'test-key-id',
+      audience_claim_url: 'https://test.example.com/token'
+    )
   end
 end
+
+# Create a test RSA key file for the specs
+# RSpec.configure do |config|
+#   config.before(:suite) do
+#     key_path = Rails.root.join('modules', 'vaos', 'spec', 'fixtures', 'test_key.pem')
+#     FileUtils.mkdir_p(File.dirname(key_path))
+#     unless File.exist?(key_path)
+#       rsa_key = OpenSSL::PKey::RSA.new(2048)
+#       File.write(key_path, rsa_key.to_pem)
+#     end
+#   end
+
+#   config.after(:suite) do
+#     key_path = Rails.root.join('modules', 'vaos', 'spec', 'fixtures', 'test_key.pem')
+#     File.delete(key_path) if File.exist?(key_path)
+#   end
+# end
 
 RSpec.describe TokenAuthentication do
   subject { TestTokenService.new }
@@ -117,10 +141,10 @@ RSpec.describe TokenAuthentication do
       it 'returns the access token' do
         response = OpenStruct.new(
           body: {
-            'access_token' => 'test-access-token',
-            'token_type' => 'Bearer',
-            'expires_in' => 3600,
-            'scope' => 'test.scope'
+            access_token: 'test-access-token',
+            token_type: 'Bearer',
+            expires_in: 3600,
+            scope: 'test.scope'
           }
         )
         token = subject.send(:parse_token_response, response)

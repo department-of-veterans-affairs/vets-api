@@ -37,6 +37,9 @@ module TokenAuthentication
       Rails.cache.fetch(self.class::REDIS_TOKEN_KEY, expires_in: self.class::REDIS_TOKEN_TTL) do
         token_response = get_token
         parse_token_response(token_response)
+      rescue => e
+        Rails.logger.error("Error fetching token: #{e.message}")
+        nil
       end
     end
 
@@ -48,9 +51,9 @@ module TokenAuthentication
     # @return [String] the extracted access token.
     # @raise [TokenError] if the token response is invalid.
     def parse_token_response(response)
-      raise TokenError, 'Invalid token response' if response.body.nil? || response.body['access_token'].blank?
+      raise TokenError, 'Invalid token response' if response.body.nil? || response.body[:access_token].blank?
 
-      response.body['access_token']
+      response.body[:access_token]
     end
 
     # Constructs the URL-encoded parameters for the token request.
@@ -76,7 +79,7 @@ module TokenAuthentication
     #
     # @return [Common::JwtWrapper] the JWT wrapper instance.
     def jwt_wrapper
-      @jwt_wrapper ||= Common::JwtWrapper.new(config)
+      @jwt_wrapper ||= Common::JwtWrapper.new(settings)
     end
   end
 
