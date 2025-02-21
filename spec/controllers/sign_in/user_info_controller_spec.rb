@@ -22,7 +22,7 @@ describe SignIn::UserInfoController do
   let(:user_info_clients) { [client_id] }
 
   let(:access_token) { create(:access_token, user_uuid: user.uuid, client_id:, session_handle: session.handle) }
-  let(:encoded_access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token).perform }
+  let(:encoded_access_token) { SignIn::AccessTokenJwtEncoder.new(access_token:).perform }
 
   before do
     allow(Settings.sign_in).to receive(:user_info_clients).and_return(user_info_clients)
@@ -38,7 +38,7 @@ describe SignIn::UserInfoController do
           sec_id:,
           first_name:,
           last_name:,
-          email: email
+          email:
         }
       end
 
