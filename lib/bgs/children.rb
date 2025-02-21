@@ -89,10 +89,6 @@ module BGS
       )
     end
 
-    def report_child_event(event_type)
-      child_event_type(event_type)
-    end
-
     def generate_child_event(child_event, event_type)
       formatted_info = child_event.format_info
       participant = bgs_service.create_participant(@proc_id)
@@ -123,7 +119,7 @@ module BGS
       bgs_service.create_address(address_params)
     end
 
-    def child_event_type(event_type)
+    def report_child_event(event_type)
       if event_type == 'child_marriage'
         if @is_v2
           @dependents_application['child_marriage'].each do |child_marriage_details|
