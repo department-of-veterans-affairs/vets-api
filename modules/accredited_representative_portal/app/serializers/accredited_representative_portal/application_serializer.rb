@@ -4,6 +4,8 @@ module AccreditedRepresentativePortal
   class ApplicationSerializer
     include JSONAPI::Serializer
 
+    set_key_transform :camel_lower
+
     # We're not building to JSONAPI.
     def serializable_hash
       data = super[:data]
