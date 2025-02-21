@@ -4445,7 +4445,7 @@ paths:
       security:
         - Bearer: []
       summary: /v0/user/emails
-  /v0/user/gender_identity: # UPDATE ME?
+  /v0/user/gender_identity:
     put:
       description: Updates a user's gender identity. Only users with id.me or login.gov accounts may use this
       parameters:
@@ -4460,8 +4460,6 @@ paths:
         description: The new gender identity key
         required: true
       responses:
-        '204':
-          description: No Content
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -4470,6 +4468,8 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
+        '410':
+          $ref: '#/components/responses/410'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -4481,7 +4481,7 @@ paths:
       security:
         - Bearer: [ ]
       summary: /v0/user/gender_identity
-  /v0/user/gender_identity/edit: # UPDATE ME?
+  /v0/user/gender_identity/edit:
     get:
       description: Retrieves a list of valid gender identity keys. Note that this endpoint does not use the camel case key inflection header like most other mobile endpoints to keep the keys upcase.
       responses:
@@ -4824,6 +4824,12 @@ components:
           schema:
             $ref: ./schemas/Errors.yml
       description: The response from this API timed out.
+    '410':
+      content:
+        application/json:
+          schema:
+            $ref: ./schemas/Errors.yml
+      description: The Target resource is no longer available.
     '418':
       content:
         application/json:
