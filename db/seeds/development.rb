@@ -179,4 +179,4 @@ SignIn::ServiceAccountConfig.where(scopes: nil).update(scopes: [])
 SignIn::ClientConfig.where(certificates: nil).update(certificates: [])
 
 # Create UserActionEvents
-UserActionEvent.find_or_create_by!(details: 'User logged in')
+UserActionEvent.find_or_create_by!(details: 'User logged in', event_type: 'Authentication', identifier: 'login')
