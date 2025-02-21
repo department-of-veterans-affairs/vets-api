@@ -118,7 +118,6 @@ RSpec.describe 'V0::Prescriptions', type: :request do
       end
 
       it 'responds to GET #index with filter' do
-        skip 'temp disable for today'
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
           get '/v0/prescriptions?filter[[refill_status][eq]]=refillinprocess'
         end
@@ -129,7 +128,6 @@ RSpec.describe 'V0::Prescriptions', type: :request do
       end
 
       it 'responds to GET #index with filter when camel-inflected' do
-        skip 'temp disable for today'
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
           get '/v0/prescriptions?filter[[refill_status][eq]]=refillinprocess', headers: inflection_header
         end
