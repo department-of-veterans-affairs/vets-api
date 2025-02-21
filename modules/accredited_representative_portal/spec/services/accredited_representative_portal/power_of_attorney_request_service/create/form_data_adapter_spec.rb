@@ -133,6 +133,15 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
       end
     end
 
+    context 'when an attribute is an empty string' do
+      it 'sets the value to nil' do
+        data[:claimant_address_line2] = ''
+
+        expect(subject.call[:data]['dependent']['addressLine2']).to eq(nil)
+        expect(subject.call[:errors]).to eq([])
+      end
+    end
+
     context 'when there is an error with validation' do
       it 'adds the error message to the errors attribute' do
         data[:consent_limits] = ['abc']
