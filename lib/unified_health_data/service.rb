@@ -32,6 +32,10 @@ module UnifiedHealthData
           location = location_object.nil? ? nil : location_object['name']
         end
 
+        # Get the first code from the category array that is not 'LAB'
+        code_array = record['resource']['category'].find { |category| category['coding'][0]['code'] != 'LAB' }
+        code = code_array['coding'][0]
+
         observations = record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
           UnifiedHealthData::MedicalRecord::Attributes::Observation.new(
             test_code: obs['code']['text'],
@@ -45,7 +49,7 @@ module UnifiedHealthData
         end
 
         attributes = UnifiedHealthData::MedicalRecord::Attributes.new(
-          display: record['resource']['code']['display'],
+          display: code['display'],
           test_code: record['resource']['code']['text'],
           date_completed: record['resource']['effectiveDateTime'],
           sample_site: '',
