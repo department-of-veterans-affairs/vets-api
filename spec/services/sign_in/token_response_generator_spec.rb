@@ -73,7 +73,7 @@ RSpec.describe SignIn::TokenResponseGenerator do
 
       it 'creates a user audit log' do
         subject.perform
-        expect(UserActionEvent).to have_received(:find_by).with(details: 'User logged in')
+        expect(UserActionEvent).to have_received(:find_by).with(identifier: 'login')
         expect(UserAuditLogger).to have_received(:new).with(user_action_event:,
                                                             acting_user_verification: user_verification,
                                                             subject_user_verification: user_verification,
