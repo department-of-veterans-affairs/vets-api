@@ -5,7 +5,7 @@ require 'evss/intent_to_file/intent_to_file'
 
 module EVSS
   module IntentToFile
-    ##
+    ## TODO Remove this file
     # Model for an ITF response containing a list of intents to file
     #
     # @param status [Integer] the HTTP status code
