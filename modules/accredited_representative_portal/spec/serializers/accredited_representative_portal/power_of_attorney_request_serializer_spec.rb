@@ -59,6 +59,13 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
         expect(dependent_expiration_serialized_form).not_to be_key('dependent')
         expect(dependent_expiration_serialized_form).to be_key('veteran')
       end
+
+      it 'redacts SSN and VA file number' do
+        veteran_declined_serialized_form = veteran_declined_data[:powerOfAttorneyForm]
+
+        expect(veteran_declined_serialized_form['claimant']['ssn']).to match(/[*X]{5}\d{4}/)
+        expect(veteran_declined_serialized_form['claimant']['vaFileNumber']).to match(/[*X]{5}\d{4}/)
+      end
     end
 
     describe ':resolution' do
@@ -114,6 +121,33 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
           expect(veteran_declined_holder_data[:type]).to eq 'veteran_service_organization'
           expect(veteran_declined_holder_data[:name]).to eq veteran_declined_poa_request.accredited_organization.name
         end
+      end
+    end
+
+    describe '.redact_except_last_four_digits' do
+      it 'redacts all but the last four digits of a numeric string' do
+        expect(described_class.redact_except_last_four_digits('123456789')).to eq('XXXXX6789')
+      end
+
+      it 'redacts all but the last four characters of an alphanumeric string' do
+        expect(described_class.redact_except_last_four_digits('A1B2C3D4E5')).to eq('XXXXXXD4E5')
+      end
+
+      it 'does not redact a string of four characters or less' do
+        expect(described_class.redact_except_last_four_digits('5678')).to eq('5678')
+        expect(described_class.redact_except_last_four_digits('12')).to eq('12')
+      end
+
+      it 'returns an empty string for nil input' do
+        expect(described_class.redact_except_last_four_digits(nil)).to eq('')
+      end
+
+      it 'returns an empty string for an empty input' do
+        expect(described_class.redact_except_last_four_digits('')).to eq('')
+      end
+
+      it 'returns an empty string for a whitespace input' do
+        expect(described_class.redact_except_last_four_digits('   ')).to eq('')
       end
     end
   end

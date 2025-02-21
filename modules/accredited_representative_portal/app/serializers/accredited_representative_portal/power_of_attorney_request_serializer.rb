@@ -2,10 +2,18 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestSerializer < ApplicationSerializer
+    TO_BE_REDACTED = %w[ssn vaFileNumber].freeze
+
     attributes :claimant_id, :created_at, :expires_at
 
     attribute :power_of_attorney_form do |poa_request|
       poa_request.power_of_attorney_form.parsed_data.tap do |form|
+        PowerOfAttorneyRequest::ClaimantTypes::ALL.product(TO_BE_REDACTED).each do |(claimant_type, key)|
+          next unless form[claimant_type].present? && form[claimant_type][key].present?
+
+          form[claimant_type][key] = redact_except_last_four_digits(form[claimant_type][key])
+        end
+
         case poa_request.claimant_type
         when PowerOfAttorneyRequest::ClaimantTypes::DEPENDENT
           form['claimant'] = form.delete('dependent')
@@ -56,6 +64,15 @@ module AccreditedRepresentativePortal
         end
 
       { status: }
+    end
+
+    class << self
+      def redact_except_last_four_digits(input)
+        return '' if input.to_s.strip.empty?
+
+        input = input.to_s
+        input.gsub(/.(?=.{4})/, 'X')
+      end
     end
   end
 end
