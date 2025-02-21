@@ -93,7 +93,7 @@ module BGS
       VnpRelationships.new(
         proc_id:,
         veteran:,
-        dependents: dependents,
+        dependents:,
         step_children: [],
         user: @user
       ).create_all
