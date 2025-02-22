@@ -82,6 +82,23 @@ module VAOS
         }
       end
 
+      def get_all_appointments
+        # TODO: follow up, do we have to send start and end dates??
+        start_date = (Date.today - 100.years).in_time_zone
+        end_date = (Date.today + 100.years).in_time_zone
+        params = date_params(start_date, end_date)
+
+        with_monitoring do
+          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+                       perform(:get, appointments_base_path_vpg, params, headers)
+                     else
+                       perform(:get, appointments_base_path_vaos, params, headers)
+                     end
+          validate_response_schema(response, 'appointments_index')
+          response.body[:data]
+        end
+      end
+
       # rubocop:enable Metrics/MethodLength
       def get_appointment(appointment_id, include = {})
         params = {}
