@@ -63,8 +63,14 @@ module VAOS
       end
 
       def create_draft
+        referral_id = draft_params[:referral_id]
         # TODO: validate referral_id from the cache from prior referrals response,
-        # TODO: validate that the referral doesn't already have a confirmed appointment #
+
+        if referral_appointment_exists?(referral_id)
+          render json: { message: 'No new appointment created: referral is already used' }, status: :unprocessable_entity
+          return
+        end
+
         # TODO: cache provider_id, appointment_type_id, end_date from prior referrals response and use here
         draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: draft_params[:referral_id])
 
@@ -465,6 +471,14 @@ module VAOS
             longitude: user_address.longitude
           }
         )
+      end
+
+      def referral_appointment_exists?(referral_id)
+        vaos_appointments = appointments_service.get_all_appointments
+        return true if vaos_appointments.any? {|appt| appt[:referral_id] == referral_id}
+
+        eps_appointments = eps_appointment_service.get_appointments
+        eps_appointments.any? {|appt| appt[:referral][:referral_number] == referral_id}
       end
     end
   end
