@@ -153,21 +153,6 @@ describe VANotify::DefaultCallback do
             build(:notification, status: 'delivered', callback_metadata:)
           end
 
-          it 'raises KeyError' do
-            expect do
-              VANotify::DefaultCallback.new(notification_record).call
-            end.to raise_error(KeyError,
-                               'Missing required keys in default_callback metadata statsd_tags: service, function')
-          end
-        end
-      end
-
-      context 'invalid metadata format is provided' do
-        let(:callback_metadata) { 'this is not how we should pass metadata' }
-          let(:notification_record) do
-            build(:notification, status: 'delivered', callback_metadata:)
-          end
-
           it 'logs error and falls back to call_without_metadata' do
             allow(Rails.logger).to receive(:error)
             allow(StatsD).to receive(:increment)
@@ -175,7 +160,8 @@ describe VANotify::DefaultCallback do
             VANotify::DefaultCallback.new(notification_record).call
 
             expect(Rails.logger).to have_received(:error).with(
-              'VANotify: Invalid metadata format: Invalid metadata statsd_tags format: must be a Hash or Array',
+              'VANotify: Invalid metadata format: Missing required keys in default_callback metadata ' \
+              'statsd_tags: service, function',
               { notification_record_id: notification_record.id }
             )
             expect(StatsD).to have_received(:increment).with(
@@ -183,6 +169,29 @@ describe VANotify::DefaultCallback do
               tags: ['service:none-provided', 'function:none-provided']
             )
           end
+        end
+      end
+
+      context 'invalid metadata format is provided' do
+        let(:callback_metadata) { 'this is not how we should pass metadata' }
+        let(:notification_record) do
+          build(:notification, status: 'delivered', callback_metadata:)
+        end
+
+        it 'logs error and falls back to call_without_metadata' do
+          allow(Rails.logger).to receive(:error)
+          allow(StatsD).to receive(:increment)
+
+          VANotify::DefaultCallback.new(notification_record).call
+
+          expect(Rails.logger).to have_received(:error).with(
+            'VANotify: Invalid metadata format: Invalid metadata statsd_tags format: must be a Hash or Array',
+            { notification_record_id: notification_record.id }
+          )
+          expect(StatsD).to have_received(:increment).with(
+            'silent_failure_avoided',
+            tags: ['service:none-provided', 'function:none-provided']
+          )
         end
       end
     end
