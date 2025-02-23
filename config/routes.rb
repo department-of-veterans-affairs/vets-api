@@ -28,6 +28,7 @@ Rails.application.routes.draw do
     unless Settings.vsp_environment == 'production'
       resources :client_configs, param: :client_id
       resources :service_account_configs, param: :service_account_id
+      get '/user_info', to: 'user_info#show'
     end
   end
 
@@ -113,6 +114,7 @@ Rails.application.routes.draw do
       collection do
         post(':form_type', action: :create, as: :form_type)
         get(:stem_claim_status)
+        get('download_pdf/:id', action: :download_pdf, as: :download_pdf)
       end
     end
 
@@ -191,7 +193,6 @@ Rails.application.routes.draw do
     resources :virtual_agent_appeal, only: %i[index]
 
     get 'intent_to_file', to: 'intent_to_files#index'
-    get 'intent_to_file/:type/active', to: 'intent_to_files#active'
     post 'intent_to_file/:type', to: 'intent_to_files#submit'
 
     get 'welcome', to: 'example#welcome', as: :welcome
@@ -417,31 +418,11 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :decision_review_evidence, only: :create
-
-    namespace :higher_level_reviews do
-      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
-    end
-
-    namespace :notice_of_disagreements do
-      get 'contestable_issues', to: 'contestable_issues#index'
-    end
-    resources :notice_of_disagreements, only: %i[create show]
-
     resource :post911_gi_bill_status, only: [:show]
-
-    namespace :supplemental_claims do
-      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
-    end
-    resources :supplemental_claims, only: %i[create show]
 
     scope format: false do
       resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
     end
-  end
-
-  namespace :v2, defaults: { format: 'json' } do
-    resources :higher_level_reviews, only: %i[create show]
   end
 
   root 'v0/example#index', module: 'v0'

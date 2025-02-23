@@ -36,10 +36,10 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   end
   let(:job_class) { 'EVSS::DocumentUpload' }
   let(:job_id) { job }
-
   let(:client_stub) { instance_double(EVSS::DocumentsService) }
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
   let(:issue_instant) { Time.now.to_i }
+  let(:current_date_time) { DateTime.now.utc }
   let(:msg) do
     {
       'jid' => job_id,
@@ -96,14 +96,16 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         allow(EvidenceSubmission).to receive(:find_by).with({ job_id: job_id.to_s })
                                                       .and_return(evidence_submission_pending)
         described_class.drain
-        evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
+        evidence_submission = EvidenceSubmission.find_by(job_id:)
         expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
         expect(evidence_submission.delete_date).not_to be_nil
       end
     end
 
     context 'when upload fails' do
-      let(:evidence_submission_failed) { create(:bd_evidence_submission_failed) }
+      let(:evidence_submission_failed) do
+        create(:bd_evss_evidence_submission_failed_type1_error)
+      end
       let!(:evidence_submission_pending) do
         create(:bd_evidence_submission_pending,
                tracked_item_id:,
@@ -130,10 +132,17 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
                                                      tags: ['service:claim-status', "function: #{message}"])
         end
         expect(EvidenceSubmission.va_notify_email_not_queued.length).to equal(1)
-        evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
+        evidence_submission = EvidenceSubmission.find_by(job_id:)
         current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
         expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
+        expect(evidence_submission.error_message).to eql('EVSS::DocumentUpload document upload failure')
         expect(current_personalisation['date_failed']).to eql(failed_date)
+
+        Timecop.freeze(current_date_time) do
+          expect(evidence_submission.failed_date).to be_within(1.second).of(current_date_time.utc)
+          expect(evidence_submission.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days).utc)
+        end
+        Timecop.unfreeze
       end
 
       it 'fails to create a failed evidence submission record when args malformed' do
