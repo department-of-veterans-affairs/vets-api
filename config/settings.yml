@@ -337,7 +337,7 @@ edu:
   prefill: true
   production_excel_contents:
     emails:
-    - patricia.terry1@va.gov
+      - patricia.terry1@va.gov
   sftp:
     host: <%= ENV['EDU__SFTP__HOST'] %>
     key_path: <%= ENV['EDU__SFTP__KEY_PATH'] %>

@@ -90,19 +90,14 @@ namespace :settings do
       'config/settings/test.yml'
     ]
 
-    # Load all YAML data
     yaml_data = yaml_files.map { |file| YAML.load_file(file) }
-
-    # Collect all unique keys across files
     all_keys = yaml_data.flat_map(&:keys).uniq
 
-    # Find keys where values match in all files
     matching_keys = all_keys.select do |key|
       values = yaml_data.map { |data| data[key] }
       values.uniq.length == 1 # True if all values are identical
     end
 
-    # Return matching keys with their values
     matching_keys = matching_keys.map { |key| { key => yaml_data.first[key] } }
 
     if matching_keys.any?
@@ -110,6 +105,39 @@ namespace :settings do
       matching_keys.each { |hash| puts hash.to_yaml }
     else
       puts 'No keys have matching values across all files.'
+    end
+  end
+
+  # before running this rake task you must run the rg command:
+  # rg 'Settings\.[a-zA-Z0-9_\.]+' -o --no-filename --type-add 'rails:*.{rb,rake}' -trails > tmp/found_settings.txt
+  task check_usage: :environment do
+    found_settings_file_path = 'tmp/found_settings.txt'
+
+    unless File.exist?(found_settings_file_path)
+      puts "Error: The file tmp/found_settings.txt does not exist!"
+      puts "Run the following command in CLI to generate the file:\n\n"
+      puts "rg 'Settings\.[a-zA-Z0-9_\.]+' -o --no-filename --type=ruby > tmp/found_settings.txt\n\n"
+      exit 1
+    end
+
+    rg_output = File.readlines(found_settings_file_path).map(&:strip)
+
+    all_defined_settings = top_two_level_settings
+    used_settings = rg_output.map { |line| line.gsub('Settings.', '') }.uniq
+
+    unused_settings = []
+    all_defined_settings.each do |defined_setting|
+      unless used_settings.any? { |used_setting| used_setting.include?(defined_setting) }
+        unused_settings << defined_setting  # Add it to the unused_settings array
+      end
+    end
+
+    puts "Warning: Prefill Settings are not validated\n\n"
+    if unused_settings.empty?
+      puts "No unused settings found."
+    else
+      puts "Unused settings (not found with exact match search):"
+      puts unused_settings
     end
   end
 end
@@ -148,4 +176,19 @@ def validate_envs(yaml_data, parent_key = nil)
     end
   end
   errors
+end
+
+# Extract only top two levels of settings
+def top_two_level_settings(hash = Settings.to_h)
+  keys = []
+  hash.each do |key, value|
+    next if value.is_a?(Hash) && value[:prefill]
+    keys << key.to_s
+    if value.is_a?(Hash)
+      value.each_key do |sub_key|
+        keys << "#{key.to_s}.#{sub_key.to_s}"
+      end
+    end
+  end
+  keys
 end
