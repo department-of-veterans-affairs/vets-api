@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vets/type/object'
+require 'vets/model/type/object'
 
-RSpec.describe Vets::Type::Object do
+RSpec.describe Vets::Model::Type::Object do
   let(:name) { 'test_object' }
   let(:klass) do
     Class.new do

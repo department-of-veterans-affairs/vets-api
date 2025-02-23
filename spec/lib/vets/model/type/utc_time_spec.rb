@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vets/type/utc_time'
+require 'vets/model/type/utc_time'
 
-RSpec.describe Vets::Type::UTCTime do
+RSpec.describe Vets::Model::Type::UTCTime do
   let(:name) { 'test_utc_time' }
   let(:klass) { Time }
   let(:utc_time_instance) { described_class.new(name, klass) }

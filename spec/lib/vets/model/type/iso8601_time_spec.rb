@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vets/type/iso8601_time'
+require 'vets/model/type/iso8601_time'
 
-RSpec.describe Vets::Type::ISO8601Time do
+RSpec.describe Vets::Model::Type::ISO8601Time do
   let(:name) { 'test_iso8601_time' }
   let(:klass) { String }
   let(:iso8601_instance) { described_class.new(name, klass) }

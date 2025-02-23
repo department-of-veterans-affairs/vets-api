@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vets/attributes'
+require 'vets/model/attributes'
 require 'vets/model' # temporarily needed for Boolean
 
 class FakeCategory
-  include Vets::Attributes
+  include Vets::Model::Attributes
 
   attribute :name, String, default: 'test'
 end
 
 class DummyParentModel
-  include Vets::Attributes
+  include Vets::Model::Attributes
 
   attribute :updated_at, DateTime, default: :current_time
 
@@ -21,7 +21,7 @@ class DummyParentModel
 end
 
 class DummyModel < DummyParentModel
-  include Vets::Attributes
+  include Vets::Model::Attributes
 
   attribute :name, String, default: 'Unknown'
   attribute :age, Integer, array: false, filterable: %w[eq lteq gteq]
@@ -34,7 +34,7 @@ class DummyModel < DummyParentModel
   end
 end
 
-RSpec.describe Vets::Attributes do
+RSpec.describe Vets::Model::Attributes do
   let(:model) { DummyModel.new }
 
   describe '.attribute' do

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vets/type/primitive'
+require 'vets/model/type/primitive'
 
-RSpec.describe Vets::Type::Primitive do
+RSpec.describe Vets::Model::Type::Primitive do
   let(:name) { 'test_primitive' }
 
   describe '#cast' do
