@@ -114,9 +114,9 @@ namespace :settings do
     found_settings_file_path = 'tmp/found_settings.txt'
 
     unless File.exist?(found_settings_file_path)
-      puts "Error: The file tmp/found_settings.txt does not exist!"
+      puts 'Error: The file tmp/found_settings.txt does not exist!'
       puts "Run the following command in CLI to generate the file:\n\n"
-      puts "rg 'Settings\.[a-zA-Z0-9_\.]+' -o --no-filename --type=ruby > tmp/found_settings.txt\n\n"
+      puts "rg 'Settings.[a-zA-Z0-9_.]+' -o --no-filename --type=ruby > tmp/found_settings.txt\n\n"
       exit 1
     end
 
@@ -128,15 +128,15 @@ namespace :settings do
     unused_settings = []
     all_defined_settings.each do |defined_setting|
       unless used_settings.any? { |used_setting| used_setting.include?(defined_setting) }
-        unused_settings << defined_setting  # Add it to the unused_settings array
+        unused_settings << defined_setting # Add it to the unused_settings array
       end
     end
 
     puts "Warning: Prefill Settings are not validated\n\n"
     if unused_settings.empty?
-      puts "No unused settings found."
+      puts 'No unused settings found.'
     else
-      puts "Unused settings (not found with exact match search):"
+      puts 'Unused settings (not found with exact match search):'
       puts unused_settings
     end
   end
@@ -183,10 +183,11 @@ def top_two_level_settings(hash = Settings.to_h)
   keys = []
   hash.each do |key, value|
     next if value.is_a?(Hash) && value[:prefill]
+
     keys << key.to_s
     if value.is_a?(Hash)
       value.each_key do |sub_key|
-        keys << "#{key.to_s}.#{sub_key.to_s}"
+        keys << "#{key}.#{sub_key}"
       end
     end
   end
