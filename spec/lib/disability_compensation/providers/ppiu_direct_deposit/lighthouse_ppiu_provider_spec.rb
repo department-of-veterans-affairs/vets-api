@@ -10,12 +10,7 @@ RSpec.describe LighthousePPIUProvider do
   let(:provider) { LighthousePPIUProvider.new(current_user) }
 
   before do
-    Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
-  end
-
-  after do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
   end
 
   it_behaves_like 'ppiu direct deposit provider'
