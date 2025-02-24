@@ -3,14 +3,11 @@
 require 'disability_compensation/providers/rated_disabilities/evss_rated_disabilities_provider'
 require 'disability_compensation/providers/rated_disabilities/lighthouse_rated_disabilities_provider'
 require 'disability_compensation/providers/rated_disabilities/rated_disabilities_provider'
-require 'disability_compensation/providers/intent_to_file/evss_intent_to_file_provider'
 require 'disability_compensation/providers/intent_to_file/lighthouse_intent_to_file_provider'
 require 'disability_compensation/providers/intent_to_file/intent_to_file_provider'
 require 'disability_compensation/providers/ppiu_direct_deposit/ppiu_provider'
-require 'disability_compensation/providers/ppiu_direct_deposit/evss_ppiu_provider'
 require 'disability_compensation/providers/ppiu_direct_deposit/lighthouse_ppiu_provider'
 require 'disability_compensation/providers/claims_service/claims_service_provider'
-require 'disability_compensation/providers/claims_service/evss_claims_service_provider'
 require 'disability_compensation/providers/claims_service/lighthouse_claims_service_provider'
 require 'disability_compensation/providers/brd/brd_provider'
 require 'disability_compensation/providers/brd/evss_brd_provider'
@@ -49,11 +46,8 @@ class ApiProviderFactory
     'disability_compensation_lighthouse_rated_disabilities_provider_foreground'
   FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND =
     'disability_compensation_lighthouse_rated_disabilities_provider_background'
-  FEATURE_TOGGLE_INTENT_TO_FILE = 'disability_compensation_lighthouse_intent_to_file_provider'
-  FEATURE_TOGGLE_CLAIMS_SERVICE = 'disability_compensation_lighthouse_claims_service_provider'
 
   # PPIU calls out to Direct Deposit APIs in Lighthouse
-  FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT = 'disability_compensation_lighthouse_ppiu_direct_deposit_provider'
   FEATURE_TOGGLE_BRD = 'disability_compensation_lighthouse_brd'
 
   FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS = 'disability_compensation_upload_bdd_instructions_to_lighthouse'
@@ -83,7 +77,7 @@ class ApiProviderFactory
     new(**).call
   end
 
-  def initialize(type:, current_user:, feature_toggle:, provider: nil, options: {})
+  def initialize(type:, current_user:, feature_toggle: nil, provider: nil, options: {})
     @type = type
     @api_provider = provider
     @options = options
@@ -129,8 +123,6 @@ class ApiProviderFactory
 
   def intent_to_file_service_provider
     case api_provider
-    when API_PROVIDER[:evss]
-      EvssIntentToFileProvider.new(@current_user, nil)
     when API_PROVIDER[:lighthouse]
       LighthouseIntentToFileProvider.new(@current_user)
     else
@@ -140,8 +132,6 @@ class ApiProviderFactory
 
   def ppiu_service_provider
     case api_provider
-    when API_PROVIDER[:evss]
-      EvssPPIUProvider.new(@current_user)
     when API_PROVIDER[:lighthouse]
       LighthousePPIUProvider.new(@current_user)
     else
@@ -151,8 +141,6 @@ class ApiProviderFactory
 
   def claims_service_provider
     case api_provider
-    when API_PROVIDER[:evss]
-      EvssClaimsServiceProvider.new(@options[:auth_headers])
     when API_PROVIDER[:lighthouse]
       LighthouseClaimsServiceProvider.new(@options[:icn])
     else

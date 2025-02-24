@@ -266,6 +266,68 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
       end
+
+      describe 'when submitting a 2122' do
+        let(:lh_config) { double }
+        let(:attributes) do
+          {
+            veteran: {
+              address: {
+                addressLine1: '936 Gus Points',
+                city: 'Watersborough',
+                countryCode: 'US',
+                stateCode: 'CO',
+                zipCode: '36090'
+              }
+            },
+            recordConsent: true,
+            consentLimits: %w[DRUG_ABUSE ALCOHOLISM HIV SICKLE_CELL],
+            serviceOrganization: {
+              poaCode: '095',
+              registrationNumber: '999999999999'
+            }
+          }
+        end
+        let(:expected_data) { { data: { attributes: } } }
+        let(:expected_response) do
+          {
+            'data' => {
+              'id' => '12beb731-3440-44d2-84ba-473bd75201aa',
+              'type' => 'organization',
+              'attributes' => {
+                'code' => '095',
+                'name' => 'Italian American War Veterans of the US, Inc.',
+                'phoneNumber' => '440-233-6527'
+              }
+            }
+          }
+        end
+
+        context 'successful submit' do
+          it 'submits the correct data to lighthouse' do
+            @service = BenefitsClaims::Service.new('1012666183V089914')
+            VCR.use_cassette(
+              'lighthouse/benefits_claims/power_of_attorney_decision/202_response',
+              match_requests_on: %i[method uri headers body]
+            ) do
+              expect(
+                @service.submit2122(attributes, 'lh_client_id', 'key_path').body
+              ).to eq expected_response
+            end
+          end
+        end
+
+        context 'rep does not have poa for veteran' do
+          it 'returns a not_found response' do
+            @service = BenefitsClaims::Service.new('1012666183V089914')
+            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/404_response') do
+              expect do
+                @service.submit2122(attributes, 'lh_client_id', 'key_path')
+              end.to raise_error(Common::Exceptions::ResourceNotFound)
+            end
+          end
+        end
+      end
     end
   end
 end

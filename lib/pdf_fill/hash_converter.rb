@@ -11,10 +11,10 @@ module PdfFill
 
     attr_reader :extras_generator
 
-    def initialize(form_name, date_strftime, submit_date = nil, extras_redesign = false)
+    def initialize(form_name, date_strftime, submit_date = nil, extras_redesign = false, start_page = 1)
       @pdftk_form = {}
       @date_strftime = date_strftime
-      @extras_generator = ExtrasGenerator.new(form_name:, submit_date:, extras_redesign:)
+      @extras_generator = ExtrasGenerator.new(form_name:, submit_date:, extras_redesign:, start_page:)
     end
 
     def convert_value(v, key_data, is_overflow = false)
