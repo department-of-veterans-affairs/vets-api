@@ -4,7 +4,7 @@ module AccreditedRepresentativePortal
   module StagingSeeds
     RequestOptions = Struct.new(
       :org, :rep, :claimant, :resolution_cycle,
-      :resolved_time, :unresolved_time, :totals,
+      :resolved_time, :unresolved_time, :totals, :email_counter,
       keyword_init: true
     )
 
@@ -21,27 +21,32 @@ module AccreditedRepresentativePortal
           create_resolution(request, options.resolution_cycle.next)
           options.totals[:resolutions] += 1
         else
-          create_poa_request(options.org, options.rep, options.claimant, options.unresolved_time.next)
+          create_poa_request(options.org, options.rep, options.claimant, options.unresolved_time.next, i.even?)
         end
 
         options.totals[:requests] += 1
       end
 
-      def create_poa_request(org, rep, claimant, created_at)
+      # rubocop:disable Metrics/MethodLength
+      def create_poa_request(org, rep, claimant, created_at, dependent_toggle)
         request = PowerOfAttorneyRequest.new(
           claimant_id: claimant.id,
-          claimant_type: 'veteran',
-          power_of_attorney_holder_type: org ? 'AccreditedOrganization' : 'AccreditedIndividual',
+          claimant_type: dependent_toggle ? 'dependent' : 'veteran',
+          power_of_attorney_holder_type: org ? 'veteran_service_organization' : 'individual_representative',
           power_of_attorney_holder_poa_code: org&.poa,
           accredited_individual_registration_number: rep.representative_id,
-          created_at: created_at
+          created_at:
         )
+
+        form_data = {
+          authorizations: FormMethods.build_authorizations,
+          veteran: FormMethods.build_veteran_info,
+          dependent: dependent_toggle ? FormMethods.build_dependent_info : nil
+        }
 
         form = AccreditedRepresentativePortal::PowerOfAttorneyForm.new(
           power_of_attorney_request: request,
-          data: FormMethods.build_poa_form_data.deep_transform_keys! do |key|
-            key.to_s.camelize(:lower)
-          end.to_json
+          data: form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }.to_json
         )
 
         form.save!
@@ -50,6 +55,7 @@ module AccreditedRepresentativePortal
 
         request
       end
+      # rubocop:enable Metrics/MethodLength
 
       def create_resolution(request, resolution_type)
         resolving = case resolution_type
@@ -59,14 +65,14 @@ module AccreditedRepresentativePortal
                     when :decision
                       type = resolution_type_cycle.next
                       dec = AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.new(
-                        type: type,
+                        type:,
                         creator_id: request.claimant_id
                       )
                       dec.save! && dec
                     end
         (res = AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.new(
           power_of_attorney_request: request,
-          resolving: resolving,
+          resolving:,
           created_at: request.created_at + 1.day
         )).save! && res
       end
@@ -108,19 +114,54 @@ module AccreditedRepresentativePortal
       end
 
       def process_org_reps(org, options)
-        matching_reps = Veteran::Service::Representative
-                        .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
-                        .limit(2)
+        matching_reps = if org.poa == '008'
+                          # Get all CT reps without limit
+                          Veteran::Service::Representative
+                            .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
+                        else
+                          # limit for other orgs
+                          Veteran::Service::Representative
+                            .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
+                            .limit(2)
+                        end
 
-        matching_reps.each_with_index do |rep, i|
-          create_request_with_resolution(build_request_options(org, rep, options), i)
+        matching_reps.each do |rep|
+          create_user_account_if_needed(rep, options)
+          create_requests_for_rep(org, rep, options)
+        end
+      end
+
+      def create_user_account_if_needed(rep, options)
+        return if AccreditedRepresentativePortal::UserAccountAccreditedIndividual
+                  .exists?(accredited_individual_registration_number: rep.representative_id)
+
+        AccreditedRepresentativePortal::UserAccountAccreditedIndividual.create!(
+          accredited_individual_registration_number: rep.representative_id,
+          power_of_attorney_holder_type: 'veteran_service_organization',
+          user_account_email: "vets.gov.user+#{options[:email_counter]}@gmail.com"
+        )
+        options[:totals][:user_accounts] += 1
+        options[:email_counter] += 1
+      end
+
+      def create_requests_for_rep(org, rep, options)
+        5.times do |i|
+          if i.even?
+            create_poa_request(org, rep, options[:claimant_cycle].next, options[:unresolved_time].next, i.even?)
+            options[:totals][:requests] += 1
+          else
+            request = create_poa_request(org, rep, options[:claimant_cycle].next, options[:resolved_time].next, i.even?)
+            create_resolution(request, :decision)
+            options[:totals][:requests] += 1
+            options[:totals][:resolutions] += 1
+          end
         end
       end
 
       def build_request_options(org, rep, options)
         RequestOptions.new(
-          org: org,
-          rep: rep,
+          org:,
+          rep:,
           claimant: options[:claimant_cycle].next,
           resolution_cycle: options[:resolution_cycle],
           resolved_time: options[:resolved_time],
@@ -137,7 +178,20 @@ module AccreditedRepresentativePortal
         {
           authorizations: build_authorizations,
           veteran: build_veteran_info,
-          dependent: nil
+          dependent: build_dependent_info
+        }
+      end
+
+      def build_dependent_info
+        {
+          name: build_name,
+          address: build_address,
+          ssn: '123456789',
+          va_file_number: '123456789',
+          date_of_birth: '1980-01-01',
+          phone: '1234567890',
+          email: 'test@example.com',
+          relationship: 'Child'
         }
       end
 
@@ -194,6 +248,7 @@ module AccreditedRepresentativePortal
         AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyForm.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyRequest.destroy_all
+        AccreditedRepresentativePortal::UserAccountAccreditedIndividual.destroy_all
       end
     end
   end

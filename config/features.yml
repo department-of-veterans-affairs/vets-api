@@ -117,15 +117,6 @@ features:
     actor_type: user
     description: Enables the registration-only path for the Health Care Application
     enable_in_development: true
-  hca_sigi_enabled:
-    actor_type: user
-    description: Enables Self-Identifying Gender Identity question for health care applicants.
-  hca_tera_branching_enabled:
-    actor_type: user
-    description: Enables branching logic for the Toxic Exposure questionset in the Health Care Application
-  hca_use_facilities_API:
-    actor_type: user
-    description: Allow list of medical care facilites to be fetched by way of the Facilities API.
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
@@ -300,6 +291,10 @@ features:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
     enable_in_development: true
+  lighthouse_claims_api_add_person_proxy:
+    actor_type: user
+    description: When enabled, will allow for add_person_proxy call in both versions
+    enable_in_development: true
   confirmation_page_new:
     actor_type: user
     description: Enables the 2024 version of the confirmation page view in simple forms
@@ -311,6 +306,10 @@ features:
   cst_5103_update_enabled:
     actor_type: user
     description: When enabled, claims status tool will use the new 5103 alert designs and hides the ask your claim decision section
+    enable_in_development: true
+  cst_show_document_upload_status:
+    actor_type: user
+    description: When enabled, claims status tool will display the upload status that comes from the evidence_submissions table.
     enable_in_development: true
   cst_claim_phases:
     actor_type: user
@@ -1067,6 +1066,10 @@ features:
     actor_type: user
     description: Enables/disables Medical Records new access policy eligibility check endpoint
     enable_in_development: true
+  mhv_medical_records_update_landing_page:
+    actor_type: user
+    description: Enables/disables Medical Records new landing page content
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
@@ -1101,6 +1104,10 @@ features:
   mhv_medications_display_refill_progress:
     actor_type: user
     description: Enables/disables refill progress related work
+    enable_in_development: true
+  mhv_medications_remove_landing_page:
+    actor_type: user
+    description: Enables/disables removal of landing page
     enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
@@ -1354,6 +1361,14 @@ features:
     actor_type: user
     description: Displays an alert to users on 5490 intro page that the Backend Service is Down.
     enable_in_development: false
+  show_one_va_debt_letter:
+    actor_type: user
+    description: Enables the One VA Debt Letter feature
+    enable_in_development: true
+  show_payment_history_mvp:
+    actor_type: user
+    description: Enables the Payment History MVP features for development
+    enable_in_development: true
   submission_pdf_s3_upload:
     actor_type: user
     description: Used to toggle use of uploading a submission pdf to S3 and returning a pre-signed url.
@@ -1570,6 +1585,14 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to use VaDate/VaDateField.
+  va_online_scheduling_fe_source_of_truth:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for changes made in the FE based on API source of truth changes.
+  va_online_scheduling_past_appt_date_range:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for modifying the date range selection on the Past appointments page.
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled
@@ -1731,9 +1754,6 @@ features:
   disability_compensation_lighthouse_intent_to_file_provider:
     actor_type: user
     description: If enabled uses the lighthouse intent to file endpoint
-  disability_compensation_lighthouse_ppiu_direct_deposit_provider:
-    actor_type: user
-    description: If enabled uses the lighthouse ppiu/direct deposit endpoint in the form526 submission workflow
   disability_compensation_prevent_submission_job:
     actor_type: user
     description: If enabled, the submission form526 record will be created, but there will be submission job
@@ -1855,6 +1875,9 @@ features:
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
+  burial_form_profile_module_enabled:
+    actor_type: user
+    description: Use the module version of the FormProfile
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form

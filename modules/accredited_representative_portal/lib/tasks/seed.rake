@@ -189,7 +189,7 @@ module AccreditedRepresentativePortal
           .build_class
           .insert_all(
             records,
-            unique_by: unique_by
+            unique_by:
           )
       end
 
