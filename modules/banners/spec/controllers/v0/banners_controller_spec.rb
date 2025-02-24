@@ -9,14 +9,14 @@ RSpec.describe V0::BannersController, type: :controller do
 
     # Create banners that should match the query
     let!(:matching_banner) do
-      create(:banner, entity_bundle: banner_type, context: [{ entity: { entityUrl: { path: path } } }])
+      create(:banner, entity_bundle: banner_type, context: [{ entity: { entityUrl: { path: } } }])
     end
     let!(:non_matching_banner) do
       create(:banner, entity_bundle: 'different_type', context: [{ entity: { entityUrl: { path: '/other/path' } } }])
     end
 
     it 'returns banners matching the specified path and banner type' do
-      get :by_path, params: { path: path, type: banner_type }
+      get :by_path, params: { path:, type: banner_type }
 
       expect(response).to have_http_status(:ok)
       json_response = JSON.parse(response.body)

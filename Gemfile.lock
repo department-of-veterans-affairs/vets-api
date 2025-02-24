@@ -1278,7 +1278,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack
+  rack (~> 2.2.11)
   rack-attack
   rack-cors
   rack-test (= 2.2.0)
