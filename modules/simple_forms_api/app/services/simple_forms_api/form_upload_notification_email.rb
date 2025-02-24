@@ -47,7 +47,11 @@ module SimpleFormsApi
     def check_missing_keys(config)
       all_keys = %i[form_data form_number date_submitted confirmation_number]
 
-      missing_keys = all_keys.select { |key| config[key].nil? || config[key].to_s.strip.empty? }
+      missing_keys = all_keys.select { |key| config[key].blank? }
+      email = config.dig(:form_data, :email)
+      first_name = config.dig(:form_data, :full_name, :first)
+      missing_keys << 'form_data: email' if email.blank?
+      missing_keys << 'form_data: first_name' if first_name.blank?
 
       if missing_keys.any?
         StatsD.increment('silent_failure', tags: statsd_tags) if error_notification?
@@ -84,7 +88,7 @@ module SimpleFormsApi
     def email_args
       [
         Settings.vanotify.services.va_gov.api_key,
-        { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+        { callback_metadata: { notification_type:, form_number:, confirmation_number:, statsd_tags: } }
       ]
     end
 

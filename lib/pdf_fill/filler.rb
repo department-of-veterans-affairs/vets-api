@@ -7,6 +7,7 @@ require 'pdf_fill/forms/va210781'
 require 'pdf_fill/forms/va210781v2'
 require 'pdf_fill/forms/va218940'
 require 'pdf_fill/forms/va1010cg'
+require 'pdf_fill/forms/va1010ez'
 require 'pdf_fill/forms/va686c674'
 require 'pdf_fill/forms/va281900'
 require 'pdf_fill/forms/va288832'
@@ -14,6 +15,7 @@ require 'pdf_fill/forms/va21674'
 require 'pdf_fill/forms/va210538'
 require 'pdf_fill/forms/va261880'
 require 'pdf_fill/forms/va5655'
+require 'pdf_fill/forms/va2210216'
 
 module PdfFill
   # Provides functionality to fill and process PDF forms.
@@ -52,13 +54,15 @@ module PdfFill
       '21-0781V2' => PdfFill::Forms::Va210781v2,
       '21-8940' => PdfFill::Forms::Va218940,
       '10-10CG' => PdfFill::Forms::Va1010cg,
+      '10-10EZ' => PdfFill::Forms::Va1010ez,
       '686C-674' => PdfFill::Forms::Va686c674,
       '28-1900' => PdfFill::Forms::Va281900,
       '28-8832' => PdfFill::Forms::Va288832,
       '21-674' => PdfFill::Forms::Va21674,
       '21-0538' => PdfFill::Forms::Va210538,
       '26-1880' => PdfFill::Forms::Va261880,
-      '5655' => PdfFill::Forms::Va5655
+      '5655' => PdfFill::Forms::Va5655,
+      '22-10216' => PdfFill::Forms::Va2210216
     }.each do |form_id, form_class|
       register_form(form_id, form_class)
     end
@@ -115,8 +119,8 @@ module PdfFill
     #
     # @return [String] The path to the filled PDF form.
     #
-    def fill_ancillary_form(form_data, claim_id, form_id)
-      process_form(form_id, form_data, FORM_CLASSES[form_id], claim_id)
+    def fill_ancillary_form(form_data, claim_id, form_id, fill_options = {})
+      process_form(form_id, form_data, FORM_CLASSES[form_id], claim_id, fill_options)
     end
 
     ##
@@ -134,7 +138,10 @@ module PdfFill
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
-      hash_converter = HashConverter.new(form_class.date_strftime)
+      start_page = form_class.const_defined?(:START_PAGE) ? form_class::START_PAGE : 1
+      hash_converter = HashConverter.new(form_id.sub(/V2\z/, ''), form_class.date_strftime,
+                                         fill_options.fetch(:extras_redesign, false), start_page)
+
       new_hash = hash_converter.transform_data(
         form_data: form_class.new(form_data).merge_fields(fill_options),
         pdftk_keys: form_class::KEY

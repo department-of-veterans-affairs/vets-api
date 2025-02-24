@@ -114,7 +114,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
   describe '#show' do
     context 'when successful' do
-      context 'when cst_override_reserve_records_website flipper is true' do
+      context 'when cst_override_reserve_records_website flipper is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
           allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(true)
@@ -132,7 +132,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
       end
 
-      context 'when cst_override_reserve_records_website flipper is false' do
+      context 'when cst_override_reserve_records_website flipper is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
           allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(false)
@@ -147,6 +147,45 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                                  'displayName')).to eq('RV1 - Reserve Records Request')
           # Do not modify the cassette value
           expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_YOU')
+        end
+      end
+
+      context 'when :cst_suppress_evidence_requests_website is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(true)
+        end
+
+        it 'excludes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(3)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 0,
+                                 'displayName')).to eq('Private Medical Record')
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 1,
+                                 'displayName')).to eq('Submit buddy statement(s)')
+        end
+      end
+
+      context 'when :cst_suppress_evidence_requests_website is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(false)
+        end
+
+        it 'includes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(4)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 0,
+                                 'displayName')).to eq('Private Medical Record')
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 1,
+                                 'displayName')).to eq('Submit buddy statement(s)')
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2, 'displayName')).to eq('Attorney Fees')
         end
       end
 
