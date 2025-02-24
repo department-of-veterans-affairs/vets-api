@@ -52,7 +52,7 @@ module AsyncTransaction
         create(
           user_uuid: user.uuid,
           user_account: user.user_account,
-          source_id: source_id,
+          source_id:,
           source: 'va_profile',
           status: REQUESTED,
           transaction_id: response.transaction.id,

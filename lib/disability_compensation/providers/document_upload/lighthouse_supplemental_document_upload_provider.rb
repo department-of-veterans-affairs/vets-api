@@ -158,7 +158,7 @@ class LighthouseSupplementalDocumentUploadProvider
     Lighthouse526DocumentUpload.create!(
       form526_submission: @form526_submission,
       document_type: polling_record_document_type,
-      lighthouse_document_request_id: lighthouse_document_request_id,
+      lighthouse_document_request_id:,
       # The Lighthouse526DocumentUpload form_attachment association is
       # required for uploads of type Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE
       **form_attachment_params
