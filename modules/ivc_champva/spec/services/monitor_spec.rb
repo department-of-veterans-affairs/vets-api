@@ -156,8 +156,8 @@ RSpec.describe IvcChampva::Monitor do
                     err_message = 'oh no'
 
         additional_context = {
-          form_uuid: form_uuid,
-          err_message: err_message
+          form_uuid:,
+          err_message:
         }
 
         expect(monitor).to receive(:track_request).with(
