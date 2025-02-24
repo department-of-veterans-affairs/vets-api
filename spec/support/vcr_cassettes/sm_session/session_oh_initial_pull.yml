@@ -21,8 +21,8 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 400
-      message: Bad Request
+      code: 200
+      message: OK
     headers:
       Date:
       - Fri, 14 Feb 2025 15:04:46 GMT
@@ -30,6 +30,9 @@ http_interactions:
       - application/json
       Content-Length:
       - '70'
+      Expires:
+      - Fri, 14 Feb 2025 16:04:46 GMT
+      Token: "<SESSION_TOKEN>"
       X-Amzn-Requestid:
       - 12af4565-0353-4c93-a48c-82217a5bf93e
       X-Amzn-Remapped-Connection:
@@ -41,7 +44,7 @@ http_interactions:
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
-      encoding: ASCII-8BIT
-      string: '{"errorCode":105,"developerMessage":"","message":"User was not found"}'
+      encoding: UTF-8
+      string: ''
   recorded_at: Fri, 14 Feb 2025 15:04:46 GMT
 recorded_with: VCR 6.3.1
