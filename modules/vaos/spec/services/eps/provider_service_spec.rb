@@ -11,7 +11,7 @@ describe Eps::ProviderService do
 
   before do
     allow(config).to receive(:base_path).and_return('api/v1')
-    allow(service).to receive_messages(config: config, headers: headers)
+    allow(service).to receive_messages(config:, headers:)
   end
 
   describe '#get_provider_services' do

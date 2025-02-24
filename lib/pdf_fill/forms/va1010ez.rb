@@ -311,7 +311,8 @@ module PdfFill
             key: 'F[0].P5[0].ExpensesPaifByDependentCHild[0]',
             question_num: 4.2,
             question_suffix: 'G',
-            question_text: 'EXPENSES PAID BY YOUR DEPENDENT CHILD WITH REPORTABLE INCOME FOR COLLEGE, VOCATIONAL REHABILITATION OR TRAINING (e.g., tuition, books, materials) '
+            question_text: 'EXPENSES PAID BY YOUR DEPENDENT CHILD WITH REPORTABLE INCOME FOR COLLEGE, VOCATIONAL' \
+            ' REHABILITATION OR TRAINING (e.g., tuition, books, materials) '
           },
           'grossIncome' => {
             key: 'F[0].P6[0].Section7_Child_Q1[0]',
