@@ -610,9 +610,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       uri.query = expected_redirect_params
       uri.to_s
     end
-    let!(:user_action_event) do
-      create(:user_action_event, details: 'User logged in', event_type: 'Authentication', identifier: 'login')
-    end
+    let(:user_action_event) { UserActionEvent.find_by(identifier: 'user_login') }
 
     context 'when too much time passed to consume the SAML Assertion' do
       let(:error_code) { '005' }
@@ -693,7 +691,6 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         before do
-          allow(UserActionEvent).to receive(:find_by).and_return(user_action_event)
           allow(UserAction).to receive(:create!).and_return(user_action)
           allow(UserAuditLogger).to receive(:new).and_call_original
           allow(Rails.logger).to receive(:info).and_call_original
@@ -777,14 +774,12 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         before do
-          allow(UserActionEvent).to receive(:find_by).and_return(user_action_event)
           allow(UserAction).to receive(:create!).and_return(user_action)
           allow(UserAuditLogger).to receive(:new).and_call_original
           allow(Rails.logger).to receive(:info).and_call_original
         end
 
         it 'creates a user audit log' do
-          expect(UserActionEvent).to receive(:find_by).with(identifier: 'user_login')
           expect(UserAuditLogger).to receive(:new).with(user_action_event:,
                                                         acting_user_verification: user.user_verification,
                                                         subject_user_verification: user.user_verification,
