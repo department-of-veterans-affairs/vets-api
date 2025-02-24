@@ -15,7 +15,7 @@ RSpec.describe SavedClaim::HigherLevelReview, type: :model do
     let!(:saved_claim_hlr) do
       SavedClaim::HigherLevelReview.create!(
         form_id: '20-0996',
-        guid: guid,
+        guid:,
         form: form_data.to_json,
         form_start_date: Time.current
       )

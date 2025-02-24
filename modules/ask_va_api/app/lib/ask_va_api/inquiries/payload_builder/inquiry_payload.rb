@@ -44,14 +44,14 @@ module AskVAApi
             DependentLastName: family_member_field(:last),
             DependentMiddleName: family_member_field(:middle),
             DependentRelationship: translate_field(:dependent_relationship),
-            DependentSSN: family_member_field(:ssn),
+            DependentSSN: family_member_field(:social_or_service_num)&.dig(:ssn),
             InquiryAbout: translate_field(:inquiry_about),
             InquiryCategory: inquiry_params[:category_id],
             InquirySource: INQUIRY_SOURCE_AVA_ID,
             InquirySubtopic: inquiry_params[:subtopic_id],
             InquirySummary: inquiry_params[:subject],
             InquiryTopic: inquiry_params[:topic_id],
-            IsVeteranDeceased: inquiry_params[:is_veteran_deceased]
+            IsVeteranDeceased: inquiry_params[:about_the_veteran]&.dig(:is_veteran_deceased)
           }.merge(school_state_and_profile_data)
         end
 
@@ -65,7 +65,7 @@ module AskVAApi
             SubmitterStateOfProperty: build_state_data(:address, :state),
             SubmitterStateOfResidency: build_residency_state_data,
             SubmitterZipCodeOfResidency: inquiry_params[:postal_code],
-            UntrustedFlag: nil,
+            UntrustedFlag: false,
             VeteranDateOfDeath: inquiry_params[:date_of_death],
             VeteranRelationship: translate_field(:veteran_relationship),
             WhoWasTheirCounselor: counselor_info,

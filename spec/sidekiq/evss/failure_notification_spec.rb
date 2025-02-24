@@ -40,7 +40,7 @@ RSpec.describe EVSS::FailureNotification, type: :job do
             recipient_identifier: { id_value: user_account.icn, id_type: 'ICN' },
             template_id: 'fake_template_id',
             personalisation: {
-              first_name: first_name,
+              first_name:,
               document_type: document_description,
               filename: file_name,
               date_submitted: formatted_submit_date,

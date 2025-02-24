@@ -36,19 +36,32 @@ module ClaimsApi
         populate_target_veteran(mpi_profile_from(target_veteran), target_veteran)
       end
 
-      def mpi_profile_from(target_veteran)
+      def mpi_profile_from(target_veteran) # rubocop:disable Metrics/MethodLength
         mpi_profile = target_veteran&.mpi&.mvi_response&.profile || {}
         if mpi_profile[:participant_id].blank?
-          claims_logging('unable_to_locate_participant_id',
-                         message: 'unable_to_locate_participant_id on request in target veteran.')
+          if Flipper.enabled?(:lighthouse_claims_api_add_person_proxy)
+            add_person_proxy_response = target_veteran.recache_mpi_data.add_person_proxy
+            unless add_person_proxy_response.ok?
+              claims_logging('unable_to_locate_participant_id',
+                             message: 'unable_to_locate_participant_id on request in target veteran (Flipper on).')
 
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
-                    'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
-          )
+              raise ::Common::Exceptions::UnprocessableEntity.new(
+                detail: "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
+                        'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+              )
+            end
+          else
+            claims_logging('unable_to_locate_participant_id',
+                           message: 'unable_to_locate_participant_id on request in target veteran (Flipper off).')
+
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
+                      'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+            )
+          end
         end
         mpi_profile
-      end
+      end # rubocop:enable Metrics/MethodLength
 
       def user_is_target_veteran?
         return false if params[:veteranId].blank?
