@@ -1295,6 +1295,27 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#get_all_appointments' do
+    before do
+      Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
+      Flipper.disable(:va_online_scheduling_use_vpg)
+    end
+
+    it 'returns all appointments for a given user' do
+      VCR.use_cassette('vaos/v2/appointments/get_all_appointments_200') do
+
+        result = subject.get_all_appointments
+        expect(result).to be_an(Array)
+        expect(result.size).to eq(4)
+
+        first_appointment = result.first
+        expect(first_appointment[:id]).to eq('37060')
+        expect(first_appointment[:kind]).to eq('clinic')
+        expect(first_appointment[:status]).to eq('cancelled')
+      end
+    end
+  end
+
   describe '#convert_appointment_time' do
     let(:manila_appt) do
       {
