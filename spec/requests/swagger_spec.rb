@@ -1191,11 +1191,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'supports getting separation_locations' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 401)
-        # 2/21/25: Note that this originally validated for BadGatewayError (502),
-        # referenced in disability_compensation_form.rb swagger_path.
-        # However, due to some convoluted logic in how errors are translated, a 500 is converted to a 502,
-        # which is read as a 503. There are also discrepancies in how swagger specs run locally vs in Github.
-        # Note to evaluate and rectify in the future, if possible.
         VCR.use_cassette('brd/separation_locations_502') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 502, headers)
         end
