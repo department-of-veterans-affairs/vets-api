@@ -51,7 +51,7 @@ jobs:
 
 
       - name: Get bot token from Parameter Store
-       if: steps.approval_permissions.outputs.require_be_approval == 'true'
+        if: steps.approval_permissions.outputs.require_be_approval == 'true'
         uses: marvinpinto/action-inject-ssm-secrets@latest
         with:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
