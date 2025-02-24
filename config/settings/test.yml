@@ -330,8 +330,8 @@ mcp:
     service_name: VBS
     mock: true
   vbs_v2:
-    url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491
-    host: internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491
+    url: https://fwdproxy-staging.vfs.va.gov:4491
+    host: fwdproxy-staging.vfs.va.gov:4491
     base_path: /vbsapi
     service_name: VBS
     mock: true
