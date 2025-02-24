@@ -1,12 +1,6 @@
 # frozen_string_literal: true
 
 class UserAuditLogger
-  class Error < StandardError; end
-  class InvalidUserActionEventError < Error; end
-  class MissingSubjectVerificationError < Error; end
-  class MissingUserActionEventError < Error; end
-  class MissingStatusError < Error; end
-
   attr_reader :user_action_event, :acting_user_verification, :subject_user_verification,
               :status, :acting_ip_address, :acting_user_agent
 
@@ -26,9 +20,8 @@ class UserAuditLogger
     validate_required_fields
     log_audit_entry
     user_action
-  rescue Error => e
+  rescue => e
     Rails.logger.error('UserAuditLogger error', { error: e.message })
-    raise e
   end
 
   private
@@ -40,15 +33,15 @@ class UserAuditLogger
   end
 
   def validate_user_action_event
-    raise MissingUserActionEventError, 'User action event must be present' if user_action_event.nil?
+    raise 'User action event must be present' if user_action_event.nil?
   end
 
   def validate_subject_verification
-    raise MissingSubjectVerificationError, 'Subject user verification must be present' if subject_user_verification.nil?
+    raise 'Subject user verification must be present' if subject_user_verification.nil?
   end
 
   def validate_status
-    raise MissingStatusError, 'Status must be present' if status.nil?
+    raise 'Status must be present' if status.nil?
   end
 
   def log_audit_entry
