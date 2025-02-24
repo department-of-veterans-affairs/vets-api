@@ -207,7 +207,7 @@ class User < Common::RedisStore
   delegate :vet360_id, to: :mpi
 
   def active_mhv_ids
-    mpi_profile&.active_mhv_ids
+    mpi_profile&.active_mhv_ids&.uniq
   end
 
   def address

@@ -16,16 +16,22 @@ module IvcChampva
       }.freeze
 
       def submit
-        Datadog::Tracing.trace('Start IVC File Submission') do
+        begin
           form_id = get_form_id
-          Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
           parsed_form_data = JSON.parse(params.to_json)
           statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
 
-          response = build_json(Array(statuses), error_message)
+          response = build_json(statuses, error_message)
 
           if @current_user && response[:status] == 200
             InProgressForm.form_for_user(params[:form_number], @current_user)&.destroy!
+            # TODO: Add feature toggle around this
+            # TODO: Make call to VES with parsed_form_data e.g.,
+
+            # ves_client = IvcChampva::VesApi::Client.new
+            # ves_client.submit_1010d('fake-id', 'fake-user', parsed_form_data)
+
+            # TODO: Add error handling for VES failures.
           end
 
           render json: response[:json], status: response[:status]
@@ -37,12 +43,13 @@ module IvcChampva
       end
 
       # Modified from claim_documents_controller.rb:
-      def unlock_file(file, file_password)
+      def unlock_file(file, file_password) # rubocop:disable Metrics/MethodLength
         return file unless File.extname(file) == '.pdf' && file_password
 
         pdftk = PdfForms.new(Settings.binaries.pdftk)
         tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
 
+        has_pdf_err = false
         begin
           pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
         rescue PdfForms::PdftkError => e
@@ -50,6 +57,11 @@ module IvcChampva
           password_regex = /(input_pw).*?(output)/
           sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
           log_message_to_sentry(sanitized_message, 'warn')
+          has_pdf_err = true
+        end
+
+        # This helps prevent leaking exception context to DataDog when we raise this error
+        if has_pdf_err
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
             source: 'IvcChampva::V1::UploadsController'
@@ -58,7 +70,6 @@ module IvcChampva
 
         file.tempfile.unlink
         file.tempfile = tmpf
-        file
       end
 
       def submit_supporting_documents
@@ -81,49 +92,38 @@ module IvcChampva
 
       private
 
-      if Flipper.enabled?(:champva_multiple_stamp_retry, @current_user)
+      ##
+      # Wraps handle_uploads and includes retry logic when file uploads get non-200s.
+      #
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      # @param [Hash] parsed_form_data complete form submission data object
+      #
+      # @return [Array<Integer, String>] An array with 1 or more http status codes
+      #   and an array with 1 or more message strings.
+      def handle_file_uploads(form_id, parsed_form_data)
+        attempt = 0
+        max_attempts = 1
 
-        def handle_file_uploads(form_id, parsed_form_data)
-          attempt = 0
-          max_attempts = 1
-
-          begin
-            file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-            file_uploader = FileUploader.new(form_id, metadata, file_paths, true)
-            statuses, error_message = file_uploader.handle_uploads
-          rescue => e
-            attempt += 1
-            error_message_downcase = e.message.downcase
-            Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
-
-            if should_retry?(error_message_downcase, attempt, max_attempts)
-              Rails.logger.error 'Retrying in 1 seconds...'
-              sleep 1
-              retry
-            else
-              statuses = []
-              error_message = 'retried once'
-            end
-          end
-
-          [statuses, error_message]
-        end
-      else
-        def handle_file_uploads(form_id, parsed_form_data)
+        begin
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
-          statuses = Array(statuses)
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
+          statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 
-          # Retry attempt if specific error message is found
-          if statuses.any? do |status|
-            status.is_a?(String) && status.include?('No such file or directory @ rb_sysopen')
-          end
-            file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-            statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
-          end
+          # Since some or all of the files failed to upload to S3, trigger retry
+          raise StandardError, error_messages if error_messages.compact.length.positive?
+        rescue => e
+          attempt += 1
+          error_message_downcase = e.message.downcase
+          Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
 
-          [statuses, error_message]
+          if should_retry?(error_message_downcase, attempt, max_attempts)
+            Rails.logger.error 'Retrying in 1 seconds...'
+            sleep 1
+            retry
+          end
         end
+        [statuses, error_messages]
       end
 
       def should_retry?(error_message_downcase, attempt, max_attempts)

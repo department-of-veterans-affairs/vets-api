@@ -277,6 +277,8 @@ module Mobile
             APPOINTMENT_TYPES[:cc]
           when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:va]
             convert_va_appointment_type
+          when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:request]
+            APPOINTMENT_TYPES[:va]
           else
             appointment[:type]
           end

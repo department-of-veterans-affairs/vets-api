@@ -22,14 +22,17 @@ module MDOT
         f.response :json
         f.adapter Faraday.default_adapter
 
-        # TODO: remove long timeouts after changing to real API
-        f.options.timeout = 30
-        f.options.open_timeout = 30
+        f.options.timeout = timeout_in_seconds
+        f.options.open_timeout = timeout_in_seconds
       end
     end
 
     def mock_enabled?
       Settings.mdot.mock || false
+    end
+
+    def timeout_in_seconds
+      Settings.mdot.timeout || 30
     end
   end
 end

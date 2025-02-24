@@ -71,7 +71,7 @@ class AppointmentsListValidation
     files = Dir["#{@path_to_html}/*.txt"]
     files.map do |file|
       puts "READING FILE: #{file}"
-      File.open(file).read
+      File.read(file)
     end
   end
 

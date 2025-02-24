@@ -34,6 +34,8 @@ class SourceAppMiddleware
     10207-pp
     10210-lay-witness-statement
     10-7959f-1-FMP
+    1330m2-medallions
+    1330m-medallions
     1990-edu-benefits
     1990e-edu-benefits
     1990ez-edu-benefits
@@ -119,7 +121,7 @@ class SourceAppMiddleware
     proxy-rewrite
     public-outreach-materials
     rated-disabilities
-    representatives
+    representative
     request-debt-help-form-5655
     resources-and-support
     sahg
@@ -142,6 +144,7 @@ class SourceAppMiddleware
     view-payments
     view-representative
     virtual-agent
+    welcome-va-setup-review-information
     yellow-ribbon
     your-debt
   ].freeze

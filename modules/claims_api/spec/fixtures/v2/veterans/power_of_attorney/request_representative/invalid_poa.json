@@ -7,7 +7,7 @@
         "address": {
           "addressLine1":  "123 Main St",
           "city": "New York",
-          "country":  "USA",
+          "countryCode":  "US",
           "stateCode": "NY",
           "zipCode": "12323"
         },

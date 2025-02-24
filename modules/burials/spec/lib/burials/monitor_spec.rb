@@ -8,6 +8,7 @@ RSpec.describe Burials::Monitor do
   let(:ipf) { create(:in_progress_form) }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
+  let(:lh_service) { OpenStruct.new(uuid: 'uuid') }
 
   context 'with all params supplied' do
     let(:current_user) { create(:user) }
@@ -223,6 +224,29 @@ RSpec.describe Burials::Monitor do
           )
 
           monitor.track_submission_exhaustion(msg, nil)
+        end
+      end
+
+      describe '#track_send_submitted_email_failure' do
+        it 'logs sidekiq job send_submitted_email error' do
+          log = 'Lighthouse::SubmitBenefitsIntakeClaim send_submitted_email failed'
+          payload = {
+            claim_id: claim.id,
+            benefits_intake_uuid: lh_service.uuid,
+            confirmation_number: claim.confirmation_number,
+            message: monitor_error.message,
+            tags: monitor.tags
+          }
+
+          expect(monitor).to receive(:track_request).with(
+            'warn',
+            log,
+            "#{submission_stats_key}.send_submitted_failed",
+            call_location: anything,
+            **payload
+          )
+
+          monitor.track_send_submitted_email_failure(claim, lh_service, monitor_error)
         end
       end
     end

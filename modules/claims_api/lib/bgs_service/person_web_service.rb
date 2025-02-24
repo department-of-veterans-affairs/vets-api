@@ -22,7 +22,7 @@ module ClaimsApi
       builder = Nokogiri::XML::Builder.new do
         PtcpntRlnshpDTO do
           authznChangeClmantAddrsInd 'Y' if options[:authzn_change_clmant_addrs_ind].present?
-          authznPoaAccessInd 'Y' if options[:authzn_poa_access_ind].present?
+          authznPoaAccessInd options[:authzn_poa_access_ind].presence || 'N'
           compId do
             ptcpntIdA options[:ptcpnt_id_a]
             ptcpntIdB options[:ptcpnt_id_b]

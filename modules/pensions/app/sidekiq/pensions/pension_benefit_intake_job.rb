@@ -2,7 +2,6 @@
 
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
-require 'pensions/tag_sentry'
 require 'pensions/monitor'
 require 'pensions/notification_email'
 require 'pdf_utilities/datestamp_pdf'
@@ -91,7 +90,6 @@ module Pensions
     # @param (see #perform)
     #
     def init(saved_claim_id, user_account_uuid)
-      Pensions::TagSentry.tag_sentry
       @pension_monitor = Pensions::Monitor.new
 
       @user_account_uuid = user_account_uuid

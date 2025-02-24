@@ -66,10 +66,10 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
   describe 'Claims' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return true
       allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
       allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return false
       allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return true
     end
 
     describe 'index' do
@@ -524,16 +524,38 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
       describe 'participant ID' do
         context 'when missing' do
+          let(:add_person_proxy_response) do
+            instance_double(MPI::Responses::AddPersonResponse, ok?: false)
+          end
+
+          let(:bgs_claims) do
+            {
+              benefit_claims_dto: {
+                benefit_claim: [
+                  {
+                    base_end_prdct_type_cd: '400',
+                    benefit_claim_id: '111111111',
+                    phase_type: 'claim received'
+                  }
+                ]
+              }
+            }
+          end
+
           it 'returns a 422' do
             mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(bnft_claim_web_service)
+                .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
               allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(true)
               allow_any_instance_of(MPIData)
                 .to receive(:mvi_response).and_return(profile)
+              allow_any_instance_of(MPIData)
+                .to receive(:add_person_proxy).and_return(add_person_proxy_response)
 
               get all_claims_path, headers: auth_header
 
-              expect(response).to have_http_status(:unprocessable_entity)
               json_response = JSON.parse(response.body)
+              expect(response).to have_http_status(:unprocessable_entity)
               expect(json_response['errors'][0]['detail']).to eq(
                 "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
                 'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
@@ -637,7 +659,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
       end
 
       it 'uses BD when it should', vcr: 'claims_api/v2/claims_show' do
-        allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return true
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return false
         lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                    evss_id: '111111111')
@@ -857,8 +878,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                     VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
-                        .to receive(:benefits_documents_enabled?).and_return(true)
-                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
                         .to receive(:use_birls_id_file_number?).and_return(false)
 
                       expect_any_instance_of(bnft_claim_web_service)
@@ -902,8 +921,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                     VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
-                        .to receive(:benefits_documents_enabled?).and_return(true)
-                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
                         .to receive(:use_birls_id_file_number?).and_return(true)
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
                         .to receive(:target_veteran).and_return(no_ssn_target_veteran)
@@ -946,8 +963,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                     VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
-                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
-                        .to receive(:benefits_documents_enabled?).and_return(true)
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
                         .to receive(:use_birls_id_file_number?).and_return(true)
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)

@@ -8,9 +8,6 @@
 # * `claim_class()` must return a sublass of SavedClaim, which will run
 #    json-schema validations and perform any storage and attachment processing
 
-# Current subclasses are PensionClaim and BurialClaim.
-
-require 'pension_burial/tag_sentry'
 require 'common/exceptions/validation_errors'
 
 class ClaimsBaseController < ApplicationController
@@ -25,8 +22,6 @@ class ClaimsBaseController < ApplicationController
   # Creates and validates an instance of the class, removing any copies of
   # the form that had been previously saved by the user.
   def create
-    PensionBurial::TagSentry.tag_sentry
-
     claim = claim_class.new(form: filtered_params[:form])
     user_uuid = current_user&.uuid
     Rails.logger.info "Begin ClaimGUID=#{claim.guid} Form=#{claim.class::FORM} UserID=#{user_uuid}"

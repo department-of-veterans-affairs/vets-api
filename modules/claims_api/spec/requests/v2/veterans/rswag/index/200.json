@@ -88,13 +88,13 @@
               "declinedReason": {
                 "type": ["string", "null"]
               },
-              "changeAddressAuthorization": {
-                "type": ["string", "null"],
-                "enum": ["Y", "N", null]
+              "consentAddressChange": {
+                "type": ["boolean", "null"],
+                "enum": [true, false, null]
               },
-              "healthInfoAuthorization": {
-                "type": ["string", "null"],
-                "enum": ["Y", "N", null]
+              "recordConsent": {
+                "type": ["boolean", "null"],
+                "enum": [true, false, null]
               }
             }
           }
