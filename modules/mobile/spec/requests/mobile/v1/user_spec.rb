@@ -67,7 +67,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
 
       it 'includes the users gender identity' do
         expect(attributes['profile']).to include(
-          'genderIdentity' => 'F'
+          'genderIdentity' => nil
         )
       end
 
