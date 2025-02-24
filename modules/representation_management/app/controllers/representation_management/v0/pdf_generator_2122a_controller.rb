@@ -13,7 +13,7 @@ module RepresentationManagement
           Tempfile.create do |tempfile|
             tempfile.binmode
             RepresentationManagement::V0::PdfConstructor::Form2122a.new(tempfile).construct(form)
-            clear_saved_form('21-22')
+            clear_saved_form('21-22') if params[:pdf_generator2122a][:representative_submission_method] != 'digital'
             send_data tempfile.read,
                       filename: '21-22a.pdf',
                       type: 'application/pdf',

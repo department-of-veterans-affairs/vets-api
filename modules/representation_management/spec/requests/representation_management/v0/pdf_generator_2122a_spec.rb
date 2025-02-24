@@ -21,6 +21,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
     let(:params) do
       {
         pdf_generator2122a: {
+          representative_submission_method: 'digital',
           record_consent: true,
           consent_address_change: true,
           consent_limits: [],
@@ -85,11 +86,24 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
       }
     end
 
-    it 'clears the saved form' do
-      expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('21-22').once
-
-      post(base_path, params:)
+    context "When representative_submission_method is 'digital'" do
+      it 'does not clear the saved form' do
+        expect_any_instance_of(ApplicationController).not_to receive(:clear_saved_form).with('21-22')
+    
+        post(base_path, params: params)
+      end
     end
+    
+
+    context "When representative_submission_method is not 'digital'" do
+      it 'clears the saved form' do
+        params[:pdf_generator2122a][:representative_submission_method] = 'paper'
+    
+        expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('21-22').once
+    
+        post(base_path, params: params)
+      end
+    end  
 
     context 'When submitting all fields with valid data' do
       before { post(base_path, params:) }
