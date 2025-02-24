@@ -2,6 +2,7 @@
 
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_claims/service'
+require 'simple_forms_api_submission/metadata_validator'
 
 module AccreditedRepresentativePortal
   module V0
@@ -9,15 +10,16 @@ module AccreditedRepresentativePortal
       skip_after_action :verify_pundit_authorization
 
       def submit
+        Datadog::Tracing.active_trace&.set_tag('form_id', params[:formNumber])
+        check_for_changes
+
+        status, confirmation_number = upload_response
         # debugger
-        # Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
-        # check_for_changes
-
-        # status, confirmation_number = upload_response
-
+        # Oren - this is what is breaking because of the different name changes If you track the stack, it's this - first_name = config.dig(:form_data, :full_name, :first)
+        # so either change what I pass in or build out a parallel system and just change the names of what it's looking for
         # send_confirmation_email(params, confirmation_number) if status == 200
 
-        # render json: { status:, confirmation_number: }
+        render json: { status: 200, confirmation_number: params[:confirmationCode]}
       end
 
       def upload_scanned_form
@@ -41,8 +43,8 @@ module AccreditedRepresentativePortal
       end
 
       def upload_response
-        file_path = find_attachment_path(params[:confirmation_code])
-        stamper = PdfStamper.new(stamped_template_path: file_path, current_loa: @current_user.loa[:current],
+        file_path = find_attachment_path(params[:confirmationCode])
+        stamper = SimpleFormsApi::PdfStamper.new(stamped_template_path: file_path, current_loa: @current_user.loa[:current],
                                  timestamp: Time.current)
         stamper.stamp_pdf
         metadata = validated_metadata
@@ -62,13 +64,12 @@ module AccreditedRepresentativePortal
 
       def validated_metadata
         raw_metadata = {
-          'veteranFirstName' => params.dig(:form_data, :full_name, :first),
-          'veteranLastName' => params.dig(:form_data, :full_name, :last),
-          'fileNumber' => params.dig(:form_data, :id_number, :ssn) ||
-                          params.dig(:form_data, :id_number, :va_file_number),
-          'zipCode' => params.dig(:form_data, :postal_code),
+          'veteranFirstName' => veteran_first_name,
+          'veteranLastName' => veteran_last_name,
+          'fileNumber' => veteran_ssn,
+          'zipCode' => form_params.dig(:formData, :postalCode),
           'source' => 'VA Platform Digital Forms',
-          'docType' => params[:form_number],
+          'docType' => params[:formNumber],
           'businessLine' => 'CMP'
         }
         SimpleFormsApiSubmission::MetadataValidator.validate(raw_metadata)
@@ -97,8 +98,8 @@ module AccreditedRepresentativePortal
 
       def create_form_submission
         FormSubmission.create(
-          form_type: params[:form_number],
-          form_data: params[:form_data].to_json,
+          form_type: params[:formNumber],
+          form_data: params[:formData].to_json,
           user_account: @current_user&.user_account
         )
       end
@@ -121,53 +122,98 @@ module AccreditedRepresentativePortal
         in_progress_form = InProgressForm.form_for_user('FORM-UPLOAD-FLOW', @current_user)
         if in_progress_form
           prefill_data_service = SimpleFormsApi::PrefillDataService.new(prefill_data: in_progress_form.form_data,
-                                                                        form_data: params[:form_data],
-                                                                        form_id: params[:form_number])
+                                                                        form_data: params[:formData],
+                                                                        form_id: params[:formNumber])
           prefill_data_service.check_for_changes
         end
       end
 
+      # def create_new_form_data
+      #   {
+      #     for
+      #   }
+      # end
+
       def send_confirmation_email(params, confirmation_number)
+        # form_data = create_new_form_data
         config = {
-          form_number: params[:form_number],
-          form_data: params[:form_data],
+          form_number: params[:formNumber],
+          form_data: params[:formData],
           date_submitted: Time.zone.today.strftime('%B %d, %Y'),
           confirmation_number:
         }
+
+        debugger
         notification_email = SimpleFormsApi::FormUploadNotificationEmail.new(config, notification_type: :confirmation)
         notification_email.send
       end
 
       def form_params
-        params.require(:scanned_form_upload).permit(
-          :confirmation_code,
+        params.require(:representative_form_upload).permit(
+          :confirmationCode,
           :location,
-          :form_number,
-          :form_name,
-          form_data: [
+          :formNumber,
+          :formName,
+          formData: [
+            :veteranSsn,
+            :postalCode,
+            :veteranDateOfBirth,
             :email,
             :postal_code,
-            { full_name: %i[first last],
-              id_number: [:ssn] }
+            :claimantDateOfBirth,
+            { claimantFullName: %i[first last] },
+            :claimantSsn,
+            { veteranFullName: %i[first last] }
           ]
         )
       end
 
+      def veteran_ssn
+        form_params.dig('formData', 'veteranSsn')
+      end
+
+      def veteran_first_name
+        form_params.dig('formData', 'veteranFullName', 'first')
+      end
+
+      def veteran_last_name
+        form_params.dig('formData', 'veteranFullName', 'last')
+      end
+
+      def veteran_birth_date
+        form_params.dig("formData", "veteranDateOfBirth")
+      end
+
+      def claimant_ssn
+        form_params.dig('formData', 'claimantSsn')
+      end
+
+      def claimant_first_name
+        form_params.dig('formData', 'claimantFullName', 'first')
+      end
+
+      def claimant_last_name
+        form_params.dig('formData', 'claimantFullName', 'last')
+      end
+
+      def claimant_birth_date
+        form_params.dig("formData", "claimantDateOfBirth")
+      end
+
       def ssn
-        form_params.dig('form_data', 'id_number', 'ssn')
+        claimant_ssn || veteran_ssn
       end
 
       def first_name
-        form_params.dig('form_data', 'full_name', 'first')
+        claimant_first_name || veteran_last_name
       end
-
+      
       def last_name
-        form_params.dig('form_data', 'full_name', 'last')
+        claimant_last_name || veteran_last_name
       end
-
+      
       def birth_date
-        '02/05/1932'
-        # form_params.dig("form_data", "full_name", "date_of_birth")
+        claimant_birth_date || veteran_birth_date
       end
 
       # def validate_power_of_attorney
@@ -183,24 +229,23 @@ module AccreditedRepresentativePortal
 
       # end
 
-      # def get_icn
-      #   mpi = MPI::Service.new.find_profile_by_attributes(ssn:, first_name:, last_name:, birth_date:)
-      #   raise if mpi.profile.nil?
-      #   icn = mpi.profile.icn
-      # end
+      def get_icn
+        mpi = MPI::Service.new.find_profile_by_attributes(ssn:, first_name:, last_name:, birth_date:)
+        raise if mpi.profile.nil?
+        icn = mpi.profile.icn
+      end
 
-      # def get_power_of_attorney_attributes(icn)
-      #   response = BenefitsClaims::Service.new(icn).get_power_of_attorney
-      #   attributes = response["data"]["attributes"]
-      #   raise if attrubtes.nil?
-      #   attributes
-      # end
+      def get_power_of_attorney_attributes(icn)
+        response = BenefitsClaims::Service.new(icn).get_power_of_attorney
+        attributes = response["data"]["attributes"]
+        raise if attributes.nil?
+        attributes
+      end
 
-      # def get_rep_poa_codes
-      # ar_user_account_accredited_individuals
-      # ["589"]
-      # end
-      # end
+      def get_rep_poa_codes
+        # ar_user_account_accredited_individuals
+        # ["589"]
+      end
     end
   end
 end
