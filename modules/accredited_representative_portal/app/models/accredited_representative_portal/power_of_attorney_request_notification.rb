@@ -9,9 +9,12 @@ module AccreditedRepresentativePortal
 
     validates :type, inclusion: { in: PERMITTED_TYPES }
 
-    scope :requested, -> { where(type: 'requested') }
     scope :declined, -> { where(type: 'declined') }
     scope :expiring, -> { where(type: 'expiring') }
     scope :expired, -> { where(type: 'expired') }
+
+    def status
+      va_notify_notification&.status.to_s
+    end
   end
 end
