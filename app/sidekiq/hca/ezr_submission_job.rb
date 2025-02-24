@@ -7,12 +7,14 @@ module HCA
   class EzrSubmissionJob
     include Sidekiq::Job
     extend SentryLogging
+
+    FORM_ID = '10-10EZR'
     VALIDATION_ERROR = HCA::SOAPParser::ValidationError
     STATSD_KEY_PREFIX = 'api.1010ezr'
-    DD_ZSF_TAGS = [
-      'service:healthcare-application',
-      'function: 10-10EZR async form submission'
-    ].freeze
+    DD_ZSF_TAGS = {
+      service: 'healthcare-application',
+      function: '10-10EZR async form submission'
+    }.freeze
 
     # retry for  2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
@@ -57,10 +59,12 @@ module HCA
         email,
         template_id,
         { 'salutation' => salutation },
-        api_key
+        api_key,
+        {
+          callback_metadata: { notification_type: 'error', form_number: FORM_ID, statsd_tags: DD_ZSF_TAGS }
+        }
       )
       StatsD.increment("#{STATSD_KEY_PREFIX}.submission_failure_email_sent")
-      StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
     end
 
     def perform(encrypted_form, user_uuid)
