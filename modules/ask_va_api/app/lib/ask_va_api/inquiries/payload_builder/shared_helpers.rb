@@ -23,10 +23,6 @@ module AskVAApi
           pronouns[:pronouns_not_listed_text].presence || pronouns.key('true')&.to_s&.tr('_', '/')
         end
 
-        def contact_field(field, inquiry_details, inquiry_params)
-          inquiry_details[:level_of_authentication] == 'Business' ? inquiry_params[field] : nil
-        end
-
         def fetch_state_code(state)
           return if state.nil?
 
@@ -47,19 +43,6 @@ module AskVAApi
             SchoolState: inquiry_params.dig(:school_obj, :state_abbreviation),
             SchoolFacilityCode: inquiry_params.dig(:school_obj, :school_facility_code),
             SchoolId: nil
-          }
-        end
-
-        def service_info(info)
-          {
-            BranchOfService: info[:branch_of_service],
-            SSN: info.dig(:social_or_service_num, :ssn) || info[:social_num],
-            EDIPI: user&.edipi,
-            ICN: user&.icn,
-            ServiceNumber: info.dig(:social_or_service_num, :service_number),
-            ClaimNumber: nil,
-            VeteranServiceStateDate: nil,
-            VeteranServiceEndDate: nil
           }
         end
 
