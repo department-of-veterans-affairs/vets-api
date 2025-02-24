@@ -4,49 +4,47 @@ require 'rails_helper'
 
 RSpec.describe UserActionEventCreator do
   describe '#perform' do
-    subject { described_class.new(event_name:, event_config:).perform }
+    subject { described_class.new(identifier:, event_config:).perform }
 
-    let(:event_name) { 'some-event_name' }
+    let(:identifier) { 'some-identifier' }
     let(:event_config) do
       {
         'details' => details,
-        'identifier' => identifier,
         'event_type' => event_type
       }
     end
     let(:details) { 'some-details' }
-    let(:identifier) { 'some-identifier' }
     let(:event_type) { 'authentication' }
 
-    context 'when validating the event config' do
+    context 'when validating the event arguments' do
       shared_examples 'error logging' do
         it 'logs an error message' do
           expect { subject }.to raise_error(StandardError, expected_error_message)
         end
       end
 
-      context 'when the event config is missing details' do
+      context 'when the event arguments are missing an identifier' do
+        let(:identifier) { nil }
+        let(:expected_error_message) { 'Event is missing an identifier' }
+
+        it_behaves_like 'error logging'
+      end
+
+      context 'when the event arguments are missing details' do
         let(:details) { nil }
         let(:expected_error_message) { 'Event some-identifier is missing details' }
 
         it_behaves_like 'error logging'
       end
 
-      context 'when the event config is missing an identifier' do
-        let(:identifier) { nil }
-        let(:expected_error_message) { 'Event some-event_name is missing an identifier' }
-
-        it_behaves_like 'error logging'
-      end
-
-      context 'when the event config is missing an event_type' do
+      context 'when the event arguments are missing an event_type' do
         let(:event_type) { nil }
         let(:expected_error_message) { 'Event some-identifier is missing an event_type' }
 
         it_behaves_like 'error logging'
       end
 
-      context 'when the event config has an invalid event_type' do
+      context 'when the event arguments have an invalid event_type' do
         let(:event_type) { 'some-invalid-event_type' }
         let(:expected_error_message) { 'Event some-identifier has an invalid event_type' }
 
