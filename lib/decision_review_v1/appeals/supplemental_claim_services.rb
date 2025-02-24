@@ -89,8 +89,8 @@ module DecisionReviewV1
         form_record = SecondaryAppealForm.new(
           form: rejiggered_payload.to_json,
           form_id: '21-4142',
-          appeal_submission_id: appeal_submission_id,
-          guid: guid
+          appeal_submission_id:,
+          guid:
         )
         form_record.save!
       rescue => e
