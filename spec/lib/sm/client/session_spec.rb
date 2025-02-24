@@ -21,7 +21,7 @@ RSpec.describe 'sm client', type: :request do
       client = nil
       VCR.use_cassette 'sm_client/session' do
         client || begin
-          client = SM::Client.new(session: { user_id: user_id, user_uuid: current_user.uuid })
+          client = SM::Client.new(session: { user_id:, user_uuid: current_user.uuid })
           client.authenticate
           client
         end
@@ -36,7 +36,7 @@ RSpec.describe 'sm client', type: :request do
       client = nil
       VCR.use_cassette('sm_session/session_oh_initial_pull') do
         client ||= begin
-          client = SM::Client.new(session: { user_id: user_id, user_uuid: current_user.uuid })
+          client = SM::Client.new(session: { user_id:, user_uuid: current_user.uuid })
           client.authenticate
           client
         end
