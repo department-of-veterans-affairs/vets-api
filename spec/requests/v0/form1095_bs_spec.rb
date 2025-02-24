@@ -96,17 +96,17 @@ RSpec.describe 'V0::Form1095Bs', type: :request do
       create(:form1095_b, tax_year: this_year - 2)
       get '/v0/form1095_bs/available_forms'
       expect(response).to have_http_status(:success)
-      expect(JSON.parse(response.body)).to eq(
-        { 'available_forms' => [{ 'year' => last_year_form.tax_year,
-                                  'last_updated' => last_year_form.updated_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ') }] }
+      expect(response.parsed_body.deep_symbolize_keys).to eq(
+        { available_forms: [{ year: last_year_form.tax_year,
+                              last_updated: last_year_form.updated_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ') }] }
       )
     end
 
     it 'returns success with no available forms when user has no form data' do
       get '/v0/form1095_bs/available_forms'
       expect(response).to have_http_status(:success)
-      expect(JSON.parse(response.body)).to eq(
-        { 'available_forms' => [] }
+      expect(response.parsed_body.symbolize_keys).to eq(
+        { available_forms: [] }
       )
     end
   end
