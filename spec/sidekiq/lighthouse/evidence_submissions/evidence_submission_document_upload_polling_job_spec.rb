@@ -99,19 +99,5 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
         'worker.lighthouse.cst_document_uploads.pending_documents_marked_failed', 2
       )
     end
-
-    it 'logs warnings, and stats when retries are exhausted' do
-      freeze_time = Time.now.utc
-      Timecop.freeze(freeze_time) do
-        described_class.within_sidekiq_retries_exhausted_block(sidekiq_retries_exhausted_msg) do
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.cst_document_uploads.exhausted')
-          expect(Rails.logger).to receive(:warn).with(
-            'Lighthouse::EvidenceSubmissionDocumentUploadPollingJob retries exhausted',
-            { job_id: sidekiq_retries_exhausted_msg['jid'], error_class: sidekiq_retries_exhausted_msg['error_class'],
-              error_message: sidekiq_retries_exhausted_msg['error_message'], timestamp: freeze_time }
-          )
-        end
-      end
-    end
   end
 end

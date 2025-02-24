@@ -15,20 +15,6 @@ module Lighthouse
       STATSD_PENDING_DOCUMENTS_MARKED_SUCCESS_KEY = 'pending_documents_marked_completed'
       STATSD_PENDING_DOCUMENTS_MARKED_FAILED_KEY = 'pending_documents_marked_failed'
 
-      sidekiq_retries_exhausted do |msg, _ex|
-        job_id = msg['jid']
-        error_class = msg['error_class']
-        error_message = msg['error_message']
-        timestamp = Time.now.utc
-
-        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
-
-        Rails.logger.warn(
-          'Lighthouse::EvidenceSubmissionDocumentUploadPollingJob retries exhausted',
-          { job_id:, error_class:, error_message:, timestamp: }
-        )
-      end
-
       def perform
         successful_documents_before_polling = EvidenceSubmission.completed.count
         failed_documents_before_polling = EvidenceSubmission.failed.count
