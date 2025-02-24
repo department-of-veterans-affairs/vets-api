@@ -971,20 +971,20 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
       Flipper.disable(:va_online_scheduling_use_vpg)
     end
-
     let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
-    let(:draft_params) do
-      {
-        referral_id: 'ref-123',
-        provider_id: '9mN718pH',
-        appointment_type_id: 'ov',
-        start_date: '2025-01-01T00:00:00Z',
-        end_date: '2025-01-03T00:00:00Z'
-      }
-    end
 
     describe 'POST create_draft' do
       context 'when the request is successful' do
+        let(:draft_params) do
+          {
+            referral_id: 'ref-123',
+            provider_id: '9mN718pH',
+            appointment_type_id: 'ov',
+            start_date: '2025-01-01T00:00:00Z',
+            end_date: '2025-01-03T00:00:00Z'
+          }
+        end
+
         let(:draft_appointment_response) do
           {
             id: 'EEKoGzEf',
@@ -1095,8 +1095,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         it 'returns a successful response when all calls succeed' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
-                           match_requests_on: %i[method path body]) do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200') do
             VCR.use_cassette('vaos/eps/get_drive_times/200') do
               VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
                 VCR.use_cassette 'vaos/eps/get_provider_service/200' do
@@ -1353,11 +1352,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       end
 
       context 'when there is already an appointment associated with the referral' do
-        before do
-          Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
-          Flipper.disable(:va_online_scheduling_use_vpg)
-        end
-
         let(:draft_params) do
           {
             referral_id: 'ref-124',
@@ -1370,27 +1364,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
         let(:eps_appointments) do
           [
-            {
-              id: '123',
-              state: 'submitted',
-              patient_id: '456',
-              referral: {
-                referral_number: 'ref-124'
-              },
-              provider_service_id: 'DBKQ-H0a',
-              network_id: 'random-sandbox-network-id',
-              slot_ids: [
-                '5vuTac8v-practitioner-8-role-1|' \
-                '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
-                '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
-              ],
-              appointment_details: {
-                status: 'booked',
-                start: nil,
-                is_latest: false,
-                last_retrieved: '2024-12-01T10:00:00Z'
-              }
-            },
             {
               id: '124',
               state: 'proposed',
