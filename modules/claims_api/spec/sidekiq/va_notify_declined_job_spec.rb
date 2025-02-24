@@ -54,7 +54,7 @@ describe ClaimsApi::VANotifyDeclinedJob, type: :job do
         .with({
                 recipient_identifier: ptcpnt_id,
                 personalisation: {
-                  first_name: first_name,
+                  first_name:,
                   representative_type: 'claims agent',
                   representative_type_abbreviated: 'claims agent',
                   form_type: 'Appointment of Individual as Claimantʼs Representative (VA Form 21-22a)'
