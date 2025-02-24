@@ -22,7 +22,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                                               anything).and_return(false)
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
       .and_return('access_token')
-      allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token)
+    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token)
       .and_return('fake_access_token')
   end
 
