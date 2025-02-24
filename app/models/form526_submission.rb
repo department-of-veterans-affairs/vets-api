@@ -27,8 +27,7 @@ class Form526Submission < ApplicationRecord
                       action: 'Begin as anciliary 526 submission'
                     },
                     additional_instance_logs: {
-                      saved_claim_id: %i[saved_claim id],
-                      user_uuid: %i[user_uuid]
+                      saved_claim_id: %i[saved_claim id]
                     })
 
   # A 526 disability compensation form record. This class is used to persist the post transformation form
@@ -36,8 +35,6 @@ class Form526Submission < ApplicationRecord
   #
   # @!attribute id
   #   @return [Integer] auto-increment primary key.
-  # @!attribute user_uuid
-  #   @return [String] points to the user's uuid from the identity provider.
   # @!attribute saved_claim_id
   #   @return [Integer] the related saved claim id {SavedClaim::DisabilityCompensation}.
   # @!attribute auth_headers_json
@@ -84,7 +81,7 @@ class Form526Submission < ApplicationRecord
   # TODO: follow-up in ticket #93563 to make this more robust, i.e. attempts of jobs, etc.
   def system_transaction_id
     service_provider = saved_claim.parsed_form['startedFormVersion'].present? ? 'lighthouse' : 'evss'
-    "Form526Submission_#{id}, user_uuid: #{user_uuid}, service_provider: #{service_provider}"
+    "Form526Submission_#{id}, service_provider: #{service_provider}"
   end
 
   # Called when the DisabilityCompensation form controller is ready to hand off to the backend
@@ -109,7 +106,7 @@ class Form526Submission < ApplicationRecord
       'Form526Submission#perform_ancillary_jobs_handler',
       'submission_id' => id,
       # Call get_first_name while the temporary User record still exists
-      'first_name' => get_first_name
+      'first_name' => first_name
     )
     job_ids = workflow_batch.jobs do
       EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.perform_async(id)
@@ -147,30 +144,6 @@ class Form526Submission < ApplicationRecord
     raise unless silence_errors_and_log_to_sentry
 
     log_exception_to_sentry e, extra_content_for_sentry
-  end
-
-  # Note that the User record is cached in Redis -- `User.redis_namespace_ttl`
-  def get_first_name
-    user = User.find(user_uuid)
-    user&.first_name&.upcase.presence ||
-      auth_headers&.dig('va_eauth_firstName')&.upcase
-  end
-
-  # Checks against the User record first, and then resorts to checking the auth_headers
-  # for the name attributes if the User record doesn't exist or contain the full name
-  #
-  # @return [Hash] of the user's full name (first, middle, last, suffix)
-  #
-  def full_name
-    name_hash = User.find(user_uuid)&.full_name_normalized
-    return name_hash if name_hash&.[](:first).present?
-
-    {
-      first: auth_headers&.dig('va_eauth_firstName')&.capitalize,
-      middle: nil,
-      last: auth_headers&.dig('va_eauth_lastName')&.capitalize,
-      suffix: nil
-    }
   end
 
   # form_json is memoized here so call invalidate_form_hash after updating form_json
@@ -344,7 +317,7 @@ class Form526Submission < ApplicationRecord
     if submission.jobs_succeeded?
       # If the received_email_from_polling feature enabled, skip this call
       unless Flipper.enabled?(:disability_526_call_received_email_from_polling,
-                              OpenStruct.new({ flipper_id: user_uuid }))
+                              OpenStruct.new({ flipper_id: icn }))
         submission.send_received_email('Form526Submission#workflow_complete_handler')
       end
       submission.workflow_complete = true
@@ -455,25 +428,6 @@ class Form526Submission < ApplicationRecord
     form526_submission_remediations&.order(:created_at)&.last
   end
 
-  def account
-    # first, check for an ICN on the UserAccount associated to the submission, return it if found
-    account = user_account
-    return account if account&.icn.present?
-
-    # next, check past submissions for different UserAccounts that might have ICNs
-    past_submissions = get_past_submissions
-    account = find_user_account_with_icn(past_submissions, 'past submissions')
-    return account if account.present? && account.icn.present?
-
-    # next, check for any historical UserAccounts for that user which might have an ICN
-    user_verifications = get_user_verifications
-    account = find_user_account_with_icn(user_verifications, 'user verifications')
-    return account if account.present? && account.icn.present?
-
-    # failing all the above, default to an Account lookup
-    Account.lookup_by_user_uuid(user_uuid)
-  end
-
   # Send the Submitted Email - when the Veteran has clicked the "submit" button in va.gov
   # Primary Path: when the response from getting a claim id is successful
   # Backup Path: when SubmitForm526 Job has exhausted,
@@ -481,9 +435,6 @@ class Form526Submission < ApplicationRecord
   # @param invoker: string where the Received Email trigger is being called from
   def send_submitted_email(invoker)
     if Flipper.enabled?(:disability_526_send_form526_submitted_email)
-      Rails.logger.info("Form526SubmittedEmailJob called for user #{user_uuid},
-                                                          submission: #{id} from #{invoker}")
-      first_name = get_first_name
       params = personalization_parameters(first_name)
       Form526SubmittedEmailJob.perform_async(params)
     end
@@ -494,9 +445,6 @@ class Form526Submission < ApplicationRecord
   # Backup Path: when Form526StatusPollingJob reaches "paranoid_success" status
   # @param invoker: string where the Received Email trigger is being called from
   def send_received_email(invoker)
-    Rails.logger.info("Form526ConfirmationEmailJob called for user #{user_uuid},
-                                                          submission: #{id} from #{invoker}")
-    first_name = get_first_name
     params = personalization_parameters(first_name)
     Form526ConfirmationEmailJob.perform_async(params)
   end
@@ -504,7 +452,7 @@ class Form526Submission < ApplicationRecord
   private
 
   def conditionally_submit_form_4142
-    if Flipper.enabled?(:disability_compensation_production_tester, OpenStruct.new({ flipper_id: user_uuid }))
+    if Flipper.enabled?(:disability_compensation_production_tester, OpenStruct.new({ flipper_id: icn }))
       Rails.logger.info("submit_form_4142 call skipped for submission #{id}")
     elsif form[FORM_4142].present?
       submit_form_4142
@@ -517,7 +465,7 @@ class Form526Submission < ApplicationRecord
   # Lighthouse calls the user_account.icn the "ID of Veteran"
   #
   def lighthouse_service
-    BenefitsClaims::Service.new(account.icn)
+    BenefitsClaims::Service.new(icn)
   end
 
   def handle_validation_error(e)
@@ -600,10 +548,9 @@ class Form526Submission < ApplicationRecord
   end
 
   def submit_flashes
-    user = User.find(user_uuid)
     # Note that the User record is cached in Redis -- `User.redis_namespace_ttl`
     # If this method runs after the TTL, then the flashes will not be applied -- a possible bug.
-    BGS::FlashUpdater.perform_async(id) if user && Flipper.enabled?(:disability_compensation_flashes, user)
+    BGS::FlashUpdater.perform_async(id)
   end
 
   def poll_form526_pdf
@@ -616,29 +563,5 @@ class Form526Submission < ApplicationRecord
 
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
-  end
-
-  def find_user_account_with_icn(records, record_type)
-    records.pluck(:user_account_id).uniq.each do |user_account_id|
-      user_account = UserAccount.find(user_account_id)
-      next if user_account&.icn.blank?
-
-      Rails.logger.info("ICN not found on submission #{id}, " \
-                        "using ICN for user account #{user_account_id} instead (based on #{record_type})")
-      return user_account
-    end
-  end
-
-  def get_past_submissions
-    Form526Submission.where(user_uuid:).where.not(user_account_id:)
-  end
-
-  def get_user_verifications
-    UserVerification.where(idme_uuid: user_uuid)
-                    .or(UserVerification.where(backing_idme_uuid: user_uuid))
-                    .or(UserVerification.where(logingov_uuid: user_uuid))
-                    .or(UserVerification.where(mhv_uuid: user_uuid))
-                    .or(UserVerification.where(dslogon_uuid: user_uuid))
-                    .where.not(user_account_id:)
   end
 end

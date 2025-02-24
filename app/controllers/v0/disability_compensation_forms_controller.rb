@@ -116,9 +116,10 @@ module V0
     end
 
     def create_submission(saved_claim)
-      Rails.logger.info('Creating 526 submission', user_uuid: @current_user&.uuid, saved_claim_id: saved_claim&.id)
+      Rails.logger.info('Creating 526 submission', saved_claim_id: saved_claim&.id)
       submission = Form526Submission.new(
-        user_uuid: @current_user.uuid,
+        first_name: @current_user.first_name,
+        icn: @current_user.icn,
         user_account: @current_user.user_account,
         saved_claim_id: saved_claim.id,
         auth_headers_json: auth_headers.to_json,

@@ -17,6 +17,7 @@ module HCA
       return if form_email.blank?
 
       user = User.find(user_uuid)
+      
       va_profile_email = user.va_profile_email
 
       tag_text = va_profile_email&.downcase == form_email.downcase ? 'same' : 'different'

@@ -66,7 +66,7 @@ module SAML
 
       ### Identifiers
       def uuid
-        idme_uuid || logingov_uuid
+        mhv_icn
       end
 
       def idme_uuid
