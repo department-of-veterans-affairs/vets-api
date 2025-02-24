@@ -1302,8 +1302,8 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'returns all appointments for a given user' do
-      VCR.use_cassette('vaos/v2/appointments/get_all_appointments_200') do
-
+      VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
+                       match_requests_on: %i[method query]) do
         result = subject.get_all_appointments
         expect(result).to be_an(Array)
         expect(result.size).to eq(4)
