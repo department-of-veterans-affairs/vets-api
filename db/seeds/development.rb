@@ -177,6 +177,3 @@ mhv_ac.update!(
 SignIn::ServiceAccountConfig.where(certificates: nil).update(certificates: [])
 SignIn::ServiceAccountConfig.where(scopes: nil).update(scopes: [])
 SignIn::ClientConfig.where(certificates: nil).update(certificates: [])
-
-# Create UserActionEvents
-UserActionEvent.find_or_create_by!(details: 'User logged in', event_type: 'Authentication', identifier: 'login')
