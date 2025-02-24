@@ -1096,7 +1096,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
         it 'returns a successful response when all calls succeed' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
-                            match_requests_on: %i[method path body]) do
+                           match_requests_on: %i[method path body]) do
             VCR.use_cassette('vaos/eps/get_drive_times/200') do
               VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
                 VCR.use_cassette 'vaos/eps/get_provider_service/200' do
@@ -1227,7 +1227,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
         it 'returns a successful response when all calls succeed' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
-                            match_requests_on: %i[method path body]) do
+                           match_requests_on: %i[method path body]) do
             VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
               VCR.use_cassette 'vaos/eps/get_provider_service/200' do
                 VCR.use_cassette 'vaos/eps/draft_appointment/200' do
@@ -1257,7 +1257,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
         it 'handles invalid_range response' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
-                            match_requests_on: %i[method path body]) do
+                           match_requests_on: %i[method path body]) do
             VCR.use_cassette 'vaos/eps/get_drive_times/400_invalid_coords' do
               VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
                 VCR.use_cassette 'vaos/eps/get_provider_service/200' do
@@ -1289,7 +1289,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
         it 'handles provider-services 404 response' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
-                            match_requests_on: %i[method path body]) do
+                           match_requests_on: %i[method path body]) do
             VCR.use_cassette 'vaos/eps/get_provider_service/404_unknown_provider' do
               VCR.use_cassette 'vaos/eps/draft_appointment/200' do
                 VCR.use_cassette 'vaos/eps/token/token_200' do
@@ -1317,7 +1317,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
         it 'handles invalid patientId response as 400' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
-                            match_requests_on: %i[method path body]) do
+                           match_requests_on: %i[method path body]) do
             VCR.use_cassette 'vaos/eps/draft_appointment/400_invalid_patientid' do
               VCR.use_cassette 'vaos/eps/token/token_200' do
                 allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([])
@@ -1415,25 +1415,26 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           ]
         end
 
-        it "fails if a vaos appointment with the given referral id already exists" do
+        it 'fails if a vaos appointment with the given referral id already exists' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
             post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
-            response_obj = JSON.parse(response.body)
+            JSON.parse(response.body)
             expect(response).to have_http_status(:unprocessable_entity)
           end
         end
 
-        it "fails if an eps appointment with the given referral id already exists" do
+        it 'fails if an eps appointment with the given referral id already exists' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
             allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
-            draft_params[:referral_id] = "ref-126"
+            draft_params[:referral_id] = 'ref-126'
             post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
             response_obj = JSON.parse(response.body)
             expect(response).to have_http_status(:unprocessable_entity)
+            expect(response_obj['message']).to eq('No new appointment created: referral is already used')
           end
         end
       end
