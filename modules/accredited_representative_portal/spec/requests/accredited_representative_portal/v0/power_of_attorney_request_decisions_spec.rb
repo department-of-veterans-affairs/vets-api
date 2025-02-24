@@ -14,7 +14,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     create(:user_account_accredited_individual,
            user_account_email: test_user.email,
            user_account_icn: test_user.icn,
-           poa_code: poa_code)
+           poa_code:)
   end
 
   let!(:representative) do
@@ -27,7 +27,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
   let!(:vso) { create(:organization, poa: poa_code, can_accept_digital_poa_requests: true) }
   let!(:other_vso) { create(:organization, poa: other_poa_code, can_accept_digital_poa_requests: true) }
 
-  let!(:poa_request) { create(:power_of_attorney_request, poa_code: poa_code) }
+  let!(:poa_request) { create(:power_of_attorney_request, poa_code:) }
   let!(:other_poa_request) { create(:power_of_attorney_request, poa_code: other_poa_code) }
 
   let(:time) { '2024-12-21T04:45:37.458Z' }
