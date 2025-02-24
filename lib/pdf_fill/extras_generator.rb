@@ -146,6 +146,7 @@ module PdfFill
 
       return "#{date['month']}-#{date['day']}-#{date['year']}" if date.is_a?(Hash)
       return date.strftime('%m-%d-%Y') if date.is_a?(Date)
+
       Date.parse(date).strftime('%m-%d-%Y')
     rescue
       Rails.logger.error("Error formatting submit date for PdfFill: #{date}")
