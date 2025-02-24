@@ -48,8 +48,8 @@ RSpec.describe Eps::EpsAppointmentSerializer do
   let(:eps_appointment) do
     double(
       id: 123,
-      appointment: appointment,
-      provider: provider
+      appointment:,
+      provider:
     )
   end
 

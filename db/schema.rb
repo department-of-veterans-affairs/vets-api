@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_18_222532) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_19_232344) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1404,8 +1404,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_18_222532) do
     t.string "details", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "event_id"
-    t.integer "event_type"
+    t.string "event_type", null: false
+    t.string "identifier", null: false
+    t.index ["identifier"], name: "index_user_action_events_on_identifier", unique: true
   end
 
   create_table "user_actions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

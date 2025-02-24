@@ -51,8 +51,8 @@ module Eps
     #
     def get_drive_times(destinations:, origin:)
       payload = {
-        destinations: destinations,
-        origin: origin
+        destinations:,
+        origin:
       }
 
       response = perform(:post, "/#{config.base_path}/drive-times", payload, headers)

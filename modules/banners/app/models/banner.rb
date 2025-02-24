@@ -24,7 +24,7 @@ class Banner < ApplicationRecord
                                   [
                                     { entity:
                                      { entityUrl:
-                                      { path: path } } }
+                                      { path: } } }
                                   ].to_json)
                             .or(where('banners.context @> ?',
                                       [
@@ -32,7 +32,7 @@ class Banner < ApplicationRecord
                                           { fieldOffice:
                                             { entity:
                                               { entityUrl:
-                                                { path: path } } } } }
+                                                { path: } } } } }
                                       ].to_json))
 
     # Subpage inheritance check: Matches on any `entityUrl` where `limit_subpage_inheritance` is false.
