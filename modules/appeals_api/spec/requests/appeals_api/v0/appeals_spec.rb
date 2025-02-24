@@ -132,7 +132,7 @@ Rspec.describe 'AppealsApi::V0::Appeals', type: :request do
                     } do
       def make_request(headers)
         VCR.use_cassette('caseflow/appeals') do
-          get(path, params: nil, headers: headers)
+          get(path, params: nil, headers:)
         end
       end
     end

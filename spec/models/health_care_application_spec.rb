@@ -602,7 +602,6 @@ RSpec.describe HealthCareApplication, type: :model do
 
     before do
       allow(VANotify::EmailJob).to receive(:perform_async)
-      allow(Flipper).to receive(:enabled?).with(:hca_zero_silent_failures).and_return(false)
     end
 
     describe '#send_failure_email' do
@@ -611,6 +610,16 @@ RSpec.describe HealthCareApplication, type: :model do
           let(:email_address) { health_care_application.parsed_form['email'] }
           let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
           let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email }
+          let(:callback_metadata) do
+            {
+              callback_metadata: {
+                notification_type: 'error',
+                form_number: form_id,
+                statsd_tags: zsf_tags
+              }
+            }
+          end
+
           let(:template_params) do
             [
               email_address,
@@ -618,32 +627,12 @@ RSpec.describe HealthCareApplication, type: :model do
               {
                 'salutation' => "Dear #{health_care_application.parsed_form['veteranFullName']['first']},"
               },
-              api_key
+              api_key,
+              callback_metadata
             ]
           end
 
           let(:standard_error) { StandardError.new('Test error') }
-
-          context ':hca_zero_silent_failures enabled' do
-            before do
-              allow(Flipper).to receive(:enabled?).with(:hca_zero_silent_failures).and_return(true)
-            end
-
-            let(:template_params_with_callback_metadata) do
-              template_params << {
-                callback_metadata: {
-                  notification_type: 'error',
-                  form_number: form_id,
-                  statsd_tags: zsf_tags
-                }
-              }
-            end
-
-            it 'sends a failure email to the email address provided on the form with callback metadata' do
-              subject
-              expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params_with_callback_metadata)
-            end
-          end
 
           it 'sends a failure email to the email address provided on the form' do
             subject
@@ -673,34 +662,12 @@ RSpec.describe HealthCareApplication, type: :model do
                 {
                   'salutation' => ''
                 },
-                api_key
+                api_key,
+                callback_metadata
               ]
             end
 
             let(:standard_error) { StandardError.new('Test error') }
-
-            context ':hca_zero_silent_failures enabled' do
-              before do
-                allow(Flipper).to receive(:enabled?).with(:hca_zero_silent_failures).and_return(true)
-              end
-
-              let(:template_params_no_name_with_callback_metadata) do
-                template_params_no_name << {
-                  callback_metadata: {
-                    notification_type: 'error',
-                    form_number: form_id,
-                    statsd_tags: zsf_tags
-                  }
-                }
-              end
-
-              it 'sends a failure email to the email address provided on the form with callback metadata' do
-                subject
-                expect(VANotify::EmailJob).to have_received(:perform_async).with(
-                  *template_params_no_name_with_callback_metadata
-                )
-              end
-            end
 
             it 'sends a failure email without personalisations to the email address provided on the form' do
               subject
@@ -758,10 +725,6 @@ RSpec.describe HealthCareApplication, type: :model do
     describe '#log_async_submission_failure' do
       it 'triggers failed_wont_retry statsd' do
         expect { subject }.to trigger_statsd_increment("#{statsd_key_prefix}.failed_wont_retry")
-      end
-
-      it 'triggers zero silent failures statsd' do
-        expect { subject }.to trigger_statsd_increment('silent_failure_avoided_no_confirmation')
       end
 
       context 'short form' do

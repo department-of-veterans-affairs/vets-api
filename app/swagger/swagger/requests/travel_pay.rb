@@ -73,11 +73,15 @@ module Swagger
           parameter :authorization
 
           parameter do
-            key :name, 'appt_datetime'
-            key :in, :query
-            key :description, 'Appointment claim submission datetime'
-            key :required, false
-            key :type, :string
+            key :name, :appointmentDatetime
+            key :in, :body
+            key :description, 'Appointment claim start time'
+            key :required, true
+            schema do
+              property :appointmentDatetime do
+                key :type, :string
+              end
+            end
           end
 
           response 201 do

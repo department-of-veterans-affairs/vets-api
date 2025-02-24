@@ -1421,6 +1421,35 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/profile/vet_verification_status' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Indicates whether an individual is "Confirmed" or "Not Confirmed" as a Title 38 Veteran according to VA.'
+          key :tags, [:profile]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Confirmation status successfully retrieved.'
+            schema do
+              key :type, :object
+              property(:data) do
+                key :type, :object
+                property :id, type: :string
+                property :type, type: :string
+                property :attributes do
+                  key :type, :object
+                  property :veteran_status, type: :string, example: 'not confirmed', description: "Veteran's Title 38 status"
+                  property :not_confirmed_reason, type: :string, example: 'PERSON_NOT_FOUND', description: 'Reason for not being confirmed'
+                  property :message, type: :array, example: "We're sorry. There's a problem...", description: 'Alert message to display to user'
+                end
+              end
+            end
+          end
+        end
+      end
     end
   end
 end
