@@ -34,12 +34,12 @@ RSpec.describe UserAuditLogger do
 
         user_action = UserAction.last
         expect(user_action).to have_attributes(
-          user_action_event: user_action_event,
-          acting_user_verification: acting_user_verification,
-          subject_user_verification: subject_user_verification,
+          user_action_event:,
+          acting_user_verification:,
+          subject_user_verification:,
           status: 'initial',
-          acting_ip_address: acting_ip_address,
-          acting_user_agent: acting_user_agent
+          acting_ip_address:,
+          acting_user_agent:
         )
       end
 
@@ -55,47 +55,46 @@ RSpec.describe UserAuditLogger do
       end
     end
 
-    context 'when user_action_event is nil' do
-      let(:user_action_event) { nil }
+    context 'when the job is unsuccessful' do
+      let(:expected_log_message) { 'UserAuditLogger error' }
 
-      it 'raises a missing user action event error' do
-        expect { logger.perform }.to raise_error(
-          UserAuditLogger::MissingUserActionEventError,
-          'User action event must be present'
-        )
+      shared_examples 'error logging' do
+        it 'logs an error message' do
+          expect(Rails.logger).to receive(:error).with(expected_log_message, { error: expected_error })
+          logger.perform
+        end
       end
-    end
 
-    context 'when subject_user_verification is nil' do
-      let(:subject_user_verification) { nil }
+      context 'when user_action_event is nil' do
+        let(:user_action_event) { nil }
+        let(:expected_error) { 'User action event must be present' }
 
-      it 'raises a missing verification error' do
-        expect { logger.perform }.to raise_error(
-          UserAuditLogger::MissingSubjectVerificationError,
-          'Subject user verification must be present'
-        )
+        it_behaves_like 'error logging'
       end
-    end
 
-    context 'when status is nil' do
-      let(:status) { nil }
+      context 'when subject_user_verification is nil' do
+        let(:subject_user_verification) { nil }
+        let(:expected_error) { 'Subject user verification must be present' }
 
-      it 'raises a missing status error' do
-        expect { logger.perform }.to raise_error(
-          UserAuditLogger::MissingStatusError,
-          'Status must be present'
-        )
+        it_behaves_like 'error logging'
       end
-    end
 
-    context 'when required parameter is not provided' do
-      it 'raises an argument error' do
-        expect do
-          described_class.new(
-            user_action_event:,
-            subject_user_verification:
-          )
-        end.to raise_error(ArgumentError, /missing keywords: :acting_user_verification/)
+      context 'when status is nil' do
+        let(:status) { nil }
+        let(:expected_error) { 'Status must be present' }
+
+        it_behaves_like 'error logging'
+      end
+
+      context 'when required parameter is not provided' do
+        it 'raises an argument error' do
+          expect do
+            described_class.new(
+              user_action_event:,
+              subject_user_verification:
+            )
+          end.to raise_error(ArgumentError, /missing keywords: :acting_user_verification/)
+        end
       end
     end
   end
