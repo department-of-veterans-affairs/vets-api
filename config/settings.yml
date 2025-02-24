@@ -81,6 +81,7 @@ sign_in:
   vaweb_client_id: vaweb
   vamobile_client_id: vamobile
   arp_client_id: arp
+  user_info_clients: ['okta_test']
   sts_client:
     base_url: http://localhost:3000
     key_path: spec/fixtures/sign_in/sts_client.pem
@@ -857,6 +858,9 @@ maintenance:
     mvi: PCIPVGJ
     mhv: PP2ZZ2V
     form107959f1: P63EKXC
+    form107959f2: PZWR9XI
+    form107959c: PEP32F2
+    form1010d: P69N8ZY
     pega: P3ZJCBK
     search: PRG8HJI
     tims: PUL8OQ4
