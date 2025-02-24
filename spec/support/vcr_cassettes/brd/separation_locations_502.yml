@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/benefits-reference-data/v1/intake-sites
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/benefits-reference-data/v1/intake-sites"
     body:
       encoding: US-ASCII
       string: ''

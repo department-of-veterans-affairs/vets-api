@@ -41,6 +41,8 @@ module ExceptionHandling
           exception
         when ActionController::ParameterMissing
           Common::Exceptions::ParameterMissing.new(exception.param)
+        when Common::Exceptions::BadGateway
+          Common::Exceptions::BadGateway.new(exception)
         when Breakers::OutageException
           Common::Exceptions::ServiceOutage.new(exception.outage)
         when Common::Client::Errors::ClientError

@@ -138,7 +138,7 @@ module Swagger
       swagger_path '/v0/disability_compensation_form/separation_locations' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
-          extend Swagger::Responses::BadGatewayError
+          extend Swagger::Responses::ServiceUnavailableError
           extend Swagger::Responses::ForbiddenError
 
           key :description, 'Get the separation locations from EVSS'
