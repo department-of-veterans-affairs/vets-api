@@ -764,7 +764,7 @@ RSpec.describe FormProfile, type: :model do
           'ratedDisabilityId' => '1',
           'ratingDecisionId' => '0',
           'ratingPercentage' => 50
-        },
+        }
       ],
       'servicePeriods' => [
         {
