@@ -58,7 +58,7 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       expect(Rails.logger).not_to receive(:error)
       expect(Rails.logger).not_to receive(:warn)
 
-      subject.perform
+      expect { subject.perform }.to change(Form1095B, :count).from(0).to(1)
     end
 
     it 'saves multiple forms from a file' do
@@ -68,23 +68,40 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       expect(Rails.logger).not_to receive(:error)
       expect(Rails.logger).not_to receive(:warn)
 
-      subject.perform
+      expect { subject.perform }.to change(Form1095B, :count).from(0).to(8)
     end
 
-    it 'does not save invalid forms from S3 file' do
+    it 'does not log errors or save form but does deletes file when user data is missing icn' do
       allow(objects).to receive(:collect).and_return(file_names3)
       allow(Tempfile).to receive(:new).and_return(tempfile3)
 
-      expect(Rails.logger).to receive(:error).at_least(:once)
+      expect(Rails.logger).not_to receive(:error)
+      expect(Rails.logger).not_to receive(:warn)
+      expect(bucket).to receive(:delete_objects)
 
-      subject.perform
+      expect { subject.perform }.not_to change(Form1095B, :count).from(0)
+    end
+
+    it 'raises an error and does not delete file when error is encountered processing the file' do
+      allow(objects).to receive(:collect).and_return(file_names3)
+      allow(Tempfile).to receive(:new).and_return(tempfile3)
+      allow(tempfile3).to receive(:each_line).and_raise(RuntimeError, 'Bad file')
+
+      expect(Rails.logger).to receive(:error).once.with('Bad file.')
+      expect(Rails.logger).to receive(:error).once # log_exception_to_sentry stacktrace error
+      expect(Rails.logger).to receive(:error).once.with(
+        "failed to save 0 forms from file: #{file_names3.first}; successfully saved 0 forms"
+      )
+      expect(bucket).not_to receive(:delete_objects)
+
+      expect { subject.perform }.not_to change(Form1095B, :count).from(0)
     end
 
     context 'saves form corrections from a corrected file' do
-      before do
-        create(:form1095_b, tax_year: 2020, veteran_icn: '23456789098765437')
-        create(:form1095_b, tax_year: 2020, veteran_icn: '23456789098765464')
+      let!(:form1) { create(:form1095_b, tax_year: 2020, veteran_icn: '23456789098765437') }
+      let!(:form2) { create(:form1095_b, tax_year: 2020, veteran_icn: '23456789098765464') }
 
+      before do
         allow(objects).to receive(:collect).and_return(file_names4)
         allow(Tempfile).to receive(:new).and_return(tempfile4)
       end
@@ -93,7 +110,9 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
         expect(Rails.logger).not_to receive(:error)
         expect(Rails.logger).not_to receive(:warn)
 
-        subject.perform
+        expect do
+          subject.perform
+        end.to change { [form1.reload.form_data, form2.reload.form_data] }
       end
     end
   end

@@ -269,11 +269,11 @@ module Form526ClaimFastTrackingConcern
       icn = account.icn
       api_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:claims],
-        provider: nil,
+        provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
         options: { auth_headers:, icn: },
         # Flipper id is needed to check if the feature toggle works for this user
         current_user: OpenStruct.new({ flipper_id: user_account_id }),
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE
+        feature_toggle: nil
       )
       all_claims = api_provider.all_claims
       all_claims['open_claims']

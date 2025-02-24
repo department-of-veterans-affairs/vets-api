@@ -20,7 +20,7 @@ describe GithubAuthentication::SidekiqWeb do
   before do
     allow_any_instance_of(Warden::Proxy).to receive(:authenticate!).and_return(user)
     allow_any_instance_of(Warden::Proxy).to receive(:user).and_return(user)
-    Sidekiq::Web.use Rack::Session::Cookie, secret: 'secret', same_site: true
+    Sidekiq::Web.use Rack::Session::Cookie, secret: 'a' * 64, same_site: true
     Sidekiq::Web.use Warden::Manager do |config|
       config.failure_app = Sidekiq::Web
     end

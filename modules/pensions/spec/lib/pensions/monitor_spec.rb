@@ -407,5 +407,29 @@ RSpec.describe Pensions::Monitor do
         monitor.track_file_cleanup_error(claim, lh_service, current_user.uuid, monitor_error)
       end
     end
+
+    describe '#track_claim_signature_error' do
+      it 'logs sidekiq job custom date failed' do
+        log = 'Lighthouse::PensionBenefitIntakeJob custom date failed'
+        payload = {
+          claim_id: claim.id,
+          benefits_intake_uuid: lh_service.uuid,
+          confirmation_number: claim.confirmation_number,
+          user_account_uuid: current_user.uuid,
+          error: monitor_error.message,
+          tags: monitor.tags
+        }
+
+        expect(monitor).to receive(:track_request).with(
+          'error',
+          log,
+          "#{submission_stats_key}.custom_date_failed",
+          call_location: anything,
+          **payload
+        )
+
+        monitor.track_claim_signature_error(claim, lh_service, current_user.uuid, monitor_error)
+      end
+    end
   end
 end
