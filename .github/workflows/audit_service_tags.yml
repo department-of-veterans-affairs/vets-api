@@ -62,7 +62,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Setup Database
-        uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
+        uses: nick-fields/retry@c97818ca39074beaea45180dba704f92496a0082 # v3.0.1
         with:
           timeout_minutes: 20
           retry_wait_seconds: 3 # Seconds
@@ -80,7 +80,7 @@ jobs:
 
       - name: Run service tags audit controllers task
         timeout-minutes: 20
-        uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
+        uses: nick-fields/retry@c97818ca39074beaea45180dba704f92496a0082 # v3.0.1
         with:
           timeout_minutes: 20
           retry_wait_seconds: 3 # Seconds
