@@ -39,7 +39,7 @@ module V0
         provider = ENV['DD_ENV'] == 'eks-staging' ? :lighthouse_staging : :lighthouse
         api_provider = ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:brd],
-          provider: provider,
+          provider:,
           options: {},
           current_user: @current_user,
           feature_toggle: nil
