@@ -971,6 +971,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
       Flipper.disable(:va_online_scheduling_use_vpg)
     end
+
     let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
 
     describe 'POST create_draft' do
