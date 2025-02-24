@@ -67,7 +67,8 @@ module VAOS
         # TODO: validate referral_id from the cache from prior referrals response,
 
         if referral_appointment_exists?(referral_id)
-          render json: { message: 'No new appointment created: referral is already used' }, status: :unprocessable_entity
+          render json: { message: 'No new appointment created: referral is already used' },
+                 status: :unprocessable_entity
           return
         end
 
@@ -475,10 +476,10 @@ module VAOS
 
       def referral_appointment_exists?(referral_id)
         vaos_appointments = appointments_service.get_all_appointments
-        return true if vaos_appointments.any? {|appt| appt[:referral_id] == referral_id}
+        return true if vaos_appointments.any? { |appt| appt[:referral_id] == referral_id }
 
         eps_appointments = eps_appointment_service.get_appointments
-        eps_appointments.any? {|appt| appt[:referral][:referral_number] == referral_id}
+        eps_appointments.any? { |appt| appt[:referral][:referral_number] == referral_id }
       end
     end
   end

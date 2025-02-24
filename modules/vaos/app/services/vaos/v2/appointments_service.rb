@@ -83,9 +83,8 @@ module VAOS
       end
 
       def get_all_appointments
-        # TODO: follow up, do we have to send start and end dates??
-        start_date = (Date.today - 100.years).in_time_zone
-        end_date = (Date.today + 100.years).in_time_zone
+        start_date = (Time.zone.today - 100.years).in_time_zone
+        end_date = (Time.zone.today + 100.years).in_time_zone
         params = date_params(start_date, end_date)
 
         with_monitoring do
