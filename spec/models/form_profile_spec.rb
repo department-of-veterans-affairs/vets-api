@@ -1862,7 +1862,6 @@ RSpec.describe FormProfile, type: :model do
             end
 
             before do
-              allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
               expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
               expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
             end
@@ -1875,7 +1874,7 @@ RSpec.describe FormProfile, type: :model do
                   VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
                     VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                                      allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-                      VCR.use_cassette('disability_max_ratings/max_ratings') do
+                      VCR.use_cassette('virtual_regional_office/max_ratings') do
                         expect_prefilled('21-526EZ')
                       end
                     end
@@ -1926,14 +1925,14 @@ RSpec.describe FormProfile, type: :model do
 
             it 'returns prefilled 21-526EZ' do
               expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
-              # expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+              expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
               expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
                   VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
                     VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                                      allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-                      VCR.use_cassette('disability_max_ratings/max_ratings') do
+                      VCR.use_cassette('virtual_regional_office/max_ratings') do
                         expect_prefilled('21-526EZ')
                       end
                     end
