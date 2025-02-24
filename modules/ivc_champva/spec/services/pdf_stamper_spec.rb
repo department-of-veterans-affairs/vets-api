@@ -16,18 +16,19 @@ describe IvcChampva::PdfStamper do
 
     before do
       FileUtils.copy(template_path, path)
-      allow(described_class.send(:monitor)).to receive(:track_pdf_stamper_error)
+      monitor_instance = instance_double(IvcChampva::Monitor)
+      allow(described_class).to receive(:monitor).and_return(monitor_instance)
+      allow(monitor_instance).to receive(:track_pdf_stamper_error)
     end
 
     after do
-      File.delete(path) if File.exist?(path)
+      FileUtils.rm_f(path)
     end
 
     context 'when everything works fine' do
       before do
-        allow(described_class).to receive(:stamp_signature).and_return(nil)
-        allow(described_class).to receive(:stamp_auth_text).and_return(nil)
-        allow(described_class).to receive(:stamp_submission_date).and_return(nil)
+        allow(described_class).to receive_messages(stamp_signature: nil, stamp_auth_text: nil,
+                                                   stamp_submission_date: nil)
       end
 
       it 'does not raise any errors' do
@@ -40,7 +41,7 @@ describe IvcChampva::PdfStamper do
 
     context 'when the file at the stamped_template_path is missing' do
       before do
-        File.delete(path) if File.exist?(path)
+        FileUtils.rm_f(path)
       end
 
       it 'raises an exception' do
@@ -50,9 +51,9 @@ describe IvcChampva::PdfStamper do
 
     context 'when stamping raises a PdfForms::PdftkError' do
       before do
-        allow(described_class).to receive(:stamp_signature).and_return(nil)
-        allow(described_class).to receive(:stamp_auth_text).and_raise(PdfForms::PdftkError, 'pdftk error ./some_pii.pdf')
-        allow(described_class).to receive(:stamp_submission_date).and_return(nil)
+        allow(described_class).to receive(:stamp_auth_text).and_raise(PdfForms::PdftkError,
+                                                                      'pdftk error ./some_pii.pdf')
+        allow(described_class).to receive_messages(stamp_signature: nil, stamp_submission_date: nil)
       end
 
       it 'logs it with no PII and raises a PdfForms::PdftkError' do
@@ -67,8 +68,7 @@ describe IvcChampva::PdfStamper do
     context 'when stamping raises a SystemCallError such as Errno::ENOENT' do
       before do
         allow(described_class).to receive(:stamp_signature).and_raise(Errno::ENOENT, 'pii_stuff.pdf')
-        allow(described_class).to receive(:stamp_auth_text).and_return(nil)
-        allow(described_class).to receive(:stamp_submission_date).and_return(nil)
+        allow(described_class).to receive_messages(stamp_auth_text: nil, stamp_submission_date: nil)
       end
 
       it 'logs it with no PII and raises a Errno::ENOENT' do
@@ -82,9 +82,8 @@ describe IvcChampva::PdfStamper do
 
     context 'when stamping raises a StandardError' do
       before do
-        allow(described_class).to receive(:stamp_signature).and_return(nil)
         allow(described_class).to receive(:stamp_auth_text).and_raise(StandardError, 'oh no')
-        allow(described_class).to receive(:stamp_submission_date).and_return(nil)
+        allow(described_class).to receive_messages(stamp_signature: nil, stamp_submission_date: nil)
       end
 
       it 'logs it with no PII and raises a PdfForms::PdftkError' do

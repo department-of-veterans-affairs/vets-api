@@ -106,12 +106,12 @@ RSpec.describe IvcChampva::Monitor do
       end
     end
 
-    # TODO test track_s3_upload_error
+    # TODO: test track_s3_upload_error
 
     describe '#track_pdf_stamper_error' do
       it 'calls track_request with the correct parameters' do
         form_uuid = '12345678-1234-5678-1234-567812345678',
-          err_message = 'oh no'
+                    err_message = 'oh no'
 
         additional_context = {
           form_uuid: form_uuid,
