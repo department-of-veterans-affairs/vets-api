@@ -20,7 +20,7 @@ describe PdfFill::Forms::Va1010ez do
     factory: :health_care_application,
     input_data_fixture_dir: 'spec/fixtures/pdf_fill/10-10EZ',
     output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/10-10EZ/unsigned',
-    test_data_types: %w[simple kitchen_sink]
+    test_data_types: %w[simple kitchen_sink overflow]
   }
 
   describe '#merge_fields' do

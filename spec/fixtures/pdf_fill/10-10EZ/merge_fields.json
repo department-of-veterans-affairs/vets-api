@@ -8,12 +8,14 @@
   "medicareClaimNumber": "0123456",
   "isEnrolledMedicarePartA": 1,
   "isCoveredByHealthInsurance": true,
-  "providers": {
-    "insuranceName": "Aetna",
-    "insurancePolicyHolderName": "Indiana Jones",
-    "insurancePolicyNumber": "32345111",
-    "insuranceGroupCode": "1233444"
-  },
+  "providers": [
+    {
+      "insuranceName": "Aetna",
+      "insurancePolicyHolderName": "Indiana Jones",
+      "insurancePolicyNumber": "32345111",
+      "insuranceGroupCode": "1233444"
+    }
+  ],
   "deductibleMedicalExpenses": 989,
   "deductibleFuneralExpenses": 2000,
   "deductibleEducationExpenses": 1243,
@@ -90,20 +92,22 @@
   "veteranSocialSecurityNumber": "234221243",
   "veteranDateOfBirth": "1980-01-01",
   "privacyAgreementAccepted": true,
-  "dependents": {
-    "fullName": "Bob Joe Jones",
-    "dependentRelation": 1,
-    "socialSecurityNumber": "343221234",
-    "dateOfBirth": "2000-02-01",
-    "becameDependent": "2000-02-01",
-    "attendedSchoolLastYear": 1,
-    "dependentEducationExpenses": 100,
-    "disabledBefore18": 2,
-    "cohabitedLastYear": 1,
-    "grossIncome": 10000,
-    "netIncome": 9000,
-    "otherIncome": 101
-  },
+  "dependents": [
+    {
+      "fullName": "Bob Joe Jones",
+      "dependentRelation": 1,
+      "socialSecurityNumber": "343221234",
+      "dateOfBirth": "2000-02-01",
+      "becameDependent": "2000-02-01",
+      "attendedSchoolLastYear": 1,
+      "dependentEducationExpenses": 100,
+      "disabledBefore18": 2,
+      "cohabitedLastYear": 1,
+      "grossIncome": 10000,
+      "netIncome": 9000,
+      "otherIncome": 101
+    }
+  ],
   "veteranHomeAddress": {
     "street": "888 Elm St",
     "city": "Houston",

@@ -239,55 +239,96 @@ module PdfFill
         },
         'providers' =>
           {
+            limit: 1,
+            first_key: 'insuranceName',
             'insuranceName' => {
-              key: 'F[0].P5[0].HealthInsuranceInformation[0]'
+              key: 'F[0].P5[0].HealthInsuranceInformation[0]',
+              question_num: 3.1,
+              question_text: 'ENTER YOUR HEALTH INSURANCE COMPANY NAME, ADDRESS AND TELEPHONE NUMBER'
             },
             'insurancePolicyHolderName' => {
-              key: 'F[0].P5[0].NameOfPolicyHodler[0]'
+              key: 'F[0].P5[0].NameOfPolicyHodler[0]',
+              question_num: 3.2,
+              question_text: 'NAME OF POLICY HOLDER'
             },
             'insurancePolicyNumber' => {
-              key: 'F[0].P5[0].PolicyNumber[0]'
+              key: 'F[0].P5[0].PolicyNumber[0]',
+              question_num: 3.3,
+              question_text: 'POLICY NUMBER'
             },
             'insuranceGroupCode' => {
-              key: 'F[0].P5[0].GroupCode[0]'
+              key: 'F[0].P5[0].GroupCode[0]',
+              question_num: 3.4,
+              question_text: 'Group Code'
             }
           },
         'dependents' =>
-          {
-            'fullName' => {
-              key: 'F[0].P5[0].ChildsName[0]'
-            },
-            'dependentRelation' => {
-              key: 'F[0].P5[0].RelationshipToYou[0]'
-            },
-            'socialSecurityNumber' => {
-              key: 'F[0].P5[0].ChildsSSN[0]'
-            },
-            'dateOfBirth' => {
-              key: 'F[0].P5[0].ChildsDOB[0]'
-            },
-            'becameDependent' => {
-              key: 'F[0].P5[0].DateChildBecameYourDependent[0]'
-            },
-            'attendedSchoolLastYear' => {
-              key: 'F[0].P5[0].DidChildAttendSchooLastYear[0]'
-            },
-            'disabledBefore18' => {
-              key: 'F[0].P5[0].ChildPermanentlyDiasbledBefore18[0]'
-            },
-            'dependentEducationExpenses' => {
-              key: 'F[0].P5[0].ExpensesPaifByDependentCHild[0]'
-            },
-            'grossIncome' => {
-              key: 'F[0].P6[0].Section7_Child_Q1[0]'
-            },
-            'netIncome' => {
-              key: 'F[0].P6[0].Section7_Child_Q2[0]'
-            },
-            'otherIncome' => {
-              key: 'F[0].P6[0].Section7_Child_Q3[0]'
-            }
+        {
+          limit: 1,
+          first_key: 'fullName',
+          'fullName' => {
+            key: 'F[0].P5[0].ChildsName[0]',
+            question_num: 4.2,
+            question_text: 'CHILD\'S NAME (Last, First, Middle Name)'
           },
+          'dateOfBirth' => {
+            key: 'F[0].P5[0].ChildsDOB[0]',
+            question_num: 4.2,
+            question_suffix: 'A',
+            question_text: 'CHILD\'S DATE OF BIRTH'
+          },
+          'socialSecurityNumber' => {
+            key: 'F[0].P5[0].ChildsSSN[0]',
+            question_num: 4.2,
+            question_suffix: 'B',
+            question_text: 'CHILD\'S Social Security NO.'
+          },
+          'becameDependent' => {
+            key: 'F[0].P5[0].DateChildBecameYourDependent[0]',
+            question_num: 4.2,
+            question_suffix: 'C',
+            question_text: 'DATE CHILD BECAME YOU\'RE DEPENDENT'
+          },
+          'dependentRelation' => {
+            key: 'F[0].P5[0].RelationshipToYou[0]',
+            question_num: 4.2,
+            question_suffix: 'D',
+            question_text: 'CHILD\'S RELATIONSHIP TO YOU'
+          },
+          'disabledBefore18' => {
+            key: 'F[0].P5[0].ChildPermanentlyDiasbledBefore18[0]',
+            question_num: 4.2,
+            question_suffix: 'E',
+            question_text: 'WAS CHILD PERMANENTLY AND TOTALLY DISABLED BEFORE THE AGE OF 18?'
+          },
+          'attendedSchoolLastYear' => {
+            key: 'F[0].P5[0].DidChildAttendSchooLastYear[0]',
+            question_num: 4.2,
+            question_suffix: 'F',
+            question_text: 'IF CHILD IS BETWEEN 18 AND 21 YEARS OF AGE, DID CHILD ATTEND SCHOOL LAST CALENDAR YEAR'
+          },
+          'dependentEducationExpenses' => {
+            key: 'F[0].P5[0].ExpensesPaifByDependentCHild[0]',
+            question_num: 4.2,
+            question_suffix: 'G',
+            question_text: 'EXPENSES PAID BY YOUR DEPENDENT CHILD WITH REPORTABLE INCOME FOR COLLEGE, VOCATIONAL REHABILITATION OR TRAINING (e.g., tuition, books, materials) '
+          },
+          'grossIncome' => {
+            key: 'F[0].P6[0].Section7_Child_Q1[0]',
+            question_num: 7.1,
+            question_text: 'DEPENDENT - GROSS ANNUAL INCOME FROM EMPLOYMENT'
+          },
+          'netIncome' => {
+            key: 'F[0].P6[0].Section7_Child_Q2[0]',
+            question_num: 7.2,
+            question_text: 'DEPENDENT - NET INCOME FROM YOUR FARM, RANCH, PROPERTY OR BUSINESS'
+          },
+          'otherIncome' => {
+            key: 'F[0].P6[0].Section7_Child_Q3[0]',
+            question_num: 7.3,
+            question_text: 'DEPENDENT - LIST OTHER INCOME AMOUNTS'
+          }
+        },
         'spouseFullName' => {
           key: 'F[0].P5[0].SpousesName[0]'
         },
@@ -380,7 +421,6 @@ module PdfFill
         @form_data['isEnrolledMedicarePartA'] = map_radio_box_value(@form_data['isEnrolledMedicarePartA'])
         merge_exposure
         merge_military_service
-        merge_providers
         merge_dependents
         merge_tera
         merge_disclose_financial_info
@@ -458,31 +498,33 @@ module PdfFill
         @form_data[type] = map_check_box(@form_data[type])
       end
 
-      def merge_providers
-        # TODO: Support more than one provider - planned work https://github.com/department-of-veterans-affairs/va.gov-team/issues/102910
-        providers = @form_data['providers']
-        return unless providers.is_a?(Array) && providers.any?
-
-        @form_data['providers'] = providers.first
-      end
-
       def merge_disclose_financial_info
         @form_data['discloseFinancialInformation'] =
           DISCLOSE_FINANCIAL_INFORMATION[@form_data['discloseFinancialInformation']] || OFF
       end
 
       def merge_dependents
-        # TODO: Support more than one dependent - planned work https://github.com/department-of-veterans-affairs/va.gov-team/issues/102890
-        dependents = @form_data['dependents']
-        return if dependents.blank?
+        return if @form_data['dependents'].blank?
 
-        dependent = dependents.first
-        dependent['fullName'] = combine_full_name(dependent['fullName'])
-        dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[(dependent['dependentRelation'])] || OFF
-        dependent['attendedSchoolLastYear'] = map_radio_box_value(dependent['attendedSchoolLastYear'])
-        dependent['disabledBefore18'] = map_radio_box_value(dependent['disabledBefore18'])
-        dependent['cohabitedLastYear'] = map_radio_box_value(dependent['cohabitedLastYear'])
-        @form_data['dependents'] = dependent
+        # Format dependent data for pdf field inputs
+        if @form_data['dependents'].count == 1
+          @form_data['dependents'].each do |dependent|
+            dependent['fullName'] = combine_full_name(dependent['fullName'])
+            dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[(dependent['dependentRelation'])] || OFF
+            dependent['attendedSchoolLastYear'] = map_radio_box_value(dependent['attendedSchoolLastYear'])
+            dependent['disabledBefore18'] = map_radio_box_value(dependent['disabledBefore18'])
+            dependent['cohabitedLastYear'] = map_radio_box_value(dependent['cohabitedLastYear'])
+          end
+        # Format dependent data for additional page since we have more than one dependen
+        else
+          @form_data['dependents'].each do |dependent|
+            dependent['fullName'] = combine_full_name(dependent['fullName'])
+            dependent['dependentEducationExpenses'] = format_currency(dependent['dependentEducationExpenses'])
+            dependent['grossIncome'] = format_currency(dependent['grossIncome'])
+            dependent['netIncome'] = format_currency(dependent['netIncome'])
+            dependent['otherIncome'] = format_currency(dependent['otherIncome'])
+          end
+        end
       end
 
       def map_value_for_checkbox(input, value)
@@ -509,6 +551,10 @@ module PdfFill
         else
           OFF
         end
+      end
+
+      def format_currency(value)
+        ActiveSupport::NumberHelper.number_to_currency(value)
       end
     end
   end
