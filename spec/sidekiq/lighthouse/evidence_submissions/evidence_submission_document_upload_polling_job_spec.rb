@@ -22,13 +22,6 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
       'step' => 'BENEFITS_GATEWAY_SERVICE'
     }
   end
-  let(:sidekiq_retries_exhausted_msg) do
-    {
-      'jid' => '123',
-      'error_class' => 'error_class',
-      'error_message' => 'error message'
-    }
-  end
   let(:issue_instant) { Time.now.to_i }
   let(:date_failed) do
     BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
