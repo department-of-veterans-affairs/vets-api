@@ -5,6 +5,11 @@ require 'kafka/avro_producer'
 # require 'testcontainers'
 require 'net/http'
 
+unless defined?(Testcontainers)
+  puts 'Skipping Kafka::AvroProducer integration tests'
+  return
+end
+
 xdescribe Kafka::AvroProducer, type: :integration do
   compose = Testcontainers::ComposeContainer.new(filepath: 'spec/fixtures/kafka/')
   let(:detected_errors) { [] }
@@ -75,9 +80,6 @@ xdescribe Kafka::AvroProducer, type: :integration do
     compose.start
     compose.wait_for_tcp_port(host: 'localhost', port: 19_092)
     compose.wait_for_http(url: 'http://localhost:8081/subjects/')
-
-    # Give Schema Registry time to start up
-    # sleep(5)
 
     # Register schema
     register_schema
