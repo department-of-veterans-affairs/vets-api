@@ -16,7 +16,7 @@ module DebtsApi
 
     def add_and_format_logo(pdf)
       logo_path = Rails.root.join('modules', 'debts_api', 'app', 'assets', 'images', 'va_logo.png')
-      pdf.image logo_path, at: [pdf.bounds.width / 2 - (250 / 2), pdf.cursor], width: 250
+      pdf.image logo_path, at: [(pdf.bounds.width / 2) - (250 / 2), pdf.cursor], width: 250
     end
   end
 end
