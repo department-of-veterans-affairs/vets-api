@@ -328,14 +328,6 @@ module DecisionReviewV1
 
     private
 
-    def submit_upload_job
-      DecisionReview::SubmitUpload
-    end
-
-    def form4142_submit_job
-      DecisionReview::Form4142Submit
-    end
-
     def create_higher_level_review_headers(user)
       headers = {
         'X-VA-SSN' => user.ssn.to_s.strip.presence,
