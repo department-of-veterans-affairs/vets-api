@@ -79,7 +79,7 @@ module SignIn
     end
 
     def create_user_audit_log(user_verification:)
-      user_action_event = UserActionEvent.find_by(identifier: 'login')
+      user_action_event = UserActionEvent.find_by(identifier: 'user_login')
       UserAuditLogger.new(user_action_event:,
                           acting_user_verification: user_verification,
                           subject_user_verification: user_verification,

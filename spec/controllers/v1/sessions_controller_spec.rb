@@ -784,7 +784,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'creates a user audit log' do
-          expect(UserActionEvent).to receive(:find_by).with(identifier: 'login')
+          expect(UserActionEvent).to receive(:find_by).with(identifier: 'user_login')
           expect(UserAuditLogger).to receive(:new).with(user_action_event:,
                                                         acting_user_verification: user.user_verification,
                                                         subject_user_verification: user.user_verification,
