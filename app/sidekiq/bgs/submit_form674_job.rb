@@ -95,8 +95,8 @@ module BGS
       Rails.logger.warn(
         'BGS::SubmitForm674Job backup submission failed...',
         {
-          user_uuid: user_uuid,
-          saved_claim_id: saved_claim_id,
+          user_uuid:,
+          saved_claim_id:,
           error: e.message,
           nested_error: e.cause&.message
         }

@@ -83,10 +83,10 @@ RSpec.describe Vye::V1::DgibVerificationsController, type: :controller do
         expect_any_instance_of(Vye::DGIB::Service).to receive(:verify_claimant)
 
         post :verify_claimant, params: {
-          claimant_id: claimant_id,
-          verified_period_begin_date: verified_period_begin_date,
-          verified_period_end_date: verified_period_end_date,
-          verified_through_date: verified_through_date
+          claimant_id:,
+          verified_period_begin_date:,
+          verified_period_end_date:,
+          verified_through_date:
         }
       end
 
@@ -94,10 +94,10 @@ RSpec.describe Vye::V1::DgibVerificationsController, type: :controller do
         expect(controller).to receive(:render).with(json: serializer.serializable_hash.to_json)
 
         post :verify_claimant, params: {
-          claimant_id: claimant_id,
-          verified_period_begin_date: verified_period_begin_date,
-          verified_period_end_date: verified_period_end_date,
-          verified_through_date: verified_through_date
+          claimant_id:,
+          verified_period_begin_date:,
+          verified_period_end_date:,
+          verified_through_date:
         }
       end
     end
