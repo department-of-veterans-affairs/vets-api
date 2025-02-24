@@ -31,7 +31,7 @@ RSpec.describe SignIn::TokenResponseGenerator do
       let(:session_container) { create(:session_container) }
       let(:code_validator) { instance_double(SignIn::CodeValidator, perform: validated_credential) }
       let(:session_creator) { instance_double(SignIn::SessionCreator, perform: session_container) }
-      let!(:user_action_event) { create(:user_action_event, details: 'User logged in') }
+      let!(:user_action_event) { UserActionEvent.find_by(identifier: 'user_login') }
       let(:user_action) { create(:user_action, user_action_event:) }
       let(:token_serializer) { instance_double(SignIn::TokenSerializer, perform: expected_token_response) }
       let(:expected_token_response) do
@@ -56,7 +56,6 @@ RSpec.describe SignIn::TokenResponseGenerator do
       before do
         allow(SignIn::CodeValidator).to receive(:new).and_return(code_validator)
         allow(SignIn::SessionCreator).to receive(:new).and_return(session_creator)
-        allow(UserActionEvent).to receive(:find_by).and_return(user_action_event)
         allow(UserAction).to receive(:create!).and_return(user_action)
         allow(UserAuditLogger).to receive(:new).and_call_original
         allow(SignIn::TokenSerializer).to receive(:new).and_return(token_serializer)
@@ -73,7 +72,6 @@ RSpec.describe SignIn::TokenResponseGenerator do
 
       it 'creates a user audit log' do
         subject.perform
-        expect(UserActionEvent).to have_received(:find_by).with(identifier: 'user_login')
         expect(UserAuditLogger).to have_received(:new).with(user_action_event:,
                                                             acting_user_verification: user_verification,
                                                             subject_user_verification: user_verification,
