@@ -387,6 +387,12 @@ mhv:
   medical_records:
     app_token: xyz
     host: http://example.org
+  uhd:
+    mock: true
+    security_host: https://security.example.org
+    host: https://example.org
+    app_id: 1000
+    app_token: xyz
 
 evss:
   dvp:
