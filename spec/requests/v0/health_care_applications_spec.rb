@@ -159,8 +159,10 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         end
 
         it 'returns 404' do
-          get(enrollment_status_v0_health_care_applications_path,
-              params: { userAttributes: build(:health_care_application).parsed_form })
+          get(
+            enrollment_status_v0_health_care_applications_path,
+            params: { userAttributes: build(:health_care_application).parsed_form }
+          )
           expect(response).to have_http_status(:not_found)
         end
       end
@@ -171,8 +173,10 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             current_user.icn, true
           ).and_return(success_response)
 
-          get(enrollment_status_v0_health_care_applications_path,
-              params: { userAttributes: build(:health_care_application).parsed_form })
+          get(
+            enrollment_status_v0_health_care_applications_path,
+            params: { userAttributes: build(:health_care_application).parsed_form }
+          )
 
           expect(response.body).to eq(success_response.to_json)
         end
@@ -236,43 +240,55 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
         end
         expect(response).to have_http_status(:ok)
-        expect(response.parsed_body[0]).to eq({ 'access' => nil,
-                                                'address' => {
-                                                  'mailing' => { 'zip' => '66713', 'city' => 'Leavenworth',
-                                                                 'state' => 'KS', 'address1' => '150 Muncie Rd' },
-                                                  'physical' => { 'zip' => '66713', 'city' => 'Baxter Springs',
-                                                                  'state' => 'KS',
-                                                                  'address1' => 'Baxter Springs City Cemetery' }
-                                                },
-                                                'classification' => 'Soldiers Lot',
-                                                'distance' => nil,
-                                                'facility_type' => 'va_cemetery',
-                                                'facility_type_prefix' => 'nca',
-                                                'feedback' => nil,
-                                                'hours' =>
-                                                  { 'monday' => 'Sunrise - Sundown',
-                                                    'tuesday' => 'Sunrise - Sundown',
-                                                    'wednesday' => 'Sunrise - Sundown',
-                                                    'thursday' => 'Sunrise - Sundown',
-                                                    'friday' => 'Sunrise - Sundown',
-                                                    'saturday' => 'Sunrise - Sundown',
-                                                    'sunday' => 'Sunrise - Sundown' },
-                                                'id' => 'nca_042',
-                                                'lat' => 37.0320575,
-                                                'long' => -94.7706605,
-                                                'mobile' => nil,
-                                                'name' => "Baxter Springs City Soldiers' Lot",
-                                                'operating_status' => { 'code' => 'NORMAL' },
-                                                'operational_hours_special_instructions' => nil,
-                                                'parent' => nil,
-                                                'phone' => { 'fax' => '9137584136', 'main' => '9137584105' },
-                                                'services' => nil,
-                                                'time_zone' => 'America/Chicago',
-                                                'type' => 'va_facilities',
-                                                'unique_id' => '042',
-                                                'visn' => nil,
-                                                'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp',
-                                                'tmp_covid_online_scheduling' => nil })
+        expect(response.parsed_body[0]).to eq(
+          {
+            'access' => nil,
+            'address' => {
+              'mailing' => {
+                'zip' => '66713',
+                'city' => 'Leavenworth',
+                'state' => 'KS',
+                'address1' => '150 Muncie Rd'
+              },
+              'physical' => {
+                'zip' => '66713',
+                'city' => 'Baxter Springs',
+                'state' => 'KS',
+                'address1' => 'Baxter Springs City Cemetery'
+              }
+            },
+            'classification' => 'Soldiers Lot',
+            'distance' => nil,
+            'facility_type' => 'va_cemetery',
+            'facility_type_prefix' => 'nca',
+            'feedback' => nil,
+            'hours' => {
+              'monday' => 'Sunrise - Sundown',
+              'tuesday' => 'Sunrise - Sundown',
+              'wednesday' => 'Sunrise - Sundown',
+              'thursday' => 'Sunrise - Sundown',
+              'friday' => 'Sunrise - Sundown',
+              'saturday' => 'Sunrise - Sundown',
+              'sunday' => 'Sunrise - Sundown'
+            },
+            'id' => 'nca_042',
+            'lat' => 37.0320575,
+            'long' => -94.7706605,
+            'mobile' => nil,
+            'name' => "Baxter Springs City Soldiers' Lot",
+            'operating_status' => { 'code' => 'NORMAL' },
+            'operational_hours_special_instructions' => nil,
+            'parent' => nil,
+            'phone' => { 'fax' => '9137584136', 'main' => '9137584105' },
+            'services' => nil,
+            'time_zone' => 'America/Chicago',
+            'type' => 'va_facilities',
+            'unique_id' => '042',
+            'visn' => nil,
+            'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp',
+            'tmp_covid_online_scheduling' => nil
+          }
+        )
       end
 
       context 'with hca_retrieve_facilities_without_repopulating disabled' do
@@ -292,9 +308,13 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         it 'returns no results when the cache is empty without populating it' do
           allow(Flipper).to receive(:enabled?).with(:hca_retrieve_facilities_without_repopulating).and_return(true)
           expect(StdInstitutionFacility.count).to eq(0)
-          VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+          VCR.use_cassette(
+            'lighthouse/facilities/v1/200_facilities_facility_ids',
+            match_requests_on: %i[method uri]
+          ) do
             get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
           end
+
           expect(StdInstitutionFacility.count).to eq(0)
           expect(response).to have_http_status(:ok)
           expect(response.parsed_body[0]).to be_nil
@@ -308,47 +328,63 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       it 'responds with facilities data for supported facilities' do
         StdInstitutionFacility.create(station_number: '042')
 
-        VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+        VCR.use_cassette(
+          'lighthouse/facilities/v1/200_facilities_facility_ids',
+          match_requests_on: %i[method uri]
+        ) do
           get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
         end
+
         expect(response).to have_http_status(:ok)
-        expect(response.parsed_body[0]).to eq({ 'access' => nil,
-                                                'active_status' => nil,
-                                                'address' => {
-                                                  'mailing' => { 'zip' => '66713', 'city' => 'Leavenworth',
-                                                                 'state' => 'KS', 'address1' => '150 Muncie Rd' },
-                                                  'physical' => { 'zip' => '66713', 'city' => 'Baxter Springs',
-                                                                  'state' => 'KS',
-                                                                  'address1' => 'Baxter Springs City Cemetery' }
-                                                },
-                                                'classification' => 'Soldiers Lot',
-                                                'detailed_services' => nil,
-                                                'distance' => nil,
-                                                'facility_type' => 'va_cemetery',
-                                                'facility_type_prefix' => 'nca',
-                                                'feedback' => nil,
-                                                'hours' =>
-                                                  { 'monday' => 'Sunrise - Sundown',
-                                                    'tuesday' => 'Sunrise - Sundown',
-                                                    'wednesday' => 'Sunrise - Sundown',
-                                                    'thursday' => 'Sunrise - Sundown',
-                                                    'friday' => 'Sunrise - Sundown',
-                                                    'saturday' => 'Sunrise - Sundown',
-                                                    'sunday' => 'Sunrise - Sundown' },
-                                                'id' => 'nca_042',
-                                                'lat' => 37.0320575,
-                                                'long' => -94.7706605,
-                                                'mobile' => nil,
-                                                'name' => "Baxter Springs City Soldiers' Lot",
-                                                'operating_status' => { 'code' => 'NORMAL' },
-                                                'operational_hours_special_instructions' => nil,
-                                                'parent' => nil,
-                                                'phone' => { 'fax' => '9137584136', 'main' => '9137584105' },
-                                                'services' => nil,
-                                                'type' => 'va_facilities',
-                                                'unique_id' => '042',
-                                                'visn' => nil,
-                                                'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp' })
+        expect(response.parsed_body[0]).to eq(
+          {
+            'access' => nil,
+            'active_status' => nil,
+            'address' => {
+              'mailing' => {
+                'zip' => '66713',
+                'city' => 'Leavenworth',
+                'state' => 'KS',
+                'address1' => '150 Muncie Rd'
+              },
+              'physical' => {
+                'zip' => '66713',
+                'city' => 'Baxter Springs',
+                'state' => 'KS',
+                'address1' => 'Baxter Springs City Cemetery'
+              }
+            },
+            'classification' => 'Soldiers Lot',
+            'detailed_services' => nil,
+            'distance' => nil,
+            'facility_type' => 'va_cemetery',
+            'facility_type_prefix' => 'nca',
+            'feedback' => nil,
+            'hours' => {
+              'monday' => 'Sunrise - Sundown',
+              'tuesday' => 'Sunrise - Sundown',
+              'wednesday' => 'Sunrise - Sundown',
+              'thursday' => 'Sunrise - Sundown',
+              'friday' => 'Sunrise - Sundown',
+              'saturday' => 'Sunrise - Sundown',
+              'sunday' => 'Sunrise - Sundown'
+            },
+            'id' => 'nca_042',
+            'lat' => 37.0320575,
+            'long' => -94.7706605,
+            'mobile' => nil,
+            'name' => "Baxter Springs City Soldiers' Lot",
+            'operating_status' => { 'code' => 'NORMAL' },
+            'operational_hours_special_instructions' => nil,
+            'parent' => nil,
+            'phone' => { 'fax' => '9137584136', 'main' => '9137584105' },
+            'services' => nil,
+            'type' => 'va_facilities',
+            'unique_id' => '042',
+            'visn' => nil,
+            'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp'
+          }
+        )
       end
 
       context 'with hca_retrieve_facilities_without_repopulating disabled' do
@@ -381,9 +417,11 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
   describe 'POST create' do
     subject do
-      post(v0_health_care_applications_path,
-           params: params.to_json,
-           headers: { 'CONTENT_TYPE' => 'application/json', 'HTTP_X_KEY_INFLECTION' => 'camel' })
+      post(
+        v0_health_care_applications_path,
+        params: params.to_json,
+        headers: { 'CONTENT_TYPE' => 'application/json', 'HTTP_X_KEY_INFLECTION' => 'camel' }
+      )
     end
 
     context 'with invalid params' do
@@ -421,20 +459,26 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           subject
           body = JSON.parse(response.body)
           expect(body).to eq(
-            'data' =>
-           { 'id' => HealthCareApplication.last.id.to_s,
-             'type' => 'health_care_applications',
-             'attributes' =>
-             { 'state' => 'pending', 'formSubmissionId' => nil, 'timestamp' => nil } }
+            'data' => {
+              'id' => HealthCareApplication.last.id.to_s,
+              'type' => 'health_care_applications',
+              'attributes' => {
+                'state' => 'pending',
+                'formSubmissionId' => nil,
+                'timestamp' => nil
+              }
+            }
           )
         end
       end
 
       context 'anonymously' do
         let(:body) do
-          { 'formSubmissionId' => 436_426_165,
+          {
+            'formSubmissionId' => 436_426_165,
             'timestamp' => '2024-08-20T12:08:06.729-05:00',
-            'success' => true }
+            'success' => true
+          }
         end
 
         context 'with an email set' do
@@ -480,9 +524,11 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       context 'while authenticated', :skip_mvi do
         let(:current_user) { build(:user, :mhv) }
         let(:body) do
-          { 'formSubmissionId' => 436_426_340,
+          {
+            'formSubmissionId' => 436_426_340,
             'timestamp' => '2024-08-20T12:26:48.275-05:00',
-            'success' => true }
+            'success' => true
+          }
         end
 
         before do
@@ -533,46 +579,114 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       end
 
       context 'when hca service raises an error' do
-        before do
-          test_veteran.delete('email')
-          allow_any_instance_of(HCA::Service).to receive(:post) do
-            raise error
-          end
-        end
-
-        context 'with a validation error' do
-          let(:error) { HCA::SOAPParser::ValidationError.new }
-
-          it 'renders error message' do
-            subject
-
-            expect(response).to have_http_status(:unprocessable_entity)
-            expect(JSON.parse(response.body)).to eq(
-              'errors' => [
-                { 'title' => 'Operation failed', 'detail' => 'Validation error', 'code' => 'HCA422', 'status' => '422' }
-              ]
-            )
-          end
-        end
-
-        context 'with a SOAP error' do
-          let(:error) { Common::Client::Errors::HTTPError.new('error message') }
-
+        context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is enabled" do
           before do
-            allow(Settings.sentry).to receive(:dsn).and_return('asdf')
+            test_veteran.delete('email')
+            allow_any_instance_of(HCA::Service).to receive(:submit_form) do
+              raise error
+            end
           end
 
-          it 'renders error message' do
-            expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
+          context 'with a validation error' do
+            let(:error) { HCA::SOAPParser::ValidationError.new }
 
-            subject
+            it 'renders error message' do
+              subject
 
-            expect(response).to have_http_status(:bad_request)
-            expect(JSON.parse(response.body)).to eq(
-              'errors' => [
-                { 'title' => 'Operation failed', 'detail' => 'error message', 'code' => 'VA900', 'status' => '400' }
-              ]
-            )
+              expect(response).to have_http_status(:unprocessable_entity)
+              expect(JSON.parse(response.body)).to eq(
+                'errors' => [
+                  {
+                    'title' => 'Operation failed',
+                    'detail' => 'Validation error',
+                    'code' => 'HCA422',
+                    'status' => '422'
+                  }
+                ]
+              )
+            end
+          end
+
+          context 'with a SOAP error' do
+            let(:error) { Common::Client::Errors::HTTPError.new('error message') }
+
+            before do
+              allow(Settings.sentry).to receive(:dsn).and_return('asdf')
+            end
+
+            it 'renders error message' do
+              expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
+
+              subject
+
+              expect(response).to have_http_status(:bad_request)
+              expect(JSON.parse(response.body)).to eq(
+                'errors' => [
+                  {
+                    'title' => 'Operation failed',
+                    'detail' => 'error message',
+                    'code' => 'VA900',
+                    'status' => '400'
+                  }
+                ]
+              )
+            end
+          end
+        end
+
+        context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is disabled" do
+          before do
+            Flipper.disable(:va1010_forms_enrollment_system_service_enabled)
+            test_veteran.delete('email')
+            allow_any_instance_of(HCA::Service).to receive(:post) do
+              raise error
+            end
+          end
+
+          context 'with a validation error' do
+            let(:error) { HCA::SOAPParser::ValidationError.new }
+
+            it 'renders error message' do
+              subject
+
+              expect(response).to have_http_status(:unprocessable_entity)
+              expect(JSON.parse(response.body)).to eq(
+                'errors' => [
+                  {
+                    'title' => 'Operation failed',
+                    'detail' => 'Validation error',
+                    'code' => 'HCA422',
+                    'status' => '422'
+                  }
+                ]
+              )
+            end
+          end
+
+          context 'with a SOAP error' do
+            let(:error) { Common::Client::Errors::HTTPError.new('error message') }
+
+            before do
+              allow(Settings.sentry).to receive(:dsn).and_return('asdf')
+            end
+
+            it 'renders error message' do
+              expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
+
+              subject
+
+              expect(response).to have_http_status(:bad_request)
+              expect(JSON.parse(response.body)).to eq(
+                'errors' => [
+                  {
+                    'title' => 'Operation failed',
+                    'detail' => 'error message',
+                    'code' => 'VA900',
+                    'status' => '400'
+                  }
+                ]
+              )
+            end
           end
         end
       end

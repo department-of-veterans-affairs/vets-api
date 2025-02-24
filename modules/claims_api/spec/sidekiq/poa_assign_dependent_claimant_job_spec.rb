@@ -56,7 +56,7 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
   describe '#perform' do
     let(:poa) do
       create(:power_of_attorney,
-             auth_headers: auth_headers,
+             auth_headers:,
              form_data: claimant_form_data,
              status: ClaimsApi::PowerOfAttorney::SUBMITTED)
     end
@@ -194,7 +194,7 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
 
     let(:poa) do
       create(:power_of_attorney,
-             auth_headers: auth_headers,
+             auth_headers:,
              form_data: claimant_form_data,
              status: ClaimsApi::PowerOfAttorney::SUBMITTED)
     end
