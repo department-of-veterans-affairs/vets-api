@@ -33,7 +33,8 @@ module Lighthouse
         successful_documents_before_polling = EvidenceSubmission.completed.count
         failed_documents_before_polling = EvidenceSubmission.failed.count
         pending_evidence_submissions = EvidenceSubmission.pending
-        StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_POLLED_KEY}", pending_evidence_submissions.count)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_POLLED_KEY}",
+                         pending_evidence_submissions.count)
 
         pending_evidence_submissions.in_batches(
           of: POLLED_BATCH_DOCUMENT_COUNT
@@ -48,10 +49,11 @@ module Lighthouse
         end
 
         documents_marked_success = EvidenceSubmission.completed.count - successful_documents_before_polling
-        StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_SUCCESS_KEY}", documents_marked_success)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_SUCCESS_KEY}",
+                         documents_marked_success)
 
         documents_marked_failed = EvidenceSubmission.failed.count - failed_documents_before_polling
-        StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_FAILED_KEY}", documents_marked_failed)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_FAILED_KEY}", documents_marked_failed)
       end
 
       private
