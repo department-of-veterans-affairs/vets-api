@@ -5,8 +5,8 @@ require 'breakers/statsd_plugin'
 require 'caseflow/configuration'
 require 'central_mail/configuration'
 require 'debt_management_center/debts_configuration'
-require 'decision_review/configuration'
 require 'vye/dgib/service'
+require 'decision_review/utilities/pdf_validation/configuration'
 require 'dgi/automation/configuration'
 require 'dgi/eligibility/configuration'
 require 'dgi/status/configuration'
@@ -52,7 +52,7 @@ Rails.application.reloader.to_prepare do
   services = [
     DebtManagementCenter::DebtsConfiguration.instance.breakers_service,
     Caseflow::Configuration.instance.breakers_service,
-    DecisionReview::Configuration.instance.breakers_service,
+    DecisionReview::PdfValidation::Configuration.instance.breakers_service,
     Rx::Configuration.instance.breakers_service,
     BB::Configuration.instance.breakers_service,
     BenefitsEducation::Configuration.instance.breakers_service,

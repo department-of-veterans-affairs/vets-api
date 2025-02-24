@@ -2,7 +2,7 @@
 
 module DecisionReview
   module PdfValidation
-    class Configuration < DecisionReview::Configuration
+    class Configuration < Common::Client::Configuration::REST
       ##
       # @return [String] Base path for PDF validation URL.
       #
