@@ -7,7 +7,7 @@ class Shrine
     module ValidateCorrectForm
       module AttacherMethods
         WRONG_FORM = 'wrong_form'
-        ALLOWED_MIME_TYPE_STRINGS = [Mime[:pdf], Mime[:png], Mime[:jpeg]].map(&:to_s)
+        ALLOWED_MIME_TYPE_STRINGS = %i[pdf png jpeg].map { |type| Mime[type].to_s }
 
         def validate_correct_form(form_id: nil)
           return unless ALLOWED_MIME_TYPE_STRINGS.include?(get.mime_type) && form_id
