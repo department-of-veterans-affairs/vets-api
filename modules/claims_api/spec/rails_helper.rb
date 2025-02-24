@@ -2,13 +2,12 @@
 
 require 'spec_helper'
 require 'support/factory_bot'
-require File.expand_path('../../support/vcr_webmock_patch', __FILE__)
+require File.expand_path('../../support/vcr_webmock_patch', __dir__)
 require_relative 'support/auth_helper'
 require_relative 'support/stub_claims_api_auth_token'
 require_relative 'support/bgs_client_spec_helpers'
 require 'bd/bd'
 require 'evss_service/base'
-
 
 RSpec.configure do |config|
   config.before(:suite) do
