@@ -114,16 +114,12 @@ module AccreditedRepresentativePortal
       end
 
       def process_org_reps(org, options)
-        matching_reps = if org.poa == '008'
-                          # Get all CT reps without limit
-                          Veteran::Service::Representative
-                            .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
-                        else
-                          # limit for other orgs
-                          Veteran::Service::Representative
-                            .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
-                            .limit(2)
-                        end
+        matching_reps = Veteran::Service::Representative
+                        .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
+                        .where(representative_id: Constants::REP_EMAIL_MAP.keys)
+                        .order(Arel.sql("ARRAY_POSITION(ARRAY[#{Constants::REP_EMAIL_MAP.keys.map do |id|
+                          "'#{id}'"
+                        end.join(',')}]::varchar[], representative_id)"))
 
         matching_reps.each do |rep|
           create_user_account_if_needed(rep, options)
@@ -135,11 +131,15 @@ module AccreditedRepresentativePortal
         return if AccreditedRepresentativePortal::UserAccountAccreditedIndividual
                   .exists?(accredited_individual_registration_number: rep.representative_id)
 
+        # Use mapped email index or fallback to counter
+        email_index = Constants::REP_EMAIL_MAP[rep.representative_id] || options[:email_counter]
+
         AccreditedRepresentativePortal::UserAccountAccreditedIndividual.create!(
           accredited_individual_registration_number: rep.representative_id,
           power_of_attorney_holder_type: 'veteran_service_organization',
-          user_account_email: "vets.gov.user+#{options[:email_counter]}@gmail.com"
+          user_account_email: "vets.gov.user+#{email_index}@gmail.com"
         )
+
         options[:totals][:user_accounts] += 1
         options[:email_counter] += 1
       end
