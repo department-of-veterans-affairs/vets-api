@@ -40,7 +40,7 @@ http_interactions:
       encoding: UTF-8
       string: |-
         {
-          "message":"Invalid authentication credentials"
+          "message":"Bad Gateway"
         }
   recorded_at: Tue, 13 Feb 2025 07:29:41 GMT
 recorded_with: VCR 6.3.1

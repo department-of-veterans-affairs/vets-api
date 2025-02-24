@@ -1197,7 +1197,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         # which is read as a 503. There are also discrepancies in how swagger specs run locally vs in Github.
         # Note to evaluate and rectify in the future, if possible.
         VCR.use_cassette('brd/separation_locations_502') do
-          expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 503, headers)
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 502, headers)
         end
         VCR.use_cassette('brd/separation_locations') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 200, headers)
