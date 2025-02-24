@@ -17,7 +17,7 @@ module DebtsApi
       private
 
       def file_name_for_pdf
-        "#{current_user.first_name}_#{current_user.last_name}_#{Time.now.strftime('%Y%m%d_%H%M%S')}_debt_letter.pdf"
+        "#{current_user.last_name}_#{Time.zone.now.strftime('%Y%m%d_%H%M%S')}_debt_letter.pdf"
       end
     end
   end
