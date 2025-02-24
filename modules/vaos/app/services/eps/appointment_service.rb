@@ -75,7 +75,7 @@ module Eps
       return [] if appointments.nil?
 
       provider_ids = appointments.pluck(:provider_service_id).compact.uniq
-      providers = provider_services.get_provider_services_by_ids(provider_ids: provider_ids)
+      providers = provider_services.get_provider_services_by_ids(provider_ids:)
 
       appointments.each do |appointment|
         next unless appointment[:provider_service_id]
