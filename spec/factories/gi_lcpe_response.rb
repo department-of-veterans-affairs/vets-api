@@ -8,10 +8,12 @@ FactoryBot.define do
       v_fresh { '3' }
       v_stale { '2' }
       version { v_fresh }
-      lac { { enriched_id: "1@#{version}",
-              lac_nm: 'Gas Fitter',
-              edu_lac_type_nm: 'License',
-              state: 'AR' } }
+      lac do
+        { enriched_id: "1@#{version}",
+          lac_nm: 'Gas Fitter',
+          edu_lac_type_nm: 'License',
+          state: 'AR' }
+      end
     end
 
     body { { lacs: [lac], version: } }

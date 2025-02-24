@@ -5,7 +5,7 @@ require 'rails_helper'
 describe GI::LCPE::Response do
   let(:raw_response) { double('FaradayResponse', body: {}, status:, response_headers:) }
   let(:status) { 200 }
-  let(:response_headers) {{ 'Etag' => v_fresh }}
+  let(:response_headers) { { 'Etag' => v_fresh } }
   let(:v_fresh) { '3' }
 
   describe '.from' do

@@ -40,7 +40,7 @@ class LCPERedis < Common::RedisStore
   end
 
   def cached_response
-    @cached_resopnse ||= self.class.find(lcpe_type)&.response
+    @cached_response ||= self.class.find(lcpe_type)&.response
   end
 
   def cached_version
