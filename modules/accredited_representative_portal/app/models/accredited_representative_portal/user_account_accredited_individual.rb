@@ -17,16 +17,24 @@ module AccreditedRepresentativePortal
       # Lookup registrations by email.
       # But also... track/reconcile ICN as a convenient side-effect!
       #
-      def for_user(email:, icn:)
+      def for_user_account_email(user_account_email, user_account_icn:)
         transaction do
           set_sql = [
-            %(user_account_icn = CASE WHEN user_account_email = :email THEN :icn END),
-            { email:, icn: }
+            %(
+              user_account_icn =
+                CASE WHEN user_account_email = :user_account_email THEN
+                  :user_account_icn
+                END
+            ),
+            {
+              user_account_email:,
+              user_account_icn:
+            }
           ]
 
-          rel = where(user_account_email: email).or(where(user_account_icn: icn))
+          rel = where(user_account_email:).or(where(user_account_icn:))
           rel.update_all(sanitize_sql_for_assignment(set_sql)) # rubocop:disable Rails/SkipsModelValidations
-          where(user_account_email: email)
+          where(user_account_email:)
         end
       end
     end

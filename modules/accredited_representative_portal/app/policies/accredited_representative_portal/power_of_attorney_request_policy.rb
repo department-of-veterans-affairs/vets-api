@@ -17,12 +17,14 @@ module AccreditedRepresentativePortal
     private
 
     def authorize
-      user.activated_power_of_attorney_holders.size.positive?
+      @user.user_account.active_power_of_attorney_holders.size.positive?
     end
 
     class Scope < ApplicationPolicy::Scope
       def resolve
-        scope.for_user(user)
+        @scope.for_power_of_attorney_holders(
+          @user.user_account.active_power_of_attorney_holders
+        )
       end
     end
   end
