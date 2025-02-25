@@ -446,7 +446,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     before do
       allow_any_instance_of(ClaimsApi::FormSchemas).to receive(:validate!).and_return(nil)
       allow_any_instance_of(described_class).to receive(:validate_accredited_representative)
-        .with(anything, anything)
+        .with(anything)
         .and_return(nil)
       allow_any_instance_of(described_class).to receive(:validate_accredited_organization)
         .with(anything)
@@ -466,7 +466,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     it 'returns a created status, Lighthouse ID, and type in the response' do
       mock_ccg(scopes) do |auth_header|
         create_request_with(veteran_id:, form_attributes:, auth_header:)
-
+        debugger
         expect(response).to have_http_status(:created)
         expect(JSON.parse(response.body)['data']['id']).not_to be_nil
         expect(JSON.parse(response.body)['data']['type']).to eq('power-of-attorney-request')
