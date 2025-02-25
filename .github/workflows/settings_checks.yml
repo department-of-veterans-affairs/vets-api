@@ -75,58 +75,34 @@ jobs:
 
       - name: Check ENV diff for aws_ssm_custom lookups
         run: >
-          # Extract new ENV keys from git diff
           new_env_keys=$(git diff origin/master config/settings.yml | \
             grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
 
-          # Debugging: Show extracted keys
-          echo "Extracted ENV keys:"
-          echo "$new_env_keys"
+          keys=()
+          while IFS= read -r line; do
+            keys+=("$(echo "$line" | sed "s/'//g")")
+          done <<< "$new_env_keys"
 
-          # Convert new_env_keys into an array, removing single quotes
-          mapfile -t keys < <(echo "$new_env_keys" | sed "s/'//g")
-
-          # Debugging: Check if keys array is populated
           if [[ ${#keys[@]} -eq 0 ]]; then
-            echo "No new ENV keys found in config/settings.yml."
             exit 0
           fi
 
-          # Define the environments
           environments=("dev" "staging" "sandbox" "prod")
-
-          # Initialize an empty string to hold all parameter names
           param_names=()
 
-          # Loop through each environment and generate SSM parameter paths
           for env in "${environments[@]}"; do
-            echo "Generating SSM parameters for environment: $env"
-            
-            # Loop through each new ENV key
             for key in "${keys[@]}"; do
-              # Convert the ENV key to lowercase and replace '__' with '/'
               ssm_param="/dsva-vagov/vets-api/$env/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
-              
-              # Append to param_names array
               param_names+=("$ssm_param")
             done
           done
 
-          # Debugging: Show generated SSM parameter paths
-          echo "Generated SSM parameters:"
-          printf '%s\n' "${param_names[@]}"
-
-          # Convert array to space-separated string
           param_names_string="${param_names[*]}"
 
-          # Now, use aws ssm get-parameters to fetch all parameters at once
-          echo "Checking SSM parameters: $param_names_string"
           ssm_output=$(aws ssm get-parameters --names $param_names_string --query "Parameters[*].Name")
 
-          # Extract invalid parameters using jq
           invalid_parameters=$(echo "$ssm_output" | jq -c 'select(.InvalidParameters != null).InvalidParameters')
 
-          # Write to GitHub environment variables
           echo "INVALID_PARAMETERS=$invalid_parameters" >> $GITHUB_ENV
 
       - name: Respond to PR if invalid parameters are found
