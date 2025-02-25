@@ -124,7 +124,10 @@ jobs:
           ssm_output=$(aws ssm get-parameters --names $param_names_string --query "Parameters[*].Name")
 
           # Extract invalid parameters using jq
-          invalid_parameters=$(e
+          invalid_parameters=$(echo "$ssm_output" | jq -c 'select(.InvalidParameters != null).InvalidParameters')
+
+          # Write to GitHub environment variables
+          echo "INVALID_PARAMETERS=$invalid_parameters" >> $GITHUB_ENV
 
       - name: Respond to PR if invalid parameters are found
         if: env.INVALID_PARAMETERS != ''
