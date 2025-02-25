@@ -46,9 +46,6 @@ class ApiProviderFactory
   FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND =
     'disability_compensation_lighthouse_rated_disabilities_provider_background'
 
-  # PPIU calls out to Direct Deposit APIs in Lighthouse
-  FEATURE_TOGGLE_BRD = 'disability_compensation_lighthouse_brd'
-
   FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS = 'disability_compensation_upload_bdd_instructions_to_lighthouse'
   FEATURE_TOGGLE_UPLOAD_0781 = 'disability_compensation_upload_0781_to_lighthouse'
   FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS = 'disability_compensation_upload_veteran_evidence_to_lighthouse'

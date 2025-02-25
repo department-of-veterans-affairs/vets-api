@@ -16,7 +16,7 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
   describe '#separation_locations' do
     context 'lighthouse' do
       before do
-        ENV['DD_ENV'] = 'eks-prod'
+        allow(Settings).to receive(:vsp_environment).and_return('production')
       end
 
       it 'returns separation locations' do
@@ -38,7 +38,7 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
 
     context 'lighthouse staging' do
       before do
-        ENV['DD_ENV'] = 'eks-staging'
+        allow(Settings).to receive(:vsp_environment).and_return('staging')
       end
 
       it 'returns separation locations' do
