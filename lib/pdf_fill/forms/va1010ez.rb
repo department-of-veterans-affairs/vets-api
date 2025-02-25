@@ -8,6 +8,8 @@ module PdfFill
       FORM_ID = HealthCareApplication::FORM_ID
       OFF = 'Off'
 
+      # These constants are used to map vets-json-schema payload data to the values expected by the 10-10EZ pdf form
+
       # TODO: These are also in HCA::EnrollmentEligibility::Service. Can we DRY it up?
       MARITAL_STATUS = {
         'Married' => 1,
@@ -45,7 +47,7 @@ module PdfFill
                  ' the form in the Assignment of Benefits section.'
       }.freeze
 
-      # exposure values correspond to true for each key in the pdf options
+      # Exposure values correspond to true for each key in the pdf options
       EXPOSURE_MAP = {
         'exposureToAirPollutants' => 1,
         'exposureToChemicals' => 2,
@@ -67,6 +69,23 @@ module PdfFill
         'isNativeHawaiianOrOtherPacificIslander' => 5,
         'hasDemographicNoAnswer' => 6
       }.freeze
+
+      # All date fields on the form so we can iterate over them to format them as the pdf form expects
+      # The dependent dates are not included in this list
+      DATE_FIELDS = %w[
+        medicarePartAEffectiveDate
+        spouseDateOfBirth
+        dateOfMarriage
+        lastEntryDate
+        lastDischargeDate
+        gulfWarStartDate
+        gulfWarEndDate
+        agentOrangeStartDate
+        agentOrangeEndDate
+        veteranDateOfBirth
+        toxicExposureStartDate
+        toxicExposureEndDate
+      ].freeze
 
       KEY = {
         'veteranFullName' => {
@@ -426,26 +445,14 @@ module PdfFill
         merge_tera
         merge_disclose_financial_info
         merge_service_connected_rating
+        merge_date_fields
         @form_data
       end
 
       private
 
       def merge_full_name(type)
-        full_name = @form_data[type]
-
-        return if full_name.blank?
-
-        last = full_name['last']
-        first = full_name['first']
-        middle = full_name['middle']
-        suffix = full_name['suffix']
-
-        name_parts = [last, first].compact.join(', ')
-        name_parts += ", #{middle}" if middle&.strip.present?
-        name_parts += " #{suffix}" if suffix&.strip.present?
-
-        @form_data[type] = name_parts
+        @form_data[type] = format_full_name(@form_data[type])
       end
 
       def merge_sex(type)
@@ -456,6 +463,12 @@ module PdfFill
         end
 
         @form_data[type] = value
+      end
+
+      def merge_date_fields
+        DATE_FIELDS.each do |field|
+          @form_data[field] = format_date(@form_data[field])
+        end
       end
 
       def merge_marital_status
@@ -520,24 +533,39 @@ module PdfFill
       def merge_dependents
         return if @form_data['dependents'].blank?
 
-        # Format dependent data for pdf field inputs
         if @form_data['dependents'].count == 1
-          @form_data['dependents'].each do |dependent|
-            dependent['fullName'] = merge_full_name(dependent['fullName'])
-            dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[(dependent['dependentRelation'])] || OFF
-            dependent['attendedSchoolLastYear'] = map_radio_box_value(dependent['attendedSchoolLastYear'])
-            dependent['disabledBefore18'] = map_radio_box_value(dependent['disabledBefore18'])
-            dependent['cohabitedLastYear'] = map_radio_box_value(dependent['cohabitedLastYear'])
-          end
-        # Format dependent data for additional page since we have more than one dependen
+          # Format dependent data for pdf field inputs since only one will be rendered
+          merge_single_dependent
         else
-          @form_data['dependents'].each do |dependent|
-            dependent['fullName'] = merge_full_name(dependent['fullName'])
-            dependent['dependentEducationExpenses'] = format_currency(dependent['dependentEducationExpenses'])
-            dependent['grossIncome'] = format_currency(dependent['grossIncome'])
-            dependent['netIncome'] = format_currency(dependent['netIncome'])
-            dependent['otherIncome'] = format_currency(dependent['otherIncome'])
-          end
+          # Format dependent data for additional page since when there are more than one dependents
+          # we display them all on the additional info section
+          merge_multiple_dependents
+        end
+      end
+
+      def merge_single_dependent
+        dependent = @form_data['dependents'].first
+
+        dependent['fullName'] = format_full_name(dependent['fullName'])
+        dependent['dateOfBirth'] = format_date(dependent['dateOfBirth'])
+        dependent['becameDependent'] = format_date(dependent['becameDependent'])
+
+        dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[(dependent['dependentRelation'])] || OFF
+        dependent['attendedSchoolLastYear'] = map_radio_box_value(dependent['attendedSchoolLastYear'])
+        dependent['disabledBefore18'] = map_radio_box_value(dependent['disabledBefore18'])
+        dependent['cohabitedLastYear'] = map_radio_box_value(dependent['cohabitedLastYear'])
+      end
+
+      def merge_multiple_dependents
+        @form_data['dependents'].each do |dependent|
+          dependent['fullName'] = format_full_name(dependent['fullName'])
+          dependent['dateOfBirth'] = format_date(dependent['dateOfBirth'])
+          dependent['becameDependent'] = format_date(dependent['becameDependent'])
+
+          dependent['dependentEducationExpenses'] = format_currency(dependent['dependentEducationExpenses'])
+          dependent['grossIncome'] = format_currency(dependent['grossIncome'])
+          dependent['netIncome'] = format_currency(dependent['netIncome'])
+          dependent['otherIncome'] = format_currency(dependent['otherIncome'])
         end
       end
 
@@ -569,6 +597,33 @@ module PdfFill
 
       def format_currency(value)
         ActiveSupport::NumberHelper.number_to_currency(value)
+      end
+
+      def format_date(date_string)
+        return if date_string.nil?
+
+        # Handle 1990-08-XX format where the day is not provided
+        if date_string.match?(/^\d{4}-\d{2}-XX$/)
+          year, month = date_string.split('-')
+          return "#{month}/#{year}"
+        end
+
+        date = Date.parse(date_string)
+        date.strftime('%m/%d/%Y')
+      end
+
+      def format_full_name(full_name)
+        return if full_name.blank?
+
+        last = full_name['last']
+        first = full_name['first']
+        middle = full_name['middle']
+        suffix = full_name['suffix']
+
+        name = [last, first].compact.join(', ')
+        name += ", #{middle}" if middle&.strip.present?
+        name += " #{suffix}" if suffix&.strip.present?
+        name
       end
     end
   end
