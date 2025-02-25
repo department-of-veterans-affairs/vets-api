@@ -20,6 +20,7 @@ describe Common::Middleware::BaseLogging do
     Faraday.new do |conn|
       conn.use TestLogging
 
+      # Simulate HTTP responses to test the middleware behavior without making real network requests.
       conn.adapter :test do |stub|
         stub.get(test_uri) { [status, { 'Content-Type' => 'text/plain', 'X-Vamf-Jwt' => sample_jwt }, response_body] }
       end
@@ -31,6 +32,7 @@ describe Common::Middleware::BaseLogging do
   let(:response_body) { '{}' }
   let(:status) { 200 }
 
+  # Freeze time to ensure duration values in logs are consistent
   before { Timecop.freeze }
   after { Timecop.return }
 
