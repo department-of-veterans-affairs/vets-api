@@ -87,7 +87,7 @@ module ClaimsApi
             "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": data.dig('veteran', 'address', 'zipCode'),
             "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[1]": data.dig('veteran', 'address', 'zipCodeSuffix'),
             # Item 8
-            "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": "#{data.dig('veteran', 'phone', 'areaCode')} #{data.dig('veteran', 'phone', 'phoneNumber')}",
+            "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": handle_country_code(data.dig('veteran', 'phone')),
             # Item 9
             "#{base_form}.EmailAddress_Optional[0]": data.dig('veteran', 'email'),
 
@@ -105,7 +105,7 @@ module ClaimsApi
             "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.dig('claimant', 'address', 'zipCode'),
             "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": data.dig('address', 'zipCodeSuffix'),
             # Item 12
-            "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": "#{data.dig('claimant', 'phone', 'areaCode')} #{data.dig('claimant', 'phone', 'phoneNumber')}",
+            "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": handle_country_code(data.dig('claimant', 'phone')),
             # Item 13
             "#{base_form}.Claimants_EmailAddress_Optional[0]": data.dig('claimant', 'email')&.downcase,
             # Item 14

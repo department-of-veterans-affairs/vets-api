@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vets/type/base'
 
 RSpec.describe Vets::Type::Base do
   let(:name) { 'example_name' }

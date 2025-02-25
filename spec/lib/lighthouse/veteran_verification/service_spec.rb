@@ -59,6 +59,8 @@ RSpec.describe VeteranVerification::Service do
             expect(StatsD).to receive(:increment).with(
               VeteranVerification::Constants::STATSD_VET_VERIFICATION_TOTAL_KEY
             )
+            expect(Rails.logger).to receive(:info).with('Vet Verification Status Success: confirmed',
+                                                        { confirmed: true })
 
             response = @service.get_vet_verification_status(icn, '', '')
 
@@ -73,6 +75,10 @@ RSpec.describe VeteranVerification::Service do
             expect(StatsD).to receive(:increment).with(
               VeteranVerification::Constants::STATSD_VET_VERIFICATION_TOTAL_KEY
             )
+            expect(Rails.logger).to receive(:info).with(
+              'Vet Verification Status Success: not confirmed',
+              { not_confirmed: true, not_confirmed_reason: 'ERROR' }
+            )
 
             response = @service.get_vet_verification_status('1012666182V20', '', '')
 
@@ -85,6 +91,11 @@ RSpec.describe VeteranVerification::Service do
 
         it 'retrieves veteran not confirmed status from the Lighthouse API' do
           VCR.use_cassette('lighthouse/veteran_verification/status/200_not_confirmed_response') do
+            expect(Rails.logger).to receive(:info).with(
+              'Vet Verification Status Success: not confirmed',
+              { not_confirmed: true, not_confirmed_reason: 'NOT_TITLE_38' }
+            )
+
             response = @service.get_vet_verification_status('1012666182V203559', '', '')
 
             expect(response['data']['id']).to eq('1012666182V203559')
@@ -96,6 +107,11 @@ RSpec.describe VeteranVerification::Service do
 
         it 'retrieves veteran not found status from the Lighthouse API' do
           VCR.use_cassette('lighthouse/veteran_verification/status/200_person_not_found_response') do
+            expect(Rails.logger).to receive(:info).with(
+              'Vet Verification Status Success: not confirmed',
+              { not_confirmed: true, not_confirmed_reason: 'PERSON_NOT_FOUND' }
+            )
+
             response = @service.get_vet_verification_status('1012667145V762141', '', '')
 
             expect(response['data']['id']).to be_nil

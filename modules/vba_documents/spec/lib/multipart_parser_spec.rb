@@ -15,7 +15,7 @@ RSpec.describe VBADocuments::MultipartParser do
 
         def fetch(fixture, type)
           r_val = fixture.path
-          r_val = StringIO.new File.open(r_val, 'rb').read if type.eql? :stringio
+          r_val = StringIO.new File.binread(r_val) if type.eql? :stringio
           r_val
         end
       end

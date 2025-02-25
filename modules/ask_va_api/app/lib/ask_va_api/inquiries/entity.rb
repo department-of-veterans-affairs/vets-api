@@ -18,10 +18,16 @@ module AskVAApi
                   :status,
                   :submitter_question,
                   :school_facility_code,
-                  :veteran_relationship
+                  :veteran_relationship,
+                  :allow_attachments,
+                  :allow_replies,
+                  :has_attachments
 
       def initialize(info, correspondences = nil)
         @id = info[:Id]
+        @allow_attachments = info[:AllowAttachments]
+        @allow_replies = info[:AllowReplies]
+        @has_attachments = info[:InquiryHasAttachments]
         @inquiry_number = info[:InquiryNumber]
         @attachments = info[:AttachmentNames]
         @category_name = info[:CategoryName]

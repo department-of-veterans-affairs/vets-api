@@ -22,8 +22,11 @@ RSpec.describe SignIn::TokenSerializer do
     let(:refresh_token) { create(:refresh_token) }
     let(:access_token) { create(:access_token) }
     let(:anti_csrf_token) { 'some-anti-csrf-token' }
-    let(:client_config) { create(:client_config, authentication:, anti_csrf:, shared_sessions:) }
+    let(:client_config) do
+      create(:client_config, authentication:, anti_csrf:, shared_sessions:, json_api_compatibility:)
+    end
     let(:anti_csrf) { false }
+    let(:json_api_compatibility) { true }
     let(:authentication) { SignIn::Constants::Auth::API }
     let(:device_secret) { 'some-device-secret' }
     let(:shared_sessions) { false }
@@ -180,6 +183,36 @@ RSpec.describe SignIn::TokenSerializer do
         end
 
         it 'returns expected json payload with anti csrf token' do
+          expect(subject).to eq(expected_json_payload)
+        end
+      end
+
+      context 'and client is configured to be compatible with json api' do
+        let(:json_api_compatibility) { true }
+        let(:expected_json_payload) { { data: token_payload } }
+        let(:token_payload) do
+          {
+            access_token: encoded_access_token,
+            refresh_token: encrypted_refresh_token
+          }
+        end
+
+        it 'returns expected json payload' do
+          expect(subject).to eq(expected_json_payload)
+        end
+      end
+
+      context 'and client is not configured to be compatible with json api' do
+        let(:json_api_compatibility) { false }
+        let(:expected_json_payload) { token_payload }
+        let(:token_payload) do
+          {
+            access_token: encoded_access_token,
+            refresh_token: encrypted_refresh_token
+          }
+        end
+
+        it 'returns expected json payload' do
           expect(subject).to eq(expected_json_payload)
         end
       end

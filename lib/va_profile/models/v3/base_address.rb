@@ -125,6 +125,13 @@ module VAProfile
           validates :county_code, absence: true
         end
 
+        def initialize(attributes = {})
+          # Address_pou RESIDENCE/CHOICE was changed to RESIDENCE for Contact Information API v2
+          # This will update the address_pou when address_pou is RESIDENCE/CHOICE
+          super
+          self.address_pou = 'RESIDENCE' if address_pou == 'RESIDENCE/CHOICE'
+        end
+
         def ascii_only
           address = [
             address_line1,

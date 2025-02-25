@@ -47,8 +47,11 @@ module ClaimsApi
       # ensure the 'treatment.endDate' is after the 'treatment.startDate'
       # ensure any provided 'treatment.treatedDisabilityNames' match a provided 'disabilities.name'
       validate_form_526_treatments!
-      validate_form_526_direct_depost!
+      validate_form_526_direct_deposit!
+      validate_form_526_at_least_one_active_duty_end_date_within_180_days!
     end
+
+    private
 
     def validate_form_526_current_mailing_address!
       validate_form_526_current_mailing_address_country!
@@ -575,7 +578,7 @@ module ClaimsApi
       end
     end
 
-    def validate_form_526_direct_depost!
+    def validate_form_526_direct_deposit!
       direct_deposit = form_attributes['directDeposit']
       return if direct_deposit.blank?
 
@@ -584,6 +587,24 @@ module ClaimsApi
         raise ::Common::Exceptions::InvalidFieldValue.new(
           'directDeposit.bankName',
           direct_deposit['bankName']
+        )
+      end
+    end
+
+    def validate_form_526_at_least_one_active_duty_end_date_within_180_days!
+      service_periods = form_attributes.dig('serviceInformation', 'servicePeriods')
+
+      at_least_one_active_duty_end_date_within_180_days = service_periods.any? do |sp|
+        active_duty_end_date = sp['activeDutyEndDate']
+        next if active_duty_end_date.blank?
+
+        Date.parse(active_duty_end_date) <= 180.days.from_now.end_of_day
+      end
+
+      unless at_least_one_active_duty_end_date_within_180_days
+        raise ::Common::Exceptions::InvalidFieldValue.new(
+          'serviceInformation/servicePeriods/activeDutyEndDate',
+          'At least one active duty end date must be within 180 days from now.'
         )
       end
     end

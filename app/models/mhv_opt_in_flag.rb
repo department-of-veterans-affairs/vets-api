@@ -8,6 +8,6 @@ class MHVOptInFlag < ApplicationRecord
   attribute :user_account_id
   attribute :feature
 
-  validates :user_account_id, :feature, presence: true
+  validates :feature, presence: true
   validates :feature, inclusion: { in: FEATURES }
 end

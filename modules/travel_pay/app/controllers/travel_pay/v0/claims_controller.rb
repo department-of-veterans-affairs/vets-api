@@ -3,6 +3,8 @@
 module TravelPay
   module V0
     class ClaimsController < ApplicationController
+      after_action :scrub_logs, only: [:show]
+
       def index
         begin
           claims = claims_service.get_claims(params)
@@ -44,11 +46,11 @@ module TravelPay
         begin
           Rails.logger.info(message: 'SMOC transaction START')
 
-          appt_id = get_appt_or_raise(params['appointmentDatetime'])
+          appt_id = get_appt_or_raise(params['appointment_datetime'])
           claim_id = get_claim_id(appt_id)
 
           Rails.logger.info(message: "SMOC transaction: Add expense to claim #{claim_id.slice(0, 8)}")
-          expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointmentDatetime'] })
+          expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointment_datetime'] })
 
           Rails.logger.info(message: "SMOC transaction: Submit claim #{claim_id.slice(0, 8)}")
           submitted_claim = claims_service.submit_claim(claim_id)
@@ -81,9 +83,24 @@ module TravelPay
         @expense_service ||= TravelPay::ExpensesService.new(auth_manager)
       end
 
+      def scrub_logs
+        logger.filter = lambda do |log|
+          if log.name =~ /TravelPay/
+            log.payload[:params]['id'] = 'SCRUBBED_CLAIM_ID'
+            log.payload[:path] = log.payload[:path].gsub(%r{(.+claims/)(.+)}, '\1SCRUBBED_CLAIM_ID')
+
+            # Conditional because no referer if directly using the API
+            if log.named_tags.key? :referer
+              log.named_tags[:referer] = log.named_tags[:referer].gsub(%r{(.+claims/)(.+)(.+)}, '\1SCRUBBED_CLAIM_ID')
+            end
+          end
+          # After the log has been scrubbed, make sure it is logged:
+          true
+        end
+      end
+
       def get_appt_or_raise(appt_datetime)
         appt_not_found_msg = "No appointment found for #{appt_datetime}"
-
         Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{appt_datetime}")
         appt = appts_service.get_appointment_by_date_time({ 'appt_datetime' => appt_datetime })
 

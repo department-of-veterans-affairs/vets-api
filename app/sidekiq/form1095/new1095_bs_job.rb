@@ -66,7 +66,7 @@ module Form1095
         val = "H#{i < 10 ? '0' : ''}#{i}"
 
         field = form_fields[val.to_sym]
-        coverage_arr.push(field && field.strip == 'Y' ? true : false)
+        coverage_arr.push((field && field.strip == 'Y') || false)
 
         i += 1
       end
@@ -131,6 +131,9 @@ module Form1095
 
     def process_line?(form, file_details)
       data = parse_form(form)
+      # we can't save records without icns and should not retain the file in cases
+      # where the icn is missing
+      return true if data[:veteran_icn].blank?
 
       corrected = !file_details[:isOg?]
 
@@ -165,7 +168,6 @@ module Form1095
 
       all_succeeded
     rescue => e
-      Rails.logger.error "#{e.message}."
       log_exception_to_sentry(e, 'context' => "Error processing file: #{file_details}, on line #{lines}")
       false
     end

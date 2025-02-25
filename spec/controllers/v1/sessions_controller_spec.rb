@@ -175,7 +175,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
 
           context 'and the operation param is invalid' do
-            subject(:call_endpoint) { get(:new, params: params) }
+            subject(:call_endpoint) { get(:new, params:) }
 
             let(:params) { { type: 'idme_verified', clientId: '123123', operation: 'asdf' } }
 
@@ -826,7 +826,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                            'client_id:vaweb',
                            'operation:authorize']
 
-          new_user_sign_in = Time.current + 30.minutes
+          new_user_sign_in = 30.minutes.from_now
           Timecop.freeze(new_user_sign_in)
           expect { call_endpoint }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)

@@ -17,7 +17,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
         inquiry_about: 'For the dependent of a Veteran',
         dependent_relationship: nil,
         veteran_relationship: nil,
-        level_of_authentication: level_of_authentication
+        level_of_authentication:
       }
     end
     let(:pronouns) do
@@ -53,7 +53,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
         phone_number: '987-654-3210',
         postal_code: '12345',
         preferred_name: 'Test User',
-        pronouns: pronouns,
+        pronouns:,
         school_obj: {
           institution_name: 'University of California',
           school_facility_code: '123456',
@@ -81,7 +81,6 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
           StateCode: 'CA'
         },
         ZipCode: '12345',
-        Province: nil,
         DateOfBirth: '1980-05-15',
         BusinessPhone: nil,
         PersonalPhone: '987-654-3210',

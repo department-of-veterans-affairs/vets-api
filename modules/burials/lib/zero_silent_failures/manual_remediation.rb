@@ -10,11 +10,15 @@ module Burials
 
       # specify the claim class to be used
       def claim_class
-        ::SavedClaim::Burial
+        Burials::SavedClaim
       end
 
       # override - add additional stamps
       # @see ZeroSilentFailures::ManualRemediation::SavedClaim#stamps
+      #
+      # @param timestamp [String] the timestamp
+      #
+      # @return [Array<Hash>] an array containing stamp metadata
       def stamps(timestamp)
         base = super(timestamp)
         burials = [
@@ -32,6 +36,12 @@ module Burials
         base + burials
       end
 
+      ##
+      # Generates a submitted stamp annotation for a PDF form
+      #
+      # @param timestamp [String] the submission timestamp
+      #
+      # @return [Array<Hash>] an array containing stamp metadata
       def submitted_stamp(timestamp)
         [
           {
@@ -48,8 +58,13 @@ module Burials
         ]
       end
 
-      # override - add additional metadata
+      ##
+      # Generates metadata for the claim by merging the base metadata with burial-related information.
+      #
+      # Override - Added additional metadata
       # @see ZeroSilentFailures::ManualRemediation::SavedClaim#generate_metadata
+      #
+      # @return [Hash]
       def generate_metadata
         base = super
 

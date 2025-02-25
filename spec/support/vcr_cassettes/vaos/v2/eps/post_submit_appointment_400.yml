@@ -1,0 +1,55 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.wellhive.com/care-navigation/v1/appointments/J9BhspdR/submit
+    body:
+      encoding: UTF-8
+      string: '{"networkId":"sandbox-network-5vuTac8v","providerServiceId":"9mN718pH","slotIds":["5vuTac8v-practitioner-4-role-1|2a82f6c9-e693-4091-826d-97b392958301|2024-11-04T17:00:00Z|30m0s|1732735998236|ov"],"referral":{"referralNumber":"12345"},"additionalPatientAttributes":{"name":{"family":"Smith","given":["Sarah","Elizabeth"]},"phone":null,"email":"sarah.smith@email.com","birthDate":"1985-03-15","gender":"female","address":{"line":["742
+        Sunshine Boulevard","Apt 15B"],"city":"Orlando","state":"FL","country":"USA","postalCode":"32801","type":"both"}}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      X-Request-Id:
+      - e5e90dfa-4ed5-4217-b0c0-99ed2c6f18b7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Wed, 15 Jan 2025 14:41:51 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '69'
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - frame-ancestors 'none'
+      Goa-Error:
+      - Bad Request
+      Strict-Transport-Security:
+      - max-age=6307200; includeSubDomains; preload
+      Traceparent:
+      - 00-8fd8819570f292c0ead0adb60cfe6b38-6ad4100e7ca64fc3-01
+      X-Content-Type-Options:
+      - nosniff
+      X-Request-Id:
+      - e5e90dfa-4ed5-4217-b0c0-99ed2c6f18b7
+      X-Wellhive-Trace-Id:
+      - 8fd8819570f292c0ead0adb60cfe6b38
+    body:
+      encoding: UTF-8
+      string: '{"message":"missing patient attributes: phone","name":"Bad Request"}
+
+        '
+  recorded_at: Wed, 15 Jan 2025 14:41:51 GMT
+recorded_with: VCR 6.3.1

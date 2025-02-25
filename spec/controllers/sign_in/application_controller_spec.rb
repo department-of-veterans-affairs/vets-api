@@ -168,7 +168,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         context 'and access_token is an expired JWT' do
           let(:access_token_object) { create(:access_token, expiration_time:) }
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-          let(:expiration_time) { Time.zone.now - 1.day }
+          let(:expiration_time) { 1.day.ago }
           let(:expected_error) { 'Access token has expired' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
@@ -231,7 +231,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       context 'and access_token is an expired JWT' do
         let(:access_token_object) { create(:access_token, expiration_time:) }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-        let(:expiration_time) { Time.zone.now - 1.day }
+        let(:expiration_time) { 1.day.ago }
         let(:expected_error) { 'Access token has expired' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
@@ -357,7 +357,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         context 'and access_token is an expired JWT' do
           let(:access_token_object) { create(:access_token, expiration_time:) }
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-          let(:expiration_time) { Time.zone.now - 1.day }
+          let(:expiration_time) { 1.day.ago }
           let(:expected_error) { 'Access token has expired' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
@@ -420,7 +420,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       context 'and access_token is an expired JWT' do
         let(:access_token_object) { create(:access_token, expiration_time:) }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-        let(:expiration_time) { Time.zone.now - 1.day }
+        let(:expiration_time) { 1.day.ago }
         let(:expected_error) { 'Access token has expired' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
@@ -544,7 +544,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         context 'and access_token is an expired JWT' do
           let(:access_token_object) { create(:access_token, expiration_time:) }
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-          let(:expiration_time) { Time.zone.now - 1.day }
+          let(:expiration_time) { 1.day.ago }
           let(:expected_error) { 'Access token has expired' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
@@ -594,7 +594,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       context 'and access_token is an expired JWT' do
         let(:access_token_object) { create(:access_token, expiration_time:) }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-        let(:expiration_time) { Time.zone.now - 1.day }
+        let(:expiration_time) { 1.day.ago }
         let(:expected_error) { 'Access token has expired' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 

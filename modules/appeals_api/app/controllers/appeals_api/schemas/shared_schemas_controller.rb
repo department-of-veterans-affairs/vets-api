@@ -52,7 +52,7 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
       code: 'InvalidSchemaType',
       status: '404',
       source: { parameter: schema_type },
-      meta: { 'available_options': [schema_form_name] + AppealsApi::FormSchemas::ALL_SHARED_SCHEMA_TYPES }
+      meta: { available_options: [schema_form_name] + AppealsApi::FormSchemas::ALL_SHARED_SCHEMA_TYPES }
     }
   end
 end

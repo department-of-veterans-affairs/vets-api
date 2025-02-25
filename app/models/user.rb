@@ -207,7 +207,7 @@ class User < Common::RedisStore
   delegate :vet360_id, to: :mpi
 
   def active_mhv_ids
-    mpi_profile&.active_mhv_ids
+    mpi_profile&.active_mhv_ids&.uniq
   end
 
   def address
@@ -442,7 +442,7 @@ class User < Common::RedisStore
       end
 
     [the_va_profile_email, email]
-      .reject(&:blank?)
+      .compact_blank
       .map(&:downcase)
       .uniq
   end

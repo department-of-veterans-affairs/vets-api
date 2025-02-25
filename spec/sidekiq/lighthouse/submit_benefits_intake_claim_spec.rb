@@ -27,24 +27,50 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       allow(notification).to receive(:deliver)
     end
 
-    it 'submits the saved claim successfully' do
-      allow(service).to receive(:valid_document?).and_return(pdf_path)
-      allow(response).to receive(:success?).and_return(true)
+    context 'Feature burial_submitted_email_notification=false' do
+      it 'submits the saved claim successfully' do
+        allow(Flipper).to receive(:enabled?).with(:burial_submitted_email_notification).and_return(false)
+        allow(service).to receive(:valid_document?).and_return(pdf_path)
+        allow(response).to receive(:success?).and_return(true)
 
-      expect(job).to receive(:create_form_submission_attempt)
-      expect(job).to receive(:generate_metadata).once.and_call_original
-      expect(service).to receive(:upload_doc)
+        expect(job).to receive(:create_form_submission_attempt)
+        expect(job).to receive(:generate_metadata).once.and_call_original
+        expect(service).to receive(:upload_doc)
 
-      # burials only
-      expect(notification).to receive(:deliver).with(:confirmation)
+        # burials only
+        expect(notification).to receive(:deliver).with(:confirmation)
 
-      expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.success')
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.success')
 
-      job.perform(claim.id)
+        job.perform(claim.id)
 
-      expect(response.success?).to be(true)
-      expect(claim.form_submissions).not_to be_nil
-      expect(claim.business_line).not_to be_nil
+        expect(response.success?).to be(true)
+        expect(claim.form_submissions).not_to be_nil
+        expect(claim.business_line).not_to be_nil
+      end
+    end
+
+    context 'Feature burial_submitted_email_notification=true' do
+      it 'submits the saved claim successfully' do
+        allow(Flipper).to receive(:enabled?).with(:burial_submitted_email_notification).and_return(true)
+        allow(service).to receive(:valid_document?).and_return(pdf_path)
+        allow(response).to receive(:success?).and_return(true)
+
+        expect(job).to receive(:create_form_submission_attempt)
+        expect(job).to receive(:generate_metadata).once.and_call_original
+        expect(service).to receive(:upload_doc)
+
+        # burials only
+        expect(notification).to receive(:deliver).with(:submitted)
+
+        expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.success')
+
+        job.perform(claim.id)
+
+        expect(response.success?).to be(true)
+        expect(claim.form_submissions).not_to be_nil
+        expect(claim.business_line).not_to be_nil
+      end
     end
 
     it 'submits and gets a response error' do
@@ -89,7 +115,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       expect(record).to receive(:to_pdf).and_return('path1')
       expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
       expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5,
-                                                      timestamp: timestamp).and_return('path2')
+                                                      timestamp:).and_return('path2')
       expect(PDFUtilities::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
       expect(datestamp_double2).to receive(:run).with(
         text: 'FDC Reviewed - va.gov Submission',
@@ -106,7 +132,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         timestamp:,
         page_number: 5,
         size: 9,
-        template: 'lib/pdf_fill/forms/pdfs/21P-530EZ.pdf',
+        template: anything,
         multistamp: true
       ).and_return(path)
       allow(service).to receive(:valid_document?).and_return(path)
@@ -141,7 +167,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         timestamp:,
         page_number: 5,
         size: 9,
-        template: 'lib/pdf_fill/forms/pdfs/21P-530EZ.pdf',
+        template: 'modules/burials/lib/pdf_fill/forms/pdfs/21P-530EZ.pdf',
         multistamp: true
       ).and_return(path)
       allow(service).to receive(:valid_document?).and_raise(BenefitsIntakeService::Service::InvalidDocumentError)

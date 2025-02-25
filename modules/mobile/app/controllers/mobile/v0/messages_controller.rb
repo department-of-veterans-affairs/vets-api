@@ -9,7 +9,7 @@ module Mobile
         resource = client.get_folder_messages(@current_user.uuid, params[:folder_id].to_s, use_cache?)
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
 
-        resource = params[:filter].present? ? resource.find_by(filter_params) : resource
+        resource = resource.find_by(filter_params) if params[:filter].present?
         resource = resource.sort(params[:sort])
 
         links = pagination_links(resource)
