@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Dependents
-  class DependentsEmailNotificationCallback
+  class EmailNotificationCallback
     def self.call(notification)
       # @param ac [hash] contains properties form_id and form_uuid
       ac = notification.callback_metadata['additional_context'] # TODO: document this type
