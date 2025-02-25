@@ -27,7 +27,7 @@ module AccreditedRepresentativePortal
       private
 
       def merge_tags(tags)
-        (tags + default_service_tags + user_tags).uniq
+        (tags + default_service_tags).uniq
       end
 
       def error_type_tag(error)
@@ -43,10 +43,6 @@ module AccreditedRepresentativePortal
 
       def default_service_tags
         [@default_tags, "service:#{@service}"].flatten.compact
-      end
-
-      def user_tags
-        ["user:#{@user_context&.uuid}"]
       end
     end
   end

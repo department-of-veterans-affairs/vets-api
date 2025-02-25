@@ -62,15 +62,6 @@ module AccreditedRepresentativePortal
           GENERIC = 'error:generic'
         ].freeze
       end
-
-      module User
-        ALL = [
-          REPRESENTATIVE = 'user:representative',
-          POA = 'user:poa',
-          ADMIN = 'user:admin',
-          ANONYMOUS = 'user:anonymous'
-        ].freeze
-      end
     end
   end
 end

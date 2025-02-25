@@ -23,7 +23,7 @@ module AccreditedRepresentativePortal
 
           expect(logger).to have_received(:track).with(
             :info, 'Request recorded', Monitoring::Metric::POA,
-            tags: contain_exactly('env:test', 'service:accredited-representative-portal', 'user:123')
+            tags: contain_exactly('env:test', 'service:accredited-representative-portal')
           )
         end
 
@@ -33,7 +33,7 @@ module AccreditedRepresentativePortal
           expect(logger).to have_received(:track).with(
             :info, 'Custom Message', Monitoring::Metric::POA,
             tags: contain_exactly('env:test', 'service:accredited-representative-portal',
-                                  'user:123', 'operation:create')
+                                  'operation:create')
           )
         end
       end
@@ -46,7 +46,7 @@ module AccreditedRepresentativePortal
           expect(logger).to have_received(:track).with(
             :error, 'Validation failed', Monitoring::Metric::POA,
             tags: contain_exactly(
-              'env:test', 'service:accredited-representative-portal', 'user:123',
+              'env:test', 'service:accredited-representative-portal',
               Monitoring::Tag::Level::ERROR,
               Monitoring::Tag::Error::VALIDATION
             )
@@ -60,7 +60,7 @@ module AccreditedRepresentativePortal
           expect(logger).to have_received(:track).with(
             :error, 'Timeout occurred', AccreditedRepresentativePortal::Monitoring::Metric::POA,
             tags: contain_exactly(
-              'env:test', 'service:accredited-representative-portal', 'user:123',
+              'env:test', 'service:accredited-representative-portal',
               Monitoring::Tag::Level::ERROR,
               Monitoring::Tag::Error::TIMEOUT
             )
@@ -74,7 +74,7 @@ module AccreditedRepresentativePortal
           expect(logger).to have_received(:track).with(
             :error, 'Resource not found', Monitoring::Metric::POA,
             tags: contain_exactly(
-              'env:test', 'service:accredited-representative-portal', 'user:123',
+              'env:test', 'service:accredited-representative-portal',
               Monitoring::Tag::Level::ERROR,
               Monitoring::Tag::Error::NOT_FOUND
             )
@@ -88,7 +88,7 @@ module AccreditedRepresentativePortal
           expect(logger).to have_received(:track).with(
             :error, 'Unexpected error', Monitoring::Metric::POA,
             tags: contain_exactly(
-              'env:test', 'service:accredited-representative-portal', 'user:123',
+              'env:test', 'service:accredited-representative-portal',
               Monitoring::Tag::Level::ERROR,
               Monitoring::Tag::Error::HTTP_SERVER
             )
