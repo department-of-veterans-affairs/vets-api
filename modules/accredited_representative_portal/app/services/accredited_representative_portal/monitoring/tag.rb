@@ -28,6 +28,7 @@ module AccreditedRepresentativePortal
       module Source
         ALL = [
           API = 'source:api',
+          FRONTEND = 'source:frontend',
           SIDEKIQ = 'source:sidekiq'
         ].freeze
       end

@@ -48,7 +48,7 @@ module AccreditedRepresentativePortal
     # - BGS timeout rate: '{category:bgs,error:timeout}'
     # - POA creation performance: '{category:poa,operation:create}'
     module Metric
-      BASE = 'arp.api'
+      BASE = 'arp'
       ALL = [
         POA = "#{BASE}.poa".freeze,
         POA_DECISION_TIME = "#{POA}.decision_time".freeze
