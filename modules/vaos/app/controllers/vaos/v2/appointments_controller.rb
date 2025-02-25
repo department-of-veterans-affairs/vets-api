@@ -68,6 +68,8 @@ module VAOS
         # TODO: cache provider_id, appointment_type_id, end_date from prior referrals response and use here
         draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: draft_params[:referral_id])
 
+        #validate_ref_id(submit_ref_appt[:patient_id], current_user[:icn_with_aaid])
+
         provider = eps_provider_service.get_provider_service(provider_id: draft_params[:provider_id])
 
         response_data = OpenStruct.new(
@@ -152,6 +154,12 @@ module VAOS
       # Makes a call to the VAOS service to create a new appointment.
       def get_new_appointment
         appointments_service.post_appointment(create_params)
+      end
+
+      def validate_ref_id(ref_id, user_id)
+        icn_s = user_id.to_s
+        icn_match = icn_s[/(\d{10}V\d{6})/]
+        ref_id == icn_match
       end
 
       # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system
