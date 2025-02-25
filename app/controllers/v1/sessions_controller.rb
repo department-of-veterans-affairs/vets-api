@@ -416,9 +416,7 @@ module V1
     end
 
     def create_user_audit_log(user_verification:)
-      user_action_event = UserActionEvent.find_by(identifier: 'user_login')
-      UserAuditLogger.new(user_action_event:,
-                          acting_user_verification: user_verification,
+      UserAuditLogger.new(user_action_event_identifier: 'user_login',
                           subject_user_verification: user_verification,
                           status: :success,
                           acting_ip_address: cookies.request.remote_ip,
