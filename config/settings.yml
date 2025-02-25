@@ -2,14 +2,14 @@
 acc_rep_management:
   prefill: true
 account:
-  enabled: <%= ENV['ACCOUNT__ENABLED'] %>
+  enabled: ~
 accredited_representative_portal:
   allow_list:
     github:
-      access_token: <%= ENV['ACCREDITED_REPRESENTATIVE_PORTAL__ALLOW_LIST__GITHUB__ACCESS_TOKEN'] %>
-      base_uri: <%= ENV['ACCREDITED_REPRESENTATIVE_PORTAL__ALLOW_LIST__GITHUB__BASE_URI'] %>
-      path: <%= ENV['ACCREDITED_REPRESENTATIVE_PORTAL__ALLOW_LIST__GITHUB__PATH'] %>
-      repo: <%= ENV['ACCREDITED_REPRESENTATIVE_PORTAL__ALLOW_LIST__GITHUB__REPO'] %>
+      access_token: ~
+      base_uri: ~
+      path: ~
+      repo: ~
 adapted_housing:
   prefill: true
 argocd:
@@ -42,7 +42,7 @@ banners:
   drupal_url: <%= ENV['BANNERS__DRUPAL_URL'] %>
   drupal_username: banners_api
 bd:
-  base_name: <%= ENV['BD__BASE_NAME'] %>
+  base_name: ~
 benefits_intake_service:
   api_key: <%= ENV['BENEFITS_INTAKE_SERVICE__API_KEY'] %>
   aws:
