@@ -79,6 +79,8 @@ jobs:
             grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
 
           echo "$new_env_keys"
+          mapfile -t keys < <(echo "$new_env_keys" | sed "s/'//g")
+
 
           environments=("dev" "staging" "sandbox" "prod")
           
@@ -89,12 +91,12 @@ jobs:
           for env in "${environments[@]}"; do
             echo "Generating SSM parameters for environment: $env"
             # Loop through each new ENV key
-            for key in $new_env_keys; do
+            for key in "${keys[@]}"; do
               # Ensure key is correctly trimmed and no extra spaces/newlines
               key=$(echo "$key" | xargs)  # Remove leading/trailing whitespace
 
               # Convert the ENV key to the corresponding SSM path
-              ssm_param="/dsva-vagov/vets-api/$env/env_vars/$(echo $key | tr '[:upper:]' '[:lower:]' | tr '__' '/')"
+              ssm_param="/dsva-vagov/vets-api/$env/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
               param_names="$param_names $ssm_param"
             done
           done
