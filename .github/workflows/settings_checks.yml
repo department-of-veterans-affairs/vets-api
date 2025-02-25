@@ -80,26 +80,6 @@ jobs:
 
           echo "$new_env_keys"
 
-          # Save the new ENV keys to the GitHub environment
-          echo "NEW_ENV_KEYS=$new_env_keys" >> $GITHUB_ENV
-
-      - name: Display the new ENV keys
-        run: |
-          echo "New ENV keys: ${{ env.NEW_ENV_KEYS }}"
-
-      - name: Confirm parameters are <= 10 # max allowed by AWS
-        if: env.NEW_ENV_KEYS != ''
-        run: |
-          PARAMS_LENGTH=$(echo $NEW_ENV_KEYS | wc -w)
-          if [ $PARAMS_LENGTH -gt 10 ]; then
-            echo "Error: Number of parameters exceeds maximum of 10. Please only add 10 parameters at a time in a PR."
-            exit 0 # temporarily disable for big PR
-          fi
-
-      - name: Query for parameters if there are any being changed or added
-        if: env.NEW_ENV_KEYS != ''
-        run: |
-          # Define the environments
           environments=("dev" "staging" "sandbox" "prod")
           
           # Initialize an empty string to hold all parameter names
@@ -108,7 +88,7 @@ jobs:
           # Loop through each environment and generate SSM parameter paths
           for env in "${environments[@]}"; do
             echo "Generating SSM parameters for environment: $env"
-            for key in $NEW_ENV_KEYS; do
+            for key in $new_env_keys; do
               # Convert the ENV key to the corresponding SSM path
               ssm_param="/dsva-vagov/vets-api/$env/env_vars/$(echo $key | tr '[:upper:]' '[:lower:]' | tr '__' '/')"
               param_names="$param_names $ssm_param"
@@ -119,7 +99,6 @@ jobs:
           echo "Checking SSM parameters: $param_names"
           aws ssm get-parameters --names $param_names --query "Parameters[*].Name"  |
           echo "INVALID_PARAMETERS=$(jq -c 'select(.InvalidParameters != []).InvalidParameters')" >> $GITHUB_ENV
-
 
       - name: Respond to PR if invalid parameters are found
         if: env.INVALID_PARAMETERS != ''
@@ -135,12 +114,11 @@ jobs:
         run: exit 1
 
       - name: Respond to PR if no invalid parameters are found
-        if: env.NEW_ENV_KEYS != ''
+        if: env.INVALID_PARAMETERS == ''
         uses: thollander/actions-comment-pull-request@1d3973dc4b8e1399c0620d3f2b1aa5e795465308 # v2.4.3
         with:
           message: |
-            :+1: All Parameter Store values in this PR are valid:
-            ${{ env.NEW_ENV_KEYS }}
+            :+1: All Parameter Store values in this PR are valid
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
 
