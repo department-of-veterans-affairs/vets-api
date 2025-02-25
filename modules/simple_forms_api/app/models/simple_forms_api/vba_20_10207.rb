@@ -73,6 +73,14 @@ module SimpleFormsApi
       end
     end
 
+    def notification_email_address
+      if %w[veteran third-party-veteran].include? data['preparer_type']
+        data['veteran_email_address']
+      else
+        data['non_veteran_email_address']
+      end
+    end
+
     def zip_code_is_us_based
       @data.dig('veteran_mailing_address', 'country') == 'USA' ||
         @data.dig('non_veteran_mailing_address', 'country') == 'USA'

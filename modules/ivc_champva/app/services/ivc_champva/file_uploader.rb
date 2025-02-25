@@ -28,7 +28,7 @@ module IvcChampva
     # The return value reflects whether or not all files were successfully uploaded.
     #
     # If successful, it will return an array containing a single HTTP status code and an
-    # optional error message, e.g. [200] | [400, 'No such file']
+    # optional error message, e.g. [200, nil] | [400, 'No such file']
     #
     # If any uploads yield non-200 statuses when submitted to S3, it raise a StandardError.
     #
@@ -95,7 +95,7 @@ module IvcChampva
         first_name: @metadata&.dig('primaryContactInfo', 'name', 'first'),
         last_name: @metadata&.dig('primaryContactInfo', 'name', 'last'),
         form_number: @metadata['docType'],
-        file_name: file_name,
+        file_name:,
         s3_status: response_status,
         pega_status:
       )

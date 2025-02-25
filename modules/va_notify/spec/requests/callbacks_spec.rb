@@ -26,10 +26,10 @@ RSpec.describe 'VANotify Callbacks', type: :request do
       context 'with found notification' do
         it 'updates notification' do
           template_id = SecureRandom.uuid
-          notification = VANotify::Notification.create(notification_id: notification_id,
+          notification = VANotify::Notification.create(notification_id:,
                                                        source_location: 'some_location',
                                                        callback_metadata: 'some_callback_metadata',
-                                                       template_id: template_id)
+                                                       template_id:)
           expect(notification.status).to be_nil
           allow(Rails.logger).to receive(:info)
           callback_obj = double('VANotify::DefaultCallback')
@@ -42,7 +42,7 @@ RSpec.describe 'VANotify Callbacks', type: :request do
 
           expect(Rails.logger).to have_received(:info).with(
             "va_notify callbacks - Updating notification: #{notification.id}",
-            { source_location: 'some_location', template_id: template_id, callback_metadata: 'some_callback_metadata',
+            { source_location: 'some_location', template_id:, callback_metadata: 'some_callback_metadata',
               status: 'delivered' }
           )
           expect(response.body).to include('success')
@@ -85,11 +85,11 @@ RSpec.describe 'VANotify Callbacks', type: :request do
       context 'with multiple bearer tokens' do
         it 'authenticates a valid token' do
           allow(Rails.logger).to receive(:info)
-          service_specific_bearer_token = Settings.vanotify.service_callback_tokens.service_name
+          va_gov_bearer_token = Settings.vanotify.service_callback_tokens.va_gov
 
           post(callback_route,
                params: callback_params.to_json,
-               headers: { 'Authorization' => "Bearer #{service_specific_bearer_token}",
+               headers: { 'Authorization' => "Bearer #{va_gov_bearer_token}",
                           'Content-Type' => 'application/json' })
 
           expect(response).to have_http_status(:ok)

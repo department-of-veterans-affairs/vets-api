@@ -3,6 +3,21 @@
 module Eps
   class AppointmentService < BaseService
     ##
+    # Get a specific appointment from EPS by ID
+    #
+    # @param appointment_id [String] The ID of the appointment to retrieve
+    # @param retrieve_latest_details [Boolean] Whether to fetch latest details from provider service
+    # @raise [ArgumentError] If appointment_id is blank
+    # @return OpenStruct response from EPS get appointment endpoint
+    #
+    def get_appointment(appointment_id:, retrieve_latest_details: false)
+      query_params = retrieve_latest_details ? '?retrieveLatestDetails=true' : ''
+
+      response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {}, headers)
+      OpenStruct.new(response.body)
+    end
+
+    ##
     # Get appointments data from EPS
     #
     # @return OpenStruct response from EPS appointments endpoint
@@ -56,16 +71,16 @@ module Eps
 
     def build_submit_payload(params)
       payload = {
-        networkId: params[:network_id],
-        providerServiceId: params[:provider_service_id],
-        slotIds: params[:slot_ids],
+        network_id: params[:network_id],
+        provider_service_id: params[:provider_service_id],
+        slot_ids: params[:slot_ids],
         referral: {
-          referralNumber: params[:referral_number]
+          referral_number: params[:referral_number]
         }
       }
 
       if params[:additional_patient_attributes]
-        payload[:additionalPatientAttributes] = params[:additional_patient_attributes]
+        payload[:additional_patient_attributes] = params[:additional_patient_attributes]
       end
 
       payload

@@ -115,7 +115,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       expect(record).to receive(:to_pdf).and_return('path1')
       expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
       expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5,
-                                                      timestamp: timestamp).and_return('path2')
+                                                      timestamp:).and_return('path2')
       expect(PDFUtilities::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
       expect(datestamp_double2).to receive(:run).with(
         text: 'FDC Reviewed - va.gov Submission',
@@ -132,7 +132,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         timestamp:,
         page_number: 5,
         size: 9,
-        template: 'lib/pdf_fill/forms/pdfs/21P-530EZ.pdf',
+        template: anything,
         multistamp: true
       ).and_return(path)
       allow(service).to receive(:valid_document?).and_return(path)
@@ -167,7 +167,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         timestamp:,
         page_number: 5,
         size: 9,
-        template: 'lib/pdf_fill/forms/pdfs/21P-530EZ.pdf',
+        template: 'modules/burials/lib/pdf_fill/forms/pdfs/21P-530EZ.pdf',
         multistamp: true
       ).and_return(path)
       allow(service).to receive(:valid_document?).and_raise(BenefitsIntakeService::Service::InvalidDocumentError)

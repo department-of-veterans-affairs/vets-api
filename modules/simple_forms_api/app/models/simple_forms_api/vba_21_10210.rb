@@ -26,6 +26,16 @@ module SimpleFormsApi
       end
     end
 
+    def notification_email_address
+      if data['claim_ownership'] == 'self' && @data['claimant_type'] == 'veteran'
+        data['veteran_email']
+      elsif data['claim_ownership'] == 'self' && @data['claimant_type'] == 'non-veteran'
+        data['claimant_email']
+      elsif data['claim_ownership'] == 'third-party'
+        data['witness_email']
+      end
+    end
+
     def zip_code_is_us_based
       @data.dig('veteran_mailing_address', 'country') == 'USA'
     end

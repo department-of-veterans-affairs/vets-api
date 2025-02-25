@@ -225,6 +225,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 
+  # Every 15min job that syncs ARP's allowlist
+  mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')
+
   # Engine version: Sync non-final DR SavedClaims to LH status
   mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')
   mgr.register('15 1-21/4 * * *', 'DecisionReviews::NodStatusUpdaterJob')
@@ -243,4 +246,16 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
   # Daily 1900 job for Vye: clears deactivated BDNs every evening.
   mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
+
+  # Daily cleanup of > 12 month old UserAction records
+  mgr.register('45 3 * * *', 'UserActionEventsCleanupJob')
+
+  # CST Daily job that deletes EvidenceSubmissions when their delete_date has been met
+  mgr.register('0 6 * * *', 'Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJob')
+
+  # Hourly job that updates Evidence Submission Records that were uploaded to Lighthouse and are in a PENDING status.
+  mgr.register('0 * * * *', 'Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUploadPollingJob')
+
+  # Daily cron job to send Failure Notification Emails to Veterans for their failed evidence submissions.
+  mgr.register('5 0 * * *', 'Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob')
 }

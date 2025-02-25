@@ -84,8 +84,6 @@ module Burials
     # @param in_progress_form [InProgressForm]
     # @param claim [SavedClaim::Burial]
     # @param current_user [User]
-    # @param e [Error]
-    #
     def track_create_validation_error(in_progress_form, claim, current_user)
       additional_context = {
         confirmation_number: claim&.confirmation_number,
@@ -171,7 +169,7 @@ module Burials
       user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1]
       additional_context = {
         confirmation_number: claim&.confirmation_number,
-        user_account_uuid: user_account_uuid,
+        user_account_uuid:,
         form_id: claim&.form_id,
         claim_id: msg['args'].first,
         message: msg,

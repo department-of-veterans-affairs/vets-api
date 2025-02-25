@@ -48,15 +48,40 @@ module ClaimsApi
         )
 
       ##
-      # BenefitClaimWebService
-      # http://bepdev.vba.va.gov/BenefitClaimWebServiceBean/BenefitClaimWebService?WSDL
+      # BenefitClaimServiceBean
+      #
+      ##
+      module BenefitClaimServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'BenefitClaimServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://services.share.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      # BGS gave the same name to this service and the one below (BenefitClaimWebService), so
+      # We changed the definition name to resemble the bean name.
+      module BenefitClaimService
+        DEFINITION =
+          Service.new(
+            bean: BenefitClaimServiceBean::DEFINITION,
+            path: 'BenefitClaimWebService'
+          )
+      end
+
+      ##
+      # BenefitClaimWebServiceBean
+      #
       ##
       module BenefitClaimWebServiceBean
         DEFINITION =
           Bean.new(
             path: 'BenefitClaimWebServiceBean',
             namespaces: Namespaces.new(
-              target: 'http://services.share.benefits.vba.va.gov/',
+              target: 'http://benefitclaim.services.vetsnet.vba.va.gov/',
               data: nil
             )
           )

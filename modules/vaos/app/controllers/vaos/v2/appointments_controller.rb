@@ -72,7 +72,7 @@ module VAOS
 
         response_data = OpenStruct.new(
           id: draft_appointment.id,
-          provider: provider,
+          provider:,
           slots: fetch_provider_slots,
           drive_time: fetch_drive_times(provider)
         )
@@ -338,14 +338,16 @@ module VAOS
         {
           clinics: ActiveModel::Type::Boolean.new.deserialize(included&.include?('clinics')),
           facilities: ActiveModel::Type::Boolean.new.deserialize(included&.include?('facilities')),
-          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs'))
+          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs')),
+          travel_pay_claims: ActiveModel::Type::Boolean.new.deserialize(included&.include?('travel_pay_claims'))
         }
       end
 
       def include_show_params
         included = appointment_show_params[:_include]&.split(',')
         {
-          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs'))
+          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs')),
+          travel_pay_claims: ActiveModel::Type::Boolean.new.deserialize(included&.include?('travel_pay_claims'))
         }
       end
 
@@ -422,14 +424,14 @@ module VAOS
           },
           phone: params[:phone_number],
           email: params[:email],
-          birthDate: params[:birth_date],
+          birth_date: params[:birth_date],
           gender: params[:gender],
           address: {
             line: params.dig(:address, :line),
             city: params.dig(:address, :city),
             state: params.dig(:address, :state),
             country: params.dig(:address, :country),
-            postalCode: params.dig(:address, :postal_code),
+            postal_code: params.dig(:address, :postal_code),
             type: params.dig(:address, :type)
           }
         }
@@ -447,16 +449,20 @@ module VAOS
       end
 
       def fetch_drive_times(provider)
+        user_address = current_user.vet360_contact_info&.residential_address
+
+        return nil unless user_address&.latitude && user_address.longitude
+
         eps_provider_service.get_drive_times(
           destinations: {
             provider.id => {
-              latitude: provider.location['latitude'],
-              longitude: provider.location['longitude']
+              latitude: provider.location[:latitude],
+              longitude: provider.location[:longitude]
             }
           },
           origin: {
-            latitude: current_user.address['latitude'],
-            longitude: current_user.address['longitude']
+            latitude: user_address.latitude,
+            longitude: user_address.longitude
           }
         )
       end

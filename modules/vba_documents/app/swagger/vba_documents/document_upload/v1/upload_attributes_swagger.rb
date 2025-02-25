@@ -25,11 +25,19 @@ module VBADocuments
             property :code do
               key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'status_code_description.md'))
               key :type, :string
+              key :example, nil
             end
 
             property :detail do
               key :description, 'Human readable error detail. Only present if status = "error"'
               key :type, :string
+              key :example, ''
+            end
+
+            property :final_status do
+              key :description, 'Indicates whether the status of the submission is final. Submissions with a final_status of true will no longer update to a new status.'
+              key :type, :boolean
+              key :example, false
             end
 
             property :location do

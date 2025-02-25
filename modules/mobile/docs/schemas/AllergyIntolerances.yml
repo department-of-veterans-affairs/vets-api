@@ -30,16 +30,17 @@ properties:
             - code
             - recordedDate
             - patient
+            - category
             - notes
             - recorder
             - reactions
           properties:
             resourceType:
               type: string
-              example: 'AllergyIntolerance'
+              example: "AllergyIntolerance"
             type:
               type: string
-              example: 'allergy'
+              example: "allergy"
             clinicalStatus:
               type: object
               additionalProperties: false
@@ -58,10 +59,10 @@ properties:
                     properties:
                       system:
                         type: string
-                        example: 'http://hl7.org/fhir/ValueSet/allergyintolerance-clinical'
+                        example: "http://hl7.org/fhir/ValueSet/allergyintolerance-clinical"
                       code:
                         type: string
-                        example: 'active'
+                        example: "active"
             code:
               type: object
               additionalProperties: false
@@ -80,13 +81,21 @@ properties:
                     properties:
                       system:
                         type: string
-                        example: 'http://snomed.info/sct'
+                        example: "http://snomed.info/sct"
                       code:
                         type: string
-                        example: '300916003'
+                        example: "300916003"
                       display:
                         type: string
-                        example: 'Latex Allergy'
+                        example: "Latex Allergy"
+            category:
+              type: array
+              additionalProperties: false
+              items:
+                type: string
+                additionalProperties: false
+                nullable: true
+                example: "environment"
             notes:
               type: array
               items:
@@ -106,16 +115,16 @@ properties:
                     properties:
                       reference:
                         type: string
-                        example: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-HRJI2MVST2IQSPR7U5SACWIWZA000000'
+                        example: "https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-HRJI2MVST2IQSPR7U5SACWIWZA000000"
                       display:
                         type: string
-                        example: 'DR. JANE460 DOE922 MD'
+                        example: "DR. JANE460 DOE922 MD"
                   time:
                     type: datetime
-                    example: '1999-01-07T01:43:31Z'
+                    example: "1999-01-07T01:43:31Z"
                   text:
                     type: string
-                    example: 'Latex allergy'
+                    example: "Latex allergy"
             recordedDate:
               type: datetime
               example: 2019-04-20T14:15:00.000-04:00
@@ -128,10 +137,10 @@ properties:
               properties:
                 reference:
                   type: string
-                  example: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/43000199'
+                  example: "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/43000199"
                 display:
                   type: string
-                  example: 'Ms. Carlita746 Kautzer186'
+                  example: "Ms. Carlita746 Kautzer186"
             recorder:
               type: object
               additionalProperties: false
@@ -141,10 +150,10 @@ properties:
               properties:
                 reference:
                   type: string
-                  example: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-4ZXYC2SQAZCHMOWPPFNLOY65GE000000'
+                  example: "https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-4ZXYC2SQAZCHMOWPPFNLOY65GE000000"
                 display:
                   type: string
-                  example: 'DR. THOMAS359 REYNOLDS206 PHD'
+                  example: "DR. THOMAS359 REYNOLDS206 PHD"
             reactions:
               type: array
               items:
@@ -173,13 +182,13 @@ properties:
                           properties:
                             system:
                               type: string
-                              example: 'http://snomed.info/sct'
+                              example: "http://snomed.info/sct"
                             code:
                               type: string
-                              example: '300916003'
+                              example: "300916003"
                             display:
                               type: string
-                              example: 'Latex allergy'
+                              example: "Latex allergy"
                   manifestation:
                     type: array
                     items:
@@ -205,9 +214,9 @@ properties:
                               display:
                                 type: string
                             example:
-                              system: 'urn:oid:2.16.840.1.113883.6.233'
-                              code: '43000006'
-                              display: 'Itchy Watery Eyes'
+                              system: "urn:oid:2.16.840.1.113883.6.233"
+                              code: "43000006"
+                              display: "Itchy Watery Eyes"
                   text:
                     type: string
-                    example: 'Itchy Watery Eyes'
+                    example: "Itchy Watery Eyes"

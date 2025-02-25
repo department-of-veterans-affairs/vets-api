@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'vets/type/base'
-require 'vets/model' # this is required for Bools
 
 module Vets
   module Type

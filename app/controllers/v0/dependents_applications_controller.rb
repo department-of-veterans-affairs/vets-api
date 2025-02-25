@@ -14,7 +14,13 @@ module V0
     end
 
     def create
-      claim = SavedClaim::DependencyClaim.new(form: dependent_params.to_json)
+      if Flipper.enabled?(:va_dependents_v2)
+        form = dependent_params.to_json
+        use_v2 = form.present? ? JSON.parse(form)&.dig('dependents_application', 'use_v2') : nil
+        claim = SavedClaim::DependencyClaim.new(form:, use_v2:)
+      else
+        claim = SavedClaim::DependencyClaim.new(form: dependent_params.to_json)
+      end
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")

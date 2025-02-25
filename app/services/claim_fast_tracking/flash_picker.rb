@@ -68,7 +68,7 @@ module ClaimFastTracking
       if distance - 1 == threshold
         Rails.logger.info(
           'FlashPicker close fuzzy match for condition',
-          { name: name, match_term: term, distance: distance, threshold: threshold }
+          { name:, match_term: term, distance:, threshold: }
         )
       end
       distance <= threshold

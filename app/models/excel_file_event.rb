@@ -15,6 +15,6 @@ class ExcelFileEvent < ApplicationRecord
       return event
     end
 
-    create(filename: filename)
+    create(filename:)
   end
 end

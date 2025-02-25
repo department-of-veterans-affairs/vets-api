@@ -11,6 +11,8 @@ module ClaimsApi
     class PoaFormBuilderJob < ClaimsApi::ServiceBase
       include ClaimsApi::PoaVbmsSidekiq
 
+      sidekiq_options retry_for: 48.hours
+
       # Generate a 21-22 or 21-22a form for a given POA request.
       # Uploads the generated form to VBMS. If successfully uploaded,
       # it queues a job to update the POA code in BGS, as well.

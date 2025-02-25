@@ -29,13 +29,15 @@ class SavedClaim < ApplicationRecord
   has_many :form_submissions, dependent: :nullify
   has_many :claim_va_notifications, dependent: :destroy
 
+  belongs_to :user_account, optional: true
+
   after_create :after_create_metrics
   after_destroy :after_destroy_metrics
 
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
   after_initialize do
-    self.form_id = self.class::FORM.upcase
+    self.form_id = self.class::FORM.upcase unless [SavedClaim::DependencyClaim].any? { |k| instance_of?(k) }
   end
 
   def self.add_form_and_validation(form_id)
@@ -131,7 +133,7 @@ class SavedClaim < ApplicationRecord
     claim_va_notifications.create!(
       form_type: form_id,
       email_sent: true,
-      email_template_id: email_template_id
+      email_template_id:
     )
   end
 
@@ -144,7 +146,7 @@ class SavedClaim < ApplicationRecord
   def va_notification?(email_template_id)
     claim_va_notifications.find_by(
       form_type: form_id,
-      email_template_id: email_template_id
+      email_template_id:
     )
   end
 
