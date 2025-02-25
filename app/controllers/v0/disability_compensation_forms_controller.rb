@@ -35,8 +35,8 @@ module V0
         :get_separation_locations
       ) do
         # A separate provider is needed in order to interact with LH Staging and test BRD e2e properly
-        # We use DD_ENV here as RAILS_ENV is set to 'production' in staging
-        provider = ENV['DD_ENV'] == 'eks-staging' ? :lighthouse_staging : :lighthouse
+        # We use vsp_environment here as RAILS_ENV is set to 'production' in staging
+        provider = Settings.vsp_environment == 'staging' ? :lighthouse_staging : :lighthouse
         api_provider = ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:brd],
           provider:,
