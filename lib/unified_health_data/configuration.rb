@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/configuration/rest'
 require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/response/json_parser'
@@ -13,6 +14,8 @@ module UnifiedHealthData
       Settings.mhv.uhd
     end
 
+    delegate :app_id, :app_token, to: :settings
+
     def base_path
       "#{settings.host}/mhvapi/v1/medicalrecords/"
     end
@@ -23,14 +26,6 @@ module UnifiedHealthData
 
     def token_path
       "#{settings.security_host}/mhvapi/security/v1/login"
-    end
-
-    def app_id
-      settings.app_id
-    end
-
-    def app_token
-      settings.app_token
     end
 
     def connection
@@ -47,6 +42,5 @@ module UnifiedHealthData
         conn.adapter Faraday.default_adapter
       end
     end
-
   end
 end

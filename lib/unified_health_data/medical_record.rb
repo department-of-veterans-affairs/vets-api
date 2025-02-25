@@ -10,10 +10,13 @@ module UnifiedHealthData
       @attributes = attributes
     end
 
+    # rubocop:disable Metrics/ParameterLists
     class Attributes
-      attr_accessor :display, :test_code, :date_completed, :sample_site, :encoded_data, :location, :ordered_by, :observations
+      attr_accessor :display, :test_code, :date_completed, :sample_site,
+                    :encoded_data, :location, :ordered_by, :observations
 
-      def initialize(display:, test_code:, date_completed:, sample_site:, encoded_data:, location:, ordered_by:, observations:)
+      def initialize(display:, test_code:, date_completed:, sample_site:,
+                     encoded_data:, location:, ordered_by:, observations:)
         @display = display
         @test_code = test_code
         @date_completed = date_completed
@@ -25,7 +28,8 @@ module UnifiedHealthData
       end
 
       class Observation
-        attr_accessor :test_code, :encoded_data, :value_quantity, :reference_range, :status, :comments
+        attr_accessor :test_code, :encoded_data, :value_quantity,
+                      :reference_range, :status, :comments
 
         def initialize(test_code:, encoded_data:, value_quantity:, reference_range:, status:, comments:)
           @test_code = test_code
@@ -37,6 +41,6 @@ module UnifiedHealthData
         end
       end
     end
-
   end
+  # rubocop:enable Metrics/ParameterLists
 end
