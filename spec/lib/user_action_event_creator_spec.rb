@@ -6,11 +6,8 @@ RSpec.describe UserActionEventCreator do
   describe '#perform' do
     subject { described_class.perform }
 
-    let(:config_file_path) { Rails.root.join('config', 'user_action_events.yml') }
-    let(:user_action_event_configs) { YAML.load_file(config_file_path) }
-
     context 'when the event config file does not exist' do
-      let(:expected_log_message) { 'UserActionEvents config file not found; skipping database population.' }
+      let(:expected_log_message) { '[UserActionEventCreator] Config file not found; skipping database population.' }
 
       before { allow(File).to receive(:exist?).and_return(false) }
 
@@ -25,6 +22,9 @@ RSpec.describe UserActionEventCreator do
     end
 
     context 'when the event config file exists' do
+      let(:config_file_path) { Rails.root.join('config', 'user_action_events.yml') }
+      let(:user_action_event_configs) { YAML.load_file(config_file_path) }
+
       context 'when the user action event does not exist' do
         let(:user_action_event_configs) { { some_identifier: { details:, event_type: } } }
         let(:details) { 'some details' }
@@ -48,6 +48,7 @@ RSpec.describe UserActionEventCreator do
 
         it 'updates the existing user action event' do
           expect { subject }.not_to change(UserActionEvent, :count)
+          expect(UserActionEvent.last.identifier).to eq(user_action_event_configs.keys.last.to_s)
           expect(UserActionEvent.last.details).to eq(details)
           expect(UserActionEvent.last.event_type).to eq(event_type)
         end
@@ -55,7 +56,7 @@ RSpec.describe UserActionEventCreator do
 
       context 'when an error occurs' do
         let(:error_message) { 'some error message' }
-        let(:expected_error_log) { "[UserActionEvent][Setup] Error loading user action event: #{error_message}" }
+        let(:expected_error_log) { "[UserActionEventCreator] Error loading user action event: #{error_message}" }
 
         before { allow(YAML).to receive(:load_file).and_raise(error_message) }
 
