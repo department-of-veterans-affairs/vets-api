@@ -29,7 +29,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
   let!(:poa_request) do
     create(:power_of_attorney_request, poa_code:,
-           accredited_individual_registration_number: '999999999999')
+                                       accredited_individual_registration_number: '999999999999')
   end
   let!(:other_poa_request) { create(:power_of_attorney_request, poa_code: other_poa_code) }
 
@@ -87,8 +87,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
     context 'with valid params' do
       it 'creates an acceptance decision' do
-        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
-             params: { decision: { type: 'acceptance', reason: nil } }
+        VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/202_response') do
+          post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+               params: { decision: { type: 'acceptance', reason: nil } }
+        end
 
         expect(response).to have_http_status(:ok)
         expect(parsed_response).to eq({})
@@ -118,9 +120,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         post '/accredited_representative_portal/v0/power_of_attorney_requests/nonexistent/decision'
 
         expect(response).to have_http_status(:not_found)
-        expect(parsed_response['errors']).to include(
-          a_string_including("Couldn't find AccreditedRepresentativePortal::PowerOfAttorneyRequest")
-        )
+        expect(parsed_response['errors']).to include(a_string_including('Record not found'))
       end
 
       it 'rep does not have poa for veteran' do
@@ -134,7 +134,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         expect(response).to have_http_status(:not_found)
         poa_request.reload
 
-        expect(poa_request.resolution.present?).to be(true)
+        expect(poa_request.resolution.present?).to be(false)
       end
     end
 
@@ -185,9 +185,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       post '/accredited_representative_portal/v0/power_of_attorney_requests/a/decision'
 
       expect(response).to have_http_status(:not_found)
-      expect(parsed_response['errors']).to eq(
-        ["Couldn't find AccreditedRepresentativePortal::PowerOfAttorneyRequest with 'id'=a"]
-      )
+      expect(parsed_response['errors']).to eq(['Record not found'])
     end
 
     it 'returns an error if decision already exists' do
