@@ -21,15 +21,7 @@ module VANotify
 
     def call_with_metadata
       notification_type = metadata['notification_type']
-
-      if Flipper.enabled?(:va_notify_metadata_statsd_tags)
-        tags = validate_and_normalize_statsd_tags
-      else
-        statsd_tags = metadata['statsd_tags']
-        service = statsd_tags['service']
-        function = statsd_tags['function']
-        tags = ["service:#{service}", "function:#{function}"]
-      end
+      tags = validate_and_normalize_statsd_tags
 
       case notification_record.status
       when 'delivered'

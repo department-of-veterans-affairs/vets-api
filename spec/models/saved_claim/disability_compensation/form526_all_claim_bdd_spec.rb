@@ -7,7 +7,6 @@ RSpec.describe SavedClaim::DisabilityCompensation::Form526AllClaim do
   let(:user) { build(:disabilities_compensation_user) }
 
   before do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
     create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
     Timecop.freeze(Date.new(2020, 8, 1))
   end

@@ -572,7 +572,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
   def decide_request_with(id:, decision:, auth_header:, representative_id: nil)
     post "/services/claims/v2/veterans/power-of-attorney-requests/#{id}/decide",
-         params: { data: { attributes: { id: id,
+         params: { data: { attributes: { id:,
                                          decision:,
                                          representativeId: representative_id } } }.to_json,
          headers: auth_header.merge('Content-Type' => 'application/json')
