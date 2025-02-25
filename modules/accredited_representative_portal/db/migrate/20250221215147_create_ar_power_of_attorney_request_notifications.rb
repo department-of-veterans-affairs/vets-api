@@ -4,7 +4,7 @@ class CreateArPowerOfAttorneyRequestNotifications < ActiveRecord::Migration[7.2]
       t.timestamps
       t.references :power_of_attorney_request, type: :uuid, foreign_key: { to_table: :ar_power_of_attorney_requests }, null: false
       t.references :notification, type: :uuid
-      t.string 'type', null: false
+      t.string 'notification_type', null: false
     end
   end
 end
