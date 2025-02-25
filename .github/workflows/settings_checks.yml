@@ -12,9 +12,8 @@ permissions:
 jobs:
   validate-config-files:
     env:
+      COVERBAND_DISABLE: true
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-      CI: true
-      RAILS_ENV: development
     permissions: write-all
     runs-on: ubuntu-32-cores-latest
     steps:
