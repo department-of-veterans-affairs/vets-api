@@ -75,6 +75,7 @@ jobs:
 
       - name: Check ENV diff for aws_ssm_custom lookups
         run: >
+
           new_env_keys=$(git diff origin/master config/settings.yml | \
             grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
 
@@ -84,24 +85,31 @@ jobs:
           done <<< "$new_env_keys"
 
           if [[ ${#keys[@]} -eq 0 ]]; then
+            echo "No new ENV keys found in config/settings.yml."
             exit 0
           fi
 
-          environments=("dev" "staging" "sandbox" "prod")
-          param_names=()
+          invalid_parameters=()
 
-          for env in "${environments[@]}"; do
-            for key in "${keys[@]}"; do
-              ssm_param="/dsva-vagov/vets-api/$env/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
-              param_names+=("$ssm_param")
-            done
+          for key in "${keys[@]}"; do
+            param_names=()
+
+            dev_ssm_param="/dsva-vagov/vets-api/staging/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
+            staging_ssm_param="/dsva-vagov/vets-api/staging/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
+            sandbox_ssm_param="/dsva-vagov/vets-api/sandbox/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
+            prod_ssm_param="/dsva-vagov/vets-api/prod/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
+
+            param_names+=("$dev_ssm_param")
+            param_names+=("$staging_ssm_param")
+            param_names+=("$sandbox_ssm_param")
+            param_names+=("$prod_ssm_param")
+
+            param_names_string="${param_names[*]}"
+            ssm_output=$(aws ssm get-parameters --names $param_names_string --query "Parameters[*].Name")
+
+            invalid_parameters+=$(echo "$ssm_output" | jq -c 'select(.InvalidParameters != null).InvalidParameters')
+
           done
-
-          param_names_string="${param_names[*]}"
-
-          ssm_output=$(aws ssm get-parameters --names $param_names_string --query "Parameters[*].Name")
-
-          invalid_parameters=$(echo "$ssm_output" | jq -c 'select(.InvalidParameters != null).InvalidParameters')
 
           echo "INVALID_PARAMETERS=$invalid_parameters" >> $GITHUB_ENV
 
