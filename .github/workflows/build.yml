@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   workflow_run:
     workflows: ["Code Checks"]
-    branches: [master]
+    branches: [eb-rack-3-0-dev-only]
     types: [completed]
 permissions:
   contents: read
@@ -21,7 +21,6 @@ jobs:
           echo "github.event.workflow_run.head_commit.id: ${{ github.event.workflow_run.head_commit.id }}"
 
   build_and_push:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Build and Push
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
@@ -51,7 +50,7 @@ jobs:
           file: ./postman/Dockerfile
           push: true
           tags: |
-            ${{ steps.ecr-login.outputs.registry }}/dsva/vets-api-postman:${{ github.event.workflow_run.head_commit.id }}
+            ${{ steps.ecr-login.outputs.registry }}/dsva/vets-api-postman:${{ github.sha }}
       - name: Build vets-api Docker Image
         uses: docker/build-push-action@v6
         env:
@@ -64,17 +63,16 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.event.workflow_run.head_commit.id }}
+            ${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
           cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
           cache-to: type=inline
   deploy:
     needs: build_and_push
-    if: github.ref == 'refs/heads/master' && ${{ github.event.workflow_run.conclusion == 'success' }}
     uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@master
     with:
       ecr_repository: "vets-api"
       manifests_directory: "vets-api"
-      auto_deploy_envs: "dev staging prod sandbox"
+      auto_deploy_envs: "dev"
       commit_sha: ${{ github.event.workflow_run.head_commit.id }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
