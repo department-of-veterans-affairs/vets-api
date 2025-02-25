@@ -19,6 +19,7 @@ require_relative '../lib/http_method_not_allowed'
 require_relative '../lib/source_app_middleware'
 require_relative '../lib/statsd_middleware'
 require_relative '../lib/faraday_adapter_socks/faraday_adapter_socks'
+require_relative '../lib/user_action_event_creator'
 require 'rails/test_unit/railtie'
 
 # Require the gems listed in Gemfile, including any gems
@@ -130,6 +131,7 @@ module VetsAPI
                                    key: 'api_session',
                                    secure: Settings.session_cookie.secure,
                                    http_only: true
+    config.after_initialize { UserActionEventCreator.perform }
 
     # These files do not contain auto-loaded ruby classes,
     #   they are loaded through app/sidekiq/education_form/forms/base.rb
