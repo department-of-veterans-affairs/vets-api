@@ -80,9 +80,9 @@ jobs:
             grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
 
           keys=()
-          while IFS= read -r line; do
-            keys+=("$(echo "$line" | sed "s/'//g")")
-          done <<< "$new_env_keys"
+          for line in $new_env_keys; do
+            keys+=("$line")
+          done
 
           if [[ ${#keys[@]} -eq 0 ]]; then
             echo "No new ENV keys found in config/settings.yml."
