@@ -21,14 +21,14 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
 
     it 'sends a well formatted slack message' do
       messenger = described_class.new(
-        errored_disability_claims: errored_disability_claims,
-        errored_va_gov_claims: errored_va_gov_claims,
-        errored_poa: errored_poa,
-        errored_itf: errored_itf,
-        errored_ews: errored_ews,
-        from: from,
-        to: to,
-        environment: environment
+        errored_disability_claims:,
+        errored_va_gov_claims:,
+        errored_poa:,
+        errored_itf:,
+        errored_ews:,
+        from:,
+        to:,
+        environment:
       )
 
       expect(notifier).to receive(:notify) do |_text, args|
@@ -103,10 +103,10 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
 
     it 'sends error ids with links to logs' do
       messenger = described_class.new(
-        errored_va_gov_claims: errored_va_gov_claims,
-        from: from,
-        to: to,
-        environment: environment
+        errored_va_gov_claims:,
+        from:,
+        to:,
+        environment:
       )
 
       expect(notifier).to receive(:notify) do |_text, args|
@@ -151,7 +151,7 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
 
       it 'only sends the title and total block' do
         messenger = described_class.new(
-          errored_itf: errored_itf
+          errored_itf:
         )
 
         expect(notifier).to receive(:notify) do |_text, args|
