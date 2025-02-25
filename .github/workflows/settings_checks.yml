@@ -88,7 +88,11 @@ jobs:
           # Loop through each environment and generate SSM parameter paths
           for env in "${environments[@]}"; do
             echo "Generating SSM parameters for environment: $env"
+            # Loop through each new ENV key
             for key in $new_env_keys; do
+              # Ensure key is correctly trimmed and no extra spaces/newlines
+              key=$(echo "$key" | xargs)  # Remove leading/trailing whitespace
+
               # Convert the ENV key to the corresponding SSM path
               ssm_param="/dsva-vagov/vets-api/$env/env_vars/$(echo $key | tr '[:upper:]' '[:lower:]' | tr '__' '/')"
               param_names="$param_names $ssm_param"
