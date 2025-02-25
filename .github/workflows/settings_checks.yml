@@ -12,7 +12,7 @@ permissions:
 jobs:
   validate-config-files:
     env:
-      COVERBAND_DISABLE: true
+      COVERBAND_DISABLE_AUTO_START: true
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
     permissions: write-all
     runs-on: ubuntu-32-cores-latest
@@ -66,6 +66,9 @@ jobs:
         run: |
           sudo apt update
           sudo apt install jq -y
+
+      - name: Fetch the remote master branch
+        run: git fetch origin master
 
       - name: Check ENV diff for aws_ssm_custom lookups
         run: >
