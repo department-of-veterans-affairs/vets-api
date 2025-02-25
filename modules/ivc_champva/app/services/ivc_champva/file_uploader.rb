@@ -95,7 +95,7 @@ module IvcChampva
         first_name: @metadata&.dig('primaryContactInfo', 'name', 'first'),
         last_name: @metadata&.dig('primaryContactInfo', 'name', 'last'),
         form_number: @metadata['docType'],
-        file_name: file_name,
+        file_name:,
         s3_status: response_status,
         pega_status:
       )

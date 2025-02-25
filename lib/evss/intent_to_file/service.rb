@@ -10,7 +10,7 @@ require_relative 'service_exception'
 
 module EVSS
   module IntentToFile
-    ##
+    ## TODO Remove this file
     # Proxy Service for Intent To File.
     #
     # @example Create a service and fetching intent to file for a user
