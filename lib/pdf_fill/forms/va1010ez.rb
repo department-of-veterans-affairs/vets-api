@@ -427,29 +427,45 @@ module PdfFill
       }.freeze
 
       def merge_fields(_options = {})
-        merge_full_name('veteranFullName')
-        merge_full_name('spouseFullName')
-        merge_sex('gender')
-        merge_place_of_birth
-        merge_ethnicity_choices
-        merge_marital_status
-        merge_spouse_address_phone_number
-        @form_data['provideSupportLastYear'] = map_radio_box_value(@form_data['provideSupportLastYear'])
-        @form_data['isSpanishHispanicLatino'] = map_radio_box_value(@form_data['isSpanishHispanicLatino'])
-        @form_data['wantsInitialVaContact'] = map_radio_box_value(@form_data['wantsInitialVaContact'])
-        @form_data['isMedicaidEligible'] = map_radio_box_value(@form_data['isMedicaidEligible'])
-        @form_data['isEnrolledMedicarePartA'] = map_radio_box_value(@form_data['isEnrolledMedicarePartA'])
-        merge_exposure
-        merge_military_service
+        merge_veteran_info
+        merge_spouse_info
+        merge_healthcare_info
         merge_dependents
-        merge_tera
+        merge_veteran_service_info
         merge_disclose_financial_info
-        merge_service_connected_rating
         merge_date_fields
+
         @form_data
       end
 
       private
+
+      def merge_veteran_info
+        merge_full_name('veteranFullName')
+        merge_sex('gender')
+        merge_place_of_birth
+        merge_ethnicity_choices
+        merge_marital_status
+        merge_value('isSpanishHispanicLatino', :map_radio_box_value)
+      end
+
+      def merge_spouse_info
+        merge_full_name('spouseFullName')
+        merge_spouse_address_phone_number
+      end
+
+      def merge_healthcare_info
+        merge_value('wantsInitialVaContact', :map_radio_box_value)
+        merge_value('isMedicaidEligible', :map_radio_box_value)
+        merge_value('isEnrolledMedicarePartA', :map_radio_box_value)
+      end
+
+      def merge_veteran_service_info
+        merge_exposure
+        merge_military_service
+        merge_tera
+        merge_service_connected_rating
+      end
 
       def merge_full_name(type)
         @form_data[type] = format_full_name(@form_data[type])
@@ -467,7 +483,7 @@ module PdfFill
 
       def merge_date_fields
         DATE_FIELDS.each do |field|
-          @form_data[field] = format_date(@form_data[field])
+          merge_value(field, :format_date)
         end
       end
 
@@ -507,22 +523,18 @@ module PdfFill
       end
 
       def merge_tera
-        merge_yes_no('radiationCleanupEfforts')
-        merge_yes_no('gulfWarService')
-        merge_yes_no('combatOperationService')
-        merge_yes_no('exposedToAgentOrange')
+        merge_value('radiationCleanupEfforts', :map_check_box)
+        merge_value('gulfWarService', :map_check_box)
+        merge_value('combatOperationService', :map_check_box)
+        merge_value('exposedToAgentOrange', :map_check_box)
       end
 
       def merge_military_service
-        merge_yes_no('purpleHeartRecipient')
-        merge_yes_no('isFormerPow')
-        merge_yes_no('postNov111998Combat')
-        merge_yes_no('disabledInLineOfDuty')
-        merge_yes_no('swAsiaCombat')
-      end
-
-      def merge_yes_no(type)
-        @form_data[type] = map_check_box(@form_data[type])
+        merge_value('purpleHeartRecipient', :map_check_box)
+        merge_value('isFormerPow', :map_check_box)
+        merge_value('postNov111998Combat', :map_check_box)
+        merge_value('disabledInLineOfDuty', :map_check_box)
+        merge_value('swAsiaCombat', :map_check_box)
       end
 
       def merge_disclose_financial_info
@@ -531,6 +543,8 @@ module PdfFill
       end
 
       def merge_dependents
+        merge_value('provideSupportLastYear', :map_radio_box_value)
+
         return if @form_data['dependents'].blank?
 
         if @form_data['dependents'].count == 1
@@ -567,6 +581,10 @@ module PdfFill
           dependent['netIncome'] = format_currency(dependent['netIncome'])
           dependent['otherIncome'] = format_currency(dependent['otherIncome'])
         end
+      end
+
+      def merge_value(type, method_name)
+        @form_data[type] = method(method_name).call(@form_data[type])
       end
 
       def map_value_for_checkbox(input, value)
