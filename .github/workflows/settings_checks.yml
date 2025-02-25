@@ -77,6 +77,8 @@ jobs:
         run: >
           new_env_keys=$(git diff --unified=0 origin/master config/settings.yml)
 
+          echo "$new_env_keys"
+
           # Save the new ENV keys to the GitHub environment
           echo "NEW_ENV_KEYS=$new_env_keys" >> $GITHUB_ENV
 
