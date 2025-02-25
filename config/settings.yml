@@ -513,6 +513,10 @@ hca:
     endpoint: "http://example.com"
     user: "HCASvcUsr"
     pass: "password"
+  enrollment_system:
+    ee_summary:
+      host: ~
+      api_key: ~
 
 ppms:
   url: https://some.fakesite.com

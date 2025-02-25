@@ -48,10 +48,16 @@ module VBADocuments
 
       begin
         @upload.update(metadata: @upload.metadata.merge(original_file_metadata(tempfile)))
-
         validate_payload_size(tempfile)
 
+        # parse out multipart consumer supplied file into individual parts
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
+
+        # Attempt to use consumer supplied file number field to look up the claiments ICN
+        # asap for tracking consumer's impacted
+        icn = find_icn(parts)
+        @upload.update(metadata: @upload.metadata.merge({ 'icn' => icn })) if icn.present?
+
         inspector = VBADocuments::PDFInspector.new(pdf: parts)
         @upload.update(uploaded_pdf: inspector.pdf_data)
 
@@ -63,10 +69,6 @@ module VBADocuments
 
         pdf_validator_options = VBADocuments::DocumentRequestValidator.pdf_validator_options
         validate_documents(parts, pdf_validator_options)
-
-        # attempt to use consumer's file number field to look up the claiments ICN
-        icn = find_icn(metadata['fileNumber'])
-        metadata['ICN'] = icn if icn.present?
 
         response = submit(metadata, parts)
 
@@ -94,17 +96,21 @@ module VBADocuments
       }
     end
 
-    def find_icn(file_number)
+    def find_icn(parts)
+      file_number = read_original_metadata_file_number(parts)
+
+      return if file_number.blank?
+
       bgss = BGS::Services.new(external_uid: file_number, external_key: file_number)
 
-      # File Number is ssn, file number, or participant id.  Call BGS to get the
-      # veterans birthdate
+      # File Number is ssn, file number, or participant id.  Call BGS to get the veterans birthdate
       # rubocop:disable Rails/DynamicFindBy
-      bgs_vet = bgss.people.find_by_ssn(file_number) || # rubocop:disable Rails/DynamicFindBy
+      bgs_vet = bgss.people.find_by_ssn(file_number) ||
                 bgss.people.find_by_file_number(file_number) ||
                 bgss.people.find_person_by_ptcpnt_id(file_number)
       # rubocop:enable Rails/DynamicFindBy
-      return nil if bgs_vet.blank?
+
+      return nil if bgs_vet.blank? || bgs_vet[:brthdy_dt].blank? || bgs_vet[:ssn_nbr].blank?
 
       # Go after ICN in MPI
       mpi = MPI::Service.new
