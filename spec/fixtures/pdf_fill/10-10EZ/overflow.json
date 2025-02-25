@@ -20,6 +20,12 @@
       "insurancePolicyHolderName": "Indiana Jones",
       "insurancePolicyNumber": "32345111",
       "insuranceGroupCode": "1233444"
+    },
+    {
+      "insuranceName": "Cigna",
+      "insurancePolicyHolderName": "Jane Marie Jones",
+      "insurancePolicyNumber": "11345111",
+      "insuranceGroupCode": "2233444"
     }
   ],
   "deductibleMedicalExpenses": 989,
@@ -33,7 +39,7 @@
   "veteranOtherIncome": 200,
   "spouseFullName": {
     "first": "Jane",
-    "middle": "Marie",
+    "middle": "marie",
     "last": "Jones"
   },
   "spouseDateOfBirth": "1977-01-01",
@@ -42,7 +48,7 @@
   "dateOfMarriage": "2000-01-01",
   "maritalStatus": "Married",
   "purpleHeartRecipient": true,
-  "isFormerPow": false,
+  "isFormerPow": true,
   "postNov111998Combat": true,
   "disabledInLineOfDuty": true,
   "swAsiaCombat": true,
@@ -106,6 +112,42 @@
       "grossIncome": 10000,
       "netIncome": 9000,
       "otherIncome": 101
+    },
+    {
+      "fullName": {
+        "first": "Jill",
+        "middle": "Janice",
+        "last": "Jones"
+      },
+      "dependentRelation": "Daughter",
+      "socialSecurityNumber": "143221234",
+      "dateOfBirth": "2001-02-01",
+      "becameDependent": "2001-02-01",
+      "attendedSchoolLastYear": true,
+      "dependentEducationExpenses": 100,
+      "disabledBefore18": false,
+      "cohabitedLastYear": true,
+      "grossIncome": 100000,
+      "netIncome": 90000,
+      "otherIncome": 101
+    },
+    {
+      "fullName": {
+        "first": "Jonny",
+        "middle": "Janice",
+        "last": "Jones"
+      },
+      "dependentRelation": "Stepson",
+      "socialSecurityNumber": "143221234",
+      "dateOfBirth": "2001-02-01",
+      "becameDependent": "2001-02-01",
+      "attendedSchoolLastYear": true,
+      "dependentEducationExpenses": 100,
+      "disabledBefore18": false,
+      "cohabitedLastYear": true,
+      "grossIncome": 100000,
+      "netIncome": 90000,
+      "otherIncome": 101
     }
   ],
   "veteranHomeAddress": {
@@ -134,6 +176,6 @@
   "exposureToWarfareAgents": true,
   "exposureToOther": true,
   "otherToxicExposure": "Other Toxic Exposure",
-  "toxicExposureStartDate": "1990-08-XX",
-  "toxicExposureEndDate": "1990-09-XX"
+  "toxicExposureStartDate": "1990-08-01",
+  "toxicExposureEndDate": "1990-09-01"
 }
