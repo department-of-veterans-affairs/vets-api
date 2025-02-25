@@ -18,13 +18,6 @@ describe Ccra::Middleware::CcraLogging do
   let(:test_uri) { 'https://fake.ccra/api' }
   let(:status) { 200 }
 
-  before do
-    allow(Settings.va_mobile).to receive(:key_path).and_return(fixture_file_path('open_ssl_rsa_private.pem'))
-    Timecop.freeze
-  end
-
-  after { Timecop.return }
-
   it 'uses correct configuration' do
     expect(Ccra::Configuration.instance).to receive(:service_name).at_least(:once).and_return('CCRA')
     client.get(test_uri, nil, { 'X-Vamf-Jwt' => sample_jwt })
