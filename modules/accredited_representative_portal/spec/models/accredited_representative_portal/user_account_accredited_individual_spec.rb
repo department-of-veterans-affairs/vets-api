@@ -69,9 +69,8 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
 
     context 'when a matching record exists by email' do
       it 'updates the record and returns it' do
-        result = described_class.for_user(
-          email: 'rep1@vso.org',
-          icn: 'ICN_NEW'
+        result = described_class.for_user_account_email(
+          'rep1@vso.org', user_account_icn: 'ICN_NEW'
         )
 
         expect(result.first).to eq(existing_record.reload)
@@ -82,9 +81,8 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
 
     context 'when a matching record exists by ICN' do
       it 'updates the record and returns it' do
-        result = described_class.for_user(
-          email: 'new_email@vso.org',
-          icn: 'ICN001'
+        result = described_class.for_user_account_email(
+          'new_email@vso.org', user_account_icn: 'ICN001'
         )
 
         # returns [] but updates the matching record icn to nil
@@ -96,9 +94,8 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
     context 'when no matching record exists' do
       it 'does not create a new record' do
         expect do
-          described_class.for_user(
-            email: 'new_user@vso.org',
-            icn: 'ICN_NEW'
+          described_class.for_user_account_email(
+            'new_user@vso.org', user_account_icn: 'ICN_NEW'
           )
         end.not_to(change(described_class, :count))
 
@@ -118,9 +115,8 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
       end
 
       it 'updates the correct record and does not merge incorrectly' do
-        result = described_class.for_user(
-          email: 'rep2@vso.org',
-          icn: 'ICN001'
+        result = described_class.for_user_account_email(
+          'rep2@vso.org', user_account_icn: 'ICN001'
         )
 
         expect(result.first).to eq(conflicting_record.reload)
