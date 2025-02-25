@@ -72,8 +72,7 @@ jobs:
 
       - name: Check ENV diff for aws_ssm_custom lookups
         run: >
-          new_env_keys=$(git diff --unified=0 origin/master config/settings.yml | \
-            grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
+          new_env_keys=$(git diff --unified=0 origin/master config/settings.yml)
 
           # Save the new ENV keys to the GitHub environment
           echo "NEW_ENV_KEYS=$new_env_keys" >> $GITHUB_ENV
