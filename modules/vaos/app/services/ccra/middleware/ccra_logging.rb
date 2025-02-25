@@ -1,22 +1,22 @@
 # frozen_string_literal: true
 
-module Eps
+module Ccra
   module Middleware
     ##
     # Faraday middleware that logs various semantically relevant attributes needed for debugging and audit purposes
     #
-    class EpsLogging < Common::Middleware::BaseLogging
+    class CcraLogging < Common::Middleware::BaseLogging
       private
 
       def config
-        @config ||= Eps::Configuration.instance
+        @config ||= Ccra::Configuration.instance
       end
 
       def statsd_key_prefix
-        'api.eps.response'
+        'api.ccra.response'
       end
     end
   end
 end
 
-Faraday::Middleware.register_middleware eps_logging: Eps::Middleware::EpsLogging
+Faraday::Middleware.register_middleware ccra_logging: Ccra::Middleware::CcraLogging
