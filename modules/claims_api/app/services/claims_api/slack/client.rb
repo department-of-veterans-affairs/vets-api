@@ -18,8 +18,8 @@ module ClaimsApi
       def notify(text, blocks: nil, channel: nil)
         delivery_channels(channel).each do |chan|
           payload = ClaimsApi::Slack::Payload.new(
-            text: text,
-            blocks: blocks,
+            text:,
+            blocks:,
             channel: chan,
             username: @username,
             icon_url: @icon_url,
