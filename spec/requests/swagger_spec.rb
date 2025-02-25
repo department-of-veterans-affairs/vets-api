@@ -1173,7 +1173,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         Flipper.disable('disability_compensation_prevent_submission_job')
         Flipper.disable('disability_compensation_production_tester')
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
-        allow_any_instance_of(User).to receive(:icn).and_return('1012666073V986297')
+        allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
       end
 
       let(:form526v2) do
