@@ -18,7 +18,7 @@ module Swagger
                       "<input type=\"hidden\" name=\"scope\" id=\"scope\" value=\"profile email openid social_security_number\" autocomplete=\"off\" />\n" \
                       "<input type=\"hidden\" name=\"state\" id=\"state\" value=\"d940a929b7af6daa595707d0c99bec57\" autocomplete=\"off\" />\n" \
                       "<noscript>\n" \
-                      "<div> <input type=\”submit\” value=\”Continue\”/> </div>\n" \
+                      "<div> <input type=”submit” value=”Continue”/> </div>\n" \
                       "</noscript>\n" \
                       "</form>\n" \
                       "<script nonce=\"**CSP_NONCE**\">\n" \

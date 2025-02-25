@@ -517,6 +517,10 @@
                     "format": "float",
                     "example": -122.4194,
                     "nullable": true
+                  },
+                  "can_accept_digital_poa_requests": {
+                    "type": "boolean",
+                    "example": true
                   }
                 }
               }

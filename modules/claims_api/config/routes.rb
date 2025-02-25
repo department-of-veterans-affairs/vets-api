@@ -53,7 +53,7 @@ ClaimsApi::Engine.routes.draw do
         post '/:veteranId/power-of-attorney-request', to: 'request#create'
         post '/power-of-attorney-requests', to: 'request#index'
         get '/power-of-attorney-requests/:id', to: 'request#show'
-        post '/power-of-attorney-requests/decide', to: 'request#decide'
+        post '/power-of-attorney-requests/:id/decide', to: 'request#decide'
       end
       ## 0966 Forms
       get '/:veteranId/intent-to-file/:type', to: 'intent_to_file#type'

@@ -35,7 +35,7 @@ describe 'IAMSSOeOAuth::SessionManager' do
     context 'with newly-authenticated token' do
       let(:dslogon_attrs) do
         build(:dslogon_level2_introspection_payload, fediam_authentication_instant: Time.current.utc.iso8601,
-                                                     iat: (Time.current + 5.minutes).strftime('%s').to_i)
+                                                     iat: 5.minutes.from_now.strftime('%s').to_i)
       end
 
       it 'increments the new OAuth session metric' do
@@ -50,7 +50,7 @@ describe 'IAMSSOeOAuth::SessionManager' do
     context 'with refreshed token' do
       let(:idme_attrs) do
         build(:idme_loa3_introspection_payload, fediam_authentication_instant: Time.current.utc.iso8601,
-                                                iat: (Time.current + 1.hour).strftime('%s').to_i)
+                                                iat: 1.hour.from_now.strftime('%s').to_i)
       end
 
       it 'increments the new OAuth session metric' do

@@ -5,6 +5,7 @@ FactoryBot.define do
     form_submission
 
     benefits_intake_uuid { SecureRandom.uuid }
+    created_at { Time.zone.now }
 
     trait :pending do
       created_at { Time.zone.now }
@@ -26,6 +27,11 @@ FactoryBot.define do
     trait :stale do
       created_at { 99.days.ago }
       aasm_state { 'pending' }
+    end
+
+    trait :form_upload do
+      association :form_submission,
+                  form_data: { email: 'a@b.com', full_name: { first: 'Veteran', last: 'Eteranvay' } }.to_json
     end
   end
 end

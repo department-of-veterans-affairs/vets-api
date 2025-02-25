@@ -15,7 +15,7 @@ RSpec.describe SavedClaim::NoticeOfDisagreement, type: :model do
     let!(:saved_claim_nod) do
       SavedClaim::NoticeOfDisagreement.create!(
         form_id: '19182',
-        guid: guid,
+        guid:,
         form: form_data.to_json,
         form_start_date: Time.current
       )

@@ -9,8 +9,8 @@ module Lighthouse
     class FailureNotificationEmailJob
       include Sidekiq::Job
       include SentryLogging
-
-      sidekiq_options retry: false, unique_for: 30.minutes
+      # Job runs daily with 0 retiries
+      sidekiq_options retry: 0
       NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
       MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
       # TODO: need to add statsd logic
@@ -34,15 +34,12 @@ module Lighthouse
       end
 
       def notify_client
-        VaNotify::Service.new(NOTIFY_SETTINGS.api_key, { callback_klass: 'BenefitsDocuments::VANotifyEmailStatusCallback' })
+        VaNotify::Service.new(NOTIFY_SETTINGS.api_key)
       end
 
       def send_failed_evidence_submissions
         failed_uploads.each do |upload|
-          personalisation =
-            create_personalisation(
-              JSON.parse(upload.template_metadata_ciphertext)['personalisation']
-            )
+          personalisation = BenefitsDocuments::Utilities::Helpers.create_personalisation_from_upload(upload)
           # NOTE: The file_name in the personalisation that is passed in is obscured
           response = notify_client.send_email(
             recipient_identifier: { id_value: upload.user_account.icn, id_type: 'ICN' },
@@ -57,18 +54,8 @@ module Lighthouse
         nil
       end
 
-      # This will be used to send an upload failure email
-      def create_personalisation(current_personalisation)
-        {
-          first_name: current_personalisation['first_name'],
-          document_type: current_personalisation['document_type'],
-          file_name: current_personalisation['obfuscated_file_name'],
-          date_submitted: current_personalisation['date_submitted'],
-          date_failed: current_personalisation['date_failed']
-        }
-      end
-
       def record_email_send_success(upload, response)
+        # Update evidence_submissions table record with the va_notify_id and va_notify_date
         upload.update(va_notify_id: response.id, va_notify_date: DateTime.now)
         message = "#{upload.job_class} va notify failure email queued"
         ::Rails.logger.info(message)

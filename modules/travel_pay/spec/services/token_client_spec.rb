@@ -5,6 +5,8 @@ require 'rails_helper'
 describe TravelPay::TokenClient do
   let(:user) { build(:user) }
 
+  expected_log_prefix = 'travel_pay.token.response_time'
+
   before do
     @stubs = Faraday::Adapter::Test::Stubs.new
 
@@ -15,6 +17,7 @@ describe TravelPay::TokenClient do
     end
 
     allow_any_instance_of(TravelPay::TokenClient).to receive(:connection).and_return(conn)
+    allow(StatsD).to receive(:measure)
   end
 
   context 'request_veis_token' do
@@ -30,6 +33,10 @@ describe TravelPay::TokenClient do
       token_client = TravelPay::TokenClient.new(123)
       token = token_client.request_veis_token
 
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:veis'])
       expect(token).to eq('fake_veis_token')
       @stubs.verify_stubbed_calls
     end
@@ -54,6 +61,10 @@ describe TravelPay::TokenClient do
       token_client = TravelPay::TokenClient.new(123)
       token = token_client.request_btsss_token('veis_token', user)
 
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:btsss'])
       expect(token).to eq('fake_btsss_token')
       @stubs.verify_stubbed_calls
     end
@@ -95,6 +106,10 @@ describe TravelPay::TokenClient do
       end
       token_client = TravelPay::TokenClient.new(123)
       sts_token = token_client.request_sts_token(user)
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:sts'])
       expect(sts_token).to eq('fake_sts_token')
       @stubs.verify_stubbed_calls
     end

@@ -138,25 +138,17 @@ class EVSSClaimService
       job_class: self.class,
       upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
       user_account:,
-      template_metadata_ciphertext: { personalisation: create_personalisation(document) }.to_json
+      template_metadata: { personalisation: create_personalisation(document) }.to_json
     )
-  end
-
-  def format_issue_instant_for_mailers(issue_instant)
-    # We want to return all times in EDT
-    timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
-
-    # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-    timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
   end
 
   def create_personalisation(document)
     first_name = auth_headers['va_eauth_firstName'].titleize unless auth_headers['va_eauth_firstName'].nil?
     { first_name:,
-      document_type: document.document_type,
+      document_type: document.description,
       file_name: document.file_name,
       obfuscated_file_name: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(document.file_name),
-      date_submitted: format_issue_instant_for_mailers(Time.zone.now),
+      date_submitted: BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(Time.zone.now),
       date_failed: nil }
   end
 

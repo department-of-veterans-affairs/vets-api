@@ -119,17 +119,50 @@ RSpec.describe Form526StatusPollingJob, type: :job do
       end
 
       describe 'updating the form 526s local submission state' do
-        it 'updates local state to reflect the returned statuses' do
-          pending_claim_ids = Form526Submission.pending_backup
-                                               .pluck(:backup_submitted_claim_id)
-          response = double
+        let(:pending_claim_ids) do
+          Form526Submission.pending_backup
+                           .pluck(:backup_submitted_claim_id)
+        end
+        let(:response) { double }
 
+        before do
           allow(response).to receive(:body).and_return(api_response)
           allow_any_instance_of(BenefitsIntakeService::Service)
             .to receive(:get_bulk_status_of_uploads)
             .with(pending_claim_ids)
             .and_return(response)
 
+          allow(Flipper).to receive(:enabled?).and_call_original
+        end
+
+        # if a backup submission hits paranoid_success!, it should send the received email to the Veteran
+        context 'when disability_526_send_received_email_from_backup_path is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:disability_526_send_received_email_from_backup_path)
+              .and_return(true)
+          end
+
+          it 'behaves sends the received email' do
+            expect(Form526ConfirmationEmailJob).to receive(:perform_async).once
+            Form526StatusPollingJob.new.perform
+          end
+        end
+
+        context 'when disability_526_send_received_email_from_backup_path is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:disability_526_send_received_email_from_backup_path)
+              .and_return(false)
+          end
+
+          it 'behaves does not send the received email' do
+            expect(Form526ConfirmationEmailJob).not_to receive(:perform_async)
+            Form526StatusPollingJob.new.perform
+          end
+        end
+
+        it 'updates local state to reflect the returned statuses' do
           Form526StatusPollingJob.new.perform
 
           expect(backup_submission_a.reload.backup_submitted_claim_status).to eq 'accepted'

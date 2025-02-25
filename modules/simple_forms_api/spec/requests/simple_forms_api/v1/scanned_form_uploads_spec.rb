@@ -5,32 +5,26 @@ require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
 
 RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
+  let(:user) { build(:user, :loa3) }
+  let(:form_number) { '21-0779' }
+
   before do
-    sign_in
+    sign_in(user)
   end
 
   describe '#submit' do
-    let(:form_number) { '21-0779' }
+    let(:fixture_path) do
+      Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'form_upload_flow_21_0779.json')
+    end
+    let(:params) { JSON.parse(fixture_path.read) }
+    let(:form_name) { 'Request for Nursing Home Information in Connection with Claim for Aid and Attendance' }
     let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
     let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
     let(:random_string) { 'some-unique-simple-forms-file-seed' }
     let(:pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
     let(:pdf_stamper) { double(stamp_pdf: nil) }
-    let(:confirmation_code) { 'a-random-guid' }
+    let(:confirmation_code) { '123456' }
     let(:attachment) { double }
-    let(:params) do
-      { form_number:, confirmation_code:, form_data: {
-        full_name: {
-          first: 'fake-first-name',
-          last: 'fake-last-name'
-        },
-        postal_code: '12345',
-        id_number: {
-          ssn: '444444444'
-        },
-        email: 'fake-email'
-      } }
-    end
 
     before do
       VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
@@ -54,7 +48,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     it 'makes the request' do
       expect(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
 
-      post '/simple_forms_api/v1/submit_scanned_form', params: params
+      post('/simple_forms_api/v1/submit_scanned_form', params:)
 
       expect(response).to have_http_status(:ok)
     end
@@ -62,7 +56,24 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     it 'stamps the pdf' do
       expect(pdf_stamper).to receive(:stamp_pdf)
 
-      post '/simple_forms_api/v1/submit_scanned_form', params: params
+      post('/simple_forms_api/v1/submit_scanned_form', params:)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'saves the FormSubmission and FormSubmissionAttempt' do
+      form_submission = double
+      expect(FormSubmission).to receive(:create).with(
+        form_type: form_number,
+        form_data: params['form_data'].to_json,
+        user_account: user.user_account
+      ).and_return(form_submission)
+      expect(FormSubmissionAttempt).to receive(:create).with(
+        form_submission:,
+        benefits_intake_uuid: anything
+      )
+
+      post('/simple_forms_api/v1/submit_scanned_form', params:)
 
       expect(response).to have_http_status(:ok)
     end
@@ -82,7 +93,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
       expect(prefill_data_service).to receive(:check_for_changes)
 
-      post '/simple_forms_api/v1/submit_scanned_form', params: params
+      post('/simple_forms_api/v1/submit_scanned_form', params:)
 
       expect(response).to have_http_status(:ok)
     end
@@ -94,7 +105,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
       file = fixture_file_upload('doctors-note.gif')
 
-      params = { form_id: '21-0779', file: }
+      params = { form_id: form_number, file: }
 
       expect do
         post '/simple_forms_api/v1/scanned_form_upload', params:

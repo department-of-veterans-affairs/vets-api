@@ -4,234 +4,202 @@ module SwaggerSharedComponents
   class V2 # rubocop:disable Metrics/ClassLength
     def self.body_examples # rubocop:disable Metrics/MethodLength
       veteran_identifier_json_schema = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            'request_bodies',
-            'veteran_identifier',
-            'request.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'config',
+          'schemas',
+          'v2',
+          'request_bodies',
+          'veteran_identifier',
+          'request.json'
+        ).read
       )
 
       veteran_identifier_json_body_example = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            'request_bodies',
-            'veteran_identifier',
-            'example.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'config',
+          'schemas',
+          'v2',
+          'request_bodies',
+          'veteran_identifier',
+          'example.json'
+        ).read
       )
 
       intent_to_file_json_schema = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            'request_bodies',
-            'intent_to_file',
-            'request.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'config',
+          'schemas',
+          'v2',
+          'request_bodies',
+          'intent_to_file',
+          'request.json'
+        ).read
       )
 
       intent_to_file_request_body_example = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            'request_bodies',
-            'intent_to_file',
-            'example.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'config',
+          'schemas',
+          'v2',
+          'request_bodies',
+          'intent_to_file',
+          'example.json'
+        ).read
       )
 
       disability_compensation_json_schema = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            '526.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'config',
+          'schemas',
+          'v2',
+          '526.json'
+        ).read
       )
 
       disability_compensation_request_body_example = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            'request_bodies',
-            'disability_compensation',
-            'example.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'config',
+          'schemas',
+          'v2',
+          'request_bodies',
+          'disability_compensation',
+          'example.json'
+        ).read
       )
 
       disability_compensation_generate_pdf_json_schema = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            'generate_pdf_526.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'config',
+          'schemas',
+          'v2',
+          'generate_pdf_526.json'
+        ).read
       )
 
       disability_compensation_generate_pdf_request_body_example = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            'request_bodies',
-            'disability_compensation',
-            'generate_pdf_example.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'config',
+          'schemas',
+          'v2',
+          'request_bodies',
+          'disability_compensation',
+          'generate_pdf_example.json'
+        ).read
       )
 
       power_of_attorney_2122a_json_schema = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            '2122a.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'config',
+          'schemas',
+          'v2',
+          '2122a.json'
+        ).read
       )
 
       power_of_attorney_2122a_body_example = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'spec',
-            'fixtures',
-            'v2',
-            'veterans',
-            'power_of_attorney',
-            '2122a',
-            'valid.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'spec',
+          'fixtures',
+          'v2',
+          'veterans',
+          'power_of_attorney',
+          '2122a',
+          'valid.json'
+        ).read
       )
 
       power_of_attorney_2122_json_schema = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            '2122.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'config',
+          'schemas',
+          'v2',
+          '2122.json'
+        ).read
       )
 
       power_of_attorney_2122_body_example = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'spec',
-            'fixtures',
-            'v2',
-            'veterans',
-            'power_of_attorney',
-            '2122',
-            'valid.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'spec',
+          'fixtures',
+          'v2',
+          'veterans',
+          'power_of_attorney',
+          '2122',
+          'valid.json'
+        ).read
       )
 
       power_of_attorney_request_json_schema = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            'poa_request.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'config',
+          'schemas',
+          'v2',
+          'poa_request.json'
+        ).read
       )
 
       power_of_attorney_request_body_example = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'spec',
-            'fixtures',
-            'v2',
-            'veterans',
-            'power_of_attorney',
-            'request_representative',
-            'valid_no_claimant.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'spec',
+          'fixtures',
+          'v2',
+          'veterans',
+          'power_of_attorney',
+          'request_representative',
+          'valid_no_claimant.json'
+        ).read
       )
 
       evidence_waiver_submission_request_json_schema = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            '5103.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'config',
+          'schemas',
+          'v2',
+          '5103.json'
+        ).read
       )
 
       evidence_waiver_submission_request_body_example = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'spec',
-            'fixtures',
-            'v2',
-            'veterans',
-            '5103',
-            'form_5103_api.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'spec',
+          'fixtures',
+          'v2',
+          'veterans',
+          '5103',
+          'form_5103_api.json'
+        ).read
       )
 
       {
@@ -309,15 +277,11 @@ module SwaggerSharedComponents
                 required: ['attributes'],
                 example:
                 JSON.parse(
-                  File.read(
-                    Rails.root.join('modules', 'claims_api', 'config', 'post_examples', '2122.json')
-                  )
+                  Rails.root.join('modules', 'claims_api', 'config', 'post_examples', '2122.json').read
                 ),
                 properties: {
                   attributes: JSON.parse(
-                    File.read(
-                      Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '2122.json')
-                    )
+                    Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '2122.json').read
                   )
                 }
               }
@@ -403,16 +367,14 @@ module SwaggerSharedComponents
 
     def self.schemas # rubocop:disable Metrics/MethodLength
       disability_compensation_json_schema = JSON.parse(
-        File.read(
-          Rails.root.join(
-            'modules',
-            'claims_api',
-            'config',
-            'schemas',
-            'v2',
-            '526.json'
-          )
-        )
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'config',
+          'schemas',
+          'v2',
+          '526.json'
+        ).read
       )
       {
         disability_compensation: {

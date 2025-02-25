@@ -3,12 +3,14 @@
 require 'rails_helper'
 require 'lighthouse/benefits_documents/upload_status_updater'
 require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/benefits_documents/utilities/helpers'
 
 RSpec.describe BenefitsDocuments::UploadStatusUpdater do
-  let(:lighthouse_document_upload) { create(:bd_evidence_submission) }
+  let(:lighthouse_document_upload) { create(:bd_evidence_submission_pending, job_class: 'BenefitsDocuments::Service') }
   let(:lighthouse_document_upload_timeout) { create(:bd_evidence_submission_timeout) }
   let(:past_date_time) { DateTime.new(1985, 10, 26) }
   let(:current_date_time) { DateTime.now.utc }
+  let(:issue_instant) { Time.now.to_i }
 
   describe '#update_status' do
     shared_examples 'status updater' do |status, error_message = nil|
@@ -19,6 +21,19 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
         }.compact
       end
       let(:status_updater) { described_class.new(document_status_response, lighthouse_document_upload) }
+      let(:date) do
+        BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
+      end
+      let(:updated_template_metadata) do
+        { 'personalisation' => {
+          'first_name' => 'test',
+          'document_type' => 'Birth Certificate',
+          'file_name' => 'testfile.txt',
+          'obfuscated_file_name' => 'tesXXile.txt',
+          'date_submitted' => date,
+          'date_failed' => date
+        } }.to_json
+      end
 
       it 'logs the document_status_response to the Rails logger' do
         Timecop.freeze(past_date_time) do
@@ -31,6 +46,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
 
           status_updater.update_status
         end
+        Timecop.unfreeze
       end
 
       if error_message
@@ -40,9 +56,10 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
               expect { status_updater.update_status }.to change(lighthouse_document_upload, :error_message)
                 .to(error_message.to_s)
             end
+            Timecop.unfreeze
           end
 
-          it 'updates status, failed_date, and acknowledgement_date' do
+          it 'updates status, failed_date, acknowledgement_date and template_metadata' do
             Timecop.freeze(current_date_time) do
               expect { status_updater.update_status }
                 .to change(lighthouse_document_upload, :acknowledgement_date)
@@ -52,9 +69,13 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
                 .from(nil)
                 .to(be_within(1.second).of(current_date_time.utc))
                 .and change(lighthouse_document_upload, :upload_status)
-                .from(nil)
+                .from(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
                 .to(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
+                .and change(lighthouse_document_upload, :template_metadata)
+                .from(lighthouse_document_upload.template_metadata)
+                .to(updated_template_metadata)
             end
+            Timecop.unfreeze
           end
         end
       else # testing success status
@@ -66,9 +87,10 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
                 .from(nil)
                 .to(be_within(1.second).of((current_date_time + 60.days).utc))
                 .and change(lighthouse_document_upload, :upload_status)
-                .from(nil)
+                .from(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
                 .to(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
             end
+            Timecop.unfreeze
           end
         end
       end
@@ -82,47 +104,6 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
       error_message = { 'detail' => 'BGS outage', 'step' => 'BENEFITS_GATEWAY_SERVICE' }
 
       it_behaves_like('status updater', BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED], error_message)
-    end
-  end
-
-  describe '#get_failure_step' do
-    let(:failed_document_status) do
-      {
-        'status' => 'FAILED',
-        'time' => { 'startTime' => 499_152_060, 'endTime' => 499_153_000 },
-        'steps' => [
-          { 'name' => 'CLAIMS_EVIDENCE', 'status' => 'SUCCESS' },
-          { 'name' => 'BENEFITS_GATEWAY_SERVICE', 'status' => 'FAILED' }
-        ],
-        'error' => { 'detail' => 'BGS outage', 'step' => 'BENEFITS_GATEWAY_SERVICE' }
-      }
-    end
-
-    it 'returns the name of the step Lighthouse reported failed' do
-      status_updater = described_class.new(failed_document_status, lighthouse_document_upload)
-      expect(status_updater.get_failure_step).to eq('BENEFITS_GATEWAY_SERVICE')
-    end
-  end
-
-  describe '#processing_timeout?' do
-    shared_examples 'processing timeout' do |status, expected, expired|
-      it "returns #{expected}" do
-        status_updater = described_class.new(
-          {
-            'status' => status
-          },
-          expired ? lighthouse_document_upload_timeout : lighthouse_document_upload
-        )
-        expect(status_updater.processing_timeout?).to eq(expected)
-      end
-    end
-
-    context 'when the document has been in progress for more than 24 hours' do
-      it_behaves_like('processing timeout', 'IN_PROGRESS', true, true)
-    end
-
-    context 'when the document has been in progress for less than 24 hours' do
-      it_behaves_like('processing timeout', 'IN_PROGRESS', false, false)
     end
   end
 end

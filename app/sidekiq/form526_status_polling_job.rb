@@ -62,11 +62,14 @@ class Form526StatusPollingJob
     elsif status == 'success'
       log_result('paranoid_success', submission_id)
       form_submission.paranoid_success!
+      # Send Received Email once Backup Path is successful!
+      if Flipper.enabled?(:disability_526_send_received_email_from_backup_path)
+        form_submission.send_received_email('Form526StatusPollingJob#handle_submission paranoid_success!')
+      end
     else
       Rails.logger.info(
         'Unknown or incomplete status returned from Benefits Intake API for 526 submission',
-        status:,
-        submission_id:
+        status:, submission_id:
       )
     end
   end

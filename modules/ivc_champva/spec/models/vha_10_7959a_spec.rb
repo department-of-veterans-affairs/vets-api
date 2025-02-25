@@ -44,7 +44,8 @@ RSpec.describe IvcChampva::VHA107959a do
             'last' => 'Surname'
           },
           'email' => false
-        }
+        },
+        'primaryContactEmail' => 'false'
       )
     end
   end
