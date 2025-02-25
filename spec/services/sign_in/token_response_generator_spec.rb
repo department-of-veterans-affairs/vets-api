@@ -31,7 +31,10 @@ RSpec.describe SignIn::TokenResponseGenerator do
       let(:session_container) { create(:session_container) }
       let(:code_validator) { instance_double(SignIn::CodeValidator, perform: validated_credential) }
       let(:session_creator) { instance_double(SignIn::SessionCreator, perform: session_container) }
-      let!(:user_action_event) { UserActionEvent.find_by(identifier: 'user_login') }
+      let(:user_action_event_identifier) { 'user_login' }
+      # change this back to pulling from the DB once VI-867 lands
+      # let(:user_action_event) { UserActionEvent.find_by(identifier: user_action_event_identifier) }
+      let(:user_action_event) { create(:user_action_event, identifier: user_action_event_identifier) }
       let(:user_action) { create(:user_action, user_action_event:) }
       let(:token_serializer) { instance_double(SignIn::TokenSerializer, perform: expected_token_response) }
       let(:expected_token_response) do
@@ -72,8 +75,7 @@ RSpec.describe SignIn::TokenResponseGenerator do
 
       it 'creates a user audit log' do
         subject.perform
-        expect(UserAuditLogger).to have_received(:new).with(user_action_event:,
-                                                            acting_user_verification: user_verification,
+        expect(UserAuditLogger).to have_received(:new).with(user_action_event_identifier:,
                                                             subject_user_verification: user_verification,
                                                             status: :success,
                                                             acting_ip_address: remote_ip,
