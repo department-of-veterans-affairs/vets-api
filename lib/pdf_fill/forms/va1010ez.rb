@@ -312,7 +312,7 @@ module PdfFill
             question_num: 4.2,
             question_suffix: 'G',
             question_text: 'EXPENSES PAID BY YOUR DEPENDENT CHILD WITH REPORTABLE INCOME FOR COLLEGE, VOCATIONAL' \
-            ' REHABILITATION OR TRAINING (e.g., tuition, books, materials) '
+                           ' REHABILITATION OR TRAINING (e.g., tuition, books, materials) '
           },
           'grossIncome' => {
             key: 'F[0].P6[0].Section7_Child_Q1[0]',
@@ -432,7 +432,20 @@ module PdfFill
       private
 
       def merge_full_name(type)
-        @form_data[type] = combine_full_name(@form_data[type])
+        full_name = @form_data[type]
+
+        return if full_name.blank?
+
+        last = full_name['last']
+        first = full_name['first']
+        middle = full_name['middle']
+        suffix = full_name['suffix']
+
+        name_parts = [last, first].compact.join(', ')
+        name_parts += ", #{middle}" if middle&.strip.present?
+        name_parts += " #{suffix}" if suffix&.strip.present?
+
+        @form_data[type] = name_parts
       end
 
       def merge_sex(type)
@@ -510,7 +523,7 @@ module PdfFill
         # Format dependent data for pdf field inputs
         if @form_data['dependents'].count == 1
           @form_data['dependents'].each do |dependent|
-            dependent['fullName'] = combine_full_name(dependent['fullName'])
+            dependent['fullName'] = merge_full_name(dependent['fullName'])
             dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[(dependent['dependentRelation'])] || OFF
             dependent['attendedSchoolLastYear'] = map_radio_box_value(dependent['attendedSchoolLastYear'])
             dependent['disabledBefore18'] = map_radio_box_value(dependent['disabledBefore18'])
@@ -519,7 +532,7 @@ module PdfFill
         # Format dependent data for additional page since we have more than one dependen
         else
           @form_data['dependents'].each do |dependent|
-            dependent['fullName'] = combine_full_name(dependent['fullName'])
+            dependent['fullName'] = merge_full_name(dependent['fullName'])
             dependent['dependentEducationExpenses'] = format_currency(dependent['dependentEducationExpenses'])
             dependent['grossIncome'] = format_currency(dependent['grossIncome'])
             dependent['netIncome'] = format_currency(dependent['netIncome'])

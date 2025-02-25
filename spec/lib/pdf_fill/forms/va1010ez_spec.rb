@@ -30,7 +30,60 @@ describe PdfFill::Forms::Va1010ez do
       )
     end
 
-    context 'marital status' do
+    describe '#merge_full_name' do
+      let(:veteran_full_name) do
+        {
+          'first' => 'Indiana',
+          'middle' => 'Bill',
+          'last' => 'Jones',
+          'suffix' => 'II'
+        }
+      end
+
+      let(:form_data) do
+        { 'veteranFullName' => veteran_full_name }
+      end
+
+      context 'all fields' do
+        it 'displays full name' do
+          expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+            'veteranFullName' => 'Jones, Indiana, Bill II'
+          )
+        end
+      end
+
+      context 'missing suffix' do
+        let(:form_data) { { 'veteranFullName' => veteran_full_name.except('suffix') } }
+
+        it 'displays full name' do
+          expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+            'veteranFullName' => 'Jones, Indiana, Bill'
+          )
+        end
+      end
+
+      context 'missing middle' do
+        let(:form_data) { { 'veteranFullName' => veteran_full_name.except('middle') } }
+
+        it 'displays full name' do
+          expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+            'veteranFullName' => 'Jones, Indiana II'
+          )
+        end
+      end
+
+      context 'missing middle and suffix' do
+        let(:form_data) { { 'veteranFullName' => veteran_full_name.except('middle', 'suffix') } }
+
+        it 'displays full name' do
+          expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+            'veteranFullName' => 'Jones, Indiana'
+          )
+        end
+      end
+    end
+
+    describe '#merge_marital_status' do
       described_class::MARITAL_STATUS.each do |status, value|
         context "when marital status is #{status}" do
           let(:form_data) { { 'maritalStatus' => status } }
@@ -54,7 +107,7 @@ describe PdfFill::Forms::Va1010ez do
       end
     end
 
-    context 'sex' do
+    describe '#merge_sex' do
       described_class::SEX.each do |sex, value|
         context "when gender is #{sex}" do
           let(:form_data) { { 'gender' => sex } }
@@ -82,7 +135,7 @@ describe PdfFill::Forms::Va1010ez do
       end
     end
 
-    context 'disclose financial info' do
+    describe '#merge_disclose_financial_info' do
       described_class::DISCLOSE_FINANCIAL_INFORMATION.each do |disclose, value|
         context "when discloseFinancialInformation is #{disclose}" do
           let(:form_data) { { 'discloseFinancialInformation' => disclose } }
@@ -96,7 +149,7 @@ describe PdfFill::Forms::Va1010ez do
       end
     end
 
-    context 'disability status' do
+    describe '#merge_service_connected_rating' do
       described_class::DISABILITY_STATUS.each do |statuses, value|
         statuses.each do |status|
           context "when vaCompensationType is #{status}" do
