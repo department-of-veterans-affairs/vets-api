@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Create::FormDataAdapter do
   describe '#call' do
-    subject { described_class.new(data: data, dependent: dependent, service_branch: service_branch) }
+    subject { described_class.new(data:, dependent:, service_branch:) }
 
     let(:dependent) { true }
     let(:service_branch) { 'ARMY' }
@@ -129,6 +129,15 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
         data[:consent_limits] = []
 
         expect(subject.call[:data]['authorizations']['recordDisclosureLimitations']).to eq([])
+        expect(subject.call[:errors]).to eq([])
+      end
+    end
+
+    context 'when an attribute is an empty string' do
+      it 'sets the value to nil' do
+        data[:claimant_address_line2] = ''
+
+        expect(subject.call[:data]['dependent']['addressLine2']).to be_nil
         expect(subject.call[:errors]).to eq([])
       end
     end

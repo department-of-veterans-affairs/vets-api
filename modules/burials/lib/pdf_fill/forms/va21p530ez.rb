@@ -638,12 +638,15 @@ module Burials
           location_of_death = @form_data['locationOfDeath']
           return if location_of_death.blank?
 
-          if location_of_death[location_of_death['location']].present? && location_of_death['location'] != 'other'
-            options = location_of_death[location_of_death['location']]
+          location = location_of_death['location']
+          options = location_of_death[location] || @form_data[location]
+          if options.present? && location != 'other'
             location_of_death['placeAndLocation'] = "#{options['facilityName']} - #{options['facilityLocation']}"
           end
 
-          location_of_death['location'] = 'nursingHomeUnpaid' if location_of_death['location'] == 'atHome'
+          @form_data.delete(location)
+
+          location_of_death['location'] = 'nursingHomeUnpaid' if location == 'atHome'
 
           expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
         end
