@@ -419,7 +419,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
         context 'when the rated disability has decision code NOTSVCCON in EVSS' do
           let(:rated_disabilities_cassette) do
-            'evss/disability_compensation_form/rated_disabilities_with_non_service_connected'
+            'lighthouse/veteran_verification/disability_rating/200_Not_Connected_response'
           end
 
           it 'skips forwarding to MAS' do
