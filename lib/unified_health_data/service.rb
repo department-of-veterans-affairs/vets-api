@@ -18,66 +18,10 @@ module UnifiedHealthData
       end_date = '2024-12-31'
       path = "#{config.base_path}labs?patient-id=#{patient_id}&start-date=#{start_date}&end-date=#{end_date}"
       response = perform(:get, path, nil, { 'Authorization' => token })
-      # FIXME: workaround for testing
-      body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      body = parse_response_body(response.body)
 
-      vista_records = body.dig('vista', 'entry') || []
-      oracle_health_records = body.dig('oracle-health', 'entry') || []
-      combined_records = vista_records + oracle_health_records
-
-      combined_records.select{|record| record['resource']['resourceType'] == 'DiagnosticReport'}.map do |record|
-        # Get the name of the first organization resource if contained exists, otherwise set to nil
-        if record['resource']['contained'].nil?
-          location = nil
-        else
-          location_object = record['resource']['contained'].find { |resource| resource['resourceType'] == 'Organization' }
-          location = location_object.nil? ? nil : location_object['name']
-        end
-
-        # Get the first code from the category array that is not 'LAB'
-        code_array = record['resource']['category'].find { |category| category['coding'][0]['code'] != 'LAB' }
-        code = code_array['coding'][0]
-
-        # Get the sample site from the contained Specimen resource
-        specimen = record['resource']['contained'].find { |resource| resource['resourceType'] == 'Specimen' }
-        sample_site = specimen ? specimen['type']&.dig('text') : ''
-
-        observations = record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
-          UnifiedHealthData::MedicalRecord::Attributes::Observation.new(
-            test_code: obs['code']['text'],
-            encoded_data: '',
-            value_quantity: obs['valueQuantity'] ? "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}".strip : '',
-            reference_range: obs['referenceRange'] ? obs['referenceRange'].map { |range| range['text'] }.join(', ').strip : '',
-            status: obs['status'],
-            comments: obs['note']&.map { |note| note['text'] }&.join(', ') || ''
-          )
-        end
-
-        ordered_by = if record['resource']['contained']
-                       practitioner_object = record['resource']['contained'].find { |resource| resource['resourceType'] == 'Practitioner' }
-                       if practitioner_object
-                         name = practitioner_object['name'].first
-                         "#{name['given'].join(' ')} #{name['family']}"
-                       end
-                     end
-
-        attributes = UnifiedHealthData::MedicalRecord::Attributes.new(
-          display: code['display'],
-          test_code: record['resource']['code']['text'],
-          date_completed: record['resource']['effectiveDateTime'],
-          sample_site: sample_site,
-          encoded_data: record['resource']['presentedForm'] ? record['resource']['presentedForm'].first.dig('data') : '',
-          location:,
-          ordered_by:,
-          observations:,
-        )
-
-        UnifiedHealthData::MedicalRecord.new(
-          id: record['resource']['id'],
-          type: record['resource']['resourceType'],
-          attributes:
-        )
-      end
+      combined_records = fetch_combined_records(body)
+      parse_medical_records(combined_records)
     end
 
     private
@@ -93,6 +37,85 @@ module UnifiedHealthData
         }.to_json
       end
       response.headers['authorization']
+    end
+
+    def parse_response_body(body)
+      body.is_a?(String) ? JSON.parse(body) : body
+    end
+
+    def fetch_combined_records(body)
+      vista_records = body.dig('vista', 'entry') || []
+      oracle_health_records = body.dig('oracle-health', 'entry') || []
+      vista_records + oracle_health_records
+    end
+
+    def parse_medical_records(records)
+      records.select { |record| record['resource']['resourceType'] == 'DiagnosticReport' }.map do |record|
+        location = fetch_location(record)
+        code = fetch_code(record)
+        sample_site = fetch_sample_site(record)
+        observations = fetch_observations(record)
+        ordered_by = fetch_ordered_by(record)
+
+        attributes = UnifiedHealthData::MedicalRecord::Attributes.new(
+          display: code['display'],
+          test_code: record['resource']['code']['text'],
+          date_completed: record['resource']['effectiveDateTime'],
+          sample_site: sample_site,
+          encoded_data: record['resource']['presentedForm'] ? record['resource']['presentedForm'].first.dig('data') : '',
+          location: location,
+          ordered_by: ordered_by,
+          observations: observations
+        )
+
+        UnifiedHealthData::MedicalRecord.new(
+          id: record['resource']['id'],
+          type: record['resource']['resourceType'],
+          attributes: attributes
+        )
+      end
+    end
+
+    def fetch_location(record)
+      if record['resource']['contained'].nil?
+        nil
+      else
+        location_object = record['resource']['contained'].find { |resource| resource['resourceType'] == 'Organization' }
+        location_object.nil? ? nil : location_object['name']
+      end
+    end
+
+    def fetch_code(record)
+      code_array = record['resource']['category'].find { |category| category['coding'][0]['code'] != 'LAB' }
+      code_array['coding'][0]
+    end
+
+    def fetch_sample_site(record)
+      specimen = record['resource']['contained'].find { |resource| resource['resourceType'] == 'Specimen' }
+      specimen ? specimen['type']&.dig('text') : ''
+    end
+
+    def fetch_observations(record)
+      record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
+        UnifiedHealthData::MedicalRecord::Attributes::Observation.new(
+          test_code: obs['code']['text'],
+          encoded_data: '',
+          value_quantity: obs['valueQuantity'] ? "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}".strip : '',
+          reference_range: obs['referenceRange'] ? obs['referenceRange'].map { |range| range['text'] }.join(', ').strip : '',
+          status: obs['status'],
+          comments: obs['note']&.map { |note| note['text'] }&.join(', ') || ''
+        )
+      end
+    end
+
+    def fetch_ordered_by(record)
+      if record['resource']['contained']
+        practitioner_object = record['resource']['contained'].find { |resource| resource['resourceType'] == 'Practitioner' }
+        if practitioner_object
+          name = practitioner_object['name'].first
+          "#{name['given'].join(' ')} #{name['family']}"
+        end
+      end
     end
   end
 end
