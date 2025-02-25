@@ -1858,7 +1858,7 @@ RSpec.describe FormProfile, type: :model do
           # NOTE: `increase only` and `all claims` use the same form prefilling
           context 'when Vet360 prefill is disabled' do
             let(:user) do
-              build(:user, :loa3, icn: '1012666073V986297', suffix: 'Jr.', address: build(:mpi_profile_address))
+              build(:user, :loa3, icn: '123498767V234859', suffix: 'Jr.', address: build(:mpi_profile_address))
             end
 
             before do
@@ -1871,7 +1871,7 @@ RSpec.describe FormProfile, type: :model do
                                                         anything).and_return(false)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-                  VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+                  VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
                     VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                                      allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
                       VCR.use_cassette('virtual_regional_office/max_ratings') do
@@ -1890,7 +1890,7 @@ RSpec.describe FormProfile, type: :model do
                                                         anything).and_return(true)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-                  VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+                  VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
                     VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                                      allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
                       VCR.use_cassette('disability_max_ratings/max_ratings') do
@@ -1907,7 +1907,7 @@ RSpec.describe FormProfile, type: :model do
         context 'without ppiu' do
           context 'when Vet360 prefill is enabled' do
             let(:user) do
-              build(:user, :loa3, icn: '1012666073V986297', suffix: 'Jr.', address: build(:mpi_profile_address))
+              build(:user, :loa3, icn: '123498767V234859', suffix: 'Jr.', address: build(:mpi_profile_address))
             end
 
             before do
@@ -1929,7 +1929,7 @@ RSpec.describe FormProfile, type: :model do
               expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-                  VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+                  VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
                     VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                                      allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
                       VCR.use_cassette('virtual_regional_office/max_ratings') do
@@ -1949,7 +1949,7 @@ RSpec.describe FormProfile, type: :model do
               expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-                  VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+                  VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
                     VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                                      allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
                       VCR.use_cassette('disability_max_ratings/max_ratings') do
