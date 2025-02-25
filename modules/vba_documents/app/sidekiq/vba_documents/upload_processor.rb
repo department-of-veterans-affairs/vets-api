@@ -97,17 +97,17 @@ module VBADocuments
     end
 
     def find_icn(parts)
-      consumer_file_number = read_original_metadata_file_number(parts)
+      file_number = read_original_metadata_file_number(parts)
 
-      return if consumer_file_number.blank?
+      return if file_number.blank?
 
-      bgss = BGS::Services.new(external_uid: consumer_file_number, external_key: consumer_file_number)
+      bgss = BGS::Services.new(external_uid: file_number, external_key: file_number)
 
       # File Number is ssn, file number, or participant id.  Call BGS to get the veterans birthdate
       # rubocop:disable Rails/DynamicFindBy
-      bgs_vet = bgss.people.find_by_ssn(consumer_file_number) ||
-                bgss.people.find_by_file_number(consumer_file_number) ||
-                bgss.people.find_person_by_ptcpnt_id(consumer_file_number)
+      bgs_vet = bgss.people.find_by_ssn(file_number) ||
+                bgss.people.find_by_file_number(file_number) ||
+                bgss.people.find_person_by_ptcpnt_id(file_number)
       # rubocop:enable Rails/DynamicFindBy
 
       return nil if bgs_vet.blank? || bgs_vet[:brthdy_dt].blank? || bgs_vet[:ssn_nbr].blank?
