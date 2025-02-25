@@ -6,7 +6,7 @@ require './modules/claims_api/app/services/claims_api/disability_compensation/pd
 
 describe ClaimsApi::DisabilityCompensation::PdfGenerationService do
   let(:pdf_generation_service) { described_class.new }
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end

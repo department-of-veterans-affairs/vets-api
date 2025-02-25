@@ -644,7 +644,7 @@ describe V2::Lorota::Service do
         end
       end
 
-      context 'when status code is 400 with internal service exception from downstream ' do
+      context 'when status code is 400 with internal service exception from downstream' do
         let(:internal_service_exception) do
           { status: 400, detail: 'Internal Error', code: 'VA900' }
         end
@@ -675,8 +675,8 @@ describe V2::Lorota::Service do
 
   describe '#check_in_data' do
     before do
-      allow_any_instance_of(::V2::Lorota::RedisClient).to receive(:get).and_return('123abc')
-      allow_any_instance_of(::V2::Lorota::Client).to receive(:data)
+      allow_any_instance_of(V2::Lorota::RedisClient).to receive(:get).and_return('123abc')
+      allow_any_instance_of(V2::Lorota::Client).to receive(:data)
         .and_return(Faraday::Response.new(response_body: appointment_data.to_json, status: 200))
     end
 
@@ -708,7 +708,7 @@ describe V2::Lorota::Service do
 
     context 'when appt identifiers are not present' do
       it 'does not call refresh_appts' do
-        expect_any_instance_of(::V2::Chip::Service).not_to receive(:refresh_appointments)
+        expect_any_instance_of(V2::Chip::Service).not_to receive(:refresh_appointments)
 
         expect(subject.build(check_in: valid_check_in).check_in_data).to eq(approved_response)
       end
@@ -726,7 +726,7 @@ describe V2::Lorota::Service do
       end
 
       it 'does not call refresh_appts' do
-        expect_any_instance_of(::V2::Chip::Service).not_to receive(:refresh_appointments)
+        expect_any_instance_of(V2::Chip::Service).not_to receive(:refresh_appointments)
 
         expect(subject.build(check_in: valid_check_in_oh).check_in_data).to eq(approved_response)
       end

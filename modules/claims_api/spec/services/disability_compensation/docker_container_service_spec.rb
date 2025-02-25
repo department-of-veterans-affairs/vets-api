@@ -10,7 +10,7 @@ describe ClaimsApi::DisabilityCompensation::DockerContainerService do
   end
 
   let(:docker_container_service) { ClaimsApi::DisabilityCompensation::DockerContainerService.new }
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -44,7 +44,7 @@ describe ClaimsApi::DisabilityCompensation::DockerContainerService do
   describe '#upload' do
     it 'has a upload method that returns a claim id' do
       VCR.use_cassette('/claims_api/evss/submit') do
-        expect(docker_container_service.send(:upload, claim.id)).to eq(true)
+        expect(docker_container_service.send(:upload, claim.id)).to be(true)
       end
     end
 

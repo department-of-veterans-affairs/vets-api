@@ -86,7 +86,7 @@ RSpec.describe SignIn::UserCodeMapCreator do
 
       context 'and user needs accepted terms of use' do
         it 'sets terms_code on returned user code map' do
-          expect(subject.terms_code).not_to eq(nil)
+          expect(subject.terms_code).not_to be_nil
         end
 
         it 'creates a terms code container associated with terms code and with expected user attributes' do
@@ -99,7 +99,7 @@ RSpec.describe SignIn::UserCodeMapCreator do
         let!(:accepted_terms_of_use) { create(:terms_of_use_agreement, user_account: user_verification.user_account) }
 
         it 'does not set terms_code on returned user code map' do
-          expect(subject.terms_code).to eq(nil)
+          expect(subject.terms_code).to be_nil
         end
       end
     end
@@ -108,7 +108,7 @@ RSpec.describe SignIn::UserCodeMapCreator do
       let(:enforced_terms) { nil }
 
       it 'does not set terms_code on returned user code map' do
-        expect(subject.terms_code).to eq(nil)
+        expect(subject.terms_code).to be_nil
       end
     end
 

@@ -1,0 +1,108 @@
+name: GitHub Environment Cleanup
+
+on:
+  schedule:
+    - cron: '0 0 * * 1-5' # Weekdays at midnight UTC
+  pull_request:
+    types: [closed] # Trigger on PR close
+
+jobs:
+  # Scheduled cleanup job
+  scheduled-cleanup:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          aws-region: "us-gov-west-1"
+
+      - name: Get Bot Token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+      - name: Set Up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+
+      - name: Clean Up Environments
+        run: |
+          cat << 'EOF' | ruby
+            require 'bundler/inline'
+            gemfile { source 'https://rubygems.org'; gem 'octokit' }
+
+            CURRENT_TIME = Time.now.to_i
+            THRESHOLD_SECONDS = 90 * 24 * 60 * 60 # 90 days in seconds
+            REPO = ENV['GITHUB_REPOSITORY']
+            CLIENT = Octokit::Client.new access_token: ENV['VA_VSP_BOT_GITHUB_TOKEN']
+
+            def old_and_unprotected? env
+              env[:protection_rules].empty? && CURRENT_TIME - env[:created_at].to_i > THRESHOLD_SECONDS
+            end
+
+            def delete_environment env
+              puts "\nDeleting: #{env[:name]}"
+              CLIENT.delete_environment REPO, URI.encode_www_form_component(env[:name])
+            end
+
+            print 'Fetching and deleting old environments'
+            100.times do |page|
+              envs = CLIENT.environments(REPO, per_page: 100, page: page + 1)&.dig(:environments) || []
+              print '.'
+              break if envs.empty?
+              exit 2 if CLIENT.rate_limit.remaining < 1000
+
+              envs
+                .select { |env| old_and_unprotected? env }
+                .each { |env| delete_environment env }
+            end
+            puts "\nDone."
+          EOF
+
+  # PR-close cleanup job
+  pr-close-cleanup:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          aws-region: "us-gov-west-1"
+
+      - name: Get Bot Token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+      - name: Delete PR Environments
+        run: |
+          # Define possible environment name patterns
+          ENVIRONMENTS=(
+            "${{ github.head_ref }}/main/main"
+            "${{ github.head_ref }}/${{ github.head_ref }}/main"
+            "${{ github.head_ref }}/main/${{ github.head_ref }}"
+            "${{ github.head_ref }}/${{ github.head_ref }}/${{ github.head_ref }}"
+          )
+
+          for ENV in "${ENVIRONMENTS[@]}"; do
+            ENCODED_ENV=$(echo "$ENV" | jq -Rr @uri)
+            echo "Attempting to delete environment: $ENV"
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE \
+              -H "Authorization: Bearer ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/environments/$ENCODED_ENV")
+
+            if [ "$RESPONSE" -eq 204 ]; then
+              echo "Successfully deleted: $ENCODED_ENV"
+            else
+              echo "Failed to delete: $ENCODED_ENV (HTTP $RESPONSE). It probably never existed though."
+            fi
+          done

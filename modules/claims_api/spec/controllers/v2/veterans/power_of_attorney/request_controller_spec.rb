@@ -170,50 +170,80 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
   describe '#decide' do
     let(:scopes) { %w[claim.write] }
-
-    it 'raises a ParameterMissing error if procId is not present' do
-      expect do
-        subject.decide
-      end.to raise_error(Common::Exceptions::ParameterMissing)
+    let(:id) { '348fa995-5b29-4819-91af-13f1bb3c7d77' }
+    let(:request_response) do
+      ClaimsApi::PowerOfAttorneyRequest.new(
+        id: '348fa995-5b29-4819-91af-13f1bb3c7d77',
+        proc_id: '76529',
+        veteran_icn: '1008714701V416111',
+        claimant_icn: '',
+        poa_code: '123',
+        metadata: {},
+        power_of_attorney_id: nil
+      )
     end
 
-    context 'when decision is not present' do
-      before do
-        allow(subject).to receive(:form_attributes).and_return({ 'procId' => '76529' })
+    context 'when the decide endpoint is called' do
+      context 'when decision is not present' do
+        let(:decision) { '' }
+
+        before do
+          allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
+        end
+
+        it 'raises an error if decision is not present' do
+          mock_ccg(scopes) do |auth_header|
+            VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
+              decide_request_with(id:, decision:, auth_header:)
+              expect(response).to have_http_status(:bad_request)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['title']).to eq('Missing parameter')
+              expect(response_body['errors'][0]['status']).to eq('400')
+            end
+          end
+        end
       end
 
-      it 'raises a ParameterMissing error if decision is not present' do
-        expect do
-          subject.decide
-        end.to raise_error(Common::Exceptions::ParameterMissing)
-      end
-    end
+      context 'when decision is not ACCEPTED or DECLINED' do
+        let(:decision) { 'indecision' }
 
-    context 'when decision is not ACCEPTED or DECLINED' do
-      before do
-        allow(subject).to receive(:form_attributes).and_return({ 'procId' => '76529', 'decision' => 'invalid' })
-      end
+        before do
+          allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
+        end
 
-      it 'raises a ParameterMissing error' do
-        expect do
-          subject.decide
-        end.to raise_error(Common::Exceptions::ParameterMissing)
+        it 'raises an error if decision is not valid' do
+          mock_ccg(scopes) do |auth_header|
+            VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
+              decide_request_with(id:, decision:, auth_header:)
+              expect(response).to have_http_status(:bad_request)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['title']).to eq('Missing parameter')
+              expect(response_body['errors'][0]['status']).to eq('400')
+            end
+          end
+        end
       end
     end
 
     context 'when procId is present and valid and decision is accepted' do
-      let(:proc_id) { '76529' }
       let(:decision) { 'ACCEPTED' }
+      let(:service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Show) }
+
+      before do
+        allow(ClaimsApi::PowerOfAttorneyRequest).to(receive(:find_by).and_return(request_response))
+        allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
+          .to receive(:fetch_ptcpnt_id).with(anything).and_return('5196105942')
+        allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
+        allow(service).to receive(:get_poa_request).and_return({})
+      end
 
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do
         mock_ccg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
-            decide_request_with(proc_id:, decision:, auth_header:)
-
+            decide_request_with(id:, decision:, auth_header:)
             expect(response).to have_http_status(:ok)
             response_body = JSON.parse(response.body)
-            expect(response_body['procId']).to eq(proc_id)
-            expect(response_body['secondaryStatus']).to eq('ACC')
+            expect(response_body['data']['id']).to eq(id)
           end
         end
       end
@@ -233,12 +263,15 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         }
       end
       let(:mock_lockbox) { double('Lockbox', encrypt: 'encrypted value') }
+      let(:decision) { 'DECLINED' }
+      let(:representative_id) { '456' }
 
       before do
         allow(ClaimsApi::ManageRepresentativeService).to receive(:new).with(anything).and_return(service)
-        allow(service).to receive(:read_poa_request_by_ptcpnt_id).with(ptcpnt_id: '123456789')
+        allow(service).to receive(:read_poa_request_by_ptcpnt_id).with(anything)
                                                                  .and_return(poa_request_response)
         allow(service).to receive(:update_poa_request).with(anything).and_return('a successful response')
+        allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
         allow(Lockbox).to receive(:new).and_return(mock_lockbox)
       end
 
@@ -249,10 +282,12 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
         it 'enqueues the VANotifyDeclinedJob' do
           mock_ccg(scopes) do |auth_header|
-            expect do
-              decide_request_with(proc_id: '76529', decision: 'DECLINED', auth_header:, ptcpnt_id: '123456789',
-                                  representative_id: '456')
-            end.to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size).by(1)
+            VCR.use_cassette('mpi/find_candidate/valid') do
+              expect do
+                decide_request_with(id:, decision:, auth_header:,
+                                    representative_id:)
+              end.to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size).by(1)
+            end
           end
         end
       end
@@ -263,26 +298,28 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         end
 
         it 'does not enqueue the VANotifyDeclinedJob' do
-          mock_ccg(scopes) do |auth_header|
-            expect do
-              decide_request_with(proc_id: '76529', decision: 'DECLINED', auth_header:, ptcpnt_id: '123456789',
-                                  representative_id: '456')
-            end.not_to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size)
+          VCR.use_cassette('mpi/find_candidate/valid') do
+            mock_ccg(scopes) do |auth_header|
+              expect do
+                decide_request_with(id:, decision:, auth_header:,
+                                    representative_id:)
+              end.not_to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size)
+            end
           end
         end
       end
     end
 
-    context 'when procId is present but invalid' do
-      let(:proc_id) { '1' }
+    context 'when id is present but invalid' do
+      let(:id) { '1' }
       let(:decision) { 'ACCEPTED' }
+      let(:representative_id) { '456' }
 
       it 'raises an error' do
         mock_ccg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_not_found') do
-            decide_request_with(proc_id:, decision:, auth_header:)
-
-            expect(response).to have_http_status(:internal_server_error)
+            decide_request_with(id:, decision:, auth_header:, representative_id:)
+            expect(response).to have_http_status(:not_found)
           end
         end
       end
@@ -300,7 +337,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             addressLine1: '2719 Hyperion Ave',
             addressLine2: 'Apt 2',
             city: 'Los Angeles',
-            country: 'USA',
+            countryCode: 'US',
             stateCode: 'CA',
             zipCode: '92264',
             zipCodeSuffix: '0200'
@@ -325,6 +362,23 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           HIV
           ALCOHOLISM
         ]
+      }
+    end
+    let(:claimant_information) do
+      {
+        claimant: {
+          address: {
+            addressLine1: '2719 Hyperion Ave',
+            addressLine2: 'Apt 2',
+            city: 'Los Angeles',
+            countryCode: 'US',
+            stateCode: 'CA',
+            zipCode: '92264',
+            zipCodeSuffix: '0200'
+          },
+          claimantId: '1012667145V762142',
+          relationship: 'Spouse'
+        }
       }
     end
     let(:veteran_id) { '1012667145V762142' }
@@ -418,28 +472,115 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         expect(JSON.parse(response.body)['data']['type']).to eq('power-of-attorney-request')
       end
     end
+
+    context 'handling countryCodes' do
+      it 'returns a 422 when the veteran countryCode has no match in the BRD countries list' do
+        mock_ccg(scopes) do |auth_header|
+          form_attributes[:veteran][:address][:countryCode] = '76'
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'The country provided is not valid.'
+          )
+        end
+      end
+
+      it 'returns a 201 when the veteran countryCode is lowercase but has a match' do
+        mock_ccg(scopes) do |auth_header|
+          form_attributes[:veteran][:address][:countryCode] = 'pk'
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:created)
+        end
+      end
+
+      it 'returns a 422 when the claimant countryCode has no match in the BRD countries list' do
+        mock_ccg(scopes) do |auth_header|
+          form_attributes.merge!(claimant_information)
+          form_attributes[:claimant][:address][:countryCode] = '76'
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'The country provided is not valid.'
+          )
+        end
+      end
+
+      describe '#validate_country_code' do
+        let(:min_form_attributes) do
+          {
+            'veteran' => {
+              'address' => {
+                'countryCode' => 'GB-WLS'
+              }
+            }
+          }
+        end
+
+        before do
+          allow(subject).to receive(:form_attributes).and_return(min_form_attributes)
+        end
+
+        it 'allows a countryCode with 6 characters and a dash' do
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'allows a countryCode with numbers and letters and a dash' do
+          min_form_attributes['veteran']['address']['countryCode'] = 'TR-01'
+
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'allows a countryCode when sent in lowercase' do
+          min_form_attributes['veteran']['address']['countryCode'] = 'gb'
+
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'allows a countryCode when sent in mixed case' do
+          min_form_attributes['veteran']['address']['countryCode'] = 'gb-WlS'
+
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'denies an invalid countryCode' do
+          min_form_attributes['veteran']['address']['countryCode'] = '%&-T)'
+
+          expect do
+            subject.send(:validate_country_code)
+          end.to raise_error(Common::Exceptions::UnprocessableEntity)
+        end
+      end
+    end
   end
 
   def index_request_with(poa_codes:, auth_header:, filter: {})
     post v2_veterans_power_of_attorney_requests_path,
          params: { data: { attributes: { poaCodes: poa_codes, filter: } } }.to_json,
-         headers: auth_header
+         headers: auth_header.merge('Content-Type' => 'application/json')
   end
 
   def show_request_with(id:, auth_header:)
     get "/services/claims/v2/veterans/power-of-attorney-requests/#{id}", headers: auth_header
   end
 
-  def decide_request_with(proc_id:, decision:, auth_header:, ptcpnt_id: nil, representative_id: nil)
-    post v2_veterans_power_of_attorney_requests_decide_path,
-         params: { data: { attributes: { procId: proc_id, decision:, participantId: ptcpnt_id,
+  def decide_request_with(id:, decision:, auth_header:, representative_id: nil)
+    post "/services/claims/v2/veterans/power-of-attorney-requests/#{id}/decide",
+         params: { data: { attributes: { id:,
+                                         decision:,
                                          representativeId: representative_id } } }.to_json,
-         headers: auth_header
+         headers: auth_header.merge('Content-Type' => 'application/json')
   end
 
   def create_request_with(veteran_id:, form_attributes:, auth_header:)
     post "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney-request",
          params: { data: { attributes: form_attributes } }.to_json,
-         headers: auth_header
+         headers: auth_header.merge('Content-Type' => 'application/json')
   end
 end

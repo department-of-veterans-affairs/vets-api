@@ -8,7 +8,7 @@ RSpec.shared_examples 'zip_code_is_us_based' do |address_keys|
       let(:data) { { address_key => { 'country' => 'USA' } } }
 
       it 'returns true' do
-        expect(zip_code_is_us_based).to eq(true)
+        expect(zip_code_is_us_based).to be(true)
       end
     end
 
@@ -16,7 +16,7 @@ RSpec.shared_examples 'zip_code_is_us_based' do |address_keys|
       let(:data) { { address_key => { 'country' => 'CAN' } } }
 
       it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
+        expect(zip_code_is_us_based).to be(false)
       end
     end
   end
@@ -25,7 +25,7 @@ RSpec.shared_examples 'zip_code_is_us_based' do |address_keys|
     let(:data) { {} }
 
     it 'returns false' do
-      expect(zip_code_is_us_based).to eq(false)
+      expect(zip_code_is_us_based).to be(false)
     end
   end
 end

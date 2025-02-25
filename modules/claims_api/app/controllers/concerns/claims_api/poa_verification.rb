@@ -43,7 +43,7 @@ module ClaimsApi
       def validate_poa_code_for_current_user!(poa_code)
         return if valid_poa_code_for_current_user?(poa_code)
 
-        error_msg = 'Veterans making requests do not need to include identifying headers '\
+        error_msg = 'Veterans making requests do not need to include identifying headers ' \
                     "such as 'X-VA-First-Name'. Please resubmit without extraneous headers"
         raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_msg) if target_veteran_is_current_user?
 

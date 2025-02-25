@@ -1,6 +1,4 @@
 The Benefits Intake API enables authorized third-party systems, such as those used by Veteran Service Organizations (VSOs), agencies, and Veterans, to digitally submit documents for VA benefits claims directly to the claims intake process of the Veterans Benefits Administration (VBA). This API handles documents related to the following benefit claim types:
-
-
 * Compensation
 * Pension/Survivors Benefits
 * Education

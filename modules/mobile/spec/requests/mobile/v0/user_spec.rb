@@ -7,15 +7,21 @@ RSpec.describe 'Mobile::V0::User', type: :request do
 
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
   let(:contact_information_service) do
-    VAProfile::ContactInformation::Service
+    VAProfile::V2::ContactInformation::Service
   end
 
   before do
-    Flipper.disable(:va_v3_contact_information_service)
-    Flipper.disable(:remove_pciu)
+    allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_letters, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_claims, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_direct_deposit, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_disability_ratings,
+                                              instance_of(User)).and_return(false)
   end
 
-  describe 'GET /mobile/v0/user', :skip_va_profile_user do
+  describe 'GET /mobile/v0/user' do
     let!(:user) do
       sis_user(
         first_name: 'GREG',
@@ -27,10 +33,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
         cerner_facility_ids: %w[757 358 999],
         vha_facility_ids: %w[757 358 999]
       )
-    end
-
-    before(:all) do
-      Flipper.disable(:mobile_lighthouse_letters)
     end
 
     before do
@@ -77,7 +79,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
       end
 
       it 'includes the users contact email id' do
-        expect(attributes.dig('profile', 'contactEmail', 'id')).to eq(456)
+        expect(attributes.dig('profile', 'contactEmail', 'id')).to eq(318_927)
       end
 
       it 'includes the users contact email addrss' do
@@ -93,11 +95,11 @@ RSpec.describe 'Mobile::V0::User', type: :request do
       it 'includes the expected residential address' do
         expect(attributes['profile']).to include(
           'residentialAddress' => {
-            'id' => 123,
+            'id' => 577_127,
             'addressLine1' => '140 Rock Creek Rd',
             'addressLine2' => nil,
             'addressLine3' => nil,
-            'addressPou' => 'RESIDENCE/CHOICE',
+            'addressPou' => 'RESIDENCE',
             'addressType' => 'DOMESTIC',
             'city' => 'Washington',
             'countryCodeIso3' => 'USA',
@@ -133,7 +135,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
       it 'includes a home phone number' do
         expect(attributes['profile']['homePhoneNumber']).to include(
           {
-            'id' => 789,
+            'id' => 458_781,
             'areaCode' => '303',
             'countryCode' => '1',
             'extension' => nil,
@@ -402,13 +404,14 @@ RSpec.describe 'Mobile::V0::User', type: :request do
       # Another team will remove this method from the user model
       context 'when user model does not have a fax number method' do
         before do
-          allow_any_instance_of(VAProfileRedis::ContactInformation).to receive(:try).with(:fax_number).and_return(nil)
+          allow_any_instance_of(VAProfileRedis::V2::ContactInformation).to receive(:try).with(:fax_number)
+                                                                                        .and_return(nil)
         end
 
         it 'sets fax number to nil' do
           user_request
           expect(response).to have_http_status(:ok)
-          expect(attributes['profile']['faxNumber']).to eq(nil)
+          expect(attributes['profile']['faxNumber']).to be_nil
         end
       end
     end
@@ -463,7 +466,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     end
   end
 
-  describe 'POST /mobile/v0/user/logged-in', :skip_va_profile_user do
+  describe 'POST /mobile/v0/user/logged-in' do
     let!(:user) { sis_user }
 
     it 'returns an ok response' do

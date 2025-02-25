@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGS::PaymentService do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
   let(:person) { BGS::People::Response.new(bgs_response) }
   let(:bgs_response) do
     {

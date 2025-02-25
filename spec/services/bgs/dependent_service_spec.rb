@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe BGS::DependentService do
-  let(:user) { FactoryBot.create(:evss_user, :loa3, birth_date:, ssn: '796043735') }
-  let(:user2) { FactoryBot.create(:evss_user, :loa3, participant_id: nil, birth_date:, ssn: '796043735') }
+  let(:user) { create(:evss_user, :loa3, birth_date:, ssn: '796043735') }
+  let(:user2) { create(:evss_user, :loa3, participant_id: nil, birth_date:, ssn: '796043735') }
   let(:birth_date) { '1809-02-12' }
   let(:claim) { double('claim') }
   let(:vet_info) do

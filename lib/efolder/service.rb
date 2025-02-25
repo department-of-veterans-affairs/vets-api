@@ -43,24 +43,23 @@ module Efolder
 
     def file_number
       bgs_file_number = BGS::People::Request.new.find_person_by_participant_id(user: @user).file_number
-      bgs_file_number.empty? ? @user.ssn : bgs_file_number
+      bgs_file_number.nil? ? @user.ssn : bgs_file_number
     end
 
     def bgs_doc_uuids
       uuids = []
-      BGS::UploadedDocumentService
-        .new(@user)
-        .get_documents
-        .each do |claim|
-          uploaded_docs = claim[:uplded_dcmnts]
-          if uploaded_docs.is_a?(Hash)
-            uuids << uploaded_docs[:uuid_txt]
-          else
-            uploaded_docs.each do |doc|
-              uuids << doc[:uuid_txt]
-            end
+      documents = BGS::UploadedDocumentService.new(@user).get_documents || []
+
+      documents.each do |claim|
+        uploaded_docs = claim[:uplded_dcmnts]
+        if uploaded_docs.is_a?(Hash) && uploaded_docs.key?(:uuid_txt)
+          uuids << uploaded_docs[:uuid_txt]
+        else
+          uploaded_docs&.each do |doc|
+            uuids << doc[:uuid_txt] if doc.is_a?(Hash) && doc.key?(:uuid_txt)
           end
         end
+      end
       uuids.compact
     end
 

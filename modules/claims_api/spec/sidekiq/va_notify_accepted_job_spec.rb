@@ -99,6 +99,17 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
 
           expect(res).to eq(ind_expected_params)
         end
+
+        it 'updates the process' do
+          instance = described_class.new
+          allow(instance).to receive_messages(
+            skip_notification_email?: false,
+            send_representative_notification: nil
+          )
+          instance.perform(rep_poa.id, va_notify_rep.id)
+          process = ClaimsApi::Process.find_by(processable: rep_poa, step_type: 'CLAIMANT_NOTIFICATION')
+          expect(process.step_status).to eq('SUCCESS')
+        end
       end
     end
 
@@ -128,6 +139,17 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
 
           expect(res).to eq(dependent_expected_params)
         end
+
+        it 'updates the process' do
+          instance = described_class.new
+          allow(instance).to receive_messages(
+            skip_notification_email?: false,
+            send_representative_notification: nil
+          )
+          instance.perform(rep_dep_poa.id, va_notify_rep.id)
+          process = ClaimsApi::Process.find_by(processable: rep_dep_poa, step_type: 'CLAIMANT_NOTIFICATION')
+          expect(process.step_status).to eq('SUCCESS')
+        end
       end
     end
 
@@ -154,20 +176,35 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
 
           expect(res).to eq(org_expected_params)
         end
+
+        it 'updates the process' do
+          instance = described_class.new
+          allow(instance).to receive_messages(
+            skip_notification_email?: false,
+            send_organization_notification: nil
+          )
+          instance.perform(organization_poa.id, va_notify_org.id)
+          process = ClaimsApi::Process.find_by(processable: organization_poa, step_type: 'CLAIMANT_NOTIFICATION')
+          expect(process.step_status).to eq('SUCCESS')
+        end
       end
     end
   end
 
   describe 'Va Notify Failure' do
     context 'when an error occurs' do
-      it 'calls handle_failure' do
+      it 'calls the slack alert and updates the process' do
         instance = described_class.new
         error = StandardError.new('Some error')
         allow(instance).to receive(:skip_notification_email?).and_return(false)
         allow(instance).to receive(:organization_filing?).with(rep_poa.form_data).and_raise(error)
 
-        expect(instance).to receive(:handle_failure).with(rep_poa.id, error)
-        instance.perform(rep_poa.id, va_notify_rep)
+        expect(instance).to receive(:slack_alert_on_failure)
+        expect do
+          instance.perform(rep_poa.id, va_notify_rep)
+        end.to raise_error(error)
+        process = ClaimsApi::Process.find_by(processable: rep_poa, step_type: 'CLAIMANT_NOTIFICATION')
+        expect(process.step_status).to eq('FAILED')
       end
     end
   end
@@ -176,19 +213,19 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
     it 'properly selects the org template when the filing is 2122' do
       res = subject.send(:organization_filing?, org_poa.form_data)
 
-      expect(res).not_to eq(nil)
+      expect(res).not_to be_nil
     end
 
     it 'properly selects the rep template when the filing is 2122a' do
       res = subject.send(:organization_filing?, rep_poa.form_data)
 
-      expect(res).to eq(nil)
+      expect(res).to be_nil
     end
 
     it 'properly selects the rep template when the filing is 2122 for dependent claimant' do
       res = subject.send(:organization_filing?, rep_dep_poa.form_data)
 
-      expect(res).to eq(nil)
+      expect(res).to be_nil
     end
   end
 

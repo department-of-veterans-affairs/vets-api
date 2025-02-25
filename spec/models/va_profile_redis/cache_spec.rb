@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe VAProfileRedis::Cache, :skip_vet360 do
-  let(:user) { build :user, :loa3 }
+  let(:user) { build(:user, :loa3) }
 
   describe 'ContactInformationServiceV1' do
     before do
@@ -18,11 +18,11 @@ describe VAProfileRedis::Cache, :skip_vet360 do
           VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
             VAProfileRedis::ContactInformation.for_user(user)
           end
-          expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to eq(true)
+          expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to be(true)
 
           VAProfileRedis::Cache.invalidate(user)
 
-          expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to eq(false)
+          expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to be(false)
         end
       end
 

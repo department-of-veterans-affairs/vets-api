@@ -62,7 +62,7 @@ describe AppealsApi::PdfConstruction::SupplementalClaim::V2::FormData do
 
         it 'returns a nil value' do
           supplemental_claim.form_data['data']['attributes'].merge({ form5103Acknowledged: true })
-          expect(form_data.form_5103_notice_acknowledged).to eq nil
+          expect(form_data.form_5103_notice_acknowledged).to be_nil
         end
       end
 

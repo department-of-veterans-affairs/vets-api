@@ -11,7 +11,7 @@ RSpec.describe ClaimFastTracking::FlashPicker do
         let(:disabilities) { [] }
 
         it 'returns an empty array' do
-          expect(subject.als?(disabilities)).to eq(false)
+          expect(subject.als?(disabilities)).to be(false)
         end
       end
 
@@ -19,14 +19,14 @@ RSpec.describe ClaimFastTracking::FlashPicker do
         let(:disabilities) { [{ 'name' => 'Tinnitus', 'diagnosticCode' => 6260 }] }
 
         it 'returns false' do
-          expect(subject.als?(disabilities)).to eq(false)
+          expect(subject.als?(disabilities)).to be(false)
         end
       end
 
       context 'when the disability name exactly matches any of the ALS_TERMS' do
         described_class::ALS_MATCH_TERMS.each do |term|
           it "returns true for term #{term}" do
-            expect(subject.als?([{ 'name' => term }])).to eq(true)
+            expect(subject.als?([{ 'name' => term }])).to be(true)
           end
         end
       end
@@ -53,7 +53,7 @@ RSpec.describe ClaimFastTracking::FlashPicker do
         ].each do |test_case|
           it "returns true for term #{test_case[:reason]}" do
             disabilities = [{ 'name' => test_case[:condition] }]
-            expect(subject.als?(disabilities)).to eq(true)
+            expect(subject.als?(disabilities)).to be(true)
           end
         end
       end
@@ -74,7 +74,7 @@ RSpec.describe ClaimFastTracking::FlashPicker do
         ].each do |test_case|
           it "returns true for term with #{test_case[:reason]}" do
             disabilities = [{ 'name' => test_case[:condition] }]
-            expect(subject.als?(disabilities)).to eq(true)
+            expect(subject.als?(disabilities)).to be(true)
           end
         end
       end
@@ -89,7 +89,7 @@ RSpec.describe ClaimFastTracking::FlashPicker do
         ].each do |test_case|
           it "returns false for term with #{test_case[:reason]}" do
             disabilities = [{ 'name' => test_case[:condition] }]
-            expect(subject.als?(disabilities)).to eq(false)
+            expect(subject.als?(disabilities)).to be(false)
           end
         end
       end

@@ -17,7 +17,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
         inquiry_about: 'For the dependent of a Veteran',
         dependent_relationship: nil,
         veteran_relationship: nil,
-        level_of_authentication: level_of_authentication
+        level_of_authentication:
       }
     end
     let(:pronouns) do
@@ -53,7 +53,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
         phone_number: '987-654-3210',
         postal_code: '12345',
         preferred_name: 'Test User',
-        pronouns: pronouns,
+        pronouns:,
         school_obj: {
           institution_name: 'University of California',
           school_facility_code: '123456',
@@ -81,7 +81,6 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
           StateCode: 'CA'
         },
         ZipCode: '12345',
-        Province: nil,
         DateOfBirth: '1980-05-15',
         BusinessPhone: nil,
         PersonalPhone: '987-654-3210',
@@ -123,8 +122,8 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
       it 'builds the correct payload' do
         expect(subject.call[:BusinessPhone]).to eq('987-654-3210')
         expect(subject.call[:BusinessEmail]).to eq('test@example.com')
-        expect(subject.call[:PersonalPhone]).to eq(nil)
-        expect(subject.call[:PersonalEmail]).to eq(nil)
+        expect(subject.call[:PersonalPhone]).to be_nil
+        expect(subject.call[:PersonalEmail]).to be_nil
       end
     end
 

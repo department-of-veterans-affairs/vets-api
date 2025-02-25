@@ -8,7 +8,7 @@ describe PdfFill::Forms::FormHelper do
 
   describe '#split_ssn' do
     it 'returns nil' do
-      expect(including_class.new.split_ssn('')).to eq(nil)
+      expect(including_class.new.split_ssn('')).to be_nil
     end
 
     it 'splits the ssn' do
@@ -18,7 +18,7 @@ describe PdfFill::Forms::FormHelper do
 
   describe '#extract_middle_i' do
     it 'veteran with no name should return nil' do
-      expect(including_class.new.extract_middle_i({}, 'veteranFullName')).to eq(nil)
+      expect(including_class.new.extract_middle_i({}, 'veteranFullName')).to be_nil
     end
 
     it 'veteran name with no middle name should return nil' do
@@ -76,21 +76,21 @@ describe PdfFill::Forms::FormHelper do
 
   describe '#split_postal_code' do
     it 'returns nil with blank address' do
-      expect(including_class.new.split_postal_code({})).to eq(nil)
+      expect(including_class.new.split_postal_code({})).to be_nil
     end
 
     it 'returns nil with no postal code' do
       address = {
         'city' => 'Baltimore'
       }
-      expect(including_class.new.split_postal_code(address)).to eq(nil)
+      expect(including_class.new.split_postal_code(address)).to be_nil
     end
 
     it 'returns nil for blank postal code' do
       address = {
         'postalCode' => ''
       }
-      expect(including_class.new.split_postal_code(address)).to eq(nil)
+      expect(including_class.new.split_postal_code(address)).to be_nil
     end
 
     it 'splits the code correctly with extra characters' do
@@ -139,7 +139,7 @@ describe PdfFill::Forms::FormHelper do
     end
 
     it 'returns nil with impossible date' do
-      expect(including_class.new.validate_date('2018-01-32')).to be nil
+      expect(including_class.new.validate_date('2018-01-32')).to be_nil
     end
 
     it 'returns nil with blank date' do

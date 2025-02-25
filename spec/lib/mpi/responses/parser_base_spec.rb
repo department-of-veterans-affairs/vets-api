@@ -11,7 +11,7 @@ describe MPI::Responses::ParserBase do
       let(:code) { nil }
 
       it 'returns true' do
-        expect(subject).to eq(true)
+        expect(subject).to be(true)
       end
     end
 
@@ -19,7 +19,7 @@ describe MPI::Responses::ParserBase do
       let(:code) { 'some-code' }
 
       it 'returns false' do
-        expect(subject).to eq(false)
+        expect(subject).to be(false)
       end
     end
   end
@@ -31,7 +31,7 @@ describe MPI::Responses::ParserBase do
       let(:code) { MPI::Responses::ParserBase::EXTERNAL_RESPONSE_CODES[:failure] }
 
       it 'returns true' do
-        expect(subject).to eq(true)
+        expect(subject).to be(true)
       end
     end
 
@@ -39,7 +39,7 @@ describe MPI::Responses::ParserBase do
       let(:code) { MPI::Responses::ParserBase::EXTERNAL_RESPONSE_CODES[:invalid_request] }
 
       it 'returns true' do
-        expect(subject).to eq(true)
+        expect(subject).to be(true)
       end
     end
 
@@ -47,7 +47,7 @@ describe MPI::Responses::ParserBase do
       let(:code) { 'some-code' }
 
       it 'returns false' do
-        expect(subject).to eq(false)
+        expect(subject).to be(false)
       end
     end
   end
@@ -59,7 +59,7 @@ describe MPI::Responses::ParserBase do
       let(:code) { MPI::Responses::ParserBase::EXTERNAL_RESPONSE_CODES[:failure] }
 
       it 'returns true' do
-        expect(subject).to eq(true)
+        expect(subject).to be(true)
       end
     end
 
@@ -67,7 +67,7 @@ describe MPI::Responses::ParserBase do
       let(:code) { 'some-code' }
 
       it 'returns false' do
-        expect(subject).to eq(false)
+        expect(subject).to be(false)
       end
     end
   end
@@ -79,7 +79,7 @@ describe MPI::Responses::ParserBase do
       let(:code) { MPI::Responses::ParserBase::EXTERNAL_RESPONSE_CODES[:invalid_request] }
 
       it 'returns true' do
-        expect(subject).to eq(true)
+        expect(subject).to be(true)
       end
     end
 
@@ -87,7 +87,7 @@ describe MPI::Responses::ParserBase do
       let(:code) { 'some-code' }
 
       it 'returns false' do
-        expect(subject).to eq(false)
+        expect(subject).to be(false)
       end
     end
   end
@@ -101,7 +101,7 @@ describe MPI::Responses::ParserBase do
       let(:el) { nil }
 
       it 'returns nil' do
-        expect(subject).to be(nil)
+        expect(subject).to be_nil
       end
     end
 
@@ -109,7 +109,7 @@ describe MPI::Responses::ParserBase do
       let(:el) { 'some-parameter' }
 
       it 'returns nil' do
-        expect(subject).to be(nil)
+        expect(subject).to be_nil
       end
     end
 
@@ -123,7 +123,7 @@ describe MPI::Responses::ParserBase do
         let(:path_to_parse) { 'incorrect-parse' }
 
         it 'returns nil' do
-          expect(subject).to eq(nil)
+          expect(subject).to be_nil
         end
       end
 

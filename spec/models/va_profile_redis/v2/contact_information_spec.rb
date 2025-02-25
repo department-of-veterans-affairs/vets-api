@@ -44,8 +44,8 @@ describe VAProfileRedis::V2::ContactInformation do
 
       it 'caches the empty response' do
         VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
-          expect(contact_info.email).to eq(nil)
-          expect(contact_info.home_phone).to eq(nil)
+          expect(contact_info.email).to be_nil
+          expect(contact_info.home_phone).to be_nil
         end
       end
 
@@ -54,11 +54,11 @@ describe VAProfileRedis::V2::ContactInformation do
 
         it 'makes a new request' do
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
-            expect(contact_info.email).to eq(nil)
+            expect(contact_info.email).to be_nil
           end
           VAProfileRedis::V2::Cache.invalidate(user)
 
-          expect(VAProfileRedis::V2::ContactInformation.for_user(user).email).to eq(nil)
+          expect(VAProfileRedis::V2::ContactInformation.for_user(user).email).to be_nil
         end
       end
     end

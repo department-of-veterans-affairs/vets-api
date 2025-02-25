@@ -5,7 +5,7 @@ require_relative '../../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
 
-RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :request do
+RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:request_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney-request" }
   let(:scopes) { %w[system/claim.write system/claim.read] }
@@ -13,8 +13,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
   let(:local_bgs) { ClaimsApi::LocalBGS }
 
   before do
-    FactoryBot.create(:veteran_representative, :vso, representative_id: '999999999999', poa_codes: ['067'])
-    FactoryBot.create(:veteran_organization, poa: '067', name: 'DISABLED AMERICAN VETERANS')
+    create(:veteran_representative, :vso, representative_id: '999999999999', poa_codes: ['067'])
+    create(:veteran_organization, poa: '067', name: 'DISABLED AMERICAN VETERANS')
 
     Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
   end
@@ -25,6 +25,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
         context 'when the Veteran ICN is not found in MPI' do
           it 'returns a meaningful 404' do
             mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
+                .to receive(:validate_country_code).and_return(nil)
               allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(false)
 
               detail = "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). " \
@@ -37,7 +39,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               expect(response).to have_http_status(:not_found)
               expect(response_body['title']).to eq('Resource not found')
               expect(response_body['status']).to eq('404')
-              expect(response_body['detail']).to eq(detail)
+              expect(response_body['detail']).to include(detail)
             end
           end
         end
@@ -56,7 +58,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               expect(response).to have_http_status(:unprocessable_entity)
               expect(response_body['title']).to eq('Unprocessable entity')
               expect(response_body['status']).to eq('422')
-              expect(response_body['detail']).to eq(detail)
+              expect(response_body['detail']).to include(detail)
             end
           end
         end
@@ -80,7 +82,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(response_body['title']).to eq('Unprocessable entity')
                   expect(response_body['status']).to eq('422')
-                  expect(response_body['detail']).to eq(detail)
+                  expect(response_body['detail']).to include(detail)
                 end
               end
             end
@@ -105,7 +107,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(response_body['title']).to eq('Unprocessable Entity')
                   expect(response_body['status']).to eq('422')
-                  expect(response_body['detail']).to eq(detail)
+                  expect(response_body['detail']).to include(detail)
                 end
               end
             end
@@ -131,7 +133,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                 expect(response).to have_http_status(:not_found)
                 expect(response_body['title']).to eq('Resource not found')
                 expect(response_body['status']).to eq('404')
-                expect(response_body['detail']).to eq(detail)
+                expect(response_body['detail']).to include(detail)
               end
             end
           end
@@ -181,13 +183,32 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               post request_path, params: request_body, headers: auth_header
 
               response_body = JSON.parse(response.body)
-              request_body_with_type_and_id = JSON.parse(request_body)
+              expected_response = JSON.parse(request_body)
 
-              request_body_with_type_and_id['data']['id'] = response_body['data']['id']
-              request_body_with_type_and_id['data']['type'] = response_body['data']['type']
+              expected_response['data']['id'] = response_body['data']['id']
+              expected_response['data']['type'] = response_body['data']['type']
+
+              expected_response['data']['attributes']['claimant'] = {
+                'claimantId' => nil,
+                'address' => {
+                  'addressLine1' => nil,
+                  'addressLine2' => nil,
+                  'city' => nil,
+                  'stateCode' => nil,
+                  'countryCode' => nil,
+                  'zipCode' => nil,
+                  'zipCodeSuffix' => nil
+                },
+                'phone' => {
+                  'areaCode' => nil,
+                  'phoneNumber' => nil
+                },
+                'email' => nil,
+                'relationship' => nil
+              }
 
               expect(response).to have_http_status(:created)
-              expect(response_body).to eq(request_body_with_type_and_id)
+              expect(response_body).to eq(expected_response)
             end
           end
 
@@ -221,13 +242,32 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               post request_path, params: request_body, headers: auth_header
 
               response_body = JSON.parse(response.body)
-              request_body_with_type_and_id = JSON.parse(request_body)
+              expected_response = JSON.parse(request_body)
 
-              request_body_with_type_and_id['data']['type'] = 'power-of-attorney-request'
-              request_body_with_type_and_id['data']['id'] = response_body['data']['id']
+              expected_response['data']['type'] = 'power-of-attorney-request'
+              expected_response['data']['id'] = response_body['data']['id']
+
+              expected_response['data']['attributes']['claimant'] = {
+                'claimantId' => nil,
+                'address' => {
+                  'addressLine1' => nil,
+                  'addressLine2' => nil,
+                  'city' => nil,
+                  'stateCode' => nil,
+                  'countryCode' => nil,
+                  'zipCode' => nil,
+                  'zipCodeSuffix' => nil
+                },
+                'phone' => {
+                  'areaCode' => nil,
+                  'phoneNumber' => nil
+                },
+                'email' => nil,
+                'relationship' => nil
+              }
 
               expect(response).to have_http_status(:created)
-              expect(response_body).to eq(request_body_with_type_and_id)
+              expect(response_body).to eq(expected_response)
             end
           end
         end

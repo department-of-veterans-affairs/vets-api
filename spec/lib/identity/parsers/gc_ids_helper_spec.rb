@@ -13,7 +13,7 @@ describe Identity::Parsers::GCIdsHelper do
       let(:edipi) { nil }
 
       it 'returns nil' do
-        expect(subject).to be(nil)
+        expect(subject).to be_nil
       end
     end
 
@@ -21,7 +21,7 @@ describe Identity::Parsers::GCIdsHelper do
       let(:edipi) { 1234 }
 
       it 'returns nil' do
-        expect(subject).to be(nil)
+        expect(subject).to be_nil
       end
     end
 
@@ -37,7 +37,7 @@ describe Identity::Parsers::GCIdsHelper do
       let(:edipi) { '1234' }
 
       it 'returns nil' do
-        expect(subject).to be(nil)
+        expect(subject).to be_nil
       end
     end
 
@@ -67,7 +67,7 @@ describe Identity::Parsers::GCIdsHelper do
       let(:id) { nil }
 
       it 'returns nil' do
-        expect(subject).to be(nil)
+        expect(subject).to be_nil
       end
     end
 
@@ -75,7 +75,7 @@ describe Identity::Parsers::GCIdsHelper do
       let(:id) { 1234 }
 
       it 'returns nil' do
-        expect(subject).to be(nil)
+        expect(subject).to be_nil
       end
     end
 
@@ -100,7 +100,7 @@ describe Identity::Parsers::GCIdsHelper do
       let(:id) { 'some-id' }
 
       it 'returns nil' do
-        expect(subject).to be(nil)
+        expect(subject).to be_nil
       end
     end
 

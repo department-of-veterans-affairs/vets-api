@@ -68,7 +68,7 @@ RSpec.describe SignIn::LogoutRedirectGenerator do
         let(:logout_redirect_uri) { nil }
 
         it 'returns nil' do
-          expect(subject).to eq(nil)
+          expect(subject).to be_nil
         end
       end
     end

@@ -118,10 +118,10 @@
       "totalDeductions": "12.23",
       "netTakeHomePay": "90.32",
       "otherIncome": {
-        "name": "Social Security, Child support",
-        "amount": "34.00"
+        "name": "Disability Compensation, Social Security, Child support",
+        "amount": "137.55"
       },
-      "totalMonthlyNetIncome": "124.32"
+      "totalMonthlyNetIncome": "227.87"
     },
     {
       "veteranOrSpouse": "SPOUSE",
@@ -156,7 +156,7 @@
     "totalMonthlyExpenses": "1585.05"
   },
   "discretionaryIncome": {
-    "netMonthlyIncomeLessExpenses": "6106.27",
+    "netMonthlyIncomeLessExpenses": "6209.82",
     "amountCanBePaidTowardDebt": "65.00"
   },
   "assets": {

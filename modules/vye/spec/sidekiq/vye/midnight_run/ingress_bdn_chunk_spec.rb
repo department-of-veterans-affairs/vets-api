@@ -4,7 +4,7 @@ require 'rails_helper'
 require Vye::Engine.root / 'spec/rails_helper'
 
 describe Vye::MidnightRun::IngressBdnChunk, type: :worker do
-  let(:bdn_clone) { FactoryBot.create(:vye_bdn_clone_base) }
+  let(:bdn_clone) { create(:vye_bdn_clone_base) }
   let(:bdn_clone_id) { bdn_clone.id }
   let(:offset) { 0 }
   let(:block_size) { 10_000 }

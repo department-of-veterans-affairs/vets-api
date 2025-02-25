@@ -23,7 +23,7 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
     it "provides the method definition for sidekiq 'retry_monitoring.rb'" do
       res = described_class.new.retry_limits_for_notification
       expect(res).to eq([11])
-      expect(described_class.new.respond_to?(:retry_limits_for_notification)).to eq(true)
+      expect(described_class.new.respond_to?(:retry_limits_for_notification)).to be(true)
     end
   end
 

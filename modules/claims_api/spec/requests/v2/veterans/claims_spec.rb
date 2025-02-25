@@ -23,23 +23,23 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
   let(:profile) do
     MPI::Responses::FindProfileResponse.new(
       status: :ok,
-      profile: FactoryBot.build(:mpi_profile,
-                                participant_id: nil,
-                                participant_ids: [])
+      profile: build(:mpi_profile,
+                     participant_id: nil,
+                     participant_ids: [])
     )
   end
   let(:bnft_claim_web_service) { ClaimsApi::EbenefitsBnftClaimStatusWebService }
   let(:profile_for_claimant_on_behalf_of_veteran) do
     MPI::Responses::FindProfileResponse.new(
       status: :ok,
-      profile: FactoryBot.build(:mpi_profile,
-                                participant_id: '8675309')
+      profile: build(:mpi_profile,
+                     participant_id: '8675309')
     )
   end
   let(:profile_erroneous_icn) do
     MPI::Responses::FindProfileResponse.new(
       status: :not_found,
-      profile: FactoryBot.build(:mpi_profile, icn: '667711332299')
+      profile: build(:mpi_profile, icn: '667711332299')
     )
   end
   let(:person_web_service) do
@@ -66,10 +66,10 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
   describe 'Claims' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return true
       allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
       allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return false
       allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return true
     end
 
     describe 'index' do
@@ -324,11 +324,11 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   expect(response).to have_http_status(:ok)
                   expect(json_response['data'].count).to eq(4)
                   expect(json_response['data'][0]['attributes']['lighthouseId']).to eq(lighthouse_claim.id)
-                  expect(json_response['data'][1]['attributes']['lighthouseId']).to eq(nil)
+                  expect(json_response['data'][1]['attributes']['lighthouseId']).to be_nil
                   expect(json_response['data'][2]['attributes']['lighthouseId']).to eq(lighthouse_claim_two.id)
                   expect(json_response['data'][3]['attributes']['lighthouseId']).to eq(lighthouse_claim_three.id)
                   expect(json_response['data'][3]['attributes']['claimType']).to eq('Compensation')
-                  expect(json_response['data'][3]['id']).to eq(nil)
+                  expect(json_response['data'][3]['id']).to be_nil
                 end
               end
             end
@@ -524,16 +524,38 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
       describe 'participant ID' do
         context 'when missing' do
+          let(:add_person_proxy_response) do
+            instance_double(MPI::Responses::AddPersonResponse, ok?: false)
+          end
+
+          let(:bgs_claims) do
+            {
+              benefit_claims_dto: {
+                benefit_claim: [
+                  {
+                    base_end_prdct_type_cd: '400',
+                    benefit_claim_id: '111111111',
+                    phase_type: 'claim received'
+                  }
+                ]
+              }
+            }
+          end
+
           it 'returns a 422' do
             mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(bnft_claim_web_service)
+                .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
               allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(true)
               allow_any_instance_of(MPIData)
                 .to receive(:mvi_response).and_return(profile)
+              allow_any_instance_of(MPIData)
+                .to receive(:add_person_proxy).and_return(add_person_proxy_response)
 
               get all_claims_path, headers: auth_header
 
-              expect(response).to have_http_status(:unprocessable_entity)
               json_response = JSON.parse(response.body)
+              expect(response).to have_http_status(:unprocessable_entity)
               expect(json_response['errors'][0]['detail']).to eq(
                 "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
                 'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
@@ -562,7 +584,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 get claim_by_id_path, headers: auth_header
                 json_response = JSON.parse(response.body)
                 expect(response).to have_http_status(:ok)
-                expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to eq(false)
+                expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to be(false)
                 expect(json_response['data']['attributes']['claimPhaseDates']['latestPhaseType'])
                   .to eq('CLAIM_RECEIVED')
                 expect(json_response['data']['attributes']['claimPhaseDates']['previousPhases']).to be_truthy
@@ -627,7 +649,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 json_response = JSON.parse(response.body)
                 expect(response).to have_http_status(:ok)
                 claim_attributes = json_response['data']['attributes']
-                expect(claim_attributes['claimPhaseDates']['currentPhaseBack']).to eq(false)
+                expect(claim_attributes['claimPhaseDates']['currentPhaseBack']).to be(false)
                 expect(claim_attributes['claimPhaseDates']['latestPhaseType']).to eq('CLAIM_RECEIVED')
                 expect(claim_attributes['claimPhaseDates']['previousPhases']).to be_truthy
               end
@@ -637,7 +659,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
       end
 
       it 'uses BD when it should', vcr: 'claims_api/v2/claims_show' do
-        allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return true
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return false
         lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                    evss_id: '111111111')
@@ -857,8 +878,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                     VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
-                        .to receive(:benefits_documents_enabled?).and_return(true)
-                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
                         .to receive(:use_birls_id_file_number?).and_return(false)
 
                       expect_any_instance_of(bnft_claim_web_service)
@@ -902,8 +921,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                     VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
-                        .to receive(:benefits_documents_enabled?).and_return(true)
-                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
                         .to receive(:use_birls_id_file_number?).and_return(true)
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
                         .to receive(:target_veteran).and_return(no_ssn_target_veteran)
@@ -946,8 +963,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                     VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
-                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
-                        .to receive(:benefits_documents_enabled?).and_return(true)
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
                         .to receive(:use_birls_id_file_number?).and_return(true)
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
@@ -1123,7 +1138,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   expect(response).to have_http_status(:ok)
                   expect(json_response).to be_an_instance_of(Hash)
                   expect(json_response['data']['attributes']['status']).to eq('INITIAL_REVIEW')
-                  expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to eq(true)
+                  expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to be(true)
                   expect(json_response['data']['attributes']['claimPhaseDates']['latestPhaseType'])
                     .to eq('UNDER_REVIEW')
                 end
@@ -1396,7 +1411,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   expect(response).to have_http_status(:ok)
                   expect(json_response['data']['id']).to eq(claim_id_with_items)
                   expect(first_doc_id).to eq(293_439)
-                  expect(resp_tracked_items[1]['description']).to eq(nil)
+                  expect(resp_tracked_items[1]['description']).to be_nil
                   expect(resp_tracked_items[2]['description']).to start_with('On your application,')
                   expect(json_response['data']['attributes']['trackedItems'][0]['displayName']).to eq(
                     'STRs not available - substitute documents needed'
@@ -1407,8 +1422,8 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                   expect(json_response['data']['attributes']['trackedItems'][2]['requestedDate']).to eq(
                     '2021-05-05'
                   )
-                  expect(json_response['data']['attributes']['trackedItems'][0]['overdue']).to eq(true)
-                  expect(json_response['data']['attributes']['trackedItems'][1]['overdue']).to eq(false)
+                  expect(json_response['data']['attributes']['trackedItems'][0]['overdue']).to be(true)
+                  expect(json_response['data']['attributes']['trackedItems'][1]['overdue']).to be(false)
                 end
               end
             end

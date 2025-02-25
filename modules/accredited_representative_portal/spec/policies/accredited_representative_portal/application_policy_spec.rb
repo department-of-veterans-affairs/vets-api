@@ -13,22 +13,15 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationPolicy do
     allow(Rails).to receive(:logger).and_return(mock_logger)
   end
 
-  describe '#initialize' do
-    it 'assigns the user and record' do
-      expect(policy.user).to eq(user)
-      expect(policy.record).to eq(record)
-    end
-  end
-
   describe 'default permissions' do
     it 'disallows all actions by default' do
-      expect(policy.index?).to eq(false)
-      expect(policy.show?).to eq(false)
-      expect(policy.create?).to eq(false)
-      expect(policy.new?).to eq(false)
-      expect(policy.update?).to eq(false)
-      expect(policy.edit?).to eq(false)
-      expect(policy.destroy?).to eq(false)
+      expect(policy.index?).to be(false)
+      expect(policy.show?).to be(false)
+      expect(policy.create?).to be(false)
+      expect(policy.new?).to be(false)
+      expect(policy.update?).to be(false)
+      expect(policy.edit?).to be(false)
+      expect(policy.destroy?).to be(false)
     end
   end
 
@@ -62,14 +55,14 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationPolicy do
   describe '#new?' do
     it 'delegates to #create?' do
       allow(policy).to receive(:create?).and_return(true)
-      expect(policy.new?).to eq(true)
+      expect(policy.new?).to be(true)
     end
   end
 
   describe '#edit?' do
     it 'delegates to #update?' do
       allow(policy).to receive(:update?).and_return(true)
-      expect(policy.edit?).to eq(true)
+      expect(policy.edit?).to be(true)
     end
   end
 

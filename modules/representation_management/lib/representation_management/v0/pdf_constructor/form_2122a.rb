@@ -166,6 +166,7 @@ module RepresentationManagement
         end
 
         def representative_contact_details(data)
+          rep_phone_number = unformat_phone_number(data.representative_phone) || ''
           {
             # Representative Mailing Address
             "#{PAGE2_KEY}.MailingAddress_NumberAndStreet[2]": data.representative_field_truncated(:address_line1),
@@ -178,9 +179,9 @@ module RepresentationManagement
             "#{PAGE2_KEY}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[2]": data.representative_zip_code_expanded[0],
             "#{PAGE2_KEY}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[2]": data.representative_zip_code_expanded[1],
             # Representative Phone Number
-            "#{PAGE2_KEY}.Telephone_Number_Area_Code[2]": unformat_phone_number(data.representative_phone)[0..2],
-            "#{PAGE2_KEY}.Telephone_Middle_Three_Numbers[1]": unformat_phone_number(data.representative_phone)[3..5],
-            "#{PAGE2_KEY}.Telephone_Last_Four_Numbers[2]": unformat_phone_number(data.representative_phone)[6..9],
+            "#{PAGE2_KEY}.Telephone_Number_Area_Code[2]": rep_phone_number[0..2],
+            "#{PAGE2_KEY}.Telephone_Middle_Three_Numbers[1]": rep_phone_number[3..5],
+            "#{PAGE2_KEY}.Telephone_Last_Four_Numbers[2]": rep_phone_number[6..9],
             # Representative Email
             "#{PAGE2_KEY}.E_Mail_Address_Of_Individual_Appointed_As_Claimants_Representative_Optional[0]": \
             data.representative_field_truncated(:email)

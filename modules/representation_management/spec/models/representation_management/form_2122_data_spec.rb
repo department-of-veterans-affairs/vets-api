@@ -62,7 +62,7 @@ RSpec.describe RepresentationManagement::Form2122Data, type: :model do
       it 'returns nil' do
         form_2122_data = described_class.new(organization_id: 'Nonexistent Org')
 
-        expect(form_2122_data.organization).to eq(nil)
+        expect(form_2122_data.organization).to be_nil
       end
     end
   end

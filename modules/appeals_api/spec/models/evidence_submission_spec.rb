@@ -7,11 +7,11 @@ describe AppealsApi::EvidenceSubmission, type: :model do
   let(:notice_of_disagreement) { create(:notice_of_disagreement) }
   let(:upload_submission) { create(:upload_submission) }
   let(:evidence_submission) do
-    create :evidence_submission, supportable: notice_of_disagreement, upload_submission:
+    create(:evidence_submission, supportable: notice_of_disagreement, upload_submission:)
   end
 
   it 'responds to supportable' do
-    expect(evidence_submission.respond_to?(:supportable)).to eq(true)
+    expect(evidence_submission.respond_to?(:supportable)).to be(true)
   end
 
   it 'has an association with the supportable' do
@@ -28,7 +28,7 @@ describe AppealsApi::EvidenceSubmission, type: :model do
     context 'when the evidence status is "uploaded' do
       let(:upload_submission) { create(:upload_submission, status: 'uploaded') }
       let(:evidence_submission) do
-        create :evidence_submission, supportable: notice_of_disagreement, upload_submission:
+        create(:evidence_submission, supportable: notice_of_disagreement, upload_submission:)
       end
 
       it 'triggers the UploadProcessor' do
@@ -42,7 +42,7 @@ describe AppealsApi::EvidenceSubmission, type: :model do
     context 'when the evidence status is not "uploaded"' do
       let(:upload_submission) { create(:upload_submission, status: 'received') }
       let(:evidence_submission) do
-        create :evidence_submission, supportable: notice_of_disagreement, upload_submission:
+        create(:evidence_submission, supportable: notice_of_disagreement, upload_submission:)
       end
 
       it 'does not trigger the UploadProcessor' do

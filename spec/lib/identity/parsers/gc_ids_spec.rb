@@ -48,7 +48,7 @@ describe Identity::Parsers::GCIds do
       let(:ids) { 'banana' }
 
       it 'returns nil' do
-        expect(subject).to eq nil
+        expect(subject).to be_nil
       end
     end
 
@@ -166,7 +166,7 @@ describe Identity::Parsers::GCIds do
 
         context 'and the root input is not equal to the DOD_ROOT_OID constant' do
           it 'returns nil' do
-            expect(subject[:edipi]).to eq nil
+            expect(subject[:edipi]).to be_nil
           end
         end
       end
@@ -257,7 +257,7 @@ describe Identity::Parsers::GCIds do
           let(:status) { 'BANANA' }
 
           it 'returns nil' do
-            expect(subject[:icn_with_aaid]).to eq nil
+            expect(subject[:icn_with_aaid]).to be_nil
           end
         end
       end
@@ -272,7 +272,7 @@ describe Identity::Parsers::GCIds do
       let(:root_oid) { nil }
 
       it 'returns nil' do
-        expect(subject).to eq nil
+        expect(subject).to be_nil
       end
     end
 
@@ -326,7 +326,7 @@ describe Identity::Parsers::GCIds do
 
         context 'and the root input is not equal to the DOD_ROOT_OID constant' do
           it 'returns nil' do
-            expect(subject[:edipi]).to eq nil
+            expect(subject[:edipi]).to be_nil
           end
         end
       end
@@ -409,7 +409,7 @@ describe Identity::Parsers::GCIds do
           let(:status) { 'BANANA' }
 
           it 'returns nil' do
-            expect(subject[:icn_with_aaid]).to eq nil
+            expect(subject[:icn_with_aaid]).to be_nil
           end
         end
       end

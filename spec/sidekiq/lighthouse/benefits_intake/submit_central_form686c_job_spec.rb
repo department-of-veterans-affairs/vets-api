@@ -6,9 +6,9 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
   stub_virus_scan
   subject(:job) { described_class.new }
 
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
   let(:claim) { create(:dependency_claim) }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:birth_date) { '1809-02-12' }
   let(:vet_info) do
     {

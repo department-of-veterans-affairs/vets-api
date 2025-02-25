@@ -4,9 +4,9 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_monitored_worker.rb')
 
 describe AppealsApi::HigherLevelReviewUploadStatusUpdater, type: :job do
-  let(:client_stub) { instance_double('CentralMail::Service') }
+  let(:client_stub) { instance_double(CentralMail::Service) }
   let(:upload) { create(:higher_level_review_v2, status: 'submitting') }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:faraday_response) { instance_double(Faraday::Response) }
   let(:in_process_element) do
     [{ uuid: 'ignored',
        status: 'In Process',

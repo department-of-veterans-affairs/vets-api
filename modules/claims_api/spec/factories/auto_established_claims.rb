@@ -10,7 +10,7 @@ FactoryBot.define do
     source { 'oddball' }
     form_data do
       json = JSON.parse(File
-             .read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/form_526_json_api.json'.split('/')).to_s))
+             .read(Rails.root.join(*'/modules/claims_api/spec/fixtures/form_526_json_api.json'.split('/')).to_s))
       attributes = json['data']['attributes']
       attributes['disabilities'][0]['specialIssues'] = []
       attributes
@@ -28,7 +28,7 @@ FactoryBot.define do
     form_data do
       json = JSON.parse(File
              .read(
-               ::Rails.root.join(
+               Rails.root.join(
                  *'/modules/claims_api/spec/fixtures/v2/veterans/disability_compensation/form_526_json_api.json'
                  .split('/')
                ).to_s
@@ -50,7 +50,7 @@ FactoryBot.define do
   trait :special_issues do
     form_data do
       json = JSON.parse(File
-             .read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/form_526_json_api.json'.split('/')).to_s))
+             .read(Rails.root.join(*'/modules/claims_api/spec/fixtures/form_526_json_api.json'.split('/')).to_s))
       json['data']['attributes']
     end
     special_issues do
@@ -68,7 +68,7 @@ FactoryBot.define do
     form_data do
       json = JSON.parse(File
              .read(
-               ::Rails.root.join(
+               Rails.root.join(
                  *'/modules/claims_api/spec/fixtures/v2/veterans/disability_compensation/form_526_json_api.json'
                  .split('/')
                ).to_s
@@ -89,7 +89,7 @@ FactoryBot.define do
   trait :autoCestPDFGeneration_disabled do
     form_data do
       json = JSON.parse(File
-              .read(::Rails.root.join(*'/modules/claims_api/spec/fixtures/form_526_json_api.json'.split('/'))
+              .read(Rails.root.join(*'/modules/claims_api/spec/fixtures/form_526_json_api.json'.split('/'))
               .to_s))
       json['data']['attributes']['autoCestPDFGenerationDisabled'] = false
       json['data']['attributes']

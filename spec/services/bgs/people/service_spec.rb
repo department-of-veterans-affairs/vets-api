@@ -38,8 +38,8 @@ RSpec.describe BGS::People::Service do
           service = BGS::People::Service.new(user)
           response = service.find_person_by_participant_id
 
-          expect(response.participant_id).to eq(nil)
-          expect(response.file_number).to eq(nil)
+          expect(response.participant_id).to be_nil
+          expect(response.file_number).to be_nil
           expect(response.status).to eq(status)
         end
       end
@@ -79,7 +79,7 @@ RSpec.describe BGS::People::Service do
         response = service.find_person_by_participant_id
 
         expect(response.status).to eq(status)
-        expect(response.file_number).to eq(nil)
+        expect(response.file_number).to be_nil
       end
     end
   end

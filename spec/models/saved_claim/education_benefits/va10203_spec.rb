@@ -79,7 +79,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
       it 'does not call SendSchoolCertifyingOfficialsEmail' do
         expect { instance.after_submit(user) }
-          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
+          .not_to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size)
         Flipper.enable(:form21_10203_confirmation_email)
       end
     end
@@ -110,7 +110,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         expect(user).to receive(:power_of_attorney).and_return({ poa_code: 'aaa' })
         expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, user).and_return(false).at_least(:once)
         instance.after_submit(user)
-        expect(instance.education_benefits_claim.education_stem_automated_decision.poa).to eq(true)
+        expect(instance.education_benefits_claim.education_stem_automated_decision.poa).to be(true)
       end
 
       it 'treats user POA nil as nil' do
@@ -152,7 +152,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
       it 'does not call SendSchoolCertifyingOfficialsEmail' do
         expect { instance.after_submit(nil) }
-          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
+          .not_to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size)
       end
     end
 
@@ -160,7 +160,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       before do
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-        expect(user.authorize(:evss, :access?)).to eq(true)
+        expect(user.authorize(:evss, :access?)).to be(true)
         mail = double('mail')
         allow(mail).to receive(:deliver_now)
         allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
@@ -181,7 +181,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       before do
         allow(FeatureFlipper).to receive(:send_email?).and_return(true)
         expect(user).to receive(:authorize).with(:evss, :access?).and_return(false).at_least(:once)
-        expect(user.authorize(:evss, :access?)).to eq(false)
+        expect(user.authorize(:evss, :access?)).to be(false)
         mail = double('mail')
         allow(mail).to receive(:deliver_now)
         allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
@@ -189,7 +189,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
       it 'does not call SendSchoolCertifyingOfficialsEmail' do
         expect { instance.after_submit(user) }
-          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
+          .not_to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size)
       end
     end
   end

@@ -6,8 +6,8 @@ RSpec.describe SpoolFileEvent, type: :model do
   subject { described_class.new }
 
   it 'validates rpo' do
-    expect(described_class.new(rpo: 351).valid?).to eq(true)
-    expect(described_class.new(rpo: 100).valid?).to eq(false)
+    expect(described_class.new(rpo: 351).valid?).to be(true)
+    expect(described_class.new(rpo: 100).valid?).to be(false)
   end
 
   describe 'build_event' do

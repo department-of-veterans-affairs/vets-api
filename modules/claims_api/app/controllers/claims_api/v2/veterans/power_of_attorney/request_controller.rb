@@ -4,6 +4,7 @@ require 'bgs_service/manage_representative_service'
 require 'claims_api/common/exceptions/lighthouse/bad_gateway'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
+require 'brd/brd'
 
 module ClaimsApi
   module V2
@@ -62,10 +63,10 @@ module ClaimsApi
                  status: :ok
         end
 
-        def decide
+        def decide # rubocop:disable Metrics/MethodLength
           lighthouse_id = params[:lh_id]
-          proc_id = form_attributes['procId']
           decision = normalize(form_attributes['decision'])
+          representative_id = form_attributes['representativeId']
 
           request = ClaimsApi::PowerOfAttorneyRequest.find_by(id: lighthouse_id)
           unless request
@@ -85,11 +86,12 @@ module ClaimsApi
           service = ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bgs.external_uid,
                                                                external_key: Settings.bgs.external_key)
 
+          ptcpnt_id = fetch_ptcpnt_id(vet_icn)
           if decision == 'declined'
             poa_request = validate_ptcpnt_id!(ptcpnt_id:, proc_id:, representative_id:, service:)
           end
 
-          first_name = poa_request['claimantFirstName'] || poa_request['vetFirstName'].presence if poa_request
+          first_name = poa_request['claimantFirstName'].presence || poa_request['vetFirstName'] if poa_request
 
           res = service.update_poa_request(proc_id:, secondary_status: decision,
                                            declined_reason: form_attributes['declinedReason'])
@@ -107,10 +109,17 @@ module ClaimsApi
             )
           end
 
-          render json: res, status: :ok
+          service = ClaimsApi::PowerOfAttorneyRequestService::Show.new(ptcpnt_id)
+          res = service.get_poa_request
+          res['id'] = lighthouse_id
+
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :index_or_show,
+                                                                                              root: :data),
+                 status: :ok
         end
 
         def create # rubocop:disable Metrics/MethodLength
+          validate_country_code
           # validate target veteran exists
           target_veteran
 
@@ -144,22 +153,37 @@ module ClaimsApi
             form_attributes['id'] = poa_request.id
           end
 
-          # return only the form information consumers provided
+          response_data = ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
+                                                                                            view: :create,
+                                                                                            root: :data)
+
+          options = { status: :created }
           if form_attributes['id'].present?
-            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
-                                                                                           view: :create,
-                                                                                           root: :data),
-                   status: :created,
-                   location: url_for(controller: 'base', action: 'status', id: form_attributes['id'])
-          else
-            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
-                                                                                           view: :create,
-                                                                                           root: :data),
-                   status: :created
+            options[:location] =
+              url_for(controller: 'base', action: 'status', id: form_attributes['id'])
           end
+
+          render json: response_data, **options
         end
 
         private
+
+        def validate_country_code
+          vet_cc = form_attributes.dig('veteran', 'address', 'countryCode')
+          claimant_cc = form_attributes.dig('claimant', 'address', 'countryCode')
+
+          if ClaimsApi::BRD::COUNTRY_CODES[vet_cc.to_s.upcase].blank?
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: 'The country provided is not valid.'
+            )
+          end
+
+          if claimant_cc.present? && ClaimsApi::BRD::COUNTRY_CODES[claimant_cc.to_s.upcase].blank?
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: 'The country provided is not valid.'
+            )
+          end
+        end
 
         def validate_decide_params!(proc_id:, decision:)
           if proc_id.blank?

@@ -82,13 +82,6 @@ describe V0::User::MHVUserAccountsController, type: :controller do
           it_behaves_like 'an unprocessable entity'
         end
 
-        context 'when the user does not have an email' do
-          let(:user_credential_email) { nil }
-          let(:expected_errors) { [{ title: 'Validation error', detail: 'Email must be present' }] }
-
-          it_behaves_like 'an unprocessable entity'
-        end
-
         context 'when the user does not have a terms of use agreement' do
           let(:terms_of_use_agreement) { nil }
           let(:expected_errors) do

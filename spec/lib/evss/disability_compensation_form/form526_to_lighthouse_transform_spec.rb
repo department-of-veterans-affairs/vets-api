@@ -32,7 +32,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
         .and_return('STANDARD_CLAIM_PROCESS')
       result = transformer.transform(data)
 
-      expect(result.claimant_certification).to eq(true)
+      expect(result.claimant_certification).to be(true)
       expect(result.claim_process_type).to eq('STANDARD_CLAIM_PROCESS')
       expect(result.veteran_identification.class).to eq(Requests::VeteranIdentification)
 
@@ -125,8 +125,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
         # "other" objects should have been processed for MultipleExposures because the descriptions are there
         expect(result.toxic_exposure.multiple_exposures.length).to eq(2)
         expect(result.toxic_exposure.multiple_exposures.first.exposure_location).to eq('otherHerbicideLocations')
-        expect(result.toxic_exposure.multiple_exposures.first.hazard_exposed_to).to eq(nil)
-        expect(result.toxic_exposure.multiple_exposures.last.exposure_location).to eq(nil)
+        expect(result.toxic_exposure.multiple_exposures.first.hazard_exposed_to).to be_nil
+        expect(result.toxic_exposure.multiple_exposures.last.exposure_location).to be_nil
         expect(result.toxic_exposure.multiple_exposures.last.hazard_exposed_to).to eq('specifyOtherExposures')
       end
 
@@ -196,7 +196,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
 
     it 'sets veteran identification correctly' do
       result = transformer.send(:transform_veteran, data['form526']['veteran'])
-      expect(result.current_va_employee).to eq(false)
+      expect(result.current_va_employee).to be(false)
       expect(result.email_address).not_to be_nil
       expect(result.veteran_number).not_to be_nil
       expect(result.mailing_address).not_to be_nil
@@ -308,8 +308,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     it 'sets disabilities correctly' do
       results = transformer.send(:transform_disabilities, data_without_te, nil)
       expect(results.length).to eq(1)
-      expect(results.first.exposure_or_event_or_injury).to eq(nil)
-      expect(results.first.is_related_to_toxic_exposure).to eq(nil)
+      expect(results.first.exposure_or_event_or_injury).to be_nil
+      expect(results.first.is_related_to_toxic_exposure).to be_nil
     end
 
     it 'converts approximate dates' do
@@ -323,10 +323,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     it 'sets the is related to toxic exposure flag when matching to TE conditions' do
       toxic_exposure_conditions = submission.form['form526']['form526']['toxicExposure']['conditions']
       results = transformer.send(:transform_disabilities, data, toxic_exposure_conditions)
-      expect(results.first.is_related_to_toxic_exposure).to eq(true)
+      expect(results.first.is_related_to_toxic_exposure).to be(true)
       text = 'My condition was caused by an injury or event that happened when I was receiving VA care; toxic exposure.'
       expect(results.first.exposure_or_event_or_injury).to eq(text)
-      expect(results.last.is_related_to_toxic_exposure).to eq(false)
+      expect(results.last.is_related_to_toxic_exposure).to be(false)
     end
 
     it 'sets the exposure or event or injury according to the cause' do
@@ -372,8 +372,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
 
     it 'sets service pay correctly' do
       result = transformer.send(:transform_service_pay, data)
-      expect(result.favor_training_pay).to eq(true)
-      expect(result.favor_military_retired_pay).to eq(false)
+      expect(result.favor_training_pay).to be(true)
+      expect(result.favor_military_retired_pay).to be(false)
       expect(result.receiving_military_retired_pay).to eq('YES')
       expect(result.future_military_retired_pay).to eq('NO')
 
@@ -598,11 +598,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
 
       date = 'XXXX'
       result = transformer.send(:convert_date_no_day, date)
-      expect(result).to eq(nil)
+      expect(result).to be_nil
 
       date = 'XX-XX-XX'
       result = transformer.send(:convert_date_no_day, date)
-      expect(result).to eq(nil)
+      expect(result).to be_nil
     end
 
     it 'set served_in_herbicide_hazard_locations correctly' do
@@ -765,7 +765,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                                    })
       result = transformer.send(:transform_other_exposures, all_options_nil_and_other_blank['otherExposures'],
                                 all_options_nil_and_other_blank['specifyOtherExposures'])
-      expect(result).to eq(nil)
+      expect(result).to be_nil
 
       all_nil = data.merge({
                              'otherExposures' => nil,
@@ -773,7 +773,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                            })
       result = transformer.send(:transform_other_exposures, all_nil['otherExposures'],
                                 all_nil['specifyOtherExposures'])
-      expect(result).to eq(nil)
+      expect(result).to be_nil
 
       none_option_with_other = data.merge({
                                             'otherExposures' => {
@@ -802,7 +802,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                              })
       result = transformer.send(:transform_other_exposures, none_option_with_no_other['otherExposures'],
                                 none_option_with_no_other['specifyOtherExposures'])
-      expect(result).to eq(nil)
+      expect(result).to be_nil
 
       # description must be in the specifyOtherExposures object for it to be processed (blank string)
       no_option_with_no_other_blank_string = data.merge({
@@ -815,7 +815,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                                         })
       result = transformer.send(:transform_other_exposures, no_option_with_no_other_blank_string['otherExposures'],
                                 no_option_with_no_other_blank_string['specifyOtherExposures'])
-      expect(result).to eq(nil)
+      expect(result).to be_nil
 
       # description must be in the specifyOtherExposures object for it to be processed (missing attribute)
       no_option_with_no_other_missing = data.merge({
@@ -828,7 +828,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:transform_other_exposures, no_option_with_no_other_missing['otherExposures'],
                                 no_option_with_no_other_missing['specifyOtherExposures'])
 
-      expect(result).to eq(nil)
+      expect(result).to be_nil
     end
 
     it 'filters unselected items from details objects correctly' do

@@ -53,9 +53,9 @@ RSpec.describe 'VBADocument::V1::Uploads', retry: 3, type: :request do
   end
 
   describe '#show /v1/uploads/{id}' do
-    let(:upload) { FactoryBot.create(:upload_submission, status: 'pending') }
-    let(:upload_in_flight) { FactoryBot.create(:upload_submission, status: 'processing') }
-    let(:upload_large_detail) { FactoryBot.create(:upload_submission_large_detail) }
+    let(:upload) { create(:upload_submission, status: 'pending') }
+    let(:upload_in_flight) { create(:upload_submission, status: 'processing') }
+    let(:upload_large_detail) { create(:upload_submission_large_detail) }
 
     it 'returns status of an upload submission' do
       get "/services/vba_documents/v1/uploads/#{upload.guid}"
@@ -157,7 +157,7 @@ RSpec.describe 'VBADocument::V1::Uploads', retry: 3, type: :request do
         json = JSON.parse(response.body)
         pdf_data = json['data']['attributes']['uploaded_pdf']
         expect(pdf_data['line_of_business']).to eq('CMP')
-        expect(pdf_data['submitted_line_of_business']).to eq(nil)
+        expect(pdf_data['submitted_line_of_business']).to be_nil
       end
 
       # for ticket: https://vajira.max.gov/browse/API-5293
@@ -181,7 +181,7 @@ RSpec.describe 'VBADocument::V1::Uploads', retry: 3, type: :request do
     end
 
     context 'with vbms complete' do
-      let!(:vbms_upload) { FactoryBot.create(:upload_submission, status: 'vbms') }
+      let!(:vbms_upload) { create(:upload_submission, status: 'vbms') }
 
       it 'reports status of vbms' do
         get "/services/vba_documents/v1/uploads/#{vbms_upload.guid}"
@@ -190,7 +190,7 @@ RSpec.describe 'VBADocument::V1::Uploads', retry: 3, type: :request do
     end
 
     context 'with error status' do
-      let!(:error_upload) { FactoryBot.create(:upload_submission, :status_error) }
+      let!(:error_upload) { create(:upload_submission, :status_error) }
 
       it 'returns json api errors' do
         get "/services/vba_documents/v1/uploads/#{error_upload.guid}"
@@ -216,7 +216,7 @@ RSpec.describe 'VBADocument::V1::Uploads', retry: 3, type: :request do
   end
 
   describe '#download /v1/uploads/{id}' do
-    let(:upload) { FactoryBot.create(:upload_submission) }
+    let(:upload) { create(:upload_submission) }
     let(:valid_doc) { get_fixture('valid_doc.pdf') }
     let(:valid_metadata) { get_fixture('valid_metadata.json').read }
     let(:invalid_doc) { get_fixture('invalid_multipart_no_partname.blob') }

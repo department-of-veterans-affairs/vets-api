@@ -37,6 +37,12 @@ describe BBInternal::Client do
     end
   end
 
+  describe 'session' do
+    it 'preserves ICN' do
+      expect(client.session.icn).to equal('1012740022V620959')
+    end
+  end
+
   describe '#list_radiology' do
     it 'gets the radiology records' do
       VCR.use_cassette 'mr_client/bb_internal/get_radiology' do
@@ -217,7 +223,7 @@ describe BBInternal::Client do
 
         expect(notification_setting).to be_a(Hash)
         expect(notification_setting).to have_key('flag')
-        expect(notification_setting['flag']).to eq(true)
+        expect(notification_setting['flag']).to be(true)
       end
     end
   end
@@ -439,7 +445,7 @@ describe BBInternal::Client do
   end
 
   describe '#invalid?' do
-    let(:session_data) { OpenStruct.new(icn: icn, patient_id: patient_id, expired?: session_expired) }
+    let(:session_data) { OpenStruct.new(icn:, patient_id:, expired?: session_expired) }
 
     context 'when session is expired' do
       let(:session_expired) { true }

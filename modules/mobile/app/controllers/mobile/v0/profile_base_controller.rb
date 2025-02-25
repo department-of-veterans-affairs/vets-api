@@ -13,8 +13,6 @@ module Mobile
       before_action { authorize :vet360, :access? }
       after_action :invalidate_cache
 
-      skip_after_action :invalidate_cache, only: [:validation]
-
       private
 
       def render_transaction_to_json(transaction)

@@ -103,5 +103,54 @@
       "payer": "Personnel Management"
     }
   ],
-  "unassociatedIncome": "YES"
+  "associatedIncomes": [
+      {
+        "recipientRelationship": 2,
+        "recipientRelationshipOverflow": "CUSTODIAN",
+        "otherRecipientRelationshipType": null,
+        "recipientName": "Jim Brown",
+        "payer": "Jack Smith",
+        "incomeType": 0,
+        "incomeTypeOverflow": "INTEREST",
+        "otherIncomeType": null,
+        "grossMonthlyIncome": {
+            "cents": "00",
+            "dollars": "345",
+            "thousands": "12"
+        },
+        "grossMonthlyIncomeOverflow": 12345,
+        "accountValue": {
+            "cents": "00",
+            "dollars": "987",
+            "thousands": "012",
+            "millions": "00"
+        },
+        "accountValueOverflow": 12987
+      },
+      {
+        "recipientRelationship": 5,
+        "recipientRelationshipOverflow": "OTHER",
+        "otherRecipientRelationshipType": "Friend",
+        "recipientName": "Brandon Jones",
+        "payer": "Harold Washington",
+        "incomeType": 1,
+        "incomeTypeOverflow": "DIVIDENDS",
+        "otherIncomeType": null,
+        "grossMonthlyIncome": {
+            "cents": "00",
+            "dollars": "987",
+            "thousands": "23"
+        },
+        "grossMonthlyIncomeOverflow": 23987,
+        "accountValue": {
+            "cents": "00",
+            "dollars": "900",
+            "thousands": "009",
+            "millions": "00"
+        },
+        "accountValueOverflow": 9900
+      }
+    ],
+  "unassociatedIncome": "YES",
+  "associatedIncome": 0
 }

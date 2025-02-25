@@ -100,7 +100,6 @@ class BenefitsIntakeStatusJob
         # submission was successfully uploaded into a Veteran's eFolder within VBMS
         form_submission_attempt.update(lighthouse_updated_at:)
         form_submission_attempt.vbms!
-        monitor_success(form_id, saved_claim_id, uuid)
         log_result('success', form_id, uuid, time_to_transition)
         monitor_success(form_id, saved_claim_id, uuid)
       elsif time_to_transition > STALE_SLA.days
@@ -135,7 +134,7 @@ class BenefitsIntakeStatusJob
     # Remove this logic after SubmissionStatusJob replaces this one
     claim = SavedClaim.find_by(id: saved_claim_id)
     context = {
-      form_id: form_id,
+      form_id:,
       claim_id: saved_claim_id,
       benefits_intake_uuid: bi_uuid
     }
@@ -162,7 +161,7 @@ class BenefitsIntakeStatusJob
   # rubocop:disable Metrics/MethodLength
   def monitor_failure(form_id, saved_claim_id, bi_uuid)
     context = {
-      form_id: form_id,
+      form_id:,
       claim_id: saved_claim_id,
       benefits_intake_uuid: bi_uuid
     }

@@ -1565,7 +1565,7 @@
                                     "example": "1980-02-05"
                                   },
                                   "activeDutyEndDate": {
-                                    "description": "Date Completed Active Duty.  If in the future, 'separationLocationCode' is required.",
+                                    "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                                     "type": "string",
                                     "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "example": "1990-01-02"
@@ -3287,12 +3287,12 @@
                                           "areaCode": {
                                             "description": "Area code of Point of Contact.",
                                             "type": "string",
-                                            "example": "123"
+                                            "example": "555"
                                           },
                                           "phoneNumber": {
                                             "description": "Primary phone of Point of Contact.",
                                             "type": "string",
-                                            "example": "1231234"
+                                            "example": "5555555"
                                           }
                                         }
                                       }
@@ -3429,7 +3429,7 @@
                                       "example": "1980-02-05"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date Completed Active Duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                                       "type": "string",
                                       "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "1990-01-02"
@@ -3517,10 +3517,12 @@
                                     ],
                                     "properties": {
                                       "areaCode": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "555"
                                       },
                                       "phoneNumber": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "5555555"
                                       }
                                     }
                                   },
@@ -5687,7 +5689,7 @@
                                       "example": "1980-02-05"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date Completed Active Duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                                       "type": "string",
                                       "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "1990-01-02"
@@ -8270,16 +8272,16 @@
                               "type": "object",
                               "additionalProperties": false,
                               "required": [
-                                "areaCode",
                                 "phoneNumber"
                               ],
                               "properties": {
                                 "countryCode": {
+                                  "description": "Country code of the phone number. Required for international phone numbers.",
                                   "type": "string",
                                   "pattern": "^[0-9]+$"
                                 },
                                 "areaCode": {
-                                  "description": "Area code of the phone number.",
+                                  "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                   "type": "string",
                                   "pattern": "^[2-9][0-9]{2}$",
                                   "example": "555"
@@ -8294,6 +8296,39 @@
                                   "type": "string",
                                   "pattern": "^[a-zA-Z0-9]{1,10}$"
                                 }
+                              },
+                              "if": {
+                                "properties": {
+                                  "countryCode": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "enum": [
+                                          "1"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              },
+                              "then": {
+                                "required": [
+                                  "areaCode"
+                                ]
+                              },
+                              "else": {
+                                "anyOf": [
+                                  {
+                                    "required": [
+                                      "countryCode"
+                                    ]
+                                  },
+                                  {
+                                    "required": [
+                                      "areaCode"
+                                    ]
+                                  }
+                                ]
                               }
                             },
                             "email": {
@@ -8413,16 +8448,16 @@
                               "type": "object",
                               "additionalProperties": false,
                               "required": [
-                                "areaCode",
                                 "phoneNumber"
                               ],
                               "properties": {
                                 "countryCode": {
+                                  "description": "Country code of the phone number. Required for international phone numbers.",
                                   "type": "string",
                                   "pattern": "^[0-9]+$"
                                 },
                                 "areaCode": {
-                                  "description": "Area code of the phone number.",
+                                  "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                   "type": "string",
                                   "pattern": "^[2-9][0-9]{2}$",
                                   "example": "555"
@@ -8437,6 +8472,39 @@
                                   "type": "string",
                                   "pattern": "^[a-zA-Z0-9]{1,10}$"
                                 }
+                              },
+                              "if": {
+                                "properties": {
+                                  "countryCode": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "enum": [
+                                          "1"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              },
+                              "then": {
+                                "required": [
+                                  "areaCode"
+                                ]
+                              },
+                              "else": {
+                                "anyOf": [
+                                  {
+                                    "required": [
+                                      "countryCode"
+                                    ]
+                                  },
+                                  {
+                                    "required": [
+                                      "areaCode"
+                                    ]
+                                  }
+                                ]
                               }
                             },
                             "email": {
@@ -8996,16 +9064,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -9020,6 +9088,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -9154,16 +9255,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -9178,6 +9279,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -10909,16 +11043,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -10933,6 +11067,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -11067,16 +11234,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -11091,6 +11258,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {

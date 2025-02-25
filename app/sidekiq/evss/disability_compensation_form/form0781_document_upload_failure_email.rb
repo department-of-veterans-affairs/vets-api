@@ -9,6 +9,13 @@ module EVSS
     class Form0781DocumentUploadFailureEmail < Job
       STATSD_METRIC_PREFIX = 'api.form_526.veteran_notifications.form0781_upload_failure_email'
       ZSF_DD_TAG_FUNCTION = '526_form_0781_failure_email_queuing'
+      VA_NOTIFY_CALLBACK_OPTIONS = {
+        callback_metadata: {
+          notification_type: 'error',
+          form_number: Form526Submission::FORM_526,
+          statsd_tags: { service: Form526Submission::ZSF_DD_TAG_SERVICE, function: ZSF_DD_TAG_FUNCTION }
+        }
+      }.freeze
 
       # retry for  2d 1h 47m 12s
       # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
@@ -95,34 +102,23 @@ module EVSS
         date_submitted = submission.format_creation_time_for_mailers
 
         notify_service_bd = Settings.vanotify.services.benefits_disability
-        notify_client = VaNotify::Service.new(notify_service_bd.api_key)
+        notify_client = VaNotify::Service.new(notify_service_bd.api_key, VA_NOTIFY_CALLBACK_OPTIONS)
         template_id = notify_service_bd.template_id.form0781_upload_failure_notification_template_id
 
-        notify_response = notify_client.send_email(
+        va_notify_response = notify_client.send_email(
           email_address:,
           template_id:,
           personalisation: { first_name:, date_submitted: }
         )
 
-        log_info = { form526_submission_id: submission.id, timestamp: Time.now.utc }
-
-        log_mailer_dispatch(submission, log_info, notify_response)
+        log_info = { form526_submission_id: submission.id, timestamp: Time.now.utc, va_notify_response: }
+        log_mailer_dispatch(log_info)
       end
 
-      def log_mailer_dispatch(submission, log_info, email_response = {})
+      def log_mailer_dispatch(log_info)
         StatsD.increment("#{STATSD_METRIC_PREFIX}.success")
 
         Rails.logger.info('Form0781DocumentUploadFailureEmail notification dispatched', log_info)
-
-        cl = caller_locations.first
-        call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
-        zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
-
-        zsf_monitor.log_silent_failure_avoided(
-          log_info.merge(email_confirmation_id: email_response&.id),
-          submission&.user_account_id,
-          call_location:
-        )
       end
     end
   end

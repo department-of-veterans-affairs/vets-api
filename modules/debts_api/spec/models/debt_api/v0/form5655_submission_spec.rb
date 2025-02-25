@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'debt_management_center/sidekiq/va_notify_email_job'
 
 RSpec.describe DebtsApi::V0::Form5655Submission do
   describe 'scopes' do
@@ -137,7 +138,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
 
       it 'sets the submission as submitted' do
         described_class.new.set_vha_completed_state(status, { 'submission_id' => form5655_submission.id })
-        expect(form5655_submission.submitted?).to eq(true)
+        expect(form5655_submission.submitted?).to be(true)
       end
     end
 
@@ -163,36 +164,131 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
     let(:form5655_submission) { create(:debts_api_form5655_submission) }
     let(:message) { 'This is an error message' }
 
-    it 'saves error message and logs error' do
-      expect(Rails.logger).to receive(:error).with("Form5655Submission id: #{form5655_submission.id} failed", message)
-      expect(StatsD).to receive(:increment).with(
-        'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
-      )
-      expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
-      form5655_submission.register_failure(message)
-      expect(form5655_submission.error_message).to eq(message)
-    end
+    context 'with debts_silent_failure_mailer Flipper enabled' do
+      before do
+        ipf_data = get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/ipf/non_streamlined')
+        form5655_submission.update(ipf_data: ipf_data.to_json)
+      end
 
-    it 'saves generic error message with call_location when message is blank' do
-      form5655_submission.register_failure(nil)
-      expect(form5655_submission.error_message).to start_with(
-        'An unknown error occurred while submitting the form from call_location:'
-      )
-    end
-
-    context 'combined form' do
       it 'saves error message and logs error' do
-        form5655_submission.public_metadata = { combined: true }
-        form5655_submission.save
-
         expect(Rails.logger).to receive(:error).with("Form5655Submission id: #{form5655_submission.id} failed", message)
         expect(StatsD).to receive(:increment).with(
           'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
         )
+        expect(StatsD).to receive(:increment).with(
+          'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
+        )
+        expect(StatsD).to receive(:increment).with(
+          'api.fsr_submission.send_failed_form_email.enqueue'
+        )
         expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
-        expect(StatsD).to receive(:increment).with('api.fsr_submission.combined.failure')
         form5655_submission.register_failure(message)
         expect(form5655_submission.error_message).to eq(message)
+      end
+
+      it 'saves generic error message with call_location when message is blank' do
+        form5655_submission.register_failure(nil)
+        expect(form5655_submission.error_message).to start_with(
+          'An unknown error occurred while submitting the form from call_location:'
+        )
+      end
+
+      context 'combined form' do
+        it 'saves error message and logs error' do
+          form5655_submission.public_metadata = { combined: true }
+          form5655_submission.save
+
+          expect(Rails.logger).to receive(:error).with(
+            "Form5655Submission id: #{form5655_submission.id} failed", message
+          )
+          expect(StatsD).to receive(:increment).with(
+            'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
+          )
+          expect(StatsD).to receive(:increment).with(
+            'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
+          )
+          expect(StatsD).to receive(:increment).with(
+            'api.fsr_submission.send_failed_form_email.enqueue'
+          )
+          expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
+          expect(StatsD).to receive(:increment).with('api.fsr_submission.combined.failure')
+          form5655_submission.register_failure(message)
+          expect(form5655_submission.error_message).to eq(message)
+        end
+      end
+    end
+
+    context 'with debts_silent_failure_mailer Flipper disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:debts_silent_failure_mailer).and_return(false)
+      end
+
+      it 'saves error message and logs error' do
+        expect(Rails.logger).to receive(:error).with("Form5655Submission id: #{form5655_submission.id} failed", message)
+        expect(StatsD).not_to receive(:increment).with(
+          'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
+        )
+        expect(StatsD).not_to receive(:increment).with(
+          'api.fsr_submission.send_failed_form_email.enqueue'
+        )
+        expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
+        form5655_submission.register_failure(message)
+        expect(form5655_submission.error_message).to eq(message)
+      end
+
+      it 'alerts silent error when not sharepoint error' do
+        expect(form5655_submission).to receive(:alert_silent_error)
+        form5655_submission.register_failure(message)
+      end
+
+      it 'does not alert silent error when sharepoint error' do
+        message =
+          'VHA set completed state: [#<struct Sidekiq::Batch::Status::Failure jid=\"058f2988d02722166392ff66\", ' \
+          'error_class=\"Common::Exceptions::BackendServiceException\", ' \
+          'error_message=\"BackendServiceException: {:status=>500, :detail=>\\\"Internal Server Error\\\", ' \
+          ':source=>\\\"SharepointRequest\\\", :code=>\\\"SHAREPOINT_PDF_502\\\"}\", backtrace=nil>]'
+        expect(form5655_submission).not_to receive(:alert_silent_error)
+        form5655_submission.register_failure(message)
+      end
+    end
+  end
+
+  describe '#send_failed_form_email' do
+    let(:form5655_submission) { create(:debts_api_form5655_submission) }
+
+    before do
+      ipf_data = get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/ipf/non_streamlined')
+      form5655_submission.update(
+        ipf_data: ipf_data.to_json,
+        updated_at: Time.new(2025, 1, 1).utc
+      )
+    end
+
+    context 'with debts_silent_failure_mailer Flipper enabled' do
+      it 'sends an email' do
+        Timecop.freeze(Time.new(2025, 1, 1).utc) do
+          expected_personalization_info = {
+            'name' => 'Travis Jones',
+            'time' => Time.new(2025, 1, 1).utc,
+            'date' => '01/01/2025'
+          }
+
+          expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
+            'test2@test1.net',
+            'fake_template_id',
+            expected_personalization_info
+          )
+
+          form5655_submission.send_failed_form_email
+        end
+      end
+    end
+
+    context 'with debts_silent_failure_mailer Flipper disabled' do
+      it 'does not send an email' do
+        allow(Flipper).to receive(:enabled?).with(:debts_silent_failure_mailer).and_return(false)
+        expect(DebtManagementCenter::VANotifyEmailJob).not_to receive(:perform_async)
+        form5655_submission.send_failed_form_email
       end
     end
   end

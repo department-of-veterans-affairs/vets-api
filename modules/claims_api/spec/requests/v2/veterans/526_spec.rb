@@ -4341,7 +4341,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
                 claim_id = parsed_res['data']['id']
                 aec = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
-                expect(aec.transaction_id).to eq(nil)
+                expect(aec.transaction_id).to be_nil
                 expect(parsed_res).not_to have_key('meta')
                 expect(response).to have_http_status(:accepted)
               end

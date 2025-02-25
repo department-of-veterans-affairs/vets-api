@@ -14,7 +14,7 @@ RSpec.describe V0::ContactUs::InquiriesController, type: :controller do
     end
 
     context 'when signed in' do
-      let(:user) { FactoryBot.build(:user) }
+      let(:user) { build(:user) }
 
       before do
         sign_in_as(user)

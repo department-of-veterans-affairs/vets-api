@@ -15,6 +15,10 @@ RSpec.describe HealthCareApplication, type: :model do
   let(:zsf_tags) { described_class::DD_ZSF_TAGS }
   let(:form_id) { described_class::FORM_ID }
 
+  before do
+    allow(Flipper).to receive(:enabled?).with(:retry_form_validation).and_return(false)
+  end
+
   describe 'LOCKBOX' do
     it 'can encrypt strings over 4kb' do
       str = 'f' * 6000
@@ -45,9 +49,9 @@ RSpec.describe HealthCareApplication, type: :model do
 
       context 'without a user' do
         it 'does nothing' do
-          expect(health_care_application.send(:prefill_fields)).to eq(nil)
+          expect(health_care_application.send(:prefill_fields)).to be_nil
 
-          expect(health_care_application.valid?).to eq(false)
+          expect(health_care_application.valid?).to be(false)
         end
       end
 
@@ -60,9 +64,9 @@ RSpec.describe HealthCareApplication, type: :model do
           let(:user) { create(:user) }
 
           it 'does nothing' do
-            expect(health_care_application.send(:prefill_fields)).to eq(nil)
+            expect(health_care_application.send(:prefill_fields)).to be_nil
 
-            expect(health_care_application.valid?).to eq(false)
+            expect(health_care_application.valid?).to be(false)
           end
         end
 
@@ -85,9 +89,9 @@ RSpec.describe HealthCareApplication, type: :model do
           end
 
           it 'sets uneditable fields using user data' do
-            expect(health_care_application.valid?).to eq(false)
+            expect(health_care_application.valid?).to be(false)
             health_care_application.send(:prefill_fields)
-            expect(health_care_application.valid?).to eq(true)
+            expect(health_care_application.valid?).to be(true)
 
             parsed_form = health_care_application.parsed_form
 
@@ -220,7 +224,7 @@ RSpec.describe HealthCareApplication, type: :model do
           create(:find_profile_not_found_response)
         )
 
-        expect(described_class.user_icn(described_class.user_attributes(form))).to eq(nil)
+        expect(described_class.user_icn(described_class.user_attributes(form))).to be_nil
       end
     end
 
@@ -296,7 +300,7 @@ RSpec.describe HealthCareApplication, type: :model do
         end
 
         it 'doesnt require the long form fields' do
-          expect(health_care_application.valid?).to eq(true)
+          expect(health_care_application.valid?).to be(true)
         end
       end
 
@@ -364,29 +368,56 @@ RSpec.describe HealthCareApplication, type: :model do
       end
     end
 
-    context 'schema validation raises an exception' do
+    context 'retry_form_validation disabled' do
+      context 'schema validation raises an exception' do
+        let(:health_care_application) { build(:health_care_application) }
+        let(:exception) { StandardError.new('Some exception') }
+
+        before do
+          allow(PersonalInformationLog).to receive(:create)
+          allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
+        end
+
+        it 'logs exception and raises exception' do
+          expect(PersonalInformationLog).to receive(:create).with(
+            data: {
+              schema: VetsJsonSchema::SCHEMAS[form_id],
+              parsed_form: health_care_application.parsed_form
+            },
+            error_class: 'HealthCareApplication FormValidationError'
+          )
+          expect(Rails.logger).to receive(:error)
+            .with("[#{form_id}] Error during schema validation!", {
+                    error: exception.message,
+                    schema: VetsJsonSchema::SCHEMAS[form_id]
+                  })
+          expect { health_care_application.valid? }.to raise_error(exception.class, exception.message)
+        end
+      end
+    end
+
+    context 'retry_form_validation enabled' do
       let(:health_care_application) { build(:health_care_application) }
-      let(:exception) { StandardError.new('Some exception') }
+      let(:schema) { 'schema_content' }
 
       before do
-        allow(PersonalInformationLog).to receive(:create)
-        allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
+        allow(Flipper).to receive(:enabled?).with(:retry_form_validation).and_return(true)
+        allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
       end
 
-      it 'logs exception and raises exception' do
-        expect(PersonalInformationLog).to receive(:create).with(
-          data: {
-            schema: VetsJsonSchema::SCHEMAS[form_id],
-            parsed_form: health_care_application.parsed_form
-          },
-          error_class: 'HealthCareApplication FormValidationError'
-        )
-        expect(Rails.logger).to receive(:error)
-          .with("[#{form_id}] Error during schema validation!", {
-                  error: exception.message,
-                  schema: VetsJsonSchema::SCHEMAS[form_id]
-                })
-        expect { health_care_application.valid? }.to raise_error(exception.class, exception.message)
+      it 'calls the validate_form_with_retries method and sets errors' do
+        expect(health_care_application).to receive(:validate_form_with_retries)
+          .with(schema,
+                health_care_application.parsed_form)
+          .and_return([
+                        "maritalStatus can't be null"
+                      ])
+
+        health_care_application.valid?
+
+        expect(health_care_application.errors[:form]).to eq [
+          "maritalStatus can't be null"
+        ]
       end
     end
   end
@@ -473,7 +504,7 @@ RSpec.describe HealthCareApplication, type: :model do
           expect(user_identifier).to eq({ 'icn' => user.icn, 'edipi' => user.edipi })
           expect(HCA::BaseSubmissionJob.decrypt_form(encrypted_form)).to eq(health_care_application.parsed_form)
           expect(health_care_application_id).to eq(1)
-          expect(google_analytics_client_id).to eq(nil)
+          expect(google_analytics_client_id).to be_nil
         end
 
         expect(health_care_application.process!).to eq(health_care_application)
@@ -571,7 +602,6 @@ RSpec.describe HealthCareApplication, type: :model do
 
     before do
       allow(VANotify::EmailJob).to receive(:perform_async)
-      allow(Flipper).to receive(:enabled?).with(:hca_zero_silent_failures).and_return(false)
     end
 
     describe '#send_failure_email' do
@@ -580,6 +610,16 @@ RSpec.describe HealthCareApplication, type: :model do
           let(:email_address) { health_care_application.parsed_form['email'] }
           let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
           let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email }
+          let(:callback_metadata) do
+            {
+              callback_metadata: {
+                notification_type: 'error',
+                form_number: form_id,
+                statsd_tags: zsf_tags
+              }
+            }
+          end
+
           let(:template_params) do
             [
               email_address,
@@ -587,32 +627,12 @@ RSpec.describe HealthCareApplication, type: :model do
               {
                 'salutation' => "Dear #{health_care_application.parsed_form['veteranFullName']['first']},"
               },
-              api_key
+              api_key,
+              callback_metadata
             ]
           end
 
           let(:standard_error) { StandardError.new('Test error') }
-
-          context ':hca_zero_silent_failures enabled' do
-            before do
-              allow(Flipper).to receive(:enabled?).with(:hca_zero_silent_failures).and_return(true)
-            end
-
-            let(:template_params_with_callback_metadata) do
-              template_params << {
-                callback_metadata: {
-                  notification_type: 'error',
-                  form_number: form_id,
-                  statsd_tags: zsf_tags
-                }
-              }
-            end
-
-            it 'sends a failure email to the email address provided on the form with callback metadata' do
-              subject
-              expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params_with_callback_metadata)
-            end
-          end
 
           it 'sends a failure email to the email address provided on the form' do
             subject
@@ -642,34 +662,12 @@ RSpec.describe HealthCareApplication, type: :model do
                 {
                   'salutation' => ''
                 },
-                api_key
+                api_key,
+                callback_metadata
               ]
             end
 
             let(:standard_error) { StandardError.new('Test error') }
-
-            context ':hca_zero_silent_failures enabled' do
-              before do
-                allow(Flipper).to receive(:enabled?).with(:hca_zero_silent_failures).and_return(true)
-              end
-
-              let(:template_params_no_name_with_callback_metadata) do
-                template_params_no_name << {
-                  callback_metadata: {
-                    notification_type: 'error',
-                    form_number: form_id,
-                    statsd_tags: zsf_tags
-                  }
-                }
-              end
-
-              it 'sends a failure email to the email address provided on the form with callback metadata' do
-                subject
-                expect(VANotify::EmailJob).to have_received(:perform_async).with(
-                  *template_params_no_name_with_callback_metadata
-                )
-              end
-            end
 
             it 'sends a failure email without personalisations to the email address provided on the form' do
               subject
@@ -727,10 +725,6 @@ RSpec.describe HealthCareApplication, type: :model do
     describe '#log_async_submission_failure' do
       it 'triggers failed_wont_retry statsd' do
         expect { subject }.to trigger_statsd_increment("#{statsd_key_prefix}.failed_wont_retry")
-      end
-
-      it 'triggers zero silent failures statsd' do
-        expect { subject }.to trigger_statsd_increment('silent_failure_avoided_no_confirmation')
       end
 
       context 'short form' do
@@ -831,8 +825,8 @@ RSpec.describe HealthCareApplication, type: :model do
       health_care_application = build(:health_care_application)
       health_care_application.set_result_on_success!(result)
 
-      expect(health_care_application.id.present?).to eq(true)
-      expect(health_care_application.success?).to eq(true)
+      expect(health_care_application.id.present?).to be(true)
+      expect(health_care_application.success?).to be(true)
       expect(health_care_application.form_submission_id).to eq(result[:formSubmissionId])
       expect(health_care_application.timestamp).to eq(result[:timestamp])
     end
@@ -874,9 +868,15 @@ RSpec.describe HealthCareApplication, type: :model do
         end
 
         it 'returns nil' do
-          expect(subject).to eq nil
+          expect(subject).to be_nil
         end
       end
+    end
+  end
+
+  describe '#form_id' do
+    it 'has form_id from FORM_ID const' do
+      expect(health_care_application.form_id).to eq described_class::FORM_ID
     end
   end
 end

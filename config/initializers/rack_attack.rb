@@ -48,10 +48,6 @@ class Rack::Attack
     req.ip if req.path == '/v0/evss_claims_async'
   end
 
-  throttle('covid_vaccine', limit: 4, period: 5.minutes) do |req|
-    req.remote_ip if req.path.starts_with?('/covid_vaccine/v0') && (req.post? || req.put?)
-  end
-
   throttle('check_in/ip', limit: 10, period: 1.minute) do |req|
     req.remote_ip if req.path.starts_with?('/check_in') && !Settings.vsp_environment.match?(/local|development|staging/)
   end
@@ -80,7 +76,7 @@ class Rack::Attack
     headers = {
       'X-RateLimit-Limit' => rate_limit[:limit].to_s,
       'X-RateLimit-Remaining' => '0',
-      'X-RateLimit-Reset' => (now + (rate_limit[:period] - now.to_i % rate_limit[:period])).to_i
+      'X-RateLimit-Reset' => (now + (rate_limit[:period] - (now.to_i % rate_limit[:period]))).to_i
     }
 
     [429, headers, ['throttled']]

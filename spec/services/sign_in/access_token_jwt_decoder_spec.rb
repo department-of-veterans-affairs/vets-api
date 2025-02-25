@@ -16,7 +16,7 @@ RSpec.describe SignIn::AccessTokenJwtDecoder do
 
     context 'when access token jwt is expired' do
       let(:access_token_jwt) { SignIn::AccessTokenJwtEncoder.new(access_token:).perform }
-      let(:access_token) { create(:access_token, expiration_time: Time.zone.now - 1.day) }
+      let(:access_token) { create(:access_token, expiration_time: 1.day.ago) }
 
       context 'and jwt validation is enabled' do
         let(:expected_error) { SignIn::Errors::AccessTokenExpiredError }

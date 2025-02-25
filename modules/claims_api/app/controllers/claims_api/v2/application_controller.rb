@@ -23,7 +23,9 @@ module ClaimsApi
       skip_after_action :set_csrf_header
       before_action :authenticate, except: %i[schema]
       before_action { permit_scopes %w[system/claim.read] if request.get? }
-      before_action except: %i[generate_pdf] do
+      before_action do
+        next if action_name == 'generate_pdf'
+
         permit_scopes %w[system/claim.write] if request.post? || request.put?
       end
 

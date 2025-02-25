@@ -22,31 +22,15 @@ RSpec.describe Rack::Attack do
   describe '#throttled_response' do
     it 'adds X-RateLimit-* headers to the response' do
       post('/v0/limited', headers:)
-      expect(last_response.status).not_to eq(429)
+      expect(last_response).not_to have_http_status(:too_many_requests)
 
       post('/v0/limited', headers:)
-      expect(last_response.status).to eq(429)
+      expect(last_response).to have_http_status(:too_many_requests)
       expect(last_response.headers).to include(
         'X-RateLimit-Limit',
         'X-RateLimit-Remaining',
         'X-RateLimit-Reset'
       )
-    end
-  end
-
-  describe 'covid_vaccine' do
-    it 'limits requests for any post and put endpoints to 4 in 5 minutes' do
-      post('/covid_vaccine/v0/registration', headers:)
-      expect(last_response.status).not_to eq(429)
-      put('/covid_vaccine/v0/registration/opt_out', headers:)
-      expect(last_response.status).not_to eq(429)
-      put('/covid_vaccine/v0/registration/opt_in', headers:)
-      expect(last_response.status).not_to eq(429)
-      put('/covid_vaccine/v0/registration/unauthenticated', headers:)
-      expect(last_response.status).not_to eq(429)
-
-      put('/covid_vaccine/v0/registration/opt_out', headers:)
-      expect(last_response.status).to eq(429)
     end
   end
 
@@ -63,14 +47,14 @@ RSpec.describe Rack::Attack do
           10.times do
             get('/check_in/v2/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d', headers:)
 
-            expect(last_response.status).to eq(200)
+            expect(last_response).to have_http_status(:ok)
           end
         end
 
         it 'throttles with status 429' do
           get('/check_in/v2/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d', headers:)
 
-          expect(last_response.status).to eq(429)
+          expect(last_response).to have_http_status(:too_many_requests)
         end
       end
 
@@ -85,14 +69,14 @@ RSpec.describe Rack::Attack do
           10.times do
             post '/check_in/v2/patient_check_ins', post_params, headers
 
-            expect(last_response.status).to eq(200)
+            expect(last_response).to have_http_status(:ok)
           end
         end
 
         it 'throttles with status 429' do
           post '/check_in/v2/patient_check_ins', post_params, headers
 
-          expect(last_response.status).to eq(429)
+          expect(last_response).to have_http_status(:too_many_requests)
         end
       end
     end
@@ -108,14 +92,14 @@ RSpec.describe Rack::Attack do
         20.times do
           get('/v0/medical_copays', headers:)
 
-          expect(last_response.status).to eq(401)
+          expect(last_response).to have_http_status(:unauthorized)
         end
       end
 
       it 'throttles with status 429' do
         get('/v0/medical_copays', headers:)
 
-        expect(last_response.status).to eq(429)
+        expect(last_response).to have_http_status(:too_many_requests)
       end
     end
   end
@@ -128,7 +112,7 @@ RSpec.describe Rack::Attack do
     before do
       limit.times do
         post endpoint, nil, headers
-        expect(last_response.status).not_to eq(429)
+        expect(last_response).not_to have_http_status(:too_many_requests)
       end
 
       post endpoint, nil, other_headers
@@ -138,7 +122,7 @@ RSpec.describe Rack::Attack do
       let(:other_headers) { headers }
 
       it 'limits requests' do
-        expect(last_response.status).to eq(429)
+        expect(last_response).to have_http_status(:too_many_requests)
       end
     end
 
@@ -146,7 +130,7 @@ RSpec.describe Rack::Attack do
       let(:other_headers) { { 'X-Real-Ip' => '4.3.2.1' } }
 
       it 'does not limit request' do
-        expect(last_response.status).not_to eq(429)
+        expect(last_response).not_to have_http_status(:too_many_requests)
       end
     end
   end
@@ -159,7 +143,7 @@ RSpec.describe Rack::Attack do
     before do
       limit.times do
         get endpoint, nil, headers
-        expect(last_response.status).not_to eq(429)
+        expect(last_response).not_to have_http_status(:too_many_requests)
       end
 
       get endpoint, nil, other_headers
@@ -169,7 +153,7 @@ RSpec.describe Rack::Attack do
       let(:other_headers) { headers }
 
       it 'limits requests' do
-        expect(last_response.status).to eq(429)
+        expect(last_response).to have_http_status(:too_many_requests)
       end
     end
 
@@ -177,7 +161,7 @@ RSpec.describe Rack::Attack do
       let(:other_headers) { { 'X-Real-Ip' => '4.3.2.1' } }
 
       it 'limits requests' do
-        expect(last_response.status).not_to eq(429)
+        expect(last_response).not_to have_http_status(:too_many_requests)
       end
     end
   end
@@ -186,7 +170,7 @@ RSpec.describe Rack::Attack do
     before do
       limit.times do
         post(endpoint, headers:)
-        expect(last_response.status).not_to eq(429)
+        expect(last_response).not_to have_http_status(:too_many_requests)
       end
 
       post endpoint, headers:
@@ -197,7 +181,7 @@ RSpec.describe Rack::Attack do
       let(:endpoint) { '/v0/vic/profile_photo_attachments' }
 
       it 'limits requests' do
-        expect(last_response.status).to eq(429)
+        expect(last_response).to have_http_status(:too_many_requests)
       end
     end
 
@@ -206,7 +190,7 @@ RSpec.describe Rack::Attack do
       let(:endpoint) { '/v0/vic/supporting_documentation_attachments' }
 
       it 'limits requests' do
-        expect(last_response.status).to eq(429)
+        expect(last_response).to have_http_status(:too_many_requests)
       end
     end
 
@@ -215,7 +199,7 @@ RSpec.describe Rack::Attack do
       let(:endpoint) { '/v0/vic/vic_submissions' }
 
       it 'limits requests' do
-        expect(last_response.status).to eq(429)
+        expect(last_response).to have_http_status(:too_many_requests)
       end
     end
 
@@ -224,7 +208,7 @@ RSpec.describe Rack::Attack do
       let(:endpoint) { '/v0/evss_claims_async' }
 
       it 'limits requests' do
-        expect(last_response.status).to eq(429)
+        expect(last_response).to have_http_status(:too_many_requests)
       end
     end
   end

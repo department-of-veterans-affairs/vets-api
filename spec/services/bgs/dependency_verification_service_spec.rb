@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGS::DependencyVerificationService do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
 
   describe '#read_diaries' do
     it 'returns dependency decisions that all contain :award_effective_date key' do

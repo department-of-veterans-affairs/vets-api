@@ -50,7 +50,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
       context 'when a terms of use agreement does not exist for the authenticated user' do
         it 'returns nil terms of use agreement' do
           subject
-          expect(JSON.parse(response.body)['terms_of_use_agreement']).to eq(nil)
+          expect(JSON.parse(response.body)['terms_of_use_agreement']).to be_nil
         end
       end
     end

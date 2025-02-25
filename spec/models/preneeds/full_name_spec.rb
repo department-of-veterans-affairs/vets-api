@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Preneeds::FullName do
   subject { described_class.new(params) }
 
-  let(:params) { attributes_for :full_name }
+  let(:params) { attributes_for(:full_name) }
 
   it 'specifies the permitted_params' do
     expect(described_class.permitted_params).to include(:first, :last, :maiden, :middle, :suffix)

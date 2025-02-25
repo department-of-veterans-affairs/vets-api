@@ -68,7 +68,7 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
     let(:form_content) { { 'foo' => 'bar' } }
     let(:form_submission) { create(:debts_api_form5655_submission) }
     let(:station_id) { '123' }
-    let(:file_path) { ::Rails.root.join(*'/spec/fixtures/dmc/5655.pdf'.split('/')).to_s }
+    let(:file_path) { Rails.root.join(*'/spec/fixtures/dmc/5655.pdf'.split('/')).to_s }
     let(:body) do
       {
         'd' => {
@@ -96,10 +96,74 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
       )
     end
 
-    it 'uploads a pdf file to SharePoint' do
-      VCR.use_cassette('vha/sharepoint/upload_pdf') do
-        response = subject.upload(form_contents: form_content, form_submission:, station_id:)
-        expect(response.success?).to be(true)
+    context 'with debts_sharepoint_error_logging feature enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:debts_sharepoint_error_logging).and_return(true)
+      end
+
+      it 'uploads a pdf file to SharePoint' do
+        VCR.use_cassette('vha/sharepoint/upload_pdf') do
+          response = subject.upload(form_contents: form_content, form_submission:, station_id:)
+          expect(response.success?).to be(true)
+        end
+      end
+
+      it 'raises a PDF error if the PDF upload fails' do
+        VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+          expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
+            .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+            error_details = e.errors.first
+            expect(error_details.status).to eq('400')
+            expect(error_details.detail).to eq('Malformed PDF request to SharePoint')
+            expect(error_details.code).to eq('SHAREPOINT_PDF_400')
+            expect(error_details.source).to eq('SharepointRequest')
+          end
+        end
+      end
+
+      it 'raises a request error if getting a list item fails' do
+        VCR.use_cassette('vha/sharepoint/update_list_item_fields_400', preserve_exact_body_bytes: true) do
+          expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
+            .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+            error_details = e.errors.first
+            expect(error_details.status).to eq('400')
+            expect(error_details.detail).to eq('Malformed request to SharePoint')
+            expect(error_details.code).to eq('SHAREPOINT_400')
+            expect(error_details.source).to eq('SharepointRequest')
+          end
+        end
+      end
+    end
+
+    context 'with debts_sharepoint_error_logging feature disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:debts_sharepoint_error_logging).and_return(false)
+      end
+
+      it 'does not log errors when submitting PDF' do
+        VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+          expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
+            .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+            error_details = e.errors.first
+            expect(error_details.status).to eq('400')
+            expect(error_details.detail).to eq('Operation failed')
+            expect(error_details.code).to eq('VA900')
+            expect(error_details.source).to be_nil
+          end
+        end
+      end
+
+      it 'does not log errors when getting a list items' do
+        VCR.use_cassette('vha/sharepoint/update_list_item_fields_400', preserve_exact_body_bytes: true) do
+          expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
+            .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+            error_details = e.errors.first
+            expect(error_details.status).to eq('400')
+            expect(error_details.detail).to eq('Operation failed')
+            expect(error_details.code).to eq('VA900')
+            expect(error_details.source).to be_nil
+          end
+        end
       end
     end
   end

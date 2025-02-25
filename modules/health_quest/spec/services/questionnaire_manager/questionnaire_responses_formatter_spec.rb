@@ -19,7 +19,7 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponsesFormatter do
 
   describe 'attributes' do
     it 'responds to qr_array' do
-      expect(subject.build([]).respond_to?(:qr_array)).to eq(true)
+      expect(subject.build([]).respond_to?(:qr_array)).to be(true)
     end
   end
 

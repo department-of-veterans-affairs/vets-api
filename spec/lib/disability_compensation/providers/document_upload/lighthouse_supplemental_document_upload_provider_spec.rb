@@ -73,14 +73,14 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
     context 'when the document is a valid LighthouseDocument' do
       it 'returns true' do
         allow_any_instance_of(LighthouseDocument).to receive(:valid?).and_return(true)
-        expect(provider.validate_upload_document(lighthouse_document)).to eq(true)
+        expect(provider.validate_upload_document(lighthouse_document)).to be(true)
       end
     end
 
     context 'when the document is an invalid LighthouseDocument' do
       it 'returns false' do
         allow_any_instance_of(LighthouseDocument).to receive(:valid?).and_return(false)
-        expect(provider.validate_upload_document(lighthouse_document)).to eq(false)
+        expect(provider.validate_upload_document(lighthouse_document)).to be(false)
       end
     end
   end
@@ -99,7 +99,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
         form526_submission_id: submission.id,
         # Polling record type mapped to L023 used in tests
         document_type: Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE,
-        lighthouse_document_request_id: lighthouse_document_request_id
+        lighthouse_document_request_id:
       }
 
       expect do
@@ -172,7 +172,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
         aasm_state: 'pending',
         form526_submission_id: submission.id,
         document_type: Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE,
-        lighthouse_document_request_id: lighthouse_document_request_id,
+        lighthouse_document_request_id:,
         form_attachment: supporting_evidence_attachment
       }
 

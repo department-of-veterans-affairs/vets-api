@@ -66,7 +66,7 @@ module Form1095
         val = "H#{i < 10 ? '0' : ''}#{i}"
 
         field = form_fields[val.to_sym]
-        coverage_arr.push(field && field.strip == 'Y' ? true : false)
+        coverage_arr.push((field && field.strip == 'Y') || false)
 
         i += 1
       end
@@ -131,6 +131,9 @@ module Form1095
 
     def process_line?(form, file_details)
       data = parse_form(form)
+      # we can't save records without icns and should not retain the file in cases
+      # where the icn is missing
+      return true if data[:veteran_icn].blank?
 
       corrected = !file_details[:isOg?]
 
@@ -165,7 +168,6 @@ module Form1095
 
       all_succeeded
     rescue => e
-      Rails.logger.error "#{e.message}."
       log_exception_to_sentry(e, 'context' => "Error processing file: #{file_details}, on line #{lines}")
       false
     end
@@ -211,7 +213,7 @@ module Form1095
           Rails.logger.info "Successfully read #{@form_count} 1095B forms from #{file_name}, deleting file from S3"
           bucket.delete_objects(delete: { objects: [{ key: file_name }] })
         else
-          Rails.logger.error  "failed to save #{@error_count} forms from file: #{file_name};"\
+          Rails.logger.error  "failed to save #{@error_count} forms from file: #{file_name};" \
                               " successfully saved #{@form_count} forms"
         end
       end

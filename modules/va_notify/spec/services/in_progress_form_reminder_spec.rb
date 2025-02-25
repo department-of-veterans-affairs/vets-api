@@ -32,7 +32,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
         described_class.new.perform(in_progress_form.id)
       end
 
-      expect(result).to eq(nil)
+      expect(result).to be_nil
       expect(VANotify::UserAccountJob).not_to have_received(:perform_async)
     end
 
@@ -44,7 +44,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
         described_class.new.perform(in_progress_form.id)
       end
 
-      expect(result).to eq(nil)
+      expect(result).to be_nil
       expect(VANotify::UserAccountJob).not_to have_received(:perform_async)
     end
 

@@ -76,19 +76,6 @@ module ClaimsApi
       wsdl.status
     end
 
-    def find_poa_by_participant_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId />
-      EOXML
-
-      { ptcpntId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'ClaimantServiceBean/ClaimantWebService', action: 'findPOAByPtcpntId', body:,
-                   key: 'return')
-    end
-
     def header # rubocop:disable Metrics/MethodLength
       # Stock XML structure {{{
       header = Nokogiri::XML::DocumentFragment.parse <<~EOXML
@@ -156,10 +143,11 @@ module ClaimsApi
       end
     end
 
-    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
+    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true, use_mocks: false) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
       connection = log_duration event: 'establish_ssl_connection' do
         Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
           f.use :breakers
+          f.response :betamocks if use_mocks?(use_mocks)
           f.adapter Faraday.default_adapter
         end
       end
@@ -302,6 +290,10 @@ module ClaimsApi
       result = Hash.from_xml(response.body).dig(*keys)
 
       result.is_a?(Array) ? result : result.to_h
+    end
+
+    def use_mocks?(use_mocks)
+      use_mocks && Settings.claims_api.bgs.mock_responses
     end
   end
 end

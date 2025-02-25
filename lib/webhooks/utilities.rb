@@ -70,9 +70,7 @@ module Webhooks
       end
 
       def fetch_events(subscription)
-        subscription['subscriptions'].map do |e|
-          e['event']
-        end.uniq
+        subscription['subscriptions'].pluck('event').uniq
       end
     end
     extend ClassMethods
@@ -95,7 +93,7 @@ module Webhooks
     end
 
     def validate_events(subscriptions)
-      events = subscriptions.select { |s| s.key?('event') }.map { |s| s['event'] }
+      events = subscriptions.select { |s| s.key?('event') }.pluck('event')
       raise SchemaValidationErrors, ["Duplicate Event(s) submitted! #{events}"] if Set.new(events).size != events.length
 
       unsupported_events = events - Webhooks::Utilities.supported_events

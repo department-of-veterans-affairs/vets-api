@@ -32,7 +32,7 @@ describe VAProfile::MilitaryPersonnel::Service do
         VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
           response = subject.get_service_history
 
-          expect(response.vet_status_eligibility[:confirmed]).to eq(true)
+          expect(response.vet_status_eligibility[:confirmed]).to be(true)
           expect(response.vet_status_eligibility[:message]).to eq([])
         end
       end
@@ -47,7 +47,7 @@ describe VAProfile::MilitaryPersonnel::Service do
             '(TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
           ]
 
-          expect(response.vet_status_eligibility[:confirmed]).to eq(false)
+          expect(response.vet_status_eligibility[:confirmed]).to be(false)
           expect(response.vet_status_eligibility[:message]).to eq(message)
         end
       end

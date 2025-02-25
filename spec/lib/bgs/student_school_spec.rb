@@ -4,10 +4,10 @@ require 'rails_helper'
 require 'bgs/student_school'
 
 RSpec.describe BGS::StudentSchool do
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { create(:evss_user, :loa3) }
   let(:proc_id) { '3829729' }
   let(:vnp_participant_id) { '149471' }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:school_params) do
     {
       course_name_txt: 'Something amazing',

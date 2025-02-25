@@ -48,7 +48,7 @@ describe Common::Collection do
         (a.first_name == b.first_name && a.last_name < b.last_name) ||
           (a.first_name > b.first_name)
       end
-      expect(expectation.all?).to eq(true)
+      expect(expectation.all?).to be(true)
       expect(collection.metadata[:sort]).to eq('first_name' => 'DESC', 'last_name' => 'ASC')
     end
 
@@ -277,7 +277,7 @@ describe Common::Collection do
       expect(result).to be_a(Common::Collection)
       expect(result.type).to eq(Author)
       expect(result.metadata).to eq(nobel_winner: 'Bob Dylan')
-      expect(result.cached?).to eq(true)
+      expect(result.cached?).to be(true)
       expect(result.ttl).to be_between(0, 1000)
       expect(Common::Collection).to receive(:bust).with('authors_key')
       result.bust
@@ -293,7 +293,7 @@ describe Common::Collection do
       expect(result).to be_a(Common::Collection)
       expect(result.type).to eq(Author)
       expect(result.metadata).to eq(nobel_winner: 'Bob Dylan')
-      expect(result.cached?).to eq(false)
+      expect(result.cached?).to be(false)
       expect(result.ttl).to be_nil
       expect(Common::Collection).not_to receive(:bust).with('authors_key')
       expect(result.bust).to be_nil
@@ -314,7 +314,7 @@ describe Common::Collection do
         expect(result).to be_a(Common::Collection)
         expect(result.type).to eq(Author)
         expect(result.metadata).to eq('nobel_winner' => 'Bob Dylan')
-        expect(result.cached?).to eq(true)
+        expect(result.cached?).to be(true)
         expect(result.ttl).to be_between(0, 1000)
         expect(Common::Collection).to receive(:bust).with('authors_key')
         result.bust

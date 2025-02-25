@@ -24,7 +24,7 @@ module IAMSessionHelper
     headers
   end
 
-  def iam_sign_in(iam_user = FactoryBot.build(:iam_user), access_token = nil)
+  def iam_sign_in(iam_user = build(:iam_user), access_token = nil)
     token = access_token || DEFAULT_ACCESS_TOKEN
     IAMUser.create(iam_user)
     IAMSession.create(token:, uuid: iam_user.identity.uuid)

@@ -25,7 +25,7 @@ describe VAOS::V2::PatientsService do
           VCR.use_cassette('vaos/v2/patients/get_patient_appointment_metadata_vaos',
                            match_requests_on: %i[method path query]) do
             response = subject.get_patient_appointment_metadata('primaryCare', '100', 'direct')
-            expect(response[:eligible]).to eq(false)
+            expect(response[:eligible]).to be(false)
 
             expect(response[:ineligibility_reasons][0][:coding][0][:code]).to eq('facility-cs-direct-disabled')
           end
@@ -42,7 +42,7 @@ describe VAOS::V2::PatientsService do
           VCR.use_cassette('vaos/v2/patients/get_patient_appointment_metadata_vpg',
                            match_requests_on: %i[method path query]) do
             response = subject.get_patient_appointment_metadata('primaryCare', '100', 'direct')
-            expect(response[:eligible]).to eq(false)
+            expect(response[:eligible]).to be(false)
 
             expect(response[:ineligibility_reasons][0][:coding][0][:code]).to eq('facility-cs-direct-disabled')
           end
