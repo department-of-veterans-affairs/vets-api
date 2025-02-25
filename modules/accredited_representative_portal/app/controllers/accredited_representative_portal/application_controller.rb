@@ -5,24 +5,26 @@ module AccreditedRepresentativePortal
     include SignIn::AudienceValidator
     include Authenticable
     include Pundit::Authorization
+    include ControllerTracking
 
-    rescue_from Pundit::NotAuthorizedError do |e|
-      log_auth_failure(e)
+    service_tag Monitoring::Service::NAME
 
-      render(
-        json: { errors: [e.message] },
-        status: :forbidden
-      )
-    end
-
-    service_tag 'accredited-representative-portal' # ARP Datadog monitoring
     validates_access_token_audience Settings.sign_in.arp_client_id
 
     before_action :verify_pilot_enabled_for_user
     around_action :handle_exceptions
     after_action :verify_pundit_authorization
 
+    rescue_from Pundit::NotAuthorizedError do |e|
+      track_error(message: e.message, error: e, tags: [Monitoring::Tag::Error::FORBIDDEN])
+      render json: { errors: [e.message] }, status: :forbidden
+    end
+
     private
+
+    def track_exception(exception, _tags = [])
+      track_error(message: exception.message, error: exception)
+    end
 
     def verify_pundit_authorization
       action_name == 'index' ? verify_policy_scoped : verify_authorized
@@ -31,39 +33,14 @@ module AccreditedRepresentativePortal
     def handle_exceptions
       yield
     rescue => e
-      log_unexpected_error(e)
-      raise e
+      track_error(message: e.message, error: e)
+      raise
     end
 
     def verify_pilot_enabled_for_user
       return if Flipper.enabled?(:accredited_representative_portal_pilot, @current_user)
 
-      message = <<~MSG.squish
-        The accredited_representative_portal_pilot feature flag is disabled
-        for user with uuid: #{@current_user.uuid}
-      MSG
-
-      raise Common::Exceptions::Forbidden, detail: message
-    end
-
-    def log_auth_failure(exception)
-      user_uuid = @current_user&.uuid || 'unknown'
-      request_path = request&.path || 'unknown_path'
-
-      Rails.logger.warn(
-        "ARP: Authorization failure for user=#{user_uuid}, " \
-        "path=#{request_path} - #{exception.message}"
-      )
-    end
-
-    def log_unexpected_error(exception)
-      user_uuid = @current_user&.uuid || 'unknown'
-      request_path = request&.path || 'unknown_path'
-
-      Rails.logger.error(
-        "ARP: Unexpected error occurred for user with user_uuid=#{user_uuid}, " \
-        "path=#{request_path} - #{exception.message}"
-      )
+      raise Common::Exceptions::Forbidden, detail: "Feature flag disabled for user #{@current_user.uuid}"
     end
   end
 end

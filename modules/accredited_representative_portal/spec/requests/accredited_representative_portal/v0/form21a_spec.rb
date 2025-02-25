@@ -140,7 +140,21 @@ Errors: The property '#/firstName' of type integer did not match the following t
         post '/accredited_representative_portal/v0/form21a'
 
         expect(Rails.logger).to have_received(:error).with(
-          include(/ARP: Unexpected error occurred for user with user_uuid=#{representative_user.uuid}/)
+          'Unexpected error',
+          hash_including(
+            statsd: 'arp.api.poa',
+            service: 'accredited-representative-portal',
+            function: 'track_error',
+            context: hash_including(
+              tags: array_including(
+                'operation:form21a_submit',
+                'source:api',
+                'service:accredited-representative-portal',
+                'level:error',
+                'error:http_server'
+              )
+            )
+          )
         )
 
         expect(response).to have_http_status(:internal_server_error)

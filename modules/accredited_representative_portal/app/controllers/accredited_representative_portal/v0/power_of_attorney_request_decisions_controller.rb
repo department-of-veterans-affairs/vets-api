@@ -36,6 +36,15 @@ module AccreditedRepresentativePortal
           )
         end
 
+        track_request(
+          'Decision made',
+          tags: [
+            "poa:#{@poa_request.id}",
+            Monitoring::Tag::Operation::DECISION_MADE,
+            "decision:#{type}",
+            "reason:#{reason}"
+          ]
+        )
         render json: {}, status: :ok
       end
 
@@ -48,6 +57,8 @@ module AccreditedRepresentativePortal
         when 'declination'
           PowerOfAttorneyRequestDecision::Types::DECLINATION
         else
+          Rails.logger.warn("Invalid decision type: #{decision_params[:type]}")
+
           # So that validations will get their chance to complain.
           decision_params[:type]
         end

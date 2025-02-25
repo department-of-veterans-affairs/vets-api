@@ -29,15 +29,12 @@ module AccreditedRepresentativePortal
           when NilClass
             rel
           else
-            raise ActionController::BadRequest, <<~MSG.squish
-              Invalid status parameter.
-              Must be one of (#{Statuses::ALL.join(', ')})
-            MSG
+            message = "Invalid status parameter. Must be one of (#{Statuses::ALL.join(', ')})"
+            raise ActionController::BadRequest, message.squish
           end
 
-        poa_requests = rel.includes(scope_includes).limit(100)
-        serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
-
+        @poa_requests = rel.includes(scope_includes).limit(100)
+        serializer = PowerOfAttorneyRequestSerializer.new(@poa_requests)
         render json: serializer.serializable_hash, status: :ok
       end
 
