@@ -75,7 +75,8 @@ jobs:
 
       - name: Check ENV diff for aws_ssm_custom lookups
         run: >
-          new_env_keys=$(git diff --unified=0 origin/master config/settings.yml)
+          new_env_keys=$(git diff origin/master config/settings.yml | \
+            grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
 
           echo "$new_env_keys"
 
@@ -84,7 +85,7 @@ jobs:
 
       - name: Display the new ENV keys
         run: |
-          echo "New ENV keys: $NEW_ENV_KEYS"
+          echo "New ENV keys: ${{ env.NEW_ENV_KEYS }}"
 
       - name: Confirm parameters are <= 10 # max allowed by AWS
         if: env.NEW_ENV_KEYS != ''
