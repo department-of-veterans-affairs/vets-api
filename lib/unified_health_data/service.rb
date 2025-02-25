@@ -18,7 +18,8 @@ module UnifiedHealthData
       end_date = '2024-12-31'
       path = "#{config.base_path}labs?patient-id=#{patient_id}&start-date=#{start_date}&end-date=#{end_date}"
       response = perform(:get, path, nil, { 'Authorization' => token })
-      body = JSON.parse(response.body)
+      # FIXME: workaround for testing
+      body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
 
       vista_records = body.dig('vista', 'entry') || []
       oracle_health_records = body.dig('oracle-health', 'entry') || []

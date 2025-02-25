@@ -36,7 +36,7 @@ module UnifiedHealthData
     def connection
       Faraday.new(base_path) do |conn|
         conn.request :json
-        conn.response :json
+        conn.response :json_parser
 
         # Uncomment this if you want curl command equivalent or response output to log
         # conn.request(:curl, ::Logger.new($stdout), :warn) unless Rails.env.production?
