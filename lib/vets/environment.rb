@@ -3,7 +3,7 @@
 # .to_s and .inspect are required to output a string
 # and still work with the predicate methods
 module Vets
-  # Vets::Env provides methods to get and check the
+  # Vets::Environment provides methods to get and check the
   # current vsp_environment similar to Rails.env.
   class Environment
     class << self
