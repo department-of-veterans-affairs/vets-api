@@ -2,7 +2,7 @@ name: Build, Push, & Deploy
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["Code Checks"]
+    workflows: ["Code Checks", "Settings Checks"]
     branches: [master]
     types: [completed]
 permissions:

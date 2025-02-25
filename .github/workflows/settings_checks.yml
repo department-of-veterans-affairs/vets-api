@@ -1,0 +1,137 @@
+name: Settings Checks
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, reopened, synchronize]
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  validate-config-files:
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+    permissions: write-all
+    runs-on: ubuntu-32-cores-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Run Settings Validation Rake task
+        run: bundle exec rake settings:validate
+
+      - name: Add Settings Failure label
+        if: failure() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'lint-failure')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: settings-failure
+
+      - name: Remove Settings Failure label
+        if: success() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'lint-failure')
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: settings-failure
+
+  check-parameters:
+    runs-on: ubuntu-32-cores-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.5.4
+        with:
+          fetch-depth: 0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-gov-west-1
+
+      - name: Obtain GitHub Token
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+      - name: Install jq
+        run: |
+          sudo apt update
+          sudo apt install jq -y
+
+      - name: Check ENV diff for aws_ssm_custom lookups
+        run: >
+          new_env_keys=$(git diff --unified=0 origin/main config/settings.yml | \
+            grep -oP 'ENV\[\K[^\]]+' | sort -u)
+
+          # Save the new ENV keys to the GitHub environment
+          echo "NEW_ENV_KEYS=$new_env_keys" >> $GITHUB_ENV
+
+      - name: Display the new ENV keys
+        run: |
+          echo "New ENV keys: $NEW_ENV_KEYS"
+
+      - name: Confirm parameters are <= 10 # max allowed by AWS
+        if: env.NEW_ENV_KEYS != ''
+        run: |
+          PARAMS_LENGTH=$(echo $NEW_ENV_KEYS | wc -w)
+          if [ $PARAMS_LENGTH -gt 10 ]; then
+            echo "Error: Number of parameters exceeds maximum of 10. Please only add 10 parameters at a time in a PR."
+            exit 1
+          fi
+
+      - name: Query for parameters if there are any being changed or added
+        if: env.NEW_ENV_KEYS != ''
+        run: |
+          # Define the environments
+          environments=("dev" "staging" "sandbox" "prod")
+          
+          # Initialize an empty string to hold all parameter names
+          param_names=""
+
+          # Loop through each environment and generate SSM parameter paths
+          for env in "${environments[@]}"; do
+            echo "Generating SSM parameters for environment: $env"
+            for key in $NEW_ENV_KEYS; do
+              # Convert the ENV key to the corresponding SSM path
+              ssm_param="/dsva-vagov/vets-api/$env/env_vars/$(echo $key | tr '[:upper:]' '[:lower:]' | tr '__' '/')"
+              param_names="$param_names $ssm_param"
+            done
+          done
+
+          # Now, use aws ssm get-parameters to fetch all parameters at once
+          echo "Checking SSM parameters: $param_names"
+          aws ssm get-parameters --names $param_names --query "Parameters[*].Name"  |
+          echo "INVALID_PARAMETERS=$(jq -c 'select(.InvalidParameters != []).InvalidParameters')" >> $GITHUB_ENV
+
+
+      - name: Respond to PR if invalid parameters are found
+        if: env.INVALID_PARAMETERS != ''
+        uses: thollander/actions-comment-pull-request@1d3973dc4b8e1399c0620d3f2b1aa5e795465308 # v2.4.3
+        with:
+          message: |
+            :warning: The following Parameter Store values are invalid. Please make sure the values are correct and exist in AWS Parameter Store before merging:
+            ${{ env.INVALID_PARAMETERS }}
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+
+      - name: Fail if invalid parameters are found
+        if: env.INVALID_PARAMETERS != ''
+        run: exit 1
+
+      - name: Respond to PR if no invalid parameters are found
+        if: env.NEW_ENV_KEYS != ''
+        uses: thollander/actions-comment-pull-request@1d3973dc4b8e1399c0620d3f2b1aa5e795465308 # v2.4.3
+        with:
+          message: |
+            :+1: All Parameter Store values in this PR are valid:
+            ${{ env.NEW_ENV_KEYS }}
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+
+
