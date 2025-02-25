@@ -124,6 +124,7 @@ Rails.application.routes.draw do
         get(:enrollment_status)
         get(:rating_info)
         get(:facilities)
+        post(:download_pdf)
       end
     end
 
