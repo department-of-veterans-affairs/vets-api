@@ -29,6 +29,7 @@ module SignIn
       current_user.last_signed_in = session.created_at
       current_user.fingerprint = request_ip
       current_user.session_handle = access_token.session_handle
+      current_user.user_verification_id = user_verification.id
       current_user.save && user_identity.save
       current_user.invalidate_mpi_cache
       current_user.validate_mpi_profile
