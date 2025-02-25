@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative '../vaos/middleware/response/errors'
+require_relative './middleware/ccra_logging'
+
 module Ccra
   # CCRA::Configuration provides the configuration settings for the CCRA API.
   # It retrieves settings from the application configuration (e.g., Settings.vaos.ccra)
@@ -52,6 +55,7 @@ module Ccra
         conn.response :snakecase
         conn.response :json, content_type: /\bjson$/
         conn.response :vaos_errors
+        conn.use :ccra_logging
         conn.adapter Faraday.default_adapter
       end
     end
