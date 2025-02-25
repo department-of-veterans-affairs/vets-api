@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'decision_reviews/v1//constants'
+require 'decision_reviews/v1/constants'
 require 'decision_reviews/v1/helpers'
 require 'decision_reviews/saved_claim/service'
 module DecisionReviews

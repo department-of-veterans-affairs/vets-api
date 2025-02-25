@@ -45,7 +45,16 @@ module DecisionReview
       JSON.parse(DecisionReviewV1::Appeals::Helpers::DR_LOCKBOX.decrypt(encrypted_payload))
     end
 
-    def perform(appeal_submission_id, encrypted_payload, submitted_appeal_uuid)
+    def perform(appeal_submission_id, encrypted_payload, submitted_appeal_uuid) # rubocop:disable Metrics/MethodLength
+      ::Rails.logger.warn({
+                            message: 'Non-module Form4142 job is deprecated and will be replaced by DR engine job',
+                            form_id: DecisionReviewV1::FORM4142_ID,
+                            parent_form_id: DecisionReviewV1::SUPP_CLAIM_FORM_ID,
+                            appeal_submission_id:,
+                            lighthouse_submission: {
+                              id: submitted_appeal_uuid
+                            }
+                          })
       rejiggered_payload = decrypt_form(encrypted_payload)
       decision_review_service.process_form4142_submission(appeal_submission_id:, rejiggered_payload:)
 
