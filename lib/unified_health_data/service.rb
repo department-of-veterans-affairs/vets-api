@@ -9,6 +9,7 @@ module UnifiedHealthData
     configuration UnifiedHealthData::Configuration
 
     def initialize(user)
+      super()
       @user = user
     end
 
@@ -51,29 +52,33 @@ module UnifiedHealthData
 
     def parse_medical_records(records)
       records.select { |record| record['resource']['resourceType'] == 'DiagnosticReport' }.map do |record|
-        location = fetch_location(record)
-        code = fetch_code(record)
-        sample_site = fetch_sample_site(record)
-        observations = fetch_observations(record)
-        ordered_by = fetch_ordered_by(record)
-
-        attributes = UnifiedHealthData::MedicalRecord::Attributes.new(
-          display: code['display'],
-          test_code: record['resource']['code']['text'],
-          date_completed: record['resource']['effectiveDateTime'],
-          sample_site: sample_site,
-          encoded_data: record['resource']['presentedForm'] ? record['resource']['presentedForm'].first.dig('data') : '',
-          location: location,
-          ordered_by: ordered_by,
-          observations: observations
-        )
-
-        UnifiedHealthData::MedicalRecord.new(
-          id: record['resource']['id'],
-          type: record['resource']['resourceType'],
-          attributes: attributes
-        )
+        parse_single_record(record)
       end
+    end
+
+    def parse_single_record(record)
+      location = fetch_location(record)
+      code = fetch_code(record)
+      sample_site = fetch_sample_site(record)
+      observations = fetch_observations(record)
+      ordered_by = fetch_ordered_by(record)
+
+      attributes = UnifiedHealthData::MedicalRecord::Attributes.new(
+        display: code['display'],
+        test_code: record['resource']['code']['text'],
+        date_completed: record['resource']['effectiveDateTime'],
+        sample_site:,
+        encoded_data: record['resource']['presentedForm'] ? record['resource']['presentedForm'].first['data'] : '',
+        location:,
+        ordered_by:,
+        observations:
+      )
+
+      UnifiedHealthData::MedicalRecord.new(
+        id: record['resource']['id'],
+        type: record['resource']['resourceType'],
+        attributes:
+      )
     end
 
     def fetch_location(record)
@@ -100,8 +105,18 @@ module UnifiedHealthData
         UnifiedHealthData::MedicalRecord::Attributes::Observation.new(
           test_code: obs['code']['text'],
           encoded_data: '',
-          value_quantity: obs['valueQuantity'] ? "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}".strip : '',
-          reference_range: obs['referenceRange'] ? obs['referenceRange'].map { |range| range['text'] }.join(', ').strip : '',
+          value_quantity: if obs['valueQuantity']
+                            "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}".strip
+                          else
+                            ''
+                          end,
+          reference_range: if obs['referenceRange']
+                             obs['referenceRange'].map do |range|
+                               range['text']
+                             end.join(', ').strip
+                           else
+                             ''
+                           end,
           status: obs['status'],
           comments: obs['note']&.map { |note| note['text'] }&.join(', ') || ''
         )
@@ -110,7 +125,9 @@ module UnifiedHealthData
 
     def fetch_ordered_by(record)
       if record['resource']['contained']
-        practitioner_object = record['resource']['contained'].find { |resource| resource['resourceType'] == 'Practitioner' }
+        practitioner_object = record['resource']['contained'].find do |resource|
+          resource['resourceType'] == 'Practitioner'
+        end
         if practitioner_object
           name = practitioner_object['name'].first
           "#{name['given'].join(' ')} #{name['family']}"
