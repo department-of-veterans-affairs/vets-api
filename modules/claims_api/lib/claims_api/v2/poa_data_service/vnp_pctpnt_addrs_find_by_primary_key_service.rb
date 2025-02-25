@@ -3,6 +3,7 @@
 module ClaimsApi
   module V2
     class VnpPctpntAddrsFindByPrimaryKeyService
+      # key is 'veteran' or 'claimant' where 'claimant' is a dependent
       def data_object(record, key)
         build_data_object(record, key)
       end
