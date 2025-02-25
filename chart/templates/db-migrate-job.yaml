@@ -43,8 +43,6 @@ spec:
           {{- end }}
           envFrom:
             - secretRef:
-                name: common-environment-ssm-vars
-            - secretRef:
                 name: ssm-env-vars
       restartPolicy: Never
       securityContext:
