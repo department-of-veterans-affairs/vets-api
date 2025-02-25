@@ -82,7 +82,7 @@ describe VANotify::DefaultCallback do
             expect(Rails.logger).to have_received(:error).with(
               'VANotify: Invalid metadata format: Missing required keys in default_callback metadata ' \
               'statsd_tags: service, function',
-              { notification_record_id: notification_record.id }
+              { notification_record_id: notification_record.id, template_id: notification_record.template_id }
             )
             expect(StatsD).to have_received(:increment).with(
               'silent_failure_avoided',
@@ -162,7 +162,7 @@ describe VANotify::DefaultCallback do
             expect(Rails.logger).to have_received(:error).with(
               'VANotify: Invalid metadata format: Missing required keys in default_callback metadata ' \
               'statsd_tags: service, function',
-              { notification_record_id: notification_record.id }
+              { notification_record_id: notification_record.id, template_id: notification_record.template_id }
             )
             expect(StatsD).to have_received(:increment).with(
               'silent_failure_avoided',
@@ -186,7 +186,7 @@ describe VANotify::DefaultCallback do
 
           expect(Rails.logger).to have_received(:error).with(
             'VANotify: Invalid metadata format: Invalid metadata statsd_tags format: must be a Hash or Array',
-            { notification_record_id: notification_record.id }
+            { notification_record_id: notification_record.id, template_id: notification_record.template_id }
           )
           expect(StatsD).to have_received(:increment).with(
             'silent_failure_avoided',
