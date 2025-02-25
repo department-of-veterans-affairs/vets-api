@@ -1172,6 +1172,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
         Flipper.disable('disability_compensation_prevent_submission_job')
         Flipper.disable('disability_compensation_production_tester')
+        allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+        allow_any_instance_of(User).to receive(:icn).and_return('1012666073V986297')
       end
 
       let(:form526v2) do
@@ -1180,13 +1182,13 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'supports getting rated disabilities' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 401)
-        VCR.use_cassette('lighthouse/claims/200_response') do
+        VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 200, headers)
         end
-        VCR.use_cassette('lighthouse/claims/400_response') do
+        VCR.use_cassette('lighthouse/veteran_verification/disability_rating/400_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 400, headers)
         end
-        VCR.use_cassette('lighthouse/claims/500_response') do
+        VCR.use_cassette('lighthouse/veteran_verification/disability_rating/502_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 502, headers)
         end
       end
