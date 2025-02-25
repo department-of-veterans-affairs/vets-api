@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'decision_review_v1/utilities/constants'
-require 'decision_review_v1/service'
+# require 'decision_review_v1/service'
 
 module DecisionReview
   class Form4142Submit
