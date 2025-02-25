@@ -21,7 +21,6 @@ module VANotify
 
     def call_with_metadata
       notification_type = metadata['notification_type']
-
       tags = validate_and_normalize_statsd_tags
 
       case notification_record.status
