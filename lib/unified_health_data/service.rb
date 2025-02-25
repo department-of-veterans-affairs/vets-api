@@ -11,11 +11,9 @@ module UnifiedHealthData
       @user = user
     end
 
-    def get_medical_records
+    def get_medical_records(start_date:, end_date:)
       token = fetch_access_token
       patient_id = @user.icn
-      start_date = '2024-01-01'
-      end_date = '2024-12-31'
       path = "#{config.base_path}labs?patient-id=#{patient_id}&start-date=#{start_date}&end-date=#{end_date}"
       response = perform(:get, path, nil, { 'Authorization' => token })
       body = parse_response_body(response.body)
@@ -40,6 +38,7 @@ module UnifiedHealthData
     end
 
     def parse_response_body(body)
+      # FIXME: workaround for testing
       body.is_a?(String) ? JSON.parse(body) : body
     end
 

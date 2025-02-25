@@ -6,7 +6,9 @@ module Mobile
   module V1
     class LabsAndTestsController < ApplicationController
       def index
-        medical_records = service.get_medical_records
+        start_date = params[:start_date]
+        end_date = params[:end_date]
+        medical_records = service.get_medical_records(start_date: start_date, end_date: end_date)
         render json: medical_records.map { |record| MedicalRecordSerializer.serialize(record) }
       end
 

@@ -8,7 +8,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
   include CommitteeHelper
 
   let!(:user) { sis_user(icn: '1000000000V000000') }
-  let(:default_params) { { "patient-id": "1000000000V000000" } }
+  let(:default_params) { { 'patient-id': '1000000000V000000', start_date: '2024-01-01', end_date: '2024-12-31'  } }
 
   describe 'GET /mobile/v1/health/labs-and-tests' do
     before do
