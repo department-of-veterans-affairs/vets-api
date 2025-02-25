@@ -19,18 +19,10 @@ module VANotify
 
     private
 
-    # rubocop:disable Metrics/MethodLength
     def call_with_metadata
       notification_type = metadata['notification_type']
 
-      tags = if Flipper.enabled?(:va_notify_metadata_statsd_tags)
-               validate_and_normalize_statsd_tags
-             else
-               statsd_tags = metadata['statsd_tags']
-               service = statsd_tags['service']
-               function = statsd_tags['function']
-               ["service:#{service}", "function:#{function}"]
-             end
+      tags = validate_and_normalize_statsd_tags
 
       case notification_record.status
       when 'delivered'
@@ -47,7 +39,6 @@ module VANotify
       # Invalid metadata is treated as if no metadata were provided.
       call_without_metadata
     end
-    # rubocop:enable Metrics/MethodLength
 
     def call_without_metadata
       case notification_record.status
