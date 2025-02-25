@@ -7,7 +7,8 @@ module AccreditedRepresentativePortal
     belongs_to :va_notify_notification,
                class_name: 'VANotify::Notification',
                foreign_key: 'notification_id',
-               primary_key: 'notification_id'
+               primary_key: 'notification_id',
+               optional: true
 
     validates :notification_type, inclusion: { in: PERMITTED_TYPES }
 
