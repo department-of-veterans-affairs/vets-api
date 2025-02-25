@@ -20,5 +20,32 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
     it 'returns a successful response' do
       expect(response).to be_successful
     end
+
+    it 'returns the correct medical records' do
+      json_response = JSON.parse(response.body)
+      expect(json_response[0]).to eq({
+        "id" => "e9513940-bf84-4120-ac9c-718f537b00e0",
+        "type" => "DiagnosticReport",
+        "attributes" => {
+          "display" => "CH",
+          "testCode" => "CH",
+          "dateCompleted" => "2025-01-23T22:06:02Z",
+          "sampleSite" => "SERUM",
+          "encodedData" => "",
+          "location" => "CHYSHR TEST LAB",
+          "orderedBy" => "MARCI P MCGUIRE",
+          "observations" => [
+            { "testCode" => "GLUCOSE", "encodedData" => "", "valueQuantity" => "99 mg/dL", "referenceRange" => "70 - 110", "status" => "final", "comments" => "" },
+            { "testCode" => "UREA NITROGEN", "encodedData" => "", "valueQuantity" => "200 mg/dL", "referenceRange" => "7 - 18", "status" => "final", "comments" => "" },
+            { "testCode" => "CREATININE", "encodedData" => "", "valueQuantity" => "5 mg/dL", "referenceRange" => "0.6 - 1.3", "status" => "final", "comments" => "" },
+            { "testCode" => "SODIUM", "encodedData" => "", "valueQuantity" => "8 meq/L", "referenceRange" => "136 - 145", "status" => "final", "comments" => "" },
+            { "testCode" => "POTASSIUM", "encodedData" => "", "valueQuantity" => "24 meq/L", "referenceRange" => "3.5 - 5.1", "status" => "final", "comments" => "" },
+            { "testCode" => "CHLORIDE", "encodedData" => "", "valueQuantity" => "2 meq/L", "referenceRange" => "98 - 107", "status" => "final", "comments" => "" },
+            { "testCode" => "CO2", "encodedData" => "", "valueQuantity" => "2 meq/L", "referenceRange" => "22 - 29", "status" => "final", "comments" => "" }
+            ]
+          }
+        }
+      )
+    end
   end
 end
