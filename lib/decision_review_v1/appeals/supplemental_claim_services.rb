@@ -66,24 +66,24 @@ module DecisionReviewV1
       # @param rejiggered_payload
       # @return [Faraday::Response]
       #
-      def process_form4142_submission(appeal_submission_id:, rejiggered_payload:)
-        with_monitoring_and_error_handling do
-          response_container, bm = run_and_benchmark_if_enabled do
-            submit_form4142(form_data: rejiggered_payload)
-          end
-          form4142_response, uuid = response_container
+      # def process_form4142_submission(appeal_submission_id:, rejiggered_payload:)
+      #   with_monitoring_and_error_handling do
+      #     response_container, bm = run_and_benchmark_if_enabled do
+      #       submit_form4142(form_data: rejiggered_payload)
+      #     end
+      #     form4142_response, uuid = response_container
 
-          if Flipper.enabled?(:decision_review_track_4142_submissions)
-            save_form4142_submission(appeal_submission_id:, rejiggered_payload:, guid: uuid)
-          end
+      #     if Flipper.enabled?(:decision_review_track_4142_submissions)
+      #       save_form4142_submission(appeal_submission_id:, rejiggered_payload:, guid: uuid)
+      #     end
 
-          form4142_submission_info_message = parse_form412_response_to_log_msg(
-            appeal_submission_id:, data: form4142_response, uuid:, bm:
-          )
-          ::Rails.logger.info(form4142_submission_info_message)
-          form4142_response
-        end
-      end
+      #     form4142_submission_info_message = parse_form412_response_to_log_msg(
+      #       appeal_submission_id:, data: form4142_response, uuid:, bm:
+      #     )
+      #     ::Rails.logger.info(form4142_submission_info_message)
+      #     form4142_response
+      #   end
+      # end
 
       def save_form4142_submission(appeal_submission_id:, rejiggered_payload:, guid:)
         form_record = SecondaryAppealForm.new(
@@ -264,13 +264,13 @@ module DecisionReviewV1
       # @param submitted_appeal_uuid
       # @return String
       #
-      def queue_form4142(appeal_submission_id:, rejiggered_payload:, submitted_appeal_uuid:)
-        form4142_submit_job.perform_async(
-          appeal_submission_id,
-          payload_encrypted_string(rejiggered_payload),
-          submitted_appeal_uuid
-        )
-      end
+      # def queue_form4142(appeal_submission_id:, rejiggered_payload:, submitted_appeal_uuid:)
+      #   form4142_submit_job.perform_async(
+      #     appeal_submission_id,
+      #     payload_encrypted_string(rejiggered_payload),
+      #     submitted_appeal_uuid
+      #   )
+      # end
 
       private
 

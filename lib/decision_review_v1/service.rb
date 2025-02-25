@@ -332,9 +332,9 @@ module DecisionReviewV1
       DecisionReview::SubmitUpload
     end
 
-    def form4142_submit_job
-      DecisionReview::Form4142Submit
-    end
+    # def form4142_submit_job
+    #   DecisionReview::Form4142Submit
+    # end
 
     def create_higher_level_review_headers(user)
       headers = {
