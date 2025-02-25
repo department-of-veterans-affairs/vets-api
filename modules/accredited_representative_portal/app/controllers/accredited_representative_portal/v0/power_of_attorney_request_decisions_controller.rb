@@ -12,7 +12,7 @@ module AccreditedRepresentativePortal
       with_options only: :create do
         before_action do
           id = params[:power_of_attorney_request_id]
-          find_poa_request(id)
+          set_poa_request(id)
         end
       end
 
