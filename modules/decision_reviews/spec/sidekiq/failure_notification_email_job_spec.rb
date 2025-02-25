@@ -2,6 +2,7 @@
 
 require './modules/decision_reviews/spec/dr_spec_helper'
 require './modules/decision_reviews/spec/support/sidekiq_helper'
+#TODO: remove line 6 when 20942 is merged
 require 'decision_review_v1/service'
 
 RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do

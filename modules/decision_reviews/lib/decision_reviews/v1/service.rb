@@ -5,10 +5,10 @@ require 'common/client/concerns/monitoring'
 require 'common/client/errors'
 require 'common/exceptions/forbidden'
 require 'common/exceptions/schema_validation_errors'
-require 'decision_review_v1/utilities/constants'
 require 'decision_review_v1/configuration'
 require 'decision_review_v1/service_exception'
-require 'decision_review_v1/appeals/supplemental_claim_services'
+require 'decision_reviews/v1/constants'
+require 'decision_reviews/v1/supplemental_claim_services'
 require 'decision_reviews/v1/logging_utils'
 
 module DecisionReviews
@@ -19,8 +19,8 @@ module DecisionReviews
     class Service < Common::Client::Base
       include SentryLogging
       include Common::Client::Concerns::Monitoring
-      include ::DecisionReviewV1::Appeals::SupplementalClaimServices
       include ::DecisionReviewV1
+      include DecisionReviews::V1::SupplementalClaimServices
       include DecisionReviews::V1::LoggingUtils
 
       STATSD_KEY_PREFIX = 'api.decision_review'
