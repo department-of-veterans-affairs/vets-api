@@ -1,9 +1,9 @@
 version: '3.4'
 services:
   redis:
-    image: public.ecr.aws/docker/library/redis:6.2-alpine
+    image: 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/redis:6.2-alpine
   postgres:
-    image: postgis/postgis:14-3.3-alpine
+    image: 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/postgis/postgis:14-3.3-alpine
     command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c max_connections=200
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
