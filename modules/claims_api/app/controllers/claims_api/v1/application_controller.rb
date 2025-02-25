@@ -233,6 +233,8 @@ module ClaimsApi
         vet.edipi = vet.edipi_mpi
         vet.participant_id = vet.participant_id_mpi
         vet.icn = vet&.mpi_icn
+        # This will cache using the ICN as the KEY in Redis now if it is present
+        vet.recache_mpi_data
         vet
       end
 

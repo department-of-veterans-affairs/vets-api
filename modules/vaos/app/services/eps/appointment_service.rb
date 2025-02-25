@@ -71,16 +71,16 @@ module Eps
 
     def build_submit_payload(params)
       payload = {
-        networkId: params[:network_id],
-        providerServiceId: params[:provider_service_id],
-        slotIds: params[:slot_ids],
+        network_id: params[:network_id],
+        provider_service_id: params[:provider_service_id],
+        slot_ids: params[:slot_ids],
         referral: {
-          referralNumber: params[:referral_number]
+          referral_number: params[:referral_number]
         }
       }
 
       if params[:additional_patient_attributes]
-        payload[:additionalPatientAttributes] = params[:additional_patient_attributes]
+        payload[:additional_patient_attributes] = params[:additional_patient_attributes]
       end
 
       payload

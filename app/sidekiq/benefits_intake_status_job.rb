@@ -134,7 +134,7 @@ class BenefitsIntakeStatusJob
     # Remove this logic after SubmissionStatusJob replaces this one
     claim = SavedClaim.find_by(id: saved_claim_id)
     context = {
-      form_id: form_id,
+      form_id:,
       claim_id: saved_claim_id,
       benefits_intake_uuid: bi_uuid
     }
@@ -161,7 +161,7 @@ class BenefitsIntakeStatusJob
   # rubocop:disable Metrics/MethodLength
   def monitor_failure(form_id, saved_claim_id, bi_uuid)
     context = {
-      form_id: form_id,
+      form_id:,
       claim_id: saved_claim_id,
       benefits_intake_uuid: bi_uuid
     }

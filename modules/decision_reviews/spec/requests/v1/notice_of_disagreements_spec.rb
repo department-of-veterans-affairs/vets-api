@@ -130,6 +130,9 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
     end
 
     it 'adds to the PersonalInformationLog when an exception is thrown and logs to StatsD and logger' do
+      allow(Flipper).to receive(:enabled?).with(:decision_review_new_engine_submit_upload_job).and_return(false)
+      expect(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(false)
+
       VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-422_V1') do
         allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(error_log_args)
