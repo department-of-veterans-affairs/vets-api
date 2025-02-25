@@ -388,11 +388,11 @@ mhv:
     app_token: xyz
     host: http://example.org
   uhd:
-    mock: true
-    security_host: https://security.example.org
-    host: https://example.org
+    mock: false
+    security_host: https://security.example.myhealth.va.gov
+    host: https://example.myhealth.va.gov
     app_id: 1000
-    app_token: xyz
+    app_token: faketoken
 
 evss:
   dvp:

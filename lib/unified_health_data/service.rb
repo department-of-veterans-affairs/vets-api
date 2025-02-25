@@ -18,12 +18,13 @@ module UnifiedHealthData
       end_date = '2024-12-31'
       path = "#{config.base_path}labs?patient-id=#{patient_id}&start-date=#{start_date}&end-date=#{end_date}"
       response = perform(:get, path, nil, { 'Authorization' => token })
+      body = JSON.parse(response.body)
 
-      vista_records = response.body.dig('vista', 'entry') || []
-      oracle_health_records = response.body.dig('oracle-health', 'entry') || []
+      vista_records = body.dig('vista', 'entry') || []
+      oracle_health_records = body.dig('oracle-health', 'entry') || []
       combined_records = vista_records + oracle_health_records
 
-      combined_records.map do |record|
+      combined_records.select{|record| record['resource']['resourceType'] == 'DiagnosticReport'}.map do |record|
         # Get the name of the first organization resource if contained exists, otherwise set to nil
         if record['resource']['contained'].nil?
           location = nil
