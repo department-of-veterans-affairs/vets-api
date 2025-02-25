@@ -11,13 +11,6 @@ RSpec.describe LighthouseStagingBRDProvider do
 
   before do
     @provider = LighthouseStagingBRDProvider.new(current_user)
-    Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
-    Flipper.enable(:disability_compensation_staging_lighthouse_brd)
-  end
-
-  after do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
-    Flipper.disable(:disability_compensation_staging_lighthouse_brd)
   end
 
   it_behaves_like 'brd provider'
