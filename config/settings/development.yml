@@ -551,8 +551,8 @@ hca:
   endpoint: https://test-foo.vets.gov
   enrollment_system:
     ee_summary:
-      host: ~
       api_key: ~
+      host: ~
   future_discharge_testing: ~
   prefill: true
   s3:

@@ -74,8 +74,8 @@ jobs:
         run: git fetch origin master
 
       - name: Check ENV diff for aws_ssm_custom lookups
+        shell: bash
         run: >
-
           new_env_keys=$(git diff origin/master config/settings.yml | \
             grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
 
@@ -105,10 +105,10 @@ jobs:
             param_names+=("$prod_ssm_param")
 
             param_names_string="${param_names[*]}"
+            
             ssm_output=$(aws ssm get-parameters --names $param_names_string --query "Parameters[*].Name")
 
             invalid_parameters+=$(echo "$ssm_output" | jq -c 'select(.InvalidParameters != null).InvalidParameters')
-
           done
 
           echo "INVALID_PARAMETERS=$invalid_parameters" >> $GITHUB_ENV

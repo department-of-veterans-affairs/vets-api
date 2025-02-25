@@ -551,8 +551,8 @@ hca:
   endpoint: <%= ENV['HCA__ENDPOINT'] %>
   enrollment_system:
     ee_summary:
-      host: ~
       api_key: ~
+      host: ~
   future_discharge_testing: <%= ENV['HCA__FUTURE_DISCHARGE_TESTING'] %>
   prefill: true
   s3:
