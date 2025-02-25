@@ -96,7 +96,7 @@ jobs:
           environments=("dev" "staging" "sandbox" "prod")
 
           # Initialize an empty string to hold all parameter names
-          param_names=""
+          param_names=()
 
           # Loop through each environment and generate SSM parameter paths
           for env in "${environments[@]}"; do
@@ -107,20 +107,24 @@ jobs:
               # Convert the ENV key to lowercase and replace '__' with '/'
               ssm_param="/dsva-vagov/vets-api/$env/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
               
-              # Append to param_names string
-              param_names="$param_names $ssm_param"
+              # Append to param_names array
+              param_names+=("$ssm_param")
             done
           done
 
           # Debugging: Show generated SSM parameter paths
           echo "Generated SSM parameters:"
-          echo "$param_names"
+          printf '%s\n' "${param_names[@]}"
 
+          # Convert array to space-separated string
+          param_names_string="${param_names[*]}"
 
           # Now, use aws ssm get-parameters to fetch all parameters at once
-          echo "Checking SSM parameters: $param_names"
-          aws ssm get-parameters --names $param_names --query "Parameters[*].Name"  |
-          echo "INVALID_PARAMETERS=$(jq -c 'select(.InvalidParameters != []).InvalidParameters')" >> $GITHUB_ENV
+          echo "Checking SSM parameters: $param_names_string"
+          ssm_output=$(aws ssm get-parameters --names $param_names_string --query "Parameters[*].Name")
+
+          # Extract invalid parameters using jq
+          invalid_parameters=$(e
 
       - name: Respond to PR if invalid parameters are found
         if: env.INVALID_PARAMETERS != ''
