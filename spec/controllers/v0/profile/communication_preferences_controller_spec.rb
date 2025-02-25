@@ -37,7 +37,7 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
       it 'returns validation error' do
         subject
 
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)['errors'][0]['title']).to eq("Id can't be blank")
       end
     end
@@ -51,7 +51,7 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
 
       it 'doesnt allow access' do
         get(:index)
-        expect(response.status).to eq(403)
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end
@@ -75,7 +75,7 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
       VCR.use_cassette('va_profile/communication/put_communication_permissions', VCR::MATCH_EVERYTHING) do
         subject
 
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to eq(
           { 'tx_audit_id' => '924b24a5-609d-48ff-ab2e-9f5ac8770e93',
             'status' => 'COMPLETED_SUCCESS',
@@ -116,7 +116,7 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
 
         subject
 
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to eq(
           { 'tx_audit_id' => '3e776301-4794-402a-8a99-67d473232b6c',
             'status' => 'COMPLETED_SUCCESS',
@@ -146,7 +146,7 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
         end
       end
 
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
 
       expect(JSON.parse(response.body)).to eq(
         {

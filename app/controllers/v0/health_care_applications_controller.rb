@@ -110,6 +110,10 @@ module V0
     end
 
     def lighthouse_facilities_service
+      if Flipper.enabled?(:hca_ez_use_facilities_v2)
+        @lighthouse_facilities_service ||= FacilitiesApi::V2::Lighthouse::Client.new
+      end
+
       @lighthouse_facilities_service ||= Lighthouse::Facilities::V1::Client.new
     end
 

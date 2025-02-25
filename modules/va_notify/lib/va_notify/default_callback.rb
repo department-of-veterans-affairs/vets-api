@@ -21,20 +21,13 @@ module VANotify
 
     def call_with_metadata
       notification_type = metadata['notification_type']
-
-      if Flipper.enabled?(:va_notify_metadata_statsd_tags)
-        tags = validate_and_normalize_statsd_tags
-      else
-        statsd_tags = metadata['statsd_tags']
-        service = statsd_tags['service']
-        function = statsd_tags['function']
-        tags = ["service:#{service}", "function:#{function}"]
-      end
+      tags = validate_and_normalize_statsd_tags
 
       case notification_record.status
       when 'delivered'
         delivered(tags) if notification_type == 'error'
-      when 'permanent-failure'
+      when 'permanent-failure', 'temporary-failure'
+        # 'temporary-failure' is an end state for the notification; VANotify API does not auto-retry these.
         permanent_failure(tags) if notification_type == 'error'
       end
     end
@@ -43,7 +36,8 @@ module VANotify
       case notification_record.status
       when 'delivered'
         delivered_without_metadata
-      when 'permanent-failure'
+      when 'permanent-failure', 'temporary-failure'
+        # 'temporary-failure' is an end state for the notification; VANotify API does not auto-retry these.
         permanent_failure_without_metadata
       end
     end

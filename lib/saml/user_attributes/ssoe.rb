@@ -251,7 +251,7 @@ module SAML
 
       def mhv_iens
         mhv_iens = mvi_ids[:mhv_iens] || []
-        mhv_iens.append(safe_attr('va_eauth_mhvuuid')).reject(&:nil?).uniq
+        mhv_iens.append(safe_attr('va_eauth_mhvuuid')).compact.uniq
       end
 
       def mhv_outbound_redirect(mismatched_ids_error)
@@ -284,7 +284,7 @@ module SAML
 
       def attribute_has_multiple_values?(attribute)
         var = safe_attr(attribute)&.split(',') || []
-        var.reject(&:nil?).uniq.size > 1
+        var.compact.uniq.size > 1
       end
 
       def csid

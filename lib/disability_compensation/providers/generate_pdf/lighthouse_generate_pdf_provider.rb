@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'disability_compensation/providers/generate_pdf/generate_pdf_provider'
+require './lib/evss/disability_compensation_form/form526_to_lighthouse_transform'
 
 class LighthouseGeneratePdfProvider
   include GeneratePdfProvider

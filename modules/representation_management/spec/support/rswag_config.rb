@@ -42,8 +42,8 @@ class RepresentationManagement::RswagConfig
     {
       accreditedIndividual: accredited_individual_schema,
       accreditedOrganization: accredited_organization_schema,
-      error: error,
-      errors: errors,
+      error:,
+      errors:,
       errorModel: error_model,
       powerOfAttorneyResponse: power_of_attorney_response,
       veteranServiceOrganization: veteran_service_organization_schema,
@@ -190,7 +190,7 @@ class RepresentationManagement::RswagConfig
         }
       }
     )
-    accredited_data_structure(data_structure_type, attributes, uuid: uuid)
+    accredited_data_structure(data_structure_type, attributes, uuid:)
   end
 
   def accredited_organization_schema
@@ -198,7 +198,8 @@ class RepresentationManagement::RswagConfig
   end
 
   def veteran_service_organization_schema
-    build_organization_schema(uuid: false)
+    optional_attributes = { can_accept_digital_poa_requests: { type: :boolean, example: true } }
+    build_organization_schema(uuid: false, optional_attributes:)
   end
 
   def common_organization_attributes
@@ -211,9 +212,9 @@ class RepresentationManagement::RswagConfig
     )
   end
 
-  def build_organization_schema(uuid: true)
-    attributes = common_organization_attributes
-    accredited_data_structure('organization', attributes, uuid: uuid)
+  def build_organization_schema(uuid: true, optional_attributes: {})
+    attributes = common_organization_attributes.merge(optional_attributes)
+    accredited_data_structure('organization', attributes, uuid:)
   end
 
   def accredited_data_structure(type, attributes, uuid: true)

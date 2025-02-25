@@ -86,7 +86,7 @@ module V0
         key :description, 'Veteran Medical Copay information for VA facilities'
       end
       tag do
-        key :name, 'Banners'
+        key :name, 'banners'
         key :description, 'VAMC Situation Update Banners'
       end
       key :host, Settings.hostname

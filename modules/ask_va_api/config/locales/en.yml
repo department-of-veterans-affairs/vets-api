@@ -66,7 +66,6 @@ en:
           - :family_members_location_of_residence
           - :is_military_base
           - :is_question_about_veteran_or_someone_else
-          - :is_veteran_deceased
           - :military_base_post_office
           - :military_base_region
           - :more_about_your_relationship_to_veteran
@@ -127,11 +126,17 @@ en:
               - :service_number
               - :ssn
             - :suffix
+            - :branch_of_service
+            - :preferred_name
+            - :service_date_range:
+              - :from
+              - :to
           about_the_veteran:
             - :date_of_birth
             - :first
             - :last
             - :middle
+            - :is_veteran_deceased
             - :social_or_service_num:
               - :service_number
               - :ssn

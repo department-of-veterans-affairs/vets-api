@@ -24,7 +24,7 @@ namespace :mockdata_synchronize do
         status: 200
       }
 
-      File.open(file_path, 'w') { |f| f.write(response.to_yaml) }
+      File.write(file_path, response.to_yaml)
     end
 
     def create_curl(icn)

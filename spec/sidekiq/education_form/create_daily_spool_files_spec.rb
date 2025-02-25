@@ -148,7 +148,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
 
     context 'with records in production', run_at: '2016-09-16 03:00:00 EDT' do
       before do
-        ENV['HOSTNAME'] = 'api.va.gov' # Mock how this is set in production
+        Settings.hostname = 'api.va.gov' # Mock how this is set in production
         application_1606.saved_claim.form = {}.to_json
         create(:va1990_western_region)
         create(:va1995_full_form)
@@ -157,7 +157,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
       end
 
       after do
-        ENV['HOSTNAME'] = nil
+        Settings.hostname = nil
       end
 
       it 'does not process the valid messages' do
@@ -311,12 +311,12 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
     it 'writes files out over sftp' do
       # we're only pushing spool files on production, b/c of issues with staging data getting into TIMS at RPO's
       allow(Rails.env).to receive(:production?).and_return(true)
-      ENV['HOSTNAME'] = 'api.va.gov'
+      Settings.hostname = 'api.va.gov'
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
       expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
 
       # any readable file will work for this spec
-      key_path = ::Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
+      key_path = Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
       with_settings(Settings.edu.sftp, host: 'localhost', key_path:) do
         sftp_session_mock = instance_double(Net::SSH::Connection::Session)
         sftp_mock = instance_double(Net::SFTP::Session, session: sftp_session_mock)

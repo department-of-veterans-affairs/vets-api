@@ -45,7 +45,7 @@ module Slack
         type: 'section',
         text: {
           type: text_type,
-          text: text
+          text:
         }
       }
     end

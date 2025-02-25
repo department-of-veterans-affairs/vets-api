@@ -10,7 +10,7 @@ module Crm
     CRM_ENV = {
       'test' => 'iris-dev',
       'development' => 'iris-dev',
-      'staging' => 'veft-qa',
+      'staging' => 'veft-preprod',
       'production' => 'iris-PROD'
     }.freeze
 
@@ -28,13 +28,20 @@ module Crm
     end
 
     def call(endpoint:, method: :get, payload: {})
-      endpoint = "#{VEIS_API_PATH}/#{endpoint}"
       organization = CRM_ENV[vsp_environment]
 
-      params = { icn:, organizationName: organization }
+      # Construct endpoint with optional query parameters
+      uri = URI.parse("#{VEIS_API_PATH}/#{endpoint}")
+      uri.query = URI.encode_www_form(organizationName: organization) if method == :put
+      endpoint = uri.to_s
 
-      response = conn(url: base_url).public_send(method, endpoint, prepare_payload(method, payload, params)) do |req|
-        req.headers = default_header.merge('Authorization' => "Bearer #{token}")
+      # Prepare request details
+      request_payload = prepare_payload(method, payload, { icn:, organizationName: organization })
+      headers = default_header.merge('Authorization' => "Bearer #{token}")
+
+      # Make the request
+      response = conn(url: base_url).public_send(method, endpoint, request_payload) do |req|
+        req.headers = headers
       end
       parse_response(response.body)
     rescue => e

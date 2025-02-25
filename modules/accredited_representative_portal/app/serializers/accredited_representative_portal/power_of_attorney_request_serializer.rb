@@ -6,16 +6,13 @@ module AccreditedRepresentativePortal
 
     attribute :power_of_attorney_form do |poa_request|
       poa_request.power_of_attorney_form.parsed_data.tap do |form|
-        claimant_key =
-          case poa_request.claimant_type
-          when PowerOfAttorneyRequest::ClaimantTypes::DEPENDENT
-            'dependent'
-          when PowerOfAttorneyRequest::ClaimantTypes::VETERAN
-            'veteran'
-          end
-
-        form['claimant'] = form.delete(claimant_key)
-        form.delete('dependent')
+        case poa_request.claimant_type
+        when PowerOfAttorneyRequest::ClaimantTypes::DEPENDENT
+          form['claimant'] = form.delete('dependent')
+        when PowerOfAttorneyRequest::ClaimantTypes::VETERAN
+          form['claimant'] = form.delete('veteran')
+          form.delete('dependent')
+        end
       end
     end
 
@@ -35,24 +32,30 @@ module AccreditedRepresentativePortal
         .serializable_hash
     end
 
-    attribute :power_of_attorney_holder do |poa_request|
-      serializer =
-        case poa_request.power_of_attorney_holder
-        when AccreditedIndividual
-          IndividualPowerOfAttorneyHolderSerializer
-        when AccreditedOrganization
-          OrganizationPowerOfAttorneyHolderSerializer
-        end
-
-      serializer
-        .new(poa_request.power_of_attorney_holder)
-        .serializable_hash
-    end
-
     attribute :accredited_individual do |poa_request|
       AccreditedIndividualSerializer
         .new(poa_request.accredited_individual)
         .serializable_hash
+    end
+
+    attribute :power_of_attorney_holder,
+              if: ->(poa_request) { poa_request.accredited_organization.present? } do |poa_request|
+      OrganizationPowerOfAttorneyHolderSerializer
+        .new(poa_request.accredited_organization)
+        .serializable_hash
+    end
+
+    attribute :power_of_attorney_form_submission,
+              if: ->(poa_request) { poa_request.accepted? } do |poa_request|
+      time = poa_request.created_at.to_i
+      status =
+        case time % 3
+        when 0 then 'PENDING'
+        when 1 then 'FAILED'
+        when 2 then 'SUCCEEDED'
+        end
+
+      { status: }
     end
   end
 end

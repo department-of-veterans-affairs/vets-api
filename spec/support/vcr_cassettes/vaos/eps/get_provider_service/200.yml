@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.wellhive.com/care-navigation/v1/provider-services/9mN718pH
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+        - application/json
+      Content-Type:
+        - application/json
+      User-Agent:
+        - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      X-Request-Id:
+        - 2b7d2bc2-cb28-42f8-900c-4ba0fdfd93d7
+      Accept-Encoding:
+        - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+        - Sat, 11 Jan 2025 23:00:44 GMT
+      Content-Type:
+        - application/json
+      Content-Length:
+        - '856'
+      Connection:
+        - keep-alive
+      Content-Security-Policy:
+        - frame-ancestors 'none'
+      Strict-Transport-Security:
+        - max-age=6307200; includeSubDomains; preload
+      Traceparent:
+        - 00-c9182a0e90280e7cc9ea83a192c1b787-51faf4890f9e96d9-01
+      X-Content-Type-Options:
+        - nosniff
+      X-Request-Id:
+        - 2b7d2bc2-cb28-42f8-900c-4ba0fdfd93d7
+      X-Wellhive-Trace-Id:
+        - c9182a0e90280e7cc9ea83a192c1b787
+    body:
+      encoding: UTF-8
+      string: '{"id":"9mN718pH","name":"Dr. Moreen S. Rafa @ FHA South Melbourne Medical
+      Complex","isActive":true,"individualProviders":[{"name":"Dr. Moreen S. Rafa","npi":"91560381x"}],"providerOrganization":{"name":"Meridian
+      Health (Sandbox 5vuTac8v)"},"location":{"name":"FHA South Melbourne Medical
+      Complex","address":"1105 Palmetto Ave, Melbourne, FL, 32901, US","latitude":28.08061,"longitude":-80.60322,"timezone":"America/New_York"},"networkIds":["sandbox-network-5vuTac8v"],"schedulingNotes":"New
+      patients need to send their previous records to the office prior to their
+      appt.","appointmentTypes":[{"id":"ov","name":"Office Visit","isSelfSchedulable":true}],"specialties":[{"id":"208800000X","name":"Urology"}],"visitMode":"phone","features":{"isDigital":true,"directBooking":{"isEnabled":true,"requiredFields":["phone","address","name","birthdate","gender"]}}}
+
+      '
+  recorded_at: Sat, 11 Jan 2025 23:00:44 GMT
+recorded_with: VCR 6.3.1

@@ -9,32 +9,30 @@ module IvcChampva
       VALID_KEYS = %w[form_uuid file_names status case_id].freeze
 
       def update_status
-        Datadog::Tracing.trace('Start PEGA Status Update') do
-          data = JSON.parse(params.to_json)
+        data = JSON.parse(params.to_json)
 
-          tags = ['service:veteran-ivc-champva-forms', 'function:form submission to Pega']
+        tags = ['service:veteran-ivc-champva-forms', 'function:form submission to Pega']
 
-          unless data.is_a?(Hash)
-            # Log the failure due to invalid JSON format
-            StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
-            render json: JSON.generate({ status: 500, error: 'Invalid JSON format: Expected a JSON object' })
-            return
+        unless data.is_a?(Hash)
+          # Log the failure due to invalid JSON format
+          StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
+          render json: JSON.generate({ status: 500, error: 'Invalid JSON format: Expected a JSON object' })
+          return
+        end
+
+        response =
+          if valid_keys?(data)
+            update_data(data['form_uuid'], data['file_names'], data['status'], data['case_id'])
+          else
+            StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
+            { json: { error_message: 'Invalid JSON keys' }, status: :bad_request }
           end
 
-          response =
-            if valid_keys?(data)
-              update_data(data['form_uuid'], data['file_names'], data['status'], data['case_id'])
-            else
-              StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
-              { json: { error_message: 'Invalid JSON keys' }, status: :bad_request }
-            end
-
-          render json: response[:json], status: response[:status]
-        rescue JSON::ParserError => e
-          # Log the JSON parsing error
-          StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
-          render json: { error_message: "JSON parsing error: #{e.message}" }, status: :internal_server_error
-        end
+        render json: response[:json], status: response[:status]
+      rescue JSON::ParserError => e
+        # Log the JSON parsing error
+        StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
+        render json: { error_message: "JSON parsing error: #{e.message}" }, status: :internal_server_error
       end
 
       private
@@ -70,6 +68,9 @@ module IvcChampva
         end
       end
 
+      # Temporary rubocop disabling due to feature flag. Will refactor this method
+      # once the functionality is demonstrated in staging.
+      # rubocop:disable Metrics/MethodLength
       def send_email(form_uuid, form)
         return if form.email_sent
 
@@ -82,8 +83,24 @@ module IvcChampva
             file_count: fetch_forms_by_uuid(form_uuid).where('file_name LIKE ?', '%supporting_doc%').count,
             pega_status: form.pega_status,
             created_at: form.created_at.strftime('%B %d, %Y'),
+            date_submitted: form.created_at.strftime('%B %d, %Y'),
             form_uuid: form.form_uuid
           }
+
+        if Flipper.enabled?(:champva_vanotify_custom_confirmation_callback, @current_user)
+          # Adds custom callback to provide logging when emails are successfully sent
+          form_data = form_data.merge(
+            { callback_klass: 'IvcChampva::EmailNotificationCallback',
+              callback_metadata: {
+                statsd_tags: { service: 'veteran-ivc-champva-forms', function: 'IVC CHAMPVA send_email' },
+                additional_context: {
+                  form_id: form.form_number,
+                  form_uuid: form.form_uuid,
+                  notification_type: 'confirmation'
+                }
+              } }
+          )
+        end
 
         ActiveRecord::Base.transaction do
           if IvcChampva::Email.new(form_data).send_email
@@ -93,6 +110,7 @@ module IvcChampva
           end
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def valid_keys?(data)
         true if VALID_KEYS.all? { |key| data.key?(key) }

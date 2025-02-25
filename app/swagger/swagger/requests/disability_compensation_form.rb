@@ -139,6 +139,7 @@ module Swagger
         operation :get do
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::BadGatewayError
+          extend Swagger::Responses::ServiceUnavailableError
           extend Swagger::Responses::ForbiddenError
 
           key :description, 'Get the separation locations from EVSS'

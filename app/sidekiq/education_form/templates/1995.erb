@@ -1,8 +1,8 @@
 <%= parse_with_template_path('header_1995') %>
 <% if @applicant.benefitAppliedFor -%>
-<%= @applicant.benefitAppliedFor&.titleize %>
+<%= header_abbreviated_form_type(@applicant.benefitAppliedFor)%>
 <% else -%>
-<%= form_benefit %>
+<%= header_abbreviated_form_type(@applicant.benefitUpdate)%>
 <% end -%>
 *START*
 VA Form 22-1995
