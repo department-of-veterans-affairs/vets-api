@@ -8,9 +8,10 @@ module PdfFill
       FORM_ID = HealthCareApplication::FORM_ID
       OFF = 'Off'
 
-      # These constants are used to map vets-json-schema payload data to the values expected by the 10-10EZ pdf form
+      # Constants used to map data from the vets-json-schema payload to the values expected
+      # by the 10-10EZ PDF form. These mappings are necessary for converting form input
+      # data into the correct format for PDF generation.
 
-      # TODO: These are also in HCA::EnrollmentEligibility::Service. Can we DRY it up?
       MARITAL_STATUS = {
         'Married' => 1,
         'Never Married' => 2,
@@ -87,6 +88,9 @@ module PdfFill
         toxicExposureEndDate
       ].freeze
 
+      # KEY constant maps the `@form_data` keys to their corresponding PDF field identifiers.
+      # These mappings are used to associate the form data with the correct PDF form field
+      # (specified by a unique key). This ensures the data is placed in the correct field when generating the PDF.
       KEY = {
         'veteranFullName' => {
           key: 'F[0].P4[0].LastFirstMiddle[0]'
@@ -426,6 +430,8 @@ module PdfFill
         }
       }.freeze
 
+      # Merge Fields - This method orchestrates the calling of all merge helper methods to
+      # process and populate @form_data with the necessary values for the PDF.
       def merge_fields(_options = {})
         merge_veteran_info
         merge_spouse_info
@@ -439,6 +445,11 @@ module PdfFill
       end
 
       private
+
+      # Merge helpers - These methods update @form_data with the required values, data types,
+      # or formatted values that the PDF fields expect. Each method processes form data,
+      # formats or maps the data appropriately, and assigns the result back to @form_data,
+      # ensuring it is in the expected format for PDF generation.
 
       def merge_veteran_info
         merge_full_name('veteranFullName')
@@ -587,10 +598,15 @@ module PdfFill
         @form_data[type] = method(method_name).call(@form_data[type])
       end
 
+      # Map helpers - These methods transform input values into the expected format required for PDF fields
+      # They **do not modify** the @form_data but return the corresponding mapped value.
+
+      # Converts a boolean input to the corresponding mapped value for checkboxes.
       def map_value_for_checkbox(input, value)
         input == true ? value : OFF
       end
 
+      # Maps a boolean value to an integer for radio button selection (1 for true, 2 for false, or 'OFF' if undefined).
       def map_radio_box_value(value)
         case value
         when true
@@ -602,6 +618,7 @@ module PdfFill
         end
       end
 
+      # Maps a boolean value to a 'YES' or 'NO' for checkbox fields.
       def map_check_box(value)
         case value
         when true
@@ -613,10 +630,16 @@ module PdfFill
         end
       end
 
+      # Format helpers - Each method takes an input value and returns a formatted version of it.
+      # These methods **do not modify** the @form_data object directly, but instead return the formatted output.
+
+      # Formats a numeric value into a currency string
       def format_currency(value)
         ActiveSupport::NumberHelper.number_to_currency(value)
       end
 
+      # Formats a date string into the format MM/DD/YYYY.
+      # If the date is in the "YYYY-MM-XX" format, it converts it to "MM/YYYY".
       def format_date(date_string)
         return if date_string.nil?
 
@@ -630,6 +653,8 @@ module PdfFill
         date.strftime('%m/%d/%Y')
       end
 
+      # Formats a full name using components like last, first, middle, and suffix.
+      # It returns the name in the format "Last, First, Middle Suffix".
       def format_full_name(full_name)
         return if full_name.blank?
 
