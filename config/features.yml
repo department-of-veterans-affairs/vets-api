@@ -80,10 +80,6 @@ features:
   caregiver1010:
     actor_type: user
     description: Enables new features while investigating 1010CG errors
-  caregiver_use_va_notify_on_submission_failure:
-    actor_type: user
-    description: Send 10-10CG submission failure email to Veteran using VANotify.
-    enable_in_development: true
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
@@ -117,24 +113,12 @@ features:
     actor_type: user
     description: Enables the registration-only path for the Health Care Application
     enable_in_development: true
-  hca_sigi_enabled:
-    actor_type: user
-    description: Enables Self-Identifying Gender Identity question for health care applicants.
-  hca_tera_branching_enabled:
-    actor_type: user
-    description: Enables branching logic for the Toxic Exposure questionset in the Health Care Application
-  hca_use_facilities_API:
-    actor_type: user
-    description: Allow list of medical care facilites to be fetched by way of the Facilities API.
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
   hca_retrieve_facilities_without_repopulating:
     actor_type: user
     description: Constrain facilities endpoint to only return existing facilities values - even if the table is empty, do not rerun the Job to populate it.
-  hca_zero_silent_failures:
-    actor_type: user
-    description: Pass callback metadata to vanotify sidekiq job
   retry_form_validation:
     actor_type: user
     description: Enables concern to retry schema validation for 10-10EZ and 10-10CG
@@ -839,9 +823,6 @@ features:
   form400247:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
-  form1010d:
-    actor_type: cookie_id
-    description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
   form1010d_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for form 10-10d (IVC CHAMPVA)
@@ -1074,6 +1055,10 @@ features:
   mhv_medical_records_new_eligibility_check:
     actor_type: user
     description: Enables/disables Medical Records new access policy eligibility check endpoint
+    enable_in_development: true
+  mhv_medical_records_update_landing_page:
+    actor_type: user
+    description: Enables/disables Medical Records new landing page content
     enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
@@ -1425,6 +1410,10 @@ features:
     actor_type: cookie_id
     description: Enables showing the pre-appointment questionnaire feature.
     enable_in_development: true
+  show_generic_debt_card_myva:
+    actor_type: user
+    description: Enables the generic debt card on My VA
+    enable_in_development: true
   show_new_refill_track_prescriptions_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/refill-track-prescriptions/
@@ -1456,15 +1445,16 @@ features:
     actor_type: user
     description: Enables the VA1010Forms enrollment system service
     enable_in_development: true
+  va1010_forms_eesummary_rest_api_enabled:
+    actor_type: user
+    description: Utilizes the Enrollment System's eeSummary REST API
+    enable_in_development: true
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
   va_notify_custom_bearer_tokens:
     actor_type: user
     description: Iterates through Settings.vanotify.service_callback_tokens for token matching
-  va_notify_metadata_statsd_tags:
-    actor_type: user
-    description: Allow statsd tags in callback metadata to be a hash or array
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
@@ -1880,6 +1870,9 @@ features:
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
+  burial_form_profile_module_enabled:
+    actor_type: user
+    description: Use the module version of the FormProfile
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
@@ -2057,6 +2050,3 @@ features:
   show_about_yellow_ribbon_program:
     actor_type: user
     description: If enabled, show additional info about the yellow ribbon program
-  vba_documents_final_status_field:
-    actor_type: user
-    description: Include final_status boolean field in Benefits Intake "show," "report," and "create" endpoint responses
