@@ -549,6 +549,10 @@ hca:
     pass: password
     user: HCASvcUsr
   endpoint: https://test-foo.vets.gov
+  enrollment_system:
+    ee_summary:
+      host: ~
+      api_key: ~
   future_discharge_testing: ~
   prefill: true
   s3:
