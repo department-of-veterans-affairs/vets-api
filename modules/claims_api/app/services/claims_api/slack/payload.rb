@@ -28,14 +28,14 @@ module ClaimsApi
 
       def to_hash
         hash = {
-          text: text,
-          username: username,
-          channel: channel,
-          icon_url: icon_url,
-          icon_emoji: icon_emoji,
-          link_names: link_names,
-          unfurl_links: unfurl_links,
-          blocks: blocks
+          text:,
+          username:,
+          channel:,
+          icon_url:,
+          icon_emoji:,
+          link_names:,
+          unfurl_links:,
+          blocks:
         }
 
         hash.delete_if { |_, v| v.nil? }
