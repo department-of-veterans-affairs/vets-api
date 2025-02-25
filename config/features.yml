@@ -117,15 +117,6 @@ features:
     actor_type: user
     description: Enables the registration-only path for the Health Care Application
     enable_in_development: true
-  hca_sigi_enabled:
-    actor_type: user
-    description: Enables Self-Identifying Gender Identity question for health care applicants.
-  hca_tera_branching_enabled:
-    actor_type: user
-    description: Enables branching logic for the Toxic Exposure questionset in the Health Care Application
-  hca_use_facilities_API:
-    actor_type: user
-    description: Allow list of medical care facilites to be fetched by way of the Facilities API.
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
@@ -1075,6 +1066,10 @@ features:
     actor_type: user
     description: Enables/disables Medical Records new access policy eligibility check endpoint
     enable_in_development: true
+  mhv_medical_records_update_landing_page:
+    actor_type: user
+    description: Enables/disables Medical Records new landing page content
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
@@ -1424,6 +1419,10 @@ features:
   show_healthcare_experience_questionnaire:
     actor_type: cookie_id
     description: Enables showing the pre-appointment questionnaire feature.
+    enable_in_development: true
+  show_generic_debt_card_myva:
+    actor_type: user
+    description: Enables the generic debt card on My VA
     enable_in_development: true
   show_new_refill_track_prescriptions_page:
     actor_type: user
@@ -1880,6 +1879,9 @@ features:
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
+  burial_form_profile_module_enabled:
+    actor_type: user
+    description: Use the module version of the FormProfile
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
