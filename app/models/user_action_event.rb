@@ -6,8 +6,4 @@ class UserActionEvent < ApplicationRecord
   validates :details, presence: true
   validates :identifier, presence: true, uniqueness: true
   validates :event_type, presence: true
-
-  def self.event_types
-    %w[authentication]
-  end
 end

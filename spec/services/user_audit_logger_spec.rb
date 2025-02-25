@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe UserAuditLogger do
   describe '#perform' do
     let(:user_action_event) { create(:user_action_event) }
+    let(:user_action_event_identifier) { user_action_event&.identifier }
     let(:user_action) { create(:user_action, user_action_event:) }
     let(:acting_user_verification) { create(:user_verification) }
     let(:subject_user_verification) { create(:user_verification) }
@@ -13,7 +14,7 @@ RSpec.describe UserAuditLogger do
     let(:status) { :initial }
     let(:logger) do
       described_class.new(
-        user_action_event:,
+        user_action_event_identifier:,
         acting_user_verification:,
         subject_user_verification:,
         status:,
@@ -44,14 +45,28 @@ RSpec.describe UserAuditLogger do
       end
 
       it 'creates a rails log' do
-        logger.perform
-
-        user_action = UserAction.last
+        user_action = logger.perform
         expected_audit_log_payload = { user_action_event: user_action_event.id,
                                        user_action_event_details: user_action_event.details,
                                        status: :initial,
                                        user_action: user_action.id }
         expect(Rails.logger).to have_received(:info).with(expected_audit_log, expected_audit_log_payload)
+      end
+
+      context 'when acting_user_verification is nil' do
+        let(:acting_user_verification) { nil }
+
+        it 'lists the subject_user_verification as the acting_user_verification' do
+          user_action = logger.perform
+          expect(user_action.subject_user_verification).to eq(subject_user_verification)
+        end
+      end
+
+      context 'when acting_user_verification is provided' do
+        it 'uses the provided acting_user_verification' do
+          user_action = logger.perform
+          expect(user_action.acting_user_verification).to eq(acting_user_verification)
+        end
       end
     end
 
@@ -65,8 +80,8 @@ RSpec.describe UserAuditLogger do
         end
       end
 
-      context 'when user_action_event is nil' do
-        let(:user_action_event) { nil }
+      context 'when user_action_event_identifier is nil' do
+        let(:user_action_event_identifier) { nil }
         let(:expected_error) { 'User action event must be present' }
 
         it_behaves_like 'error logging'
@@ -86,14 +101,17 @@ RSpec.describe UserAuditLogger do
         it_behaves_like 'error logging'
       end
 
-      context 'when required parameter is not provided' do
+      context 'when one or more required parameters are not provided' do
+        let(:expected_error) { 'missing keywords: :status, :acting_user_agent' }
+
         it 'raises an argument error' do
           expect do
             described_class.new(
-              user_action_event:,
-              subject_user_verification:
+              user_action_event_identifier:,
+              subject_user_verification:,
+              acting_ip_address:
             )
-          end.to raise_error(ArgumentError, /missing keywords: :acting_user_verification/)
+          end.to raise_error(ArgumentError, expected_error)
         end
       end
     end
