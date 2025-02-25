@@ -75,31 +75,47 @@ jobs:
 
       - name: Check ENV diff for aws_ssm_custom lookups
         run: >
+          # Extract new ENV keys from git diff
           new_env_keys=$(git diff origin/master config/settings.yml | \
             grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
 
+          # Debugging: Show extracted keys
+          echo "Extracted ENV keys:"
           echo "$new_env_keys"
+
+          # Convert new_env_keys into an array, removing single quotes
           mapfile -t keys < <(echo "$new_env_keys" | sed "s/'//g")
 
+          # Debugging: Check if keys array is populated
+          if [[ ${#keys[@]} -eq 0 ]]; then
+            echo "No new ENV keys found in config/settings.yml."
+            exit 0
+          fi
 
+          # Define the environments
           environments=("dev" "staging" "sandbox" "prod")
-          
+
           # Initialize an empty string to hold all parameter names
           param_names=""
 
           # Loop through each environment and generate SSM parameter paths
           for env in "${environments[@]}"; do
             echo "Generating SSM parameters for environment: $env"
+            
             # Loop through each new ENV key
             for key in "${keys[@]}"; do
-              # Ensure key is correctly trimmed and no extra spaces/newlines
-              key=$(echo "$key" | xargs)  # Remove leading/trailing whitespace
-
-              # Convert the ENV key to the corresponding SSM path
+              # Convert the ENV key to lowercase and replace '__' with '/'
               ssm_param="/dsva-vagov/vets-api/$env/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
+              
+              # Append to param_names string
               param_names="$param_names $ssm_param"
             done
           done
+
+          # Debugging: Show generated SSM parameter paths
+          echo "Generated SSM parameters:"
+          echo "$param_names"
+
 
           # Now, use aws ssm get-parameters to fetch all parameters at once
           echo "Checking SSM parameters: $param_names"
