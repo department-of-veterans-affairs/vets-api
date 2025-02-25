@@ -8,10 +8,14 @@ module Ccra
     class CcraLogging < Common::Middleware::BaseLogging
       private
 
+      # Returns the configuration for the CCRA service.
+      # @return [Ccra::Configuration] the CCRA configuration instance.
       def config
         @config ||= Ccra::Configuration.instance
       end
 
+      # Returns the StatsD key prefix for CCRA.
+      # @return [String] the StatsD key prefix.
       def statsd_key_prefix
         'api.ccra.response'
       end
