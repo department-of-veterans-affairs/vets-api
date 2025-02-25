@@ -49,11 +49,13 @@ FactoryBot.define do
   factory :bd_lh_evidence_submission_failed_type1_error, class: 'EvidenceSubmission' do
     association :user_account, factory: :user_account
     created_at { DateTime.now.utc }
+    failed_date { 1.day.ago }
     job_class { 'Lighthouse::BenefitsDocuments::Service' }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
     failed_date { DateTime.now.utc }
     acknowledgement_date { DateTime.now.utc + 30.days }
     error_message { 'Lighthouse::EvidenceSubmissions::DocumentUpload document upload failure' }
+    request_id { '1234' }
     template_metadata do
       { 'personalisation' => {
         'first_name' => 'test',
