@@ -50,7 +50,8 @@ module AccreditedRepresentativePortal
     module Metric
       BASE = 'arp.api'
       ALL = [
-        POA = "#{BASE}.poa".freeze
+        POA = "#{BASE}.poa".freeze,
+        POA_DECISION_TIME = "#{POA}.decision_time".freeze
       ].freeze
     end
   end

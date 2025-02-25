@@ -36,15 +36,14 @@ module AccreditedRepresentativePortal
           )
         end
 
-        track_request(
-          'Decision made',
-          tags: [
-            "poa:#{@poa_request.id}",
-            Monitoring::Tag::Operation::DECISION_MADE,
-            "decision:#{type}",
-            "reason:#{reason}"
-          ]
-        )
+        if @poa_request.created_at.present? && Time.current >= @poa_request.created_at
+          decision_time_ms = (Time.current - @poa_request.created_at) * 1000
+          StatsD.timing(Monitoring::Metric::POA_DECISION_TIME, decision_time_ms, tags: [
+                          "poa:#{@poa_request.id}", "decision:#{type}", "reason:#{reason}"
+                        ])
+        else
+          Rails.logger.warn("POA request #{@poa_request.id} has an invalid created_at timestamp.")
+        end
         render json: {}, status: :ok
       end
 
