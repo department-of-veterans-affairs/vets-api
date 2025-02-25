@@ -4,7 +4,7 @@ module AccreditedRepresentativePortal
   class RepresentativeUserAccount < UserAccount
     def set_email(email)
       @email.blank? or
-        raise ArgumentError, "Must not reset user email"
+        raise ArgumentError, 'Must not reset user email'
 
       @email = email
     end
@@ -17,6 +17,7 @@ module AccreditedRepresentativePortal
     def registration_number(power_of_attorney_holder_type)
       registrations.each do |registration|
         next unless registration.power_of_attorney_holder_type == power_of_attorney_holder_type
+
         return registration.accredited_individual_registration_number
       end
 
@@ -27,7 +28,7 @@ module AccreditedRepresentativePortal
 
     def registrations
       @email.present? or
-        raise ArgumentError, "Must set user email"
+        raise ArgumentError, 'Must set user email'
 
       @registrations ||=
         UserAccountAccreditedIndividual.for_user_account_email(
@@ -58,8 +59,8 @@ module AccreditedRepresentativePortal
     def get_organizations(representative_id)
       representative =
         Veteran::Service::Representative
-          .veteran_service_officers
-          .find_by(representative_id:)
+        .veteran_service_officers
+        .find_by(representative_id:)
 
       return [] if representative.nil?
 
@@ -78,4 +79,3 @@ module AccreditedRepresentativePortal
     end
   end
 end
-

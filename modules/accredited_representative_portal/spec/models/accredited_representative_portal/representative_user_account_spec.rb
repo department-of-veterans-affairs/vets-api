@@ -78,7 +78,7 @@ module AccreditedRepresentativePortal
 
       context 'without a user email set' do
         let(:user_email) { nil }
-        let(:power_of_attorney_holder_type) { 'veteran_service_organization'}
+        let(:power_of_attorney_holder_type) { 'veteran_service_organization' }
 
         it 'raises ArgumentError' do
           expect { subject }.to raise_error(ArgumentError)
@@ -97,13 +97,13 @@ module AccreditedRepresentativePortal
         end
 
         context 'without matching POA holder type' do
-          let(:power_of_attorney_holder_type) { 'asdf'}
+          let(:power_of_attorney_holder_type) { 'asdf' }
 
           it { is_expected.to be_nil }
         end
 
         context 'with matching POA holder type' do
-          let(:power_of_attorney_holder_type) { 'veteran_service_organization'}
+          let(:power_of_attorney_holder_type) { 'veteran_service_organization' }
 
           it { is_expected.to eq(registration.accredited_individual_registration_number) }
         end
