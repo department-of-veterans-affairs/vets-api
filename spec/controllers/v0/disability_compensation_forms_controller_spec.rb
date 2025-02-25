@@ -14,37 +14,9 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
   end
 
   describe '#separation_locations' do
-    context 'evss' do
-      before do
-        Flipper.disable('disability_compensation_lighthouse_brd')
-        Flipper.disable('disability_compensation_staging_lighthouse_brd')
-      end
-
-      it 'returns separation locations' do
-        VCR.use_cassette('evss/reference_data/get_intake_sites') do
-          get(:separation_locations)
-          expect(JSON.parse(response.body)['separation_locations'].present?).to be(true)
-        end
-      end
-
-      it 'uses the cached response on the second request' do
-        VCR.use_cassette('evss/reference_data/get_intake_sites') do
-          2.times do
-            get(:separation_locations)
-            expect(response).to have_http_status(:ok)
-          end
-        end
-      end
-    end
-
     context 'lighthouse' do
       before do
-        Flipper.enable('disability_compensation_lighthouse_brd')
-        Flipper.disable('disability_compensation_staging_lighthouse_brd')
-      end
-
-      after(:all) do
-        Flipper.disable('disability_compensation_lighthouse_brd')
+        allow(Settings).to receive(:vsp_environment).and_return('production')
       end
 
       it 'returns separation locations' do
@@ -66,13 +38,7 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
 
     context 'lighthouse staging' do
       before do
-        Flipper.enable('disability_compensation_lighthouse_brd')
-        Flipper.enable('disability_compensation_staging_lighthouse_brd')
-      end
-
-      after(:all) do
-        Flipper.disable('disability_compensation_lighthouse_brd')
-        Flipper.disable('disability_compensation_staging_lighthouse_brd')
+        allow(Settings).to receive(:vsp_environment).and_return('staging')
       end
 
       it 'returns separation locations' do

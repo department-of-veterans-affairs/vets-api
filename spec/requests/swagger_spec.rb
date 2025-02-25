@@ -1173,9 +1173,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         # TODO: remove Flipper feature toggle when lighthouse provider is implemented
         Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider_foreground')
         Flipper.disable('disability_compensation_prevent_submission_job')
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
         Flipper.disable('disability_compensation_production_tester')
-        Flipper.disable(:disability_compensation_staging_lighthouse_brd)
       end
 
       let(:form526v2) do
@@ -1236,10 +1234,13 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'supports getting separation_locations' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 401)
-        VCR.use_cassette('evss/reference_data/get_intake_sites_500') do
+        VCR.use_cassette('brd/separation_locations_502') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 502, headers)
         end
-        VCR.use_cassette('evss/reference_data/get_intake_sites') do
+        VCR.use_cassette('brd/separation_locations_503') do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 503, headers)
+        end
+        VCR.use_cassette('brd/separation_locations') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 200, headers)
         end
       end

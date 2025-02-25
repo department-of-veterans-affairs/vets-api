@@ -83,9 +83,6 @@ features:
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
-  disability_compensation_staging_lighthouse_brd:
-    actor_type: user
-    description: Switches to Lighthouse Staging BRD Service. NEVER ENABLE IN PRODUCTION.
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -489,6 +486,9 @@ features:
   decision_review_new_engine_submit_upload_job:
     actor_type: user
     description: Enable to switch to new modularized Decision Review SubmitUpload job
+  decision_review_service_common_exceptions_enabled:
+    actor_type: user
+    description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -823,14 +823,11 @@ features:
   form400247:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
-  form1010d:
-    actor_type: cookie_id
-    description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
   form1010d_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for form 10-10d (IVC CHAMPVA)
   form107959c:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
   form107959a:
     actor_type: user
@@ -1758,12 +1755,6 @@ features:
   disability_compensation_remove_pciu:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)
-  disability_compensation_lighthouse_brd:
-    actor_type: user
-    description: If enabled uses the lighthouse Benefits Reference Data service
-  disability_compensation_lighthouse_generate_pdf:
-    actor_type: user
-    description: If enabled uses the lighthouse Benefits Claims service to generate a 526 pdf
   disability_compensation_use_api_provider_for_bdd_instructions:
     actor_type: user
     description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading BDD instructions
