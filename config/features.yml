@@ -716,6 +716,10 @@ features:
     actor_type: user
     description: Enables form 21-0966 email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_0966_confirmation_page:
+    actor_type: user
+    description: Enables form 21-0966 new confirmation page
+    enable_in_development: true
   form21_0972_confirmation_email:
     actor_type: user
     description: Enables form 21-0972 email submission confirmation (VaNotify)
@@ -1530,6 +1534,9 @@ features:
   va_dependents_v2:
     actor_type: user
     description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
+  va_dependents_v2_banner:
+    actor_type: user
+    description: Allows us to toggle a form maintenance banner on the V1 form for pre-launch.
   va_dependents_new_fields_for_pdf:
     actor_typer: user
     description: Allows us to toggle the new fields on the front end for 686C-674
@@ -2029,6 +2036,9 @@ features:
   is_updated_gi:
     actor_type: user
     description: If enabled, use updated gi design
+  gi_ct_collab: 
+    actor_type: user
+    description: If enabled, use VEBT/EDM team GI Comparison Tool homepage
   show_rudisill_1995:
     actor_type: user
     description: If enabled, show rudisill review in 22-1995
