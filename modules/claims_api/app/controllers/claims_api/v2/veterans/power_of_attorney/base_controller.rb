@@ -95,7 +95,7 @@ module ClaimsApi
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
-          unless disable_jobs? || @rep_id.nil?
+          unless disable_jobs?
             ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number,
                                                            'post', @rep_id)
           end
