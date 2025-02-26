@@ -90,10 +90,9 @@ module BGSDependents
     end
 
     def generate_address(address)
-      is_v2 = Flipper.enabled?(:va_dependents_v2)
       # BGS will throw an error if we pass in a military postal code in for state
       if MILITARY_POST_OFFICE_TYPE_CODES.include?(address['city'])
-        address['military_postal_code'] = is_v2 ? address.delete('state') : address.delete('state_code')
+        address['military_postal_code'] = v2? ? address.delete('state') : address.delete('state_code')
         address['military_post_office_type_code'] = address.delete('city')
       end
 
@@ -107,8 +106,7 @@ module BGSDependents
 
     # BGS will not accept address lines longer than 20 characters
     def adjust_address_lines_for!(address:)
-      is_v2 = Flipper.enabled?(:va_dependents_v2)
-      all_lines = if is_v2
+      all_lines = if v2?
                     "#{address['street']} #{address['street2']} #{address['street3']}"
                   else
                     "#{address['address_line1']} #{address['address_line2']} #{address['address_line3']}"
@@ -123,8 +121,6 @@ module BGSDependents
     # rubocop:disable Metrics/MethodLength
     # This method converts ISO 3166-1 Alpha-3 country codes to ISO 3166-1 country names.
     def adjust_country_name_for!(address:)
-      is_v2 = Flipper.enabled?(:va_dependents_v2)
-
       # international postal code is only in v1, return if country is usa in v2
       return if address['international_postal_code'].blank? || address['country'] == 'USA'
 
@@ -156,14 +152,14 @@ module BGSDependents
           IsoCountryCodes.find(country_name).name
         end
 
-      address['country'] = address['country_name'] if is_v2
+      address['country'] = address['country_name'] if v2?
       address
     end
     # rubocop:enable Metrics/MethodLength
 
     # rubocop:disable Metrics/MethodLength
     def create_address_params(proc_id, participant_id, payload)
-      is_v2 = Flipper.enabled?(:va_dependents_v2)
+      is_v2 = v2?
       address = generate_address(payload)
 
       {
