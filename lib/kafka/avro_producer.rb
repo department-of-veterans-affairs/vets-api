@@ -1,26 +1,19 @@
 # frozen_string_literal: true
 
-require 'avro_turf/messaging'
+require 'avro'
 require 'kafka/producer_manager'
 
 module Kafka
   class AvroProducer
-    attr_reader :producer, :avro
+    attr_reader :producer
 
-    def initialize(producer: nil, avro: nil)
+    def initialize(producer: nil)
       @producer = producer || Kafka::ProducerManager.instance.producer
-      @avro = avro || AvroTurf::Messaging.new(registry_url: Settings.kafka_producer.schema_registry_url)
     end
 
     def produce(topic, payload, schema_version: 1)
-      # avro_turf.encode(payload, schema_name: 'test', validate: true)
-      encoded_payload = avro.encode(
-        payload,
-        subject: "#{topic}-value",
-        version: schema_version,
-        validate: true
-      )
-
+      schema = get_schema(topic, schema_version)
+      encoded_payload = encode_payload(schema, payload)
       producer.produce_sync(topic:, payload: encoded_payload)
     rescue => e
       # https://karafka.io/docs/WaterDrop-Error-Handling/
@@ -30,6 +23,31 @@ module Kafka
     end
 
     private
+
+    def get_schema(topic, schema_version)
+      schema_path = Rails.root.join('lib', 'kafka', 'schemas', "#{topic}-value-#{schema_version}.avsc")
+      Avro::Schema.parse(File.read(schema_path))
+    end
+
+    def encode_payload(schema, payload)
+      validate_payload!(schema, payload)
+
+      datum_writer = Avro::IO::DatumWriter.new(schema)
+      buffer = StringIO.new
+      encoder = Avro::IO::BinaryEncoder.new(buffer)
+      datum_writer.write(payload, encoder)
+      avro_payload = buffer.string
+
+      # Add magic byte and schema ID to the payload
+      magic_byte = [0].pack('C')
+      # NOTE: This is a placeholder schema ID. In a real-world scenario, this should be fetched from a schema registry
+      schema_id_bytes = [1].pack('N') # should be schema id
+      magic_byte + schema_id_bytes + avro_payload
+    end
+
+    def validate_payload!(schema, payload)
+      Avro::SchemaValidator.validate!(schema, payload)
+    end
 
     def log_error(error, topic)
       case error

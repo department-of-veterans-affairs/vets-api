@@ -81,7 +81,7 @@ sign_in:
   vaweb_client_id: vaweb
   vamobile_client_id: vamobile
   arp_client_id: arp
-  user_info_clients: ['okta_test']
+  user_info_clients: ["okta_test"]
   sts_client:
     base_url: http://localhost:3000
     key_path: spec/fixtures/sign_in/sts_client.pem
@@ -1318,7 +1318,6 @@ vanotify:
     ivc_forms: ivc_forms_token
     benefits_disability: benefits_disability_token
 
-
 # Settings for connecting AFS Veteran Services
 # For locahost we can use the existing certs as long as we don't call out
 dgi:
@@ -1768,7 +1767,7 @@ banners:
   drupal_url: https://test.cms.va.gov/
 
 kafka_producer:
-  broker_urls: ["localhost:19092"] # for local Kafka cluster in Docker
+  broker_urls: <%= ENV['KAFKA_PRODUCER__BROKER_URLS'] %>
   aws_region: "us-gov-west-1"
-  aws_role_arn: "arn:aws:iam::123456789012:role/role-name" # this is an example
-  schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
+  aws_role_arn: <%= ENV['KAFKA_PRODUCER__AWS_ROLE_ARN'] %>
+  schema_registry_url: <%= ENV['KAFKA_PRODUCER__SCHEMA_REGISTRY_URL'] %>

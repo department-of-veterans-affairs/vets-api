@@ -1,0 +1,11 @@
+{
+  "type": "record",
+  "name": "test",
+  "fields": [
+    {
+      "name": "data",
+      "type": { "type": "map", "values": "string" },
+      "default": {}
+    }
+  ]
+}

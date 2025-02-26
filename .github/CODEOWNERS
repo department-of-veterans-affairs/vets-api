@@ -607,7 +607,7 @@ app/uploaders/form1010cg @department-of-veterans-affairs/vfs-10-10 @department-o
 app/uploaders/form1010cg/poa_uploader.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/uploaders/form_upload @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/uploaders/hca_attachment_uploader.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/uploaders/lighthouse_document_uploader_base.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin 
+app/uploaders/lighthouse_document_uploader_base.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 app/uploaders/lighthouse_document_uploader.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 app/uploaders/preneed_attachment_uploader.rb @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/uploaders/set_aws_config.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1344,7 +1344,6 @@ spec/fixtures/json/get_active_rxs.json @department-of-veterans-affairs/vfs-mhv-m
 spec/fixtures/json/get_determination_not_eligible.json @department-of-veterans-affairs/vfs-mhv-medications
 spec/fixtures/json/get_history_rxs.json @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/fixtures/json/post_refill_error.json @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/fixtures/kafka @department-of-veterans-affairs/ves-submission-traceability @department-of-veterans-affairs/backend-review-group
 spec/fixtures/logingov @department-of-veterans-affairs/octo-identity
 spec/fixtures/logingov/logingov_oauth_pub.pem @department-of-veterans-affairs/octo-identity
 spec/fixtures/map @department-of-veterans-affairs/octo-identity
@@ -2223,7 +2222,6 @@ spec/support/vcr_cassettes/virtual_agent @department-of-veterans-affairs/vfs-vir
 spec/support/vcr_cassettes/virtual_regional_office @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/chip @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_multipart_matcher_helper.rb @department-of-veterans-affairs/backend-review-group
-spec/support/vcr_webmock_patch.rb @department-of-veterans-affairs/ves-submission-traceability @department-of-veterans-affairs/backend-review-group
 spec/support/vcr.rb @department-of-veterans-affairs/backend-review-group
 spec/swagger_helper.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/uploaders/evss_claim_document_uploader_base_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
