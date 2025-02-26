@@ -15,6 +15,7 @@ module ClaimsApi
     end
 
     def get_fault_info
+      byebug
       fault = @hash&.dig('Envelope', 'Body', 'Fault')
       @fault_code = fault&.dig('faultcode')&.split(':')&.dig(1)
       @fault_string = fault&.dig('faultstring')

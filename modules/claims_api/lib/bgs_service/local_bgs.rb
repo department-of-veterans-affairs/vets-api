@@ -171,6 +171,7 @@ module ClaimsApi
                               detail: "local BGS Faraday Timeout: #{e.message}")
         raise ::Common::Exceptions::BadGateway
       end
+      byebug
       soap_error_handler.handle_errors(response) if response.status != 200
 
       log_duration(event: 'parsed_response', key:) do

@@ -33,7 +33,7 @@ module ClaimsApi
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <data:CorpPtcpntIdFormTypeCode>
           <veteranCorpPtcpntId>#{ptcpnt_id}</veteranCorpPtcpntId>
-          <formTypeCode>#{type_code}</formTypeCode>
+          <formTypeCode>21-22A</formTypeCode>
         </data:CorpPtcpntIdFormTypeCode>
       EOXML
 
@@ -41,7 +41,7 @@ module ClaimsApi
                          action: 'readAllVeteranRepresentatives', body:,
                          key: 'VeteranRepresentativeReturnList',
                          transform_response: false) || []
-
+byebug
       [ret].flatten
     end
 

@@ -64,7 +64,7 @@ module ClaimsApi
         end
 
         def decide # rubocop:disable Metrics/MethodLength
-          lighthouse_id = params[:lh_id]
+          lighthouse_id = params[:id]
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
 
@@ -101,7 +101,7 @@ module ClaimsApi
           if decision == 'declined'
             send_declined_notification(ptcpnt_id:, first_name:, representative_id:)
           else
-            ClaimsApi::V2::PoaAutoEstablishment.new.perform(proc_id,
+            ClaimsApi::V2::PoaAutoEstablishment::MapData.new.perform(proc_id,
               request.poa_code,
               request.metadata, 
               vet_ptcpnt_id, 

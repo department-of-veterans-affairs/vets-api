@@ -6,14 +6,22 @@ module ClaimsApi
       def data_object(proc_id, records)
         rec = find_record(proc_id, records)
 
+        unless rec
+          raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+            detail: "Could not retrieve Power of Attorney with procId: #{proc_id}"
+          )
+        end
+
         build_data_object(rec)
       end
 
       def find_record(proc_id, records)
+        byebug
         records.find { |record| record['procId'] == proc_id}
       end
 
       def build_data_object(data)
+        byebug
         {
           service_number: data["serviceNumber"],
           insurance_numbers: data['insuranceNumbers'],
