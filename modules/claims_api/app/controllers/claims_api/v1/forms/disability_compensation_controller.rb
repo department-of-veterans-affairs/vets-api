@@ -4,7 +4,6 @@ require 'evss/disability_compensation_form/service'
 require 'evss/disability_compensation_form/dvp/service'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/error_middleware'
-require 'evss/reference_data/service'
 require 'common/exceptions'
 require 'jsonapi/parser'
 require 'evss_service/base' # docker container

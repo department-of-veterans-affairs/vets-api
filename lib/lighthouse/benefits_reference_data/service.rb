@@ -7,6 +7,7 @@ require 'common/exceptions/forbidden'
 require 'common/exceptions/schema_validation_errors'
 require 'lighthouse/benefits_reference_data/configuration'
 require 'lighthouse/benefits_reference_data/service_exception'
+require 'lighthouse/service_exception'
 
 module BenefitsReferenceData
   ##
@@ -35,7 +36,12 @@ module BenefitsReferenceData
       begin
         response = perform :get, path, params, headers
       rescue => e
-        raise BenefitsReferenceData::ServiceException.new(e), 'Lighthouse Error'
+        raise Lighthouse::ServiceException.send_error(
+          e,
+          self.class.to_s.underscore,
+          '',
+          path
+        )
       end
       response
     end

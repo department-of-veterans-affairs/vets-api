@@ -76,20 +76,8 @@ RSpec.describe ApiProviderFactory do
   end
 
   context 'intent_to_file' do
-    it 'provides an EVSS intent to file provider' do
-      expect(provider(:evss).class).to equal(EvssIntentToFileProvider)
-    end
-
     it 'provides a Lighthouse intent to file provider' do
       expect(provider(:lighthouse).class).to equal(LighthouseIntentToFileProvider)
-    end
-
-    it 'provides intent to file provider based on Flipper' do
-      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE)
-      expect(provider.class).to equal(LighthouseIntentToFileProvider)
-
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE)
-      expect(provider.class).to equal(EvssIntentToFileProvider)
     end
 
     it 'throw error if provider unknown' do
@@ -104,7 +92,7 @@ RSpec.describe ApiProviderFactory do
         provider: api_provider,
         options: {},
         current_user:,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE
+        feature_toggle: nil
       )
     end
   end
@@ -132,20 +120,8 @@ RSpec.describe ApiProviderFactory do
   end
 
   context 'ppiu direct deposit' do
-    it 'provides an evss ppiu provider' do
-      expect(provider(:evss).class).to equal(EvssPPIUProvider)
-    end
-
     it 'provides a Lighthouse ppiu direct deposit provider' do
       expect(provider(:lighthouse).class).to equal(LighthousePPIUProvider)
-    end
-
-    it 'provides ppiu direct deposit provider based on Flipper' do
-      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
-      expect(provider.class).to equal(LighthousePPIUProvider)
-
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
-      expect(provider.class).to equal(EvssPPIUProvider)
     end
 
     it 'throw error if provider unknown' do
@@ -160,36 +136,24 @@ RSpec.describe ApiProviderFactory do
         provider: api_provider,
         options: {},
         current_user:,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT
+        feature_toggle: nil
       )
     end
   end
 
   context 'brd' do
-    def provider(api_provider = nil)
+    def provider(api_provider = :lighthouse)
       ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:brd],
         provider: api_provider,
         options: {},
         current_user:,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_BRD
+        feature_toggle: nil
       )
-    end
-
-    it 'provides an EVSS brd provider' do
-      expect(provider(:evss).class).to equal(EvssBRDProvider)
     end
 
     it 'provides a Lighthouse brd provider' do
       expect(provider(:lighthouse).class).to equal(LighthouseBRDProvider)
-    end
-
-    it 'provides brd provider based on Flipper' do
-      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
-      expect(provider.class).to equal(LighthouseBRDProvider)
-
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
-      expect(provider.class).to equal(EvssBRDProvider)
     end
 
     it 'throw error if provider unknown' do

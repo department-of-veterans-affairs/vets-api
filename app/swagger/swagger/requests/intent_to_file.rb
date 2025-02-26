@@ -24,33 +24,6 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/intent_to_file/{type}/active' do
-        operation :get do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Get the current active Intent To File if the veteran has one'
-          key :operationId, 'getIntentToFileActive'
-          key :tags, %w[form_526]
-
-          parameter :authorization
-
-          parameter do
-            key :name, :type
-            key :in, :path
-            key :description, 'ITF type. Allowed values: compensation'
-            key :required, true
-            key :type, :string
-          end
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :$ref, :IntentToFile
-            end
-          end
-        end
-      end
-
       swagger_path '/v0/intent_to_file/{type}' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
