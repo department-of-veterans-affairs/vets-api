@@ -68,6 +68,8 @@ module VBADocuments
 
     def healthcheck
       s3_heathy = s3_is_healthy?
+  
+      # Send out a slack notification if s3 is down and we have not already recently slack notified
       if !s3_heathy && elapsed_seconds_since_last_slack_notify > SLACK_NOTIFICATION_LIMIT_SECONDS
         begin
           slack_details = {
@@ -75,7 +77,10 @@ module VBADocuments
             warning: "#{TRAFFIC_LIGHT_EMOJI} Benefits Intake healthcheck failed: unable to connect to AWS S3 bucket."
           }
           VBADocuments::Slack::Messenger.new(slack_details).notify!
+
+          # save the timestamp of the last slack notification
           Rails.cache.write(LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
+
         rescue => e
           Rails.logger.error("Benefits Intake S3 failed Healthcheck slack notification failed: #{e.message}", e)
         end
@@ -100,7 +105,9 @@ module VBADocuments
 
     def elapsed_seconds_since_last_slack_notify
       last_slack_notify_ts = Rails.cache.read(LAST_SLACK_NOTIFICATION_TS)
-      Time.zone.now - (last_slack_notify_ts.nil? ? Time.zone.now : Time.zone.at(last_slack_notify_ts))
+      return Float::MAX  if last_slack_notify_ts.nil?
+
+      Time.zone.now - Time.zone.at(last_slack_notify_ts)
     end
 
     def upstream_healthcheck

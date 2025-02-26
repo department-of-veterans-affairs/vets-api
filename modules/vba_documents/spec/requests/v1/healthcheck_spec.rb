@@ -8,7 +8,13 @@ RSpec.describe 'VBADocument::V1::Healthcheck', type: :request do
     context 'v1' do
       let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
       let(:cache) { Rails.cache }
-      
+
+      before do
+        allow(Rails).to receive(:cache).and_return(memory_store)
+        Rails.cache.clear
+      end
+
+
       it 'returns a successful health check' do
         s3_client = instance_double(Aws::S3::Client)
         allow(s3_client).to receive(:head_bucket).with(anything).and_return(true)
@@ -50,6 +56,9 @@ RSpec.describe 'VBADocument::V1::Healthcheck', type: :request do
         expect(parsed_response['description']).to eq('VBA Documents API health check')
         expect(parsed_response['status']).to eq('fail')
         expect(parsed_response['time']).not_to be_nil
+        
+        # confirm that the above slack notification had it's send timestamp recorded in the cache 
+        expect(Rails.cache.read(VBADocuments::MetadataController::LAST_SLACK_NOTIFICATION_TS)).to be_within(0.01).of(Time.zone.now.to_i)
       end
 
       it 'returns a failed health check when slack is down' do
@@ -81,6 +90,30 @@ RSpec.describe 'VBADocument::V1::Healthcheck', type: :request do
         expect(parsed_response['status']).to eq('fail')
         expect(parsed_response['time']).not_to be_nil
       end
+
+      it 'no slack notify when s3 is unavailable but slack has already reported recently' do
+        Rails.cache.write(VBADocuments::MetadataController::LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
+        expect(VBADocuments::Slack::Messenger).not_to receive(:new)
+
+        s3_client = instance_double(Aws::S3::Client)
+
+        expect(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)
+
+        s3_resource = instance_double(Aws::S3::Resource)
+        allow(s3_resource).to receive(:client).and_return(s3_client)
+        allow(Aws::S3::Resource).to receive(:new).with(anything).and_return(s3_resource)
+
+        get '/services/vba_documents/v1/healthcheck'
+
+        parsed_response = JSON.parse(response.body)
+        expect(response).to have_http_status(:service_unavailable)
+        expect(parsed_response['description']).to eq('VBA Documents API health check')
+        expect(parsed_response['status']).to eq('fail')
+        expect(parsed_response['time']).not_to be_nil
+      end
+
+
+      
     end
   end
 
