@@ -128,16 +128,14 @@ module AccreditedRepresentativePortal
       end
 
       def create_user_account_if_needed(rep, options)
-        def create_user_account_if_needed(rep, options)
-          # Verify the expected mapping exists
-          email_index = Constants::REP_EMAIL_MAP[rep.representative_id]
-          expected_email = "vets.gov.user+#{email_index}@gmail.com"
-        
-          unless AccreditedRepresentativePortal::UserAccountAccreditedIndividual
-                   .exists?(accredited_individual_registration_number: rep.representative_id,
-                           user_account_email: expected_email)
-            Rails.logger.warn("Missing expected user account mapping for rep #{rep.representative_id} -> #{expected_email}")
-          end
+        # Verify the expected mapping exists
+        email_index = Constants::REP_EMAIL_MAP[rep.representative_id]
+        expected_email = "vets.gov.user+#{email_index}@gmail.com"
+      
+        unless AccreditedRepresentativePortal::UserAccountAccreditedIndividual
+                 .exists?(accredited_individual_registration_number: rep.representative_id,
+                         user_account_email: expected_email)
+          Rails.logger.warn("Missing expected user account mapping for rep #{rep.representative_id} -> #{expected_email}")
         end
       end
 
@@ -170,67 +168,57 @@ module AccreditedRepresentativePortal
 
     module FormMethods
       module_function
-
-      def build_poa_form_data
+    
+      def build_address
         {
-          authorizations: build_authorizations,
-          veteran: build_veteran_info,
-          dependent: build_dependent_info
+          addressLine1: "#{rand(100..9999)} #{['Washington St', 'Franklin Ave', 'Jefferson Rd', 'Adams Ln'].sample}",
+          addressLine2: "Unit #{rand(1..100)}", # No longer optional
+          city: ['Hartford', 'New Haven', 'Stamford', 'Waterbury', 'Norwich'].sample,
+          stateCode: 'CT',
+          country: 'US',
+          zipCode: "06#{rand(100..999)}",
+          zipCodeSuffix: rand(1000..9999).to_s # No longer optional
         }
       end
-
-      def build_dependent_info
+    
+      def build_name 
         {
-          name: build_name,
-          address: build_address,
-          ssn: '123456789',
-          va_file_number: '123456789',
-          date_of_birth: '1980-01-01',
-          phone: '1234567890',
-          email: 'test@example.com',
-          relationship: 'Child'
+          first: ["William", "Richard", "Charles", "Joseph", "Thomas"].sample,
+          middle: "M", # No longer optional
+          last: ["Miller", "Davis", "Garcia", "Rodriguez", "Wilson"].sample
         }
       end
-
-      def build_authorizations
-        {
-          record_disclosure: true,
-          record_disclosure_limitations: [],
-          address_change: false
-        }
-      end
-
+    
       def build_veteran_info
         {
           name: build_name,
           address: build_address,
-          ssn: '123456789',
-          va_file_number: '123456789',
-          date_of_birth: '1980-01-01',
-          service_number: nil,
-          service_branch: 'ARMY',
-          phone: '1234567890',
-          email: 'test@example.com'
+          ssn: Array.new(9) { rand(0..9) }.join,
+          vaFileNumber: rand(10000000..99999999).to_s,
+          dateOfBirth: rand(18..80).years.ago.strftime('%Y-%m-%d'),
+          serviceNumber: "#{('A'..'Z').to_a.sample}#{rand(1000000..9999999)}", # No longer optional
+          serviceBranch: ['ARMY', 'NAVY', 'AIR_FORCE', 'MARINE_CORPS', 'COAST_GUARD', 'SPACE_FORCE'].sample,
+          phone: "#{rand(200..999)}#{rand(200..999)}#{rand(1000..9999)}",
+          email: "veteran#{rand(100..999)}@example.com"
         }
       end
-
-      def build_name
+    
+      def build_dependent_info
         {
-          first: 'Test',
-          middle: nil,
-          last: 'Veteran'
+          name: build_name,
+          address: build_address, 
+          dateOfBirth: rand(18..70).years.ago.strftime('%Y-%m-%d'),
+          relationship: ['Spouse', 'Child', 'Parent', 'Sibling'].sample,
+          phone: "#{rand(200..999)}#{rand(200..999)}#{rand(1000..9999)}",
+          email: "dependent#{rand(100..999)}@example.com"
         }
       end
-
-      def build_address
+    
+      def build_authorizations
         {
-          address_line1: '123 Test St',
-          address_line2: nil,
-          city: 'Testville',
-          state_code: 'TS',
-          country: 'US',
-          zip_code: '12345',
-          zip_code_suffix: nil
+          recordDisclosure: true,
+          recordDisclosureLimitations: ['ALCOHOLISM', 'DRUG_ABUSE', 'HIV', 'SICKLE_CELL'].sample(2), 
+          addressChange: [true, false].sample
         }
       end
     end
