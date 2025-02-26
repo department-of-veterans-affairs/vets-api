@@ -12,7 +12,7 @@ module BGSDependents
       @proc_id = proc_id
       @vnp_participant_id = vnp_participant_id
       @dependents_application = dependents_application
-      @is_v2 = is_v2?
+      @is_v2 = v2?
       @student = student
       self.attributes = @is_v2 ? student : dependents_application
     end

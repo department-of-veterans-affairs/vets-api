@@ -194,12 +194,10 @@ module BGSDependents
       bool_attribute ? 'Y' : 'N'
     end
 
-
     private
 
-    def is_v2?
+    def v2?
       Flipper.enabled?(:va_dependents_v2)
     end
-
   end
 end
