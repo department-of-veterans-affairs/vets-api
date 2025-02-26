@@ -9,16 +9,11 @@ RSpec.describe 'sm client', type: :request do
 
   before do
     sign_in_as(current_user)
-  end 
-  
-  def enable_feature_flag_for_actor
     allow(User).to receive(:find).and_return(current_user)
-    allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, current_user).and_return(true)
   end
 
-  def disable_feature_flag_for_actor
-    allow(User).to receive(:find).and_return(current_user)
-    allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, current_user).and_return(false)
+  def toggle_feature_flag_for_actor(value)
+    allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, current_user).and_return(value)
   end
 
   after do
@@ -29,7 +24,7 @@ RSpec.describe 'sm client', type: :request do
   context 'session' do
     it 'session' do
       client = nil
-      disable_feature_flag_for_actor
+      toggle_feature_flag_for_actor(false)
       VCR.use_cassette 'sm_client/session' do
         client || begin
           client = SM::Client.new(session: { user_id:, user_uuid: current_user.uuid })
@@ -43,7 +38,7 @@ RSpec.describe 'sm client', type: :request do
     end
 
     it 'session OH initial pull' do
-      enable_feature_flag_for_actor
+      toggle_feature_flag_for_actor(true)
       client = nil
       VCR.use_cassette('sm_session/session_oh_initial_pull') do
         client ||= begin
