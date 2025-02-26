@@ -560,6 +560,8 @@ mhv:
     host: https://mhv-api.example.com
     app_id: fake-app-id
     app_token: fake-app-token
+    subject: "Proxy Client"
+    user_type: user-type
 
 # Settings for alternate MHV integration for mobile app
 mhv_mobile:

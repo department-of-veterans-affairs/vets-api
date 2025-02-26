@@ -32,8 +32,8 @@ module UnifiedHealthData
         req.body = {
           appId: config.app_id,
           appToken: config.app_token,
-          subject: 'VA.gov SCDF Proxy Client',
-          userType: 'SYSTEM'
+          subject: config.subject,
+          userType: config.user_type,
         }.to_json
       end
       response.headers['authorization']
