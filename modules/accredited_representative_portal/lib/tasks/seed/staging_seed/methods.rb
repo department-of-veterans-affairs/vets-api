@@ -63,12 +63,7 @@ module AccreditedRepresentativePortal
                       exp = AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration.new
                       exp.save! && exp
                     when :decision
-                      type = resolution_type_cycle.next
-                      dec = AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.new(
-                        type:,
-                        creator_id: request.claimant_id
-                      )
-                      dec.save! && dec
+                      create_decision_for(request, resolution_type_cycle.next)
                     end
         (res = AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.new(
           power_of_attorney_request: request,
@@ -78,6 +73,20 @@ module AccreditedRepresentativePortal
       end
 
       private
+
+      def create_decision_for(request, type)
+        dec = AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.new(
+          type:,
+          creator_id: request.claimant_id
+        )
+        if dec.type == AccreditedRepresentativePortal::
+            PowerOfAttorneyRequestDecision::Types::ACCEPTANCE
+          request.create_power_of_attorney_form_submission(
+            service_id: SecureRandom.uuid, status: :succeeded
+          )
+        end
+        dec.save! && dec
+      end
 
       def resolution_type_cycle
         [
