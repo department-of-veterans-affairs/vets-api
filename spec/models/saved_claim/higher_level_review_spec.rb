@@ -25,6 +25,10 @@ RSpec.describe SavedClaim::HigherLevelReview, type: :model do
   describe 'validation' do
     let!(:saved_claim_hlr) { described_class.new(guid:, form: form_data.to_json) }
 
+    before do
+      allow(Rails.logger).to receive(:warn)
+    end
+
     context 'no validation errors' do
       it 'returns true' do
         allow(JSON::Validator).to receive(:fully_validate).and_return([])
