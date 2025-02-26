@@ -518,10 +518,12 @@ module SM
     def get_session_tagged
       Sentry.set_tags(error: 'mhv_sm_session')
       current_user = User.find(session.user_uuid)
-      requires_oh_messages = if defined?(current_user) && Flipper.enabled?(:mhv_secure_messaging_cerner_pilot,
-                                                                           current_user)
-                               '1'
-                             end
+
+      requires_oh_messages = '0'
+      if current_user.present?
+        requires_oh_messages = '1' if Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user)
+      end
+
       Rails.logger.info("secure messaging session tagged with requiresOHMessages=#{requires_oh_messages}")
       path = append_requires_oh_messages_query('session', requires_oh_messages)
       env = perform(:get, path, nil, auth_headers)
