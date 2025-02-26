@@ -2,4 +2,4 @@
 
 require 'legacy_filter_query_rewrite_middleware'
 
-Rails.application.config.middleware.insert_before 0, LegacyFilterQueryRewriteMiddleware
+Rails.application.config.middleware.insert_before Rack::Runtime, LegacyFilterQueryRewriteMiddleware
