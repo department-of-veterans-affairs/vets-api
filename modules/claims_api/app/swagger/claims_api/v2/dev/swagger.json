@@ -335,7 +335,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "088ce2fc-1458-4d69-8f1d-b8069b40e58f",
+                        "id": "95beb691-a186-4366-bc8a-7aa5f008cee5",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -566,7 +566,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "60143ad6-06d1-49ba-8327-1a92922fbacd",
+                        "id": "d643d87d-9704-409b-acc7-b95fff785084",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -9428,7 +9428,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7eb2686b-3e73-44d9-9329-e281bfd60b1b",
+                    "id": "3e5a810d-3786-45f2-a5c3-beb30fd60e62",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
@@ -11867,7 +11867,7 @@
                                     "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zip code (first 5 digits) for the veteran's address. Required if 'countryCode' is 'US'.'",
+                                    "description": "Zip code (first 5 digits) for the veteran's address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -12228,7 +12228,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bfeaea35-e4e2-4d37-8088-a6bf9ef73ba0",
+                    "id": "f4cc6fa4-32d8-4eba-90fb-85f1b20a61ce",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12559,7 +12559,7 @@
                                     "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zip code (first 5 digits) for the veteran's address. Required if 'countryCode' is 'US'.'",
+                                    "description": "Zip code (first 5 digits) for the veteran's address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -13308,7 +13308,7 @@
                                     "example": "OR"
                                   },
                                   "countryCode": {
-                                    "description": "Two-letter country code for the veteran's address.'",
+                                    "description": "Two-letter country code for the veteran's address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "US"
@@ -13725,7 +13725,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0ce69990-e61d-400f-8f73-90d41cc8a0f9",
+                    "id": "a83cc678-5cb9-431d-81fc-91225dab911b",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14067,7 +14067,7 @@
                                     "example": "OR"
                                   },
                                   "countryCode": {
-                                    "description": "Two-letter country code for the veteran's address.'",
+                                    "description": "Two-letter country code for the veteran's address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "US"
@@ -14573,10 +14573,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b0cd3f7d-1298-4b97-92a7-7f1b819dcd73",
+                    "id": "d6166445-37ef-477b-9a86-562569364d21",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "createdAt": "2025-02-26 21:24:05 UTC",
+                      "createdAt": "2025-02-26 22:07:51 UTC",
                       "representative": {
                         "poaCode": "074"
                       },

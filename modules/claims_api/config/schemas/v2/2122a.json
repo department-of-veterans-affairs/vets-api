@@ -74,7 +74,7 @@
               "example": "OR"
             },
             "countryCode": {
-              "description": "Two-letter country code for the veteran's address.'",
+              "description": "Two-letter country code for the veteran's address.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "US"
