@@ -33,7 +33,7 @@ module UnifiedHealthData
           appId: config.app_id,
           appToken: config.app_token,
           subject: config.subject,
-          userType: config.user_type,
+          userType: config.user_type
         }.to_json
       end
       response.headers['authorization']
@@ -64,7 +64,7 @@ module UnifiedHealthData
       ordered_by = fetch_ordered_by(record)
 
       attributes = UnifiedHealthData::MedicalRecord::Attributes.new(
-        display: code['display'],
+        display: code,
         test_code: record['resource']['code']['text'],
         date_completed: record['resource']['effectiveDateTime'],
         sample_site:,
@@ -91,8 +91,12 @@ module UnifiedHealthData
     end
 
     def fetch_code(record)
-      code_array = record['resource']['category'].find { |category| category['coding'][0]['code'] != 'LAB' }
-      code_array['coding'][0]
+      return if record['resource']['category'].empty?
+
+      coding = record['resource']['category'].find do |category|
+        category['coding'].count && category['coding'][0]['code'] != 'LAB'
+      end
+      coding ? coding['coding'][0]['display'] : nil
     end
 
     def fetch_sample_site(record)
