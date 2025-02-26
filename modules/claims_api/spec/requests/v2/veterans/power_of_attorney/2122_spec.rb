@@ -524,7 +524,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             expect(ClaimsApi::V2::PoaFormBuilderJob).to receive(:perform_async) do |*args|
-              expect(args[0][:rep_id]).to eq(rep_id)
+              expect(args[3]).to eq(rep_id)
             end
 
             post appoint_organization_path, params: data.to_json, headers: auth_header

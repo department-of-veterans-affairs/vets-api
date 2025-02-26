@@ -107,8 +107,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
             .with(final_data, id: power_of_attorney.id)
             .and_call_original
 
-          subject.new.perform(power_of_attorney_id: power_of_attorney.id, form_number: '2122A', action: 'post',
-                              rep_id: rep.id)
+          subject.new.perform(power_of_attorney.id, '2122A', 'post',
+                              rep.id)
         end
       end
 
@@ -126,8 +126,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
 
           expect(ClaimsApi::PoaUpdater).to receive(:perform_async)
 
-          subject.new.perform(power_of_attorney_id: power_of_attorney.id, form_number: '2122A', action: 'post',
-                              rep_id: rep.id)
+          subject.new.perform(power_of_attorney.id, '2122A', 'post',
+                              rep.id)
         end
       end
     end
@@ -236,8 +236,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
             .with(final_data, id: power_of_attorney.id)
             .and_call_original
 
-          subject.new.perform(power_of_attorney_id: power_of_attorney.id, form_number: '2122A', action: 'post',
-                              rep_id: rep.id)
+          subject.new.perform(power_of_attorney.id, '2122A', 'post',
+                              rep.id)
         end
       end
     end
@@ -327,8 +327,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
             .with(final_data, id: power_of_attorney.id)
             .and_call_original
 
-          subject.new.perform(power_of_attorney_id: power_of_attorney.id, form_number: '2122', action: 'post',
-                              rep_id: rep.id)
+          subject.new.perform(power_of_attorney.id, '2122', 'post',
+                              rep.id)
         end
       end
 
@@ -345,8 +345,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
         VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
           expect(ClaimsApi::PoaUpdater).to receive(:perform_async)
 
-          subject.new.perform(power_of_attorney_id: power_of_attorney.id, form_number: '2122', action: 'post',
-                              rep_id: rep.id)
+          subject.new.perform(power_of_attorney.id, '2122', 'post',
+                              rep.id)
         end
       end
     end
@@ -454,8 +454,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
             .with(final_data, id: power_of_attorney.id)
             .and_call_original
 
-          subject.new.perform(power_of_attorney_id: power_of_attorney.id, form_number: '2122', action: 'post',
-                              rep_id: rep.id)
+          subject.new.perform(power_of_attorney.id, '2122', 'post',
+                              rep.id)
         end
       end
     end
@@ -476,8 +476,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
         allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return false
         expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
         expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
-        subject.new.perform(power_of_attorney_id: power_of_attorney.id, form_number: '2122', action: 'post',
-                            rep_id: rep.id)
+        subject.new.perform(power_of_attorney.id, '2122', 'post',
+                            rep.id)
       end
     end
 
@@ -499,8 +499,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
       it 'calls the Benefits Documents upload_document instead of upload' do
         expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
         expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document)
-        subject.new.perform(power_of_attorney_id: power_of_attorney.id, form_number: '2122', rep_id: rep.id,
-                            action: 'post')
+        subject.new.perform(power_of_attorney.id, '2122', 'post', rep.id)
       end
     end
   end
@@ -525,8 +524,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
       end
 
       it 'updates the process for the power of attorney with the success status' do
-        subject.new.perform(power_of_attorney_id: power_of_attorney.id, form_number: '2122', rep_id: rep.id,
-                            action: 'post')
+        subject.new.perform(power_of_attorney.id, '2122', 'post', rep.id)
         expect(ClaimsApi::Process.find_by(processable: power_of_attorney,
                                           step_type: 'PDF_SUBMISSION').step_status).to eq('SUCCESS')
       end
@@ -539,8 +537,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
       end
 
       it 'updates the process for the power of attorney with the failed status' do
-        subject.new.perform(power_of_attorney_id: power_of_attorney.id, form_number: '2122', rep_id: rep.id,
-                            action: 'post')
+        subject.new.perform(power_of_attorney.id, '2122', 'post', rep.id)
         expect(ClaimsApi::Process.find_by(processable: power_of_attorney,
                                           step_type: 'PDF_SUBMISSION').step_status).to eq('FAILED')
       end
