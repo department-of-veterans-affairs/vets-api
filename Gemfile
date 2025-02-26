@@ -245,3 +245,5 @@ else
     gem 'sidekiq-pro'
   end
 end
+
+gem "aws-sdk-kafka", "~> 1.89"
