@@ -1237,7 +1237,7 @@ describe VAOS::V2::AppointmentsService do
   describe '#get_appointments merge' do
     context 'when include eps is true' do
       it 'merges eps appointments with vaos appointments' do
-        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+        VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
           allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
           result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
@@ -1248,7 +1248,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'merges eps appointments with vaos appointments and removes eps appointment with duplicate referralNumbers ' \
          'but not the vaos appointment' do
-        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+        VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
           allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
           result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
@@ -1257,7 +1257,7 @@ describe VAOS::V2::AppointmentsService do
       end
 
       it 'handles no matching referral number' do
-        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+        VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
           allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
           result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
@@ -1266,7 +1266,7 @@ describe VAOS::V2::AppointmentsService do
       end
 
       it 'handles nil start date in eps appointments' do
-        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+        VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
           allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
           result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
@@ -1275,7 +1275,7 @@ describe VAOS::V2::AppointmentsService do
       end
 
       it 'handles empty eps_appointments' do
-        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+        VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
           allow_any_instance_of(Eps::AppointmentService)
             .to receive(:get_appointments)
@@ -1302,7 +1302,7 @@ describe VAOS::V2::AppointmentsService do
         VCR.use_cassette('vaos/eps/token/token_200',
                          match_requests_on: %i[method path query],
                          allow_playback_repeats: true, tag: :force_utf8) do
-          VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+          VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                            match_requests_on: %i[method path query],
                            allow_playback_repeats: true, tag: :force_utf8) do
             VCR.use_cassette('vaos/eps/get_eps_appointments_200',
@@ -1329,7 +1329,7 @@ describe VAOS::V2::AppointmentsService do
         VCR.use_cassette('vaos/eps/token/token_200',
                          match_requests_on: %i[method path query],
                          allow_playback_repeats: true, tag: :force_utf8) do
-          VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+          VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                            match_requests_on: %i[method path query],
                            allow_playback_repeats: true, tag: :force_utf8) do
             VCR.use_cassette('vaos/eps/get_eps_appointments_200',
