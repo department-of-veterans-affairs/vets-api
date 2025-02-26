@@ -20,9 +20,9 @@ module AccreditedRepresentativePortal
     def perform(email,
                 template_id,
                 poa_request_id,
-                notification_type,
+                request_notification_type,
                 api_key = Settings.vanotify.services.va_gov.api_key)
-      notify_client = VaNotify::Service.new(api_key, callback_options)
+      notify_client = VaNotify::Service.new(api_key, {})
 
       response = notify_client.send_email(
         {
@@ -30,8 +30,8 @@ module AccreditedRepresentativePortal
           template_id:
         }.compact
       )
-      AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.create(
-        notification_type:,
+      AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.create!(
+        notification_type: request_notification_type,
         power_of_attorney_request: PowerOfAttorneyRequest.find(poa_request_id),
         notification_id: response['id']
       )

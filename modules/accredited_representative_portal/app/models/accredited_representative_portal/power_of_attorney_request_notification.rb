@@ -12,6 +12,7 @@ module AccreditedRepresentativePortal
 
     validates :notification_type, inclusion: { in: PERMITTED_TYPES }
 
+    scope :requested, -> { where(type: 'requested') }
     scope :declined, -> { where(type: 'declined') }
     scope :expiring, -> { where(type: 'expiring') }
     scope :expired, -> { where(type: 'expired') }
