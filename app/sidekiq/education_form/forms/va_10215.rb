@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EducationForm::Forms
   class VA10215 < Base
     def initialize(education_benefits_claim)
