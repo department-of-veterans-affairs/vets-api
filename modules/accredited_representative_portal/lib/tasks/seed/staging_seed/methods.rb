@@ -128,20 +128,17 @@ module AccreditedRepresentativePortal
       end
 
       def create_user_account_if_needed(rep, options)
-        return if AccreditedRepresentativePortal::UserAccountAccreditedIndividual
-                  .exists?(accredited_individual_registration_number: rep.representative_id)
-
-        # Use mapped email index or fallback to counter
-        email_index = Constants::REP_EMAIL_MAP[rep.representative_id] || options[:email_counter]
-
-        AccreditedRepresentativePortal::UserAccountAccreditedIndividual.create!(
-          accredited_individual_registration_number: rep.representative_id,
-          power_of_attorney_holder_type: 'veteran_service_organization',
-          user_account_email: "vets.gov.user+#{email_index}@gmail.com"
-        )
-
-        options[:totals][:user_accounts] += 1
-        options[:email_counter] += 1
+        def create_user_account_if_needed(rep, options)
+          # Verify the expected mapping exists
+          email_index = Constants::REP_EMAIL_MAP[rep.representative_id]
+          expected_email = "vets.gov.user+#{email_index}@gmail.com"
+        
+          unless AccreditedRepresentativePortal::UserAccountAccreditedIndividual
+                   .exists?(accredited_individual_registration_number: rep.representative_id,
+                           user_account_email: expected_email)
+            Rails.logger.warn("Missing expected user account mapping for rep #{rep.representative_id} -> #{expected_email}")
+          end
+        end
       end
 
       def create_requests_for_rep(org, rep, options)
@@ -248,7 +245,6 @@ module AccreditedRepresentativePortal
         AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyForm.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyRequest.destroy_all
-        AccreditedRepresentativePortal::UserAccountAccreditedIndividual.destroy_all
       end
     end
   end
