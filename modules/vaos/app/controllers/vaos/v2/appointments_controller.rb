@@ -64,7 +64,6 @@ module VAOS
 
       def create_draft
         # TODO: validate referral_id from the cache from prior referrals response,
-        # TODO: validate that the referral doesn't already have a confirmed appointment #
         # TODO: cache provider_id, appointment_type_id, end_date from prior referrals response and use here
         draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: draft_params[:referral_id])
 
