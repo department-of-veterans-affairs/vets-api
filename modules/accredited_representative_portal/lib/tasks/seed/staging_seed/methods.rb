@@ -127,15 +127,15 @@ module AccreditedRepresentativePortal
         end
       end
 
-      def create_user_account_if_needed(rep, options)
+      def create_user_account_if_needed(rep, _options)
         # Verify the expected mapping exists
         email_index = Constants::REP_EMAIL_MAP[rep.representative_id]
         expected_email = "vets.gov.user+#{email_index}@gmail.com"
-      
+
         unless AccreditedRepresentativePortal::UserAccountAccreditedIndividual
-                 .exists?(accredited_individual_registration_number: rep.representative_id,
-                         user_account_email: expected_email)
-          Rails.logger.warn("Missing expected user account mapping for rep #{rep.representative_id} -> #{expected_email}")
+               .exists?(accredited_individual_registration_number: rep.representative_id,
+                        user_account_email: expected_email)
+          Rails.logger.warn("Missing expected user mapping for rep #{rep.representative_id} -> #{expected_email}")
         end
       end
 
@@ -168,7 +168,7 @@ module AccreditedRepresentativePortal
 
     module FormMethods
       module_function
-    
+
       def build_address
         {
           addressLine1: "#{rand(100..9999)} #{['Washington St', 'Franklin Ave', 'Jefferson Rd', 'Adams Ln'].sample}",
@@ -180,44 +180,44 @@ module AccreditedRepresentativePortal
           zipCodeSuffix: rand(1000..9999).to_s # No longer optional
         }
       end
-    
-      def build_name 
+
+      def build_name
         {
-          first: ["William", "Richard", "Charles", "Joseph", "Thomas"].sample,
-          middle: "M", # No longer optional
-          last: ["Miller", "Davis", "Garcia", "Rodriguez", "Wilson"].sample
+          first: %w[William Richard Charles Joseph Thomas].sample,
+          middle: 'M', # No longer optional
+          last: %w[Miller Davis Garcia Rodriguez Wilson].sample
         }
       end
-    
+
       def build_veteran_info
         {
           name: build_name,
           address: build_address,
           ssn: Array.new(9) { rand(0..9) }.join,
-          vaFileNumber: rand(10000000..99999999).to_s,
+          vaFileNumber: rand(10_000_000..99_999_999).to_s,
           dateOfBirth: rand(18..80).years.ago.strftime('%Y-%m-%d'),
-          serviceNumber: "#{('A'..'Z').to_a.sample}#{rand(1000000..9999999)}", # No longer optional
-          serviceBranch: ['ARMY', 'NAVY', 'AIR_FORCE', 'MARINE_CORPS', 'COAST_GUARD', 'SPACE_FORCE'].sample,
+          serviceNumber: "#{('A'..'Z').to_a.sample}#{rand(1_000_000..9_999_999)}", # No longer optional
+          serviceBranch: %w[ARMY NAVY AIR_FORCE MARINE_CORPS COAST_GUARD SPACE_FORCE].sample,
           phone: "#{rand(200..999)}#{rand(200..999)}#{rand(1000..9999)}",
           email: "veteran#{rand(100..999)}@example.com"
         }
       end
-    
+
       def build_dependent_info
         {
           name: build_name,
-          address: build_address, 
+          address: build_address,
           dateOfBirth: rand(18..70).years.ago.strftime('%Y-%m-%d'),
-          relationship: ['Spouse', 'Child', 'Parent', 'Sibling'].sample,
+          relationship: %w[Spouse Child Parent Sibling].sample,
           phone: "#{rand(200..999)}#{rand(200..999)}#{rand(1000..9999)}",
           email: "dependent#{rand(100..999)}@example.com"
         }
       end
-    
+
       def build_authorizations
         {
           recordDisclosure: true,
-          recordDisclosureLimitations: ['ALCOHOLISM', 'DRUG_ABUSE', 'HIV', 'SICKLE_CELL'].sample(2), 
+          recordDisclosureLimitations: %w[ALCOHOLISM DRUG_ABUSE HIV SICKLE_CELL].sample(2),
           addressChange: [true, false].sample
         }
       end
