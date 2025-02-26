@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-
 require 'rails_helper'
-
 
 RSpec.describe Form1095::Delete1095BsJob, type: :job do
   describe 'perform' do
