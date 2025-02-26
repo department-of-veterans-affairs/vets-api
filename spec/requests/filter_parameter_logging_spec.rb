@@ -25,6 +25,7 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
   end
 
   after do
+    SemanticLogger.default_level = :warn
     SemanticLogger.remove_appender(@test_appender)
     Rails.logger = @original_logger
     Rails.application.reload_routes!
