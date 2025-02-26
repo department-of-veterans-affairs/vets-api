@@ -52,6 +52,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   let!(:other_poa_request) { create(:power_of_attorney_request, :with_veteran_claimant, poa_code: other_poa_code) }
 
   let(:time) { '2024-12-21T04:45:37.000Z' }
+  let(:time_plus_one_day) { '2024-12-22T04:45:37.000Z' }
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests' do
     context 'when user belongs to a digital-POA-request-accepting VSO' do
@@ -172,7 +173,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
                   'id' => poa_requests[1].accredited_organization.poa
                 },
                 'powerOfAttorneyFormSubmission' => {
-                  'status' => 'FAILED'
+                  'status' => 'PENDING'
                 }
               },
               {
@@ -228,127 +229,30 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       end
     end
 
-    context 'when user has no associated VSOs' do
-      before do
-        representative.destroy!
-      end
-
-      expect(response).to have_http_status(:ok)
-      expect(parsed_response).to eq(
-        [
-          {
-            'id' => poa_requests[0].id,
-            'claimantId' => poa_requests[0].claimant_id,
-            'createdAt' => time,
-            'expiresAt' => (Time.zone.parse(time) + 60.days).iso8601(3),
-            'powerOfAttorneyForm' => veteran_claimant_power_of_attorney_form,
-            'resolution' => nil,
-            'accreditedIndividual' => {
-              'id' => poa_requests[0].accredited_individual.id,
-              'fullName' => "#{poa_requests[0].accredited_individual.first_name} " \
-                            "#{poa_requests[0].accredited_individual.last_name}"
-            },
-            'powerOfAttorneyHolder' => {
-              'type' => 'veteran_service_organization',
-              'name' => poa_requests[0].accredited_organization.name,
-              'id' => poa_requests[0].accredited_organization.poa
-            }
-          },
-          {
-            'id' => poa_requests[1].id,
-            'claimantId' => poa_requests[1].claimant_id,
-            'createdAt' => time,
-            'expiresAt' => nil,
-            'powerOfAttorneyForm' => dependent_claimant_power_of_attorney_form,
-            'resolution' => {
-              'id' => poa_requests[1].resolution.id,
-              'type' => 'decision',
-              'createdAt' => time,
-              'creatorId' => poa_requests[1].resolution.resolving.creator_id,
-              'decisionType' => 'acceptance'
-            },
-            'accreditedIndividual' => {
-              'id' => poa_requests[1].accredited_individual.id,
-              'fullName' => "#{poa_requests[1].accredited_individual.first_name} " \
-                            "#{poa_requests[1].accredited_individual.last_name}"
-            },
-            'powerOfAttorneyHolder' => {
-              'type' => 'veteran_service_organization',
-              'name' => poa_requests[1].accredited_organization.name,
-              'id' => poa_requests[1].accredited_organization.poa
-            },
-            'powerOfAttorneyFormSubmission' => {
-              'status' => 'PENDING'
-            }
-          },
-          {
-            'id' => poa_requests[2].id,
-            'claimantId' => poa_requests[2].claimant_id,
-            'createdAt' => time,
-            'expiresAt' => nil,
-            'powerOfAttorneyForm' => dependent_claimant_power_of_attorney_form,
-            'resolution' => {
-              'id' => poa_requests[2].resolution.id,
-              'type' => 'decision',
-              'createdAt' => time,
-              'creatorId' => poa_requests[2].resolution.resolving.creator_id,
-              'reason' => 'Didn\'t authorize treatment record disclosure',
-              'decisionType' => 'declination'
-            },
-            'accreditedIndividual' => {
-              'id' => poa_requests[2].accredited_individual.id,
-              'fullName' => "#{poa_requests[2].accredited_individual.first_name} " \
-                            "#{poa_requests[2].accredited_individual.last_name}"
-            },
-            'powerOfAttorneyHolder' => {
-              'type' => 'veteran_service_organization',
-              'name' => poa_requests[2].accredited_organization.name,
-              'id' => poa_requests[2].accredited_organization.poa
-            }
-          },
-          {
-            'id' => poa_requests[3].id,
-            'claimantId' => poa_requests[3].claimant_id,
-            'createdAt' => time,
-            'expiresAt' => nil,
-            'powerOfAttorneyForm' => dependent_claimant_power_of_attorney_form,
-            'resolution' => {
-              'id' => poa_requests[3].resolution.id,
-              'type' => 'expiration',
-              'createdAt' => time
-            },
-            'accreditedIndividual' => {
-              'id' => poa_requests[3].accredited_individual.id,
-              'fullName' => "#{poa_requests[3].accredited_individual.first_name} " \
-                            "#{poa_requests[3].accredited_individual.last_name}"
-            },
-            'powerOfAttorneyHolder' => {
-              'type' => 'veteran_service_organization',
-              'name' => poa_requests[3].accredited_organization.name,
-              'id' => poa_requests[3].accredited_organization.poa
-            }
-          }
-        ]
-      )
-    end
-
     context 'when providing a status param' do
-      let!(:pending_request1) { create(:power_of_attorney_request, created_at: time) }
-      let!(:pending_request2) { create(:power_of_attorney_request, created_at: time_plus_one_day) }
-      let!(:declined_request) { create(:power_of_attorney_request, :with_declination, resolution_created_at: time) }
+      # let!(:pending_request1) { create(:power_of_attorney_request, created_at: time) }
+      let!(:pending_request2) do
+        create(:power_of_attorney_request, poa_code:, created_at: time_plus_one_day)
+      end
+      let!(:declined_request) do
+        create(:power_of_attorney_request,
+               :with_declination, poa_code:, resolution_created_at: time)
+      end
       let!(:accepted_pending_request) do
-        create(:power_of_attorney_request, :with_acceptance, resolution_created_at: time_plus_one_day)
+        create(:power_of_attorney_request, :with_acceptance, poa_code:,
+                                                             resolution_created_at: time_plus_one_day)
       end
       let!(:accepted_failed_request) do
         create(:power_of_attorney_request, :with_acceptance, :with_failed_form_submission,
-               resolution_created_at: time_plus_one_day)
+               poa_code:, resolution_created_at: time_plus_one_day)
       end
       let!(:accepted_success_request) do
         create(:power_of_attorney_request, :with_acceptance, :with_form_submission,
-               resolution_created_at: time_plus_one_day)
+               poa_code:, resolution_created_at: time_plus_one_day)
       end
       let!(:expired_request) do
-        create(:power_of_attorney_request, :with_expiration, resolution_created_at: time_plus_one_day)
+        create(:power_of_attorney_request,
+               :with_expiration, poa_code:, resolution_created_at: time_plus_one_day)
       end
 
       it 'returns the list of pending power of attorney requests sorted by creation ascending' do
@@ -356,7 +260,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         parsed_response = JSON.parse(response.body)
         expect(response).to have_http_status(:ok)
         expect(parsed_response.length).to eq 4
-        expect(parsed_response.map { |poa| poa['id'] }).to include(pending_request1.id)
+        expect(parsed_response.map { |poa| poa['id'] }).to include(poa_request.id)
         expect(parsed_response.map { |poa| poa['id'] }).to include(pending_request2.id)
         expect(parsed_response.map { |poa| poa['id'] }).to include(accepted_pending_request.id)
         expect(parsed_response.map { |poa| poa['id'] }).to include(accepted_failed_request.id)
@@ -375,6 +279,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(parsed_response.map { |poa| poa['id'] }).to include(accepted_success_request.id)
         expect(parsed_response.map { |poa| poa['id'] }).not_to include(expired_request.id)
         expect(parsed_response.map { |h| h['resolution']['createdAt'] }).to eq([time_plus_one_day, time])
+      end
+    end
+
+    context 'when user has no associated VSOs' do
+      before do
+        representative.destroy!
       end
 
       it 'returns 403 Forbidden' do
