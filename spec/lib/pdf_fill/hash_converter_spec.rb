@@ -9,16 +9,11 @@ describe PdfFill::HashConverter do
   end
   let(:extras_generator) { instance_double(PdfFill::ExtrasGenerator) }
 
+  def verify_extras_text(text, metadata)
+    expect(extras_generator).to receive(:add_text).with(text, metadata).once
+  end
+
   describe '#set_value' do
-    def verify_extras_text(text, metadata)
-      extras_generator = hash_converter.instance_variable_get(:@extras_generator)
-
-      expect(extras_generator).to receive(:add_text).with(
-        text,
-        metadata
-      ).once
-    end
-
     def verify_hash(hash)
       expect(hash_converter.instance_variable_get(:@pdftk_form)).to eq(
         hash
@@ -156,6 +151,8 @@ describe PdfFill::HashConverter do
   end
 
   describe '#transform_data' do
+    subject { described_class.new('%m/%d/%Y', extras_generator) }
+
     let(:form_data) do
       {
         toursOfDuty: [
@@ -234,12 +231,7 @@ describe PdfFill::HashConverter do
     end
 
     it 'converts the hash correctly' do
-      expect(
-        described_class.new('%m/%d/%Y', extras_generator).transform_data(
-          form_data:,
-          pdftk_keys:
-        )
-      ).to eq(
+      expect(subject.transform_data(form_data:, pdftk_keys:)).to eq(
         'form1[0].#subform[1].EnterCharacterD0[0]' => 'honorable',
         'form1[0].#subform[1].EnterTypeOfDutyE0[0]' => 'title 10',
         'form1[0].#subform[1].EnterCharacterD1[0]' => 'medical',
@@ -256,6 +248,61 @@ describe PdfFill::HashConverter do
         'form1[0].#subform[1].NestedTourDate[1]' => '10/10/2010',
         'form1[0].#subform[1].NestedBoolean[1]' => 0
       )
+    end
+
+    context 'when fields get overflowed to extras' do
+      let(:form_data) do
+        {
+          veteranFullName: {
+            first: 'Hubert',
+            last: 'Wolfeschlegelsteinhausenbergerdorff'
+          },
+          treatmentProvidersDetails: [
+            'Walter Reed, Bethesda, MD',
+            'Silver Oak Recovery Center, 745 Greenfield Avenue, Clearwater, FL'
+          ]
+        }
+      end
+      let(:pdftk_keys) do
+        {
+          veteranFullName: {
+            first: {
+              key: 'F[0].#subform[2].Veterans_Service_Members_First_Name[0]',
+              limit: 12,
+              question_num: 1,
+              question_suffix: 'A',
+              question_text: 'First Name'
+            },
+            last: {
+              key: 'F[0].#subform[2].VeteransLastName[0]',
+              limit: 18,
+              question_num: 1,
+              question_suffix: 'C',
+              question_text: 'Last Name'
+            }
+          },
+          treatmentProvidersDetails: {
+            limit: 1,
+            first_key: 'facilityInfo',
+            question_text: 'TREATMENT INFORMATION',
+            question_num: 13,
+            key: "F[0].#subform[5].Name_And_Location_Of_Treatment_Facility[#{PdfFill::HashConverter::ITERATOR}]"
+          }
+        }
+      end
+
+      it 'calls add_to_extras with the correct data and metadata' do
+        verify_extras_text('Wolfeschlegelsteinhausenbergerdorff',
+                           i: nil, question_num: 1, question_suffix: 'C', question_text: 'Last Name',
+                           top_level_key: :veteranFullName)
+        verify_extras_text('Walter Reed, Bethesda, MD',
+                           i: 0, question_num: 13, question_text: 'TREATMENT INFORMATION',
+                           top_level_key: :treatmentProvidersDetails)
+        verify_extras_text('Silver Oak Recovery Center, 745 Greenfield Avenue, Clearwater, FL',
+                           i: 1, question_num: 13, question_text: 'TREATMENT INFORMATION',
+                           top_level_key: :treatmentProvidersDetails)
+        subject.transform_data(form_data:, pdftk_keys:)
+      end
     end
   end
 end
