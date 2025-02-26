@@ -38,7 +38,7 @@ module UnifiedHealthData
         # conn.response(:logger, ::Logger.new($stdout), bodies: true) unless Rails.env.production?
 
         conn.response :betamocks if settings.mock
-        conn.response :raise_custom_error
+        conn.response :raise_custom_error,  error_prefix: 'UHD'
         conn.adapter Faraday.default_adapter
       end
     end
