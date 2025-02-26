@@ -3,10 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe SignIn::TokenResponseGenerator do
-  subject(:generator) { described_class.new(params:, cookies:) }
+  subject(:generator) { described_class.new(params:, cookies:, request_attributes:) }
 
   let(:remote_ip) { '127.0.0.1' }
   let(:user_agent) { 'Mozilla/5.0' }
+  let(:request_attributes) { { remote_ip:, user_agent: } }
   let(:request) { double('request', remote_ip:, user_agent:) }
   let(:cookies) { double('cookies', request:) }
 
