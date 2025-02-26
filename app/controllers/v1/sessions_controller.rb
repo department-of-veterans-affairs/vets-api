@@ -419,8 +419,8 @@ module V1
       UserAuditLogger.new(user_action_event_identifier: 'user_login',
                           subject_user_verification: user_verification,
                           status: :success,
-                          acting_ip_address: cookies.request.remote_ip,
-                          acting_user_agent: cookies.request.user_agent).perform
+                          acting_ip_address: request.remote_ip,
+                          acting_user_agent: request.user_agent).perform
     end
 
     def after_login_actions
