@@ -14,7 +14,6 @@ RSpec.describe 'VBADocument::V1::Healthcheck', type: :request do
         Rails.cache.clear
       end
 
-
       it 'returns a successful health check' do
         s3_client = instance_double(Aws::S3::Client)
         allow(s3_client).to receive(:head_bucket).with(anything).and_return(true)
@@ -57,8 +56,9 @@ RSpec.describe 'VBADocument::V1::Healthcheck', type: :request do
         expect(parsed_response['status']).to eq('fail')
         expect(parsed_response['time']).not_to be_nil
         
-        # confirm that the above slack notification had it's send timestamp recorded in the cache 
-        expect(Rails.cache.read(VBADocuments::MetadataController::LAST_SLACK_NOTIFICATION_TS)).to be_within(0.01).of(Time.zone.now.to_i)
+        # confirm that the above slack notification had it's send timestamp recorded in the cache
+        last_notify_timestamp = Rails.cache.read(VBADocuments::MetadataController::LAST_SLACK_NOTIFICATION_TS)
+        expect(last_notify_timestamp).to be_within(0.01).of(Time.zone.now.to_i)
       end
 
       it 'returns a failed health check when slack is down' do
@@ -111,9 +111,6 @@ RSpec.describe 'VBADocument::V1::Healthcheck', type: :request do
         expect(parsed_response['status']).to eq('fail')
         expect(parsed_response['time']).not_to be_nil
       end
-
-
-      
     end
   end
 

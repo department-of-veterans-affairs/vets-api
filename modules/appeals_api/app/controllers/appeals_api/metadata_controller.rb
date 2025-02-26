@@ -59,7 +59,6 @@ module AppealsApi
 
           # save the timestamp of the last slack notification
           Rails.cache.write(LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
-
         rescue => e
           Rails.logger.error("Appeals API S3 failed Healthcheck slack notification failed: #{e.message}", e)
         end
@@ -85,7 +84,7 @@ module AppealsApi
 
     def elapsed_seconds_since_last_slack_notify
       last_slack_notify_ts = Rails.cache.read(LAST_SLACK_NOTIFICATION_TS)
-      return Float::MAX  if last_slack_notify_ts.nil?
+      return Float::MAX if last_slack_notify_ts.nil?
 
       Time.zone.now - Time.zone.at(last_slack_notify_ts)
     end

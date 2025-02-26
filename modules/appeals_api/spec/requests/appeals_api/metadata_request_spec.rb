@@ -11,10 +11,8 @@ describe 'metadata request api', type: :request do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
   end
-  
-  RSpec.shared_examples 'a healthcheck' do |path|
-    
 
+  RSpec.shared_examples 'a healthcheck' do |path|
     it 'returns a successful healthcheck' do
       # stub successful s3 up call
       s3_client = instance_double(Aws::S3::Client)
@@ -58,9 +56,9 @@ describe 'metadata request api', type: :request do
       expect(parsed_response['status']).to eq('fail')
       expect(parsed_response['time']).not_to be_nil
 
-      # confirm that the above slack notification had it's send timestamp recorded in the cache 
-      expect(Rails.cache.read(AppealsApi::MetadataController::LAST_SLACK_NOTIFICATION_TS)).to be_within(0.01).of(Time.zone.now.to_i)
-      
+      # confirm that the above slack notification had it's send timestamp recorded in the cache
+      last_notify_timestamp = Rails.cache.read(AppealsApi::MetadataController::LAST_SLACK_NOTIFICATION_TS)
+      expect(last_notify_timestamp).to be_within(0.01).of(Time.zone.now.to_i)
     end
 
     it 'no slack notify when s3 is unavailable but slack has already reported recently' do
@@ -82,7 +80,7 @@ describe 'metadata request api', type: :request do
       expect(response).to have_http_status(:service_unavailable)
       expect(parsed_response['description']).to eq('Appeals API health check')
       expect(parsed_response['status']).to eq('fail')
-      expect(parsed_response['time']).not_to be_nil      
+      expect(parsed_response['time']).not_to be_nil
     end
   end
 
