@@ -8,7 +8,10 @@ module PdfFill
       FORM_ID = HealthCareApplication::FORM_ID
       OFF = 'Off'
 
-      # TODO: These are also in HCA::EnrollmentEligibility::Service. Can we DRY it up?
+      # Constants used to map data from the vets-json-schema payload to the values expected
+      # by the 10-10EZ PDF form. These mappings are necessary for converting form input
+      # data into the correct format for PDF generation.
+
       MARITAL_STATUS = {
         'Married' => 1,
         'Never Married' => 2,
@@ -45,7 +48,7 @@ module PdfFill
                  ' the form in the Assignment of Benefits section.'
       }.freeze
 
-      # exposure values correspond to true for each key in the pdf options
+      # Exposure values correspond to true for each key in the pdf options
       EXPOSURE_MAP = {
         'exposureToAirPollutants' => 1,
         'exposureToChemicals' => 2,
@@ -68,6 +71,26 @@ module PdfFill
         'hasDemographicNoAnswer' => 6
       }.freeze
 
+      # All date fields on the form so we can iterate over them to format them as the pdf form expects
+      # The dependent dates are not included in this list
+      DATE_FIELDS = %w[
+        medicarePartAEffectiveDate
+        spouseDateOfBirth
+        dateOfMarriage
+        lastEntryDate
+        lastDischargeDate
+        gulfWarStartDate
+        gulfWarEndDate
+        agentOrangeStartDate
+        agentOrangeEndDate
+        veteranDateOfBirth
+        toxicExposureStartDate
+        toxicExposureEndDate
+      ].freeze
+
+      # KEY constant maps the `@form_data` keys to their corresponding PDF field identifiers.
+      # These mappings are used to associate the form data with the correct PDF form field
+      # (specified by a unique key). This ensures the data is placed in the correct field when generating the PDF.
       KEY = {
         'veteranFullName' => {
           key: 'F[0].P4[0].LastFirstMiddle[0]'
@@ -239,55 +262,97 @@ module PdfFill
         },
         'providers' =>
           {
+            limit: 1,
+            first_key: 'insuranceName',
             'insuranceName' => {
-              key: 'F[0].P5[0].HealthInsuranceInformation[0]'
+              key: 'F[0].P5[0].HealthInsuranceInformation[0]',
+              question_num: 3.1,
+              question_text: 'ENTER YOUR HEALTH INSURANCE COMPANY NAME, ADDRESS AND TELEPHONE NUMBER'
             },
             'insurancePolicyHolderName' => {
-              key: 'F[0].P5[0].NameOfPolicyHodler[0]'
+              key: 'F[0].P5[0].NameOfPolicyHodler[0]',
+              question_num: 3.2,
+              question_text: 'NAME OF POLICY HOLDER'
             },
             'insurancePolicyNumber' => {
-              key: 'F[0].P5[0].PolicyNumber[0]'
+              key: 'F[0].P5[0].PolicyNumber[0]',
+              question_num: 3.3,
+              question_text: 'POLICY NUMBER'
             },
             'insuranceGroupCode' => {
-              key: 'F[0].P5[0].GroupCode[0]'
+              key: 'F[0].P5[0].GroupCode[0]',
+              question_num: 3.4,
+              question_text: 'Group Code'
             }
           },
         'dependents' =>
-          {
-            'fullName' => {
-              key: 'F[0].P5[0].ChildsName[0]'
-            },
-            'dependentRelation' => {
-              key: 'F[0].P5[0].RelationshipToYou[0]'
-            },
-            'socialSecurityNumber' => {
-              key: 'F[0].P5[0].ChildsSSN[0]'
-            },
-            'dateOfBirth' => {
-              key: 'F[0].P5[0].ChildsDOB[0]'
-            },
-            'becameDependent' => {
-              key: 'F[0].P5[0].DateChildBecameYourDependent[0]'
-            },
-            'attendedSchoolLastYear' => {
-              key: 'F[0].P5[0].DidChildAttendSchooLastYear[0]'
-            },
-            'disabledBefore18' => {
-              key: 'F[0].P5[0].ChildPermanentlyDiasbledBefore18[0]'
-            },
-            'dependentEducationExpenses' => {
-              key: 'F[0].P5[0].ExpensesPaifByDependentCHild[0]'
-            },
-            'grossIncome' => {
-              key: 'F[0].P6[0].Section7_Child_Q1[0]'
-            },
-            'netIncome' => {
-              key: 'F[0].P6[0].Section7_Child_Q2[0]'
-            },
-            'otherIncome' => {
-              key: 'F[0].P6[0].Section7_Child_Q3[0]'
-            }
+        {
+          limit: 1,
+          first_key: 'fullName',
+          'fullName' => {
+            key: 'F[0].P5[0].ChildsName[0]',
+            question_num: 4.2,
+            question_text: 'CHILD\'S NAME (Last, First, Middle Name)'
           },
+          'dateOfBirth' => {
+            key: 'F[0].P5[0].ChildsDOB[0]',
+            question_num: 4.2,
+            question_suffix: 'A',
+            question_text: 'CHILD\'S DATE OF BIRTH'
+          },
+          'socialSecurityNumber' => {
+            key: 'F[0].P5[0].ChildsSSN[0]',
+            question_num: 4.2,
+            question_suffix: 'B',
+            question_text: 'CHILD\'S Social Security NO.'
+          },
+          'becameDependent' => {
+            key: 'F[0].P5[0].DateChildBecameYourDependent[0]',
+            question_num: 4.2,
+            question_suffix: 'C',
+            question_text: 'DATE CHILD BECAME YOU\'RE DEPENDENT'
+          },
+          'dependentRelation' => {
+            key: 'F[0].P5[0].RelationshipToYou[0]',
+            question_num: 4.2,
+            question_suffix: 'D',
+            question_text: 'CHILD\'S RELATIONSHIP TO YOU'
+          },
+          'disabledBefore18' => {
+            key: 'F[0].P5[0].ChildPermanentlyDiasbledBefore18[0]',
+            question_num: 4.2,
+            question_suffix: 'E',
+            question_text: 'WAS CHILD PERMANENTLY AND TOTALLY DISABLED BEFORE THE AGE OF 18?'
+          },
+          'attendedSchoolLastYear' => {
+            key: 'F[0].P5[0].DidChildAttendSchooLastYear[0]',
+            question_num: 4.2,
+            question_suffix: 'F',
+            question_text: 'IF CHILD IS BETWEEN 18 AND 21 YEARS OF AGE, DID CHILD ATTEND SCHOOL LAST CALENDAR YEAR'
+          },
+          'dependentEducationExpenses' => {
+            key: 'F[0].P5[0].ExpensesPaifByDependentCHild[0]',
+            question_num: 4.2,
+            question_suffix: 'G',
+            question_text: 'EXPENSES PAID BY YOUR DEPENDENT CHILD WITH REPORTABLE INCOME FOR COLLEGE, VOCATIONAL' \
+                           ' REHABILITATION OR TRAINING (e.g., tuition, books, materials) '
+          },
+          'grossIncome' => {
+            key: 'F[0].P6[0].Section7_Child_Q1[0]',
+            question_num: 7.1,
+            question_text: 'DEPENDENT - GROSS ANNUAL INCOME FROM EMPLOYMENT'
+          },
+          'netIncome' => {
+            key: 'F[0].P6[0].Section7_Child_Q2[0]',
+            question_num: 7.2,
+            question_text: 'DEPENDENT - NET INCOME FROM YOUR FARM, RANCH, PROPERTY OR BUSINESS'
+          },
+          'otherIncome' => {
+            key: 'F[0].P6[0].Section7_Child_Q3[0]',
+            question_num: 7.3,
+            question_text: 'DEPENDENT - LIST OTHER INCOME AMOUNTS'
+          }
+        },
         'spouseFullName' => {
           key: 'F[0].P5[0].SpousesName[0]'
         },
@@ -365,33 +430,56 @@ module PdfFill
         }
       }.freeze
 
+      # Merge Fields - This method orchestrates the calling of all merge helper methods to
+      # process and populate @form_data with the necessary values for the PDF.
       def merge_fields(_options = {})
-        merge_full_name('veteranFullName')
-        merge_full_name('spouseFullName')
-        merge_sex('gender')
-        merge_place_of_birth
-        merge_ethnicity_choices
-        merge_marital_status
-        merge_spouse_address_phone_number
-        @form_data['provideSupportLastYear'] = map_radio_box_value(@form_data['provideSupportLastYear'])
-        @form_data['isSpanishHispanicLatino'] = map_radio_box_value(@form_data['isSpanishHispanicLatino'])
-        @form_data['wantsInitialVaContact'] = map_radio_box_value(@form_data['wantsInitialVaContact'])
-        @form_data['isMedicaidEligible'] = map_radio_box_value(@form_data['isMedicaidEligible'])
-        @form_data['isEnrolledMedicarePartA'] = map_radio_box_value(@form_data['isEnrolledMedicarePartA'])
-        merge_exposure
-        merge_military_service
-        merge_providers
+        merge_veteran_info
+        merge_spouse_info
+        merge_healthcare_info
         merge_dependents
-        merge_tera
+        merge_veteran_service_info
         merge_disclose_financial_info
-        merge_service_connected_rating
+        merge_date_fields
+
         @form_data
       end
 
       private
 
+      # Merge helpers - These methods update @form_data with the required values, data types,
+      # or formatted values that the PDF fields expect. Each method processes form data,
+      # formats or maps the data appropriately, and assigns the result back to @form_data,
+      # ensuring it is in the expected format for PDF generation.
+
+      def merge_veteran_info
+        merge_full_name('veteranFullName')
+        merge_sex('gender')
+        merge_place_of_birth
+        merge_ethnicity_choices
+        merge_marital_status
+        merge_value('isSpanishHispanicLatino', :map_radio_box_value)
+      end
+
+      def merge_spouse_info
+        merge_full_name('spouseFullName')
+        merge_spouse_address_phone_number
+      end
+
+      def merge_healthcare_info
+        merge_value('wantsInitialVaContact', :map_radio_box_value)
+        merge_value('isMedicaidEligible', :map_radio_box_value)
+        merge_value('isEnrolledMedicarePartA', :map_radio_box_value)
+      end
+
+      def merge_veteran_service_info
+        merge_exposure
+        merge_military_service
+        merge_tera
+        merge_service_connected_rating
+      end
+
       def merge_full_name(type)
-        @form_data[type] = combine_full_name(@form_data[type])
+        @form_data[type] = format_full_name(@form_data[type])
       end
 
       def merge_sex(type)
@@ -402,6 +490,12 @@ module PdfFill
         end
 
         @form_data[type] = value
+      end
+
+      def merge_date_fields
+        DATE_FIELDS.each do |field|
+          merge_value(field, :format_date)
+        end
       end
 
       def merge_marital_status
@@ -440,30 +534,18 @@ module PdfFill
       end
 
       def merge_tera
-        merge_yes_no('radiationCleanupEfforts')
-        merge_yes_no('gulfWarService')
-        merge_yes_no('combatOperationService')
-        merge_yes_no('exposedToAgentOrange')
+        merge_value('radiationCleanupEfforts', :map_check_box)
+        merge_value('gulfWarService', :map_check_box)
+        merge_value('combatOperationService', :map_check_box)
+        merge_value('exposedToAgentOrange', :map_check_box)
       end
 
       def merge_military_service
-        merge_yes_no('purpleHeartRecipient')
-        merge_yes_no('isFormerPow')
-        merge_yes_no('postNov111998Combat')
-        merge_yes_no('disabledInLineOfDuty')
-        merge_yes_no('swAsiaCombat')
-      end
-
-      def merge_yes_no(type)
-        @form_data[type] = map_check_box(@form_data[type])
-      end
-
-      def merge_providers
-        # TODO: Support more than one provider - planned work https://github.com/department-of-veterans-affairs/va.gov-team/issues/102910
-        providers = @form_data['providers']
-        return unless providers.is_a?(Array) && providers.any?
-
-        @form_data['providers'] = providers.first
+        merge_value('purpleHeartRecipient', :map_check_box)
+        merge_value('isFormerPow', :map_check_box)
+        merge_value('postNov111998Combat', :map_check_box)
+        merge_value('disabledInLineOfDuty', :map_check_box)
+        merge_value('swAsiaCombat', :map_check_box)
       end
 
       def merge_disclose_financial_info
@@ -472,23 +554,59 @@ module PdfFill
       end
 
       def merge_dependents
-        # TODO: Support more than one dependent - planned work https://github.com/department-of-veterans-affairs/va.gov-team/issues/102890
-        dependents = @form_data['dependents']
-        return if dependents.blank?
+        merge_value('provideSupportLastYear', :map_radio_box_value)
 
-        dependent = dependents.first
-        dependent['fullName'] = combine_full_name(dependent['fullName'])
+        return if @form_data['dependents'].blank?
+
+        if @form_data['dependents'].count == 1
+          # Format dependent data for pdf field inputs since only one will be rendered
+          merge_single_dependent
+        else
+          # Format dependent data for additional page since when there are more than one dependents
+          # we display them all on the additional info section
+          merge_multiple_dependents
+        end
+      end
+
+      def merge_single_dependent
+        dependent = @form_data['dependents'].first
+
+        dependent['fullName'] = format_full_name(dependent['fullName'])
+        dependent['dateOfBirth'] = format_date(dependent['dateOfBirth'])
+        dependent['becameDependent'] = format_date(dependent['becameDependent'])
+
         dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[(dependent['dependentRelation'])] || OFF
         dependent['attendedSchoolLastYear'] = map_radio_box_value(dependent['attendedSchoolLastYear'])
         dependent['disabledBefore18'] = map_radio_box_value(dependent['disabledBefore18'])
         dependent['cohabitedLastYear'] = map_radio_box_value(dependent['cohabitedLastYear'])
-        @form_data['dependents'] = dependent
       end
 
+      def merge_multiple_dependents
+        @form_data['dependents'].each do |dependent|
+          dependent['fullName'] = format_full_name(dependent['fullName'])
+          dependent['dateOfBirth'] = format_date(dependent['dateOfBirth'])
+          dependent['becameDependent'] = format_date(dependent['becameDependent'])
+
+          dependent['dependentEducationExpenses'] = format_currency(dependent['dependentEducationExpenses'])
+          dependent['grossIncome'] = format_currency(dependent['grossIncome'])
+          dependent['netIncome'] = format_currency(dependent['netIncome'])
+          dependent['otherIncome'] = format_currency(dependent['otherIncome'])
+        end
+      end
+
+      def merge_value(type, method_name)
+        @form_data[type] = method(method_name).call(@form_data[type])
+      end
+
+      # Map helpers - These methods transform input values into the expected format required for PDF fields
+      # They **do not modify** the @form_data but return the corresponding mapped value.
+
+      # Converts a boolean input to the corresponding mapped value for checkboxes.
       def map_value_for_checkbox(input, value)
         input == true ? value : OFF
       end
 
+      # Maps a boolean value to an integer for radio button selection (1 for true, 2 for false, or 'OFF' if undefined).
       def map_radio_box_value(value)
         case value
         when true
@@ -500,6 +618,7 @@ module PdfFill
         end
       end
 
+      # Maps a boolean value to a 'YES' or 'NO' for checkbox fields.
       def map_check_box(value)
         case value
         when true
@@ -509,6 +628,45 @@ module PdfFill
         else
           OFF
         end
+      end
+
+      # Format helpers - Each method takes an input value and returns a formatted version of it.
+      # These methods **do not modify** the @form_data object directly, but instead return the formatted output.
+
+      # Formats a numeric value into a currency string
+      def format_currency(value)
+        ActiveSupport::NumberHelper.number_to_currency(value)
+      end
+
+      # Formats a date string into the format MM/DD/YYYY.
+      # If the date is in the "YYYY-MM-XX" format, it converts it to "MM/YYYY".
+      def format_date(date_string)
+        return if date_string.nil?
+
+        # Handle 1990-08-XX format where the day is not provided
+        if date_string.match?(/^\d{4}-\d{2}-XX$/)
+          year, month = date_string.split('-')
+          return "#{month}/#{year}"
+        end
+
+        date = Date.parse(date_string)
+        date.strftime('%m/%d/%Y')
+      end
+
+      # Formats a full name using components like last, first, middle, and suffix.
+      # It returns the name in the format "Last, First, Middle Suffix".
+      def format_full_name(full_name)
+        return if full_name.blank?
+
+        last = full_name['last']
+        first = full_name['first']
+        middle = full_name['middle']
+        suffix = full_name['suffix']
+
+        name = [last, first].compact.join(', ')
+        name += ", #{middle}" if middle&.strip.present?
+        name += " #{suffix}" if suffix&.strip.present?
+        name
       end
     end
   end

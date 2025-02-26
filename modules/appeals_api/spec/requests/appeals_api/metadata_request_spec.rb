@@ -139,7 +139,7 @@ describe 'metadata request api', type: :request do
   RSpec.shared_examples 'an upstream healthcheck (central mail)' do |path|
     it 'returns correct status when CentralMail is healthy' do
       VCR.use_cassette('caseflow/health-check') do
-        allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(false)
+        allow(CentralMail::Service).to receive(:service_is_up?).and_return(true)
 
         get path
 
@@ -165,7 +165,7 @@ describe 'metadata request api', type: :request do
 
     it 'returns the correct status when CentralMail is not healthy' do
       VCR.use_cassette('caseflow/health-check') do
-        allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(true)
+        allow(CentralMail::Service).to receive(:service_is_up?).and_return(false)
 
         get path
         expect(response).to have_http_status(:service_unavailable)
@@ -247,7 +247,7 @@ describe 'metadata request api', type: :request do
       context 'v1' do
         it 'checks the status of both services individually' do
           VCR.use_cassette('caseflow/health-check') do
-            allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(true)
+            allow(CentralMail::Service).to receive(:service_is_up?).and_return(false)
 
             get '/services/appeals/v1/upstream_healthcheck'
             parsed_response = JSON.parse(response.body)
@@ -263,7 +263,7 @@ describe 'metadata request api', type: :request do
 
         it 'returns correct response and status when healthy' do
           VCR.use_cassette('caseflow/health-check') do
-            allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(false)
+            allow(CentralMail::Service).to receive(:service_is_up?).and_return(true)
 
             get '/services/appeals/v1/upstream_healthcheck'
             expect(response).to have_http_status(:ok)
@@ -289,7 +289,7 @@ describe 'metadata request api', type: :request do
 
         it 'returns correct status when caseflow is not healthy' do
           VCR.use_cassette('caseflow/health-check-down') do
-            allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(false)
+            allow(CentralMail::Service).to receive(:service_is_up?).and_return(true)
 
             get '/services/appeals/v1/upstream_healthcheck'
             expect(response).to have_http_status(:service_unavailable)
@@ -315,7 +315,7 @@ describe 'metadata request api', type: :request do
 
         it 'returns the correct status when CentralMail is not healthy' do
           VCR.use_cassette('caseflow/health-check') do
-            allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(true)
+            allow(CentralMail::Service).to receive(:service_is_up?).and_return(false)
 
             get '/services/appeals/v1/upstream_healthcheck'
             expect(response).to have_http_status(:service_unavailable)
@@ -341,7 +341,7 @@ describe 'metadata request api', type: :request do
 
         it 'returns correct status when CentralMail is healthy' do
           VCR.use_cassette('caseflow/health-check') do
-            allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(false)
+            allow(CentralMail::Service).to receive(:service_is_up?).and_return(true)
 
             get '/services/appeals/v1/upstream_healthcheck'
             expect(response).to have_http_status(:ok)
