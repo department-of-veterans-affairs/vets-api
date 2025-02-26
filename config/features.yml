@@ -486,6 +486,9 @@ features:
   decision_review_new_engine_submit_upload_job:
     actor_type: user
     description: Enable to switch to new modularized Decision Review SubmitUpload job
+  decision_review_service_common_exceptions_enabled:
+    actor_type: user
+    description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -827,7 +830,7 @@ features:
     actor_type: user
     description: Datadog RUM monitoring for form 10-10d (IVC CHAMPVA)
   form107959c:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
   form107959a:
     actor_type: user
@@ -2029,6 +2032,9 @@ features:
   is_updated_gi:
     actor_type: user
     description: If enabled, use updated gi design
+  gi_ct_collab: 
+    actor_type: user
+    description: If enabled, use VEBT/EDM team GI Comparison Tool homepage
   show_rudisill_1995:
     actor_type: user
     description: If enabled, show rudisill review in 22-1995

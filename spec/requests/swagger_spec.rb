@@ -3321,7 +3321,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       let(:bad_headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
       before do
-        create(:form1095_b)
+        create(:form1095_b, tax_year: Form1095B.current_tax_year)
       end
 
       context 'available forms' do
