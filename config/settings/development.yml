@@ -330,7 +330,7 @@ dmc:
   fsr_payment_window: 30
   mock_debts: false
   mock_fsr: false
-  url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/
+  url: https://fwdproxy-dev.vfs.va.gov:4465/api/v1/digital-services/
 dogstatsd:
   enabled: false
 edu:
@@ -526,7 +526,7 @@ github_stats:
   username: github-stats-rake
 google_analytics:
   tracking_id: ~
-  url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473
+  url: https://fwdproxy-staging.vfs.va.gov:4473
 google_analytics_cvu:
   auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
   auth_uri: https://accounts.google.com/o/oauth2/auth
@@ -901,7 +901,7 @@ mdot:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
   prefill: true
-  url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466
+  url: https://fwdproxy-staging.vfs.va.gov:4466
 mhv:
   account:
     mock: false
@@ -1713,7 +1713,7 @@ vbms:
   keypass: ~
   saml: vetsapi.client.vbms.aide.oit.va.gov.saml-token.xml
   server_cert: vbms.aide.oit.va.gov.crt
-  url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4449
+  url: https://fwdproxy-dev.vfs.va.gov:4449
 vbs:
   url: https://vbs.example.com/api/v1
 vet360:
