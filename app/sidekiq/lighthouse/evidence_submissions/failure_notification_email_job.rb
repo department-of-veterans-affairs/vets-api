@@ -13,8 +13,6 @@ module Lighthouse
       sidekiq_options retry: 0
       NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
       MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
-      # TODO: need to add statsd logic
-      # STATSD_KEY_PREFIX = ''
 
       def perform
         return unless should_perform?
@@ -34,7 +32,8 @@ module Lighthouse
       end
 
       def notify_client
-        VaNotify::Service.new(NOTIFY_SETTINGS.api_key)
+        VaNotify::Service.new(NOTIFY_SETTINGS.api_key,
+                              { callback_klass: 'BenefitsDocuments::VANotifyEmailStatusCallback' })
       end
 
       def send_failed_evidence_submissions
