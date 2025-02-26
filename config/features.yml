@@ -716,6 +716,10 @@ features:
     actor_type: user
     description: Enables form 21-0966 email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_0966_confirmation_page:
+    actor_type: user
+    description: Enables form 21-0966 new confirmation page
+    enable_in_development: true
   form21_0972_confirmation_email:
     actor_type: user
     description: Enables form 21-0972 email submission confirmation (VaNotify)
