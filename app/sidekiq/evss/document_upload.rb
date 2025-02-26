@@ -137,6 +137,12 @@ class EVSS::DocumentUpload
     BenefitsDocuments::Utilities::Helpers
   end
 
+  # This method allows format_issue_instant_for_mailers to be used by update_evidence_submission_status
+  # and by the self methods called in sidekiq_retries_exhausted
+  def format_issue_instant_for_mailers(issue_instant)
+    self.class.format_issue_instant_for_mailers(issue_instant)
+  end
+
   private
 
   def validate_document!
