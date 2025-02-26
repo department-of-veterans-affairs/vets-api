@@ -746,7 +746,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       FileUtils.rm_f(response_pdf)
     end
 
-    it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
+    it 'returns a completed PDF' do
       expect(HealthCareApplication).to receive(:new)
         .with(hash_including('form' => form_data))
         .and_return(health_care_application)
@@ -776,7 +776,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       ).to be(false)
     end
 
-    it 'ensures the tmp file is deleted when send_data fails', run_at: '2017-07-25 00:00:00 -0400' do
+    it 'ensures the tmp file is deleted when send_data fails' do
       expect(HealthCareApplication).to receive(:new)
         .with(hash_including('form' => form_data))
         .and_return(health_care_application)
@@ -794,7 +794,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       ).to be(false)
     end
 
-    it 'ensures the tmp file is deleted when fill_form fails', run_at: '2017-07-25 00:00:00 -0400' do
+    it 'ensures the tmp file is deleted when fill_form fails' do
       expect(HealthCareApplication).to receive(:new)
         .with(hash_including('form' => form_data))
         .and_return(health_care_application)
