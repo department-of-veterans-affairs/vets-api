@@ -9,8 +9,8 @@ describe PdfFill::ExtrasGenerator do
   end
 
   describe '#sort_generate_blocks' do
-    it 'sorts the blocks correctly' do
-      metadatas = [
+    let(:metadatas) do
+      [
         {
           question_num: 1
         },
@@ -41,7 +41,9 @@ describe PdfFill::ExtrasGenerator do
           question_suffix: 'B'
         }
       ]
+    end
 
+    it 'sorts the blocks correctly' do
       subject.instance_variable_set(:@generate_blocks, metadatas.reverse.map do |metadata|
         {
           metadata:
@@ -50,6 +52,26 @@ describe PdfFill::ExtrasGenerator do
 
       subject.sort_generate_blocks.each_with_index do |generate_block, i|
         expect(generate_block[:metadata]).to eq(metadatas[i])
+      end
+    end
+
+    context 'when section metadata is provided' do
+      let(:metadatas) do
+        [
+          { section_index: 0, question_num: 2, question_suffix: 'A', question_text: 'First Name' },
+          { section_index: 0, question_num: 2, question_suffix: 'B', question_text: 'Last Name' },
+          { section_index: 0, question_num: 3, question_text: 'Email Address' },
+          { section_index: 1, question_num: 1, question_text: 'Remarks' },
+          { section_index: 1, question_num: 4, question_text: 'Additional Remarks' },
+        ]
+      end
+
+      it 'sorts the blocks correctly, even if question numbers are jumbled' do
+        subject.instance_variable_set(:@generate_blocks, metadatas.reverse.map { |metadata| { metadata:} })
+
+        subject.sort_generate_blocks.each_with_index do |generate_block, i|
+          expect(generate_block[:metadata]).to eq(metadatas[i])
+        end
       end
     end
   end
