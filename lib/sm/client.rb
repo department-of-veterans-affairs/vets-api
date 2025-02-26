@@ -520,8 +520,8 @@ module SM
       current_user = User.find(session.user_uuid)
 
       requires_oh_messages = '0'
-      if current_user.present?
-        requires_oh_messages = '1' if Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user)
+      if current_user.present? && Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user)
+        requires_oh_messages = '1'
       end
 
       Rails.logger.info("secure messaging session tagged with requiresOHMessages=#{requires_oh_messages}")

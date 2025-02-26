@@ -9,9 +9,8 @@ RSpec.configure do |config|
     Flipper.disable(:mhv_secure_messaging_cerner_pilot)
   end
 
-  config.after(:each) do
+  config.after do
     # Ensure that Flipper is disabled globally for all tests
     Flipper.disable(:mhv_secure_messaging_cerner_pilot)
   end
-
 end
