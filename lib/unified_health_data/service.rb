@@ -51,27 +51,27 @@ module UnifiedHealthData
     end
 
     def parse_medical_records(records)
-      records.select { |record| record['resource']['resourceType'] == 'DiagnosticReport' }.map do |record|
+      records = records.select { |record| record['resource']['resourceType'] == 'DiagnosticReport' }.map do |record|
         parse_single_record(record)
       end
+      records.compact
     end
 
     def parse_single_record(record)
       location = fetch_location(record)
       code = fetch_code(record)
+      encoded_data = record['resource']['presentedForm'] ? record['resource']['presentedForm'].first['data'] : ''
       sample_site = fetch_sample_site(record)
       observations = fetch_observations(record)
       ordered_by = fetch_ordered_by(record)
+
+      return nil unless code && (encoded_data || observations)
 
       attributes = UnifiedHealthData::MedicalRecord::Attributes.new(
         display: code,
         test_code: record['resource']['code']['text'],
         date_completed: record['resource']['effectiveDateTime'],
-        sample_site:,
-        encoded_data: record['resource']['presentedForm'] ? record['resource']['presentedForm'].first['data'] : '',
-        location:,
-        ordered_by:,
-        observations:
+        sample_site:, encoded_data:, location:, ordered_by:, observations:
       )
 
       UnifiedHealthData::MedicalRecord.new(
@@ -96,7 +96,7 @@ module UnifiedHealthData
       coding = record['resource']['category'].find do |category|
         category['coding'].count && category['coding'][0]['code'] != 'LAB'
       end
-      coding ? coding['coding'][0]['display'] : nil
+      coding ? coding['coding'][0]['code'] : nil
     end
 
     def fetch_sample_site(record)

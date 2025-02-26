@@ -30,6 +30,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
 
     it 'returns the correct medical records' do
       json_response = JSON.parse(response.body)
+      expect(json_response.count).to eq(11)
       expect(json_response[0]).to eq(expected_response)
     end
   end
