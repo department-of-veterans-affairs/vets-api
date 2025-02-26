@@ -9,18 +9,18 @@ class UserActionEvent < ApplicationRecord
 
   def self.setup
     config_file_path = Rails.root.join('config', 'user_action_events.yml')
-    unless File.exist?(config_file_path)
-      Rails.logger.info('[UserActionEvent::Setup] Config file not found; skipping database population.')
-      return
-    end
+    raise 'Config file not found' unless File.exist?(config_file_path)
+
     user_action_events_yaml = YAML.load_file(config_file_path)
 
     user_action_events_yaml.each do |identifier, event_config|
       event = UserActionEvent.find_or_initialize_by(identifier:)
-      event.attributes = event_config
-      event.save!
+      if event.new_record? || event.attributes.slice(*event_config.keys.map(&:to_s)) != event_config
+        event.attributes = event_config
+        event.save!
+      end
     end
   rescue => e
-    Rails.logger.error("[UserActionEvent::Setup] Error loading user action event: #{e.message}")
+    raise "[#{name}][Setup] Error: #{e.message}"
   end
 end

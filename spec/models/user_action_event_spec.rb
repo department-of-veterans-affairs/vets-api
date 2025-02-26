@@ -14,21 +14,20 @@ RSpec.describe UserActionEvent, type: :model do
     it { is_expected.to have_many(:user_actions).dependent(:restrict_with_exception) }
   end
 
-  describe '#setup' do
+  describe '.setup' do
     subject { described_class.setup }
 
     context 'when the event config file does not exist' do
-      let(:expected_log_message) { '[UserActionEvent::Setup] Config file not found; skipping database population.' }
-
-      before { allow(File).to receive(:exist?).and_return(false) }
-
-      it 'does not create any user action events' do
-        expect { subject }.not_to change(UserActionEvent, :count)
+      let(:expected_error) do
+        '[UserActionEvent][Setup] Error: Config file not found'
       end
 
-      it 'logs a message' do
-        expect(Rails.logger).to receive(:info).with(expected_log_message)
-        subject
+      before do
+        allow(Rails.root).to receive(:join).with('config', 'user_action_events.yml').and_return('some-path.yml')
+      end
+
+      it 'raises an error' do
+        expect { subject }.to raise_error(expected_error)
       end
     end
 
@@ -52,32 +51,49 @@ RSpec.describe UserActionEvent, type: :model do
       end
 
       context 'when the user action event already exists' do
-        let(:old_details) { 'old-details' }
-        let(:old_event_type) { 'old-event_type' }
+        let!(:existing_event) do
+          create(:user_action_event, identifier:, details: old_details, event_type: old_event_type)
+        end
 
-        before { create(:user_action_event, identifier:, details: old_details, event_type: old_event_type) }
+        context 'when the user action event attributes are different from the event_config' do
+          let(:old_details) { 'old-details' }
+          let(:old_event_type) { 'old-event_type' }
 
-        it 'updates the existing user action event' do
-          expect { subject }.not_to change(UserActionEvent, :count)
-          user_action_event = UserActionEvent.last
+          it 'updates the existing user action event' do
+            expect { subject }.not_to change(UserActionEvent, :count)
+            user_action_event = UserActionEvent.last
 
-          expect(user_action_event.identifier).to eq(identifier)
-          expect(user_action_event.details).not_to eq(old_details)
-          expect(user_action_event.details).to eq(details)
-          expect(user_action_event.event_type).not_to eq(old_event_type)
-          expect(user_action_event.event_type).to eq(event_type)
+            expect(user_action_event.identifier).to eq(existing_event.identifier)
+            expect(user_action_event.details).not_to eq(old_details)
+            expect(user_action_event.details).to eq(details)
+            expect(user_action_event.event_type).not_to eq(old_event_type)
+            expect(user_action_event.event_type).to eq(event_type)
+            expect(user_action_event.updated_at).to be > existing_event.updated_at
+          end
+        end
+
+        context 'when the user action event attributes are the same as the event_config' do
+          let(:old_details) { details }
+          let(:old_event_type) { event_type }
+
+          it 'does not update the existing user action event' do
+            expect { subject }.not_to change(UserActionEvent, :count)
+            user_action_event = UserActionEvent.last
+
+            expect(user_action_event.identifier).to eq(existing_event.identifier)
+            expect(user_action_event.updated_at).to eq(existing_event.updated_at)
+          end
         end
       end
 
       context 'when an error occurs' do
         let(:error_message) { 'some error message' }
-        let(:expected_error_log) { "[UserActionEvent::Setup] Error loading user action event: #{error_message}" }
+        let(:expected_error_log) { "[UserActionEvent][Setup] Error: #{error_message}" }
 
         before { allow(YAML).to receive(:load_file).and_raise(error_message) }
 
-        it 'logs an error message' do
-          expect(Rails.logger).to receive(:error).with(expected_error_log)
-          subject
+        it 'raises an error' do
+          expect { subject }.to raise_error(expected_error_log)
         end
       end
     end
