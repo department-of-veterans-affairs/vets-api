@@ -9,15 +9,12 @@ RSpec.describe 'sm client', type: :request do
 
   before do
     sign_in_as(current_user)
-    Flipper.disable_actor(:mhv_secure_messaging_cerner_pilot, current_user)
-  end
-
-  after do
-    Flipper.disable_actor(:mhv_secure_messaging_cerner_pilot, current_user)
+    allow(User).to receive(:find).with(current_user.uuid).and_return(current_user)
   end
 
   context 'session' do
     it 'session' do
+      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, current_user).and_return(false)
       client = nil
       VCR.use_cassette 'sm_client/session' do
         client || begin
@@ -32,7 +29,7 @@ RSpec.describe 'sm client', type: :request do
     end
 
     it 'session OH initial pull' do
-      Flipper.enable_actor(:mhv_secure_messaging_cerner_pilot, current_user)
+      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, current_user).and_return(true)
       client = nil
       VCR.use_cassette('sm_session/session_oh_initial_pull') do
         client ||= begin
