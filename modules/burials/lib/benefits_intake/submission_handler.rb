@@ -41,7 +41,6 @@ module Burials
       def on_stale
         true
       end
-
     end
   end
 end

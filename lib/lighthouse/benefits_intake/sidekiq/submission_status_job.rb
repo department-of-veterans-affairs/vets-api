@@ -183,6 +183,7 @@ module BenefitsIntake
     def handle_attempt_result(uuid, status)
       context = attempt_status_result_context(uuid, status)
 
+      # double check for valid handler, should have been filtered in `perform`
       if (handler = FORM_HANDLERS[context[:form_id]])
         call_location = caller_locations.first
         handler.new(context[:saved_claim_id])&.handle(context[:result], call_location:, **context)
@@ -205,7 +206,7 @@ module BenefitsIntake
       result = STATUS_RESULT_MAP[status.to_sym] || 'pending'
       result = 'stale' if queue_time > STALE_SLA.days && result == 'pending'
 
-      context = {
+      {
         form_id: form_submission_attempt.form_submission.form_type,
         saved_claim_id: form_submission_attempt.form_submission.saved_claim_id,
         uuid:,
