@@ -10,12 +10,12 @@ RSpec.describe Vets::Collections::Pagination do
   describe '#initialize' do
     context 'without WillPaginate' do
       it 'paginates the data correctly' do
-        pagination = described_class.new(page: 2, per_page: 10, total_entries: data.size, data: data)
+        pagination = described_class.new(page: 2, per_page: 10, total_entries: data.size, data:)
         expect(pagination.data).to eq((11..20).to_a)
       end
 
       it 'returns an empty array for out-of-bounds page' do
-        pagination = described_class.new(page: 6, per_page: 10, total_entries: data.size, data: data)
+        pagination = described_class.new(page: 6, per_page: 10, total_entries: data.size, data:)
         expect(pagination.data).to eq([])
       end
 
@@ -34,7 +34,7 @@ RSpec.describe Vets::Collections::Pagination do
       end
 
       it 'uses WillPaginate::Collection for pagination' do
-        described_class.new(page: 1, per_page: 10, total_entries: data.size, data: data,
+        described_class.new(page: 1, per_page: 10, total_entries: data.size, data:,
                             use_will_paginate: true)
         expect(WillPaginate::Collection).to have_received(:create).with(1, 10, data.size)
       end
@@ -43,7 +43,7 @@ RSpec.describe Vets::Collections::Pagination do
         allow_any_instance_of(WillPaginate::Collection).to receive(:out_of_bounds?).and_return(true)
 
         expect do
-          described_class.new(page: 10, per_page: 10, total_entries: data.size, data: data, use_will_paginate: true)
+          described_class.new(page: 10, per_page: 10, total_entries: data.size, data:, use_will_paginate: true)
         end.to raise_error(Common::Exceptions::InvalidPaginationParams)
       end
     end
@@ -51,7 +51,7 @@ RSpec.describe Vets::Collections::Pagination do
 
   describe '#metadata' do
     it 'returns the correct pagination metadata' do
-      pagination = described_class.new(page: 2, per_page: 10, total_entries: data.size, data: data)
+      pagination = described_class.new(page: 2, per_page: 10, total_entries: data.size, data:)
       expected_metadata = {
         pagination: {
           current_page: 2,
