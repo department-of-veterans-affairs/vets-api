@@ -6,8 +6,8 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
   include SchemaMatchers
 
   before do
-    Flipper.enable('va_online_scheduling')
-    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
     sign_in_as(user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
@@ -20,7 +20,7 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
     describe 'GET facility clinics' do
       context 'using VAOS' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
         context 'on successful query for clinics given service type' do
@@ -99,7 +99,7 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
 
       context 'using VPG' do
         before do
-          Flipper.enable(:va_online_scheduling_use_vpg)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(true)
         end
 
         context 'on successful query for clinics given service type' do
@@ -188,7 +188,7 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
 
       context 'using VAOS' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
         context 'on successful query for last visited clinic' do
