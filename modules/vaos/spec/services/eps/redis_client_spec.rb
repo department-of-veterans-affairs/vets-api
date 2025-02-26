@@ -19,7 +19,7 @@ describe Eps::RedisClient do
       data: {
         id: referral_number,
         type: :referral_identifier,
-        attributes: { provider_id: provider_id, appointment_type_id: appointment_type_id, end_date: end_date }
+        attributes: { provider_id:, appointment_type_id:, end_date: }
       }
     }.to_json
   end
