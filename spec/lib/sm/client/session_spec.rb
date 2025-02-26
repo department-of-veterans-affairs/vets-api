@@ -9,13 +9,27 @@ RSpec.describe 'sm client', type: :request do
 
   before do
     sign_in_as(current_user)
-    allow(User).to receive(:find).with(current_user.uuid).and_return(current_user)
+  end 
+  
+  def enable_feature_flag_for_actor
+    allow(User).to receive(:find).and_return(current_user)
+    allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, current_user).and_return(true)
+  end
+
+  def disable_feature_flag_for_actor
+    allow(User).to receive(:find).and_return(current_user)
+    allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, current_user).and_return(false)
+  end
+
+  after do
+    RSpec::Mocks.space.proxy_for(User).reset
+    RSpec::Mocks.space.proxy_for(Flipper).reset
   end
 
   context 'session' do
     it 'session' do
-      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, current_user).and_return(false)
       client = nil
+      disable_feature_flag_for_actor
       VCR.use_cassette 'sm_client/session' do
         client || begin
           client = SM::Client.new(session: { user_id:, user_uuid: current_user.uuid })
@@ -29,7 +43,7 @@ RSpec.describe 'sm client', type: :request do
     end
 
     it 'session OH initial pull' do
-      allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, current_user).and_return(true)
+      enable_feature_flag_for_actor
       client = nil
       VCR.use_cassette('sm_session/session_oh_initial_pull') do
         client ||= begin
