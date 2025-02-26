@@ -17,7 +17,7 @@ module AccreditedRepresentativePortal
           DELETE = 'operation:delete',
           SEARCH = 'operation:search',
           UPLOAD = 'operation:upload',
-          DECISION_MADE = 'operation:decision_made',
+          DECISION = 'operation:decision',
           DOWNLOAD = 'operation:download',
           EMAIL_SEND = 'operation:email_send',
           NOTIFY = 'operation:notify',

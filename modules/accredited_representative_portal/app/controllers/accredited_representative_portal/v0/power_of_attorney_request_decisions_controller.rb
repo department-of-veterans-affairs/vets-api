@@ -36,6 +36,10 @@ module AccreditedRepresentativePortal
           )
         end
 
+        track_request('Decision made', tags: [Monitoring::Tag::Operation::DECISION,
+                                              Monitoring::Tag::Status::SUCCESS,
+                                              "type:#{type}",])
+
         if @poa_request.created_at.present? && Time.current >= @poa_request.created_at
           decision_time_ms = (Time.current - @poa_request.created_at) * 1000
           StatsD.timing(Monitoring::Metric::POA_DECISION_TIME, decision_time_ms, tags: [
