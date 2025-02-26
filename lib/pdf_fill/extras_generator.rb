@@ -36,9 +36,6 @@ module PdfFill
         }
       end
 
-      if @sections.present?
-        metadata[:section_index] = @sections.index { |sec| sec[:top_level_keys].include?(metadata[:top_level_key]) }
-      end
       @generate_blocks << {
         metadata:,
         block: create_block(value, metadata)
@@ -49,10 +46,15 @@ module PdfFill
       @generate_blocks.size.positive?
     end
 
-    def section_index(metadata)
-      return nil unless @sections.present? && metadata[:top_level_key].present?
+    def populate_section_indices!
+      return if @sections.blank?
 
-      @sections.index { |sec| sec[:top_level_keys].include?(metadata[:top_level_key]) }
+      @generate_blocks.each do |generate_block|
+        metadata = generate_block[:metadata]
+        if metadata[:top_level_key].present?
+          metadata[:section_index] = @sections.index { |sec| sec[:top_level_keys].include?(metadata[:top_level_key]) }
+        end
+      end
     end
 
     def sort_generate_blocks
@@ -142,6 +144,7 @@ module PdfFill
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/extras_#{SecureRandom.uuid}.pdf"
+      populate_section_indices!
       generate_blocks = sort_generate_blocks
       generate_pdf(file_path, generate_blocks)
       file_path
