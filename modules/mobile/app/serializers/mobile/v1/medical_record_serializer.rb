@@ -30,7 +30,6 @@ module Mobile
         observations.map do |obs|
           {
             test_code: obs.test_code,
-            encoded_data: obs.encoded_data,
             value_quantity: obs.value_quantity,
             reference_range: obs.reference_range,
             status: obs.status,

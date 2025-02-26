@@ -104,7 +104,6 @@ module UnifiedHealthData
       record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
         UnifiedHealthData::MedicalRecord::Attributes::Observation.new(
           test_code: obs['code']['text'],
-          encoded_data: '',
           value_quantity: if obs['valueQuantity']
                             "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}".strip
                           else

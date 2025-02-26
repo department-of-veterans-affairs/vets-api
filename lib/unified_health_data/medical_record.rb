@@ -28,12 +28,11 @@ module UnifiedHealthData
       end
 
       class Observation
-        attr_accessor :test_code, :encoded_data, :value_quantity,
+        attr_accessor :test_code, :value_quantity,
                       :reference_range, :status, :comments
 
-        def initialize(test_code:, encoded_data:, value_quantity:, reference_range:, status:, comments:)
+        def initialize(test_code:, value_quantity:, reference_range:, status:, comments:)
           @test_code = test_code
-          @encoded_data = encoded_data
           @value_quantity = value_quantity
           @reference_range = reference_range
           @status = status

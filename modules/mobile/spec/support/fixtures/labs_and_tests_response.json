@@ -12,7 +12,6 @@
     "observations": [
       {
         "testCode": "GLUCOSE",
-        "encodedData": "",
         "valueQuantity": "99 mg/dL",
         "referenceRange": "70 - 110",
         "status": "final",
@@ -20,7 +19,6 @@
       },
       {
         "testCode": "UREA NITROGEN",
-        "encodedData": "",
         "valueQuantity": "200 mg/dL",
         "referenceRange": "7 - 18",
         "status": "final",
@@ -28,7 +26,6 @@
       },
       {
         "testCode": "CREATININE",
-        "encodedData": "",
         "valueQuantity": "5 mg/dL",
         "referenceRange": "0.6 - 1.3",
         "status": "final",
@@ -36,7 +33,6 @@
       },
       {
         "testCode": "SODIUM",
-        "encodedData": "",
         "valueQuantity": "8 meq/L",
         "referenceRange": "136 - 145",
         "status": "final",
@@ -44,7 +40,6 @@
       },
       {
         "testCode": "POTASSIUM",
-        "encodedData": "",
         "valueQuantity": "24 meq/L",
         "referenceRange": "3.5 - 5.1",
         "status": "final",
@@ -52,7 +47,6 @@
       },
       {
         "testCode": "CHLORIDE",
-        "encodedData": "",
         "valueQuantity": "2 meq/L",
         "referenceRange": "98 - 107",
         "status": "final",
@@ -60,7 +54,6 @@
       },
       {
         "testCode": "CO2",
-        "encodedData": "",
         "valueQuantity": "2 meq/L",
         "referenceRange": "22 - 29",
         "status": "final",
