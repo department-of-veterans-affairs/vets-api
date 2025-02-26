@@ -22,7 +22,7 @@ module Burials
 
       # BenefitsIntake::SubmissionHandler::SavedClaim#notification_email
       def notification_email
-        @notification_email = Burials::NotificationEmail.new(claim.id)
+        @notification_email ||= Burials::NotificationEmail.new(claim.id)
       end
 
       # handle a failure result

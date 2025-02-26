@@ -122,7 +122,7 @@ module BenefitsIntake
 
         # Log the status for debugging
         status = submission.dig('attributes', 'status')
-        log(:info, "Processing submission UUID: #{uuid}, Status: #{status}")
+        log(:info, "Processing submission UUID: #{uuid}, Status: #{status}", submission:)
 
         update_attempt_record(uuid, status, submission)
         monitor_attempt_status(uuid, status)
