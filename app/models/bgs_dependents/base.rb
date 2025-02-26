@@ -4,6 +4,7 @@ module BGSDependents
   class Base < Common::Base
     include ActiveModel::Validations
     MILITARY_POST_OFFICE_TYPE_CODES = %w[APO DPO FPO].freeze
+
     # Gets the person's address based on the lives with veteran flag
     #
     # @param dependents_application [Hash] the submitted form information
@@ -192,5 +193,13 @@ module BGSDependents
 
       bool_attribute ? 'Y' : 'N'
     end
+
+
+    private
+
+    def is_v2?
+      Flipper.enabled?(:va_dependents_v2)
+    end
+
   end
 end

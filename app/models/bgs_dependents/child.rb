@@ -57,7 +57,7 @@ module BGSDependents
 
     def initialize(child_info)
       @child_info = child_info
-      @is_v2 = Flipper.enabled?(:va_dependents_v2)
+      @is_v2 = is_v2?
       self.attributes = child_attributes
     end
 

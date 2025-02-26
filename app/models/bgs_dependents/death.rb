@@ -4,7 +4,7 @@ module BGSDependents
   class Death < Base
     def initialize(death_info)
       @death_info = death_info
-      @is_v2 = Flipper.enabled?(:va_dependents_v2)
+      @is_v2 = is_v2?
     end
 
     def format_info

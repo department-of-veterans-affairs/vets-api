@@ -33,7 +33,7 @@ module BGSDependents
 
     def initialize(dependents_application)
       @dependents_application = dependents_application
-      @is_v2 = Flipper.enabled?(:va_dependents_v2)
+      @is_v2 = is_v2?
       # with v2 handling, dependents_application is one to many hashes within the student_information array
       @source = @is_v2 ? @dependents_application : @dependents_application['student_name_and_ssn']
       @ssn = @source['ssn']

@@ -11,7 +11,7 @@ module BGSDependents
       @proc_id = proc_id
       @vnp_participant_id = vnp_participant_id
       @student = student
-      @is_v2 = Flipper.enabled?(:va_dependents_v2)
+      @is_v2 = is_v2?
       self.attributes = @is_v2 ? student : dependents_application
     end
 
