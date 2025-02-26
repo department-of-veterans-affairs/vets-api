@@ -32,20 +32,29 @@ RSpec.describe UserActionEventCreator do
       context 'when the user action event does not exist' do
         it 'creates a new user action event' do
           expect { subject }.to change(UserActionEvent, :count).by(1)
-          expect(UserActionEvent.last.identifier).to eq('some_identifier')
-          expect(UserActionEvent.last.details).to eq(details)
-          expect(UserActionEvent.last.event_type).to eq(event_type)
+          user_action_event = UserActionEvent.last
+
+          expect(user_action_event.identifier).to eq(identifier)
+          expect(user_action_event.details).to eq(details)
+          expect(user_action_event.event_type).to eq(event_type)
         end
       end
 
       context 'when the user action event already exists' do
-        before { create(:user_action_event, identifier:, details: 'old-details', event_type: 'old-event_type') }
+        let(:old_details) { 'old-details' }
+        let(:old_event_type) { 'old-event_type' }
+
+        before { create(:user_action_event, identifier:, details: old_details, event_type: old_event_type) }
 
         it 'updates the existing user action event' do
           expect { subject }.not_to change(UserActionEvent, :count)
-          expect(UserActionEvent.last.identifier).to eq(identifier)
-          expect(UserActionEvent.last.details).to eq(details)
-          expect(UserActionEvent.last.event_type).to eq(event_type)
+          user_action_event = UserActionEvent.last
+
+          expect(user_action_event.identifier).to eq(identifier)
+          expect(user_action_event.details).not_to eq(old_details)
+          expect(user_action_event.details).to eq(details)
+          expect(user_action_event.event_type).not_to eq(old_event_type)
+          expect(user_action_event.event_type).to eq(event_type)
         end
       end
 
