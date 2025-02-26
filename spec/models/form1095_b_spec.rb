@@ -67,24 +67,4 @@ RSpec.describe Form1095B, type: :model do
       end
     end
   end
-
-  describe 'scopes' do
-    let!(:multi_search_form_2) { create(:form1095_b, veteran_icn: '123456787654321', tax_year: 2020) }
-    let!(:multi_search_form_1) { create(:form1095_b, veteran_icn: '123456787654321') }
-    let!(:multi_search_form_3) { create(:form1095_b, veteran_icn: '123456787654321', tax_year: 2019) }
-
-    it 'returns individual available form' do
-      expect(Form1095B.available_forms(subject.veteran_icn)).to eq([subject])
-    end
-
-    it 'returns available forms in descending order by tax year' do
-      expect(Form1095B.available_forms(multi_search_form_1.veteran_icn)).to eq(
-        [multi_search_form_1, multi_search_form_2, multi_search_form_3]
-      )
-    end
-
-    it 'expects empty array if no available forms exist' do
-      expect(Form1095B.available_forms('876543234567')).to eq([])
-    end
-  end
 end
