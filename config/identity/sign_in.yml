@@ -1,0 +1,37 @@
+localhost:
+  jwt_encode_key: 'spec/fixtures/sign_in/privatekey.pem'
+  jwt_old_encode_key: 'spec/fixtures/sign_in/privatekey_old.pem'
+  cookies_secure: false
+  info_cookie_domain: localhost
+  auto_uplevel: true
+  mock_auth_url: http://localhost:3000/mocked_authentication/profiles
+  mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
+  mockdata_sync_api_key: ~
+  vaweb_client_id: vaweb
+  vamobile_client_id: vamobile
+  arp_client_id: arp
+  user_info_clients: ['okta_test']
+  sts_client:
+    base_url: http://localhost:3000
+    key_path: spec/fixtures/sign_in/sts_client.pem
+  web_origins:
+    - http://localhost:4000
+
+production:
+  jwt_encode_key: 'spec/fixtures/sign_in/privatekey.pem'
+  jwt_old_encode_key: 'spec/fixtures/sign_in/privatekey_old.pem'
+  cookies_secure: false
+  info_cookie_domain: localhost
+  auto_uplevel: true
+  mock_auth_url: http://localhost:3000/mocked_authentication/profiles
+  mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
+  mockdata_sync_api_key: ~
+  vaweb_client_id: vaweb
+  vamobile_client_id: vamobile
+  arp_client_id: arp
+  user_info_clients: ['okta_test']
+  sts_client:
+    base_url: http://localhost:3000
+    key_path: spec/fixtures/sign_in/sts_client.pem
+  web_origins:
+    - http://localhost:4000
