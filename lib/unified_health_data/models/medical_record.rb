@@ -1,45 +1,36 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module UnifiedHealthData
-  class MedicalRecord
-    attr_accessor :id, :type, :attributes
+  class Observation
+    include Vets::Model
 
-    def initialize(id:, type:, attributes:)
-      @id = id
-      @type = type
-      @attributes = attributes
-    end
-
-    # rubocop:disable Metrics/ParameterLists
-    class Attributes
-      attr_accessor :display, :test_code, :date_completed, :sample_site,
-                    :encoded_data, :location, :ordered_by, :observations
-
-      def initialize(display:, test_code:, date_completed:, sample_site:,
-                     encoded_data:, location:, ordered_by:, observations:)
-        @display = display
-        @test_code = test_code
-        @date_completed = date_completed
-        @sample_site = sample_site
-        @encoded_data = encoded_data
-        @location = location
-        @ordered_by = ordered_by
-        @observations = observations
-      end
-
-      class Observation
-        attr_accessor :test_code, :value_quantity,
-                      :reference_range, :status, :comments
-
-        def initialize(test_code:, value_quantity:, reference_range:, status:, comments:)
-          @test_code = test_code
-          @value_quantity = value_quantity
-          @reference_range = reference_range
-          @status = status
-          @comments = comments
-        end
-      end
-    end
+    attribute :test_code, String
+    attribute :value_quantity, String
+    attribute :reference_range, String
+    attribute :status, String
+    attribute :comments, String
   end
-  # rubocop:enable Metrics/ParameterLists
+
+  class Attributes
+    include Vets::Model
+
+    attribute :display, String
+    attribute :test_code, String
+    attribute :date_completed, String
+    attribute :sample_site, String
+    attribute :encoded_data, String
+    attribute :location, String
+    attribute :ordered_by, String
+    attribute :observations, UnifiedHealthData::Observation, array: true
+  end
+
+  class MedicalRecord
+    include Vets::Model
+
+    attribute :id, String
+    attribute :type, String
+    attribute :attributes, UnifiedHealthData::Attributes, array: false
+  end
 end

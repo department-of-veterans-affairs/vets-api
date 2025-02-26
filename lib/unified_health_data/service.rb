@@ -67,7 +67,7 @@ module UnifiedHealthData
 
       return nil unless code && (encoded_data || observations)
 
-      attributes = UnifiedHealthData::MedicalRecord::Attributes.new(
+      attributes = UnifiedHealthData::Attributes.new(
         display: code,
         test_code: record['resource']['code']['text'],
         date_completed: record['resource']['effectiveDateTime'],
@@ -106,7 +106,7 @@ module UnifiedHealthData
 
     def fetch_observations(record)
       record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
-        UnifiedHealthData::MedicalRecord::Attributes::Observation.new(
+        UnifiedHealthData::Observation.new(
           test_code: obs['code']['text'],
           value_quantity: if obs['valueQuantity']
                             "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}".strip
