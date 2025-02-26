@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 require_relative 'configuration'
-require_relative 'medical_record'
+require_relative 'models/medical_record'
 
 module UnifiedHealthData
   class Service < Common::Client::Base
