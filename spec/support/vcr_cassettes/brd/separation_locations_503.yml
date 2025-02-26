@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/benefits-reference-data/v1/intake-sites"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Bearer blahblech
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 503
+      message: Service Unavailable
+    headers:
+      Date:
+      - Tue, 13 Feb 2025 07:29:41 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '52'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "type": "https://api.va.gov/services/benefits-reference-data/v1/api-schema/errors/service-unavailable",
+          "title": "Service Unavailable",
+          "status": 503,
+          "detail": "Cannot access service definition: standardDataService.wsdl",
+          "instance": "e6d1119e-dc91-4b4d-b583-0f309de0807b"
+        }
+  recorded_at: Tue, 13 Feb 2025 07:29:41 GMT
+recorded_with: VCR 6.3.1
