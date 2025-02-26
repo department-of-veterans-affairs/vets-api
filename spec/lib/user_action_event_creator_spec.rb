@@ -22,33 +22,28 @@ RSpec.describe UserActionEventCreator do
     end
 
     context 'when the event config file exists' do
-      let(:config_file_path) { Rails.root.join('config', 'user_action_events.yml') }
-      let(:user_action_event_configs) { YAML.load_file(config_file_path) }
+      let(:identifier) { 'some_identifier' }
+      let(:user_action_event_configs) { { identifier => { details:, event_type: } } }
+      let(:details) { 'some-details' }
+      let(:event_type) { 'some-event_type' }
+
+      before { allow(YAML).to receive(:load_file).and_return(user_action_event_configs) }
 
       context 'when the user action event does not exist' do
-        let(:user_action_event_configs) { { some_identifier: { details:, event_type: } } }
-        let(:details) { 'some details' }
-        let(:event_type) { 'authentication' }
-
-        before do
-          allow(YAML).to receive(:load_file).and_return(user_action_event_configs)
-        end
-
         it 'creates a new user action event' do
           expect { subject }.to change(UserActionEvent, :count).by(1)
-          expect(UserActionEvent.last.identifier).to eq(user_action_event_configs.keys.last.to_s)
+          expect(UserActionEvent.last.identifier).to eq('some_identifier')
           expect(UserActionEvent.last.details).to eq(details)
           expect(UserActionEvent.last.event_type).to eq(event_type)
         end
       end
 
       context 'when the user action event already exists' do
-        let(:details) { user_action_event_configs.values.last['details'] }
-        let(:event_type) { user_action_event_configs.values.last['event_type'] }
+        before { create(:user_action_event, identifier:, details: 'old-details', event_type: 'old-event_type') }
 
         it 'updates the existing user action event' do
           expect { subject }.not_to change(UserActionEvent, :count)
-          expect(UserActionEvent.last.identifier).to eq(user_action_event_configs.keys.last.to_s)
+          expect(UserActionEvent.last.identifier).to eq(identifier)
           expect(UserActionEvent.last.details).to eq(details)
           expect(UserActionEvent.last.event_type).to eq(event_type)
         end
