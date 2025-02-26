@@ -1027,8 +1027,8 @@ old_secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde
 onsite_notifications:
   public_key: ~
   template_ids:
-    - f9947b27-df3b-4b09-875c-7f76594d766d
-    - 7efc2b8b-e59a-4571-a2ff-0fd70253e973
+    - f9947b27-df3b-4b09-875c-7f76594d766d # staging    - debt notification
+    - 7efc2b8b-e59a-4571-a2ff-0fd70253e973 # production - debt notification
 pension_burial:
   prefill: true
   sftp:
