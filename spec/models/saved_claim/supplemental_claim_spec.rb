@@ -23,13 +23,17 @@ RSpec.describe SavedClaim::SupplementalClaim, type: :model do
   end
 
   describe 'validation' do
-    let!(:saved_claim_sc) { described_class.new(guid:, form: form_data.to_json) }
+    let!(:saved_claim) { described_class.new(guid:, form: form_data.to_json) }
+
+    before do
+      allow(Rails.logger).to receive(:warn)
+    end
 
     context 'no validation errors' do
       it 'returns true' do
         allow(JSON::Validator).to receive(:fully_validate).and_return([])
 
-        expect(saved_claim_sc.validate).to be true
+        expect(saved_claim.validate).to be true
       end
     end
 
@@ -41,7 +45,7 @@ RSpec.describe SavedClaim::SupplementalClaim, type: :model do
         expect(Rails.logger).to receive(:warn).with('SavedClaim: schema validation error detected for form 20-0995',
                                                     validation_errors)
 
-        expect(saved_claim_sc.validate).to be true
+        expect(saved_claim.validate).to be true
       end
     end
 
@@ -53,7 +57,7 @@ RSpec.describe SavedClaim::SupplementalClaim, type: :model do
         expect(Rails.logger).to receive(:warn).with('SavedClaim: form_matches_schema error raised for form 20-0995',
                                                     exception)
 
-        expect(saved_claim_sc.validate).to be true
+        expect(saved_claim.validate).to be true
       end
     end
   end
