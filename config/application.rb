@@ -135,11 +135,11 @@ module VetsAPI
     #   they are loaded through app/sidekiq/education_form/forms/base.rb
     Rails.autoloaders.main.ignore(Rails.root.join('app', 'sidekiq', 'education_form', 'templates', '1990-disclosure'))
 
-    # ENVs from Parent Helm Chart are all lowercase
-    # to keep with the convention they should all
-    # be upcased ENV['example'] => ENV['EXAMPLE]
-    # In order to not disrupt other ENVs. This only
-    # adds an upcased version.
+    # ENVs from Parent Helm Chart are all lowercase.
+    # To keep with the convention, they should all
+    # be upcased in order to not disrupt other ENVs.
+    # This code adds an upcased version
+    # ENV['example'] => ENV['EXAMPLE]
     ENV.each_key do |key|
       next unless key == key.downcase
 
