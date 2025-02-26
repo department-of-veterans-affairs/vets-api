@@ -49,7 +49,6 @@ FactoryBot.define do
   factory :bd_lh_evidence_submission_failed_type1_error, class: 'EvidenceSubmission' do
     association :user_account, factory: :user_account
     created_at { DateTime.now.utc }
-    failed_date { 1.day.ago }
     job_class { 'Lighthouse::BenefitsDocuments::Service' }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
     failed_date { DateTime.now.utc }
@@ -117,8 +116,17 @@ FactoryBot.define do
     association :user_account, factory: :user_account
     created_at { 5.days.ago }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
-    job_class { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
+    job_class { 'BenefitsDocuments::Service' }
     va_notify_id { 123 }
+    va_notify_date { DateTime.now.utc }
+  end
+
+  factory :bd_evidence_submission_failed_va_notify_email_enqueued_evss, class: 'EvidenceSubmission' do
+    association :user_account, factory: :user_account
+    created_at { 5.days.ago }
+    upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
+    job_class { 'EVSSClaimService' }
+    va_notify_id { 222 }
     va_notify_date { DateTime.now.utc }
   end
 
@@ -126,7 +134,7 @@ FactoryBot.define do
     association :user_account, factory: :user_account
     created_at { 5.days.ago }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
-    job_class { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
+    job_class { 'BenefitsDocuments::Service' }
     va_notify_id { 123 }
     va_notify_date { DateTime.now.utc }
     va_notify_status { 'success' }
