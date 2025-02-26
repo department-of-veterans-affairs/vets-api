@@ -9,9 +9,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
   let!(:test_user) do
     create(:representative_user, email: 'test@va.gov', icn: '123498767V234859')
   end
-
   let!(:accredited_individual) do
     create(:user_account_accredited_individual,
+           accredited_individual_registration_number: '999999999999',
            user_account_email: test_user.email,
            user_account_icn: test_user.icn,
            poa_code:)
@@ -154,6 +154,21 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
   end
 
   describe 'Full decision cycle' do
+    context 'representative is missing registration number' do
+      it 'responds with a 422 error' do
+        accredited_individual.update(accredited_individual_registration_number: nil)
+        VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/422_response') do
+          post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+               params: { decision: { type: 'acceptance', reason: nil } }
+        end
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed_response).to eq({ 'errors' => ['Unprocessable Entity'] })
+        poa_request.reload
+
+        expect(poa_request.resolution.present?).to be(false)
+      end
+    end
+
     it 'creates acceptance decision with veteran claimant' do
       VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/202_response') do
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",

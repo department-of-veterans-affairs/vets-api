@@ -32,7 +32,7 @@ module AccreditedRepresentativePortal
 
       def call
         ActiveRecord::Base.transaction do
-          @resolution = poa_request.mark_accepted!(creator, reason)
+          @resolution = poa_request.mark_accepted!(creator.user_account, reason)
         end
         response = service.submit2122(form_payload)
         form_submission = create_form_submission!(response.body)
@@ -43,15 +43,16 @@ module AccreditedRepresentativePortal
         raise Error.new(e.message, :bad_request)
       # Transient 5xx errors: delete objects created, raise TransientError
       rescue *TRANSIENT_ERROR_TYPES => e
-        resolution.delete
+        resolution&.delete
         raise Error.new(e.message, BenefitsClaims::ServiceException::ERROR_MAP.invert[e.class])
       # Fatal 4xx errors or validation error: save error message, raise FatalError
       rescue *FATAL_ERROR_TYPES => e
+        resolution&.delete
         create_error_form_submission(e.message, response&.body)
         raise Error.new(e.message, BenefitsClaims::ServiceException::ERROR_MAP.invert[e.class])
       # All other errors: save error data on form submission, will result in a 500
       rescue
-        resolution.delete
+        resolution&.delete
         raise
       end
 
@@ -91,11 +92,25 @@ module AccreditedRepresentativePortal
         end
       end
 
+      def registration_number
+        UserAccountAccreditedIndividual.for_user(
+          icn: creator.user_account.icn,
+          email: creator.email
+        ).first&.accredited_individual_registration_number.tap do |registration_number|
+          unless registration_number
+            raise Error.new(
+              'Missing registration number for representative.',
+              :unprocessable_entity
+            )
+          end
+        end
+      end
+
       def organization_data
         {
           poaCode: poa_request.power_of_attorney_holder_poa_code,
           # TODO: update when allowing non-veteran claimant submissions
-          registrationNumber: poa_request.accredited_individual_registration_number
+          registrationNumber: registration_number
         }
       end
 
