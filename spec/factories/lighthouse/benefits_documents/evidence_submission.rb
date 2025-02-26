@@ -54,7 +54,6 @@ FactoryBot.define do
     failed_date { DateTime.now.utc }
     acknowledgement_date { DateTime.now.utc + 30.days }
     error_message { 'Lighthouse::EvidenceSubmissions::DocumentUpload document upload failure' }
-    request_id { '1234' }
     template_metadata do
       { 'personalisation' => {
         'first_name' => 'test',
