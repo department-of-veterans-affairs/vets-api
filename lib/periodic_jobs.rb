@@ -258,4 +258,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Daily cron job to send Failure Notification Emails to Veterans for their failed evidence submissions.
   mgr.register('5 0 * * *', 'Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob')
+
+  # Annual cron job to delete Form1095B forms for years prior to the current tax year.
+  mgr.register('0 4 1 1 *', 'Form1095::Delete1095BsJob')
 }
