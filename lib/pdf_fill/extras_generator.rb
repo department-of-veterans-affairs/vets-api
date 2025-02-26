@@ -2,6 +2,9 @@
 
 module PdfFill
   class ExtrasGenerator
+    HEADER_FONT_SIZE = 14.5
+    SUBHEADER_FONT_SIZE = 10.5
+
     attr_reader :extras_redesign
 
     def initialize(form_name: nil, submit_date: nil, extras_redesign: false, start_page: 1)
@@ -71,12 +74,11 @@ module PdfFill
     def set_header(pdf)
       pdf.repeat :all do
         bound_width = pdf.bounds.width / 2
-        bound_height = 14.5
         location = [pdf.bounds.left, pdf.bounds.top]
-        write_header_main(pdf, location, bound_width, bound_height)
+        write_header_main(pdf, location, bound_width, HEADER_FONT_SIZE)
         if @submit_date.present?
           location[0] += bound_width
-          write_header_submit_date(pdf, location, bound_width, bound_height)
+          write_header_submit_date(pdf, location, bound_width, HEADER_FONT_SIZE)
         end
         pdf.pad_top(2) { pdf.stroke_horizontal_rule }
       end
@@ -137,10 +139,11 @@ module PdfFill
         pdf.text("Submitted on VA.gov on #{@submit_date}",
                  align: :right,
                  valign: :bottom,
-                 size: 10.5)
+                 size: SUBHEADER_FONT_SIZE)
       end
     end
 
+    # Formats the submit_date for the PDF header
     def format_date(date)
       return nil if date.blank?
 
