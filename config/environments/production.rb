@@ -63,8 +63,7 @@ Rails.application.configure do
     consumer_username: ->(request) { request.headers['X-Consumer-Username'] },
     consumer_custom_id: ->(request) { request.headers['X-Consumer-Custom-ID'] },
     credential_username: ->(request) { request.headers['X-Credential-Username'] },
-    csrf_token: ->(request) { request.headers['X-Csrf-Token'] },
-    correlation_id: ->(request) { request.headers['Correlation-ID'] }
+    csrf_token: ->(request) { request.headers['X-Csrf-Token'] }
   }
 
   config.rails_semantic_logger.format = :json
