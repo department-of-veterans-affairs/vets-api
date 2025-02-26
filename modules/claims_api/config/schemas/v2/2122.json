@@ -26,41 +26,42 @@
           ],
           "properties": {
             "addressLine1": {
-              "description": "Street address with number and name.",
+              "description": "Street number and name for the veteran's address.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
             "addressLine2": {
+              "description": "Apartment or unit number for the veteran's address.",
               "type": "string",
               "maxLength": 5
             },
             "city": {
-              "description": "City for the address.",
+              "description": "City for the veteran's address.",
               "type": "string",
               "example": "Portland",
               "maxLength": 18
             },
             "stateCode": {
-              "description": "State or province code for the address.",
+              "description": "State abbreviation for the veteran's address.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
             },
             "countryCode": {
-              "description": "Country code of the address.",
+              "description": "Two-letter country code for the veteran's address.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "US"
             },
             "zipCode": {
-              "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
+              "description": "Zip code (first 5 digits) for the veteran's address. Required if 'countryCode' is 'US'.'",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
             "zipCodeSuffix": {
-              "description": "Zipcode (Last 4 digits) of the address.",
+              "description": "Zip code suffix (last 4 digits) for the veteran's address.",
               "type": "string",
               "pattern": "^\\d{4}?$",
               "example": "6789"
@@ -76,17 +77,17 @@
           ],
           "properties": {
             "countryCode": { 
-              "description": "Country code of the phone number. Required for international phone numbers.",
+              "description": "Country code for the veteran's phone number. Required for international phone numbers.",
               "type": "string", 
               "pattern": "^[0-9]+$" 
             },
             "areaCode": {
-              "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
+              "description": "Area code for the veteran's phone number. Required if countryCode is '1' or not included.",
               "type": "string", "pattern": "^[2-9][0-9]{2}$",
               "example": "555"
             },
             "phoneNumber": {
-              "description": "Phone number.",
+              "description": "Phone number for the veteran.",
               "type": "string", "pattern": "^\\d(?:[- ]?\\d){0,13}$",
               "example": "555-5555",
               "minLength": 1,
@@ -113,7 +114,7 @@
           }
         },
         "email": {
-          "description": "Email address of the veteran.",
+          "description": "Email address for the veteran.",
           "type": "string",
           "pattern": "^(?!.*\\s).+@.+\\..+|^$",
           "maxLength": 61,
@@ -128,59 +129,61 @@
         "insuranceNumber": {
           "type": "string",
           "maxLength": 60,
-          "description": "Veteran's insurance number, if applicable. Include letter prefix."
+          "description": "Insurance number for the veteran, if applicable. Include letter prefix."
         }
       }
     },
     "claimant": {
+      "description": "Include claimant information for dependent claimants.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "claimantId": {
           "type": "string",
           "example": "123456789",
-          "description": "Id of the claimant."
+          "description": "Integration Control Number (ICN) for the dependent claimant."
         },
         "address": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
             "addressLine1": {
-              "description": "Street address with number and name. Required if claimant information provided.",
+              "description": "Street number and name for the dependent claimant's address. Required if claimant information provided.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
               "maxLength": 30
             },
             "addressLine2": {
+              "description": "Apartment or unit number for the dependent claimant's address.",
               "type": "string",
               "maxLength": 5
             },
             "city": {
-              "description": "City for the address. Required if claimant information provided.",
+              "description": "City for the dependent claimant's address. Required if claimant information provided.",
               "type": "string",
               "example": "Portland",
               "maxLength": 18
             },
             "stateCode": {
-              "description": "State or province code for the address. Required if claimant information provided.",
+              "description": "State abbreviation for the dependent claimant's address. Required if claimant information provided.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
             },
             "countryCode": {
-              "description": "Country code of the address. Required if claimant information provided.",
+              "description": "Two-letter country code for the dependent claimant's address. Required if claimant information provided.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "US"
             },
             "zipCode": {
-              "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
+              "description": "Zip code (first 5 digits) for the dependent claimant's address. Required if 'countryCode' is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
             "zipCodeSuffix": {
-              "description": "Zipcode (Last 4 digits) of the address.",
+              "description": "Zip code suffix (last 4 digits) for the dependent claimant's address.",
               "type": "string",
               "pattern": "^\\d{4}?$",
               "example": "6789"
@@ -197,17 +200,17 @@
           ],
           "properties": {
             "countryCode": {
-              "description": "Country code of the phone number. Required for international phone numbers.",
+              "description": "Country code for the dependent claimant's phone number. Required for international phone numbers.",
               "type": "string",
               "pattern": "^[0-9]+$"
             },
             "areaCode": {
-              "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
+              "description": "Area code for the dependent claimant's phone number. Required if countryCode is '1' or not included.",
               "type": "string", "pattern": "^[2-9][0-9]{2}$",
               "example": "555"
             },
             "phoneNumber": {
-              "description": "Phone number.",
+              "description": "Phone number for the dependent claimant.",
               "type": "string", "pattern": "^\\d(?:[- ]?\\d){0,13}$",
               "example": "555-5555",
               "minLength": 1,
@@ -234,7 +237,7 @@
           }
         },
         "email": {
-          "description": "Email address of the claimant.",
+          "description": "Email address for the dependent claimant.",
           "type": "string",
           "pattern": "^(?!.*\\s).+@.+\\..+|^$",
           "maxLength": 30,
@@ -281,11 +284,11 @@
       }
     },
     "recordConsent": {
-      "description": "AUTHORIZATION FOR REPRESENTATIVE'S ACCESS TO RECORDS PROTECTED BY SECTION 7332, TITLE 38, U.S.C.",
+      "description": "Authorization for Representative's Access to Records Protected by Section 7332, Title 38, U.S.C. Explicitly permits the designated representative to access sensitive medical records within VA. Setting 'recordConsent' to false will prevent the designated representative from accessing the claimant's documents in VBMS.",
       "type": "boolean"
     },
     "consentLimits": {
-      "description": "Consent in Item 19 for the disclosure of records relating to treatment for drug abuse, alcoholism or alcohol abuse, infection with the human immunodeficiency virus (HIV), or sickle cell anemia is limited as follows.",
+      "description": "Consent for the disclosure of records relating to treatment for drug abuse, alcoholism or alcohol abuse, infection with the human immunodeficiency virus (HIV), or sickle cell anemia is limited to this list. Including 'consentLimits' will prevent the designated representative from accessing the claimant's documents in VBMS.",
       "type": "array",
       "items": {
         "type": "string",
@@ -299,7 +302,7 @@
       "example": "DRUG_ABUSE"
     },
     "consentAddressChange": {
-      "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
+      "description": "Authorization for Representative to Act on Claimant's Behalf to Change Claimant's Address.",
       "type": "boolean"
     }
   }
