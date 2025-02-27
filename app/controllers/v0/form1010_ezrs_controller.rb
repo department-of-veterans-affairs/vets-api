@@ -21,7 +21,7 @@ module V0
 
     def veteran_prefill_data
       render json: {
-        data: HCA::EnrollmentEligibility::Service.new.get_ezr_data(@current_user.icn)
+        data: HCA::EnrollmentEligibility::Service.new.get_ezr_prefill_data(@current_user.icn)
       }
     end
 
