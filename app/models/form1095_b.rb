@@ -3,6 +3,7 @@
 class Form1095B < ApplicationRecord
   has_kms_key
   has_encrypted :form_data, key: :kms_key, **lockbox_options
+  has_encrypted :veteran_icn, migrating: true, type: :string, key: :kms_key, **lockbox_options
 
   validates :veteran_icn, :tax_year,  presence: true
   validates :veteran_icn, uniqueness: { scope: :tax_year }
