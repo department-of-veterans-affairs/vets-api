@@ -7,12 +7,17 @@ module Common
       class Error < StandardError; end
 
       class ClientError < Error
-        attr_accessor :status, :body
+        attr_accessor :status, :body, :headers
 
-        def initialize(message = nil, status = nil, body = nil)
+        def initialize(message = nil, status = nil, body = nil, **hash)
           super(message)
           @status = status
           @body = body
+          @headers = hash[:headers]
+        end
+
+        def response
+          OpenStruct.new(status:, body:, headers:)
         end
       end
 
