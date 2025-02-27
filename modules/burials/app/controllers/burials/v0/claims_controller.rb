@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/exceptions/validation_errors'
+require 'burials/benefits_intake/submit_claim_job'
 
 module Burials
   module V0
@@ -97,7 +98,7 @@ module Burials
       def process_and_upload_to_lighthouse(in_progress_form, claim)
         claim.process_attachments!
 
-        Lighthouse::SubmitBenefitsIntakeClaim.perform_async(claim.id)
+        Burials::BenefitsIntake::SubmitClaimJob.perform_async(claim.id)
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
         raise e
