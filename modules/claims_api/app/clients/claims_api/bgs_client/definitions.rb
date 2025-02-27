@@ -189,7 +189,7 @@ module ClaimsApi
       ##
       # EBenefitsBnftClaimStatusWebServiceBean
       #
-      module EBenefitsBenefitClaimStatusWebServiceBean
+      module EbenefitsBnftClaimStatusWebServiceBean
         DEFINITION =
           Bean.new(
             path: 'EBenefitsBnftClaimStatusWebServiceBean',
@@ -200,11 +200,11 @@ module ClaimsApi
           )
       end
 
-      module EBenefitsBenefitClaimStatusWebService
+      module EbenefitsBnftClaimStatusWebService
         DEFINITION =
           Service.new(
-            bean: EBenefitsBenefitClaimStatusWebServiceBean::DEFINITION,
-            path: 'EBenefitsBnftClaimStatusWebService'
+            bean: EbenefitsBnftClaimStatusWebServiceBean::DEFINITION,
+            path: 'EbenefitsBnftClaimStatusWebService'
           )
       end
 
