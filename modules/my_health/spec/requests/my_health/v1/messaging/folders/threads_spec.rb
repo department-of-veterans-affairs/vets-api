@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'support/sm_client_helpers'
 require 'support/shared_examples_for_mhv'
+require_relative '../sm_spec_helper'
 
 RSpec.describe 'MyHealth::V1::Messaging::Folders::Threads', type: :request do
   include SM::ClientHelpers
