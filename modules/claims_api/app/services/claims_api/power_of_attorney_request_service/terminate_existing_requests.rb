@@ -8,7 +8,7 @@ module ClaimsApi
     class TerminateExistingRequests
       DEFAULT_FIRST_NAME = 'vets-api'
       DEFAULT_LAST_NAME = 'vets-api'
-      FORM_TYPE_CODE = '21-22'
+      FORM_TYPE_CODE = '2122'
 
       def initialize(veteran_participant_id)
         @veteran_participant_id = veteran_participant_id

@@ -13,11 +13,11 @@ require 'brd/brd'
 module ClaimsApi
   module PowerOfAttorneyRequestService
     class CreateRequest
-      FORM_TYPE = '21-22 '
+      FORM_TYPE = '21-22'
       PHONE_TYPE = 'Daytime'
       PTCPNT_TYPE = 'Person'
       REPRESENTATIVE_TYPE = 'Recognized Veterans Service Organization'
-      VDC_STATUS = 'SUBMITTED'
+      VDC_STATUS = 'NEW'
 
       def initialize(veteran_participant_id, form_data, claimant_participant_id = nil, poa_key = :serviceOrganization)
         @veteran_participant_id = veteran_participant_id

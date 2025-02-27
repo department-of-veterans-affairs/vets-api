@@ -71,7 +71,7 @@ module ClaimsApi
         def gather_read_all_data(proc_id)
           res = ClaimsApi::VeteranRepresentativeService
                               .new(external_uid: @vet_pctpnt_id, external_key: @vet_pctpnt_id)
-                              .read_all_veteran_representatives(type_code: '21-22 ', ptcpnt_id: @vet_pctpnt_id)
+                              .read_all_veteran_representatives(type_code: ' ', ptcpnt_id: @vet_pctpnt_id)
 
           read_all_service.data_object(proc_id, res)
         end

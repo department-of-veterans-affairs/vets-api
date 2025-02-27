@@ -52,7 +52,7 @@ module ClaimsApi
 
           params[:veteranId] = poa_request.veteran_icn # needed for target_veteran
           participant_id = target_veteran.participant_id
-
+byebug
           service = ClaimsApi::PowerOfAttorneyRequestService::Show.new(participant_id)
 
           res = service.get_poa_request
