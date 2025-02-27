@@ -13,7 +13,8 @@ RSpec.describe 'sm client', type: :request do
   end
 
   def toggle_feature_flag_for_actor(value)
-    allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, current_user).and_return(value)
+    allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(value)
+    # allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, current_user).and_return(value)
   end
 
   after do
