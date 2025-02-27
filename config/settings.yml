@@ -1376,7 +1376,7 @@ vanotify:
     ivc_forms: <%= ENV['VANOTIFY__SERVICE_CALLBACK_TOKENS__IVC_FORMS'] %>
     va_gov: <%= ENV['VANOTIFY__SERVICE_CALLBACK_TOKENS__VA_GOV'] %>
   services:
-    21p_527ez:
+    21p_527ez: &vanotify_services_pension
       api_key: <%= ENV['VANOTIFY__SERVICES__21P_527EZ__API_KEY'] %>
       email:
         confirmation:
@@ -1391,22 +1391,7 @@ vanotify:
         submitted:
           flipper_id: pension_submitted_email_notification
           template_id: <%= ENV['VANOTIFY__SERVICES__21P_527EZ__EMAIL__SUBMITTED__TEMPLATE_ID'] %>
-    21p_530:
-      api_key: <%= ENV['VANOTIFY__SERVICES__21P_530__API_KEY'] %>
-      email:
-        confirmation:
-          flipper_id: <%= ENV['VANOTIFY__SERVICES__21P_530__EMAIL__CONFIRMATION__FLIPPER_ID'] %>
-          template_id: <%= ENV['VANOTIFY__SERVICES__21P_530__EMAIL__CONFIRMATION__TEMPLATE_ID'] %>
-        error:
-          flipper_id: burial_error_email_notification
-          template_id: <%= ENV['VANOTIFY__SERVICES__21P_530__EMAIL__ERROR__TEMPLATE_ID'] %>
-        received:
-          flipper_id: burial_received_email_notification
-          template_id: <%= ENV['VANOTIFY__SERVICES__21P_530__EMAIL__RECEIVED__TEMPLATE_ID'] %>
-        submitted:
-          flipper_id: burial_submitted_email_notification
-          template_id: <%= ENV['VANOTIFY__SERVICES__21P_530__EMAIL__SUBMITTED__TEMPLATE_ID'] %>
-    21p_530ez:
+    21p_530ez: &vanotify_services_burial
       api_key: <%= ENV['VANOTIFY__SERVICES__21P_530EZ__API_KEY'] %>
       email:
         confirmation:
@@ -1421,21 +1406,8 @@ vanotify:
         submitted:
           flipper_id: burial_submitted_email_notification
           template_id: <%= ENV['VANOTIFY__SERVICES__21P_530EZ__EMAIL__SUBMITTED__TEMPLATE_ID'] %>
-    21p_530v2:
-      api_key: <%= ENV['VANOTIFY__SERVICES__21P_530V2__API_KEY'] %>
-      email:
-        confirmation:
-          flipper_id: <%= ENV['VANOTIFY__SERVICES__21P_530V2__EMAIL__CONFIRMATION__FLIPPER_ID'] %>
-          template_id: <%= ENV['VANOTIFY__SERVICES__21P_530V2__EMAIL__CONFIRMATION__TEMPLATE_ID'] %>
-        error:
-          flipper_id: burial_error_email_notification
-          template_id: <%= ENV['VANOTIFY__SERVICES__21P_530V2__EMAIL__ERROR__TEMPLATE_ID'] %>
-        received:
-          flipper_id: burial_received_email_notification
-          template_id: <%= ENV['VANOTIFY__SERVICES__21P_530V2__EMAIL__RECEIVED__TEMPLATE_ID'] %>
-        submitted:
-          flipper_id: burial_submitted_email_notification
-          template_id: <%= ENV['VANOTIFY__SERVICES__21P_530V2__EMAIL__SUBMITTED__TEMPLATE_ID'] %>
+    21p_530: *vanotify_services_burial
+    21p_530v2: *vanotify_services_burial
     benefits_decision_review:
       api_key: <%= ENV['VANOTIFY__SERVICES__BENEFITS_DECISION_REVIEW__API_KEY'] %>
       template_id:
@@ -1456,21 +1428,7 @@ vanotify:
       api_key: <%= ENV['VANOTIFY__SERVICES__BENEFITS_MANAGEMENT_TOOLS__API_KEY'] %>
       template_id:
         evidence_submission_failure_email: <%= ENV['VANOTIFY__SERVICES__BENEFITS_MANAGEMENT_TOOLS__TEMPLATE_ID__EVIDENCE_SUBMISSION_FAILURE_EMAIL'] %>
-    burials:
-      api_key: <%= ENV['VANOTIFY__SERVICES__BURIALS__API_KEY'] %>
-      email:
-        confirmation:
-          flipper_id: <%= ENV['VANOTIFY__SERVICES__BURIALS__EMAIL__CONFIRMATION__FLIPPER_ID'] %>
-          template_id: <%= ENV['VANOTIFY__SERVICES__BURIALS__EMAIL__CONFIRMATION__TEMPLATE_ID'] %>
-        error:
-          flipper_id: burial_error_email_notification
-          template_id: <%= ENV['VANOTIFY__SERVICES__BURIALS__EMAIL__ERROR__TEMPLATE_ID'] %>
-        received:
-          flipper_id: burial_received_email_notification
-          template_id: <%= ENV['VANOTIFY__SERVICES__BURIALS__EMAIL__RECEIVED__TEMPLATE_ID'] %>
-        submitted:
-          flipper_id: burial_submitted_email_notification
-          template_id: <%= ENV['VANOTIFY__SERVICES__BURIALS__EMAIL__SUBMITTED__TEMPLATE_ID'] %>
+    burials: *vanotify_services_burial
     check_in:
       api_key: <%= ENV['VANOTIFY__SERVICES__CHECK_IN__API_KEY'] %>
       sms_sender_id: <%= ENV['VANOTIFY__SERVICES__CHECK_IN__SMS_SENDER_ID'] %>
@@ -1530,21 +1488,7 @@ vanotify:
         claim_submission_failure_text: <%= ENV['VANOTIFY__SERVICES__ORACLE_HEALTH__TEMPLATE_ID__CLAIM_SUBMISSION_FAILURE_TEXT'] %>
         claim_submission_success_text: <%= ENV['VANOTIFY__SERVICES__ORACLE_HEALTH__TEMPLATE_ID__CLAIM_SUBMISSION_SUCCESS_TEXT'] %>
         claim_submission_timeout_text: <%= ENV['VANOTIFY__SERVICES__ORACLE_HEALTH__TEMPLATE_ID__CLAIM_SUBMISSION_TIMEOUT_TEXT'] %>
-    pensions:
-      api_key: <%= ENV['VANOTIFY__SERVICES__PENSIONS__API_KEY'] %>
-      email:
-        confirmation:
-          flipper_id: <%= ENV['VANOTIFY__SERVICES__PENSIONS__EMAIL__CONFIRMATION__FLIPPER_ID'] %>
-          template_id: <%= ENV['VANOTIFY__SERVICES__PENSIONS__EMAIL__CONFIRMATION__TEMPLATE_ID'] %>
-        error:
-          flipper_id: pension_error_email_notification
-          template_id: <%= ENV['VANOTIFY__SERVICES__PENSIONS__EMAIL__ERROR__TEMPLATE_ID'] %>
-        received:
-          flipper_id: pension_received_email_notification
-          template_id: 54140052-af03-4d2b-9903-cd33f21dc422
-        submitted:
-          flipper_id: pension_submitted_email_notification
-          template_id: <%= ENV['VANOTIFY__SERVICES__PENSIONS__EMAIL__SUBMITTED__TEMPLATE_ID'] %>
+    pensions: *vanotify_services_pension
     va_gov:
       api_key: <%= ENV['VANOTIFY__SERVICES__VA_GOV__API_KEY'] %>
       template_id:
