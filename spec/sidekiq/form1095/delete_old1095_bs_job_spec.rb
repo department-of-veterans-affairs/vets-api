@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Form1095::Delete1095BsJob, type: :job do
+RSpec.describe Form1095::DeleteOld1095BsJob, type: :job do
   describe 'perform' do
     it 'deletes all 1095b forms prior to the current tax year' do
       create(:form1095_b, tax_year: Form1095B.current_tax_year - 5)

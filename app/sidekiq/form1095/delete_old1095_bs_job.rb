@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Form1095
-  class Delete1095BsJob
+  class DeleteOld1095BsJob
     include Sidekiq::Job
 
     def perform
