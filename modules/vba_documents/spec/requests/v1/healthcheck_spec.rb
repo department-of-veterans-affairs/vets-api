@@ -55,7 +55,7 @@ RSpec.describe 'VBADocument::V1::Healthcheck', type: :request do
         expect(parsed_response['description']).to eq('VBA Documents API health check')
         expect(parsed_response['status']).to eq('fail')
         expect(parsed_response['time']).not_to be_nil
-        
+
         # confirm that the above slack notification had it's send timestamp recorded in the cache
         last_notify_timestamp = Rails.cache.read(VBADocuments::MetadataController::LAST_SLACK_NOTIFICATION_TS)
         expect(last_notify_timestamp).to be_within(0.01).of(Time.zone.now.to_i)
