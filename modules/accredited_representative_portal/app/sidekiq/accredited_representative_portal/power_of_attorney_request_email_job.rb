@@ -25,7 +25,7 @@ module AccreditedRepresentativePortal
       notify_client = VaNotify::Service.new(api_key, {})
 
       response = notify_client.send_email(
-        {
+        **{
           email_address: email,
           template_id:
         }.compact

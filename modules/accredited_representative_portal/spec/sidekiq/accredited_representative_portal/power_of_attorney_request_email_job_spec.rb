@@ -19,13 +19,13 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
   describe '#perform' do
     it 'sends an email using the template id and creates a notification record' do
       expect(client).to receive(:send_email).with(
-        email,
-        template_id
+        { email_address: email,
+          template_id: }
       ).and_return(response)
 
       expect do
         described_class.new.perform(email, template_id, poa_request.id, notification_type, api_key)
-      end.to change { AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.count }.by(1)
+      end.to change(AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification, :count).by(1)
 
       notification = AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.last
       expect(notification.notification_type).to eq(notification_type)
@@ -34,7 +34,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
     end
 
     it 'handles VANotify::Error with status code 400' do
-      error = VANotify::Error.new('Bad Request', status_code: 400)
+      error = VANotify::Error.new(400, 'Bad Request')
       allow(client).to receive(:send_email).and_raise(error)
 
       expect_any_instance_of(described_class).to receive(:log_exception_to_sentry).with(
@@ -45,11 +45,11 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
 
       expect do
         described_class.new.perform(email, template_id, poa_request.id, notification_type, api_key)
-      end.not_to(change { AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.count })
+      end.not_to(change(AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification, :count))
     end
 
     it 'raises VANotify::Error with other status codes' do
-      error = VANotify::Error.new('Internal Server Error', status_code: 500)
+      error = VANotify::Error.new(500, 'Internal Server Error')
       allow(client).to receive(:send_email).and_raise(error)
 
       expect do
