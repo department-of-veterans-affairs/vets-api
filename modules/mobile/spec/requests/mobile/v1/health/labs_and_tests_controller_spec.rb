@@ -14,6 +14,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
   let(:path) { '/mobile/v1/health/labs-and-tests' }
   let(:labs_cassette) { 'mobile/unified_health_data/get_labs' }
   let(:uhd_flipper) { :mhv_accelerated_delivery_uhd_enabled }
+  let(:sp_flipper) { :mhv_accelerated_delivery_uhd_sp_enabled }
   let(:expected_response) do
     JSON.parse(Rails.root.join(
       'modules', 'mobile', 'spec', 'support', 'fixtures', 'labs_and_tests_response.json'
@@ -24,6 +25,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
     context 'happy path' do
       before do
         allow(Flipper).to receive(:enabled?).with(uhd_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
         VCR.use_cassette(labs_cassette) do
           get path, headers: sis_headers, params: default_params
         end
@@ -35,7 +37,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
 
       it 'returns the correct medical records' do
         json_response = JSON.parse(response.body)
-        expect(json_response.count).to eq(11)
+        expect(json_response.count).to eq(1)
         expect(json_response[0]).to eq(expected_response)
       end
     end

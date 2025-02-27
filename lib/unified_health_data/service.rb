@@ -21,7 +21,8 @@ module UnifiedHealthData
       body = parse_response_body(response.body)
 
       combined_records = fetch_combined_records(body)
-      parse_medical_records(combined_records)
+      parsed_records = parse_medical_records(combined_records)
+      filter_records(parsed_records)
     end
 
     private
@@ -37,6 +38,14 @@ module UnifiedHealthData
         }.to_json
       end
       response.headers['authorization']
+    end
+
+    def filter_records(records)
+      records.select do |record|
+        if Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
+          record.attributes.display == 'SP'
+        end
+      end
     end
 
     def parse_response_body(body)

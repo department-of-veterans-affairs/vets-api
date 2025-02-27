@@ -956,6 +956,10 @@ features:
     actor_type: user
     description: Control whether vets-api allows fetching any MR data from MHV UHD
     enable_in_development: false
+  mhv_accelerated_delivery_uhd_sp_enabled:
+    actor_type: user
+    description: Control whether vets-api allows fetching Surgical Pathology data from MHV UHD
+    enable_in_development: false
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
