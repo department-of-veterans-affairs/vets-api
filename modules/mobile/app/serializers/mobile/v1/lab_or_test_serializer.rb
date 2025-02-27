@@ -2,7 +2,7 @@
 
 module Mobile
   module V1
-    class MedicalRecordSerializer
+    class LabOrTestSerializer
       include JSONAPI::Serializer
 
       def self.serialize(record)

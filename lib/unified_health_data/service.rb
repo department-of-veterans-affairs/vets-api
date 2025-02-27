@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 require_relative 'configuration'
-require_relative 'models/medical_record'
+require_relative 'models/lab_or_test'
 
 module UnifiedHealthData
   class Service < Common::Client::Base
@@ -74,7 +74,7 @@ module UnifiedHealthData
         sample_site:, encoded_data:, location:, ordered_by:, observations:
       )
 
-      UnifiedHealthData::MedicalRecord.new(
+      UnifiedHealthData::LabOrTest.new(
         id: record['resource']['id'],
         type: record['resource']['resourceType'],
         attributes:

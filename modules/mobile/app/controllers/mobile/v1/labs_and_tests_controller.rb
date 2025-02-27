@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'unified_health_data/service'
-require 'mobile/v1/medical_record_serializer'
+require 'mobile/v1/lab_or_test_serializer'
 
 module Mobile
   module V1
@@ -12,7 +12,7 @@ module Mobile
         start_date = params[:start_date]
         end_date = params[:end_date]
         medical_records = service.get_medical_records(start_date:, end_date:)
-        render json: medical_records.map { |record| MedicalRecordSerializer.serialize(record) }
+        render json: medical_records.map { |record| LabOrTestSerializer.serialize(record) }
       end
 
       private

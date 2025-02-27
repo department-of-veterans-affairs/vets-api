@@ -26,7 +26,7 @@ module UnifiedHealthData
     attribute :observations, UnifiedHealthData::Observation, array: true
   end
 
-  class MedicalRecord
+  class LabOrTest
     include Vets::Model
 
     attribute :id, String
