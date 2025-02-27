@@ -6,6 +6,8 @@ require 'mobile/v1/medical_record_serializer'
 module Mobile
   module V1
     class LabsAndTestsController < ApplicationController
+      before_action :controller_enabled?
+
       def index
         start_date = params[:start_date]
         end_date = params[:end_date]
@@ -14,6 +16,10 @@ module Mobile
       end
 
       private
+
+      def controller_enabled?
+        routing_error unless Flipper.enabled?(:mhv_accelerated_delivery_uhd_enabled, @current_user)
+      end
 
       def service
         UnifiedHealthData::Service.new(@current_user)
