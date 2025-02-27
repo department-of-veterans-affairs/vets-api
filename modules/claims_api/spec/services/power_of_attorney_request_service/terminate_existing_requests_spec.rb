@@ -63,7 +63,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::TerminateExistingRequests do
       it 'does not attempt to update requests' do
         res = subject.call
 
-        expect(res).to be_nil
+        expect(res).to eq([])
       end
     end
   end

@@ -25,7 +25,12 @@ module ClaimsApi
                                                  last_name: DEFAULT_LAST_NAME } }
         end
 
-        unless mapped_requests.empty?
+        if mapped_requests.empty?
+          ClaimsApi::Logger.log('poa_terminate_existing_requests',
+                                message: "No requests returned for pctpntId: #{@veteran_participant_id}")
+
+          mapped_requests
+        else
           mapped_requests.each do |request|
             set_to_obsolete(request)
           end
