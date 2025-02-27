@@ -37,8 +37,9 @@ module ClaimsApi
         end
 
         def set_form_type(data)
-          rep_fn = data[:representative_first_name]
-          rep_ln = data[:representative_last_name]
+          byebug
+          rep_fn = data[:representative_last_name] # data[:representative_first_name]
+          rep_ln = data[:representative_first_name] # data[:representative_last_name]
 
           representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', @poa_code)
                                                              .where(first_name: rep_fn, last_name: rep_ln)

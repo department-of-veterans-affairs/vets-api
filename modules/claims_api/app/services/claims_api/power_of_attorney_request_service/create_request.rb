@@ -13,7 +13,7 @@ require 'brd/brd'
 module ClaimsApi
   module PowerOfAttorneyRequestService
     class CreateRequest
-      FORM_TYPE = '21-22A'
+      FORM_TYPE = '21-22 '
       PHONE_TYPE = 'Daytime'
       PTCPNT_TYPE = 'Person'
       REPRESENTATIVE_TYPE = 'Recognized Veterans Service Organization'

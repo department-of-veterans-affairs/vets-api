@@ -12,7 +12,9 @@ module ClaimsApi
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <arg0>
           <VnpProcDTO>
-            <vnpProcTypeCd>#{PROC_TYPE_CD}</vnpProcTypeCd>
+            <vnpProcTypeCd>POAAUTHZ</vnpProcTypeCd>
+            <vnpProcStateTypeCd>New</vnpProcStateTypeCd>
+            <creatdDt>#{Time.now}</creatdDt>
           </VnpProcDTO>
         </arg0>
       EOXML

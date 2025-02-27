@@ -294,7 +294,8 @@ module ClaimsApi
     end
 
     def use_mocks?(use_mocks)
-      use_mocks && Settings.claims_api.bgs.mock_responses
+      # use_mocks && Settings.claims_api.bgs.mock_responses
+      false
     end
   end
 end
