@@ -720,6 +720,10 @@ features:
     actor_type: user
     description: Enables form 21-0966 email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_0966_confirmation_page:
+    actor_type: user
+    description: Enables form 21-0966 new confirmation page
+    enable_in_development: true
   form21_0972_confirmation_email:
     actor_type: user
     description: Enables form 21-0972 email submission confirmation (VaNotify)
@@ -1534,6 +1538,9 @@ features:
   va_dependents_v2:
     actor_type: user
     description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
+  va_dependents_v2_banner:
+    actor_type: user
+    description: Allows us to toggle a form maintenance banner on the V1 form for pre-launch.
   va_dependents_new_fields_for_pdf:
     actor_typer: user
     description: Allows us to toggle the new fields on the front end for 686C-674
@@ -1612,14 +1619,6 @@ features:
   veteran_onboarding_show_welcome_message_to_new_users:
     actor_type: user
     description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
-    enable_in_development: false
-  veteran_status_card_use_lighthouse:
-    actor_type: user
-    description: Enables the use of LH API instead of Profile API for the Veteran Status Card display
-    enable_in_development: false
-  veteran_status_card_use_lighthouse_frontend:
-    actor_type: user
-    description: Enables the use of LH API instead of Profile API for the Veteran Status Card display, story 1145
     enable_in_development: false
   vre_trigger_action_needed_email:
     actor_type: user
