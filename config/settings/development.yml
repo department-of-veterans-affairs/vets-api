@@ -1510,21 +1510,7 @@ vanotify:
         claim_submission_failure_text: ~
         claim_submission_success_text: fake_template_id
         claim_submission_timeout_text: ~
-    pensions:
-      api_key: fake_secret
-      email:
-        confirmation:
-          flipper_id: false
-          template_id: form527ez_confirmation_email_template_id
-        error:
-          flipper_id: pension_error_email_notification
-          template_id: form527ez_error_email_template_id
-        received:
-          flipper_id: pension_received_email_notification
-          template_id: form527ez_received_email_template_id
-        submitted:
-          flipper_id: pension_submitted_email_notification
-          template_id: form527ez_submitted_email_template_id
+    pensions: *vanotify_services_pension
     va_gov:
       api_key: fake_secret
       template_id:
