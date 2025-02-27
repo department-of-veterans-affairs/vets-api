@@ -107,7 +107,7 @@ module Burials
       # @param file_path [String] pdf file path
       #
       # @return [String] path to stamped PDF
-      def process_document(file_path)
+      def process_document(file_path) # rubocop:disable Metrics/MethodLength
         document = PDFUtilities::DatestampPdf.new(file_path).run(
           text: 'VA.GOV',
           timestamp: @claim.created_at,
@@ -123,7 +123,7 @@ module Burials
           text_only: true
         )
 
-        docuemnt = PDFUtilities::DatestampPdf.new(document).run(
+        document = PDFUtilities::DatestampPdf.new(document).run(
           text: 'Application Submitted on va.gov',
           x: 425,
           y: 675,
@@ -177,7 +177,7 @@ module Burials
           veteran_full_name['last'],
           form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
           address['postalCode'],
-          "#{self.class}",
+          self.class.to_s,
           @claim.form_id,
           @claim.business_line
         )
@@ -227,7 +227,6 @@ module Burials
       rescue => e
         monitor.track_file_cleanup_error(@claim, @intake_service, @user_account_uuid, e)
       end
-
     end
   end
 end
