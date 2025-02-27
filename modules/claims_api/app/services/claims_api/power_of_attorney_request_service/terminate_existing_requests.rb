@@ -18,7 +18,7 @@ module ClaimsApi
         mapped_requests = []
         requests = get_non_obsolete_requests
         requests.each do |request|
-          next if request['procId'].nil?
+          next if request['procId'].blank?
 
           mapped_requests << { proc_id: request['procId'],
                                representative: { first_name: DEFAULT_FIRST_NAME,
