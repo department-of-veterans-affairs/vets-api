@@ -9,53 +9,43 @@ module DebtsApi
     end
 
     def get_pdf
-      Prawn::Document.new(page_size: 'LETTER') do |pdf|
+      debt_letter_pdf = Prawn::Document.new(page_size: 'LETTER') do |pdf|
         add_and_format_logo(pdf)
         pdf.move_down 30
         add_header_columns(pdf)
       end.render
+
+      # Load and merge with the legalese PDF
+      legalese_pdf = load_and_validate_legalese_pdf
+      combined_pdf = CombinePDF.parse(debt_letter_pdf) << legalese_pdf
+
+      combined_pdf.to_pdf
     end
 
     def save_pdf(filename = default_filename)
-      temp_path = Rails.root.join("tmp", "debt_letter_temp.pdf")
-
-      begin
-        save_pdf_content(temp_path, get_pdf)
-
-        legalese_pdf = load_and_validate_legalese_pdf
-        billing_pdf = CombinePDF.load(temp_path)
-
-        combined_pdf = billing_pdf << legalese_pdf # Append legalese pages
-
-        save_pdf_content(filename, combined_pdf.to_pdf)
-
-        cleanup_temp_file(temp_path)
-
-        filename # Return the final path
-      rescue StandardError => e
-        cleanup_temp_file(temp_path)
-        raise "Error combining PDFs: #{e.message}"
-      end
+      save_pdf_content(filename, get_pdf)
+      filename
     end
 
     private
 
     def add_header_columns(pdf)
-      header_y = pdf.bounds.height - 75 # this evens out the left and right columns
+      header_y = pdf.bounds.height - 75
+
       # Left column (Veteran Info)
       pdf.bounding_box([0, header_y], width: pdf.bounds.width / 2) do
         pdf.text_box(
           formatted_user[:first_name_last_name], at: [10, pdf.cursor],
           width: pdf.bounds.width - 20, height: 20, border: 1, align: :left, size: 10
         )
-        pdf.move_down 15 # Increased spacing
+        pdf.move_down 15
         pdf.text_box(
           formatted_user[:address][:address_line_1], at: [10, pdf.cursor],
           width: pdf.bounds.width - 20, height: 20, border: 1, align: :left, size: 10
         )
-        pdf.move_down 15 # Increased spacing
+        pdf.move_down 15
         pdf.text_box(
-          "#{formatted_user[:address][:city_state_zip]}", at: [10, pdf.cursor],
+          formatted_user[:address][:city_state_zip], at: [10, pdf.cursor],
           width: pdf.bounds.width - 20, height: 20, border: 1, align: :left, size: 10
         )
       end
