@@ -54,9 +54,13 @@ module DebtsApi
 
     def add_text_box(pdf, text)
       pdf.text_box(
-        text, at: [10, pdf.cursor],
-        width: pdf.bounds.width - 20, height: 20,
-        border: 1, align: :left, size: 10
+        text,
+        at: [10, pdf.cursor],
+        width: pdf.bounds.width - 20,
+        height: 20,
+        border: 1,
+        align: :left,
+        size: 10
       )
       pdf.move_down 15
     end
