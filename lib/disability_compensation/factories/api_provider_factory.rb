@@ -10,7 +10,6 @@ require 'disability_compensation/providers/ppiu_direct_deposit/lighthouse_ppiu_p
 require 'disability_compensation/providers/claims_service/claims_service_provider'
 require 'disability_compensation/providers/claims_service/lighthouse_claims_service_provider'
 require 'disability_compensation/providers/brd/brd_provider'
-require 'disability_compensation/providers/brd/evss_brd_provider'
 require 'disability_compensation/providers/brd/lighthouse_brd_provider'
 require 'disability_compensation/providers/brd/lighthouse_staging_brd_provider'
 require 'disability_compensation/providers/generate_pdf/generate_pdf_provider'
@@ -46,9 +45,6 @@ class ApiProviderFactory
     'disability_compensation_lighthouse_rated_disabilities_provider_foreground'
   FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND =
     'disability_compensation_lighthouse_rated_disabilities_provider_background'
-
-  # PPIU calls out to Direct Deposit APIs in Lighthouse
-  FEATURE_TOGGLE_BRD = 'disability_compensation_lighthouse_brd'
 
   FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS = 'disability_compensation_upload_bdd_instructions_to_lighthouse'
   FEATURE_TOGGLE_UPLOAD_0781 = 'disability_compensation_upload_0781_to_lighthouse'
@@ -150,8 +146,6 @@ class ApiProviderFactory
 
   def brd_service_provider
     case api_provider
-    when API_PROVIDER[:evss]
-      EvssBRDProvider.new(@current_user)
     when API_PROVIDER[:lighthouse]
       LighthouseBRDProvider.new(@current_user)
     when API_PROVIDER[:lighthouse_staging]

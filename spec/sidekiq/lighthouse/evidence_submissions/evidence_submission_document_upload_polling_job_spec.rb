@@ -30,6 +30,9 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
   context 'when there are EvidenceSubmission records' do
     before do
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:warn)
+      allow(Rails.logger).to receive(:error)
     end
 
     it 'polls and updates status for each EvidenceSubmission record that is still pending to "complete"' do
@@ -46,6 +49,16 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
 
       expect(pending_es2.completed?).to be(true)
       expect(pending_es2.delete_date).to be_within(1.second).of((current_date_time + 60.days).utc)
+
+      expect(StatsD).to have_received(:increment).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_polled', 2
+      )
+      expect(StatsD).to have_received(:increment).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_marked_completed', 2
+      )
+      expect(StatsD).to have_received(:increment).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_marked_failed', 0
+      )
     end
 
     it 'polls and updates status for each failed EvidenceSubmission to "failed"' do
@@ -68,6 +81,16 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
       expect(pending_es2.failed_date).to be_within(1.second).of(current_date_time.utc)
       expect(pending_es2.error_message).to eq(error_message.to_s)
       expect(JSON.parse(pending_es2.template_metadata)['personalisation']['date_failed']).to eq(date_failed)
+
+      expect(StatsD).to have_received(:increment).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_polled', 2
+      )
+      expect(StatsD).to have_received(:increment).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_marked_completed', 0
+      )
+      expect(StatsD).to have_received(:increment).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_marked_failed', 2
+      )
     end
   end
 end

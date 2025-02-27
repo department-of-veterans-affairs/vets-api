@@ -184,6 +184,8 @@ module Form1095
 
       return false if file_details.blank?
 
+      return true if file_details[:tax_year] < Form1095B.current_tax_year
+
       # downloads S3 file into local file, allows for processing large files this way
       temp_file = Tempfile.new(file_name, encoding: 'ascii-8bit')
 

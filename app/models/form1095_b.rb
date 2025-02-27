@@ -4,15 +4,10 @@ class Form1095B < ApplicationRecord
   has_kms_key
   has_encrypted :form_data, key: :kms_key, **lockbox_options
 
-  # validations
   validates :veteran_icn, :tax_year,  presence: true
   validates :veteran_icn, uniqueness: { scope: :tax_year }
   validate :proper_form_data_schema
 
-  # scopes
-  scope :available_forms, ->(icn) { where(veteran_icn: icn).order(tax_year: :desc) }
-
-  # methods
   def txt_file
     unless File.exist?(txt_template_path)
       Rails.logger.error "1095-B template for year #{tax_year} does not exist."
@@ -43,6 +38,11 @@ class Form1095B < ApplicationRecord
     end
 
     generate_pdf(pdftk, tmp_file)
+  end
+
+  # we are currently restricting access to only the most recent tax year
+  def self.current_tax_year
+    Date.current.year - 1
   end
 
   private

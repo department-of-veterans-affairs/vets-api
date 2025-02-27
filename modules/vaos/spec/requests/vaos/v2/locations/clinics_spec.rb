@@ -6,8 +6,13 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
   include SchemaMatchers
 
   before do
-    Flipper.enable('va_online_scheduling')
-    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(false)
     sign_in_as(user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
@@ -19,10 +24,6 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
 
     describe 'GET facility clinics' do
       context 'using VAOS' do
-        before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
-        end
-
         context 'on successful query for clinics given service type' do
           it 'returns a list of clinics' do
             VCR.use_cassette('vaos/v2/systems/get_facility_clinics_200', match_requests_on: %i[method path query]) do
@@ -99,7 +100,7 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
 
       context 'using VPG' do
         before do
-          Flipper.enable(:va_online_scheduling_use_vpg)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
         end
 
         context 'on successful query for clinics given service type' do
@@ -187,10 +188,6 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
       let(:user) { build(:user, :vaos) }
 
       context 'using VAOS' do
-        before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
-        end
-
         context 'on successful query for last visited clinic' do
           it 'returns the last visited clinic' do
             VCR.use_cassette('vaos/v2/systems/get_last_visited_clinic_200', match_requests_on: %i[method path query]) do
