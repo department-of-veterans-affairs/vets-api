@@ -18,7 +18,7 @@ namespace :settings do
     yaml_files.each do |file|
       data = YAML.load_file(file, aliases: true)
       unordered_keys = find_unordered_keys(data)
-      unordered_keys.reject! { |k| k.include?("21p_530") }# skips non-alphabetical archor key
+      unordered_keys.reject! { |k| k.include?('21p_530') } # skips non-alphabetical archor key
       unless unordered_keys.empty?
         errors << "Keys in #{file} are not in alphabetical order:\n  #{unordered_keys.join("\n  ")}"
       end
@@ -171,7 +171,7 @@ def validate_envs(yaml_data, parent_key = nil)
       errors.concat(validate_envs(value, env_key))
     elsif value.is_a?(String) && value.match?(VALID_ENV_REGEX)
       # skip anchor keys
-      next if ['21p_530', 'pensions', 'burials'].any? { |s| env_key.include?(s.upcase) }
+      next if %w[21p_530 pensions burials].any? { |s| env_key.include?(s.upcase) }
 
       unless yaml_data[key] == "<%= ENV['#{env_key}'] %>"
         incorrect_key = env_key.downcase.gsub('__', '/')
