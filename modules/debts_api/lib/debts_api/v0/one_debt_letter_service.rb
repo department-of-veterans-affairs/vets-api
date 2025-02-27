@@ -43,7 +43,7 @@ module DebtsApi
       bounding_box(pdf, pdf.bounds.width / 2 + 100, header_y, pdf.bounds.width / 2 - 100) do
         add_text_box(pdf, Time.now.strftime('%m/%d/%Y'))
         add_text_box(pdf, "File Number: #{formatted_user[:file_number]}")
-        add_text_box(pdf, "Questions? https://ask.va.gov")
+        add_text_box(pdf, 'Questions? https://ask.va.gov')
       end
     end
 
@@ -83,15 +83,17 @@ module DebtsApi
     end
 
     def default_filename
-      Rails.root.join("tmp", "pdfs", "debt_letter_#{Time.current.strftime('%Y%m%d%H%M%S')}.pdf")
+      Rails.root.join('tmp', 'pdfs', "debt_letter_#{Time.current.strftime('%Y%m%d%H%M%S')}.pdf")
     end
 
     def save_pdf_content(path, content)
-      File.open(path, "wb") { |file| file.write(content) }
+      File.open(path, 'wb') { |file| file.write(content) }
     end
 
     def load_and_validate_legalese_pdf
-      legalese_path = Rails.root.join("modules", "debts_api", "app", "assets", "documents", "one_debt_letter_legal_content.pdf")
+      legalese_path = Rails.root.join(
+        "modules", "debts_api", "app", "assets", "documents", "one_debt_letter_legal_content.pdf"
+      )
 
       CombinePDF.load(legalese_path)
     end
