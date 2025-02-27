@@ -42,8 +42,8 @@ RSpec.describe SavedClaim::SupplementalClaim, type: :model do
 
       it 'returns true' do
         allow(JSON::Validator).to receive(:fully_validate).and_return(validation_errors)
-        expect(Rails.logger).to receive(:warn).with('SavedClaim: schema validation error detected for form 20-0995',
-                                                    validation_errors)
+        expect(Rails.logger).to receive(:warn).with('SavedClaim: schema validation errors detected for form 20-0995',
+                                                    count: 2)
 
         expect(saved_claim.validate).to be true
       end

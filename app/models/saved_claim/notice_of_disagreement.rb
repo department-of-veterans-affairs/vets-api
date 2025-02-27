@@ -12,10 +12,10 @@ class SavedClaim::NoticeOfDisagreement < SavedClaim
     schema = VetsJsonSchema::SCHEMAS['NOD-CREATE-REQUEST-BODY_V1']
     schema.delete '$schema' # workaround for JSON::Schema::SchemaError (Schema not found)
 
-    validation_errors = JSON::Validator.fully_validate(schema, parsed_form)
+    errors = JSON::Validator.fully_validate(schema, parsed_form)
 
-    unless validation_errors.empty?
-      Rails.logger.warn("SavedClaim: schema validation error detected for form #{FORM}", validation_errors)
+    unless errors.empty?
+      Rails.logger.warn("SavedClaim: schema validation errors detected for form #{FORM}", count: errors.count)
     end
 
     true # allow storage of all requests for debugging

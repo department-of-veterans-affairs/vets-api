@@ -38,8 +38,8 @@ RSpec.describe SavedClaim::HigherLevelReview, type: :model do
 
       it 'returns true' do
         allow(JSON::Validator).to receive(:fully_validate).and_return(validation_errors)
-        expect(Rails.logger).to receive(:warn).with('SavedClaim: schema validation error detected for form 20-0996',
-                                                    validation_errors)
+        expect(Rails.logger).to receive(:warn).with('SavedClaim: schema validation errors detected for form 20-0996',
+                                                    count: 2)
 
         expect(saved_claim_hlr.validate).to be true
       end
