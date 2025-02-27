@@ -26,6 +26,8 @@ module V0
       render json: { data: serialized_data, meta: pagination_data(user_actions) }
     end
 
+    private
+
     def pagination_data(user_actions)
       {
         current_page: user_actions.current_page,
