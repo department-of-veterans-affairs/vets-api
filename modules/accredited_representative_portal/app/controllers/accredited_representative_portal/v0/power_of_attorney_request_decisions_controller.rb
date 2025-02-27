@@ -16,6 +16,7 @@ module AccreditedRepresentativePortal
         end
       end
 
+      # rubocop:disable Metrics/MethodLength
       def create
         type = deserialize_type
         reason = decision_params[:reason]
@@ -37,19 +38,19 @@ module AccreditedRepresentativePortal
         end
 
         track_request('Decision made', tags: [Monitoring::Tag::Operation::DECISION,
-                                              Monitoring::Tag::Status::SUCCESS,
-                                              "type:#{type}",])
+                                              Monitoring::Tag::Status::SUCCESS, "type:#{type}"])
 
         if @poa_request.created_at.present? && Time.current >= @poa_request.created_at
           decision_time_ms = (Time.current - @poa_request.created_at) * 1000
-          StatsD.timing(Monitoring::Metric::POA_DECISION_TIME, decision_time_ms, tags: [
-                          "poa:#{@poa_request.id}", "decision:#{type}", "reason:#{reason}"
-                        ])
+          StatsD.measure(Monitoring::Metric::POA_DECISION_TIME, decision_time_ms, tags: [
+                           "decision:#{type}", "reason:#{reason}"
+                         ])
         else
           Rails.logger.warn("POA request #{@poa_request.id} has an invalid created_at timestamp.")
         end
         render json: {}, status: :ok
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 

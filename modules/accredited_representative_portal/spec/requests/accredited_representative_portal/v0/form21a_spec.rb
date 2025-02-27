@@ -142,7 +142,7 @@ Errors: The property '#/firstName' of type integer did not match the following t
         expect(Rails.logger).to have_received(:error).with(
           'Unexpected error',
           hash_including(
-            statsd: 'arp.poa',
+            statsd: 'poa_requests',
             service: 'accredited-representative-portal',
             function: 'track_error',
             context: hash_including(
