@@ -17,6 +17,7 @@ module Lighthouse
       FORM_ID = '686C-674'
       FORM_ID_674 = '21-674'
       STATSD_KEY_PREFIX = 'worker.submit_686c_674_backup_submission'
+      ZSF_DD_TAG_FUNCTION = 'submit_686c_674_backup_submission'
       # retry for  2d 1h 47m 12s
       # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
       RETRY = 16
@@ -235,6 +236,17 @@ module Lighthouse
         )
       end
 
+      def send_failure_email(user)
+        return if user.va_profile_email.blank?
+
+        VANotify::EmailJob.perform_async(
+          email_address: user.va_profile_email,
+          template_id: Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
+          first_name: user&.first_name&.upcase,
+          user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
+        )
+      end
+
       def self.trigger_failure_events(msg)
         monitor = Dependents::Monitor.new
         saved_claim_id, _, encrypted_user_struct = msg['args']
@@ -243,7 +255,7 @@ module Lighthouse
         email = claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address') ||
                 user_struct.try(:va_profile_email)
         monitor.track_submission_exhaustion(msg, email)
-        claim.send_failure_email(email)
+        claim.send_failure_email(email, callback_options)
       end
 
       private
@@ -259,6 +271,16 @@ module Lighthouse
           template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
           multistamp: true
         )
+      end
+
+      def callback_options
+        {
+          callback_metadata: {
+            notification_type: 'error',
+            form_number: claim.submittable_686? ? FORM_ID : FORM_ID_674,
+            statsd_tags: { service: STATSD_KEY_PREFIX, function: STATSD_KEY_PREFIX }
+          }
+        }
       end
 
       def log_cmp_response(response)

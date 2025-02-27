@@ -158,7 +158,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   # Future work will be integrating into the Va Notify common lib:
   # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
 
-  def send_failure_email(email) # rubocop:disable Metrics/MethodLength
+  def send_failure_email(email, callback_options) # rubocop:disable Metrics/MethodLength
     # if the claim is both a 686c and a 674, send a combination email.
     # otherwise, check to see which individual type it is and send the corresponding email.
     template_id = if submittable_686? && submittable_674?
@@ -180,7 +180,8 @@ class SavedClaim::DependencyClaim < CentralMailClaim
           'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
           'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
           'confirmation_number' => confirmation_number
-        }
+        },
+        callback_options
       )
     end
   end

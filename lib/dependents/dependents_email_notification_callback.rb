@@ -10,6 +10,7 @@ module Dependents
         # success
         StatsD.increment('api.vanotify.notifications.delivered')
         monitor.log_silent_failure_avoided(ac, email_confirmed: true) # Log with email_confirmed
+        monitor.track_submission_exhaustion(ac, )
         monitor.track_missing_status_email_sent(ac['form_id']) # e.g., '686C-674'
       when 'permanent-failure'
         # delivery failed
