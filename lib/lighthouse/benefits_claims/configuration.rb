@@ -48,6 +48,7 @@ module BenefitsClaims
     # @return [Faraday::Response] response from GET request
     #
     def get(path, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+      # debugger
       connection.get(path, options[:params], { Authorization: "Bearer #{
         access_token(
           lighthouse_client_id,

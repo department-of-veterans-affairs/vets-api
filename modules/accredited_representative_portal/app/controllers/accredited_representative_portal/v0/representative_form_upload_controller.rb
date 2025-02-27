@@ -8,31 +8,25 @@ module AccreditedRepresentativePortal
   module V0
     class RepresentativeFormUploadController < ApplicationController
       skip_after_action :verify_pundit_authorization
+      before_action :validate_power_of_attorney, only: :submit
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:formNumber])
         check_for_changes
 
         status, confirmation_number = upload_response
-        # debugger
-        # Oren - this is what is breaking because of the different name changes If you track the stack, it's this - first_name = config.dig(:form_data, :full_name, :first)
-        # so either change what I pass in or build out a parallel system and just change the names of what it's looking for
-        # send_confirmation_email(params, confirmation_number) if status == 200
+        send_confirmation_email(params, confirmation_number) if status == 200
 
-        render json: { status: 200, confirmation_number: params[:confirmationCode]}
+        render json: { status: 200, confirmation_number: params[:confirmationCode] }
       end
 
       def upload_scanned_form
-        # debugger
-        # VetsJsonSchema::SCHEMAS["21-686C"]
         attachment = PersistentAttachments::VAForm.new
         attachment.form_id = params['form_id']
         attachment.file = params['file']
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
         attachment.save
-        # debugger
-        # render json: { message: "Thank You" }, status: 200
         render json: PersistentAttachmentVAFormSerializer.new(attachment)
       end
 
@@ -44,8 +38,10 @@ module AccreditedRepresentativePortal
 
       def upload_response
         file_path = find_attachment_path(params[:confirmationCode])
+        # rubocop:disable Layout/LineLength
         stamper = SimpleFormsApi::PdfStamper.new(stamped_template_path: file_path, current_loa: @current_user.loa[:current],
-                                 timestamp: Time.current)
+                                                 timestamp: Time.current)
+        # rubocop:enable Layout/LineLength
         stamper.stamp_pdf
         metadata = validated_metadata
         status, confirmation_number = upload_pdf(file_path, metadata)
@@ -118,7 +114,6 @@ module AccreditedRepresentativePortal
       end
 
       def check_for_changes
-        # debugger
         in_progress_form = InProgressForm.form_for_user('FORM-UPLOAD-FLOW', @current_user)
         if in_progress_form
           prefill_data_service = SimpleFormsApi::PrefillDataService.new(prefill_data: in_progress_form.form_data,
@@ -128,22 +123,29 @@ module AccreditedRepresentativePortal
         end
       end
 
-      # def create_new_form_data
-      #   {
-      #     for
-      #   }
-      # end
+      def create_new_form_data
+        {
+          ssn:,
+          postalCode: params[:formData][:postalCode],
+          full_name: {
+            first: first_name,
+            last: last_name
+          },
+          email: params[:formData][:email],
+          veteranDateOfBirth: birth_date
+        }
+      end
 
       def send_confirmation_email(params, confirmation_number)
-        # form_data = create_new_form_data
+        form_data = create_new_form_data
+
         config = {
           form_number: params[:formNumber],
-          form_data: params[:formData],
+          form_data:,
           date_submitted: Time.zone.today.strftime('%B %d, %Y'),
           confirmation_number:
         }
 
-        debugger
         notification_email = SimpleFormsApi::FormUploadNotificationEmail.new(config, notification_type: :confirmation)
         notification_email.send
       end
@@ -181,7 +183,7 @@ module AccreditedRepresentativePortal
       end
 
       def veteran_birth_date
-        form_params.dig("formData", "veteranDateOfBirth")
+        form_params.dig('formData', 'veteranDateOfBirth')
       end
 
       def claimant_ssn
@@ -197,7 +199,7 @@ module AccreditedRepresentativePortal
       end
 
       def claimant_birth_date
-        form_params.dig("formData", "claimantDateOfBirth")
+        form_params.dig('formData', 'claimantDateOfBirth')
       end
 
       def ssn
@@ -207,38 +209,38 @@ module AccreditedRepresentativePortal
       def first_name
         claimant_first_name || veteran_last_name
       end
-      
+
       def last_name
         claimant_last_name || veteran_last_name
       end
-      
+
       def birth_date
         claimant_birth_date || veteran_birth_date
       end
 
-      # def validate_power_of_attorney
-      # icn = get_icn
-      # debugger
-      # power_of_attorney_attributes = get_power_of_attorney_attributes(icn)
+      def validate_power_of_attorney
+        get_icn
+        # power_of_attorney_attributes = get_power_of_attorney_attributes(icn)
+        # debugger
 
-      # debugger
-      # rep_poa_codes = get_rep_poa_codes
-      # raise if !rep_poa_codes.include?(power_of_attorney_attributes["code"])
-      #  || !(power_of_attorney_agreement["name"].downcase == common_name.downcase)
-      # debugger
-
-      # end
+        # rep_poa_codes = get_rep_poa_codes
+        # raise if !rep_poa_codes.include?(power_of_attorney_attributes["code"])
+        # || !(power_of_attorney_agreement["name"].downcase == common_name.downcase)
+        true
+      end
 
       def get_icn
         mpi = MPI::Service.new.find_profile_by_attributes(ssn:, first_name:, last_name:, birth_date:)
         raise if mpi.profile.nil?
-        icn = mpi.profile.icn
+
+        mpi.profile.icn
       end
 
       def get_power_of_attorney_attributes(icn)
         response = BenefitsClaims::Service.new(icn).get_power_of_attorney
-        attributes = response["data"]["attributes"]
+        attributes = response['data']['attributes']
         raise if attributes.nil?
+
         attributes
       end
 
