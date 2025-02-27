@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_19_232344) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_27_230535) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -789,6 +789,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_19_232344) do
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["tax_year"], name: "index_form1095_bs_on_tax_year"
     t.index ["veteran_icn", "tax_year"], name: "index_form1095_bs_on_veteran_icn_and_tax_year", unique: true
   end
 
