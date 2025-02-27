@@ -45,7 +45,9 @@ describe VAOS::V2::EpsAppointment do
         start: '2023-10-10T10:00:00Z',
         contact: 'contact_info',
         referral_id: '12345',
-        referral: { referral_number: '12345' }
+        referral: { referral_number: '12345' },
+        provider_service_id: 'clinic_1',
+        provider_name: 'unknown'
       }
       expect(subject.serializable_hash).to eq(expected_hash)
     end
