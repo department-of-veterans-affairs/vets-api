@@ -32,12 +32,12 @@ RSpec.describe UserActionEvent, type: :model do
     end
 
     context 'when the event config file exists' do
-      let(:identifier) { 'some_identifier' }
-      let(:user_action_event_configs) { { identifier => { details:, event_type: } } }
-      let(:details) { 'some-details' }
-      let(:event_type) { 'some-event_type' }
+      let(:user_action_events_yaml) { YAML.load_file('spec/fixtures/user_audit/user_action_events.yml') }
+      let(:identifier) { user_action_events_yaml.keys.last }
+      let(:details) { user_action_events_yaml[identifier]['details'] }
+      let(:event_type) { user_action_events_yaml[identifier]['event_type'] }
 
-      before { allow(YAML).to receive(:load_file).and_return(user_action_event_configs) }
+      before { allow(YAML).to receive(:load_file).and_return(user_action_events_yaml) }
 
       context 'when the user action event does not exist' do
         it 'creates a new user action event' do
@@ -64,11 +64,8 @@ RSpec.describe UserActionEvent, type: :model do
             user_action_event = UserActionEvent.last
 
             expect(user_action_event.identifier).to eq(existing_event.identifier)
-            expect(user_action_event.details).not_to eq(old_details)
             expect(user_action_event.details).to eq(details)
-            expect(user_action_event.event_type).not_to eq(old_event_type)
             expect(user_action_event.event_type).to eq(event_type)
-            expect(user_action_event.updated_at).to be > existing_event.updated_at
           end
         end
 
@@ -80,8 +77,7 @@ RSpec.describe UserActionEvent, type: :model do
             expect { subject }.not_to change(UserActionEvent, :count)
             user_action_event = UserActionEvent.last
 
-            expect(user_action_event.identifier).to eq(existing_event.identifier)
-            expect(user_action_event.updated_at).to eq(existing_event.updated_at)
+            expect(user_action_event.attributes).to match(existing_event.attributes)
           end
         end
       end

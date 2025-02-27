@@ -15,10 +15,8 @@ class UserActionEvent < ApplicationRecord
 
     user_action_events_yaml.each do |identifier, event_config|
       event = UserActionEvent.find_or_initialize_by(identifier:)
-      if event.new_record? || event.attributes.slice(*event_config.keys.map(&:to_s)) != event_config
-        event.attributes = event_config
-        event.save!
-      end
+      event.attributes = event_config
+      event.save! if event.changed?
     end
   rescue => e
     raise "[#{name}][Setup] Error: #{e.message}"
