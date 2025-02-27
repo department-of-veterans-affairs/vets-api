@@ -5,8 +5,7 @@ http_interactions:
     uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/claims/v2/veterans/1012666183V089914/2122"
     body:
       encoding: UTF-8
-      string: '{"data":{"attributes":{"veteran":{"address":{"addressLine1":"1286 Deon
-        Plain","city":"Colbyville","stateCode":"AK","countryCode":"US","zipCode":"06942-1489"},"phone":{"areaCode":"849","phoneNumber":"2930519"},"email":"erline@walker.example","serviceNumber":"840907270"},"serviceOrganization":{"poaCode":"095","registrationNumber":"999999999999"},"recordConsent":false,"consentLimits":["ALCOHOLISM","DRUG_ABUSE"],"consentAddressChange":false}}}'
+      string: '{"data":{"attributes":{"veteran":{"address":{"addressLine1":"123 Main St","addressLine2":"Apt 1","city":"Springfield","stateCode":"IL","countryCode":"US","zipCode":"62704","zipCodeSuffix":"6789"},"phone":{"areaCode":"123","phoneNumber":"4567890"},"email":"veteran@example.com","serviceNumber":"123456789"},"serviceOrganization":{"poaCode":"x23","registrationNumber":"357458"},"recordConsent":true,"consentLimits":["HIV","DRUG_ABUSE"],"consentAddressChange":true}}}'
     headers:
       Accept:
       - application/json
@@ -14,32 +13,34 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Authorization: Bearer <TOKEN>
+      Authorization: Bearer fake_access_token
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 401
-      message: Unauthorized
+      code: 202
+      message: Accepted
     headers:
       Date:
-      - Fri, 14 Feb 2025 21:56:34 GMT
+      - Fri, 14 Feb 2025 17:35:29 GMT
       Content-Type:
       - application/json; charset=utf-8
       Content-Length:
-      - '80'
+      - '188'
       Connection:
       - keep-alive
+      Ratelimit-Reset:
+      - '32'
+      X-Ratelimit-Limit-Minute:
+      - '120'
       X-Ratelimit-Remaining-Minute:
       - '119'
       Ratelimit-Limit:
       - '120'
       Ratelimit-Remaining:
       - '119'
-      Ratelimit-Reset:
-      - '26'
-      X-Ratelimit-Limit-Minute:
-      - '120'
+      Location:
+      - "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/claims/v2/veterans/1012666183V089914/power-of-attorney?id=12beb731-3440-44d2-84ba-473bd75201aa"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Timing-Allow-Origin:
@@ -52,15 +53,15 @@ http_interactions:
       - SAMEORIGIN
       - SAMEORIGIN
       X-Git-Sha:
-      - cda2e6d860437da9f7383e34b399d16a438e89cb
+      - 756b2d5b5ef9eedb49807cf853d734a527114a67
       X-Github-Repository:
       - https://github.com/department-of-veterans-affairs/vets-api
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - 6603351e-9d87-47aa-a0dc-23acb80dc807
+      - 42abc36c-c5f5-4674-8c91-f33fab51f4c3
       X-Runtime:
-      - '0.254150'
+      - '1.768422'
       X-Xss-Protection:
       - '0'
       Access-Control-Allow-Origin:
@@ -69,6 +70,7 @@ http_interactions:
       - max-age=31536000; includeSubDomains; preload
     body:
       encoding: UTF-8
-      string: '{"errors":[{"title":"Not authorized","status":"401","detail":"Not authorized"}]}'
-  recorded_at: Fri, 14 Feb 2025 21:56:34 GMT
+      string: '{"data":{"id":"12beb731-3440-44d2-84ba-473bd75201aa","type":"organization","attributes":{"code":"095","name":"Italian
+        American War Veterans of the US, Inc.","phoneNumber":"440-233-6527"}}}'
+  recorded_at: Fri, 14 Feb 2025 17:35:29 GMT
 recorded_with: VCR 6.3.1

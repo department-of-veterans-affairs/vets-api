@@ -14,6 +14,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     create(:user_account_accredited_individual,
            user_account_email: test_user.email,
            user_account_icn: test_user.icn,
+           accredited_individual_registration_number: '357458',
            poa_code:)
   end
 
@@ -28,8 +29,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
   let!(:other_vso) { create(:organization, poa: other_poa_code, can_accept_digital_poa_requests: true) }
 
   let!(:poa_request) do
-    create(:power_of_attorney_request, poa_code:,
-                                       accredited_individual_registration_number: '999999999999')
+    create(:power_of_attorney_request, :with_veteran_claimant, poa_code:)
   end
   let!(:other_poa_request) { create(:power_of_attorney_request, poa_code: other_poa_code) }
 
@@ -37,8 +37,14 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
   before do
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+    allow(Flipper).to receive(:enabled?).with(
+      :accredited_representative_portal_pilot,
+      instance_of(AccreditedRepresentativePortal::RepresentativeUser)
+    ).and_return(true)
     Flipper.enable(:accredited_representative_portal_pilot)
+    poa_request.update(accredited_individual_registration_number: '357458')
     poa_request.claimant.update(icn: '1012666183V089914')
+
     login_as(test_user)
   end
 
@@ -87,7 +93,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
     context 'with valid params' do
       it 'creates an acceptance decision' do
-        VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/202_response') do
+        use_cassette('202_response') do
           post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
                params: { decision: { type: 'acceptance', reason: nil } }
         end
@@ -124,10 +130,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       end
 
       it 'rep does not have poa for veteran' do
-        poa_request.update(power_of_attorney_holder_poa_code: '111',
-                           accredited_individual_registration_number: '1111111111')
-
-        VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/404_response') do
+        use_cassette('404_response') do
           post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
                params: { decision: { type: 'acceptance', reason: nil } }
         end
@@ -155,7 +158,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
   describe 'Full decision cycle' do
     it 'creates acceptance decision with veteran claimant' do
-      VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/202_response') do
+      use_cassette('202_response') do
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'acceptance', reason: nil } }
       end
@@ -245,7 +248,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
       # --------------
       # POST REQUEST
-      VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/202_response') do
+      use_cassette('202_response') do
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'acceptance', reason: nil } }
       end
