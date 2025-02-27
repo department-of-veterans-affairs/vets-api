@@ -71,6 +71,12 @@ module Eps
 
     private
 
+    ##
+    # Merge provider data with appointment data
+    #
+    # @param appointments [Array<Hash>] Array of appointment data
+    # @raise [Common::Exceptions::BackendServiceException] If provider data cannot be fetched
+    # @return [Array<Hash>] Array of appointment data with provider data merged in
     def merge_provider_data_with_appointments(appointments)
       return [] if appointments.nil?
 
@@ -106,6 +112,10 @@ module Eps
       payload
     end
 
+    ##
+    # Get instance of ProviderService
+    #
+    # @return [Eps::ProviderService] ProviderService instance
     def provider_services
       @provider_services ||= Eps::ProviderService.new(user)
     end

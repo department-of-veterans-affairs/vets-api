@@ -671,38 +671,45 @@ module PdfFill
         report_filed = false
         no_report = false
         police_reports = []
-        other_reports = []
+        unlisted_reports = []
         reports_details = @form_data['reportsDetails'] ||= {}
 
         @form_data['events'].each do |event|
-          reports = event['reports'] || {}
-          other_report = event['otherReports']
-          next if reports.empty? && other_report&.blank?
+          reports = merge_reports(event)
+          unlisted_report = event['unlistedReport']
+          next if reports.empty? && unlisted_report&.blank?
 
           report_filed ||= reports.except('none').values.include?(true)
           no_report ||= reports['none']
 
-          set_report_types(other_report, report_filed, reports)
+          set_report_types(reports, unlisted_report)
 
           police_report = format_police_details(event)
           police_reports << police_report unless police_report.empty?
 
-          other_reports << other_report if other_report.present?
+          unlisted_reports << unlisted_report if unlisted_report.present?
         end
 
-        reports_details['police'] = police_reports.join('; ') unless police_reports.empty?
-        reports_details['other'] = other_reports.join('; ') unless other_reports.empty?
+        @form_data['reportFiled'] = report_filed ? 0 : nil
         @form_data['noReportFiled'] = no_report && !report_filed ? 1 : nil
+
+        reports_details['police'] = police_reports.join('; ') unless police_reports.empty?
+        reports_details['other'] = unlisted_reports.join('; ') unless unlisted_reports.empty?
+      end
+
+      def merge_reports(event)
+        (event['militaryReports'] || {})
+          .merge(event['otherReports'] || {})
+          .merge('unlistedReport' => event['unlistedReport'])
       end
 
       # Numbers correspond to a predefined "export value" assigned to each checkbox option on the PDF form:
-      def set_report_types(other_report, report_filed, reports)
-        @form_data['reportFiled'] ||= report_filed ? 0 : nil
+      def set_report_types(reports, unlisted_report)
         @form_data['restrictedReport'] ||= reports['restricted'] ? 0 : nil
         @form_data['unrestrictedReport'] ||= reports['unrestricted'] ? 1 : nil
-        @form_data['neitherReport'] ||= reports['neither'] ? 2 : nil
+        @form_data['neitherReport'] ||= reports['pre2005'] ? 2 : nil
         @form_data['policeReport'] ||= reports['police'] ? 3 : nil
-        @form_data['otherReport'] ||= other_report ? 4 : nil
+        @form_data['otherReport'] ||= reports['unsure'] || unlisted_report ? 4 : nil
       end
 
       def set_option_indicator
