@@ -28,17 +28,17 @@ module HCA
         'groupNumber' => 'insuranceGroupCode'
       }.freeze
 
-      MARITAL_STATUSES = %w[
-        Married
-        Never Married
-        Separated
-        Widowed
-        Divorced
+      MARITAL_STATUSES = [
+        'Married',
+        'Never Married',
+        'Separated',
+        'Widowed',
+        'Divorced'
       ].freeze
 
       MEDICARE = 'Medicare'
 
-      def get_ezr_data(icn)
+      def get_ezr_prefill_data(icn)
         response = with_monitoring do
           lookup_user_req(icn)
         end
@@ -199,7 +199,6 @@ module HCA
           }
         )
       end
-
 
       # rubocop:disable Metrics/MethodLength
       def parse_spouse(response)

@@ -4,71 +4,86 @@ require 'rails_helper'
 require 'hca/enrollment_eligibility/service'
 
 describe HCA::EnrollmentEligibility::Service do
-  context 'with a user who has dependents', run_at: 'Tue, 31 Oct 2023 12:04:33 GMT' do
-    it 'gets data for prefilling 1010ezr' do
+  describe '#get_ezr_prefill_data' do
+    it 'gets data for prefilling 1010ezr', run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
       VCR.use_cassette(
-        'hca/ee/dependents',
-        VCR::MATCH_EVERYTHING.merge(erb: true)
-      ) do
-        expect(described_class.new.get_ezr_data('1012829228V424035').to_h).to eq(
-          {
-            medicareClaimNumber: nil,
-            isEnrolledMedicarePartA: false,
-            medicarePartAEffectiveDate: nil,
-            isMedicaidEligible: false,
-            dependents: [{ fullName: { first: 'CHILD', last: 'BISHOP' },
-                           socialSecurityNumber: '234114455',
-                           becameDependent: '2020-10-01',
-                           dependentRelation: 'Daughter',
-                           disabledBefore18: false,
-                           attendedSchoolLastYear: false,
-                           cohabitedLastYear: true,
-                           dateOfBirth: '2020-10-01' }],
-            spouseFullName: { first: 'VSDV', last: 'SDVSDV' },
-            maritalStatus: 'Married',
-            dateOfMarriage: '2000-10-15',
-            cohabitedLastYear: true,
-            spouseDateOfBirth: '1950-02-17',
-            spouseSocialSecurityNumber: '435345344'
-          }
-        )
-      end
-    end
-  end
-
-  describe '#get_ezr_data', run_at: 'Tue, 24 Oct 2023 17:27:12 GMT' do
-    it 'does something' do
-      VCR.use_cassette('example1', :record => :once) do
-        ezr_data = described_class.new.get_ezr_data('1012830022V956566')
-
-        expect(ezr_data).to be_a(Object)
-      end
-    end
-
-    it 'gets data for prefilling 1010ezr' do
-      VCR.use_cassette(
-        'hca/ee/lookup_user_2023',
-        VCR::MATCH_EVERYTHING.merge(erb: true)
+        'form1010_ezr/authorized_veteran_prefill_data',
+        match_requests_on: %i[method uri body], erb: true
       ) do
         expect(
-          described_class.new.get_ezr_data(
-            '1013032368V065534'
+          described_class.new.get_ezr_prefill_data(
+            '1012829228V424035'
           ).to_h.deep_stringify_keys
         ).to eq(
-          { 'providers' =>
-            [{ 'insuranceGroupCode' => '123456',
-               'insuranceName' => 'Aetna',
-               'insurancePolicyHolderName' => 'Four IVMTEST',
-               'insurancePolicyNumber' => '123456' },
-             { 'insuranceGroupCode' => 'G1234',
-               'insuranceName' => 'MyInsurance',
-               'insurancePolicyHolderName' => 'FirstName ZZTEST',
-               'insurancePolicyNumber' => 'P1234' }],
+          {
+            'veteranFinancialInfo' => {
+              'otherIncome' => '2811',
+              'grossIncome' => '67584',
+              'netIncome' => '14293',
+              'deductibleFuneralExpenses' => '1283',
+              'deductibleMedicalExpenses' => '8576',
+              'deductibleEducationExpenses' => '4344'
+            },
+            'spouseFinancialInfo' => {
+              'otherIncome' => '1229',
+              'grossIncome' => '57930',
+              'netIncome' => '7458'
+            },
+            'providers' => [
+              {
+                'insuranceGroupCode' => 'G1234',
+                'insuranceName' => 'MyInsurance',
+                'insurancePolicyHolderName' => 'FirstName ZZTEST',
+                'insurancePolicyNumber' => 'P1234'
+              }
+            ],
             'medicareClaimNumber' => '873462432',
             'isEnrolledMedicarePartA' => true,
+            'maritalStatus' => 'Never Married',
             'medicarePartAEffectiveDate' => '1999-10-16',
-            'maritalStatus' => 'Married',
-            'isMedicaidEligible' => true }
+            'isMedicaidEligible' => false,
+            'dependents' => [
+              {
+                'fullName' => {
+                  'first' => 'Eric',
+                  'middle' => 'Victor',
+                  'last' => 'Bishop',
+                  'suffix' => 'Jr.'
+                },
+                'socialSecurityNumber' => '666333111',
+                'becameDependent' => '2010-01-25',
+                'dependentRelation' => 'Son',
+                'disabledBefore18' => false,
+                'attendedSchoolLastYear' => true,
+                'cohabitedLastYear' => true,
+                'dateOfBirth' => '2010-01-25'
+              },
+              {
+                'fullName' => {
+                  'first' => 'Jessica',
+                  'middle' => 'Layla',
+                  'last' => 'Bishop'
+                },
+                'socialSecurityNumber' => '666394444',
+                'becameDependent' => '2013-03-15',
+                'dependentRelation' => 'Daughter',
+                'disabledBefore18' => false,
+                'attendedSchoolLastYear' => true,
+                'cohabitedLastYear' => true,
+                'dateOfBirth' => '2013-03-15'
+              }
+            ],
+            'spouseFullName' => {
+              'first' => 'Sarah',
+              'middle' => 'Jasmine',
+              'last' => 'Bishop'
+            },
+            'dateOfMarriage' => '1991-10-12',
+            'cohabitedLastYear' => true,
+            'spouseDateOfBirth' => '1970-04-21',
+            'spouseSocialSecurityNumber' => '666112121',
+            'spouseIncomeYear' => '2024'
+          }
         )
       end
     end

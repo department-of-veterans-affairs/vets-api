@@ -68,12 +68,12 @@ module Swagger
       swagger_schema :Form1010EzrVeteranPrefillDataResponse do
         key :required, [:data]
         property :data, type: :object do
-          property :veteranIncome, type: object do
+          property :veteranIncome, type: :object do
             property :otherIncome, type: :string
             property :grossIncome, type: :string
             property :netIncome, type: :string
           end
-          property :spouseIncome, type: object do
+          property :spouseIncome, type: :object do
             property :otherIncome, type: :string
             property :grossIncome, type: :string
             property :netIncome, type: :string
@@ -85,13 +85,9 @@ module Swagger
               property :insurancePolicyNumber, type: :string
             end
           end
-          property :medicareClaimNumber, type: :string, example: '1111111111'
-          property :isEnrolledMedicarePartA, type: :boolean, example: true
-          property :medicarePartAEffectiveDate, type: :string, example: '1997-03-04'
-          property :isMedicaidEligible, type: :boolean, example: true
           property :dependents, type: :array do
             items do
-              property :fullName, type: object do
+              property :fullName, type: :object do
                 property :first, type: :string
                 property :middle, type: :string
                 property :last, type: :string
@@ -106,7 +102,7 @@ module Swagger
               property :dateOfBirth, type: :string, example: '1991-05-06'
             end
           end
-          property :spouseFullName, type: object do
+          property :spouseFullName, type: :object do
             property :first, type: :string
             property :middle, type: :string
             property :last, type: :string
