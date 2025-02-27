@@ -23,10 +23,12 @@
       "details": "Lorem ipsum dolor sit amet.",
       "location": "abcdefghijklmn opqrstuvwxyz1234a",
       "timing": "Summer of '70",
-      "reports": {
+      "militaryReports": {
         "restricted": true,
         "unrestricted": false,
-        "neither": false,
+        "pre2005": false
+      },
+      "otherReports": {
         "police": true
       },
       "agency": "SVI",
@@ -39,7 +41,7 @@
       "details": "Lorem ipsum dolor sit amet.",
       "location": "abcdefghijklmn opqrstuvwxyz1234a",
       "timing": "June 2007",
-      "otherReports": "incident report"
+      "unlistedReport": "incident report"
     }
   ],
   "workBehaviors": {
