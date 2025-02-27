@@ -62,8 +62,8 @@ Rails.application.configure do
   config.i18n.raise_on_missing_translations = true
 
   config.action_controller.raise_on_missing_callback_actions = true
-  # Prepend all log lines with the following tags.
 
+  # Prepend all log lines with the following tags.
   config.log_tags = {
     request_id: :request_id,
     correlation_id: ->(request) { request.headers['Correlation-ID'] }
