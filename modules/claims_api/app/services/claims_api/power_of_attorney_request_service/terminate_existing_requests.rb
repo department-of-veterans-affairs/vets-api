@@ -18,13 +18,17 @@ module ClaimsApi
         mapped_requests = []
         requests = get_non_obsolete_requests
         requests.each do |request|
+          next if request['procId'].nil?
+
           mapped_requests << { proc_id: request['procId'],
                                representative: { first_name: DEFAULT_FIRST_NAME,
                                                  last_name: DEFAULT_LAST_NAME } }
         end
 
-        mapped_requests.each do |request|
-          set_to_obsolete(request)
+        unless mapped_requests.empty?
+          mapped_requests.each do |request|
+            set_to_obsolete(request)
+          end
         end
       end
 
