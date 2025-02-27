@@ -91,7 +91,7 @@ module DebtsApi
     end
 
     def save_pdf_content(path, content)
-      File.open(path, 'wb') { |file| file.write(content) }
+      File.binwrite(path, content)
     end
 
     def load_legalese_pdf
