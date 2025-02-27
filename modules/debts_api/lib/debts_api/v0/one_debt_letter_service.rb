@@ -16,7 +16,7 @@ module DebtsApi
       end.render
 
       # Load and merge with the legalese PDF
-      legalese_pdf = load_and_validate_legalese_pdf
+      legalese_pdf = load_legalese_pdf
       combined_pdf = CombinePDF.parse(debt_letter_pdf) << legalese_pdf
 
       combined_pdf.to_pdf
@@ -35,20 +35,21 @@ module DebtsApi
       # Left column (Veteran Info)
       bounding_box(pdf, 0, header_y, pdf.bounds.width / 2) do
         add_text_box(pdf, formatted_user[:first_name_last_name])
-        add_text_box(pdf, formatted_user[:address][:address_line_1])
+        add_text_box(pdf, formatted_user[:address][:address_line_one])
+        add_text_box(pdf, formatted_user[:address][:address_line_two])
         add_text_box(pdf, formatted_user[:address][:city_state_zip])
       end
 
       # Right column (Date, File Number, Questions)
-      bounding_box(pdf, pdf.bounds.width / 2 + 100, header_y, pdf.bounds.width / 2 - 100) do
-        add_text_box(pdf, Time.now.strftime('%m/%d/%Y'))
+      bounding_box(pdf, (pdf.bounds.width / 2) + 100, header_y, (pdf.bounds.width / 2) - 100) do
+        add_text_box(pdf, Time.current.strftime('%m/%d/%Y'))
         add_text_box(pdf, "File Number: #{formatted_user[:file_number]}")
         add_text_box(pdf, 'Questions? https://ask.va.gov')
       end
     end
 
-    def bounding_box(pdf, x, y, width)
-      pdf.bounding_box([x, y], width: width) { yield }
+    def bounding_box(pdf, x, y, width, &)
+      pdf.bounding_box([x, y], width:, &)
     end
 
     def add_text_box(pdf, text)
@@ -70,8 +71,8 @@ module DebtsApi
         first_name_last_name: "#{@user.first_name} #{@user.last_name}",
         file_number: user_file_number,
         address: {
-          address_line_1: @user.address[:street],
-          address_line_2: @user.address[:street2],
+          address_line_one: @user.address[:street],
+          address_line_two: @user.address[:street2],
           city_state_zip: "#{@user.address[:city]} #{@user.address[:state]} #{@user.address[:postal_code]}"
         }
       }
@@ -87,12 +88,12 @@ module DebtsApi
     end
 
     def save_pdf_content(path, content)
-      File.open(path, 'wb') { |file| file.write(content) }
+      File.open(path, 'wb') { |file| file.binwrite(content) }
     end
 
-    def load_and_validate_legalese_pdf
+    def load_legalese_pdf
       legalese_path = Rails.root.join(
-        "modules", "debts_api", "app", "assets", "documents", "one_debt_letter_legal_content.pdf"
+        'modules', 'debts_api', 'app', 'assets', 'documents', 'one_debt_letter_legal_content.pdf'
       )
 
       CombinePDF.load(legalese_path)
