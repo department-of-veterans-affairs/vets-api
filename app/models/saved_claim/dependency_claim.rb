@@ -48,17 +48,28 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   def upload_pdf(form_id, doc_type: '148')
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
-
-    upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:)
-    uploaded_forms << form_id
-    save
+    if form_id == '21-674-V2'
+      #do everything in here
+      processed_pdfs = []
+      self.parsed_form['dependents_application']['student_information'].each_with_index do |student, index|
+        puts index
+        processed_pdf = process_pdf(to_pdf(form_id:, student:), created_at, form_id, index)
+        processed_pdfs << processed_pdf
+      end
+      combine_multi_674_pdfs(processed_pdfs)
+    else
+      processed_pdf = process_pdf(to_pdf(form_id:), created_at, form_id)
+    end
+    #upload_to_vbms(path: processed_pdf, doc_type:)
+    #uploaded_forms << form_id
+    #save
   rescue => e
     Rails.logger.debug('DependencyClaim: Issue Uploading to VBMS in upload_pdf method',
                        { saved_claim_id: id, form_id:, error: e })
     raise e
   end
 
-  def process_pdf(pdf_path, timestamp = nil, form_id = nil)
+  def process_pdf(pdf_path, timestamp = nil, form_id = nil, iterator = nil)
     processed_pdf = PDFUtilities::DatestampPdf.new(pdf_path).run(
       text: 'Application Submitted on site',
       x: form_id == '686C-674' ? 400 : 300,
@@ -69,9 +80,16 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
       multistamp: true
     )
-    renamed_path = "tmp/pdfs/#{form_id}_#{id}_final.pdf"
+    puts "inside here"
+    puts iterator
+    renamed_path = iterator.present? ?  "tmp/pdfs/#{form_id}_#{id}_#{iterator}_final.pdf" : "tmp/pdfs/#{form_id}_#{id}_final.pdf"
+    puts renamed_path
     File.rename(processed_pdf, renamed_path) # rename for vbms upload
     renamed_path # return the renamed path
+  end
+
+  def combine_multi_674_pdfs(pdf_paths)
+    puts pdf_paths
   end
 
   def add_veteran_info(va_file_number_with_payload)
@@ -147,10 +165,11 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   #   end
   # end
 
-  def to_pdf(form_id: FORM)
+  def to_pdf(form_id: FORM, student: nil)
     self.form_id = form_id
-
-    PdfFill::Filler.fill_form(self, nil, { created_at: })
+    puts "looking at student"
+    puts student
+    PdfFill::Filler.fill_form(self, nil, { created_at:, student: })
   end
 
   # this failure email is not the ideal way to handle the Notification Emails as
