@@ -1092,6 +1092,34 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           end
         end
       end
+
+      context "Retrieving Veteran prefill data from the Enrollment System's eeSummary REST API" do
+        context 'unauthenticated user' do
+          it 'returns unauthorized status code' do
+            expect(subject).to validate(:get, '/v0/form1010_ezrs/veteran_prefill_data', 401)
+          end
+        end
+
+        context 'authenticated' do
+          let(:ezr_prefill_user) do
+            create(
+              :evss_user,
+              :loa3,
+              icn: '1012829228V424035'
+            )
+          end
+          let(:headers) { { '_headers' => { 'Cookie' => sign_in(ezr_prefill_user, nil, true) } } }
+
+          it 'supports retrieving Veteran prefill data', run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/swagger_authorized_veteran_prefill_data',
+              match_requests_on: [:body]
+            ) do
+              expect(subject).to validate(:get, '/v0/form1010_ezrs/veteran_prefill_data', 200, headers)
+            end
+          end
+        end
+      end
     end
 
     describe 'rx tests' do

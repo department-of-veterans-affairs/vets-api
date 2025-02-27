@@ -1,0 +1,69 @@
+{
+  "veteranFinancialInfo": {
+    "otherIncome": "2811",
+    "grossIncome": "67584",
+    "netIncome": "14293",
+    "deductibleFuneralExpenses": "1283",
+    "deductibleMedicalExpenses": "8576",
+    "deductibleEducationExpenses": "4344"
+  },
+  "spouseFinancialInfo": {
+    "otherIncome": "1229",
+    "grossIncome": "57930",
+    "netIncome": "7458"
+  },
+  "providers": [
+    {
+      "insuranceGroupCode": "G1234",
+      "insuranceName": "MyInsurance",
+      "insurancePolicyHolderName": "FirstName ZZTEST",
+      "insurancePolicyNumber": "P1234"
+    }
+  ],
+  "medicareClaimNumber": "873462432",
+  "isEnrolledMedicarePartA": true,
+  "maritalStatus": "Never Married",
+  "medicarePartAEffectiveDate": "1999-10-16",
+  "isMedicaidEligible": false,
+  "dependents": [
+    {
+      "fullName": {
+        "first": "Eric",
+        "middle": "Victor",
+        "last": "Bishop",
+        "suffix": "Jr."
+      },
+      "socialSecurityNumber": "666333111",
+      "becameDependent": "2010-01-25",
+      "dependentRelation": "Son",
+      "disabledBefore18": false,
+      "attendedSchoolLastYear": true,
+      "cohabitedLastYear": true,
+      "dateOfBirth": "2010-01-25"
+    },
+    {
+      "fullName": {
+        "first": "Jessica",
+        "middle": "Layla",
+        "last": "Bishop"
+      },
+      "socialSecurityNumber": "666394444",
+      "becameDependent": "2013-03-15",
+      "dependentRelation": "Daughter",
+      "disabledBefore18": false,
+      "attendedSchoolLastYear": true,
+      "cohabitedLastYear": true,
+      "dateOfBirth": "2013-03-15"
+    }
+  ],
+  "spouseFullName": {
+    "first": "Sarah",
+    "middle": "Jasmine",
+    "last": "Bishop"
+  },
+  "dateOfMarriage": "1991-10-12",
+  "cohabitedLastYear": true,
+  "spouseDateOfBirth": "1970-04-21",
+  "spouseSocialSecurityNumber": "666112121",
+  "spouseIncomeYear": "2024"
+}
