@@ -64,21 +64,21 @@ module PdfFill
             question_suffix: 'A',
             question_text: 'PROGRAM NAME'
           },
-          'supportedStudents' => {
-            key: 'supportedStudents[%iterator%]',
-            limit: 10,
-            question_num: 7,
-            question_suffix: 'B',
-            question_text: 'SUPPORTED STUDENTS'
-          },
-          'nonSupportedStudents' => {
-            key: 'nonSupportedStudents[%iterator%]',
-            limit: 10,
-            question_num: 7,
-            question_suffix: 'C',
-            question_text: 'NON-SUPPORTED STUDENTS'
-          },
           'fte' => {
+            'supported' => {
+              key: 'supportedStudents[%iterator%]',
+              limit: 10,
+              question_num: 7,
+              question_suffix: 'B',
+              question_text: 'SUPPORTED STUDENTS'
+            },
+            'nonSupported' => {
+              key: 'nonSupportedStudents[%iterator%]',
+              limit: 10,
+              question_num: 7,
+              question_suffix: 'C',
+              question_text: 'NON-SUPPORTED STUDENTS'
+            },
             'totalFTE' => {
               key: 'totalFTE[%iterator%]',
               limit: 10,
@@ -127,16 +127,11 @@ module PdfFill
           official['fullName'] = "#{official['first']} #{official['last']}" if official['first'] && official['last']
         end
 
-        # Process programs array - add nonSupportedStudents and programDateOfCalculation only for valid rows
+        # Process programs array - add programDateOfCalculation for each valid row
         if form_data['programs'] && form_data['institutionDetails'] && form_data['institutionDetails']['dateOfCalculations']
           calculation_date = form_data['institutionDetails']['dateOfCalculations']
 
           form_data['programs'].each do |program|
-            # Calculate nonSupportedStudents
-            if program['studentsEnrolled'] && program['supportedStudents']
-              program['nonSupportedStudents'] = program['studentsEnrolled'] - program['supportedStudents']
-            end
-
             # Add programDateOfCalculation to each valid program entry
             program['programDateOfCalculation'] = calculation_date
           end
