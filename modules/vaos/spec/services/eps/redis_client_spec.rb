@@ -33,9 +33,6 @@ describe Eps::RedisClient do
     it 'responds to settings' do
       expect(redis_client.respond_to?(:settings)).to be(true)
     end
-
-    it 'gets redis_token_expiry from settings' do
-    end
   end
 
   describe '#token' do
