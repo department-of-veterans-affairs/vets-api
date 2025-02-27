@@ -4,8 +4,33 @@ require 'rails_helper'
 require 'pdf_fill/extras_generator'
 
 describe PdfFill::ExtrasGenerator do
-  subject do
-    described_class.new
+  subject { described_class.new(sections:) }
+
+  let(:sections) { nil }
+
+  describe '#populate_section_indices!' do
+    let(:sections) do
+      [
+        {
+          label: 'Section I',
+          top_level_keys: %w[veteranFullName vaFileNumber veteranDateOfBirth]
+        },
+        {
+          label: 'Section II',
+          top_level_keys: ['events']
+        }
+      ]
+    end
+
+    it 'populates section indices correctly' do
+      blocks = %w[veteranFullName events evidence vaFileNumber].map do |top_level_key|
+        { metadata: { top_level_key: } }
+      end
+      subject.instance_variable_set(:@generate_blocks, blocks)
+      subject.populate_section_indices!
+      indices = subject.instance_variable_get(:@generate_blocks).map { |block| block[:metadata][:section_index] }
+      expect(indices).to eq([0, 1, nil, 0])
+    end
   end
 
   describe '#sort_generate_blocks' do
