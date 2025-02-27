@@ -127,7 +127,8 @@ module Common
                       end
 
         response_hash = e.response&.to_hash
-        client_error = error_class.new(e.message, response_hash&.dig(:status), response_hash&.dig(:body))
+        client_error = error_class.new(e.message, response_hash&.dig(:status), response_hash&.dig(:body),
+                                       headers: response_hash&.dig(:headers))
         raise client_error
       end
 

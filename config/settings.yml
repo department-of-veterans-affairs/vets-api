@@ -122,7 +122,7 @@ dmc:
   client_secret: "secret"
   mock_debts: false
   mock_fsr: false
-  url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/
+  url: https://fwdproxy-dev.vfs.va.gov:4465/api/v1/digital-services/
   debts_endpoint: debt-letter/get
   fsr_payment_window: 30
 
@@ -315,7 +315,7 @@ ihub:
 # Settings for Medical Devices Ordering Tool
 mdot:
   prefill: true
-  url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466
+  url: https://fwdproxy-staging.vfs.va.gov:4466
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
 
@@ -513,6 +513,10 @@ hca:
     endpoint: "http://example.com"
     user: "HCASvcUsr"
     pass: "password"
+  enrollment_system:
+    ee_summary:
+      host: ~
+      api_key: ~
 
 ppms:
   url: https://some.fakesite.com
@@ -1093,7 +1097,7 @@ forms:
   mock: false
 
 vbms:
-  url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4449"
+  url: "https://fwdproxy-dev.vfs.va.gov:4449"
   saml: "vetsapi.client.vbms.aide.oit.va.gov.saml-token.xml"
   ca_cert: VBMS-Client-Signing-CA.crt
   cert: vetsapi.client.vbms.aide.oit.va.gov.crt
@@ -1107,7 +1111,7 @@ github_stats:
   token: fake_token
 
 google_analytics:
-  url: "https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473"
+  url: "https://fwdproxy-staging.vfs.va.gov:4473"
   tracking_id: ~
 
 virtual_agent:
