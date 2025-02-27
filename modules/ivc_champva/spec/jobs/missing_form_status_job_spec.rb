@@ -61,7 +61,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
 
     # verify that the forms are approaching threshold w/ no PEGA status:
-    forms.each_key do |form|
+    forms.each do |form|
       expect(form.pega_status).to be_nil
       expect(days_since_now(form.created_at) < threshold).to be true
       expect(days_since_now(form.created_at) > threshold - 2).to be true
