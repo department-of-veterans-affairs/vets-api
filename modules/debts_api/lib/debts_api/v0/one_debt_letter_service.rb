@@ -15,7 +15,6 @@ module DebtsApi
         add_header_columns(pdf)
       end.render
 
-      # Load and merge with the legalese PDF
       legalese_pdf = load_legalese_pdf
       combined_pdf = CombinePDF.parse(debt_letter_pdf) << legalese_pdf
 
@@ -92,7 +91,7 @@ module DebtsApi
     end
 
     def save_pdf_content(path, content)
-      File.open(path, 'wb') { |file| file.binwrite(content) }
+      File.open(path, 'wb') { |file| file.write(content) }
     end
 
     def load_legalese_pdf
