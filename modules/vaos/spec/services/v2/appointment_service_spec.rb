@@ -1302,7 +1302,7 @@ describe VAOS::V2::AppointmentsService do
         VCR.use_cassette('vaos/eps/token/token_200',
                          match_requests_on: %i[method path query],
                          allow_playback_repeats: true, tag: :force_utf8) do
-          VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+          VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                            match_requests_on: %i[method path query],
                            allow_playback_repeats: true, tag: :force_utf8) do
             VCR.use_cassette('vaos/eps/get_eps_appointments_200',
@@ -1329,7 +1329,7 @@ describe VAOS::V2::AppointmentsService do
         VCR.use_cassette('vaos/eps/token/token_200',
                          match_requests_on: %i[method path query],
                          allow_playback_repeats: true, tag: :force_utf8) do
-          VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+          VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
                            match_requests_on: %i[method path query],
                            allow_playback_repeats: true, tag: :force_utf8) do
             VCR.use_cassette('vaos/eps/get_eps_appointments_200',
