@@ -1440,7 +1440,7 @@ RSpec.describe FormProfile, type: :model do
 
         it 'returns a prefilled 10-10EZR form' do
           VCR.use_cassette(
-            'form1010_ezr/lookup_user_with_ezr_prefilled_data',
+            'form1010_ezr/lookup_user_with_ezr_prefill_data',
             match_requests_on: %i[method uri body], erb: true
           ) do
             expect_prefilled('10-10EZR')
