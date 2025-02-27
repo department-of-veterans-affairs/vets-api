@@ -1324,30 +1324,32 @@ RSpec.describe FormProfile, type: :model do
         FormProfiles::VA1010ezr.new(user:, form_id: 'f')
       end
 
+      let(:ezr_prefilled_data_without_ee_data) do
+        {
+          'veteranFullName' => {
+            'first' => user.first_name&.capitalize,
+            'middle' => user.middle_name&.capitalize,
+            'last' => user.last_name&.capitalize,
+            'suffix' => user.suffix
+          },
+          'veteranSocialSecurityNumber' => user.ssn,
+          'gender' => user.gender,
+          'veteranDateOfBirth' => user.birth_date,
+          'homePhone' => us_phone,
+          'veteranAddress' => {
+            'street' => street_check[:street],
+            'street2' => street_check[:street2],
+            'city' => user.address[:city],
+            'state' => user.address[:state],
+            'country' => user.address[:country],
+            'postal_code' => user.address[:postal_code][0..4]
+          },
+          'email' => user.pciu_email
+        }
+      end
+
       context 'when the ee service is down' do
-        let(:v10_10_ezr_expected) do
-          {
-            'veteranFullName' => {
-              'first' => user.first_name&.capitalize,
-              'middle' => user.middle_name&.capitalize,
-              'last' => user.last_name&.capitalize,
-              'suffix' => user.suffix
-            },
-            'veteranSocialSecurityNumber' => user.ssn,
-            'gender' => user.gender,
-            'veteranDateOfBirth' => user.birth_date,
-            'homePhone' => us_phone,
-            'veteranAddress' => {
-              'street' => street_check[:street],
-              'street2' => street_check[:street2],
-              'city' => user.address[:city],
-              'state' => user.address[:state],
-              'country' => user.address[:country],
-              'postal_code' => user.address[:postal_code][0..4]
-            },
-            'email' => user.pciu_email
-          }
-        end
+        let(:v10_10_ezr_expected) { ezr_prefilled_data_without_ee_data }
 
         it 'prefills the rest of the data and logs exception to sentry' do
           expect_any_instance_of(FormProfiles::VA1010ezr).to receive(:log_exception_to_sentry).with(
@@ -1357,40 +1359,79 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
-      context 'with a user with dependents', run_at: 'Tue, 31 Oct 2023 12:04:33 GMT' do
+      context 'with a user with financial data, insurance data, and dependents',
+              run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
         let(:v10_10_ezr_expected) do
-          {
-            'veteranFullName' => {
-              'first' => user.first_name&.capitalize,
-              'middle' => user.middle_name&.capitalize,
-              'last' => user.last_name&.capitalize,
-              'suffix' => user.suffix
-            },
-            'veteranSocialSecurityNumber' => user.ssn,
-            'gender' => user.gender,
-            'veteranDateOfBirth' => user.birth_date,
-            'homePhone' => us_phone,
-            'veteranAddress' => {
-              'street' => street_check[:street],
-              'street2' => street_check[:street2],
-              'city' => user.address[:city],
-              'state' => user.address[:state],
-              'country' => user.address[:country],
-              'postal_code' => user.address[:postal_code][0..4]
-            },
-            'email' => user.pciu_email,
-            'spouseSocialSecurityNumber' => '435345344',
-            'spouseDateOfBirth' => '1950-02-17',
-            'dateOfMarriage' => '2000-10-15',
+          ezr_prefilled_data_without_ee_data.merge(
+            'providers' => [
+              {
+                'insuranceGroupCode' => 'G1234',
+                'insuranceName' => 'MyInsurance',
+                'insurancePolicyHolderName' => 'FirstName ZZTEST',
+                'insurancePolicyNumber' => 'P1234'
+              }
+            ],
+            'spouseSocialSecurityNumber' => '666112121',
+            'spouseDateOfBirth' => '1970-04-21',
+            'dateOfMarriage' => '1991-10-12',
             'cohabitedLastYear' => true,
-            'maritalStatus' => 'Married',
+            'maritalStatus' => 'Never Married',
+            'dependents' => [
+              {
+                'fullName' => {
+                  'first' => 'Eric',
+                  'middle' => 'Victor',
+                  'last' => 'Bishop',
+                  'suffix' => 'Jr.'
+                },
+                'socialSecurityNumber' => '666333111',
+                'becameDependent' => '2010-01-25',
+                'dependentRelation' => 'Son',
+                'disabledBefore18' => false,
+                'attendedSchoolLastYear' => true,
+                'cohabitedLastYear' => true,
+                'dateOfBirth' => '2010-01-25'
+              },
+              {
+                'fullName' => {
+                  'first' => 'Jessica',
+                  'middle' => 'Layla',
+                  'last' => 'Bishop'
+                },
+                'socialSecurityNumber' => '666394444',
+                'becameDependent' => '2013-03-15',
+                'dependentRelation' => 'Daughter',
+                'disabledBefore18' => false,
+                'attendedSchoolLastYear' => true,
+                'cohabitedLastYear' => true,
+                'dateOfBirth' => '2013-03-15'
+              }
+            ],
+            'veteranFinancialInfo' => {
+              'otherIncome' => '2811',
+              'grossIncome' => '67584',
+              'netIncome' => '14293',
+              'deductibleFuneralExpenses' => '1283',
+              'deductibleMedicalExpenses' => '8576',
+              'deductibleEducationExpenses' => '4344'
+            },
+            'veteranIncomeYear' => '2024',
+            'spouseFinancialInfo' => {
+              'otherIncome' => '1229',
+              'grossIncome' => '57930',
+              'netIncome' => '7458'
+            },
+            'spouseIncomeYear' => '2024',
             'isMedicaidEligible' => false,
-            'isEnrolledMedicarePartA' => false,
+            'isEnrolledMedicarePartA' => true,
+            'medicarePartAEffectiveDate' => '1999-10-16',
+            'medicareClaimNumber' => '873462432',
             'spouseFullName' => {
-              'first' => 'VSDV',
-              'last' => 'SDVSDV'
+              'first' => 'Sarah',
+              'middle' => 'Jasmine',
+              'last' => 'Bishop'
             }
-          }
+          )
         end
 
         before do
@@ -1399,52 +1440,8 @@ RSpec.describe FormProfile, type: :model do
 
         it 'returns a prefilled 10-10EZR form' do
           VCR.use_cassette(
-            'hca/ee/dependents',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
-          ) do
-            expect_prefilled('10-10EZR')
-          end
-        end
-      end
-
-      context 'with a user with insurance data', run_at: 'Tue, 24 Oct 2023 17:27:12 GMT' do
-        let(:v10_10_ezr_expected) do
-          {
-            'veteranFullName' => {
-              'first' => user.first_name&.capitalize,
-              'middle' => user.middle_name&.capitalize,
-              'last' => user.last_name&.capitalize,
-              'suffix' => user.suffix
-            },
-            'veteranSocialSecurityNumber' => user.ssn,
-            'gender' => user.gender,
-            'veteranDateOfBirth' => user.birth_date,
-            'homePhone' => us_phone,
-            'veteranAddress' => {
-              'street' => street_check[:street],
-              'street2' => street_check[:street2],
-              'city' => user.address[:city],
-              'state' => user.address[:state],
-              'country' => user.address[:country],
-              'postal_code' => user.address[:postal_code][0..4]
-            },
-            'email' => user.pciu_email,
-            'maritalStatus' => 'Married',
-            'isMedicaidEligible' => true,
-            'isEnrolledMedicarePartA' => true,
-            'medicarePartAEffectiveDate' => '1999-10-16',
-            'medicareClaimNumber' => '873462432'
-          }
-        end
-
-        before do
-          allow(user).to receive(:icn).and_return('1013032368V065534')
-        end
-
-        it 'returns a prefilled 10-10EZR form' do
-          VCR.use_cassette(
-            'hca/ee/lookup_user_2023',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
+            'form1010_ezr/lookup_user_with_ezr_prefilled_data',
+            match_requests_on: %i[method uri body], erb: true
           ) do
             expect_prefilled('10-10EZR')
           end

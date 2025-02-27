@@ -375,11 +375,7 @@ Rails.application.routes.draw do
     post 'terms_of_use_agreements/:version/decline', to: 'terms_of_use_agreements#decline'
     put 'terms_of_use_agreements/update_provisioning', to: 'terms_of_use_agreements#update_provisioning'
 
-    resources :form1010_ezrs, only: %i[create] do
-      collection do
-        get :veteran_prefill_data
-      end
-    end
+    resources :form1010_ezrs, only: %i[create]
 
     post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
 

@@ -48,11 +48,13 @@ module HCA
         dependents = parse_dependents(response)
         spouse = parse_spouse(response)
 
-        financial_info.merge!(
-          convert_insurance_hash(response, providers)
-        ).merge!(
-          dependents.present? ? { dependents: } : {}
-        ).merge!(spouse)
+        OpenStruct.new(
+          financial_info.merge(
+            convert_insurance_hash(response, providers)
+          ).merge(
+            dependents.present? ? { dependents: } : {}
+          ).merge(spouse)
+        )
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -183,18 +185,20 @@ module HCA
 
         Common::HashHelpers.deep_compact(
           {
-            veteranFinancialInfo: get_income(
-              response,
-              "#{financial_info_xpath}incomes/income"
-            ).merge!(
+            veteranFinancialInfo: get_income(response, "#{financial_info_xpath}incomes/income").merge!(
               get_expenses(
                 response,
                 "#{financial_info_xpath}expenses/expense"
               )
             ),
+            veteranIncomeYear: veteran_income_year(response),
             spouseFinancialInfo: get_income(
               response,
               "#{financial_info_xpath}spouseFinancialsList/spouseFinancials/incomes/income"
+            ),
+            spouseIncomeYear: get_locate_value(
+              response,
+              "#{financial_info_xpath}spouseFinancialsList/spouseFinancials/incomeYear"
             )
           }
         )
@@ -237,10 +241,6 @@ module HCA
             spouseSocialSecurityNumber: get_locate_value(
               response,
               "#{spouse_financials_xpath}spouse/ssns/ssn/ssnText"
-            ),
-            spouseIncomeYear: get_locate_value(
-              response,
-              "#{spouse_financials_xpath}incomeYear"
             )
           }
         )
@@ -394,13 +394,15 @@ module HCA
         end.to_xml
       end
 
-      def income_year_is_last_year?(response)
-        income_year = get_xpath(
+      def veteran_income_year(response)
+        get_xpath(
           response,
           "#{XPATH_PREFIX}financialsInfo/incomeTest/incomeYear"
         )
+      end
 
-        income_year == (DateTime.now.utc.year - 1).to_s
+      def income_year_is_last_year?(response)
+        veteran_income_year(response) == (DateTime.now.utc.year - 1).to_s
       end
       # rubocop:enable Metrics/MethodLength
     end
