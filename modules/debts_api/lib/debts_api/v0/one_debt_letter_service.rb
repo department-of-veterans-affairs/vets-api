@@ -33,40 +33,31 @@ module DebtsApi
       header_y = pdf.bounds.height - 75
 
       # Left column (Veteran Info)
-      pdf.bounding_box([0, header_y], width: pdf.bounds.width / 2) do
-        pdf.text_box(
-          formatted_user[:first_name_last_name], at: [10, pdf.cursor],
-          width: pdf.bounds.width - 20, height: 20, border: 1, align: :left, size: 10
-        )
-        pdf.move_down 15
-        pdf.text_box(
-          formatted_user[:address][:address_line_1], at: [10, pdf.cursor],
-          width: pdf.bounds.width - 20, height: 20, border: 1, align: :left, size: 10
-        )
-        pdf.move_down 15
-        pdf.text_box(
-          formatted_user[:address][:city_state_zip], at: [10, pdf.cursor],
-          width: pdf.bounds.width - 20, height: 20, border: 1, align: :left, size: 10
-        )
+      bounding_box(pdf, 0, header_y, pdf.bounds.width / 2) do
+        add_text_box(pdf, formatted_user[:first_name_last_name])
+        add_text_box(pdf, formatted_user[:address][:address_line_1])
+        add_text_box(pdf, formatted_user[:address][:city_state_zip])
       end
 
       # Right column (Date, File Number, Questions)
-      pdf.bounding_box([pdf.bounds.width / 2 + 100, header_y], width: pdf.bounds.width / 2 - 100) do
-        pdf.text_box(
-          Time.now.strftime('%m/%d/%Y'), at: [10, pdf.cursor],
-          width: pdf.bounds.width - 20, height: 20, border: 1, align: :left, size: 10
-        )
-        pdf.move_down 15
-        pdf.text_box(
-          "File Number: #{formatted_user[:file_number]}", at: [10, pdf.cursor],
-          width: pdf.bounds.width - 20, height: 20, border: 1, align: :left, size: 10
-        )
-        pdf.move_down 15
-        pdf.text_box(
-          "Questions? https://ask.va.gov", at: [10, pdf.cursor],
-          width: pdf.bounds.width - 20, height: 20, border: 1, align: :left, size: 10
-        )
+      bounding_box(pdf, pdf.bounds.width / 2 + 100, header_y, pdf.bounds.width / 2 - 100) do
+        add_text_box(pdf, Time.now.strftime('%m/%d/%Y'))
+        add_text_box(pdf, "File Number: #{formatted_user[:file_number]}")
+        add_text_box(pdf, "Questions? https://ask.va.gov")
       end
+    end
+
+    def bounding_box(pdf, x, y, width)
+      pdf.bounding_box([x, y], width: width) { yield }
+    end
+
+    def add_text_box(pdf, text)
+      pdf.text_box(
+        text, at: [10, pdf.cursor],
+        width: pdf.bounds.width - 20, height: 20,
+        border: 1, align: :left, size: 10
+      )
+      pdf.move_down 15
     end
 
     def add_and_format_logo(pdf)
@@ -92,7 +83,7 @@ module DebtsApi
     end
 
     def default_filename
-      Rails.root.join("tmp", "debt_letter_#{Time.current.strftime('%Y%m%d%H%M%S')}.pdf")
+      Rails.root.join("tmp", "pdfs", "debt_letter_#{Time.current.strftime('%Y%m%d%H%M%S')}.pdf")
     end
 
     def save_pdf_content(path, content)
@@ -102,12 +93,7 @@ module DebtsApi
     def load_and_validate_legalese_pdf
       legalese_path = Rails.root.join("modules", "debts_api", "app", "assets", "documents", "one_debt_letter_legal_content.pdf")
 
-      raise "Legalese PDF not found at #{legalese_path}" unless File.exist?(legalese_path)
-
-      pdf = CombinePDF.load(legalese_path)
-      raise "Legalese PDF must have exactly 2 pages, but has #{pdf.pages.length} pages" unless pdf.pages.length == 2
-
-      pdf
+      CombinePDF.load(legalese_path)
     end
 
     def cleanup_temp_file(path)
