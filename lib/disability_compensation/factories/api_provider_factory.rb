@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'disability_compensation/providers/rated_disabilities/evss_rated_disabilities_provider'
 require 'disability_compensation/providers/rated_disabilities/lighthouse_rated_disabilities_provider'
 require 'disability_compensation/providers/rated_disabilities/rated_disabilities_provider'
 require 'disability_compensation/providers/intent_to_file/lighthouse_intent_to_file_provider'
@@ -37,14 +36,6 @@ class ApiProviderFactory
     generate_pdf: :generate_pdf,
     supplemental_document_upload: :supplemental_document_upload
   }.freeze
-
-  # Splitting the rated disabilities functionality into two use cases:
-  # 1. foreground tasks (i.e. web requests)
-  # 2. the background jobs (i.e. submit526 job)
-  FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND =
-    'disability_compensation_lighthouse_rated_disabilities_provider_foreground'
-  FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND =
-    'disability_compensation_lighthouse_rated_disabilities_provider_background'
 
   FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS = 'disability_compensation_upload_bdd_instructions_to_lighthouse'
   FEATURE_TOGGLE_UPLOAD_0781 = 'disability_compensation_upload_0781_to_lighthouse'
@@ -108,8 +99,6 @@ class ApiProviderFactory
 
   def rated_disabilities_service_provider
     case api_provider
-    when API_PROVIDER[:evss]
-      EvssRatedDisabilitiesProvider.new(@options[:auth_headers])
     when API_PROVIDER[:lighthouse]
       LighthouseRatedDisabilitiesProvider.new(@options[:icn])
     else
