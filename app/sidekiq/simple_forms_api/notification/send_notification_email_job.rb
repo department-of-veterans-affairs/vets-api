@@ -24,7 +24,7 @@ module SimpleFormsApi
           lighthouse_updated_at: form_submission_attempt.lighthouse_updated_at&.strftime('%B %d, %Y')
         }
 
-        if SimpleFormsApi::FormUploadNotificationEmail::SUPPORTED_FORMS.include? form_number
+        if SimpleFormsApi::Notification::FormUploadEmail::SUPPORTED_FORMS.include? form_number
           form_upload_notification_email
         else
           notification_email
@@ -37,11 +37,11 @@ module SimpleFormsApi
       private
 
       def form_upload_notification_email
-        SimpleFormsApi::FormUploadNotificationEmail.new(config, notification_type:).send(at: time_to_send)
+        SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type:).send(at: time_to_send)
       end
 
       def notification_email
-        SimpleFormsApi::NotificationEmail.new(
+        SimpleFormsApi::Notification::Email.new(
           config,
           notification_type:,
           user_account:
