@@ -152,8 +152,8 @@ class FormSubmissionAttempt < ApplicationRecord
   def simple_forms_form_number
     @simple_forms_form_number ||=
       if (
-        SimpleFormsApi::NotificationEmail::TEMPLATE_IDS.keys +
-        SimpleFormsApi::FormUploadNotificationEmail::SUPPORTED_FORMS
+        SimpleFormsApi::Notification::Email::TEMPLATE_IDS.keys +
+        SimpleFormsApi::Notification::FormUploadEmail::SUPPORTED_FORMS
       ).include? form_submission.form_type
         form_submission.form_type
       else
