@@ -188,17 +188,17 @@ module HCA
           {
             financialInfo: {
               veteranFinancialInfo: get_income(
-                response,
-                "#{financial_info_xpath}incomes/income"
-              ).merge!(
-                get_expenses(
-                  response,
-                  "#{financial_info_xpath}expenses/expense"
+                response, "#{financial_info_xpath}incomes/income"
+              ).merge(
+                get_expenses(response, "#{financial_info_xpath}expenses/expense").merge(
+                  incomeYear: get_locate_value(response, "#{financial_info_xpath}incomeYear")
                 )
               ),
-              veteranIncomeYear: get_locate_value(response, "#{financial_info_xpath}incomeYear"),
-              spouseFinancialInfo: get_income(response, "#{spouse_financial_info_xpath}incomes/income"),
-              spouseIncomeYear: get_locate_value(response, "#{spouse_financial_info_xpath}incomeYear")
+              spouseFinancialInfo: get_income(
+                response, "#{spouse_financial_info_xpath}incomes/income"
+              ).merge(
+                incomeYear: get_locate_value(response, "#{spouse_financial_info_xpath}incomeYear")
+              )
             }
           }
         )
