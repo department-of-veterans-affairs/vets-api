@@ -1184,9 +1184,8 @@ salesforce-gibft:
   signing_key_path: <%= ENV['SALESFORCE-GIBFT__SIGNING_KEY_PATH'] %>
   url: <%= ENV['SALESFORCE-GIBFT__URL'] %>
 saml:
-  authn_requests_signed: true
-  cert_path: <%= ENV['SAML__CERT_PATH'] %>
-  key_path: <%= ENV['SAML__KEY_PATH'] %>
+  cert_path: ~
+  key_path: ~
 saml_ssoe:
   callback_url: <%= ENV['SAML_SSOE__CALLBACK_URL'] %>
   cert_new_path: <%= ENV['SAML_SSOE__CERT_NEW_PATH'] %>
