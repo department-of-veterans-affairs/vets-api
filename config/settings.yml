@@ -255,9 +255,10 @@ pension_burial:
 
 bpds:
   jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
-  url: https://localhost:4000/api/v1/bpd
+  url: https://localhost:4000/api/v1/bpd # See the README for more information on how to run the BPDS locally
   mock: false
   schema_version: test
+  read_timeout: 20 # using the same timeout as lighthouse
 
 central_mail:
   upload:

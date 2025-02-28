@@ -5,8 +5,6 @@ require 'faraday/multipart'
 
 module BPDS
   class Configuration < Common::Client::Configuration::REST
-    self.read_timeout = Settings.caseflow.timeout || 20 # using the same timeout as lighthouse
-
     ##
     # @return [String] Base path
     #
