@@ -455,7 +455,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(json_response['errors'][0]['detail']).to eq(
                     'The property /veteran/email did not match the following requirements: ' \
-                    '{"description"=>"Email address of the veteran.", "type"=>"string", ' \
+                    '{"description"=>"Email address for the veteran.", "type"=>"string", ' \
                     '"pattern"=>"^(?!.*\\\\s).+@.+\\\\..+|^$", "maxLength"=>61, "example"=>' \
                     '"veteran@example.com"}'
                   )
@@ -472,7 +472,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(json_response['errors'][0]['detail']).to eq(
                     'The property /veteran/email did not match the following requirements: ' \
-                    '{"description"=>"Email address of the veteran.", "type"=>"string", ' \
+                    '{"description"=>"Email address for the veteran.", "type"=>"string", ' \
                     '"pattern"=>"^(?!.*\\\\s).+@.+\\\\..+|^$", "maxLength"=>61, "example"=>' \
                     '"veteran@example.com"}'
                   )
