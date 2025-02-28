@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/validation_errors'
 require 'burials/benefits_intake/submit_claim_job'
+require 'burials/monitor'
+require 'common/exceptions/validation_errors'
 
 module Burials
   module V0
