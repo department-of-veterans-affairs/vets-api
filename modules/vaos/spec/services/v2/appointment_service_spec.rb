@@ -1295,23 +1295,86 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
-  describe '#get_all_appointments' do
+  describe '#referral_appointment_already_exists?' do
     before do
       Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
       Flipper.disable(:va_online_scheduling_use_vpg)
     end
 
-    it 'returns all appointments for a given user' do
-      VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
-                       match_requests_on: %i[method query]) do
-        result = subject.get_all_appointments
-        expect(result).to be_an(Array)
-        expect(result.size).to eq(4)
+    context 'when requests to check existing appointments are successful' do
+      it 'returns hash with boolean indicating no existing appointments are tied to referral' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_v2',
+                         match_requests_on: %i[method query]) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          check = subject.referral_appointment_already_exists?('ref-150')
+          expect(check).to be_a(Hash)
+          expect(check[:exists]).to be(false)
+          expect(check).not_to have_key(:failure)
+        end
+      end
 
-        first_appointment = result.first
-        expect(first_appointment[:id]).to eq('37060')
-        expect(first_appointment[:kind]).to eq('clinic')
-        expect(first_appointment[:status]).to eq('cancelled')
+      it 'returns hash with boolean indicating there is an existing CCRA appointment' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_v2',
+                         match_requests_on: %i[method query]) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          check = subject.referral_appointment_already_exists?('ref-122')
+          expect(check).to be_a(Hash)
+          expect(check[:exists]).to be(true)
+          expect(check).not_to have_key(:failure)
+        end
+      end
+
+      it 'returns hash with boolean indicating there is an existing EPS appointment' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_v2',
+                         match_requests_on: %i[method query]) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          check = subject.referral_appointment_already_exists?('1234567890')
+          expect(check).to be_a(Hash)
+          expect(check[:exists]).to be(true)
+          expect(check).not_to have_key(:failure)
+        end
+      end
+
+      # replicates tests for get_appointments to ensure consistent logging
+      context 'upstream api failures' do
+        context 'when the call for vaos appointments returns a partial failure' do
+          it 'logs the failures, anonymizes the ICNs sent to the log, and returns the failure messages' do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_partial_errors_v2',
+                             match_requests_on: %i[method path query]) do
+              expected_msg = 'VAOS::V2::AppointmentService#get_all_appointments has response errors. : ' \
+                             '{:failures=>"[{\\"system\\":\\"VSP\\",\\"status\\":\\"500\\",\\"code\\":10000,\\"' \
+                             'message\\":\\"Could not fetch appointments from Vista Scheduling Provider\\",\\"' \
+                             'detail\\":\\"icn=d12672eba61b7e9bc50bb6085a0697133a5fbadf195e6cade452ddaad7921c1d, ' \
+                             'startDate=1921-09-02T00:00:00Z, endDate=2121-09-02T00:00:00Z\\"}]"}'
+
+              allow(Rails.logger).to receive(:info)
+
+              check = subject.referral_appointment_already_exists?('ref-150')
+              expect(Rails.logger).to have_received(:info).with(expected_msg)
+              expect(check).to be_a(Hash)
+              expect(check).not_to have_key(:exists)
+              expect(check[:error]).to be(true)
+              expect(check).to have_key(:failures)
+              expect(check[:failures].count).to eq(1)
+              expect(check[:failures][0][:message]).to eq('Could not fetch appointments from Vista Scheduling Provider')
+            end
+          end
+        end
+
+        context 'when a MAP token error occurs' do
+          it 'logs missing ICN error' do
+            expected_error = MAP::SecurityToken::Errors::MissingICNError.new 'Missing ICN message'
+            allow_any_instance_of(VAOS::SessionService).to receive(:headers).and_raise(expected_error)
+            allow(Rails.logger).to receive(:warn).at_least(:once)
+            check = subject.referral_appointment_already_exists?('ref-150')
+
+            expected_message = 'VAOS::V2::AppointmentService#get_all_appointments missing ICN'
+            expect(Rails.logger)
+              .to have_received(:warn)
+              .with(expected_message)
+            expect(check[:failures]).to eq('Missing ICN message')
+          end
+        end
       end
     end
   end
