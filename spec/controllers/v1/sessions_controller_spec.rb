@@ -458,6 +458,31 @@ RSpec.describe V1::SessionsController, type: :controller do
             end
           end
         end
+
+        context 'when type is mhv' do
+          let(:params) { { type:, operation: } }
+          let(:type) { 'mhv' }
+          let(:expected_tags) do
+            [
+              "type:#{type}",
+              'version:v1',
+              'client_id:vaweb',
+              "operation:#{operation}"
+            ]
+          end
+
+          context 'when operation is mhv_exception' do
+            let(:operation) { 'mhv_exception' }
+
+            it 'increments statsd with the expected tags' do
+              expect do
+                call_endpoint
+              end.to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: expected_tags, **once)
+
+              expect(response).to have_http_status(:ok)
+            end
+          end
+        end
       end
 
       context 'routes requiring auth' do

@@ -55,6 +55,24 @@ RSpec.describe IvcChampva::Attachments do
         expect(file_paths.count).to eq(2)
         expect(file_paths[1]).to include('additional')
       end
+
+      it 'generates an additional pdf for 10-10D upon retry' do
+        stub_const('IvcChampva::VHA1010d::ADDITIONAL_PDF_KEY', 'applicants')
+        stub_const('IvcChampva::VHA1010d::ADDITIONAL_PDF_COUNT', 3)
+
+        fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', 'vha_10_10d.json')
+        data = JSON.parse(fixture_path.read)
+
+        file_paths = []
+        2.times do
+          form = IvcChampva::VHA1010d.new(data)
+          file_paths.concat form.handle_attachments('modules/ivc_champva/templates/vha_10_10d.pdf')
+        end
+
+        # We should have two 10-10d paths and two additional-applicants PDF paths
+        expect(file_paths.count).to eq(4)
+        expect(file_paths.grep(/additional/).count).to eq(2)
+      end
     end
 
     context 'when there are no supporting documents' do
