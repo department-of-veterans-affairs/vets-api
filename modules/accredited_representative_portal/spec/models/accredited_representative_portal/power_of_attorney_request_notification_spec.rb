@@ -8,8 +8,8 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
 
   describe 'validations' do
     it {
-      expect(subject).to validate_inclusion_of(:notification_type).in_array(%w[requested_poa declined_poa expiring_poa
-                                                                               expired_poa])
+      expect(subject).to validate_inclusion_of(:notification_type).in_array(%w[requested declined expiring
+                                                                               expired])
     }
   end
 
@@ -17,46 +17,51 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
     it { is_expected.to belong_to(:power_of_attorney_request).class_name('PowerOfAttorneyRequest') }
 
     it {
-      expect(subject).to belong_to(:va_notify_notification).class_name('VANotify::Notification').with_foreign_key('notification_id').with_primary_key('notification_id').optional
+      expect(subject)
+        .to belong_to(:va_notify_notification)
+        .class_name('VANotify::Notification')
+        .with_foreign_key('notification_id')
+        .with_primary_key('notification_id')
+        .optional
     }
   end
 
   describe 'scopes' do
-    let!(:requested_poa_notification) do
-      create(:power_of_attorney_request_notification, notification_type: 'requested_poa')
+    let!(:requested_notification) do
+      create(:power_of_attorney_request_notification, notification_type: 'requested')
     end
-    let!(:declined_poa_notification) do
-      create(:power_of_attorney_request_notification, notification_type: 'declined_poa')
+    let!(:declined_notification) do
+      create(:power_of_attorney_request_notification, notification_type: 'declined')
     end
-    let!(:expiring_poa_notification) do
-      create(:power_of_attorney_request_notification, notification_type: 'expiring_poa')
+    let!(:expiring_notification) do
+      create(:power_of_attorney_request_notification, notification_type: 'expiring')
     end
-    let!(:expired_poa_notification) do
-      create(:power_of_attorney_request_notification, notification_type: 'expired_poa')
-    end
-
-    it 'returns requested_poa notifications' do
-      expect(described_class.requested_poa).to include(requested_poa_notification)
-      expect(described_class.requested_poa).not_to include(declined_poa_notification, expiring_poa_notification,
-                                                           expired_poa_notification)
+    let!(:expired_notification) do
+      create(:power_of_attorney_request_notification, notification_type: 'expired')
     end
 
-    it 'returns declined_poa notifications' do
-      expect(described_class.declined_poa).to include(declined_poa_notification)
-      expect(described_class.declined_poa).not_to include(requested_poa_notification, expiring_poa_notification,
-                                                          expired_poa_notification)
+    it 'returns requested notifications' do
+      expect(described_class.requested).to include(requested_notification)
+      expect(described_class.requested).not_to include(declined_notification, expiring_notification,
+                                                       expired_notification)
     end
 
-    it 'returns expiring_poa notifications' do
-      expect(described_class.expiring_poa).to include(expiring_poa_notification)
-      expect(described_class.expiring_poa).not_to include(requested_poa_notification, declined_poa_notification,
-                                                          expired_poa_notification)
+    it 'returns declined notifications' do
+      expect(described_class.declined).to include(declined_notification)
+      expect(described_class.declined).not_to include(requested_notification, expiring_notification,
+                                                      expired_notification)
     end
 
-    it 'returns expired_poa notifications' do
-      expect(described_class.expired_poa).to include(expired_poa_notification)
-      expect(described_class.expired_poa).not_to include(requested_poa_notification, declined_poa_notification,
-                                                         expiring_poa_notification)
+    it 'returns expiring notifications' do
+      expect(described_class.expiring).to include(expiring_notification)
+      expect(described_class.expiring).not_to include(requested_notification, declined_notification,
+                                                      expired_notification)
+    end
+
+    it 'returns expired notifications' do
+      expect(described_class.expired).to include(expired_notification)
+      expect(described_class.expired).not_to include(requested_notification, declined_notification,
+                                                     expiring_notification)
     end
   end
 
