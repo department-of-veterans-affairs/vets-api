@@ -81,7 +81,7 @@ module VAOS
       #   - { error: true, failures: [...] } if an error occurred during the appointment retrieval,
       #   - { exists: true } if an appointment with the given referral exists,
       #   - { exists: false } if no appointment with the referral is found.
-      def referral_appointment_already_exists?(referral_id, pagination_params={})
+      def referral_appointment_already_exists?(referral_id, pagination_params = {})
         vaos_response = get_all_appointments(pagination_params)
         vaos_request_failures = vaos_response[:meta][:failures]
 
