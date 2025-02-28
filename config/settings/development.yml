@@ -1204,6 +1204,7 @@ salesforce-gibft:
   signing_key_path: ~
   url: https://va--rdtcddev.cs33.my.salesforce.com/
 saml:
+  authn_requests_signed: false
   cert_path: ~
   key_path: ~
 saml_ssoe:
