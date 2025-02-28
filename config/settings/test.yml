@@ -26,20 +26,20 @@ saml_ssoe:
 clamav:
   mock: true
   host: 0.0.0.0
-  port: "33100"
+  port: '33100'
 
 sign_in:
-  jwt_encode_key: "spec/fixtures/sign_in/privatekey.pem"
+  jwt_encode_key: 'spec/fixtures/sign_in/privatekey.pem'
 
 edu:
   prefill: true
   sftp:
-    relative_path: "spool_files"
+    relative_path: 'spool_files'
 
 pension_burial:
   prefill: true
   sftp:
-    relative_path: "VETSGOV_PENSION"
+    relative_path: 'VETSGOV_PENSION'
 
 bpds:
   jwt_secret: "FAKE_SECRET"
@@ -254,13 +254,13 @@ lighthouse:
         rsa_key: path/to/key
       use_mocks: false
   benefits_education:
-    host: https://sandbox-api.va.gov
-    use_mocks: true
-    access_token:
-      client_id: ~
-      rsa_key: ~
+      host: https://sandbox-api.va.gov
+      use_mocks: true
+      access_token:
+        client_id: ~
+        rsa_key: ~
   benefits_intake:
-    api_key: fake_api_key
+      api_key: fake_api_key
 
 vaos:
   eps:
@@ -395,9 +395,9 @@ claims_api:
   evss_container:
     client_key: fakekeyvaluehere
   pdf_generator_526:
-    url: "https://fake_pdf_url.com"
-    path: "/form-526ez-pdf-generator/v1/forms/"
-    content_type: "application/vnd.api+json"
+    url: 'https://fake_pdf_url.com'
+    path: '/form-526ez-pdf-generator/v1/forms/'
+    content_type: 'application/vnd.api+json'
   benefits_documents:
     host: https://staging-api.va.gov
     auth:
@@ -431,20 +431,20 @@ nod_vanotify_status_callback:
 
 travel_pay:
   veis:
-    client_id: "client_id"
-    client_secret: "client_secret"
-    resource: "resource_id"
-    tenant_id: "tenant_id"
-    auth_url: "https://auth.veis.gov"
+    client_id: 'client_id'
+    client_secret: 'client_secret'
+    resource: 'resource_id'
+    tenant_id: 'tenant_id'
+    auth_url: 'https://auth.veis.gov'
   mock: false
-  subscription_key: "api_key"
-  base_url: "https://btsss.gov"
-  client_number: "12345"
-  service_name: "BTSSS-API"
+  subscription_key: 'api_key'
+  base_url: 'https://btsss.gov'
+  client_number: '12345'
+  service_name: 'BTSSS-API'
 
 va_notify:
   status_callback:
-    bearer_token: "va_notify_bearer_token"
+    bearer_token: 'va_notify_bearer_token'
 
 accredited_representative_portal:
   allow_list:
@@ -455,6 +455,6 @@ accredited_representative_portal:
       path: not_real.csv
 
 kafka_producer:
-  broker_urls: ["localhost:19092"] # for local Kafka cluster in Docker
-  aws_role_arn: "arn:aws:iam::123456789012:role/role-name" # this is an example
-  schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
+  broker_urls: ['localhost:19092'] # for local Kafka cluster in Docker
+  aws_role_arn: 'arn:aws:iam::123456789012:role/role-name' # this is an example
+  schema_registry_url: 'http://localhost:8081' # for local Schema Registry in Docker

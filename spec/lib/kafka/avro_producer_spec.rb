@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'kafka/avro_producer'
+require 'kafka/oauth_token_refresher'
 
 describe Kafka::AvroProducer do
   let(:avro_producer) { described_class.new }
@@ -11,10 +12,43 @@ describe Kafka::AvroProducer do
   let(:invalid_payload) { { 'invalid_key' => 'value' } }
 
   before do
-    allow(avro_producer).to receive(:get_schema).and_return(schema)
+    allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('test'))
+    allow(Flipper).to receive(:enabled?).with(:kafka_producer).and_return(true)
+    allow(Kafka::OauthTokenRefresher).to receive(:new).and_return(double(on_oauthbearer_token_refresh: 'token'))
+  end
+
+  context 'using the correct client' do
+    context 'in the test environment' do
+      before do
+        allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('test'))
+        Kafka::ProducerManager.instance.send(:setup_producer) # Reinitialize the producer with the mocked environment
+        allow(avro_producer).to receive(:get_schema).and_return(schema)
+      end
+
+      it 'uses the Buffered client' do
+        expect(avro_producer.producer.client).to be_a(WaterDrop::Clients::Buffered)
+      end
+    end
+
+    context 'in other environments' do
+      before do
+        allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
+        Kafka::ProducerManager.instance.send(:setup_producer) # Reinitialize the producer with the mocked environment
+        allow(avro_producer).to receive(:get_schema).and_return(schema)
+      end
+
+      it 'uses the Rdkafka client' do
+        expect(avro_producer.producer.client).to be_a(Rdkafka::Producer)
+      end
+    end
   end
 
   context 'producing a message successfully' do
+    before do
+      Kafka::ProducerManager.instance.send(:setup_producer)
+      allow(avro_producer).to receive(:get_schema).and_return(schema)
+    end
+
     after do
       # reset the client after each test
       avro_producer.producer.client.reset
@@ -33,6 +67,11 @@ describe Kafka::AvroProducer do
   end
 
   context 'when an error occurs' do
+    before do
+      Kafka::ProducerManager.instance.send(:setup_producer)
+      allow(avro_producer).to receive(:get_schema).and_return(schema)
+    end
+
     it 'triggers MessageInvalidError if no valid topic is provided' do
       expect(Rails.logger).to receive(:error).with(/Message is invalid/)
 

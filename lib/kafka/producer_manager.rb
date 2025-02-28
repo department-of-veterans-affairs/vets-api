@@ -2,6 +2,7 @@
 
 require 'singleton'
 require 'waterdrop'
+require 'kafka/oauth_token_refresher'
 
 module Kafka
   class ProducerManager
@@ -32,7 +33,7 @@ module Kafka
 
         # Authentication to MSK via IAM OauthBearer token
         # Once we're ready to test connection to the Event Bus, this should be uncommented
-        config.oauth.token_provider_listener = Kafka::OAuthTokenRefresher.new unless Rails.env.test?
+        config.oauth.token_provider_listener = Kafka::OauthTokenRefresher.new unless Rails.env.test?
       end
       setup_instrumentation
     end
