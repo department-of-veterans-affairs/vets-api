@@ -250,6 +250,18 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
         expect(form5655_submission).not_to receive(:alert_silent_error)
         form5655_submission.register_failure(message)
       end
+
+      it 'logs a warning for SharepointRequest' do
+        message =
+          'VHA set completed state: [#<struct Sidekiq::Batch::Status::Failure jid=\"058f2988d02722166392ff66\", ' \
+          'error_class=\"Common::Exceptions::BackendServiceException\", ' \
+          'error_message=\"BackendServiceException: {:status=>500, :detail=>\\\"Internal Server Error\\\", ' \
+          ':source=>\\\"SharepointRequest\\\", :code=>\\\"SHAREPOINT_PDF_502\\\"}\", backtrace=nil>]'
+
+        allow(Rails.logger).to receive(:warn) # Stub the logger
+        form5655_submission.register_failure(message)
+        expect(Rails.logger).to have_received(:warn).with("SharePoint request failed with: #{message}")
+      end
     end
   end
 

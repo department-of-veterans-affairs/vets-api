@@ -82,14 +82,21 @@ module DebtsApi
 
     def register_failure(message)
       failed!
-      if message.blank?
-        message = "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
-      end
+      message ||= "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
+
       update(error_message: message)
       Rails.logger.error("Form5655Submission id: #{id} failed", message)
+
       StatsD.increment("#{STATS_KEY}.failure")
-      alert_silent_error unless message.include?('SharepointRequest')
+
+      if message.to_s.include?('SharepointRequest')
+        Rails.logger.warn("SharePoint request failed with: #{message}")
+      else
+        alert_silent_error
+      end
+
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
+
       begin
         send_failed_form_email
       rescue => e
