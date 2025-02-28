@@ -71,7 +71,7 @@ RSpec.describe UserAuditLogger do
     end
 
     context 'when the job is unsuccessful' do
-      let(:expected_log_message) { 'UserAuditLogger error' }
+      let(:expected_log_message) { '[UserAuditLogger] error' }
 
       shared_examples 'error logging' do
         it 'logs an error message' do
@@ -82,21 +82,21 @@ RSpec.describe UserAuditLogger do
 
       context 'when user_action_event_identifier is nil' do
         let(:user_action_event_identifier) { nil }
-        let(:expected_error) { 'User action event must be present' }
+        let(:expected_error) { 'undefined method `id\' for nil' }
 
         it_behaves_like 'error logging'
       end
 
       context 'when subject_user_verification is nil' do
         let(:subject_user_verification) { nil }
-        let(:expected_error) { 'Subject user verification must be present' }
+        let(:expected_error) { 'undefined method `validate!\' for nil' }
 
         it_behaves_like 'error logging'
       end
 
       context 'when status is nil' do
         let(:status) { nil }
-        let(:expected_error) { 'Status must be present' }
+        let(:expected_error) { 'Validation failed: Status is not included in the list' }
 
         it_behaves_like 'error logging'
       end

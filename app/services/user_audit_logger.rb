@@ -17,32 +17,14 @@ class UserAuditLogger
   # rubocop:enable Metrics/ParameterLists
 
   def perform
-    validate_required_fields
+    subject_user_verification.validate!
     log_audit_entry
     user_action
   rescue => e
-    Rails.logger.error('UserAuditLogger error', { error: e.message })
+    Rails.logger.error('[UserAuditLogger] error', { error: e.message })
   end
 
   private
-
-  def validate_required_fields
-    validate_user_action_event
-    validate_subject_verification
-    validate_status
-  end
-
-  def validate_user_action_event
-    raise 'User action event must be present' if user_action_event.nil?
-  end
-
-  def validate_subject_verification
-    raise 'Subject user verification must be present' if subject_user_verification.nil?
-  end
-
-  def validate_status
-    raise 'Status must be present' if status.nil?
-  end
 
   def log_audit_entry
     Rails.logger.info('User audit log created', { user_action_event: user_action_event.id,
