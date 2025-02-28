@@ -4460,8 +4460,6 @@ paths:
         description: The new gender identity key
         required: true
       responses:
-        '204':
-          description: No Content
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -4470,6 +4468,8 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
+        '410':
+          $ref: '#/components/responses/410'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -4855,6 +4855,12 @@ components:
           schema:
             $ref: ./schemas/Errors.yml
       description: The response from this API timed out.
+    '410':
+      content:
+        application/json:
+          schema:
+            $ref: ./schemas/Errors.yml
+      description: The Target resource is no longer available.
     '418':
       content:
         application/json:

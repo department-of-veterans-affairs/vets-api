@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# TODO: Delete this file after SimpleFormsApi::Notification::FormUploadEmail is in place.
 module SimpleFormsApi
   class FormUploadNotificationEmail
     attr_reader :form_number, :form_name, :confirmation_number, :date_submitted, :lighthouse_updated_at,

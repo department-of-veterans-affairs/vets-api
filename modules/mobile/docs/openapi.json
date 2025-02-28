@@ -7715,9 +7715,6 @@
           "required": true
         },
         "responses": {
-          "204": {
-            "description": "No Content"
-          },
           "401": {
             "$ref": "#/components/responses/401"
           },
@@ -7729,6 +7726,9 @@
           },
           "408": {
             "$ref": "#/components/responses/408"
+          },
+          "410": {
+            "$ref": "#/components/responses/410"
           },
           "500": {
             "$ref": "#/components/responses/500"
@@ -8352,6 +8352,16 @@
           }
         },
         "description": "The response from this API timed out."
+      },
+      "410": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Errors"
+            }
+          }
+        },
+        "description": "The Target resource is no longer available."
       },
       "418": {
         "content": {
@@ -18714,6 +18724,7 @@
                     "code",
                     "recordedDate",
                     "patient",
+                    "category",
                     "notes",
                     "recorder",
                     "reactions"
@@ -18791,6 +18802,16 @@
                             }
                           }
                         }
+                      }
+                    },
+                    "category": {
+                      "type": "array",
+                      "additionalProperties": false,
+                      "items": {
+                        "type": "string",
+                        "additionalProperties": false,
+                        "nullable": true,
+                        "example": "environment"
                       }
                     },
                     "notes": {
