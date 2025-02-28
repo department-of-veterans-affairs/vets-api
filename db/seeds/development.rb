@@ -191,4 +191,8 @@ user_action_events_yaml.each do |identifier, event_config|
   event = UserActionEvent.find_or_initialize_by(identifier:)
   event.attributes = event_config
   event.save!
+rescue => e
+  error_message = "[UserActionEvent] Setup Error: #{e.message}"
+  Rails.logger.info(error_message)
+  puts error_message
 end
