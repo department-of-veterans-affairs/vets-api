@@ -41,7 +41,6 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       allow(monitor).to receive :track_submission_retry
     end
 
-
     context 'Feature burial_submitted_email_notification=false' do
       it 'submits the saved claim successfully' do
         allow(Flipper).to receive(:enabled?).with(:burial_submitted_email_notification).and_return(false)
@@ -121,7 +120,6 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
 
     # perform
   end
-
 
   describe '#form_submission_pending_or_success' do
     before do

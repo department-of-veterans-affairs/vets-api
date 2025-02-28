@@ -78,7 +78,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       allow(record).to receive_messages({ created_at: claim.created_at })
       datestamp_double1 = double
       datestamp_double2 = double
-      datestamp_double3 = double
+      double
       timestamp = claim.created_at
 
       expect(record).to receive(:to_pdf).and_return('path1')
