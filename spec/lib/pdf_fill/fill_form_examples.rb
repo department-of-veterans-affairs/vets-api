@@ -45,7 +45,7 @@ RSpec.shared_examples 'a form filler' do |options|
           end
 
           let(:saved_claim) do
-            if form_id == '21P-530EZ'
+            if ['21P-530EZ', '686C-674-V2'].include?(form_id)
               claim = create(factory)
               claim.update(form: form_data.to_json)
               claim
