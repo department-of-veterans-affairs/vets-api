@@ -39,18 +39,20 @@ module MyHealth
 
       def signature
         resource = client.get_signature
-        resource = { signature_name: nil, include_signature: false, signature_title: nil } if resource[:data].nil?
-        render json: MyHealth::V1::MessageSignatureSerializer.new(resource[:data]).to_json
+        render_signature(resource)
       end
 
       def update_signature
         updated_signature = params.require(:messaging_preference).permit(:signature_name, :signature_title,
                                                                          :include_signature)
         resource = client.post_signature(updated_signature)
-        if resource[:data].nil?
-          resource[:data] =
-            { signature_name: nil, include_signature: false, signature_title: nil }
-        end
+        render_signature(resource)
+      end
+
+      private
+
+      def render_signature(resource)
+        resource[:data] ||= { signature_name: nil, include_signature: false, signature_title: nil }
         render json: MyHealth::V1::MessageSignatureSerializer.new(resource[:data]).to_json
       end
     end
