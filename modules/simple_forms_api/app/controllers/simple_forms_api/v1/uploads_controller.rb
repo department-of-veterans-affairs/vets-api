@@ -251,6 +251,8 @@ module SimpleFormsApi
       end
 
       def upload_pdf_to_s3(id, file_path, metadata, submission, form)
+        return unless Flipper.enabled?(:simple_forms_s3_upload)
+
         config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
         attachments = form_id == 'vba_20_10207' ? form.get_attachments : []
         s3_client = config.s3_client.new(
@@ -311,6 +313,8 @@ module SimpleFormsApi
       end
 
       def send_confirmation_email(parsed_form_data, confirmation_number)
+        return unless Flipper.enabled?(:simple_forms_email_confirmations)
+
         config = {
           form_data: parsed_form_data,
           form_number: form_id,
