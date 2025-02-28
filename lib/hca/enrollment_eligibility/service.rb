@@ -395,10 +395,7 @@ module HCA
       end
 
       def veteran_income_year(response)
-        get_xpath(
-          response,
-          "#{XPATH_PREFIX}financialsInfo/incomeTest/incomeYear"
-        )
+        get_locate_value(response, "#{XPATH_PREFIX}financialsInfo/financialStatement/incomeYear")
       end
 
       def income_year_is_last_year?(response)

@@ -1105,24 +1105,25 @@ RSpec.describe FormProfile, type: :model do
       let(:form_profile) do
         FormProfiles::VA1010ezr.new(user:, form_id: 'f')
       end
+      let(:ezr_prefilled_data_without_ee_data) do
+        {
+          'veteranFullName' => {
+            'first' => user.first_name&.capitalize,
+            'middle' => user.middle_name&.capitalize,
+            'last' => user.last_name&.capitalize,
+            'suffix' => user.suffix
+          },
+          'veteranSocialSecurityNumber' => user.ssn,
+          'gender' => user.gender,
+          'veteranDateOfBirth' => user.birth_date,
+          'homePhone' => us_phone,
+          'veteranAddress' => address,
+          'email' => user.va_profile_email
+        }
+      end
 
       context 'when the ee service is down' do
-        let(:v10_10_ezr_expected) do
-          {
-            'veteranFullName' => {
-              'first' => user.first_name&.capitalize,
-              'middle' => user.middle_name&.capitalize,
-              'last' => user.last_name&.capitalize,
-              'suffix' => user.suffix
-            },
-            'veteranSocialSecurityNumber' => user.ssn,
-            'gender' => user.gender,
-            'veteranDateOfBirth' => user.birth_date,
-            'homePhone' => us_phone,
-            'veteranAddress' => address,
-            'email' => user.va_profile_email
-          }
-        end
+        let(:v10_10_ezr_expected) { ezr_prefilled_data_without_ee_data }
 
         it 'prefills the rest of the data and logs exception to sentry' do
           expect_any_instance_of(FormProfiles::VA1010ezr).to receive(:log_exception_to_sentry).with(
@@ -1132,33 +1133,12 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
-      context 'with a user with dependents', run_at: 'Tue, 31 Oct 2023 12:04:33 GMT' do
+      context 'with a user with financial data, insurance data, and dependents',
+              run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
         let(:v10_10_ezr_expected) do
-          {
-            'veteranFullName' => {
-              'first' => user.first_name&.capitalize,
-              'middle' => user.middle_name&.capitalize,
-              'last' => user.last_name&.capitalize,
-              'suffix' => user.suffix
-            },
-            'veteranSocialSecurityNumber' => user.ssn,
-            'gender' => user.gender,
-            'veteranDateOfBirth' => user.birth_date,
-            'homePhone' => us_phone,
-            'veteranAddress' => address,
-            'email' => user.va_profile_email,
-            'spouseSocialSecurityNumber' => '435345344',
-            'spouseDateOfBirth' => '1950-02-17',
-            'dateOfMarriage' => '2000-10-15',
-            'cohabitedLastYear' => true,
-            'maritalStatus' => 'Married',
-            'isMedicaidEligible' => false,
-            'isEnrolledMedicarePartA' => false,
-            'spouseFullName' => {
-              'first' => 'VSDV',
-              'last' => 'SDVSDV'
-            }
-          }
+          JSON.parse(
+            File.read('spec/fixtures/form1010_ezr/veteran_prefill_data.json')
+          ).merge(ezr_prefilled_data_without_ee_data)
         end
 
         before do
@@ -1167,45 +1147,8 @@ RSpec.describe FormProfile, type: :model do
 
         it 'returns a prefilled 10-10EZR form' do
           VCR.use_cassette(
-            'hca/ee/dependents',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
-          ) do
-            expect_prefilled('10-10EZR')
-          end
-        end
-      end
-
-      context 'with a user with insurance data', run_at: 'Tue, 24 Oct 2023 17:27:12 GMT' do
-        let(:v10_10_ezr_expected) do
-          {
-            'veteranFullName' => {
-              'first' => user.first_name&.capitalize,
-              'middle' => user.middle_name&.capitalize,
-              'last' => user.last_name&.capitalize,
-              'suffix' => user.suffix
-            },
-            'veteranSocialSecurityNumber' => user.ssn,
-            'gender' => user.gender,
-            'veteranDateOfBirth' => user.birth_date,
-            'homePhone' => us_phone,
-            'veteranAddress' => address,
-            'email' => user.va_profile_email,
-            'maritalStatus' => 'Married',
-            'isMedicaidEligible' => true,
-            'isEnrolledMedicarePartA' => true,
-            'medicarePartAEffectiveDate' => '1999-10-16',
-            'medicareClaimNumber' => '873462432'
-          }
-        end
-
-        before do
-          allow(user).to receive(:icn).and_return('1013032368V065534')
-        end
-
-        it 'returns a prefilled 10-10EZR form' do
-          VCR.use_cassette(
-            'hca/ee/lookup_user_2023',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
+            'form1010_ezr/lookup_user_with_ezr_prefill_data',
+            match_requests_on: %i[method uri body], erb: true
           ) do
             expect_prefilled('10-10EZR')
           end

@@ -7,7 +7,7 @@ describe HCA::EnrollmentEligibility::Service do
   describe '#get_ezr_prefill_data' do
     it 'gets data for prefilling 1010ezr', run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
       VCR.use_cassette(
-        'form1010_ezr/authorized_veteran_prefill_data',
+        'form1010_ezr/lookup_user_with_ezr_prefill_data',
         match_requests_on: %i[method uri body], erb: true
       ) do
         expect(
