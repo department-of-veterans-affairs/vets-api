@@ -8,6 +8,8 @@ require 'lighthouse/benefits_intake/service'
 
 module Burials
   module BenefitsIntake
+    # sidekig job to send burial pdfs to Lighthouse:BenefitsIntake API
+    # @see https://developer.va.gov/explore/api/benefits-intake/docs
     class SubmitClaimJob
       include Sidekiq::Job
 
