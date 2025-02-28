@@ -79,8 +79,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
   describe 'perform' do
     context 'with flag enabled', :aggregate_failures do
       before do
-        Flipper.enable :decision_review_failure_notification_email_job_enabled
-
+        allow(Flipper).to receive(:enabled?).with(:decision_review_failure_notification_email_job_enabled)
+                                            .and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_notify_4142_failures).and_return(false)
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:error)
         allow(StatsD).to receive(:increment)
@@ -394,7 +395,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
 
         context 'with flag enabled' do
           before do
-            Flipper.enable(:decision_review_notify_4142_failures)
+            allow(Flipper).to receive(:enabled?).with(:decision_review_notify_4142_failures).and_return(true)
           end
 
           it 'sends an email for secondary form and notification date on the secondary form record' do
@@ -464,7 +465,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
 
         context 'with flag disabled' do
           before do
-            Flipper.disable(:decision_review_notify_4142_failures)
+            allow(Flipper).to receive(:enabled?).with(:decision_review_notify_4142_failures).and_return(false)
           end
 
           it 'does not attempt to notify about secondary form failures' do
@@ -571,6 +572,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
 
           create(:secondary_appeal_form4142, guid: lighthouse_upload_id, status: secondary_form_status_error,
                                              appeal_submission:)
+          allow(Flipper).to receive(:enabled?).with(:decision_review_failure_notification_email_job_enabled)
+                                              .and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:decision_review_notify_4142_failures).and_return(true)
         end
 
         it 'handles the error and increments the statsd metric' do
@@ -604,7 +608,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
 
     context 'with flag disabled' do
       before do
-        Flipper.disable :decision_review_failure_notification_email_job_enabled
+        allow(Flipper).to receive(:enabled?).with(:decision_review_failure_notification_email_job_enabled)
+                                            .and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_notify_4142_failures).and_return(false)
       end
 
       it 'immediately exits' do
