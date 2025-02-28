@@ -172,7 +172,7 @@ RSpec.describe Burials::Monitor do
 
           msg = { 'args' => [claim.id, current_user.uuid] }
 
-          log = 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!'
+          log = 'Burial 21P-530EZ submission to LH exhausted!'
           payload = {
             confirmation_number: claim.confirmation_number,
             user_account_uuid: current_user.uuid,
@@ -202,7 +202,7 @@ RSpec.describe Burials::Monitor do
         it 'logs sidekiq job exhaustion' do
           msg = { 'args' => [claim.id, current_user.uuid] }
 
-          log = 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!'
+          log = 'Burial 21P-530EZ submission to LH exhausted!'
           payload = {
             confirmation_number: nil,
             user_account_uuid: current_user.uuid,
@@ -229,9 +229,10 @@ RSpec.describe Burials::Monitor do
 
       describe '#track_send_submitted_email_failure' do
         it 'logs sidekiq job send_submitted_email error' do
-          log = 'Lighthouse::SubmitBenefitsIntakeClaim send_submitted_email failed'
+          log = 'Burial 21P-530EZ send_submitted_email failed'
           payload = {
             claim_id: claim.id,
+            user_account_uuid: current_user.uuid,
             benefits_intake_uuid: lh_service.uuid,
             confirmation_number: claim.confirmation_number,
             message: monitor_error.message,
@@ -246,7 +247,7 @@ RSpec.describe Burials::Monitor do
             **payload
           )
 
-          monitor.track_send_submitted_email_failure(claim, lh_service, monitor_error)
+          monitor.track_send_submitted_email_failure(claim, lh_service, current_user.uuid, monitor_error)
         end
       end
     end
