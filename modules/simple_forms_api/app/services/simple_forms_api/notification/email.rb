@@ -4,11 +4,14 @@ module SimpleFormsApi
   module Notification
     class Email
       attr_reader :form_number, :confirmation_number, :date_submitted, :expiration_date, :lighthouse_updated_at,
-                  :notification_type, :user, :user_account, :form_data, :template_ids
+                  :notification_type, :user, :user_account, :form_data
+
+      TEMPLATE_IDS = YAML.load_file(
+        'modules/simple_forms_api/app/services/simple_forms_api/notification/template_ids.yml'
+      )
+      SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
       def initialize(config, notification_type: :confirmation, user: nil, user_account: nil)
-        filepath = 'modules/simple_forms_api/app/services/simple_forms_api/notification/template_ids.yml'
-        @template_ids = YAML.load_file(filepath)
         @notification_type = notification_type
 
         check_missing_keys(config)
@@ -27,7 +30,7 @@ module SimpleFormsApi
       def send(at: nil)
         return unless flipper?
 
-        template_id = template_ids[form_number][notification_type]
+        template_id = TEMPLATE_IDS[form_number][notification_type.to_s]
         return unless template_id
 
         sent_to_va_notify = if at
