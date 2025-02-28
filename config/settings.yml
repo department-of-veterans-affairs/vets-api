@@ -872,6 +872,8 @@ maintenance:
     vetext_vaccine: P9PG8HG
     vic: P7LW3MS
     hcq: PWGA814
+    mdot: PEOIHN1
+    staging_mdot: PGT74RC
   aws:
     access_key_id: ~
     bucket: ~
