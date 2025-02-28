@@ -217,7 +217,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           expect(friendly_description_values).to include('We need employment information from your most' \
                                                          ' recent employer.')
           expect(friendly_description_values).to include('We need your direct deposit information in' \
-                                                         ' order to pay benefits, if awarded')
+                                                         ' order to pay benefits, if awarded.')
           expect(friendly_description_values).to include('We need information about the cause of' \
                                                          ' your posttraumatic stress disorder (PTSD).')
           support_alias_values = tracked_items.map { |i| i['supportAliases'] }
