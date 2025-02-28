@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'sm/client'
-# require 'support/sm_spec_helper'
 
 describe 'sm client' do
   before do

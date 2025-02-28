@@ -9,8 +9,6 @@ RSpec.describe 'sm client', type: :request do
 
   before do
     sign_in_as(current_user)
-    # allow(User).to receive(:find).and_return(current_user)
-    # allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_cerner_pilot, instance_of(User)).and_return(false)
   end
 
   context 'session' do
