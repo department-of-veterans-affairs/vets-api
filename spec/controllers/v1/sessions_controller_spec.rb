@@ -175,7 +175,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
 
           context 'and the operation param is invalid' do
-            subject(:call_endpoint) { get(:new, params: params) }
+            subject(:call_endpoint) { get(:new, params:) }
 
             let(:params) { { type: 'idme_verified', clientId: '123123', operation: 'asdf' } }
 
@@ -455,6 +455,31 @@ RSpec.describe V1::SessionsController, type: :controller do
 
             it 'redirects to eauth with app key expected path' do
               expect(call_endpoint).to redirect_to(expected_redirect_url)
+            end
+          end
+        end
+
+        context 'when type is mhv' do
+          let(:params) { { type:, operation: } }
+          let(:type) { 'mhv' }
+          let(:expected_tags) do
+            [
+              "type:#{type}",
+              'version:v1',
+              'client_id:vaweb',
+              "operation:#{operation}"
+            ]
+          end
+
+          context 'when operation is mhv_exception' do
+            let(:operation) { 'mhv_exception' }
+
+            it 'increments statsd with the expected tags' do
+              expect do
+                call_endpoint
+              end.to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: expected_tags, **once)
+
+              expect(response).to have_http_status(:ok)
             end
           end
         end

@@ -13,7 +13,7 @@ RSpec.describe CheckIn::V2::CheckinServiceException do
     subject.new(status: '401', original_body: error_message)
   end
   let(:cie_exception_code) { 'CIE-VETS-API_' }
-  let(:response_value) { { status: status, detail: [error_message], code: cie_exception_code + status } }
+  let(:response_value) { { status:, detail: [error_message], code: cie_exception_code + status } }
 
   describe '.build' do
     it 'returns an instance of cie exception' do

@@ -21,6 +21,12 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                                    birth_date: '19560506')
     )
   end
+  let(:no_pid_profile) do
+    MPI::Responses::FindProfileResponse.new(
+      status: :ok,
+      profile: build(:mpi_profile, participant_id: nil, edipi: '123456', participant_ids: %w[])
+    )
+  end
 
   before do
     stub_poa_verification
@@ -982,6 +988,30 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
         end
 
+        context "when 'unitName' is blank space" do
+          let(:unit_name) { ' ' }
+
+          it 'returns a successful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService']['unitName'] =
+                    unit_name
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                  response_body = JSON.parse(response.body)
+                  claim_id = response_body['data']['id']
+                  claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+                  claim.to_internal
+                  expect(claim.form_data['serviceInformation']['reservesNationalGuardService']['unitName']).to eq(' ')
+                end
+              end
+            end
+          end
+        end
+
         context "when 'unitName' is nil" do
           let(:unit_name) { nil }
 
@@ -1008,6 +1038,22 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 VCR.use_cassette('claims_api/brd/countries') do
                   par = json_data
                   par['data']['attributes']['serviceInformation']['reservesNationalGuardService'].delete('unitName')
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'serviceInformation' is not present" do
+          it 'returns a unsuccessful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes'].delete('serviceInformation')
 
                   post path, params: par.to_json, headers: headers.merge(auth_header)
                   expect(response).to have_http_status(:unprocessable_entity)
@@ -1439,24 +1485,26 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       end
 
       context 'when consumer is Veteran, but is missing a participant id' do
-        let(:profile) { build(:mpi_profile, birth_date: '19560506') }
-        let(:mpi_profile_response) { build(:find_profile_response, profile:) }
+        let(:add_person_proxy_response) do
+          instance_double(MPI::Responses::AddPersonResponse, ok?: true, status: :ok)
+        end
 
         it 'raises a 422, with message' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
-                mpi_profile_response.profile.participant_ids = []
-                mpi_profile_response.profile.participant_id = ''
-                allow_any_instance_of(MPIData).to receive(:add_person_proxy)
-                  .and_return(mpi_profile_response)
+                allow_any_instance_of(ClaimsApi::Veteran)
+                  .to receive(:mpi_record?).and_return(true)
                 allow_any_instance_of(MPIData)
-                  .to receive(:mvi_response).and_return(multi_profile)
+                  .to receive(:mvi_response).and_return(no_pid_profile)
+                allow_any_instance_of(MPIData)
+                  .to receive(:add_person_proxy).and_return(add_person_proxy_response)
 
                 parsed_data = JSON.parse(data)
-                post path, params: parsed_data, headers: auth_header, as: :json
+                post path, params: parsed_data, headers: headers.merge(auth_header), as: :json
 
                 json_response = JSON.parse(response.body)
+
                 expect(response).to have_http_status(:unprocessable_entity)
                 expect(json_response['errors'][0]['detail']).to eq(
                   "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \

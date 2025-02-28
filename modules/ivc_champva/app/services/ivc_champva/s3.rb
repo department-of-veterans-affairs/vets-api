@@ -19,7 +19,7 @@ module IvcChampva
           bucket:,
           key:,
           body: File.read(file),
-          metadata: metadata
+          metadata:
         )
         result = { success: true }
       rescue => e
@@ -70,7 +70,7 @@ module IvcChampva
           error_message += ", Body: #{response.body.read}"
         end
         Rails.logger.error error_message
-        { success: false, error_message: error_message }
+        { success: false, error_message: }
       end
     end
 

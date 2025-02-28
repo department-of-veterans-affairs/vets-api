@@ -48,7 +48,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
           inquiry_about: 'For the dependent of a Veteran',
           dependent_relationship: nil,
           veteran_relationship: nil,
-          level_of_authentication: level_of_authentication
+          level_of_authentication:
         }
       end
       let(:expected_result) do
@@ -73,8 +73,8 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
           SchoolId: nil,
           BranchOfService: params[:about_the_veteran][:branch_of_service],
           SSN: params[:about_the_veteran][:social_or_service_num][:ssn],
-          EDIPI: '123',
-          ICN: '234',
+          EDIPI: nil,
+          ICN: nil,
           ServiceNumber: params[:about_the_veteran][:social_or_service_num][:service_number],
           ClaimNumber: nil,
           VeteranServiceStateDate: nil,
@@ -122,7 +122,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
           phone_number: '987-654-3210',
           postal_code: '12345',
           preferred_name: 'Test User',
-          pronouns: pronouns,
+          pronouns:,
           school_obj: {
             institution_name: 'University of California',
             school_facility_code: '123456',
@@ -137,7 +137,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
           inquiry_about: 'About Me, the Veteran',
           dependent_relationship: nil,
           veteran_relationship: nil,
-          level_of_authentication: level_of_authentication
+          level_of_authentication:
         }
       end
       let(:expected_result) do
@@ -179,6 +179,64 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
       end
 
       it 'duplicates submitter profile and veteran profile' do
+        expect(subject.call).to eq(expected_result)
+      end
+    end
+
+    context 'when form is a general question' do
+      let(:inquiry_details) do
+        {
+          inquiry_about: 'A general question',
+          dependent_relationship: nil,
+          veteran_relationship: nil,
+          level_of_authentication: 'Personal'
+        }
+      end
+      let(:params) do
+        {
+          category_id: '73524deb-d864-eb11-bb24-000d3a579c45',
+          email_address: 'test@test.com',
+          on_base_outside_us: false,
+          phone_number: '3039751100',
+          pronouns_not_listed_text: 'zem/zis/zat',
+          question: 'test',
+          select_category: 'Health care',
+          select_topic: 'Audiology and hearing aids',
+          subtopic_id: '',
+          topic_id: 'c0da1728-d91f-ed11-b83c-001dd8069009',
+          who_is_your_question_about: "It's a general question",
+          your_health_facility: 'vba_349b',
+          pronouns: { use_my_preferred_name: true, ze_zir_zirs: false },
+          address: { military_address: {} },
+          about_yourself: {
+            first: 'Yourself',
+            last: 'test',
+            social_or_service_num: {},
+            suffix: 'Jr.'
+          },
+          about_the_veteran: { social_or_service_num: {} },
+          about_the_family_member: { social_or_service_num: {} },
+          state_or_residency: {},
+          files: [{ file_name: nil, file_content: nil }],
+          school_obj: {}
+        }
+      end
+      let(:expected_result) do
+        { FirstName: nil,
+          MiddleName: nil,
+          LastName: nil,
+          PreferredName: nil,
+          Suffix: nil,
+          Pronouns: nil,
+          Country: { Name: nil, CountryCode: nil },
+          Street: nil,
+          City: nil,
+          State: { Name: nil, StateCode: nil },
+          ZipCode: nil,
+          DateOfBirth: nil }
+      end
+
+      it 'returns the correct payload' do
         expect(subject.call).to eq(expected_result)
       end
     end

@@ -114,7 +114,8 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
 
       context 'and engine job flag is disabled' do
         before do
-          Flipper.disable :decision_review_new_engine_submit_upload_job
+          allow(Flipper).to receive(:enabled?).with(:decision_review_new_engine_submit_upload_job).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:in_progress_form_custom_expiration).and_return(false)
         end
 
         it_behaves_like 'successful NOD', DecisionReview::SubmitUpload, DecisionReviews::SubmitUpload
@@ -122,7 +123,8 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
 
       context 'and engine job flag is enabled' do
         before do
-          Flipper.enable :decision_review_new_engine_submit_upload_job
+          allow(Flipper).to receive(:enabled?).with(:decision_review_new_engine_submit_upload_job).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:in_progress_form_custom_expiration).and_return(false)
         end
 
         it_behaves_like 'successful NOD', DecisionReviews::SubmitUpload, DecisionReview::SubmitUpload
@@ -130,6 +132,9 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
     end
 
     it 'adds to the PersonalInformationLog when an exception is thrown and logs to StatsD and logger' do
+      allow(Flipper).to receive(:enabled?).with(:decision_review_new_engine_submit_upload_job).and_return(false)
+      expect(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(false)
+
       VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-422_V1') do
         allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(error_log_args)

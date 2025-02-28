@@ -30,8 +30,11 @@ describe Vye::SundownSweep::ClearDeactivatedBdns, type: :worker do
 
     # direct deposit changes, addy changes and awards are deleted
     # verifications have their foreign keys set to null
+    # We are going to keep 2 weeks worth of data except for addy & direct deposit changes to
+    # track down a bug. Once we fix that, we will revert the test back to it's original state
     it 'deletes inactive BDNs and processes their ri children correctly' do
       # create one active and one inactive BDN
+      create(:vye_bdn_clone_with_user_info_children, created_at_override: 15.days.ago, updated_at_override: 15.days.ago)
       create(:vye_bdn_clone_with_user_info_children)
       create(:vye_bdn_clone_with_user_info_children, :active)
 
@@ -40,9 +43,9 @@ describe Vye::SundownSweep::ClearDeactivatedBdns, type: :worker do
         described_class.new.perform
       end.to change(Vye::BdnClone, :count)
         .by(-1)
-        .and change(Vye::AddressChange, :count).by(-3) # 1 addy's created initially
+        .and change(Vye::AddressChange, :count).by(-6)
         .and change(Vye::Award, :count).by(-4)
-        .and change(Vye::DirectDepositChange, :count).by(-2)
+        .and change(Vye::DirectDepositChange, :count).by(-4)
         .and change(Vye::Verification, :count).by(0)
         .and change(Vye::Verification.where(user_info_id: nil), :count).by(4)
         .and change(Vye::Verification.where(award_id: nil), :count).by(4)

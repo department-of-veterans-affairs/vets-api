@@ -44,6 +44,8 @@ module AccreditedRepresentativePortal
 
     private
 
+    attr_reader :user, :record
+
     def override_warning
       Rails.logger.warn(<<~MSG.squish)
         #{self.class} is using the default ##{caller_locations(1, 1)[0].label}
@@ -58,6 +60,8 @@ module AccreditedRepresentativePortal
         @user = user
         @scope = scope
       end
+
+      attr_reader :user, :scope
 
       def resolve
         raise NoMethodError, "You must define #resolve in #{self.class}"

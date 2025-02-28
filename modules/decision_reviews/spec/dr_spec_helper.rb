@@ -72,6 +72,8 @@ RSpec.configure do |config|
 
   config.include StatsD::Instrument::Matchers
 
+  config.include FactoryBot::Syntax::Methods
+
   config.before :each, type: :controller do
     request.host = Settings.hostname
   end

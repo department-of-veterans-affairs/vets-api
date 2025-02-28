@@ -3,13 +3,6 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
-      module Statuses
-        ALL = [
-          PENDING = 'pending',
-          PROCESSED = 'processed'
-        ].freeze
-      end
-
       include PowerOfAttorneyRequests
 
       before_action do
@@ -19,13 +12,13 @@ module AccreditedRepresentativePortal
       with_options only: :show do
         before_action do
           id = params[:id]
-          find_poa_request(id)
+          set_poa_request(id)
         end
       end
 
       def index
-        rel = poa_request_scope
         status = params[:status].presence
+        rel = policy_scope(PowerOfAttorneyRequest)
 
         rel =
           case status
@@ -36,7 +29,6 @@ module AccreditedRepresentativePortal
           when NilClass
             rel
           else
-            # Throw 400 for unexpected, non-blank statuses
             raise ActionController::BadRequest, <<~MSG.squish
               Invalid status parameter.
               Must be one of (#{Statuses::ALL.join(', ')})
@@ -45,6 +37,7 @@ module AccreditedRepresentativePortal
 
         poa_requests = rel.includes(scope_includes).limit(100)
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
+
         render json: serializer.serializable_hash, status: :ok
       end
 
@@ -54,6 +47,13 @@ module AccreditedRepresentativePortal
       end
 
       private
+
+      module Statuses
+        ALL = [
+          PENDING = 'pending',
+          PROCESSED = 'processed'
+        ].freeze
+      end
 
       def scope_includes
         [

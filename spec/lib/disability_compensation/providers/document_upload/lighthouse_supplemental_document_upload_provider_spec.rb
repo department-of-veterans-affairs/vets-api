@@ -99,7 +99,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
         form526_submission_id: submission.id,
         # Polling record type mapped to L023 used in tests
         document_type: Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE,
-        lighthouse_document_request_id: lighthouse_document_request_id
+        lighthouse_document_request_id:
       }
 
       expect do
@@ -172,7 +172,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
         aasm_state: 'pending',
         form526_submission_id: submission.id,
         document_type: Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE,
-        lighthouse_document_request_id: lighthouse_document_request_id,
+        lighthouse_document_request_id:,
         form_attachment: supporting_evidence_attachment
       }
 

@@ -48,8 +48,8 @@ RSpec.describe Eps::EpsAppointmentSerializer do
   let(:eps_appointment) do
     double(
       id: 123,
-      appointment: appointment,
-      provider: provider
+      appointment:,
+      provider:
     )
   end
 
@@ -74,7 +74,9 @@ RSpec.describe Eps::EpsAppointmentSerializer do
               referral_id: '12345',
               referral: {
                 referral_number: '12345'
-              }
+              },
+              provider_service_id: 'clinic_1',
+              provider_name: 'unknown'
             },
             provider: {
               id: '1',

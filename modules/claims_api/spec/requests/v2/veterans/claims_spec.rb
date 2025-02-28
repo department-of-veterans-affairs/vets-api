@@ -69,6 +69,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
       allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
       allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return false
       allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return true
     end
 
     describe 'index' do
@@ -523,16 +524,38 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
       describe 'participant ID' do
         context 'when missing' do
+          let(:add_person_proxy_response) do
+            instance_double(MPI::Responses::AddPersonResponse, ok?: false)
+          end
+
+          let(:bgs_claims) do
+            {
+              benefit_claims_dto: {
+                benefit_claim: [
+                  {
+                    base_end_prdct_type_cd: '400',
+                    benefit_claim_id: '111111111',
+                    phase_type: 'claim received'
+                  }
+                ]
+              }
+            }
+          end
+
           it 'returns a 422' do
             mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(bnft_claim_web_service)
+                .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
               allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(true)
               allow_any_instance_of(MPIData)
                 .to receive(:mvi_response).and_return(profile)
+              allow_any_instance_of(MPIData)
+                .to receive(:add_person_proxy).and_return(add_person_proxy_response)
 
               get all_claims_path, headers: auth_header
 
-              expect(response).to have_http_status(:unprocessable_entity)
               json_response = JSON.parse(response.body)
+              expect(response).to have_http_status(:unprocessable_entity)
               expect(json_response['errors'][0]['detail']).to eq(
                 "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
                 'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'

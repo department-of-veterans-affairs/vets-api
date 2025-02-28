@@ -113,7 +113,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       headers = { 'Authorization' => 'Bearer vagov_token' }
       params = {}
 
-      post '/travel_pay/v0/claims', headers: headers, params: params
+      post('/travel_pay/v0/claims', headers:, params:)
 
       expect(response).to have_http_status(:service_unavailable)
     end
@@ -126,7 +126,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         headers = { 'Authorization' => 'Bearer vagov_token' }
         params = { 'appointment_datetime' => '2024-01-01T16:45:34.465Z' }
 
-        post '/travel_pay/v0/claims', headers: headers, params: params
+        post('/travel_pay/v0/claims', headers:, params:)
         expect(response).to have_http_status(:created)
       end
     end
@@ -139,7 +139,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         headers = { 'Authorization' => 'Bearer vagov_token' }
         params = { 'appointment_datetime' => 'My birthday, 4 years ago' }
 
-        post '/travel_pay/v0/claims', headers: headers, params: params
+        post('/travel_pay/v0/claims', headers:, params:)
 
         expect(response).to have_http_status(:bad_request)
       end
@@ -153,7 +153,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         headers = { 'Authorization' => 'Bearer vagov_token' }
         params = { 'appointment_datetime' => '1970-01-01T00:00:00.000Z' }
 
-        post '/travel_pay/v0/claims', headers: headers, params: params
+        post('/travel_pay/v0/claims', headers:, params:)
 
         error_detail = JSON.parse(response.body)['errors'][0]['detail']
         expect(response).to have_http_status(:not_found)
@@ -172,7 +172,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         headers = { 'Authorization' => 'Bearer vagov_token' }
         params = { 'appointment_datetime' => '2024-01-01T16:45:34.465Z' }
 
-        post '/travel_pay/v0/claims', headers: headers, params: params
+        post('/travel_pay/v0/claims', headers:, params:)
 
         expect(response).to have_http_status(:internal_server_error)
       end

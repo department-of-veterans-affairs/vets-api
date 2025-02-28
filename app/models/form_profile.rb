@@ -182,7 +182,8 @@ class FormProfile
   #
   def self.prepend_module(form_class, form_id)
     namespaces = {
-      '21P-527EZ' => 'Pensions'
+      '21P-527EZ' => 'Pensions',
+      '21P-530EZ' => 'Burials'
     }
 
     namespace = namespaces[form_id]

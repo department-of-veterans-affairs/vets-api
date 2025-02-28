@@ -31,6 +31,7 @@ module V1
     OPERATION_TYPES = [AUTHORIZE = 'authorize',
                        INTERSTITIAL_VERIFY = 'interstitial_verify',
                        INTERSTITIAL_SIGNUP = 'interstitial_signup',
+                       MHV_EXCEPTION = 'mhv_exception',
                        MYHEALTHEVET_TEST_ACCOUNT = 'myhealthevet_test_account'].freeze
 
     # Collection Action: auth is required for certain types of requests

@@ -26,10 +26,10 @@ RSpec.describe 'VANotify Callbacks', type: :request do
       context 'with found notification' do
         it 'updates notification' do
           template_id = SecureRandom.uuid
-          notification = VANotify::Notification.create(notification_id: notification_id,
+          notification = VANotify::Notification.create(notification_id:,
                                                        source_location: 'some_location',
                                                        callback_metadata: 'some_callback_metadata',
-                                                       template_id: template_id)
+                                                       template_id:)
           expect(notification.status).to be_nil
           allow(Rails.logger).to receive(:info)
           callback_obj = double('VANotify::DefaultCallback')
@@ -42,7 +42,7 @@ RSpec.describe 'VANotify Callbacks', type: :request do
 
           expect(Rails.logger).to have_received(:info).with(
             "va_notify callbacks - Updating notification: #{notification.id}",
-            { source_location: 'some_location', template_id: template_id, callback_metadata: 'some_callback_metadata',
+            { source_location: 'some_location', template_id:, callback_metadata: 'some_callback_metadata',
               status: 'delivered' }
           )
           expect(response.body).to include('success')

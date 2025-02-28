@@ -15,7 +15,7 @@ RSpec.describe Pensions::FormProfiles::VA21p527ez, type: :model do
 
   describe '#metadata' do
     it 'returns correct metadata' do
-      form = described_class.new(form_id: form_id, user: user)
+      form = described_class.new(form_id:, user:)
       expect(form.metadata).to eq(
         version: 0,
         prefill: true,
@@ -30,7 +30,7 @@ RSpec.describe Pensions::FormProfiles::VA21p527ez, type: :model do
         expect(military_info_instance).to receive(:public_send).exactly(
           Pensions::MilitaryInformation::PREFILL_METHODS.count
         ).times
-        form = described_class.new(form_id: form_id, user: user)
+        form = described_class.new(form_id:, user:)
         expect(form.initialize_military_information).to be_a(Pensions::FormMilitaryInformation)
       end
     end
@@ -41,14 +41,14 @@ RSpec.describe Pensions::FormProfiles::VA21p527ez, type: :model do
       end
 
       it 'returns an empty hash' do
-        form = described_class.new(form_id: form_id, user: user)
+        form = described_class.new(form_id:, user:)
         expect(form.initialize_military_information).to eq({})
       end
     end
   end
 
   describe '#initialize_va_profile_prefill_military_information' do
-    let(:form) { described_class.new(form_id: form_id, user: user) }
+    let(:form) { described_class.new(form_id:, user:) }
 
     before do
       allow(military_info_instance).to receive(:public_send).and_return('2009-4-1')

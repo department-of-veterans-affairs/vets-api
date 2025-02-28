@@ -5,7 +5,9 @@ module AccreditedRepresentativePortal
     class Create
       class FormDataAdapter
         def initialize(data:, dependent: false, service_branch: nil)
-          @data = data.transform_values(&:presence)
+          @data = data.transform_values do |value|
+            value == '' ? nil : value
+          end
           @dependent = dependent
           @service_branch = service_branch
         end

@@ -36,7 +36,7 @@ Rspec.describe Banner, type: :model do
              context: [
                {
                  entity: {
-                   entityUrl: { path: path },
+                   entityUrl: { path: },
                    fieldOffice: {
                      entity: {
                        entityUrl: { path: '/some-other-path' }
@@ -57,7 +57,7 @@ Rspec.describe Banner, type: :model do
                    entityUrl: { path: '/some-other-path' },
                    fieldOffice: {
                      entity: {
-                       entityUrl: { path: path }
+                       entityUrl: { path: }
                      }
                    }
                  }
@@ -72,7 +72,7 @@ Rspec.describe Banner, type: :model do
              context: [
                {
                  entity: {
-                   entityUrl: { path: path },
+                   entityUrl: { path: },
                    fieldOffice: {
                      entity: {
                        entityUrl: { path: '/some-other-path' }

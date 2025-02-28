@@ -2206,15 +2206,15 @@ en:
         status: 400
       DR_500:
         <<: *defaults
-        title: Bad Gateway
+        title: Internal server error
         code: DR_500
-        detail: Received an an invalid response from the upstream server
-        status: 502
+        detail: Received an invalid response from the upstream server
+        status: 500
       DR_502:
         <<: *defaults
         title: Bad Gateway
         code: DR_502
-        detail: Received an an invalid response from the upstream server
+        detail: Received an invalid response from the upstream server
         status: 502
       DR_503:
         <<: *defaults

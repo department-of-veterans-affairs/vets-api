@@ -125,13 +125,13 @@ class FormProfiles::VA526ez < FormProfile
 
     api_provider = ApiProviderFactory.call(
       type: ApiProviderFactory::FACTORIES[:rated_disabilities],
-      provider: nil,
+      provider: :lighthouse,
       options: {
         icn: user.icn.to_s,
         auth_headers: EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
       },
       current_user: user,
-      feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
+      feature_toggle: nil
     )
     invoker = 'FormProfiles::VA526ez#initialize_rated_disabilities_information'
     response = api_provider.get_rated_disabilities(nil, nil, { invoker: })
@@ -285,8 +285,9 @@ class FormProfiles::VA526ez < FormProfile
     return {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
 
     provider = ApiProviderFactory.call(type: ApiProviderFactory::FACTORIES[:ppiu],
+                                       provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
                                        current_user: user,
-                                       feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+                                       feature_toggle: nil)
     response = provider.get_payment_information
     raw_account = response.responses.first&.payment_account
 

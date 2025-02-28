@@ -568,7 +568,7 @@ module ClaimsApi
 
     def transform_empty_unit_name!
       reserves = form_data&.dig('serviceInformation', 'reservesNationalGuardService')
-      return if reserves.nil?
+      return if reserves.blank?
 
       unit_name = reserves['unitName']
       unit_name = unit_name.presence || ' '

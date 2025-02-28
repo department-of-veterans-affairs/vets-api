@@ -72,7 +72,7 @@ module VAOS
 
         response_data = OpenStruct.new(
           id: draft_appointment.id,
-          provider: provider,
+          provider:,
           slots: fetch_provider_slots,
           drive_time: fetch_drive_times(provider)
         )

@@ -100,6 +100,26 @@ describe Burials::PdfFill::Forms::Va21p530ez do
       end
     end
 
+    context 'with a regular location of death in new format' do
+      let(:form_data) do
+        {
+          'locationOfDeath' => {
+            'location' => 'nursingHomeUnpaid'
+          },
+          'nursingHomeUnpaid' => {
+            'facilityName' => 'facility name',
+            'facilityLocation' => 'Washington, DC'
+          }
+        }
+      end
+
+      it 'returns the directly mapped location' do
+        subject
+        expect(class_form_data['locationOfDeath']['checkbox']).to eq({ 'nursingHomeUnpaid' => 'On' })
+        expect(class_form_data['locationOfDeath']['placeAndLocation']).to eq('facility name - Washington, DC')
+      end
+    end
+
     context 'with a location needed for translation' do
       let(:form_data) do
         {

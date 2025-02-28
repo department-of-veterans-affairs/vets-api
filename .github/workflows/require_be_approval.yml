@@ -18,31 +18,43 @@ jobs:
         run: exit 1
 
       - name: Check for 'require-backend-approval' label
+        id: approval_permissions
         run: |
           LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name')
           echo "Labels on PR: $LABELS"
 
           if ! echo "$LABELS" | grep -q "require-backend-approval"; then
+            echo "require_be_approval=false" >> $GITHUB_OUTPUT
             echo "Label 'require-backend-approval' not found. Exiting successfully."
-            exit 0
+          else
+            echo "require_be_approval=true" >> $GITHUB_OUTPUT
+            echo "Label 'require-backend-approval' found. Approval required."
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Exit for non backend approvals
+        if: steps.approval_permissions.outputs.require_be_approval == 'false'
+        run: exit 0
+
       - name: Configure AWS Credentials
+        if: steps.approval_permissions.outputs.require_be_approval == 'true'
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id }}
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: "us-gov-west-1"
 
+
       - name: Get bot token from Parameter Store
+        if: steps.approval_permissions.outputs.require_be_approval == 'true'
         uses: marvinpinto/action-inject-ssm-secrets@latest
         with:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
       - name: Get backend-review-group members
+        if: steps.approval_permissions.outputs.require_be_approval == 'true'
         id: get_team_members
         uses: octokit/request-action@v2.x
         with:
@@ -51,6 +63,7 @@ jobs:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Get PR reviews
+        if: steps.approval_permissions.outputs.require_be_approval == 'true'
         id: get_pr_reviews
         uses: octokit/request-action@v2.x
         with:
@@ -59,6 +72,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify backend-review-group approval
+        if: steps.approval_permissions.outputs.require_be_approval == 'true'
         id: verify_approval
         run: |
           BACKEND_REVIEWERS=$(cat <<'EOF' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//'
@@ -80,7 +94,7 @@ jobs:
           fi
 
       - name: Remove ready-for-review label
-        if: success() && steps.verify_approval.outputs.approval_status == 'confirmed' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
+        if: success() && steps.approval_permissions.outputs.require_be_approval == 'true' && steps.verify_approval.outputs.approval_status == 'confirmed' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}

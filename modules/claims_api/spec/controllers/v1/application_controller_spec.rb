@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-# require 'mock_redis'
 
 RSpec.describe ClaimsApi::V1::ApplicationController, type: :controller do
   let(:controller) { described_class.new }
@@ -34,7 +33,7 @@ RSpec.describe ClaimsApi::V1::ApplicationController, type: :controller do
   describe '#veteran_from_headers' do
     it 'calls the recache method when building from headers' do
       allow(@veteran_instance).to receive(:recache_mpi_data)
-      controller.send(:veteran_from_headers, with_gender: with_gender)
+      controller.send(:veteran_from_headers, with_gender:)
 
       expect(@veteran_instance).to have_received(:recache_mpi_data)
     end

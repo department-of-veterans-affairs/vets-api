@@ -4,6 +4,7 @@ FactoryBot.define do
   factory :representative_user, class: 'AccreditedRepresentativePortal::RepresentativeUser' do
     transient do
       sign_in_service_name { SignIn::Constants::Auth::IDME }
+      accredited_individual { nil }
     end
 
     authn_context { LOA::IDME_LOA3_VETS }
@@ -27,6 +28,15 @@ FactoryBot.define do
 
     user_account_uuid { create(:user_account).id }
     uuid { SecureRandom.uuid }
+
+    after(:create) do |user, evaluator|
+      if evaluator.accredited_individual.present?
+        user.update!(
+          email: evaluator.accredited_individual.user_account_email,
+          icn: evaluator.accredited_individual.user_account_icn
+        )
+      end
+    end
 
     trait :with_in_progress_form do
       transient do
