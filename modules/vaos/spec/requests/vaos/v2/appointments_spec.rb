@@ -973,19 +973,18 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     end
 
     let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
+    let(:draft_params) do
+      {
+        referral_id: 'ref-123',
+        provider_id: '9mN718pH',
+        appointment_type_id: 'ov',
+        start_date: '2025-01-01T00:00:00Z',
+        end_date: '2025-01-03T00:00:00Z'
+      }
+    end
 
     describe 'POST create_draft' do
       context 'when the request is successful' do
-        let(:draft_params) do
-          {
-            referral_id: 'ref-123',
-            provider_id: '9mN718pH',
-            appointment_type_id: 'ov',
-            start_date: '2025-01-01T00:00:00Z',
-            end_date: '2025-01-03T00:00:00Z'
-          }
-        end
-
         let(:draft_appointment_response) do
           {
             id: 'EEKoGzEf',
@@ -1394,8 +1393,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
             post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
-            JSON.parse(response.body)
+            response_obj = JSON.parse(response.body)
             expect(response).to have_http_status(:unprocessable_entity)
+            expect(response_obj['message']).to eq('No new appointment created: referral is already used')
           end
         end
 
@@ -1409,6 +1409,34 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             response_obj = JSON.parse(response.body)
             expect(response).to have_http_status(:unprocessable_entity)
             expect(response_obj['message']).to eq('No new appointment created: referral is already used')
+          end
+        end
+      end
+
+      context 'when there is a failure in the request for appointments from CCRA' do
+        it 'handles error response as 500' do
+          expected_error = MAP::SecurityToken::Errors::MissingICNError.new 'Missing ICN message'
+          allow_any_instance_of(VAOS::SessionService).to receive(:headers).and_raise(expected_error)
+          post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+          response_obj = JSON.parse(response.body)
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response_obj['message']).to eq('Error checking appointments: Missing ICN message')
+        end
+
+        it 'handles partial error as 500' do
+          expected_error_msg = 'Error checking appointments: ' \
+                               '[{:system=>"VSP", :status=>"500", :code=>10000, ' \
+                               ':message=>"Could not fetch appointments from Vista Scheduling Provider", ' \
+                               ':detail=>"icn=1012846043V576341, startDate=1921-09-02T00:00:00Z, ' \
+                               'endDate=2121-09-02T00:00:00Z"}]'
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_partial_errors',
+                           match_requests_on: %i[method path query]) do
+            post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+            response_obj = JSON.parse(response.body)
+            expect(response).to have_http_status(:bad_gateway)
+            expect(response_obj['message']).to eq(expected_error_msg)
           end
         end
       end
