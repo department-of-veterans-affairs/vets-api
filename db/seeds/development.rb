@@ -182,11 +182,9 @@ SignIn::ClientConfig.where(certificates: nil).update(certificates: [])
 config_file_path = Rails.root.join('config', 'audit_log', 'user_action_events.yml')
 unless File.exist?(config_file_path)
   Rails.logger.info('[UserActionEvent] Setup Error: UserActionEvents config file not found')
-  puts error_message
   return
 end
-user_action_events_yaml = YAML.load_file(config_file_path)
-user_action_events_yaml.each do |identifier, event_config|
+YAML.load_file(config_file_path).each do |identifier, event_config|
   event = UserActionEvent.find_or_initialize_by(identifier:)
   event.attributes = event_config
   event.save!
