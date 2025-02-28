@@ -1726,9 +1726,6 @@ module PdfFill
         date_became_dependent = split_date(child.dig('relationship_to_child', 'date_became_dependent'))
         # biological_stepchild_key = "biological_stepchild_#{index}"
         # @TODO 18-23 YEARS OLD AND IN SCHOOL
-        puts "what is child"
-        puts child
-        puts child['child_status']
         child['child_status'] = {
           'biological' => select_radio_button(child_status['biological']),
           'school_age_in_school' => select_radio_button(child_status['school_age_in_school']),
