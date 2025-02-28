@@ -7,9 +7,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
   before do
     allow(Settings.mhv).to receive(:facility_range).and_return([[1, 999]])
-    Flipper.enable('va_online_scheduling')
-    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
-    Flipper.enable_actor('appointments_consolidation', current_user)
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(true)
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
@@ -111,8 +110,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
     context 'with VAOS' do
       before do
-        Flipper.disable(:va_online_scheduling_use_vpg)
-        Flipper.disable(:va_online_scheduling_OH_request)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                  instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
       end
 
       describe 'CREATE cc appointment' do
@@ -212,9 +214,14 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
     context 'using VPG' do
       before do
-        Flipper.enable(:va_online_scheduling_use_vpg)
-        Flipper.enable(:va_online_scheduling_OH_request)
-        Flipper.enable(:va_online_scheduling_OH_direct_schedule)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                  instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                  instance_of(User)).and_return(true)
       end
 
       describe 'CREATE cc appointment' do
@@ -293,7 +300,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         it 'creates the booked va appointment using VAOS' do
-          Flipper.disable(:va_online_scheduling_OH_direct_schedule)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                    instance_of(User)).and_return(false)
+
           stub_clinics
           VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M',
                            match_requests_on: %i[method path query]) do
@@ -347,7 +356,14 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
         context 'using VAOS' do
           before do
-            Flipper.disable(:va_online_scheduling_use_vpg)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                      instance_of(User)).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                      instance_of(User)).and_return(true)
+            allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details,
+                                                      instance_of(User)).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
           end
 
           it 'fetches appointment list and includes avs on past booked appointments' do
@@ -395,7 +411,14 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         context 'using VAOS' do
           before do
             Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
-            Flipper.disable(:va_online_scheduling_use_vpg)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                      instance_of(User)).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                      instance_of(User)).and_return(true)
+            allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details,
+                                                      instance_of(User)).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
           end
 
           after do
@@ -673,7 +696,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     describe 'GET appointment' do
       context 'when the VAOS service returns a single appointment' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
         let(:avs_path) do
@@ -817,8 +845,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when the VAOS service errors on retrieving an appointment' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.disable(:va_online_scheduling_vaos_alternate_route)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
         end
 
         it 'returns a 502 status code' do
@@ -838,7 +866,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     describe 'PUT appointments' do
       context 'when the appointment is successfully cancelled' do
         before do
-          Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+                                                    instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
         it 'returns a status code of 200 and the cancelled appointment with the updated status' do
@@ -876,7 +908,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         it 'returns a 400 status code' do
-          Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations).and_return(false)
           VCR.use_cassette('vaos/v2/appointments/cancel_appointment_400', match_requests_on: %i[method path query]) do
             put '/vaos/v2/appointments/42081', params: { status: 'cancelled' }
             expect(response).to have_http_status(:bad_request)
@@ -887,7 +919,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when the backend service cannot handle the request' do
         before do
-          Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+                                                    instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
         it 'returns a 502 status code' do
@@ -901,6 +937,14 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     end
 
     describe 'POST appointments/submit' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+                                                  instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                  instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
+      end
+
       context 'referral appointment' do
         let(:params) do
           { referral_number: '12345',
@@ -981,6 +1025,13 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         start_date: '2025-01-01T00:00:00Z',
         end_date: '2025-01-03T00:00:00Z'
       }
+    end
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     end
 
     describe 'POST create_draft' do
