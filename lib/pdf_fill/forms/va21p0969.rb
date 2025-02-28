@@ -2,45 +2,13 @@
 
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/hash_converter'
+require 'income_and_assets/constants'
+require 'income_and_assets/helpers'
 
 module PdfFill
   module Forms
     class Va21p0969 < FormBase
-      include ActiveSupport::NumberHelper
-
       ITERATOR = PdfFill::HashConverter::ITERATOR
-
-      CLAIMANT_TYPES = {
-        'VETERAN' => 0,
-        'SPOUSE' => 1,
-        'CHILD' => 2,
-        'PARENT' => 3,
-        'CUSTODIAN' => 4
-      }.freeze
-
-      RECIPIENTS = {
-        'VETERAN' => 0,
-        'SPOUSE' => 1,
-        'CUSTODIAN' => 2,
-        'CHILD' => 3,
-        'PARENT' => 4,
-        'OTHER' => 5
-      }.freeze
-
-      INCOME_TYPES = {
-        'SOCIAL_SECURITY' => 0,
-        'RETIREMENT_PENSION' => 1,
-        'WAGES' => 2,
-        'UNEMPLOYMENT' => 3,
-        'CIVIL_SERVICE' => 4,
-        'OTHER' => 5
-      }.freeze
-
-      ACCOUNT_INCOME_TYPES = {
-        'INTEREST' => 0,
-        'DIVIDENDS' => 1,
-        'OTHER' => 2
-      }.freeze
 
       KEY = {
         # 1a
@@ -290,7 +258,7 @@ module PdfFill
 
         form_data['claimantFullName']['middle'] = claimant_middle_name[0].upcase if claimant_middle_name.present?
 
-        form_data['claimantType'] = CLAIMANT_TYPES[claimant_type]
+        form_data['claimantType'] = IncomeAndAssets::Constants::CLAIMANT_TYPES[claimant_type]
 
         if net_worth_date_range.blank? || net_worth_date_range['from'].blank? || net_worth_date_range['to'].blank?
           form_data['incomeNetWorthDateRange'] = {
@@ -300,8 +268,8 @@ module PdfFill
           }
         else
           form_data['incomeNetWorthDateRange'] = {
-            'from' => format_date_to_mm_dd_yyyy(net_worth_date_range['from']),
-            'to' => format_date_to_mm_dd_yyyy(net_worth_date_range['to']),
+            'from' => IncomeAndAssets::Helpers.format_date_to_mm_dd_yyyy(net_worth_date_range['from']),
+            'to' => IncomeAndAssets::Helpers.format_date_to_mm_dd_yyyy(net_worth_date_range['to']),
             'useDateReceivedByVA' => false
           }
         end
@@ -315,20 +283,19 @@ module PdfFill
         end
       end
 
-      # :reek:FeatureEnvy
       def expand_unassociated_income(income)
         recipient_relationship = income['recipientRelationship']
         income_type = income['incomeType']
         gross_monthly_income = income['grossMonthlyIncome']
         {
-          'recipientRelationship' => RECIPIENTS[recipient_relationship],
+          'recipientRelationship' => IncomeAndAssets::Constants::RECIPIENTS[recipient_relationship],
           'recipientRelationshipOverflow' => recipient_relationship,
           'otherRecipientRelationshipType' => income['otherRecipientRelationshipType'],
           'recipientName' => income['recipientName'],
-          'incomeType' => INCOME_TYPES[income_type],
+          'incomeType' => IncomeAndAssets::Constants::INCOME_TYPES[income_type],
           'incomeTypeOverflow' => income_type,
           'otherIncomeType' => income['otherIncomeType'],
-          'grossMonthlyIncome' => gross_monthly_income ? split_currency_amount(gross_monthly_income) : {},
+          'grossMonthlyIncome' => IncomeAndAssets::Helpers.split_currency_amount(gross_monthly_income),
           'grossMonthlyIncomeOverflow' => gross_monthly_income,
           'payer' => income['payer']
         }
@@ -348,60 +315,19 @@ module PdfFill
         gross_monthly_income = income['grossMonthlyIncome']
         account_value = income['accountValue']
         {
-          'recipientRelationship' => RECIPIENTS[recipient_relationship],
+          'recipientRelationship' => IncomeAndAssets::Constants::RECIPIENTS[recipient_relationship],
           'recipientRelationshipOverflow' => recipient_relationship,
           'otherRecipientRelationshipType' => income['otherRecipientRelationshipType'],
           'recipientName' => income['recipientName'],
           'payer' => income['payer'],
-          'incomeType' => ACCOUNT_INCOME_TYPES[income_type],
+          'incomeType' => IncomeAndAssets::Constants::ACCOUNT_INCOME_TYPES[income_type],
           'incomeTypeOverflow' => income_type,
           'otherIncomeType' => income['otherIncomeType'],
-          'grossMonthlyIncome' => gross_monthly_income ? split_currency_amount(gross_monthly_income) : {},
+          'grossMonthlyIncome' => IncomeAndAssets::Helpers.split_currency_amount(gross_monthly_income),
           'grossMonthlyIncomeOverflow' => gross_monthly_income,
-          'accountValue' => account_value ? split_account_value(account_value) : {},
+          'accountValue' => IncomeAndAssets::Helpers.split_account_value(account_value),
           'accountValueOverflow' => account_value
         }
-      end
-
-      # Format a YYYY-MM-DD date string to MM/DD/YYYY
-      #
-      # @param date_string [String] a date string in the format YYYY-MM-DD
-      #
-      # @return [String] a date string in the format MM/DD/YYYY
-      #
-      def format_date_to_mm_dd_yyyy(date_string)
-        return nil if date_string.blank?
-
-        Date.parse(date_string).strftime('%m/%d/%Y')
-      end
-
-      def split_currency_amount(amount)
-        return {} if amount.negative? || amount >= 100_000
-
-        arr = number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
-        {
-          'cents' => get_currency_field(arr, -1, 2),
-          'dollars' => get_currency_field(arr, -2, 3),
-          'thousands' => get_currency_field(arr, -3, 2)
-        }
-      end
-
-      def split_account_value(amount)
-        return {} if amount.negative? || amount >= 10_000_000
-
-        arr = number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
-        {
-          'cents' => get_currency_field(arr, -1, 2),
-          'dollars' => get_currency_field(arr, -2, 3),
-          'thousands' => get_currency_field(arr, -3, 3),
-          'millions' => get_currency_field(arr, -4, 2)
-        }
-      end
-
-      # :reek:FeatureEnvy
-      def get_currency_field(arr, neg_i, field_length)
-        value = arr.length >= -neg_i ? arr[neg_i] : 0
-        format("%0#{field_length}d", value.to_i)
       end
     end
   end
