@@ -2,19 +2,19 @@
 
 namespace :login do
   desc 'Login through ID.me as an LOA1 user, then run this task to validate that LOA1 attributes are set properly'
-  task :idme_loa_1, [:uuid] => [:environment] do |_, args|
+  task :idme_loa_1, [:user_account_uuid] => [:environment] do |_, args|
     require 'rainbow'
 
     @args = args
 
     def user
       @user ||=
-        if @args[:uuid].present?
-          User.find(@args[:uuid])
+        if @args[:user_account_uuid].present?
+          User.find(@args[:user_account_uuid])
         else
-          # Find last logged in user by looking at most recently updated AccountLoginStat
-          User.find(AccountLoginStat.last&.account&.idme_uuid) ||
-            User.find(AccountLoginStat.last&.account&.logingov_uuid)
+          # Find last logged in user using user_account_uuid instead of idme/logingov UUID
+          account = AccountLoginStat.last&.account
+          account ? User.find(account.user_account_uuid) : nil
         end
     end
 
@@ -41,6 +41,14 @@ namespace :login do
       'User is not logged in with ID.me'
     )
 
+    # Primary validation for user account association
+    validate(
+      user.uuid == user.account&.user_account_uuid,
+      'User UUID matches user account UUID (user_account_uuid)',
+      'User UUID does not match user account UUID (user_account_uuid)'
+    )
+
+    # Keep the CSP UUID validations to ensure we're still storing this information correctly
     validate(
       user.idme_uuid == user.account&.idme_uuid,
       'User ID.me UUID matches user account ID.me UUID',
