@@ -39,6 +39,7 @@ RSpec.describe SavedClaim::NoticeOfDisagreement, type: :model do
       it 'returns true' do
         allow(JSON::Validator).to receive(:fully_validate).and_return(validation_errors)
         expect(Rails.logger).to receive(:warn).with('SavedClaim: schema validation errors detected for form 10182',
+                                                    guid:,
                                                     count: 2)
 
         expect(saved_claim_nod.validate).to be true
@@ -51,7 +52,8 @@ RSpec.describe SavedClaim::NoticeOfDisagreement, type: :model do
       it 'returns true' do
         allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
         expect(Rails.logger).to receive(:warn).with('SavedClaim: form_matches_schema error raised for form 10182',
-                                                    exception)
+                                                    guid:,
+                                                    error: exception.message)
 
         expect(saved_claim_nod.validate).to be true
       end

@@ -15,12 +15,12 @@ class SavedClaim::SupplementalClaim < SavedClaim
     errors = JSON::Validator.fully_validate(schema, parsed_form)
 
     unless errors.empty?
-      Rails.logger.warn("SavedClaim: schema validation errors detected for form #{FORM}", count: errors.count)
+      Rails.logger.warn("SavedClaim: schema validation errors detected for form #{FORM}", guid:, count: errors.count)
     end
 
     true # allow storage of all requests for debugging
   rescue JSON::Schema::ReadFailed => e
-    Rails.logger.warn("SavedClaim: form_matches_schema error raised for form #{FORM}", e)
+    Rails.logger.warn("SavedClaim: form_matches_schema error raised for form #{FORM}", guid:, error: e.message)
     true
   end
 
