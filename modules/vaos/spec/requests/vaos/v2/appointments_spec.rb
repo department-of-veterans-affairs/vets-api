@@ -1116,11 +1116,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       end
 
       context 'when user address does not have coordinates' do
-        before do
-          allow_any_instance_of(User).to receive(:vet360_contact_info).and_return(nil)
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([])
-        end
-
         let(:draft_params) do
           {
             referral_id: 'ref-123',
@@ -1225,6 +1220,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         it 'returns a successful response when all calls succeed' do
+          allow_any_instance_of(User).to receive(:vet360_contact_info).and_return(nil)
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([])
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
                            match_requests_on: %i[method path body]) do
             VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
