@@ -128,7 +128,8 @@ module PdfFill
         end
 
         # Process programs array - add programDateOfCalculation for each valid row
-        if form_data['programs'] && form_data['institutionDetails'] && form_data['institutionDetails']['dateOfCalculations']
+        if form_data['programs'] && form_data['institutionDetails'] &&
+           form_data['institutionDetails']['dateOfCalculations']
           calculation_date = form_data['institutionDetails']['dateOfCalculations']
 
           form_data['programs'].each do |program|
