@@ -8,7 +8,7 @@ RSpec.describe 'V0::TestAccountUserEmails', type: :request do
 
     let(:email) { 'some-email' }
     let(:email_redis_key) { 'some-email-redis-key' }
-    let(:params) { { email: email } }
+    let(:params) { { email: } }
     let(:rendered_error) { { 'errors' => 'invalid params' } }
 
     before do
@@ -37,7 +37,7 @@ RSpec.describe 'V0::TestAccountUserEmails', type: :request do
     end
 
     context 'when params include email' do
-      let(:params) { { email: email } }
+      let(:params) { { email: } }
 
       context 'and email param is empty' do
         let(:email) { '' }

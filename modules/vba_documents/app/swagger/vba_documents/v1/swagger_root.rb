@@ -5,13 +5,12 @@ module VBADocuments
     class SwaggerRoot
       include Swagger::Blocks
       VBA_TAG = ['VBA Documents'].freeze
-      DESCRIPTION_FILE_NAME = Flipper.enabled?(:vba_documents_final_status_field) ? 'description_with_final_status.md' : 'description.md'
       swagger_root do
         key :openapi, '3.0.0'
         info do
           key :version, '1.0.0'
           key :title, 'Benefits Intake'
-          key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'v1', DESCRIPTION_FILE_NAME))
+          key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'v1', 'description.md'))
           contact do
             key :name, 'va.gov'
           end

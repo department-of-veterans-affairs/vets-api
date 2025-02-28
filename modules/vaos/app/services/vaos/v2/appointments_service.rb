@@ -48,16 +48,16 @@ module VAOS
           validate_response_schema(response, 'appointments_index')
           appointments = response.body[:data]
 
-          if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
-            appointments = merge_all_travel_claims(start_date, end_date, appointments)
-          end
-
           appointments.each do |appt|
             prepare_appointment(appt, include)
             cnp_count += 1 if cnp?(appt)
           end
 
           appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
+
+          if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
+            appointments = merge_all_travel_claims(start_date, end_date, appointments)
+          end
 
           if Flipper.enabled?(:appointments_consolidation, user)
             filterer = AppointmentsPresentationFilter.new
@@ -92,11 +92,12 @@ module VAOS
           include[:facilities] = true
           include[:clinics] = true
 
+          prepare_appointment(appointment, include)
+
           if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
             appointment = merge_one_travel_claim(appointment)
           end
 
-          prepare_appointment(appointment, include)
           OpenStruct.new(appointment)
         end
       end
@@ -882,8 +883,7 @@ module VAOS
           service_category_text: appointment.dig(:service_category, 0, :text),
           kind: appointment[:kind],
           atlas: appointment.dig(:telehealth, :atlas),
-          vvs_kind: appointment.dig(:telehealth, :vvs_kind),
-          gfe: appointment.dig(:extension, :patient_has_mobile_gfe)
+          vvs_kind: appointment.dig(:telehealth, :vvs_kind)
         }.to_json
         Rails.logger.warn("VAOS appointment id #{appointment[:id]} modality cannot be determined", context)
       end
@@ -895,7 +895,7 @@ module VAOS
         elsif %w[CLINIC_BASED STORE_FORWARD].include?(vvs_kind)
           'vaVideoCareAtAVaLocation'
         elsif vvs_kind.nil? || vvs_kind == 'MOBILE_ANY' || vvs_kind == 'ADHOC'
-          appointment.dig(:extension, :patient_has_mobile_gfe) ? 'vaVideoCareOnGfe' : 'vaVideoCareAtHome'
+          'vaVideoCareAtHome'
         end
       end
 
@@ -1036,7 +1036,7 @@ module VAOS
 
       def eps_appointments
         @eps_appointments ||= begin
-          appointments = eps_appointments_service.get_appointments
+          appointments = eps_appointments_service.get_appointments[:data]
           appointments = [] if appointments.blank? || appointments.all?(&:empty?)
           appointments.reject! { |appt| appt.dig(:appointment_details, :start).nil? }
           appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt) }

@@ -117,7 +117,7 @@ bgs:
   application: VAgovAPI
   client_station_id: 281
   client_username: VAgovAPI
-  url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447
+  url: https://fwdproxy-dev.vfs.va.gov:4447
   external_uid: xUid
   external_key: xKey
 # You can use this in `config/settings/test.local.yml`.
@@ -330,8 +330,8 @@ mcp:
     service_name: VBS
     mock: true
   vbs_v2:
-    url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491
-    host: internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491
+    url: https://fwdproxy-staging.vfs.va.gov:4491
+    host: fwdproxy-staging.vfs.va.gov:4491
     base_path: /vbsapi
     service_name: VBS
     mock: true
@@ -448,4 +448,9 @@ va_notify:
     bearer_token: 'va_notify_bearer_token'
 
 accredited_representative_portal:
-  pilot_user_email_poa_codes:
+  allow_list:
+    github:
+      access_token: some_fake_token
+      base_uri: https://not.real.com
+      repo: faked/fakeness
+      path: not_real.csv

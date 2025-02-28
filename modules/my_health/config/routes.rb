@@ -87,6 +87,8 @@ MyHealth::Engine.routes.draw do
 
       resource :preferences, only: %i[show update], controller: 'messaging_preferences' do
         post 'recipients', action: :update_triage_team_preferences
+        get :signature, on: :member
+        post :signature, on: :member, action: :update_signature
       end
     end
 

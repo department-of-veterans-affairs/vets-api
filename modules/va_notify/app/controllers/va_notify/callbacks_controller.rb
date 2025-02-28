@@ -16,7 +16,7 @@ module VANotify
     def create
       notification_id = params[:id]
 
-      if (notification = VANotify::Notification.find_by(notification_id: notification_id))
+      if (notification = VANotify::Notification.find_by(notification_id:))
         notification.update(notification_params)
         Rails.logger.info("va_notify callbacks - Updating notification: #{notification.id}",
                           {

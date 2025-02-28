@@ -214,7 +214,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     it 'supports getting an disability_compensation_in_progress form' do
       create(:in_progress_526_form, user_uuid: mhv_user.uuid)
       stub_evss_pciu(mhv_user)
-      VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+      VCR.use_cassette('lighthouse/claims/200_response') do
         expect(subject).to validate(
           :get,
           '/v0/disability_compensation_in_progress_forms/{id}',
@@ -829,39 +829,82 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         expect(subject).to validate(:post, '/v0/hca_attachments', 400, '')
       end
 
-      it 'supports submitting a health care application', run_at: '2017-01-31' do
-        VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+      context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is enabled" do
+        it 'supports submitting a health care application', run_at: '2017-01-31' do
+          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+            expect(subject).to validate(
+              :post,
+              '/v0/health_care_applications',
+              200,
+              '_data' => {
+                'form' => test_veteran
+              }
+            )
+          end
+
           expect(subject).to validate(
             :post,
             '/v0/health_care_applications',
-            200,
+            422,
+            '_data' => {
+              'form' => {}.to_json
+            }
+          )
+
+          allow_any_instance_of(HCA::Service).to receive(:submit_form) do
+            raise Common::Client::Errors::HTTPError, 'error message'
+          end
+
+          expect(subject).to validate(
+            :post,
+            '/v0/health_care_applications',
+            400,
             '_data' => {
               'form' => test_veteran
             }
           )
         end
+      end
 
-        expect(subject).to validate(
-          :post,
-          '/v0/health_care_applications',
-          422,
-          '_data' => {
-            'form' => {}.to_json
-          }
-        )
-
-        allow_any_instance_of(HCA::Service).to receive(:post) do
-          raise Common::Client::Errors::HTTPError, 'error message'
+      context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is disabled" do
+        before do
+          Flipper.disable(:va1010_forms_enrollment_system_service_enabled)
         end
 
-        expect(subject).to validate(
-          :post,
-          '/v0/health_care_applications',
-          400,
-          '_data' => {
-            'form' => test_veteran
-          }
-        )
+        it 'supports submitting a health care application', run_at: '2017-01-31' do
+          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+            expect(subject).to validate(
+              :post,
+              '/v0/health_care_applications',
+              200,
+              '_data' => {
+                'form' => test_veteran
+              }
+            )
+          end
+
+          expect(subject).to validate(
+            :post,
+            '/v0/health_care_applications',
+            422,
+            '_data' => {
+              'form' => {}.to_json
+            }
+          )
+
+          allow_any_instance_of(HCA::Service).to receive(:post) do
+            raise Common::Client::Errors::HTTPError, 'error message'
+          end
+
+          expect(subject).to validate(
+            :post,
+            '/v0/health_care_applications',
+            400,
+            '_data' => {
+              'form' => test_veteran
+            }
+          )
+        end
       end
 
       it 'supports returning list of active facilities' do
@@ -1127,12 +1170,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     describe 'disability compensation' do
       before do
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
-        # TODO: remove Flipper feature toggle when lighthouse provider is implemented
-        Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider_foreground')
         Flipper.disable('disability_compensation_prevent_submission_job')
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
         Flipper.disable('disability_compensation_production_tester')
-        Flipper.disable(:disability_compensation_staging_lighthouse_brd)
+        allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+        allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
       end
 
       let(:form526v2) do
@@ -1141,13 +1182,13 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'supports getting rated disabilities' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 401)
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+        VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 200, headers)
         end
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
+        VCR.use_cassette('lighthouse/veteran_verification/disability_rating/400_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 400, headers)
         end
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
+        VCR.use_cassette('lighthouse/veteran_verification/disability_rating/502_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 502, headers)
         end
       end
@@ -1193,10 +1234,13 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'supports getting separation_locations' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 401)
-        VCR.use_cassette('evss/reference_data/get_intake_sites_500') do
+        VCR.use_cassette('brd/separation_locations_502') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 502, headers)
         end
-        VCR.use_cassette('evss/reference_data/get_intake_sites') do
+        VCR.use_cassette('brd/separation_locations_503') do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 503, headers)
+        end
+        VCR.use_cassette('brd/separation_locations') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 200, headers)
         end
       end
@@ -1275,34 +1319,23 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     describe 'intent to file' do
+      let(:mhv_user) { create(:user, :loa3) }
+
       before do
-        # TODO: remove Flipper feature toggle when lighthouse provider is implemented
-        Flipper.disable('disability_compensation_lighthouse_intent_to_file_provider')
         Flipper.disable('disability_compensation_production_tester')
+        allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
       end
 
       it 'supports getting all intent to file' do
         expect(subject).to validate(:get, '/v0/intent_to_file', 401)
-        VCR.use_cassette('evss/intent_to_file/intent_to_file') do
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
           expect(subject).to validate(:get, '/v0/intent_to_file', 200, headers)
-        end
-      end
-
-      it 'supports getting an active compensation intent to file' do
-        expect(subject).to validate(:get, '/v0/intent_to_file/{type}/active', 401, 'type' => 'compensation')
-        VCR.use_cassette('evss/intent_to_file/active_compensation') do
-          expect(subject).to validate(
-            :get,
-            '/v0/intent_to_file/{type}/active',
-            200,
-            headers.update('type' => 'compensation')
-          )
         end
       end
 
       it 'supports creating an active compensation intent to file' do
         expect(subject).to validate(:post, '/v0/intent_to_file/{type}', 401, 'type' => 'compensation')
-        VCR.use_cassette('evss/intent_to_file/create_compensation') do
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
           expect(subject).to validate(
             :post,
             '/v0/intent_to_file/{type}',
@@ -1324,7 +1357,9 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         it 'when correct form id is passed, it supports creating mvi user' do
           VCR.use_cassette('mpi/add_person/add_person_success') do
             VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
-              expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
+              VCR.use_cassette('mpi/find_candidate/find_profile_with_identifier') do
+                expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
+              end
             end
           end
         end
@@ -3286,7 +3321,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       let(:bad_headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
       before do
-        create(:form1095_b)
+        create(:form1095_b, tax_year: Form1095B.current_tax_year)
       end
 
       context 'available forms' do
@@ -3854,7 +3889,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
         params = {
           '_data' => {
-            'appointmentDatetime' => '2024-01-01T16:45:34.465Z'
+            'appointment_datetime' => '2024-01-01T16:45:34.465Z'
           }
         }
         VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[path method]) do
@@ -3921,6 +3956,31 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
   end
 
+  describe 'vet verification status' do
+    let(:user) { create(:user, :loa3, icn: '1012667145V762142') }
+    let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
+
+    before do
+      allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return('blahblech')
+    end
+
+    context 'unauthenticated user' do
+      it 'returns unauthorized status code' do
+        VCR.use_cassette('lighthouse/veteran_verification/status/401_response') do
+          expect(subject).to validate(:get, '/v0/profile/vet_verification_status', 401)
+        end
+      end
+    end
+
+    context 'loa3 user' do
+      it 'returns ok status code' do
+        VCR.use_cassette('lighthouse/veteran_verification/status/200_show_response') do
+          expect(subject).to validate(:get, '/v0/profile/vet_verification_status', 200, headers)
+        end
+      end
+    end
+  end
+
   context 'and' do
     it 'tests all documented routes' do
       # exclude these route as they return binaries
@@ -3960,34 +4020,6 @@ RSpec.describe 'the v1 API documentation', order: :defined, type: %i[apivore req
           expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 200, headers)
         end
         Timecop.return
-      end
-    end
-
-    describe 'decision review evidence upload' do
-      it 'supports uploading a file' do
-        VCR.use_cassette('decision_review/200_pdf_validation') do
-          expect(subject).to validate(
-            :post,
-            '/v1/decision_review_evidence',
-            200,
-            headers.update(
-              '_data' => {
-                'decision_review_evidence_attachment' => {
-                  'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
-                }
-              }
-            )
-          )
-        end
-      end
-
-      it 'returns a 400 if no attachment data is given' do
-        expect(subject).to validate(
-          :post,
-          '/v1/decision_review_evidence',
-          400,
-          headers
-        )
       end
     end
   end

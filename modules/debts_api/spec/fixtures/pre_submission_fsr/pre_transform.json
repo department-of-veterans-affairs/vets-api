@@ -391,7 +391,8 @@
   "view:review_page_navigation_toggle": true,
   "income": [
     {
-      "veteran_or_spouse": "VETERAN"
+      "veteran_or_spouse": "VETERAN",
+      "compensation_and_pension": "103.55"
     }
   ],
   "gmt_data": {

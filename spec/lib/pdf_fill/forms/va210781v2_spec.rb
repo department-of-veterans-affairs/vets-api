@@ -62,71 +62,49 @@ describe PdfFill::Forms::Va210781v2 do
     end
   end
 
-  describe '#format_other_behavior_details' do
-    context 'with no data' do
-      it 'does nothing and returns nil' do
-        new_form_class.instance_variable_set(:@form_data, {})
-
-        expect(new_form_class.send(:format_other_behavior_details)).to be_nil
-      end
-    end
-
-    context 'with data' do
-      let(:other_behavior) { 'Exhaustion' }
-      let(:details) { 'Always feeling tired' }
-      let :data do
-        {
-          'otherBehaviors' => other_behavior,
-          'behaviorsDetails' => { 'otherBehavior' => details }
-        }
-      end
-
-      it 'formats data correctly' do
-        new_form_class.instance_variable_set(:@form_data, data)
-        new_form_class.send(:format_other_behavior_details)
-
-        expect(new_form_class.instance_variable_get(:@form_data)['behaviorsDetails']['otherBehavior']).to eq(
-          "#{other_behavior}: #{details}"
-        )
-      end
-    end
-  end
-
-  describe '#format_police_report_location' do
-    context 'when no police data are provided' do
+  describe '#process_reports' do
+    context 'when no events data are provided' do
       it 'does nothing and leaves the data unchanged' do
-        new_form_class.instance_variable_set(:@form_data, { 'reportsDetails' => {} })
-        new_form_class.send(:format_police_report_location)
+        new_form_class.instance_variable_set(:@form_data, { 'events' => [] })
+        new_form_class.send(:process_reports)
 
-        expect(new_form_class.instance_variable_get(:@form_data)['reportsDetails']).to eq({})
+        expect(new_form_class.instance_variable_get(:@form_data)['events']).to eq([])
       end
     end
 
     context 'when report data are provided' do
-      let(:incomplete_data) do
+      let(:event_with_police_report) do
         {
-          'agency' => '',
-          'city' => 'Springfield',
-          'state' => 'IL',
-          'country' => ''
+          'events' => [
+            {
+              'otherReports' => {
+                'police' => true
+              },
+              'agency' => 'Local Police Department',
+              'city' => 'Springfield',
+              'state' => 'IL',
+              'country' => 'USA'
+            }
+          ]
         }
       end
 
-      let(:complete_data) do
-        incomplete_data.merge(
-          'agency' => 'Local Police Department',
-          'country' => 'USA'
-        )
+      let(:event_with_unlisted_reports) do
+        { 'events' => [{ 'unlistedReport' => 'incident report' }] }
       end
 
-      context 'when all fields are present' do
-        let(:data) do
-          { 'reportsDetails' => { 'police' => complete_data } }
-        end
+      let(:event_with_no_report) do
+        { 'events' => [{ 'otherReports' => { 'none' => true } }] }
+      end
 
+      let(:event_with_military_report) do
+        { 'events' => [{ 'militaryReports' => { 'restricted' => true } }] }
+      end
+
+      context 'when police location details are present' do
         it 'formats the police report location correctly' do
-          new_form_class.instance_variable_set(:@form_data, data)
-          new_form_class.send(:format_police_report_location)
+          new_form_class.instance_variable_set(:@form_data, event_with_police_report)
+          new_form_class.send(:process_reports)
 
           expect(new_form_class.instance_variable_get(:@form_data)['reportsDetails']['police']).to eq(
             'Local Police Department, Springfield, IL, USA'
@@ -134,19 +112,86 @@ describe PdfFill::Forms::Va210781v2 do
         end
       end
 
-      context 'when some fields are empty' do
-        let(:data_with_empty_fields) do
-          {
-            'reportsDetails' => { 'police' => incomplete_data }
-          }
-        end
+      context 'when an unlistedReport is provided' do
+        it 'collects and formats unlistedReport correctly' do
+          new_form_class.instance_variable_set(:@form_data, event_with_unlisted_reports)
+          new_form_class.send(:process_reports)
 
-        it 'formats the police report correctly, ignoring empty fields' do
-          new_form_class.instance_variable_set(:@form_data, data_with_empty_fields)
-          new_form_class.send(:format_police_report_location)
-
-          expect(new_form_class.instance_variable_get(:@form_data)['reportsDetails']['police']).to eq('Springfield, IL')
+          expect(new_form_class.instance_variable_get(:@form_data)['reportsDetails']['other']).to eq('incident report')
         end
+      end
+
+      context 'when at least one report is filed' do
+        it 'sets reportFiled to 0' do
+          new_form_class.instance_variable_set(:@form_data, event_with_military_report)
+          new_form_class.send(:process_reports)
+
+          expect(new_form_class.instance_variable_get(:@form_data)['reportFiled']).to eq(0)
+          expect(new_form_class.instance_variable_get(:@form_data)['noReportFiled']).to be_nil
+        end
+      end
+
+      context 'when no reports are filed' do
+        it 'sets noReportFiled to 1' do
+          new_form_class.instance_variable_set(:@form_data, event_with_no_report)
+          new_form_class.send(:process_reports)
+
+          expect(new_form_class.instance_variable_get(:@form_data)['noReportFiled']).to eq(1)
+          expect(new_form_class.instance_variable_get(:@form_data)['reportFiled']).to be_nil
+        end
+      end
+
+      context 'when both reportFiled and noReportFiled conditions are met' do
+        it 'sets only reportFiled to 0' do
+          new_form_class.instance_variable_set(:@form_data, {
+                                                 'events' => [
+                                                   {
+                                                     'militaryReports' => { 'restricted' => true },
+                                                     'otherReports' => { 'none' => true }
+                                                   }
+                                                 ]
+                                               })
+          new_form_class.send(:process_reports)
+
+          expect(new_form_class.instance_variable_get(:@form_data)['reportFiled']).to eq(0)
+          expect(new_form_class.instance_variable_get(:@form_data)['noReportFiled']).to be_nil
+        end
+      end
+    end
+  end
+
+  describe '#set_report_types' do
+    let(:event_with_unlisted_reports) { { 'unlistedReport' => 'incident report' } }
+
+    context 'when some reports are true' do
+      it 'sets the correct values in @form_data' do
+        form_data = {}
+        new_form_class.instance_variable_set(:@form_data, form_data)
+
+        reports = { 'restricted' => true, 'unrestricted' => false, 'pre2005' => false, 'police' => true }
+        new_form_class.send(:set_report_types, reports, event_with_unlisted_reports)
+
+        expected_data = {
+          'restrictedReport' => 0,
+          'unrestrictedReport' => nil,
+          'neitherReport' => nil,
+          'policeReport' => 3,
+          'otherReport' => 4
+        }
+
+        expect(new_form_class.instance_variable_get(:@form_data)).to eq(expected_data)
+      end
+    end
+
+    context 'when only an unlistedReport is present' do
+      it 'sets only otherReport' do
+        form_data = {}
+        new_form_class.instance_variable_set(:@form_data, form_data)
+
+        reports = { 'restricted' => false, 'unrestricted' => false, 'pre2005' => false, 'police' => false }
+        new_form_class.send(:set_report_types, reports, event_with_unlisted_reports)
+
+        expect(new_form_class.instance_variable_get(:@form_data)['otherReport']).to eq(4)
       end
     end
   end
