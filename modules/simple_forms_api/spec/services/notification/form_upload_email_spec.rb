@@ -12,7 +12,7 @@ shared_examples 'an error notification email' do
   end
 end
 
-describe SimpleFormsApi::FormUploadNotificationEmail do
+describe SimpleFormsApi::Notification::FormUploadEmail do
   let(:lighthouse_updated_at) { Time.current }
   let(:form_data) do
     {
