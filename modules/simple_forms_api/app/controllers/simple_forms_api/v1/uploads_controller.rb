@@ -155,13 +155,13 @@ module SimpleFormsApi
         )
 
         if status == 200
-          if Flipper.enabled?(:simple_forms_email_confirmations)
+          begin
             send_confirmation_email(parsed_form_data, confirmation_number)
+          rescue => e
+            Rails.logger.error('Simple forms api - error sending confirmation email', error: e)
           end
 
-          presigned_s3_url = if Flipper.enabled?(:submission_pdf_s3_upload)
-                               upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
-                             end
+          presigned_s3_url = upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
         end
 
         build_response(confirmation_number, presigned_s3_url, status)
