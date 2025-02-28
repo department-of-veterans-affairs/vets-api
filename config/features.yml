@@ -1004,10 +1004,6 @@ features:
     actor_type: user
     description: Enable/disable dependent claimant support for POA requests
     enable_in_development: true
-  lighthouse_claims_api_v2_poa_va_notify:
-    actor_type: user
-    description: Enable/disable the VA notification emails in V2 POA
-    enable_in_development: false
   lighthouse_claims_v2_poa_requests_skip_bgs:
     actor_type: user
     description: Enable/disable skipping BGS calls for POA Requests
