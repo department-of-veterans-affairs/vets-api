@@ -879,54 +879,54 @@ module PdfFill
                 'day' => { key: 'children_to_add.child_status.date_became_dependent.day[%iterator%]' },
                 'year' => { key: 'children_to_add.child_status.date_became_dependent.year[%iterator%]' }
               },
-              'biological_stepchild_0' => { # there can only be up to 6 stepchildren filled out including the addendum.
-                'biological_stepchild_0_true' => {
-                  key: 'children_to_add.child_status.biological_stepchild.yes[0]'
-                },
-                'biological_stepchild_0_false' => {
-                  key: 'children_to_add.child_status.biological_stepchild.no[0]'
-                }
-              },
-              'biological_stepchild_1' => {
-                'biological_stepchild_1_true' => {
-                  key: 'children_to_add.child_status.biological_stepchild.yes[1]'
-                },
-                'biological_stepchild_1_false' => {
-                  key: 'children_to_add.child_status.biological_stepchild.no[1]'
-                }
-              },
-              'biological_stepchild_2' => {
-                'biological_stepchild_2_true' => {
-                  key: 'children_to_add.child_status.biological_stepchild.yes[2]'
-                },
-                'biological_stepchild_2_false' => {
-                  key: 'children_to_add.child_status.biological_stepchild.no[2]'
-                }
-              },
-              'biological_stepchild_3' => {
-                'biological_stepchild_3_true' => {
-                  key: 'children_to_add.child_status.biological_stepchild.yes[3]'
-                },
-                'biological_stepchild_3_false' => {
-                  key: 'children_to_add.child_status.biological_stepchild.no[3]'
-                }
-              },
-              'biological_stepchild_4' => {
-                'biological_stepchild_4_true' => {
-                  key: 'children_to_add.child_status.biological_stepchild.yes[4]'
-                },
-                'biological_stepchild_4_false' => {
-                  key: 'children_to_add.child_status.biological_stepchild.no[4]'
-                }
-              },
-              'biological_stepchild_5' => {
-                'biological_stepchild_5_true' => {
-                  key: 'children_to_add.child_status.biological_stepchild.yes[5]'
-                },
-                'biological_stepchild_5_false' => {
-                  key: 'children_to_add.child_status.biological_stepchild.no[5]'
-                }
-              } # end of biological stepchild
+              # 'biological_stepchild_0' => { # there can only be up to 6 stepchildren filled out including the addendum.
+              #   'biological_stepchild_0_true' => {
+              #     key: 'children_to_add.child_status.biological_stepchild.yes[0]'
+              #   },
+              #   'biological_stepchild_0_false' => {
+              #     key: 'children_to_add.child_status.biological_stepchild.no[0]'
+              #   }
+              # },
+              # 'biological_stepchild_1' => {
+              #   'biological_stepchild_1_true' => {
+              #     key: 'children_to_add.child_status.biological_stepchild.yes[1]'
+              #   },
+              #   'biological_stepchild_1_false' => {
+              #     key: 'children_to_add.child_status.biological_stepchild.no[1]'
+              #   }
+              # },
+              # 'biological_stepchild_2' => {
+              #   'biological_stepchild_2_true' => {
+              #     key: 'children_to_add.child_status.biological_stepchild.yes[2]'
+              #   },
+              #   'biological_stepchild_2_false' => {
+              #     key: 'children_to_add.child_status.biological_stepchild.no[2]'
+              #   }
+              # },
+              # 'biological_stepchild_3' => {
+              #   'biological_stepchild_3_true' => {
+              #     key: 'children_to_add.child_status.biological_stepchild.yes[3]'
+              #   },
+              #   'biological_stepchild_3_false' => {
+              #     key: 'children_to_add.child_status.biological_stepchild.no[3]'
+              #   }
+              # },
+              # 'biological_stepchild_4' => {
+              #   'biological_stepchild_4_true' => {
+              #     key: 'children_to_add.child_status.biological_stepchild.yes[4]'
+              #   },
+              #   'biological_stepchild_4_false' => {
+              #     key: 'children_to_add.child_status.biological_stepchild.no[4]'
+              #   }
+              # },
+              # 'biological_stepchild_5' => {
+              #   'biological_stepchild_5_true' => {
+              #     key: 'children_to_add.child_status.biological_stepchild.yes[5]'
+              #   },
+              #   'biological_stepchild_5_false' => {
+              #     key: 'children_to_add.child_status.biological_stepchild.no[5]'
+              #   }
+              # } # end of biological stepchild
             }, # end of child status
             'previous_marriage_details' => {
               'date_marriage_ended' => {
@@ -981,7 +981,11 @@ module PdfFill
                   question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > END DATE OF CHILDS MARRIAGE > REASON LINE2'
                 }
               } # end reason_marriage_ended_other
-            } # end previous_marriage_details
+            }, # end previous_marriage_details
+            'is_biological_child_of_spouse' => {
+              'is_biological_child_of_spouse_yes' => { key: 'children_to_add.child_status.biological_stepchild.yes[%iterator%]' },
+              'is_biological_child_of_spouse_no' => { key: 'children_to_add.child_status.biological_stepchild.no[%iterator%]' }
+            }
           }, # end children_to_add
           # ------------  SECTION IV: VETERAN REPORTING DIVORCE FROM FORMER SPOUSE  ----------------- #
           'report_divorce' => {
@@ -1694,6 +1698,11 @@ module PdfFill
           # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
           child['place_of_birth']['country'] = extract_country(child['place_of_birth'])
 
+          child['is_biological_child_of_spouse'] = {
+            'is_biological_child_of_spouse_yes' => select_radio_button(child['is_biological_child_of_spouse']),
+            'is_biological_child_of_spouse_no' => select_radio_button(!child['is_biological_child_of_spouse'])
+          }
+
           # extract postal code and country
           unless child['does_child_live_with_you']
             child['child_address_info']['address']['zip_code'] =
@@ -1711,7 +1720,7 @@ module PdfFill
         # expand child status
         child_status = child['child_status']
         date_became_dependent = split_date(child.dig('child_status', 'date_became_dependent'))
-        biological_stepchild_key = "biological_stepchild_#{index}"
+        # biological_stepchild_key = "biological_stepchild_#{index}"
         # @TODO 18-23 YEARS OLD AND IN SCHOOL
         child['child_status'] = {
           'biological' => select_radio_button(child_status['biological']),
@@ -1720,13 +1729,16 @@ module PdfFill
           'incapable_self_support' => select_radio_button(child['not_self_sufficient']),
           'child_previously_married' => select_radio_button(child_status['child_previously_married']),
           'stepchild' => select_radio_button(child_status['stepchild']),
-          biological_stepchild_key => {
-            "#{biological_stepchild_key}_true" => select_radio_button(child_status['biological_stepchild']),
-            "#{biological_stepchild_key}_false" => child_status.key?('biological_stepchild') ? select_radio_button(!child_status['biological_stepchild']) : 'Off' # rubocop:disable Layout/LineLength
-          }
+          # biological_stepchild => {
+          #   "#{biological_stepchild_key}_true" => select_radio_button(child_status['biological_stepchild']),
+          #   "#{biological_stepchild_key}_false" => child_status.key?('biological_stepchild') ? select_radio_button(!child_status['biological_stepchild']) : 'Off' # rubocop:disable Layout/LineLength
+          # }
         }
-
         child['child_status']['date_became_dependent'] = date_became_dependent if date_became_dependent.present?
+      end
+
+      def select_radio_button_acrobat_24(value)
+        value ? 0 : 'Off'
       end
 
       def expand_child_previously_married(child)

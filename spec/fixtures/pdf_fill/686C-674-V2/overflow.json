@@ -96,6 +96,7 @@
      "dependent_income": true},
    "children_to_add": 
     [{"does_child_live_with_you": false,
+      "is_biological_child_of_spouse": true,
       "child_address_info": 
        {"person_child_lives_with": {"first": "parentofstepchildnametoolongpa", "middle": "parentofstepchildnam", "last": "parentofstepchildnametoolongpa"},
         "address": 
@@ -109,7 +110,6 @@
       "place_of_birth": {"is_outside_us": false, "state": "CO", "city": "citynametoolongcitynametoolong"},
       "child_status": 
        {"stepchild": true,
-        "biological_stepchild": true,
         "date_became_dependent": "2010-02-04",
         "stepchild_parent": {"first": "parentofstepchildnametoolongpa", "last": "parentofstepchildnametoolongpa"},
         "ssn": "987654321",
