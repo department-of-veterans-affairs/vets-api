@@ -191,7 +191,7 @@ module HCA
                 "#{financial_info_xpath}expenses/expense"
               )
             ),
-            veteranIncomeYear: veteran_income_year(response),
+            veteranIncomeYear: get_locate_value(response, "#{financial_info_xpath}incomeYear"),
             spouseFinancialInfo: get_income(
               response,
               "#{financial_info_xpath}spouseFinancialsList/spouseFinancials/incomes/income"
@@ -394,12 +394,13 @@ module HCA
         end.to_xml
       end
 
-      def veteran_income_year(response)
-        get_locate_value(response, "#{XPATH_PREFIX}financialsInfo/financialStatement/incomeYear")
-      end
-
       def income_year_is_last_year?(response)
-        veteran_income_year(response) == (DateTime.now.utc.year - 1).to_s
+        income_year = get_xpath(
+          response,
+          "#{XPATH_PREFIX}financialsInfo/incomeTest/incomeYear"
+        )
+
+        income_year == (DateTime.now.utc.year - 1).to_s
       end
       # rubocop:enable Metrics/MethodLength
     end
