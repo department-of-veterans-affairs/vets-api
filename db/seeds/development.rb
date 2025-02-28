@@ -177,3 +177,18 @@ mhv_ac.update!(
 SignIn::ServiceAccountConfig.where(certificates: nil).update(certificates: [])
 SignIn::ServiceAccountConfig.where(scopes: nil).update(scopes: [])
 SignIn::ClientConfig.where(certificates: nil).update(certificates: [])
+
+# Create UserActionEvents
+config_file_path = Rails.root.join('config', 'audit_log', 'user_action_events.yml')
+if !File.exist?(config_file_path)
+  error_message = '[UserActionEvent] Setup Error: UserActionEvents config file not found'
+  Rails.logger.info(error_message)
+  puts error_message
+  return
+end
+user_action_events_yaml = YAML.load_file(config_file_path)
+user_action_events_yaml.each do |identifier, event_config|
+  event = UserActionEvent.find_or_initialize_by(identifier:)
+  event.attributes = event_config
+  event.save!
+end

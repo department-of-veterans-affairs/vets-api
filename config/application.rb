@@ -130,7 +130,6 @@ module VetsAPI
                                    key: 'api_session',
                                    secure: Settings.session_cookie.secure,
                                    http_only: true
-    config.after_initialize { UserActionEvent.setup }
 
     # These files do not contain auto-loaded ruby classes,
     #   they are loaded through app/sidekiq/education_form/forms/base.rb
