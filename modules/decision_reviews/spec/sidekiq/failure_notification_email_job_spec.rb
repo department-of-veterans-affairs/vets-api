@@ -2,7 +2,6 @@
 
 require './modules/decision_reviews/spec/dr_spec_helper'
 require './modules/decision_reviews/spec/support/sidekiq_helper'
-require 'decision_review_v1/service'
 
 RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
   subject { described_class }

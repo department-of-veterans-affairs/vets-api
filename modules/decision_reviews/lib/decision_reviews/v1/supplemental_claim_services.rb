@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 require 'decision_review_v1/utilities/form_4142_processor'
-require 'decision_review_v1/utilities/helpers'
-require 'decision_review_v1/utilities/constants'
-require 'decision_review_v1/utilities/logging_utils'
+require 'decision_reviews/v1/helpers'
+require 'decision_reviews/v1/constants'
+require 'decision_reviews/v1/logging_utils'
 require 'lighthouse/benefits_intake/service'
 
-module DecisionReviewV1
-  module Appeals
+module DecisionReviews
+  module V1
     # rubocop:disable Metrics/ModuleLength
     module SupplementalClaimServices
-      include DecisionReviewV1::Appeals::Helpers
-      include DecisionReviewV1::Appeals::LoggingUtils
+      include DecisionReviews::V1::Helpers
+      include DecisionReviews::V1::LoggingUtils
 
       ##
       # Returns all of the data associated with a specific Supplemental Claim.
@@ -251,7 +251,7 @@ module DecisionReviewV1
           asu = AppealSubmissionUpload.create!(decision_review_evidence_attachment_guid: upload['confirmationCode'],
                                                appeal_submission_id:)
 
-          submit_upload_job.perform_async(asu.id)
+          DecisionReviews::SubmitUpload.perform_async(asu.id)
         end
       end
 
@@ -265,7 +265,7 @@ module DecisionReviewV1
       # @return String
       #
       def queue_form4142(appeal_submission_id:, rejiggered_payload:, submitted_appeal_uuid:)
-        form4142_submit_job.perform_async(
+        DecisionReviews::Form4142Submit.perform_async(
           appeal_submission_id,
           payload_encrypted_string(rejiggered_payload),
           submitted_appeal_uuid
