@@ -81,7 +81,6 @@ class EVSS::DocumentUpload
     evidence_submission.update(
       upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
       failed_date: DateTime.now.utc,
-      acknowledgement_date: (DateTime.current + 30.days).utc,
       error_message: 'EVSS::DocumentUpload document upload failure',
       template_metadata: {
         personalisation: update_personalisation(current_personalisation, msg['failed_at'])

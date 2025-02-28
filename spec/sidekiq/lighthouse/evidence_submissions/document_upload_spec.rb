@@ -161,10 +161,10 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         expect(evidence_submission.error_message)
           .to eql('Lighthouse::EvidenceSubmissions::DocumentUpload document upload failure')
         expect(current_personalisation['date_failed']).to eql(failed_date)
+        expect(evidence_submission.acknowledgement_date).to be_nil
 
         Timecop.freeze(current_date_time) do
           expect(evidence_submission.failed_date).to be_within(1.second).of(current_date_time.utc)
-          expect(evidence_submission.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days).utc)
         end
         Timecop.unfreeze
       end
