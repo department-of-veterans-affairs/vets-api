@@ -15,14 +15,18 @@ module MyHealth
       set_id { '' }
 
       attributes :signature_name do |object|
-        object[:data][:signature_name]
+        object[:signature_name]
       end
 
       attributes :signature_title do |object|
-        object[:data][:signature_title]
+        object[:signature_title]
       end
+
       attributes :include_signature do |object|
-        object[:data][:include_signature]
+        signature_name = object[:signature_name]
+        signature_title = object[:signature_title]
+        signature_name.is_a?(String) && !signature_name.empty? &&
+          signature_title.is_a?(String) && !signature_title.empty?
       end
     end
   end
