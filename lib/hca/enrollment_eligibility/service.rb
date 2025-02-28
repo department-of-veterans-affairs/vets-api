@@ -185,21 +185,23 @@ module HCA
 
         Common::HashHelpers.deep_compact(
           {
-            veteranFinancialInfo: get_income(response, "#{financial_info_xpath}incomes/income").merge!(
-              get_expenses(
+            financialInfo: {
+              veteranFinancialInfo: get_income(response, "#{financial_info_xpath}incomes/income").merge!(
+                get_expenses(
+                  response,
+                  "#{financial_info_xpath}expenses/expense"
+                )
+              ),
+              veteranIncomeYear: get_locate_value(response, "#{financial_info_xpath}incomeYear"),
+              spouseFinancialInfo: get_income(
                 response,
-                "#{financial_info_xpath}expenses/expense"
+                "#{financial_info_xpath}spouseFinancialsList/spouseFinancials/incomes/income"
+              ),
+              spouseIncomeYear: get_locate_value(
+                response,
+                "#{financial_info_xpath}spouseFinancialsList/spouseFinancials/incomeYear"
               )
-            ),
-            veteranIncomeYear: get_locate_value(response, "#{financial_info_xpath}incomeYear"),
-            spouseFinancialInfo: get_income(
-              response,
-              "#{financial_info_xpath}spouseFinancialsList/spouseFinancials/incomes/income"
-            ),
-            spouseIncomeYear: get_locate_value(
-              response,
-              "#{financial_info_xpath}spouseFinancialsList/spouseFinancials/incomeYear"
-            )
+            }
           }
         )
       end

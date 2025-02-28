@@ -1,16 +1,20 @@
 {
-  "veteranFinancialInfo": {
-    "otherIncome": "2811",
-    "grossIncome": "67584",
-    "netIncome": "14293",
-    "deductibleFuneralExpenses": "1283",
-    "deductibleMedicalExpenses": "8576",
-    "deductibleEducationExpenses": "4344"
-  },
-  "spouseFinancialInfo": {
-    "otherIncome": "1229",
-    "grossIncome": "57930",
-    "netIncome": "7458"
+  "financialInfo": {
+    "veteranFinancialInfo": {
+      "otherIncome": "2811",
+      "grossIncome": "67584",
+      "netIncome": "14293",
+      "deductibleFuneralExpenses": "1283",
+      "deductibleMedicalExpenses": "8576",
+      "deductibleEducationExpenses": "4344"
+    },
+    "spouseFinancialInfo": {
+      "otherIncome": "1229",
+      "grossIncome": "57930",
+      "netIncome": "7458"
+    },
+    "veteranIncomeYear": "2024",
+    "spouseIncomeYear": "2024"
   },
   "providers": [
     {
@@ -64,7 +68,5 @@
   "dateOfMarriage": "1991-10-12",
   "cohabitedLastYear": true,
   "spouseDateOfBirth": "1970-04-21",
-  "spouseSocialSecurityNumber": "666112121",
-  "veteranIncomeYear": "2024",
-  "spouseIncomeYear": "2024"
+  "spouseSocialSecurityNumber": "666112121"
 }
