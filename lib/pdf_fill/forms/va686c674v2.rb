@@ -1270,6 +1270,7 @@ module PdfFill
           }, # end of deaths
           # -----------------  SECTION VII: VETERAN/CLAIMANT REPORTING MARRIAGE OF CHILD  ----------------- #
           'child_marriage' => {
+            limit: 1,
             'full_name' => {
               'first' => {
                 key: 'form1[0].#subform[28].#subform[29].#subform[30].CHILDFirstName[30]',
@@ -1320,6 +1321,7 @@ module PdfFill
           }, # end of child marriage
           # ---  SECTION VIII: VETERAN/CLAIMANT REPORTING A SCHOOLCHILD OVER 18 HAS STOPPED ATTENDING SCHOOL  --- #
           'child_stopped_attending_school' => {
+            limit: 1,
             'full_name' => {
               'first' => {
                 key: 'form1[0].#subform[28].#subform[29].#subform[30].NAMEOFSCHOOLCHILDFirstName[0]',
@@ -1696,11 +1698,13 @@ module PdfFill
           child['ssn'] = split_ssn(child['ssn'].delete('-')) if child['ssn'].present?
 
           # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
-          child['place_of_birth']['country'] = extract_country(child['place_of_birth'])
+          if child['place_of_birth'].present?
+            child['place_of_birth']['country'] = extract_country(child['place_of_birth'])
+          end
 
           child['is_biological_child_of_spouse'] = {
             'is_biological_child_of_spouse_yes' => select_radio_button(child['is_biological_child_of_spouse']),
-            'is_biological_child_of_spouse_no' => select_radio_button(!child['is_biological_child_of_spouse'])
+            'is_biological_child_of_spouse_no' => child.key?('is_biological_child_of_spouse') ? select_radio_button(!child['is_biological_child_of_spouse']) : 'Off'
           }
 
           # extract postal code and country
@@ -1718,10 +1722,13 @@ module PdfFill
 
       def expand_child_status(child, index)
         # expand child status
-        child_status = child['child_status']
-        date_became_dependent = split_date(child.dig('child_status', 'date_became_dependent'))
+        child_status = child['relationship_to_child']
+        date_became_dependent = split_date(child.dig('relationship_to_child', 'date_became_dependent'))
         # biological_stepchild_key = "biological_stepchild_#{index}"
         # @TODO 18-23 YEARS OLD AND IN SCHOOL
+        puts "what is child"
+        puts child
+        puts child['child_status']
         child['child_status'] = {
           'biological' => select_radio_button(child_status['biological']),
           'school_age_in_school' => select_radio_button(child_status['school_age_in_school']),
@@ -1792,7 +1799,9 @@ module PdfFill
         divorce['full_name'] = extract_middle_i(divorce, 'full_name')
 
         # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
-        divorce['location']['country'] = extract_country(divorce['location'])
+        if divorce['divorce_location']['country'].present?
+          divorce['divorce_location']['country'] = extract_country(divorce['divorce_location'])
+        end
       end
 
       def merge_stepchildren_helpers
@@ -1834,7 +1843,9 @@ module PdfFill
           death['date'] = split_date(death['date'])
 
           # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
-          death['location']['country'] = extract_country(death['location'])
+          if death['dependent_death_location']['country'].present?
+            death['dependent_death_location']['country'] = extract_country(death['dependent_death_location'])
+          end
 
           # expand dependent type
           dependent_type = death['dependent_type']
@@ -1855,26 +1866,31 @@ module PdfFill
       end
 
       def merge_child_marriage_helpers
-        child_marriage = @form_data['dependents_application']['child_marriage']
-        return if child_marriage.blank?
+        child_marriages = @form_data['dependents_application']['child_marriage']
+        return if child_marriages.blank?
 
-        # extract middle initial
-        child_marriage['full_name'] = extract_middle_i(child_marriage, 'full_name')
+        child_marriages.each do |child_marriage|
 
-        # extract date
-        child_marriage['date_married'] = split_date(child_marriage['date_married'])
+          # extract middle initial
+          child_marriage['full_name'] = extract_middle_i(child_marriage, 'full_name')
+
+          # extract date
+          child_marriage['date_married'] = split_date(child_marriage['date_married'])
+        end
       end
 
       def merge_child_stopped_attending_school_helpers
-        child_stopped_attending_school = @form_data['dependents_application']['child_stopped_attending_school']
-        return if child_stopped_attending_school.blank?
+        children_stopped_attending_school = @form_data['dependents_application']['child_stopped_attending_school']
+        return if children_stopped_attending_school.blank?
 
-        # extract middle initial
-        child_stopped_attending_school['full_name'] = extract_middle_i(child_stopped_attending_school, 'full_name')
+        children_stopped_attending_school.each do |child_stopped_attending_school|
+          # extract middle initial
+          child_stopped_attending_school['full_name'] = extract_middle_i(child_stopped_attending_school, 'full_name')
 
-        # extract date
-        child_stopped_attending_school['date_child_left_school'] =
-          split_date(child_stopped_attending_school['date_child_left_school'])
+          # extract date
+          child_stopped_attending_school['date_child_left_school'] =
+            split_date(child_stopped_attending_school['date_child_left_school'])
+        end
       end
 
       def expand_phone_number(veteran_contact_information)

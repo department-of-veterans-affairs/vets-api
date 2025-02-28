@@ -102,7 +102,6 @@
      "dependent_income": true},
    "children_to_add": 
     [{"does_child_live_with_you": false,
-      "is_biological_child_of_spouse": true,
       "child_address_info": 
        {"person_child_lives_with": {"first": "test", "middle": "other", "last": "person"},
         "address": 
@@ -124,6 +123,7 @@
       "birth_date": "2005-01-02"},
      {"does_child_live_with_you": true,
       "place_of_birth": {"is_outside_us": false, "state": "DC", "city": "washington"},
+      "is_biological_child_of_spouse": true,
       "child_status": 
        {"stepchild": true,
         "date_became_dependent": "2024-05-04",
