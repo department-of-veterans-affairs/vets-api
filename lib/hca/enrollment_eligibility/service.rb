@@ -182,25 +182,23 @@ module HCA
 
       def parse_financial_info(response)
         financial_info_xpath = "#{XPATH_PREFIX}financialsInfo/financialStatement/"
+        spouse_financial_info_xpath = "#{financial_info_xpath}spouseFinancialsList/spouseFinancials/"
 
         Common::HashHelpers.deep_compact(
           {
             financialInfo: {
-              veteranFinancialInfo: get_income(response, "#{financial_info_xpath}incomes/income").merge!(
+              veteranFinancialInfo: get_income(
+                response,
+                "#{financial_info_xpath}incomes/income"
+              ).merge!(
                 get_expenses(
                   response,
                   "#{financial_info_xpath}expenses/expense"
                 )
               ),
               veteranIncomeYear: get_locate_value(response, "#{financial_info_xpath}incomeYear"),
-              spouseFinancialInfo: get_income(
-                response,
-                "#{financial_info_xpath}spouseFinancialsList/spouseFinancials/incomes/income"
-              ),
-              spouseIncomeYear: get_locate_value(
-                response,
-                "#{financial_info_xpath}spouseFinancialsList/spouseFinancials/incomeYear"
-              )
+              spouseFinancialInfo: get_income(response, "#{spouse_financial_info_xpath}incomes/income"),
+              spouseIncomeYear: get_locate_value(response, "#{spouse_financial_info_xpath}incomeYear")
             }
           }
         )
