@@ -130,10 +130,6 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
                                    'DecisionReviews::V1::SupplementalClaimsController#create exception % (SC_V1)'
     end
 
-    before do
-      Flipper.disable(:decision_review_new_engine_4142_job)
-    end
-
     context 'when tracking 4142 is enabled' do
       subject do
         post '/decision_reviews/v1/supplemental_claims',
@@ -142,7 +138,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
       end
 
       before do
-        Flipper.enable(:decision_review_track_4142_submissions)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
       end
 
       it 'creates a supplemental claim and queues and saves a 4142 form when 4142 info is provided' do
@@ -197,7 +193,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
 
     context 'when tracking 4142 is disabled' do
       before do
-        Flipper.disable(:decision_review_track_4142_submissions)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
       end
 
       it 'creates a supplemental claim and queues a 4142 form when 4142 info is provided' do
@@ -250,8 +246,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
 
     context 'when 4142 engine job is enabled' do
       before do
-        Flipper.disable(:decision_review_track_4142_submissions)
-        Flipper.enable(:decision_review_new_engine_4142_job)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
       end
 
       it 'creates a supplemental claim and queues a 4142 form when 4142 info is provided' do

@@ -6,17 +6,18 @@ properties:
     type: object
     required:
       - signatureName
-      - includeSignature
       - signatureTitle
+      - includeSignature
     properties:
       signatureName:
         type: string
         example: "My Signature Name"
-      includeSignature:
-        type: boolean
       signatureTitle:
         type: string
         example: "My Signature Title"
+      includeSignature:
+        type: boolean
+        description: "Whether or not the signature should be included in messages. If both `signatureName` and `signatureTitle` are present, this defaults to `true`."
   errors:
     type: object
     example: {}
