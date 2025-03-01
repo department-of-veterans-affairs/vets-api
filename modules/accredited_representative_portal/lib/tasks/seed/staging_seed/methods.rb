@@ -114,16 +114,12 @@ module AccreditedRepresentativePortal
       end
 
       def process_org_reps(org, options)
-        matching_reps = if org.poa == '008'
-                          # Get all CT reps without limit
-                          Veteran::Service::Representative
-                            .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
-                        else
-                          # limit for other orgs
-                          Veteran::Service::Representative
-                            .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
-                            .limit(2)
-                        end
+        matching_reps = Veteran::Service::Representative
+                        .where('poa_codes && ARRAY[?]::varchar[]', [org.poa])
+                        .where(representative_id: Constants::REP_EMAIL_MAP.keys)
+                        .order(Arel.sql("ARRAY_POSITION(ARRAY[#{Constants::REP_EMAIL_MAP.keys.map do |id|
+                          "'#{id}'"
+                        end.join(',')}]::varchar[], representative_id)"))
 
         matching_reps.each do |rep|
           create_user_account_if_needed(rep, options)
@@ -131,17 +127,16 @@ module AccreditedRepresentativePortal
         end
       end
 
-      def create_user_account_if_needed(rep, options)
-        return if AccreditedRepresentativePortal::UserAccountAccreditedIndividual
-                  .exists?(accredited_individual_registration_number: rep.representative_id)
+      def create_user_account_if_needed(rep, _options)
+        # Verify the expected mapping exists
+        email_index = Constants::REP_EMAIL_MAP[rep.representative_id]
+        expected_email = "vets.gov.user+#{email_index}@gmail.com"
 
-        AccreditedRepresentativePortal::UserAccountAccreditedIndividual.create!(
-          accredited_individual_registration_number: rep.representative_id,
-          power_of_attorney_holder_type: 'veteran_service_organization',
-          user_account_email: "vets.gov.user+#{options[:email_counter]}@gmail.com"
-        )
-        options[:totals][:user_accounts] += 1
-        options[:email_counter] += 1
+        unless AccreditedRepresentativePortal::UserAccountAccreditedIndividual
+               .exists?(accredited_individual_registration_number: rep.representative_id,
+                        user_account_email: expected_email)
+          Rails.logger.warn("Missing expected user mapping for rep #{rep.representative_id} -> #{expected_email}")
+        end
       end
 
       def create_requests_for_rep(org, rep, options)
@@ -174,32 +169,23 @@ module AccreditedRepresentativePortal
     module FormMethods
       module_function
 
-      def build_poa_form_data
+      def build_address
         {
-          authorizations: build_authorizations,
-          veteran: build_veteran_info,
-          dependent: build_dependent_info
+          addressLine1: "#{rand(100..9999)} #{['Washington St', 'Franklin Ave', 'Jefferson Rd', 'Adams Ln'].sample}",
+          addressLine2: "Unit #{rand(1..100)}", # No longer optional
+          city: ['Hartford', 'New Haven', 'Stamford', 'Waterbury', 'Norwich'].sample,
+          stateCode: 'CT',
+          country: 'US',
+          zipCode: "06#{rand(100..999)}",
+          zipCodeSuffix: rand(1000..9999).to_s # No longer optional
         }
       end
 
-      def build_dependent_info
+      def build_name
         {
-          name: build_name,
-          address: build_address,
-          ssn: '123456789',
-          va_file_number: '123456789',
-          date_of_birth: '1980-01-01',
-          phone: '1234567890',
-          email: 'test@example.com',
-          relationship: 'Child'
-        }
-      end
-
-      def build_authorizations
-        {
-          record_disclosure: true,
-          record_disclosure_limitations: [],
-          address_change: false
+          first: %w[William Richard Charles Joseph Thomas].sample,
+          middle: 'M', # No longer optional
+          last: %w[Miller Davis Garcia Rodriguez Wilson].sample
         }
       end
 
@@ -207,33 +193,32 @@ module AccreditedRepresentativePortal
         {
           name: build_name,
           address: build_address,
-          ssn: '123456789',
-          va_file_number: '123456789',
-          date_of_birth: '1980-01-01',
-          service_number: nil,
-          service_branch: 'ARMY',
-          phone: '1234567890',
-          email: 'test@example.com'
+          ssn: Array.new(9) { rand(0..9) }.join,
+          vaFileNumber: rand(10_000_000..99_999_999).to_s,
+          dateOfBirth: rand(18..80).years.ago.strftime('%Y-%m-%d'),
+          serviceNumber: "#{('A'..'Z').to_a.sample}#{rand(1_000_000..9_999_999)}", # No longer optional
+          serviceBranch: %w[ARMY NAVY AIR_FORCE MARINE_CORPS COAST_GUARD SPACE_FORCE].sample,
+          phone: "#{rand(200..999)}#{rand(200..999)}#{rand(1000..9999)}",
+          email: "veteran#{rand(100..999)}@example.com"
         }
       end
 
-      def build_name
+      def build_dependent_info
         {
-          first: 'Test',
-          middle: nil,
-          last: 'Veteran'
+          name: build_name,
+          address: build_address,
+          dateOfBirth: rand(18..70).years.ago.strftime('%Y-%m-%d'),
+          relationship: %w[Spouse Child Parent Sibling].sample,
+          phone: "#{rand(200..999)}#{rand(200..999)}#{rand(1000..9999)}",
+          email: "dependent#{rand(100..999)}@example.com"
         }
       end
 
-      def build_address
+      def build_authorizations
         {
-          address_line1: '123 Test St',
-          address_line2: nil,
-          city: 'Testville',
-          state_code: 'TS',
-          country: 'US',
-          zip_code: '12345',
-          zip_code_suffix: nil
+          recordDisclosure: true,
+          recordDisclosureLimitations: %w[ALCOHOLISM DRUG_ABUSE HIV SICKLE_CELL].sample(2),
+          addressChange: [true, false].sample
         }
       end
     end
@@ -248,7 +233,6 @@ module AccreditedRepresentativePortal
         AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyForm.destroy_all
         AccreditedRepresentativePortal::PowerOfAttorneyRequest.destroy_all
-        AccreditedRepresentativePortal::UserAccountAccreditedIndividual.destroy_all
       end
     end
   end
