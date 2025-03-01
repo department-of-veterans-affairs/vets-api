@@ -1030,7 +1030,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       }
     end
 
-
     describe 'POST create_draft' do
       context 'when the request is successful' do
         let(:draft_appointment_response) do
@@ -1149,7 +1148,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                 VCR.use_cassette 'vaos/eps/get_provider_service/200' do
                   VCR.use_cassette 'vaos/eps/draft_appointment/200' do
                     VCR.use_cassette 'vaos/eps/token/token_200' do
-                      allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(OpenStruct.new(data: []))
+                      allow_any_instance_of(Eps::AppointmentService)
+                        .to receive(:get_appointments)
+                        .and_return(OpenStruct.new(data: []))
                       post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
                       expect(response).to have_http_status(:created)
@@ -1166,7 +1167,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       context 'when user address does not have coordinates' do
         before do
           allow_any_instance_of(User).to receive(:vet360_contact_info).and_return(nil)
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(OpenStruct.new(data: []))
+          allow_any_instance_of(Eps::AppointmentService)
+            .to receive(:get_appointments)
+            .and_return(OpenStruct.new(data: []))
         end
 
         let(:draft_params) do
@@ -1309,7 +1312,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                 VCR.use_cassette 'vaos/eps/get_provider_service/200' do
                   VCR.use_cassette 'vaos/eps/draft_appointment/200' do
                     VCR.use_cassette 'vaos/eps/token/token_200' do
-                      allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(OpenStruct.new(data: []))
+                      allow_any_instance_of(Eps::AppointmentService)
+                        .to receive(:get_appointments)
+                        .and_return(OpenStruct.new(data: []))
                       post '/vaos/v2/appointments/draft', params: draft_params
 
                       expect(response).to have_http_status(:bad_request)
@@ -1339,7 +1344,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             VCR.use_cassette 'vaos/eps/get_provider_service/404_unknown_provider' do
               VCR.use_cassette 'vaos/eps/draft_appointment/200' do
                 VCR.use_cassette 'vaos/eps/token/token_200' do
-                  allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(OpenStruct.new(data: []))
+                  allow_any_instance_of(Eps::AppointmentService)
+                    .to receive(:get_appointments)
+                    .and_return(OpenStruct.new(data: []))
                   post '/vaos/v2/appointments/draft', params: draft_params
 
                   expect(response).to have_http_status(:not_found)
@@ -1366,7 +1373,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                            match_requests_on: %i[method path body]) do
             VCR.use_cassette 'vaos/eps/draft_appointment/400_invalid_patientid' do
               VCR.use_cassette 'vaos/eps/token/token_200' do
-                allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(OpenStruct.new(data: []))
+                allow_any_instance_of(Eps::AppointmentService)
+                  .to receive(:get_appointments)
+                  .and_return(OpenStruct.new(data: []))
                 post '/vaos/v2/appointments/draft', params: draft_params
 
                 expect(response).to have_http_status(:bad_request)
@@ -1433,8 +1442,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                   last_retrieved: '2024-12-02T10:00:00Z'
                 }
               }
-            ]
-          )
+            ])
         end
 
         it 'fails if a vaos appointment with the given referral id already exists' do
