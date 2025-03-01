@@ -161,7 +161,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             get(:show, params: { id: '600383363' })
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(3)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(8)
           expect(parsed_body.dig('data', 'attributes', 'trackedItems', 0,
                                  'displayName')).to eq('Private Medical Record')
           expect(parsed_body.dig('data', 'attributes', 'trackedItems', 1,
@@ -180,12 +180,74 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             get(:show, params: { id: '600383363' })
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(4)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(9)
           expect(parsed_body.dig('data', 'attributes', 'trackedItems', 0,
                                  'displayName')).to eq('Private Medical Record')
           expect(parsed_body.dig('data', 'attributes', 'trackedItems', 1,
                                  'displayName')).to eq('Submit buddy statement(s)')
           expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2, 'displayName')).to eq('Attorney Fees')
+        end
+      end
+
+      context 'when :cst_friendly_evidence_requests is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_friendly_evidence_requests).and_return(true)
+        end
+
+        it 'modifies the claim data to include additional, human-readable fields' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
+          can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
+          expect(can_upload_values).to eq([true, true, true, true, true, true, true, true])
+          friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
+          expect(friendly_name_values).to include('Authorization to Disclose Information')
+          expect(friendly_name_values).to include('Proof of Service')
+          expect(friendly_name_values).to include('Employment information')
+          expect(friendly_name_values).to include('Direct deposit information')
+          expect(friendly_name_values).to include('Details about cause of PTSD')
+          friendly_description_values = tracked_items.map { |i| i['friendlyDescription'] }
+          expect(friendly_description_values).to include('We need your permission to request your personal' \
+                                                         ' information from a non-VA source, like a private' \
+                                                         ' doctor or hospital.')
+          expect(friendly_description_values).to include('We need copies of your separation papers for all' \
+                                                         ' periods of service.')
+          expect(friendly_description_values).to include('We need employment information from your most' \
+                                                         ' recent employer.')
+          expect(friendly_description_values).to include('We need your direct deposit information in' \
+                                                         ' order to pay benefits, if awarded.')
+          expect(friendly_description_values).to include('We need information about the cause of' \
+                                                         ' your posttraumatic stress disorder (PTSD).')
+          support_alias_values = tracked_items.map { |i| i['supportAliases'] }
+          expect(support_alias_values).to include(['VA Form 21-4142'])
+          expect(support_alias_values).to include(['Form DD214'])
+          expect(support_alias_values).to include(['VA Form 21-4192'])
+          expect(support_alias_values).to include(['EFT - Treasure Mandate Notification'])
+          expect(support_alias_values).to include(['VA Form 21-0781', 'PTSD - Need stressor details'])
+        end
+      end
+
+      context 'when :cst_friendly_evidence_requests is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_friendly_evidence_requests).and_return(false)
+        end
+
+        it 'does not modify the claim data and leaves the less-readable data as-is' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
+          can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
+          expect(can_upload_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil])
+          friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
+          expect(friendly_name_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil])
+          friendly_description_values = tracked_items.map { |i| i['friendlyDescription'] }
+          expect(friendly_description_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil])
+          support_alias_values = tracked_items.map { |i| i['supportAliases'] }
+          expect(support_alias_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil])
         end
       end
 
