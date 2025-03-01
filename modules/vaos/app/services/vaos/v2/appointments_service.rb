@@ -88,7 +88,7 @@ module VAOS
         return { error: true, failures: vaos_request_failures } if vaos_request_failures.present?
         return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
 
-        eps_appointments = eps_appointments_service.get_appointments
+        eps_appointments = eps_appointments_service.get_appointments[:data]
         return { exists: true } if eps_appointments.any? { |appt| appt[:referral][:referral_number] == referral_id }
 
         { exists: false }
@@ -1105,6 +1105,7 @@ module VAOS
       #   in the format { data: {}, meta: { failures: ... } } if an error occurs.
       def send_appointments_request(start_date, end_date, caller_name, pagination_params = {}, statuses = nil)
         req_params = build_appointment_request_params(start_date, end_date, pagination_params, statuses)
+
         response   = perform_appointment_request(req_params)
         validate_response_schema(response, 'appointments_index')
         response

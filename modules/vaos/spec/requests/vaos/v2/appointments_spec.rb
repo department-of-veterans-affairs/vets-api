@@ -4,7 +4,6 @@ require 'rails_helper'
 
 RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
   include SchemaMatchers
-
   before do
     allow(Settings.mhv).to receive(:facility_range).and_return([[1, 999]])
     allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
@@ -1012,8 +1011,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
   context 'for eps referrals' do
     before do
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
       Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
-      Flipper.disable(:va_online_scheduling_use_vpg)
     end
 
     let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
@@ -1027,12 +1030,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       }
     end
 
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                instance_of(User)).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
-    end
 
     describe 'POST create_draft' do
       context 'when the request is successful' do
@@ -1152,7 +1149,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                 VCR.use_cassette 'vaos/eps/get_provider_service/200' do
                   VCR.use_cassette 'vaos/eps/draft_appointment/200' do
                     VCR.use_cassette 'vaos/eps/token/token_200' do
-                      allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([])
+                      allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(OpenStruct.new(data: []))
                       post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
                       expect(response).to have_http_status(:created)
@@ -1167,6 +1164,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       end
 
       context 'when user address does not have coordinates' do
+        before do
+          allow_any_instance_of(User).to receive(:vet360_contact_info).and_return(nil)
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(OpenStruct.new(data: []))
+        end
+
         let(:draft_params) do
           {
             referral_id: 'ref-123',
@@ -1271,10 +1273,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         it 'returns a successful response when all calls succeed' do
-          allow_any_instance_of(User).to receive(:vet360_contact_info).and_return(nil)
-          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([])
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
-                           match_requests_on: %i[method path body]) do
+          VCR.use_cassette 'vaos/v2/appointments/get_appointments_200' do
             VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
               VCR.use_cassette 'vaos/eps/get_provider_service/200' do
                 VCR.use_cassette 'vaos/eps/draft_appointment/200' do
@@ -1310,7 +1309,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                 VCR.use_cassette 'vaos/eps/get_provider_service/200' do
                   VCR.use_cassette 'vaos/eps/draft_appointment/200' do
                     VCR.use_cassette 'vaos/eps/token/token_200' do
-                      allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([])
+                      allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(OpenStruct.new(data: []))
                       post '/vaos/v2/appointments/draft', params: draft_params
 
                       expect(response).to have_http_status(:bad_request)
@@ -1340,7 +1339,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             VCR.use_cassette 'vaos/eps/get_provider_service/404_unknown_provider' do
               VCR.use_cassette 'vaos/eps/draft_appointment/200' do
                 VCR.use_cassette 'vaos/eps/token/token_200' do
-                  allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([])
+                  allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(OpenStruct.new(data: []))
                   post '/vaos/v2/appointments/draft', params: draft_params
 
                   expect(response).to have_http_status(:not_found)
@@ -1367,7 +1366,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                            match_requests_on: %i[method path body]) do
             VCR.use_cassette 'vaos/eps/draft_appointment/400_invalid_patientid' do
               VCR.use_cassette 'vaos/eps/token/token_200' do
-                allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([])
+                allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(OpenStruct.new(data: []))
                 post '/vaos/v2/appointments/draft', params: draft_params
 
                 expect(response).to have_http_status(:bad_request)
@@ -1411,29 +1410,31 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         let(:eps_appointments) do
-          [
-            {
-              id: '124',
-              state: 'proposed',
-              patient_id: '457',
-              referral: {
-                referral_number: 'ref-126'
-              },
-              provider_service_id: 'DBKQ-H0a',
-              network_id: 'random-sandbox-network-id',
-              slot_ids: [
-                '5vuTac8v-practitioner-8-role-1|' \
-                '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
-                '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
-              ],
-              appointment_details: {
-                status: 'booked',
-                start: '2024-12-02T10:00:00Z',
-                is_latest: false,
-                last_retrieved: '2024-12-02T10:00:00Z'
+          OpenStruct.new(data:
+            [
+              {
+                id: '124',
+                state: 'proposed',
+                patient_id: '457',
+                referral: {
+                  referral_number: 'ref-126'
+                },
+                provider_service_id: 'DBKQ-H0a',
+                network_id: 'random-sandbox-network-id',
+                slot_ids: [
+                  '5vuTac8v-practitioner-8-role-1|' \
+                  '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
+                  '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
+                ],
+                appointment_details: {
+                  status: 'booked',
+                  start: '2024-12-02T10:00:00Z',
+                  is_latest: false,
+                  last_retrieved: '2024-12-02T10:00:00Z'
+                }
               }
-            }
-          ]
+            ]
+          )
         end
 
         it 'fails if a vaos appointment with the given referral id already exists' do
