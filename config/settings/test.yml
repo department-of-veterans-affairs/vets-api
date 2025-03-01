@@ -1,4 +1,3 @@
-
 hostname: www.example.com # possible fallback for unsafe request.host
 virtual_hosts: ["www.example.com", "localhost", "127.0.0.1", "example.org"] # Safe host names
 vsp_environment: test
@@ -454,3 +453,8 @@ accredited_representative_portal:
       base_uri: https://not.real.com
       repo: faked/fakeness
       path: not_real.csv
+
+kafka_producer:
+  broker_urls: ['localhost:19092'] # for local Kafka cluster in Docker
+  aws_role_arn: 'arn:aws:iam::123456789012:role/role-name' # this is an example
+  schema_registry_url: 'http://localhost:8081' # for local Schema Registry in Docker

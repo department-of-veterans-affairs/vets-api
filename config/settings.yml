@@ -1324,7 +1324,6 @@ vanotify:
     ivc_forms: ivc_forms_token
     benefits_disability: benefits_disability_token
 
-
 # Settings for connecting AFS Veteran Services
 # For locahost we can use the existing certs as long as we don't call out
 dgi:
@@ -1772,3 +1771,9 @@ banners:
   drupal_username: banners_api
   drupal_password: test
   drupal_url: https://test.cms.va.gov/
+
+kafka_producer:
+  broker_urls: <%= ENV['KAFKA_PRODUCER__BROKER_URLS'] %>
+  aws_region: "us-gov-west-1"
+  aws_role_arn: <%= ENV['KAFKA_PRODUCER__AWS_ROLE_ARN'] %>
+  schema_registry_url: <%= ENV['KAFKA_PRODUCER__SCHEMA_REGISTRY_URL'] %>
