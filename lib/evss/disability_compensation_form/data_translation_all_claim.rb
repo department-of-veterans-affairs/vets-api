@@ -626,6 +626,7 @@ module EVSS
       def map_new(input_disability)
         {
           'name' => input_disability['condition'],
+          'approximateDate' => input_disability['approximateDate'],
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssues' => input_disability['specialIssues'].presence,
@@ -646,6 +647,7 @@ module EVSS
       def map_worsened(input_disability)
         {
           'name' => input_disability['condition'],
+          'approximateDate' => input_disability['approximateDate'],
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssues' => input_disability['specialIssues'].presence,
@@ -662,18 +664,17 @@ module EVSS
       # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
       # @option input_disability [String] :vaMistreatmentDescription The disabilities description
       # @option input_disability [String] :vaMistreatmentLocation The location the disability occurred
-      # @option input_disability [String] :vaMistreatmentDate The Date the disability occurred
       # @return [Hash] Transformed disability to match EVSS's validation
       def map_va(input_disability)
         {
           'name' => input_disability['condition'],
+          'approximateDate' => input_disability['approximateDate'],
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssues' => input_disability['specialIssues'].presence,
           'serviceRelevance' => "Caused by VA care\n" \
                                 "Event: #{input_disability['vaMistreatmentDescription']}\n" \
                                 "Location: #{input_disability['vaMistreatmentLocation']}\n" \
-                                "TimeFrame: #{input_disability['vaMistreatmentDate']}"
         }.compact
       end
 
@@ -689,6 +690,7 @@ module EVSS
       def map_secondary(input_disability, disabilities)
         disability = {
           'name' => input_disability['condition'],
+          'approximateDate' => input_disability['approximateDate'],
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'SECONDARY',
           'specialIssues' => input_disability['specialIssues'].presence,

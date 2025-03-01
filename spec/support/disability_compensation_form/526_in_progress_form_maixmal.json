@@ -80,7 +80,6 @@
                 "condition": "myocardial infarction (MI)",
                 "view:serviceConnectedDisability": {},
                 "view:vaFollowUp": {
-                    "vaMistreatmentDate": "A while ago",
                     "vaMistreatmentDescription": "A thing happened.",
                     "vaMistreatmentLocation": "Somewhereville"
                 }
