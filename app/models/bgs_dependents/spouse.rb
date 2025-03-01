@@ -45,6 +45,7 @@ module BGSDependents
     def initialize(dependents_application)
       @dependents_application = dependents_application
       @spouse_information = @dependents_application['spouse_information']
+      @is_v2 = v2?
 
       self.attributes = spouse_attributes
     end
