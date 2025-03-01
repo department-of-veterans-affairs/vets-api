@@ -8,7 +8,7 @@ RSpec.describe FormSubmissionAttempt, type: :model do
   end
 
   describe 'state machine' do
-    before { allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send) }
+    before { allow_any_instance_of(SimpleFormsApi::Notification::Email).to receive(:send) }
 
     let(:config) do
       {
@@ -37,7 +37,7 @@ RSpec.describe FormSubmissionAttempt, type: :model do
           it 'sends an error email' do
             notification_email = double
             allow(notification_email).to receive(:send)
-            allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
+            allow(SimpleFormsApi::Notification::Email).to receive(:new).with(
               config,
               notification_type:,
               user_account: anything
@@ -83,12 +83,12 @@ RSpec.describe FormSubmissionAttempt, type: :model do
         let(:form_submission) { build(:form_submission, form_type: 'some-other-form') }
 
         it 'does not send an error email' do
-          allow(SimpleFormsApi::NotificationEmail).to receive(:new)
+          allow(SimpleFormsApi::Notification::Email).to receive(:new)
           form_submission_attempt = create(:form_submission_attempt, form_submission:)
 
           form_submission_attempt.fail!
 
-          expect(SimpleFormsApi::NotificationEmail).not_to have_received(:new)
+          expect(SimpleFormsApi::Notification::Email).not_to have_received(:new)
         end
 
         context 'is a form526_form4142 form' do
@@ -166,7 +166,7 @@ RSpec.describe FormSubmissionAttempt, type: :model do
       it 'sends a received email' do
         notification_email = double
         allow(notification_email).to receive(:send)
-        allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
+        allow(SimpleFormsApi::Notification::Email).to receive(:new).with(
           config,
           notification_type:,
           user_account: anything
@@ -192,7 +192,7 @@ RSpec.describe FormSubmissionAttempt, type: :model do
         it 'gracefully handles the nil form_data' do
           notification_email = double
           allow(JSON).to receive(:parse)
-          allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
+          allow(SimpleFormsApi::Notification::Email).to receive(:new).with(
             config,
             notification_type:,
             user_account: anything

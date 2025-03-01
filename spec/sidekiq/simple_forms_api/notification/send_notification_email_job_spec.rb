@@ -12,7 +12,7 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
       let(:notification_email) { double(send: nil) }
 
       it 'sends the email' do
-        allow(SimpleFormsApi::NotificationEmail).to receive(:new).and_return(notification_email)
+        allow(SimpleFormsApi::Notification::Email).to receive(:new).and_return(notification_email)
 
         described_class.new.perform(
           notification_type:,
@@ -24,9 +24,9 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
         expect(notification_email).to have_received(:send).with(at: anything)
       end
 
-      context 'SimpleFormsApi::NotificationEmail initialization fails' do
+      context 'SimpleFormsApi::Notification::Email initialization fails' do
         it 'raises an error and increments statsd' do
-          allow(SimpleFormsApi::NotificationEmail).to receive(:new).and_raise(ArgumentError)
+          allow(SimpleFormsApi::Notification::Email).to receive(:new).and_raise(ArgumentError)
           allow(StatsD).to receive(:increment)
 
           expect do
@@ -50,7 +50,7 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
       let(:form_upload_notification_email) { double(send: nil) }
 
       it 'sends the email' do
-        allow(SimpleFormsApi::FormUploadNotificationEmail).to receive(:new).and_return(form_upload_notification_email)
+        allow(SimpleFormsApi::Notification::FormUploadEmail).to receive(:new).and_return(form_upload_notification_email)
 
         described_class.new.perform(
           notification_type:,
@@ -62,9 +62,9 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
         expect(form_upload_notification_email).to have_received(:send).with(at: anything)
       end
 
-      context 'SimpleFormsApi::FormUploadNotificationEmail initialization fails' do
+      context 'SimpleFormsApi::Notification::FormUploadEmail initialization fails' do
         it 'raises an error and increments statsd' do
-          allow(SimpleFormsApi::FormUploadNotificationEmail).to receive(:new).and_raise(ArgumentError)
+          allow(SimpleFormsApi::Notification::FormUploadEmail).to receive(:new).and_raise(ArgumentError)
           allow(StatsD).to receive(:increment)
 
           expect do
