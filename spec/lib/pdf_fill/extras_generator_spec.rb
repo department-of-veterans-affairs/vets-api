@@ -101,4 +101,76 @@ describe PdfFill::ExtrasGenerator do
       subject.add_page_numbers(pdf)
     end
   end
+
+  # frozen_string_literal: true
+  describe '#set_header' do
+    subject { described_class.new(form_name:, submit_date:, extras_redesign: true) }
+
+    let(:form_name) { 'TEST' }
+    let(:submit_date) { nil }
+    let(:pdf) { instance_double(Prawn::Document, bounds: double('Bounds', width: 500, top: 700, left: 0, right: 500)) }
+    let(:header_font_size) { described_class::HEADER_FONT_SIZE }
+    let(:subheader_font_size) { described_class::SUBHEADER_FONT_SIZE }
+
+    before do
+      allow(pdf).to receive(:repeat).and_yield
+      allow(pdf).to receive(:bounding_box).and_yield
+      allow(pdf).to receive(:text)
+      allow(pdf).to receive(:pad_top).and_yield
+      allow(pdf).to receive(:stroke_horizontal_rule)
+    end
+
+    context 'when submit_date is not present' do
+      it 'adds the header text correctly' do
+        subject.set_header(pdf)
+        expect(pdf).to have_received(:text).with("<b>ATTACHMENT</b> to VA Form #{form_name}",
+                                                 align: :left, valign: :bottom, size: header_font_size,
+                                                 inline_format: true)
+        expect(pdf).not_to have_received(:text).with('Submitted on VA.gov on 12-25-2020',
+                                                     align: :right, valign: :bottom, size: subheader_font_size)
+        expect(pdf).to have_received(:stroke_horizontal_rule)
+      end
+    end
+
+    context 'when submit_date is present' do
+      let(:submit_date) { { 'month' => '12', 'day' => '25', 'year' => '2020' } }
+
+      it 'adds the header text correctly' do
+        subject.set_header(pdf)
+        expect(pdf).to have_received(:text).with("<b>ATTACHMENT</b> to VA Form #{form_name}",
+                                                 align: :left, valign: :bottom, size: header_font_size,
+                                                 inline_format: true)
+        expect(pdf).to have_received(:text).with('Submitted on VA.gov on 12-25-2020',
+                                                 align: :right, valign: :bottom, size: subheader_font_size)
+        expect(pdf).to have_received(:stroke_horizontal_rule)
+      end
+    end
+  end
+
+  describe '#format_date' do
+    it 'returns nil for blank date' do
+      expect(subject.send(:format_date, nil)).to be_nil
+      expect(subject.send(:format_date, '')).to be_nil
+    end
+
+    it 'formats date from hash' do
+      date_hash = { 'month' => '12', 'day' => '25', 'year' => '2020' }
+      expect(subject.send(:format_date, date_hash)).to eq('12-25-2020')
+    end
+
+    it 'formats date from Date object' do
+      date_obj = Date.new(2020, 12, 25)
+      expect(subject.send(:format_date, date_obj)).to eq('12-25-2020')
+    end
+
+    it 'formats date from string' do
+      date_str = '2020-12-25'
+      expect(subject.send(:format_date, date_str)).to eq('12-25-2020')
+    end
+
+    it 'returns nil for invalid date string' do
+      invalid_date_str = 'invalid-date'
+      expect(subject.send(:format_date, invalid_date_str)).to be_nil
+    end
+  end
 end
