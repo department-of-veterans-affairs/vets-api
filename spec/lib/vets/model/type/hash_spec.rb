@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vets/type/hash'
+require 'vets/model/type/hash'
 
-RSpec.describe Vets::Type::Hash do
+RSpec.describe Vets::Model::Type::Hash do
   let(:name) { 'test_hash' }
   let(:hash_instance) { described_class.new(name) }
 
