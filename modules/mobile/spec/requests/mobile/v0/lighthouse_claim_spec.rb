@@ -57,10 +57,10 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
         expect(response.parsed_body.dig('data', 'attributes', 'claimTypeCode')).to eq('020NEW')
       end
 
-      context 'when cst_override_reserve_records_mobile flipper is enabled' do
+      context 'when cst_override_reserve_records flipper is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records).and_return(true)
         end
 
         it 'overrides the tracked item status to NEEDED_FROM_OTHERS', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
@@ -75,10 +75,10 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
         end
       end
 
-      context 'when cst_override_reserve_records_mobile flipper is disabled' do
+      context 'when cst_override_reserve_records flipper is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_mobile).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records).and_return(false)
         end
 
         it 'leaves the tracked item status as NEEDED_FROM_YOU', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do

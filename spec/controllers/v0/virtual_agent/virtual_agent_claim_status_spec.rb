@@ -167,10 +167,10 @@ RSpec.describe 'VirtualAgentClaimStatusController', type: :request do
           .and_return(@mock_cxdw_reporting_service)
       end
 
-      context 'when cst_override_reserve_records_website flipper is enabled' do
+      context 'when cst_override_reserve_records flipper is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records).and_return(true)
         end
 
         it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
@@ -185,10 +185,10 @@ RSpec.describe 'VirtualAgentClaimStatusController', type: :request do
         end
       end
 
-      context 'when cst_override_reserve_records_website flipper is disabled' do
+      context 'when cst_override_reserve_records flipper is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records).and_return(false)
         end
 
         it 'leaves the tracked item status as NEEDED_FROM_YOU' do
