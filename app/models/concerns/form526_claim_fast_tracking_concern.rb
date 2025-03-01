@@ -141,13 +141,8 @@ module Form526ClaimFastTrackingConcern
   end
 
   def classify_vagov_contentions(params)
-    user = OpenStruct.new({ flipper_id: user_uuid })
-
-    response = if Flipper.enabled?(:disability_526_migrate_contention_classification, user)
-                 ContentionClassification::Client.new.classify_vagov_contentions_expanded(params)
-               else
-                 VirtualRegionalOffice::Client.new.classify_vagov_contentions_expanded(params)
-               end
+    cc_client = ContentionClassification::Client.new
+    response = cc_client.classify_vagov_contentions_expanded(params)
     response.body
   end
 
