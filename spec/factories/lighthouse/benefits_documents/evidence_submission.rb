@@ -52,7 +52,6 @@ FactoryBot.define do
     job_class { 'Lighthouse::BenefitsDocuments::Service' }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
     failed_date { DateTime.now.utc }
-    acknowledgement_date { DateTime.now.utc + 30.days }
     error_message { 'Lighthouse::EvidenceSubmissions::DocumentUpload document upload failure' }
     template_metadata do
       { 'personalisation' => {
@@ -97,7 +96,6 @@ FactoryBot.define do
     job_class { 'EVSS::DocumentUpload' }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
     failed_date { DateTime.now.utc }
-    acknowledgement_date { DateTime.now.utc + 30.days }
     error_message { 'EVSS::DocumentUpload document upload failure' }
     template_metadata do
       { 'personalisation' => {
