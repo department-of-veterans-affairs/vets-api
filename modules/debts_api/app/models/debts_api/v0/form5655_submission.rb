@@ -122,7 +122,7 @@ module DebtsApi
         'first_name' => name_info['first'],
         'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
         'updated_at' => updated_at,
-        'confirmation_number' => id,
+        'confirmation_number' => id
       }
     end
 
