@@ -4,17 +4,22 @@ require 'rails_helper'
 require 'hca/enrollment_eligibility/service'
 
 describe HCA::EnrollmentEligibility::Service do
-  describe '#get_ezr_prefill_data' do
-    it 'gets data for prefilling 1010ezr', run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
+  describe '#get_ezr_data' do
+    it 'gets Veteran data relevant to the 1010ezr', run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
       VCR.use_cassette(
         'form1010_ezr/lookup_user_with_ezr_prefill_data',
         match_requests_on: %i[method uri body], erb: true
       ) do
+        data = JSON.parse(File.read('spec/fixtures/form1010_ezr/veteran_data.json'))
+        financial_info = data['nonPrefill']['previousFinancialInfo']
+
+        data.delete('nonPrefill')
+
         expect(
-          described_class.new.get_ezr_prefill_data(
+          described_class.new.get_ezr_data(
             '1012829228V424035'
           ).to_h.deep_stringify_keys
-        ).to eq(JSON.parse(File.read('spec/fixtures/form1010_ezr/veteran_prefill_data.json')))
+        ).to eq(data.merge('previousFinancialInfo' => financial_info))
       end
     end
   end

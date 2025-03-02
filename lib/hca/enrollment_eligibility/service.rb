@@ -38,7 +38,7 @@ module HCA
 
       MEDICARE = 'Medicare'
 
-      def get_ezr_prefill_data(icn)
+      def get_ezr_data(icn)
         response = with_monitoring do
           lookup_user_req(icn)
         end
@@ -186,7 +186,7 @@ module HCA
 
         Common::HashHelpers.deep_compact(
           {
-            financialInfo: {
+            previousFinancialInfo: {
               veteranFinancialInfo: get_income(
                 response, "#{financial_info_xpath}incomes/income"
               ).merge(

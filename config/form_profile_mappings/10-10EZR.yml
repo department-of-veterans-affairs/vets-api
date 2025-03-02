@@ -17,4 +17,5 @@ dateOfMarriage: [ezr_data, dateOfMarriage]
 cohabitedLastYear: [ezr_data, cohabitedLastYear]
 maritalStatus: [ezr_data, maritalStatus]
 dependents: [ezr_data, dependents]
-financialInfo: [ezr_data, financialInfo]
+nonPrefill:
+  previousFinancialInfo: [ezr_data, previousFinancialInfo]

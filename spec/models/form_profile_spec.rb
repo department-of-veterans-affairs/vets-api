@@ -1349,7 +1349,7 @@ RSpec.describe FormProfile, type: :model do
       end
 
       context 'when the ee service is down' do
-        let(:v10_10_ezr_expected) { ezr_prefilled_data_without_ee_data }
+        let(:v10_10_ezr_expected) { ezr_prefilled_data_without_ee_data.merge('nonPrefill' => {}) }
 
         it 'prefills the rest of the data and logs exception to sentry' do
           expect_any_instance_of(FormProfiles::VA1010ezr).to receive(:log_exception_to_sentry).with(
@@ -1363,7 +1363,7 @@ RSpec.describe FormProfile, type: :model do
               run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
         let(:v10_10_ezr_expected) do
           JSON.parse(
-            File.read('spec/fixtures/form1010_ezr/veteran_prefill_data.json')
+            File.read('spec/fixtures/form1010_ezr/veteran_data.json')
           ).merge(ezr_prefilled_data_without_ee_data)
         end
 

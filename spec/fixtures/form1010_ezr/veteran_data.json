@@ -1,21 +1,4 @@
 {
-  "financialInfo": {
-    "veteranFinancialInfo": {
-      "incomeYear": "2024",
-      "otherIncome": "2811",
-      "grossIncome": "67584",
-      "netIncome": "14293",
-      "deductibleFuneralExpenses": "1283",
-      "deductibleMedicalExpenses": "8576",
-      "deductibleEducationExpenses": "4344"
-    },
-    "spouseFinancialInfo": {
-      "incomeYear": "2024",
-      "otherIncome": "1229",
-      "grossIncome": "57930",
-      "netIncome": "7458"
-    }
-  },
   "providers": [
     {
       "insuranceGroupCode": "G1234",
@@ -68,5 +51,24 @@
   "dateOfMarriage": "1991-10-12",
   "cohabitedLastYear": true,
   "spouseDateOfBirth": "1970-04-21",
-  "spouseSocialSecurityNumber": "666112121"
+  "spouseSocialSecurityNumber": "666112121",
+  "nonPrefill": {
+    "previousFinancialInfo": {
+      "veteranFinancialInfo": {
+        "incomeYear": "2024",
+        "otherIncome": "2811",
+        "grossIncome": "67584",
+        "netIncome": "14293",
+        "deductibleFuneralExpenses": "1283",
+        "deductibleMedicalExpenses": "8576",
+        "deductibleEducationExpenses": "4344"
+      },
+      "spouseFinancialInfo": {
+        "incomeYear": "2024",
+        "otherIncome": "1229",
+        "grossIncome": "57930",
+        "netIncome": "7458"
+      }
+    }
+  }
 }
