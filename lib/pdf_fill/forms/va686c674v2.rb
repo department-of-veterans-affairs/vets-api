@@ -353,7 +353,7 @@ module PdfFill
             'is_veteran' => {
               'is_veteran_yes' => { key: 'form1[0].#subform[17].YES[0]' },
               'is_veteran_no' => { key: 'form1[0].#subform[17].NO[0]' }
-            },
+            }
           },
           # ------------  SECTION II: INFORMATION NEEDED TO ADD SPOUSE  ------------ #
           'current_marriage_information' => {
@@ -879,32 +879,35 @@ module PdfFill
               } # end of last name
             }, # end living_with
             'relationship_to_child' => { # update the other options might be here
-              'biological' => { key: 'children_to_add.child_status.biological[%iterator%]' },
               'adopted' => { key: 'children_to_add.child_status.adopted[%iterator%]' },
-              'stepchild' => { key: 'children_to_add.child_status.stepchild[%iterator%]' },
+              'stepchild' => { key: 'children_to_add.child_status.stepchild[%iterator%]' }
+            },
+            'is_biological_child' => { key: 'children_to_add.child_status.biological[%iterator%]' },
+            'does_child_have_permanent_disability' => {
+              key: 'children_to_add.child_status.incapable_self_support[%iterator%]'
             },
             'marriage_end_date' => {
               'month' => {
-                  key: 'children_to_add.previous_marriage_details.date_marriage_ended.month[%iterator%]',
-                  limit: 2,
-                  question_num: 16,
-                  question_suffix: 'A',
-                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > END DATE OF CHILDS MARRIAGE > MONTH'
-                }, # end of month
-                'day' => {
-                  key: 'children_to_add.previous_marriage_details.date_marriage_ended.day[%iterator%]',
-                  limit: 2,
-                  question_num: 16,
-                  question_suffix: 'B',
-                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > END DATE OF CHILDS MARRIAGE > DAY'
-                }, # end of day
-                'year' => {
-                  key: 'children_to_add.previous_marriage_details.date_marriage_ended.year[%iterator%]',
-                  limit: 4,
-                  question_num: 16,
-                  question_suffix: 'C',
-                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > END DATE OF CHILDS MARRIAGE > YEAR'
-                } # end of year
+                key: 'children_to_add.previous_marriage_details.date_marriage_ended.month[%iterator%]',
+                limit: 2,
+                question_num: 16,
+                question_suffix: 'A',
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > END DATE OF CHILDS MARRIAGE > MONTH'
+              }, # end of month
+              'day' => {
+                key: 'children_to_add.previous_marriage_details.date_marriage_ended.day[%iterator%]',
+                limit: 2,
+                question_num: 16,
+                question_suffix: 'B',
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > END DATE OF CHILDS MARRIAGE > DAY'
+              }, # end of day
+              'year' => {
+                key: 'children_to_add.previous_marriage_details.date_marriage_ended.year[%iterator%]',
+                limit: 4,
+                question_num: 16,
+                question_suffix: 'C',
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > END DATE OF CHILDS MARRIAGE > YEAR'
+              } # end of year
             },
             'marriage_end_reason' => {
               'declared_void' => {
@@ -938,26 +941,22 @@ module PdfFill
             'has_child_ever_been_married' => {
               key: 'children_to_add.child_status.child_previously_married[%iterator%]'
             },
-            'child_status' => { # update no longer exists
-              'biological' => { key: 'children_to_add.child_status.biological[%iterator%]' },
-              'school_age_in_school' => { key: 'children_to_add.child_status.school_age_in_school[%iterator%]' },
-              'adopted' => { key: 'children_to_add.child_status.adopted[%iterator%]' },
-              'incapable_self_support' => { key: 'children_to_add.child_status.incapable_self_support[%iterator%]' },
-              'child_previously_married' => {
-                key: 'children_to_add.child_status.child_previously_married[%iterator%]'
-              },
-              'stepchild' => { key: 'children_to_add.child_status.stepchild[%iterator%]' },
-            }, # end of child status
-
+            'school_age_in_school' => {
+              key: 'children_to_add.child_status.school_age_in_school[%iterator%]'
+            },
             'is_biological_child_of_spouse' => {
-              'is_biological_child_of_spouse_yes' => { key: 'children_to_add.child_status.biological_stepchild.yes[%iterator%]' },
-              'is_biological_child_of_spouse_no' => { key: 'children_to_add.child_status.biological_stepchild.no[%iterator%]' }
+              'is_biological_child_of_spouse_yes' => {
+                key: 'children_to_add.child_status.biological_stepchild.yes[%iterator%]'
+              },
+              'is_biological_child_of_spouse_no' => {
+                key: 'children_to_add.child_status.biological_stepchild.no[%iterator%]'
+              }
             }, # end is_biological_child_of_spouse
             'date_entered_household' => {
               'month' => { key: 'children_to_add.child_status.date_became_dependent.month[%iterator%]' },
               'day' => { key: 'children_to_add.child_status.date_became_dependent.day[%iterator%]' },
               'year' => { key: 'children_to_add.child_status.date_became_dependent.year[%iterator%]' }
-            },
+            }
           }, # end children_to_add
           # ------------  SECTION IV: VETERAN REPORTING DIVORCE FROM FORMER SPOUSE  ----------------- #
           'report_divorce' => {
@@ -1008,7 +1007,7 @@ module PdfFill
                   question_suffix: 'C',
                   question_text: 'VETERAN REPORTING DIVORCE FROM FORMER SPOUSE > PLACE OF DIVORCE'
                 }
-              },
+              }
             },
             'date' => {
               'month' => {
@@ -1241,7 +1240,7 @@ module PdfFill
                   question_suffix: 'C',
                   question_text: 'INFORMATION NEEDED TO REPORT DEPEDENT DEATH > PLACE > COUNTRY'
                 }
-              },
+              }
             } # end dependent_death_location
           }, # end of deaths
           # -----------------  SECTION VII: VETERAN/CLAIMANT REPORTING MARRIAGE OF CHILD  ----------------- #
@@ -1663,7 +1662,7 @@ module PdfFill
         children_to_add = @form_data['dependents_application']['children_to_add']
         return if children_to_add.blank?
 
-        children_to_add.each_with_index do |child, index|
+        children_to_add.each do |child|
           # extract middle initial
           child['full_name'] = extract_middle_i(child, 'full_name')
 
@@ -1675,14 +1674,8 @@ module PdfFill
 
           # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
           if child['birth_location'].present?
-            child['birth_location']['location']['country'] = 
-              extract_country(child['birth_location']['location'])
+            child['birth_location']['location']['country'] = extract_country(child['birth_location']['location'])
           end
-
-          child['is_biological_child_of_spouse'] = {
-            'is_biological_child_of_spouse_yes' => select_radio_button(child['is_biological_child_of_spouse']),
-            'is_biological_child_of_spouse_no' => child.key?('is_biological_child_of_spouse') ? select_radio_button(!child['is_biological_child_of_spouse']) : 'Off'
-          }
 
           # extract postal code and country
           unless child['does_child_live_with_you']
@@ -1692,34 +1685,48 @@ module PdfFill
               extract_country(child['address'])
           end
 
-          if child.key?('has_child_ever_been_married')
-            child['has_child_ever_been_married'] = select_radio_button(child['has_child_ever_been_married'])
-          end
-
-          expand_child_status(child, index)
+          expand_child_status(child)
           expand_child_previously_married(child)
         end
       end
 
-      def expand_child_status(child, index)
+      # rubocop:disable Metrics/MethodLength
+      def expand_child_status(child)
         # expand child status
         child_status = child['relationship_to_child']
         date_entered_household = split_date(child['date_entered_household'])
-        # biological_stepchild_key = "biological_stepchild_#{index}"
+
+        if child.key?('has_child_ever_been_married')
+          child['has_child_ever_been_married'] = select_radio_button(child['has_child_ever_been_married'])
+        end
+
+        # is_biological_child_of_spouse_no
+        bcos_no = child['is_biological_child_of_spouse']
+
+        child['is_biological_child_of_spouse'] = {
+          'is_biological_child_of_spouse_yes' => select_radio_button(child['is_biological_child_of_spouse']),
+          'is_biological_child_of_spouse_no' => bcos_no.nil? ? 'Off' : select_radio_button(!bcos_no)
+        }
+
+        child['school_age_in_school'] =
+          child.key?('school_age_in_school') ? 'Off' : select_radio_button(child['school_age_in_school'])
+
         # @TODO 18-23 YEARS OLD AND IN SCHOOL
         child['relationship_to_child'] = {
-          'biological' => select_radio_button(child_status['biological']),
-          'school_age_in_school' => select_radio_button(child_status['school_age_in_school']),
+          # 'school_age_in_school' => select_radio_button(child_status['school_age_in_school']),
           'adopted' => select_radio_button(child_status['adopted']),
-          'incapable_self_support' => select_radio_button(child['not_self_sufficient']),
-          'stepchild' => select_radio_button(child_status['stepchild']),
+          'stepchild' => select_radio_button(child_status['stepchild'])
         }
         child['date_entered_household'] = date_entered_household if date_entered_household.present?
-      end
 
-      def select_radio_button_acrobat_24(value)
-        value ? 0 : 'Off'
+        # is_biological_child
+        bc = child['is_biological_child']
+        # does_child_have_permanent_disability
+        dchpd = child['does_child_have_permanent_disability']
+        child['is_biological_child'] = bc.nil? ? 'Off' : select_radio_button(bc)
+        child['does_child_have_permanent_disability'] = dchpd.nil? ? 'Off' : select_radio_button(dchpd)
       end
+      # rubocop:enable Metrics/MethodLength
 
       def expand_child_previously_married(child)
         # return unless child['marriage_end_date'] == 'Yes'
@@ -1804,6 +1811,7 @@ module PdfFill
         # expand_supporting_stepchild
       end
 
+      # rubocop:disable Metrics/MethodLength
       def merge_death_helpers
         deaths = @form_data['dependents_application']['deaths']
         return if deaths.blank?
@@ -1817,7 +1825,8 @@ module PdfFill
 
           # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
           if death['dependent_death_location']['location']['country'].present?
-            death['dependent_death_location']['location']['country'] = extract_country(death['dependent_death_location'])
+            death['dependent_death_location']['location']['country'] =
+              extract_country(death['dependent_death_location'])
           end
 
           # expand dependent type
@@ -1837,16 +1846,15 @@ module PdfFill
           }
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def merge_child_marriage_helpers
         child_marriages = @form_data['dependents_application']['child_marriage']
         return if child_marriages.blank?
 
         child_marriages.each do |child_marriage|
-
           # extract middle initial
           child_marriage['full_name'] = extract_middle_i(child_marriage, 'full_name')
-
           # extract date
           child_marriage['date_married'] = split_date(child_marriage['date_married'])
         end
@@ -1929,7 +1937,6 @@ module PdfFill
         # income question when adding spouse
         spouse_name = combine_full_name(@form_data.dig('dependents_application', 'spouse_information', 'full_name'))
         spouse_income = @form_data.dig('dependents_application', 'does_live_with_spouse', 'spouse_income')
-        
         addendum_text += add_dependent_income(spouse_name, spouse_income)
 
         # income questions when adding children
@@ -1954,7 +1961,7 @@ module PdfFill
 
       def add_dependent_income(dependent_name, dependent_income)
         return '' if dependent_name.blank?
-        
+
         "\n\nDid #{dependent_name} have an income in the last 365 days? #{format_boolean(dependent_income)}"
       end
 
