@@ -249,17 +249,17 @@ FactoryBot.define do
             'view:completed_dependent' => false,
             'view:completed_household_child' => false,
             'report_divorce' => {
-              'spouse_income' => false,
-              'date' => '2023-05-03',
+              'spouse_income' => true,
+              'date' => '2023-11-03',
               'divorce_location' => {
                 'location' => {
-                  'city' => 'portland', 'state' => 'ME'
+                  'city' => 'louisville', 'state' => 'KY'
                 }
               },
               'reason_marriage_ended' => 'Divorce',
               'full_name' => {
-                'first' => 'former',
-                'middle' => 'middle',
+                'first' => 'removing',
+                'middle' => 'former',
                 'last' => 'spouse'
               },
               'birth_date' => '1980-02-03'
@@ -271,18 +271,19 @@ FactoryBot.define do
             'current_marriage_information' => {
               'type' => 'CIVIL',
               'location' => {
-                'city' => 'portland',
-                'state' => 'ME'
+                'city' => 'washington',
+                'state' => 'DC'
               },
-              'date' => '2025-01-01'
+              'date' => '2024-02-01'
             },
             'does_live_with_spouse' => {
               'spouse_income' => true,
-              'current_spouse_reason_for_separation' => 'OTHER',
+              'current_spouse_reason_for_separation' => 'Other',
               'other' => 'other reasons',
               'address' => {
                 'country' => 'USA',
-                'street' => '123 fake street',
+                'street' => '456 fake street',
+                'street2' => 'This is a very long apartment name and number',
                 'city' => 'portland',
                 'state' => 'ME',
                 'postal_code' => '04102'
@@ -291,25 +292,25 @@ FactoryBot.define do
             },
             'spouse_information' => {
               'va_file_number' => '987654321',
-              'service_number' => '012345',
+              'service_number' => '987654321',
               'ssn' => '987654321',
-              'birth_date' => '1990-01-01',
+              'birth_date' => '1977-01-01',
               'is_veteran' => true,
               'full_name' => {
-                'first' => 'spouse',
+                'first' => 'test',
                 'middle' => 'middle',
-                'last' => 'spousename'
+                'last' => 'spouselast'
               }
             },
             'veteran_contact_information' => {
               'phone_number' => '5555555555',
-              'international_phone_number' => '5555555556',
+              'international_phone_number' => '1234567890',
               'email_address' => 'test@test.com',
               'electronic_correspondence' => true,
               'veteran_address' => {
                 'country' => 'USA',
                 'street' => '123 fake street',
-                'street2' => 'test2',
+                'street2' => 'this is a really long apartment number',
                 'street3' => 'test3',
                 'city' => 'portland',
                 'state' => 'ME',
@@ -331,33 +332,159 @@ FactoryBot.define do
             },
             'view:add_or_remove_dependents' => { 'add' => true, 'remove' => true },
             'spouse_marriage_history' => [{
-              'end_location' => { 'location' => { 'city' => 'portland', 'state' => 'ME' } },
-              'start_location' => { 'outside_usa' => true, 'location' => { 'city' => 'portland', 'country' => 'FRA' } },
-              'end_date' => '2020-01-01',
-              'start_date' => '2019-01-01',
+              'end_location' => { 'location' => { 'city' => 'denver', 'state' => 'CO' } },
+              'start_location' => { 'outside_usa' => true, 'location' => { 'city' => 'denver', 'state' => 'CO' } },
+              'end_date' => '2010-07-06',
+              'start_date' => '2010-03-05',
+              'reason_marriage_ended' => 'Other',
+              'reason_marriage_ended_other' => 'annulled',
+              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'spouseformerone' }
+            },
+            {
+              'end_location' => { 'location' => { 'city' => 'boston', 'state' => 'MA' } },
+              'start_location' => { 'outside_usa' => true, 'location' => { 'city' => 'fayetteville', 'state' => 'AR' } },
+              'end_date' => '2013-08-08',
+              'start_date' => '2011-07-12',
               'reason_marriage_ended' => 'Divorce',
-              'full_name' => { 'first' => 'former', 'middle' => 'middle', 'last' => 'spousemarriage' }
+              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'spouseformertwo' }
+            },
+            {
+              'end_location' => { 'location' => { 'city' => 'portland', 'state' => 'ME' } },
+              'start_location' => { 'outside_usa' => true, 'location' => { 'city' => 'washington', 'state' => 'DC' } },
+              'end_date' => '2015-07-06',
+              'start_date' => '2014-09-06',
+              'reason_marriage_ended' => 'Death',
+              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'spouseformerthree' }
+            },
+            {
+              'end_location' => { 'location' => { 'city' => 'burlington', 'state' => 'VT' } },
+              'start_location' => { 'outside_usa' => true, 'location' => { 'city' => 'wilmington', 'state' => 'DE' } },
+              'end_date' => '2019-11-09',
+              'start_date' => '2016-10-11',
+              'reason_marriage_ended' => 'Divorce',
+              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'spouseformerfour' }
             }],
             'veteran_marriage_history' => [{
-              'end_location' => { 'location' => { 'city' => 'portland', 'state' => 'ME' } },
-              'start_location' => { 'location' => { 'city' => 'portland', 'state' => 'ME' } },
-              'end_date' => '2020-01-01',
-              'start_date' => '2019-03-03',
-              'reason_marriage_ended' => 'Annulment',
-              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'myformerspouse' }
+              'end_location' => { 'location' => { 'city' => 'miami', 'state' => 'FL' } },
+              'start_location' => { 'location' => { 'city' => 'san diego', 'state' => 'CA' } },
+              'end_date' => '2010-07-06',
+              'start_date' => '2010-03-02',
+              'reason_marriage_ended' => 'Divorce',
+              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'formerspouseone' }
+            },
+            {
+              'end_location' => { 'location' => { 'city' => 'boise', 'state' => 'ID' } },
+              'start_location' => { 'location' => { 'city' => 'atlanta', 'state' => 'GA' } },
+              'end_date' => '2011-12-06',
+              'start_date' => '2011-08-02',
+              'reason_marriage_ended' => 'Other',
+              'reason_marriage_ended_other' => 'annulled',
+              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'formerspousetwo' }
+            },
+            {
+              'end_location' => { 'location' => { 'city' => 'baltimore', 'state' => 'MD' } },
+              'start_location' => { 'location' => { 'city' => 'lawrence', 'state' => 'KS' } },
+              'end_date' => '2014-11-10',
+              'start_date' => '2013-10-10',
+              'reason_marriage_ended' => 'Death',
+              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'formerspousethree' }
+            },
+            {
+              'end_location' => { 'location' => { 'city' => 'charlotte', 'state' => 'NC' } },
+              'start_location' => { 'location' => { 'city' => 'concord', 'state' => 'NH' } },
+              'end_date' => '2019-07-07',
+              'start_date' => '2016-10-06',
+              'reason_marriage_ended' => 'Divorce',
+              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'formerspousefour' }
             }],
             'children_to_add' => [{
+              'income_in_last_year' => true,
+              'marriage_end_date' => '2023-07-03',
+              'marriage_end_reason' => 'Other',
+              'marriage_end_description' => 'other reason',
+              'does_child_live_with_you' => false,
+              'has_child_ever_been_married' => true,
+              'is_biological_child_of_spouse' => false,
+              'relationship_to_child' => { 'biological' => true },
+              'birth_location' => { 'location' => { 'city' => 'quebec', 'postal_code' => '03301', 'country' => 'CAN' } },
+              'ssn' => '987654321',
+              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'childone' },
+              'birth_date' => '2005-01-02',
+              'address' => {
+                'country' => 'USA',
+                'street' => '123 fake drive',
+                'street2' => 'This is a really long apartment number',
+                'street3' => 'line3',
+                'city' => 'concord',
+                'state' => 'NH',
+                'postal_code' => '03301'
+              },
+              'living_with' => { 'first' => 'test', 'last' => 'person' },
+              'does_child_have_disability' => true,
+              'does_child_have_permanent_disability' => true,
+              'biological_parent_name' => { 'first' => 'bio', 'middle' => 'log', 'last' => 'cal' },
+              'biological_parent_ssn' => '000000000'
+            },
+            {
               'income_in_last_year' => false,
-              'marriage_end_date' => '2024-06-01',
               'marriage_end_reason' => 'annulment',
               'marriage_end_description' => 'description of annulment',
               'does_child_live_with_you' => true,
-              'has_child_ever_been_married' => true,
-              'relationship_to_child' => { 'biological' => true },
-              'birth_location' => { 'location' => { 'state' => 'NH', 'city' => 'Concord', 'postal_code' => '03301' } },
+              'has_child_ever_been_married' => false,
+              'is_biological_child_of_spouse' => true,
+              'relationship_to_child' => { 'biological' => false, 'stepchild' => true },
+              'birth_location' => { 'location' => { 'state' => 'DC', 'city' => 'washington', 'postal_code' => '03301' } },
               'ssn' => '987654321',
-              'full_name' => { 'first' => 'first', 'middle' => 'middle', 'last' => 'child' },
-              'birth_date' => '2005-01-01'
+              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'childtwo' },
+              'birth_date' => '2009-04-05',
+              'date_entered_household' => '2024-05-04'
+            },
+            {
+              'marriage_end_reason' => 'annulment',
+              'marriage_end_description' => 'description of annulment',
+              'does_child_live_with_you' => true,
+              'has_child_ever_been_married' => false,
+              'relationship_to_child' => { 'biological' => false, 'adopted' => true },
+              'birth_location' => { 'location' => { 'state' => 'AR', 'city' => 'bentonville', 'postal_code' => '03301' } },
+              'ssn' => '987654321',
+              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'childthree' },
+              'birth_date' => '2010-04-06'
+            },
+            {
+              'income_in_last_year' => false,
+              'marriage_end_reason' => 'annulment',
+              'marriage_end_description' => 'description of annulment',
+              'does_child_live_with_you' => true,
+              'has_child_ever_been_married' => false,
+              'relationship_to_child' => { 'biological' => true },
+              'birth_location' => { 'location' => { 'state' => 'SC', 'city' => 'charleston', 'postal_code' => '03301' } },
+              'ssn' => '987654321',
+              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'childfour' },
+              'birth_date' => '2015-09-07'
+            },
+            {
+              'income_in_last_year' => true,
+              'marriage_end_reason' => 'annulment',
+              'marriage_end_description' => 'description of annulment',
+              'does_child_live_with_you' => true,
+              'has_child_ever_been_married' => false,
+              'relationship_to_child' => { 'biological' => false, 'adopted' => true },
+              'birth_location' => { 'location' => { 'state' => 'NH', 'city' => 'durham', 'postal_code' => '03301' } },
+              'ssn' => '987654321',
+              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'childfive' },
+              'birth_date' => '2019-10-08'
+            },
+            {
+              'income_in_last_year' => false,
+              'marriage_end_reason' => 'annulment',
+              'marriage_end_description' => 'description of annulment',
+              'does_child_live_with_you' => true,
+              'has_child_ever_been_married' => false,
+              'relationship_to_child' => { 'biological' => true },
+              'birth_location' => { 'location' => { 'state' => 'NY', 'city' => 'new york', 'postal_code' => '03301' } },
+              'ssn' => '987654321',
+              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'childsix' },
+              'birth_date' => '2023-11-07'
             }],
             'student_information' => [{
               'remarks' => 'test additional information',
@@ -420,45 +547,74 @@ FactoryBot.define do
             }],
             'step_children' => [{
               'who_does_the_stepchild_live_with' => {
-                'first' => 'first',
+                'first' => 'parent',
                 'middle' => 'middle',
                 'last' => 'name'
               },
-              'living_expenses_paid' => 'Half',
+              'living_expenses_paid' => 'More than half',
               'address' => {
                 'country' => 'USA',
                 'street' => '456 fake street',
-                'street2' => 'line2',
+                'street2' => 'this is a very long apartment number',
                 'street3' => 'line3',
                 'city' => 'portland',
                 'state' => 'ME',
                 'postal_code' => '04102'
               },
               'supporting_stepchild' => false,
-              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'stepchild' },
+              'full_name' => { 'first' => 'stepchild', 'middle' => 'middle', 'last' => 'leaving' },
+              'ssn' => '987654321',
+              'birth_date' => '2009-04-01'
+            },
+            {
+              'who_does_the_stepchild_live_with' => {
+                'first' => 'parent',
+                'middle' => 'middle',
+                'last' => 'parentname'
+              },
+              'address' => {
+                'country' => 'USA',
+                'street' => '123 ocean avenue',
+                'street2' => 'this is a very long apartment number',
+                'street3' => 'line3',
+                'city' => 'concord',
+                'state' => 'NH',
+                'postal_code' => '03301'
+              },
+              'supporting_stepchild' => false,
+              'full_name' => { 'first' => 'second', 'middle' => 'middle', 'last' => 'stepchild' },
               'ssn' => '987654321',
               'birth_date' => '2009-04-01'
             }],
             'deaths' => [{
+              'deceased_dependent_income' => true,
+              'dependent_death_location' => { 'location' => { 'city' => 'new orleans', 'state' => 'LA' } },
+              'dependent_death_date' => '2024-03-02',
+              'dependent_type' => 'DEPENDENT_PARENT',
+              'full_name' => { 'first' => 'deceased', 'middle' => 'middle', 'last' => 'dependent' },
+              'ssn' => '987654321',
+              'birth_date' => '1960-01-01',
+            },
+            {
               'deceased_dependent_income' => false,
-              'dependent_death_location' => { 'location' => { 'city' => 'portland', 'state' => 'ME' } },
-              'dependent_death_date' => '2024-08-01',
+              'dependent_death_location' => { 'location' => { 'city' => 'denver', 'state' => 'CO' } },
+              'dependent_death_date' => '2023-10-03',
               'dependent_type' => 'SPOUSE',
-              'full_name' => { 'first' => 'first', 'middle' => 'middle', 'last' => 'last' },
+              'full_name' => { 'first' => 'other', 'middle' => 'middle', 'last' => 'deceased' },
               'ssn' => '987654321',
               'birth_date' => '1960-01-01'
             }],
             'child_marriage' => [{
               'dependent_income' => false,
-              'date_married' => '2025-01-01',
-              'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'name' },
+              'date_married' => '2023-06-03',
+              'full_name' => { 'first' => 'child', 'middle' => 'middle', 'last' => 'married' },
               'ssn' => '987654321',
               'birth_date' => '2008-04-05'
             }],
             'child_stopped_attending_school' => [{
               'dependent_income' => false,
-              'date_child_left_school' => '2024-08-03',
-              'full_name' => { 'first' => 'tset', 'middle' => 'middle', 'last' => 'last' },
+              'date_child_left_school' => '2023-04-03',
+              'full_name' => { 'first' => 'removing', 'middle' => 'middle', 'last' => 'child' },
               'ssn' => '987654321',
               'birth_date' => '2005-05-01'
             }],
@@ -474,7 +630,7 @@ FactoryBot.define do
               'report_child18_or_older_is_not_attending_school' => true
             },
             'veteran_information' => {
-              'birth_date' => '1809-02-12',
+              'birth_date' => '1809-02-19',
               'full_name' => {
                 'first' => 'Wesley',
                 'last' => 'Ford',
@@ -488,14 +644,14 @@ FactoryBot.define do
             'privacy_agreement_accepted' => true
           },
           'veteran_information' => {
-            'birth_date' => '1809-02-12',
+            'birth_date' => '1980-01-01',
             'full_name' => {
-              'first' => 'Wesley',
-              'last' => 'Ford',
+              'first' => 'Mark',
+              'last' => 'Webb',
               'middle' => nil
             },
-            'ssn' => '987654321',
-            'va_file_number' => '987654321'
+            'ssn' => '000000000',
+            'va_file_number' => '000000000'
           }
         }.to_json
     }
