@@ -79,6 +79,10 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
           Backtrace: #{missing_attributes_exception.backtrace.join("\n")}
         LOG
 
+        # Capture all logged error messages
+        logged_messages = []
+        allow(Rails.logger).to receive(:error) { |msg| logged_messages << msg }
+
         expect(StatsD).to receive(:increment).with(
           "#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.retries_exhausted"
         )
@@ -89,7 +93,13 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         expect(StatsD).to receive(:increment).with('silent_failure',
                                                    tags: %w[service:debt-resolution function:register_failure])
         expect(Rails.logger).to receive(:error).with(expected_log_message)
+
+        # Execute the Sidekiq failure callback
         config.sidekiq_retries_exhausted_block.call(msg, missing_attributes_exception)
+
+        expect(logged_messages.any? do |msg|
+          msg.include?('V0::Form5655::VBASubmissionJob retries exhausted:')
+        end).to be true
         expect(form_submission.reload.error_message).to eq('VBASubmissionJob#perform: abc-123')
       end
 
@@ -101,6 +111,10 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
           Backtrace: #{standard_exception.backtrace.join("\n")}
         LOG
 
+        # Capture all logged error messages
+        logged_messages = []
+        allow(Rails.logger).to receive(:error) { |msg| logged_messages << msg }
+
         expect(StatsD).to receive(:increment).with(
           "#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.retries_exhausted"
         )
@@ -111,7 +125,38 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         expect(StatsD).to receive(:increment).with('silent_failure',
                                                    tags: %w[service:debt-resolution function:register_failure])
         expect(Rails.logger).to receive(:error).with(expected_log_message)
+
+        # Execute the Sidekiq failure callback
         config.sidekiq_retries_exhausted_block.call(msg, standard_exception)
+
+        expect(logged_messages.any? do |msg|
+          msg.include?('V0::Form5655::VBASubmissionJob retries exhausted:')
+        end).to be true
+        expect(form_submission.reload.error_message).to eq('VBASubmissionJob#perform: abc-123')
+      end
+
+      it 'handles silent failure errors' do
+        silent_error_message = 'We are throwing a silent error.'
+
+        # Capture all logged error messages
+        logged_messages = []
+        allow(Rails.logger).to receive(:error) { |msg| logged_messages << msg }
+
+        expect(StatsD).to receive(:increment).with(
+          "#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.retries_exhausted"
+        )
+        expect(StatsD).to receive(:increment).with("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.failure")
+        expect(Rails.logger).to receive(:error).with(
+          "Form5655Submission id: #{form_submission.id} failed", 'VBASubmissionJob#perform: abc-123'
+        )
+        expect(StatsD).to receive(:increment).with('silent_failure',
+                                                   tags: %w[service:debt-resolution function:register_failure])
+        expect(Rails.logger).to receive(:error).with(silent_error_message)
+
+        # Execute the Sidekiq failure callback
+        config.sidekiq_retries_exhausted_block.call(msg, standard_exception)
+
+        expect(logged_messages.any? { |msg| msg.include?('We are throwing a silent error') }).to be true
         expect(form_submission.reload.error_message).to eq('VBASubmissionJob#perform: abc-123')
       end
     end

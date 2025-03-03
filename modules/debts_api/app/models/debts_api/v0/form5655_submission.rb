@@ -107,7 +107,7 @@ module DebtsApi
 
     def alert_silent_error
       StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:register_failure])
-      Rails.logger.error('We are throwing silent error.')
+      Rails.logger.error('We are throwing a silent error.')
     end
 
     def send_failed_form_email
