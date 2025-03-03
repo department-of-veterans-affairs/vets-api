@@ -4,6 +4,8 @@ require 'sentry_logging'
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyFormSubmissionJob
+    class PendingSubmissionError < StandardError; end
+
     include Sidekiq::Job
     include SentryLogging
 
@@ -16,11 +18,12 @@ module AccreditedRepresentativePortal
       service = BenefitsClaims::Service.new(poa_form_submission.power_of_attorney_request.claimant.icn)
       @response = service.get_2122_submission(poa_form_submission.service_id)
       poa_form_submission.update(
-        status: (non_error_response? ? :succeeded : :failed),
+        status: new_status,
         service_response: response.to_json,
         status_updated_at: DateTime.current,
         error_message: error_data.to_json
       )
+      raise PendingSubmissionError.new('2122 still pending') if response_status == 'pending'
     rescue => e
       handle_errors(e, poa_form_submission)
     end
@@ -32,13 +35,24 @@ module AccreditedRepresentativePortal
     end
 
     def handle_errors(e, poa_form_submission)
-      log_exception_to_sentry(e)
+      log_exception_to_sentry(e) unless e.is_a? PendingSubmissionError
       poa_form_submission.update(error_message: e.message)
       raise e
     end
 
-    def non_error_response?
-      response.dig('data', 'attributes', 'status') != 'errored'
+    def response_status
+      @response_status ||= response.dig('data', 'attributes', 'status')
+    end
+
+    def new_status
+      case response_status
+      when 'pending'
+        :enqueue_succeeded
+      when 'submitted', 'updated'
+        :succeeded
+      when 'errored'
+        :failed
+      end
     end
 
     def error_data
