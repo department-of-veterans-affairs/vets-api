@@ -1952,10 +1952,6 @@ features:
   toggle_vye_address_direct_deposit_forms:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE
-  veteran_readiness_employment_to_res:
-    actor_type: user
-    description: Enable RES platform for Veteran Readiness & Employment form submissions, disabled will use VRE email
-    enable_in_development: true
   vye_login_widget:
     actor_type: user
     description: Enable Vye authentication widget

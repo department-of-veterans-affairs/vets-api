@@ -119,9 +119,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   # * Adds information from user to payload
   # * Submits to VBMS if participant ID is there, to Lighthouse if not.
   # * Sends email if user is present
-  # * Sends to RES or VRE service based on flipper status
+  # * Sends to RES service
   # @param user [User] user account of submitting user
-  # @return [Hash] Response payload of service that was used (RES or VRE)
+  # @return [Hash] Response payload of service that was used (RES)
   def send_to_vre(user)
     add_claimant_info(user)
 
@@ -137,11 +137,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
                                            @sent_to_lighthouse).deliver_later
 
-    if Flipper.enabled?(:veteran_readiness_employment_to_res)
-      send_to_res(user)
-    else
-      send_vre_form(user)
-    end
+    send_to_res(user)
   end
 
   # Submit claim into VBMS service, uploading document directly to VBMS,
