@@ -159,7 +159,9 @@ RSpec.describe EVSSClaimService do
         expect(evidence_submission.upload_status)
           .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
         expect(current_personalisation['date_submitted']).to eql(submitted_date)
-        expect(StatsD).to have_received(:increment).with('cst.evss.document_uploads.evidence_submission_record_created')
+        expect(StatsD).to
+          have_received(:increment)
+          .with('cst.evss.document_uploads.evidence_submission_record_created')
       end
     end
 
