@@ -27,11 +27,11 @@ module ClaimsApi
           validate_filter!(filter)
 
           service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(
-                poa_codes:, 
-                page_size:, 
-                page_index: page_number_to_index(page_number), 
-                filter:
-              )
+            poa_codes:,
+            page_size:,
+            page_index: page_number_to_index(page_number),
+            filter:
+          )
 
           poa_list = service.get_poa_list
 
