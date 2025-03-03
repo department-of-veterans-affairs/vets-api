@@ -1354,7 +1354,10 @@ describe VAOS::V2::AppointmentsService do
   describe '#referral_appointment_already_exists?' do
     before do
       Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
-      Flipper.disable(:va_online_scheduling_use_vpg)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
     end
 
     context 'when requests to check existing appointments are successful' do
