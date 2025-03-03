@@ -103,6 +103,10 @@ features:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
     enable_in_development: true
+  hca_download_completed_pdf:
+    actor_type: user
+    description: Enables downloading a filled out 10-10EZ Form Pdf upon submission
+    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -2020,7 +2024,7 @@ features:
   is_updated_gi:
     actor_type: user
     description: If enabled, use updated gi design
-  gi_ct_collab: 
+  gi_ct_collab:
     actor_type: user
     description: If enabled, use VEBT/EDM team GI Comparison Tool homepage
   show_rudisill_1995:
