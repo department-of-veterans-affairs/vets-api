@@ -382,7 +382,7 @@ vha:
     base_path: "/sites/vhafinance/MDW"
     authentication_url: "https://accounts.accesscontrol.windows.net"
     mock: false
-
+mhv:
   medical_records:
     app_token: xyz
     host: http://example.org
@@ -453,4 +453,3 @@ accredited_representative_portal:
       base_uri: https://not.real.com
       repo: faked/fakeness
       path: not_real.csv
-mhv:
