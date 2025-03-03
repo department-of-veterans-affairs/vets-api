@@ -251,7 +251,7 @@ module SimpleFormsApi
       end
 
       def upload_pdf_to_s3(id, file_path, metadata, submission, form)
-        return unless Flipper.enabled?(:simple_forms_s3_upload)
+        return unless Flipper.enabled?(:submission_pdf_s3_upload)
 
         config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
         attachments = form_id == 'vba_20_10207' ? form.get_attachments : []
