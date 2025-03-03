@@ -41,7 +41,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       :accredited_representative_portal_pilot,
       instance_of(AccreditedRepresentativePortal::RepresentativeUser)
     ).and_return(true)
-    Flipper.enable(:accredited_representative_portal_pilot)
     poa_request.update(accredited_individual_registration_number: '357458')
     poa_request.claimant.update(icn: '1012666183V089914')
 
