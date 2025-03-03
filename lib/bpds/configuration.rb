@@ -3,34 +3,35 @@
 require 'common/client/configuration/rest'
 require 'faraday/multipart'
 
+# Benefits Processing Data Service (BPDS)
+# https://department.va.gov/privacy/wp-content/uploads/sites/5/2024/09/FY24BenefitsProcessingDataServiceBPDSPIA_508.pdf
 module BPDS
+  # Configuration for BPDS service
   class Configuration < Common::Client::Configuration::REST
-    ##
-    # @return [String] Base path
+    # settings bpds url
     #
+    # @return [String] Base path
     def base_path
       Settings.bpds.url
     end
 
-    ##
-    # @return [String] Service name to use in breakers and metrics.
+    # service name function
     #
+    # @return [String] Service name to use in breakers and metrics.
     def service_name
       'BPDS::Service'
     end
 
-    ##
-    # @return [Hash] The basic headers required for any Lighthouse API call
+    # generate request headers
     #
+    # @return [Hash] The basic headers required for any Lighthouse API call
     def self.base_request_headers
       super.merge('Authorization' => "Bearer #{BPDS::JwtEncoder.new.get_token}")
     end
 
-    ##
     # Creates a connection with json parsing and breaker functionality.
     #
     # @return [Faraday::Connection] a Faraday connection instance.
-    #
     def connection
       @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use      :breakers
@@ -45,15 +46,16 @@ module BPDS
       end
     end
 
-    ##
-    # @return [Boolean] Should the service use mock data in lower environments.
+    # should the service be mocked
     #
+    # @return [Boolean] Should the service use mock data in lower environments.
     def mock_enabled?
       Settings.bpds.mock || false
     end
 
+    # breakers will be tripped if error rate reaches 80% over a two minute period.
     def breakers_error_threshold
-      80 # breakers will be tripped if error rate reaches 80% over a two minute period.
+      80
     end
   end
 end

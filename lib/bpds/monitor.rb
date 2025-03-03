@@ -2,17 +2,22 @@
 
 require 'logging/monitor'
 
-# The Monitor class is responsible for tracking and logging various events related to the BPDS service.
-# It inherits from the ZeroSilentFailures::Monitor class and provides methods to track the beginning,
-# success, and failure of submission and JSON retrieval processes.
 module BPDS
+  # The Monitor class is responsible for tracking and logging various events related to the BPDS service.
+  # It inherits from the ZeroSilentFailures::Monitor class and provides methods to track the beginning,
+  # success, and failure of submission and JSON retrieval processes.
   class Monitor < Logging::Monitor
+    # metric prefix
     STATSD_KEY_PREFIX = 'api.bpds_service'
 
+    # constructor
     def initialize
       super('bpds-service')
     end
 
+    # track submission request started
+    #
+    # @param saved_claim_id [Integer] the SavedClaim id
     def track_submit_begun(saved_claim_id)
       additional_context = { saved_claim_id: }
       track_request(
@@ -24,6 +29,9 @@ module BPDS
       )
     end
 
+    # track submission successful
+    #
+    # @param saved_claim_id [Integer] the SavedClaim id
     def track_submit_success(saved_claim_id)
       additional_context = { saved_claim_id: }
       track_request(
@@ -35,6 +43,10 @@ module BPDS
       )
     end
 
+    # track submission request failure
+    #
+    # @param saved_claim_id [Integer] the SavedClaim id
+    # @param e [Error] the error which occurred
     def track_submit_failure(saved_claim_id, e)
       additional_context = {
         saved_claim_id:,
@@ -49,6 +61,9 @@ module BPDS
       )
     end
 
+    # track get_json started
+    #
+    # @param bpds_uuid [UUID] the uuid generated for a submission
     def track_get_json_begun(bpds_uuid)
       additional_context = { bpds_uuid: }
       track_request(
@@ -60,6 +75,9 @@ module BPDS
       )
     end
 
+    # track get_json successful
+    #
+    # @param bpds_uuid [UUID] the uuid generated for a submission
     def track_get_json_success(bpds_uuid)
       additional_context = { bpds_uuid: }
       track_request(
@@ -71,6 +89,9 @@ module BPDS
       )
     end
 
+    # track get_json failure
+    #
+    # @param bpds_uuid [UUID] the uuid generated for a submission
     def track_get_json_failure(bpds_uuid, e)
       additional_context = {
         bpds_uuid:,
