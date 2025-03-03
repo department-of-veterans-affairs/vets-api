@@ -40,11 +40,6 @@ require './spec/support/default_configuration_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
-# This is required to allow for nil values to override settings.yml
-Settings.reload_from_files(
-  Rails.root.join('config', 'settings', 'test.yml').to_s
-)
-
 # Helper function for testing changes to the global Settings object
 # Pass in the particular settings object that you want to change,
 # along with temporary values that should be set on that object.
