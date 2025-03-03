@@ -48,7 +48,8 @@ RSpec.shared_examples 'a form filler' do |options|
             if %w[21P-530EZ 686C-674-V2].include?(form_id)
               claim = create(factory)
               claim.update(form: form_data.to_json)
-              claim
+              #refresh claim to reset instance methods like parsed_form
+              updated_claim = SavedClaim.find(claim.id)
             else
               create(factory, form: form_data.to_json)
             end

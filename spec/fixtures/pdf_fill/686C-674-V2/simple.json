@@ -1,6 +1,5 @@
 {
-  "dependents_application" : {
-    "veteran_information": {
+  "veteran_information": {
       "birth_date": "1980-01-01",
       "full_name": {
         "first": "Mark",
@@ -9,6 +8,7 @@
       "ssn": "000000000",
       "va_file_number": "000000000"
     },
+  "dependents_application" : {
     "veteran_contact_information": {
       "phone_number": "1112223333",
       "international_phone_number": "1234567890123",
