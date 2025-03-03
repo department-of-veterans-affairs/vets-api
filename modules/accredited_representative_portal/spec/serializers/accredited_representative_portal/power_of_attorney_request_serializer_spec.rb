@@ -59,6 +59,13 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
         expect(dependent_expiration_serialized_form).not_to be_key('dependent')
         expect(dependent_expiration_serialized_form).to be_key('veteran')
       end
+
+      it 'redacts SSN and VA file number' do
+        veteran_declined_serialized_form = veteran_declined_data[:powerOfAttorneyForm]
+
+        expect(veteran_declined_serialized_form['claimant']['ssn']).to match(/\d{4}/)
+        expect(veteran_declined_serialized_form['claimant']['vaFileNumber']).to match(/\d{4}/)
+      end
     end
 
     describe ':resolution' do

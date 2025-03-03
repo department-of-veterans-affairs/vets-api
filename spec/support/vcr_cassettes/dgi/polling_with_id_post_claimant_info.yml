@@ -1,0 +1,35 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimType/Chapter33/claimants/claimantId
+    body:
+      encoding: UTF-8
+      string: '{"ssn":"796292881"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: ''
+    headers:
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Fri, 11 Mar 2022 21:45:09 GMT
+    body:
+      encoding: UTF-8
+      string: '{"claimantId":600010259}'
+  recorded_at: Fri, 11 Mar 2022 21:45:10 GMT
+recorded_with: VCR 6.1.0
