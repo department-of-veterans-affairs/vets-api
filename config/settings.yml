@@ -556,12 +556,13 @@ mhv:
       service_account_id: c34b86f2130ff3cd4b1d309bc09d8740
       issuer: http://localhost:3000
   uhd:
-    mock: true
-    host: https://mhv-api.example.com
-    app_id: fake-app-id
-    app_token: fake-app-token
+    mock: false
+    host: <%= ENV['MHV__UHD__HOST'] %>
+    security_host: <%= ENV['MHV__UHD__SECURITY_HOST'] %>
+    app_id: <%= ENV['MHV__UHD__APP_ID'] %>
+    app_token: <%= ENV['MHV__UHD__APP_TOKEN'] %>
+    user_type: <%= ENV['MHV__UHD__USER_TYPE'] %>
     subject: "Proxy Client"
-    user_type: user-type
 
 # Settings for alternate MHV integration for mobile app
 mhv_mobile:
