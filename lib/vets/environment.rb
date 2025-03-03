@@ -17,6 +17,14 @@ module Vets
 
       delegate :inspect, to: :current
 
+      def localhost?
+        current == 'localhost'
+      end
+
+      def test?
+        current == 'test'
+      end
+
       def development?
         current == 'development'
       end
@@ -47,16 +55,6 @@ module Vets
 
       def deployed?
         !local?
-      end
-
-      private
-
-      def test?
-        current == 'test'
-      end
-
-      def localhost?
-        current == 'localhost'
       end
     end
   end
