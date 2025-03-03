@@ -1609,6 +1609,7 @@ vaos:
     key_path: "/fake/client/key/path"
     kid: fake_kid
     mock: false
+    redis_token_expiry: 3500
     scopes: care-nav
 vba_documents:
   custom_metadata_allow_list: ~
