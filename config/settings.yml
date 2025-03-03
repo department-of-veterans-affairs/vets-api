@@ -1572,6 +1572,7 @@ vanotify:
     bearer_token: <%= ENV['VANOTIFY__STATUS_CALLBACK__BEARER_TOKEN'] %>
 vaos:
   ccra:
+    access_token_url: https://test.example.com/token
     api_url: https://api.ccra.placeholder.va.local
     base_path: csp/healthshare/ccraint/rest
     mock: <%= ENV['VAOS__CCRA__MOCK'] %>
