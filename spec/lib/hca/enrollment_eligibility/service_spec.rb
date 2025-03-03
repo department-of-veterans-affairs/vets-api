@@ -13,7 +13,7 @@ describe HCA::EnrollmentEligibility::Service do
       data.merge('previousFinancialInfo' => financial_info)
     end
 
-    context "when the 'ezr_form_prefill_with_providers_and_dependents' send failure email flipper is enabled" do
+    context "when the 'ezr_form_prefill_with_providers_and_dependents' flipper is enabled" do
       before do
         allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(true)
       end
@@ -32,7 +32,7 @@ describe HCA::EnrollmentEligibility::Service do
       end
     end
 
-    context "when the 'ezr_form_prefill_with_providers_and_dependents' send failure email flipper is disabled" do
+    context "when the 'ezr_form_prefill_with_providers_and_dependents' flipper is disabled" do
       before do
         allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(false)
       end
