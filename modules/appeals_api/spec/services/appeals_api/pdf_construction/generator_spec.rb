@@ -122,7 +122,7 @@ describe AppealsApi::PdfConstruction::Generator do
         let(:fixture_name) { 'expected_200995.pdf' }
         let(:sc) { create(:supplemental_claim, evidence_submission_indicated: true, created_at:) }
 
-        #after { FileUtils.rm_f(generated_pdf) }
+        after { FileUtils.rm_f(generated_pdf) }
 
         it 'generates the expected pdf' do
           expect(generated_pdf).to match_pdf(expected_pdf)
