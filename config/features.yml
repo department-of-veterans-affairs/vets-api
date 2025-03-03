@@ -103,6 +103,10 @@ features:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
     enable_in_development: true
+  hca_download_completed_pdf:
+    actor_type: user
+    description: Enables downloading a filled out 10-10EZ Form Pdf upon submission
+    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -349,6 +353,10 @@ features:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
     enable_in_development: true
+  cst_friendly_evidence_requests:
+    actor_type: user
+    description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
+    enable_in_development: true
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
@@ -480,12 +488,6 @@ features:
     actor_type: user
     description: Enable sending an email if a 4142 submission is not successful in Lighthouse
     enable_in_development: true
-  decision_review_new_engine_4142_job:
-    actor_type: user
-    description: Enable to switch to new modularized Decision Review Form4142Submit job
-  decision_review_new_engine_submit_upload_job:
-    actor_type: user
-    description: Enable to switch to new modularized Decision Review SubmitUpload job
   decision_review_service_common_exceptions_enabled:
     actor_type: user
     description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
@@ -2018,7 +2020,7 @@ features:
   is_updated_gi:
     actor_type: user
     description: If enabled, use updated gi design
-  gi_ct_collab: 
+  gi_ct_collab:
     actor_type: user
     description: If enabled, use VEBT/EDM team GI Comparison Tool homepage
   show_rudisill_1995:

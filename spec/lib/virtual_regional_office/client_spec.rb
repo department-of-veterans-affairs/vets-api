@@ -5,73 +5,10 @@ require 'virtual_regional_office/client'
 
 RSpec.describe VirtualRegionalOffice::Client do
   let(:client) { VirtualRegionalOffice::Client.new }
-  let(:classification_contention_params) do
-    { contentions: [
-        {
-          diagnostic_code: 1234,
-          contention_type: 'INCREASE',
-          contention_text: 'A CFI contention'
-        },
-        {
-          contention_text: 'Asthma',
-          contention_type: 'NEW'
-        },
-        {
-          contention_text: 'right acl tear',
-          contention_type: 'NEW'
-        }
-      ],
-      claim_id: 4567,
-      form526_submission_id: 789 }
-  end
   let(:max_ratings_params) do
     {
       diagnostic_codes: [1234]
     }
-  end
-
-  describe 'making classification contention requests to expanded classifier' do
-    subject { client.classify_vagov_contentions_expanded(classification_contention_params) }
-
-    context 'valid requests' do
-      let(:generic_response) do
-        double(
-          'virtual regional office response', status: 200,
-                                              body: {
-                                                contentions: [
-                                                  { classification_code: '99999', classification_name: 'namey' },
-                                                  { classification_code: '9012', classification_name: 'Respiratory' },
-                                                  {
-                                                    classification_code: '8997',
-                                                    classification_name: 'Musculoskeletal - Knee'
-                                                  }
-                                                ]
-                                              }.as_json
-        )
-      end
-
-      before do
-        allow(client).to receive(:perform).and_return generic_response
-      end
-
-      it 'returns the api response for the expanded classification' do
-        expect(subject).to eq generic_response
-      end
-    end
-
-    context 'unsuccessful requests' do
-      let(:error_state) do
-        double('virtual regional office response', status: 404, body: { message: 'No evidence found.' }.as_json)
-      end
-
-      before do
-        allow(client).to receive(:perform).and_return error_state
-      end
-
-      it 'handles an error' do
-        expect(subject).to eq error_state
-      end
-    end
   end
 
   describe 'making max rating requests' do
