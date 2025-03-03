@@ -6,7 +6,6 @@ class AddEncryptedVeteranIcnToForm1095B < ActiveRecord::Migration[7.2]
       form.update_attribute(:veteran_icn_ciphertext, form.veteran_icn)
     end
 
-    # change_column_null :form1095_bs, :veteran_icn_ciphertext, false
-    # add_index :form1095_bs, [:veteran_icn_ciphertext, :tax_year], unique: true
+    add_check_constraint :form1095_bs, "veteran_icn_ciphertext IS NOT NULL", name: "form1095_bs_veteran_icn_ciphertext_null", validate: false
   end
 end
