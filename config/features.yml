@@ -365,9 +365,6 @@ features:
     actor_type: user
     description: Enables users to submit FSR forms for VHA and VBA debts
     enable_in_development: true
-  communication_preferences:
-    actor_type: user
-    description: Allow user to access backend communication_preferences API
   claims_claim_uploader_use_bd:
     actor_type: user
     description: Use BDS instead of EVSS to upload to VBMS.
@@ -1976,12 +1973,6 @@ features:
     actor_type: cookie_id
     description: Swaps the Search Service's for one with an updated api.gsa.gov address
     enable_in_development: true
-  remove_pciu:
-    actor_type: user
-    description: If enabled, VA Profile is used to populate contact information with PCIU backup calls
-  remove_pciu_2:
-    actor_type: user
-    description: If enabled, removes all PCIU requests in form pre-fill.
   show_yellow_ribbon_table:
     actor_type: user
     description: Used to show yellow ribbon table in Comparison Tool
@@ -2022,7 +2013,7 @@ features:
   is_updated_gi:
     actor_type: user
     description: If enabled, use updated gi design
-  gi_ct_collab: 
+  gi_ct_collab:
     actor_type: user
     description: If enabled, use VEBT/EDM team GI Comparison Tool homepage
   show_rudisill_1995:

@@ -3,8 +3,8 @@
 require_relative '../../../../support/helpers/rails_helper'
 RSpec.describe 'Mobile::V0::User::ContactInfo', type: :request do
   before do
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
   end
 
   let!(:user) { sis_user }
@@ -12,11 +12,11 @@ RSpec.describe 'Mobile::V0::User::ContactInfo', type: :request do
 
   let(:residential_address) do
     {
-      'id' => 123,
+      'id' => 577_127,
       'addressLine1' => '140 Rock Creek Rd',
       'addressLine2' => nil,
       'addressLine3' => nil,
-      'addressPou' => 'RESIDENCE/CHOICE',
+      'addressPou' => 'RESIDENCE',
       'addressType' => 'DOMESTIC',
       'city' => 'Washington',
       'countryName' => 'USA',
@@ -51,7 +51,7 @@ RSpec.describe 'Mobile::V0::User::ContactInfo', type: :request do
 
   let(:home_phone) do
     {
-      'id' => 789,
+      'id' => 458_781,
       'areaCode' => '303',
       'countryCode' => '1',
       'extension' => nil,
@@ -84,12 +84,12 @@ RSpec.describe 'Mobile::V0::User::ContactInfo', type: :request do
 
   let(:contact_email) do
     {
-      'id' => 456,
+      'id' => 318_927,
       'emailAddress' => user.vet360_contact_info.email.email_address # dynamic value
     }
   end
 
-  describe 'GET /mobile/v0/user/contact_info with vet360 id', :skip_va_profile_user do
+  describe 'GET /mobile/v0/user/contact_info with vet360 id', :skip_vet360 do
     context 'valid user' do
       before do
         get('/mobile/v0/user/contact-info', headers: sis_headers)

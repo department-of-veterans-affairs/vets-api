@@ -186,19 +186,10 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   def initialize_veteran_contact_information
-    if Flipper.enabled?(:disability_compensation_remove_pciu, user)
-      return {} unless user.authorize :va_profile, :access_to_v2?
-
+    if user.authorize :va_profile, :access_to_v2?
       contact_info = initialize_vets360_contact_info
     else
-      return {} unless user.authorize :evss, :access?
-
-      contact_info = initialize_vets360_contact_info.merge(
-        mailing_address: get_common_address,
-        email_address: extract_pciu_data(:pciu_email),
-        primary_phone: pciu_us_phone
-      ) { |_, old_val, new_val| old_val.presence || new_val }
-
+      Rails.logger.info('User ICN is null')
     end
     # Logging was added below to contrast/compare completeness of contact information returned
     # from VA Profile alone versus VA Profile + PCIU. This logging will be removed when the Flipper flag is.

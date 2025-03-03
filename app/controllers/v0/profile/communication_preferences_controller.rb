@@ -7,7 +7,6 @@ module V0
     class CommunicationPreferencesController < ApplicationController
       service_tag 'profile'
       before_action { authorize :vet360, :access? }
-      before_action { authorize :communication_preferences, :access? }
 
       def index
         items_and_permissions = service.get_items_and_permissions
