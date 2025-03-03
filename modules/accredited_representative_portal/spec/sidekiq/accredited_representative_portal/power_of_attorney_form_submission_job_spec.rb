@@ -1,11 +1,17 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../spec_helper.rb'
 require 'sidekiq/testing'
+
 
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob, type: :job do
   subject { described_class.new }
 
+  let(:vcr_path) do
+    'accredited_representative_portal/sidekiq/accredited_representative_portal/' \
+    'power_of_attorney_form_submission_job_spec/'
+  end
   let(:poa_form_submission) do
     create(:power_of_attorney_form_submission, service_id: '29b7c214-4a61-425e-97f2-1a56de869524')
   end
@@ -24,7 +30,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob,
 
       context 'successful submission' do
         it 'updates the form submission as successful' do
-          VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_status/200_response') do
+          VCR.use_cassette("#{vcr_path}200_submitted_response") do
             subject.perform(poa_form_submission.id)
           end
           poa_form_submission.reload
@@ -43,13 +49,32 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob,
           end
 
           it 'updates the form submission as failed' do
-            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_status/200_errored_response') do
+            VCR.use_cassette("#{vcr_path}200_errored_response") do
               subject.perform(poa_form_submission.id)
             end
             poa_form_submission.reload
             expect(poa_form_submission.status).to eq 'failed'
             expect(JSON.parse(poa_form_submission.service_response)).to eq JSON.parse(service_response)
             expect(poa_form_submission.error_message).to eq expected_error_message
+            expect(poa_form_submission.status_updated_at).not_to be_nil
+          end
+        end
+
+        context 'data shows status of pending' do
+          let(:service_response) do
+            File.read('modules/accredited_representative_portal/spec' \
+                      '/fixtures/power_of_attorney_form_submission/pending.json')
+          end
+
+          it 'the form submission remains in enqueue_succeeded status' do
+            expect do
+              VCR.use_cassette("#{vcr_path}200_pending_response") do
+                subject.perform(poa_form_submission.id)
+              end
+            end.to raise_error(described_class::PendingSubmissionError)
+            poa_form_submission.reload
+            expect(poa_form_submission.status).to eq 'enqueue_succeeded'
+            expect(JSON.parse(poa_form_submission.service_response)).to eq JSON.parse(service_response)
             expect(poa_form_submission.status_updated_at).not_to be_nil
           end
         end
@@ -77,7 +102,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob,
         expect(rails_logger).to receive(:send).with('error', 'Resource not found.')
         expect(rails_logger).to receive(:send)
         expect do
-          VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_status/404_response') do
+          VCR.use_cassette("#{vcr_path}404_response") do
             subject.perform(poa_form_submission.id)
           end
         end.to raise_error(Common::Exceptions::ResourceNotFound)
