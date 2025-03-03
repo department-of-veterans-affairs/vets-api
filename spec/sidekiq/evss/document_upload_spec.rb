@@ -73,6 +73,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   context 'when :cst_send_evidence_submission_failure_emails is enabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
+      allow(StatsD).to receive(:increment)
     end
 
     context 'when upload succeeds' do
@@ -99,6 +100,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         evidence_submission = EvidenceSubmission.find_by(job_id:)
         expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
         expect(evidence_submission.delete_date).not_to be_nil
+        expect(StatsD).to have_received(:increment).with('cst.evss.document_uploads.evidence_submission_record_updated.success')
       end
     end
 

@@ -50,6 +50,7 @@ RSpec.describe BenefitsDocuments::Service do
           allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
                                                     instance_of(User)).and_return(false)
+          allow(StatsD).to receive(:increment)
         end
 
         it 'enqueues a job' do
@@ -67,6 +68,7 @@ RSpec.describe BenefitsDocuments::Service do
             .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
           expect(current_personalisation['date_submitted']).to eql(submitted_date)
           expect(evidence_submission.tracked_item_id).to be(1)
+          expect(StatsD).to have_received(:increment).with('cst.lighthouse.document_uploads.evidence_submission_record_created')
         end
       end
 
