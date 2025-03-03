@@ -1748,6 +1748,7 @@ vaos:
     mock: false
     api_url: "https://api.ccra.placeholder.va.local"
     base_path: "csp/healthshare/ccraint/rest"
+    access_token_url: "https://test.example.com/token"
 
 ogc:
   form21a_service_url:
