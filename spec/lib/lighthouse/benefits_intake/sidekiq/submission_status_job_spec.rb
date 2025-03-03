@@ -25,6 +25,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
   context 'flipper is enabled' do
     let(:service) { BenefitsIntake::Service.new }
     let(:updated_at) { Time.zone.now }
+    let(:handler) { double(new: nil, handle: true) }
 
     before do
       allow(Flipper).to receive(:enabled?).with(anything).and_call_original
@@ -34,7 +35,21 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
 
       create_list(:form_submission, 2, :success)
       create_list(:form_submission, 2, :failure)
-      create_list(:form_submission, 4, :pending)
+      create_list(:form_submission, 4, :pending, form_type: 'TEST')
+
+      stub_const('BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS', {
+                   'TEST' => handler
+                 })
+    end
+
+    it 'processes only form_types with handlers' do
+      stub_const('BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS', { 'FOO' => 'BAR' })
+      expect(service).not_to receive(:bulk_status)
+
+      # only the started, processing, and end log
+      expect(Rails.logger).to receive(:info).thrice
+
+      job.perform
     end
 
     context 'submitting to status endpoint' do
@@ -195,13 +210,6 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
 
     context 'handles the attempt result' do
       let(:pending) { FormSubmissionAttempt.find_by(aasm_state: 'pending') }
-      let(:handler) { double(new: nil, handle: true) }
-
-      before do
-        stub_const('BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS', {
-                     'TEST' => handler
-                   })
-      end
 
       it 'does nothing if there is no handler' do
         data = [{ 'id' => pending.benefits_intake_uuid, 'attributes' => { 'status' => 'vbms' } }]
@@ -212,6 +220,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         expect(job).to receive(:monitor_attempt_status).once.with(pending.benefits_intake_uuid, 'vbms')
         expect(job).to receive(:handle_attempt_result).once.with(pending.benefits_intake_uuid, 'vbms').and_call_original
 
+        expect(job).to receive(:attempt_status_result_context).once.and_return({ form_id: 'FOO' })
         expect(handler).not_to receive(:new)
 
         job.perform
@@ -227,8 +236,8 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         expect(job).to receive(:handle_attempt_result).once.with(pending.benefits_intake_uuid,
                                                                  'error').and_call_original
 
-        expect_any_instance_of(FormSubmission).to receive(:form_type).and_return('TEST')
-        expect_any_instance_of(FormSubmission).to receive(:saved_claim_id).and_return(42)
+        allow_any_instance_of(FormSubmission).to receive(:form_type).and_return('TEST')
+        allow_any_instance_of(FormSubmission).to receive(:saved_claim_id).and_return(42)
         expect(handler).to receive(:new).with(42).and_return(handler)
         expect(handler).to receive(:handle).with('failure', anything)
 
@@ -246,8 +255,8 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
                                                                  'pending').and_call_original
 
         allow_any_instance_of(FormSubmissionAttempt).to receive(:created_at).and_return(99.days.ago)
-        expect_any_instance_of(FormSubmission).to receive(:form_type).and_return('TEST')
-        expect_any_instance_of(FormSubmission).to receive(:saved_claim_id).and_return(42)
+        allow_any_instance_of(FormSubmission).to receive(:form_type).and_return('TEST')
+        allow_any_instance_of(FormSubmission).to receive(:saved_claim_id).and_return(42)
         expect(handler).to receive(:new).with(42).and_return(handler)
         expect(handler).to receive(:handle).with('stale', anything).and_raise(StandardError, 'raise handler error')
         expect(Rails.logger).to receive(:error).with("#{job.class}: ERROR handling result", anything)

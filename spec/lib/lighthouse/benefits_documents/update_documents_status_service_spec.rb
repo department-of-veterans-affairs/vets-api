@@ -28,6 +28,10 @@ RSpec.describe BenefitsDocuments::UpdateDocumentsStatusService do
     end
 
     describe 'process_status_updates' do
+      before do
+        allow(Rails.logger).to receive(:warn)
+      end
+
       let(:lighthouse_status_response) do
         {
           'data' => {
@@ -47,7 +51,8 @@ RSpec.describe BenefitsDocuments::UpdateDocumentsStatusService do
                 'status' => BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
                 'error' => nil
               }
-            ]
+            ],
+            'requestIdsNotFound' => ['1234']
           }
         }
       end
@@ -69,6 +74,14 @@ RSpec.describe BenefitsDocuments::UpdateDocumentsStatusService do
         expect(es2.acknowledgement_date).not_to be_nil
         expect(es2.error_message).to eq('ERROR')
         expect(es3.upload_status).to eq(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
+      end
+
+      it 'logs when requestIds aren\'t found' do
+        described_class.call(pending_evidence_submission_batch, lighthouse_status_response)
+        expect(Rails.logger).to have_received(:warn).with(
+          'Benefits Documents API cannot find these requestIds and cannot verify upload status',
+          { request_ids: ['1234'] }
+        )
       end
     end
   end

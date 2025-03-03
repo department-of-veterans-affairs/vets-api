@@ -33,6 +33,8 @@ module AccreditedRepresentativePortal
     before_validation :set_claimant_type
 
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
+    validates :power_of_attorney_holder_type, inclusion: { in: PowerOfAttorneyHolder::Types::ALL }
+
     accepts_nested_attributes_for :power_of_attorney_form
 
     def expires_at
@@ -69,17 +71,19 @@ module AccreditedRepresentativePortal
 
     scope :for_user, lambda { |user|
       for_power_of_attorney_holders(
-        user.power_of_attorney_holders
+        user.activated_power_of_attorney_holders
       )
     }
 
     scope :for_power_of_attorney_holders, lambda { |poa_holders|
-      names = PowerOfAttorneyHolder::PRIMARY_KEY_ATTRIBUTE_NAMES
-      values = poa_holders.map do |poa_holder|
-        poa_holder.to_h.values_at(names)
-      end
+      return none if poa_holders.empty?
 
-      where(names => values)
+      prefix = 'power_of_attorney_holder'
+      names = PowerOfAttorneyHolder::PRIMARY_KEY_ATTRIBUTE_NAMES
+      prefixed_names = names.map { |name| :"#{prefix}_#{name}" }
+      values = poa_holders.map { |poa_holder| poa_holder.to_h.values_at(*names) }
+
+      where(prefixed_names => values)
     }
 
     private
