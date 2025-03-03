@@ -88,7 +88,11 @@ module DebtsApi
       update(error_message: message)
       Rails.logger.error("Form5655Submission id: #{id} failed", message)
       StatsD.increment("#{STATS_KEY}.failure")
-      alert_silent_error unless message.include?('SharepointRequest')
+      if message.to_s.include?('SharepointRequest')
+        Rails.logger.warn("SharePoint request failed with: #{message}")
+      else
+        alert_silent_error(message)
+      end
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
       begin
         send_failed_form_email
@@ -98,7 +102,8 @@ module DebtsApi
       end
     end
 
-    def alert_silent_error
+    def alert_silent_error(message)
+      Rails.logger.error("Form5655Submission Silent error id: #{id} - message: #{message}")
       StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:register_failure])
     end
 
