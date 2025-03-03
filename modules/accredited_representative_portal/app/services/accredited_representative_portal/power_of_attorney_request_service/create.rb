@@ -3,7 +3,7 @@
 module AccreditedRepresentativePortal
   module PowerOfAttorneyRequestService
     class Create
-      ORGANIZATION = 'AccreditedOrganization'
+      ORGANIZATION = PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION
       ACCREDITED_ENTITY_ERROR = 'poa_code can not be blank'
 
       # @note For the 21-22 pilot:

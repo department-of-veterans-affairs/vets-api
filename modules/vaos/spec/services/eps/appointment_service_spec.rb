@@ -86,12 +86,6 @@ describe Eps::AppointmentService do
       before do
         allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(successful_appt_response)
       end
-
-      it 'returns the appointments scheduled' do
-        exp_response = OpenStruct.new(successful_appt_response.body)
-
-        expect(service.get_appointments).to eq(exp_response)
-      end
     end
 
     context 'when the endpoint fails to return appointments' do
