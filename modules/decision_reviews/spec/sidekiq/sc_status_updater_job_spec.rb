@@ -10,7 +10,9 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
   describe 'perform' do
     context 'with flag enabled', :aggregate_failures do
       before do
-        Flipper.enable :decision_review_saved_claim_sc_status_updater_job_enabled
+        allow(Flipper).to receive(:enabled?).with(:decision_review_saved_claim_sc_status_updater_job_enabled)
+                                            .and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
       end
 
       include_examples 'engine status updater job with base forms', SavedClaim::SupplementalClaim
@@ -69,6 +71,10 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
 
           allow(StatsD).to receive(:increment)
           allow(Rails.logger).to receive(:info)
+        end
+
+        after do
+          benefits_intake_service { nil }
         end
 
         it 'does NOT check status for 4142 records that already have a delete_date' do
@@ -166,7 +172,7 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
 
         context 'with 4142 flag disabled' do
           before do
-            Flipper.disable :decision_review_track_4142_submissions
+            allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
           end
 
           it 'does not query SecondaryAppealForm records' do
@@ -180,7 +186,9 @@ RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
 
     context 'with flag disabled' do
       before do
-        Flipper.disable :decision_review_saved_claim_sc_status_updater_job_enabled
+        allow(Flipper).to receive(:enabled?).with(:decision_review_saved_claim_sc_status_updater_job_enabled)
+                                            .and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
       end
 
       it 'does not query SavedClaim::SupplementalClaim records' do
