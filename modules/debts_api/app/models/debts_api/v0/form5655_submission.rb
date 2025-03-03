@@ -70,30 +70,41 @@ module DebtsApi
 
     def set_vha_completed_state(status, options)
       submission = DebtsApi::V0::Form5655Submission.find(options['submission_id'])
+
       if status.failures.zero?
         submission.submitted!
         StatsD.increment("#{STATS_KEY}.vha.success")
       else
-        submission.register_failure("VHA set completed state: #{status.failure_info}")
+        failure_messages = if status.failure_info.is_a?(Array)
+                             status.failure_info.map { |f| f.respond_to?(:error_message) ? f.error_message : f.to_s }
+                           else
+                             [status.failure_info.to_s]
+                           end
+
+        cleaned_message = "VHA set completed state: #{failure_messages.join(' | ')}"
+
+        submission.register_failure(cleaned_message)
         StatsD.increment("#{STATS_KEY}.vha.failure")
-        Rails.logger.error('Batch FSR Processing Failed', status.failure_info)
+        Rails.logger.error('Batch FSR Processing Failed', cleaned_message)
       end
     end
 
     def register_failure(message)
       failed!
-      if message.blank?
-        message = "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
-      end
+      message = "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}" if message.blank?
+
       update(error_message: message)
       Rails.logger.error("Form5655Submission id: #{id} failed", message)
       StatsD.increment("#{STATS_KEY}.failure")
-      if message.to_s.include?('SharepointRequest')
+
+      if message.include?('SharepointRequest')
         Rails.logger.warn("SharePoint request failed with: #{message}")
       else
         alert_silent_error(message)
       end
+
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
+
       begin
         send_failed_form_email
       rescue => e
@@ -101,6 +112,7 @@ module DebtsApi
         Rails.logger.error("Failed to send failed form email: #{e.message}")
       end
     end
+
 
     def alert_silent_error(message)
       Rails.logger.error("Form5655Submission Silent error id: #{id} - message: #{message}")
