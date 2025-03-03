@@ -1813,12 +1813,9 @@ virtual_hosts:
   - example.org
 virtual_regional_office:
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
-  ctn_classification_path: ~
   evidence_pdf_path: evidence-pdf
-  expanded_classification_path: contention-classification/expanded-contention-classification
   max_cfi_path: employee-experience/max-ratings
   url: http://localhost:8120
-  vagov_classification_path: contention-classification/va-gov-claim-classifier
 vre_counseling:
   prefill: true
 vre_readiness:
