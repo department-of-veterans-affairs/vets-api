@@ -113,8 +113,8 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         new_evidence_submission = EvidenceSubmission.find_by(job_id:)
         expect(new_evidence_submission.request_id).to eql(success_response.body.dig('data', 'requestId'))
         expect(new_evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
-        expect(StatsD).to
-          have_received(:increment)
+        expect(StatsD)
+          .to have_received(:increment)
           .with('cst.lighthouse.document_uploads.evidence_submission_record_updated.added_request_id')
       end
     end
