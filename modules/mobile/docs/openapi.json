@@ -23806,6 +23806,37 @@
             }
           }
         }
+      },
+      "VetVerificationStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "attributes"
+            ],
+            "properties": {
+              "attributes": {
+                "type": "object",
+                "additionalProperties": true,
+                "required": [
+                  "veteranStatus"
+                ],
+                "properties": {
+                  "veteranStatus": {
+                    "type": "string",
+                    "example": "confirmed"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
