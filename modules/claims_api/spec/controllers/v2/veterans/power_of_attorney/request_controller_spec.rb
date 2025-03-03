@@ -8,16 +8,23 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
   describe '#index' do
     let(:scopes) { %w[claim.read] }
+    let(:page_params) {  { pageSize: 10, pageNumber: 2 } }
 
-    it 'raises a ParameterMissing error if poaCodes is not present' do
-      expect do
-        subject.index
-      end.to raise_error(Common::Exceptions::ParameterMissing)
+    context 'when poaCodes is not present' do
+      before do
+        allow(subject).to receive(:params).and_return(params)
+      end
+      it 'raises a ParameterMissing error' do
+        expect do
+          subject.index
+        end.to raise_error(Common::Exceptions::ParameterMissing)
+      end
     end
 
     context 'when poaCodes is present but empty' do
       before do
         allow(subject).to receive(:form_attributes).and_return({ 'poaCodes' => [] })
+        allow(subject).to receive(:params).and_return(params)
       end
 
       it 'raises a ParameterMissing error' do
@@ -57,10 +64,27 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     end
 
     context 'when pageNumber' do
+      let(:poa_codes) { %w[002 003 083] }
+
       context 'is present' do
         context 'and pageSize is not present' do
+          it 'returns a ParameterMissing error' do
+            page_params[:pageSize] = nil
+            mock_ccg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
+                index_request_with(poa_codes:, page_params:, auth_header:)
+
+                expect(response).to have_http_status(:bad_request)
+                expect(response.parsed_body['errors'][0]['detail']).to eq(
+                  'pageSize is required when pageNumber is present'
+                )
+              end
+            end
+          end
         end
         context 'and pageSize is present' do
+          context 'and exceeds the max value allowed' do
+          end
         end
       end
       context 'is not present' do
@@ -69,6 +93,8 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
     context 'when pageSize' do
       context 'is present' do
+        context 'and exceeds the max value allowed' do
+        end
       end
       context 'is not present' do
       end
@@ -577,9 +603,9 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     end
   end
 
-  def index_request_with(poa_codes:, auth_header:, filter: {})
+  def index_request_with(poa_codes:, auth_header:, filter: {}, page_params: nil)
     post v2_veterans_power_of_attorney_requests_path,
-         params: { data: { attributes: { poaCodes: poa_codes, filter: } } }.to_json,
+         params: { pageSize: page_params[:pageSize], pageNumber: page_params[:pageNumber], data: { attributes: { poaCodes: poa_codes, filter: } } }.to_json,
          headers: auth_header.merge('Content-Type' => 'application/json')
   end
 

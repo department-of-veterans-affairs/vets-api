@@ -16,15 +16,14 @@ module ClaimsApi
 
         # POST /power-of-attorney-requests
         def index
-          byebug
           poa_codes = form_attributes['poaCodes']
+          validate_page_size_and_number_params
+
           page_size = params[:pageSize] || 10
           page_number = params[:pageNumber] || 1
           filter = form_attributes['filter'] || {}
 
           verify_poa_codes_data(poa_codes)
-          verify_page_size(page_size) if page_number.present?
-
           validate_filter!(filter)
 
           service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(
@@ -284,6 +283,38 @@ module ClaimsApi
               detail: "Status(es) must be one of: #{valid_statuses.join(', ')}"
             )
           end
+        end
+
+        def validate_page_size_and_number_params
+          return if params[:pageSize].blank? && params[:pageNumber].blank?
+
+          verify_page_size(params[:pageSize]) if params[:pageNumber].present?
+
+          if params[:pageSize] && params[:pageSize] > MAX_PAGE_SIZE
+            raise_param_exceeded_warning = true
+            page_size_msg = "Max pageSize param value of #{MAX_PAGE_SIZE} has been exceeded"
+          end
+          if params[:pageNumber] && params[:pageNumber] > MAX_PAGE_NUMBER
+            raise_param_exceeded_warning = true
+            page_number_msg = "Max pageNumber param value of #{MAX_PAGE_NUMBER} has been exceeded"
+          end
+
+          build_params_error_msg(page_size_msg, page_number_msg) if raise_param_exceeded_warning.present?
+        end
+
+        def build_params_error_msg(size_msg, number_msg)
+          if size_msg.present? && number_msg.present?
+            msg = "Both the maximum pageSize param value of #{MAX_PAGE_SIZE} has been exceeded and " \
+                  "the maximum pageNumber param value of #{MAX_PAGE_NUMBER} has been exceeded."
+          elsif size_msg.present?
+            msg = "The maximum pageSize param value of #{MAX_PAGE_SIZE} has been exceeded."
+          elsif number_msg.present?
+            msg = "The maximum pageNumber param value of #{MAX_PAGE_NUMBER} has been exceeded."
+          end
+
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: msg
+          )
         end
 
         def verify_poa_codes_data(poa_codes)
