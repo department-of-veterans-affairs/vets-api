@@ -826,6 +826,7 @@ maintenance:
     lighthouse_direct_deposit: <%= ENV['MAINTENANCE__SERVICES__LIGHTHOUSE_DIRECT_DEPOSIT'] %>
     lighthouse_vshe: <%= ENV['MAINTENANCE__SERVICES__LIGHTHOUSE_VSHE'] %>
     logingov: P2SHMM9
+    mdot: PEOIHN1
     mhv: <%= ENV['MAINTENANCE__SERVICES__MHV'] %>
     mhv_meds: <%= ENV['MAINTENANCE__SERVICES__MHV_MEDS'] %>
     mhv_mr: <%= ENV['MAINTENANCE__SERVICES__MHV_MR'] %>
@@ -838,6 +839,7 @@ maintenance:
     search: PRG8HJI
     ssoe: <%= ENV['MAINTENANCE__SERVICES__SSOE'] %>
     ssoe_oauth: <%= ENV['MAINTENANCE__SERVICES__SSOE_OAUTH'] %>
+    staging_mdot: PGT74RC
     tc: <%= ENV['MAINTENANCE__SERVICES__TC'] %>
     tims: <%= ENV['MAINTENANCE__SERVICES__TIMS'] %>
     vaos: <%= ENV['MAINTENANCE__SERVICES__VAOS'] %>
