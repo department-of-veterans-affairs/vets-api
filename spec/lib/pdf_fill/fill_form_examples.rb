@@ -28,7 +28,7 @@ require 'rails_helper'
 # }
 RSpec.shared_examples 'a form filler' do |options|
   form_id, factory, test_data_types = options.values_at(:form_id, :factory, :test_data_types)
-  test_data_types ||= %w[simple kitchen_sink]
+  test_data_types ||= %w[simple kitchen_sink overflow]
 
   describe PdfFill::Filler, type: :model do
     context "form #{form_id}", run_at: '2017-07-25 00:00:00 -0400' do
@@ -45,7 +45,7 @@ RSpec.shared_examples 'a form filler' do |options|
           end
 
           let(:saved_claim) do
-            if ['21P-530EZ', '686C-674-V2'].include?(form_id)
+            if %w[21P-530EZ 686C-674-V2].include?(form_id)
               claim = create(factory)
               claim.update(form: form_data.to_json)
               claim
@@ -56,7 +56,6 @@ RSpec.shared_examples 'a form filler' do |options|
 
           it 'fills the form correctly' do
             if type == 'overflow'
-              # pdfs_fields_match? only compares based on filled fields, it doesn't read the extras page
               the_extras_generator = nil
 
               expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|

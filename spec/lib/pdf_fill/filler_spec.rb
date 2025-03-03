@@ -61,10 +61,10 @@ describe PdfFill::Filler, type: :model do
           sign: true
         }
       },
-      # {
-      #   form_id: '686C-674',
-      #   factory: :dependency_claim
-      # },
+      {
+        form_id: '686C-674',
+        factory: :dependency_claim
+      },
       {
         form_id: '686C-674-V2',
         factory: :dependency_claim_v2
@@ -75,12 +75,9 @@ describe PdfFill::Filler, type: :model do
   end
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-  # %w[
-  #   21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832
-  #   28-1900 21-674 21-674-V2 21-0538 26-1880 5655 22-10216
-  # ].each do |form_id|
     %w[
-      21-4142
+      21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832
+      28-1900 21-674 21-674-V2 21-0538 26-1880 5655 22-10216
     ].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].product([false])

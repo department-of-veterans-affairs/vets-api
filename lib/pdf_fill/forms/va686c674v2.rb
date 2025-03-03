@@ -194,13 +194,7 @@ module PdfFill
               }
             }
           }, # end veteran_contact_information
-          # 'report_divorce' => {
-
-          # },
-          # 'current_marriage_information' => {
-
-          # },
-          'does_live_with_spouse' => { # complete
+          'does_live_with_spouse' => {
             'spouse_does_live_with_veteran' => {
               'spouse_does_live_with_veteran_yes' => { key: 'form1[0].#subform[17].YES[1]' },
               'spouse_does_live_with_veteran_no' => { key: 'form1[0].#subform[17].NO[1]' }
@@ -266,7 +260,7 @@ module PdfFill
               } # end of zip
             } # end of address
           },
-          'spouse_information' => { # complete
+          'spouse_information' => {
             'full_name' => {
               'first' => {
                 key: 'form1[0].#subform[17].SPOUSEFirstName[0]',
@@ -878,7 +872,7 @@ module PdfFill
                 question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > LAST NAME'
               } # end of last name
             }, # end living_with
-            'relationship_to_child' => { # update the other options might be here
+            'relationship_to_child' => {
               'adopted' => { key: 'children_to_add.child_status.adopted[%iterator%]' },
               'stepchild' => { key: 'children_to_add.child_status.stepchild[%iterator%]' }
             },
@@ -1031,10 +1025,6 @@ module PdfFill
                 question_suffix: 'C',
                 question_text: 'VETERAN REPORTING DIVORCE FROM FORMER SPOUSE > DATE OF DIVORCE'
               }
-            },
-            'reason_marriage_ended' => {
-              # ???  this gets added to remarks section
-              # NOTE: If marriage ended as an annulment or declared void, use Section IX, Item 25, Remarks to explain.
             }
           }, # end report_divorce
           # -----------------  SECTION V: VETERAN/CLAIMANT REPORTING ON STEPCHILD(REN)  ----------------- #
@@ -1732,8 +1722,6 @@ module PdfFill
         # return unless child['marriage_end_date'] == 'Yes'
         return if child['marriage_end_date'].blank?
 
-        # child['child_status']['child_previously_married'] = 0 # update to remove
-
         # extract date
         child['marriage_end_date'] = split_date(child['marriage_end_date'])
 
@@ -1956,6 +1944,7 @@ module PdfFill
 
       def add_household_income
         net_worth = @form_data.dig('dependents_application', 'household_income')
+
         "Did the household have a net worth greater than $130,773 in the last tax year? #{format_boolean(net_worth)}"
       end
 
