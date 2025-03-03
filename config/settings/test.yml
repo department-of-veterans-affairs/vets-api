@@ -943,13 +943,13 @@ mhv:
     mhv_sm_x_api_key: ~
     mock: true
   uhd:
-    mock: false
-    host: https://example.myhealth.va.gov
-    security_host: https://security.example.myhealth.va.gov
     app_id: 1000
     app_token: faketoken
-    user_type: usertype
+    host: https://example.myhealth.va.gov
+    mock: false
+    security_host: https://security.example.myhealth.va.gov
     subject: "Proxy Client"
+    user_type: usertype
 mhv_mobile:
   sm:
     app_token: fake-app-token
