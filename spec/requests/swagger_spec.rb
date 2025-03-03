@@ -171,7 +171,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     it 'supports getting an in-progress form' do
       create(:in_progress_form, user_uuid: mhv_user.uuid)
-      stub_evss_pciu(mhv_user)
+      stub_vaprofile_user(mhv_user)
       expect(subject).to validate(
         :get,
         '/v0/in_progress_forms/{id}',
@@ -213,7 +213,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     it 'supports getting an disability_compensation_in_progress form' do
       create(:in_progress_526_form, user_uuid: mhv_user.uuid)
-      stub_evss_pciu(mhv_user)
+      stub_vaprofile_user(mhv_user)
       VCR.use_cassette('lighthouse/claims/200_response') do
         expect(subject).to validate(
           :get,

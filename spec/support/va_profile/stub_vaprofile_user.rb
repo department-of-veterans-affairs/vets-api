@@ -9,6 +9,9 @@ require 'va_profile/models/telephone'
 def stub_vaprofile_user(person = nil)
   service = VAProfile::V2::ContactInformation::Service
   person_response = VAProfile::V2::ContactInformation::PersonResponse
+  allow_any_instance_of(FormProfile).to receive(:initialize_military_information).and_return({})
+  allow_any_instance_of(FormProfile).to receive(:initialize_contact_information).and_return({})
+
   person ||= build(
     :person_v2,
     addresses: [

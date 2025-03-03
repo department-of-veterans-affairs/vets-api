@@ -1017,7 +1017,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
                                                 instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     end
 
     describe 'POST create_draft' do
