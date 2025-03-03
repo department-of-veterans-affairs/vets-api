@@ -42,6 +42,42 @@ RSpec.describe Vets::Environment do
     end
   end
 
+  describe '.localhost?' do
+    context 'when environment is "localhost"' do
+      let(:environment_value) { 'localhost' }
+
+      it 'returns true' do
+        expect(described_class.localhost?).to be(true)
+      end
+    end
+
+    context 'when environment is not "localhost"' do
+      let(:environment_value) { 'production' }
+
+      it 'returns false' do
+        expect(described_class.localhost?).to be(false)
+      end
+    end
+  end
+
+  describe '.test?' do
+    context 'when environment is "test"' do
+      let(:environment_value) { 'test' }
+
+      it 'returns true' do
+        expect(described_class.test?).to be(true)
+      end
+    end
+
+    context 'when environment is not "test"' do
+      let(:environment_value) { 'production' }
+
+      it 'returns false' do
+        expect(described_class.test?).to be(false)
+      end
+    end
+  end
+  
   describe '.development?' do
     context 'when environment is "development"' do
       let(:environment_value) { 'development' }
