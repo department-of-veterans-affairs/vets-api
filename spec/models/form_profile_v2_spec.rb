@@ -1135,22 +1135,57 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with a user with financial data, insurance data, and dependents',
               run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
-        let(:v10_10_ezr_expected) do
-          JSON.parse(
-            File.read('spec/fixtures/form1010_ezr/veteran_data.json')
-          ).merge(ezr_prefilled_data_without_ee_data)
-        end
-
         before do
           allow(user).to receive(:icn).and_return('1012829228V424035')
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:remove_pciu, anything).and_return(true)
         end
 
-        it 'returns a prefilled 10-10EZR form' do
-          VCR.use_cassette(
-            'form1010_ezr/lookup_user_with_ezr_prefill_data',
-            match_requests_on: %i[method uri body], erb: true
-          ) do
-            expect_prefilled('10-10EZR')
+        context "when the 'ezr_form_prefill_with_providers_and_dependents' send failure email flipper is enabled" do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(true)
+          end
+
+          let(:v10_10_ezr_expected) do
+            JSON.parse(
+              File.read('spec/fixtures/form1010_ezr/veteran_data.json')
+            ).merge(ezr_prefilled_data_without_ee_data)
+          end
+
+          it 'returns a prefilled 10-10EZR form', run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/lookup_user_with_ezr_prefill_data',
+              match_requests_on: %i[method uri body], erb: true
+            ) do
+              expect_prefilled('10-10EZR')
+            end
+          end
+        end
+
+        context "when the 'ezr_form_prefill_with_providers_and_dependents' send failure email flipper is disabled" do
+          before do
+            allow(Flipper).to receive(:enabled?).with(
+              :ezr_form_prefill_with_providers_and_dependents
+            ).and_return(false)
+          end
+
+          let(:v10_10_ezr_expected) do
+            data = JSON.parse(
+              File.read('spec/fixtures/form1010_ezr/veteran_data.json')
+            ).merge(ezr_prefilled_data_without_ee_data)
+            data.delete_if { |k, _v| %w[providers dependents].include?(k) }
+
+            data
+          end
+
+          it 'returns a prefilled 10-10EZR form that does not include providers and dependents',
+             run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/lookup_user_with_ezr_prefill_data',
+              match_requests_on: %i[method uri body], erb: true
+            ) do
+              expect_prefilled('10-10EZR')
+            end
           end
         end
       end
