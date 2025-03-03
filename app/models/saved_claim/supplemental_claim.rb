@@ -12,13 +12,16 @@ class SavedClaim::SupplementalClaim < SavedClaim
     schema = VetsJsonSchema::SCHEMAS['SC-CREATE-REQUEST-BODY_V1']
     schema.delete '$schema' # workaround for JSON::Schema::SchemaError (Schema not found)
 
-    validation_errors = JSON::Validator.fully_validate(schema, parsed_form)
+    errors = JSON::Validator.fully_validate(schema, parsed_form)
 
-    unless validation_errors.empty?
-      Rails.logger.warn("SavedClaim: form schema errors detected for form #{FORM}", validation_errors)
+    unless errors.empty?
+      Rails.logger.warn("SavedClaim: schema validation errors detected for form #{FORM}", guid:, count: errors.count)
     end
 
-    true # allow storage of invalid requests for debugging
+    true # allow storage of all requests for debugging
+  rescue JSON::Schema::ReadFailed => e
+    Rails.logger.warn("SavedClaim: form_matches_schema error raised for form #{FORM}", guid:, error: e.message)
+    true
   end
 
   def process_attachments!
