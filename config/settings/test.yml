@@ -1604,6 +1604,7 @@ vaos:
     key_path: modules/health_quest/config/rsa/sandbox_rsa
     kid: fake_kid
     mock: false
+    redis_token_expiry: 3500
     scopes: care-nav
 vba_documents:
   custom_metadata_allow_list: ~

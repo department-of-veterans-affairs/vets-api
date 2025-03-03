@@ -1587,6 +1587,7 @@ vaos:
     key_path: "/fake/client/key/path"
     kid: fake_kid
     mock: <%= ENV['VAOS__EPS__MOCK'] %>
+    redis_token_expiry: 3500
     scopes: care-nav
 vba_documents:
   custom_metadata_allow_list: <%= ENV['VBA_DOCUMENTS__CUSTOM_METADATA_ALLOW_LIST'] %>
