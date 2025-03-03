@@ -50,17 +50,13 @@ module HCA
 
         if Flipper.enabled?(:ezr_form_prefill_with_providers_and_dependents)
           OpenStruct.new(
-            financial_info.merge(
-              convert_insurance_hash(response, providers)
-            ).merge(
+            financial_info.merge(convert_insurance_hash(response, providers)).merge(
               dependents.present? ? { dependents: } : {}
             ).merge(spouse)
           )
         else
           OpenStruct.new(
-            financial_info.merge(
-              convert_insurance_hash(response, providers).except!(:providers)
-            ).merge(spouse)
+            financial_info.merge(convert_insurance_hash(response, providers).except!(:providers)).merge(spouse)
           )
         end
       end
