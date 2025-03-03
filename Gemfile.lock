@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: bdd9c4e3b6fd786798b3254be7af341add314722
+  revision: 34b767b6cf27abc7f33213abbfcb13238afd58de
   branch: master
   specs:
-    vets_json_schema (24.7.5)
+    vets_json_schema (24.8.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -283,7 +283,7 @@ GEM
       bundler (>= 1.2.0, < 3)
       thor (~> 1.0)
     byebug (11.1.3)
-    carrierwave (3.1.0)
+    carrierwave (3.1.1)
       activemodel (>= 6.0.0)
       activesupport (>= 6.0.0)
       addressable (~> 2.6)
@@ -780,7 +780,7 @@ GEM
       matrix (~> 0.4)
       pdf-core (~> 0.10.0)
       ttfunk (~> 1.8)
-    prawn-markup (1.0.1)
+    prawn-markup (1.1.0)
       nokogiri
       prawn
       prawn-table
@@ -1278,7 +1278,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack
+  rack (~> 2.2.11)
   rack-attack
   rack-cors
   rack-test (= 2.2.0)

@@ -10,7 +10,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
   let(:veteran_declined_power_of_attorney_holder) { veteran_declined_poa_request.power_of_attorney_holder }
   let(:veteran_declined_response) { described_class.new(veteran_declined_poa_request) }
   let(:veteran_declined_data) { veteran_declined_response.serializable_hash }
-
   let(:dependent_expiration_resolution) do
     create(:power_of_attorney_request_resolution, :expiration, :with_dependent_claimant)
   end
@@ -59,6 +58,13 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
         expect(dependent_expiration_serialized_form['claimant']).to be_present
         expect(dependent_expiration_serialized_form).not_to be_key('dependent')
         expect(dependent_expiration_serialized_form).to be_key('veteran')
+      end
+
+      it 'redacts SSN and VA file number' do
+        veteran_declined_serialized_form = veteran_declined_data[:powerOfAttorneyForm]
+
+        expect(veteran_declined_serialized_form['claimant']['ssn']).to match(/\d{4}/)
+        expect(veteran_declined_serialized_form['claimant']['vaFileNumber']).to match(/\d{4}/)
       end
     end
 
@@ -109,6 +115,8 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
     describe ':power_of_attorney_holder' do
       context 'when the holder is an AccreditedOrganization' do
         it 'serializes the accredited organization' do
+          allow(veteran_declined_poa_request).to receive(:accredited_organization)
+            .and_return(Veteran::Service::Organization.first)
           veteran_declined_holder_data = veteran_declined_data[:powerOfAttorneyHolder]
           expect(veteran_declined_holder_data[:type]).to eq 'veteran_service_organization'
           expect(veteran_declined_holder_data[:name]).to eq veteran_declined_poa_request.accredited_organization.name

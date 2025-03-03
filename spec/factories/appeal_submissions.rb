@@ -11,7 +11,14 @@ FactoryBot.define do
     board_review_option { 'evidence_submission' }
     upload_metadata do
       user = User.find(user_uuid)
-      DecisionReviewV1::Service.file_upload_metadata(user)
+      {
+        'veteranFirstName' => user.first_name,
+        'veteranLastName' => user.last_name,
+        'zipCode' => user.postal_code.to_s,
+        'fileNumber' => user.ssn.to_s.strip,
+        'source' => 'va.gov',
+        'businessLine' => 'BVA'
+      }.to_json
     end
   end
 
