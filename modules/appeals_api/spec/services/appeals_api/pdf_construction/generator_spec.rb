@@ -122,7 +122,7 @@ describe AppealsApi::PdfConstruction::Generator do
         let(:fixture_name) { 'expected_200995.pdf' }
         let(:sc) { create(:supplemental_claim, evidence_submission_indicated: true, created_at:) }
 
-        after { FileUtils.rm_f(generated_pdf) }
+        #after { FileUtils.rm_f(generated_pdf) }
 
         it 'generates the expected pdf' do
           expect(generated_pdf).to match_pdf(expected_pdf)
@@ -230,6 +230,18 @@ describe AppealsApi::PdfConstruction::Generator do
           let(:generated_pdf) { described_class.new(sc, pdf_version: 'v4').generate }
           let(:expected_pdf) do
             fixture_filepath('decision_reviews/v2/pdfs/v4/expected_200995_no_treatment_end_date.pdf')
+          end
+
+          it 'generates the expected pdf' do
+            expect(generated_pdf).to match_pdf(expected_pdf)
+          end
+        end
+
+        describe 'no treatment dates' do
+          let(:sc) { create(:no_treatment_dates_supplemental_claim, created_at: '2021-02-03T14:15:16Z') }
+          let(:generated_pdf) { described_class.new(sc, pdf_version: 'v4').generate }
+          let(:expected_pdf) do
+            fixture_filepath('decision_reviews/v2/pdfs/v4/expected_200995_no_treatment_dates.pdf')
           end
 
           it 'generates the expected pdf' do
