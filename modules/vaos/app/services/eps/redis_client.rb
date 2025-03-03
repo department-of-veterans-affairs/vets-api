@@ -12,7 +12,7 @@ module Eps
 
     # Initializes the RedisClient with settings.
     def initialize
-      @settings = Settings.vaos.eps.redis_client
+      @settings = Settings.vaos.eps
     end
 
     # Retrieves the token from the Redis cache.

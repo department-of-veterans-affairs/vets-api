@@ -1583,6 +1583,7 @@ vaos:
     client_id: fake_client_id
     grant_type: client_credentials
     key_path: "/fake/client/key/path"
+    redis_token_expiry: 3500
     kid: fake_kid
     mock: <%= ENV['VAOS__EPS__MOCK'] %>
     scopes: care-nav
