@@ -280,10 +280,10 @@ dgi:
     public_key_path: <%= ENV['DGI__JWT__PUBLIC_KEY_PATH'] %>
   post911_sob:
     claimants:
-      mock: <%= ENV['DGI__POST911_SOB__CLAIMANTS__MOCK'] %>
-      url: <%= ENV['DGI__POST911_SOB__CLAIMANTS__URL'] %>
+      mock: <%= ENV['dgi__post911_sob__claimants__mock'] %>
+      url: <%= ENV['dgi__post911_sob__claimants__url'] %>
     jwt:
-      private_key_path: <%= ENV['DGI__POST911_SOB__JWT__PRIVATE_KEY_PATH'] %>
+      private_key_path: <%= ENV['dgi__post911_sob__claimants__mock'] %>
       public_key_path: spec/fixtures/post911_sob/dgib/public_test.pem
   vets:
     mock: <%= ENV['DGI__VETS__MOCK'] %>
