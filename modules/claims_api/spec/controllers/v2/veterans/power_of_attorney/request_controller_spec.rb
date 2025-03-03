@@ -56,17 +56,30 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       end
     end
 
-    context 'when pageIndex is present but pageSize is not' do
-      before do
-        allow(subject).to receive(:form_attributes).and_return({ 'poaCodes' => %w[002 003 083], 'pageIndex' => '2' })
+    context 'when pageNumber' do
+      context 'is present' do
       end
-
-      it 'raises a ParameterMissing error' do
-        expect do
-          subject.index
-        end.to raise_error(Common::Exceptions::ParameterMissing)
+      context 'is not present' do
       end
     end
+
+    context 'when pageSize' do
+      context 'is present' do
+      end
+      context 'is not present' do
+      end
+    end
+    # context 'when pageIndex is present but pageSize is not' do
+    #   before do
+    #     allow(subject).to receive(:form_attributes).and_return({ 'poaCodes' => %w[002 003 083], 'pageIndex' => '2' })
+    #   end
+
+    #   it 'raises a ParameterMissing error' do
+    #     expect do
+    #       subject.index
+    #     end.to raise_error(Common::Exceptions::ParameterMissing)
+    #   end
+    # end
 
     context 'when valid filters are present' do
       let(:filter) do

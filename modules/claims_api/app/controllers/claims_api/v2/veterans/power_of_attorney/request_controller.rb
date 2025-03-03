@@ -12,25 +12,24 @@ module ClaimsApi
       class PowerOfAttorney::RequestController < ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController
         FORM_NUMBER = 'POA_REQUEST'
 
+        # POST /power-of-attorney-requests
         def index
           poa_codes = form_attributes['poaCodes']
-          page_size = form_attributes['pageSize']
-          page_index = form_attributes['pageIndex']
+          page_size = params[:pageSize]
+          page_number = params[:pageNumber]
           filter = form_attributes['filter'] || {}
 
-          unless poa_codes.is_a?(Array) && poa_codes.size.positive?
-            raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
-                                                             detail: 'poaCodes is required and cannot be empty')
-          end
-
-          if page_index.present? && page_size.blank?
-            raise ::Common::Exceptions::ParameterMissing.new('pageSize',
-                                                             detail: 'pageSize is required when pageIndex is present')
-          end
+          verify_poa_codes_data(poa_codes)
+          verify_page_size(page_size) if page_number.present?
 
           validate_filter!(filter)
 
-          service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(poa_codes:, page_size:, page_index:, filter:)
+          service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(
+                poa_codes:, 
+                page_size:, 
+                page_index: page_number_to_index(page_number), 
+                filter:
+              )
 
           poa_list = service.get_poa_list
 
@@ -282,6 +281,26 @@ module ClaimsApi
               detail: "Status(es) must be one of: #{valid_statuses.join(', ')}"
             )
           end
+        end
+
+        def verify_poa_codes_data(poa_codes)
+          unless poa_codes.is_a?(Array) && poa_codes.size.positive?
+            raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
+                                                             detail: 'poaCodes is required and cannot be empty')
+          end
+        end
+
+        def verify_page_size(page_size)
+          if page_size.blank?
+            raise ::Common::Exceptions::ParameterMissing.new('pageSize',
+                                                             detail: 'pageSize is required when pageNumber is present')
+          end
+        end
+
+        def page_number_to_index(number)
+          return 0 if number <= 0
+
+          number - 1
         end
 
         def normalize(item)
