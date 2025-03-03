@@ -10,7 +10,8 @@ RSpec.describe DecisionReviews::NodStatusUpdaterJob, type: :job do
   describe 'perform' do
     context 'with flag enabled', :aggregate_failures do
       before do
-        Flipper.enable :decision_review_saved_claim_nod_status_updater_job_enabled
+        allow(Flipper).to receive(:enabled?).with(:decision_review_saved_claim_nod_status_updater_job_enabled)
+                                            .and_return(true)
       end
 
       include_examples 'engine status updater job with base forms', SavedClaim::NoticeOfDisagreement
@@ -19,7 +20,8 @@ RSpec.describe DecisionReviews::NodStatusUpdaterJob, type: :job do
 
     context 'with flag disabled' do
       before do
-        Flipper.disable :decision_review_saved_claim_nod_status_updater_job_enabled
+        allow(Flipper).to receive(:enabled?).with(:decision_review_saved_claim_nod_status_updater_job_enabled)
+                                            .and_return(false)
       end
 
       it 'does not query SavedClaim::HigherLevelReview records' do
