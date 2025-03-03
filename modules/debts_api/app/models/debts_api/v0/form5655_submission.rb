@@ -91,7 +91,10 @@ module DebtsApi
 
     def register_failure(message)
       failed!
-      message = "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}" if message.blank?
+      if message.blank?
+        message = "An unknown error occurred while submitting the form from " \
+          "call_location: #{caller_locations&.first}"
+      end
 
       update(error_message: message)
       Rails.logger.error("Form5655Submission id: #{id} failed", message)
@@ -112,7 +115,6 @@ module DebtsApi
         Rails.logger.error("Failed to send failed form email: #{e.message}")
       end
     end
-
 
     def alert_silent_error(message)
       Rails.logger.error("Form5655Submission Silent error id: #{id} - message: #{message}")
