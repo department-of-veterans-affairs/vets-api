@@ -142,15 +142,12 @@ module PdfFill
       extras_generator = ExtrasGenerator.new(
         extras_redesign: fill_options.fetch(:extras_redesign, false),
         form_name: form_id.sub(/V2\z/, ''),
-        merged_form_data['signatureDate'] || fill_options.fetch(:created_at, nil),
+        submit_date: merged_form_data['signatureDate'] || fill_options.fetch(:created_at, nil),
         start_page: form_class::START_PAGE,
         sections: form_class::SECTIONS
       )
       hash_converter = HashConverter.new(form_class.date_strftime, extras_generator)
-      new_hash = hash_converter.transform_data(
-        form_data: merged_form_data,
-        pdftk_keys: form_class::KEY
-      )
+      new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
 
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"

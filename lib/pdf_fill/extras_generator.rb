@@ -9,9 +9,9 @@ module PdfFill
 
     def initialize(extras_redesign: false, form_name: nil, submit_date: nil, start_page: 1, sections: nil)
       @generate_blocks = []
+      @extras_redesign = extras_redesign
       @form_name = form_name
       @submit_date = format_date(submit_date)
-      @extras_redesign = extras_redesign
       @start_page = start_page
       @sections = sections
     end
