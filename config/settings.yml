@@ -1786,12 +1786,9 @@ virtual_agent:
 virtual_hosts: <%= ENV['VIRTUAL_HOSTS'] %>
 virtual_regional_office:
   api_key: <%= ENV['VIRTUAL_REGIONAL_OFFICE__API_KEY'] %>
-  ctn_classification_path: <%= ENV['VIRTUAL_REGIONAL_OFFICE__CTN_CLASSIFICATION_PATH'] %>
   evidence_pdf_path: evidence-pdf
-  expanded_classification_path: contention-classification/expanded-contention-classification
   max_cfi_path: employee-experience/max-ratings
   url: <%= ENV['VIRTUAL_REGIONAL_OFFICE__URL'] %>
-  vagov_classification_path: contention-classification/va-gov-claim-classifier
 vre_counseling:
   prefill: true
 vre_readiness:
