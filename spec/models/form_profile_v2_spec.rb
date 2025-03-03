@@ -1170,12 +1170,9 @@ RSpec.describe FormProfile, type: :model do
           end
 
           let(:v10_10_ezr_expected) do
-            data = JSON.parse(
+            JSON.parse(
               File.read('spec/fixtures/form1010_ezr/veteran_data.json')
-            ).merge(ezr_prefilled_data_without_ee_data)
-            data.delete_if { |k, _v| %w[providers dependents].include?(k) }
-
-            data
+            ).merge(ezr_prefilled_data_without_ee_data).except!('providers', 'dependents')
           end
 
           it 'returns a prefilled 10-10EZR form that does not include providers and dependents',

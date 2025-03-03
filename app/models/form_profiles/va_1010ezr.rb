@@ -14,17 +14,7 @@ class FormProfiles::VA1010ezr < FormProfile
   def ezr_data
     @ezr_data ||=
       begin
-        if Flipper.enabled?(:ezr_form_prefill_with_providers_and_dependents)
-          HCA::EnrollmentEligibility::Service.new.get_ezr_data(user.icn)
-        else
-          ezr_data = HCA::EnrollmentEligibility::Service.new.get_ezr_data(
-            user.icn
-          )
-          ezr_data.delete_field('providers')
-          ezr_data.delete_field('dependents')
-
-          ezr_data
-        end
+        HCA::EnrollmentEligibility::Service.new.get_ezr_data(user.icn)
       rescue => e
         log_exception_to_sentry(e)
         OpenStruct.new

@@ -5,21 +5,50 @@ require 'hca/enrollment_eligibility/service'
 
 describe HCA::EnrollmentEligibility::Service do
   describe '#get_ezr_data' do
-    it 'gets Veteran data relevant to the 1010ezr', run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
-      VCR.use_cassette(
-        'form1010_ezr/lookup_user_with_ezr_prefill_data',
-        match_requests_on: %i[method uri body], erb: true
-      ) do
-        data = JSON.parse(File.read('spec/fixtures/form1010_ezr/veteran_data.json'))
-        financial_info = data['nonPrefill']['previousFinancialInfo']
+    let(:veteran_data) do
+      data = JSON.parse(File.read('spec/fixtures/form1010_ezr/veteran_data.json'))
+      financial_info = data['nonPrefill']['previousFinancialInfo']
 
-        data.delete('nonPrefill')
+      data.delete('nonPrefill')
+      data.merge('previousFinancialInfo' => financial_info)
+    end
 
-        expect(
-          described_class.new.get_ezr_data(
-            '1012829228V424035'
-          ).to_h.deep_stringify_keys
-        ).to eq(data.merge('previousFinancialInfo' => financial_info))
+    context "when the 'ezr_form_prefill_with_providers_and_dependents' send failure email flipper is enabled" do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(true)
+      end
+
+      it 'gets Veteran data relevant to the 1010ezr', run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
+        VCR.use_cassette(
+          'form1010_ezr/lookup_user_with_ezr_prefill_data',
+          match_requests_on: %i[method uri body], erb: true
+        ) do
+          expect(
+            described_class.new.get_ezr_data(
+              '1012829228V424035'
+            ).to_h.deep_stringify_keys
+          ).to eq(veteran_data)
+        end
+      end
+    end
+
+    context "when the 'ezr_form_prefill_with_providers_and_dependents' send failure email flipper is disabled" do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(false)
+      end
+
+      it 'gets Veteran data relevant to the 1010ezr, except for insurance providers and dependents',
+         run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
+        VCR.use_cassette(
+          'form1010_ezr/lookup_user_with_ezr_prefill_data',
+          match_requests_on: %i[method uri body], erb: true
+        ) do
+          expect(
+            described_class.new.get_ezr_data(
+              '1012829228V424035'
+            ).to_h.deep_stringify_keys
+          ).to eq(veteran_data.except!('providers', 'dependents'))
+        end
       end
     end
   end

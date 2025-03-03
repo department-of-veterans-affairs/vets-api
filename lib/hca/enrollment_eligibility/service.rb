@@ -48,13 +48,21 @@ module HCA
         dependents = parse_dependents(response)
         spouse = parse_spouse(response)
 
-        OpenStruct.new(
-          financial_info.merge(
-            convert_insurance_hash(response, providers)
-          ).merge(
-            dependents.present? ? { dependents: } : {}
-          ).merge(spouse)
-        )
+        if Flipper.enabled?(:ezr_form_prefill_with_providers_and_dependents)
+          OpenStruct.new(
+            financial_info.merge(
+              convert_insurance_hash(response, providers)
+            ).merge(
+              dependents.present? ? { dependents: } : {}
+            ).merge(spouse)
+          )
+        else
+          OpenStruct.new(
+            financial_info.merge(
+              convert_insurance_hash(response, providers).except!(:providers)
+            ).merge(spouse)
+          )
+        end
       end
 
       # rubocop:disable Metrics/MethodLength
