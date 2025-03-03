@@ -10,7 +10,6 @@ module BPDS
     # metric prefix
     STATSD_KEY_PREFIX = 'api.bpds_service'
 
-    # constructor
     def initialize
       super('bpds-service')
     end

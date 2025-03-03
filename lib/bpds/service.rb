@@ -31,12 +31,13 @@ module BPDS
     #
     # @param claim [SavedClaim] The claim object to be submitted.
     # @param participant_id [String, nil] The participant ID to be included in the payload (optional).
-    # @return [String, nil] The response body from the submission, or nil if the claim is nil.
+    # @return [String] The response body from the submission
     # @raise [StandardError] If an error occurs during submission.
     def submit_json(claim, participant_id = nil)
       payload = default_payload(claim)
       payload.merge({ 'participantId' => participant_id }) if participant_id.present?
       response = perform(:post, '', payload.to_json, config.base_request_headers)
+
       # TODO: store the bpds_uuid in the future
       response.body
     end
