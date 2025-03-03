@@ -58,6 +58,10 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
     context 'when pageNumber' do
       context 'is present' do
+        context 'and pageSize is not present' do
+        end
+        context 'and pageSize is present' do
+        end
       end
       context 'is not present' do
       end

@@ -11,12 +11,15 @@ module ClaimsApi
     module Veterans
       class PowerOfAttorney::RequestController < ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController
         FORM_NUMBER = 'POA_REQUEST'
+        MAX_PAGE_SIZE = 100
+        MAX_PAGE_NUMBER = 100
 
         # POST /power-of-attorney-requests
         def index
+          byebug
           poa_codes = form_attributes['poaCodes']
-          page_size = params[:pageSize]
-          page_number = params[:pageNumber]
+          page_size = params[:pageSize] || 10
+          page_number = params[:pageNumber] || 1
           filter = form_attributes['filter'] || {}
 
           verify_poa_codes_data(poa_codes)
