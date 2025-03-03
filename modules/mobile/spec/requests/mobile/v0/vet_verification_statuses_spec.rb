@@ -27,7 +27,6 @@ RSpec.describe 'Mobile::V0::VetVerificationStatuses', type: :request do
         end
 
         parsed_body = JSON.parse(response.body)
-        puts parsed_body
         expect(parsed_body['data']['attributes']['veteranStatus']).to eq('confirmed')
       end
 
