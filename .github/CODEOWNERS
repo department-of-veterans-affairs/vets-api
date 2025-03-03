@@ -747,7 +747,6 @@ config/health_care_application @department-of-veterans-affairs/vfs-10-10 @depart
 config/imagemagick/policies/new-policy.xml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/01_redis.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/aal.rb @department-of-veterans-affairs/octo-identity
-config/initializers/add_local_config.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/app_info.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/application_controller_renderer.rb @department-of-veterans-affairs/octo-identity
 config/initializers/authn_context.rb @department-of-veterans-affairs/octo-identity
@@ -808,7 +807,6 @@ config/routes.rb @department-of-veterans-affairs/va-api-engineers @department-of
 config/settings @department-of-veterans-affairs/backend-review-group
 config/settings/development.yml @department-of-veterans-affairs/backend-review-group
 config/settings.local.yml.example @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-config/settings/production.yml @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 config/settings/test.yml @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 config/settings.yml @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 config/sidekiq.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1093,6 +1091,7 @@ postman/Dockerfile @department-of-veterans-affairs/backend-review-group
 public @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/breakers_outage.rake @department-of-veterans-affairs/backend-review-group
+rakelib/config_settings.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/connectivity.rake @department-of-veterans-affairs/octo-identity
 rakelib/decision_review_repl.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/education_benefits_submission.rake @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
