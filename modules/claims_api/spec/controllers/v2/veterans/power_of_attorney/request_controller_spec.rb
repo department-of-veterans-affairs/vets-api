@@ -84,10 +84,40 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         end
         context 'and pageSize is present' do
           context 'and exceeds the max value allowed' do
+            it 'raises a 422' do
+              page_params[:pageSize] = 101
+              mock_ccg(scopes) do |auth_header|
+                VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
+                  index_request_with(poa_codes:, page_params:, auth_header:)
+
+                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response.parsed_body['errors'][0]['detail']).to eq(
+                    'The maximum pageSize param value of 100 has been exceeded.'
+                  )
+                end
+              end
+            end
           end
         end
-      end
-      context 'is not present' do
+        context 'and pageSize is present' do
+          context 'and exceeds the max value allowed along with pageNumber' do
+            it 'raises a 422' do
+              page_params[:pageSize] = 101
+              page_params[:pageNumber] = 120
+              mock_ccg(scopes) do |auth_header|
+                VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
+                  index_request_with(poa_codes:, page_params:, auth_header:)
+
+                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response.parsed_body['errors'][0]['detail']).to eq(
+                    'Both the maximum pageSize param value of 100 has been exceeded ' \
+                    'and the maximum pageNumber param value of 100 has been exceeded.'
+                  )
+                end
+              end
+            end
+          end
+        end
       end
     end
 
@@ -99,17 +129,6 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       context 'is not present' do
       end
     end
-    # context 'when pageIndex is present but pageSize is not' do
-    #   before do
-    #     allow(subject).to receive(:form_attributes).and_return({ 'poaCodes' => %w[002 003 083], 'pageIndex' => '2' })
-    #   end
-
-    #   it 'raises a ParameterMissing error' do
-    #     expect do
-    #       subject.index
-    #     end.to raise_error(Common::Exceptions::ParameterMissing)
-    #   end
-    # end
 
     context 'when valid filters are present' do
       let(:filter) do

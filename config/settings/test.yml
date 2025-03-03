@@ -67,11 +67,7 @@ bgs:
   mock_response_location: "/cache/bgs"
   mock_responses: false
   ssl_verify_mode: peer
-  # url: https://fwdproxy-dev.vfs.va.gov:4447
-# You can use this in `config/settings/test.local.yml`.
-# bgs:
-  url: https://localhost:4447
-#   ssl_verify_mode: "none"
+  url: https://fwdproxy-dev.vfs.va.gov:4447
 bid:
   awards:
     base_url: https://fake_url.com
