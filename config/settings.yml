@@ -1791,45 +1791,6 @@ virtual_regional_office:
   url: <%= ENV['VIRTUAL_REGIONAL_OFFICE__URL'] %>
 vre_counseling:
   prefill: true
-<<<<<<< HEAD
-
-vaos:
-  eps:
-    key_path: /fake/client/key/path
-    mock: false
-    client_id: "fake_client_id"
-    kid: "fake_kid"
-    grant_type: "client_credentials"
-    client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
-    audience_claim_url: "https://login.wellhive.com/oauth2/default/v1/token"
-    access_token_url: "https://login.wellhive.com/oauth2/default/v1/token"
-    api_url: "https://api.wellhive.com"
-    base_path: "care-navigation/v1"
-    scopes: "care-nav"
-  ccra:
-    mock: false
-    api_url: "https://api.ccra.placeholder.va.local"
-    base_path: "csp/healthshare/ccraint/rest"
-    access_token_url: "https://test.example.com/token"
-
-ogc:
-  form21a_service_url:
-    url: http://localhost:5000/api/v1/accreditation/applications/form21a
-    api_key: fake_key
-
-accredited_representative_portal:
-  allow_list:
-    github:
-      access_token: ~
-      base_uri: ~
-      repo: ~
-      path: ~
-
-banners:
-  drupal_username: banners_api
-  drupal_password: test
-  drupal_url: https://test.cms.va.gov/
-=======
 vre_readiness:
   prefill: true
 vsp_environment: <%= ENV['VSP_ENVIRONMENT'] %>
@@ -1855,4 +1816,3 @@ websockets:
   websocket_settings: <%= ENV['WEBSOCKETS__WEBSOCKET_SETTINGS'] %>
 xlsx_file_fetcher:
   github_access_token: <%= ENV['XLSX_FILE_FETCHER__GITHUB_ACCESS_TOKEN'] %>
->>>>>>> origin/master
