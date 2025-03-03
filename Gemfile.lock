@@ -1087,7 +1087,7 @@ GEM
       tzinfo (>= 1.0.0)
     uber (0.1.0)
     unicode-display_width (2.6.0)
-    uri (1.0.2)
+    uri (1.0.3)
     useragent (0.16.11)
     utf8-cleaner (1.0.0)
       activesupport
@@ -1338,6 +1338,7 @@ DEPENDENCIES
   timecop
   travel_pay!
   tzinfo-data
+  uri (>= 1.0.3)
   utf8-cleaner
   va_notify!
   vaos!
