@@ -15,8 +15,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
   before do
     create(:veteran_representative, :vso, representative_id: '999999999999', poa_codes: ['067'])
     create(:veteran_organization, poa: '067', name: 'DISABLED AMERICAN VETERANS')
-
-    Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return(false)
   end
 
   context 'CCG (Client Credentials Grant) flow' do
@@ -148,7 +147,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
 
         context 'lighthouse_claims_v2_poa_requests_skip_bgs disabled' do
           before do
-            Flipper.disable(:lighthouse_claims_v2_poa_requests_skip_bgs)
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
           end
 
           let(:request_body) do
@@ -226,7 +225,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
 
         context 'lighthouse_claims_v2_poa_requests_skip_bgs enabled' do
           before do
-            Flipper.enable(:lighthouse_claims_v2_poa_requests_skip_bgs)
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(true)
           end
 
           let(:request_body) do
