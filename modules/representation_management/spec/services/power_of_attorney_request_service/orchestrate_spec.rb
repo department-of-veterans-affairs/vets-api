@@ -54,7 +54,6 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestService::Orchestr
       }
     end
     let(:form_data_object) { RepresentationManagement::Form2122Data.new(data) }
-    let(:email_data) { RepresentationManagement::PowerOfAttorneyRequestEmailData.new(form_data: form_data_object) }
 
     it 'creates a new AccreditedRepresentativePortal::PowerOfAttorneyRequest' do
       expect { subject.call }.to change(AccreditedRepresentativePortal::PowerOfAttorneyRequest, :count).by(1)
