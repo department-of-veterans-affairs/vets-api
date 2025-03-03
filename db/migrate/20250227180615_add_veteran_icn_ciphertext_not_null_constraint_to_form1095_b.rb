@@ -1,4 +1,4 @@
-class AddVeteranIcnNotNullConstraintAndIndexToForm1095B < ActiveRecord::Migration[7.2]
+class AddVeteranIcnCiphertextNotNullConstraintToForm1095B < ActiveRecord::Migration[7.2]
   def up
     validate_check_constraint :form1095_bs, name: "form1095_bs_veteran_icn_ciphertext_null"
     change_column_null :form1095_bs, :veteran_icn_ciphertext, false

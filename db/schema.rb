@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_27_180615) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_03_201516) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -791,6 +791,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_27_180615) do
     t.datetime "updated_at", null: false
     t.string "veteran_icn_ciphertext", null: false
     t.index ["veteran_icn", "tax_year"], name: "index_form1095_bs_on_veteran_icn_and_tax_year", unique: true
+    t.index ["veteran_icn_ciphertext", "tax_year"], name: "index_form1095_bs_on_veteran_icn_ciphertext_and_tax_year", unique: true
   end
 
   create_table "form526_job_statuses", id: :serial, force: :cascade do |t|
