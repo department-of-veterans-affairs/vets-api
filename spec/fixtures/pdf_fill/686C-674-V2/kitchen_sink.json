@@ -1,279 +1,472 @@
-{"veteran_was_married_before": true,
- "spouse_was_married_before": true,
- "view:selectable686_options": 
-  {"add_spouse": true,
-   "add_child": true,
-   "report674": true,
-   "report_divorce": true,
-   "report_stepchild_not_in_household": true,
-   "report_death": true,
-   "report_marriage_of_child_under18": true,
-   "report_child18_or_older_is_not_attending_school": true},
- "dependents_application": 
-  {"household_income": true,
-   "child_stopped_attending_school": 
-    {"full_name": {"first": "removing", "middle": "middle", "last": "child"},
-     "ssn": "987654321",
-     "birth_date": "2004-02-02",
-     "date_child_left_school": "2023-04-03",
-     "dependent_income": true},
-   "child_marriage": 
-    {"full_name": {"first": "child", "middle": "middle", "last": "married"},
-     "ssn": "987654321",
-     "birth_date": "2005-03-03",
-     "date_married": "2023-06-03",
-     "dependent_income": true},
-   "deaths": 
-    [{"date": "2024-03-02",
-      "location": {"is_outside_us": false, "state": "LA", "city": "new orleans"},
-      "dependent_income": true,
-      "full_name": {"first": "deceased", "middle": "middle", "last": "dependent"},
-      "ssn": "987654321",
-      "birth_date": "1950-02-02",
-      "dependent_type": "DEPENDENT_PARENT"},
-     {"date": "2023-10-03",
-      "location": {"is_outside_us": false, "state": "CO", "city": "denver"},
-      "dependent_income": false,
-      "full_name": {"first": "other", "middle": "middle", "last": "deceased"},
-      "ssn": "987654321",
-      "birth_date": "1975-04-02",
-      "dependent_type": "SPOUSE"}],
-   "step_children": 
-    [{"supporting_stepchild": true,
-      "living_expenses_paid": "More than half",
-      "who_does_the_stepchild_live_with": {"first": "parent", "middle": "middle", "last": "name"},
-      "address": 
-       {"country_name": "USA",
-        "address_line1": "456 fake street",
-        "address_line2": "address line two",
-        "address_line3": "address line three",
+{
+  "view:selectable686_options": {
+    "add_spouse": true,
+    "add_child": true,
+    "report674": true,
+    "add_disabled_child": true,
+    "report_divorce": true,
+    "report_death": true,
+    "report_stepchild_not_in_household": true,
+    "report_marriage_of_child_under18": true,
+    "report_child18_or_older_is_not_attending_school": true
+  },
+  "dependents_application": {
+    "household_income": true,
+    "view:completed_child_stopped_attending_school": false,
+    "view:completed_married_child": false,
+    "view:completed_dependent": false,
+    "view:completed_household_child": false,
+    "report_divorce": {
+      "spouse_income": true,
+      "date": "2023-11-03",
+      "divorce_location": {
+        "location": {
+          "city": "louisville", "state": "KY"
+        }
+      },
+      "reason_marriage_ended": "Divorce",
+      "full_name": {
+        "first": "removing",
+        "middle": "former",
+        "last": "spouse"
+      },
+      "birth_date": "1980-02-03"
+    },
+    "view:completed_student": false,
+    "view:completed_add_child": false,
+    "view:completed_veteran_former_marriage": false,
+    "view:completed_spouse_former_marriage": false,
+    "current_marriage_information": {
+      "type": "CIVIL",
+      "location": {
+        "city": "washington",
+        "state": "DC"
+      },
+      "date": "2024-02-01"
+    },
+    "does_live_with_spouse": {
+      "spouse_income": true,
+      "current_spouse_reason_for_separation": "Other",
+      "other": "other reasons",
+      "address": {
+        "country": "USA",
+        "street": "456 fake street",
+        "street2": "This is a very long apartment name and number",
         "city": "portland",
-        "state_code": "ME",
-        "zip_code": "04102"},
-      "full_name": {"first": "stepchild", "middle": "middle", "last": "leaving"},
+        "state": "ME",
+        "postal_code": "04102"
+      },
+      "spouse_does_live_with_veteran": false
+    },
+    "spouse_information": {
+      "va_file_number": "987654321",
+      "service_number": "987654321",
       "ssn": "987654321",
-      "birth_date": "2009-04-06"},
-     {"supporting_stepchild": false,
-      "who_does_the_stepchild_live_with": {"first": "parent", "middle": "middle", "last": "parentname"},
-      "address": 
-       {"country_name": "USA",
-        "address_line1": "123 ocean avenue",
-        "address_line2": "line two",
-        "address_line3": "line three",
-        "city": "concord",
-        "state_code": "NH",
-        "zip_code": "03301"},
-      "full_name": {"first": "second", "middle": "middle", "last": "stepchild"},
-      "ssn": "987654321",
-      "birth_date": "2011-01-02"}],
-   "report_divorce": 
-    {"full_name": {"first": "removing", "middle": "former", "last": "spouse"},
-     "ssn": "987654321",
-     "birth_date": "1979-01-02",
-     "date": "2023-11-03",
-     "location": {"is_outside_us": false, "state": "KY", "city": "louisville"},
-     "reason_marriage_ended": "Other",
-     "explanation_of_other": "other",
-     "spouse_income": true},
-   "student_did_attend_school_last_term": true,
-   "last_term_school_information": {"term_begin": "2023-09-02", "date_term_ended": "2023-12-06"},
-   "current_term_dates": 
-    {"official_school_start_date": "2024-01-02", "expected_student_start_date": "2024-01-04", "expected_graduation_date": "2025-08-07", "is_school_accredited": true},
-   "program_information": {"student_is_enrolled_full_time": false, "course_of_study": "training program answer", "classes_per_week": 4, "hours_per_week": 5},
-   "student_address_marriage_tuition": 
-    {"address": 
-      {"country_name": "USA",
-       "address_line1": "789 fake street",
-       "address_line2": "address line two",
-       "address_line3": "address line three",
-       "city": "portland",
-       "state_code": "ME",
-       "zip_code": "04102"},
-     "was_married": true,
-     "marriage_date": "2023-07-04",
-     "tuition_is_paid_by_gov_agency": true,
-     "agency_name": "name of agency",
-     "date_payments_began": "2023-09-01"},
-   "student_name_and_ssn": 
-    {"full_name": {"first": "test", "middle": "middle", "last": "studentlastname"},
-     "ssn": "987654321",
-     "birth_date": "2005-04-07",
-     "is_parent": true,
-     "dependent_income": true},
-   "children_to_add": 
-    [{"does_child_live_with_you": false,
-      "child_address_info": 
-       {"person_child_lives_with": {"first": "test", "middle": "other", "last": "person"},
-        "address": 
-         {"country_name": "USA",
-          "address_line1": "123 fake drive",
-          "address_line2": "address line two",
-          "address_line3": "address line three",
-          "city": "concord",
-          "state_code": "NH",
-          "zip_code": "03301"}},
-      "place_of_birth": {"is_outside_us": true, "country": "CAN", "city": "quebec"},
-      "child_status": {"biological": true},
-      "not_self_sufficient": false,
-      "previously_married": "Yes",
-      "previous_marriage_details": {"date_marriage_ended": "2023-07-03", "reason_marriage_ended": "Other", "other_reason_marriage_ended": "other reason"},
-      "child_income": true,
-      "full_name": {"first": "test", "middle": "middle", "last": "childone"},
-      "ssn": "987654321",
-      "birth_date": "2005-01-02"},
-     {"does_child_live_with_you": true,
-      "place_of_birth": {"is_outside_us": false, "state": "DC", "city": "washington"},
-      "child_status": 
-       {"stepchild": true,
-        "biological_stepchild": true,
-        "date_became_dependent": "2024-05-04",
-        "stepchild_parent": {"first": "test", "last": "parentlastname"},
+      "birth_date": "1977-01-01",
+      "is_veteran": true,
+      "full_name": {
+        "first": "test",
+        "middle": "middle",
+        "last": "spouselast"
+      }
+    },
+    "veteran_contact_information": {
+      "phone_number": "5555555555",
+      "international_phone_number": "1234567890",
+      "email_address": "test@test.com",
+      "electronic_correspondence": true,
+      "veteran_address": {
+        "country": "USA",
+        "street": "123 fake street",
+        "street2": "this is a really long apartment number",
+        "street3": "test3",
+        "city": "portland",
+        "state": "ME",
+        "postal_code": "04102"
+      }
+    },
+    "view:remove_dependent_options": {
+      "report_divorce": true,
+      "report_death": true,
+      "report_stepchild_not_in_household": true,
+      "report_marriage_of_child_under18": true,
+      "report_child18_or_older_is_not_attending_school": true
+    },
+    "view:add_dependent_options": {
+      "add_spouse": true,
+      "add_child": true,
+      "report674": true,
+      "add_disabled_child": true
+    },
+    "view:add_or_remove_dependents": { "add": true, "remove": true },
+    "spouse_marriage_history": [
+      {
+        "end_location": { "location": { "city": "denver", "state": "CO" } },
+        "start_location": { "outside_usa": true, "location": { "city": "denver", "state": "CO" } },
+        "end_date": "2010-07-06",
+        "start_date": "2010-03-05",
+        "reason_marriage_ended": "Other",
+        "reason_marriage_ended_other": "annulled",
+        "full_name": { "first": "test", "middle": "middle", "last": "spouseformerone" }
+      },
+      {
+        "end_location": { "location": { "city": "boston", "state": "MA" } },
+        "start_location": {
+          "outside_usa": true,
+          "location": {
+            "city": "fayetteville",
+            "state": "AR"
+          }
+        },
+        "end_date": "2013-08-08",
+        "start_date": "2011-07-12",
+        "reason_marriage_ended": "Divorce",
+        "full_name": { "first": "test", "middle": "middle", "last": "spouseformertwo" }
+      },
+      {
+        "end_location": { "location": { "city": "portland", "state": "ME" } },
+        "start_location": { "outside_usa": true, "location": { "city": "washington", "state": "DC" } },
+        "end_date": "2015-07-06",
+        "start_date": "2014-09-06",
+        "reason_marriage_ended": "Death",
+        "full_name": { "first": "test", "middle": "middle", "last": "spouseformerthree" }
+      },
+      {
+        "end_location": { "location": { "city": "burlington", "state": "VT" } },
+        "start_location": { "outside_usa": true, "location": { "city": "wilmington", "state": "DE" } },
+        "end_date": "2019-11-09",
+        "start_date": "2016-10-11",
+        "reason_marriage_ended": "Divorce",
+        "full_name": { "first": "test", "middle": "middle", "last": "spouseformerfour" }
+      }
+    ],
+    "veteran_marriage_history": [
+      {
+        "end_location": { "location": { "city": "miami", "state": "FL" } },
+        "start_location": { "location": { "city": "san diego", "state": "CA" } },
+        "end_date": "2010-07-06",
+        "start_date": "2010-03-02",
+        "reason_marriage_ended": "Divorce",
+        "full_name": { "first": "test", "middle": "middle", "last": "formerspouseone" }
+      },
+      {
+        "end_location": { "location": { "city": "boise", "state": "ID" } },
+        "start_location": { "location": { "city": "atlanta", "state": "GA" } },
+        "end_date": "2011-12-06",
+        "start_date": "2011-08-02",
+        "reason_marriage_ended": "Other",
+        "reason_marriage_ended_other": "annulled",
+        "full_name": { "first": "test", "middle": "middle", "last": "formerspousetwo" }
+      },
+      {
+        "end_location": { "location": { "city": "baltimore", "state": "MD" } },
+        "start_location": { "location": { "city": "lawrence", "state": "KS" } },
+        "end_date": "2014-11-10",
+        "start_date": "2013-10-10",
+        "reason_marriage_ended": "Death",
+        "full_name": { "first": "test", "middle": "middle", "last": "formerspousethree" }
+      },
+      {
+        "end_location": { "location": { "city": "charlotte", "state": "NC" } },
+        "start_location": { "location": { "city": "concord", "state": "NH" } },
+        "end_date": "2019-07-07",
+        "start_date": "2016-10-06",
+        "reason_marriage_ended": "Divorce",
+        "full_name": { "first": "test", "middle": "middle", "last": "formerspousefour" }
+      }
+    ],
+    "children_to_add": [
+      {
+        "income_in_last_year": true,
+        "marriage_end_date": "2023-07-03",
+        "marriage_end_reason": "Other",
+        "marriage_end_description": "other reason",
+        "does_child_live_with_you": false,
+        "has_child_ever_been_married": true,
+        "is_biological_child_of_spouse": false,
+        "relationship_to_child": { "adopted": false, "stepchild": false },
+        "does_child_have_permanent_disability": false,
+        "is_biological_child": true,
+        "birth_location": {
+          "location": {
+            "city": "quebec",
+            "postal_code": "03301",
+            "country": "CAN"
+          }
+        },
         "ssn": "987654321",
-        "birth_date": "1980-01-01"},
-      "not_self_sufficient": true,
-      "previously_married": "No",
-      "child_income": false,
-      "full_name": {"first": "test", "middle": "middle", "last": "childtwo"},
+        "full_name": { "first": "test", "middle": "middle", "last": "childone" },
+        "birth_date": "2005-01-02",
+        "address": {
+          "country": "USA",
+          "street": "123 fake drive",
+          "street2": "This is a really long apartment number",
+          "street3": "line3",
+          "city": "concord",
+          "state": "NH",
+          "postal_code": "03301"
+        },
+        "living_with": { "first": "test", "last": "person" },
+        "does_child_have_disability": true,
+        "biological_parent_name": { "first": "bio", "middle": "log", "last": "cal" },
+        "biological_parent_ssn": "000000000",
+        "school_age_in_school": false
+      },
+      {
+        "income_in_last_year": false,
+        "marriage_end_reason": "annulment",
+        "marriage_end_description": "description of annulment",
+        "does_child_live_with_you": true,
+        "has_child_ever_been_married": false,
+        "is_biological_child_of_spouse": true,
+        "relationship_to_child": { "biological": false, "stepchild": true },
+        "does_child_have_permanent_disability": true,
+        "birth_location": {
+          "location": {
+            "state": "DC",
+            "city": "washington",
+            "postal_code": "03301"
+          }
+        },
+        "ssn": "987654321",
+        "full_name": { "first": "test", "middle": "middle", "last": "childtwo" },
+        "birth_date": "2009-04-05",
+        "date_entered_household": "2024-05-04",
+        "school_age_in_school": false
+      },
+      {
+        "marriage_end_reason": "annulment",
+        "marriage_end_description": "description of annulment",
+        "does_child_live_with_you": true,
+        "has_child_ever_been_married": false,
+        "relationship_to_child": { "adopted": true },
+        "birth_location": {
+          "location": {
+            "state": "AR",
+            "city": "bentonville",
+            "postal_code": "03301"
+          }
+        },
+        "ssn": "987654321",
+        "full_name": { "first": "test", "middle": "middle", "last": "childthree" },
+        "birth_date": "2010-04-06",
+        "school_age_in_school": false
+      },
+      {
+        "income_in_last_year": false,
+        "marriage_end_reason": "annulment",
+        "marriage_end_description": "description of annulment",
+        "does_child_live_with_you": true,
+        "has_child_ever_been_married": false,
+        "relationship_to_child": { "adopted": false },
+        "is_biological_child": true,
+        "birth_location": {
+          "location": {
+            "state": "SC",
+            "city": "charleston",
+            "postal_code": "03301"
+          }
+        },
+        "ssn": "987654321",
+        "full_name": { "first": "test", "middle": "middle", "last": "childfour" },
+        "birth_date": "2015-09-07",
+        "school_age_in_school": false
+      },
+      {
+        "income_in_last_year": true,
+        "marriage_end_reason": "annulment",
+        "marriage_end_description": "description of annulment",
+        "does_child_live_with_you": true,
+        "has_child_ever_been_married": false,
+        "relationship_to_child": { "biological": false, "adopted": true },
+        "birth_location": { "location": { "state": "NH", "city": "durham", "postal_code": "03301" } },
+        "ssn": "987654321",
+        "full_name": { "first": "test", "middle": "middle", "last": "childfive" },
+        "birth_date": "2019-10-08",
+        "school_age_in_school": false
+      },
+      {
+        "income_in_last_year": false,
+        "marriage_end_reason": "annulment",
+        "marriage_end_description": "description of annulment",
+        "does_child_live_with_you": true,
+        "has_child_ever_been_married": false,
+        "relationship_to_child": { "adopted": false },
+        "is_biological_child": true,
+        "birth_location": { "location": { "state": "NY", "city": "new york", "postal_code": "03301" } },
+        "ssn": "987654321",
+        "full_name": { "first": "test", "middle": "middle", "last": "childsix" },
+        "birth_date": "2023-11-07",
+        "school_age_in_school": false
+      }
+    ],
+    "student_information": [{
+      "remarks": "test additional information",
+      "student_networth_information": {
+        "savings": "500",
+        "securities": "400",
+        "real_estate": "300",
+        "other_assets": "200",
+        "total_value": "1400"
+      },
+      "student_expected_earnings_next_year": {
+        "earnings_from_all_employment": "56000",
+        "annual_social_security_payments": "0",
+        "other_annuities_income": "145",
+        "all_other_income": "50"
+      },
+      "student_earnings_from_school_year": {
+        "earnings_from_all_employment": "56000",
+        "annual_social_security_payments": "0",
+        "other_annuities_income": "123",
+        "all_other_income": "20"
+      },
+      "claims_or_receives_pension": true,
+      "school_information": {
+        "last_term_school_information": { "term_begin": "2024-01-01", "date_term_ended": "2024-03-05" },
+        "student_did_attend_school_last_term": true,
+        "current_term_dates": {
+          "official_school_start_date": "2025-01-01",
+          "expected_student_start_date": "2025-01-02",
+          "expected_graduation_date": "2026-03-01"
+        },
+        "is_school_accredited": true,
+        "student_is_enrolled_full_time": true,
+        "name": "name of trade program"
+      },
+      "benefit_payment_date": "2024-03-01",
+      "type_of_program_or_benefit": { "ch35": true, "fry": true, "feca": true, "other": true },
+      "other_program_or_benefit": "all the programs!",
+      "tuition_is_paid_by_gov_agency": true,
+      "marriage_date": "2024-03-03",
+      "was_married": true,
+      "address": {
+        "country": "USA",
+        "street": "123 fake street",
+        "street2": "line2",
+        "street3": "line3",
+        "city": "portland",
+        "state": "ME",
+        "postal_code": "04102"
+      },
+      "student_income": true,
       "ssn": "987654321",
-      "birth_date": "2009-04-05"},
-     {"does_child_live_with_you": true,
-      "place_of_birth": {"is_outside_us": false, "state": "AR", "city": "bentonville"},
-      "child_status": {"adopted": true},
-      "not_self_sufficient": false,
-      "previously_married": "No",
-      "full_name": {"first": "test", "middle": "middle", "last": "childthree"},
+      "is_parent": true,
+      "full_name": {
+        "first": "test",
+        "middle": "middle",
+        "last": "student"
+      },
+      "birth_date": "2005-01-01"
+    }],
+    "step_children": [
+      {
+        "who_does_the_stepchild_live_with": {
+          "first": "parent",
+          "middle": "middle",
+          "last": "name"
+        },
+        "living_expenses_paid": "More than half",
+        "address": {
+          "country": "USA",
+          "street": "456 fake street",
+          "street2": "this is a very long apartment number",
+          "street3": "line3",
+          "city": "portland",
+          "state": "ME",
+          "postal_code": "04102"
+        },
+        "supporting_stepchild": false,
+        "full_name": { "first": "stepchild", "middle": "middle", "last": "leaving" },
+        "ssn": "987654321",
+        "birth_date": "2009-04-01"
+      },
+      {
+        "who_does_the_stepchild_live_with": {
+          "first": "parent",
+          "middle": "middle",
+          "last": "parentname"
+        },
+        "address": {
+          "country": "USA",
+          "street": "123 ocean avenue",
+          "street2": "this is a very long apartment number",
+          "street3": "line3",
+          "city": "concord",
+          "state": "NH",
+          "postal_code": "03301"
+        },
+        "supporting_stepchild": false,
+        "full_name": { "first": "second", "middle": "middle", "last": "stepchild" },
+        "ssn": "987654321",
+        "birth_date": "2009-04-01"
+      }
+    ],
+    "deaths": [
+      {
+        "deceased_dependent_income": true,
+        "dependent_death_location": { "location": { "city": "new orleans", "state": "LA" } },
+        "dependent_death_date": "2024-03-02",
+        "dependent_type": "DEPENDENT_PARENT",
+        "full_name": { "first": "deceased", "middle": "middle", "last": "dependent" },
+        "ssn": "987654321",
+        "birth_date": "1960-01-01"
+      },
+      {
+        "deceased_dependent_income": false,
+        "dependent_death_location": { "location": { "city": "denver", "state": "CO" } },
+        "dependent_death_date": "2023-10-03",
+        "dependent_type": "SPOUSE",
+        "full_name": { "first": "other", "middle": "middle", "last": "deceased" },
+        "ssn": "987654321",
+        "birth_date": "1960-01-01"
+      }
+    ],
+    "child_marriage": [{
+      "dependent_income": false,
+      "date_married": "2023-06-03",
+      "full_name": { "first": "child", "middle": "middle", "last": "married" },
       "ssn": "987654321",
-      "birth_date": "2010-04-06"},
-     {"does_child_live_with_you": true,
-      "place_of_birth": {"is_outside_us": false, "state": "SC", "city": "charleston"},
-      "child_status": {"biological": true},
-      "not_self_sufficient": false,
-      "previously_married": "No",
-      "child_income": false,
-      "full_name": {"first": "test", "middle": "middle", "last": "childfour"},
+      "birth_date": "2008-04-05"
+    }],
+    "child_stopped_attending_school": [{
+      "dependent_income": false,
+      "date_child_left_school": "2023-04-03",
+      "full_name": { "first": "removing", "middle": "middle", "last": "child" },
       "ssn": "987654321",
-      "birth_date": "2015-09-07"},
-     {"does_child_live_with_you": true,
-      "place_of_birth": {"is_outside_us": false, "state": "NH", "city": "durham"},
-      "child_status": {"adopted": true},
-      "not_self_sufficient": false,
-      "previously_married": "No",
-      "child_income": true,
-      "full_name": {"first": "test", "middle": "middle", "last": "childfive"},
+      "birth_date": "2005-05-01"
+    }],
+    "view:selectable686_options": {
+      "add_spouse": true,
+      "add_child": true,
+      "report674": true,
+      "add_disabled_child": true,
+      "report_divorce": true,
+      "report_death": true,
+      "report_stepchild_not_in_household": true,
+      "report_marriage_of_child_under18": true,
+      "report_child18_or_older_is_not_attending_school": true
+    },
+    "veteran_information": {
+      "birth_date": "1809-02-19",
+      "full_name": {
+        "first": "Wesley",
+        "last": "Ford"
+      },
       "ssn": "987654321",
-      "birth_date": "2019-10-08"},
-     {"does_child_live_with_you": true,
-      "place_of_birth": {"is_outside_us": false, "state": "NY", "city": "new york"},
-      "child_status": {"biological": true},
-      "not_self_sufficient": false,
-      "previously_married": "No",
-      "child_income": false,
-      "full_name": {"first": "test", "middle": "middle", "last": "childsix"},
-      "ssn": "987654321",
-      "birth_date": "2023-11-07"}],
-   "veteran_was_married_before": true,
-   "veteran_marriage_history": 
-    [{"start_date": "2010-03-02",
-      "start_location": {"is_outside_us": false, "state": "CA", "city": "san diego"},
-      "reason_marriage_ended": "Divorce",
-      "end_date": "2010-07-06",
-      "end_location": {"is_outside_us": false, "state": "FL", "city": "miami"},
-      "full_name": {"first": "test", "middle": "middle", "last": "formerspouseone"}},
-     {"start_date": "2011-08-02",
-      "start_location": {"is_outside_us": false, "state": "GA", "city": "atlanta"},
-      "reason_marriage_ended": "Other",
-      "reason_marriage_ended_other": "annulled",
-      "end_date": "2011-12-06",
-      "end_location": {"is_outside_us": false, "state": "ID", "city": "boise"},
-      "full_name": {"first": "test", "middle": "middle", "last": "formerspousetwo"}},
-     {"start_date": "2013-10-10",
-      "start_location": {"is_outside_us": false, "state": "KS", "city": "lawrence"},
-      "reason_marriage_ended": "Death",
-      "end_date": "2014-11-10",
-      "end_location": {"is_outside_us": false, "state": "MD", "city": "baltimore"},
-      "full_name": {"first": "test", "middle": "middle", "last": "formerspousethree"}},
-     {"start_date": "2016-10-06",
-      "start_location": {"is_outside_us": false, "state": "NH", "city": "concord"},
-      "reason_marriage_ended": "Divorce",
-      "end_date": "2019-07-07",
-      "end_location": {"is_outside_us": false, "state": "NC", "city": "charlotte"},
-      "full_name": {"first": "test", "middle": "middle", "last": "formerspousefour"}}],
-   "spouse_was_married_before": true,
-   "spouse_marriage_history": 
-    [{"start_date": "2010-03-05",
-      "start_location": {"is_outside_us": false, "state": "CO", "city": "denver"},
-      "reason_marriage_ended": "Other",
-      "reason_marriage_ended_other": "annulled",
-      "end_date": "2010-07-06",
-      "end_location": {"is_outside_us": false, "state": "CO", "city": "denver"},
-      "full_name": {"first": "test", "middle": "middle", "last": "spouseformerone"}},
-     {"start_date": "2011-07-12",
-      "start_location": {"is_outside_us": false, "state": "AR", "city": "fayetteville"},
-      "reason_marriage_ended": "Divorce",
-      "end_date": "2013-08-08",
-      "end_location": {"is_outside_us": false, "state": "MA", "city": "boston"},
-      "full_name": {"first": "test", "middle": "middle", "last": "spouseformertwo"}},
-     {"start_date": "2014-09-06",
-      "start_location": {"is_outside_us": false, "state": "DC", "city": "washington"},
-      "reason_marriage_ended": "Death",
-      "end_date": "2015-07-06",
-      "end_location": {"is_outside_us": false, "state": "ME", "city": "portland"},
-      "full_name": {"first": "test", "middle": "middle", "last": "spouseformerthree"}},
-     {"start_date": "2016-10-11",
-      "start_location": {"is_outside_us": false, "state": "DE", "city": "wilmington"},
-      "reason_marriage_ended": "Divorce",
-      "end_date": "2019-11-09",
-      "end_location": {"is_outside_us": false, "state": "VT", "city": "burlington"},
-      "full_name": {"first": "test", "middle": "middle", "last": "spouseformerfour"}}],
-   "does_live_with_spouse": 
-    {"spouse_does_live_with_veteran": false,
-     "current_spouse_reason_for_separation": "Other",
-     "address": 
-      {"country_name": "USA",
-       "address_line1": "456 fake street",
-       "address_line2": "address line two",
-       "address_line3": "address line three",
-       "city": "portland",
-       "state_code": "ME",
-       "zip_code": "04102"},
-     "spouse_income": true},
-   "current_marriage_information": {"date": "2024-02-01", "location": {"is_outside_us": false, "state": "DC", "city": "washington"}, "type": "CIVIL"},
-   "spouse_information": 
-    {"full_name": {"first": "test", "middle": "middle", "last": "spouselast"},
-     "ssn": "987654321",
-     "birth_date": "1977-01-01",
-     "is_veteran": true,
-     "va_file_number": "987654321",
-     "service_number": "987654321"},
-   "veteran_contact_information": 
-    {"veteran_address": 
-      {"country_name": "USA",
-       "address_line1": "123 fake street",
-       "address_line2": "address line two",
-       "address_line3": "address line three",
-       "city": "portland",
-       "state_code": "ME",
-       "zip_code": "04102"},
-     "phone_number": "5555555555",
-     "email_address": "test@test.com",
-     "international_phone_number": "1234567890",
-     "electronic_correspondence": true},
-   "view:selectable686_options": 
-    {"add_spouse": true,
-     "add_child": true,
-     "report674": true,
-     "report_divorce": true,
-     "report_stepchild_not_in_household": true,
-     "report_death": true,
-     "report_marriage_of_child_under18": true,
-     "report_child18_or_older_is_not_attending_school": true},
-   "privacy_agreement_accepted": true},
- "veteran_information": 
-  {"full_name": {"first": "Mark", "middle": "", "last": "Webb"},
-   "common_name": "Mark",
-   "va_profile_email": "vets.gov.user+228@gmail.com",
-   "email": "vets.gov.user+228@gmail.com",
-   "participant_id": "123",
-   "ssn": "000000000",
-   "va_file_number": "000000000",
-   "birth_date": "1980-01-01"}}
+      "va_file_number": "987654321"
+    },
+    "use_v2": true,
+    "days_till_expires": 365,
+    "privacy_agreement_accepted": true
+  },
+  "veteran_information": {
+    "birth_date": "1980-01-01",
+    "full_name": {
+      "first": "Mark",
+      "last": "Webb"
+    },
+    "ssn": "000000000",
+    "va_file_number": "000000000"
+  }
+}

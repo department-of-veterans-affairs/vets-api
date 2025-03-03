@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Burials::FormProfiles::VA21p530ez, type: :model do
-  subject { described_class.new(form_id: form_id, user: user) }
+  subject { described_class.new(form_id:, user:) }
 
   let(:user) { build(:user, :loa3) }
   let(:form_id) { '21P-530EZ' }
