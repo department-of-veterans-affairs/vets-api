@@ -37,5 +37,5 @@ Config.setup do |config|
 
   # Whether nil values will overwrite an existing value when merging configs. Default: true
   #
-  config.merge_nil_values = false
+  config.merge_nil_values = true
 end
