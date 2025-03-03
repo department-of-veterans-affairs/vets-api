@@ -201,5 +201,18 @@ RSpec.describe 'MyHealth::V1::Messaging::Preferences', type: :request do
       expect(JSON.parse(response.body)['errors'][0]['detail']).to eq('Email Signature Name and Title is required')
       expect(JSON.parse(response.body)['errors'][0]['code']).to eq('SM154')
     end
+
+    it 'handles missing signature_name and signature_title parameters for POST #update_signature' do
+      VCR.use_cassette('sm_client/preferences/sets_the_signature_preferences_exclude_name_and_title') do
+        params = {
+          messaging_preference: {
+            include_signature: true
+          }
+        }
+        post '/my_health/v1/messaging/preferences/signature', params:
+      end
+      expect(JSON.parse(response.body)['data']['attributes'])
+        .to eq('include_signature' => false, 'signature_name' => nil, 'signature_title' => nil)
+    end
   end
 end
