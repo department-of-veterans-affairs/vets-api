@@ -42,9 +42,7 @@ module UnifiedHealthData
 
     def filter_records(records)
       records.select do |record|
-        if Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
-          record.attributes.display == 'SP'
-        end
+        record.attributes.display == 'SP' if Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
       end
     end
 
