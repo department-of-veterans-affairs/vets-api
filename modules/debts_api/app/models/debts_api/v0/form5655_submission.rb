@@ -97,7 +97,7 @@ module DebtsApi
       Rails.logger.error("Form5655Submission id: #{id} failed", message)
       StatsD.increment("#{STATS_KEY}.failure")
 
-      if message.include?('SharepointRequest')
+      if message.include?('Sharepoint')
         Rails.logger.warn("SharePoint request failed with: #{message}")
       else
         alert_silent_error(message)
