@@ -1589,6 +1589,7 @@ vanotify:
     bearer_token: fake_bearer_token
 vaos:
   ccra:
+    access_token_url: https://test.example.com/token
     api_url: https://api.ccra.placeholder.va.local
     base_path: csp/healthshare/ccraint/rest
     mock: false
@@ -1603,6 +1604,7 @@ vaos:
     key_path: modules/health_quest/config/rsa/sandbox_rsa
     kid: fake_kid
     mock: false
+    redis_token_expiry: 3500
     scopes: care-nav
 vba_documents:
   custom_metadata_allow_list: ~

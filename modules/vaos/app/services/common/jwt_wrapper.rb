@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 
-module Eps
+module Common
   class JwtWrapper
     SIGNING_ALGORITHM = 'RS512'
 
     attr_reader :expiration, :settings
 
     delegate :key_path, :client_id, :kid, :audience_claim_url, to: :settings
-    def initialize
-      @settings = Settings.vaos.eps
+
+    def initialize(service_settings)
+      @settings = service_settings
       @expiration = 5
     end
 
