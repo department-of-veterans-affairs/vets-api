@@ -13,7 +13,7 @@ module DebtsApi
         def initialize(form)
           @form = form
           income_calculator = DebtsApi::V0::FsrFormTransform::IncomeCalculator.new(form)
-          @total_monthly_net_income = income_calculator.get_monthly_income[:totalMonthlyNetIncome]
+          @total_monthly_net_income = income_calculator.total_monthly_net_income
           @expense_calculator = DebtsApi::V0::FsrFormTransform::ExpenseCalculator.build(form)
         end
 
