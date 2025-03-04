@@ -10,7 +10,8 @@ describe VAOS::V2::MobileFacilityService do
   let(:cassette_options) { { match_requests_on: %i[method path query] } }
 
   before do
-    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, instance_of(User)).and_return(true)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
