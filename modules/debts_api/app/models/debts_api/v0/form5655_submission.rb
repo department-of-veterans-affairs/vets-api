@@ -117,12 +117,12 @@ module DebtsApi
 
     def failure_email_personalization_info
       name_info = ipf_form['personal_data']['veteran_full_name']
-      full_name = "#{name_info['first']} #{name_info['last']}"
 
       {
-        'name' => full_name,
-        'time' => updated_at,
-        'date' => Time.zone.now.strftime('%m/%d/%Y')
+        'first_name' => name_info['first'],
+        'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
+        'updated_at' => updated_at,
+        'confirmation_number' => id
       }
     end
 

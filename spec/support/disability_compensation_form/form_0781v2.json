@@ -22,7 +22,7 @@
         "details": "Lorem ipsum dolor sit amet.", 
         "location": "Back alley in Big Town, USA",
         "timing": "2001",
-        "reports": { "police": true },
+        "otherReports": { "police": true },
         "agency": "SVI",
         "city": "Dallas",
         "state": "Texas",
@@ -33,8 +33,8 @@
         "details": "Lorem ipsum dolor sit amet.",
         "location": "Greenwich Township, N Jersey",
         "timing": "2002",
-        "reports": { "restricted": true },
-        "other": "incident report"
+        "militaryReports": { "restricted": true },
+        "unlistedReport": "incident report"
       },
       {
         "location": "Springfield, Hampden County",

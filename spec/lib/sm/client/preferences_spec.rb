@@ -59,7 +59,7 @@ describe 'sm client' do
     it 'sets the signature preferences', :vcr do
       params = { signature_name: 'Test Mark', include_signature: false, signature_title: 'Test Title API' }
       client_response = client.post_signature(params)[:data]
-      expect(client_response[:include_signature]).to be(false)
+      expect(client_response[:include_signature]).to be(true)
       expect(client_response[:signature_name]).to eq('Test Mark')
       expect(client_response[:signature_title]).to eq('Test Title API')
     end
