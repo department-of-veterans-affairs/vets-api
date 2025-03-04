@@ -75,6 +75,15 @@ describe TravelPay::ClaimsService do
       expect(actual_statuses).to match_array(expected_statuses)
     end
 
+    it 'returns forbidden if user is not a veteran' do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims)
+        .and_raise(Faraday::ForbiddenError.new)
+
+      expect { @service.get_claims }
+        .to raise_error(Common::Exceptions::Forbidden)
+    end
+
     context 'get claim by id' do
       it 'returns a single claim when passed a valid id' do
         claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
