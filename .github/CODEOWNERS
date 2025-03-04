@@ -744,6 +744,7 @@ config/form_profile_mappings/FORM-MOCK-AE-DESIGN-PATTERNS.yml @department-of-vet
 config/form_profile_mappings/MDOT.yml @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 config/freshclam.conf @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/health_care_application @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+config/identity_settings @department-of-veterans-affairs/octo-identity
 config/imagemagick/policies/new-policy.xml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/01_redis.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/aal.rb @department-of-veterans-affairs/octo-identity
@@ -769,6 +770,7 @@ config/initializers/flipper.rb @department-of-veterans-affairs/va-api-engineers 
 config/initializers/freeze_schemas.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/httpi.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/ial.rb @department-of-veterans-affairs/octo-identity
+config/initializers/identity_config.rb @department-of-veterans-affairs/octo-identity
 config/initializers/inflections.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/integration_recorder.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/jsonapi_serializer_blank_id_patch.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
