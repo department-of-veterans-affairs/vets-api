@@ -19,8 +19,6 @@ module ClaimsApi
           poa_codes = form_attributes['poaCodes']
           validate_page_size_and_number_params
 
-          page_size = params[:pageSize] || 10
-          page_number = params[:pageNumber] || 1
           filter = form_attributes['filter'] || {}
 
           verify_poa_codes_data(poa_codes)
@@ -28,8 +26,8 @@ module ClaimsApi
 
           service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(
             poa_codes:,
-            page_size:,
-            page_index: page_number_to_index(page_number),
+            page_size: @page_size_param,
+            page_index: page_number_to_index(@page_number_param),
             filter:
           )
 
@@ -288,13 +286,16 @@ module ClaimsApi
         def validate_page_size_and_number_params
           return if params[:pageSize].blank? && params[:pageNumber].blank?
 
-          verify_page_size(params[:pageSize]) if params[:pageNumber].present?
+          @page_size_param = params[:pageSize] ? params[:pageSize].to_i : 10
+          @page_number_param = params[:pageNumber] ? params[:pageNumber].to_i : 1
 
-          if params[:pageSize] && params[:pageSize] > MAX_PAGE_SIZE
+          verify_page_size if @page_number_param.present?
+
+          if @page_size_param && @page_size_param > MAX_PAGE_SIZE
             raise_param_exceeded_warning = true
             page_size_msg = "Max pageSize param value of #{MAX_PAGE_SIZE} has been exceeded"
           end
-          if params[:pageNumber] && params[:pageNumber] > MAX_PAGE_NUMBER
+          if @page_number_param && @page_number_param > MAX_PAGE_NUMBER
             raise_param_exceeded_warning = true
             page_number_msg = "Max pageNumber param value of #{MAX_PAGE_NUMBER} has been exceeded"
           end
@@ -324,8 +325,8 @@ module ClaimsApi
           end
         end
 
-        def verify_page_size(page_size)
-          if page_size.blank?
+        def verify_page_size
+          if @page_size_param.blank?
             raise ::Common::Exceptions::ParameterMissing.new('pageSize',
                                                              detail: 'pageSize is required when pageNumber is present')
           end
