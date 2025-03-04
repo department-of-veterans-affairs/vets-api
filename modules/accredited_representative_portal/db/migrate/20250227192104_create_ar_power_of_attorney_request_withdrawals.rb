@@ -8,7 +8,6 @@ class CreateArPowerOfAttorneyRequestWithdrawals < ActiveRecord::Migration[7.2]
       t.references 'superseding_power_of_attorney_request',
                    type: :uuid,
                    foreign_key: { to_table: :ar_power_of_attorney_requests }
-      t.references 'creator', type: :uuid, foreign_key: { to_table: :user_accounts }, null: false
       t.string 'type', null: false
     end
   end

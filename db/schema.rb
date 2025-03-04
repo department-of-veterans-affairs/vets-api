@@ -317,9 +317,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_27_192104) do
 
   create_table "ar_power_of_attorney_request_withdrawals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "superseding_power_of_attorney_request_id"
-    t.uuid "creator_id", null: false
     t.string "type", null: false
-    t.index ["creator_id"], name: "index_ar_power_of_attorney_request_withdrawals_on_creator_id"
     t.index ["superseding_power_of_attorney_request_id"], name: "idx_on_superseding_power_of_attorney_request_id_7318c79fef"
   end
 
@@ -1816,7 +1814,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_27_192104) do
   add_foreign_key "ar_power_of_attorney_request_decisions", "user_accounts", column: "creator_id"
   add_foreign_key "ar_power_of_attorney_request_resolutions", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_request_withdrawals", "ar_power_of_attorney_requests", column: "superseding_power_of_attorney_request_id"
-  add_foreign_key "ar_power_of_attorney_request_withdrawals", "user_accounts", column: "creator_id"
   add_foreign_key "ar_power_of_attorney_requests", "user_accounts", column: "claimant_id"
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "claim_va_notifications", "saved_claims"
