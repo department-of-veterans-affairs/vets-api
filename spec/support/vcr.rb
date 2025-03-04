@@ -59,6 +59,8 @@ VCR.configure do |c|
   end
   c.filter_sensitive_data('<ARP_ALLOW_LIST_REPO>') { Settings.accredited_representative_portal.allow_list.github.repo }
   c.filter_sensitive_data('<ARP_ALLOW_LIST_PATH>') { Settings.accredited_representative_portal.allow_list.github.path }
+  c.filter_sensitive_data('<VAOS_CCRA_API_URL>') { Settings.vaos.ccra.api_url }
+  c.filter_sensitive_data('<VAOS_CCRA_TOKEN_URL>') { Settings.vaos.ccra.access_token_url }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')
