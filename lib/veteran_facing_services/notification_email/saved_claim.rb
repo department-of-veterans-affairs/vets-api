@@ -50,12 +50,12 @@ module VeteranFacingServices
         at ? enqueue_email(email_template_id, at) : send_email(email_template_id)
 
         db_record = claim.insert_notification(email_template_id)
-        tags, context = monitoring
+        tags, context = for_monitoring
         VeteranFacingServices::NotificationEmail.monitor_deliver_success(tags:, context:)
 
         db_record
       rescue => e
-        tags, context = monitoring
+        tags, context = for_monitoring
         VeteranFacingServices::NotificationEmail.monitor_send_failure(e&.message, tags:, context:)
       end
 
@@ -93,7 +93,7 @@ module VeteranFacingServices
         is_enabled = flipper_enabled?(email_config.flipper_id)
         already_sent = claim.va_notification?(email_config.template_id)
         if already_sent
-          tags, context = monitoring
+          tags, context = for_monitoring
           VeteranFacingServices::NotificationEmail.monitor_duplicate_attempt(tags:, context:)
         end
 
@@ -101,7 +101,7 @@ module VeteranFacingServices
       end
 
       # create the tags and context for monitoring
-      def monitoring
+      def for_monitoring
         tags = ["service_name:#{vanotify_service}",
                 "form_id:#{claim.form_id}",
                 "email_template_id:#{email_template_id}"]

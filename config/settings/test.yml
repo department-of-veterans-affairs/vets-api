@@ -830,6 +830,7 @@ maintenance:
     lighthouse_direct_deposit: ~
     lighthouse_vshe: ~
     logingov: P2SHMM9
+    mdot: PEOIHN1
     mhv: PP2ZZ2V
     mhv_meds: ~
     mhv_mr: ~
@@ -842,6 +843,7 @@ maintenance:
     search: PRG8HJI
     ssoe: ~
     ssoe_oauth: ~
+    staging_mdot: PGT74RC
     tc: ~
     tims: PUL8OQ4
     vaos: ~
@@ -1199,7 +1201,6 @@ salesforce-gibft:
   signing_key_path: ~
   url: https://va--rdtcddev.cs33.my.salesforce.com/
 saml:
-  authn_requests_signed: false
   cert_path: spec/support/certificates/ruby-saml.crt
   key_path: spec/support/certificates/ruby-saml.key
 saml_ssoe:
@@ -1588,6 +1589,7 @@ vanotify:
     bearer_token: fake_bearer_token
 vaos:
   ccra:
+    access_token_url: https://test.example.com/token
     api_url: https://api.ccra.placeholder.va.local
     base_path: csp/healthshare/ccraint/rest
     mock: false
@@ -1602,6 +1604,7 @@ vaos:
     key_path: modules/health_quest/config/rsa/sandbox_rsa
     kid: fake_kid
     mock: false
+    redis_token_expiry: 3500
     scopes: care-nav
 vba_documents:
   custom_metadata_allow_list: ~
@@ -1808,12 +1811,9 @@ virtual_hosts:
   - example.org
 virtual_regional_office:
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
-  ctn_classification_path: ~
   evidence_pdf_path: evidence-pdf
-  expanded_classification_path: contention-classification/expanded-contention-classification
   max_cfi_path: employee-experience/max-ratings
   url: http://localhost:8120
-  vagov_classification_path: contention-classification/va-gov-claim-classifier
 vre_counseling:
   prefill: true
 vre_readiness:
