@@ -18,6 +18,7 @@ class UserAuditLogger
 
   def perform
     subject_user_verification.validate!
+    acting_user_verification.validate! if acting_user_verification != subject_user_verification
     log_audit_entry
     user_action
   rescue => e
