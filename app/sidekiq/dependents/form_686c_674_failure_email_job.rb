@@ -8,19 +8,29 @@ class Dependents::Form686c674FailureEmailJob
 
   sidekiq_options retry: 16
 
-  sidekiq_retries_exhausted do |msg, _ex|
-    Rails.logger.error("Form686c674FailureEmailJob failed", { claim_id: msg['args'].first })
+  sidekiq_retries_exhausted do |msg, ex|
+    Rails.logger.error('Form686c674FailureEmailJob exhausted all retries',
+                       {
+                         saved_claim_id: msg['args'].first,
+                         error_message: ex.message
+                       })
   end
 
-  def perform(claim_id, email)
-    @claim = SavedClaim::DependentsApplication.find(claim_id)
+  def perform(claim_id, email, template_id)
+    claim(claim_id)
     va_notify_client.send_email(email,
                                 template_id,
                                 personalisation)
+  rescue => e
+    Rails.logger.warn('Form686c674FailureEmailJob failed, retrying send...', { claim_id: claim_id, error: e })
   end
 
 
   private
+
+  def claim(claim_id)
+    @claim ||= SavedClaim::DependentsApplication.find(claim_id)
+  end
 
   def va_notify_client
     @va_notify_client ||= VANotify::Service.new(Settings.vanotify.services.va_gov.api_key, callback_options)
@@ -30,7 +40,7 @@ class Dependents::Form686c674FailureEmailJob
     {
       callback_metadata: {
         notification_type: 'error',
-        form_id: @claim.form_id,
+        form_id: claim.form_id,
         statsd_tags: { service: 'dependent-change', function: ZSF_DD_TAG_FUNCTION }
       }
     }
@@ -38,22 +48,10 @@ class Dependents::Form686c674FailureEmailJob
 
   def personalisation
     {
-      'first_name' => @claim.parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+      'first_name' => claim.parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
       'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-      'confirmation_number' => @claim.confirmation_number
+      'confirmation_number' => claim.confirmation_number
     }
   end
 
-  def template_id
-    if submittable_686? && submittable_674?
-      Settings.vanotify.services.va_gov.template_id.form21_686c_674_action_needed_email
-    elsif submittable_686?
-      Settings.vanotify.services.va_gov.template_id.form21_686c_action_needed_email
-    elsif submittable_674?
-      Settings.vanotify.services.va_gov.template_id.form21_674_action_needed_email
-    else
-      Rails.logger.error('Email template cannot be assigned for SavedClaim', saved_claim_id: id)
-      nil
-    end
-  end
 end
