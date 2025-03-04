@@ -2,12 +2,16 @@
 
 module PdfFill
   class ExtrasGenerator
+    HEADER_FONT_SIZE = 14.5
+    SUBHEADER_FONT_SIZE = 10.5
+
     attr_reader :extras_redesign
 
-    def initialize(extras_redesign: false, form_name: nil, start_page: 1, sections: nil)
+    def initialize(extras_redesign: false, form_name: nil, submit_date: nil, start_page: 1, sections: nil)
       @generate_blocks = []
-      @form_name = form_name
       @extras_redesign = extras_redesign
+      @form_name = form_name
+      @submit_date = format_date(submit_date)
       @start_page = start_page
       @sections = sections
     end
@@ -82,17 +86,14 @@ module PdfFill
 
     def set_header(pdf)
       pdf.repeat :all do
-        pdf.bounding_box(
-          [pdf.bounds.left, pdf.bounds.top],
-          width: pdf.bounds.width
-        ) do
-          pdf.text("<b>ATTACHMENT</b> to VA Form #{@form_name}",
-                   align: :left,
-                   size: 14.5,
-                   leading: 2,
-                   inline_format: true)
-          pdf.stroke_horizontal_rule
+        bound_width = pdf.bounds.width / 2
+        location = [pdf.bounds.left, pdf.bounds.top]
+        write_header_main(pdf, location, bound_width, HEADER_FONT_SIZE)
+        if @submit_date.present?
+          location[0] += bound_width
+          write_header_submit_date(pdf, location, bound_width, HEADER_FONT_SIZE)
         end
+        pdf.pad_top(2) { pdf.stroke_horizontal_rule }
       end
     end
 
@@ -148,6 +149,38 @@ module PdfFill
       generate_blocks = sort_generate_blocks
       generate_pdf(file_path, generate_blocks)
       file_path
+    end
+
+    def write_header_main(pdf, location, bound_width, bound_height)
+      pdf.bounding_box(location, width: bound_width, height: bound_height) do
+        pdf.text("<b>ATTACHMENT</b> to VA Form #{@form_name}",
+                 align: :left,
+                 valign: :bottom,
+                 size: bound_height,
+                 inline_format: true)
+      end
+    end
+
+    def write_header_submit_date(pdf, location, bound_width, bound_height)
+      pdf.bounding_box(location, width: bound_width, height: bound_height) do
+        pdf.text("Submitted on VA.gov on #{@submit_date}",
+                 align: :right,
+                 valign: :bottom,
+                 size: SUBHEADER_FONT_SIZE)
+      end
+    end
+
+    # Formats the submit_date for the PDF header
+    def format_date(date)
+      return nil if date.blank?
+
+      return "#{date['month']}-#{date['day']}-#{date['year']}" if date.is_a?(Hash)
+      return date.strftime('%m-%d-%Y') if date.is_a?(Date)
+
+      Date.parse(date).strftime('%m-%d-%Y')
+    rescue
+      Rails.logger.error("Error formatting submit date for PdfFill: #{date}")
+      nil
     end
   end
 end

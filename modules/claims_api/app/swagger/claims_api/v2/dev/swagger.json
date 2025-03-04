@@ -9468,10 +9468,8 @@
                         "email": null,
                         "relationship": null
                       },
-                      "poa": {
-                        "poaCode": "067",
-                        "registrationNumber": "999999999999",
-                        "jobTitle": "MyJob"
+                      "representative": {
+                        "poaCode": "067"
                       },
                       "recordConsent": true,
                       "consentLimits": [
@@ -9516,7 +9514,7 @@
                           "additionalProperties": false,
                           "required": [
                             "veteran",
-                            "poa",
+                            "representative",
                             "recordConsent",
                             "consentAddressChange"
                           ],
@@ -9729,29 +9727,18 @@
                                 }
                               }
                             },
-                            "poa": {
+                            "representative": {
                               "description": "Details of the requested Power of Attorney representing the veteran.",
                               "type": "object",
                               "additionalProperties": false,
                               "required": [
-                                "poaCode",
-                                "registrationNumber"
+                                "poaCode"
                               ],
                               "properties": {
                                 "poaCode": {
                                   "description": "The POA code of the accredited representative or organization.",
                                   "type": "string",
                                   "example": "A1Q"
-                                },
-                                "registrationNumber": {
-                                  "description": "Registration Number of the accredited representative.",
-                                  "type": "string",
-                                  "example": "12345"
-                                },
-                                "jobTitle": {
-                                  "description": "Job title of the accredited representative.",
-                                  "type": "string",
-                                  "example": "Veteran Service Representative"
                                 }
                               }
                             },
@@ -9852,10 +9839,10 @@
                   "errors": [
                     {
                       "title": "Unprocessable entity",
-                      "detail": "The property /poa did not contain the required key poaCode",
+                      "detail": "The property /representative did not contain the required key poaCode",
                       "status": "422",
                       "source": {
-                        "pointer": "data/attributes/poa"
+                        "pointer": "data/attributes/representative"
                       }
                     }
                   ]
@@ -9914,7 +9901,7 @@
                     {
                       "status": "404",
                       "title": "Resource not found",
-                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067"
+                      "detail": "Could not find an Accredited Representative with poa code: 067"
                     }
                   ]
                 },
@@ -9987,7 +9974,7 @@
                         "additionalProperties": false,
                         "required": [
                           "veteran",
-                          "poa",
+                          "representative",
                           "recordConsent",
                           "consentAddressChange"
                         ],
@@ -10203,29 +10190,18 @@
                               }
                             }
                           },
-                          "poa": {
+                          "representative": {
                             "description": "Details of the requested Power of Attorney representing the veteran.",
                             "type": "object",
                             "additionalProperties": false,
                             "required": [
-                              "poaCode",
-                              "registrationNumber"
+                              "poaCode"
                             ],
                             "properties": {
                               "poaCode": {
                                 "description": "The POA code of the accredited representative or organization.",
                                 "type": "string",
                                 "example": "A1Q"
-                              },
-                              "registrationNumber": {
-                                "description": "Registration Number of the accredited representative.",
-                                "type": "string",
-                                "example": "12345"
-                              },
-                              "jobTitle": {
-                                "description": "Job title of the accredited representative.",
-                                "type": "string",
-                                "example": "Veteran Service Representative"
                               }
                             }
                           },
@@ -10278,10 +10254,8 @@
                         "email": "test@test.com",
                         "insuranceNumber": "1234567890"
                       },
-                      "poa": {
-                        "poaCode": "067",
-                        "registrationNumber": "999999999999",
-                        "jobTitle": "MyJob"
+                      "representative": {
+                        "poaCode": "067"
                       },
                       "recordConsent": true,
                       "consentAddressChange": true,
