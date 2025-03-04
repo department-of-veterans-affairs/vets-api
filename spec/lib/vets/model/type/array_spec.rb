@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vets/type/array'
+require 'vets/model/type/array'
 
-RSpec.describe Vets::Type::Array do
+RSpec.describe Vets::Model::Type::Array do
   let(:name) { 'test_array' }
   let(:array_instance_with_string) { described_class.new(name, String) }
   let(:array_instance_with_hash) { described_class.new(name, Hash) }
-  let(:array_instance_with_utc_time) { described_class.new(name, Vets::Type::UTCTime) }
+  let(:array_instance_with_utc_time) { described_class.new(name, Vets::Model::Type::UTCTime) }
   let(:user_class) do
     Class.new do
       attr_accessor :name, :email
@@ -66,7 +66,7 @@ RSpec.describe Vets::Type::Array do
       end
     end
 
-    context 'when klass is Vets::Type::UTCTime' do
+    context 'when klass is Vets::Model::Type::UTCTime' do
       context 'when value is a valid array of UTCTime objects (with +04:00 offset)' do
         let(:valid_time_array) { ['2024-12-19T12:34:56+04:00', '2024-12-20T12:34:56+04:00'] }
         let(:expected_utc_time_array) { valid_time_array.map { |item| Time.parse(item).utc } }

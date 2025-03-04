@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vets/type/http_date'
+require 'vets/model/type/http_date'
 
-RSpec.describe Vets::Type::HTTPDate do
+RSpec.describe Vets::Model::Type::HTTPDate do
   let(:name) { 'test_http_date' }
   let(:klass) { String }
   let(:http_date_instance) { described_class.new(name, klass) }

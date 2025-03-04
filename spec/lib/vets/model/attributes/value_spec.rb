@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vets/attributes/value'
-require 'vets/type/primitive'
-require 'vets/type/object'
-require 'vets/type/utc_time'
-require 'vets/type/hash'
+require 'vets/model/attributes/value'
+require 'vets/model/type/primitive'
+require 'vets/model/type/object'
+require 'vets/model/type/utc_time'
+require 'vets/model/type/hash'
 
-RSpec.describe Vets::Attributes::Value do
+RSpec.describe Vets::Model::Attributes::Value do
   let(:user_class) do
     Class.new do
       attr_accessor :name, :email
@@ -66,7 +66,7 @@ RSpec.describe Vets::Attributes::Value do
 
       it 'casts String to a Time object in UTC' do
         expected_time = Time.parse(value).utc
-        expect(described_class.cast(name, Vets::Type::UTCTime, value)).to eq(expected_time)
+        expect(described_class.cast(name, Vets::Model::Type::UTCTime, value)).to eq(expected_time)
       end
     end
 
@@ -139,17 +139,17 @@ RSpec.describe Vets::Attributes::Value do
 
   describe '#setter_value' do
     context 'when value is an Integer and klass is a String' do
-      it 'casts using Vets::Type::Primitive' do
+      it 'casts using Vets::Model::Type::Primitive' do
         attribute_value = described_class.new(:test_name, String)
         setter_value = attribute_value.setter_value(123)
         expect(setter_value).to eq('123')
       end
     end
 
-    context 'when value is a String and klass is Vets::Type::UTCTime' do
-      it 'casts using Vets::Type::UTCTime' do
+    context 'when value is a String and klass is Vets::Model::Type::UTCTime' do
+      it 'casts using Vets::Model::Type::UTCTime' do
         value = '2024-12-19T12:34:56+04:00'
-        attribute_value = described_class.new(:test_name, Vets::Type::UTCTime)
+        attribute_value = described_class.new(:test_name, Vets::Model::Type::UTCTime)
         setter_value = attribute_value.setter_value(value)
         expect(setter_value).to eq(Time.parse(value).utc)
       end
