@@ -1467,9 +1467,9 @@ vanotify:
         form_10_7959f_1_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_1_email'] %>
         form_10_7959f_1_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_1_failure_email'] %>
         form_10_7959f_2_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_email'] %>
-        form_10_7959f_2_failure_email: form_10_7959f_2_failure_email
-        pega_team_missing_status_email: pega_team_missing_status_email
-        pega_team_zsf_email: pega_team_zsf_email
+        form_10_7959f_2_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_failure_email'] %>
+        pega_team_missing_status_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_missing_status_email'] %>
+        pega_team_zsf_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_zsf_email'] %> 
     lighthouse:
       api_key: <%= ENV['vanotify__services__lighthouse__api_key'] %>
       template_id:
