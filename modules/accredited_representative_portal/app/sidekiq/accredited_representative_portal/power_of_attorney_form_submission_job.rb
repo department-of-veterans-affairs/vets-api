@@ -23,7 +23,7 @@ module AccreditedRepresentativePortal
         status_updated_at: DateTime.current,
         error_message: error_data.to_json
       )
-      raise PendingSubmissionError.new('2122 still pending') if response_status == 'pending'
+      raise PendingSubmissionError, '2122 still pending' if response_status == 'pending'
     rescue => e
       handle_errors(e, poa_form_submission)
     end

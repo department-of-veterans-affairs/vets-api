@@ -1,16 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../spec_helper.rb'
+require_relative '../../spec_helper'
 require 'sidekiq/testing'
-
 
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob, type: :job do
   subject { described_class.new }
 
   let(:vcr_path) do
     'accredited_representative_portal/sidekiq/accredited_representative_portal/' \
-    'power_of_attorney_form_submission_job_spec/'
+      'power_of_attorney_form_submission_job_spec/'
   end
   let(:poa_form_submission) do
     create(:power_of_attorney_form_submission, service_id: '29b7c214-4a61-425e-97f2-1a56de869524')
