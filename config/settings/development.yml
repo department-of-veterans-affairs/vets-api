@@ -645,6 +645,11 @@ ivc_forms:
   sidekiq:
     missing_form_status_job:
       enabled: true
+kafka_producer:
+  aws_region: "us-gov-west-1"
+  aws_role_arn: "arn:aws:iam::123456789012:role/role-name" # this is an example
+  broker_urls: ["localhost:19092"] # for local Kafka cluster in Docker
+  schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
 kms_key_id: ~
 lgy:
   api_key: ~
