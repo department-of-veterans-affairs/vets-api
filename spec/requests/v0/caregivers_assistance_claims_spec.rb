@@ -228,7 +228,8 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
     #       form: form_data
     #     ).and_return(claim)
 
-    #     allow_any_instance_of(ApplicationController).to receive(:send_data).and_raise(StandardError, 'send_data failed')
+    #     allow_any_instance_of(ApplicationController).to receive(:send_data)
+    # .and_raise(StandardError, 'send_data failed')
 
     #     expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
     #     expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
