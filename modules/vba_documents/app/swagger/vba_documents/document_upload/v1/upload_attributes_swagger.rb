@@ -34,12 +34,10 @@ module VBADocuments
               key :example, ''
             end
 
-            if Flipper.enabled?(:vba_documents_final_status_field)
-              property :final_status do
-                key :description, 'Indicates whether the status of the submission is final. Submissions with a final_status of true will no longer update to a new status.'
-                key :type, :boolean
-                key :example, false
-              end
+            property :final_status do
+              key :description, 'Indicates whether the status of the submission is final. Submissions with a final_status of true will no longer update to a new status.'
+              key :type, :boolean
+              key :example, false
             end
 
             property :location do

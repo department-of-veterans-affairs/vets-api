@@ -3,6 +3,8 @@
 require_relative '../../../../support/helpers/rails_helper'
 require 'va_profile/demographics/service'
 
+# NOTE: Endpoints remain for backwards compatibility with mobile clients. They should be removed in the future.
+
 RSpec.describe 'Mobile::V0::User::GenderIdentity', type: :request do
   include SchemaMatchers
 
@@ -23,49 +25,32 @@ RSpec.describe 'Mobile::V0::User::GenderIdentity', type: :request do
           get('/mobile/v0/user/gender_identity/edit', headers: sis_headers(camelize: false))
         end
 
-        it 'returns a list of valid ids' do
+        it 'returns an empty object' do
           json = json_body_for(response)['attributes']['options']
-          expect(json).to eq(VAProfile::Models::GenderIdentity::OPTIONS)
-        end
-
-        it 'returns a list in correct order' do
-          codes = response.parsed_body.dig('data', 'attributes', 'options').keys
-          expect(codes).to eq(%w[M B TM TF F N O])
+          expect(json).to eq({})
         end
       end
     end
 
     describe 'PUT /mobile/v0/gender_identity' do
       context 'when a valid code is provided' do
-        it 'returns a 201' do
+        it 'returns a 410' do
           gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
 
           VCR.use_cassette('mobile/va_profile/post_gender_identity_success', erb: { csd: }) do
             put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
-            expect(response).to have_http_status(:no_content)
+            expect(response).to have_http_status(:gone)
           end
         end
-      end
 
-      context 'matches the errors schema' do
-        it 'when code is blank', :aggregate_failures do
-          gender_identity = VAProfile::Models::GenderIdentity.new(code: nil)
+        it 'matches the errors schema' do
+          gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
 
-          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
-
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response).to match_response_schema('errors')
-          expect(errors_for(response)).to include "code - can't be blank"
-        end
-
-        it 'when code is an invalid option', :aggregate_failures do
-          gender_identity = VAProfile::Models::GenderIdentity.new(code: 'A')
-
-          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
-
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response).to match_response_schema('errors')
-          expect(errors_for(response)).to include 'code - invalid code'
+          VCR.use_cassette('mobile/va_profile/post_gender_identity_success', erb: { csd: }) do
+            put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
+            expect(response).to match_response_schema('errors')
+            expect(errors_for(response)).to include 'This field no longer exists and cannot be updated'
+          end
         end
       end
     end
@@ -81,49 +66,32 @@ RSpec.describe 'Mobile::V0::User::GenderIdentity', type: :request do
           get('/mobile/v0/user/gender_identity/edit', headers: sis_headers(camelize: false))
         end
 
-        it 'returns a list of valid ids' do
+        it 'returns empty object' do
           json = json_body_for(response)['attributes']['options']
-          expect(json).to eq(VAProfile::Models::GenderIdentity::OPTIONS)
-        end
-
-        it 'returns a list in correct order' do
-          codes = response.parsed_body.dig('data', 'attributes', 'options').keys
-          expect(codes).to eq(%w[M B TM TF F N O])
+          expect(json).to eq({})
         end
       end
     end
 
     describe 'PUT /mobile/v0/gender_identity' do
       context 'when a valid code is provided' do
-        it 'returns a 201' do
+        it 'returns a 410' do
           gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
 
           VCR.use_cassette('mobile/va_profile/post_gender_identity_success', erb: { csd: }) do
             put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
-            expect(response).to have_http_status(:no_content)
+            expect(response).to have_http_status(:gone)
           end
         end
-      end
 
-      context 'matches the errors schema' do
-        it 'when code is blank', :aggregate_failures do
-          gender_identity = VAProfile::Models::GenderIdentity.new(code: nil)
+        it 'matches the errors schema' do
+          gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
 
-          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
-
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response).to match_response_schema('errors')
-          expect(errors_for(response)).to include "code - can't be blank"
-        end
-
-        it 'when code is an invalid option', :aggregate_failures do
-          gender_identity = VAProfile::Models::GenderIdentity.new(code: 'A')
-
-          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
-
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response).to match_response_schema('errors')
-          expect(errors_for(response)).to include 'code - invalid code'
+          VCR.use_cassette('mobile/va_profile/post_gender_identity_success', erb: { csd: }) do
+            put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
+            expect(response).to match_response_schema('errors')
+            expect(errors_for(response)).to include 'This field no longer exists and cannot be updated'
+          end
         end
       end
     end

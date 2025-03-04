@@ -6,7 +6,7 @@ RSpec.describe Banners::Builder do
   let(:entity_id) { '123' }
   let(:banner_data) do
     {
-      entity_id: entity_id,
+      entity_id:,
       title: 'Test Banner',
       content: 'Test Content'
     }
@@ -62,7 +62,7 @@ RSpec.describe Banners::Builder do
 
     it 'finds or initializes banner by entity_id' do
       builder.banner
-      expect(Banner).to have_received(:find_or_initialize_by).with(entity_id: entity_id)
+      expect(Banner).to have_received(:find_or_initialize_by).with(entity_id:)
     end
 
     it 'memoizes the banner' do

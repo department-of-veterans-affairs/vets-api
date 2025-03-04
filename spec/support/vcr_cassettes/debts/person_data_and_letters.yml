@@ -713,7 +713,7 @@ http_interactions:
   recorded_at: Fri, 12 Jun 2020 02:57:31 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/debt-letter/get
+    uri: https://fwdproxy-dev.vfs.va.gov:4465/api/v1/digital-services/debt-letter/get
     body:
       encoding: UTF-8
       string: '{"fileNumber":"796043735"}'

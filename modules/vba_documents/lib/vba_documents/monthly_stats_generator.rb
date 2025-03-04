@@ -11,7 +11,7 @@ module VBADocuments
     end
 
     def generate_and_save_stats
-      VBADocuments::MonthlyStat.find_or_create_by(month: @month, year: @year).update(stats: stats)
+      VBADocuments::MonthlyStat.find_or_create_by(month: @month, year: @year).update(stats:)
     end
 
     private
@@ -82,7 +82,7 @@ module VBADocuments
         {
           consumer_name: consumer,
           expired_count: expired_records.for_consumer(consumer).count,
-          errored_count: errored_count,
+          errored_count:,
           processing_count: processing_records.for_consumer(consumer).count,
           success_count: success_records.for_consumer(consumer).count,
           vbms_count: vbms_records.for_consumer(consumer).count,

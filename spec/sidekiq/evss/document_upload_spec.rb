@@ -73,6 +73,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   context 'when :cst_send_evidence_submission_failure_emails is enabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
+      allow(StatsD).to receive(:increment)
     end
 
     context 'when upload succeeds' do
@@ -96,9 +97,12 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         allow(EvidenceSubmission).to receive(:find_by).with({ job_id: job_id.to_s })
                                                       .and_return(evidence_submission_pending)
         described_class.drain
-        evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
+        evidence_submission = EvidenceSubmission.find_by(job_id:)
         expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
         expect(evidence_submission.delete_date).not_to be_nil
+        expect(StatsD)
+          .to have_received(:increment)
+          .with('cst.evss.document_uploads.evidence_submission_record_updated.success')
       end
     end
 
@@ -132,7 +136,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
                                                      tags: ['service:claim-status', "function: #{message}"])
         end
         expect(EvidenceSubmission.va_notify_email_not_queued.length).to equal(1)
-        evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
+        evidence_submission = EvidenceSubmission.find_by(job_id:)
         current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
         expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
         expect(evidence_submission.error_message).to eql('EVSS::DocumentUpload document upload failure')

@@ -76,6 +76,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   context 'when :cst_send_evidence_submission_failure_emails is enabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
+      allow(StatsD).to receive(:increment)
     end
 
     context 'when upload succeeds' do
@@ -109,9 +110,12 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         described_class.drain # runs all queued jobs of this class
         # After running DocumentUpload job, there should be an updated EvidenceSubmission record
         # with the response request_id
-        new_evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
+        new_evidence_submission = EvidenceSubmission.find_by(job_id:)
         expect(new_evidence_submission.request_id).to eql(success_response.body.dig('data', 'requestId'))
         expect(new_evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
+        expect(StatsD)
+          .to have_received(:increment)
+          .with('cst.lighthouse.document_uploads.evidence_submission_record_updated.added_request_id')
       end
     end
 
@@ -155,7 +159,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
                                                      tags: ['service:claim-status', "function: #{message}"])
         end
         expect(EvidenceSubmission.va_notify_email_not_queued.length).to equal(1)
-        evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
+        evidence_submission = EvidenceSubmission.find_by(job_id:)
         current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
         expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
         expect(evidence_submission.error_message)
