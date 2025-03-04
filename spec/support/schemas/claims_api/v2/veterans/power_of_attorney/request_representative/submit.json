@@ -22,7 +22,7 @@
           "additionalProperties": false,
           "required": [
             "veteran",
-            "poa",
+            "representative",
             "recordConsent",
             "consentAddressChange"
           ],
@@ -233,29 +233,18 @@
                 }
               }
             },
-            "poa": {
+            "representative": {
               "description": "Details of the requested Power of Attorney representing the veteran.",
               "type": "object",
               "additionalProperties": false,
               "required": [
-                "poaCode",
-                "registrationNumber"
+                "poaCode"
               ],
               "properties": {
                 "poaCode": {
                   "description": "The POA code of the accredited representative or organization.",
                   "type": "string",
                   "example": "A1Q"
-                },
-                "registrationNumber": {
-                  "description": "Registration Number of the accredited representative.",
-                  "type": "string",
-                  "example": "12345"
-                },
-                "jobTitle": {
-                  "description": "Job title of the accredited representative.",
-                  "type": "string",
-                  "example": "Veteran Service Representative"
                 }
               }
             },
