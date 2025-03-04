@@ -68,15 +68,16 @@ module RepresentationManagement
       end
 
       def enqueue_confirmation_email
-        data = RepresentationManagement::PowerOfAttorneyRequestEmailData.new(form_data: @form_data_object)
+        email_data = RepresentationManagement::PowerOfAttorneyRequestEmailData.new(form_data: @form_data_object)
         VANotify::EmailJob.perform_async(
-          data.email_address,
+          email_data.email_address,
           Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_submit_confirmation_email,
           {
-            'first_name' => data.first_name, 'last_name' => data.last_name,
-            'submit_date' => data.submit_date,
-            'expiration_date' => data.expiration_date,
-            'representative name' => data.representative_name
+            'first_name' => email_data.first_name,
+            'last_name' => email_data.last_name,
+            'submit_date' => email_data.submit_date,
+            'expiration_date' => email_data.expiration_date,
+            'representative name' => email_data.representative_name
           }
         )
       end
