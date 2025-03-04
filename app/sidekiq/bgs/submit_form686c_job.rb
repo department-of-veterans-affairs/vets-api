@@ -9,14 +9,14 @@ module BGS
     include Sidekiq::Job
     include SentryLogging
 
-    attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn
+    attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn, :auto_674
 
     # retry for  2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
     sidekiq_options retry: 16
 
     sidekiq_retries_exhausted do |msg, _error|
-      user_uuid, icn, saved_claim_id, encrypted_vet_info = msg['args']
+      user_uuid, icn, saved_claim_id, encrypted_vet_info, auto_674 = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.error("BGS::SubmitForm686cJob failed, retries exhausted! Last error: #{msg['error_message']}",
                          { user_uuid:, saved_claim_id:, icn: })
@@ -24,9 +24,9 @@ module BGS
       BGS::SubmitForm686cJob.send_backup_submission(vet_info, saved_claim_id, user_uuid)
     end
 
-    def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info)
+    def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info, auto_674 = nil)
       Rails.logger.info('BGS::SubmitForm686cJob running!', { user_uuid:, saved_claim_id:, icn: })
-      instance_params(encrypted_vet_info, icn, user_uuid, saved_claim_id)
+      instance_params(encrypted_vet_info, icn, user_uuid, saved_claim_id, auto_674)
 
       submit_forms(encrypted_vet_info)
 
@@ -53,16 +53,16 @@ module BGS
       raise Sidekiq::JobRetry::Skip
     end
 
-    def instance_params(encrypted_vet_info, icn, user_uuid, saved_claim_id)
+    def instance_params(encrypted_vet_info, icn, user_uuid, saved_claim_id, auto_674)
       @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      @user = BGS::SubmitForm686cJob.generate_user_struct(@vet_info)
+      @user = BGS::SubmitForm686cJob.generate_user_struct(@vet_info, auto_674)
       @icn = icn
       @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
       @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
     end
 
-    def self.generate_user_struct(vet_info)
+    def self.generate_user_struct(vet_info, auto_674)
       info = vet_info['veteran_information']
       full_name = info['full_name']
       OpenStruct.new(
@@ -75,7 +75,8 @@ module BGS
         participant_id: info['participant_id'],
         icn: info['icn'],
         uuid: info['uuid'],
-        common_name: info['common_name']
+        common_name: info['common_name'],
+        auto_674: auto_674
       )
     end
 
@@ -105,7 +106,7 @@ module BGS
       BGS::Form686c.new(user, claim).submit(claim_data)
 
       # If Form 686c job succeeds, then enqueue 674 job.
-      BGS::SubmitForm674Job.perform_async(user_uuid, icn, saved_claim_id, encrypted_vet_info, KmsEncrypted::Box.new.encrypt(user.to_h.to_json)) if claim.submittable_674? # rubocop:disable Layout/LineLength
+      BGS::SubmitForm674Job.perform_async(user_uuid, icn, saved_claim_id, encrypted_vet_info, KmsEncrypted::Box.new.encrypt(user.to_h.to_json), user.auto_674) if claim.submittable_674? # rubocop:disable Layout/LineLength
     end
 
     def send_confirmation_email

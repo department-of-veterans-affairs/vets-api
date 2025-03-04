@@ -28,6 +28,8 @@ module BGS
       @icn = user.icn
       @participant_id = user.participant_id
       @va_profile_email = user.va_profile_email
+      # use for new auto 674 flipper testing
+      @auto_674 = Flipper.enabled?(:va_dependents_submit674, user)
     end
 
     def get_dependents
@@ -86,11 +88,11 @@ module BGS
     def submit_to_standard_service(claim:, encrypted_vet_info:)
       if claim.submittable_686?
         BGS::SubmitForm686cJob.perform_async(
-          uuid, icn, claim.id, encrypted_vet_info
+          uuid, icn, claim.id, encrypted_vet_info, @auto_674
         )
       else
         BGS::SubmitForm674Job.perform_async(
-          uuid, icn, claim.id, encrypted_vet_info
+          uuid, icn, claim.id, encrypted_vet_info, nil, @auto_674
         )
       end
     end
