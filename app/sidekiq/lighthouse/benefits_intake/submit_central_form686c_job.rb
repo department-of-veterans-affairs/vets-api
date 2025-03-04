@@ -262,16 +262,6 @@ module Lighthouse
         )
       end
 
-      def callback_options
-        {
-          callback_metadata: {
-            notification_type: 'error',
-            form_number: claim.submittable_686? ? FORM_ID : FORM_ID_674,
-            statsd_tags: { service: STATSD_KEY_PREFIX, function: STATSD_KEY_PREFIX }
-          }
-        }
-      end
-
       def log_cmp_response(response)
         log_message_to_sentry("vre-central-mail-response: #{response}", :info, {}, { team: 'vfs-ebenefits' })
       end
