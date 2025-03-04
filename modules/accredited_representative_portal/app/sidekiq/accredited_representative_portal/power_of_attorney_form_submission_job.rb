@@ -15,12 +15,15 @@ module AccreditedRepresentativePortal
       @id = poa_form_submission_id
       service = BenefitsClaims::Service.new(poa_form_submission.power_of_attorney_request.claimant.icn)
       @response = service.get_2122_submission(poa_form_submission.service_id)
+      status = (non_error_response? ? :succeeded : :failed)
       poa_form_submission.update(
-        status: (non_error_response? ? :succeeded : :failed),
+        status: status,
         service_response: response.to_json,
         status_updated_at: DateTime.current,
         error_message: error_data.to_json
       )
+
+      StatsD.increment('ar.poa.submission.count', tags: ["status:#{status}"])
     rescue => e
       handle_errors(e, poa_form_submission)
     end

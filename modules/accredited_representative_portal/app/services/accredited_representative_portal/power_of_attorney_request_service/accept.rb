@@ -38,6 +38,10 @@ module AccreditedRepresentativePortal
         form_submission = create_form_submission!(response.body)
         PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
         form_submission
+
+        decision_time_ms = (Time.current - @poa_request.created_at) * 1000
+        StatsD.distribution('ar.poa.request.duration', decision_time_ms, tags: ['decision:accepted'])
+
       # Invalid record - return error message with 400
       rescue ActiveRecord::RecordInvalid => e
         raise Error.new(e.message, :bad_request)
@@ -70,6 +74,8 @@ module AccreditedRepresentativePortal
           status: :enqueue_succeeded,
           status_updated_at: DateTime.current
         )
+
+        StatsD.increment('ar.poa.submission.duration', tags: ['status:enqueue_succeeded'])
       end
 
       def create_error_form_submission(message, response_body)
@@ -80,6 +86,8 @@ module AccreditedRepresentativePortal
           service_response: response_body,
           error_message: message
         )
+
+        StatsD.increment('ar.poa.submission.duration', tags: ['status:enqueue_failed'])
       end
 
       def form_payload
