@@ -12,7 +12,7 @@ RSpec.describe DebtsApi::V0::OneDebtLetterService, type: :service do
       pdf = service.get_pdf
 
       expect(pdf).to be_a(String)
-      expect(pdf).to include('%PDF-1.4')
+      expect(pdf).to include('%PDF-1.6')
     end
   end
 end

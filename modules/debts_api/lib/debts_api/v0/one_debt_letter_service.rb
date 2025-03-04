@@ -75,7 +75,7 @@ module DebtsApi
         file_number: user_file_number,
         address: {
           address_line_one: @user.address[:street],
-          address_line_two: @user.address[:street2],
+          address_line_two: @user.address[:street2] || '',
           city_state_zip: "#{@user.address[:city]} #{@user.address[:state]} #{@user.address[:postal_code]}"
         }
       }

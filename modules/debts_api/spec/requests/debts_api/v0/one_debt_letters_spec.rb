@@ -12,8 +12,10 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
   describe '#download_pdf' do
     it 'returns pdf' do
       expect(StatsD).to receive(:increment).with(
-        'api.rack.request',
-        { tags: %w[controller:debts_api/v0/one_debt_letters action:download_pdf source_app:not_provided status:200] }
+        "api.rack.request",
+        {
+          tags: %w[controller:debts_api/v0/one_debt_letters action:download_pdf source_app:not_provided status:200]
+        }
       )
       get '/debts_api/v0/download_one_debt_letter_pdf'
 
