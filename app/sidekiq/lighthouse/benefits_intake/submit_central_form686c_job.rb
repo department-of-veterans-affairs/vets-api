@@ -236,7 +236,7 @@ module Lighthouse
         )
       end
 
-      def send_failure_email(user)
+      def send_failure_email(email,callback_options)
         return if user.va_profile_email.blank?
 
         VANotify::EmailJob.perform_async(
@@ -299,6 +299,17 @@ module Lighthouse
 
       def split_file_and_path(path)
         { file: path, file_name: path.split('/').last }
+      end
+      
+      def send_failure_email(user, claim)
+
+        VANotify::EmailJob.perform_async(
+          email_address: user.va_profile_email,
+          template_id: Settings.vanotify.services.va_gov.template_id.form686c_failure_email,
+          first_name: user&.first_name&.upcase,
+          user_uuid_and_form_id: "#{user.uuid}_#{claim.form_id}",
+          **callback_options
+        )
       end
     end
   end
