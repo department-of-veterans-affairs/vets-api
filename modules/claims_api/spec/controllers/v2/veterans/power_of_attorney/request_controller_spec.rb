@@ -452,7 +452,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         .with(anything)
         .and_return(nil)
       allow_any_instance_of(described_class).to receive(:representative_data).and_return(representative_data)
-      Flipper.disable(:lighthouse_claims_v2_poa_requests_skip_bgs)
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
       allow(ClaimsApi::PowerOfAttorneyRequestService::TerminateExistingRequests).to receive(:new)
         .with(anything)
         .and_return(terminate_existing_requests)

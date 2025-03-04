@@ -22,6 +22,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     travel_to(time)
   end
 
+  after { Flipper.disable(:accredited_representative_portal_pilot) }
+
   let!(:poa_code) { 'x23' }
   let!(:other_poa_code) { 'z99' }
 

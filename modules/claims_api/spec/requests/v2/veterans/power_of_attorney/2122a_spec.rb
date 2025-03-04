@@ -22,7 +22,8 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
       create(:veteran_representative, representative_id: '12345', poa_codes: [individual_poa_code])
       create(:veteran_representative, representative_id: '999999999999', poa_codes: [organization_poa_code])
 
-      Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                          .and_return false
     end
 
     describe 'appoint_individual' do
@@ -179,7 +180,8 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                 before do
                   allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
                     .to receive(:disable_jobs?).and_return(false)
-                  Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
+                  allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                      .and_return true
                 end
 
                 context 'and the request includes a claimant' do
@@ -235,7 +237,8 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
 
               context 'when the lighthouse_claims_api_poa_dependent_claimants feature is disabled' do
                 before do
-                  Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+                  allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                      .and_return false
                 end
 
                 it 'does not add the dependent object to the auth_headers' do
@@ -748,7 +751,8 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                     end
 
                     before do
-                      Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
+                      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                          .and_return true
 
                       allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
                         .to receive(:user_profile).and_return(user_profile)
@@ -799,7 +803,8 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                     end
 
                     before do
-                      Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+                      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                          .and_return false
                     end
 
                     it 'does not call validate_poa_code_exists! and validate_dependent_by_participant_id!' do
