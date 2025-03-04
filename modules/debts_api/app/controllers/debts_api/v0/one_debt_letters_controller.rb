@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'debts_api/v0/one_debt_letter_service'
 
 module DebtsApi
