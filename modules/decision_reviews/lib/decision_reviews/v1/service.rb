@@ -5,8 +5,8 @@ require 'common/client/concerns/monitoring'
 require 'common/client/errors'
 require 'common/exceptions/forbidden'
 require 'common/exceptions/schema_validation_errors'
-require 'decision_review_v1/configuration'
-require 'decision_review_v1/service_exception'
+require 'decision_reviews/v1/configuration'
+require 'decision_reviews/v1/service_exception'
 require 'decision_reviews/v1/constants'
 require 'decision_reviews/v1/supplemental_claim_services'
 require 'decision_reviews/v1/logging_utils'
@@ -41,7 +41,7 @@ module DecisionReviews
         400 => Common::Exceptions::BadRequest
       }.freeze
 
-      configuration ::DecisionReviewV1::Configuration
+      configuration DecisionReviews::V1::Configuration
 
       ##
       # Create a Higher-Level Review
@@ -447,7 +447,7 @@ module DecisionReviews
         source_hash = { source: "#{error.class} raised in #{self.class}" }
         raise case error
               when Faraday::ParsingError
-                DecisionReviewV1::ServiceException.new key: 'DR_502', response_values: source_hash
+                DecisionReviews::V1::ServiceException.new key: 'DR_502', response_values: source_hash
               when Common::Client::Errors::ClientError
                 Sentry.set_extras(body: error.body, status: error.status)
                 if common_exceptions_flag_enabled? && ERROR_MAP.key?(error.status)
@@ -455,8 +455,8 @@ module DecisionReviews
                 elsif error.status == 403
                   Common::Exceptions::Forbidden.new source_hash
                 else
-                  DecisionReviewV1::ServiceException.new(key: "DR_#{error.status}", response_values: source_hash,
-                                                         original_status: error.status, original_body: error.body)
+                  DecisionReviews::V1::ServiceException.new(key: "DR_#{error.status}", response_values: source_hash,
+                                                            original_status: error.status, original_body: error.body)
                 end
               else
                 error
