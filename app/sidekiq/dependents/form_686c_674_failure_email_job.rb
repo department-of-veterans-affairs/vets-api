@@ -1,3 +1,5 @@
+require 'va_notify/service'
+
 class Dependents::Form686c674FailureEmailJob
   include Sidekiq::Job
 
@@ -17,10 +19,10 @@ class Dependents::Form686c674FailureEmailJob
   end
 
   def perform(claim_id, email, template_id)
-    claim(claim_id)
-    va_notify_client.send_email(email,
-                                template_id,
-                                personalisation)
+    @claim = SavedClaim::DependencyClaim.find(claim_id)
+    va_notify_client.send_email(email_address: email,
+                                template_id: template_id,
+                                personalisation: personalisation)
   rescue => e
     Rails.logger.warn('Form686c674FailureEmailJob failed, retrying send...', { claim_id: claim_id, error: e })
   end
@@ -28,19 +30,15 @@ class Dependents::Form686c674FailureEmailJob
 
   private
 
-  def claim(claim_id)
-    @claim ||= SavedClaim::DependentsApplication.find(claim_id)
-  end
-
   def va_notify_client
-    @va_notify_client ||= VANotify::Service.new(Settings.vanotify.services.va_gov.api_key, callback_options)
+    @va_notify_client ||= VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key, callback_options)
   end
 
   def callback_options
     {
       callback_metadata: {
         notification_type: 'error',
-        form_id: claim.form_id,
+        form_id: @claim.form_id,
         statsd_tags: { service: 'dependent-change', function: ZSF_DD_TAG_FUNCTION }
       }
     }
@@ -48,9 +46,9 @@ class Dependents::Form686c674FailureEmailJob
 
   def personalisation
     {
-      'first_name' => claim.parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+      'first_name' => @claim.parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
       'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-      'confirmation_number' => claim.confirmation_number
+      'confirmation_number' => @claim.confirmation_number
     }
   end
 
