@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 require 'debts_api/v0/one_debt_letter_service'
 
 module DebtsApi
@@ -12,6 +11,13 @@ module DebtsApi
         file_contents = service.get_pdf
 
         send_data file_contents, filename: file_name_for_pdf, type: 'application/pdf', disposition: 'attachment'
+
+        service = DebtsApi::V0::OneDebtLetterService.new(current_user)
+        file_contents = service.get_pdf
+
+        send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
+      ensure
+        File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
       end
 
       private

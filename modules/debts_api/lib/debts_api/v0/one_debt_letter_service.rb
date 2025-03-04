@@ -17,6 +17,17 @@ module DebtsApi
     def add_and_format_logo(pdf)
       logo_path = Rails.root.join('modules', 'debts_api', 'app', 'assets', 'images', 'va_logo.png')
       pdf.image logo_path, at: [(pdf.bounds.width / 2) - (250 / 2), pdf.cursor], width: 250
+
+      Prawn::Document.new(page_size: 'LETTER').render
+
+    end
+
+    def vbs_service
+      MedicalCopays::VBS::Service.build(user: current_user)
+    end
+
+    def dmc_service
+      DebtManagementCenter::DebtsService.new(current_user)
     end
   end
 end
