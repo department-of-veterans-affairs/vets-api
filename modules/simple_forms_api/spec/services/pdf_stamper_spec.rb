@@ -120,5 +120,14 @@ describe SimpleFormsApi::PdfStamper do
         end
       end
     end
+
+    context 'Form Upload tool footer stamps' do
+      it 'satisfies the #verify method' do
+        path = 'modules/simple_forms_api/spec/fixtures/pdfs/VBA-21-0779-ARE.pdf'
+        instance = described_class.new(stamped_template_path: path)
+
+        expect { instance.stamp_pdf }.not_to raise_exception(StandardError)
+      end
+    end
   end
 end
