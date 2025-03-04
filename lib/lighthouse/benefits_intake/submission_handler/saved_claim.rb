@@ -46,21 +46,12 @@ module BenefitsIntake
       # the monitor to be used
       # @see ZeroSilentFailures::Monitor
       def monitor
-        @monitor ||= ZeroSilentFailures::Monitor.new('benefits-intake')
-      end
-
-      # the email handler to be used
-      # @see VeteranFacingServices::NotificationEmail
-      def notification_email
-        nil
+        @monitor ||= ZeroSilentFailures::Monitor.new('lighthouse-benefits-intake')
       end
 
       # handle a failure result
+      # inheriting class must assign @avoided before calling `super`
       def on_failure
-        notification_email.deliver(:error) if notification_email.respond_to?('deliver')
-        claim.send_failure_email if claim.respond_to?('send_failure_email')
-
-        avoided ||= notification_email.respond_to?('deliver') || claim.respond_to?('send_failure_email')
         raise "#{self.class}: on_failure silent failure not avoided" unless avoided
 
         monitor.log_silent_failure_avoided(additional_context, call_location:)
@@ -72,8 +63,7 @@ module BenefitsIntake
 
       # handle a success result
       def on_success
-        notification_email.deliver(:received) if notification_email.respond_to?('deliver')
-        claim.send_received_email if claim.respond_to?('send_received_email')
+        true
       end
 
       # handle a stale result
