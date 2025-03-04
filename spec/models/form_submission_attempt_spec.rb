@@ -198,7 +198,7 @@ RSpec.describe FormSubmissionAttempt, type: :model do
             user_account: anything
           ).and_return(notification_email)
           allow(notification_email).to receive(:send)
-          form_submission_attempt = create(:form_submission_attempt)
+          form_submission_attempt = create(:form_submission_attempt, :nil_form_data)
 
           form_submission_attempt.vbms!
 
