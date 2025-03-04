@@ -20,7 +20,7 @@ class Dependents::Form686c674FailureEmailJob
                        })
   end
 
-  def perform(claim_id, email, template_id)
+  def perform(claim_id, email, template_id, personalisation)
     @claim = SavedClaim::DependencyClaim.find(claim_id)
     va_notify_client.send_email(email_address: email,
                                 template_id:,
@@ -42,14 +42,6 @@ class Dependents::Form686c674FailureEmailJob
         form_id: @claim.form_id,
         statsd_tags: { service: 'dependent-change', function: ZSF_DD_TAG_FUNCTION }
       }
-    }
-  end
-
-  def personalisation
-    {
-      'first_name' => @claim.parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
-      'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-      'confirmation_number' => @claim.confirmation_number
     }
   end
 end

@@ -21,6 +21,13 @@ RSpec.describe Dependents::Form686c674FailureEmailJob, type: :job do
       }
     )
   end
+  let(:personalisation) do
+    {
+      'first_name' => 'JOHN',
+      'date_submitted' => 'January 01, 2023',
+      'confirmation_number' => 'ABCD1234'
+    }
+  end
   let(:va_notify_client) { instance_double(VaNotify::Service) }
 
   describe '#perform' do
@@ -37,12 +44,12 @@ RSpec.describe Dependents::Form686c674FailureEmailJob, type: :job do
         template_id:,
         personalisation: {
           'first_name' => 'JOHN',
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'date_submitted' => 'January 01, 2023',
           'confirmation_number' => 'ABCD1234'
         }
       )
 
-      job.perform(claim_id, email, template_id)
+      job.perform(claim_id, email, template_id, personalisation)
     end
 
     context 'when an error occurs' do
@@ -57,7 +64,7 @@ RSpec.describe Dependents::Form686c674FailureEmailJob, type: :job do
         )
 
         # Should not raise error
-        expect { job.perform(claim_id, email, template_id) }.not_to raise_error
+        expect { job.perform(claim_id, email, template_id, personalisation) }.not_to raise_error
       end
     end
   end
@@ -107,7 +114,7 @@ RSpec.describe Dependents::Form686c674FailureEmailJob, type: :job do
 
       # Just allow the job to execute, which should create the client
       allow(va_notify_client).to receive(:send_email)
-      job.perform(claim_id, email, template_id)
+      job.perform(claim_id, email, template_id, personalisation)
     end
   end
 
@@ -126,14 +133,14 @@ RSpec.describe Dependents::Form686c674FailureEmailJob, type: :job do
       expect(va_notify_client).to receive(:send_email).with(
         email_address: email,
         template_id:,
-        personalisation: {
-          'first_name' => 'JOHN',
-          'date_submitted' => 'January 01, 2023',
-          'confirmation_number' => 'ABCD1234'
-        }
+        personalisation:
       )
 
-      job.perform(claim_id, email, template_id)
+      job.perform(claim_id, email, template_id, {
+                    'first_name' => 'JOHN',
+                    'date_submitted' => 'January 01, 2023',
+                    'confirmation_number' => 'ABCD1234'
+                  })
     end
 
     context 'when first name is nil' do
@@ -158,8 +165,8 @@ RSpec.describe Dependents::Form686c674FailureEmailJob, type: :job do
           template_id:,
           personalisation: hash_including('first_name' => nil)
         )
-
-        job.perform(claim_id, email, template_id)
+        personalisation['first_name'] = nil
+        job.perform(claim_id, email, template_id, personalisation)
       end
     end
   end
