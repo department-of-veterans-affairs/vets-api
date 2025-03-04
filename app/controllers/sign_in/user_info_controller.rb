@@ -14,6 +14,7 @@ module SignIn
 
     def user_info_json
       {
+        sub: current_user.uuid,
         credential_uuid: current_user.uuid,
         icn: current_user.icn,
         sec_id: current_user.sec_id,

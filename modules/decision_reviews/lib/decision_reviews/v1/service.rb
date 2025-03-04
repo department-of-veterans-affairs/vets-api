@@ -27,6 +27,20 @@ module DecisionReviews
       ZIP_REGEX = /^\d{5}(-\d{4})?$/
       NO_ZIP_PLACEHOLDER = '00000'
 
+      ERROR_MAP = {
+        504 => Common::Exceptions::GatewayTimeout,
+        503 => Common::Exceptions::ServiceUnavailable,
+        502 => Common::Exceptions::BadGateway,
+        500 => Common::Exceptions::ExternalServerInternalServerError,
+        429 => Common::Exceptions::TooManyRequests,
+        422 => Common::Exceptions::UnprocessableEntity,
+        413 => Common::Exceptions::PayloadTooLarge,
+        404 => Common::Exceptions::ResourceNotFound,
+        403 => Common::Exceptions::Forbidden,
+        401 => Common::Exceptions::Unauthorized,
+        400 => Common::Exceptions::BadRequest
+      }.freeze
+
       configuration ::DecisionReviewV1::Configuration
 
       ##
@@ -334,22 +348,6 @@ module DecisionReviews
 
       private
 
-      def submit_upload_job
-        if Flipper.enabled? :decision_review_new_engine_submit_upload_job
-          DecisionReviews::SubmitUpload
-        else
-          DecisionReview::SubmitUpload
-        end
-      end
-
-      def form4142_submit_job
-        if Flipper.enabled? :decision_review_new_engine_4142_job
-          DecisionReviews::Form4142Submit
-        else
-          DecisionReview::Form4142Submit
-        end
-      end
-
       def create_higher_level_review_headers(user)
         headers = {
           'X-VA-SSN' => user.ssn.to_s.strip.presence,
@@ -452,15 +450,13 @@ module DecisionReviews
                 DecisionReviewV1::ServiceException.new key: 'DR_502', response_values: source_hash
               when Common::Client::Errors::ClientError
                 Sentry.set_extras(body: error.body, status: error.status)
-                if error.status == 403
+                if common_exceptions_flag_enabled? && ERROR_MAP.key?(error.status)
+                  ERROR_MAP[error.status].new(source_hash.merge(detail: error.body))
+                elsif error.status == 403
                   Common::Exceptions::Forbidden.new source_hash
                 else
-                  DecisionReviewV1::ServiceException.new(
-                    key: "DR_#{error.status}",
-                    response_values: source_hash,
-                    original_status: error.status,
-                    original_body: error.body
-                  )
+                  DecisionReviewV1::ServiceException.new(key: "DR_#{error.status}", response_values: source_hash,
+                                                         original_status: error.status, original_body: error.body)
                 end
               else
                 error
@@ -496,6 +492,10 @@ module DecisionReviews
 
       def remove_pii_from_json_schemer_errors(errors)
         errors.map { |error| error.slice 'data_pointer', 'schema', 'root_schema' }
+      end
+
+      def common_exceptions_flag_enabled?
+        Flipper.enabled? :decision_review_service_common_exceptions_enabled
       end
     end
   end

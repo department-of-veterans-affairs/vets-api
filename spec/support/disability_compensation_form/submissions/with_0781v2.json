@@ -322,11 +322,11 @@
           "details": "Lorem ipsum dolor sit amet.",
           "location": "Stationed on U.S.S. XYZ",
           "timing": "2000",
-          "reports": {
-            "yes": true,
-            "restricted": true,
-            "police": true,
-            "other": true
+          "militaryReports": {
+            "restricted": true
+          },
+          "otherReports": {
+            "police": true
           },
           "agency": "SVI",
           "city": "Dallas",
@@ -338,7 +338,7 @@
           "details": "Lorem ipsum dolor sit amet.", 
           "location": "Back alley in Big Town, USA",
           "timing": "2001",
-          "otherReports": "incident report"
+          "unlistedReport": "incident report"
         },
         {
           "details": "Lorem ipsum dolor sit amet.",
