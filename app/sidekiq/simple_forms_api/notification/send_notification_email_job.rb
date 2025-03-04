@@ -68,7 +68,6 @@ module SimpleFormsApi
           confirmation_number: config[:confirmation_number]
         )
         StatsD.increment('silent_failure', tags: statsd_tags) if notification_type == :error
-        raise e
       end
     end
   end
