@@ -868,9 +868,7 @@ module VAOS
       end
 
       def set_telehealth_visibility(appointment)
-        if appointment[:modality].present? &&
-           appointment[:start].present? &&
-           appointment[:modality].include?('vaVideoCareAtHome')
+        if appointment[:telehealth] && appointment[:modality] == 'vaVideoCareAtHome' && appointment[:start]
           # if current time is between 30 minutes prior to appointment.start and 4 hours after appointment.start, set
           # telehealth_visible to true
           appointment[:telehealth][:displayLink] = (appointment[:start].to_datetime - 30.minutes) <= Time.now.utc &&
