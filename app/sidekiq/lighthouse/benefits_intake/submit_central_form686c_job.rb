@@ -291,7 +291,6 @@ module Lighthouse
       end
 
       def send_failure_email(user, claim)
-
         VANotify::EmailJob.perform_async(
           email_address: user.va_profile_email,
           template_id: Settings.vanotify.services.va_gov.template_id.form686c_failure_email,

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'va_notify/service'
 
 class Dependents::Form686c674FailureEmailJob
@@ -21,12 +23,11 @@ class Dependents::Form686c674FailureEmailJob
   def perform(claim_id, email, template_id)
     @claim = SavedClaim::DependencyClaim.find(claim_id)
     va_notify_client.send_email(email_address: email,
-                                template_id: template_id,
-                                personalisation: personalisation)
+                                template_id:,
+                                personalisation:)
   rescue => e
-    Rails.logger.warn('Form686c674FailureEmailJob failed, retrying send...', { claim_id: claim_id, error: e })
+    Rails.logger.warn('Form686c674FailureEmailJob failed, retrying send...', { claim_id:, error: e })
   end
-
 
   private
 
@@ -51,5 +52,4 @@ class Dependents::Form686c674FailureEmailJob
       'confirmation_number' => @claim.confirmation_number
     }
   end
-
 end
