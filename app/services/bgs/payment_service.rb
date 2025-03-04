@@ -21,6 +21,11 @@ module BGS
       )
       return empty_response if response[:payments].nil?
 
+      if Flipper.enabled?(:payment_history_exclude_third_party_disbursements)
+        payments = response[:payments][:payment]
+        payments.select! { |pay| pay[:beneficiary_participant_id] == pay[:recipient_participant_id] }
+      end
+
       response
     rescue => e
       log_exception_to_sentry(e, { icn: }, { team: Constants::SENTRY_REPORTING_TEAM })
