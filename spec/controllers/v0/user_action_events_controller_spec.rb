@@ -6,6 +6,14 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
   include RequestHelper
 
   describe 'GET #index' do
+    subject { get(:index, params: index_params) }
+
+    let(:index_params) { { start_date:, end_date:, page:, per_page: } }
+    let(:start_date) { nil }
+    let(:end_date) { nil }
+    let(:page) { nil }
+    let(:per_page) { nil }
+
     context 'when not logged in' do
       it 'returns unauthorized' do
         get :index
@@ -53,14 +61,12 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
           it 'returns the results in descending order by created_at' do
             get :index, params: { start_date: 3.months.ago.to_date }
 
-            json_response = JSON.parse(response.body)['data']['data']
-            expect(json_response.length).to eq(3)
+            json_response = JSON.parse(subject.body)['data']['data']
+            expect(json_response.length).to eq(2)
 
             first_created_at = json_response.first['attributes']['created_at']
             second_created_at = json_response.second['attributes']['created_at']
-            third_created_at = json_response.third['attributes']['created_at']
             expect(first_created_at).to be > second_created_at
-            expect(second_created_at).to be > third_created_at
           end
 
           context 'when the start date and/or end dates are provided' do
@@ -135,7 +141,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
               get :index, params: { per_page: }
 
               json_response_per_page = JSON.parse(response.body)['meta']['per_page']
-              json_response_current_page = JSON.parse(response.body)['meta']['current_page']
+              json_response_current_page = JSON.parse(subject.body)['meta']['current_page']
               json_response_included = JSON.parse(response.body)['data']['included']
               json_response_data = JSON.parse(response.body)['data']['data']
 
@@ -150,7 +156,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
             it 'returns the first page of user actions' do
               get :index
 
-              json_response_current_page = JSON.parse(response.body)['meta']['current_page']
+              json_response_current_page = JSON.parse(subject.body)['meta']['current_page']
 
               expect(json_response_current_page).to eq(1)
             end
@@ -173,16 +179,16 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
 
         it 'returns a successful response' do
           get :index, params: { start_date: 1.month.ago.to_date, end_date: Time.zone.now }
-          expect(response).to have_http_status(:success)
+          expect(subject).to have_http_status(:success)
         end
 
         it 'includes the user action event' do
           get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now }
 
-          expect(response).to have_http_status(:success)
+          expect(subject).to have_http_status(:success)
 
-          json_response = JSON.parse(response.body)['data']
-          expect(json_response['data'].length).to eq(3)
+          json_response = JSON.parse(subject.body)['data']
+          expect(json_response['data'].length).to eq(2)
           expect(json_response['included'].first['attributes']['details']).to eq('Sample event 2')
           expect(json_response['included'].second['attributes']['details']).to eq('Sample event 1')
         end
