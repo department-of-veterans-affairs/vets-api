@@ -20,7 +20,10 @@ module IvcChampva
       StatsD.gauge('ivc_champva.forms_missing_status.count', forms.count)
 
       current_time = Time.now.utc
-      forms.each do |form|
+
+      batches = get_nil_batches
+      batches.each_value do |batch|
+        form = batch[0] # get a representative form from this submission batch
         # Check if we've been missing Pega status for > custom threshold of days:
         elapsed_days = (current_time - form.created_at).to_i / 1.day
         threshold = Settings.vanotify.services.ivc_champva.failure_email_threshold_days.to_i || 7
@@ -104,6 +107,29 @@ module IvcChampva
       else
         monitor.track_failed_send_zsf_notification_to_pega(form_data[:form_uuid], template_id)
       end
+    end
+
+    ##
+    # Returns all nil form submissions organized in batches that correspond to
+    # individual form submissions.
+    # e.g., if a user submits a 10-10d with 5 attachments and all have nil PEGA status
+    # we would return:
+    #
+    #
+    # @return [Hash] hash of batches where the keys are a batch's `form_uuid`
+    #   and the value is a list of `IvcChampvaForm`s with that form_uuid
+    def get_nil_batches
+      all_nil_statuses = IvcChampvaForm.where(pega_status: nil)
+
+      batches = {}
+
+      # Group all nil results into batches by form UUID
+      all_nil_statuses.map do |el|
+        batch = IvcChampvaForm.where(form_uuid: el.form_uuid)
+        batches[el.form_uuid] = batch
+      end
+
+      batches
     end
 
     def fetch_forms_by_uuid(form_uuid)
