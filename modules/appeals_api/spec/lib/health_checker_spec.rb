@@ -14,6 +14,8 @@ describe AppealsApi::HealthChecker do
 
   let(:faraday_response) { instance_double(Faraday::Response) }
 
+  after { faraday_response { nil } }
+
   describe '#appeals_services_are_healthy?' do
     context 'when caseflow is healthy' do
       it 'returns true' do
