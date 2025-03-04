@@ -172,7 +172,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
                     nil
                   end
     if email.present? && template_id.present?
-      if Flipper.disabled?(:dependents_action_needed_email)
+      if Flipper.enabled?(:dependents_failure_callback_email)
+        Dependents::Form686c674FailureEmailJob.perform_async(id, email, template_id)
+      else
         VANotify::EmailJob.perform_async(
           email,
           template_id,
@@ -182,8 +184,6 @@ class SavedClaim::DependencyClaim < CentralMailClaim
             'confirmation_number' => confirmation_number
           }
         )
-      else
-        Dependents::Form686c674FailureEmailJob.perform_async(id, email, template_id)
       end
     end
   end

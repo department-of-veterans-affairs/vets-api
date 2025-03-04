@@ -269,6 +269,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
     end
 
     it 'logs the error to zsf and sends an email with the 686C template' do
+      Flipper.disable(:dependents_failure_callback_email)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
         { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
       ) do
@@ -289,6 +290,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
     end
 
     it 'logs the error to zsf and sends an email with the 674 template' do
+      Flipper.disable(:dependents_failure_callback_email)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
         { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
       ) do
@@ -309,6 +311,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
     end
 
     it 'logs the error to zsf and a combo email with 686c-674' do
+      Flipper.disable(:dependents_failure_callback_email)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
         { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
       ) do
