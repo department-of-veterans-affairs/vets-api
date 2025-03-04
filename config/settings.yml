@@ -641,7 +641,7 @@ ivc_forms:
     aws_access_key_id: <%= ENV['ivc_forms__s3__aws_access_key_id'] %>
     aws_secret_access_key: <%= ENV['ivc_forms__s3__aws_secret_access_key'] %>
     bucket: <%= ENV['ivc_forms__s3__bucket'] %>
-    region: us-gov-west-1
+    region: us-east-2
   sidekiq:
     missing_form_status_job:
       enabled: true
