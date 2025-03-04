@@ -86,7 +86,7 @@ RSpec.describe BGS::Form674 do
 
     context 'va_dependents_v2 is off' do
       before do
-        user_struct.auto_674 = false
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
       end
 
       # @TODO: may want to return something else
@@ -151,7 +151,7 @@ RSpec.describe BGS::Form674 do
 
   context 'The automated 674 flipper is turned off' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674).and_return(false)
+      user_struct.auto_674 = false
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
 
