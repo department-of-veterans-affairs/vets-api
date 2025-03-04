@@ -40,7 +40,7 @@ module AccreditedRepresentativePortal
         PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
 
         decision_time_ms = (Time.current - @poa_request.created_at) * 1000
-        StatsD.distribution('ar.poa.request.duration', decision_time_ms, tags: ['decision:accepted'])
+        StatsD.distribution('ar.poa.request.accepted.duration')
 
         form_submission
 
@@ -88,7 +88,7 @@ module AccreditedRepresentativePortal
           error_message: message
         )
 
-        StatsD.increment('ar.poa.submission.count', tags: ['status:enqueue_failed'])
+        StatsD.increment('ar.poa.submission.enqueue_failed.count')
       end
 
       def form_payload

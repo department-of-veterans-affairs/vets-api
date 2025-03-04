@@ -12,6 +12,7 @@ module RepresentationManagement
         @errors = []
       end
 
+      # rubocop:disable Metrics/MethodLength
       def call
         if adapter_response[:errors].any?
           @errors << adapter_response[:errors]
@@ -41,6 +42,7 @@ module RepresentationManagement
           errors: @errors
         }
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 

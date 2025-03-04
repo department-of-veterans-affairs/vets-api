@@ -24,7 +24,8 @@ module AccreditedRepresentativePortal
       )
 
       processing_time = (poa_form_submission.status_updated_at - poa_form_submission.created_at) * 1000
-      StatsD.distribution('ar.poa.submission.duration', processing_time, tags: ["status:#{status}"])
+      StatsD.distribution('ar.poa.submission', processing_time, tags: ["status:#{status}"])
+      StatsD.distribution("ar.poa.submission.#{status}.duration", processing_time)
     rescue => e
       handle_errors(e, poa_form_submission)
     end
@@ -35,7 +36,7 @@ module AccreditedRepresentativePortal
       poa_form_submission.update(status: :failed, status_updated_at: DateTime.current)
 
       processing_time = (poa_form_submission.status_updated_at - poa_form_submission.created_at) * 1000
-      StatsD.distribution('ar.poa.submission.duration', processing_time, tags: ['status:failed'])
+      StatsD.distribution('ar.poa.submission.failed.duration', processing_time)
     end
 
     def handle_errors(e, poa_form_submission)
