@@ -25,6 +25,8 @@ module AccreditedRepresentativePortal
           render json: {}, status: :ok
         when 'declination'
           @poa_request.mark_declined!(creator.user_account, reason)
+          decision_time_ms = (Time.current - @poa_request.created_at) * 1000
+          StatsD.distribution('ar.poa.request.duration', decision_time_ms, tags: ['decision:declined'])
           render json: {}, status: :ok
         else
           render json: {
@@ -32,6 +34,9 @@ module AccreditedRepresentativePortal
           }, status: :bad_request
         end
       rescue PowerOfAttorneyRequestService::Accept::Error => e
+        StatsD.increment('ar.poa.request', decision_time_ms,
+                         tags: ["error:#{e.class.name.split('::').last.downcase.underscore}",
+                                "decision:#{decision_params[:type])
         render json: { errors: [e.message] }, status: e.status
       end
 
