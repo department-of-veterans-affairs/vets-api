@@ -7,7 +7,7 @@ module VBADocuments
     include PDFUtilities
 
     SUPPORTED_CONTENT_TYPES = %w[application/pdf].freeze
-    MAX_FILE_SIZE_IN_BYTES = 100_000_000 # 100 MB
+    MAX_FILE_SIZE_IN_BYTES = 100_048_576 # 100 MB
     MAX_PAGE_WIDTH = 78
     MAX_PAGE_HEIGHT = 101
     DOCUMENT_NOT_PROVIDED_MSG = 'Document was not provided'
