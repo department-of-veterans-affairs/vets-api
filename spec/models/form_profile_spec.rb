@@ -8,18 +8,20 @@ require 'gi/client'
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
+  let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1781151') }
+
   before do
+    user.vet360_contact_info
     allow(Flipper).to receive(:enabled?).and_call_original
     allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, anything).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, anything).and_return(true)
     described_class.instance_variable_set(:@mappings, nil)
   end
 
-  let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1781151') }
   let(:form_profile) do
     described_class.new(form_id: 'foo', user:)
   end
-  let(:contact_info) { form_profile.send :initialize_contact_information }
+  let(:contact_info) { form_profile.send :initialize_military_information }
 
   let(:va_profile_address) { contact_info&.address }
   let(:us_phone) { contact_info&.home_phone }

@@ -11,7 +11,7 @@ RSpec.describe 'transactions' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-      user.vaprofile_contact_info
+      user.vet360_contact_info
       sign_in_as(user)
     end
 

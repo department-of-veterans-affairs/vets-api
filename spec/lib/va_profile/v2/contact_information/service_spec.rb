@@ -91,7 +91,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-            old_email = user.vaprofile_contact_info.email.email_address
+            old_email = user.vet360_contact_info.email.email_address
             expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
 
             response = subject.put_email(email)
