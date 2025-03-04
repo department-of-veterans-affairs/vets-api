@@ -33,10 +33,7 @@ module RepresentationManagement
           request: create_response[:request]
         }
       rescue => e
-        StatsD.increment('ar.poa.request'
-                         tags: ["error:#{e.class.name.split('::').last.downcase.underscore}",
-                                'action:create'])
-
+        @errors << e.message
         {
           errors: @errors
         }

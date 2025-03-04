@@ -17,13 +17,15 @@ module AccreditedRepresentativePortal
       @response = service.get_2122_submission(poa_form_submission.service_id)
       status = (non_error_response? ? :succeeded : :failed)
       poa_form_submission.update(
-        status: status,
+        status:,
         service_response: response.to_json,
         status_updated_at: DateTime.current,
         error_message: error_data.to_json
       )
 
-      StatsD.increment('ar.poa.submission.count', tags: ["status:#{status}"])
+      processing_time = (poa_form_submission.status_updated_at - poa_form_submission.created_at) * 1000
+      StatsD.distribution('ar.poa.submission.duration', processing_time)
+      StatsD.distribution("ar.poa.submission.#{status}.duration", processing_time)
     rescue => e
       handle_errors(e, poa_form_submission)
     end
@@ -32,6 +34,10 @@ module AccreditedRepresentativePortal
       poa_form_submission_id = job['args'].first
       poa_form_submission = PowerOfAttorneyFormSubmission.find(poa_form_submission_id)
       poa_form_submission.update(status: :failed, status_updated_at: DateTime.current)
+
+      processing_time = (poa_form_submission.status_updated_at - poa_form_submission.created_at) * 1000
+      StatsD.distribution('ar.poa.submission.duration', processing_time)
+      StatsD.distribution('ar.poa.submission.failed.duration', processing_time)
     end
 
     def handle_errors(e, poa_form_submission)
