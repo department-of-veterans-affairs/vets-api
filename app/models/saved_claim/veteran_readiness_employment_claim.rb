@@ -211,25 +211,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     service.submit
   end
 
-  # Send claim via VRE service, does not submit if office location is not permitted
-  # @param user [User] user account of submitting user
-  # @return [Hash] Response payload of VRE service
-  def send_vre_form(user)
-    Rails.logger.info('VRE claim sending to VRE service',
-                      {
-                        user_uuid: user.uuid,
-                        was_sent: @sent_to_lighthouse,
-                        user_present: user.present?
-                      })
-
-    # During Roll out our partners ask that we check vet location and if within proximity to specific offices,
-    # send the data to them. We always send a pdf to VBMS
-    return unless PERMITTED_OFFICE_LOCATIONS.include?(@office_location)
-
-    service = VRE::Ch31Form.new(user:, claim: self)
-    service.submit
-  end
-
   # SavedClaims require regional_office to be defined
   def regional_office
     []
