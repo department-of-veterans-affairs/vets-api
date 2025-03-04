@@ -266,6 +266,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
       allow(Dependents::Monitor).to receive(:new).and_return(monitor)
       allow(monitor).to receive :track_submission_exhaustion
       Flipper.enable(:dependents_trigger_action_needed_email)
+      Flipper.disable(:dependents_failure_callback_email)
     end
 
     it 'logs the error to zsf and sends an email with the 686C template' do
