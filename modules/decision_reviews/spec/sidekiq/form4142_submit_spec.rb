@@ -40,6 +40,11 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
     allow(MPI::Service).to receive(:new).and_return(mpi_service)
   end
 
+  after do
+    mpi_service { nil }
+    vanotify_service { nil }
+  end
+
   describe 'perform' do
     let(:submitted_appeal_uuid) { 'e076ea91-6b99-4912-bffc-a8318b9b403f' }
     let(:appeal_submission) do

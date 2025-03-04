@@ -1,0 +1,44 @@
+name: Settings Checks
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, reopened, synchronize]
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  validate-config-files:
+    env:
+      COVERBAND_DISABLE_AUTO_START: true
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+    permissions: write-all
+    runs-on: ubuntu-32-cores-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Install pdftk
+        run: sudo apt-get update && sudo apt-get install -y pdftk-java
+    
+      - name: Run Settings Validation Rake task
+        run: bundle exec rake settings:validate
+
+      - name: Add Settings Failure label
+        if: failure() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'settings-failure')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: settings-failure
+
+      - name: Remove Settings Failure label
+        if: success() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'settings-failure')
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: settings-failure

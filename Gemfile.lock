@@ -767,7 +767,7 @@ GEM
       matrix (~> 0.4)
       pdf-core (~> 0.10.0)
       ttfunk (~> 1.8)
-    prawn-markup (1.0.1)
+    prawn-markup (1.1.0)
       nokogiri
       prawn
       prawn-table
@@ -1074,7 +1074,7 @@ GEM
       tzinfo (>= 1.0.0)
     uber (0.1.0)
     unicode-display_width (2.6.0)
-    uri (1.0.2)
+    uri (1.0.3)
     useragent (0.16.11)
     utf8-cleaner (1.0.0)
       activesupport

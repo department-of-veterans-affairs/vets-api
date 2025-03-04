@@ -18,10 +18,10 @@ module V0
       invoker = 'V0::DisabilityCompensationFormsController#rated_disabilities'
       api_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:rated_disabilities],
-        provider: nil,
+        provider: :lighthouse,
         options: { icn: @current_user.icn.to_s, auth_headers: },
         current_user: @current_user,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
+        feature_toggle: nil
       )
 
       response = api_provider.get_rated_disabilities(nil, nil, { invoker: })
