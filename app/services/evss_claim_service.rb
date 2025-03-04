@@ -140,6 +140,7 @@ class EVSSClaimService
       user_account:,
       template_metadata: { personalisation: create_personalisation(document) }.to_json
     )
+    StatsD.increment('cst.evss.document_uploads.evidence_submission_record_created')
   end
 
   def create_personalisation(document)

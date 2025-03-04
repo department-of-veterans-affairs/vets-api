@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative '../vaos/middleware/response/errors'
+require_relative './middleware/ccra_logging'
+
 module Ccra
   # CCRA::Configuration provides the configuration settings for the CCRA API.
   # It retrieves settings from the application configuration (e.g., Settings.vaos.ccra)
@@ -40,6 +43,7 @@ module Ccra
     def connection
       Faraday.new(api_url, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
+        conn.request :camelcase
         conn.request :json
 
         if ENV['VAOS_CCRA_DEBUG'] && !Rails.env.production?
@@ -47,8 +51,11 @@ module Ccra
           conn.response(:logger, ::Logger.new($stdout), bodies: true)
         end
 
+        conn.response :betamocks if mock_enabled?
+        conn.response :snakecase
         conn.response :json, content_type: /\bjson$/
         conn.response :vaos_errors
+        conn.use :ccra_logging
         conn.adapter Faraday.default_adapter
       end
     end

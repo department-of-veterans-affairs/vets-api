@@ -314,23 +314,9 @@ class HealthCareApplication < ApplicationRecord
   def form_matches_schema
     if form.present?
       schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
-
-      if Flipper.enabled?(:retry_form_validation)
-        validation_errors = validate_form_with_retries(schema, parsed_form)
-        validation_errors.each do |v|
-          errors.add(:form, v.to_s)
-        end
-      else
-        begin
-          JSON::Validator.fully_validate(schema, parsed_form).each do |v|
-            errors.add(:form, v.to_s)
-          end
-        rescue => e
-          PersonalInformationLog.create(data: { schema:, parsed_form: },
-                                        error_class: 'HealthCareApplication FormValidationError')
-          Rails.logger.error("[#{FORM_ID}] Error during schema validation!", { error: e.message, schema: })
-          raise
-        end
+      validation_errors = validate_form_with_retries(schema, parsed_form)
+      validation_errors.each do |v|
+        errors.add(:form, v.to_s)
       end
     end
   end

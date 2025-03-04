@@ -96,7 +96,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
     it 'sets the power_of_attorney_holder_type' do
       result = subject.call
 
-      expect(result[:request].power_of_attorney_holder_type).to eq('AccreditedOrganization')
+      expect(result[:request].power_of_attorney_holder_type).to eq('veteran_service_organization')
     end
 
     context 'when only poa_code is provided' do

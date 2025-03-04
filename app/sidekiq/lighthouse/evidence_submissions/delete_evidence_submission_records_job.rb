@@ -20,7 +20,7 @@ module Lighthouse
           upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]
         ).destroy_all
 
-        StatsD.increment("#{STATSD_KEY_PREFIX}.count", deleted_records.size)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.count")
         Rails.logger.info("#{self.class} deleted #{deleted_records.size} of #{record_count} EvidenceSubmission records")
 
         nil

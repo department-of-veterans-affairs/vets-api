@@ -33,6 +33,8 @@ module AccreditedRepresentativePortal
     before_validation :set_claimant_type
 
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
+    validates :power_of_attorney_holder_type, inclusion: { in: PowerOfAttorneyHolder::Types::ALL }
+
     accepts_nested_attributes_for :power_of_attorney_form
 
     def expires_at

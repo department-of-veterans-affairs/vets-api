@@ -1,0 +1,176 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: https://api.wellhive.com/care-navigation/v1/appointments?patientId=1012846043V576341
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Referer:
+          - https://review-instance.va.gov
+        X-Vamf-Jwt:
+          - stubbed_token
+        X-Request-Id:
+          - ''
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Sat, 11 Jan 2025 23:00:44 GMT
+        Content-Type:
+          - application/json
+        Connection:
+          - keep-alive
+        Content-Security-Policy:
+          - frame-ancestors 'none'
+        Strict-Transport-Security:
+          - max-age=6307200; includeSubDomains; preload
+        Traceparent:
+          - 00-c9182a0e90280e7cc9ea83a192c1b787-51faf4890f9e96d9-01
+        X-Content-Type-Options:
+          - nosniff
+        X-Request-Id:
+          - 2b7d2bc2-cb28-42f8-900c-4ba0fdfd93d7
+        X-Wellhive-Trace-Id:
+          - c9182a0e90280e7cc9ea83a192c1b787
+      body:
+        encoding: UTF-8
+        string: '{
+          "count": 4,
+          "appointments": [
+            {
+              "id": "1hYAeJdx",
+              "state": "completed",
+              "patientId": "care-nav-patient-casey"
+            },
+            {
+              "id": "-cvFNDP-",
+              "state": "completed",
+              "patientId": "care-nav-patient-casey"
+            },
+            {
+              "id": "yyQYn7be",
+              "state": "submitted",
+              "patientId": "care-nav-patient-casey",
+              "referral": {
+                "referralNumber": "12345"
+              },
+              "providerServiceId": "DBKQ-123",
+              "networkId": "sandbox-network-5vuTac8v",
+              "slotIds": [
+                "5vuTac8v-practitioner-8-role-1|9783e46c-efe2-462c-84a1-7af5f5f6613a|2024-11-18T13:30:00Z|30m0s|1733338893365|ov"
+              ],
+              "appointmentDetails": {
+                "status": "booked",
+                "start": "2024-11-18T13:30:00Z",
+                "isLatest": false,
+                "lastRetrieved": "2025-01-29T16:30:25Z"
+              }
+            },
+            {
+              "id": "AnODPGWR",
+              "state": "completed",
+              "patientId": "care-nav-patient-casey"
+            },
+            {
+              "id": "w9L8qVbC",
+              "state": "submitted",
+              "patientId": "care-nav-patient-casey",
+              "referral": {
+                "referralNumber": "12345"
+              },
+              "providerServiceId": "DBKQ-456",
+              "networkId": "sandbox-network-5vuTac8v",
+              "slotIds": [
+                "5vuTac8v-practitioner-8-role-1|9783e46c-efe2-462c-84a1-7af5f5f6613a|2024-11-18T13:30:00Z|30m0s|1733338893365|ov"
+              ],
+              "appointmentDetails": {
+                "status": "booked",
+                "start": "2024-11-18T13:30:00Z",
+                "isLatest": false,
+                "lastRetrieved": "2025-01-29T19:06:15Z"
+              }
+            },
+            {
+              "id": "a5iHzXI3",
+              "state": "completed",
+              "patientId": "care-nav-patient-casey"
+            },
+            {
+              "id": "M5F10YxR",
+              "state": "completed",
+              "patientId": "care-nav-patient-casey"
+            },
+            {
+              "id": "reNfwwFv",
+              "state": "draft",
+              "patientId": "care-nav-patient-casey"
+            },
+            {
+              "id": "5X7HpUfh",
+              "state": "completed",
+              "patientId": "care-nav-patient-casey"
+            },
+            {
+              "id": "tSCzb600",
+              "state": "completed",
+              "patientId": "care-nav-patient-casey"
+            },
+            {
+              "id": "U5j_0C1v",
+              "state": "submitted",
+              "patientId": "care-nav-patient-casey",
+              "referral": {
+                "referralNumber": "12345"
+              },
+              "providerServiceId": "9mN718pH",
+              "networkId": "sandbox-network-5vuTac8v",
+              "slotIds": [
+                "5vuTac8v-practitioner-1-role-1|e29d054b-b6b1-435c-926f-7c2edd39fca1|2024-11-18T16:00:00Z|30m0s|1733984754156|ov"
+              ],
+              "appointmentDetails": {
+                "status": "booked",
+                "start": "2024-11-18T16:00:00Z",
+                "isLatest": false,
+                "lastRetrieved": "2025-01-29T00:19:35Z"
+              }
+            },
+            {
+              "id": "qP5nghG1",
+              "state": "submitted",
+              "patientId": "care-nav-patient-casey",
+              "referral": {
+                "referralNumber": "12345"
+              },
+              "providerServiceId": "9mN71822",
+              "networkId": "sandbox-network-5vuTac8v",
+              "slotIds": [
+                "5vuTac8v-practitioner-1-role-1|e29d054b-b6b1-435c-926f-7c2edd39fca1|2024-11-18T16:00:00Z|30m0s|1733984754156|ov"
+              ],
+              "appointmentDetails": {
+                "status": "booked",
+                "start": "2024-11-18T16:00:00Z",
+                "isLatest": false,
+                "lastRetrieved": "2025-01-29T19:01:44Z"
+              }
+            },
+            {
+              "id": "LU1etvyI",
+              "state": "completed",
+              "patientId": "care-nav-patient-casey"
+            }
+          ]
+        }'
+    recorded_at: Sat, 11 Jan 2025 23:00:44 GMT
+recorded_with: VCR 6.3.1

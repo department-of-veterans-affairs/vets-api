@@ -15,10 +15,6 @@ RSpec.describe HealthCareApplication, type: :model do
   let(:zsf_tags) { described_class::DD_ZSF_TAGS }
   let(:form_id) { described_class::FORM_ID }
 
-  before do
-    allow(Flipper).to receive(:enabled?).with(:retry_form_validation).and_return(false)
-  end
-
   describe 'LOCKBOX' do
     it 'can encrypt strings over 4kb' do
       str = 'f' * 6000
@@ -368,40 +364,11 @@ RSpec.describe HealthCareApplication, type: :model do
       end
     end
 
-    context 'retry_form_validation disabled' do
-      context 'schema validation raises an exception' do
-        let(:health_care_application) { build(:health_care_application) }
-        let(:exception) { StandardError.new('Some exception') }
-
-        before do
-          allow(PersonalInformationLog).to receive(:create)
-          allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
-        end
-
-        it 'logs exception and raises exception' do
-          expect(PersonalInformationLog).to receive(:create).with(
-            data: {
-              schema: VetsJsonSchema::SCHEMAS[form_id],
-              parsed_form: health_care_application.parsed_form
-            },
-            error_class: 'HealthCareApplication FormValidationError'
-          )
-          expect(Rails.logger).to receive(:error)
-            .with("[#{form_id}] Error during schema validation!", {
-                    error: exception.message,
-                    schema: VetsJsonSchema::SCHEMAS[form_id]
-                  })
-          expect { health_care_application.valid? }.to raise_error(exception.class, exception.message)
-        end
-      end
-    end
-
-    context 'retry_form_validation enabled' do
+    context 'schema validation error' do
       let(:health_care_application) { build(:health_care_application) }
       let(:schema) { 'schema_content' }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:retry_form_validation).and_return(true)
         allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
       end
 

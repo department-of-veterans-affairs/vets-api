@@ -18,13 +18,22 @@ module ClaimsApi
         mapped_requests = []
         requests = get_non_obsolete_requests
         requests.each do |request|
+          next if request['procId'].blank?
+
           mapped_requests << { proc_id: request['procId'],
                                representative: { first_name: DEFAULT_FIRST_NAME,
                                                  last_name: DEFAULT_LAST_NAME } }
         end
 
-        mapped_requests.each do |request|
-          set_to_obsolete(request)
+        if mapped_requests.empty?
+          ClaimsApi::Logger.log('poa_terminate_existing_requests',
+                                message: "No requests returned for pctpntId: #{@veteran_participant_id}")
+
+          mapped_requests
+        else
+          mapped_requests.each do |request|
+            set_to_obsolete(request)
+          end
         end
       end
 

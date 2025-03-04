@@ -10,6 +10,7 @@ module RepresentationManagement
 
       def params_permitted
         [
+          :representative_submission_method,
           :record_consent,
           :consent_address_change,
           :consent_inside_access,

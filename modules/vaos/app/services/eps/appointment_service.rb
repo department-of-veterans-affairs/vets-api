@@ -25,7 +25,9 @@ module Eps
     def get_appointments
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
                          {}, headers)
-      OpenStruct.new(response.body)
+      appointments = response.body[:appointments]
+      merged_appointments = merge_provider_data_with_appointments(appointments)
+      OpenStruct.new(data: merged_appointments)
     end
 
     ##
@@ -69,6 +71,30 @@ module Eps
 
     private
 
+    ##
+    # Merge provider data with appointment data
+    #
+    # @param appointments [Array<Hash>] Array of appointment data
+    # @raise [Common::Exceptions::BackendServiceException] If provider data cannot be fetched
+    # @return [Array<Hash>] Array of appointment data with provider data merged in
+    def merge_provider_data_with_appointments(appointments)
+      return [] if appointments.nil?
+
+      provider_ids = appointments.pluck(:provider_service_id).compact.uniq
+      providers = provider_services.get_provider_services_by_ids(provider_ids:)
+
+      appointments.each do |appointment|
+        next unless appointment[:provider_service_id]
+
+        provider = providers[:provider_services].find do |provider_data|
+          provider_data[:id] == appointment[:provider_service_id]
+        end
+        appointment[:provider] = provider
+      end
+
+      appointments
+    end
+
     def build_submit_payload(params)
       payload = {
         network_id: params[:network_id],
@@ -84,6 +110,14 @@ module Eps
       end
 
       payload
+    end
+
+    ##
+    # Get instance of ProviderService
+    #
+    # @return [Eps::ProviderService] ProviderService instance
+    def provider_services
+      @provider_services ||= Eps::ProviderService.new(user)
     end
   end
 end

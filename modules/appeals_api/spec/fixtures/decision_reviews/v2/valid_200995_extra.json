@@ -16,9 +16,11 @@
         "OTHER"
       ],
       "homelessLivingSituationOther": "random words for other living situation ",
-      "homelessPointOfContact": "Jim Jones Vet Care Network",
+      "homelessPointOfContact": "Shawn Hobkens Veteran Care Network",
+
+      "mstUpcomingEventDisclosure": "NOT APPLICABLE AND/OR NOT ENROLLED IN VHA HEALTHCARE",
       
-       "homelessPointOfContactPhone": {"areaCode": "777", "phoneNumber": "9957023"},      
+      "homelessPointOfContactPhone": {"areaCode": "777", "phoneNumber": "9957023"},      
       "veteran": {
         "address": {
           "addressLine1": "123 Main St",

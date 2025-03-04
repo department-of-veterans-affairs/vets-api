@@ -183,5 +183,6 @@ class EVSS::DocumentUpload
       upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
       delete_date: (DateTime.current + 60.days).utc
     )
+    StatsD.increment('cst.evss.document_uploads.evidence_submission_record_updated.success')
   end
 end

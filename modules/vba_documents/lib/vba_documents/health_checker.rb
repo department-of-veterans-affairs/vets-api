@@ -28,7 +28,7 @@ module VBADocuments
     def central_mail_is_healthy?
       return @central_mail_healthy unless @central_mail_healthy.nil?
 
-      @central_mail_healthy = !CentralMail::Service.current_breaker_outage?
+      @central_mail_healthy = CentralMail::Service.service_is_up?
     end
   end
 end

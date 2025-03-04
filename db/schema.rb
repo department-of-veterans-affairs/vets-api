@@ -1382,6 +1382,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_19_232344) do
     t.text "id_types", default: [], array: true
   end
 
+  create_table "tooltips", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_account_id", null: false
+    t.string "tooltip_name", null: false
+    t.datetime "last_signed_in", null: false
+    t.integer "counter", default: 0
+    t.boolean "hidden", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_account_id", "tooltip_name"], name: "index_tooltips_on_user_account_id_and_tooltip_name", unique: true
+    t.index ["user_account_id"], name: "index_tooltips_on_user_account_id"
+  end
+
   create_table "user_acceptable_verified_credentials", force: :cascade do |t|
     t.datetime "acceptable_verified_credential_at"
     t.datetime "idme_verified_credential_at"
@@ -1818,6 +1830,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_19_232344) do
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "terms_of_use_agreements", "user_accounts"
+  add_foreign_key "tooltips", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
   add_foreign_key "user_actions", "user_action_events"
   add_foreign_key "user_actions", "user_verifications", column: "acting_user_verification_id"

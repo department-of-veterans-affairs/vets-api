@@ -35,7 +35,9 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
                   'clinic' => 'Aq7wgAux',
                   'start' => '2024-11-21T18:00:00Z',
                   'referralId' => '12345',
-                  'referral' => { 'referralNumber' => '12345' }
+                  'referral' => { 'referralNumber' => '12345' },
+                  'providerServiceId' => 'Aq7wgAux',
+                  'providerName' => 'unknown'
                 },
                 'provider' => {
                   'id' => 'test-provider-id',

@@ -23,7 +23,7 @@
       "details": "Lorem ipsum dolor sit amet.",
       "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "timing": "Summer of '70",
-      "reports": { "police": true },
+      "otherReports": { "police": true },
       "agency": "SVI",
       "city": "Dallas",
       "state": "TX",
@@ -34,13 +34,13 @@
       "details": "Lorem ipsum dolor sit amet.",
       "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "timing": "June 2007",
-      "otherReports": "incident report"
+      "unlistedReport": "incident report"
     },
     {
       "details": "Lorem ipsum dolor sit amet..",
       "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "timing": "February 14, 2020",
-      "reports": { "restricted": true }
+      "militaryReports": { "restricted": true }
     },
     {
       "details": "Lorem ipsum dolor sit amet..",
