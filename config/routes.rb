@@ -149,8 +149,6 @@ Rails.application.routes.draw do
 
     resources :dependents_verifications, only: %i[create index]
 
-    resources :burial_claims, only: %i[create show] if Settings.central_mail.upload.enabled
-
     post 'form0969', to: 'income_and_assets_claims#create'
     get 'form0969', to: 'income_and_assets_claims#show'
 
