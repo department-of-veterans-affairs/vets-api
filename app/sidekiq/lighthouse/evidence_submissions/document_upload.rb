@@ -23,7 +23,7 @@ module Lighthouse
       sidekiq_retries_exhausted do |msg, _ex|
         verify_msg(msg)
 
-        if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
+        if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && EvidenceSubmission.find_by(job_id: msg['jid'])
           update_evidence_submission_for_failure(msg)
         else
           call_failure_notification(msg)
