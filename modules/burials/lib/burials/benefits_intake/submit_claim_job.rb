@@ -37,7 +37,7 @@ module Burials
       # Process claim pdfs and upload to Benefits Intake API
       # On success send email
       #
-      # @param saved_claim_id [Integer] the pension claim id
+      # @param saved_claim_id [Integer] the claim id
       # @param user_account_uuid [UUID] the user submitting the form
       #
       # @return [UUID] benefits intake upload uuid
@@ -74,7 +74,7 @@ module Burials
       # Instantiate instance variables for _this_ job
       #
       # @raise [ActiveRecord::RecordNotFound] if unable to find UserAccount
-      # @raise [PensionBenefitIntakeError] if unable to find SavedClaim::Pension
+      # @raise [BurialsBenefitIntakeError] if unable to find SavedClaim::Pension
       #
       # @param (see #perform)
       def init(saved_claim_id, user_account_uuid)
@@ -83,7 +83,7 @@ module Burials
         # UserAccount.find will raise an error if unable to find the user_account record
 
         @claim = Burials::SavedClaim.find(saved_claim_id)
-        raise BurialsBenefitIntakeError, "Unable to find SavedClaim::Burial #{saved_claim_id}" unless @claim
+        raise BurialsBenefitIntakeError, "Unable to find Burials::SavedClaim #{saved_claim_id}" unless @claim
 
         @intake_service = ::BenefitsIntake::Service.new
       end
@@ -142,8 +142,7 @@ module Burials
 
       # Upload generated pdf to Benefits Intake API
       #
-      # @raise [PensionBenefitIntakeError] on upload failure
-      #
+      # @raise [BurialsBenefitIntakeError] on upload failure
       def upload_document
         # upload must be performed within 15 minutes of this request
         @intake_service.request_upload

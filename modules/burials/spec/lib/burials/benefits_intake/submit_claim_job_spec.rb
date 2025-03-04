@@ -114,7 +114,7 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
         Burials::BenefitsIntake::SubmitClaimJob::BurialsBenefitIntakeError,
-        "Unable to find SavedClaim::Burial #{claim.id}"
+        "Unable to find Burials::SavedClaim #{claim.id}"
       )
     end
 

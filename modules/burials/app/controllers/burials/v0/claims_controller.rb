@@ -118,7 +118,7 @@ module Burials
       # `noop` if in_progress_form is `blank?`
       #
       # @param in_progress_form [InProgressForm]
-      # @param claim [Pensions::SavedClaim]
+      # @param claim [Burials::SavedClaim]
       #
       # @return [void]
       def log_validation_error_to_metadata(in_progress_form, claim)
