@@ -11,26 +11,27 @@ module ClaimsApi
     module Veterans
       class PowerOfAttorney::RequestController < ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController
         FORM_NUMBER = 'POA_REQUEST'
+        MAX_PAGE_SIZE = 100
+        MAX_PAGE_NUMBER = 100
 
+        # POST /power-of-attorney-requests
         def index
           poa_codes = form_attributes['poaCodes']
-          page_size = form_attributes['pageSize']
-          page_index = form_attributes['pageIndex']
+          validate_page_size_and_number_params
+
+          page_size = params[:pageSize] || 10
+          page_number = params[:pageNumber] || 1
           filter = form_attributes['filter'] || {}
 
-          unless poa_codes.is_a?(Array) && poa_codes.size.positive?
-            raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
-                                                             detail: 'poaCodes is required and cannot be empty')
-          end
-
-          if page_index.present? && page_size.blank?
-            raise ::Common::Exceptions::ParameterMissing.new('pageSize',
-                                                             detail: 'pageSize is required when pageIndex is present')
-          end
-
+          verify_poa_codes_data(poa_codes)
           validate_filter!(filter)
 
-          service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(poa_codes:, page_size:, page_index:, filter:)
+          service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(
+            poa_codes:,
+            page_size:,
+            page_index: page_number_to_index(page_number),
+            filter:
+          )
 
           poa_list = service.get_poa_list
 
@@ -282,6 +283,58 @@ module ClaimsApi
               detail: "Status(es) must be one of: #{valid_statuses.join(', ')}"
             )
           end
+        end
+
+        def validate_page_size_and_number_params
+          return if params[:pageSize].blank? && params[:pageNumber].blank?
+
+          verify_page_size(params[:pageSize]) if params[:pageNumber].present?
+
+          if params[:pageSize] && params[:pageSize] > MAX_PAGE_SIZE
+            raise_param_exceeded_warning = true
+            page_size_msg = "Max pageSize param value of #{MAX_PAGE_SIZE} has been exceeded"
+          end
+          if params[:pageNumber] && params[:pageNumber] > MAX_PAGE_NUMBER
+            raise_param_exceeded_warning = true
+            page_number_msg = "Max pageNumber param value of #{MAX_PAGE_NUMBER} has been exceeded"
+          end
+
+          build_params_error_msg(page_size_msg, page_number_msg) if raise_param_exceeded_warning.present?
+        end
+
+        def build_params_error_msg(size_msg, number_msg)
+          if size_msg.present? && number_msg.present?
+            msg = "Both the maximum pageSize param value of #{MAX_PAGE_SIZE} has been exceeded and " \
+                  "the maximum pageNumber param value of #{MAX_PAGE_NUMBER} has been exceeded."
+          elsif size_msg.present?
+            msg = "The maximum pageSize param value of #{MAX_PAGE_SIZE} has been exceeded."
+          elsif number_msg.present?
+            msg = "The maximum pageNumber param value of #{MAX_PAGE_NUMBER} has been exceeded."
+          end
+
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: msg
+          )
+        end
+
+        def verify_poa_codes_data(poa_codes)
+          unless poa_codes.is_a?(Array) && poa_codes.size.positive?
+            raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
+                                                             detail: 'poaCodes is required and cannot be empty')
+          end
+        end
+
+        def verify_page_size(page_size)
+          if page_size.blank?
+            raise ::Common::Exceptions::ParameterMissing.new('pageSize',
+                                                             detail: 'pageSize is required when pageNumber is present')
+          end
+        end
+
+        def page_number_to_index(number)
+          return 0 if number <= 0
+
+          number - 1
         end
 
         def normalize(item)
