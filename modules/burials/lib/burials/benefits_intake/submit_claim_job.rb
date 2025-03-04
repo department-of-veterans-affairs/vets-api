@@ -74,7 +74,7 @@ module Burials
       # Instantiate instance variables for _this_ job
       #
       # @raise [ActiveRecord::RecordNotFound] if unable to find UserAccount
-      # @raise [BurialsBenefitIntakeError] if unable to find SavedClaim::Pension
+      # @raise [BurialsBenefitIntakeError] if unable to find claim
       #
       # @param (see #perform)
       def init(saved_claim_id, user_account_uuid)
