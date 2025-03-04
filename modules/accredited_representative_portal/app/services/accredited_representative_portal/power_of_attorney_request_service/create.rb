@@ -55,7 +55,7 @@ module AccreditedRepresentativePortal
           request.build_power_of_attorney_form(data: @form_data.to_json)
 
           request.save!
-          StatsD.increment('ar.poa.request', tags: ['action:create', 'status:success'])
+          StatsD.increment('ar.poa.request.count', tags: ['action:create', 'status:success'])
         end
 
         request

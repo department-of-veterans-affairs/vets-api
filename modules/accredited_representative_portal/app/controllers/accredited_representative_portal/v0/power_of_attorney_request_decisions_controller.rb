@@ -34,9 +34,8 @@ module AccreditedRepresentativePortal
           }, status: :bad_request
         end
       rescue PowerOfAttorneyRequestService::Accept::Error => e
-        StatsD.increment('ar.poa.request', decision_time_ms,
-                         tags: ["error:#{e.class.name.split('::').last.downcase.underscore}",
-                                "decision:#{decision_params[:type])
+        StatsD.increment('ar.poa.request.count', tags: ["error:#{e.class.name.split('::').last.downcase.underscore}",
+                                                        "decision:#{decision_params[:type]}"])
         render json: { errors: [e.message] }, status: e.status
       end
 
