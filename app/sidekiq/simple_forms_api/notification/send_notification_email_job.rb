@@ -30,8 +30,7 @@ module SimpleFormsApi
           notification_email
         end
       rescue => e
-        StatsD.increment('silent_failure', tags: statsd_tags) if notification_type == :error
-        raise e
+        handle_exception(e)
       end
 
       private
@@ -59,6 +58,16 @@ module SimpleFormsApi
 
       def statsd_tags
         { 'service' => 'veteran-facing-forms', 'function' => "#{form_number} form submission to Lighthouse" }
+      end
+
+      def handle_exception(e)
+        Rails.logger.error(
+          'Error sending simple forms notification email',
+          message: e.message,
+          notification_type:,
+          confirmation_number: config[:confirmation_number]
+        )
+        StatsD.increment('silent_failure', tags: statsd_tags) if notification_type == :error
       end
     end
   end
