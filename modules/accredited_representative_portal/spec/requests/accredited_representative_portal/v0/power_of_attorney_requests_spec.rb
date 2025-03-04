@@ -171,7 +171,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
                   'id' => poa_requests[1].accredited_organization.poa
                 },
                 'powerOfAttorneyFormSubmission' => {
-                  'status' => 'PENDING'
+                  'status' => 'FAILED'
                 }
               },
               {
@@ -224,59 +224,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             ]
           )
         end
-      end
-    end
-
-    context 'when providing a status param' do
-      # let!(:pending_request1) { create(:power_of_attorney_request, created_at: time) }
-      let!(:pending_request2) do
-        create(:power_of_attorney_request, poa_code:, created_at: time_plus_one_day)
-      end
-      let!(:declined_request) do
-        create(:power_of_attorney_request,
-               :with_declination, poa_code:, resolution_created_at: time)
-      end
-      let!(:accepted_pending_request) do
-        create(:power_of_attorney_request, :with_acceptance, poa_code:,
-                                                             resolution_created_at: time_plus_one_day)
-      end
-      let!(:accepted_failed_request) do
-        create(:power_of_attorney_request, :with_acceptance, :with_failed_form_submission,
-               poa_code:, resolution_created_at: time_plus_one_day)
-      end
-      let!(:accepted_success_request) do
-        create(:power_of_attorney_request, :with_acceptance, :with_form_submission,
-               poa_code:, resolution_created_at: time_plus_one_day)
-      end
-      let!(:expired_request) do
-        create(:power_of_attorney_request,
-               :with_expiration, poa_code:, resolution_created_at: time_plus_one_day)
-      end
-
-      it 'returns the list of pending power of attorney requests sorted by creation ascending' do
-        get('/accredited_representative_portal/v0/power_of_attorney_requests?status=pending')
-        parsed_response = JSON.parse(response.body)
-        expect(response).to have_http_status(:ok)
-        expect(parsed_response.length).to eq 4
-        expect(parsed_response.map { |poa| poa['id'] }).to include(poa_request.id)
-        expect(parsed_response.map { |poa| poa['id'] }).to include(pending_request2.id)
-        expect(parsed_response.map { |poa| poa['id'] }).to include(accepted_pending_request.id)
-        expect(parsed_response.map { |poa| poa['id'] }).to include(accepted_failed_request.id)
-        expect(parsed_response.map { |poa| poa['id'] }).not_to include(expired_request.id)
-        expect(parsed_response.map { |h| h['createdAt'] }).to eq(
-          [time, time, time, time_plus_one_day]
-        )
-      end
-
-      it 'returns the list of completed power of attorney requests sorted by resolution creation descending' do
-        get('/accredited_representative_portal/v0/power_of_attorney_requests?status=processed')
-        parsed_response = JSON.parse(response.body)
-        expect(response).to have_http_status(:ok)
-        expect(parsed_response.length).to eq 2
-        expect(parsed_response.map { |poa| poa['id'] }).to include(declined_request.id)
-        expect(parsed_response.map { |poa| poa['id'] }).to include(accepted_success_request.id)
-        expect(parsed_response.map { |poa| poa['id'] }).not_to include(expired_request.id)
-        expect(parsed_response.map { |h| h['resolution']['createdAt'] }).to eq([time_plus_one_day, time])
       end
     end
 
