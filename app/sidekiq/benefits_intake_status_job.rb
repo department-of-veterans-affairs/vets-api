@@ -61,7 +61,7 @@ class BenefitsIntakeStatusJob
 
     [total_handled, true]
   rescue => e
-    Rails.logger.error('Benefits Intake Status Job failed, some batch submissions may not have been processed',
+    Rails.logger.error('Benefits Intake Status Job failed, some batched submissions may not have been processed',
                        class: self.class.name, message: e.message)
     [total_handled, false]
   end
