@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'debts_api/v0/one_debt_letter_service'
+
 RSpec.describe DebtsApi::V0::OneDebtLetterService, type: :service do
   describe '#get_pdf' do
     let(:user) { build(:user, :loa3) }
