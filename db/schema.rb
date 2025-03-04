@@ -305,11 +305,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_04_165503) do
   end
 
   create_table "ar_power_of_attorney_request_notifications", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.uuid "power_of_attorney_request_id", null: false
     t.uuid "notification_id"
     t.string "type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["notification_id"], name: "idx_on_notification_id_2402e9daad"
     t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_b7c74f46e5"
   end
