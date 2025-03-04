@@ -1993,8 +1993,6 @@ RSpec.describe FormProfile, type: :model do
         end
 
         before do
-          allow_any_instance_of(FormProfiles::VA21p530ez)
-            .to receive(:initialize_contact_information).and_return(FormContactInformation.new)
           allow_any_instance_of(Burials::FormProfiles::VA21p530ez)
             .to receive(:initialize_contact_information).and_return(FormContactInformation.new)
         end

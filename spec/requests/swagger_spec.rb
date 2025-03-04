@@ -431,7 +431,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       ) do
         expect(subject).to validate(
           :post,
-          '/v0/burial_claims',
+          '/burials/v0/claims',
           200,
           '_data' => {
             'burial_claim' => {
@@ -442,7 +442,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
         expect(subject).to validate(
           :post,
-          '/v0/burial_claims',
+          '/burials/v0/claims',
           422,
           '_data' => {
             'burial_claim' => {
