@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 
-describe Eps::JwtWrapper do
-  subject { described_class.new }
+describe Common::JwtWrapper do
+  subject { described_class.new(settings) }
 
   let(:rsa_key) { OpenSSL::PKey::RSA.new(2048) }
   let(:settings) do
@@ -16,7 +16,6 @@ describe Eps::JwtWrapper do
   end
 
   before do
-    allow(Settings.vaos).to receive(:eps).and_return(settings)
     allow(File).to receive(:read).with('/path/to/key.pem').and_return(rsa_key)
   end
 
