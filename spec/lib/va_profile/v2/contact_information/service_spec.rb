@@ -398,7 +398,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       context 'transaction notification doesnt exist' do
         context 'users email is blank' do
           it 'doesnt send an email' do
-            expect(user).to receive(:va_profile_v2_email).and_return(nil)
+            expect(user).to receive(:va_profile_email).and_return(nil)
 
             expect(VANotifyEmailJob).not_to receive(:perform_async)
             subject.send(:send_contact_change_notification, transaction_status, :email)
@@ -411,7 +411,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
               allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
 
               expect(VANotifyEmailJob).to receive(:perform_async).with(
-                user.va_profile_v2_email,
+                user.va_profile_email,
                 described_class::CONTACT_INFO_CHANGE_TEMPLATE,
                 { 'contact_info' => 'Email address' }
               )

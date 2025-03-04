@@ -82,34 +82,27 @@ RSpec.describe User, type: :model do
   describe 'vet360_contact_info' do
     let(:user) { build(:user, :loa3) }
 
-    context 'when Flipper remove_pciu is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
-                                                  instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
-      end
-
-      it 'returns VAProfileRedis::ContactInformation info' do
-        contact_info = user.vet360_contact_info
-        expect(contact_info.class).to eq(VAProfileRedis::ContactInformation)
-        expect(contact_info.response.class).to eq(VAProfile::ContactInformation::PersonResponse)
-        expect(contact_info.mailing_address.class).to eq(VAProfile::Models::Address)
-        expect(contact_info.email.email_address).to eq(user.va_profile_email)
-      end
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+                                                instance_of(User)).and_return(true)
     end
 
-    context 'when Flipper remove_pciu is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
-                                                  instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
+    context 'when retrieving VAProfileRedis::V2::ContactInformation' do
+      let(:contact_info) { user.vet360_contact_info }
+
+      it 'returns a VAProfileRedis::V2::ContactInformation object' do
+        expect(contact_info.class).to eq(VAProfileRedis::V2::ContactInformation)
       end
 
-      it 'returns VAProfileRedis::V2::ContactInformation info' do
-        contact_info = user.vet360_contact_info
-        expect(contact_info.class).to eq(VAProfileRedis::V2::ContactInformation)
+      it 'has a response of type VAProfile::V2::ContactInformation::PersonResponse' do
         expect(contact_info.response.class).to eq(VAProfile::V2::ContactInformation::PersonResponse)
+      end
+
+      it 'has a mailing address of type VAProfile::Models::V3::Address' do
         expect(contact_info.mailing_address.class).to eq(VAProfile::Models::V3::Address)
+      end
+
+      it 'has an email address matching the user\'s VA profile email' do
         expect(contact_info.email.email_address).to eq(user.va_profile_email)
       end
     end
@@ -966,40 +959,6 @@ RSpec.describe User, type: :model do
 
     it 'filters out fake vha facility ids that arent in Settings.mhv.facility_range' do
       expect(user.va_treatment_facility_ids).to match_array(%w[400 744 741MM])
-    end
-  end
-
-  describe '#pciu' do
-    context 'when user is LOA3 and has an edipi' do
-      before { stub_evss_pciu(user) }
-
-      it 'returns pciu_email' do
-        expect(user.pciu_email).to eq 'test2@test1.net'
-      end
-
-      it 'returns pciu_primary_phone' do
-        expect(user.pciu_primary_phone).to eq '14445551212'
-      end
-
-      it 'returns pciu_alternate_phone' do
-        expect(user.pciu_alternate_phone).to eq '1'
-      end
-    end
-
-    context 'when user is LOA1' do
-      let(:user) { build(:user, :loa1) }
-
-      it 'returns blank pciu_email' do
-        expect(user.pciu_email).to be_nil
-      end
-
-      it 'returns blank pciu_primary_phone' do
-        expect(user.pciu_primary_phone).to be_nil
-      end
-
-      it 'returns blank pciu_alternate_phone' do
-        expect(user.pciu_alternate_phone).to be_nil
-      end
     end
   end
 

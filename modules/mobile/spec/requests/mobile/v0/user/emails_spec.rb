@@ -10,7 +10,6 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
   before do
     allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.000Z'))
   end
 

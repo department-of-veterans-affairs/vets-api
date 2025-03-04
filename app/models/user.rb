@@ -80,18 +80,6 @@ class User < Common::RedisStore
     @user_account_uuid ||= user_account&.id
   end
 
-  def pciu_email
-    pciu&.get_email_address&.email
-  end
-
-  def pciu_primary_phone
-    pciu&.get_primary_phone&.to_s
-  end
-
-  def pciu_alternate_phone
-    pciu&.get_alternate_phone&.to_s
-  end
-
   # Identity attributes & methods
   delegate :authn_context, to: :identity, allow_nil: true
   delegate :email, to: :identity, allow_nil: true
@@ -412,11 +400,7 @@ class User < Common::RedisStore
   def vet360_contact_info
     return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?
 
-    @vet360_contact_info ||= if Flipper.enabled?(:remove_pciu, self)
-                               VAProfileRedis::V2::ContactInformation.for_user(self)
-                             else
-                               VAProfileRedis::ContactInformation.for_user(self)
-                             end
+    @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 
   def va_profile_email
@@ -427,10 +411,6 @@ class User < Common::RedisStore
     return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && icn.present?
 
     @vaprofile_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
-  end
-
-  def va_profile_v2_email
-    vaprofile_contact_info&.email&.email_address
   end
 
   def all_emails
