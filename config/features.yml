@@ -1601,9 +1601,6 @@ features:
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
-  veteran_onboarding_contact_info_flow:
-    actor_type: user
-    description: Enables the complete your profile workflow
   veteran_onboarding_show_to_newly_onboarded:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user, based upon number of days since verified
