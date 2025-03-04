@@ -5,8 +5,9 @@ class Form1095B < ApplicationRecord
   has_encrypted :form_data, key: :kms_key, **lockbox_options
   has_encrypted :veteran_icn, migrating: true, type: :string, key: :kms_key, **lockbox_options
 
-  validates :veteran_icn, :tax_year,  presence: true
+  validates :veteran_icn, :veteran_icn_ciphertext, :tax_year,  presence: true
   validates :veteran_icn, uniqueness: { scope: :tax_year }
+  validates :veteran_icn_ciphertext, uniqueness: { scope: :tax_year }
   validate :proper_form_data_schema
 
   def txt_file

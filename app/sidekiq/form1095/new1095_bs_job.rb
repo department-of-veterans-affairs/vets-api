@@ -77,7 +77,8 @@ module Form1095
     def produce_1095_hash(form_fields, unique_id, coverage_arr)
       {
         unique_id:,
-        veteran_icn: form_fields[:A15]&.gsub(/\A0{6}|0{6}\z/, ''),
+        veteran_icn: form_fields[:A15]&.gsub(/\A0{6}|0{6}\z/, ''), # this line should be removed once migration removing veteran_icn is complete
+        veteran_icn_ciphertext: form_fields[:A15]&.gsub(/\A0{6}|0{6}\z/, ''),
         form_data: {
           last_name: form_fields[:A01] || '',
           first_name: form_fields[:A02] || '',
