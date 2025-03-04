@@ -92,8 +92,8 @@ module DebtsApi
     def register_failure(message)
       failed!
       if message.blank?
-        message = "An unknown error occurred while submitting the form from " \
-          "call_location: #{caller_locations&.first}"
+        message = 'An unknown error occurred while submitting the form from ' \
+                  "call_location: #{caller_locations&.first}"
       end
 
       update(error_message: message)
