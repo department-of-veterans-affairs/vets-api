@@ -72,7 +72,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
             it 'returns a meaningful 422' do
               VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                 mock_ccg(scopes) do |auth_header|
-                  detail = 'The property /poa did not contain the required key poaCode'
+                  detail = 'The property /representative did not contain the required key poaCode'
 
                   post request_path, params: request_body, headers: auth_header
 
@@ -122,8 +122,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :
 
             it 'returns a meaningful 404' do
               mock_ccg(scopes) do |auth_header|
-                detail = 'Could not find an Accredited Representative with registration number: 999999999999 ' \
-                         'and poa code: AG3'
+                detail = 'Could not find an Accredited Representative with poa code: AG3'
 
                 post request_path, params: request_body, headers: auth_header
 
