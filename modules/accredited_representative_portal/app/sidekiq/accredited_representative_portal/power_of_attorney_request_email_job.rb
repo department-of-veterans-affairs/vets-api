@@ -31,7 +31,7 @@ module AccreditedRepresentativePortal
         }.compact
       )
       AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.create!(
-        notification_type: request_notification_type,
+        type: request_notification_type,
         power_of_attorney_request: PowerOfAttorneyRequest.find(poa_request_id),
         notification_id: response['id']
       )

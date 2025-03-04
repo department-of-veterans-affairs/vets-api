@@ -5,6 +5,6 @@ FactoryBot.define do
           class: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification' do
     association :power_of_attorney_request, factory: :power_of_attorney_request
     association :va_notify_notification, factory: :notification
-    notification_type { AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification::PERMITTED_TYPES.sample }
+    type { AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification::PERMITTED_TYPES.sample }
   end
 end

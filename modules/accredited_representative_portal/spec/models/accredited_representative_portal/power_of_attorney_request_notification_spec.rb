@@ -8,8 +8,8 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
 
   describe 'validations' do
     it {
-      expect(subject).to validate_inclusion_of(:notification_type).in_array(%w[requested declined expiring
-                                                                               expired])
+      expect(subject).to validate_inclusion_of(:type).in_array(%w[requested declined expiring
+                                                                  expired])
     }
   end
 
@@ -28,16 +28,16 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
 
   describe 'scopes' do
     let!(:requested_notification) do
-      create(:power_of_attorney_request_notification, notification_type: 'requested')
+      create(:power_of_attorney_request_notification, type: 'requested')
     end
     let!(:declined_notification) do
-      create(:power_of_attorney_request_notification, notification_type: 'declined')
+      create(:power_of_attorney_request_notification, type: 'declined')
     end
     let!(:expiring_notification) do
-      create(:power_of_attorney_request_notification, notification_type: 'expiring')
+      create(:power_of_attorney_request_notification, type: 'expiring')
     end
     let!(:expired_notification) do
-      create(:power_of_attorney_request_notification, notification_type: 'expired')
+      create(:power_of_attorney_request_notification, type: 'expired')
     end
 
     it 'returns requested notifications' do

@@ -6,7 +6,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
   let(:email) { 'test@example.com' }
   let(:template_id) { 'template-id' }
   let(:poa_request) { create(:power_of_attorney_request) }
-  let(:notification_type) { 'requested' }
+  let(:type) { 'requested' }
   let(:api_key) { 'test-api-key' }
   let(:response) { { 'id' => Faker::Internet.uuid } }
   let(:client) { instance_double(VaNotify::Service) }
@@ -24,11 +24,11 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
       ).and_return(response)
 
       expect do
-        described_class.new.perform(email, template_id, poa_request.id, notification_type, api_key)
+        described_class.new.perform(email, template_id, poa_request.id, type, api_key)
       end.to change(AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification, :count).by(1)
 
       notification = AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.last
-      expect(notification.notification_type).to eq(notification_type)
+      expect(notification.type).to eq(type)
       expect(notification.power_of_attorney_request).to eq(poa_request)
       expect(notification.notification_id).to eq(response['id'])
     end
@@ -44,7 +44,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
       )
 
       expect do
-        described_class.new.perform(email, template_id, poa_request.id, notification_type, api_key)
+        described_class.new.perform(email, template_id, poa_request.id, type, api_key)
       end.not_to(change(AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification, :count))
     end
 
@@ -53,7 +53,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
       allow(client).to receive(:send_email).and_raise(error)
 
       expect do
-        described_class.new.perform(email, template_id, poa_request.id, notification_type, api_key)
+        described_class.new.perform(email, template_id, poa_request.id, type, api_key)
       end.to raise_error(VANotify::Error)
     end
   end
