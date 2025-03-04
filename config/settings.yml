@@ -283,11 +283,7 @@ dgi:
       mock: <%= ENV['dgi__post911_sob__claimants__mock'] %>
       url: <%= ENV['dgi__post911_sob__claimants__url'] %>
     jwt:
-<<<<<<< HEAD
       private_key_path: <%= ENV['dgi__post911_sob__jwt__private_key_path'] %>
-=======
-      private_key_path: <%= ENV['dgi__post911_sob__claimants_mock'] %>
->>>>>>> master
       public_key_path: spec/fixtures/post911_sob/dgib/public_test.pem
   vets:
     mock: <%= ENV['dgi__vets__mock'] %>
@@ -295,13 +291,8 @@ dgi:
   vye:
     jwt:
       private_key_path: <%= ENV['dgi__vye__jwt__private_key_path'] %>
-<<<<<<< HEAD
       public_ica11_rca2_key_path: <%= ENV['dgi__vye__jwt__public_ica11_rca2_key_path'] %>
       public_key_path: <%= ENV['dgi__vye__jwt__public_key_path'] %>
-=======
-      public_ica11_rca2_key_path: <%= ENV['DGI__VYE__JWT__PUBLIC_ICA11_RCA2_KEY_PATH'] %>
-      public_key_path: <%= ENV['DGI__VYE__JWT__PUBLIC_KEY_PATH'] %>
->>>>>>> master
     vets:
       mock: <%= ENV['dgi__vye__vets__mock'] %>
       url: <%= ENV['dgi__vye__vets__url'] %>
@@ -1595,12 +1586,8 @@ vaos:
     grant_type: client_credentials
     key_path: "/fake/client/key/path"
     kid: fake_kid
-<<<<<<< HEAD
     mock: <%= ENV['vaos__eps__mock'] %>
-=======
-    mock: <%= ENV['VAOS__EPS__MOCK'] %>
     redis_token_expiry: 3500
->>>>>>> master
     scopes: care-nav
 vba_documents:
   custom_metadata_allow_list: <%= ENV['vba_documents__custom_metadata_allow_list'] %>
