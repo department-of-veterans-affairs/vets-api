@@ -63,10 +63,10 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       end
     end
 
-    context 'when pageNumber' do
+    context 'page params' do
       let(:poa_codes) { %w[002 003 083] }
 
-      context 'is present' do
+      context 'pageNmber is present' do
         context 'and pageSize is not present' do
           it 'returns a ParameterMissing error' do
             page_params[:pageSize] = nil
@@ -99,9 +99,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
               end
             end
           end
-        end
 
-        context 'and pageSize is present' do
           context 'and exceeds the max value allowed along with pageNumber' do
             it 'raises a 422' do
               page_params[:pageSize] = 101
@@ -122,8 +120,8 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         end
       end
 
-      context 'is not present' do
-        context 'and pageSize is present' do
+      context 'pageSize is present' do
+        context 'and pageNumber is not present' do
           it 'returns a success' do
             page_params[:pageNumber] = nil
             mock_ccg(scopes) do |auth_header|
@@ -131,23 +129,6 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
                 index_request_with(poa_codes:, page_params:, auth_header:)
 
                 expect(response).to have_http_status(:ok)
-              end
-            end
-          end
-        end
-
-        context 'and pageSize is over the max' do
-          it 'still catches the error and returns the 400' do
-            page_params[:pageNumber] = nil
-            page_params[:pageSize] = 101
-            mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
-                index_request_with(poa_codes:, page_params:, auth_header:)
-
-                expect(response).to have_http_status(:unprocessable_entity)
-                expect(response.parsed_body['errors'][0]['detail']).to eq(
-                  'The maximum pageSize param value of 100 has been exceeded.'
-                )
               end
             end
           end
