@@ -39,6 +39,7 @@ class BenefitsIntakeStatusJob
 
   def batch_process(pending_form_submission_attempts)
     total_handled = 0
+    errors = []
     intake_service = BenefitsIntake::Service.new
 
     pending_form_submission_attempts.each_slice(batch_size) do |batch|
@@ -48,14 +49,20 @@ class BenefitsIntakeStatusJob
       # Log the entire response for debugging purposes
       Rails.logger.info("Received bulk status response: #{response.body}")
 
-      raise response.body unless response.success?
+      errors << response.body unless response.success?
 
       total_handled += handle_response(response)
     end
 
+    unless errors.empty?
+      Rails.logger.error('Errors occurred while processing Intake Status batch', class: self.class.name,
+                                                                                 errors:)
+    end
+
     [total_handled, true]
   rescue => e
-    Rails.logger.error('Error processing Intake Status batch', class: self.class.name, message: e.message)
+    Rails.logger.error('Benefits Intake Status Job failed, some batch submissions may not have been processed',
+                       class: self.class.name, message: e.message)
     [total_handled, false]
   end
 
