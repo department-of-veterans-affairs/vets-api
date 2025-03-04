@@ -177,7 +177,7 @@ describe DecisionReviews::V1::Service do
       it 'throws a DR_422 exception' do
         VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422_V1') do
           expect { subject }.to raise_error(
-            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_422'))
+            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_422'))
           )
         end
       end
@@ -200,7 +200,7 @@ describe DecisionReviews::V1::Service do
       it 'properly raises a 503 when the error is returned from the service' do
         VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-503_V1') do
           expect { subject }.to raise_error(
-            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_503')),
+            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_503')),
             'BackendServiceException: {:source=>"Common::Client::Errors::ClientError ' \
             'raised in DecisionReviews::V1::Service", :code=>"DR_503"}'
           )
@@ -253,7 +253,7 @@ describe DecisionReviews::V1::Service do
       it 'throws a DR_404 exception' do
         VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-404_V1') do
           expect { subject }.to raise_error(
-            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_404'))
+            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
           )
         end
       end
@@ -313,7 +313,7 @@ describe DecisionReviews::V1::Service do
       it 'throws a DR_404 exception' do
         VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-404_V1') do
           expect { subject }.to raise_error(
-            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_404'))
+            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
           )
         end
       end
@@ -337,7 +337,7 @@ describe DecisionReviews::V1::Service do
       it 'throws a DR_422 exception' do
         VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-422_V1') do
           expect { subject }.to raise_error(
-            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_422'))
+            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_422'))
           )
         end
       end
@@ -382,7 +382,7 @@ describe DecisionReviews::V1::Service do
       it 'throws a DR_422 exception' do
         VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-422_V1') do
           expect { subject }.to raise_error(
-            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_422'))
+            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_422'))
           )
         end
       end
@@ -433,7 +433,7 @@ describe DecisionReviews::V1::Service do
       it 'throws a DR_404 exception' do
         VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-404_V1') do
           expect { subject }.to raise_error(
-            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_404'))
+            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
           )
         end
       end
@@ -491,7 +491,7 @@ describe DecisionReviews::V1::Service do
       it 'throws a DR_404 exception' do
         VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-404_V1') do
           expect { subject }.to raise_error(
-            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_404'))
+            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
           )
         end
       end
@@ -533,7 +533,7 @@ describe DecisionReviews::V1::Service do
       it 'throws a DR_404 exception' do
         VCR.use_cassette('decision_review/NOD-GET-UPLOAD-URL-404_V1') do
           expect { subject }.to raise_error(
-            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_404'))
+            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
           )
         end
       end
@@ -633,7 +633,7 @@ describe DecisionReviews::V1::Service do
       it 'throws a DR_422 exception' do
         VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-422_V1') do
           expect { subject }.to raise_error(
-            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_422'))
+            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_422'))
           )
         end
       end
@@ -684,7 +684,7 @@ describe DecisionReviews::V1::Service do
       it 'throws a DR_404 exception' do
         VCR.use_cassette('decision_review/SC-SHOW-RESPONSE-404_V1') do
           expect { subject }.to raise_error(
-            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_404'))
+            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
           )
         end
       end
@@ -744,7 +744,7 @@ describe DecisionReviews::V1::Service do
       it 'throws a DR_404 exception' do
         VCR.use_cassette('decision_review/SC-GET-CONTESTABLE-ISSUES-RESPONSE-404_V1') do
           expect { subject }.to raise_error(
-            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_404'))
+            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
           )
         end
       end
@@ -768,7 +768,7 @@ describe DecisionReviews::V1::Service do
       it 'throws a DR_422 exception' do
         VCR.use_cassette('decision_review/SC-GET-CONTESTABLE-ISSUES-RESPONSE-422_V1') do
           expect { subject }.to raise_error(
-            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_422'))
+            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_422'))
           )
         end
       end
@@ -810,7 +810,7 @@ describe DecisionReviews::V1::Service do
       it 'throws a DR_404 exception' do
         VCR.use_cassette('decision_review/SC-GET-UPLOAD-URL-404_V1') do
           expect { subject }.to raise_error(
-            an_instance_of(DecisionReviewV1::ServiceException).and(having_attributes(key: 'DR_404'))
+            an_instance_of(DecisionReviews::V1::ServiceException).and(having_attributes(key: 'DR_404'))
           )
         end
       end

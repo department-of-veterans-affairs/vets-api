@@ -34,7 +34,7 @@ module DecisionReviews
       end
 
       def request_body_is_not_a_hash_error
-        DecisionReviewV1::ServiceException.new key: 'DR_REQUEST_BODY_IS_NOT_A_HASH'
+        DecisionReviews::V1::ServiceException.new key: 'DR_REQUEST_BODY_IS_NOT_A_HASH'
       end
 
       def request_body_debug_data
