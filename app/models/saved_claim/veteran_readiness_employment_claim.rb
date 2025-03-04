@@ -2,7 +2,6 @@
 
 require 'sentry_logging'
 require 'res/ch31_form'
-require 'vre/ch31_form'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include SentryLogging
