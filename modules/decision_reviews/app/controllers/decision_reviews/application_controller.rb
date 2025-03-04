@@ -2,6 +2,7 @@
 
 require 'feature_flipper'
 require 'aes_256_cbc_encryptor'
+require 'shared_rails_logging'
 
 module DecisionReviews
   class ApplicationController < ActionController::API
@@ -11,6 +12,7 @@ module DecisionReviews
     include Headers
     include Pundit::Authorization
     include Traceable
+    include SharedRailsLogging
     include ControllerLoggingContext
 
     protect_from_forgery with: :exception, if: -> { ActionController::Base.allow_forgery_protection }

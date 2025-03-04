@@ -5,16 +5,20 @@ require 'sentry_logging'
 module SentryLogging
   extend self
 
-  def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
+  # rubocop:disable Style/OptionalBooleanParameter
+  def log_message_to_sentry(message, level, extra_context = {}, tags_context = {}, log_to_rails = true)
     level = normalize_level(level, nil)
-    formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
-    rails_logger(level, formatted_message)
+    if log_to_rails
+      formatted_message = extra_context.empty? ? message : "#{message} : #{extra_context}"
+      rails_logger(level, formatted_message)
+    end
 
     if Settings.sentry.dsn.present?
       set_sentry_metadata(extra_context, tags_context)
       Sentry.capture_message(message, level:)
     end
   end
+  # rubocop:enable Style/OptionalBooleanParameter
 
   def log_exception_to_sentry(exception, extra_context = {}, tags_context = {}, level = 'error')
     level = normalize_level(level, exception)

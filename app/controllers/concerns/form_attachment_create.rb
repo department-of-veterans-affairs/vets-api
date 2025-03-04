@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
+require 'combined_logging'
+
 module FormAttachmentCreate
   extend ActiveSupport::Concern
-  include SentryLogging
+  include CombinedLogging
 
   def create
     debug_timestamp = Time.current.iso8601
     if Flipper.enabled?(:hca_log_form_attachment_create)
-      log_message_to_sentry(
+      log_message_all(
         'begin form attachment creation',
         :info,
         file_data_present: filtered_params[:file_data].present?,
@@ -23,7 +25,7 @@ module FormAttachmentCreate
     serialized = serializer_klass.new(form_attachment)
 
     if Flipper.enabled?(:hca_log_form_attachment_create)
-      log_message_to_sentry('finish form attachment creation', :info, serialized: serialized.present?, debug_timestamp:)
+      log_message_all('finish form attachment creation', :info, serialized: serialized.present?, debug_timestamp:)
     end
 
     render json: serialized
@@ -41,7 +43,7 @@ module FormAttachmentCreate
       raise Common::Exceptions::InvalidFieldValue.new('file_data', filtered_params[:file_data].class.name)
     end
   rescue => e
-    log_message_to_sentry(
+    log_message_all(
       'form attachment error 1 - validate class',
       :info,
       phase: 'FAC_validate',
@@ -54,7 +56,7 @@ module FormAttachmentCreate
   def save_attachment_to_cloud!
     form_attachment.set_file_data!(filtered_params[:file_data], filtered_params[:password])
   rescue => e
-    log_message_to_sentry(
+    log_message_all(
       'form attachment error 2 - save to cloud',
       :info,
       has_pass: filtered_params[:password].present?,
@@ -68,7 +70,7 @@ module FormAttachmentCreate
   def save_attachment_to_db!
     form_attachment.save!
   rescue => e
-    log_message_to_sentry(
+    log_message_all(
       'form attachment error 3 - save to db',
       :info,
       phase: 'FAC_db',
