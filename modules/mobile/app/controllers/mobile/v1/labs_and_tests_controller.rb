@@ -21,6 +21,10 @@ module Mobile
         routing_error unless Flipper.enabled?(:mhv_accelerated_delivery_uhd_enabled, @current_user)
       end
 
+      def routing_error
+        raise Common::Exceptions::RoutingError, params[:path]
+      end
+
       def service
         UnifiedHealthData::Service.new(@current_user)
       end

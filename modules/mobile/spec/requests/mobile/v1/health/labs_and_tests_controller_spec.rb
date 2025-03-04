@@ -50,8 +50,8 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
         end
       end
 
-      it 'returns a 500 when the flipper is disabled' do
-        expect(response).to have_http_status(:internal_server_error)
+      it 'returns a 404 when the flipper is disabled' do
+        expect(response).to have_http_status(:not_found)
       end
     end
   end
