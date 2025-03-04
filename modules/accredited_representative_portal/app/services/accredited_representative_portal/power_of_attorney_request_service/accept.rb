@@ -30,6 +30,7 @@ module AccreditedRepresentativePortal
         @reason = reason
       end
 
+      # rubocop:disable Metrics/MethodLength
       def call
         ActiveRecord::Base.transaction do
           @resolution = poa_request.mark_accepted!(creator.user_account, reason)
@@ -37,7 +38,12 @@ module AccreditedRepresentativePortal
         response = service.submit2122(form_payload)
         form_submission = create_form_submission!(response.body)
         PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
+
+        decision_time_ms = (Time.current - @poa_request.created_at) * 1000
+        StatsD.distribution('ar.poa.request.accepted.duration')
+
         form_submission
+
       # Invalid record - return error message with 400
       rescue ActiveRecord::RecordInvalid => e
         raise Error.new(e.message, :bad_request)
@@ -55,6 +61,7 @@ module AccreditedRepresentativePortal
         resolution&.delete
         raise
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
@@ -80,6 +87,8 @@ module AccreditedRepresentativePortal
           service_response: response_body,
           error_message: message
         )
+
+        StatsD.increment('ar.poa.submission.enqueue_failed.count')
       end
 
       def form_payload

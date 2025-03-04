@@ -25,6 +25,9 @@ module AccreditedRepresentativePortal
           render json: {}, status: :ok
         when 'declination'
           @poa_request.mark_declined!(creator.user_account, reason)
+          decision_time_ms = (Time.current - @poa_request.created_at) * 1000
+          StatsD.distribution('ar.poa.request.duration', decision_time_ms)
+          StatsD.distribution('ar.poa.request.declined.duration', decision_time_ms)
           render json: {}, status: :ok
         else
           render json: {

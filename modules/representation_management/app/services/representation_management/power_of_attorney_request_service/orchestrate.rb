@@ -12,6 +12,7 @@ module RepresentationManagement
         @errors = []
       end
 
+      # rubocop:disable Metrics/MethodLength
       def call
         if adapter_response[:errors].any?
           @errors << adapter_response[:errors]
@@ -34,11 +35,14 @@ module RepresentationManagement
         }
       rescue => e
         @errors << e.message
+        StatsD.increment('ar.poa.request',
+                         tags: ["error:#{e.class.name.split('::').last.downcase.underscore}", 'action:create'])
 
         {
           errors: @errors
         }
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
