@@ -13,7 +13,7 @@ module V0
       per_page = (params[:per_page].presence || 10).to_i
 
       user_actions = UserAction
-                     .where(subject_user_verification_id: user_verification.id)
+                     .where(subject_user_verification: user_verification)
                      .where(created_at: start_date..end_date)
                      .includes(:user_action_event)
                      .order(created_at: :desc)
