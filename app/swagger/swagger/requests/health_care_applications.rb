@@ -309,6 +309,37 @@ module Swagger
         end
       end
 
+      swagger_path '/v0/health_care_applications/download_pdf' do
+        operation :post do
+          key :description, 'Download a pre-filled 10-10EZ PDF form.'
+          key :tags, %w[benefits_forms]
+
+          parameter do
+            key :name, :form
+            key :in, :body
+            key :description, 'The form data used to fill the PDF form.'
+            key :required, true
+            key :type, :object
+          end
+
+          parameter do
+            key :name, :asyncCompatible
+            key :in, :body
+            key :description, 'Flag indicating compatibility with async processing.'
+            key :required, false
+            key :type, :boolean
+          end
+
+          response 200 do
+            key :description, 'PDF form download'
+
+            schema do
+              property :data, type: :string, format: 'binary'
+            end
+          end
+        end
+      end
+
       swagger_schema :HealthCareApplicationSubmissionResponse do
         key :required, %i[formSubmissionId timestamp success]
 
