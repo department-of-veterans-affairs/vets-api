@@ -17,6 +17,8 @@ module AccreditedRepresentativePortal
             inverse_of: :power_of_attorney_request,
             required: true
 
+    has_one :power_of_attorney_form_submission
+
     has_one :resolution,
             class_name: 'PowerOfAttorneyRequestResolution',
             inverse_of: :power_of_attorney_request
@@ -36,6 +38,12 @@ module AccreditedRepresentativePortal
     validates :power_of_attorney_holder_type, inclusion: { in: PowerOfAttorneyHolder::Types::ALL }
 
     accepts_nested_attributes_for :power_of_attorney_form
+
+    enum(
+      :claimant_type,
+      ClaimantTypes::ALL.index_by(&:itself),
+      validate: true
+    )
 
     def expires_at
       created_at + EXPIRY_DURATION if unresolved?
