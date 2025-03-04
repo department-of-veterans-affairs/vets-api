@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 require 'debts_api/v0/one_debt_letter_service'
 
+require 'debts_api/v0/one_debt_letter_service'
+
 module DebtsApi
   module V0
     class OneDebtLettersController < ApplicationController
