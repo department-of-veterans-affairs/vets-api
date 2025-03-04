@@ -40,7 +40,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       icn: vet_info['veteran_information']['icn'],
       uuid: vet_info['veteran_information']['uuid'],
       common_name: vet_info['veteran_information']['common_name'],
-      auto_674: nil
+      auto674: nil
     )
   end
   let(:encrypted_user_struct) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }

@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'bgs/form674'
 
 RSpec.describe BGS::Form674 do
-  let(:user_struct) { create(:evss_user, :loa3) }
+  let(:user_object) { create(:evss_user, :loa3) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:all_flows_v2_payload) { build(:form686c_674_v2) }
   let(:user_struct) { build(:user_struct) }
@@ -17,7 +17,7 @@ RSpec.describe BGS::Form674 do
 
   context 'The automated 674 flipper is turned on' do
     before do
-      user_struct.auto_674 = true
+      user_struct.auto674 = true
     end
 
     context 'va_dependents_v2 is on' do
@@ -151,7 +151,7 @@ RSpec.describe BGS::Form674 do
 
   context 'The automated 674 flipper is turned off' do
     before do
-      user_struct.auto_674 = false
+      user_struct.auto674 = false
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
 
