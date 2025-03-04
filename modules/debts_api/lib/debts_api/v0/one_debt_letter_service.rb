@@ -101,9 +101,5 @@ module DebtsApi
 
       CombinePDF.load(legalese_path)
     end
-
-    def cleanup_temp_file(path)
-      File.delete(path) if File.exist?(path)
-    end
   end
 end
