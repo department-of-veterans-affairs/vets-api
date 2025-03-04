@@ -26,6 +26,7 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
 
       context 'SimpleFormsApi::NotificationEmail initialization fails' do
         it 'increments statsd' do
+          allow(SimpleFormsApi::NotificationEmail).to receive(:new)
           allow(StatsD).to receive(:increment)
 
           described_class.new.perform(
