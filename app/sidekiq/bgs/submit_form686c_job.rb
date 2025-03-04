@@ -62,7 +62,7 @@ module BGS
       @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
     end
 
-    def self.generate_user_struct(vet_info, auto_674)
+    def self.generate_user_struct(vet_info, auto_674 = nil)
       info = vet_info['veteran_information']
       full_name = info['full_name']
       OpenStruct.new(
