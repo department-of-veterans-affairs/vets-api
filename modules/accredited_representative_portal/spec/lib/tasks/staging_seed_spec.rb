@@ -96,8 +96,8 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
       requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest.all
 
       # Basic resolution counts
-      expect(requests.resolved.count).to be_positive
-      expect(requests.unresolved.count).to be_positive
+      expect(requests.processed.count).to be_positive
+      expect(requests.not_processed.count).to be_positive
 
       # Basic claimant type counts
       veteran_count = requests.where(claimant_type: 'veteran').count
@@ -163,8 +163,8 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
       expect(ct_rep_requests.count).to eq(5)
 
       # Resolution counts
-      expect(ct_rep_requests.unresolved.count).to eq(3)
-      processed = ct_rep_requests.resolved
+      expect(ct_rep_requests.not_processed.count).to eq(3)
+      processed = ct_rep_requests.processed
       expect(processed.count).to eq(2)
     end
   end

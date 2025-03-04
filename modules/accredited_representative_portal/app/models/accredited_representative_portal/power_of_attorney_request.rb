@@ -2,12 +2,20 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequest < ApplicationRecord
+    module ClaimantTypes
+      ALL = [
+        DEPENDENT = 'dependent',
+        VETERAN = 'veteran'
+      ].freeze
+    end
+
     EXPIRY_DURATION = 60.days
 
     enum(
       :claimant_type,
       ClaimantTypes::ALL.index_by(&:itself),
-      validate: true
+      validate: true,
+      suffix: true
     )
 
     belongs_to :claimant, class_name: 'UserAccount'
@@ -35,26 +43,10 @@ module AccreditedRepresentativePortal
 
     before_validation :set_claimant_type
 
-    module ClaimantTypes
-      ALL = [
-        DEPENDENT = 'dependent',
-        VETERAN = 'veteran'
-      ].freeze
-    end
-
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
     validates :power_of_attorney_holder_type, inclusion: { in: PowerOfAttorneyHolder::Types::ALL }
 
     accepts_nested_attributes_for :power_of_attorney_form
-
-    validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
-    accepts_nested_attributes_for :power_of_attorney_form
-
-    enum(
-      :claimant_type,
-      ClaimantTypes::ALL.index_by(&:itself),
-      validate: true
-    )
 
     def expires_at
       created_at + EXPIRY_DURATION if unresolved?
