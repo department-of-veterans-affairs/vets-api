@@ -45,10 +45,11 @@ RSpec.shared_examples 'a form filler' do |options|
           end
 
           let(:saved_claim) do
-            if form_id == '21P-530EZ'
+            if %w[21P-530EZ 686C-674-V2].include?(form_id)
               claim = create(factory)
               claim.update(form: form_data.to_json)
-              claim
+              # refresh claim to reset instance methods like parsed_form
+              SavedClaim.find(claim.id)
             else
               create(factory, form: form_data.to_json)
             end
@@ -56,7 +57,6 @@ RSpec.shared_examples 'a form filler' do |options|
 
           it 'fills the form correctly' do
             if type == 'overflow'
-              # pdfs_fields_match? only compares based on filled fields, it doesn't read the extras page
               the_extras_generator = nil
 
               expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
