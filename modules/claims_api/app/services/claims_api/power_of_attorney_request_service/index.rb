@@ -12,6 +12,7 @@ module ClaimsApi
 
       def get_poa_list
         proc_ids = poa_list.pluck('procID')
+        
         poa_requests = ClaimsApi::PowerOfAttorneyRequest.where(proc_id: proc_ids).select(:id, :proc_id)
         poa_requests_by_proc_id = poa_requests.each_with_object({}) do |request, hash|
           hash[request.proc_id] = request.id
@@ -31,6 +32,7 @@ module ClaimsApi
         @poa_list ||= manage_representative_service.read_poa_request(poa_codes: @poa_codes, page_size: @page_size,
                                                                      page_index: @page_index, filter: @filter,
                                                                      use_mocks: true)
+
         @poa_list['poaRequestRespondReturnVOList']
       end
 
