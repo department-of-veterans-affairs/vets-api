@@ -77,10 +77,6 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
     end
 
     context 'when upload succeeds' do
-      before do
-        allow(EVSS::DocumentUpload).to receive(:update_evidence_submission)
-      end
-
       let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
       let(:file) { Rails.root.join('spec', 'fixtures', 'files', file_name).read }
       let(:evidence_submission_pending) do
@@ -110,6 +106,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       end
 
       it 'when there is no EvidenceSubmission' do
+        allow(EVSS::DocumentUpload).to receive(:update_evidence_submission)
         allow(EVSSClaimDocumentUploader).to receive(:new) { uploader_stub }
         allow(EVSS::DocumentsService).to receive(:new) { client_stub }
         allow(uploader_stub).to receive(:retrieve_from_store!).with(file_name) { file }
