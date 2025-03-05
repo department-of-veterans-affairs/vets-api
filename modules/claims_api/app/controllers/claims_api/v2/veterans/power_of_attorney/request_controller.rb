@@ -13,6 +13,8 @@ module ClaimsApi
         FORM_NUMBER = 'POA_REQUEST'
         MAX_PAGE_SIZE = 100
         MAX_PAGE_NUMBER = 100
+        DEFAULT_PAGE_SIZE = 10
+        DEFAULT_PAGE_NUMBER = 1
 
         # POST /power-of-attorney-requests
         def index
@@ -284,10 +286,13 @@ module ClaimsApi
         end
 
         def validate_page_size_and_number_params
-          return if params[:pageSize].blank? && params[:pageNumber].blank?
-
-          @page_size_param = params[:pageSize] ? params[:pageSize].to_i : 10
-          @page_number_param = params[:pageNumber] ? params[:pageNumber].to_i : 1
+          if params[:page].blank?
+            @page_size_param = DEFAULT_PAGE_SIZE
+            @page_number_param = DEFAULT_PAGE_NUMBER
+          else
+            @page_size_param = params[:page][:size] ? params[:page][:size].to_i : DEFAULT_PAGE_SIZE
+            @page_number_param = params[:page][:number] ? params[:page][:number].to_i : DEFAULT_PAGE_NUMBER
+          end
 
           verify_page_size if @page_number_param.present?
 
@@ -305,12 +310,12 @@ module ClaimsApi
 
         def build_params_error_msg(size_msg, number_msg)
           if size_msg.present? && number_msg.present?
-            msg = "Both the maximum pageSize param value of #{MAX_PAGE_SIZE} has been exceeded and " \
-                  "the maximum pageNumber param value of #{MAX_PAGE_NUMBER} has been exceeded."
+            msg = "Both the maximum page size param value of #{MAX_PAGE_SIZE} has been exceeded and " \
+                  "the maximum page number param value of #{MAX_PAGE_NUMBER} has been exceeded."
           elsif size_msg.present?
-            msg = "The maximum pageSize param value of #{MAX_PAGE_SIZE} has been exceeded."
+            msg = "The maximum page size param value of #{MAX_PAGE_SIZE} has been exceeded."
           elsif number_msg.present?
-            msg = "The maximum pageNumber param value of #{MAX_PAGE_NUMBER} has been exceeded."
+            msg = "The maximum page number param value of #{MAX_PAGE_NUMBER} has been exceeded."
           end
 
           raise ::Common::Exceptions::UnprocessableEntity.new(

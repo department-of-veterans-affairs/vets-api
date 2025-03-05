@@ -8,7 +8,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
   describe '#index' do
     let(:scopes) { %w[claim.read] }
-    let(:page_params) { { pageSize: 10, pageNumber: 2 } }
+    let(:page_params) { { page: { size: 10, number: 2 } } }
 
     context 'when poaCodes is not present' do
       before do
@@ -66,24 +66,21 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     context 'page params' do
       let(:poa_codes) { %w[002 003 083] }
 
-      context 'pageNmber is present' do
-        context 'and pageSize is not present' do
-          it 'returns a ParameterMissing error' do
+      context 'page number is present' do
+        context 'and page size is not present' do
+          it 'uses the default page size value' do
             page_params[:pageSize] = nil
             mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
                 index_request_with(poa_codes:, page_params:, auth_header:)
 
-                expect(response).to have_http_status(:bad_request)
-                expect(response.parsed_body['errors'][0]['detail']).to eq(
-                  'pageSize is required when pageNumber is present'
-                )
+                expect(response).to have_http_status(:ok)
               end
             end
           end
         end
 
-        context 'and pageSize is present' do
+        context 'and page size is present' do
           context 'and exceeds the max value allowed' do
             it 'raises a 422' do
               page_params[:pageSize] = 101
@@ -93,7 +90,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(response.parsed_body['errors'][0]['detail']).to eq(
-                    'The maximum pageSize param value of 100 has been exceeded.'
+                    'The maximum page size param value of 100 has been exceeded.'
                   )
                 end
               end
@@ -110,8 +107,8 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(response.parsed_body['errors'][0]['detail']).to eq(
-                    'Both the maximum pageSize param value of 100 has been exceeded ' \
-                    'and the maximum pageNumber param value of 100 has been exceeded.'
+                    'Both the maximum page size param value of 100 has been exceeded ' \
+                    'and the maximum page number param value of 100 has been exceeded.'
                   )
                 end
               end
@@ -120,8 +117,8 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         end
       end
 
-      context 'pageSize is present' do
-        context 'and pageNumber is not present' do
+      context 'page size is present' do
+        context 'and page number is not present' do
           it 'returns a success' do
             page_params[:pageNumber] = nil
             mock_ccg(scopes) do |auth_header|
@@ -633,7 +630,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     page_number = page_params ? page_params[:pageNumber] : nil
 
     post v2_veterans_power_of_attorney_requests_path,
-         params: { pageSize: page_size, pageNumber: page_number,
+         params: { page: { size: page_size, number: page_number },
                    data: { attributes: { poaCodes: poa_codes, filter: } } }.to_json,
          headers: auth_header.merge('Content-Type' => 'application/json')
   end
