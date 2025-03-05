@@ -113,6 +113,19 @@ The below will record `/users?uuid=abc123` and `/users?uuid=efg456` to the same 
       :uid_locator: 'uuid'
 ```
 
+#### For header identifiers
+The below will record all `/evss/address` responses with different identifiers in the
+request headers to the same directory:
+```yaml
+:endpoints:
+  - :method: :get
+    :path: "/evss/address"
+    :file_path: "evss/address"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+```
+
 #### For URL identifiers
 The below will record `/users/42/forms` and `/users/101/forms` to the same directory:
 ```yaml
