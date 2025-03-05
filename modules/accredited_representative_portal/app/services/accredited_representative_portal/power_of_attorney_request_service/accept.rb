@@ -39,9 +39,8 @@ module AccreditedRepresentativePortal
         form_submission = create_form_submission!(response.body)
         PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
 
-        decision_time_ms = (Time.current - @poa_request.created_at) * 1000
-        StatsD.distribution('ar.poa.request.duration', decision_time_ms)
-        StatsD.distribution('ar.poa.request.accepted.duration', decision_time_ms)
+        Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
+        Monitoring.new.track_duration('ar.poa.request.accepted.duration', from: @poa_request.created_at)
 
         form_submission
 
@@ -89,9 +88,8 @@ module AccreditedRepresentativePortal
           error_message: message
         )
 
-        decision_time_ms = (Time.current - @poa_request.created_at) * 1000
-        StatsD.distribution('ar.poa.request.duration', decision_time_ms)
-        StatsD.distribution('ar.poa.submission.enqueue_failed.duration', decision_time_ms)
+        Monitoring.new.track_duration('ar.poa.submission.duration', from: @poa_request.created_at)
+        Monitoring.new.track_duration('ar.poa.submission.enqueue_failed.duration', from: @poa_request.created_at)
       end
 
       def form_payload
