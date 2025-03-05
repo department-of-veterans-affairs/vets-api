@@ -34,7 +34,6 @@ module RepresentationManagement
         }
       rescue => e
         @errors << e.message
-
         {
           errors: @errors
         }

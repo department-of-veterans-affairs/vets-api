@@ -55,6 +55,7 @@ module AccreditedRepresentativePortal
           request.build_power_of_attorney_form(data: @form_data.to_json)
 
           request.save!
+          Monitoring.new.track_count('ar.poa.request.count')
         end
 
         request
