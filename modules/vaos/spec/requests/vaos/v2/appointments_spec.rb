@@ -1010,6 +1010,25 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
   end
 
   context 'for eps referrals' do
+    let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
+    let(:draft_params) { { referral_id: 'ref-123' } }
+
+    let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
+    let(:redis_token_expiry) { 59.minutes }
+    let(:provider_id) { '9mN718pH' }
+    let(:appointment_type_id) { 'ov' }
+    let(:start_date) { '2025-01-01T00:00:00Z' }
+    let(:end_date) { '2025-01-03T00:00:00Z' }
+    let(:referral_identifiers) do
+      {
+        data: {
+          id: draft_params[:referral_id],
+          type: :referral_identifier,
+          attributes: { provider_id:, appointment_type_id:, start_date:, end_date: }
+        }
+      }.to_json
+    end
+
     before do
       allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
                                                 instance_of(User)).and_return(true)
@@ -1017,17 +1036,16 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
       Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
-    end
 
-    let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
-    let(:draft_params) do
-      {
-        referral_id: 'ref-123',
-        provider_id: '9mN718pH',
-        appointment_type_id: 'ov',
-        start_date: '2025-01-01T00:00:00Z',
-        end_date: '2025-01-03T00:00:00Z'
-      }
+      allow(Rails).to receive(:cache).and_return(memory_store)
+      Rails.cache.clear
+
+      Rails.cache.write(
+        "vaos_eps_referral_identifier_#{draft_params[:referral_id]}",
+        referral_identifiers,
+        namespace: 'vaos-eps-cache',
+        expires_in: redis_token_expiry
+      )
     end
 
     describe 'POST create_draft' do
@@ -1151,6 +1169,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                       allow_any_instance_of(Eps::AppointmentService)
                         .to receive(:get_appointments)
                         .and_return(OpenStruct.new(data: []))
+
                       post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
                       expect(response).to have_http_status(:created)
@@ -1170,16 +1189,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           allow_any_instance_of(Eps::AppointmentService)
             .to receive(:get_appointments)
             .and_return(OpenStruct.new(data: []))
-        end
-
-        let(:draft_params) do
-          {
-            referral_id: 'ref-123',
-            provider_id: '9mN718pH',
-            appointment_type_id: 'ov',
-            start_date: '2025-01-01T00:00:00Z',
-            end_date: '2025-01-03T00:00:00Z'
-          }
         end
 
         let(:draft_appointment_response) do
@@ -1328,14 +1337,23 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       end
 
       context 'when provider ID is invalid' do
-        let(:draft_params) do
-          {
-            referral_id: 'ref-123',
-            provider_id: '9mN718pHa',
-            appointment_type_id: 'ov',
-            start_date: '2025-01-01T00:00:00Z',
-            end_date: '2025-01-03T00:00:00Z'
-          }
+        let(:invalid_provider_id) { '9mN718pHa' }
+
+        before do
+          updated_referral_identifiers = {
+            data: {
+              id: draft_params[:referral_id],
+              type: :referral_identifier,
+              attributes: { provider_id: invalid_provider_id, appointment_type_id:, start_date:, end_date: }
+            }
+          }.to_json
+
+          Rails.cache.write(
+            "vaos_eps_referral_identifier_#{draft_params[:referral_id]}",
+            updated_referral_identifiers,
+            namespace: 'vaos-eps-cache',
+            expires_in: redis_token_expiry
+          )
         end
 
         it 'handles provider-services 404 response' do
@@ -1358,16 +1376,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       end
 
       context 'when patient id is invalid' do
-        let(:draft_params) do
-          {
-            referral_id: 'ref-123',
-            provider_id: '9mN718pH',
-            appointment_type_id: 'ov',
-            start_date: '2025-01-01T00:00:00Z',
-            end_date: '2025-01-03T00:00:00Z'
-          }
-        end
-
         it 'handles invalid patientId response as 400' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
                            match_requests_on: %i[method path body]) do
@@ -1385,37 +1393,22 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
       end
 
-      context 'when missing provider_id' do
-        let(:draft_params) do
-          {
-            referral_id: 'ref-123',
-            appointment_type_id: 'ov',
-            start_date: '2025-01-01T00:00:00Z',
-            end_date: '2025-01-03T00:00:00Z'
-          }
-        end
-
-        it 'handles invalid patientId response as 400' do
-          post '/vaos/v2/appointments/draft', params: draft_params
-
-          response_obj = JSON.parse(response.body)
-          expect(response).to have_http_status(:bad_request)
-          expect(response_obj['errors'].length).to be(1)
-          expect(response_obj['errors'][0]['detail']).to eql(
-            'The required parameter "provider_id", is missing'
-          )
-        end
-      end
-
       context 'when there is already an appointment associated with the referral' do
-        let(:draft_params) do
-          {
-            referral_id: 'ref-124',
-            provider_id: '9mN718pH',
-            appointment_type_id: 'ov',
-            start_date: '2025-01-01T00:00:00Z',
-            end_date: '2025-01-03T00:00:00Z'
-          }
+        before do
+          updated_referral_identifiers = {
+            data: {
+              id: draft_params[:referral_id],
+              type: 'ref-124',
+              attributes: { provider_id:, appointment_type_id:, start_date:, end_date: }
+            }
+          }.to_json
+
+          Rails.cache.write(
+            "vaos_eps_referral_identifier_ref-124",
+            updated_referral_identifiers,
+            namespace: 'vaos-eps-cache',
+            expires_in: redis_token_expiry
+          )
         end
 
         let(:eps_appointments) do
@@ -1448,6 +1441,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         it 'fails if a vaos appointment with the given referral id already exists' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+            draft_params[:referral_id] = 'ref-124'
             post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
             response_obj = JSON.parse(response.body)
