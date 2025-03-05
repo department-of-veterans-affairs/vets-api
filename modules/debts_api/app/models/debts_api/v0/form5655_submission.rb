@@ -90,7 +90,7 @@ module DebtsApi
       StatsD.increment("#{STATS_KEY}.failure")
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
       begin
-        send_failed_form_email unless message.include?('SharepointRequest')
+        send_failed_form_email unless message.include?('Sharepoint')
       rescue => e
         StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue.failure")
         Rails.logger.error("Failed to send failed form email: #{e.message}")
