@@ -3464,6 +3464,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'when :va_dependents_v2 is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674, instance_of(User)).and_return(false)
         end
 
         let!(:user) { build(:user, ssn: '796043735') }
@@ -3508,6 +3509,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'when :va_dependents_v2 is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674, instance_of(User)).and_return(false)
         end
 
         let!(:user) { build(:user, ssn: '796043735') }
