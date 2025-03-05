@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/addresses
+    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v1/addresses
     body:
       encoding: UTF-8
       string: '{"bio":{"addressId":138225,"addressLine1":"4041 Victoria Way","addressLine2":null,"addressLine3":null,"addressPOU":"CORRESPONDENCE","addressType":"Domestic","cityName":"Lexington","countryCodeISO2":null,"countryCodeISO3":"USA","countryName":null,"county":{"countyCode":"21067","countyName":"Fayette
@@ -49,6 +49,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"txAuditId":"858cfdf3-1892-4f23-b6ac-1c207c341edf","status":"RECEIVED"}'
-    http_version: 
+    http_version:
   recorded_at: Thu, 13 Feb 2020 20:47:45 GMT
 recorded_with: VCR 5.0.0

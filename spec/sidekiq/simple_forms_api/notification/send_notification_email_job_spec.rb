@@ -43,7 +43,7 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
 
     context 'form was submitted with Form Upload tool' do
       let(:notification_type) { :confirmation }
-      let(:form_submission_attempt) { build(:form_submission_attempt, :form_upload) }
+      let(:form_submission_attempt) { build(:form_submission_attempt) }
       let(:form_number) { '21-0779' }
       let(:user_account) { build(:user_account) }
       let(:form_upload_notification_email) { double(send: nil) }

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/1005079124%5ENI%5E200DOD%5EUSDOD
+    uri: <VETS360_URL>/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/1005079124%5ENI%5E200DOD%5EUSDOD
     body:
       encoding: UTF-8
       string: '{"bios":[{"bioPath":"militaryPerson.militaryServiceHistory","parameters":{"scope":"all"}}]}'
@@ -66,7 +66,7 @@ http_interactions:
                           "branchOfServiceText": "U.S. Coast Guard Academy",
                           "branchOfServiceCode": "USCGA",
                           "academyBeginDate": "1999-06-23",
-                          "academyEndDate": "1999-07-18"                          
+                          "academyEndDate": "1999-07-18"
                         }
                       ],
                       "militaryServiceEpisodes": [
@@ -83,7 +83,7 @@ http_interactions:
                           "guardReserves": [],
                           "deployments": [],
                           "characterOfDischargeCode":"H"
-                        },                                               
+                        },
                         {
                           "serviceEpisodeIdentifier": 343701,
                           "branchOfServiceText": "Army",
@@ -92,7 +92,7 @@ http_interactions:
                           "periodOfServiceTypeCode": "N",
                           "periodOfServiceBeginDate": "2002-02-02",
                           "terminationReasonText":"",
-                          "terminationReasonCode":"",                          
+                          "terminationReasonCode":"",
                           "guardReserves": [],
                           "deployments": [],
                           "characterOfDischargeCode":"DVU"
@@ -106,11 +106,11 @@ http_interactions:
                           "periodOfServiceBeginDate": "2009-03-01",
                           "periodOfServiceEndDate": "2012-12-31",
                           "terminationReasonText":"Completion of Active Service period",
-                          "terminationReasonCode":"C",                          
+                          "terminationReasonCode":"C",
                           "guardReserves": [],
                           "deployments": [],
                           "characterOfDischargeCode":"D"
-                        }                        
+                        }
                       ]
                     }
                   }
