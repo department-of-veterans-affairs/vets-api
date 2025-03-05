@@ -660,8 +660,8 @@ lighthouse:
   benefits_claims:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausdg7guis2TYDlFe2p7/v1/token
-      client_id: ~
-      rsa_key: ~
+      client_id: abc123456
+      rsa_key: path/to/key
     aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3u00gw66b9Ojk2p7/v1/token
     form526:
       access_token:
@@ -1589,6 +1589,7 @@ vanotify:
     bearer_token: fake_bearer_token
 vaos:
   ccra:
+    access_token_url: https://test.example.com/token
     api_url: https://api.ccra.placeholder.va.local
     base_path: csp/healthshare/ccraint/rest
     mock: false
@@ -1603,6 +1604,7 @@ vaos:
     key_path: modules/health_quest/config/rsa/sandbox_rsa
     kid: fake_kid
     mock: false
+    redis_token_expiry: 3500
     scopes: care-nav
 vba_documents:
   custom_metadata_allow_list: ~
@@ -1809,12 +1811,9 @@ virtual_hosts:
   - example.org
 virtual_regional_office:
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
-  ctn_classification_path: ~
   evidence_pdf_path: evidence-pdf
-  expanded_classification_path: contention-classification/expanded-contention-classification
   max_cfi_path: employee-experience/max-ratings
   url: http://localhost:8120
-  vagov_classification_path: contention-classification/va-gov-claim-classifier
 vre_counseling:
   prefill: true
 vre_readiness:

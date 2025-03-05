@@ -11,10 +11,10 @@ module PdfFill
 
     attr_reader :extras_generator
 
-    def initialize(form_name, date_strftime, extras_redesign = false, start_page = 1)
+    def initialize(date_strftime, extras_generator)
       @pdftk_form = {}
       @date_strftime = date_strftime
-      @extras_generator = ExtrasGenerator.new(form_name:, extras_redesign:, start_page:)
+      @extras_generator = extras_generator
     end
 
     def convert_value(v, key_data, is_overflow = false)
@@ -63,7 +63,7 @@ module PdfFill
       limit.present? && value.size > limit
     end
 
-    def add_to_extras(key_data, v, i)
+    def add_to_extras(key_data, v, i, top_level_key)
       return if v.blank?
       return if key_data.try(:[], :question_text).blank?
 
@@ -73,25 +73,25 @@ module PdfFill
       @extras_generator.add_text(
         v,
         key_data.slice(:question_num, :question_suffix, :question_text).merge(
-          i:
+          i:, top_level_key:
         )
       )
     end
 
-    def add_array_to_extras(arr, pdftk_keys)
+    def add_array_to_extras(arr, pdftk_keys, top_level_key)
       arr.each_with_index do |v, i|
         i = nil if pdftk_keys[:always_overflow]
         if v.is_a?(Hash)
           v.each do |key, val|
-            add_to_extras(pdftk_keys[key], convert_value(val, pdftk_keys[key], true), i)
+            add_to_extras(pdftk_keys[key], convert_value(val, pdftk_keys[key], true), i, top_level_key)
           end
         else
-          add_to_extras(pdftk_keys, convert_value(v, pdftk_keys, true), i)
+          add_to_extras(pdftk_keys, convert_value(v, pdftk_keys, true), i, top_level_key)
         end
       end
     end
 
-    def set_value(v, key_data, i, from_array_overflow = false)
+    def set_value(v, key_data, i, from_array_overflow = false, top_level_key = nil)
       k = key_data[:key]
       return if k.blank?
 
@@ -100,7 +100,7 @@ module PdfFill
       new_value = convert_value(v, key_data)
 
       if overflow?(key_data, new_value, from_array_overflow)
-        add_to_extras(key_data, new_value, i)
+        add_to_extras(key_data, new_value, i, top_level_key)
 
         new_value = EXTRAS_TEXT
       end
@@ -123,7 +123,7 @@ module PdfFill
       false
     end
 
-    def transform_array(form_data, pdftk_keys)
+    def transform_array(form_data, pdftk_keys, top_level_key)
       has_overflow = check_for_overflow(form_data, pdftk_keys)
 
       if has_overflow
@@ -133,34 +133,36 @@ module PdfFill
           form_data: { first_key => EXTRAS_TEXT },
           pdftk_keys:,
           i: 0,
-          from_array_overflow: true
+          from_array_overflow: true,
+          top_level_key:
         )
 
-        add_array_to_extras(form_data, pdftk_keys)
+        add_array_to_extras(form_data, pdftk_keys, top_level_key)
       else
         form_data.each_with_index do |v, idx|
-          transform_data(form_data: v, pdftk_keys:, i: idx)
+          transform_data(form_data: v, pdftk_keys:, i: idx, top_level_key:)
         end
       end
     end
 
-    def transform_data(form_data:, pdftk_keys:, i: nil, from_array_overflow: false)
+    def transform_data(form_data:, pdftk_keys:, i: nil, from_array_overflow: false, top_level_key: nil)
       return if form_data.nil? || pdftk_keys.nil?
 
       case form_data
       when Array
-        transform_array(form_data, pdftk_keys)
+        transform_array(form_data, pdftk_keys, top_level_key)
       when Hash
         form_data.each do |k, v|
           transform_data(
             form_data: v,
             pdftk_keys: pdftk_keys[k],
             i:,
-            from_array_overflow:
+            from_array_overflow:,
+            top_level_key: top_level_key || k
           )
         end
       else
-        set_value(form_data, pdftk_keys, i, from_array_overflow)
+        set_value(form_data, pdftk_keys, i, from_array_overflow, top_level_key)
       end
 
       @pdftk_form
