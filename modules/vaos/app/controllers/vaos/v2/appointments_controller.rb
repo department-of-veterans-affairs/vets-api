@@ -64,7 +64,7 @@ module VAOS
 
       def create_draft
         referral_id = draft_params[:referral_id]
-        # TODO: validate referral_id from the cache from prior referrals response
+        # TODO: validate referral_id and other needed referral data from the cache from prior referrals response
 
         cached_referral_data = eps_redis_client.fetch_all_attributes(referral_number: referral_id)
 
@@ -74,7 +74,9 @@ module VAOS
         end
 
         draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: referral_id)
-        provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
+
+        # TODO remove `dig` once validation of cached referral data is implemented
+        provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data.dig(:provider_id))
 
         response_data = OpenStruct.new(
           id: draft_appointment.id,
@@ -249,16 +251,8 @@ module VAOS
 
       def draft_params
         params.require(:referral_id)
-        params.require(:provider_id)
-        params.require(:appointment_type_id)
-        params.require(:start_date)
-        params.require(:end_date)
         params.permit(
-          :referral_id,
-          :provider_id,
-          :appointment_type_id,
-          :start_date,
-          :end_date
+          :referral_id
         )
       end
 
