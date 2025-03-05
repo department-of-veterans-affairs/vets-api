@@ -51,15 +51,12 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
                                user_action_event: user_action_event_two, created_at: 4.days.ago)
         end
 
-        let(:page) { 1 }
-        let(:per_page) { 4 }
-
         context 'when filtering by date range' do
           let(:start_date) { 3.months.ago.to_date }
           let(:end_date) { 2.weeks.ago.to_date }
 
           it 'returns the results in descending order by created_at' do
-            get :index, params: { start_date: 3.months.ago.to_date }
+            subject
 
             json_response = JSON.parse(subject.body)['data']['data']
             expect(json_response.length).to eq(2)
@@ -71,7 +68,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
 
           context 'when the start date and/or end dates are provided' do
             it 'returns user actions within the date range' do
-              get :index, params: { start_date:, end_date: }
+              subject
 
               json_response = JSON.parse(response.body)['data']['data']
               expect(json_response.length).to eq(2)
@@ -87,7 +84,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
             let(:expected_start_date) { 1.month.ago.to_date }
 
             it 'returns user actions within the past month' do
-              get :index, params: { start_date:, end_date: }
+              subject
 
               json_response = JSON.parse(response.body)['data']['data']
               expect(json_response.length).to eq(1)
@@ -101,7 +98,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
             let(:expected_end_date) { Time.zone.now }
 
             it 'returns user actions up to the current date' do
-              get :index, params: { start_date:, end_date: }
+              subject
 
               json_response = JSON.parse(response.body)['data']['data']
               expect(json_response.length).to eq(3)
@@ -138,7 +135,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
             let(:per_page) { 5 }
 
             it 'paginates the correct number of user actions per page' do
-              get :index, params: { per_page: }
+              subject
 
               json_response_per_page = JSON.parse(response.body)['meta']['per_page']
               json_response_current_page = JSON.parse(subject.body)['meta']['current_page']
@@ -166,7 +163,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
             let(:page) { 2 }
 
             it 'returns the correct page of user actions' do
-              get :index, params: { page: }
+              subject
 
               json_response_current_page = JSON.parse(response.body)['meta']['current_page']
               json_response_data = JSON.parse(response.body)['data']['data']
@@ -178,12 +175,12 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
         end
 
         it 'returns a successful response' do
-          get :index, params: { start_date: 1.month.ago.to_date, end_date: Time.zone.now }
+          subject
           expect(subject).to have_http_status(:success)
         end
 
         it 'includes the user action event' do
-          get :index, params: { start_date: 5.months.ago.to_date, end_date: Time.zone.now }
+          subject
 
           expect(subject).to have_http_status(:success)
 
