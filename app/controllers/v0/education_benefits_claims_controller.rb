@@ -29,7 +29,8 @@ module V0
     end
 
     def download_pdf
-      saved_claim = SavedClaim::EducationBenefits.find(params[:id].to_i)
+      education_claim = EducationBenefitsClaim.find(params[:id].to_i)
+      saved_claim = SavedClaim.find(education_claim.saved_claim_id)
 
       source_file_path = PdfFill::Filler.fill_form(
         saved_claim,

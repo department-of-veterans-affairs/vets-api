@@ -179,6 +179,7 @@ module Lighthouse
           evidence_submission.update!(
             request_id:
           )
+          StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_updated.added_request_id')
         else
           raise StandardError
         end

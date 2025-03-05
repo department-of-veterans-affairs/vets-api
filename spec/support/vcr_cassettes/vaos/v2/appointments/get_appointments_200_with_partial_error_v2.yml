@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/vaos/v1/patients/care-nav-patient-casey/appointments?end=2121-09-02T00:00:00Z&pageSize=0&start=1921-09-02T00:00:00Z
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - 4823e2e7-046f-4d14-81b1-4276894f6ac5
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Fri, 28 Feb 2025 21:51:30 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '2'
+      Set-Cookie:
+      - TS016f4012=01c8917e48868e161e6abde693181d39c995deaaaa03368cbf3c552fc02dc41bfaeee8a44b00d386f25a78720456db22cb70b7cbd2;
+        Max-Age=900; Path=/
+      - vamfjwtv3=eyJ6aXAiOiJERUYiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.YqA5MDiDb5kDl9Agkd0oKX_aI98KDzvUFBCNew-ts3B_7yEySIRNISw46NuLT88Huj2Ug89iNj-OQftNB5rqfFXnoKYiqdkrjh4JgEAOKg9hGKWqqJ7nx1mwHPbw0kuTR6ygL4sOiFlHwn5hfsDeYfLGx3mLobAuR3A2J4icUOxl8J6ccreGfvyStC3ovkKDUiP9VYelsAhKyrL5OAHUZCeVzRgPmJU0BetLuJ2Vkv0klG1OLOe40DI9kZCsBDmyBw8tk_rWzjkOZE8R_SEwk6IiOboJOupCW36eeGKPYA3gmCB6o_5-R1qsNkdNuUdiPJpMZY4ofggbiTPSznUGmg.YjV1klYuoe2J4ObFtx6YCQ.qjThewdJ-ggLiFeRrm3oFRlFgLpeO8sbqyc6LB2UrHzqg-X7544d35YZuXbo9dsnabfRSG28epWI36765OUwGKUswdS_BIiB8Il4M6M6aKmGI5j7-s3GdZURlnYBq6GplNIbvXsGoUAkTrQEhhnzLBXq2Jhrj3ivLUFPy7fMpqnNF1rKcQjeZ2BSHgFWl24oIJhewnU2RhNicWaja3In9OM5Q6pQkQMHItQt7a3PWOIyH3c3_TJNttCHDqs3Qih_qsCQYL3k_VTS7CBJbH1ZuvZzGh-sHaFJZdLi0wykX77rDAGq-jLs2sD6wyaCxWXXNbSiLHZsc4qxw4RrbNp-v-4Gn7FQngxCsnZBRUM2mIM3k-4rfkoPQ9XG1SQu4VLu74yH0hHu6EVerYP_t2_l2PDnhsVdpC-XdpxUyRiNWuUrCfOejeIMEn-zcABCbQD78aOexLivSoZDUkDe8apcC9GUaZMc4bxAT9SIJptn4YhDrHEth7YqvifgxNYjD64a7gqNx_4Y_dbx3cqRcZrJ7nbwLC09MsijNSz_cpkGedPAoGcS8352iRv-tmMvHn0PHY6LhcpLid35zzQ0xHUd798URbpNhVbp_5bhDL_E_AMwB42cVS3_7zXWvdw_Mb0z.SzRUTxllAjzoNk2wXssqoPKcEWWQnioxk9vNeqsOWjQ;
+        path=/; SameSite=Lax; HttpOnly
+      - vamftimeoutv1=1740780390; SameSite=Lax; path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"code":401,"status":401,"message":"JWT validation failed","id":"df838d63-a810-4139-879b-c8af6a53eb7a","traceId":"f8b5564eb754992f42fe3dc735411fce"}'
+  recorded_at: Thu, 02 Sep 2021 14:00:00 GMT
+recorded_with: VCR 6.3.1
