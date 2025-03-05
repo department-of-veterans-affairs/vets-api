@@ -282,6 +282,20 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(parsed_response.map { |poa| poa['id'] }).not_to include(expired_request.id)
         expect(parsed_response.map { |h| h['resolution']['createdAt'] }).to eq([time_plus_one_day, time])
       end
+
+      context 'when providing search criteria' do
+        it 'returns only matching power of attorney requests' do
+          form = poa_request.power_of_attorney_form
+          first_name = URI.encode_uri_component(form.veteran_first_name)
+          last_name = URI.encode_uri_component(form.veteran_last_name)
+          get('/accredited_representative_portal/v0/power_of_attorney_requests?status=pending' \
+              "&first_name=#{first_name}&last_name=#{last_name}&dob=#{form.veteran_dob}" \
+              "&ssn=#{form.veteran_ssn}")
+          parsed_response = JSON.parse(response.body)
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response.map { |poa| poa['id'] }).to eq([poa_request.id])
+        end
+      end
     end
 
     context 'when user has a VSO but no POA requests' do
