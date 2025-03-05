@@ -78,7 +78,8 @@ describe VAOS::UserService do
 
   context 'Feature toggle va_online_scheduling_sts_oauth_token disabled' do
     before do
-      Flipper.disable(:va_online_scheduling_sts_oauth_token)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                instance_of(User)).and_return(false)
     end
 
     describe '#session' do
@@ -221,7 +222,8 @@ describe VAOS::UserService do
 
   context 'Feature toggle va_online_scheduling_sts_oauth_token enabled' do
     before do
-      Flipper.enable(:va_online_scheduling_sts_oauth_token)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                instance_of(User)).and_return(true)
     end
 
     describe '#session' do

@@ -97,7 +97,7 @@ module AppealsApi
         return if evidence_submission['retrieveFrom'].nil?
 
         evidence_submission['retrieveFrom'].each_with_index do |retrieval_evidence, evidence_index|
-          retrieval_evidence['attributes']['evidenceDates'].each_with_index do |evidence_date, date_index|
+          retrieval_evidence['attributes']['evidenceDates']&.each_with_index do |evidence_date, date_index|
             schema_pointer = "/data/attributes/evidenceSubmission/retrieveFrom[#{evidence_index}]/attributes/evidenceDates[#{date_index}]" # rubocop:disable Layout/LineLength
             start_date_str = evidence_date['startDate']
             end_date_str = evidence_date['endDate']

@@ -236,6 +236,18 @@ describe AppealsApi::PdfConstruction::Generator do
             expect(generated_pdf).to match_pdf(expected_pdf)
           end
         end
+
+        describe 'no treatment dates' do
+          let(:sc) { create(:no_treatment_dates_supplemental_claim, created_at: '2021-02-03T14:15:16Z') }
+          let(:generated_pdf) { described_class.new(sc, pdf_version: 'v4').generate }
+          let(:expected_pdf) do
+            fixture_filepath('decision_reviews/v2/pdfs/v4/expected_200995_no_treatment_dates.pdf')
+          end
+
+          it 'generates the expected pdf' do
+            expect(generated_pdf).to match_pdf(expected_pdf)
+          end
+        end
       end
     end
   end
