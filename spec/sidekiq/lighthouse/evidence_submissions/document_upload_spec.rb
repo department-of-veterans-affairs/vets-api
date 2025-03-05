@@ -125,12 +125,10 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         allow(uploader_stub).to receive(:read_for_upload) { file }
         expect(uploader_stub).to receive(:remove!).once
         expect(client_stub).to receive(:upload_document).with(file, document_data).and_return(success_response)
-        allow(described_class).to receive(:update_evidence_submission_for_failure)
         allow(EvidenceSubmission).to receive(:find_by)
           .with({ job_id: })
           .and_return(nil)
         described_class.drain # runs all queued jobs of this class
-        expect(described_class).not_to have_received(:update_evidence_submission_for_failure)
       end
     end
 
@@ -186,6 +184,28 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
           expect(evidence_submission.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days).utc)
         end
         Timecop.unfreeze
+      end
+
+      it 'does not have an EvidenceSubmission record' do
+        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_failure_emails).and_return(true)
+        allow(described_class).to receive(:update_evidence_submission_for_failure)
+        Lighthouse::EvidenceSubmissions::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) do
+          allow(EvidenceSubmission).to receive(:find_by)
+            .with({ job_id: })
+            .and_return(nil)
+          expect(Lighthouse::FailureNotification).to receive(:perform_async).with(
+            user_account.icn,
+            {
+              first_name: 'Bob',
+              document_type: document_description,
+              filename: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
+              date_submitted: formatted_submit_date,
+              date_failed: formatted_submit_date
+            }
+          )
+          expect(described_class).not_to receive(:update_evidence_submission_for_failure)
+          expect(EvidenceSubmission.count).to equal(0)
+        end
       end
 
       it 'fails to create a failed evidence submission record when args malformed' do
