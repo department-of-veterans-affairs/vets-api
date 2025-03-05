@@ -134,6 +134,16 @@ module VAOS
           Eps::ProviderService.new(current_user)
       end
 
+      ##
+      # Lazily initializes and returns an instance of {Eps::RedisClient}.
+      # Ensures a single instance is used within the service to interact with Redis.
+      #
+      # @return [Eps::RedisClient] Memoized instance of the Redis client.
+      #
+      def eps_redis_client
+        @eps_redis_client ||= Eps::RedisClient.new
+      end
+
       def appointments
         @appointments ||=
           appointments_service.get_appointments(start_date, end_date, statuses, pagination_params, include_index_params)
