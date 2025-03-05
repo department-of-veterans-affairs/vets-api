@@ -138,11 +138,21 @@ class FormSubmissionAttempt < ApplicationRecord
   end
 
   def simple_forms_enqueue_result_email(notification_type)
-    SimpleFormsApi::Notification::SendNotificationEmailJob.new.perform(
+    form_number = simple_forms_form_number
+    Rails.logger.info('Queuing SimpleFormsAPI notification email to VaNotify', notification_type:, form_number:,
+                                                                               benefits_intake_uuid:)
+    jid = SimpleFormsApi::Notification::SendNotificationEmailJob.perform_async(
       notification_type:,
       form_submission_attempt: self,
-      form_number: simple_forms_form_number,
+      form_number:,
       user_account:
+    )
+    Rails.logger.info(
+      'Queuing SimpleFormsAPI notification email to VaNotify completed',
+      jid:,
+      notification_type:,
+      form_number:,
+      benefits_intake_uuid:
     )
   end
 
