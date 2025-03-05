@@ -256,7 +256,8 @@ app/models/form_submission.rb @department-of-veterans-affairs/platform-va-produc
 app/models/form_submission_attempt.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/gi_bill_feedback.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/gibs_not_found_user.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/models/gids_redis.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/models/gids_redis.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
+app/models/lcpe_redis.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 app/models/hca_attachment.rb  @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/health_care_application.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/iam_session.rb @department-of-veterans-affairs/octo-identity
@@ -299,6 +300,7 @@ app/models/rate_limited_search.rb @department-of-veterans-affairs/va-api-enginee
 app/models/saml_request_tracker.rb @department-of-veterans-affairs/octo-identity
 app/models/saved_claim.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/education_benefits/va_10203.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/models/saved_claim/education_benefits/va_10215.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/education_benefits/va_10216.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/education_benefits/va_10282.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/disability_compensation.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -679,7 +681,7 @@ app/sidekiq/terms_of_use @department-of-veterans-affairs/octo-identity
 app/sidekiq/test_user_dashboard @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/qa-standards @department-of-veterans-affairs/backend-review-group
 app/sidekiq/test_user_dashboard/daily_maintenance.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/qa-standards @department-of-veterans-affairs/backend-review-group
 app/sidekiq/transactional_email_analytics_job.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
-app/sidekiq/user_action_events_cleanup_job.rb @department-of-veterans-affairs/octo-identity
+app/sidekiq/user_actions_cleanup_job.rb @department-of-veterans-affairs/octo-identity
 app/sidekiq/va_notify_dd_email_job.rb @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/va_notify_email_job.rb @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/vbms @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -690,6 +692,7 @@ bin @department-of-veterans-affairs/va-api-engineers @department-of-veterans-aff
 bin/merge_imagemagick_policy @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 clamav_tmp @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/application.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+config/audit_log/user_action_events.yml @department-of-veterans-affairs/octo-identity
 config/betamocks @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/betamocks/services_config.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/boot.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -927,13 +930,14 @@ lib/formatters @department-of-veterans-affairs/octo-identity
 lib/forms @department-of-veterans-affairs/backend-review-group
 lib/forms/submission_statuses @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/generators @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-lib/gi/client.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-lib/gi/configuration.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-lib/gi/gids_response.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group  @department-of-veterans-affairs/my-education-benefits
+lib/gi/client.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+lib/gi/configuration.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+lib/gi/gids_response.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group  @department-of-veterans-affairs/govcio-vfep-codereviewers
+lib/gi/search_client.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+lib/gi/search_configuration.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/gi/lcpe/client.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/gi/lcpe/configuration.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-lib/gi/search_client.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-lib/gi/search_configuration.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+lib/gi/lcpe/response.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/gibft @department-of-veterans-affairs/govcio-vfep-codereviewers
 lib/github_authentication @department-of-veterans-affairs/backend-review-group
 lib/hca @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
@@ -1291,6 +1295,7 @@ spec/factories/user_verifications.rb @department-of-veterans-affairs/octo-identi
 spec/factories/va0993.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/va0994.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/va10203.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/factories/va10215.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/va10216.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/va10282.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/va1990e.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1431,7 +1436,7 @@ spec/sidekiq/simple_forms_api @department-of-veterans-affairs/platform-va-produc
 spec/sidekiq/terms_of_use @department-of-veterans-affairs/octo-identity
 spec/sidekiq/test_user_dashboard @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/qa-standards @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/transactional_email_analytics_job_spec.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
-spec/sidekiq/user_action_events_cleanup_job_spec.rb @department-of-veterans-affairs/octo-identity
+spec/sidekiq/user_actions_cleanup_job_spec.rb @department-of-veterans-affairs/octo-identity
 spec/sidekiq/va_notify_dd_email_job_spec.rb @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/va_notify_email_job_spec.rb @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/vbms @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1495,11 +1500,11 @@ spec/lib/formatters @department-of-veterans-affairs/octo-identity
 spec/lib/forms/client_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/forms/submission_statuses @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/generators @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/lib/gi/client_spec.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/lib/gi/configuration_spec.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/lib/gi/client_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/lib/gi/configuration_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/gi/lcpe/client_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/lib/gi/search_client_spec.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/lib/gi/search_configuration_spec.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/lib/gi/search_client_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/lib/gi/search_configuration_spec.rb @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/github_authentication @department-of-veterans-affairs/octo-identity
 spec/lib/hca @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/form1010_ezr @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -2127,10 +2132,16 @@ spec/support/vcr_cassettes/forms/200_all_forms.yml @department-of-veterans-affai
 spec/support/vcr_cassettes/forms/200_form_query.yml @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/forms/submission_statuses @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/gi_client @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/support/vcr_cassettes/gi/lcpe/get_exams_v1.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/support/vcr_cassettes/gi/lcpe/get_licenses_and_certs_v1.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/support/vcr_cassettes/gi/lcpe/get_exam_details_v1.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/support/vcr_cassettes/gi/lcpe/get_license_and_cert_details_v1.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/gi/lcpe/get_exam_details.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/gi/lcpe/get_exams_cache_fresh.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/gi/lcpe/get_exams_cache_nil.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/gi/lcpe/get_exams_cache_stale.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/gi/lcpe/get_exams_versioning_disabled.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/gi/lcpe/get_lac_details.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/gi/lcpe/get_lacs_cache_fresh.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/gi/lcpe/get_lacs_cache_nil.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/gi/lcpe/get_lacs_cache_stale.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/gi/lcpe/get_lacs_versioning_disabled.yml @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/GI_SearchClient @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/govdelivery_emails.yml @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/hca @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
