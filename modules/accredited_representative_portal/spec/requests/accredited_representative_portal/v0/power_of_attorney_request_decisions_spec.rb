@@ -38,6 +38,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     travel_to(time)
   end
 
+  after { Flipper.disable(:accredited_representative_portal_pilot) }
+
   describe 'POST /accredited_representative_portal/v0/power_of_attorney_requests/:id/decision' do
     context 'when user’s VSO does not accept digital POAs' do
       before do

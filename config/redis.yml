@@ -114,6 +114,9 @@ development: &defaults
   eps_access_token:
     namespace: eps-access-token
     each_ttl: 840 # 14 minutes
+  ccra_access_token:
+    namespace: ccra-access-token
+    each_ttl: 840 # 14 minutes
   saml_request_tracker:
     namespace: saml_request_tracker
     each_ttl: 3600 # 1 hour

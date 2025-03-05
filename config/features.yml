@@ -120,9 +120,6 @@ features:
   hca_retrieve_facilities_without_repopulating:
     actor_type: user
     description: Constrain facilities endpoint to only return existing facilities values - even if the table is empty, do not rerun the Job to populate it.
-  retry_form_validation:
-    actor_type: user
-    description: Enables concern to retry schema validation for 10-10EZ and 10-10CG
   cg1010_oauth_2_enabled:
     actor_type: user
     description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
@@ -533,10 +530,6 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
-    enable_in_development: true
-  disability_526_migrate_contention_classification:
-    actor_type: user
-    description: Enables the migration of contention classification service from VRO to the VA.gov infrastructure.
     enable_in_development: true
   disability_526_max_cfi_service_switch:
     actor_type: user
