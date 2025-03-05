@@ -103,6 +103,10 @@ features:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
     enable_in_development: true
+  hca_download_completed_pdf:
+    actor_type: user
+    description: Enables downloading a filled out 10-10EZ Form Pdf upon submission
+    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -116,9 +120,6 @@ features:
   hca_retrieve_facilities_without_repopulating:
     actor_type: user
     description: Constrain facilities endpoint to only return existing facilities values - even if the table is empty, do not rerun the Job to populate it.
-  retry_form_validation:
-    actor_type: user
-    description: Enables concern to retry schema validation for 10-10EZ and 10-10CG
   cg1010_oauth_2_enabled:
     actor_type: user
     description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
@@ -349,6 +350,10 @@ features:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
     enable_in_development: true
+  cst_friendly_evidence_requests:
+    actor_type: user
+    description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
+    enable_in_development: true
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
@@ -480,12 +485,6 @@ features:
     actor_type: user
     description: Enable sending an email if a 4142 submission is not successful in Lighthouse
     enable_in_development: true
-  decision_review_new_engine_4142_job:
-    actor_type: user
-    description: Enable to switch to new modularized Decision Review Form4142Submit job
-  decision_review_new_engine_submit_upload_job:
-    actor_type: user
-    description: Enable to switch to new modularized Decision Review SubmitUpload job
   decision_review_service_common_exceptions_enabled:
     actor_type: user
     description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
@@ -534,10 +533,6 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
-    enable_in_development: true
-  disability_526_migrate_contention_classification:
-    actor_type: user
-    description: Enables the migration of contention classification service from VRO to the VA.gov infrastructure.
     enable_in_development: true
   disability_526_max_cfi_service_switch:
     actor_type: user
@@ -1534,6 +1529,9 @@ features:
   va_dependents_v2:
     actor_type: user
     description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
+  va_dependents_v2_banner:
+    actor_type: user
+    description: Allows us to toggle a form maintenance banner on the V1 form for pre-launch.
   va_dependents_new_fields_for_pdf:
     actor_typer: user
     description: Allows us to toggle the new fields on the front end for 686C-674
@@ -1612,14 +1610,6 @@ features:
   veteran_onboarding_show_welcome_message_to_new_users:
     actor_type: user
     description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
-    enable_in_development: false
-  veteran_status_card_use_lighthouse:
-    actor_type: user
-    description: Enables the use of LH API instead of Profile API for the Veteran Status Card display
-    enable_in_development: false
-  veteran_status_card_use_lighthouse_frontend:
-    actor_type: user
-    description: Enables the use of LH API instead of Profile API for the Veteran Status Card display, story 1145
     enable_in_development: false
   vre_trigger_action_needed_email:
     actor_type: user
@@ -1741,12 +1731,6 @@ features:
   disability_compensation_email_veteran_on_polled_lighthouse_doc_failure:
     actor_type: user
     description: Sends document upload failure emails when polled doc uploaded to Lighthouse has failed to process at Lighthouse
-  disability_compensation_lighthouse_rated_disabilities_provider_foreground:
-    actor_type: user
-    description: If enabled uses the lighthouse rated disabilities endpoint for foreground requests
-  disability_compensation_lighthouse_rated_disabilities_provider_background:
-    actor_type: user
-    description: If enabled uses the lighthouse rated disabilities endpoint for background tasks
   disability_compensation_lighthouse_document_service_provider:
     actor_type: user
     description: If enabled uses the lighthouse documents service
@@ -2033,7 +2017,7 @@ features:
   is_updated_gi:
     actor_type: user
     description: If enabled, use updated gi design
-  gi_ct_collab: 
+  gi_ct_collab:
     actor_type: user
     description: If enabled, use VEBT/EDM team GI Comparison Tool homepage
   show_rudisill_1995:
