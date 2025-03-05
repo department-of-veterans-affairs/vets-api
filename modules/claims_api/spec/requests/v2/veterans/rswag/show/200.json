@@ -49,25 +49,27 @@
                 "middleName": {
                   "description": "Middle name for the dependdent claimant.",
                   "type": ["string", "null"]
-                },             
-                "city": {
-                  "type": ["string", "null"]
-                },
-                "country": {
-                  "type": ["string", "null"]
-                },
-                "militaryPo": {
-                  "type": ["string", "null"]
-                },
-                "militaryPostalCode": {
-                  "type": ["string", "null"]
-                },
-                "state": {
-                  "type": ["string", "null"]
-                },
-                "zip": {
-                  "type": ["string", "null"]
                 }
+              }
+            },
+            "address": {
+              "city": {
+                "type": ["string", "null"]
+              },
+              "country": {
+                "type": ["string", "null"]
+              },
+              "militaryPo": {
+                "type": ["string", "null"]
+              },
+              "militaryPostalCode": {
+                "type": ["string", "null"]
+              },
+              "state": {
+                "type": ["string", "null"]
+              },
+              "zip": {
+                "type": ["string", "null"]
               }
             },
             "representative": {
