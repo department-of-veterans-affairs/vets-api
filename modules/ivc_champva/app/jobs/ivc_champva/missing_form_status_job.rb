@@ -12,16 +12,15 @@ module IvcChampva
     def perform # rubocop:disable Metrics/MethodLength
       return unless Settings.ivc_forms.sidekiq.missing_form_status_job.enabled
 
-      forms = IvcChampvaForm.where(pega_status: nil).where('created_at < ?', 1.minute.ago)
+      batches = get_nil_batches
 
-      return unless forms.any?
+      return unless batches.any?
 
       # Send the count of forms to DataDog
-      StatsD.gauge('ivc_champva.forms_missing_status.count', forms.count)
+      StatsD.gauge('ivc_champva.forms_missing_status.count', batches.count)
 
       current_time = Time.now.utc
 
-      batches = get_nil_batches
       batches.each_value do |batch|
         form = batch[0] # get a representative form from this submission batch
         # Check if we've been missing Pega status for > custom threshold of days:
