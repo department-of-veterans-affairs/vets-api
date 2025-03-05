@@ -13,7 +13,7 @@ module UnifiedHealthData
       @user = user
     end
 
-    def get_medical_records(start_date:, end_date:)
+    def get_labs(start_date:, end_date:)
       token = fetch_access_token
       patient_id = @user.icn
       path = "#{config.base_path}labs?patient-id=#{patient_id}&start-date=#{start_date}&end-date=#{end_date}"
@@ -21,7 +21,7 @@ module UnifiedHealthData
       body = parse_response_body(response.body)
 
       combined_records = fetch_combined_records(body)
-      parsed_records = parse_medical_records(combined_records)
+      parsed_records = parse_labs(combined_records)
       filter_records(parsed_records)
     end
 
@@ -57,7 +57,7 @@ module UnifiedHealthData
       vista_records + oracle_health_records
     end
 
-    def parse_medical_records(records)
+    def parse_labs(records)
       records = records.select { |record| record['resource']['resourceType'] == 'DiagnosticReport' }.map do |record|
         parse_single_record(record)
       end
