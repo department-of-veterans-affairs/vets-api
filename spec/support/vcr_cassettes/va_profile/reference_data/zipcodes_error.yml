@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://int.vet360.va.gov/contact-information-hub/referencedata/contact-information/v1/zipcode5
+    uri: <VETS360_URL>/contact-information-hub/referencedata/contact-information/v1/zipcode5
     body:
       encoding: US-ASCII
       string: ''
