@@ -13,7 +13,7 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
     before do
       Timecop.freeze('2018-04-09T17:52:03Z')
       sign_in_as(user)
-      allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       allow_any_instance_of(User).to receive(:vet360_id).and_return(nil)
     end
 
@@ -90,7 +90,7 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
     before do
       Timecop.freeze('2018-04-09T17:52:03Z')
       sign_in_as(user)
-      allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     end
 
     context 'with an ok response' do

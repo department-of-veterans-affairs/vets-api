@@ -17,7 +17,7 @@ RSpec.describe 'V0::Profile::Permissions', type: :request do
   let(:frozen_time) { Time.zone.local(2019, 11, 5, 16, 49, 18) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     Timecop.freeze(frozen_time)
     sign_in_as(user)
     allow(Settings).to receive(:virtual_hosts).and_return('www.example.com')
