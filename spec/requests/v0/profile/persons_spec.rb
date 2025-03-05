@@ -13,7 +13,7 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
     before do
       Timecop.freeze('2018-04-09T17:52:03Z')
       sign_in_as(user)
-      Flipper.disable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(false)
       allow_any_instance_of(User).to receive(:vet360_id).and_return(nil)
     end
 
@@ -90,7 +90,7 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
     before do
       Timecop.freeze('2018-04-09T17:52:03Z')
       sign_in_as(user)
-      Flipper.disable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(false)
     end
 
     context 'with an ok response' do
@@ -152,7 +152,7 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
     before do
       Timecop.freeze('2024-09-16T16:09:37Z')
       sign_in_as(user)
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     end
 
     describe 'POST /v0/profile/initialize_vet360_id v2' do
