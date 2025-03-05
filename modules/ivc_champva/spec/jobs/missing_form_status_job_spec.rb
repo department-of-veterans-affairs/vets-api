@@ -109,11 +109,11 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
   it 'processes nil forms in batches that belong to the same submission' do
     # Set shared `form_uuid` so these two now belong to the same batch:
-    forms[0].update(form_uuid: '123')
-    forms[1].update(form_uuid: '123')
+    forms[0].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
+    forms[1].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
 
     # Perform the job that checks form statuses
-    IvcChampva::MissingFormStatusJob.new.perform
+    job.perform
 
     # Check that we processed batches rather than individual forms:
     expect(StatsD).to have_received(:gauge).with('ivc_champva.forms_missing_status.count', forms.count - 1)
@@ -121,14 +121,14 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
   it 'groups nil statuses into batches by uuid' do
     # Set shared `form_uuid` so these two now belong to the same batch:
-    forms[0].update(form_uuid: '123')
-    forms[1].update(form_uuid: '123')
+    forms[0].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
+    forms[1].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
 
     # Perform the job that checks form statuses
-    batches = IvcChampva::MissingFormStatusJob.new.get_nil_batches
+    batches = job.get_nil_batches
 
     expect(batches.count == forms.count - 1).to be true
-    expect(batches['123'].count == 2).to be true
+    expect(batches['78444a0b-3ac8-454d-a28d-8d63cddd0d3b'].count == 2).to be true
   end
 
   it 'sends the count of forms to DataDog' do
