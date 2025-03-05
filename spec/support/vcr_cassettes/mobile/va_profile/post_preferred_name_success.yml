@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: post
-      uri: https://int.vet360.va.gov/demographics/demographics/v1/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200V<%= csd %>%5EUSDVA/preferred-name
+      uri: <VETS360_URL>/demographics/demographics/v1/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200V<%= csd %>%5EUSDVA/preferred-name
       body:
         encoding: UTF-8
         string: '{"bio":{"preferredName":"Pat","sourceDate":"2022-04-08T15:09:23.000Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859"}}'

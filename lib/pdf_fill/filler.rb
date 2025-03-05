@@ -9,9 +9,11 @@ require 'pdf_fill/forms/va218940'
 require 'pdf_fill/forms/va1010cg'
 require 'pdf_fill/forms/va1010ez'
 require 'pdf_fill/forms/va686c674'
+require 'pdf_fill/forms/va686c674v2'
 require 'pdf_fill/forms/va281900'
 require 'pdf_fill/forms/va288832'
 require 'pdf_fill/forms/va21674'
+require 'pdf_fill/forms/va21674v2'
 require 'pdf_fill/forms/va210538'
 require 'pdf_fill/forms/va261880'
 require 'pdf_fill/forms/va5655'
@@ -56,9 +58,11 @@ module PdfFill
       '10-10CG' => PdfFill::Forms::Va1010cg,
       '10-10EZ' => PdfFill::Forms::Va1010ez,
       '686C-674' => PdfFill::Forms::Va686c674,
+      '686C-674-V2' => PdfFill::Forms::Va686c674v2,
       '28-1900' => PdfFill::Forms::Va281900,
       '28-8832' => PdfFill::Forms::Va288832,
       '21-674' => PdfFill::Forms::Va21674,
+      '21-674-V2' => PdfFill::Forms::Va21674v2,
       '21-0538' => PdfFill::Forms::Va210538,
       '26-1880' => PdfFill::Forms::Va261880,
       '5655' => PdfFill::Forms::Va5655,
@@ -138,23 +142,22 @@ module PdfFill
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
-      start_page = form_class.const_defined?(:START_PAGE) ? form_class::START_PAGE : 1
-      hash_converter = HashConverter.new(form_id.sub(/V2\z/, ''), form_class.date_strftime,
-                                         fill_options.fetch(:extras_redesign, false), start_page)
-
-      new_hash = hash_converter.transform_data(
-        form_data: form_class.new(form_data).merge_fields(fill_options),
-        pdftk_keys: form_class::KEY
+      merged_form_data = form_class.new(form_data).merge_fields(fill_options)
+      extras_generator = ExtrasGenerator.new(
+        extras_redesign: fill_options.fetch(:extras_redesign, false),
+        form_name: form_id.sub(/V2\z/, ''),
+        submit_date: merged_form_data['signatureDate'] || fill_options.fetch(:created_at, nil),
+        start_page: form_class::START_PAGE,
+        sections: form_class::SECTIONS
       )
+      hash_converter = HashConverter.new(form_class.date_strftime, extras_generator)
+      new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
 
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
 
       (form_id == SavedClaim::CaregiversAssistanceClaim::FORM ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
-        template_path,
-        file_path,
-        new_hash,
-        flatten: Rails.env.production?
+        template_path, file_path, new_hash, flatten: Rails.env.production?
       )
 
       combine_extras(file_path, hash_converter.extras_generator)
