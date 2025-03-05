@@ -80,6 +80,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       before do
         allow(EVSS::DocumentUpload).to receive(:update_evidence_submission)
       end
+
       let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
       let(:file) { Rails.root.join('spec', 'fixtures', 'files', file_name).read }
       let(:evidence_submission_pending) do
@@ -106,7 +107,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         expect(StatsD)
           .to have_received(:increment)
           .with('cst.evss.document_uploads.evidence_submission_record_updated.success')
-        end
+      end
 
       it 'when there is no EvidenceSubmission' do
         allow(EVSSClaimDocumentUploader).to receive(:new) { uploader_stub }
@@ -172,6 +173,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
           allow(EVSS::DocumentUpload).to receive(:update_evidence_submission)
           allow(EVSS::DocumentUpload).to receive(:call_failure_notification)
         end
+
         it 'does not update an evidence submission record' do
           described_class.within_sidekiq_retries_exhausted_block(msg) do
             allow(EvidenceSubmission).to receive(:find_by)
