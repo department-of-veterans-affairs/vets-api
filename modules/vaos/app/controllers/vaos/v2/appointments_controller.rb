@@ -4,7 +4,7 @@ require 'common/exceptions'
 
 module VAOS
   module V2
-    class AppointmentsController < VAOS::BaseController # rubocop:disable Metrics/ClassLength
+    class AppointmentsController < VAOS::BaseController
       before_action :authorize_with_facilities
 
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
@@ -73,10 +73,8 @@ module VAOS
           render json: referral_check_result[:json], status: referral_check_result[:status] and return
         end
 
-        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: referral_id)
-
-        # TODO remove `dig` once validation of cached referral data is implemented
-        provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data.dig(:provider_id))
+        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
+        provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
 
         response_data = OpenStruct.new(
           id: draft_appointment.id,
