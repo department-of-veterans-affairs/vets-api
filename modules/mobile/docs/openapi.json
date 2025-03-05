@@ -23823,7 +23823,7 @@
             "properties": {
               "attributes": {
                 "type": "object",
-                "additionalProperties": true,
+                "additionalProperties": false,
                 "required": [
                   "veteranStatus"
                 ],
@@ -23831,6 +23831,10 @@
                   "veteranStatus": {
                     "type": "string",
                     "example": "confirmed"
+                  },
+                  "notConfirmedReason": {
+                    "type": "string",
+                    "example": "PERSON_NOT_FOUND"
                   }
                 }
               }
