@@ -1590,6 +1590,14 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for modifying the date range selection on the Past appointments page.
+  va_online_scheduling_mhv_route_guards:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for adopting MHV route guards for the appointment tool.
+  va_online_scheduling_direct_schedule_appointment_conflict:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for warning user of appointment conflicts on the direct scheduling calendar during booking.
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled
@@ -1942,10 +1950,6 @@ features:
   toggle_vye_address_direct_deposit_forms:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE
-  veteran_readiness_employment_to_res:
-    actor_type: user
-    description: Enable RES platform for Veteran Readiness & Employment form submissions, disabled will use VRE email
-    enable_in_development: true
   vye_login_widget:
     actor_type: user
     description: Enable Vye authentication widget
