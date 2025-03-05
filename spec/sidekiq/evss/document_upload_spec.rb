@@ -77,6 +77,9 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
     end
 
     context 'when upload succeeds' do
+      before do
+        allow(EVSS::DocumentUpload).to receive(:update_evidence_submission)
+      end
       let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
       let(:file) { Rails.root.join('spec', 'fixtures', 'files', file_name).read }
       let(:evidence_submission_pending) do
@@ -103,6 +106,20 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         expect(StatsD)
           .to have_received(:increment)
           .with('cst.evss.document_uploads.evidence_submission_record_updated.success')
+        end
+
+      it 'when there is no EvidenceSubmission' do
+        allow(EVSSClaimDocumentUploader).to receive(:new) { uploader_stub }
+        allow(EVSS::DocumentsService).to receive(:new) { client_stub }
+        allow(uploader_stub).to receive(:retrieve_from_store!).with(file_name) { file }
+        allow(uploader_stub).to receive(:read_for_upload) { file }
+        expect(uploader_stub).to receive(:remove!).once
+        expect(client_stub).to receive(:upload).with(file, document_data)
+        allow(EvidenceSubmission).to receive(:find_by).with({ job_id: job_id.to_s })
+                                                      .and_return(nil)
+        described_class.drain
+        expect(EvidenceSubmission.count).to equal(0)
+        expect(EVSS::DocumentUpload).not_to have_received(:update_evidence_submission)
       end
     end
 
@@ -147,6 +164,23 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
           expect(evidence_submission.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days).utc)
         end
         Timecop.unfreeze
+      end
+
+      context 'when there is no EvidenceSubmission record' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_failure_emails).and_return(true)
+          allow(EVSS::DocumentUpload).to receive(:update_evidence_submission)
+          allow(EVSS::DocumentUpload).to receive(:call_failure_notification)
+        end
+        it 'does not update an evidence submission record' do
+          described_class.within_sidekiq_retries_exhausted_block(msg) do
+            allow(EvidenceSubmission).to receive(:find_by)
+              .with({ job_id: })
+              .and_return(nil)
+          end
+          expect(EVSS::DocumentUpload).not_to have_received(:update_evidence_submission)
+          expect(EVSS::DocumentUpload).to have_received(:call_failure_notification)
+        end
       end
 
       it 'fails to create a failed evidence submission record when args malformed' do
