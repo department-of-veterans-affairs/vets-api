@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'datadog'
-
 module IvcChampva
   module ProdSupportUtilities
     class Insights
