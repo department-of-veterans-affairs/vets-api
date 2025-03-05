@@ -19,6 +19,7 @@ module AccreditedRepresentativePortal
 
     attr_reader :response
 
+    # rubocop:disable Metrics/MethodLength
     def perform(poa_form_submission_id)
       @id = poa_form_submission_id
       service = BenefitsClaims::Service.new(poa_form_submission.power_of_attorney_request.claimant.icn)
@@ -30,6 +31,17 @@ module AccreditedRepresentativePortal
         error_message: error_data.to_json
       )
       raise PendingSubmissionError, '2122 still pending' if new_status == :enqueue_succeeded
+
+      Monitoring.new.track_duration(
+        'ar.poa.submission.duration',
+        from: poa_form_submission.created_at,
+        to: poa_form_submission.status_updated_at
+      )
+      Monitoring.new.track_duration(
+        "ar.poa.submission.#{new_status}.duration",
+        from: poa_form_submission.created_at,
+        to: poa_form_submission.status_updated_at
+      )
     rescue => e
       handle_errors(e, poa_form_submission)
     end
@@ -38,7 +50,19 @@ module AccreditedRepresentativePortal
       poa_form_submission_id = job['args'].first
       poa_form_submission = PowerOfAttorneyFormSubmission.find(poa_form_submission_id)
       poa_form_submission.update(status: :failed, status_updated_at: DateTime.current)
+
+      Monitoring.new.track_duration(
+        'ar.poa.submission.duration',
+        from: poa_form_submission.created_at,
+        to: poa_form_submission.status_updated_at
+      )
+      Monitoring.new.track_duration(
+        'ar.poa.submission.failed.duration',
+        from: poa_form_submission.created_at,
+        to: poa_form_submission.status_updated_at
+      )
     end
+    # rubocop:enable Metrics/MethodLength
 
     def handle_errors(e, poa_form_submission)
       poa_form_submission.update(error_message: e.message)
