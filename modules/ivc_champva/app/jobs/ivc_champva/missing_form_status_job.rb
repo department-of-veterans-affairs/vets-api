@@ -109,8 +109,8 @@ module IvcChampva
     end
 
     ##
-    # Returns all nil form submissions organized in batches that correspond to
-    # individual form submissions.
+    # Returns form submissions with nil pega statuses created more than 1 minute ago
+    # organized in batches that correspond to individual form submissions.
     #
     # @return [Hash] hash of batches where the keys are a batch's `form_uuid`
     #   and the value is a list of `IvcChampvaForm`s with that form_uuid
@@ -121,7 +121,7 @@ module IvcChampva
     #     }
     #
     def get_nil_batches
-      all_nil_statuses = IvcChampvaForm.where(pega_status: nil)
+      all_nil_statuses = IvcChampvaForm.where(pega_status: nil).where('created_at < ?', 1.minute.ago)
 
       batches = {}
 
