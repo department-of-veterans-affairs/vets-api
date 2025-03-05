@@ -202,10 +202,10 @@ describe Eps::RedisClient do
 
       it 'returns all cached attributes' do
         expected_attributes = {
-          provider_id: provider_id,
-          appointment_type_id: appointment_type_id,
-          start_date: start_date,
-          end_date: end_date
+          provider_id:,
+          appointment_type_id:,
+          start_date:,
+          end_date:
         }
 
         expect(redis_client.fetch_all_attributes(referral_number:)).to eq(expected_attributes.with_indifferent_access)
