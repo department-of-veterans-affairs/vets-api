@@ -1,4 +1,3 @@
----
 acc_rep_management:
   prefill: true
 account:
@@ -640,6 +639,11 @@ ivc_forms:
   sidekiq:
     missing_form_status_job:
       enabled: true
+kafka_producer:
+  aws_region: "us-gov-west-1"
+  aws_role_arn: 'arn:aws:iam::123456789012:role/role-name' # this is an example
+  broker_urls: ['localhost:19092'] # for local Kafka cluster in Docker
+  schema_registry_url: 'http://localhost:8081' # for local Schema Registry in Docker
 kms_key_id: ~
 lgy:
   api_key: fake_api_key
@@ -660,8 +664,8 @@ lighthouse:
   benefits_claims:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausdg7guis2TYDlFe2p7/v1/token
-      client_id: ~
-      rsa_key: ~
+      client_id: abc123456
+      rsa_key: path/to/key
     aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3u00gw66b9Ojk2p7/v1/token
     form526:
       access_token:
@@ -819,6 +823,7 @@ maintenance:
     es: PH7OPR4
     evss: PZKWB6Y
     form1010d: P69N8ZY
+    form107959a: POTKY39
     form107959c: PEP32F2
     form107959f1: P63EKXC
     form107959f2: PZWR9XI
