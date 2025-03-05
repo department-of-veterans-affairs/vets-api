@@ -6,7 +6,7 @@ module Banners
 
     STATSD_KEY_PREFIX = 'banners.sidekiq.update_all_banners'
 
-    sidekiq_options retry: 5
+    sidekiq_options retry: 3
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
@@ -40,11 +40,15 @@ module Banners
       Banners.update_all
     rescue Banners::Updater::BannerDataFetchError => e
       StatsD.increment("#{STATSD_KEY_PREFIX}.banner_data_fetch_error")
-      Rails.logger.error(
+      Rails.logger.warn(
         'Banner data fetch failed',
         { error_message: e.message, error_class: e.class.name }
       )
-      raise e # Re-raise to trigger Sidekiq retries
+
+      # Job has failed, this is likely due to a communication error with the Drupal API.
+      # In this case, we don't want to retry this job as it will be scheduled via periodic_jobs.rb within 5 minutes
+      # We return false to mark it as failed without retrying.
+      false
     end
 
     private
