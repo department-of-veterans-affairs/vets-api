@@ -12,7 +12,7 @@ module ClaimsApi
 
       def get_poa_list
         proc_ids = poa_list.pluck('procID')
-        
+
         poa_requests = ClaimsApi::PowerOfAttorneyRequest.where(proc_id: proc_ids).select(:id, :proc_id)
         poa_requests_by_proc_id = poa_requests.each_with_object({}) do |request, hash|
           hash[request.proc_id] = request.id
