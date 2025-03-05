@@ -66,18 +66,20 @@ module VAOS
         referral_id = draft_params[:referral_id]
         # TODO: validate referral_id from the cache from prior referrals response
 
+        cached_referral_data = eps_redis_client.fetch_all_attributes(referral_number: referral_id)
+
         referral_check_result = check_referral_usage(referral_id)
         unless referral_check_result[:success]
           render json: referral_check_result[:json], status: referral_check_result[:status] and return
         end
 
-        # TODO: cache provider_id, appointment_type_id, end_date from prior referrals response and use here
         draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: referral_id)
-        provider = eps_provider_service.get_provider_service(provider_id: draft_params[:provider_id])
+        provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
+
         response_data = OpenStruct.new(
           id: draft_appointment.id,
           provider:,
-          slots: fetch_provider_slots,
+          slots: fetch_provider_slots(cached_referral_data),
           drive_time: fetch_drive_times(provider)
         )
 
@@ -451,13 +453,13 @@ module VAOS
         }
       end
 
-      def fetch_provider_slots
+      def fetch_provider_slots(referral_data)
         eps_provider_service.get_provider_slots(
-          draft_params[:provider_id],
+          referral_data[:provider_id],
           {
-            appointmentTypeId: draft_params[:appointment_type_id],
-            startOnOrAfter: draft_params[:start_date],
-            startBefore: draft_params[:end_date]
+            appointmentTypeId: referral_data[:appointment_type_id],
+            startOnOrAfter: referral_data[:start_date],
+            startBefore: referral_data[:end_date]
           }
         )
       end
