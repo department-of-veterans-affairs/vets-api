@@ -1,0 +1,51 @@
+vba_20_10206:
+  first_name: [full_name, first]
+  email: email_address
+vba_20_10207:
+  preparer_type:
+    veteran:
+      first_name: [veteran_full_name, first]
+      email: veteran_email_address
+    third-party-veteran:
+      first_name: [third_party_full_name, first]
+      email: veteran_email_address
+    non-veteran:
+      first_name: [non_veteran_full_name, first]
+      email: non_veteran_email_address
+    third-party-non-veteran:
+      first_name: [third_party_full_name, first]
+      email: non_veteran_email_address
+vba_21_0845:
+  authorizer_type:
+    veteran:
+      first_name: [veteran_full_name, first]
+      email: veteran_email
+    non_veteran:
+      first_name: [authorizer_full_name, first]
+      email: authorizer_email
+vba_21_0966:
+  preparer_identification:
+    surviving_dependent:
+      first_name: [surviving_dependent_full_name, first]
+      email: surviving_dependent_email
+vba_21_10210:
+  claim_ownership:
+    self:
+      claimant_type:
+        veteran:
+          first_name: [veteran_full_name, first]
+          email: veteran_email
+        non-veteran:
+          first_name: [claimant_full_name, first]
+          email: claimant_email
+    third-party:
+      claimant_type:
+        veteran: veteran_email
+        non-veteran: [veteran_full_name, first]
+vba_40_10007:
+  application:
+    applicant:
+      applicant_relationship_to_claimant:
+        self:
+          first_name: [application, claimant, name, first]
+        first_name: [application, applicant, name, first]
