@@ -190,7 +190,6 @@ RSpec/SpecFilePathFormat:
     - 'spec/lib/common/client/middleware/response/appeals_response_middleware_spec.rb'
     - 'spec/lib/common/client/middleware/response/gids_response_middleware_spec.rb'
     - 'spec/lib/common/client/middleware/response/response_middleware_spec.rb'
-    - 'spec/lib/evss/pciu_address/pciu_address_spec.rb'
     - 'spec/lib/sm/client/message_drafts_spec.rb'
     - 'spec/lib/lighthouse/veterans_health/integration/client_spec.rb'
     - 'spec/lib/mail_automation/integration/client_spec.rb'
