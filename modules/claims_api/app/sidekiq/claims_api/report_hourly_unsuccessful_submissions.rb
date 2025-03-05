@@ -21,7 +21,7 @@ module ClaimsApi
         'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
         'errored', @search_from, @search_to, '0oagdm49ygCSJTp8X297'
       ).pluck(:id).uniq
-      @va_gov_errored_claims = get_filtered_unique_errors
+      @va_gov_errored_claims = get_filtered_unique_errors # Array of [id, transaction_id]
       @errored_poa = ClaimsApi::PowerOfAttorney.where(created_at: @search_from..@search_to,
                                                       status: 'errored').pluck(:id).uniq
       @errored_itf = ClaimsApi::IntentToFile.where(created_at: @search_from..@search_to,
@@ -61,11 +61,12 @@ module ClaimsApi
       filtered_error_ids = []
 
       unique_errors.each do |ue|
-        filtered_error_ids << ue[:id] unless NO_INVESTIGATION_ERROR_TEXT.any? do |text|
+        filtered_error_ids << [ue[:id], ue[:transaction_id]] unless NO_INVESTIGATION_ERROR_TEXT.any? do |text|
           ue[:evss_response].to_s&.include?(text)
         end
       end
 
+      # return signature: [[id, transaction_id],...]
       filtered_error_ids
     end
 

@@ -6,11 +6,11 @@ module ClaimsApi
   module Slack
     class FailedSubmissionsMessenger
       def initialize(options = {})
-        @errored_disability_claims = options[:errored_disability_claims]
-        @errored_va_gov_claims = options[:errored_va_gov_claims]
-        @errored_poa = options[:errored_poa]
-        @errored_itf = options[:errored_itf]
-        @errored_ews = options[:errored_ews]
+        @errored_disability_claims = options[:errored_disability_claims] # Array of id
+        @errored_va_gov_claims = options[:errored_va_gov_claims] # Array of [id, transaction_id]
+        @errored_poa = options[:errored_poa] # Array of id
+        @errored_itf = options[:errored_itf] # Array of id
+        @errored_ews = options[:errored_ews] # Array of id
         @from = options[:from]
         @to = options[:to]
         @environment = options[:environment]
@@ -79,7 +79,7 @@ module ClaimsApi
 
       def build_error_block(title, errors)
         text = if title == 'Va Gov Disability Compensation'
-                 errors.map { |eid| link_value(eid) }.join("\n")
+                 errors.map { |eid, tid| "CID: #{link_value(eid)} / TID: #{link_value(tid)}" }.join("\n")
                else
                  errors.join("\n")
                end
