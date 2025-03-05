@@ -64,6 +64,10 @@ describe PdfFill::Filler, type: :model do
       {
         form_id: '686C-674',
         factory: :dependency_claim
+      },
+      {
+        form_id: '686C-674-V2',
+        factory: :dependency_claim_v2
       }
     ].each do |options|
       it_behaves_like 'a form filler', options

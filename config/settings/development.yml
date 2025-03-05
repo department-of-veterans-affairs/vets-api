@@ -645,6 +645,11 @@ ivc_forms:
   sidekiq:
     missing_form_status_job:
       enabled: true
+kafka_producer:
+  aws_region: "us-gov-west-1"
+  aws_role_arn: "arn:aws:iam::123456789012:role/role-name" # this is an example
+  broker_urls: ["localhost:19092"] # for local Kafka cluster in Docker
+  schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
 kms_key_id: ~
 lgy:
   api_key: ~
@@ -824,6 +829,7 @@ maintenance:
     es: PH7OPR4
     evss: PZKWB6Y
     form1010d: P69N8ZY
+    form107959a: POTKY39
     form107959c: PEP32F2
     form107959f1: P63EKXC
     form107959f2: PZWR9XI
@@ -1594,6 +1600,7 @@ vanotify:
     bearer_token: fake_bearer_token
 vaos:
   ccra:
+    access_token_url: https://test.example.com/token
     api_url: https://api.ccra.placeholder.va.local
     base_path: csp/healthshare/ccraint/rest
     mock: false
@@ -1608,6 +1615,7 @@ vaos:
     key_path: "/fake/client/key/path"
     kid: fake_kid
     mock: false
+    redis_token_expiry: 3500
     scopes: care-nav
 vba_documents:
   custom_metadata_allow_list: ~
