@@ -25,6 +25,8 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
     login_as(representative_user)
   end
 
+  after { Flipper.disable(:accredited_representative_portal_pilot) }
+
   describe 'POST /accredited_representative_portal/v0/form21a' do
     context 'with valid JSON' do
       let!(:in_progress_form) { create(:in_progress_form, form_id: '21a', user_uuid: representative_user.uuid) }
@@ -140,7 +142,7 @@ Errors: The property '#/firstName' of type integer did not match the following t
         post '/accredited_representative_portal/v0/form21a'
 
         expect(Rails.logger).to have_received(:error).with(
-          "ARP: Unexpected error occurred for user with user_uuid=#{representative_user.uuid} - Unexpected error"
+          include(/ARP: Unexpected error occurred for user with user_uuid=#{representative_user.uuid}/)
         )
 
         expect(response).to have_http_status(:internal_server_error)

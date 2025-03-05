@@ -4,7 +4,6 @@ require 'evss/disability_compensation_form/service'
 require 'evss/disability_compensation_form/dvp/service'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/error_middleware'
-require 'evss/reference_data/service'
 require 'common/exceptions'
 require 'jsonapi/parser'
 require 'evss_service/base' # docker container
@@ -194,7 +193,7 @@ module ClaimsApi
                Faraday::ParsingError,
                Breakers::OutageException => e
           claims_v1_logging('validate_form_526',
-                            message: "rescuing in validate_form_526, claim_id: #{auto_claim.id}" \
+                            message: "rescuing in validate_form_526, claim_id: #{auto_claim&.id}" \
                                      "#{e.class.name}, error: #{e.try(:as_json) || e}")
           raise e
         end

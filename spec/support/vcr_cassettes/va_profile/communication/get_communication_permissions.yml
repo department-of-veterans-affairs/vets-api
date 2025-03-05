@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://int.vet360.va.gov/communication-hub/communication/v1/2.16.840.1.113883.4.349/18277%5EPI%5E200VETS%5EUSDVA/communication-permissions
+    uri: <VETS360_URL>/communication-hub/communication/v1/2.16.840.1.113883.4.349/18277%5EPI%5E200VETS%5EUSDVA/communication-permissions
     body:
       encoding: US-ASCII
       string: ''

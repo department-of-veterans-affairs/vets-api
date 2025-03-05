@@ -12,7 +12,7 @@ module IvcChampva
     def perform # rubocop:disable Metrics/MethodLength
       return unless Settings.ivc_forms.sidekiq.missing_form_status_job.enabled
 
-      forms = IvcChampvaForm.where(pega_status: nil)
+      forms = IvcChampvaForm.where(pega_status: nil).where('created_at < ?', 1.minute.ago)
 
       return unless forms.any?
 
@@ -54,7 +54,7 @@ module IvcChampva
         file_count: nil,
         pega_status: form.pega_status,
         date_submitted: form.created_at.strftime('%B %d, %Y'),
-        template_id: template_id,
+        template_id:,
         form_uuid: form.form_uuid }
     end
 

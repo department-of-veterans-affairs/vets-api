@@ -21,7 +21,7 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
       expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.initiated')
       post(
         '/debts_api/v0/digital_disputes',
-        params: params,
+        params:,
         as: :json
       )
 
@@ -45,7 +45,7 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
 
         post(
           '/debts_api/v0/digital_disputes',
-          params: params,
+          params:,
           as: :json
         )
 
@@ -65,7 +65,7 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
 
         post(
           '/debts_api/v0/digital_disputes',
-          params: params,
+          params:,
           as: :json
         )
 

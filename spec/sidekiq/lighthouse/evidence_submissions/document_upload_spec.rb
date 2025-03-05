@@ -76,6 +76,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   context 'when :cst_send_evidence_submission_failure_emails is enabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
+      allow(StatsD).to receive(:increment)
     end
 
     context 'when upload succeeds' do
@@ -109,9 +110,25 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         described_class.drain # runs all queued jobs of this class
         # After running DocumentUpload job, there should be an updated EvidenceSubmission record
         # with the response request_id
-        new_evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
+        new_evidence_submission = EvidenceSubmission.find_by(job_id:)
         expect(new_evidence_submission.request_id).to eql(success_response.body.dig('data', 'requestId'))
         expect(new_evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
+        expect(StatsD)
+          .to have_received(:increment)
+          .with('cst.lighthouse.document_uploads.evidence_submission_record_updated.added_request_id')
+      end
+
+      it 'there is no EvidenceSubmission' do
+        allow(LighthouseDocumentUploader).to receive(:new) { uploader_stub }
+        allow(BenefitsDocuments::WorkerService).to receive(:new) { client_stub }
+        allow(uploader_stub).to receive(:retrieve_from_store!).with(file_name) { file }
+        allow(uploader_stub).to receive(:read_for_upload) { file }
+        expect(uploader_stub).to receive(:remove!).once
+        expect(client_stub).to receive(:upload_document).with(file, document_data).and_return(success_response)
+        allow(EvidenceSubmission).to receive(:find_by)
+          .with({ job_id: })
+          .and_return(nil)
+        described_class.drain # runs all queued jobs of this class
       end
     end
 
@@ -155,7 +172,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
                                                      tags: ['service:claim-status', "function: #{message}"])
         end
         expect(EvidenceSubmission.va_notify_email_not_queued.length).to equal(1)
-        evidence_submission = EvidenceSubmission.find_by(job_id: job_id)
+        evidence_submission = EvidenceSubmission.find_by(job_id:)
         current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
         expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
         expect(evidence_submission.error_message)
@@ -167,6 +184,28 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
           expect(evidence_submission.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days).utc)
         end
         Timecop.unfreeze
+      end
+
+      it 'does not have an EvidenceSubmission record' do
+        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_failure_emails).and_return(true)
+        allow(described_class).to receive(:update_evidence_submission_for_failure)
+        Lighthouse::EvidenceSubmissions::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) do
+          allow(EvidenceSubmission).to receive(:find_by)
+            .with({ job_id: })
+            .and_return(nil)
+          expect(Lighthouse::FailureNotification).to receive(:perform_async).with(
+            user_account.icn,
+            {
+              first_name: 'Bob',
+              document_type: document_description,
+              filename: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
+              date_submitted: formatted_submit_date,
+              date_failed: formatted_submit_date
+            }
+          )
+          expect(described_class).not_to receive(:update_evidence_submission_for_failure)
+          expect(EvidenceSubmission.count).to equal(0)
+        end
       end
 
       it 'fails to create a failed evidence submission record when args malformed' do

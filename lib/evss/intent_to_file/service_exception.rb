@@ -5,6 +5,7 @@ require 'evss/service_exception'
 
 module EVSS
   module IntentToFile
+    ## TODO Remove this file
     # Custom exception that maps EVSS ITF errors to error details defined in config/locales/exceptions.en.yml
     #
     class ServiceException < EVSS::ServiceException
