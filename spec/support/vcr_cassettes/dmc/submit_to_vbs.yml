@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491/vbsapi/UploadFSRJsonDocument
+    uri: https://fwdproxy-staging.vfs.va.gov:4491/vbsapi/UploadFSRJsonDocument
     body:
       encoding: UTF-8
       string: '{"jsonDocument":"{\"facilityNum\":\"635\",\"personalIdentification\":{\"ssn\":\"7696608890\",\"fileNumber\":\"3170033099\",\"fsrReason\":\"et\"},\"personalData\":{\"veteranFullName\":{\"first\":\"Jamal\",\"middle\":\"E\",\"last\":\"Swaniawski\"},\"address\":{\"addresslineOne\":\"874
@@ -32,7 +32,7 @@ http_interactions:
         Abshire V\",\"veteranDateSigned\":\"10/13/2022\"},\"transactionId\":\"67715598-713e-4ffe-838c-97f824e44001\",\"timestamp\":\"20230911T172207\"}"}'
     headers:
       Host:
-      - internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491
+      - fwdproxy-staging.vfs.va.gov:4491
       Content-Type:
       - application/json
       Apikey:

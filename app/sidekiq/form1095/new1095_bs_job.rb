@@ -131,6 +131,9 @@ module Form1095
 
     def process_line?(form, file_details)
       data = parse_form(form)
+      # we can't save records without icns and should not retain the file in cases
+      # where the icn is missing
+      return true if data[:veteran_icn].blank?
 
       corrected = !file_details[:isOg?]
 
@@ -165,7 +168,6 @@ module Form1095
 
       all_succeeded
     rescue => e
-      Rails.logger.error "#{e.message}."
       log_exception_to_sentry(e, 'context' => "Error processing file: #{file_details}, on line #{lines}")
       false
     end
@@ -181,6 +183,8 @@ module Form1095
       file_details = parse_file_name(file_name)
 
       return false if file_details.blank?
+
+      return true if file_details[:tax_year] < Form1095B.current_tax_year
 
       # downloads S3 file into local file, allows for processing large files this way
       temp_file = Tempfile.new(file_name, encoding: 'ascii-8bit')

@@ -99,11 +99,12 @@ module BenefitsDocuments
         user_account:,
         template_metadata: { personalisation: create_personalisation(document) }.to_json
       )
+      StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_created')
     end
 
     def create_personalisation(document)
       { first_name: document.first_name.titleize,
-        document_type: document.document_type,
+        document_type: document.description,
         file_name: document.file_name,
         obfuscated_file_name: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(document.file_name),
         date_submitted: BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(Time.zone.now),

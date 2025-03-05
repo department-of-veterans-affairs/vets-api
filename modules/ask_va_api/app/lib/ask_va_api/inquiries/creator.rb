@@ -27,7 +27,7 @@ module AskVAApi
       end
 
       def build_payload(inquiry_params)
-        PayloadBuilder::InquiryPayload.new(inquiry_params:, user: user).call
+        PayloadBuilder::InquiryPayload.new(inquiry_params:, user:).call
       end
 
       def post_data(payload)

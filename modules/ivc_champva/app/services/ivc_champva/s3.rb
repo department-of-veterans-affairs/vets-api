@@ -12,38 +12,34 @@ module IvcChampva
     end
 
     def put_object(key, file, metadata = {})
-      Datadog::Tracing.trace('S3 Put File(s)') do
-        metadata&.transform_values! { |value| value || '' }
+      metadata&.transform_values! { |value| value || '' }
 
-        begin
-          response = client.put_object(
-            bucket:,
-            key:,
-            body: File.read(file),
-            metadata: metadata
-          )
-          result = { success: true }
-        rescue => e
-          result = { success: false, error_message: "S3 PutObject failure for #{file}: #{e.message}" }
-        end
+      begin
+        response = client.put_object(
+          bucket:,
+          key:,
+          body: File.read(file),
+          metadata:
+        )
+        result = { success: true }
+      rescue => e
+        result = { success: false, error_message: "S3 PutObject failure for #{file}: #{e.message}" }
+      end
 
-        if Flipper.enabled?(:champva_log_all_s3_uploads, @current_user)
-          response ? handle_put_object_response(response, key, file) : handle_put_object_error(e)
-        else
-          result
-        end
+      if Flipper.enabled?(:champva_log_all_s3_uploads, @current_user)
+        response ? handle_put_object_response(response, key, file) : handle_put_object_error(e)
+      else
+        result
       end
     end
 
     def upload_file(key, file)
-      Datadog::Tracing.trace('S3 Upload File(s)') do
-        obj = resource.bucket(bucket).object(key)
-        obj.upload_file(file)
+      obj = resource.bucket(bucket).object(key)
+      obj.upload_file(file)
 
-        { success: true }
-      rescue => e
-        { success: false, error_message: "S3 UploadFile failure for #{file}: #{e.message}" }
-      end
+      { success: true }
+    rescue => e
+      { success: false, error_message: "S3 UploadFile failure for #{file}: #{e.message}" }
     end
 
     def monitor
@@ -74,7 +70,7 @@ module IvcChampva
           error_message += ", Body: #{response.body.read}"
         end
         Rails.logger.error error_message
-        { success: false, error_message: error_message }
+        { success: false, error_message: }
       end
     end
 

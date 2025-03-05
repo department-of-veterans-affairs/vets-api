@@ -960,12 +960,12 @@ RSpec.describe User, type: :model do
   end
 
   describe '#va_treatment_facility_ids' do
-    let(:vha_facility_ids) { %w[200MHS 400 741 744] }
+    let(:vha_facility_ids) { %w[200MHS 400 741 744 741MM] }
     let(:mpi_profile) { build(:mpi_profile, { vha_facility_ids: }) }
     let(:user) { build(:user, :loa3, vha_facility_ids: nil, mpi_profile:) }
 
     it 'filters out fake vha facility ids that arent in Settings.mhv.facility_range' do
-      expect(user.va_treatment_facility_ids).to match_array(%w[400 744])
+      expect(user.va_treatment_facility_ids).to match_array(%w[400 744 741MM])
     end
   end
 

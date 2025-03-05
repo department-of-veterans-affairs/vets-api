@@ -25,7 +25,7 @@ jobs:
     name: Build and Push
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
@@ -40,7 +40,7 @@ jobs:
           aws-region: us-gov-west-1
 
       - name: Login to ECR
-        id: login-ecr
+        id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
       - name: Build Postman Docker Image
         uses: docker/build-push-action@v6
@@ -51,7 +51,7 @@ jobs:
           file: ./postman/Dockerfile
           push: true
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/dsva/vets-api-postman:${{ github.event.workflow_run.head_commit.id }}
+            ${{ steps.ecr-login.outputs.registry }}/dsva/vets-api-postman:${{ github.event.workflow_run.head_commit.id }}
       - name: Build vets-api Docker Image
         uses: docker/build-push-action@v6
         env:
@@ -64,7 +64,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.event.workflow_run.head_commit.id }}
+            ${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.event.workflow_run.head_commit.id }}
           cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
           cache-to: type=inline
   deploy:

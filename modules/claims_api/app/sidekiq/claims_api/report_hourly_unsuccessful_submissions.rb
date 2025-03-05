@@ -15,8 +15,8 @@ module ClaimsApi
 
       @search_to = 1.minute.ago
       @search_from = @search_to - 60.minutes
-      @reporting_to = @search_to.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
-      @reporting_from = @search_from.in_time_zone('Eastern Time (US & Canada)').strftime('%l:%M%p %Z')
+      @reporting_to = @search_to.in_time_zone('Eastern Time (US & Canada)').strftime('%I:%M%p %Z')
+      @reporting_from = @search_from.in_time_zone('Eastern Time (US & Canada)').strftime('%I:%M%p %Z')
       @errored_claims = ClaimsApi::AutoEstablishedClaim.where(
         'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
         'errored', @search_from, @search_to, '0oagdm49ygCSJTp8X297'
@@ -30,34 +30,19 @@ module ClaimsApi
                                                                status: 'errored').pluck(:id).uniq
       @environment = Rails.env
       if errored_submissions_exist?
-        notify(
-          @errored_claims,
-          @va_gov_errored_claims || [],
-          @errored_poa,
-          @errored_itf,
-          @errored_ews,
-          @reporting_from,
-          @reporting_to,
-          @environment
-        )
+        ClaimsApi::Slack::FailedSubmissionsMessenger.new(
+          errored_disability_claims: @errored_claims,
+          errored_va_gov_claims: @va_gov_errored_claims,
+          errored_poa: @errored_poa,
+          errored_itf: @errored_itf,
+          errored_ews: @errored_ews,
+          from: @reporting_from,
+          to: @reporting_to,
+          environment: @environment
+        ).notify!
       end
     end
     # rubocop:enable Metrics/MethodLength
-
-    # rubocop:disable Metrics/ParameterLists
-    def notify(claims, va_claims, poa, itf, ews, from, to, env)
-      ClaimsApi::Slack::FailedSubmissionsMessenger.new(
-        claims,
-        va_claims,
-        poa,
-        itf,
-        ews,
-        from,
-        to,
-        env
-      ).notify!
-    end
-    # rubocop:enable Metrics/ParameterLists
 
     private
 

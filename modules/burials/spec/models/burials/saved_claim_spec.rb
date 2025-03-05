@@ -116,7 +116,7 @@ RSpec.describe Burials::SavedClaim do
         x: 400,
         y: 675,
         text_only: true,
-        timestamp: timestamp,
+        timestamp:,
         page_number: 6,
         template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
         multistamp: true

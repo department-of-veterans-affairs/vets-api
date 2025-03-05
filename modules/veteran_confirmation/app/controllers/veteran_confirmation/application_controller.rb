@@ -7,7 +7,7 @@ module VeteranConfirmation
     skip_after_action :set_csrf_header
     skip_before_action :authenticate
 
-    def set_tags_and_extra_context
+    def set_sentry_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'veteran_confirmation' }
       Sentry.set_tags(source: 'veteran_confirmation')
     end

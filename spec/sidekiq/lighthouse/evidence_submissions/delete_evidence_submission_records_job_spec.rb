@@ -6,8 +6,8 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJ
   subject { described_class }
 
   describe 'perform' do
-    let!(:es_delete_one) { create(:bd_evidence_submission_for_deletion) }
-    let!(:es_delete_two) { create(:bd_evidence_submission_for_deletion) }
+    let!(:es_lh_delete_one) { create(:bd_evidence_submission_for_deletion, job_class: 'BenefitsDocuments::Service') }
+    let!(:es_evss_delete_two) { create(:bd_evidence_submission_for_deletion, job_class: 'EVSSClaimService') }
     let!(:es_no_delete) { create(:bd_evidence_submission_not_for_deletion) }
 
     before do
@@ -18,14 +18,14 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJ
     context 'when EvidenceSubmission records have a delete_date set' do
       it 'deletes only the records with a past or current delete_time' do
         expect(StatsD).to receive(:increment)
-          .with('worker.cst.delete_evidence_submission_records.count', 2).exactly(1).time
+          .with('worker.cst.delete_evidence_submission_records.count').exactly(1).time
         expect(Rails.logger)
           .to receive(:info)
           .with("#{subject} deleted 2 of 3 EvidenceSubmission records")
         subject.new.perform
         expect(EvidenceSubmission.where(id: es_no_delete.id).count).to eq(1)
-        expect(EvidenceSubmission.where(id: es_delete_one.id).count).to eq(0)
-        expect(EvidenceSubmission.where(id: es_delete_two.id).count).to eq(0)
+        expect(EvidenceSubmission.where(id: es_lh_delete_one.id).count).to eq(0)
+        expect(EvidenceSubmission.where(id: es_evss_delete_two.id).count).to eq(0)
       end
     end
 

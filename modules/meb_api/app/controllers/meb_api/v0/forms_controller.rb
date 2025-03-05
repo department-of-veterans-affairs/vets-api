@@ -37,11 +37,15 @@ module MebApi
         forms_claimant_response = claimant_service.get_claimant_info(@form_type)
         claimant_id = forms_claimant_response['claimant_id']
 
-        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
-        response = valid_claimant_response?(forms_claimant_response) ? claim_status_response : forms_claimant_response
-        srlzer = valid_claimant_response?(forms_claimant_response) ? ClaimStatusSerializer : ToeClaimantInfoSerializer
+        if claimant_id.present?
+          claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
+          response = valid_claimant_response?(forms_claimant_response) ? claim_status_response : forms_claimant_response
+          srlzr = valid_claimant_response?(forms_claimant_response) ? ClaimStatusSerializer : ToeClaimantInfoSerializer
 
-        render json: srlzer.new(response)
+          render json: srlzr.new(response)
+        else
+          render json: { data: { attributes: { claimStatus: 'INPROGRESS' } } }, status: :ok
+        end
       end
 
       def claimant_info

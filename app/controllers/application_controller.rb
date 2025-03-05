@@ -10,6 +10,7 @@ class ApplicationController < ActionController::API
   include Headers
   include Instrumentation
   include Pundit::Authorization
+  include ControllerLoggingContext
   include SentryLogging
   include SentryControllerLogging
   include Traceable
@@ -17,7 +18,7 @@ class ApplicationController < ActionController::API
   protect_from_forgery with: :exception, if: -> { ActionController::Base.allow_forgery_protection }
   after_action :set_csrf_header, if: -> { ActionController::Base.allow_forgery_protection }
 
-  # also see AuthenticationAndSSOConcerns, Headers, and SentryControllerLogging
+  # also see AuthenticationAndSSOConcerns, Headers, ControllerLoggingContext, and SentryControllerLogging
   # for more before filters
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
   skip_before_action :verify_authenticity_token, only: :routing_error

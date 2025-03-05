@@ -19,7 +19,7 @@ DecisionReviews::Engine.routes.draw do
     resource :decision_review_evidence, only: :create
 
     scope format: false do
-      resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
+      resources :decision_review_notification_callbacks, only: [:create]
     end
   end
 

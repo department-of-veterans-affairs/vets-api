@@ -21,6 +21,7 @@
     "postal_code": "12323"
   },
   "has_other_health_insurance": true,
+  "applicant_email": "applicant@email.gov",
   "applicant_phone": "3331233456",
   "applicant_medicare_status": true,
   "applicant_medicare_part_a_carrier": "Test A Carrier",

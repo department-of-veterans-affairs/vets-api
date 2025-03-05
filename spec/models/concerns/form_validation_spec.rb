@@ -78,8 +78,8 @@ RSpec.describe FormValidation do
                                          backtrace: anything })
 
             expect(PersonalInformationLog).to receive(:create).with(
-              data: { schema: schema,
-                      parsed_form: parsed_form,
+              data: { schema:,
+                      parsed_form:,
                       params: { errors_as_objects: true } },
               error_class: "#{instance.class} FormValidationError"
             )
@@ -130,8 +130,8 @@ RSpec.describe FormValidation do
                                          backtrace: anything })
 
             expect(PersonalInformationLog).to receive(:create).with(
-              data: { schema: schema,
-                      parsed_form: parsed_form,
+              data: { schema:,
+                      parsed_form:,
                       params: { errors_as_objects: true } },
               error_class: "#{instance.class} FormValidationError"
             )

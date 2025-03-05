@@ -5,7 +5,7 @@ require_relative '../../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
 
-RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :request do
+RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::PowerOfAttorneyRequest', type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:request_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney-request" }
   let(:scopes) { %w[system/claim.write system/claim.read] }
@@ -25,6 +25,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
         context 'when the Veteran ICN is not found in MPI' do
           it 'returns a meaningful 404' do
             mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController)
+                .to receive(:validate_country_code).and_return(nil)
               allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(false)
 
               detail = "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). " \
@@ -37,7 +39,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               expect(response).to have_http_status(:not_found)
               expect(response_body['title']).to eq('Resource not found')
               expect(response_body['status']).to eq('404')
-              expect(response_body['detail']).to eq(detail)
+              expect(response_body['detail']).to include(detail)
             end
           end
         end
@@ -56,7 +58,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               expect(response).to have_http_status(:unprocessable_entity)
               expect(response_body['title']).to eq('Unprocessable entity')
               expect(response_body['status']).to eq('422')
-              expect(response_body['detail']).to eq(detail)
+              expect(response_body['detail']).to include(detail)
             end
           end
         end
@@ -80,7 +82,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(response_body['title']).to eq('Unprocessable entity')
                   expect(response_body['status']).to eq('422')
-                  expect(response_body['detail']).to eq(detail)
+                  expect(response_body['detail']).to include(detail)
                 end
               end
             end
@@ -105,7 +107,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(response_body['title']).to eq('Unprocessable Entity')
                   expect(response_body['status']).to eq('422')
-                  expect(response_body['detail']).to eq(detail)
+                  expect(response_body['detail']).to include(detail)
                 end
               end
             end
@@ -131,7 +133,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                 expect(response).to have_http_status(:not_found)
                 expect(response_body['title']).to eq('Resource not found')
                 expect(response_body['status']).to eq('404')
-                expect(response_body['detail']).to eq(detail)
+                expect(response_body['detail']).to include(detail)
               end
             end
           end
@@ -193,7 +195,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                   'addressLine2' => nil,
                   'city' => nil,
                   'stateCode' => nil,
-                  'country' => nil,
+                  'countryCode' => nil,
                   'zipCode' => nil,
                   'zipCodeSuffix' => nil
                 },
@@ -252,7 +254,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                   'addressLine2' => nil,
                   'city' => nil,
                   'stateCode' => nil,
-                  'country' => nil,
+                  'countryCode' => nil,
                   'zipCode' => nil,
                   'zipCodeSuffix' => nil
                 },

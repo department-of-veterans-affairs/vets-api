@@ -35,6 +35,28 @@ FactoryBot.define do
     form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_200995_extra.json' }
   end
 
+  factory :no_treatment_end_dates_supplemental_claim, class: 'AppealsApi::SupplementalClaim' do
+    id { SecureRandom.uuid }
+    api_version { 'V2' }
+    evidence_submission_indicated { true }
+    auth_headers do
+      FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995_headers_extra.json')
+                    .transform_values(&:strip)
+    end
+    form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_200995_no_treatment_end_date.json' }
+  end
+
+  factory :no_treatment_dates_supplemental_claim, class: 'AppealsApi::SupplementalClaim' do
+    id { SecureRandom.uuid }
+    api_version { 'V2' }
+    evidence_submission_indicated { true }
+    auth_headers do
+      FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200995_headers.json')
+                    .transform_values(&:strip)
+    end
+    form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_200995_no_treatment_dates.json' }
+  end
+
   factory :minimal_supplemental_claim, class: 'AppealsApi::SupplementalClaim' do
     id { SecureRandom.uuid }
     api_version { 'V2' }

@@ -8,20 +8,28 @@ describe Vye::MidnightRun::IngressBdn, type: :worker do
   let(:bdn_clone) { create(:vye_bdn_clone_base) }
   let(:chunks) do
     5.times.map do |i|
-      offset = i * 1000
-      block_size = 1000
-      filename = "file-#{offset}.txt"
-      Vye::BatchTransfer::Chunk.new(offset:, block_size:, filename:)
+      double('Chunk',
+             offset: i * 1000,
+             block_size: 1000,
+             filename: "file-#{i * 1000}.txt")
     end
   end
+  let(:holiday_checker) { class_double(Vye::CloudTransfer).as_stubbed_const }
+  let(:batch_double) { instance_double(Sidekiq::Batch, description: nil, on: nil) }
 
   before do
     Sidekiq::Job.clear_all
+    allow(Sidekiq::Batch).to receive(:new).and_return(batch_double)
+    allow(batch_double).to receive(:description=)
+    allow(batch_double).to receive(:on)
+    # Allow the jobs block to execute
+    allow(batch_double).to receive(:jobs).and_yield
   end
 
   context 'when it is not a holiday' do
     before do
       Timecop.freeze(Time.zone.local(2024, 7, 2)) # Regular work day
+      allow(holiday_checker).to receive(:holiday?).and_return(false)
     end
 
     after do
@@ -32,11 +40,32 @@ describe Vye::MidnightRun::IngressBdn, type: :worker do
       expect(Vye::BdnClone).to receive(:create!).and_return(bdn_clone)
       expect(Vye::BatchTransfer::BdnChunk).to receive(:build_chunks).and_return(chunks)
 
-      expect do
-        described_class.perform_async
-      end.to change { Sidekiq::Worker.jobs.size }.by(1)
+      worker = described_class.new
+      worker.perform
 
-      described_class.drain
+      expect(Vye::MidnightRun::IngressBdnChunk).to have_enqueued_sidekiq_job.exactly(5).times
+    end
+  end
+
+  context 'when it is a holiday' do
+    before do
+      Timecop.freeze(Time.zone.local(2024, 7, 2))
+      allow(holiday_checker).to receive(:holiday?).and_return(true)
+      allow(Vye::BdnClone).to receive(:create!).and_return(bdn_clone)
+      allow(Vye::BatchTransfer::BdnChunk).to receive(:build_chunks).and_return(chunks)
+    end
+
+    after do
+      Timecop.return
+    end
+
+    it 'logs holiday message and processes normally' do
+      worker = described_class.new
+      expect(Rails.logger).to receive(:info).with(/holiday detected, job run at:/).ordered
+      expect(Rails.logger).to receive(:info).with('Vye::MidnightRun::IngressBdn: starting').ordered
+      expect(Rails.logger).to receive(:info).with('Vye::MidnightRun::IngressBdn: finished').ordered
+
+      worker.perform
 
       expect(Vye::MidnightRun::IngressBdnChunk).to have_enqueued_sidekiq_job.exactly(5).times
     end
@@ -44,20 +73,16 @@ describe Vye::MidnightRun::IngressBdn, type: :worker do
 
   context 'logging' do
     before do
+      allow(holiday_checker).to receive(:holiday?).and_return(false)
       allow(Vye::BdnClone).to receive(:create!).and_return(double('BdnClone', id: 123))
       allow(Vye::BatchTransfer::BdnChunk).to receive(:build_chunks).and_return([])
-
-      batch_double = instance_double(Sidekiq::Batch, description: nil, on: nil, jobs: nil)
-      allow(Sidekiq::Batch).to receive(:new).and_return(batch_double)
-      allow(batch_double).to receive(:description=).with('Ingress BDN Clone feed as chunked files')
     end
 
-    # See comment in Vye::MidnightRun regarding logging. It applies here too.
     it 'logs info' do
       expect(Rails.logger).to receive(:info).with('Vye::MidnightRun::IngressBdn: starting')
       expect(Rails.logger).to receive(:info).with('Vye::MidnightRun::IngressBdn: finished')
 
-      Vye::MidnightRun::IngressBdn.new.perform
+      described_class.new.perform
     end
   end
 end

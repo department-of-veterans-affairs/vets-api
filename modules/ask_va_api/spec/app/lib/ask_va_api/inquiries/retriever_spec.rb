@@ -131,7 +131,7 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
           end
 
           it 'returns an inquiry entity with expected attributes' do
-            result = retriever.fetch_by_id(id: id)
+            result = retriever.fetch_by_id(id:)
 
             # Inquiry-level expectations
             expect(result).to be_a(AskVAApi::Inquiries::Entity)

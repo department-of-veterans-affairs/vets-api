@@ -268,9 +268,10 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
       it 'sends an email' do
         Timecop.freeze(Time.new(2025, 1, 1).utc) do
           expected_personalization_info = {
-            'name' => 'Travis Jones',
-            'time' => Time.new(2025, 1, 1).utc,
-            'date' => '01/01/2025'
+            'first_name' => 'Travis',
+            'date_submitted' => '01/01/2025',
+            'confirmation_number' => form5655_submission.id,
+            'updated_at' => form5655_submission.updated_at
           }
 
           expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(

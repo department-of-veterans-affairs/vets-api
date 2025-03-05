@@ -33,6 +33,9 @@ module AccreditedRepresentativePortal
     before_validation :set_claimant_type
 
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
+    validates :power_of_attorney_holder_type, inclusion: { in: PowerOfAttorneyHolder::Types::ALL }
+
+    accepts_nested_attributes_for :power_of_attorney_form
 
     def expires_at
       created_at + EXPIRY_DURATION if unresolved?
@@ -46,10 +49,41 @@ module AccreditedRepresentativePortal
       resolution.present?
     end
 
+    def accepted?
+      resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestDecision) &&
+        resolution.resolving.type == PowerOfAttorneyRequestDecision::Types::ACCEPTANCE
+    end
+
+    def declined?
+      resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestDecision) &&
+        resolution.resolving.type == PowerOfAttorneyRequestDecision::Types::DECLINATION
+    end
+
+    def expired?
+      resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestExpiration)
+    end
+
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
     scope :not_expired, lambda {
       where.not(resolution: { resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration' })
+    }
+
+    scope :for_user, lambda { |user|
+      for_power_of_attorney_holders(
+        user.activated_power_of_attorney_holders
+      )
+    }
+
+    scope :for_power_of_attorney_holders, lambda { |poa_holders|
+      return none if poa_holders.empty?
+
+      prefix = 'power_of_attorney_holder'
+      names = PowerOfAttorneyHolder::PRIMARY_KEY_ATTRIBUTE_NAMES
+      prefixed_names = names.map { |name| :"#{prefix}_#{name}" }
+      values = poa_holders.map { |poa_holder| poa_holder.to_h.values_at(*names) }
+
+      where(prefixed_names => values)
     }
 
     private

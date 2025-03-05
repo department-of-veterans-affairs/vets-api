@@ -7,5 +7,10 @@ module BenefitsDocuments
       FAILED: 'FAILED',
       SUCCESS: 'SUCCESS'
     }.freeze
+
+    VANOTIFY_STATUS = {
+      FAILED: 'FAILED',
+      SUCCESS: 'SUCCESS'
+    }.freeze
   end
 end
