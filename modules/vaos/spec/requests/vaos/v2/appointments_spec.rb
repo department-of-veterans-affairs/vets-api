@@ -1404,7 +1404,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           }.to_json
 
           Rails.cache.write(
-            "vaos_eps_referral_identifier_ref-124",
+            'vaos_eps_referral_identifier_ref-124',
             updated_referral_identifiers,
             namespace: 'vaos-eps-cache',
             expires_in: redis_token_expiry
