@@ -2,7 +2,7 @@
 http_interactions:
     - request:
           method: post
-          uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/permissions
+          uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v1/permissions
           body:
               encoding: UTF-8
               string: '{"bio":{"originatingSourceSystem":"VETSGOV","permissionType":"TextPermission","permissionValue":true,"sourceDate":"2019-11-05T16:49:18.000Z","sourceSystemUser":"35334514994605674","permissionId":401,"vet360Id":"1411684","effectiveStartDate":"2019-11-05T16:49:18.000Z","effectiveEndDate":null}}'

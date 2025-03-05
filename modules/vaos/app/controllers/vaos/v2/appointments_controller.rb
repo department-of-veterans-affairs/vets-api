@@ -4,7 +4,7 @@ require 'common/exceptions'
 
 module VAOS
   module V2
-    class AppointmentsController < VAOS::BaseController
+    class AppointmentsController < VAOS::BaseController # rubocop:disable Metrics/ClassLength
       before_action :authorize_with_facilities
 
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
@@ -63,16 +63,20 @@ module VAOS
       end
 
       def create_draft
-        # TODO: validate referral_id from the cache from prior referrals response,
-        # TODO: validate that the referral doesn't already have a confirmed appointment #
+        referral_id = draft_params[:referral_id]
+        # TODO: validate referral_id from the cache from prior referrals response
+
+        referral_check_result = check_referral_usage(referral_id)
+        unless referral_check_result[:success]
+          render json: referral_check_result[:json], status: referral_check_result[:status] and return
+        end
+
         # TODO: cache provider_id, appointment_type_id, end_date from prior referrals response and use here
         draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: draft_params[:referral_id])
-
         provider = eps_provider_service.get_provider_service(provider_id: draft_params[:provider_id])
-
         response_data = OpenStruct.new(
           id: draft_appointment.id,
-          provider: provider,
+          provider:,
           slots: fetch_provider_slots,
           drive_time: fetch_drive_times(provider)
         )
@@ -465,6 +469,31 @@ module VAOS
             longitude: user_address.longitude
           }
         )
+      end
+
+      ##
+      # Checks if a referral is already in use by cross referrencing referral number against complete
+      # list of existing appointments
+      #
+      # @param referral_id [String] the referral number to check.
+      # @return [Hash] Result hash:
+      #   - If referral is unused: { success: true }
+      #   - If an error occurs: { success: false, json: { message: ... }, status: :bad_gateway }
+      #   - If referral exists: { success: false, json: { message: ... }, status: :unprocessable_entity }
+      #
+      # TODO: pass in date from cached referral data to use as range for CCRA appointments call
+      def check_referral_usage(referral_id)
+        check = appointments_service.referral_appointment_already_exists?(referral_id, pagination_params)
+
+        if check[:error]
+          { success: false, json: { message: "Error checking appointments: #{check[:failures]}" },
+            status: :bad_gateway }
+        elsif check[:exists]
+          { success: false, json: { message: 'No new appointment created: referral is already used' },
+            status: :unprocessable_entity }
+        else
+          { success: true }
+        end
       end
     end
   end

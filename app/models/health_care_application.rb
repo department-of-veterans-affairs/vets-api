@@ -265,14 +265,9 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def log_async_submission_failure
-    log_zero_silent_failures unless Flipper.enabled?(:hca_zero_silent_failures)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
     log_submission_failure_details
-  end
-
-  def log_zero_silent_failures
-    StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   end
 
   def log_submission_failure_details
@@ -310,10 +305,7 @@ class HealthCareApplication < ApplicationRecord
         }
       }
 
-    params = [email, template_id, { 'salutation' => salutation }, api_key]
-    params << metadata if Flipper.enabled?(:hca_zero_silent_failures)
-
-    VANotify::EmailJob.perform_async(*params)
+    VANotify::EmailJob.perform_async(email, template_id, { 'salutation' => salutation }, api_key, metadata)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_failure_email_sent")
   rescue => e
     log_exception_to_sentry(e)
@@ -322,23 +314,9 @@ class HealthCareApplication < ApplicationRecord
   def form_matches_schema
     if form.present?
       schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
-
-      if Flipper.enabled?(:retry_form_validation)
-        validation_errors = validate_form_with_retries(schema, parsed_form)
-        validation_errors.each do |v|
-          errors.add(:form, v.to_s)
-        end
-      else
-        begin
-          JSON::Validator.fully_validate(schema, parsed_form).each do |v|
-            errors.add(:form, v.to_s)
-          end
-        rescue => e
-          PersonalInformationLog.create(data: { schema:, parsed_form: },
-                                        error_class: 'HealthCareApplication FormValidationError')
-          Rails.logger.error("[#{FORM_ID}] Error during schema validation!", { error: e.message, schema: })
-          raise
-        end
+      validation_errors = validate_form_with_retries(schema, parsed_form)
+      validation_errors.each do |v|
+        errors.add(:form, v.to_s)
       end
     end
   end

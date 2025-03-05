@@ -28,6 +28,7 @@ Rails.application.routes.draw do
     unless Settings.vsp_environment == 'production'
       resources :client_configs, param: :client_id
       resources :service_account_configs, param: :service_account_id
+      get '/user_info', to: 'user_info#show'
     end
   end
 
@@ -177,7 +178,6 @@ Rails.application.routes.draw do
     resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     resource :rated_disabilities, only: %i[show]
-    resource :rated_disabilities_discrepancies, only: %i[show]
 
     namespace :virtual_agent do
       get 'claims', to: 'virtual_agent_claim_status#index'
@@ -193,7 +193,6 @@ Rails.application.routes.draw do
     resources :virtual_agent_appeal, only: %i[index]
 
     get 'intent_to_file', to: 'intent_to_files#index'
-    get 'intent_to_file/:type/active', to: 'intent_to_files#active'
     post 'intent_to_file/:type', to: 'intent_to_files#submit'
 
     get 'welcome', to: 'example#welcome', as: :welcome

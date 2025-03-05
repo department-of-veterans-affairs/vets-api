@@ -65,7 +65,8 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
   describe '#show' do
     before do
-      Flipper.enable(:travel_pay_view_claim_details)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
     end
 
     it 'returns a single claim on success' do
@@ -94,26 +95,28 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
     end
 
     it 'returns a ServiceUnavailable response if feature flag turned off' do
-      Flipper.disable(:travel_pay_view_claim_details)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
 
       get '/travel_pay/v0/claims/123', headers: { 'Authorization' => 'Bearer vagov_token' }
-
       expect(response).to have_http_status(:service_unavailable)
     end
   end
 
   describe '#create' do
     before do
-      Flipper.enable(:travel_pay_submit_mileage_expense)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_submit_mileage_expense, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
     end
 
     it 'returns a ServiceUnavailable response if feature flag turned off' do
-      Flipper.disable(:travel_pay_submit_mileage_expense)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_submit_mileage_expense, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
 
       headers = { 'Authorization' => 'Bearer vagov_token' }
       params = {}
 
-      post '/travel_pay/v0/claims', headers: headers, params: params
+      post('/travel_pay/v0/claims', headers:, params:)
 
       expect(response).to have_http_status(:service_unavailable)
     end
@@ -126,7 +129,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         headers = { 'Authorization' => 'Bearer vagov_token' }
         params = { 'appointment_datetime' => '2024-01-01T16:45:34.465Z' }
 
-        post '/travel_pay/v0/claims', headers: headers, params: params
+        post('/travel_pay/v0/claims', headers:, params:)
         expect(response).to have_http_status(:created)
       end
     end
@@ -139,7 +142,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         headers = { 'Authorization' => 'Bearer vagov_token' }
         params = { 'appointment_datetime' => 'My birthday, 4 years ago' }
 
-        post '/travel_pay/v0/claims', headers: headers, params: params
+        post('/travel_pay/v0/claims', headers:, params:)
 
         expect(response).to have_http_status(:bad_request)
       end
@@ -153,7 +156,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         headers = { 'Authorization' => 'Bearer vagov_token' }
         params = { 'appointment_datetime' => '1970-01-01T00:00:00.000Z' }
 
-        post '/travel_pay/v0/claims', headers: headers, params: params
+        post('/travel_pay/v0/claims', headers:, params:)
 
         error_detail = JSON.parse(response.body)['errors'][0]['detail']
         expect(response).to have_http_status(:not_found)
@@ -172,7 +175,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         headers = { 'Authorization' => 'Bearer vagov_token' }
         params = { 'appointment_datetime' => '2024-01-01T16:45:34.465Z' }
 
-        post '/travel_pay/v0/claims', headers: headers, params: params
+        post('/travel_pay/v0/claims', headers:, params:)
 
         expect(response).to have_http_status(:internal_server_error)
       end

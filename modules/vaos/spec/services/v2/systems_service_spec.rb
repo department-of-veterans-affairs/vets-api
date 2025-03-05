@@ -9,13 +9,15 @@ describe VAOS::V2::SystemsService do
 
   before do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
   end
 
   describe '#get_facility_clinics' do
     context 'using VAOS' do
       before do
-        Flipper.disable(:va_online_scheduling_use_vpg)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                  instance_of(User)).and_return(true)
       end
 
       context 'with 7 clinics' do
@@ -26,18 +28,14 @@ describe VAOS::V2::SystemsService do
             expect(response[0][:id]).to eq('570')
           end
         end
-      end
 
-      context 'when the upstream server returns a 400' do
-        before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
-        end
-
-        it 'raises a backend exception' do
-          VCR.use_cassette('vaos/v2/systems/get_facility_clinics_400', match_requests_on: %i[method path query]) do
-            expect do
-              subject.get_facility_clinics(location_id: '983', clinic_ids: '570', clinical_service: 'audiology')
-            end.to raise_error(Common::Exceptions::BackendServiceException, /VAOS_400/)
+        context 'when the upstream server returns a 400' do
+          it 'raises a backend exception' do
+            VCR.use_cassette('vaos/v2/systems/get_facility_clinics_400', match_requests_on: %i[method path query]) do
+              expect do
+                subject.get_facility_clinics(location_id: '983', clinic_ids: '570', clinical_service: 'audiology')
+              end.to raise_error(Common::Exceptions::BackendServiceException, /VAOS_400/)
+            end
           end
         end
       end
@@ -45,7 +43,9 @@ describe VAOS::V2::SystemsService do
 
     context 'using VPG' do
       before do
-        Flipper.enable(:va_online_scheduling_use_vpg)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                  instance_of(User)).and_return(true)
       end
 
       context 'with 7 clinics' do
@@ -60,7 +60,7 @@ describe VAOS::V2::SystemsService do
 
       context 'when the upstream server returns a 400' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
         end
 
         it 'raises a backend exception' do
@@ -75,11 +75,12 @@ describe VAOS::V2::SystemsService do
   end
 
   describe '#get_available_slots' do
-    context 'when the upstream server returns status code 500' do
-      before do
-        Flipper.disable(:va_online_scheduling_enable_OH_slots_search)
-      end
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
+    end
 
+    context 'when the upstream server returns status code 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/systems/get_available_slots_500', match_requests_on: %i[method path query]) do
           expect do
@@ -95,7 +96,8 @@ describe VAOS::V2::SystemsService do
 
     context 'when the upstream server returns status code 200' do
       before do
-        Flipper.disable(:va_online_scheduling_enable_OH_slots_search)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                  user).and_return(true)
       end
 
       it 'returns a list of available slots' do
