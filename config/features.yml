@@ -534,10 +534,6 @@ features:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
     enable_in_development: true
-  disability_526_migrate_contention_classification:
-    actor_type: user
-    description: Enables the migration of contention classification service from VRO to the VA.gov infrastructure.
-    enable_in_development: true
   disability_526_max_cfi_service_switch:
     actor_type: user
     description: Enables the use of the new Max Ratings CFI service instead of the VRO client for fetching max ratings.
@@ -1605,9 +1601,6 @@ features:
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
-  veteran_onboarding_contact_info_flow:
-    actor_type: user
-    description: Enables the complete your profile workflow
   veteran_onboarding_show_to_newly_onboarded:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user, based upon number of days since verified
@@ -1949,10 +1942,6 @@ features:
   toggle_vye_address_direct_deposit_forms:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE
-  veteran_readiness_employment_to_res:
-    actor_type: user
-    description: Enable RES platform for Veteran Readiness & Employment form submissions, disabled will use VRE email
-    enable_in_development: true
   vye_login_widget:
     actor_type: user
     description: Enable Vye authentication widget
@@ -2036,6 +2025,9 @@ features:
   virtual_agent_enable_datadog_logging:
     actor_type: user
     description: If enabled, allows for the use of Datadog logging for the chatbot
+  kafka_producer:
+    actor_type: cookie_id
+    description: Enables the Kafka producer for the VA.gov platform
   show_about_yellow_ribbon_program:
     actor_type: user
     description: If enabled, show additional info about the yellow ribbon program
