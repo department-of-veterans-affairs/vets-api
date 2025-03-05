@@ -42,7 +42,7 @@ module UnifiedHealthData
 
     def filter_records(records)
       records.select do |record|
-        record.attributes.display == 'SP' if Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
+        record.attributes.test_code == 'SP' if Flipper.enabled?(:mhv_accelerated_delivery_uhd_sp_enabled, @user)
       end
     end
 
@@ -75,8 +75,8 @@ module UnifiedHealthData
       return nil unless code && (encoded_data || observations)
 
       attributes = UnifiedHealthData::Attributes.new(
-        display: code,
-        test_code: record['resource']['code']['text'],
+        display: record['resource']['code']['text'],
+        test_code: code,
         date_completed: record['resource']['effectiveDateTime'],
         sample_site:, encoded_data:, location:, ordered_by:, observations:
       )
