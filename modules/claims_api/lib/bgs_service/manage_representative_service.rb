@@ -53,6 +53,7 @@ module ClaimsApi
       end
 
       body = builder_to_xml(doc)
+
       make_request(endpoint: bean_name, action: 'readPOARequest', body:, key: 'POARequestRespondReturnVO',
                    namespaces: { 'data' => '/data' }, transform_response: false, use_mocks:)
     end
