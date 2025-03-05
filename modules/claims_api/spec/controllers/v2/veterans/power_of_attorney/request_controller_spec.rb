@@ -414,10 +414,8 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           email: 'test@test.com',
           insuranceNumber: '1234567890'
         },
-        poa: {
-          poaCode: '003',
-          registrationNumber: '12345',
-          jobTitle: 'MyJob'
+        representative: {
+          poaCode: '003'
         },
         recordConsent: true,
         consentAddressChange: true,
@@ -511,13 +509,13 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     before do
       allow_any_instance_of(ClaimsApi::FormSchemas).to receive(:validate!).and_return(nil)
       allow_any_instance_of(described_class).to receive(:validate_accredited_representative)
-        .with(anything, anything)
+        .with(anything)
         .and_return(nil)
       allow_any_instance_of(described_class).to receive(:validate_accredited_organization)
         .with(anything)
         .and_return(nil)
       allow_any_instance_of(described_class).to receive(:representative_data).and_return(representative_data)
-      Flipper.disable(:lighthouse_claims_v2_poa_requests_skip_bgs)
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
       allow(ClaimsApi::PowerOfAttorneyRequestService::TerminateExistingRequests).to receive(:new)
         .with(anything)
         .and_return(terminate_existing_requests)
@@ -531,7 +529,6 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     it 'returns a created status, Lighthouse ID, and type in the response' do
       mock_ccg(scopes) do |auth_header|
         create_request_with(veteran_id:, form_attributes:, auth_header:)
-
         expect(response).to have_http_status(:created)
         expect(JSON.parse(response.body)['data']['id']).not_to be_nil
         expect(JSON.parse(response.body)['data']['type']).to eq('power-of-attorney-request')
