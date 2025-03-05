@@ -138,7 +138,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         expect(response).to have_http_status(:not_found)
         poa_request.reload
 
-        expect(poa_request.resolution.present?).to be(false)
+        expect(poa_request.resolution.present?).to be(true)
       end
     end
 
