@@ -72,7 +72,7 @@ module VAOS
         end
 
         # TODO: cache provider_id, appointment_type_id, end_date from prior referrals response and use here
-        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: draft_params[:referral_id])
+        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: referral_id)
         provider = eps_provider_service.get_provider_service(provider_id: draft_params[:provider_id])
         response_data = OpenStruct.new(
           id: draft_appointment.id,
