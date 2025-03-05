@@ -22,14 +22,52 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob,
 
   describe '#perform' do
     context 'successful LH submission' do
-      let(:service_response) do
-        File.read('modules/accredited_representative_portal/spec' \
-                  '/fixtures/power_of_attorney_form_submission/success.json')
+      context 'data shows status of pending' do
+        let(:service_response) do
+          File.read('modules/accredited_representative_portal/spec' \
+                    '/fixtures/power_of_attorney_form_submission/pending.json')
+        end
+
+        it 'the form submission remains in enqueue_succeeded status' do
+          expect do
+            VCR.use_cassette("#{vcr_path}200_pending_response") do
+              subject.perform(poa_form_submission.id)
+            end
+          end.to raise_error(described_class::PendingSubmissionError)
+          poa_form_submission.reload
+          expect(poa_form_submission.status).to eq 'enqueue_succeeded'
+          expect(JSON.parse(poa_form_submission.service_response)).to eq JSON.parse(service_response)
+          expect(poa_form_submission.status_updated_at).not_to be_nil
+        end
+      end
+
+      context 'data shows status of submitted' do
+        let(:service_response) do
+          File.read('modules/accredited_representative_portal/spec' \
+                    '/fixtures/power_of_attorney_form_submission/submitted.json')
+        end
+
+        it 'the form submission remains in enqueue_succeeded status' do
+          expect do
+            VCR.use_cassette("#{vcr_path}200_submitted_response") do
+              subject.perform(poa_form_submission.id)
+            end
+          end.to raise_error(described_class::PendingSubmissionError)
+          poa_form_submission.reload
+          expect(poa_form_submission.status).to eq 'enqueue_succeeded'
+          expect(JSON.parse(poa_form_submission.service_response)).to eq JSON.parse(service_response)
+          expect(poa_form_submission.status_updated_at).not_to be_nil
+        end
       end
 
       context 'successful submission' do
+        let(:service_response) do
+          File.read('modules/accredited_representative_portal/spec' \
+                    '/fixtures/power_of_attorney_form_submission/updated.json')
+        end
+
         it 'updates the form submission as successful' do
-          VCR.use_cassette("#{vcr_path}200_submitted_response") do
+          VCR.use_cassette("#{vcr_path}200_updated_response") do
             subject.perform(poa_form_submission.id)
           end
           poa_form_submission.reload
@@ -59,26 +97,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob,
           end
         end
 
-        context 'data shows status of pending' do
-          let(:service_response) do
-            File.read('modules/accredited_representative_portal/spec' \
-                      '/fixtures/power_of_attorney_form_submission/pending.json')
-          end
-
-          it 'the form submission remains in enqueue_succeeded status' do
-            expect do
-              VCR.use_cassette("#{vcr_path}200_pending_response") do
-                subject.perform(poa_form_submission.id)
-              end
-            end.to raise_error(described_class::PendingSubmissionError)
-            poa_form_submission.reload
-            expect(poa_form_submission.status).to eq 'enqueue_succeeded'
-            expect(JSON.parse(poa_form_submission.service_response)).to eq JSON.parse(service_response)
-            expect(poa_form_submission.status_updated_at).not_to be_nil
-          end
-        end
-
-        context 'the job fails 3 times' do
+        context 'the job retries are exhausted' do
           let(:lh_service) { double }
 
           it 'updates the status as failed' do
@@ -93,13 +112,8 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob,
     context 'submission not found' do
       let(:rails_logger) { double }
 
-      it 'updates the form submission and submits the error to sentry and logger' do
-        Settings.sentry = OpenStruct.new(dsn: 'test')
-        allow(Rails).to receive(:logger).and_return rails_logger
+      it 'updates the form submission and raises an error' do
         poa_form_submission.update(service_id: '491b878a-d977-40b8-8de9-7ba302307a48')
-        expect(Sentry).to receive(:capture_exception)
-        expect(rails_logger).to receive(:send).with('error', 'Resource not found.')
-        expect(rails_logger).to receive(:send)
         expect do
           VCR.use_cassette("#{vcr_path}404_response") do
             subject.perform(poa_form_submission.id)

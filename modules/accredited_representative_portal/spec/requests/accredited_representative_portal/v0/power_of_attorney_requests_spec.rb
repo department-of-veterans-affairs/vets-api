@@ -52,7 +52,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   let!(:other_poa_request) { create(:power_of_attorney_request, :with_veteran_claimant, poa_code: other_poa_code) }
 
   let(:time) { '2024-12-21T04:45:37.000Z' }
-  let(:time_plus_one_day) { '2024-12-22T04:45:37.000Z' }
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests' do
     context 'when user belongs to a digital-POA-request-accepting VSO' do
@@ -262,6 +261,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
       it 'returns 403 Forbidden' do
         get('/accredited_representative_portal/v0/power_of_attorney_requests')
+
         expect(response).to have_http_status(:forbidden)
       end
     end

@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
-
 module AccreditedRepresentativePortal
   class PowerOfAttorneyFormSubmissionJob
     class PendingSubmissionError < StandardError; end
 
     include Sidekiq::Job
-    include SentryLogging
 
     sidekiq_options retry_for: 48.hours
 
@@ -23,7 +20,7 @@ module AccreditedRepresentativePortal
         status_updated_at: DateTime.current,
         error_message: error_data.to_json
       )
-      raise PendingSubmissionError, '2122 still pending' if response_status == 'pending'
+      raise PendingSubmissionError, '2122 still pending' if new_status == :enqueue_succeeded
     rescue => e
       handle_errors(e, poa_form_submission)
     end
@@ -35,7 +32,6 @@ module AccreditedRepresentativePortal
     end
 
     def handle_errors(e, poa_form_submission)
-      log_exception_to_sentry(e) unless e.is_a? PendingSubmissionError
       poa_form_submission.update(error_message: e.message)
       raise e
     end
@@ -46,9 +42,9 @@ module AccreditedRepresentativePortal
 
     def new_status
       case response_status
-      when 'pending'
+      when 'pending', 'submitted'
         :enqueue_succeeded
-      when 'submitted', 'updated'
+      when 'updated'
         :succeeded
       when 'errored'
         :failed

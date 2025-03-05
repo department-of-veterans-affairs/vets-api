@@ -3,13 +3,6 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
-      module Statuses
-        ALL = [
-          PENDING = 'pending',
-          PROCESSED = 'processed'
-        ].freeze
-      end
-
       include PowerOfAttorneyRequests
 
       before_action do
@@ -54,6 +47,13 @@ module AccreditedRepresentativePortal
       end
 
       private
+
+      module Statuses
+        ALL = [
+          PENDING = 'pending',
+          PROCESSED = 'processed'
+        ].freeze
+      end
 
       def scope_includes
         [

@@ -58,6 +58,10 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
   describe '.run' do
     before { described_class.run }
 
+    it 'creates POA requests for reps with matching organizations' do
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.count).to be_positive
+    end
+
     it 'creates POA requests for CT digital org' do
       ct_requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest
                     .where(power_of_attorney_holder_poa_code: '008')
@@ -65,12 +69,13 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
       expect(ct_requests).to(be_all { |req| req.accredited_organization == ct_digital_org })
     end
 
-    it 'creates both resolved and unresolved POA requests for matching organizations' do
+    it 'creates both resolved and unresolved requests' do
       expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.resolved).to exist
       expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.unresolved).to exist
     end
 
     it 'creates requests with proper claimant data' do
+      described_class.run
       requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest.all
 
       expect(requests).to(be_all do |req|
@@ -92,6 +97,8 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
     end
 
     it 'creates the expected mix of requests' do
+      described_class.run
+
       # Get all requests
       requests = AccreditedRepresentativePortal::PowerOfAttorneyRequest.all
 
@@ -164,8 +171,8 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
 
       # Resolution counts
       expect(ct_rep_requests.unresolved.count).to eq(3)
-      processed = ct_rep_requests.resolved
-      expect(processed.count).to eq(2)
+      resolved = ct_rep_requests.resolved
+      expect(resolved.count).to eq(2)
     end
   end
 end
