@@ -40,13 +40,13 @@ describe ClaimsApi::PowerOfAttorneyRequestService::Index do
       it 'does not return an error when page_size is 1' do
         expect do
           subject.get_poa_list
-        end.not_to raise_error(TypeError)
+        end.not_to raise_error
       end
     end
 
     context 'when page size is over 1 and less then the max allowed' do
       before do
-        @page_size = 1
+        @page_size = 5
         service_double = instance_double(ClaimsApi::ManageRepresentativeService)
         allow(ClaimsApi::ManageRepresentativeService).to receive(:new).with(any_args)
                                                                       .and_return(service_double)
@@ -56,7 +56,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::Index do
       it 'still works as expected when page_size is > 1' do
         expect do
           subject.get_poa_list
-        end.not_to raise_error(TypeError)
+        end.not_to raise_error
       end
     end
   end
