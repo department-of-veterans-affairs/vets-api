@@ -20,47 +20,104 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
 
   describe '#perform' do
-    context 'valid submission' do
+    context 'with va_dependents_v2 on' do
       before do
-        expect(SavedClaim::DependencyClaim)
-          .to receive(:find).with(dependency_claim.id)
-          .and_return(dependency_claim)
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
       end
 
-      context '686 form' do
-        it 'creates a 686 PDF' do
-          expect(dependency_claim).to receive(:add_veteran_info).with(
-            hash_including(vet_info)
-          )
+      context 'valid submission' do
+        before do
+          expect(SavedClaim::DependencyClaim)
+            .to receive(:find).with(dependency_claim.id)
+            .and_return(dependency_claim)
+        end
 
-          expect(dependency_claim).to receive(:upload_pdf).with('686C-674')
+        context '686 form' do
+          it 'creates a 686 PDF' do
+            expect(dependency_claim).to receive(:add_veteran_info).with(
+              hash_including(vet_info)
+            )
 
-          described_class.new.perform(dependency_claim.id, encrypted_vet_info, true, false)
+            expect(dependency_claim).to receive(:upload_pdf).with('686C-674-V2')
+
+            described_class.new.perform(dependency_claim.id, encrypted_vet_info, true, false)
+          end
+        end
+
+        context '674 form' do
+          it 'creates a 674 PDF' do
+            expect(dependency_claim).to receive(:add_veteran_info).with(
+              hash_including(vet_info)
+            )
+
+            expect(dependency_claim).to receive(:upload_pdf).with('21-674-V2', doc_type: '142')
+
+            described_class.new.perform(dependency_claim.id, encrypted_vet_info, false, true)
+          end
+        end
+
+        context 'both 686c and 674 form in claim' do
+          it 'creates a PDF for both 686c and 674' do
+            expect(dependency_claim).to receive(:add_veteran_info).with(
+              hash_including(vet_info)
+            )
+
+            expect(dependency_claim).to receive(:upload_pdf).with('686C-674-V2')
+            expect(dependency_claim).to receive(:upload_pdf).with('21-674-V2', doc_type: '142')
+
+            described_class.new.perform(dependency_claim.id, encrypted_vet_info, true, true)
+          end
         end
       end
+    end
 
-      context '674 form' do
-        it 'creates a 674 PDF' do
-          expect(dependency_claim).to receive(:add_veteran_info).with(
-            hash_including(vet_info)
-          )
-
-          expect(dependency_claim).to receive(:upload_pdf).with('21-674', doc_type: '142')
-
-          described_class.new.perform(dependency_claim.id, encrypted_vet_info, false, true)
-        end
+    context 'with va_dependents_v2 off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
       end
 
-      context 'both 686c and 674 form in claim' do
-        it 'creates a PDF for both 686c and 674' do
-          expect(dependency_claim).to receive(:add_veteran_info).with(
-            hash_including(vet_info)
-          )
+      context 'valid submission' do
+        before do
+          expect(SavedClaim::DependencyClaim)
+            .to receive(:find).with(dependency_claim.id)
+            .and_return(dependency_claim)
+        end
 
-          expect(dependency_claim).to receive(:upload_pdf).with('686C-674')
-          expect(dependency_claim).to receive(:upload_pdf).with('21-674', doc_type: '142')
+        context '686 form' do
+          it 'creates a 686 PDF' do
+            expect(dependency_claim).to receive(:add_veteran_info).with(
+              hash_including(vet_info)
+            )
 
-          described_class.new.perform(dependency_claim.id, encrypted_vet_info, true, true)
+            expect(dependency_claim).to receive(:upload_pdf).with('686C-674')
+
+            described_class.new.perform(dependency_claim.id, encrypted_vet_info, true, false)
+          end
+        end
+
+        context '674 form' do
+          it 'creates a 674 PDF' do
+            expect(dependency_claim).to receive(:add_veteran_info).with(
+              hash_including(vet_info)
+            )
+
+            expect(dependency_claim).to receive(:upload_pdf).with('21-674', doc_type: '142')
+
+            described_class.new.perform(dependency_claim.id, encrypted_vet_info, false, true)
+          end
+        end
+
+        context 'both 686c and 674 form in claim' do
+          it 'creates a PDF for both 686c and 674' do
+            expect(dependency_claim).to receive(:add_veteran_info).with(
+              hash_including(vet_info)
+            )
+
+            expect(dependency_claim).to receive(:upload_pdf).with('686C-674')
+            expect(dependency_claim).to receive(:upload_pdf).with('21-674', doc_type: '142')
+
+            described_class.new.perform(dependency_claim.id, encrypted_vet_info, true, true)
+          end
         end
       end
     end
