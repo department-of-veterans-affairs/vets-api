@@ -83,6 +83,11 @@ RSpec.describe V1::SessionsController, type: :controller do
     allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
   end
 
+  after do
+    saml_user { nil }
+    successful_logout_response { nil }
+  end
+
   describe 'GET #new' do
     subject(:call_endpoint) { get(:new, params:) }
 
