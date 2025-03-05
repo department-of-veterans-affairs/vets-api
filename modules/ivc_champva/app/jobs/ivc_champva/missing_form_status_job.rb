@@ -112,12 +112,15 @@ module IvcChampva
     ##
     # Returns all nil form submissions organized in batches that correspond to
     # individual form submissions.
-    # e.g., if a user submits a 10-10d with 5 attachments and all have nil PEGA status
-    # we would return:
-    #
     #
     # @return [Hash] hash of batches where the keys are a batch's `form_uuid`
     #   and the value is a list of `IvcChampvaForm`s with that form_uuid
+    #   e.g.:
+    #     {
+    #       'ad6c9181-530c-4a8f-9fbd-5e8e8a400d4a': [<IvcChampvaForm>, <IvcChampvaForm>]
+    #       'fac6a892-530c-8a40-8afc-9fbd8ad8a40a': [<IvcChampvaForm>]
+    #     }
+    #
     def get_nil_batches
       all_nil_statuses = IvcChampvaForm.where(pega_status: nil)
 
