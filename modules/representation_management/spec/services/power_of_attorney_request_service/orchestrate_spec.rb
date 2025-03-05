@@ -118,5 +118,22 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestService::Orchestr
         subject.call
       end
     end
+
+    context 'when there is an error destroying the form' do
+      before do
+        allow(InProgressForm).to receive(:form_for_user).and_raise(StandardError, 'test')
+      end
+
+      it 'adds the test error message' do
+        result = subject.call
+
+        expect(result[:errors]).to eq(['test'])
+      end
+
+      it 'does enqueue a VANotify::EmailJob' do
+        expect(VANotify::EmailJob).to receive(:perform_async)
+        subject.call
+      end
+    end
   end
 end

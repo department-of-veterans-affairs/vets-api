@@ -28,8 +28,8 @@ module RepresentationManagement
           return { errors: @errors }
         end
 
-        destroy_related_form
         enqueue_confirmation_email
+        destroy_related_form
 
         {
           request: create_response[:request]
