@@ -189,6 +189,37 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
       end
 
+      context 'when :cst_show_document_upload_status is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(false)
+        end
+
+        it 'doesnt show the evidenceSubmissions section in claim attributes' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'evidenceSubmissions')).to be_nil
+        end
+      end
+
+      context 'when :cst_show_document_upload_status is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(true)
+        end
+
+        it 'shows the evidenceSubmissions section in claim attributes' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_evidence_submission_response') do
+            get(:show, params: { id: '600383378' })
+          end
+          parsed_body = JSON.parse(response.body)
+
+          expect(parsed_body.dig('data', 'attributes', 'evidenceSubmissions').size).to eq(1)
+        end
+      end
+
       it 'returns a status of 200' do
         VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
           get(:show, params: { id: '600383363' })

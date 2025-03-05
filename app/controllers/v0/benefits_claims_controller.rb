@@ -43,7 +43,9 @@ module V0
       claim['data']['attributes']['canUpload'] = !@current_user.birls_id.nil?
 
       # Add Evidence Submissions section for document uploads that were added
-      claim['data']['attributes']['evidenceSubmissions'] = add_evidence_submissions(claim['data'])
+      if Flipper.enabled?(:cst_show_document_upload_status)
+        claim['data']['attributes']['evidenceSubmissions'] = add_evidence_submissions(claim['data'])
+      end
 
       # We want to log some details about claim type patterns to track in DataDog
       log_claim_details(claim['data']['attributes'])
