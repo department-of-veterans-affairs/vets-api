@@ -172,9 +172,11 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
 
       it 'saves error message and logs error' do
         expect(Rails.logger).to receive(:error).with("Form5655Submission id: #{form5655_submission.id} failed", message)
+        expect(Rails.logger).to receive(:error).with("Silent failure triggered: #{form5655_submission.id} - #{message}")
         expect(StatsD).to receive(:increment).with(
           'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
         )
+        expect(StatsD).to receive(:increment).with('api.fsr_submission.hard_failure')
         expect(StatsD).to receive(:increment).with(
           'api.fsr_submission.send_failed_form_email.enqueue'
         )
@@ -198,6 +200,9 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
           expect(Rails.logger).to receive(:error).with(
             "Form5655Submission id: #{form5655_submission.id} failed", message
           )
+          expect(Rails.logger).to receive(:error).with(
+            "Silent failure triggered: #{form5655_submission.id} - #{message}"
+          )
           expect(StatsD).to receive(:increment).with(
             'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
           )
@@ -206,6 +211,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
           )
           expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
           expect(StatsD).to receive(:increment).with('api.fsr_submission.combined.failure')
+          expect(StatsD).to receive(:increment).with('api.fsr_submission.hard_failure')
           form5655_submission.register_failure(message)
           expect(form5655_submission.error_message).to eq(message)
         end
@@ -226,6 +232,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
 
       it 'saves error message and logs error' do
         expect(Rails.logger).to receive(:error).with("Form5655Submission id: #{form5655_submission.id} failed", message)
+        expect(Rails.logger).to receive(:error).with("Silent failure triggered: #{form5655_submission.id} - #{message}")
         expect(StatsD).not_to receive(:increment).with(
           'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
         )
