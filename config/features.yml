@@ -1725,9 +1725,6 @@ features:
   mobile_appeal_model:
     actor_type: user
     description: For mobile app, enables use of strict models for parsing appeals
-  mobile_v2_contact_info:
-    actor_type: user
-    description: For mobile app, enables ContactInformationV2 Service.
   mobile_push_register_logging:
     actor_type: user
     description: For mobile app, logs push register errors for debugging
