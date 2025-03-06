@@ -39,7 +39,7 @@ RSpec.describe FormSubmissionAttempt, type: :model do
 
           expect(SimpleFormsApi::Notification::SendNotificationEmailJob).to have_received(:perform_async).with(
             form_submission_attempt.benefits_intake_uuid,
-            '21-4142'
+            'vba_21_4142'
           )
         end
       end
@@ -136,7 +136,7 @@ RSpec.describe FormSubmissionAttempt, type: :model do
 
         expect(SimpleFormsApi::Notification::SendNotificationEmailJob).to have_received(:perform_async).with(
           form_submission_attempt.benefits_intake_uuid,
-          form_submission_attempt.form_submission.form_type
+          'vba_21_4142'
         )
       end
     end

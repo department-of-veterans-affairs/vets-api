@@ -58,7 +58,7 @@ module SimpleFormsApi
       end
 
       def get_notification_type
-        if form_submission_attempt.fail?
+        if form_submission_attempt.failure?
           :error
         elsif form_submission_attempt.vbms?
           :received
@@ -70,6 +70,7 @@ module SimpleFormsApi
       end
 
       def handle_exception(e)
+        notification_type = get_notification_type
         Rails.logger.error(
           'Error sending simple forms notification email',
           message: e.message,

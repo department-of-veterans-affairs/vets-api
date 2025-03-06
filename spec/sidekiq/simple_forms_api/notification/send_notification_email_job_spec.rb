@@ -6,7 +6,7 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
   describe '#perform' do
     context 'form was submitted with a digital form submission tool' do
       let(:notification_type) { :confirmation }
-      let(:form_submission_attempt) { build(:form_submission_attempt) }
+      let(:form_submission_attempt) { create(:form_submission_attempt, :failure) }
       let(:form_number) { 'abc-123' }
       let(:user_account) { build(:user_account) }
       let(:notification_email) { double(send: nil) }
@@ -33,7 +33,7 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
 
     context 'form was submitted with Form Upload tool' do
       let(:notification_type) { :confirmation }
-      let(:form_submission_attempt) { build(:form_submission_attempt) }
+      let(:form_submission_attempt) { create(:form_submission_attempt, :failure) }
       let(:form_number) { '21-0779' }
       let(:user_account) { build(:user_account) }
       let(:form_upload_notification_email) { double(send: nil) }
