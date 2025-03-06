@@ -938,6 +938,14 @@ mhv:
     host: <%= ENV['mhv__sm__host'] %>
     mhv_sm_x_api_key: <%= ENV['mhv__sm__mhv_sm_x_api_key'] %>
     mock: <%= ENV['mhv__sm__mock'] %>
+  uhd:
+    app_id: <%= ENV['mhv__uhd__app_id'] %>
+    app_token: <%= ENV['mhv__uhd__app_token'] %>
+    host: <%= ENV['mhv__uhd__host'] %>
+    mock: false
+    security_host: <%= ENV['mhv__uhd__security_host'] %>
+    subject: "Proxy Client"
+    user_type: <%= ENV['mhv__uhd__user_type'] %>
 mhv_mobile:
   sm:
     app_token: <%= ENV['mhv_mobile__sm__app_token'] %>
