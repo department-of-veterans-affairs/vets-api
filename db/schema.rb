@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_19_232344) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_04_165503) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -304,6 +304,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_19_232344) do
   create_table "ar_power_of_attorney_request_expirations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
   end
 
+  create_table "ar_power_of_attorney_request_notifications", force: :cascade do |t|
+    t.uuid "power_of_attorney_request_id", null: false
+    t.uuid "notification_id"
+    t.string "type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["notification_id"], name: "idx_on_notification_id_2402e9daad"
+    t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_b7c74f46e5"
+  end
+
   create_table "ar_power_of_attorney_request_resolutions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "power_of_attorney_request_id", null: false
     t.string "resolving_type", null: false
@@ -313,6 +323,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_19_232344) do
     t.datetime "created_at", null: false
     t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_fd7d2d11b1", unique: true
     t.index ["resolving_type", "resolving_id"], name: "unique_resolving_type_and_id", unique: true
+  end
+
+  create_table "ar_power_of_attorney_request_withdrawals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "superseding_power_of_attorney_request_id"
+    t.string "type", null: false
+    t.index ["superseding_power_of_attorney_request_id"], name: "idx_on_superseding_power_of_attorney_request_id_7318c79fef"
   end
 
   create_table "ar_power_of_attorney_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1806,7 +1822,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_19_232344) do
   add_foreign_key "appeal_submissions", "user_accounts"
   add_foreign_key "ar_power_of_attorney_forms", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_request_decisions", "user_accounts", column: "creator_id"
+  add_foreign_key "ar_power_of_attorney_request_notifications", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_request_resolutions", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
+  add_foreign_key "ar_power_of_attorney_request_withdrawals", "ar_power_of_attorney_requests", column: "superseding_power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_requests", "user_accounts", column: "claimant_id"
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "claim_va_notifications", "saved_claims"

@@ -16,8 +16,6 @@ RSpec.describe FormProfile, type: :model do
     allow(Flipper).to receive(:enabled?).and_call_original
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, anything).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, anything).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, anything)
-                                        .and_return(false)
   end
 
   let(:street_check) { build(:street_check) }
@@ -1867,27 +1865,6 @@ RSpec.describe FormProfile, type: :model do
             end
 
             it 'returns prefilled 21-526EZ' do
-              allow(Flipper).to receive(:enabled?).with(:disability_compensation_remove_pciu,
-                                                        anything).and_return(false)
-              VCR.use_cassette('evss/pciu_address/address_domestic') do
-                VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-                  VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
-                    VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
-                                     allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-                      VCR.use_cassette('virtual_regional_office/max_ratings') do
-                        expect_prefilled('21-526EZ')
-                      end
-                    end
-                  end
-                end
-              end
-            end
-
-            it 'returns prefilled 21-526EZ when disability_526_max_cfi_service_switch is enabled' do
-              allow(Flipper).to receive(:enabled?).with(:disability_compensation_remove_pciu,
-                                                        anything).and_return(false)
-              allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch,
-                                                        anything).and_return(true)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
                   VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
@@ -1914,9 +1891,10 @@ RSpec.describe FormProfile, type: :model do
               VAProfile::Configuration::SETTINGS.prefill = true # TODO: - is this missing in the failures above?
               expected_veteran_info = v21_526_ez_expected['veteran']
               expected_veteran_info['emailAddress'] =
-                VAProfileRedis::ContactInformation.for_user(user).email.email_address
+                VAProfileRedis::V2::ContactInformation.for_user(user).email.email_address
               expected_veteran_info['primaryPhone'] = '3035551234'
               allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+              allow(Flipper).to receive(:enabled?).with(:remove_pciu, anything).and_return(true)
             end
 
             after do
@@ -1924,26 +1902,6 @@ RSpec.describe FormProfile, type: :model do
             end
 
             it 'returns prefilled 21-526EZ' do
-              expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
-              expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-              expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
-              VCR.use_cassette('evss/pciu_address/address_domestic') do
-                VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-                  VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
-                    VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
-                                     allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-                      VCR.use_cassette('virtual_regional_office/max_ratings') do
-                        expect_prefilled('21-526EZ')
-                      end
-                    end
-                  end
-                end
-              end
-            end
-
-            it 'returns prefilled 21-526EZ when disability_526_max_cfi_service_switch is enabled' do
-              allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch,
-                                                        anything).and_return(true)
               expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
               expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
               expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
