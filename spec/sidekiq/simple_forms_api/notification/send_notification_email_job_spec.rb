@@ -14,12 +14,7 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
       it 'sends the email' do
         allow(SimpleFormsApi::NotificationEmail).to receive(:new).and_return(notification_email)
 
-        described_class.new.perform(
-          notification_type:,
-          form_submission_attempt:,
-          form_number:,
-          user_account:
-        )
+        described_class.new.perform(form_submission_attempt.benefits_intake_uuid, form_number)
 
         expect(notification_email).to have_received(:send).with(at: anything)
       end
@@ -29,12 +24,7 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
           allow(SimpleFormsApi::NotificationEmail).to receive(:new)
           allow(StatsD).to receive(:increment)
 
-          described_class.new.perform(
-            notification_type: :error,
-            form_submission_attempt:,
-            form_number:,
-            user_account:
-          )
+          described_class.new.perform(form_submission_attempt.benefits_intake_uuid, form_number)
 
           expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
         end
@@ -51,12 +41,7 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
       it 'sends the email' do
         allow(SimpleFormsApi::FormUploadNotificationEmail).to receive(:new).and_return(form_upload_notification_email)
 
-        described_class.new.perform(
-          notification_type:,
-          form_submission_attempt:,
-          form_number:,
-          user_account:
-        )
+        described_class.new.perform(form_submission_attempt.benefits_intake_uuid, form_number)
 
         expect(form_upload_notification_email).to have_received(:send).with(at: anything)
       end
@@ -66,12 +51,8 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
           allow(SimpleFormsApi::FormUploadNotificationEmail).to receive(:new).and_raise(ArgumentError)
           allow(StatsD).to receive(:increment)
 
-          described_class.new.perform(
-            notification_type: :error,
-            form_submission_attempt:,
-            form_number:,
-            user_account:
-          )
+          described_class.new.perform(form_submission_attempt.benefits_intake_uuid, form_number)
+
           expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
         end
       end

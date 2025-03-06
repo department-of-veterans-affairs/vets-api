@@ -9,11 +9,12 @@ module SimpleFormsApi
 
       HOUR_TO_SEND_NOTIFICATIONS = 9
 
-      attr_reader :notification_type, :config, :form_number, :user_account
+      attr_reader :form_submission_attempt, :notification_type, :config, :form_number, :user_account
 
-      def perform(notification_type:, form_submission_attempt:, form_number:, user_account:)
-        @notification_type = notification_type
-        @user_account = user_account
+      def perform(benefits_intake_uuid, form_number)
+        @form_submission_attempt = FormSubmissionAttempt.find_by(benefits_intake_uuid:)
+        @notification_type = get_notification_type
+        @user_account = form_submission_attempt.user_account
         @form_number = form_number
         form_submission = form_submission_attempt.form_submission
         @config = {
@@ -53,6 +54,14 @@ module SimpleFormsApi
           now.change(hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0)
         else
           now.tomorrow.change(hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0)
+        end
+      end
+
+      def get_notification_type
+        if form_submission_attempt.fail?
+          :error
+        elsif form_submission_attempt.vbms?
+          :received
         end
       end
 
