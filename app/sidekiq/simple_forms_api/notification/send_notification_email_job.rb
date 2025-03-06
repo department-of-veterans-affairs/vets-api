@@ -5,7 +5,7 @@ module SimpleFormsApi
     class SendNotificationEmailJob
       include Sidekiq::Job
 
-      sidekiq_options retry: 10
+      sidekiq_options retry: 10, backtrace: true
 
       HOUR_TO_SEND_NOTIFICATIONS = 9
 

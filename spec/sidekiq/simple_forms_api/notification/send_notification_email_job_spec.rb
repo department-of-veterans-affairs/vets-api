@@ -3,11 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :worker do
+  let(:form_submission_attempt) { create(:form_submission_attempt, :failure) }
+  let(:form_number) { 'abc-123' }
+
   describe '#perform' do
     context 'form was submitted with a digital form submission tool' do
       let(:notification_type) { :confirmation }
-      let(:form_submission_attempt) { create(:form_submission_attempt, :failure) }
-      let(:form_number) { 'abc-123' }
       let(:user_account) { build(:user_account) }
       let(:notification_email) { double(send: nil) }
 
@@ -56,6 +57,15 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
           expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
         end
       end
+    end
+  end
+
+  describe '.perform_async' do
+    it 'enqueues the job' do
+      expect do
+        described_class.perform_async(form_submission_attempt.benefits_intake_uuid,
+                                      form_number)
+      end.to change(described_class.jobs, :size).by(1)
     end
   end
 end
