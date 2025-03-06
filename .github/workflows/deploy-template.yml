@@ -23,7 +23,7 @@ on:
 
 jobs:
   prepare-values:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       environments: ${{ steps.set-environments.outputs.environments }}
     steps:
@@ -38,7 +38,7 @@ jobs:
   release:
     needs: [prepare-values]
     if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 

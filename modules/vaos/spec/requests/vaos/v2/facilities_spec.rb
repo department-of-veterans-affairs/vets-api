@@ -7,7 +7,7 @@ RSpec.describe 'VAOS::V2::Facilities', type: :request do
 
   before do
     Flipper.enable('va_online_scheduling')
-    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
     sign_in_as(user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
@@ -18,6 +18,11 @@ RSpec.describe 'VAOS::V2::Facilities', type: :request do
     let(:user) { build(:user, :mhv) }
 
     describe 'GET facilities' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                  instance_of(User)).and_return(true)
+      end
+
       context 'on successful query for a facility' do
         it 'returns facility details' do
           VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_single_id_200',
@@ -82,7 +87,15 @@ RSpec.describe 'VAOS::V2::Facilities', type: :request do
         let(:user) { build(:user, :vaos) }
 
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                    instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details,
+                                                    instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(true)
         end
 
         it 'returns facilities by recency then by alphabetical order' do
@@ -118,6 +131,11 @@ RSpec.describe 'VAOS::V2::Facilities', type: :request do
 
     describe 'SHOW facilities' do
       context 'on successful query for a facility' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                    instance_of(User)).and_return(true)
+        end
+
         it 'returns facility details' do
           VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
                            match_requests_on: %i[method path query]) do
