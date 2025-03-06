@@ -4,7 +4,6 @@ require 'common/models/base'
 require 'common/models/redis_store'
 require 'evss/auth_headers'
 require 'evss/common_service'
-require 'evss/pciu/service'
 require 'mpi/service'
 require 'saml/user'
 require 'formatters/date_formatter'
@@ -515,10 +514,6 @@ class User < Common::RedisStore
     return unless bgs_dependents.presence && bgs_dependents[:persons]
 
     bgs_dependents[:persons].map { |dependent| UserRelationship.from_bgs_dependent(dependent) }
-  end
-
-  def pciu
-    @pciu ||= EVSS::PCIU::Service.new self if loa3? && edipi.present?
   end
 
   def log_mhv_user_account_error(error_message)

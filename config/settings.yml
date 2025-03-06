@@ -412,15 +412,9 @@ evss:
   mock_gi_bill_status: <%= ENV['evss__mock_gi_bill_status'] %>
   mock_itf: <%= ENV['evss__mock_itf'] %>
   mock_letters: <%= ENV['evss__mock_letters'] %>
-  mock_pciu: <%= ENV['evss__mock_pciu'] %>
-  mock_pciu_address: <%= ENV['evss__mock_pciu_address'] %>
   mock_ppiu: <%= ENV['evss__mock_ppiu'] %>
   mock_reference: <%= ENV['evss__mock_reference'] %>
   mock_vso_search: <%= ENV['evss__mock_vso_search'] %>
-  pciu:
-    timeout: 30
-  pciu_address:
-    timeout: 30
   ppiu:
     timeout: 30
   prefill: true

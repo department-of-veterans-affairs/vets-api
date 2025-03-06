@@ -320,7 +320,6 @@ Rails/I18nLocaleTexts:
     - 'app/mailers/veteran_readiness_employment_mailer.rb'
     - 'app/models/async_transaction/base.rb'
     - 'app/models/message.rb'
-    - 'lib/evss/pciu/phone_number.rb'
     - 'lib/va_profile/models/communication_permission.rb'
     - 'lib/va_profile/models/preferred_name.rb'
     - 'modules/claims_api/app/mailers/claims_api/unsuccessful_report_mailer.rb'

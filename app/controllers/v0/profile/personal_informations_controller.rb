@@ -49,7 +49,7 @@ module V0
               gender: response.gender,
               birth_date: response.birth_date
             },
-            profile: 'pciu_profile'
+            profile: 'va_profile'
           )
         end
       end
