@@ -42,12 +42,12 @@ module AccreditedRepresentativePortal
 
     def new_status
       case response_status
-      when 'pending', 'submitted'
-        :enqueue_succeeded
       when 'updated'
         :succeeded
       when 'errored'
         :failed
+      else
+        :enqueue_succeeded
       end
     end
 
