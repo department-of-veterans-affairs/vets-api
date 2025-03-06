@@ -1009,6 +1009,7 @@ lib/search_typeahead @department-of-veterans-affairs/va-api-engineers @departmen
 lib/sentry @department-of-veterans-affairs/backend-review-group
 lib/sentry_logging.rb @department-of-veterans-affairs/backend-review-group
 lib/sftp_writer @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+lib/shared_rails_logging @department-of-veterans-affairs/backend-review-group
 lib/shrine @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 lib/sidekiq/attr_package.rb @department-of-veterans-affairs/octo-identity @department-of-veterans-affairs/backend-review-group
 lib/sidekiq/error_tag.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
