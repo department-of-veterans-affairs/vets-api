@@ -201,22 +201,29 @@
         "relationships": "Lorem ipsum dolor sit amet.",
         "unlisted": "Lorem ipsum dolor sit amet."
       },
-      "evidence": {
-        "counseling": true,
-        "family": true,
-        "police": true,
-        "medical": true,
-        "peers": true,
-        "journal": true,
-        "other": true,
-        "otherDetails": "Lorem ipsum dolor sit amet."
+      "supportingEvidenceReports": {
+        "police": true
       },
-      "traumaTreatment": true,
-      "treatmentProviders": {
-        "privateCare": true,
-        "communityCare": false,
-        "vamc": true,
-        "mtf": true
+      "supportingEvidenceRecords": {
+        "medical": true,
+        "counseling": true
+      },
+      "supportingEvidenceWitness": {
+        "family": true,
+        "service": true
+      },
+      "supportingEvidenceOther": {
+        "personal": true
+      },
+      "supportingEvidenceUnlisted": "Lorem ipsum dolor sit amet.",
+      "treatmentNoneCheckbox": true,
+      "treatmentReceivedVaProvider": {
+        "vaPaid": false,
+        "medicalCenter": true,
+        "dod": true
+      },
+      "treatmentReceivedNonVaProvider": {
+        "nonVa": true
       },
       "treatmentProvidersDetails": [
         {
