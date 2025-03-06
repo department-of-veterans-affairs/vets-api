@@ -1509,6 +1509,7 @@ vanotify:
       template_id:
         appoint_a_representative_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_confirmation_email'] %>
         appoint_a_representative_digital_submit_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_submit_confirmation_email'] %>
+        appoint_a_representative_digital_submit_decline_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_submit_decline_email'] %>
         career_counseling_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__career_counseling_confirmation_email'] %>
         ch31_central_mail_form_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
         ch31_vbms_form_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
