@@ -16,13 +16,13 @@ RSpec.describe Tooltip, type: :model do
     it 'is invalid without a tooltip_name' do
       tooltip = build(:tooltip, tooltip_name: nil)
       expect(tooltip).not_to be_valid
-      expect(tooltip.errors[:tooltip_name]).to include('can't be blank')
+      expect(tooltip.errors[:tooltip_name]).to include('can\'t be blank')
     end
 
     it 'is invalid without a last_signed_in' do
       tooltip = build(:tooltip, last_signed_in: nil)
       expect(tooltip).not_to be_valid
-      expect(tooltip.errors[:last_signed_in]).to include("can't be blank")
+      expect(tooltip.errors[:last_signed_in]).to include('can\'t be blank')
     end
 
     it 'is invalid with a duplicate tooltip_name for the same user_account' do

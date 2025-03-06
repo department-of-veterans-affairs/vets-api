@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :tooltip do
     association :user_account
@@ -16,7 +18,7 @@ FactoryBot.define do
     end
 
     trait :duplicate_name do
-      tooltip_name { "duplicate_name" }
+      tooltip_name { 'duplicate_name' }
     end
   end
 end
