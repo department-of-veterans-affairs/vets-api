@@ -16,6 +16,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
   before do
     allow(Settings.ivc_forms.sidekiq.missing_form_status_job).to receive(:enabled).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:champva_vanotify_custom_callback, @current_user).and_return(true)
     allow(StatsD).to receive(:gauge)
     allow(StatsD).to receive(:increment)
 
