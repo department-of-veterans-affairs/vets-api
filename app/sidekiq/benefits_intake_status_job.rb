@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
-require 'burials/monitor'
 require 'lighthouse/benefits_intake/service'
-require 'pensions/monitor'
-require 'pensions/notification_email'
-require 'burials/notification_email'
+require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
 require 'pcpg/monitor'
 require 'dependents/monitor'
 require 'vre/monitor'
@@ -29,6 +26,11 @@ class BenefitsIntakeStatusJob
   def perform
     Rails.logger.info('BenefitsIntakeStatusJob started')
     pending_form_submission_attempts = FormSubmissionAttempt.where(aasm_state: 'pending')
+                                                            .includes(:form_submission).to_a
+
+    form_ids = BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS.keys.map(&:to_s)
+    pending_form_submission_attempts.reject! { |pfsa| form_ids.include?(pfsa.form_submission.form_type) }
+
     total_handled, result = batch_process(pending_form_submission_attempts)
     Rails.logger.info('BenefitsIntakeStatusJob ended', total_handled:) if result
   end
@@ -37,6 +39,7 @@ class BenefitsIntakeStatusJob
 
   def batch_process(pending_form_submission_attempts)
     total_handled = 0
+    errors = []
     intake_service = BenefitsIntake::Service.new
 
     pending_form_submission_attempts.each_slice(batch_size) do |batch|
@@ -46,14 +49,20 @@ class BenefitsIntakeStatusJob
       # Log the entire response for debugging purposes
       Rails.logger.info("Received bulk status response: #{response.body}")
 
-      raise response.body unless response.success?
+      errors << response.body unless response.success?
 
       total_handled += handle_response(response)
     end
 
+    unless errors.empty?
+      Rails.logger.error('Errors occurred while processing Intake Status batch', class: self.class.name,
+                                                                                 errors:)
+    end
+
     [total_handled, true]
   rescue => e
-    Rails.logger.error('Error processing Intake Status batch', class: self.class.name, message: e.message)
+    Rails.logger.error('Benefits Intake Status Job failed, some batched submissions may not have been processed',
+                       class: self.class.name, message: e.message)
     [total_handled, false]
   end
 
@@ -101,7 +110,6 @@ class BenefitsIntakeStatusJob
         form_submission_attempt.update(lighthouse_updated_at:)
         form_submission_attempt.vbms!
         log_result('success', form_id, uuid, time_to_transition)
-        monitor_success(form_id, saved_claim_id, uuid)
       elsif time_to_transition > STALE_SLA.days
         # exceeds SLA (service level agreement) days for submission completion
         log_result('stale', form_id, uuid, time_to_transition)
@@ -130,34 +138,6 @@ class BenefitsIntakeStatusJob
     end
   end
 
-  def monitor_success(form_id, saved_claim_id, bi_uuid)
-    # Remove this logic after SubmissionStatusJob replaces this one
-    claim = SavedClaim.find_by(id: saved_claim_id)
-    context = {
-      form_id:,
-      claim_id: saved_claim_id,
-      benefits_intake_uuid: bi_uuid
-    }
-
-    if form_id == '21P-530EZ' && Flipper.enabled?(:burial_received_email_notification)
-      unless claim
-        Burials::Monitor.new.log_silent_failure(context, nil, call_location: caller_locations.first)
-        return
-      end
-
-      Burials::NotificationEmail.new(claim.id).deliver(:received)
-    end
-    if %w[21P-527EZ].include?(form_id) && Flipper.enabled?(:pension_received_email_notification)
-      unless claim
-        Pensions::Monitor.new.log_silent_failure(context, nil, call_location: caller_locations.first)
-        return
-      end
-
-      Pensions::NotificationEmail.new(saved_claim_id).deliver(:received)
-    end
-  end
-
-  # TODO: refactor - avoid require of module code, near duplication of process
   # rubocop:disable Metrics/MethodLength
   def monitor_failure(form_id, saved_claim_id, bi_uuid)
     context = {
@@ -166,26 +146,6 @@ class BenefitsIntakeStatusJob
       benefits_intake_uuid: bi_uuid
     }
     call_location = caller_locations.first
-
-    if %w[21P-530EZ 21P-530V2].include?(form_id)
-      claim = SavedClaim::Burial.find(saved_claim_id)
-      if claim
-        Burials::NotificationEmail.new(claim.id).deliver(:error)
-        Burials::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
-      else
-        Burials::Monitor.new.log_silent_failure(context, nil, call_location:)
-      end
-    end
-
-    if %w[21P-527EZ].include?(form_id)
-      claim = Pensions::SavedClaim.find(saved_claim_id)
-      if claim
-        Pensions::NotificationEmail.new(claim.id).deliver(:error)
-        Pensions::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
-      else
-        Pensions::Monitor.new.log_silent_failure(context, nil, call_location:)
-      end
-    end
 
     # Dependents
     if %w[686C-674].include?(form_id)

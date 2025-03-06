@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
-require 'virtual_regional_office/client'
 require 'disability_max_ratings/client'
 
 module ClaimFastTracking
   class MaxRatingAnnotator
     EXCLUDED_DIGESTIVE_CODES = [7318, 7319, 7327, 7336, 7346].freeze
 
-    def self.annotate_disabilities(rated_disabilities_response, user)
+    def self.annotate_disabilities(rated_disabilities_response)
       return if rated_disabilities_response.rated_disabilities.blank?
 
       log_hyphenated_diagnostic_codes(rated_disabilities_response.rated_disabilities)
@@ -18,7 +17,7 @@ module ClaimFastTracking
                                                     .map(&:diagnostic_code) # map to diagnostic_code field in rating
       return rated_disabilities_response if diagnostic_codes.empty?
 
-      ratings = get_ratings(diagnostic_codes, user)
+      ratings = get_ratings(diagnostic_codes)
       return rated_disabilities_response unless ratings
 
       ratings_hash = ratings.to_h { |rating| [rating['diagnostic_code'], rating['max_rating']] }
@@ -57,14 +56,9 @@ module ClaimFastTracking
       end
     end
 
-    def self.get_ratings(diagnostic_codes, user)
-      if Flipper.enabled?(:disability_526_max_cfi_service_switch, user)
-        disability_max_ratings_client = DisabilityMaxRatings::Client.new
-        response = disability_max_ratings_client.post_for_max_ratings(diagnostic_codes)
-      else
-        vro_client = VirtualRegionalOffice::Client.new
-        response = vro_client.get_max_rating_for_diagnostic_codes(diagnostic_codes)
-      end
+    def self.get_ratings(diagnostic_codes)
+      disability_max_ratings_client = DisabilityMaxRatings::Client.new
+      response = disability_max_ratings_client.post_for_max_ratings(diagnostic_codes)
       response.body['ratings']
     rescue Faraday::TimeoutError
       Rails.logger.error 'Get Max Ratings Failed: Request timed out.'
