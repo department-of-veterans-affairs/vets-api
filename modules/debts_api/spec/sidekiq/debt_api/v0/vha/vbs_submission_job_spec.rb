@@ -43,8 +43,10 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::VBSSubmissionJob, type: :worker do
 
         statsd_key = DebtsApi::V0::Form5655::VHA::VBSSubmissionJob::STATS_KEY
         statsd_keys = [
-          "#{statsd_key}.failure", 'api.fsr_submission.hard_failure',
-         "#{statsd_key}.retries_exhausted", 'api.fsr_submission.failure'
+          "#{statsd_key}.failure",
+          'api.fsr_submission.hard_failure',
+          "#{statsd_key}.retries_exhausted",
+          'api.fsr_submission.failure'
         ]
 
         statsd_keys.each do |key|
