@@ -13,14 +13,14 @@ module MyHealth
       end
 
       def create
-          tooltip = @user_account.tooltips.build(tooltip_params)
-          tooltip.last_signed_in = current_user.last_signed_in
-          tooltip.save!
-          render json: tooltip, status: :created
-        rescue ActiveRecord::RecordInvalid => e
-          render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
-        rescue => e
-          log_and_render_error(e, 'Error creating tooltip')
+        tooltip = @user_account.tooltips.build(tooltip_params)
+        tooltip.last_signed_in = current_user.last_signed_in
+        tooltip.save!
+        render json: tooltip, status: :created
+      rescue ActiveRecord::RecordInvalid => e
+        render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
+      rescue => e
+        log_and_render_error(e, 'Error creating tooltip')
       end
 
       # Checks for session uniqueness before incrementing.
@@ -33,20 +33,18 @@ module MyHealth
         end
 
         if @tooltip.update(tooltip_params)
-          if params[:tooltip][:increment_counter] == 'true'
-            increment_counter_if_new_session(@tooltip)
-          end
+          increment_counter_if_new_session(@tooltip) if params[:tooltip][:increment_counter] == 'true'
           @tooltip.update(hidden: params[:tooltip][:hidden]) if params[:tooltip][:hidden].present?
           render json: @tooltip
         else
           render json: { errors: @tooltip.errors.full_messages }, status: :unprocessable_entity
         end
       rescue ActiveRecord::RecordNotFound => e
-        log_and_render_error(e, "Tooltip not found")
+        log_and_render_error(e, 'Tooltip not found')
       rescue ActiveRecord::RecordInvalid => e
-        log_and_render_error(e, "Invalid tooltip data")
-      rescue StandardError => e
-        log_and_render_error(e, "Error updating tooltip")
+        log_and_render_error(e, 'Invalid tooltip data')
+      rescue => e
+        log_and_render_error(e, 'Error updating tooltip')
       end
 
       private
@@ -77,14 +75,7 @@ module MyHealth
 
       def set_user_account
         @user_account = current_user.user_account
-        if @user_account.nil?
-          render json: { error: 'User account not found' }, status: :not_found
-        end
-      end
-
-      def log_and_render_error(exception, message)
-        Rails.logger.error("#{message}: #{exception.message}\n#{exception.backtrace.join("\n")}")
-        render json: { error: message }, status: :internal_server_error
+        render json: { error: 'User account not found' }, status: :not_found if @user_account.nil?
       end
     end
   end
