@@ -27,6 +27,9 @@
         "associated_triage_groups": {
           "type": "integer"
         },
+        "friendly_triage_team_pilot_facilities": {
+          "type": "string"
+        },
         "associated_blocked_triage_groups": {
           "type": "integer"
         },

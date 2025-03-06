@@ -7,7 +7,16 @@
     "stationNumber",
     "blockedStatus",
     "preferredTeam",
-    "relationshipType"
+    "relationType",
+    "locationName",
+    "leadProviderName",
+    "teamName",
+    "suggestedNameDisplay",
+    "healthCareSystemName",
+    "groupTypeEnumVal",
+    "subGroupTypeEnumVal",
+    "groupTypePatientDisplay",
+    "subGroupTypePatientDisplay"
   ],
   "properties": {
     "triageTeamId": {
@@ -25,7 +34,34 @@
     "preferredTeam": {
       "type": "boolean"
     },
-    "relationshipType": {
+    "relationType": {
+      "type": "string"
+    },
+    "leadProviderName": {
+      "type": "string"
+    },
+    "locationName": {
+      "type": "string"
+    },
+    "teamName": {
+      "type": "string"
+    },
+    "suggestedNameDisplay": {
+      "type": "string"
+    },
+    "healthCareSystemName": {
+      "type": "string"
+    },
+    "groupTypeEnumVal": {
+      "type": "string"
+    },
+    "subGroupTypeEnumVal": {
+      "type": "string"
+    },
+    "groupTypePatientDisplay": {
+      "type": "string"
+    },
+    "subGroupTypePatientDisplay": {
       "type": "string"
     }
   }
