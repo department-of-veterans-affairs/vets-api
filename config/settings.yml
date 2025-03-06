@@ -647,9 +647,9 @@ ivc_forms:
       enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
-  aws_role_arn: <%= ENV['KAFKA_PRODUCER__AWS_ROLE_ARN'] %>
-  broker_urls: <%= ENV['KAFKA_PRODUCER__BROKER_URLS'] %>
-  schema_registry_url: <%= ENV['KAFKA_PRODUCER__SCHEMA_REGISTRY_URL'] %>
+  aws_role_arn: <%= ENV['kafka_producer__aws_role_arn'] %>
+  broker_urls: <%= ENV['kafka_producer__broker_urls'] %>
+  schema_registry_url: <%= ENV['kafka_proudcer__schema_registry_url'] %>
 kms_key_id: <%= ENV['kms_key_id'] %>
 lgy:
   api_key: <%= ENV['lgy__api_key'] %>
