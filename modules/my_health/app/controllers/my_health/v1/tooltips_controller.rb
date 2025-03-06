@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 module MyHealth
   module V1
     class TooltipsController < ApplicationController
       before_action :set_user_account, only: [:index, :create, :update]
       before_action :set_tooltip, only: [:update]
-      service_tag 'mhv-messaging'
+      service_tag 'mhv-medications'
 
       def index
         tooltips = @user_account.tooltips
