@@ -15,6 +15,8 @@ module SimpleFormsApi
         @user_account = form_submission_attempt.user_account
         @form_submission = form_submission_attempt.form_submission
 
+        return unless valid_notification?
+
         send_email
       rescue => e
         handle_exception(e)
@@ -23,6 +25,10 @@ module SimpleFormsApi
       private
 
       attr_accessor :user_account, :form_number, :form_submission
+
+      def valid_notification?
+        form_submission_attempt.failure? || form_submission_attempt.vbms?
+      end
 
       def notification_type
         if form_submission_attempt.failure?
@@ -34,7 +40,7 @@ module SimpleFormsApi
 
       def form_submission_attempt
         @form_submission_attempt ||= FormSubmissionAttempt.find_by(benefits_intake_uuid: @benefits_intake_uuid) ||
-                                     raise_not_found_error('FormSubmissionAttempt', id)
+                                     raise_not_found_error('FormSubmissionAttempt', @benefits_intake_uuid)
       end
 
       def raise_not_found_error(resource, id)
