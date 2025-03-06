@@ -8,7 +8,7 @@ class LighthouseDocumentUploaderBase < CarrierWave::Uploader::Base
   include UploaderVirusScan
 
   version :converted, if: :tiff_or_incorrect_extension? do
-    process(convert: :jpg, if: :tiff?)
+  process(convert: 'jpg') { |uploader| !uploader.jpg? }
 
     def convert_to_jpg_if_image
       return unless image?(file)
