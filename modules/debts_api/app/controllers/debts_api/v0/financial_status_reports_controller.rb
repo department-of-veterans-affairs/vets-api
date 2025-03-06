@@ -38,7 +38,9 @@ module DebtsApi
       def rehydrate
         submission_id = params[:submission_id]
 
-        DebtsApi::V0::FsrRehydrationService.attempt_rehydration(user_uuid: current_user.uuid, submission_id:)
+        DebtsApi::V0::FsrRehydrationService.attempt_rehydration(user_uuid: current_user.uuid,
+                                                                user_account_id: current_user.user_account.id,
+                                                                submission_id:)
 
         render json: { result: 'FSR rehydrated' }
       rescue ActiveRecord::RecordNotFound
