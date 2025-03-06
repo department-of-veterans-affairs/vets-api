@@ -17,22 +17,22 @@ module ClaimsApi
             {
               veteran: {
                 first_name: request['vetFirstName'],
-                last_name: request['vetLastName'],
-                middle_name: request['vetMiddleName']
+                middle_name: request['vetMiddleName'],
+                last_name: request['vetLastName']
               },
               claimant: {
-                city: request['claimantCity'],
-                country: request['claimantCountry'],
-                military_po: request['claimantMilitaryPO'],
-                military_postal_code: request['claimantMilitaryPostalCode'],
-                state: request['claimantState'],
-                zip: request['claimantZip']
+                first_name: request.dig('claimant', 'firstName'),
+                middle_name: request.dig('claimant', 'middleName'),
+                last_name: request.dig('claimant', 'lastName')
+              },
+              address: {
+                city: request.dig('claimant', 'address', 'city'),
+                state_code: request.dig('claimant', 'address', 'stateCode'),
+                zip_code: request.dig('claimant', 'address', 'zipCode'),
+                countryCode: request.dig('claimant', 'address', 'countryCode')
               },
               representative: {
-                poa_code: request['poaCode'],
-                vso_user_email: request['VSOUserEmail'],
-                vso_user_first_name: request['VSOUserFirstName'],
-                vso_user_last_name: request['VSOUserLastName']
+                poa_code: request['poaCode']
               },
               received_date: request['dateRequestReceived'],
               actioned_date: request['dateRequestActioned'],
@@ -95,10 +95,8 @@ module ClaimsApi
                 email: request.dig('claimant', 'email'),
                 relationship: request.dig('claimant', 'relationship')
               },
-              poa: {
-                poa_code: request.dig('poa', 'poaCode'),
-                registration_number: request.dig('poa', 'registrationNumber'),
-                job_title: request.dig('poa', 'jobTitle')
+              representative: {
+                poa_code: request.dig('representative', 'poaCode')
               },
               record_consent: request['recordConsent'],
               consent_limits: request['consentLimits'],

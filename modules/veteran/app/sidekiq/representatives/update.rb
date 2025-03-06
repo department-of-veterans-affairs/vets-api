@@ -77,7 +77,7 @@ module Representatives
     # @param address [Hash] A hash containing the details of the representative's address.
     # @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
     def build_validation_address(address)
-      validation_model = if Flipper.enabled?(:va_v3_contact_information_service)
+      validation_model = if Flipper.enabled?(:remove_pciu)
                            VAProfile::Models::V3::ValidationAddress
                          else
                            VAProfile::Models::ValidationAddress
@@ -100,7 +100,7 @@ module Representatives
     # @param candidate_address [VAProfile::Models::ValidationAddress] The address to be validated.
     # @return [Hash] The response from the address validation service.
     def validate_address(candidate_address)
-      validation_service = if Flipper.enabled?(:va_v3_contact_information_service)
+      validation_service = if Flipper.enabled?(:remove_pciu)
                              VAProfile::V3::AddressValidation::Service.new
                            else
                              VAProfile::AddressValidation::Service.new
@@ -157,7 +157,7 @@ module Representatives
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
     def build_address_attributes(rep_data, api_response)
-      if Flipper.enabled?(:va_v3_contact_information_service)
+      if Flipper.enabled?(:remove_pciu)
         build_v3_address(api_response['candidate_addresses'].first)
       else
         address = api_response['candidate_addresses'].first['address']

@@ -9,13 +9,15 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
 
   before do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
   end
 
   describe 'GET /mobile/v0/appointments/facilities/:facility_id/clinics', :aggregate_failures do
     context 'using VAOS' do
       before do
-        Flipper.disable(:va_online_scheduling_use_vpg)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                  instance_of(User)).and_return(true)
       end
 
       context 'when both facility id and service type is found' do
@@ -67,7 +69,9 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
 
     context 'using VPG' do
       before do
-        Flipper.enable(:va_online_scheduling_use_vpg)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                  instance_of(User)).and_return(true)
       end
 
       context 'when both facility id and service type is found' do
@@ -121,8 +125,11 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
   describe 'GET /mobile/v0/appointments/facilities/{facililty_id}/slots', :aggregate_failures do
     context 'when both facility id and clinic id is found' do
       before do
-        Flipper.enable(:va_online_scheduling_use_vpg)
-        Flipper.enable(:va_online_scheduling_enable_OH_slots_search)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                  instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
+                                                  instance_of(User)).and_return(true)
       end
 
       let(:facility_id) { '983' }
@@ -174,8 +181,11 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
 
       before do
         Timecop.freeze(Time.zone.parse(current_time))
-        Flipper.disable(:va_online_scheduling_use_vpg)
-        Flipper.disable(:va_online_scheduling_enable_OH_slots_search)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                  instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
+                                                  instance_of(User)).and_return(false)
       end
 
       after do
@@ -209,8 +219,11 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
 
       context 'using VAOS' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.disable(:va_online_scheduling_enable_OH_slots_search)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
+                                                    instance_of(User)).and_return(false)
         end
 
         it 'returns a 502 error' do
@@ -225,8 +238,11 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
 
       context 'using VPG' do
         before do
-          Flipper.enable(:va_online_scheduling_use_vpg)
-          Flipper.enable(:va_online_scheduling_enable_OH_slots_search)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
+                                                    instance_of(User)).and_return(true)
         end
 
         it 'returns a 502 error' do
@@ -249,8 +265,11 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
 
       context 'using VAOS' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.disable(:va_online_scheduling_enable_OH_slots_search)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
+                                                    instance_of(User)).and_return(false)
         end
 
         it 'returns 200' do
@@ -272,8 +291,11 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
 
       context 'using VPG' do
         before do
-          Flipper.enable(:va_online_scheduling_use_vpg)
-          Flipper.enable(:va_online_scheduling_enable_OH_slots_search)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
+                                                    instance_of(User)).and_return(true)
         end
 
         it 'returns 200' do
@@ -301,8 +323,11 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
 
       before do
         Timecop.freeze(Time.zone.parse(current_time))
-        Flipper.disable(:va_online_scheduling_use_vpg)
-        Flipper.disable(:va_online_scheduling_enable_OH_slots_search)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                  instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
+                                                  instance_of(User)).and_return(false)
       end
 
       after do
@@ -333,8 +358,11 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
 
       context 'using VAOS' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.disable(:va_online_scheduling_enable_OH_slots_search)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
+                                                    instance_of(User)).and_return(false)
         end
 
         it 'returns a 502 error' do
@@ -349,8 +377,11 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
 
       context 'using VPG' do
         before do
-          Flipper.enable(:va_online_scheduling_use_vpg)
-          Flipper.enable(:va_online_scheduling_enable_OH_slots_search)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
+                                                    instance_of(User)).and_return(true)
         end
 
         it 'returns a 502 error' do
