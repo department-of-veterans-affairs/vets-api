@@ -164,7 +164,7 @@ module PdfFill
             question_suffix: 'A'
           }
         },
-        'workBehaviors' => { # question_num: 10A
+        'behaviors' => { # question_num: 10A
           'reassignment' => {
             key: 'F[0].#subform[3].Request_For_A_Change_In_Occupational_Series_Or_Duty_Assignment[0]'
           },
@@ -173,9 +173,7 @@ module PdfFill
           },
           'performance' => {
             key: 'F[0].#subform[3].Changes_In_Performance_Or_Performance_Evaluations[0]'
-          }
-        },
-        'healthBehaviors' => { # question_num: 10A
+          },
           'consultations' => {
             key: 'F[0].#subform[3].Increased_Decreased_Visits_To_A_Healthcare_Professional_Counselor_Or_Treatment_Facility[0]'
           },
@@ -199,9 +197,7 @@ module PdfFill
           },
           'screenings' => {
             key: 'F[0].#subform[4].Tests_For_Sexually_Transmitted_Infections[0]'
-          }
-        },
-        'otherBehaviors' => { # question_num: 10A
+          },
           'socialEconomic' => {
             key: 'F[0].#subform[4].Economic_Or_Social_Behavioral_Changes[0]'
           },
@@ -459,7 +455,7 @@ module PdfFill
           }
         },
         'evidence' => { # question_num: 12
-          'crisisCenter' => {
+          'crisis' => {
             key: 'F[0].#subform[4].A_Rape_Crisis_Center_Or_Center_For_Domestic_Abuse[0]'
           },
           'counseling' => {
@@ -474,16 +470,16 @@ module PdfFill
           'police' => {
             key: 'F[0].#subform[4].Civilian_Police_Reports[0]'
           },
-          'medical' => {
+          'physicians' => {
             key: 'F[0].#subform[4].Medical_Reports_From_Civilian_Physicians_Or_Caregivers_Who_Treated_You_Immediately_Following_The_Incident_Or_Sometime_Later[0]'
           },
           'clergy' => {
             key: 'F[0].#subform[4].A_Chaplain_Or_Clergy[0]'
           },
-          'peers' => {
+          'service' => {
             key: 'F[0].#subform[4].Fellow_Service_Members[0]'
           },
-          'journal' => {
+          'personal' => {
             key: 'F[0].#subform[4].Personal_Diaries_Or_Journals[0]'
           },
           'none' => {
@@ -511,22 +507,22 @@ module PdfFill
           key: 'F[0].#subform[4].Treatment_No[0]'
         },
         'treatmentProviders' => { # question_num: 13B
-          'privateCare' => {
+          'nonVa' => {
             key: 'F[0].#subform[4].Private_Healthcare_Provider[0]'
           },
-          'vetCenter' => {
+          'vaCenters' => {
             key: 'F[0].#subform[4].VA_Vet_Center[0]'
           },
-          'communityCare' => {
+          'vaPaid' => {
             key: 'F[0].#subform[4].Community_Care_Paid_For_By_VA[0]'
           },
-          'vamc' => {
+          'medicalCenter' => {
             key: 'F[0].#subform[4].VA_Medical_Center_And_Community_Based_Outpatient_Clinics[0]'
           },
-          'cboc' => {
+          'communityOutpatient' => {
             key: 'F[0].#subform[4].VA_Medical_Center_And_Community_Based_Outpatient_Clinics[0]'
           },
-          'mtf' => {
+          'dod' => {
             key: 'F[0].#subform[4].Department_Of_Defense_Military_Treatment_Facilities[0]'
           }
         },
@@ -629,7 +625,7 @@ module PdfFill
         },
         {
           label: 'Section III: Additional Information Associated with the In-service Traumatic Event(s)',
-          top_level_keys: %w[workBehaviors healthBehaviors otherBehaviors behaviorsDetails reportsDetails evidence]
+          top_level_keys: %w[behaviors behaviorsDetails reportsDetails evidence]
         },
         {
           label: 'Section IV: Treatment Information',
@@ -690,11 +686,13 @@ module PdfFill
       end
 
       def set_treatment_selection
-        treated = @form_data['traumaTreatment']
-        return if treated.nil?
+        treated = (@form_data['treatmentProviders'] || {}).any?
+        not_treated = @form_data['treatmentReceivedNone'] || false
+
+        return if !treated && !not_treated
 
         @form_data['treatment'] = treated ? 0 : 1
-        @form_data['noTreatment'] = treated ? 0 : 1
+        @form_data['noTreatment'] = not_treated ? 1 : 0
       end
 
       def process_reports
