@@ -11,7 +11,8 @@ module ClaimsApi
       end
 
       def submit_request
-        ClaimsApi::PowerOfAttorneyRequestService::TerminateExistingRequests.new(@veteran_participant_id).call
+        # Disabling logic to terminate existing requests until future permanent fix
+        # ClaimsApi::PowerOfAttorneyRequestService::TerminateExistingRequests.new(@veteran_participant_id).call
         ClaimsApi::PowerOfAttorneyRequestService::CreateRequest.new(@veteran_participant_id, @form_data,
                                                                     @claimant_participant_id, @poa_key).call
       end
