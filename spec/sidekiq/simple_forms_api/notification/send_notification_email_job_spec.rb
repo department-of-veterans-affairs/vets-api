@@ -3,12 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :worker do
-  let(:notification_email) { double(send: nil) }
-  let(:form_upload_notification_email) { double(send: nil) }
+  let(:notification_email) { instance_double(SimpleFormsApi::NotificationEmail, send: nil) }
+  let(:form_upload_notification_email) { instance_double(SimpleFormsApi::FormUploadNotificationEmail, send: nil) }
   let(:notification_type) { :confirmation }
-  let(:form_submission_attempt) { build(:form_submission_attempt) }
+  let(:form_submission_attempt) { create(:form_submission_attempt) }
   let(:form_number) { '21-0779' }
-  let(:user_account) { build(:user_account) }
+  let(:user_account) { create(:user_account) }
+
   let(:args) do
     {
       notification_type:,
@@ -19,43 +20,57 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
   end
 
   before do
-    allow(UserAccount).to receive(:find).and_return(user_account)
-    allow(FormSubmissionAttempt).to receive(:find).and_return(form_submission_attempt)
+    allow(UserAccount).to receive(:find_by).with(id: user_account.id).and_return(user_account)
+    allow(FormSubmissionAttempt).to receive(:find_by).with(id: form_submission_attempt.id).and_return(form_submission_attempt)
     allow(SimpleFormsApi::NotificationEmail).to receive(:new).and_return(notification_email)
     allow(SimpleFormsApi::FormUploadNotificationEmail).to receive(:new).and_return(form_upload_notification_email)
     allow(StatsD).to receive(:increment)
+    allow(Rails.logger).to receive(:error)
   end
 
   describe '#perform' do
     subject(:perform) { described_class.new.perform(args) }
 
-    before { perform }
+    context 'when the form is submitted using the digital form submission tool' do
+      before { perform }
 
-    context 'form was submitted with a digital form submission tool' do
-      it 'sends the email' do
+      it 'sends a notification email' do
         expect(notification_email).to have_received(:send).with(at: anything)
-      end
-
-      context 'SimpleFormsApi::NotificationEmail initialization fails' do
-        it 'increments statsd' do
-          expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
-        end
       end
     end
 
-    context 'form was submitted with Form Upload tool' do
-      it 'sends the email' do
-        expect(form_upload_notification_email).to have_received(:send).with(at: anything)
+    context 'when the form is submitted with Form Upload tool' do
+      before do
+        allow(SimpleFormsApi::FormUploadNotificationEmail).to receive(:SUPPORTED_FORMS).and_return([form_number])
+        perform
       end
 
-      context 'SimpleFormsApi::FormUploadNotificationEmail initialization fails' do
-        before do
-          allow(SimpleFormsApi::FormUploadNotificationEmail).to receive(:new).and_raise(ArgumentError)
-        end
+      it 'sends a form upload notification email' do
+        expect(form_upload_notification_email).to have_received(:send).with(at: anything)
+      end
+    end
 
-        it 'increments statsd' do
-          expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
-        end
+    context 'when an error occurs during email sending' do
+      before do
+        allow(SimpleFormsApi::NotificationEmail).to receive(:new).and_raise(StandardError, 'Test error')
+      end
+
+      it 'logs an error' do
+        expect(Rails.logger).to receive(:error).with(/Test error/)
+        expect { perform }.to raise_error(StandardError, 'Test error')
+      end
+
+      it 'increments StatsD for silent failures' do
+        expect(StatsD).to receive(:increment).with('silent_failure', tags: anything)
+        expect { perform }.to raise_error(StandardError)
+      end
+    end
+
+    context 'when required arguments are missing' do
+      let(:args) { {} }
+
+      it 'raises an ArgumentError' do
+        expect { perform }.to raise_error(ArgumentError, /Expected a Hash, got/)
       end
     end
   end
@@ -63,24 +78,8 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
   describe '#perform_async' do
     subject(:perform_async) { described_class.perform_async(args) }
 
-    before do
-      perform_async
-    end
-
     it 'enqueues the job' do
-      expect(described_class).to respond_to(:perform_async)
-    end
-
-    it 'finds the user account' do
-      expect(UserAccount).to have_received(:find).with(user_account.id)
-    end
-
-    it 'finds the form submission attempt' do
-      expect(FormSubmissionAttempt).to have_received(:find).with(form_submission_attempt.id)
-    end
-
-    it 'initializes the notification email' do
-      expect(SimpleFormsApi::NotificationEmail).to have_received(:new)
+      expect { perform_async }.to change(described_class.jobs, :size).by(1)
     end
   end
 end
