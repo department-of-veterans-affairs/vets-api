@@ -3,6 +3,7 @@ module MyHealth
     class TooltipsController < ApplicationController
       before_action :set_user_account, only: [:index, :create, :update]
       before_action :set_tooltip, only: [:update]
+      service_tag 'mhv-messaging'
 
       def index
         tooltips = @user_account.tooltips
