@@ -151,6 +151,10 @@ features:
     actor_type: user
     description: Correctly formats the `va:attachments` XML for file uploads
     enable_in_development: true
+  ezr_route_guard_enabled:
+    actor_type: user
+    description: Enables the route guard authentication for 10-10EZR application
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
