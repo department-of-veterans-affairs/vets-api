@@ -2,8 +2,7 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "required": [
-    "data",
-    "included"
+    "data"
   ],
   "properties": {
     "data": {
@@ -38,7 +37,8 @@
             "senderName",
             "recipientId",
             "recipientName",
-            "readReceipt"
+            "readReceipt",
+            "suggestedNameDisplay"
           ],
           "properties": {
             "messageId": {
@@ -91,6 +91,12 @@
                 "null",
                 "string"
               ]
+            },
+            "suggestedNameDisplay": {
+              "type": [
+                "null",
+                "string"
+              ]
             }
           }
         },
@@ -139,59 +145,6 @@
           "properties": {
             "self": {
               "type": "string"
-            }
-          }
-        }
-      }
-    },
-    "included": {
-      "type": "array",
-      "minItems": 0,
-      "uniqueItems": true,
-      "items": {
-        "required": [
-          "id",
-          "type",
-          "attributes",
-          "links"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "type": {
-            "enum": [
-              "attachments"
-            ]
-          },
-          "attributes": {
-            "type": "object",
-            "required": [
-              "messageId",
-              "name",
-              "attachmentSize"
-            ],
-            "properties": {
-              "messageId": {
-                "type": "integer"
-              },
-              "name": {
-                "type": "string"
-              },
-              "attachmentSize": {
-                "type": "integer"
-              }
-            }
-          },
-          "links": {
-            "type": "object",
-            "required": [
-              "download"
-            ],
-            "properties": {
-              "download": {
-                "type": "string"
-              }
             }
           }
         }

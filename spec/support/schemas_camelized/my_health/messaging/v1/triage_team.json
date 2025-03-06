@@ -4,10 +4,8 @@
   "required": [
     "triageTeamId",
     "name",
-    "stationNumber",
-    "blockedStatus",
-    "preferredTeam",
-    "relationshipType"
+    "relationType",
+    "preferredTeam"
   ],
   "properties": {
     "triageTeamId": {
@@ -16,17 +14,11 @@
     "name": {
       "type": "string"
     },
-    "stationNumber": {
+    "relationType": {
       "type": "string"
-    },
-    "blockedStatus": {
-      "type": "boolean"
     },
     "preferredTeam": {
       "type": "boolean"
-    },
-    "relationshipType": {
-      "type": "string"
     }
   }
 }

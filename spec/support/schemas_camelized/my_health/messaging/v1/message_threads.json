@@ -33,7 +33,8 @@
               "hasAttachment",
               "unsentDrafts",
               "unreadMessages",
-              "isOhMessage"
+              "isOhMessage",
+              "suggestedNameDisplay"
             ],
             "properties": {
               "threadId": { "type": "integer" },
@@ -63,7 +64,8 @@
               "hasAttachment": { "type": "boolean" },
               "unsentDrafts": { "type": "boolean" },
               "unreadMessages": { "type": "boolean" },
-              "isOhMessage": { "type": "boolean" }
+              "isOhMessage": { "type": "boolean" },
+              "suggestedNameDisplay": { "type": ["null", "string"] }
             }
           },
           "links": {

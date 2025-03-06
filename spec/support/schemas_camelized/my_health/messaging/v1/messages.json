@@ -39,7 +39,8 @@
               "senderName",
               "recipientId",
               "recipientName",
-              "readReceipt"
+              "readReceipt",
+              "suggestedNameDisplay"
             ],
             "properties": {
               "messageId": {
@@ -79,6 +80,9 @@
                 "type": ["null", "string"]
               },
               "proxySenderName": {
+                "type": ["null", "string"]
+              },
+              "suggestedNameDisplay": {
                 "type": ["null", "string"]
               }
             }

@@ -32,7 +32,9 @@
               "proxy_sender_name",
               "has_attachment",
               "unsent_drafts",
-              "unread_messages"
+              "unread_messages",
+              "is_oh_message",
+              "suggested_name_display"
             ],
             "properties": {
               "thread_id": { "type": "integer" },
@@ -61,7 +63,9 @@
               "proxy_sender_name": { "type": ["null", "string"] },
               "has_attachment": { "type": "boolean" },
               "unsent_drafts": { "type": "boolean" },
-              "unread_messages": { "type": "boolean" }
+              "unread_messages": { "type": "boolean" },
+              "is_oh_message": { "type": "boolean" },
+              "suggested_name_display": { "type": ["null", "string"] }
             }
           },
           "links": {
