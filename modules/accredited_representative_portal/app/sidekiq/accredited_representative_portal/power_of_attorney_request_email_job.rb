@@ -19,22 +19,20 @@ module AccreditedRepresentativePortal
 
     def perform(email,
                 template_id,
-                poa_request_id,
-                request_notification_type,
+                poa_request_notification_id,
+                personalisation = nil,
                 api_key = Settings.vanotify.services.va_gov.api_key)
       notify_client = VaNotify::Service.new(api_key, {})
 
       response = notify_client.send_email(
-        **{
+        {
           email_address: email,
-          template_id:
+          template_id:,
+          personalisation:
         }.compact
       )
-      AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.create!(
-        type: request_notification_type,
-        power_of_attorney_request: PowerOfAttorneyRequest.find(poa_request_id),
-        notification_id: response['id']
-      )
+      poa_request_notification = AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.find(poa_request_notification_id)
+      poa_request_notification.update!(notification_id: response['id'])
     rescue VANotify::Error => e
       handle_backend_exception(e, template_id)
     end
