@@ -203,9 +203,9 @@ class FormProfiles::VA526ez < FormProfile
     # Logging was added below to contrast/compare completeness of contact information returned
     # from VA Profile alone versus VA Profile + PCIU. This logging will be removed when the Flipper flag is.
     Rails.logger.info("remove_pciu=#{Flipper.enabled?(:remove_pciu, user)}," \
-                        "mailing_address=#{contact_info[:mailing_address].present?}," \
-                        "email_address=#{contact_info[:email_address].present?}," \
-                        "primary_phone=#{contact_info[:primary_phone].present?}")
+                      "mailing_address=#{contact_info[:mailing_address].present?}," \
+                      "email_address=#{contact_info[:email_address].present?}," \
+                      "primary_phone=#{contact_info[:primary_phone].present?}")
 
     contact_info = VA526ez::FormContactInformation.new(contact_info)
 
