@@ -268,17 +268,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
-  describe '#generate_attachment_ids' do
-    it 'generates the correct attachment ids' do
-      attachments = [double('Attachment', id: 1), double('Attachment', id: 2)]
-
-      allow(controller).to receive(:generate_attachment_ids).and_return(attachments.map(&:id))
-
-      result = controller.generate_attachment_ids
-      expect(result).to eq([1, 2])
-    end
-  end
-
   describe '#supporting_document_ids' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:parsed_form_data) do
