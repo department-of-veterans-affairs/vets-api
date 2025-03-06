@@ -3,7 +3,7 @@
 module MyHealth
   module V1
     class TooltipsController < ApplicationController
-      before_action :set_user_account, only: [:index, :create, :update]
+      before_action :set_user_account, only: %i[index create update]
       before_action :set_tooltip, only: [:update]
       service_tag 'mhv-medications'
 
@@ -13,41 +13,34 @@ module MyHealth
       end
 
       def create
-        begin
           tooltip = @user_account.tooltips.build(tooltip_params)
           tooltip.last_signed_in = current_user.last_signed_in
           tooltip.save!
           render json: tooltip, status: :created
         rescue ActiveRecord::RecordInvalid => e
           render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
-        rescue StandardError => e
-          log_and_render_error(e, "Error creating tooltip")
-        end
+        rescue => e
+          log_and_render_error(e, 'Error creating tooltip')
       end
 
+      # Checks for session uniqueness before incrementing.
+      # If there are 3 unique sessions the hidden counter is switched to true, purpose: hide the tooltip in the view.
+      # User can choose to hide the tooltip before reaching 3 unique sessions.
       def update
-        unless params[:tooltip].present?
+        if params[:tooltip].blank?
           render json: { error: "Request body must contain a 'tooltip' object." }, status: :bad_request
           return
         end
 
         if @tooltip.update(tooltip_params)
           if params[:tooltip][:increment_counter] == 'true'
-            # Check for session uniqueness before incrementing. Business logic: if there are 3 unique sessions the hidden counter will be switched to true, purpose is to hide the tooltip in the view.
-            if @tooltip.last_signed_in != current_user.last_signed_in
-              @tooltip.counter += 1
-              @tooltip.last_signed_in = current_user.last_signed_in
-              @tooltip.hidden = true if @tooltip.counter >= 3
-              @tooltip.save
-            end
+            increment_counter_if_new_session(@tooltip)
           end
-          # User can choose to hide the tooltip before reaching 3 unique sessions.
           @tooltip.update(hidden: params[:tooltip][:hidden]) if params[:tooltip][:hidden].present?
           render json: @tooltip
         else
           render json: { errors: @tooltip.errors.full_messages }, status: :unprocessable_entity
         end
-
       rescue ActiveRecord::RecordNotFound => e
         log_and_render_error(e, "Tooltip not found")
       rescue ActiveRecord::RecordInvalid => e
