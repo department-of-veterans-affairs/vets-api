@@ -208,7 +208,8 @@ describe Eps::RedisClient do
           end_date:
         }
 
-        expect(redis_client.fetch_referral_attributes(referral_number:)).to eq(expected_attributes.with_indifferent_access)
+        referral_attrs = redis_client.fetch_referral_attributes(referral_number:)
+        expect(referral_attrs).to eq(expected_attributes.with_indifferent_access)
       end
     end
 
