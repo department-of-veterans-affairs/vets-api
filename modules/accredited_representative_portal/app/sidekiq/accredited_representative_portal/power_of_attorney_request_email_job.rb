@@ -31,7 +31,7 @@ module AccreditedRepresentativePortal
           personalisation:
         }.compact
       )
-      poa_request_notification = AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.find(poa_request_notification_id)
+      poa_request_notification = PowerOfAttorneyRequestNotification.find(poa_request_notification_id)
       poa_request_notification.update!(notification_id: response['id'])
     rescue VANotify::Error => e
       handle_backend_exception(e, template_id)
