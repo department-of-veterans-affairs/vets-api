@@ -28,32 +28,31 @@ module HCA
         'groupNumber' => 'insuranceGroupCode'
       }.freeze
 
-      MARITAL_STATUSES = %w[
-        Married
-        Never Married
-        Separated
-        Widowed
-        Divorced
+      MARITAL_STATUSES = [
+        'Married',
+        'Never Married',
+        'Separated',
+        'Widowed',
+        'Divorced'
       ].freeze
 
       MEDICARE = 'Medicare'
 
-      def get_ezr_data(icn)
+      def get_ezr_prefill_data(icn)
         response = with_monitoring do
           lookup_user_req(icn)
         end
 
+        financial_info = parse_financial_info(response)
         providers = parse_insurance_providers(response)
         dependents = parse_dependents(response)
         spouse = parse_spouse(response)
 
-        OpenStruct.new(
-          convert_insurance_hash(
-            response, providers
-          ).merge(
-            dependents.present? ? { dependents: } : {}
-          ).merge(spouse)
-        )
+        financial_info.merge!(
+          convert_insurance_hash(response, providers)
+        ).merge!(
+          dependents.present? ? { dependents: } : {}
+        ).merge!(spouse)
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -135,6 +134,72 @@ module HCA
         marital_status
       end
 
+      def find_financial_node(parent_node, node_value)
+        parent_node.nodes.select { |node| node.value == node_value }.first&.nodes&.first
+      end
+
+      def get_income(response, xpath)
+        income = {}
+
+        response.locate(xpath)&.each do |i|
+          type = find_financial_node(i, 'type')
+          amount = find_financial_node(i, 'amount')
+
+          case type
+          when 'Total Employment Income'
+            income[:grossIncome] = amount
+          when 'Net Income from Farm, Ranch, Property, Business'
+            income[:netIncome] = amount
+          when 'All Other Income'
+            income[:otherIncome] = amount
+          end
+        end
+
+        income
+      end
+
+      def get_expenses(response, xpath)
+        expenses = {}
+
+        response.locate(xpath)&.each do |i|
+          type = find_financial_node(i, 'expenseType')
+          amount = find_financial_node(i, 'amount')
+
+          case type
+          when 'Funeral and Burial Expenses'
+            expenses[:deductibleFuneralExpenses] = amount
+          when 'Total Non-Reimbursed Medical Expenses'
+            expenses[:deductibleMedicalExpenses] = amount
+          when "Veteran's Educational Expenses"
+            expenses[:deductibleEducationExpenses] = amount
+          end
+        end
+
+        expenses
+      end
+
+      def parse_financial_info(response)
+        financial_info_xpath = "#{XPATH_PREFIX}financialsInfo/financialStatement/"
+
+        Common::HashHelpers.deep_compact(
+          {
+            veteranFinancialInfo: get_income(
+              response,
+              "#{financial_info_xpath}incomes/income"
+            ).merge!(
+              get_expenses(
+                response,
+                "#{financial_info_xpath}expenses/expense"
+              )
+            ),
+            spouseFinancialInfo: get_income(
+              response,
+              "#{financial_info_xpath}spouseFinancialsList/spouseFinancials/incomes/income"
+            )
+          }
+        )
+      end
+
       # rubocop:disable Metrics/MethodLength
       def parse_spouse(response)
         spouse_financials_xpath =
@@ -172,6 +237,10 @@ module HCA
             spouseSocialSecurityNumber: get_locate_value(
               response,
               "#{spouse_financials_xpath}spouse/ssns/ssn/ssnText"
+            ),
+            spouseIncomeYear: get_locate_value(
+              response,
+              "#{spouse_financials_xpath}incomeYear"
             )
           }
         )
