@@ -1891,9 +1891,10 @@ RSpec.describe FormProfile, type: :model do
               VAProfile::Configuration::SETTINGS.prefill = true # TODO: - is this missing in the failures above?
               expected_veteran_info = v21_526_ez_expected['veteran']
               expected_veteran_info['emailAddress'] =
-                VAProfileRedis::ContactInformation.for_user(user).email.email_address
+                VAProfileRedis::V2::ContactInformation.for_user(user).email.email_address
               expected_veteran_info['primaryPhone'] = '3035551234'
               allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+              allow(Flipper).to receive(:enabled?).with(:remove_pciu, anything).and_return(true)
             end
 
             after do
