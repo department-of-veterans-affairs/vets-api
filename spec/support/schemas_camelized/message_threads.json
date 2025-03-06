@@ -32,8 +32,7 @@
               "proxySenderName",
               "hasAttachment",
               "unsentDrafts",
-              "unreadMessages",
-              "isOhMessage"
+              "unreadMessages"
             ],
             "properties": {
               "threadId": { "type": "integer" },
@@ -62,8 +61,7 @@
               "proxySenderName": { "type": ["null", "string"] },
               "hasAttachment": { "type": "boolean" },
               "unsentDrafts": { "type": "boolean" },
-              "unreadMessages": { "type": "boolean" },
-              "isOhMessage": { "type": "boolean" }
+              "unreadMessages": { "type": "boolean" }
             }
           },
           "links": {
