@@ -17,26 +17,26 @@ module Swagger::Schemas
       property :id, type: :string, example: '33333333-5555-4444-bbbb-222222444444'
       property :claimNumber, type: :string, example: 'TC1234123412341234'
       property :claimStatus, type: :string, enum: [
-        'Pre Approved For Payment',
+        'Pre approved for payment',
         'Saved',
-        'In Process',
+        'In process',
         'Pending',
-        'On Hold',
-        'In Manual Review',
-        'Submitted For Payment',
-        'Claim Paid',
+        'On hold',
+        'In manual review',
+        'Submitted for payment',
+        'Claim paid',
         'Incomplete',
         'Appeal',
         'Denied',
-        'Closed With No Payment',
-        'Claim Submitted',
-        'Approved For Payment',
-        'Approved For Payment Incomplete',
-        'Payment Canceled',
-        'Partial Payment',
-        'Fiscal Rescinded',
+        'Closed with no payment',
+        'Claim submitted',
+        'Approved for payment',
+        'Approved for payment incomplete',
+        'Payment canceled',
+        'Partial payment',
+        'Fiscal rescinded',
         'Unspecified'
-      ], example: 'Claim Paid'
+      ], example: 'Claim paid'
       property :appointmentDateTime, type: :string, example: '2024-06-13T13:57:07.291Z'
       property :facilityName, type: :string, example: 'Cheyenne VA Medical Center'
       property :createdOn, type: :string, example: '2024-06-13T13:57:07.291Z'
