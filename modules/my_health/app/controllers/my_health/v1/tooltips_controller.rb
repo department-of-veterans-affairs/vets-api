@@ -75,7 +75,6 @@ module MyHealth
 
       def set_user_account
         @user_account = current_user.user_account
-        render json: { error: 'User account not found' }, status: :not_found if @user_account.nil?
       end
     end
   end
