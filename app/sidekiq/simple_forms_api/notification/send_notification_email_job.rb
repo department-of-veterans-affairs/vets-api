@@ -58,11 +58,11 @@ module SimpleFormsApi
       end
 
       def form_upload_notification_email
-        SimpleFormsApi::FormUploadNotificationEmail.new(@config, notification_type:)
+        SimpleFormsApi::FormUploadNotificationEmail.new(config, notification_type:)
       end
 
       def notification_email
-        SimpleFormsApi::NotificationEmail.new(@config, notification_type:, user_account:)
+        SimpleFormsApi::NotificationEmail.new(config, notification_type:, user_account:)
       end
 
       def time_to_send
@@ -82,7 +82,7 @@ module SimpleFormsApi
             error: 'Error sending simple forms notification email',
             message: e.message,
             notification_type:,
-            confirmation_number: @config&.dig(:confirmation_number)
+            confirmation_number: config&.dig(:confirmation_number)
           }.to_json
         )
 
