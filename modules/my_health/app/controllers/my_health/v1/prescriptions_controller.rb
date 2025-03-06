@@ -13,6 +13,7 @@ module MyHealth
       # @param per_page - the number of items to fetch per page
       # @param sort - the attribute to sort on, negated for descending, use sort[]= for multiple argument query params
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
+      # Test comment
       def index
         resource = collection_resource
         resource.data = resource_data_modifications(resource)
