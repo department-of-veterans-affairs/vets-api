@@ -50,7 +50,7 @@ module AccreditedRepresentativePortal
         notification = poa_request.notifications.create!(type: 'declined')
         form = poa_request.power_of_attorney_form
         claimant = form.parsed_data['dependent'] || form.parsed_data['veteran']
-        next unless claimant && claimant['email']
+        return unless claimant && claimant['email']
 
         first_name = claimant['name']['first']
         PowerOfAttorneyRequestEmailJob.perform_async(
