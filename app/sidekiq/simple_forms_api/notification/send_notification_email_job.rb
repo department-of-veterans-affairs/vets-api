@@ -78,12 +78,10 @@ module SimpleFormsApi
 
       def handle_exception(e)
         Rails.logger.error(
-          {
-            error: 'Error sending simple forms notification email',
-            message: e.message,
-            notification_type:,
-            confirmation_number: config&.dig(:confirmation_number)
-          }.to_json
+          'Error sending simple forms notification email',
+          message: e.message,
+          notification_type:,
+          confirmation_number: config&.dig(:confirmation_number)
         )
 
         StatsD.increment('silent_failure', tags: statsd_tags) if notification_type == :error
