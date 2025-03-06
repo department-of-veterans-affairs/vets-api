@@ -32,7 +32,7 @@ valid_data = {
       middleInitial: 'T',
       ssn: '345345345',
       emailAddress: 'johnny@alvin.gov',
-      phoneNumber: '(555) 555-1234',
+      phoneNumber: '+1 (555) 555-1234',
       gender: 'MALE',
       enrolledInMedicare: true,
       hasOtherInsurance: true,
