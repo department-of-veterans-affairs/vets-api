@@ -7,16 +7,12 @@ require 'sidekiq/testing'
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob, type: :job do
   subject { described_class.new }
 
-  let(:vcr_path) do
-    'accredited_representative_portal/sidekiq/accredited_representative_portal/' \
-      'power_of_attorney_form_submission_job_spec/'
-  end
   let(:poa_form_submission) do
     create(:power_of_attorney_form_submission, service_id: '29b7c214-4a61-425e-97f2-1a56de869524')
   end
 
   before do
-    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('<TOKEN>')
     poa_form_submission.power_of_attorney_request.claimant.update(icn: '123498767V234859')
   end
 
@@ -30,7 +26,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob,
 
         it 'the form submission remains in enqueue_succeeded status' do
           expect do
-            VCR.use_cassette("#{vcr_path}200_pending_response") do
+            use_cassette('200_pending_response') do
               subject.perform(poa_form_submission.id)
             end
           end.to raise_error(described_class::PendingSubmissionError)
@@ -49,7 +45,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob,
 
         it 'the form submission remains in enqueue_succeeded status' do
           expect do
-            VCR.use_cassette("#{vcr_path}200_submitted_response") do
+            use_cassette('200_submitted_response') do
               subject.perform(poa_form_submission.id)
             end
           end.to raise_error(described_class::PendingSubmissionError)
@@ -67,7 +63,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob,
         end
 
         it 'updates the form submission as successful' do
-          VCR.use_cassette("#{vcr_path}200_updated_response") do
+          use_cassette('200_updated_response') do
             subject.perform(poa_form_submission.id)
           end
           poa_form_submission.reload
@@ -86,7 +82,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob,
           end
 
           it 'updates the form submission as failed' do
-            VCR.use_cassette("#{vcr_path}200_errored_response") do
+            use_cassette('200_errored_response') do
               subject.perform(poa_form_submission.id)
             end
             poa_form_submission.reload
@@ -115,7 +111,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob,
       it 'updates the form submission and raises an error' do
         poa_form_submission.update(service_id: '491b878a-d977-40b8-8de9-7ba302307a48')
         expect do
-          VCR.use_cassette("#{vcr_path}404_response") do
+          use_cassette('404_response') do
             subject.perform(poa_form_submission.id)
           end
         end.to raise_error(Common::Exceptions::ResourceNotFound)
