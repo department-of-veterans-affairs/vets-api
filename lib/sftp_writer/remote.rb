@@ -41,8 +41,26 @@ module SFTPWriter
     def write(contents, filename)
       path = File.join([write_path(filename), sanitize(filename)].compact)
       @logger.info("Writing #{path}")
-      mkdir_safe(path)
-      sftp.upload!(StringIO.new(contents), path) if Settings.hostname.eql?('api.va.gov') # only sftp on production
+
+      # only sftp on production. There were repeated issues with test data getting into TIMS
+      # The decision was made to push spool files only on production
+      bytes_sent = 0
+
+      if Settings.hostname.eql?('api.va.gov')
+        mkdir_safe(path)
+        sftp.upload!(StringIO.new(contents), path) do |_event, _uploader, offset, _data|
+          bytes_sent = offset
+        end
+      end
+
+      # There was a scenario where the hostname on production accidentally got changed and
+      # nothing got sent as a result. We were requested to log how many bytes were sent to
+      # help track down the issue if it ever happens again.
+      if bytes_sent.positive?
+        @logger.info("Uploaded #{bytes_sent} bytes to #{path}")
+      else
+        @logger.warn("Warning: Uploaded 0 bytes to #{path}")
+      end
     end
 
     private
