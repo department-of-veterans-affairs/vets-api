@@ -117,7 +117,7 @@ module DecisionReviews
       status = attributes['status']
 
       [status, attributes]
-    rescue DecisionReviewV1::ServiceException => e
+    rescue DecisionReviews::V1::ServiceException => e
       raise e unless e.key == NOT_FOUND
 
       Rails.logger.error("#{log_prefix} error", { guid: record.guid, message: e.message })
@@ -147,7 +147,7 @@ module DecisionReviews
       response = get_evidence_status(guid)
       attributes = response.dig('data', 'attributes').slice(*ATTRIBUTES_TO_STORE)
       attributes.merge('id' => guid)
-    rescue DecisionReviewV1::ServiceException => e
+    rescue DecisionReviews::V1::ServiceException => e
       raise e unless e.key == NOT_FOUND
 
       Rails.logger.error("#{log_prefix} get_evidence_status error", { guid:, message: e.message })
