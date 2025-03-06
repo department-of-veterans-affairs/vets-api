@@ -1,0 +1,587 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpProcWebServiceBeanV2/VnpProcServiceV2"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://procService.services.v2.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600043284</vaws:ExternalUid>
+              <vaws:ExternalKey>600043284</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpProcCreate><arg0>
+          <VnpProcDTO>
+            <vnpProcTypeCd>POAAUTHZ</vnpProcTypeCd>
+          </VnpProcDTO>
+        </arg0>
+        </tns:vnpProcCreate>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpProcCreate"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 15:58:44 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpProcCreateResponse
+        xmlns:ns0="http://procService.services.v2.vonapp.vba.va.gov/"><return><vnpProcId>3860072</vnpProcId></return></ns0:vnpProcCreateResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 06 Mar 2025 15:58:44 GMT
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpPtcpntWebServiceBean/VnpPtcpntService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://ptcpntService.services.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600043284</vaws:ExternalUid>
+              <vaws:ExternalKey>600043284</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpPtcpntCreate><arg0>
+          <vnpProcId>3860072</vnpProcId><vnpPtcpntId xsi:nil="true"/><fraudInd xsi:nil="true"/><legacyPoaCd xsi:nil="true"/><miscVendorInd xsi:nil="true"/><ptcpntShortNm xsi:nil="true"/><ptcpntTypeNm>Person</ptcpntTypeNm><taxIdfctnNbr xsi:nil="true"/><tinWaiverReasonTypeCd xsi:nil="true"/><ptcpntFkPtcpntId xsi:nil="true"/><corpPtcpntId>600043284</corpPtcpntId><jrnDt>2025-03-06T15:58:45Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId>
+          </arg0>
+        </tns:vnpPtcpntCreate>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpPtcpntCreate"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 15:58:48 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPtcpntCreateResponse
+        xmlns:ns0="http://ptcpntService.services.vonapp.vba.va.gov/"><return><vnpPtcpntId>188815</vnpPtcpntId><vnpProcId>3860072</vnpProcId><jrnDt>2025-03-06T15:58:45Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><ptcpntTypeNm>Person</ptcpntTypeNm><corpPtcpntId>600043284</corpPtcpntId></return></ns0:vnpPtcpntCreateResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 06 Mar 2025 15:58:48 GMT
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpProcFormWebServiceBean/VnpProcFormService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://procFormService.services.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600043284</vaws:ExternalUid>
+              <vaws:ExternalKey>600043284</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpProcFormCreate><arg0>
+          <compId>
+            <vnpProcId>3860072</vnpProcId>
+            <formTypeCd>21-22</formTypeCd>
+          </compId>
+        <vnpPtcpntId xsi:nil="true"/><jrnDt>2025-03-06T15:58:44Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId>
+        </arg0>
+        </tns:vnpProcFormCreate>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpProcFormCreate"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 15:58:48 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Oracle-Dms-Ecid:
+      - d06e8ac8-f369-4b3f-84d2-41e70be2d6ac-000049b8
+      X-Oracle-Dms-Rid:
+      - '0'
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpProcFormCreateResponse
+        xmlns:ns0="http://procFormService.services.vonapp.vba.va.gov/"><return><compId><vnpProcId>3860072</vnpProcId><formTypeCd>21-22</formTypeCd></compId><jrnDt>2025-03-06T09:58:44-06:00</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId></return></ns0:vnpProcFormCreateResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 06 Mar 2025 15:58:48 GMT
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpPersonWebServiceBean/VnpPersonService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://personService.services.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600043284</vaws:ExternalUid>
+              <vaws:ExternalKey>600043284</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpPersonCreate><arg0>
+          <jrnDt>2025-03-06T15:58:48Z</jrnDt>
+          <jrnLctnId>281</jrnLctnId>
+          <jrnStatusTypeCd>U</jrnStatusTypeCd>
+          <jrnUserId>VAgovAPI</jrnUserId>
+          <jrnObjId>VAgovAPI</jrnObjId>
+          <vnpProcId>3860072</vnpProcId>
+          <vnpPtcpntId>188815</vnpPtcpntId>
+          <firstNm xsi:nil="true"/>
+          <lastNm xsi:nil="true"/>
+          <brthdyDt xsi:nil="true"/>
+          <ssnNbr xsi:nil="true"/>
+          <fileNbr xsi:nil="true"/>
+        </arg0>
+        </tns:vnpPersonCreate>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpPersonCreate"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 15:58:49 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Oracle-Dms-Ecid:
+      - d06e8ac8-f369-4b3f-84d2-41e70be2d6ac-000049ba
+      X-Oracle-Dms-Rid:
+      - '0'
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: "<?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env=\"http://schemas.xmlsoap.org/soap/envelope/\"
+        xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\"><env:Header><work:WorkContext
+        xmlns:work=\"http://oracle.com/weblogic/soap/workarea/\">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:Fault
+        xmlns:ns0=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:ns1=\"http://www.w3.org/2003/05/soap-envelope\"><faultcode>ns0:Server</faultcode><faultstring>EJB
+        Exception: : &lt;openjpa-1.1.1-SNAPSHOT-r422266:1445923 fatal general error>
+        org.apache.openjpa.persistence.PersistenceException: The transaction has been
+        rolled back.  See the nested exceptions for details on the errors that occurred.\n\tat
+        org.apache.openjpa.kernel.BrokerImpl.newFlushException(BrokerImpl.java:2170)\n\tat
+        org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:2017)\n\tat org.apache.openjpa.kernel.BrokerImpl.flushSafe(BrokerImpl.java:1915)\n\tat
+        org.apache.openjpa.kernel.BrokerImpl.flush(BrokerImpl.java:1686)\n\tat org.apache.openjpa.kernel.QueryImpl.isInMemory(QueryImpl.java:955)\n\tat
+        org.apache.openjpa.kernel.QueryImpl.execute(QueryImpl.java:795)\n\tat org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:883)\n\tat
+        kodo.kernel.KodoQuery.updateAll(KodoQuery.java:67)\n\tat org.apache.openjpa.kernel.QueryImpl.updateAll(QueryImpl.java:879)\n\tat
+        kodo.kernel.KodoQuery.updateAll(KodoQuery.java:63)\n\tat org.apache.openjpa.kernel.DelegatingQuery.updateAll(DelegatingQuery.java:565)\n\tat
+        org.apache.openjpa.persistence.QueryImpl.executeUpdate(QueryImpl.java:322)\n\tat
+        sun.reflect.GeneratedMethodAccessor2876.invoke(Unknown Source)\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat
+        java.lang.reflect.Method.invoke(Method.java:498)\n\tat weblogic.persistence.InterceptingInvocationHandlerImpl.invoke(InterceptingInvocationHandlerImpl.java:24)\n\tat
+        com.sun.proxy.$Proxy880.executeUpdate(Unknown Source)\n\tat gov.va.vba.benefits.vdc.util.Util.clearDBGlobals(Unknown
+        Source)\n\tat gov.va.vba.vonapp.services.personService.VnpPersonWebServiceBean.vnpPersonCreate(Unknown
+        Source)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat
+        sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n\tat
+        sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat
+        java.lang.reflect.Method.invoke(Method.java:498)\n\tat com.bea.core.repackaged.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:344)\n\tat
+        com.bea.core.repackaged.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:198)\n\tat
+        com.bea.core.repackaged.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\n\tat
+        com.oracle.pitchfork.intercept.MethodInvocationInvocationContext.proceed(MethodInvocationInvocationContext.java:101)\n\tat
+        com.oracle.pitchfork.intercept.JeeInterceptorInterceptor.invoke(JeeInterceptorInterceptor.java:101)\n\tat
+        com.bea.core.repackaged.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\n\tat
+        com.oracle.pitchfork.intercept.MethodInvocationInvocationContext.proceed(MethodInvocationInvocationContext.java:101)\n\tat
+        org.jboss.weld.ejb.AbstractEJBRequestScopeActivationInterceptor.aroundInvoke(AbstractEJBRequestScopeActivationInterceptor.java:73)\n\tat
+        org.jboss.weld.ejb.SessionBeanInterceptor.aroundInvoke(SessionBeanInterceptor.java:52)\n\tat
+        sun.reflect.GeneratedMethodAccessor506.invoke(Unknown Source)\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat
+        java.lang.reflect.Method.invoke(Method.java:498)\n\tat com.oracle.pitchfork.intercept.JeeInterceptorInterceptor.invoke(JeeInterceptorInterceptor.java:94)\n\tat
+        com.bea.core.repackaged.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\n\tat
+        com.bea.core.repackaged.springframework.aop.support.DelegatingIntroductionInterceptor.doProceed(DelegatingIntroductionInterceptor.java:137)\n\tat
+        com.bea.core.repackaged.springframework.aop.support.DelegatingIntroductionInterceptor.invoke(DelegatingIntroductionInterceptor.java:124)\n\tat
+        com.bea.core.repackaged.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\n\tat
+        com.bea.core.repackaged.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:241)\n\tat
+        com.sun.proxy.$Proxy980.vnpPersonCreate(Unknown Source)\n\tat gov.va.vba.vonapp.services.personService.VnpPersonWebServiceBean_mfemv4_WSOImpl.__WL_invoke(Unknown
+        Source)\n\tat weblogic.ejb.container.internal.WSOMethodInvoker.invoke(WSOMethodInvoker.java:24)\n\tat
+        gov.va.vba.vonapp.services.personService.VnpPersonWebServiceBean_mfemv4_WSOImpl.__WL_vnpPersonCreate_WS(Unknown
+        Source)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat
+        sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n\tat
+        sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat
+        java.lang.reflect.Method.invoke(Method.java:498)\n\tat weblogic.wsee.server.ejb.WsEjb.invoke(WsEjb.java:55)\n\tat
+        weblogic.wsee.jaxws.WLSEjbInstanceResolver$WLSEjbInvoker.invoke(WLSEjbInstanceResolver.java:196)\n\tat
+        weblogic.wsee.jaxws.WLSInstanceResolver$WLSInvoker.invoke(WLSInstanceResolver.java:93)\n\tat
+        com.sun.xml.ws.server.InvokerTube$2.invoke(InvokerTube.java:149)\n\tat com.sun.xml.ws.server.sei.SEIInvokerTube.processRequest(SEIInvokerTube.java:88)\n\tat
+        com.sun.xml.ws.api.pipe.Fiber.__doRun(Fiber.java:1136)\n\tat com.sun.xml.ws.api.pipe.Fiber._doRun(Fiber.java:1050)\n\tat
+        com.sun.xml.ws.api.pipe.Fiber.doRun(Fiber.java:1019)\n\tat com.sun.xml.ws.api.pipe.Fiber.runSync(Fiber.java:877)\n\tat
+        com.sun.xml.ws.server.WSEndpointImpl$2.process(WSEndpointImpl.java:419)\n\tat
+        com.sun.xml.ws.transport.http.HttpAdapter$HttpToolkit.handle(HttpAdapter.java:868)\n\tat
+        com.sun.xml.ws.transport.http.HttpAdapter.handle(HttpAdapter.java:422)\n\tat
+        com.sun.xml.ws.transport.http.servlet.ServletAdapter.handle(ServletAdapter.java:169)\n\tat
+        weblogic.wsee.jaxws.WLSServletAdapter.handle(WLSServletAdapter.java:246)\n\tat
+        weblogic.wsee.jaxws.HttpServletAdapter$AuthorizedInvoke.run(HttpServletAdapter.java:667)\n\tat
+        weblogic.security.acl.internal.AuthenticatedSubject.doAs(AuthenticatedSubject.java:386)\n\tat
+        weblogic.security.service.SecurityManager.runAs(SecurityManager.java:163)\n\tat
+        weblogic.wsee.util.ServerSecurityHelper.authenticatedInvoke(ServerSecurityHelper.java:108)\n\tat
+        weblogic.wsee.jaxws.HttpServletAdapter$3.run(HttpServletAdapter.java:286)\n\tat
+        weblogic.wsee.jaxws.HttpServletAdapter.post(HttpServletAdapter.java:295)\n\tat
+        weblogic.wsee.jaxws.JAXWSServlet.doRequest(JAXWSServlet.java:128)\n\tat weblogic.servlet.http.AbstractAsyncServlet.service(AbstractAsyncServlet.java:103)\n\tat
+        javax.servlet.http.HttpServlet.service(HttpServlet.java:790)\n\tat weblogic.servlet.internal.StubSecurityHelper$ServletServiceAction.run(StubSecurityHelper.java:295)\n\tat
+        weblogic.servlet.internal.StubSecurityHelper$ServletServiceAction.run(StubSecurityHelper.java:260)\n\tat
+        weblogic.servlet.internal.StubSecurityHelper.invokeServlet(StubSecurityHelper.java:137)\n\tat
+        weblogic.servlet.internal.ServletStubImpl.execute(ServletStubImpl.java:353)\n\tat
+        weblogic.servlet.internal.ServletStubImpl.execute(ServletStubImpl.java:250)\n\tat
+        weblogic.servlet.internal.WebAppServletContext$ServletInvocationAction.wrapRun(WebAppServletContext.java:3796)\n\tat
+        weblogic.servlet.internal.WebAppServletContext$ServletInvocationAction.run(WebAppServletContext.java:3766)\n\tat
+        weblogic.security.acl.internal.AuthenticatedSubject.doAs(AuthenticatedSubject.java:344)\n\tat
+        weblogic.security.service.SecurityManager.runAsForUserCode(SecurityManager.java:197)\n\tat
+        weblogic.servlet.provider.WlsSecurityProvider.runAsForUserCode(WlsSecurityProvider.java:203)\n\tat
+        weblogic.servlet.provider.WlsSubjectHandle.run(WlsSubjectHandle.java:71)\n\tat
+        weblogic.servlet.internal.WebAppServletContext.doSecuredExecute(WebAppServletContext.java:2454)\n\tat
+        weblogic.servlet.internal.WebAppServletContext.securedExecute(WebAppServletContext.java:2302)\n\tat
+        weblogic.servlet.internal.WebAppServletContext.execute(WebAppServletContext.java:2280)\n\tat
+        weblogic.servlet.internal.ServletRequestImpl.runInternal(ServletRequestImpl.java:1739)\n\tat
+        weblogic.servlet.internal.ServletRequestImpl.run(ServletRequestImpl.java:1699)\n\tat
+        weblogic.servlet.provider.ContainerSupportProviderImpl$WlsRequestExecutor.run(ContainerSupportProviderImpl.java:272)\n\tat
+        weblogic.invocation.ComponentInvocationContextManager._runAs(ComponentInvocationContextManager.java:352)\n\tat
+        weblogic.invocation.ComponentInvocationContextManager.runAs(ComponentInvocationContextManager.java:337)\n\tat
+        weblogic.work.LivePartitionUtility.doRunWorkUnderContext(LivePartitionUtility.java:57)\n\tat
+        weblogic.work.PartitionUtility.runWorkUnderContext(PartitionUtility.java:41)\n\tat
+        weblogic.work.SelfTuningWorkManagerImpl.runWorkUnderContext(SelfTuningWorkManagerImpl.java:655)\n\tat
+        weblogic.work.ExecuteThread.execute(ExecuteThread.java:420)\n\tat weblogic.work.ExecuteThread.run(ExecuteThread.java:360)\nCaused
+        by: &lt;openjpa-1.1.1-SNAPSHOT-r422266:1445923 nonfatal general error> org.apache.openjpa.persistence.PersistenceException:
+        ORA-01400: cannot insert NULL into (\"CORPPROD\".\"VNP_PERSON\".\"LAST_NM\")\n
+        {prepstmnt 750931 INSERT INTO VNP_PERSON (VNP_PTCPNT_ID, BIRTH_CITY_NM, BIRTH_CNTRY_NM,
+        BIRTH_STATE_CD, BRTHDY_DT, CMPTNY_DECN_TYPE_CD, DEATH_CITY_CNTRY_NM, DEATH_CNTRY_NM,
+        DEATH_DT, DEATH_STATE_CD, DEP_NBR, EMP_IND, ENTLMT_TYPE_CD, ETHNIC_TYPE_CD,
+        EVER_MARIED_IND, FID_DECN_CATEGY_TYPE_CD, FILE_NBR, FIRST_NM, FIRST_NM_KEY,
+        FRGN_SVC_NBR, GENDER_CD, JRN_DT, JRN_LCTN_ID, JRN_OBJ_ID, JRN_STATUS_TYPE_CD,
+        JRN_USER_ID, LAST_NM, LAST_NM_KEY, LGY_ENTLMT_TYPE_CD, MARTL_STATUS_TYPE_CD,
+        MIDDLE_NM, MIDDLE_NM_KEY, MLTY_PERSON_IND, MONTHS_PRESNT_EMPLYR_NBR, NET_WORTH_AMT,
+        NO_SSN_REASON_TYPE_CD, OCPTN_TXT, PERSON_DEATH_CAUSE_TYPE_NM, PERSON_TYPE_NM,
+        POTNTL_DNGRS_IND, RACE_TYPE_NM, SBSTNC_AMT, SEROUS_EMPLMT_HNDCAP_IND, SLTTN_TYPE_NM,
+        SPINA_BIFIDA_IND, SPOUSE_NUM, SSN_NBR, SSN_VRFCTN_STATUS_TYPE_CD, SUFFIX_NM,
+        SUFFIX_NM_KEY, TAX_ABTMNT_CD, TERMNL_DIGIT_NBR, TITLE_TXT, VET_IND, VET_TYPE_NM,
+        VNP_PROC_ID, VNP_SCHOOL_CHILD_IND, VNP_SRUSLY_DSABLD_IND, YEARS_PRESNT_EMPLYR_NBR)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) [params=(long) 188815, (null) null, (null)
+        null, (null) null, (null) null, (null) null, (null) null, (null) null, (null)
+        null, (null) null, (null) null, (null) null, (null) null, (null) null, (null)
+        null, (null) null, (null) null, (null) null, (null) null, (null) null, (null)
+        null, (Timestamp) 2025-03-06 09:58:48.0, (String) 281, (String) VAgovAPI,
+        (String) U, (String) VAgovAPI, (null) null, (null) null, (null) null, (null)
+        null, (null) null, (null) null, (null) null, (null) null, (null) null, (null)
+        null, (null) null, (null) null, (null) null, (null) null, (null) null, (null)
+        null, (null) null, (null) null, (null) null, (null) null, (null) null, (null)
+        null, (null) null, (null) null, (null) null, (null) null, (null) null, (null)
+        null, (null) null, (long) 3860072, (null) null, (null) null, (null) null]}
+        [code=1400, state=23000]\nFailedObject: gov.va.vba.vonapp.entities.VnpPerson@70dc706f\n\tat
+        org.apache.openjpa.jdbc.sql.DBDictionary.narrow(DBDictionary.java:4207)\n\tat
+        org.apache.openjpa.jdbc.sql.DBDictionary.newStoreException(DBDictionary.java:4171)\n\tat
+        org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:102)\n\tat
+        org.apache.openjpa.jdbc.sql.SQLExceptions.getStore(SQLExceptions.java:72)\n\tat
+        kodo.jdbc.kernel.BatchingPreparedStatementManager.flushInternal(BatchingPreparedStatementManager.java:214)\n\tat
+        kodo.jdbc.kernel.BatchingPreparedStatementManager.flushInternal(BatchingPreparedStatementManager.java:149)\n\tat
+        kodo.jdbc.kernel.BatchingPreparedStatementManager.flush(BatchingPreparedStatementManager.java:72)\n\tat
+        kodo.jdbc.kernel.AutoOrderUpdateManager.flush(AutoOrderUpdateManager.java:84)\n\tat
+        kodo.jdbc.kernel.ConstraintUpdateManager.flush(ConstraintUpdateManager.java:68)\n\tat
+        org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:89)\n\tat
+        org.apache.openjpa.jdbc.kernel.AbstractUpdateManager.flush(AbstractUpdateManager.java:72)\n\tat
+        org.apache.openjpa.jdbc.kernel.JDBCStoreManager.flush(JDBCStoreManager.java:569)\n\tat
+        org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:130)\n\tat
+        org.apache.openjpa.datacache.DataCacheStoreManager.flush(DataCacheStoreManager.java:571)\n\tat
+        org.apache.openjpa.kernel.DelegatingStoreManager.flush(DelegatingStoreManager.java:130)\n\t...
+        95 more\nCaused by: org.apache.openjpa.lib.jdbc.ReportingSQLException: ORA-01400:
+        cannot insert NULL into (\"CORPPROD\".\"VNP_PERSON\".\"LAST_NM\")\n {prepstmnt
+        750931 INSERT INTO VNP_PERSON (VNP_PTCPNT_ID, BIRTH_CITY_NM, BIRTH_CNTRY_NM,
+        BIRTH_STATE_CD, BRTHDY_DT, CMPTNY_DECN_TYPE_CD, DEATH_CITY_CNTRY_NM, DEATH_CNTRY_NM,
+        DEATH_DT, DEATH_STATE_CD, DEP_NBR, EMP_IND, ENTLMT_TYPE_CD, ETHNIC_TYPE_CD,
+        EVER_MARIED_IND, FID_DECN_CATEGY_TYPE_CD, FILE_NBR, FIRST_NM, FIRST_NM_KEY,
+        FRGN_SVC_NBR, GENDER_CD, JRN_DT, JRN_LCTN_ID, JRN_OBJ_ID, JRN_STATUS_TYPE_CD,
+        JRN_USER_ID, LAST_NM, LAST_NM_KEY, LGY_ENTLMT_TYPE_CD, MARTL_STATUS_TYPE_CD,
+        MIDDLE_NM, MIDDLE_NM_KEY, MLTY_PERSON_IND, MONTHS_PRESNT_EMPLYR_NBR, NET_WORTH_AMT,
+        NO_SSN_REASON_TYPE_CD, OCPTN_TXT, PERSON_DEATH_CAUSE_TYPE_NM, PERSON_TYPE_NM,
+        POTNTL_DNGRS_IND, RACE_TYPE_NM, SBSTNC_AMT, SEROUS_EMPLMT_HNDCAP_IND, SLTTN_TYPE_NM,
+        SPINA_BIFIDA_IND, SPOUSE_NUM, SSN_NBR, SSN_VRFCTN_STATUS_TYPE_CD, SUFFIX_NM,
+        SUFFIX_NM_KEY, TAX_ABTMNT_CD, TERMNL_DIGIT_NBR, TITLE_TXT, VET_IND, VET_TYPE_NM,
+        VNP_PROC_ID, VNP_SCHOOL_CHILD_IND, VNP_SRUSLY_DSABLD_IND, YEARS_PRESNT_EMPLYR_NBR)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) [params=(long) 188815, (null) null, (null)
+        null, (null) null, (null) null, (null) null, (null) null, (null) null, (null)
+        null, (null) null, (null) null, (null) null, (null) null, (null) null, (null)
+        null, (null) null, (null) null, (null) null, (null) null, (null) null, (null)
+        null, (Timestamp) 2025-03-06 09:58:48.0, (String) 281, (String) VAgovAPI,
+        (String) U, (String) VAgovAPI, (null) null, (null) null, (null) null, (null)
+        null, (null) null, (null) null, (null) null, (null) null, (null) null, (null)
+        null, (null) null, (null) null, (null) null, (null) null, (null) null, (null)
+        null, (null) null, (null) null, (null) null, (null) null, (null) null, (null)
+        null, (null) null, (null) null, (null) null, (null) null, (null) null, (null)
+        null, (null) null, (long) 3860072, (null) null, (null) null, (null) null]}
+        [code=1400, state=23000]\n\tat org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.wrap(LoggingConnectionDecorator.java:192)\n\tat
+        org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator.access$700(LoggingConnectionDecorator.java:57)\n\tat
+        org.apache.openjpa.lib.jdbc.LoggingConnectionDecorator$LoggingConnection$LoggingPreparedStatement.executeUpdate(LoggingConnectionDecorator.java:866)\n\tat
+        org.apache.openjpa.lib.jdbc.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:269)\n\tat
+        org.apache.openjpa.jdbc.kernel.JDBCStoreManager$CancelPreparedStatement.executeUpdate(JDBCStoreManager.java:1453)\n\tat
+        kodo.jdbc.kernel.BatchingPreparedStatementManager.flushInternal(BatchingPreparedStatementManager.java:208)\n\t...
+        105 more\n</faultstring></ns0:Fault></S:Body></S:Envelope>"
+  recorded_at: Thu, 06 Mar 2025 15:58:49 GMT
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://ptcpntAddrsService.services.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600043284</vaws:ExternalUid>
+              <vaws:ExternalKey>600043284</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpPtcpntAddrsCreate><arg0>
+        <vnpPtcpntAddrsId xsi:nil="true"/><vnpProcId>3860072</vnpProcId><vnpPtcpntId>188815</vnpPtcpntId><efctvDt>2025-03-06T15:58:48Z</efctvDt><addrsOneTxt>2719 Hyperion Ave</addrsOneTxt><addrsThreeTxt xsi:nil="true"/><addrsTwoTxt>Apt 2</addrsTwoTxt><badAddrsInd xsi:nil="true"/><cityNm>Los Angeles</cityNm><cntryNm>USA</cntryNm><countyNm xsi:nil="true"/><eftWaiverTypeNm xsi:nil="true"/><emailAddrsTxt xsi:nil="true"/><endDt xsi:nil="true"/><fmsAddrsCodeTxt xsi:nil="true"/><frgnPostalCd xsi:nil="true"/><group1VerifdTypeCd xsi:nil="true"/><lctnNm xsi:nil="true"/><mltyPostalTypeCd xsi:nil="true"/><mltyPostOfficeTypeCd xsi:nil="true"/><postalCd>CA</postalCd><prvncNm xsi:nil="true"/><ptcpntAddrsTypeNm>Mailing</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><trsuryAddrsFiveTxt xsi:nil="true"/><trsuryAddrsFourTxt xsi:nil="true"/><trsuryAddrsOneTxt xsi:nil="true"/><trsuryAddrsSixTxt xsi:nil="true"/><trsuryAddrsThreeTxt xsi:nil="true"/><trsuryAddrsTwoTxt xsi:nil="true"/><trsurySeqNbr xsi:nil="true"/><trtryNm xsi:nil="true"/><zipFirstSuffixNbr>0200</zipFirstSuffixNbr><zipPrefixNbr>92264</zipPrefixNbr><zipSecondSuffixNbr xsi:nil="true"/><jrnDt>2025-03-06T15:58:48Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId>
+        </arg0>
+        </tns:vnpPtcpntAddrsCreate>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpPtcpntAddrsCreate"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 15:58:49 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPtcpntAddrsCreateResponse
+        xmlns:ns0="http://ptcpntAddrsService.services.vonapp.vba.va.gov/"><return><vnpPtcpntAddrsId>151011</vnpPtcpntAddrsId><efctvDt>2025-03-06T15:58:48Z</efctvDt><vnpPtcpntId>188815</vnpPtcpntId><vnpProcId>3860072</vnpProcId><addrsOneTxt>2719
+        Hyperion Ave</addrsOneTxt><addrsTwoTxt>Apt 2</addrsTwoTxt><cityNm>Los Angeles</cityNm><cntryNm>USA</cntryNm><jrnDt>2025-03-06T15:58:48Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><postalCd>CA</postalCd><ptcpntAddrsTypeNm>Mailing</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><zipFirstSuffixNbr>0200</zipFirstSuffixNbr><zipPrefixNbr>92264</zipPrefixNbr></return></ns0:vnpPtcpntAddrsCreateResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 06 Mar 2025 15:58:49 GMT
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://ptcpntPhoneService.services.vonapp.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>600043284</vaws:ExternalUid>
+              <vaws:ExternalKey>600043284</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:vnpPtcpntPhoneCreate><arg0>
+        <vnpProcId>3860072</vnpProcId><vnpPtcpntId>188815</vnpPtcpntId><phoneTypeNm>Daytime</phoneTypeNm><phoneNbr>5555551234</phoneNbr><efctvDt>2025-03-06T15:58:48Z</efctvDt></arg0>
+        </tns:vnpPtcpntPhoneCreate>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"vnpPtcpntPhoneCreate"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 15:58:49 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPtcpntPhoneCreateResponse
+        xmlns:ns0="http://ptcpntPhoneService.services.vonapp.vba.va.gov/"><return><vnpPtcpntPhoneId>107788</vnpPtcpntPhoneId><vnpProcId>3860072</vnpProcId><vnpPtcpntId>188815</vnpPtcpntId><phoneTypeNm>Daytime</phoneTypeNm><phoneNbr>5555551234</phoneNbr><efctvDt>2025-03-06T15:58:48Z</efctvDt></return></ns0:vnpPtcpntPhoneCreateResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 06 Mar 2025 15:58:49 GMT
+recorded_with: VCR 6.3.1
