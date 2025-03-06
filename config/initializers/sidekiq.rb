@@ -49,6 +49,10 @@ Rails.application.reloader.to_prepare do
     config.death_handlers << lambda do |job, ex|
       Rails.logger.error "#{job['class']} #{job['jid']} died with error #{ex.message}."
     end
+
+    config.on(:shutdown) do
+      Kafka::ProducerManager.instance.producer&.close
+    end
   end
 
   Sidekiq.configure_client do |config|

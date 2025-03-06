@@ -148,16 +148,12 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
 
     context 'with records in production', run_at: '2016-09-16 03:00:00 EDT' do
       before do
-        Settings.hostname = 'api.va.gov' # Mock how this is set in production
+        allow(Settings).to receive(:hostname).and_return('api.va.gov')
         application_1606.saved_claim.form = {}.to_json
         create(:va1990_western_region)
         create(:va1995_full_form)
         create(:va0994_full_form)
         ActionMailer::Base.deliveries.clear
-      end
-
-      after do
-        Settings.hostname = nil
       end
 
       it 'does not process the valid messages' do

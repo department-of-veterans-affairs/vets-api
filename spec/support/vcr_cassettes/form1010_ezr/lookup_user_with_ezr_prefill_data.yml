@@ -1,0 +1,161 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: <%= Settings.hca.ee.endpoint %>
+      body:
+        encoding: UTF-8
+        string: |
+          <?xml version="1.0"?>
+          <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sch="http://jaxws.webservices.esr.med.va.gov/schemas">
+            <SOAP-ENV:Header>
+              <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" SOAP-ENV:mustUnderstand="1">
+                <wsse:UsernameToken xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="XWSSGID-1281117217796-43574433">
+                  <wsse:Username>HCASvcUsr</wsse:Username>
+                  <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText"><EE_PASS></wsse:Password>
+                </wsse:UsernameToken>
+              </wsse:Security>
+            </SOAP-ENV:Header>
+            <SOAP-ENV:Body>
+              <sch:getEESummaryRequest>
+                <sch:key>1012829228V424035</sch:key>
+                <sch:requestName>HCAData</sch:requestName>
+              </sch:getEESummaryRequest>
+            </SOAP-ENV:Body>
+          </SOAP-ENV:Envelope>
+      headers:
+        Accept:
+          - text/xml;charset=UTF-8
+        Content-Type:
+          - text/xml;charset=UTF-8
+        User-Agent:
+          - Vets.gov Agent
+        Date:
+          - Thu, 27 Feb 2025 01:10:06 GMT
+        Content-Length:
+          - '975'
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Thu, 27 Feb 2025 01:10:07 GMT
+        Content-Type:
+          - text/xml; charset=UTF-8
+        Content-Length:
+          - '18793'
+        Connection:
+          - keep-alive
+        Server:
+          - Apache
+        X-Frame-Options:
+          - SAMEORIGIN
+        Content-Security-Policy:
+          - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+        Accept:
+          - text/xml
+        X-Oracle-Dms-Rid:
+          - '0'
+        X-Oracle-Dms-Ecid:
+          - 04e85de4-97b2-4a84-a045-dda78b496ebe-009e8c94
+        Soapaction:
+          - '""'
+        X-Oneagent-Js-Injection:
+          - 'true'
+        Ssl-Env:
+          - 'On'
+        X-Xss-Protection:
+          - 1; mode=block
+        X-Content-Type-Options:
+          - nosniff
+        Cache-Control:
+          - max-age=0, no-store
+        Server-Timing:
+          - dtSInfo;desc="0", dtRpid;desc="1972249502"
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: UTF-8
+        string: <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"><env:Header/><env:Body><getEESummaryResponse
+          xmlns="http://jaxws.webservices.esr.med.va.gov/schemas"><eesVersion>5.12.0.05003</eesVersion><summary><insuranceList><insurance><groupNumber>G1234</groupNumber><companyName>MyInsurance</companyName><policyHolderName>FirstName
+          ZZTEST</policyHolderName><policyNumber>P1234</policyNumber><lastEditedDate>2025-02-11T11:36:45.000-06:00</lastEditedDate><insuredRelationship>Veteran</insuredRelationship></insurance><insurance><groupName>Part
+          A</groupName><groupNumber>Part A</groupNumber><companyName>Medicare</companyName><policyHolderName>BISHOP,
+          ERIC</policyHolderName><policyNumber>873462432</policyNumber><enrolledInPartA>true</enrolledInPartA><partAEffectiveDate>19991016</partAEffectiveDate><lastEditedDate>2025-02-13T11:00:18.000-06:00</lastEditedDate><insuredRelationship>Veteran</insuredRelationship></insurance></insuranceList><eligibilityVerificationInfo><eligibilityStatus>VERIFIED</eligibilityStatus><eligibilityStatusDate>20231121</eligibilityStatusDate><verificationMethod>dd214</verificationMethod></eligibilityVerificationInfo><purpleHeart><indicator>false</indicator><status>Rejected</status></purpleHeart><enrollmentDeterminationInfo><priorityGroup>Group
+          2</priorityGroup><calculationSource>HEC</calculationSource><enrollmentStatus>Verified</enrollmentStatus><enrollmentDate>2023-11-21T13:24:21.000-06:00</enrollmentDate><effectiveDate>2025-02-21T11:59:04.000-06:00</effectiveDate><eligibleForMedicaid>false</eligibleForMedicaid><applicationDate>2022-04-25T00:00:00.000-05:00</applicationDate><veteran>true</veteran><primaryEligibility><type>SC
+          LESS THAN 50%</type><indicator>P</indicator><eligibilityReportDate>2023-11-21T13:24:20.000-06:00</eligibilityReportDate></primaryEligibility><secondaryEligibilities><eligibility><type>Clinical
+          Evaluation</type><indicator>S</indicator><eligibilityReportDate>2023-11-21T13:24:20.000-06:00</eligibilityReportDate></eligibility></secondaryEligibilities><monetaryBenefitAwardInfo><monetaryBenefits><monetaryBenefit><type>Disability
+          Compensation</type><monetaryBenefitIndicator>false</monetaryBenefitIndicator><monetaryBenefitReportDate>2023-11-21T13:24:20.000-06:00</monetaryBenefitReportDate></monetaryBenefit><monetaryBenefit><type>Housebound</type><monetaryBenefitIndicator>false</monetaryBenefitIndicator><monetaryBenefitReportDate>2023-11-21T13:24:20.000-06:00</monetaryBenefitReportDate></monetaryBenefit><monetaryBenefit><type>VA
+          Pension</type><monetaryBenefitIndicator>false</monetaryBenefitIndicator><monetaryBenefitReportDate>2023-11-21T13:24:20.000-06:00</monetaryBenefitReportDate></monetaryBenefit><monetaryBenefit><type>Aid
+          And Attendance</type><monetaryBenefitIndicator>false</monetaryBenefitIndicator><monetaryBenefitReportDate>2023-11-21T13:24:20.000-06:00</monetaryBenefitReportDate></monetaryBenefit></monetaryBenefits></monetaryBenefitAwardInfo><militarySexualTraumaInfo><status>Unknown,
+          Not Screened</status></militarySexualTraumaInfo><serviceConnectionAward><serviceConnectedPercentage>40</serviceConnectedPercentage><serviceConnectedIndicator>true</serviceConnectedIndicator><unemployable>false</unemployable><permanentAndTotal>false</permanentAndTotal><ratedDisabilities><ratedDisability><disability>6711-Lung
+          condition</disability><percentage>40</percentage><recordModifiedDate>2023-11-21T13:24:20.000-06:00</recordModifiedDate><disabilityCode>6711</disabilityCode></ratedDisability></ratedDisabilities><scReportDate>2024-07-01T13:27:46.000-05:00</scReportDate></serviceConnectionAward><medicaidLastModifiedDate>2025-02-21T11:59:04.000-06:00</medicaidLastModifiedDate><recordCreatedDate>2019-09-17T19:21:22.000-05:00</recordCreatedDate><recordModifiedDate>2025-02-21T11:59:04.000-06:00</recordModifiedDate><enrollmentCategoryName>Enrolled</enrollmentCategoryName></enrollmentDeterminationInfo><associations><association><contactType>Other
+          Next of Kin</contactType><givenName>MARY</givenName><middleName>JESSICA</middleName><familyName>BISHOP</familyName><relationship>DAUGHTER</relationship><address><line1>748
+          TEST ST</line1><line2>APT 394</line2><line3>UNIT 2</line3><city>ALBUQUERQUE</city><county>BERNALILLO</county><state>NM</state><zipCode>87109</zipCode><country>USA</country></address><primaryPhone>(274)294-3384</primaryPhone><lastUpdateDate>2023-12-08T09:52:04.000-06:00</lastUpdateDate></association><association><contactType>Other
+          emergency contact</contactType><givenName>DEBORAH</givenName><familyName>WILLIAMS</familyName><relationship>UNRELATED
+          FRIEND</relationship><address><line1>2645 TEST WAY</line1><line2>UNIT 192</line2><city>CLEARWATER</city><county>PINELLAS</county><state>FL</state><zipCode>33760</zipCode><country>USA</country></address><primaryPhone>(927)737-7486</primaryPhone><lastUpdateDate>2023-12-08T11:04:05.000-06:00</lastUpdateDate></association><association><contactType>Designee</contactType><givenName>MARGOSHAR</givenName><middleName>COT</middleName><familyName>BISHOP</familyName><relationship>EXTENDED
+          FAMILY MEMBER</relationship><address><line1>9758 TEST AVE</line1><city>ALBUQUERQUE</city><county>BERNALILLO</county><state>NM</state><zipCode>87109</zipCode><country>USA</country></address><primaryPhone>(439)573-8274</primaryPhone><lastUpdateDate>2024-03-25T15:52:36.000-05:00</lastUpdateDate></association><association><contactType>Emergency
+          Contact</contactType><givenName>ETHAN</givenName><middleName>JEREMY</middleName><familyName>BISHOP</familyName><relationship>BROTHER</relationship><address><line1>9758
+          TEST AVE</line1><city>ALBUQUERQUE</city><county>BERNALILLO</county><state>NM</state><zipCode>87109</zipCode><country>USA</country></address><primaryPhone>(439)573-8274</primaryPhone><lastUpdateDate>2023-12-08T11:01:23.000-06:00</lastUpdateDate></association><association><contactType>Power
+          of Attorney</contactType><givenName>FREDRIKSON</givenName><middleName>JEREMYAYA</middleName><familyName>MCKENZY</familyName><relationship>FRIEND</relationship><organizationName>JACOBITE</organizationName><address><line1>678
+          SOMERSTOWER</line1><city>ALBUQUERQUE</city><county>BERNALILLO</county><state>NM</state><zipCode>87109</zipCode><country>USA</country></address><primaryPhone>(302)445-6908</primaryPhone><lastUpdateDate>2024-03-25T15:55:08.000-05:00</lastUpdateDate></association><association><contactType>Power
+          of Attorney</contactType><givenName>MARK</givenName><middleName>L</middleName><familyName>GRANT</familyName><relationship>FRIEND</relationship><organizationName>TESTING
+          TEST</organizationName><address><line1>1 HERE ST</line1><city>AUSTIN</city><state>TX</state><zipCode>73301</zipCode><zipPlus4>0001</zipPlus4><country>USA</country></address><lastUpdateDate>2024-03-25T15:55:20.000-05:00</lastUpdateDate></association><association><contactType>Primary
+          Next of Kin</contactType><givenName>JANE</givenName><familyName>BISHOP</familyName><relationship>MOTHER</relationship><address><line1>823
+          SE 2ND ST</line1><line2>BLDG 2</line2><line3>UNIT 163</line3><city>GUADALAJARA</city><postalCode>44100</postalCode><country>MEX</country></address><primaryPhone>(202)394-6688</primaryPhone><lastUpdateDate>2024-03-06T10:51:15.000-06:00</lastUpdateDate></association></associations><militaryServiceInfo><militaryServiceSiteRecords><militaryServiceSiteRecord><site>610
+          - MARION VA MEDICAL CENTER</site><servicePeriod>PERSIAN GULF WAR</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>459GB
+          - HILO CLINIC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>742
+          - HEALTH ELIGIBILITY CENTER</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>463GB
+          - SOLDOTNA VA CLINIC</site><servicePeriod>PERSIAN GULF WAR</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>583QD
+          - INDIANAPOLIS YMCA VA CLINIC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>589
+          - KANSAS CITY VAMC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>668QE
+          - SPOKANE VA CLINIC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>589A6
+          - EASTERN KS HCS LEAVENWORTH DIV</site><servicePeriod>PERSIAN GULF WAR</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>668
+          - MANN-GRANDSTAFF VAMC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>570GA
+          - MERCED VA CLINIC</site><servicePeriod>PERSIAN GULF WAR</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>459
+          - SPARK M. MATSUNAGA VAMC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>570
+          - FRESNO VA MEDICAL CENTER</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>459GE
+          - GUAM CLINIC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>668HK
+          - SPOKANE MORC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>531GG
+          - CALDWELL VA CLINIC</site><servicePeriod>PERSIAN GULF WAR</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>988
+          - DAYT20</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>583
+          - RICHARD L. ROUDEBUSH VAMC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord></militaryServiceSiteRecords></militaryServiceInfo><demographics><contactInfo><addresses><address><line1>4049
+          S DALE MABRY HWY</line1><city>TAMPA</city><county>HILLSBOROUGH</county><state>FL</state><zipCode>33611</zipCode><country>USA</country><addressTypeCode>Permanent</addressTypeCode><addressChangeDateTime>2025-02-21T11:59:04.000-06:00</addressChangeDateTime><addressChangeSource>Health
+          Eligibility Center</addressChangeSource><addressChangeSite>742 - HEALTH ELIGIBILITY
+          CENTER</addressChangeSite><contactMethodType>08</contactMethodType><contactMethodReportDate>2025-02-21T11:59:04.000-06:00</contactMethodReportDate></address><address><line1>4049
+          S DALE MABRY HWY</line1><city>TAMPA</city><county>HILLSBOROUGH</county><state>FL</state><zipCode>33611</zipCode><country>USA</country><addressTypeCode>Residential</addressTypeCode><addressChangeDateTime>2025-02-13T11:00:18.000-06:00</addressChangeDateTime><addressChangeSource>Health
+          Eligibility Center</addressChangeSource><addressChangeSite>742 - HEALTH ELIGIBILITY
+          CENTER</addressChangeSite></address></addresses><phones><phone><type>Home</type><phoneNumber>(303)444-1122</phoneNumber><phoneNumberReportDate>2025-02-13T11:00:18.000-06:00</phoneNumberReportDate></phone><phone><type>Business</type><phoneNumber>(571)420-9605</phoneNumber><phoneNumberReportDate>2025-02-21T11:59:04.000-06:00</phoneNumberReportDate></phone><phone><type>Mobile</type><phoneNumber>(123)555-1234</phoneNumber><phoneNumberReportDate>2025-02-21T11:59:04.000-06:00</phoneNumberReportDate></phone></phones><emails><email><type>Personal</type><address>foo@example.com</address><siteOfChange>742
+          - HEALTH ELIGIBILITY CENTER</siteOfChange><sourceOfChange>HEC</sourceOfChange></email></emails></contactInfo><races><race>Declined
+          to Answer</race></races><maritalStatus>Never Married</maritalStatus><ethnicity>Not
+          Hispanic or Latino</ethnicity><religion>Unknown</religion><preferredFacility>668QE
+          - SPOKANE VA CLINIC</preferredFacility><appointmentRequestResponse>false</appointmentRequestResponse><assignmentDate>2025-02-21T11:59:07.000-06:00</assignmentDate><preferredFacilities><preferredFacilityInfo><preferredFacility>668QE
+          - SPOKANE VA CLINIC</preferredFacility><assignmentDate>2025-02-21T11:59:07.000-06:00</assignmentDate></preferredFacilityInfo></preferredFacilities></demographics><financialsInfo><incomeTest><gmtAddressInfo><line1>4049
+          S DALE MABRY HWY</line1><city>TAMPA</city><county>HILLSBOROUGH</county><state>FL</state><zipcode>33611</zipcode><country>USA</country></gmtAddressInfo><incomeYear>2024</incomeYear><discloseFinancialInformation>true</discloseFinancialInformation><agreesToPayDeductible>true</agreesToPayDeductible><effectiveDate>2025-02-21T00:00:00.000-06:00</effectiveDate><totalNumberOfDependents>3</totalNumberOfDependents><primaryIncomeTest>true</primaryIncomeTest><futureTest>false</futureTest><incomeTestsource>HEC</incomeTestsource><incomeTestType>Co-Pay
+          Exemption Test</incomeTestType><incomeTestReportDate>2025-02-26T18:40:30.000-06:00</incomeTestReportDate><thresholdA>56387</thresholdA><gmtThresholdAmount>76400</gmtThresholdAmount><totalIncome>158063</totalIncome><netIncome>138483.8</netIncome><deductibleExpenses>19579.2</deductibleExpenses><netWorth>0</netWorth><statuses><status><determinedStatus>Non-Exempt</determinedStatus><completedDate>2025-02-21T00:00:00.000-06:00</completedDate><lastEditedDate>2025-02-26T18:40:30.000-06:00</lastEditedDate><incomeTestType>Co-Pay
+          Exemption Test</incomeTestType><status>Non-Exempt</status></status></statuses><networthThreshold>80000</networthThreshold><pensionThreshold>28020</pensionThreshold><childIncomeExclusionThreshold>15000</childIncomeExclusionThreshold><cadAdjusted>false</cadAdjusted></incomeTest><financialStatement><incomeYear>2024</incomeYear><expenses><expense><expenseType>Funeral
+          and Burial Expenses</expenseType><amount>1283</amount><expenseReportDate>2025-02-26T18:40:30.000-06:00</expenseReportDate></expense><expense><expenseType>Total
+          Non-Reimbursed Medical Expenses</expenseType><amount>8576</amount><expenseReportDate>2025-02-26T18:40:30.000-06:00</expenseReportDate></expense><expense><expenseType>Veteran's
+          Educational Expenses</expenseType><amount>4344</amount><expenseReportDate>2025-02-26T18:40:30.000-06:00</expenseReportDate></expense><expense><expenseType>Adjusted
+          Medical Expense</expenseType><amount>7209.2</amount><expenseReportDate>2025-02-26T18:40:30.000-06:00</expenseReportDate></expense></expenses><incomes><income><type>All
+          Other Income</type><amount>2811</amount><incomeReportDate>2025-02-26T18:40:30.000-06:00</incomeReportDate></income><income><type>Total
+          Employment Income</type><amount>67584</amount><incomeReportDate>2025-02-26T18:40:30.000-06:00</incomeReportDate></income><income><type>Net
+          Income from Farm, Ranch, Property, Business</type><amount>14293</amount><incomeReportDate>2025-02-26T18:40:30.000-06:00</incomeReportDate></income></incomes><marriedLastCalendarYear>true</marriedLastCalendarYear><numberOfDependentChildren>2</numberOfDependentChildren><spouseFinancialsList><spouseFinancials><incomeYear>2024</incomeYear><incomes><income><type>All
+          Other Income</type><amount>1229</amount><incomeReportDate>2025-02-26T18:40:30.000-06:00</incomeReportDate></income><income><type>Total
+          Employment Income</type><amount>57930</amount><incomeReportDate>2025-02-26T18:40:30.000-06:00</incomeReportDate></income><income><type>Net
+          Income from Farm, Ranch, Property, Business</type><amount>7458</amount><incomeReportDate>2025-02-26T18:40:30.000-06:00</incomeReportDate></income></incomes><livedWithPatient>true</livedWithPatient><validDependent>true</validDependent><spouse><dob>19700421</dob><familyName>Bishop</familyName><gender>Female</gender><givenName>Sarah</givenName><middleName>Jasmine</middleName><relationship>SPOUSE</relationship><ssns><ssn><ssnText>666112121</ssnText><type>Active</type><ssaVerificationStatus>New
+          Record</ssaVerificationStatus></ssn></ssns><startDate>19911012</startDate><employments><employmentStatus>Employed
+          Full-Time</employmentStatus></employments></spouse></spouseFinancials></spouseFinancialsList><dependentFinancialsList><dependentFinancials><incomeYear>2024</incomeYear><expenses><expense><expenseType>Child's
+          Educational Expenses</expenseType><amount>376</amount><expenseReportDate>2025-02-26T18:40:30.000-06:00</expenseReportDate></expense></expenses><incomes><income><type>All
+          Other Income</type><amount>2</amount><incomeReportDate>2025-02-26T18:40:30.000-06:00</incomeReportDate></income><income><type>Total
+          Employment Income</type><amount>6743</amount><incomeReportDate>2025-02-26T18:40:30.000-06:00</incomeReportDate></income><income><type>Net
+          Income from Farm, Ranch, Property, Business</type><amount>13</amount><incomeReportDate>2025-02-26T18:40:30.000-06:00</incomeReportDate></income></incomes><livedWithPatient>true</livedWithPatient><dependentInfo><dob>20100125</dob><familyName>Bishop</familyName><gender>Male</gender><givenName>Eric</givenName><middleName>Victor</middleName><relationship>SON</relationship><ssns><ssn><ssnText>666333111</ssnText><type>Active</type><ssaVerificationStatus>New
+          Record</ssaVerificationStatus></ssn></ssns><startDate>20100125</startDate><suffix>Jr.</suffix></dependentInfo><incapableOfSelfSupport>false</incapableOfSelfSupport><hasIncome>true</hasIncome><incomeAvailableToPatient>true</incomeAvailableToPatient><attendedSchool>true</attendedSchool></dependentFinancials><dependentFinancials><incomeYear>2024</incomeYear><livedWithPatient>true</livedWithPatient><dependentInfo><dob>20130315</dob><familyName>Bishop</familyName><gender>Female</gender><givenName>Jessica</givenName><middleName>Layla</middleName><relationship>DAUGHTER</relationship><ssns><ssn><ssnText>666394444</ssnText><type>Active</type><ssaVerificationStatus>New
+          Record</ssaVerificationStatus></ssn></ssns><startDate>20130315</startDate></dependentInfo><incapableOfSelfSupport>false</incapableOfSelfSupport><hasIncome>false</hasIncome><attendedSchool>true</attendedSchool></dependentFinancials></dependentFinancialsList><vamcReportDate>2025-02-26T18:40:30.000-06:00</vamcReportDate></financialStatement><nonPrimaryFinancialsInfo><nonPrimaryFinancialStatement><incomeYear>2024</incomeYear><facilityVisitedCode>570
+          - FRESNO VA MEDICAL CENTER</facilityVisitedCode><inpatientDays>0</inpatientDays><outpatientDays>0</outpatientDays><vamcReportDate>2025-02-11T12:03:05.000-06:00</vamcReportDate></nonPrimaryFinancialStatement><nonPrimaryFinancialStatement><incomeYear>2024</incomeYear><facilityVisitedCode>668
+          - MANN-GRANDSTAFF VAMC</facilityVisitedCode><inpatientDays>0</inpatientDays><outpatientDays>0</outpatientDays><vamcReportDate>2025-02-11T11:44:06.000-06:00</vamcReportDate></nonPrimaryFinancialStatement><nonPrimaryFinancialStatement><incomeYear>2024</incomeYear><facilityVisitedCode>583
+          - RICHARD L. ROUDEBUSH VAMC</facilityVisitedCode><inpatientDays>0</inpatientDays><outpatientDays>0</outpatientDays><vamcReportDate>2025-02-11T12:15:04.000-06:00</vamcReportDate></nonPrimaryFinancialStatement></nonPrimaryFinancialsInfo></financialsInfo></summary><invocationDate>2025-02-26T19:10:07</invocationDate></getEESummaryResponse></env:Body></env:Envelope>
+    recorded_at: Thu, 27 Feb 2025 01:10:07 GMT
+recorded_with: VCR 6.3.1
