@@ -319,15 +319,9 @@ module Swagger
             key :in, :body
             key :description, 'The form data used to fill the PDF form.'
             key :required, true
-            key :type, :object
-          end
-
-          parameter do
-            key :name, :asyncCompatible
-            key :in, :body
-            key :description, 'Flag indicating compatibility with async processing.'
-            key :required, false
-            key :type, :boolean
+            schema do
+              key :type, :string
+            end
           end
 
           response 200 do
