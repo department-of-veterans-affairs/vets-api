@@ -21,6 +21,10 @@ module AccreditedRepresentativePortal
             class_name: 'PowerOfAttorneyRequestResolution',
             inverse_of: :power_of_attorney_request
 
+    has_many :notifications,
+             class_name: 'PowerOfAttorneyRequestNotification',
+             inverse_of: :power_of_attorney_request
+
     belongs_to :accredited_organization, class_name: 'Veteran::Service::Organization',
                                          foreign_key: :power_of_attorney_holder_poa_code,
                                          primary_key: :poa,
