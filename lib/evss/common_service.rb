@@ -13,6 +13,7 @@ module EVSS
       @use_mock = Settings.evss.mock_common_service || false
     end
 
+    # This is not hit in prod: https://api.va.gov/coverband#d1681fda20dd1ad158ab96b61bc35561dbd34144
     def get_current_info
       post 'vsoSearch/11.6/getCurrentInfo'
     end

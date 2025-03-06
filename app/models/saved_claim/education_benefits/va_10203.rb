@@ -52,7 +52,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
 
   def get_user_poa
     # stem_automated_decision feature disables EVSS call  for POA which will be removed in a future PR
-    return nil if Flipper.enabled?(:stem_automated_decision, @user)
+    return nil if Flipper.enabled?(:stem_automated_decision, @user) # This returns nil
 
     @user.power_of_attorney.present? ? true : nil
   rescue => e

@@ -1428,7 +1428,7 @@ features:
   spool_testing_error_3:
     actor_type: user
     description: Enables email notifications for CreateDailySpoolFiles errors
-  stem_automated_decision:
+  stem_automated_decision: # Remove me and everywhere I'm called.
     actor_type: user
     description: Add automated decision to 10203 application workflow
     enable_in_development: true

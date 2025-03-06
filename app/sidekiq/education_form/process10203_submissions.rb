@@ -75,7 +75,8 @@ module EducationForm
     # Retrieve poa status fromEVSS VSOSearch for a user
     def get_user_poa_status(auth_headers)
       # stem_automated_decision feature disables EVSS call  for POA which will be removed in a future PR
-      return nil if Flipper.enabled?(:stem_automated_decision)
+      # ^^ that comment is from 4 years ago :(
+      return nil if Flipper.enabled?(:stem_automated_decision) # This returns nil!!
 
       if auth_headers.nil? ||
          !auth_headers.key?('va_eauth_dodedipnid') ||
