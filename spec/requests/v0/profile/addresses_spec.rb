@@ -21,7 +21,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
   describe 'POST /v0/profile/addresses/create_or_update' do
     before do
-      Flipper.disable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     end
 
     let(:address) { build(:va_profile_address, vet360_id: user.vet360_id) }
@@ -38,7 +38,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
   describe 'POST /v0/profile/addresses' do
     before do
-      Flipper.disable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     end
 
     let(:address) { build(:va_profile_address, vet360_id: user.vet360_id) }
@@ -164,7 +164,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
   describe 'PUT /v0/profile/addresses' do
     before do
-      Flipper.disable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     end
 
     let(:address) { build(:va_profile_address, vet360_id: user.vet360_id) }
@@ -270,7 +270,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
   describe 'DELETE /v0/profile/addresses' do
     before do
-      Flipper.disable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     end
 
     context 'when the method is DELETE' do
@@ -331,10 +331,10 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
   # describe 'POST /v0/profile/addresses/create_or_update' do
   #   before do
-  #     Flipper.enable(:va_v3_contact_information_service)
+  #     Flipper.enable(:remove_pciu)
   #   end
   #   after do
-  #     Flipper.disable(:va_v3_contact_information_service)
+  #     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
   #   end
   #   let(:address) { build(:va_profile_v3_address, vet360_id: user.vet360_id) }
 
@@ -350,7 +350,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
   describe 'contact information v2' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu,
                                                 instance_of(User)).and_return(true)
     end
 

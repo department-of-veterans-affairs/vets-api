@@ -820,6 +820,7 @@ maintenance:
     es: <%= ENV['maintenance__services__es'] %>
     evss: <%= ENV['maintenance__services__evss'] %>
     form1010d: P69N8ZY
+    form107959a: POTKY39
     form107959c: PEP32F2
     form107959f1: P63EKXC
     form107959f2: PZWR9XI
@@ -937,6 +938,14 @@ mhv:
     host: <%= ENV['mhv__sm__host'] %>
     mhv_sm_x_api_key: <%= ENV['mhv__sm__mhv_sm_x_api_key'] %>
     mock: <%= ENV['mhv__sm__mock'] %>
+  uhd:
+    app_id: <%= ENV['mhv__uhd__app_id'] %>
+    app_token: <%= ENV['mhv__uhd__app_token'] %>
+    host: <%= ENV['mhv__uhd__host'] %>
+    mock: false
+    security_host: <%= ENV['mhv__uhd__security_host'] %>
+    subject: "Proxy Client"
+    user_type: <%= ENV['mhv__uhd__user_type'] %>
 mhv_mobile:
   sm:
     app_token: <%= ENV['mhv_mobile__sm__app_token'] %>
