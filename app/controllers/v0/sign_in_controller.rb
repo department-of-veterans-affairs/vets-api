@@ -18,10 +18,11 @@ module V0
       acr = params[:acr].presence
       operation = params[:operation].presence || SignIn::Constants::Auth::AUTHORIZE
       scope = params[:scope].presence
+      prompt = params[:prompt].presence
 
       validate_authorize_params(type, client_id, acr, operation)
 
-      delete_cookies if token_cookies
+      delete_cookies if token_cookies && prompt != 'sso'
 
       acr_for_type = SignIn::AcrTranslator.new(acr:, type:).perform
       state = SignIn::StatePayloadJwtEncoder.new(code_challenge:,
@@ -36,9 +37,12 @@ module V0
       sign_in_logger.info('authorize', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS,
                        tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}", "operation:#{operation}"])
-
-      render body: auth_service(type, client_id).render_auth(state:, acr: acr_for_type, operation:),
-             content_type: 'text/html'
+      if prompt == 'sso' && cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME]
+        sso_flow(state)
+      else
+        render body: auth_service(type, client_id).render_auth(state:, acr: acr_for_type, operation:),
+               content_type: 'text/html'
+      end
     rescue SignIn::Errors::StandardError => e
       sign_in_logger.info('authorize error', { errors: e.message, client_id:, type:, acr: })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE)
@@ -225,6 +229,36 @@ module V0
     end
 
     private
+
+    def sso_flow(state)
+      access_token_jwt = cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME]
+      access_token = SignIn::AccessTokenJwtDecoder.new(access_token_jwt:).perform(with_validation: true)
+      state_payload = SignIn::StatePayloadJwtDecoder.new(state_payload_jwt: state).perform
+      SignIn::StatePayloadVerifier.new(state_payload:).perform
+      session = SignIn::OAuthSession.find_by(handle: access_token.session_handle)
+      user_attributes = JSON.parse(session.user_attributes)
+      user_attributes = {
+        idme_uuid: session.user_verification.idme_uuid || session.user_verification.backing_idme_uuid,
+        logingov_uuid: session.user_verification.logingov_uuid,
+        credential_email: session.credential_email,
+        edipi: session.user_verification.dslogon_uuid,
+        mhv_credential_uuid: session.user_verification.mhv_uuid,
+        first_name: user_attributes[:first_name],
+        last_name: user_attributes[:last_name]
+      }
+      user_code_map = SignIn::UserCodeMapCreator.new(
+        user_attributes:, state_payload:, verified_icn: session.user_account.icn, request_ip: request.remote_ip
+      ).perform
+
+      params_hash = { code: user_code_map.login_code, type: user_code_map.type }
+      params_hash.merge!(state: user_code_map.client_state) if user_code_map.client_state.present?
+
+      render body: SignIn::RedirectUrlGenerator.new(redirect_uri: user_code_map.client_config.redirect_uri,
+                                                    terms_code: user_code_map.terms_code,
+                                                    terms_redirect_uri: user_code_map.client_config.terms_of_use_url,
+                                                    params_hash:).perform,
+             content_type: 'text/html'
+    end
 
     def validate_authorize_params(type, client_id, acr, operation)
       if client_config(client_id).blank?
