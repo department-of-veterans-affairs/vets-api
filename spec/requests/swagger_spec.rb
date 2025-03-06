@@ -2306,7 +2306,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     describe 'contact infromation v2', :skip_vet360 do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu,
                                                   instance_of(User)).and_return(true)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       end
@@ -2574,7 +2574,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
         context 'address validation' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
           end
 
           it 'supports the address validation api' do
@@ -3049,6 +3049,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'when :va_dependents_v2 is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
         end
 
         let!(:user) { build(:user, ssn: '796043735') }
@@ -3093,6 +3095,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'when :va_dependents_v2 is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
         end
 
         let!(:user) { build(:user, ssn: '796043735') }

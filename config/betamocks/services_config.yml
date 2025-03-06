@@ -911,3 +911,22 @@
     - :method: :post
       :path: "/profile-service/profile/v3/*/*"
       :file_path: "vet360/profile-service/default"
+
+# MHV Unified Health Data security service
+- :name: "MHV UHD Security"
+  :base_uri: <%= "#{URI(Settings.mhv.uhd.security_host).host}:#{URI(Settings.mhv.uhd.security_host).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/mhvapi/security/v1/login"
+      :file_path: "mhv/uhd/security-service/default"
+
+# MHV Unified Health Data service
+- :name: "MHV UHD"
+  :base_uri: <%= "#{URI(Settings.mhv.uhd.host).host}:#{URI(Settings.mhv.uhd.host).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/mhvapi/v1/medicalrecords/labs"
+      :file_path: "mhv/uhd/labs"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patient-id"

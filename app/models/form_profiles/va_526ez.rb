@@ -135,7 +135,7 @@ class FormProfiles::VA526ez < FormProfile
     )
     invoker = 'FormProfiles::VA526ez#initialize_rated_disabilities_information'
     response = api_provider.get_rated_disabilities(nil, nil, { invoker: })
-    ClaimFastTracking::MaxRatingAnnotator.annotate_disabilities(response, user)
+    ClaimFastTracking::MaxRatingAnnotator.annotate_disabilities(response)
 
     # Remap response object to schema fields
     VA526ez::FormRatedDisabilities.new(
@@ -193,11 +193,10 @@ class FormProfiles::VA526ez < FormProfile
     end
     # Logging was added below to contrast/compare completeness of contact information returned
     # from VA Profile alone versus VA Profile + PCIU. This logging will be removed when the Flipper flag is.
-    Rails.logger.info("disability_compensation_remove_pciu=#{Flipper.enabled?(:disability_compensation_remove_pciu,
-                                                                              user)}," \
-                        "mailing_address=#{contact_info[:mailing_address].present?}," \
-                        "email_address=#{contact_info[:email_address].present?}," \
-                        "primary_phone=#{contact_info[:primary_phone].present?}")
+    Rails.logger.info("remove_pciu=#{Flipper.enabled?(:remove_pciu, user)}," \
+                      "mailing_address=#{contact_info[:mailing_address].present?}," \
+                      "email_address=#{contact_info[:email_address].present?}," \
+                      "primary_phone=#{contact_info[:primary_phone].present?}")
 
     contact_info = VA526ez::FormContactInformation.new(contact_info)
 

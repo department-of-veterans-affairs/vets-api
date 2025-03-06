@@ -398,7 +398,11 @@ class User < Common::RedisStore
   delegate :show_onboarding_flow_on_login, to: :onboarding, allow_nil: true
 
   def vet360_contact_info
-    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?
+    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled &&
+                      (
+                        (!Flipper.enabled?(:remove_pciu, self) && vet360_id.present?) ||
+                        (Flipper.enabled?(:remove_pciu, self) && icn.present?)
+                      )
 
     @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end

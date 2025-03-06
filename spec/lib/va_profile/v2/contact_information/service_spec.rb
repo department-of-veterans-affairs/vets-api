@@ -9,7 +9,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   let(:user) { build(:user, :loa3) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
   end
 
   describe '#get_person' do
@@ -91,7 +91,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-            old_email = user.vaprofile_contact_info.email.email_address
+            old_email = user.va_profile_email
             expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
 
             response = subject.put_email(email)
