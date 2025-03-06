@@ -99,6 +99,7 @@ module DebtsApi
     end
 
     def alert_silent_error(message)
+      StatsD.increment("#{STATS_KEY}.hard_failure")
       Rails.logger.error("Silent failure triggered: #{message}")
       StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:register_failure])
     end
