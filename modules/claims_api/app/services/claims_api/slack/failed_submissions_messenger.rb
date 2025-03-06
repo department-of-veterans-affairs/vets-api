@@ -94,6 +94,8 @@ module ClaimsApi
       end
 
       def link_value(id)
+        return 'N/A' if id.blank?
+
         time_stamps = datadog_timestamps
 
         "<https://vagov.ddog-gov.com/logs?query='#{id}'&agg_m=count&agg_m_source=base&agg_t=count&cols=" \

@@ -135,8 +135,10 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
           a_hash_including(
             text: {
               type: 'mrkdwn',
-              text: a_string_including('```', '<https://vagov.ddog-gov.com/logs?query=',
-                                       'CID', "|#{first_cid}>", 'TID', "|#{first_tid}", '```')
+              text: a_string_including('```',
+                                       'CID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_cid}>",
+                                       'TID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_tid}",
+                                       '```')
             }
           )
         )
@@ -146,6 +148,38 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
       end
 
       messenger.notify!
+    end
+
+    context 'if transaction ids are missing' do
+      let(:errored_va_gov_claims) { Array.new(num_errors) { [SecureRandom.uuid, nil] } }
+
+      it 'avoids linking to logs that are not there' do
+        first_cid = errored_va_gov_claims.first[0]
+        first_tid = errored_va_gov_claims.first[1]
+        puts first_tid
+        messenger = described_class.new(
+          errored_va_gov_claims:,
+          from:,
+          to:,
+          environment:
+        )
+
+        expect(notifier).to receive(:notify) do |_text, args|
+          expect(args[:blocks]).to include(
+            a_hash_including(
+              text: {
+                type: 'mrkdwn',
+                text: a_string_including('```',
+                                         'CID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_cid}>",
+                                         'TID', 'N/A',
+                                         '```')
+              }
+            )
+          )
+        end
+
+        messenger.notify!
+      end
     end
 
     context 'when there are intent to file errors' do
