@@ -6,6 +6,15 @@ module AccreditedRepresentativePortal
 
     include Sidekiq::Job
 
+    ##
+    # This retry duration follows the retry duration used by Lighthouse to
+    # accommodate BGS's regular planned maintenance windows of 24 hours.
+    #
+    # It turns out that Lighthouse's background POA submissions uses the same
+    # backoff logic from `Sidekiq` as we do. This means that our status checking
+    # will likely pathologically slightly outrace theirs, making us wait until
+    # the next poll for an update.
+    #
     sidekiq_options retry_for: 48.hours
 
     attr_reader :response
