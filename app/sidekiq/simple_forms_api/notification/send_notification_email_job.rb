@@ -51,7 +51,7 @@ module SimpleFormsApi
         }
       end
 
-      def form_supported?
+      def form_upload_supported?
         SimpleFormsApi::FormUploadNotificationEmail::SUPPORTED_FORMS.include?(form_number)
       end
 
@@ -71,7 +71,7 @@ module SimpleFormsApi
       end
 
       def send_email
-        email = form_supported? ? form_upload_notification_email : notification_email
+        email = form_upload_supported? ? form_upload_notification_email : notification_email
 
         email.send(at: time_to_send)
       end
