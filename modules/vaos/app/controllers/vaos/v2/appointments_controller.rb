@@ -445,6 +445,17 @@ module VAOS
         }
       end
 
+      # Fetches available provider slots using referral data.
+      #
+      # @param referral_data [Hash] Includes:
+      #   - `:provider_id` [String] The provider's ID.
+      #   - `:appointment_type_id` [String] The appointment type.
+      #   - `:start_date` [String] The earliest appointment date (ISO 8601).
+      #   - `:end_date` [String] The latest appointment date (ISO 8601).
+      #
+      # @raise [ArgumentError] If required parameters are missing.
+      # @return [OpenStruct] API response with available slots.
+      #
       def fetch_provider_slots(referral_data)
         eps_provider_service.get_provider_slots(
           referral_data[:provider_id],
