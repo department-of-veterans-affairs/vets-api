@@ -39,7 +39,8 @@
               "senderName",
               "recipientId",
               "recipientName",
-              "readReceipt"
+              "readReceipt",
+              "suggestedNameDisplay"
             ],
             "properties": {
               "messageId": {
@@ -52,10 +53,7 @@
                 "type": "string"
               },
               "body": {
-                "type": [
-                  "null",
-                  "string"
-                ]
+                "type": ["null", "string"]
               },
               "attachment": {
                 "type": "boolean"
@@ -76,22 +74,16 @@
                 "type": "string"
               },
               "readReceipt": {
-                "type": [
-                  "null",
-                  "string"
-                ]
+                "type": ["null", "string"]
               },
               "triageGroupName": {
-                "type": [
-                  "null",
-                  "string"
-                ]
+                "type": ["null", "string"]
               },
               "proxySenderName": {
-                "type": [
-                  "null",
-                  "string"
-                ]
+                "type": ["null", "string"]
+              },
+              "suggestedNameDisplay": {
+                "type": ["null", "string"]
               }
             }
           },
