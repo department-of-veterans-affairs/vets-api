@@ -21,9 +21,9 @@ module SimpleFormsApi
 
         @config = build_config
 
-        return send_form_upload_notification_email if form_supported?
+        return form_upload_notification_email.send(at: time_to_send) if form_supported?
 
-        send_notification_email
+        notification_email.send(at: time_to_send)
       rescue => e
         handle_exception(e)
       end
@@ -31,27 +31,29 @@ module SimpleFormsApi
       private
 
       def user_account
-        @user_account ||= UserAccount.find_by(id: @user_account_id) || (raise ActiveRecord::RecordNotFound,
-                                                                              "UserAccount #{@user_account_id} not found")
+        @user_account ||= UserAccount.find_by(id: @user_account_id) ||
+                          raise_not_found_error('UserAccount', id)
       end
 
       def form_submission_attempt
-        @form_submission_attempt ||= FormSubmissionAttempt.find_by(id: @form_submission_attempt_id) || (raise ActiveRecord::RecordNotFound,
-                                                                                                              "FormSubmissionAttempt #{@form_submission_attempt_id} not found")
+        @form_submission_attempt ||= FormSubmissionAttempt.find_by(id: @form_submission_attempt_id) ||
+                                     raise_not_found_error('FormSubmissionAttempt', id)
+      end
+
+      def raise_not_found_error(resource, id)
+        raise ActiveRecord::RecordNotFound, "#{resource} #{id} not found"
       end
 
       def form_supported?
         SimpleFormsApi::FormUploadNotificationEmail::SUPPORTED_FORMS.include?(@form_number)
       end
 
-      def send_form_upload_notification_email
-        SimpleFormsApi::FormUploadNotificationEmail.new(@config,
-                                                        notification_type: @notification_type).send(at: time_to_send)
+      def form_upload_notification_email
+        SimpleFormsApi::FormUploadNotificationEmail.new(@config, notification_type: @notification_type)
       end
 
-      def send_notification_email
-        SimpleFormsApi::NotificationEmail.new(@config, notification_type: @notification_type,
-                                                       user_account:).send(at: time_to_send)
+      def notification_email
+        SimpleFormsApi::NotificationEmail.new(@config, notification_type: @notification_type, user_account:)
       end
 
       def time_to_send

@@ -9,7 +9,6 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
   let(:form_submission_attempt) { create(:form_submission_attempt) }
   let(:form_number) { '21-0779' }
   let(:user_account) { create(:user_account) }
-
   let(:args) do
     {
       notification_type:,
@@ -20,12 +19,11 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
   end
 
   before do
-    allow(UserAccount).to receive(:find_by).with(id: user_account.id).and_return(user_account)
-    allow(FormSubmissionAttempt).to receive(:find_by).with(id: form_submission_attempt.id).and_return(form_submission_attempt)
+    allow(UserAccount).to receive(:find).with(user_account.id).and_return(user_account)
+    allow(FormSubmissionAttempt).to receive(:find).with(form_submission_attempt.id).and_return(form_submission_attempt)
     allow(SimpleFormsApi::NotificationEmail).to receive(:new).and_return(notification_email)
     allow(SimpleFormsApi::FormUploadNotificationEmail).to receive(:new).and_return(form_upload_notification_email)
     allow(StatsD).to receive(:increment)
-    allow(Rails.logger).to receive(:error)
   end
 
   describe '#perform' do
@@ -39,7 +37,7 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
       end
     end
 
-    context 'when the form is submitted with Form Upload tool' do
+    context 'when the form is submitted with the Form Upload tool' do
       before do
         allow(SimpleFormsApi::FormUploadNotificationEmail).to receive(:SUPPORTED_FORMS).and_return([form_number])
         perform
@@ -51,18 +49,23 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
     end
 
     context 'when an error occurs during email sending' do
+      let(:error_message) { 'Test error' }
+
       before do
-        allow(SimpleFormsApi::NotificationEmail).to receive(:new).and_raise(StandardError, 'Test error')
+        allow(notification_email).to receive(:send).and_raise(StandardError, error_message)
+        allow(Rails.logger).to receive(:error)
       end
 
       it 'logs an error' do
-        expect(Rails.logger).to receive(:error).with(/Test error/)
-        expect { perform }.to raise_error(StandardError, 'Test error')
+        expect { perform }.to raise_error(StandardError, error_message)
+        expect(Rails.logger).to have_received(:error).with(
+          hash_including(message: error_message)
+        )
       end
 
       it 'increments StatsD for silent failures' do
-        expect(StatsD).to receive(:increment).with('silent_failure', tags: anything)
         expect { perform }.to raise_error(StandardError)
+        expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
       end
     end
 
@@ -76,10 +79,8 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
   end
 
   describe '#perform_async' do
-    subject(:perform_async) { described_class.perform_async(args) }
-
     it 'enqueues the job' do
-      expect { perform_async }.to change(described_class.jobs, :size).by(1)
+      expect { described_class.perform_async(args) }.to change(described_class.jobs, :size).by(1)
     end
   end
 end
