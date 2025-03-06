@@ -1865,8 +1865,6 @@ RSpec.describe FormProfile, type: :model do
             end
 
             it 'returns prefilled 21-526EZ' do
-              allow(Flipper).to receive(:enabled?).with(:disability_compensation_remove_pciu,
-                                                        anything).and_return(false)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
                   VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
