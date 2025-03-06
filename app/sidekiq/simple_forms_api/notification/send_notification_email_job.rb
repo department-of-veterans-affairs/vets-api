@@ -5,46 +5,52 @@ module SimpleFormsApi
     class SendNotificationEmailJob
       include Sidekiq::Job
 
-      sidekiq_options retry: 10
+      sidekiq_options retry: 10, backtrace: true
 
       HOUR_TO_SEND_NOTIFICATIONS = 9
 
-      attr_reader :notification_type, :config, :form_number, :user_account
+      attr_reader :notification_type, :config, :form_number
 
-      def perform(notification_type:, form_submission_attempt:, form_number:, user_account:)
-        @notification_type = notification_type
-        @user_account = user_account
-        @form_number = form_number
-        form_submission = form_submission_attempt.form_submission
+      def perform(args)
+        @notification_type = args[:notification_type]
+        @form_number = args[:form_number]
+        @user_account_id = args[:user_account_id]
+        @form_submission_attempt_id = args[:form_submission_attempt_id]
         @config = {
-          form_data: JSON.parse(form_submission.form_data || '{}'),
+          form_data: JSON.parse(form_submission_attempt.form_submission.form_data || '{}'),
           form_number:,
           confirmation_number: form_submission_attempt.benefits_intake_uuid,
           date_submitted: form_submission_attempt.created_at.strftime('%B %d, %Y'),
           lighthouse_updated_at: form_submission_attempt.lighthouse_updated_at&.strftime('%B %d, %Y')
         }
 
-        if SimpleFormsApi::FormUploadNotificationEmail::SUPPORTED_FORMS.include? form_number
-          form_upload_notification_email
-        else
-          notification_email
-        end
+        return send_form_upload_notification_email if form_supported?
+
+        send_notification_email
       rescue => e
         handle_exception(e)
       end
 
       private
 
-      def form_upload_notification_email
+      def user_account
+        @user_account ||= UserAccount.find(@user_account_id)
+      end
+
+      def form_submission_attempt
+        @form_submission_attempt ||= FormSubmissionAttempt.find(@form_submission_attempt_id)
+      end
+
+      def form_supported?
+        SimpleFormsApi::FormUploadNotificationEmail::SUPPORTED_FORMS.include? form_number
+      end
+
+      def send_form_upload_notification_email
         SimpleFormsApi::FormUploadNotificationEmail.new(config, notification_type:).send(at: time_to_send)
       end
 
-      def notification_email
-        SimpleFormsApi::NotificationEmail.new(
-          config,
-          notification_type:,
-          user_account:
-        ).send(at: time_to_send)
+      def send_notification_email
+        SimpleFormsApi::NotificationEmail.new(config, notification_type:, user_account:).send(at: time_to_send)
       end
 
       def time_to_send
