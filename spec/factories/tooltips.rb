@@ -2,7 +2,7 @@ FactoryBot.define do
   factory :tooltip do
     association :user_account
     sequence(:tooltip_name) { |n| "tooltip_#{n}" }
-    last_signed_in { Time.now }
+    last_signed_in { Time.zone.now }
     counter { 0 }
     hidden { false }
 
