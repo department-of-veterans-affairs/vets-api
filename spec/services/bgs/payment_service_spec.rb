@@ -59,6 +59,36 @@ RSpec.describe BGS::PaymentService do
       end
     end
 
+    context 'when :payment_history_recategorize_hardship is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:payment_history_recategorize_hardship).and_return(true)
+      end
+
+      it 'prepends CH33 to the hardship payment type' do
+        VCR.use_cassette('bgs/payment_service/payment_history') do
+          service = BGS::PaymentService.new(user)
+          response = service.payment_history(person)
+          expect(response[:payments][:payment].last[:payment_type]).to eq('CH 33 Hardship (Manual) C&P')
+        end
+      end
+    end
+
+    context 'when :payment_history_recategorize_hardship is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_call_original
+        allow(Flipper).to receive(:enabled?).with(:payment_history_recategorize_hardship).and_return(false)
+      end
+
+      it 'does not prepend CH33 to the hardship payment type' do
+        VCR.use_cassette('bgs/payment_service/payment_history') do
+          service = BGS::PaymentService.new(user)
+          response = service.payment_history(person)
+          expect(response[:payments][:payment].last[:payment_type]).to eq('Hardship (Manual) C&P')
+        end
+      end
+    end
+
     context 'if there are no results for the user' do
       let(:file_number) { '000000000' }
       let(:participant_id) { '000000000' }

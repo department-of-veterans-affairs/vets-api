@@ -1642,6 +1642,10 @@ features:
     actor_type: user
     description: When enabled, a user viewing the payment history will only see payments disbursed to them.
     enable_in_development: false
+  payment_history_recategorize_hardship:
+    actor_type: user
+    description: When enabled, recategorize Hardship payments sent to the veteran as Ch33 Hardship
+    enable_in_development: false
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History

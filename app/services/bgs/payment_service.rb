@@ -26,6 +26,8 @@ module BGS
         payments.select! { |pay| pay[:beneficiary_participant_id] == pay[:recipient_participant_id] }
       end
 
+      recategorize_hardship(response[:payments][:payment]) if Flipper.enabled?(:payment_history_recategorize_hardship)
+
       response
     rescue => e
       log_exception_to_sentry(e, { icn: }, { team: Constants::SENTRY_REPORTING_TEAM })
@@ -47,6 +49,16 @@ module BGS
 
     def empty_response
       { payments: { payment: [] } }
+    end
+
+    def recategorize_hardship(payments)
+      payments.each do |payment|
+        if payment[:payee_type] == 'Veteran' &&
+           payment[:program_type] == 'Chapter 33' &&
+           payment[:payment_type].match(/Hardship/)
+          payment[:payment_type] = "CH 33 #{payment[:payment_type]}"
+        end
+      end
     end
   end
 end
