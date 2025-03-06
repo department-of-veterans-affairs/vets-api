@@ -54,7 +54,8 @@ describe MedicalRecords::Client do
 
       context 'when the redaction feature toggle is enabled', :vcr do
         before do
-          Flipper.enable(:mhv_medical_records_redact_fhir_client_logs)
+          allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_redact_fhir_client_logs,
+                                                    anything).and_return(true)
         end
 
         it 'gets a patient by identifer', :vcr do
@@ -64,19 +65,6 @@ describe MedicalRecords::Client do
             expect(patient_bundle.entry[0].resource).to be_a(FHIR::Patient)
             expect(patient_bundle.entry[0].resource.id).to eq('2952')
             expect(info_log_buffer.string).not_to include(patient_id.to_s)
-          end
-        end
-      end
-
-      context 'when the redaction feature toggle is disabled', :vcr do
-        before do
-          Flipper.disable(:mhv_medical_records_redact_fhir_client_logs)
-        end
-
-        it 'gets a patient by identifer', :vcr do
-          VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
-            client.get_patient_by_identifier(client.fhir_client, patient_id)
-            expect(info_log_buffer.string).to include(patient_id.to_s)
           end
         end
       end

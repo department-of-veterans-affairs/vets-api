@@ -32,16 +32,15 @@ describe HCA::Service do
     end
 
     context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is enabled" do
-      let(:enrollment_system_service) { instance_double(VA1010Forms::EnrollmentSystem::Service) }
-
       it "calls the new 'VA1010Forms::EnrollmentSystem::Service'" do
+        enrollment_system_service = instance_double(VA1010Forms::EnrollmentSystem::Service)
         allow(VA1010Forms::EnrollmentSystem::Service).to receive(:new).and_return(enrollment_system_service)
-
         form = get_fixture('hca/tera')
 
         expect(enrollment_system_service).to receive(:submit).with(form, '10-10EZ')
 
         service.submit_form(form)
+        nil
       end
 
       it 'doesnt convert validation error to another error' do

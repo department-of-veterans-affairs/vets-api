@@ -11,6 +11,12 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
 
   process(convert: 'jpg', if: :png?)
 
+  def convert_to_jpg_if_image
+    return unless image?(file)
+
+    self.class.process convert: 'png'
+  end
+
   def initialize(guid)
     super
     @guid = guid

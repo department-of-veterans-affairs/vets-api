@@ -9,7 +9,7 @@ class PreneedAttachmentUploader < CarrierWave::Uploader::Base
     (1.byte)...(25.megabytes)
   end
 
-  process(convert: 'pdf', if: :not_pdf?)
+  process(convert: 'pdf', &:not_pdf?)
 
   def initialize(guid)
     super
