@@ -155,6 +155,10 @@ features:
     actor_type: user
     description: Enables the route guard authentication for 10-10EZR application
     enable_in_development: true
+  ezr_form_prefill_with_providers_and_dependents:
+    actor_type: user
+    description: Adds insurance providers and dependents to ezr prefill data
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -537,10 +541,6 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
-    enable_in_development: true
-  disability_526_max_cfi_service_switch:
-    actor_type: user
-    description: Enables the use of the new Max Ratings CFI service instead of the VRO client for fetching max ratings.
     enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
