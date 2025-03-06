@@ -127,10 +127,11 @@ module ClaimsApi
 
           # skip the BGS API calls in lower environments to prevent 3rd parties from creating data in external systems
           unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
-            res = ClaimsApi::PowerOfAttorneyRequestService::Orchestrator.new(target_veteran.participant_id,
-                                                                             bgs_form_attributes.deep_symbolize_keys,
-                                                                             user_profile&.profile&.participant_id,
-                                                                             :poa).submit_request
+            res = ClaimsApi::PowerOfAttorneyRequestService::Orchestrator
+                  .new(target_veteran.participant_id,
+                       bgs_form_attributes.deep_symbolize_keys,
+                       user_profile&.profile&.participant_id).submit_request
+
             claimant_icn = form_attributes.dig('claimant', 'claimantId')
             poa_request = ClaimsApi::PowerOfAttorneyRequest.create!(proc_id: res['procId'],
                                                                     veteran_icn: params[:veteranId],
