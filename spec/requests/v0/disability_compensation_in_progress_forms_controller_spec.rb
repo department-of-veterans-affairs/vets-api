@@ -16,11 +16,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
       before do
         allow(Flipper).to receive(:enabled?).with(:in_progress_form_custom_expiration)
         allow(Flipper).to receive(:enabled?).with(:disability_compensation_sync_modern_0781_flow, instance_of(User))
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
-                                                  instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:disability_compensation_remove_pciu,
-                                                  instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, instance_of(User))
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User))
         allow(Flipper).to receive(:enabled?).with(:intent_to_file_lighthouse_enabled, instance_of(User))
       end
 
@@ -66,7 +62,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             in_progress_form_lighthouse.update(form_data: fd)
 
             VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-              VCR.use_cassette('virtual_regional_office/max_ratings') do
+              VCR.use_cassette('disability_max_ratings/max_ratings') do
                 get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
               end
             end

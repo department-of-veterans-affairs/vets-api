@@ -13,7 +13,7 @@ module AskVAApi
       service_tag 'profile'
 
       def create
-        address = if Flipper.enabled?(:va_v3_contact_information_service)
+        address = if Flipper.enabled?(:remove_pciu)
                     VAProfile::Models::V3::ValidationAddress.new(address_params)
                   else
                     VAProfile::Models::ValidationAddress.new(address_params)
@@ -47,7 +47,7 @@ module AskVAApi
       end
 
       def service
-        @service ||= if Flipper.enabled?(:va_v3_contact_information_service)
+        @service ||= if Flipper.enabled?(:remove_pciu)
                        VAProfile::V3::AddressValidation::Service.new
                      else
                        VAProfile::AddressValidation::Service.new

@@ -7,8 +7,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
   include JsonSchemaMatchers
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_letters, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_claims, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_direct_deposit, instance_of(User)).and_return(false)

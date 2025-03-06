@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
   before do
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
   end
 
   describe '.refresh_transaction_status()', :skip_vet360 do
@@ -28,6 +28,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
       allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
         create(:find_profile_response, profile: build(:mpi_profile, vet360_id: '1'))
       )
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     end
 
     it 'updates the transaction_status' do
@@ -130,6 +131,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
       allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
         create(:find_profile_response, profile: build(:mpi_profile, vet360_id: '1'))
       )
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     end
 
     it 'does not return completed transactions (whose status has not changed)' do

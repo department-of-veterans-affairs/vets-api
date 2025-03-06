@@ -12,8 +12,7 @@ RSpec.describe 'Mobile::V0::CommunityCareProviders', type: :request do
   let(:contact_info) { user.vet360_contact_info }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
   end
 
   describe 'GET providers', :aggregate_failures do
