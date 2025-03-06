@@ -38,6 +38,9 @@ development: &defaults
   gids_response:
     namespace: gids-response
     each_ttl: 900
+  lcpe_response:
+    namespace: lcpe-response
+    each_ttl: 1209600 # 2 weeks
   sm_store:
     namespace: sm-service
     each_ttl: 1200
@@ -116,6 +119,9 @@ development: &defaults
     each_ttl: 60
   eps_access_token:
     namespace: eps-access-token
+    each_ttl: 840 # 14 minutes
+  ccra_access_token:
+    namespace: ccra-access-token
     each_ttl: 840 # 14 minutes
   saml_request_tracker:
     namespace: saml_request_tracker

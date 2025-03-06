@@ -103,6 +103,10 @@ features:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
     enable_in_development: true
+  hca_download_completed_pdf:
+    actor_type: user
+    description: Enables downloading a filled out 10-10EZ Form Pdf upon submission
+    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -116,9 +120,6 @@ features:
   hca_retrieve_facilities_without_repopulating:
     actor_type: user
     description: Constrain facilities endpoint to only return existing facilities values - even if the table is empty, do not rerun the Job to populate it.
-  retry_form_validation:
-    actor_type: user
-    description: Enables concern to retry schema validation for 10-10EZ and 10-10CG
   cg1010_oauth_2_enabled:
     actor_type: user
     description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
@@ -149,6 +150,10 @@ features:
   ezr_use_correct_format_for_file_uploads:
     actor_type: user
     description: Correctly formats the `va:attachments` XML for file uploads
+    enable_in_development: true
+  ezr_route_guard_enabled:
+    actor_type: user
+    description: Enables the route guard authentication for 10-10EZR application
     enable_in_development: true
   cerner_override_653:
     actor_type: user
@@ -349,6 +354,10 @@ features:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
     enable_in_development: true
+  cst_friendly_evidence_requests:
+    actor_type: user
+    description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
+    enable_in_development: true
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
@@ -480,12 +489,6 @@ features:
     actor_type: user
     description: Enable sending an email if a 4142 submission is not successful in Lighthouse
     enable_in_development: true
-  decision_review_new_engine_4142_job:
-    actor_type: user
-    description: Enable to switch to new modularized Decision Review Form4142Submit job
-  decision_review_new_engine_submit_upload_job:
-    actor_type: user
-    description: Enable to switch to new modularized Decision Review SubmitUpload job
   decision_review_service_common_exceptions_enabled:
     actor_type: user
     description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
@@ -534,10 +537,6 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
-    enable_in_development: true
-  disability_526_migrate_contention_classification:
-    actor_type: user
-    description: Enables the migration of contention classification service from VRO to the VA.gov infrastructure.
     enable_in_development: true
   disability_526_max_cfi_service_switch:
     actor_type: user
@@ -951,6 +950,14 @@ features:
   mhv_accelerated_delivery_vital_signs_enabled:
     actor_type: user
     description: Control fetching OH vitals data
+    enable_in_development: false
+  mhv_accelerated_delivery_uhd_enabled:
+    actor_type: user
+    description: Control whether vets-api allows fetching any MR data from MHV UHD
+    enable_in_development: false
+  mhv_accelerated_delivery_uhd_sp_enabled:
+    actor_type: user
+    description: Control whether vets-api allows fetching Surgical Pathology data from MHV UHD
     enable_in_development: false
   mhv_va_health_chat_enabled:
     actor_type: user
@@ -1595,20 +1602,17 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for modifying the date range selection on the Past appointments page.
-  va_v2_person_service:
+  va_online_scheduling_mhv_route_guards:
     actor_type: user
-    description: When enabled, the VAProfile::V2::Person::Service will be enabled
     enable_in_development: true
-  va_v3_contact_information_service:
+    description: Toggle for adopting MHV route guards for the appointment tool.
+  va_online_scheduling_direct_schedule_appointment_conflict:
     actor_type: user
-    description: When enabled, the VAProfile::V3::ContactInformation will be enabled
     enable_in_development: true
+    description: Toggle for warning user of appointment conflicts on the direct scheduling calendar during booking.
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
-  veteran_onboarding_contact_info_flow:
-    actor_type: user
-    description: Enables the complete your profile workflow
   veteran_onboarding_show_to_newly_onboarded:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user, based upon number of days since verified
@@ -1721,9 +1725,6 @@ features:
   mobile_appeal_model:
     actor_type: user
     description: For mobile app, enables use of strict models for parsing appeals
-  mobile_v2_contact_info:
-    actor_type: user
-    description: For mobile app, enables ContactInformationV2 Service.
   mobile_push_register_logging:
     actor_type: user
     description: For mobile app, logs push register errors for debugging
@@ -1745,9 +1746,6 @@ features:
   disability_compensation_prevent_submission_job:
     actor_type: user
     description: If enabled, the submission form526 record will be created, but there will be submission job
-  disability_compensation_remove_pciu:
-    actor_type: user
-    description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)
   disability_compensation_use_api_provider_for_bdd_instructions:
     actor_type: user
     description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading BDD instructions
@@ -1950,10 +1948,6 @@ features:
   toggle_vye_address_direct_deposit_forms:
     actor_type: user
     description: Enable mailing address and direct deposit for VYE
-  veteran_readiness_employment_to_res:
-    actor_type: user
-    description: Enable RES platform for Veteran Readiness & Employment form submissions, disabled will use VRE email
-    enable_in_development: true
   vye_login_widget:
     actor_type: user
     description: Enable Vye authentication widget
@@ -1979,9 +1973,6 @@ features:
   remove_pciu:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information with PCIU backup calls
-  remove_pciu_2:
-    actor_type: user
-    description: If enabled, removes all PCIU requests in form pre-fill.
   show_yellow_ribbon_table:
     actor_type: user
     description: Used to show yellow ribbon table in Comparison Tool
@@ -2022,7 +2013,7 @@ features:
   is_updated_gi:
     actor_type: user
     description: If enabled, use updated gi design
-  gi_ct_collab: 
+  gi_ct_collab:
     actor_type: user
     description: If enabled, use VEBT/EDM team GI Comparison Tool homepage
   show_rudisill_1995:
@@ -2037,6 +2028,9 @@ features:
   virtual_agent_enable_datadog_logging:
     actor_type: user
     description: If enabled, allows for the use of Datadog logging for the chatbot
+  kafka_producer:
+    actor_type: cookie_id
+    description: Enables the Kafka producer for the VA.gov platform
   show_about_yellow_ribbon_program:
     actor_type: user
     description: If enabled, show additional info about the yellow ribbon program
