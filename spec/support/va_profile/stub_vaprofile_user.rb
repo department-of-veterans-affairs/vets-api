@@ -9,6 +9,7 @@ require 'va_profile/models/telephone'
 def stub_vaprofile_user(person = nil)
   service = VAProfile::V2::ContactInformation::Service
   person_response = VAProfile::V2::ContactInformation::PersonResponse
+
   person ||= build(
     :person_v2,
     addresses: [

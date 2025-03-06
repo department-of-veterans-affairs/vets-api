@@ -7,12 +7,8 @@ RSpec.describe 'V0::InProgressForms::5655' do
   let(:vcr_options) { { match_requests_on: %i[path query] } }
 
   def with_vcr(&block)
-    VCR.use_cassette('evss/pciu/email', vcr_options) do
-      VCR.use_cassette('evss/pciu/primary_phone', vcr_options) do
-        VCR.use_cassette('bgs/people_service/person_data', vcr_options) do
-          block.call
-        end
-      end
+    VCR.use_cassette('bgs/people_service/person_data', vcr_options) do
+      block.call
     end
   end
 
