@@ -11,8 +11,7 @@ RSpec.describe FormProfile, type: :model do
   before do
     allow(Flipper).to receive(:enabled?).and_call_original
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, anything).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, anything).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:disability_compensation_remove_pciu, anything).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, anything).and_return(false)
     described_class.instance_variable_set(:@mappings, nil)
   end
 

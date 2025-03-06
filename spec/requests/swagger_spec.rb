@@ -2712,8 +2712,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     describe 'profile/status', :skip_va_profile_user do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
-                                                  instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
 
         # vet360_id appears in the API request URI so we need it to match the cassette
@@ -2803,14 +2801,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     describe 'contact infromation v2', :skip_vet360 do
       before do
-        Flipper.enable(:va_v3_contact_information_service)
-        Flipper.enable(:remove_pciu)
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-      end
-
-      after do
-        Flipper.disable(:va_v3_contact_information_service)
-        Flipper.disable(:remove_pciu)
       end
 
       describe 'profiles v2', :initiate_vaprofile, :skip_vet360 do
@@ -2821,6 +2813,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
 
         it 'supports getting service history data' do
+          allow(Flipper).to receive(:enabled?).with(:profile_show_military_academy_attendance, nil).and_return(false)
           expect(subject).to validate(:get, '/v0/profile/service_history', 401)
           VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
             expect(subject).to validate(:get, '/v0/profile/service_history', 200, headers)
@@ -2994,6 +2987,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
 
         it 'supports the address validation api' do
+          allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
           address = build(:va_profile_v3_validation_address, :multiple_matches)
           VCR.use_cassette(
             'va_profile/address_validation/validate_match',
@@ -3465,6 +3459,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         before do
           allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
         end
 
         let!(:user) { build(:user, ssn: '796043735') }
@@ -3510,6 +3505,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         before do
           allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
         end
 
         let!(:user) { build(:user, ssn: '796043735') }

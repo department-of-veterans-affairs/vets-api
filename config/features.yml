@@ -1602,14 +1602,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for warning user of appointment conflicts on the direct scheduling calendar during booking.
-  va_v2_person_service:
-    actor_type: user
-    description: When enabled, the VAProfile::V2::Person::Service will be enabled
-    enable_in_development: true
-  va_v3_contact_information_service:
-    actor_type: user
-    description: When enabled, the VAProfile::V3::ContactInformation will be enabled
-    enable_in_development: true
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -1749,9 +1741,6 @@ features:
   disability_compensation_prevent_submission_job:
     actor_type: user
     description: If enabled, the submission form526 record will be created, but there will be submission job
-  disability_compensation_remove_pciu:
-    actor_type: user
-    description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)
   disability_compensation_use_api_provider_for_bdd_instructions:
     actor_type: user
     description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading BDD instructions
@@ -1979,9 +1968,6 @@ features:
   remove_pciu:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information with PCIU backup calls
-  remove_pciu_2:
-    actor_type: user
-    description: If enabled, removes all PCIU requests in form pre-fill.
   show_yellow_ribbon_table:
     actor_type: user
     description: Used to show yellow ribbon table in Comparison Tool
