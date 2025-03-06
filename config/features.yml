@@ -374,9 +374,6 @@ features:
     actor_type: user
     description: Enables users to submit FSR forms for VHA and VBA debts
     enable_in_development: true
-  communication_preferences:
-    actor_type: user
-    description: Allow user to access backend communication_preferences API
   claims_claim_uploader_use_bd:
     actor_type: user
     description: Use BDS instead of EVSS to upload to VBMS.

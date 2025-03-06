@@ -10,6 +10,26 @@ RSpec.describe V0::InProgressFormsController do
   context 'with a user' do
     let(:loa3_user) { build(:user, :loa3) }
     let(:loa1_user) { build(:user, :loa1) }
+    let(:form_profile) do
+      FormProfile.new(form_id: 'foo', user:)
+    end
+
+    let(:contact_info) { form_profile.send :initialize_contact_information }
+
+    let(:va_profile_address) { contact_info&.address }
+
+    let(:address) do
+      {
+        'street' => va_profile_address[:street],
+        'city' => va_profile_address[:city],
+        'state' => va_profile_address[:state],
+        'country' => va_profile_address[:country],
+        'postalCode' => va_profile_address[:postal_code]
+      }
+    end
+
+    let(:us_phone) { contact_info&.home_phone }
+    let(:mobile_phone) { contact_info&.mobile_phone }
 
     before do
       sign_in_as(user)
@@ -195,7 +215,6 @@ RSpec.describe V0::InProgressFormsController do
       end
 
       context 'when a form is not found' do
-        let(:street_check) { build(:street_check) }
         let(:expected_data) do
           {
             'veteranFullName' => {
@@ -205,18 +224,10 @@ RSpec.describe V0::InProgressFormsController do
             'gender' => user.gender,
             'veteranDateOfBirth' => user.birth_date,
             'veteranSocialSecurityNumber' => user.ssn.to_s,
-            'veteranAddress' => {
-              'street' => street_check[:street],
-              'street2' => street_check[:street2],
-              'city' => user.address[:city],
-              'state' => user.address[:state],
-              'country' => user.address[:country],
-              'postalCode' => user.address[:postal_code].slice(0, 5)
-            },
-            'homePhone' => "#{phone_response.country_code}#{phone_response.number}#{phone_response.extension}"
+            'veteranAddress' => address,
+            'homePhone' => us_phone
           }
         end
-        let(:phone_response) { stub_evss_pciu(user).second }
 
         it 'returns pre-fill data' do
           expected_data

@@ -7,7 +7,6 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
   let!(:user) { create(:user, :loa3) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     in_progress_form.update!(user_uuid: user.uuid)
     allow(User).to receive(:find).with(user.uuid).and_return(user)
   end

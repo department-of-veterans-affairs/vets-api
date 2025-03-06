@@ -43,19 +43,6 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
     end
   end
 
-  describe 'authorization' do
-    context 'when the user doesnt have the flag enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:communication_preferences, instance_of(User)).and_return(false)
-      end
-
-      it 'doesnt allow access' do
-        get(:index)
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
-  end
-
   describe '#update' do
     subject do
       patch(
