@@ -19,8 +19,6 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
       Flipper.enable_actor(:mobile_lighthouse_claims, user)
     end
 
-    after { Flipper.disable(:mobile_lighthouse_claims) }
-
     context 'when the claim is found' do
       before do
         allow(Flipper).to receive(:enabled?).and_call_original

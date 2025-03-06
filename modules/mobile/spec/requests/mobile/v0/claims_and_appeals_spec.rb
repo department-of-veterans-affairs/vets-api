@@ -33,7 +33,10 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
     end
   end
 
-  after { Flipper.disable(:mobile_claims_log_decision_letter_sent) }
+  after do
+    Flipper.disable(:mobile_claims_log_decision_letter_sent)
+    Flipper.enable(:mobile_lighthouse_claims)
+  end
 
   describe '#index is polled an unauthorized user' do
     it 'and not user returns a 401 status' do

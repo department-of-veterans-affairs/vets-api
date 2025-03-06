@@ -60,7 +60,6 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
     describe 'claims' do
       context 'with mobile_lighthouse_claims flag off' do
         before { Flipper.disable(:mobile_lighthouse_claims) }
-        after { Flipper.enable(:mobile_lighthouse_claims) }
 
         context 'when user does not have evss access' do
           let(:user) { non_evss_user }
