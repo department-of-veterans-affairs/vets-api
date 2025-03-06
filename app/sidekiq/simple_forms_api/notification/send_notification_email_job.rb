@@ -15,9 +15,7 @@ module SimpleFormsApi
         @user_account = form_submission_attempt.user_account
         @form_submission = form_submission_attempt.form_submission
 
-        return form_upload_notification_email.send(at: time_to_send) if form_supported?
-
-        notification_email.send(at: time_to_send)
+        send_email
       rescue => e
         handle_exception(e)
       end
@@ -70,6 +68,12 @@ module SimpleFormsApi
         target_time = now.change(hour: HOUR_TO_SEND_NOTIFICATIONS, min: 0)
 
         now.hour < HOUR_TO_SEND_NOTIFICATIONS ? target_time : target_time.tomorrow
+      end
+
+      def send_email
+        email = form_supported? ? form_upload_notification_email : notification_email
+
+        email.send(at: time_to_send)
       end
 
       def statsd_tags
