@@ -68,10 +68,13 @@ module RepresentationManagement
       end
 
       def enqueue_confirmation_email
+        poa_request = create_response[:request]
+        notification = poa_request.notifications.create!(type: 'requested')
         email_data = RepresentationManagement::PowerOfAttorneyRequestEmailData.new(form_data: @form_data_object)
-        VANotify::EmailJob.perform_async(
+        AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob.perform_async(
           email_data.email_address,
           Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_submit_confirmation_email,
+          notification.id,
           {
             'first_name' => email_data.first_name,
             'last_name' => email_data.last_name,
