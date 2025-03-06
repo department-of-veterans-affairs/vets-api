@@ -27,8 +27,8 @@ RSpec.describe Tooltip, type: :model do
 
     it 'is invalid with a duplicate tooltip_name for the same user_account' do
       user_account = create(:user_account)
-      create(:tooltip, user_account: user_account, tooltip_name: 'duplicate_name')
-      tooltip = build(:tooltip, user_account: user_account, tooltip_name: 'duplicate_name')
+      create(:tooltip, user_account:, tooltip_name: 'duplicate_name')
+      tooltip = build(:tooltip, user_account:, tooltip_name: 'duplicate_name')
       expect(tooltip).not_to be_valid
       expect(tooltip.errors[:tooltip_name]).to include('has already been taken')
     end
