@@ -56,8 +56,6 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
           let(:end_date) { 2.weeks.ago.to_date }
 
           it 'returns the results in descending order by created_at' do
-            subject
-
             json_response = JSON.parse(subject.body)['data']['data']
             expect(json_response.length).to eq(2)
 
@@ -68,9 +66,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
 
           context 'when the start date and/or end dates are provided' do
             it 'returns user actions within the date range' do
-              subject
-
-              json_response = JSON.parse(response.body)['data']['data']
+              json_response = JSON.parse(subject.body)['data']['data']
               expect(json_response.length).to eq(2)
               expect(json_response.first['id']).to eq(user_action_three.id)
               expect(Time.zone.parse(json_response.first['attributes']['created_at'])).to be <= end_date
@@ -84,9 +80,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
             let(:expected_start_date) { 1.month.ago.to_date }
 
             it 'returns user actions within the past month' do
-              subject
-
-              json_response = JSON.parse(response.body)['data']['data']
+              json_response = JSON.parse(subject.body)['data']['data']
               expect(json_response.length).to eq(1)
               expect(json_response.first['id']).to eq(user_action_three.id)
               expect(Time.zone.parse(json_response.first['attributes']['created_at'])).to be >= expected_start_date
@@ -98,9 +92,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
             let(:expected_end_date) { Time.zone.now }
 
             it 'returns user actions up to the current date' do
-              subject
-
-              json_response = JSON.parse(response.body)['data']['data']
+              json_response = JSON.parse(subject.body)['data']['data']
               expect(json_response.length).to eq(3)
               expect(json_response.first['id']).to eq(user_action_four.id)
               expect(Time.zone.parse(json_response.first['attributes']['created_at'])).to be <= expected_end_date
@@ -121,10 +113,10 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
 
           context 'when the per_page parameter is not provided' do
             it 'paginates the user actions with a default of 10 per page' do
-              get :index
+              json_response = JSON.parse(subject.body)
 
-              json_response_data = JSON.parse(response.body)['data']['data']
-              json_response_included = JSON.parse(response.body)['data']['included']
+              json_response_data = json_response['data']['data']
+              json_response_included = json_response['data']['included']
 
               expect(json_response_data.length).to eq(10)
               expect(json_response_included.first['relationships']['user_actions']['data'].length).to eq(11)
@@ -135,12 +127,12 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
             let(:per_page) { 5 }
 
             it 'paginates the correct number of user actions per page' do
-              subject
+              json_response = JSON.parse(subject.body)
 
-              json_response_per_page = JSON.parse(response.body)['meta']['per_page']
-              json_response_current_page = JSON.parse(subject.body)['meta']['current_page']
-              json_response_included = JSON.parse(response.body)['data']['included']
-              json_response_data = JSON.parse(response.body)['data']['data']
+              json_response_per_page = json_response['meta']['per_page']
+              json_response_current_page = json_response['meta']['current_page']
+              json_response_included = json_response['data']['included']
+              json_response_data = json_response['data']['data']
 
               expect(json_response_current_page).to eq(1)
               expect(json_response_per_page).to eq(per_page)
@@ -151,8 +143,6 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
 
           context 'when the page parameter is not provided' do
             it 'returns the first page of user actions' do
-              get :index
-
               json_response_current_page = JSON.parse(subject.body)['meta']['current_page']
 
               expect(json_response_current_page).to eq(1)
@@ -163,10 +153,10 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
             let(:page) { 2 }
 
             it 'returns the correct page of user actions' do
-              subject
+              json_response = JSON.parse(subject.body)
 
-              json_response_current_page = JSON.parse(response.body)['meta']['current_page']
-              json_response_data = JSON.parse(response.body)['data']['data']
+              json_response_current_page = json_response['meta']['current_page']
+              json_response_data = json_response['data']['data']
 
               expect(json_response_data.length).to eq(3)
               expect(json_response_current_page).to eq(page)
@@ -175,16 +165,12 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
         end
 
         it 'returns a successful response' do
-          subject
           expect(subject).to have_http_status(:success)
         end
 
         it 'includes the user action event' do
-          subject
-
-          expect(subject).to have_http_status(:success)
-
           json_response = JSON.parse(subject.body)['data']
+
           expect(json_response['data'].length).to eq(2)
           expect(json_response['included'].first['attributes']['details']).to eq('Sample event 2')
           expect(json_response['included'].second['attributes']['details']).to eq('Sample event 1')
@@ -193,9 +179,7 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
 
       context 'when there are no user actions' do
         it 'returns an empty array' do
-          get :index
-
-          json_response = JSON.parse(response.body)['data']
+          json_response = JSON.parse(subject.body)['data']
           expect(response).to have_http_status(:ok)
           expect(json_response['data'].length).to eq(0)
           expect(json_response['included'].length).to eq(0)
