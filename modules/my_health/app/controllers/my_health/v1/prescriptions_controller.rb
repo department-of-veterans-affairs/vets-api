@@ -38,12 +38,12 @@ module MyHealth
         resource = if Flipper.enabled?(:mhv_medications_display_grouping, current_user)
                      get_single_rx_from_grouped_list(collection_resource.data, id)
                    else
-                     client.get_rx_details(id)
+                     client.get_rx_details(id, x_api_key)
                    end
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
 
         options = if Flipper.enabled?(:mhv_medications_display_grouping, current_user)
-                    { meta: client.get_rx_details(id).metadata }
+                    { meta: client.get_rx_details(id, x_api_key).metadata }
                   else
                     { meta: resource.metadata }
                   end
@@ -51,7 +51,7 @@ module MyHealth
       end
 
       def refill
-        client.post_refill_rx(params[:id])
+        client.post_refill_rx(params[:id], x_api_key)
         head :no_content
       end
 
@@ -72,7 +72,7 @@ module MyHealth
         successful_ids = []
         failed_ids = []
         ids.each do |id|
-          client.post_refill_rx(id)
+          client.post_refill_rx(id, x_api_key)
           successful_ids << id
         rescue => e
           puts "Error refilling prescription with ID #{id}: #{e.message}"
@@ -163,9 +163,9 @@ module MyHealth
       def collection_resource
         case params[:refill_status]
         when nil
-          client.get_all_rxs
+          client.get_all_rxs(x_api_key)
         when 'active'
-          client.get_active_rxs_with_details
+          client.get_active_rxs_with_details(x_api_key)
         end
       end
 
@@ -217,6 +217,10 @@ module MyHealth
       def remove_pf_pd(data)
         sources_to_remove_from_data = %w[PF PD]
         data.reject { |item| sources_to_remove_from_data.include?(item.prescription_source) }
+      end
+
+      def x_api_key
+        { 'x-api-key' => Settings.mhv.rx.x_api_key }
       end
     end
   end

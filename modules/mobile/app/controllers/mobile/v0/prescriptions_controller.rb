@@ -8,7 +8,7 @@ module Mobile
       before_action { authorize :mhv_prescriptions, :access? }
 
       def index
-        resource = client.get_history_rxs
+        resource = client.get_history_rxs(x_api_key)
         resource = resource.find_by(filter_params) if params[:filter].present?
         resource = resource.sort(params[:sort])
         page_resource, page_meta_data = paginate(resource.attributes)
@@ -19,13 +19,13 @@ module Mobile
       end
 
       def refill
-        resource = client.post_refill_rxs(ids)
+        resource = client.post_refill_rxs(ids, x_api_key)
 
         render json: Mobile::V0::PrescriptionsRefillsSerializer.new(@current_user.uuid, resource.body)
       end
 
       def tracking
-        resource = client.get_tracking_history_rx(params[:id])
+        resource = client.get_tracking_history_rx(params[:id], x_api_key)
 
         render json: Mobile::V0::PrescriptionTrackingSerializer.new(resource.data)
       end
@@ -80,6 +80,10 @@ module Mobile
         raise Common::Exceptions::InvalidFieldValue.new('ids', ids) unless ids.is_a? Array
 
         ids.map(&:to_i)
+      end
+
+      def x_api_key
+        { 'x-api-key' => Settings.mhv_mobile.x_api_key }
       end
     end
   end

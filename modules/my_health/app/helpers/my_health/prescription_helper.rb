@@ -8,9 +8,9 @@ module MyHealth
       def collection_resource
         case params[:refill_status]
         when nil
-          client.get_all_rxs
+          client.get_all_rxs({ 'x-api-key' => Settings.mhv.rx.x_api_key })
         when 'active'
-          client.get_active_rxs_with_details
+          client.get_active_rxs_with_details({ 'x-api-key' => Settings.mhv.rx.x_api_key })
         end
       end
 

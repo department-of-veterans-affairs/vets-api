@@ -927,12 +927,14 @@ mhv:
     collection_caching_enabled: <%= ENV['mhv__rx__collection_caching_enabled'] %>
     host: <%= ENV['mhv__rx__host'] %>
     mock: <%= ENV['mhv__rx__mock'] %>
+    x_api_key: <%= ENV['mhv__rx__x_api_key'] %>
   sm:
     app_token: <%= ENV['mhv__sm__app_token'] %>
     host: <%= ENV['mhv__sm__host'] %>
     mhv_sm_x_api_key: <%= ENV['mhv__sm__mhv_sm_x_api_key'] %>
     mock: <%= ENV['mhv__sm__mock'] %>
 mhv_mobile:
+  x_api_key: <%= ENV['mhv_mobile__x_api_key'] %>
   sm:
     app_token: <%= ENV['mhv_mobile__sm__app_token'] %>
 mobile_lighthouse:

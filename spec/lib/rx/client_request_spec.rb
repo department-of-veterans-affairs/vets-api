@@ -17,7 +17,7 @@ describe 'ClientRequestSpec', type: :request do
 
       def index
         client = Rx::Client.new(session: { user_id: 123 })
-        client.get_history_rxs
+        client.get_history_rxs({ 'x-api-key' => Settings.mhv.rx.x_api_key })
       end
     end
     stub_const('RxTestsController', klass)
