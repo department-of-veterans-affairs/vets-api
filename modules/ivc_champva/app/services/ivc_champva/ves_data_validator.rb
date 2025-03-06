@@ -1,19 +1,23 @@
 # frozen_string_literal: true
 
+# TODO: add validators for non-required, but structure constrained types:
+# - validate phone number structure: ^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$
+# - validate gender values
+# - validate relationship to veteran
+
 module IvcChampva
   class VesDataValidator
     # This function will run through all the individual validators
     def self.validate(request_body)
       validate_application_type(request_body)
         .then { |rb| validate_application_uuid(rb) }
-        .then { |rb| validate_doc_type(rb) }
         .then { |rb| validate_sponsor(rb) }
         .then { |rb| validate_beneficiaries(rb) }
         .then { |rb| validate_certification(rb) }
     end
 
     def self.validate_sponsor(request_body)
-      sponsor = request_body['sponsor']
+      sponsor = request_body[:sponsor]
       validate_first_name(sponsor)
         .then { |s| validate_last_name(s) }
         .then { |s| validate_sponsor_address(s) }
@@ -25,7 +29,7 @@ module IvcChampva
     end
 
     def self.validate_beneficiaries(request_body)
-      beneficiaries = request_body['beneficiaries']
+      beneficiaries = request_body[:beneficiaries]
       raise ArgumentError, 'beneficiaries is invalid. Must be an array' unless beneficiaries.is_a?(Array)
 
       beneficiaries.each do |beneficiary|
@@ -47,10 +51,10 @@ module IvcChampva
     end
 
     def self.validate_certification(request_body)
-      certification = request_body['certifiation']
+      certification = request_body[:certification]
 
-      validate_presence_and_stringiness(certification['signature'], 'certification signature')
-      validate_date(certification['signatureDate'], 'certification signature date')
+      validate_presence_and_stringiness(certification[:signature], 'certification signature')
+      validate_date(certification[:signatureDate], 'certification signature date')
 
       request_body
     end
@@ -59,28 +63,28 @@ module IvcChampva
     # ------------------------------------------------------------ #
 
     def self.validate_application_type(request_body)
-      validate_presence_and_stringiness(request_body['applicationType'], 'application type')
+      validate_presence_and_stringiness(request_body[:applicationType], 'application type')
 
       request_body
     end
 
     def self.validate_application_uuid(request_body)
-      validate_presence_and_stringiness(request_body['applicationUuid'], 'application UUID')
-      validate_uuid_length(request_body['applicationUuid'], 'application UUID')
+      validate_presence_and_stringiness(request_body[:applicationUUID], 'application UUID')
+      validate_uuid_length(request_body[:applicationUUID], 'application UUID')
 
       request_body
     end
 
     def self.validate_first_name(object)
-      validate_presence_and_stringiness(object['firstName'], 'first name')
-      object['firstName'] = transliterate_and_strip(object['firstName'])
+      validate_presence_and_stringiness(object[:firstName], 'first name')
+      object[:firstName] = transliterate_and_strip(object[:firstName])
 
       object
     end
 
     def self.validate_last_name(object)
-      validate_presence_and_stringiness(object['lastName'], 'last name')
-      object['lastName'] = transliterate_and_strip(object['lastName'])
+      validate_presence_and_stringiness(object[:lastName], 'last name')
+      object[:lastName] = transliterate_and_strip(object[:lastName])
 
       object
     end
@@ -91,41 +95,42 @@ module IvcChampva
     end
 
     def self.validate_person_uuid(object)
-      validate_presence_and_stringiness(object['personUuid'], 'person uuid')
-      validate_uuid_length(object['personUuid'], 'person uuid')
+      validate_presence_and_stringiness(object[:personUUID], 'person uuid')
+      validate_uuid_length(object[:personUUID], 'person uuid')
 
       object
     end
 
     def self.validate_date_of_birth(object)
-      validate_date(object['dateOfBirth'], 'date of birth')
+      validate_date(object[:dateOfBirth], 'date of birth')
 
       object
     end
 
     def self.validate_beneficiary_address(beneficiary)
-      validate_address(beneficiary['address'], 'beneficiary')
+      validate_address(beneficiary[:address], 'beneficiary')
 
       beneficiary
     end
 
     def self.validate_sponsor_address(request_body)
-      validate_address(request_body['address'], 'sponsor')
+      validate_address(request_body[:address], 'sponsor')
 
       request_body
     end
 
     def self.validate_address(address, name)
-      validate_presence_and_stringiness(address['city'], "#{name} city")
-      validate_presence_and_stringiness(address['state'], "#{name} state")
-      validate_presence_and_stringiness(address['zipCode'], "#{name} zip code")
-      validate_presence_and_stringiness(address['streetAddress'], "#{name} street address")
+      validate_presence_and_stringiness(address[:city], "#{name} city")
+      validate_presence_and_stringiness(address[:state], "#{name} state")
+      validate_presence_and_stringiness(address[:zipCode], "#{name} zip code")
+      validate_presence_and_stringiness(address[:streetAddress], "#{name} street address")
     end
 
     def self.validate_ssn(request_body)
-      validate_presence_and_stringiness(request_body['ssn'], 'ssn')
-      unless request_body['ssn'].match?(/^(?!(000|666|9))\d{3}(?!00)\d{2}(?!0000)\d{4}$/)
-        raise ArgumentError, 'ssn is invalid. must be 9 digits (see regex for more detail)'
+      # TODO: strip out hyphens here? Or do that further up the chain?
+      validate_presence_and_stringiness(request_body[:ssn], 'ssn')
+      unless request_body[:ssn].match?(/^(?!(000|666|9))\d{3}(?!00)\d{2}(?!0000)\d{4}$/)
+        raise ArgumentError, 'ssn is invalid. Must be 9 digits (see regex for more detail)'
       end
 
       request_body
@@ -133,6 +138,8 @@ module IvcChampva
 
     def self.validate_date(date, name)
       validate_presence_and_stringiness(date, name)
+      raise ArgumentError, 'date is invalid. Must match YYYY-MM-DD' unless date.match?(/^\d{4}-\d{2}-\d{2}$/)
+
       # TODO: once we know the exact date format VES is expecting we can
       # do further checks here.
       date
