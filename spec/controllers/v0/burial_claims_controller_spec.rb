@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 require 'burials/monitor'
+require 'burials/benefits_intake/submit_claim_job'
 
 RSpec.describe V0::BurialClaimsController, type: :controller do
   let(:monitor) { double('Burials::Monitor') }
@@ -77,7 +78,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
     it 'raises an error' do
       allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'mock error')
       expect(monitor).to receive(:track_process_attachment_error).once
-      expect(Pensions::PensionBenefitIntakeJob).not_to receive(:perform_async)
+      expect(Burials::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
 
       expect do
         subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
