@@ -66,7 +66,7 @@ module VAOS
         referral_id = draft_params[:referral_id]
         # TODO: validate referral_id and other needed referral data from the cache from prior referrals response
 
-        cached_referral_data = eps_redis_client.fetch_all_attributes(referral_number: referral_id)
+        cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
 
         referral_check_result = check_referral_usage(referral_id)
         unless referral_check_result[:success]

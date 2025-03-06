@@ -183,10 +183,10 @@ describe Eps::RedisClient do
     end
   end
 
-  describe '#fetch_all_attributes' do
+  describe '#fetch_referral_attributes' do
     context 'when cache does not exist' do
       it 'returns nil' do
-        expect(redis_client.fetch_all_attributes(referral_number:)).to be_nil
+        expect(redis_client.fetch_referral_attributes(referral_number:)).to be_nil
       end
     end
 
@@ -208,7 +208,7 @@ describe Eps::RedisClient do
           end_date:
         }
 
-        expect(redis_client.fetch_all_attributes(referral_number:)).to eq(expected_attributes.with_indifferent_access)
+        expect(redis_client.fetch_referral_attributes(referral_number:)).to eq(expected_attributes.with_indifferent_access)
       end
     end
 
@@ -224,7 +224,7 @@ describe Eps::RedisClient do
 
       it 'returns nil' do
         Timecop.travel(redis_token_expiry.from_now) do
-          expect(redis_client.fetch_all_attributes(referral_number:)).to be_nil
+          expect(redis_client.fetch_referral_attributes(referral_number:)).to be_nil
         end
       end
     end

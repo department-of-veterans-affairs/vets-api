@@ -93,7 +93,7 @@ module Eps
     #
     # @param referral_number [String] The referral number associated with the cached data.
     # @return [Hash] A hash of referral attributes if data exists, otherwise nil
-    def fetch_all_attributes(referral_number:)
+    def fetch_referral_attributes(referral_number:)
       identifiers = referral_identifiers(referral_number:)
       return nil if identifiers.nil?
 
