@@ -41,5 +41,18 @@ module AccreditedRepresentativePortal
 
     validates :power_of_attorney_request, uniqueness: true
     validates :reason, absence: true, unless: -> { resolving.accepts_reasons? }
+
+    class << self
+      ##
+      # Adding this public class method in addition to `create!` because this
+      # implementation causes the uniqueness validation to be expressed.
+      #
+      def create_with_resolving!(resolving:, **attrs)
+        transaction do
+          resolving.save!
+          create!(resolving:, **attrs)
+        end
+      end
+    end
   end
 end
