@@ -84,8 +84,6 @@ RSpec.describe User, type: :model do
 
     context 'when Flipper remove_pciu is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
-                                                  instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       end
 
@@ -100,8 +98,6 @@ RSpec.describe User, type: :model do
 
     context 'when Flipper remove_pciu is enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
-                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
       end
 
