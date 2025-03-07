@@ -63,6 +63,30 @@ module AccreditedRepresentativePortal
       resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestExpiration)
     end
 
+    def replaced?
+      resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestWithdrawal) &&
+        resolution.resolving.type == PowerOfAttorneyRequestWithdrawal::Types::REPLACEMENT
+    end
+
+    def mark_accepted!(creator, reason)
+      PowerOfAttorneyRequestDecision.create_acceptance!(
+        creator:, power_of_attorney_request: self, reason:
+      )
+    end
+
+    def mark_declined!(creator, reason)
+      PowerOfAttorneyRequestDecision.create_declination!(
+        creator:, power_of_attorney_request: self, reason:
+      )
+    end
+
+    def mark_replaced!(superseding_power_of_attorney_request)
+      PowerOfAttorneyRequestWithdrawal.create_replacement!(
+        power_of_attorney_request: self,
+        superseding_power_of_attorney_request:
+      )
+    end
+
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
     scope :not_expired, lambda {
