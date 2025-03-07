@@ -285,7 +285,7 @@ module ClaimsApi
         def validate_page_size_and_number_params
           return if use_defaults?
 
-          valid_page_param?('size') if params[:page][:size] 
+          valid_page_param?('size') if params[:page][:size]
           valid_page_param?('number') if params[:page][:number]
 
           #   @page_size_param = params[:page][:size] ? params[:page][:size].to_i : DEFAULT_PAGE_SIZE

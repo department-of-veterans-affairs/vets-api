@@ -644,6 +644,47 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           expect(size).to eq(10)
           expect(number).to eq(1)
         end
+
+        context 'when params are invalid' do
+          it 'returns a 422 when a boolean is sent in' do
+            param_val = true
+            page_params = {page: { number: param_val }}
+            allow(subject).to receive(:params).and_return(page_params)
+
+            expect {
+              subject.send(:validate_page_size_and_number_params)
+            }.to raise_error { |error|
+              expect(error.message).to eq("Unprocessable Entity")
+              expect(error.errors[0].detail).to eq("The page[number] param value #{param_val} is invalid")       
+            }
+          end
+
+          it 'returns a 422 when a alpha string is sent in' do
+            param_val = 'abcdefg'
+            page_params = {page: { size: param_val }}
+            allow(subject).to receive(:params).and_return(page_params)
+
+            expect {
+              subject.send(:validate_page_size_and_number_params)
+            }.to raise_error { |error|
+              expect(error.message).to eq("Unprocessable Entity")
+              expect(error.errors[0].detail).to eq("The page[size] param value #{param_val} is invalid")
+            }
+          end
+
+          it 'returns a 422 when a alpha string is sent in' do
+            param_val = [true,'123','cdef']
+            page_params = {page: { size: 5, number: param_val }}
+            allow(subject).to receive(:params).and_return(page_params)
+
+            expect {
+              subject.send(:validate_page_size_and_number_params)
+            }.to raise_error { |error|
+
+              expect(error.message).to eq("Unprocessable Entity")
+            }
+          end
+        end
       end
     end
   end
