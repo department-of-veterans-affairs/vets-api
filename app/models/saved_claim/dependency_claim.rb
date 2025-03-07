@@ -48,21 +48,19 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   def upload_pdf(form_id, doc_type: '148')
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
+    processed_pdfs = []
     if form_id == '21-674-V2'
-      #do everything in here
-      processed_pdfs = []
       self.parsed_form['dependents_application']['student_information'].each_with_index do |student, index|
-        puts index
-        processed_pdf = process_pdf(to_pdf(form_id:, student:), created_at, form_id, index)
-        processed_pdfs << processed_pdf
+        processed_pdfs << process_pdf(to_pdf(form_id:, student:), created_at, form_id, index)
       end
-      combine_multi_674_pdfs(processed_pdfs)
     else
-      processed_pdf = process_pdf(to_pdf(form_id:), created_at, form_id)
+      processed_pdfs << process_pdf(to_pdf(form_id:), created_at, form_id)
     end
-    #upload_to_vbms(path: processed_pdf, doc_type:)
-    #uploaded_forms << form_id
-    #save
+    processed_pdfs.each do |processed_pdf|
+      upload_to_vbms(path: processed_pdf, doc_type:)
+      uploaded_forms << form_id
+      save
+    end
   rescue => e
     Rails.logger.debug('DependencyClaim: Issue Uploading to VBMS in upload_pdf method',
                        { saved_claim_id: id, form_id:, error: e })
@@ -80,16 +78,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
       multistamp: true
     )
-    puts "inside here"
-    puts iterator
     renamed_path = iterator.present? ?  "tmp/pdfs/#{form_id}_#{id}_#{iterator}_final.pdf" : "tmp/pdfs/#{form_id}_#{id}_final.pdf"
-    puts renamed_path
     File.rename(processed_pdf, renamed_path) # rename for vbms upload
     renamed_path # return the renamed path
-  end
-
-  def combine_multi_674_pdfs(pdf_paths)
-    puts pdf_paths
   end
 
   def add_veteran_info(va_file_number_with_payload)
@@ -167,8 +158,6 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
   def to_pdf(form_id: FORM, student: nil)
     self.form_id = form_id
-    puts "looking at student"
-    puts student
     PdfFill::Filler.fill_form(self, nil, { created_at:, student: })
   end
 

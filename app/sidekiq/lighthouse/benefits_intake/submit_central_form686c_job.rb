@@ -15,7 +15,9 @@ module Lighthouse
 
       FOREIGN_POSTALCODE = '00000'
       FORM_ID = '686C-674'
+      FORM_ID_V2 = '686C-674-V2'
       FORM_ID_674 = '21-674'
+      FORM_ID_674_V2 = '21-674-V2'
       STATSD_KEY_PREFIX = 'worker.submit_686c_674_backup_submission'
       # retry for  2d 1h 47m 12s
       # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
@@ -90,14 +92,29 @@ module Lighthouse
         end
       end
 
-      def get_files_from_claim
+      def get_files_from_claim(claim)
         # process the main pdf record and the attachments as we would for a vbms submission
-        form_674_path = process_pdf(claim.to_pdf(form_id: FORM_ID_674), claim.created_at, FORM_ID_674) if claim.submittable_674? # rubocop:disable Layout/LineLength
-        form_686c_path = process_pdf(claim.to_pdf(form_id: FORM_ID), claim.created_at, FORM_ID) if claim.submittable_686? # rubocop:disable Layout/LineLength
-        @form_path = form_686c_path || form_674_path
+        v2 = Flipper.enabled?(:va_dependents_v2)
+        if claim.submittable_674?
+          form_674_paths = []
+          if v2
+            claim.parsed_form['dependents_application']['student_information'].each_with_index do |student, index|
+              form_674_paths << process_pdf(claim.to_pdf(form_id: FORM_ID_674_V2, student:), claim.created_at, FORM_ID_674_V2)
+            end
+          else
+            form_674_paths << process_pdf(claim.to_pdf(form_id: FORM_ID_674), claim.created_at, FORM_ID_674)  # rubocop:disable Layout/LineLength
+          end
+        end
+        form_686c_path = process_pdf(claim.to_pdf(form_id: v2 ? FORM_ID_V2 : FORM_ID), claim.created_at, FORM_ID) if claim.submittable_686? # rubocop:disable Layout/LineLength
+        # set main form_path to be first 674 in array if needed
+        @form_path = form_686c_path || form_674_paths.first
         @attachment_paths = claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf, claim.created_at) }
         # Treat 674 as first attachment
-        attachment_paths.insert(0, form_674_path) if form_686c_path.present? && form_674_path.present?
+        if form_686c_path.present? && form_674_paths.present?
+          attachment_paths.unshift(*form_674_paths)
+        elsif form_674_paths.present? && form_674_paths.size > 1
+          attachment_paths.unshift(*form_674_paths.drop(1))
+        end
       end
 
       def cleanup_file_paths

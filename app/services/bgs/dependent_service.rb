@@ -114,6 +114,7 @@ module BGS
     end
 
     def get_form_hash_686c
+      #note UNDO THESE CHANGES BEFORE PR IS READY
       #bgs_person = service.people.find_person_by_ptcpnt_id(participant_id) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
       #@file_number = bgs_person[:file_nbr]
       @file_number = '987654321'

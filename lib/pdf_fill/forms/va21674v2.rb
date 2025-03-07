@@ -818,7 +818,6 @@ module PdfFill
         #note to self: put in student information key here for options, iterate over and over
         created_at = options[:created_at] if options[:created_at].present?
         student = options[:student]
-        puts student
         @form_data['dependents_application']['student_information'] = [student]
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
