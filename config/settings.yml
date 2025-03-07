@@ -85,10 +85,10 @@ bip:
     url: https://claims-uat.dev8.bip.va.gov
 bpds:
   jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
-  url: https://localhost:4000/api/v1/bpd # See the README for more information on how to run the BPDS locally
   mock: false
-  schema_version: test
   read_timeout: 20 # using the same timeout as lighthouse
+  schema_version: test
+  url: https://localhost:4000/api/v1/bpd # See the README for more information on how to run the BPDS locally
 brd:
   api_key: <%= ENV['brd__api_key'] %>
   base_name: <%= ENV['brd__base_name'] %>
