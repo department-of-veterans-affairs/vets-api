@@ -4,9 +4,9 @@ require 'pdf_info'
 
 module PDFUtilities
   def self.formatted_file_size(file_size_in_bytes)
-    bytes_per_gb = 1_000_000_000
-    bytes_per_mb = 1_000_000
-    bytes_per_kb = 1_000
+    bytes_per_gb = 1_073_741_824
+    bytes_per_mb = 1_048_576
+    bytes_per_kb = 1_024
 
     if file_size_in_bytes >= bytes_per_gb
       "#{format('%g', (file_size_in_bytes.to_f / bytes_per_gb))} GB"
