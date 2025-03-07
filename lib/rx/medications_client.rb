@@ -17,8 +17,15 @@ module Rx
     client_session Rx::ClientSession
 
     def auth_headers
-      config.base_request_headers.merge('appToken' =>
-        config.app_token_va_gov, 'mhvCorrelationId' => session.user_id.to_s)
+      get_headers(config.base_request_headers.merge('mhvCorrelationId' => session.user_id.to_s))
+    end
+
+    def get_headers(headers)
+      if Flipper.enabled?(:mhv_medications_add_x_api_key)
+        headers.merge('x-api-key' => Settings.mhv.rx.x_api_key)
+      else
+        headers
+      end
     end
   end
 end

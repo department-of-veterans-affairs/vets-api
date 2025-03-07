@@ -41,14 +41,10 @@ module V0
     def collection_resource
       case params[:refill_status]
       when nil
-        client.get_history_rxs(x_api_key)
+        client.get_history_rxs
       when 'active'
-        client.get_active_rxs(x_api_key)
+        client.get_active_rxs
       end
-    end
-
-    def x_api_key
-      { 'x-api-key' => Settings.mhv_mobile.x_api_key }
     end
   end
 end

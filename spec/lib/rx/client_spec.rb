@@ -64,7 +64,7 @@ describe Rx::Client do
 
     it 'gets a list of active prescriptions' do
       VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
-        client_response = client.get_active_rxs({ 'x-api-key' => Settings.mhv.rx.x_api_key })
+        client_response = client.get_active_rxs
         expect(client_response).to be_a(Common::Collection)
         expect(client_response.type).to eq(Prescription)
         expect(client_response.cached?).to eq(caching_enabled)
@@ -79,7 +79,7 @@ describe Rx::Client do
 
     it 'gets a list of all prescriptions' do
       VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
-        client_response = client.get_history_rxs({ 'x-api-key' => Settings.mhv.rx.x_api_key })
+        client_response = client.get_history_rxs
         expect(client_response).to be_a(Common::Collection)
         expect(client_response.members.first).to be_a(Prescription)
         expect(client_response.cached?).to eq(caching_enabled)
@@ -106,7 +106,7 @@ describe Rx::Client do
           expect(Common::Collection).not_to receive(:bust).with([nil, nil])
         end
 
-        client_response = client.post_refill_rx(13_650_545, { 'x-api-key' => Settings.mhv.rx.x_api_key })
+        client_response = client.post_refill_rx(13_650_545)
         expect(client_response.status).to equal 200
         # This is what MHV returns, even though we don't care
         expect(client_response.body).to eq(status: 'success')
@@ -119,7 +119,7 @@ describe Rx::Client do
     it 'refills multiple prescriptions' do
       VCR.use_cassette('rx_client/prescriptions/refills_multiple_prescriptions') do
         ids = [13_650_545, 13_650_546]
-        client_response = client.post_refill_rxs(ids, { 'x-api-key' => Settings.mhv.rx.x_api_key })
+        client_response = client.post_refill_rxs(ids)
         expect(client_response.status).to equal 200
         # This is what MHV returns, even though we don't care
         expect(client_response.body).to eq(status: 'success')
@@ -132,7 +132,7 @@ describe Rx::Client do
     context 'nested resources' do
       it 'gets tracking for a prescription' do
         VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_for_a_prescription') do
-          client_response = client.get_tracking_rx(13_650_541, { 'x-api-key' => Settings.mhv.rx.x_api_key })
+          client_response = client.get_tracking_rx(13_650_541)
           expect(client_response).to be_a(Tracking)
           expect(client_response.prescription_id).to eq(13_650_541)
         end
@@ -141,8 +141,7 @@ describe Rx::Client do
       it 'gets a list of tracking history for a prescription' do
         cassette = 'gets_a_list_of_tracking_history_for_a_prescription'
         VCR.use_cassette("rx_client/prescriptions/nested_resources/#{cassette}") do
-          client_response = client.get_tracking_history_rx(13_650_541,
-                                                           { 'x-api-key' => Settings.mhv_mobile.x_api_key })
+          client_response = client.get_tracking_history_rx(13_650_541)
           expect(client_response).to be_a(Common::Collection)
           expect(client_response.members.first.prescription_id).to eq(13_650_541)
           expect(client_response.cached?).to be(false)
@@ -154,7 +153,7 @@ describe Rx::Client do
     it 'handles failed stations' do
       VCR.use_cassette('rx_client/prescriptions/handles_failed_stations') do
         expect(Rails.logger).to receive(:warn).with(/failed station/).with(/Station-000/)
-        client.get_history_rxs({ 'x-api-key' => Settings.mhv.rx.x_api_key })
+        client.get_history_rxs
       end
     end
   end

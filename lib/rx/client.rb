@@ -37,9 +37,9 @@ module Rx
     #
     # @return [Common::Collection[Prescription]]
     #
-    def get_active_rxs(headers = {})
+    def get_active_rxs
       Common::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL_ZERO) do
-        perform(:get, 'prescription/getactiverx', nil, get_headers(token_headers, headers)).body
+        perform(:get, 'getactiverx', nil, get_headers(token_headers)).body
       end
     end
 
@@ -48,9 +48,9 @@ module Rx
     #
     # @return [Common::Collection[PrescriptionDetails]]
     #
-    def get_active_rxs_with_details(headers = {})
+    def get_active_rxs_with_details
       Common::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL) do
-        perform(:get, 'prescription/getactiverx', nil, get_headers(token_headers, headers)).body
+        perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
       end
     end
 
@@ -59,9 +59,9 @@ module Rx
     #
     # @return [Common::Collection[Prescription]]
     #
-    def get_history_rxs(headers = {})
+    def get_history_rxs
       Common::Collection.fetch(::Prescription, cache_key: cache_key('gethistoryrx'), ttl: CACHE_TTL_ZERO) do
-        perform(:get, 'prescription/gethistoryrx', nil, get_headers(token_headers, headers)).body
+        perform(:get, get_path('gethistoryrx'), nil, get_headers(token_headers)).body
       end
     end
 
@@ -71,9 +71,10 @@ module Rx
     #
     # @return [Common::Collection[PrescriptionDetails]]
     #
-    def get_all_rxs(headers = {})
+    def get_all_rxs
+      binding.pry
       Common::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('medications'), ttl: CACHE_TTL) do
-        perform(:get, 'prescription/medications', nil, get_headers(token_headers, headers)).body
+        perform(:get, get_path('medications'), nil, get_headers(token_headers)).body
       end
     end
 
@@ -82,8 +83,8 @@ module Rx
     #
     # @return [Common::Collection[PrescriptionDocumentation]]
     #
-    def get_rx_documentation(ndc, headers = {})
-      perform(:get, "prescription/getrxdoc/#{ndc}", nil, get_headers(token_headers, headers)).body
+    def get_rx_documentation(ndc)
+      perform(:get, get_path("getrxdoc/#{ndc}"), nil, get_headers(token_headers)).body
     end
 
     ##
@@ -92,8 +93,8 @@ module Rx
     # @param id [Fixnum] An Rx id
     # @return [Prescription]
     #
-    def get_rx(id, headers = {})
-      collection = get_history_rxs(headers)
+    def get_rx(id)
+      collection = get_history_rxs
       collection.find_first_by('prescription_id' => { 'eq' => id })
     end
 
@@ -103,8 +104,8 @@ module Rx
     # @param id [Fixnum] An Rx id
     # @return [Prescription]
     #
-    def get_rx_details(id, headers = {})
-      collection = get_all_rxs(headers)
+    def get_rx_details(id)
+      collection = get_all_rxs
       collection.find_first_by('prescription_id' => { 'eq' => id })
     end
 
@@ -114,8 +115,8 @@ module Rx
     # @param id [Fixnum] an Rx id
     # @return [Tracking]
     #
-    def get_tracking_rx(id, headers = {})
-      json = perform(:get, "prescription/rxtracking/#{id}", nil, get_headers(token_headers, headers)).body
+    def get_tracking_rx(id)
+      json = perform(:get, get_path("rxtracking/#{id}"), nil, get_headers(token_headers)).body
       data = json[:data].first.merge(prescription_id: id)
       Tracking.new(json.merge(data:))
     end
@@ -126,8 +127,8 @@ module Rx
     # @param id [Fixnum] an Rx id
     # @return [Common::Collection[Tracking]]
     #
-    def get_tracking_history_rx(id, headers = {})
-      json = perform(:get, "prescription/rxtracking/#{id}", nil, get_headers(token_headers, headers)).body
+    def get_tracking_history_rx(id)
+      json = perform(:get, get_path("rxtracking/#{id}"), nil, get_headers(token_headers)).body
       tracking_history = json[:data].map { |t| t.to_h.merge(prescription_id: id) }
       Common::Collection.new(::Tracking, **json.merge(data: tracking_history))
     end
@@ -138,8 +139,8 @@ module Rx
     # @param ids [Array] an array of Rx ids
     # @return [Faraday::Env]
     #
-    def post_refill_rxs(ids, headers = {})
-      if (result = perform(:post, 'prescription/rxrefill', ids, get_headers(token_headers, headers)))
+    def post_refill_rxs(ids)
+      if (result = perform(:post, 'prescription/rxrefill', ids, get_headers(token_headers)))
         increment_refill(ids.size)
       end
       result
@@ -151,8 +152,8 @@ module Rx
     # @param id [Fixnum] an Rx id
     # @return [Faraday::Env]
     #
-    def post_refill_rx(id, headers = {})
-      if (result = perform(:post, "prescription/rxrefill/#{id}", nil, get_headers(token_headers, headers)))
+    def post_refill_rx(id)
+      if (result = perform(:post, get_path("rxrefill/#{id}"), nil, get_headers(token_headers)))
         keys = [cache_key('getactiverx'), cache_key('gethistoryrx')].compact
         Common::Collection.bust(keys) unless keys.empty?
         increment_refill
@@ -190,23 +191,24 @@ module Rx
       get_preferences
     end
 
-    def get_session_tagged
-      Sentry.set_tags(error: 'mhv_session')
-      x_api_key = { 'x-api-key' => Settings.mhv.rx.x_api_key }
-      env = perform(:get, 'session', nil, get_headers(auth_headers, x_api_key))
-      Sentry.get_current_scope.tags.delete(:error)
-      env
-    end
-
     private
 
-    def get_headers(base_headers, new_headers = {})
-      new_headers ||= {}
+    def auth_headers
+      get_headers(config.base_request_headers).merge('mhvCorrelationId' => session.user_id.to_s)
+    end
+
+    def get_headers(headers)
+      headers = headers.dup
       if Flipper.enabled?(:mhv_medications_add_x_api_key)
-        base_headers.merge(new_headers)
+        headers.merge('x-api-key' => Settings.mhv_mobile.x_api_key)
       else
-        base_headers
+        headers
       end
+    end
+
+    def get_path(endpoint)
+      base_path = Flipper.enabled?(:mhv_medications_add_x_api_key) ? 'v1/pharmacy/ess' : 'prescription'
+      "#{base_path}/#{endpoint}"
     end
 
     def cache_key(action)
