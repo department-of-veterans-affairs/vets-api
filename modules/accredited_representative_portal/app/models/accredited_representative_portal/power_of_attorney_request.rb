@@ -93,12 +93,6 @@ module AccreditedRepresentativePortal
       where.not(resolution: { resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration' })
     }
 
-    scope :for_user, lambda { |user|
-      for_power_of_attorney_holders(
-        user.activated_power_of_attorney_holders
-      )
-    }
-
     scope :for_power_of_attorney_holders, lambda { |poa_holders|
       return none if poa_holders.empty?
 
