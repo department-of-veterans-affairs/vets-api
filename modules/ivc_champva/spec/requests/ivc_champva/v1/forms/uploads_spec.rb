@@ -298,7 +298,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       it 'returns supporting document ids ordered by creation time' do
         result = controller.send(:supporting_document_ids, parsed_form_data)
         # Should be ordered from oldest to newest based on created_at
-        expect(result).to eq(%w(doc1 doc2 doc3))
+        expect(result).to eq(%w[doc1 doc2 doc3])
       end
 
       it 'returns empty array when no supporting docs exist' do
@@ -329,7 +329,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           .and_return(record2)
 
         result = controller.send(:supporting_document_ids, form_data_with_claim_ids)
-        expect(result).to eq(%w(claim1 claim2))
+        expect(result).to eq(%w[claim1 claim2])
       end
     end
 
