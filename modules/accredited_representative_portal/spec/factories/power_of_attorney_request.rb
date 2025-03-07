@@ -65,6 +65,17 @@ FactoryBot.define do
       end
     end
 
+    trait :with_replacement do
+      after(:build) do |poa_request, evaluator|
+        poa_request.resolution = build(
+          :power_of_attorney_request_resolution,
+          :replacement,
+          power_of_attorney_request: poa_request,
+          resolution_created_at: evaluator.resolution_created_at
+        )
+      end
+    end
+
     trait :with_veteran_claimant do
       association :power_of_attorney_form, :with_veteran_claimant, strategy: :build
     end
