@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 require 'decision_review_v1/utilities/form_4142_processor'
-require 'decision_review_v1/utilities/helpers'
-require 'decision_review_v1/utilities/constants'
-require 'decision_review_v1/utilities/logging_utils'
+require 'decision_reviews/v1/helpers'
+require 'decision_reviews/v1/constants'
+require 'decision_reviews/v1/logging_utils'
 require 'lighthouse/benefits_intake/service'
 
-module DecisionReviewV1
-  module Appeals
+module DecisionReviews
+  module V1
     # rubocop:disable Metrics/ModuleLength
     module SupplementalClaimServices
-      include DecisionReviewV1::Appeals::Helpers
-      include DecisionReviewV1::Appeals::LoggingUtils
+      include DecisionReviews::V1::Helpers
+      include DecisionReviews::V1::LoggingUtils
 
       ##
       # Returns all of the data associated with a specific Supplemental Claim.

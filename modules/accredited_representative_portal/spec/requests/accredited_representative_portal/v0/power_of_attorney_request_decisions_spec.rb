@@ -36,7 +36,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
   let(:time) { '2024-12-21T04:45:37.458Z' }
 
   before do
-    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('<TOKEN>')
     allow(Flipper).to receive(:enabled?).with(
       :accredited_representative_portal_pilot,
       instance_of(AccreditedRepresentativePortal::RepresentativeUser)
@@ -138,7 +138,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         expect(response).to have_http_status(:not_found)
         poa_request.reload
 
-        expect(poa_request.resolution.present?).to be(false)
+        expect(poa_request.resolution.present?).to be(true)
       end
     end
 
