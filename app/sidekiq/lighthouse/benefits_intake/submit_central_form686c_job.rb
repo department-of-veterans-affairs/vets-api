@@ -19,6 +19,7 @@ module Lighthouse
       FORM_ID_674 = '21-674'
       FORM_ID_674_V2 = '21-674-V2'
       STATSD_KEY_PREFIX = 'worker.submit_686c_674_backup_submission'
+      ZSF_DD_TAG_FUNCTION = 'submit_686c_674_backup_submission'
       # retry for  2d 1h 47m 12s
       # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
       RETRY = 16
