@@ -31,7 +31,7 @@ module V1
       end
 
       def preload_from_etag
-        request.headers['If-None-Match']&.match(%r{/W\/'(\d+)'/})&.captures&.first
+        request.headers['If-None-Match']&.match(%r{W\/'(\d+)'})&.captures&.first
       end
 
       def set_headers(version)
