@@ -32,7 +32,7 @@ module V0
     end
 
     def refill
-      client.post_refill_rx(params[:id], x_api_key)
+      client.post_refill_rx(params[:id])
       head :no_content
     end
 
