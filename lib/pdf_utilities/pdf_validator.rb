@@ -44,7 +44,7 @@ module PDFUtilities
 
     class Validator
       DEFAULT_OPTIONS = {
-        size_limit_in_bytes: 100_000_000, # 100 MB
+        size_limit_in_bytes: 104_857_600, # 100 MB
         check_page_dimensions: true,
         check_encryption: true,
         # Height/width limits are ignored if the check_page_dimensions option is false.
