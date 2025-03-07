@@ -265,12 +265,12 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
       allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
       allow(Dependents::Monitor).to receive(:new).and_return(monitor)
       allow(monitor).to receive :track_submission_exhaustion
-      Flipper.enable(:dependents_trigger_action_needed_email)
+      allow(Flipper).to receive(:enabled?).with(:dependents_trigger_action_needed_email).and_return(true)
     end
 
     context 'when the the dependents_failure_callback_email flipper is off' do
       before do
-        Flipper.disable(:dependents_failure_callback_email)
+        allow(Flipper).to receive(:enabled?).with(:dependents_failure_callback_email).and_return(false)
       end
 
       it 'logs the error to zsf and sends an email with the 686C template' do
@@ -347,7 +347,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
 
     context 'when the the dependents_failure_callback_email flipper is on' do
       before do
-        Flipper.enable(:dependents_failure_callback_email)
+        allow(Flipper).to receive(:enabled?).with(:dependents_failure_callback_email).and_return(true)
       end
 
       it 'logs the error to zsf and sends an email with the 686C template' do
