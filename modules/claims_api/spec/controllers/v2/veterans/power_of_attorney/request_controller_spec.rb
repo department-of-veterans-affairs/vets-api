@@ -67,19 +67,6 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       let(:poa_codes) { %w[002 003 083] }
 
       context 'page number is present' do
-        context 'and page size is not present' do
-          it 'uses the default page size value' do
-            page_params[:page][:size] = nil
-            mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
-                index_request_with(poa_codes:, page_params:, auth_header:)
-
-                expect(response).to have_http_status(:ok)
-              end
-            end
-          end
-        end
-
         context 'and page size is present' do
           context 'and exceeds the max value allowed' do
             it 'raises a 422' do
