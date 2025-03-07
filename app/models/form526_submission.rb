@@ -163,9 +163,7 @@ class Form526Submission < ApplicationRecord
 
   # Note that the User record is cached in Redis -- `User.redis_namespace_ttl`
   def get_first_name
-    user = User.find(user_uuid)
-    user&.first_name&.upcase.presence ||
-      auth_headers&.dig('va_eauth_firstName')&.upcase
+    user&.first_name&.upcase.presence || auth_headers&.dig('va_eauth_firstName')&.upcase
   end
 
   # Checks against the User record first, and then resorts to checking the auth_headers
@@ -174,7 +172,7 @@ class Form526Submission < ApplicationRecord
   # @return [Hash] of the user's full name (first, middle, last, suffix)
   #
   def full_name
-    name_hash = User.find(user_uuid)&.full_name_normalized
+    name_hash = user&.full_name_normalized
     return name_hash if name_hash&.[](:first).present?
 
     {
@@ -612,7 +610,6 @@ class Form526Submission < ApplicationRecord
   end
 
   def submit_flashes
-    user = User.find(user_uuid)
     # Note that the User record is cached in Redis -- `User.redis_namespace_ttl`
     # If this method runs after the TTL, then the flashes will not be applied -- a possible bug.
     BGS::FlashUpdater.perform_async(id) if user && Flipper.enabled?(:disability_compensation_flashes, user)
@@ -646,11 +643,15 @@ class Form526Submission < ApplicationRecord
   end
 
   def get_user_verifications
-    UserVerification.where(idme_uuid: user_uuid)
-                    .or(UserVerification.where(backing_idme_uuid: user_uuid))
-                    .or(UserVerification.where(logingov_uuid: user_uuid))
-                    .or(UserVerification.where(mhv_uuid: user_uuid))
-                    .or(UserVerification.where(dslogon_uuid: user_uuid))
+    UserVerification.where(idme_uuid: user&.idme_uuid)
+                    .or(UserVerification.where(backing_idme_uuid: user&.idme_uuid))
+                    .or(UserVerification.where(logingov_uuid: user&.logingov_uuid))
+                    .or(UserVerification.where(mhv_uuid: user&.mhv_credential_uuid))
+                    .or(UserVerification.where(dslogon_uuid: user&.edipi))
                     .where.not(user_account_id:)
+  end
+
+  def user
+    @user ||= User.find(user_uuid)
   end
 end
