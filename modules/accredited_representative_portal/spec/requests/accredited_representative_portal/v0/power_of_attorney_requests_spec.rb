@@ -104,7 +104,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           end
         end
 
-        it 'returns a lsit of power of attorney requests' do
+        it 'returns a list of power of attorney requests' do
           poa_requests
 
           get('/accredited_representative_portal/v0/power_of_attorney_requests')

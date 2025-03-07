@@ -31,6 +31,7 @@ RSpec.describe BGS::DependentService do
     allow(claim).to receive(:id).and_return('1234')
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
     allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674, an_instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
   end
 
   describe '#submit_686c_form' do
