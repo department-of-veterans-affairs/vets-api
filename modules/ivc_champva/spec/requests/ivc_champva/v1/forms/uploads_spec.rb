@@ -498,6 +498,20 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             expect(error_message).to eq([nil, 'Upload failed'])
           end
         end
+        context 'when file uploads fail with other errors retry once' do
+          subject(:result) { controller.send(:handle_file_uploads, form_id, parsed_form_data) }
+
+          let(:expected_statuses) { [200, 400] } # All http codes
+          let(:expected_error_message) { [nil, 'Upload failed'] } # All error message strings
+
+          before do
+            allow(file_uploader).to receive(:handle_uploads).and_return(error_response)
+          end
+
+          it 'returns the error statuses and error message' do
+            expect(result).to eq([expected_statuses, expected_error_message])
+          end
+        end
 
         context 'when a file repeatedly fails to load' do
           before do
@@ -518,7 +532,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             expect(error_message).to eq(['Server error occurred'])
           end
 
-          it 'retries handle_uploads and returns an error message' do
+          it 'retries handle_uploads once and returns an error message' do
             # Expect handle_uploads to be called twice due to one retry
             expect(file_uploader).to receive(:handle_uploads).at_least(:twice)
             _statuses, _error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
