@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 
+# rubocop:disable Metrics/ModuleLength
 module AccreditedRepresentativePortal
   RSpec.describe RepresentativeUserAccount, type: :model do
     let(:user_account) do
@@ -10,8 +11,28 @@ module AccreditedRepresentativePortal
       end
     end
 
-    describe '#power_of_attorney_holders' do
-      subject { user_account.send(:power_of_attorney_holders) }
+    describe '#set_email' do
+      subject { user_account.set_email('alsoemail@email.com') }
+
+      context 'with no email set' do
+        let(:user_email) { nil }
+
+        it 'does not raise ArgumentError' do
+          expect { subject }.not_to raise_error(ArgumentError)
+        end
+      end
+
+      context 'with an email already set' do
+        let(:user_email) { 'email@email.com' }
+
+        it 'raises ArgumentError' do
+          expect { subject }.to raise_error(ArgumentError)
+        end
+      end
+    end
+
+    describe '#active_power_of_attorney_holders' do
+      subject { user_account.active_power_of_attorney_holders }
 
       let(:user_email) { 'email@email.com' }
 
@@ -61,9 +82,9 @@ module AccreditedRepresentativePortal
             let(:user_types) { ['veteran_service_officer'] }
             let(:poa_codes) do
               [].tap do |memo|
-                memo << create(:organization).poa
-                memo << create(:organization).poa
-                memo << create(:organization).poa
+                memo << create(:organization, can_accept_digital_poa_requests: true).poa
+                memo << create(:organization, can_accept_digital_poa_requests: true).poa
+                memo << create(:organization, can_accept_digital_poa_requests: true).poa
               end
             end
 
@@ -111,3 +132,4 @@ module AccreditedRepresentativePortal
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
