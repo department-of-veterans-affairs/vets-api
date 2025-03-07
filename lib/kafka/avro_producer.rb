@@ -2,13 +2,16 @@
 
 require 'avro'
 require 'kafka/producer_manager'
+require 'kafka/confluent_schema_registry'
+require 'logger'
 
 module Kafka
   class AvroProducer
-    attr_reader :producer
+    attr_reader :producer, :registry
 
     def initialize(producer: nil)
       @producer = producer || Kafka::ProducerManager.instance.producer
+      @registry = Kafka::ConfluentSchemaRegistry.new(Settings.kafka_producer.schema_registry_url)
     end
 
     def produce(topic, payload, schema_version: 1)
@@ -25,8 +28,14 @@ module Kafka
     private
 
     def get_schema(topic, schema_version)
-      schema_path = Rails.root.join('lib', 'kafka', 'schemas', "#{topic}-value-#{schema_version}.avsc")
-      Avro::Schema.parse(File.read(schema_path))
+      if Flipper.enabled?(:kafka_producer_fetch_schema_dynamically)
+        schema_json = @registry.fetch(topic)
+      else
+        schema_path = Rails.root.join('lib', 'kafka', 'schemas', "#{topic}-value-#{schema_version}.avsc")
+        schema_json = File.read(schema_path)
+      end
+
+      Avro::Schema.parse(schema_json)
     end
 
     def encode_payload(schema, payload)

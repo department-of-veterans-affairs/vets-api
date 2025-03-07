@@ -14,6 +14,7 @@ describe Kafka::AvroProducer do
   before do
     allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('test'))
     allow(Flipper).to receive(:enabled?).with(:kafka_producer).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:kafka_producer_fetch_schema_dynamically).and_return(true)
     allow(Kafka::OauthTokenRefresher).to receive(:new).and_return(double(on_oauthbearer_token_refresh: 'token'))
   end
 
@@ -44,9 +45,10 @@ describe Kafka::AvroProducer do
   end
 
   context 'producing a message successfully' do
+    let(:topic1_payload_value) { "\x00\x00\x00\x00\x05\x02\x06key\nvalue\x00" }
+
     before do
       Kafka::ProducerManager.instance.send(:setup_producer)
-      allow(avro_producer).to receive(:get_schema).and_return(schema)
     end
 
     after do
@@ -54,15 +56,40 @@ describe Kafka::AvroProducer do
       avro_producer.producer.client.reset
     end
 
-    it 'produces a message to the specified topic' do
-      avro_producer.produce('topic-1', valid_payload)
-      avro_producer.produce('topic-1', valid_payload)
-      avro_producer.produce('topic-2', valid_payload)
+    context 'with dynamic schema registry retrieval' do
+      it 'produces a message to the specified topic' do
+        url = 'http://sandbox.lighthouse.va.gov/ves-event-bus-infra/schema-registry/subjects/submission_trace_mock_dev-value/versions/1'
+        with_settings(Settings.kafka_producer,
+                      schema_registry_url: url) do
+          VCR.use_cassette('kafka/topic1') do
+            VCR.use_cassette('kafka/topic2') do
+              avro_producer.produce('topic-1', valid_payload)
+              avro_producer.produce('topic-2', valid_payload)
+              expect(avro_producer.producer.client.messages.length).to eq(2)
+              topic_1_messages = avro_producer.producer.client.messages_for('topic-1')
+              expect(topic_1_messages.length).to eq(1)
+              expect(topic_1_messages[0][:payload]).to be_a(String)
+              expect(topic_1_messages[0][:payload]).to eq(topic1_payload_value)
+            end
+          end
+        end
+      end
+    end
 
-      expect(avro_producer.producer.client.messages.length).to eq(3)
-      topic_1_messages = avro_producer.producer.client.messages_for('topic-1')
-      expect(topic_1_messages.length).to eq(2)
-      expect(topic_1_messages[0][:payload]).to be_a(String)
+    context 'with hardcoded schema registry retrieval' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:kafka_producer_fetch_schema_dynamically).and_return(false)
+      end
+
+      it 'produces a message to the specified topic' do
+        avro_producer.produce('test', valid_payload)
+
+        expect(avro_producer.producer.client.messages.length).to eq(1)
+        topic_1_messages = avro_producer.producer.client.messages_for('test')
+        expect(topic_1_messages.length).to eq(1)
+        expect(topic_1_messages[0][:payload]).to be_a(String)
+        expect(topic_1_messages[0][:payload]).to eq(topic1_payload_value)
+      end
     end
   end
 
