@@ -35,7 +35,7 @@ module V1
       end
 
       def set_headers(version)
-        response.set_header('Cache-Control', 'private')
+        response.set_header('Cache-Control', 'private, max-age=0')
         response.headers.delete('Pragma')
         response.set_header('Expires', 1.week.since.to_s)
         response.set_header('ETag', "W/'#{version}'")
