@@ -27,8 +27,7 @@ module AccreditedRepresentativePortal
     end
 
     def personalisation
-      case type
-      when 'declined' || 'expiring' || 'expired'
+      if %w[declined expiring expired].include?(type)
         {
           'first_name' => first_name
         }
