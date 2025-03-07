@@ -315,11 +315,11 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             { 'claim_id' => 'claim2', 'confirmation_code' => 'code2' }
           ]
         }
-        
+
         # Mock records with created_at and file.id so we can test the fallback behavior
         record1 = double('Record1', created_at: 2.days.ago, file: double(id: 'file1'))
         record2 = double('Record2', created_at: 1.day.ago, file: double(id: 'file2'))
-        
+
         # Return nil for these specific codes to trigger the claim_id fallback
         allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
           .with(guid: 'code1')
@@ -327,9 +327,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
           .with(guid: 'code2')
           .and_return(record2)
-        
+
         result = controller.send(:supporting_document_ids, form_data_with_claim_ids)
-        expect(result).to eq(['claim1', 'claim2'])
+        expect(result).to eq(%w(claim1 claim2))
       end
     end
 
