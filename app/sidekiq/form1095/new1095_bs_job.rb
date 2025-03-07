@@ -7,7 +7,7 @@ module Form1095
     include Sidekiq::Job
     include SentryLogging
 
-    sidekiq_options(unique_for: 4.hours)
+    sidekiq_options(retry: false)
 
     def bucket
       @bucket ||= Aws::S3::Resource.new(
@@ -183,6 +183,8 @@ module Form1095
       file_details = parse_file_name(file_name)
 
       return false if file_details.blank?
+
+      return true if file_details[:tax_year] < Form1095B.current_tax_year
 
       # downloads S3 file into local file, allows for processing large files this way
       temp_file = Tempfile.new(file_name, encoding: 'ascii-8bit')

@@ -15,7 +15,8 @@ module AccreditedRepresentativePortal
       )
     end
 
-    service_tag 'accredited-representative-portal' # ARP Datadog monitoring
+    service_tag 'accredited-representative-portal' # ARP DataDog monitoring: https://bit.ly/arp-datadog-monitoring
+
     validates_access_token_audience Settings.sign_in.arp_client_id
 
     before_action :verify_pilot_enabled_for_user
