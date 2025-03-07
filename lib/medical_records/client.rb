@@ -14,7 +14,7 @@ module MedicalRecords
     include Common::Client::Concerns::MhvFhirSessionClient
 
     # Default number of records to request per call when searching
-    DEFAULT_COUNT = 9999
+    DEFAULT_COUNT = 3000
 
     # LOINC codes for clinical notes
     PHYSICIAN_PROCEDURE_NOTE = '11506-3' # Physician procedure note
@@ -43,7 +43,11 @@ module MedicalRecords
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      "#{Settings.mhv.medical_records.host}/fhir/"
+      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+        "#{Settings.mhv.api_gateway.hosts.fhir}/fhir/"
+      else
+        "#{Settings.mhv.medical_records.host}/fhir/"
+      end
     end
 
     ##
@@ -214,6 +218,10 @@ module MedicalRecords
     #
     def fhir_search_query(fhir_model, params)
       default_headers = { 'Cache-Control': 'no-cache' }
+      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+        default_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
+      end
+
       params[:headers] = default_headers.merge(params.fetch(:headers, {}))
 
       params[:search][:parameters].merge!(_count: DEFAULT_COUNT)
@@ -224,7 +232,12 @@ module MedicalRecords
     end
 
     def fhir_read(fhir_model, id)
-      result = fhir_client.read(fhir_model, id)
+      default_headers = {}
+      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+        default_headers.merge!('x-api-key' => Settings.mhv.medical_records.x_api_key)
+      end
+
+      result = fhir_client.read(fhir_model, id, nil, nil, { headers: default_headers })
       handle_api_errors(result) if result.resource.nil?
       result.resource
     end
