@@ -3,8 +3,6 @@
 module IvcChampva
   module ProdSupportUtilities
     class MissingStatusCleanup
-      # TODO: can we combine this with IvcChampva::ProdSupportUtilities::Insights::get_user_batches_in_window ?
-      # Or does this function belong in `Insights` class?
       def get_missing_statuses
         all_nil_statuses = IvcChampvaForm.where(pega_status: nil)
         batches = batch_records(all_nil_statuses)
@@ -60,7 +58,7 @@ module IvcChampva
 
       # batch: a list of IvcChampvaForm active records with the same form UUIDs
       def manually_process_batch(batch)
-        batch.each_value do |form|
+        batch.each do |form|
           next unless form.pega_status.nil?
 
           puts "Setting #{form.file_name} to 'Manually Processed'"
