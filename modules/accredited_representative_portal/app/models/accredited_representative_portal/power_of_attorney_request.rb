@@ -63,6 +63,18 @@ module AccreditedRepresentativePortal
       resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestExpiration)
     end
 
+    def mark_accepted!(creator, reason)
+      PowerOfAttorneyRequestDecision.create_acceptance!(
+        creator:, power_of_attorney_request: self, reason:
+      )
+    end
+
+    def mark_declined!(creator, reason)
+      PowerOfAttorneyRequestDecision.create_declination!(
+        creator:, power_of_attorney_request: self, reason:
+      )
+    end
+
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
     scope :not_expired, lambda {
