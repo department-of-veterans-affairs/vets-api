@@ -307,7 +307,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
     it 'writes files out over sftp' do
       # we're only pushing spool files on production, b/c of issues with staging data getting into TIMS at RPO's
       allow(Rails.env).to receive(:production?).and_return(true)
-      Settings.hostname = 'api.va.gov'
+      allow(Settings).to receive(:hostname).and_return('api.va.gov')
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
       expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
 
