@@ -92,10 +92,14 @@ module AccreditedRepresentativePortal
       end
 
       def organization_data
+        registration_number =
+          creator.get_registration_number(
+            poa_request.power_of_attorney_holder_type
+          )
+
         {
           poaCode: poa_request.power_of_attorney_holder_poa_code,
-          # TODO: update when allowing non-veteran claimant submissions
-          registrationNumber: poa_request.accredited_individual_registration_number
+          registrationNumber: registration_number
         }
       end
 

@@ -94,8 +94,8 @@ module AccreditedRepresentativePortal
       end
     end
 
-    describe '#registration_number' do
-      subject { user_account.registration_number(power_of_attorney_holder_type) }
+    describe '#get_registration_number' do
+      subject { user_account.get_registration_number(power_of_attorney_holder_type) }
 
       context 'without a user email set' do
         let(:user_email) { nil }
