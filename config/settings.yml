@@ -641,10 +641,15 @@ ivc_forms:
     aws_access_key_id: <%= ENV['ivc_forms__s3__aws_access_key_id'] %>
     aws_secret_access_key: <%= ENV['ivc_forms__s3__aws_secret_access_key'] %>
     bucket: <%= ENV['ivc_forms__s3__bucket'] %>
-    region: us-east-2
+    region: us-gov-west-1
   sidekiq:
     missing_form_status_job:
       enabled: true
+kafka_producer:
+  aws_region: "us-gov-west-1"
+  aws_role_arn: <%= ENV['kafka_producer__aws_role_arn'] %>
+  broker_urls: <%= ENV['kafka_producer__broker_urls'] %>
+  schema_registry_url: <%= ENV['kafka_proudcer__schema_registry_url'] %>
 kms_key_id: <%= ENV['kms_key_id'] %>
 lgy:
   api_key: <%= ENV['lgy__api_key'] %>
@@ -815,6 +820,7 @@ maintenance:
     es: <%= ENV['maintenance__services__es'] %>
     evss: <%= ENV['maintenance__services__evss'] %>
     form1010d: P69N8ZY
+    form107959a: POTKY39
     form107959c: PEP32F2
     form107959f1: P63EKXC
     form107959f2: PZWR9XI
@@ -932,6 +938,14 @@ mhv:
     host: <%= ENV['mhv__sm__host'] %>
     mhv_sm_x_api_key: <%= ENV['mhv__sm__mhv_sm_x_api_key'] %>
     mock: <%= ENV['mhv__sm__mock'] %>
+  uhd:
+    app_id: <%= ENV['mhv__uhd__app_id'] %>
+    app_token: <%= ENV['mhv__uhd__app_token'] %>
+    host: <%= ENV['mhv__uhd__host'] %>
+    mock: false
+    security_host: <%= ENV['mhv__uhd__security_host'] %>
+    subject: "Proxy Client"
+    user_type: <%= ENV['mhv__uhd__user_type'] %>
 mhv_mobile:
   sm:
     app_token: <%= ENV['mhv_mobile__sm__app_token'] %>
@@ -1456,7 +1470,7 @@ vanotify:
     ivc_champva:
       api_key: <%= ENV['vanotify__services__ivc_champva__api_key'] %>
       failure_email_threshold_days: 7
-      pega_inbox_address: fake_email_address
+      pega_inbox_address: <%= ENV['vanotify__services__ivc_champva__pega_inbox_address'] %>
       template_id:
         form_10_10d_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_10d_email'] %>
         form_10_10d_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_10d_failure_email'] %>
@@ -1467,9 +1481,9 @@ vanotify:
         form_10_7959f_1_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_1_email'] %>
         form_10_7959f_1_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_1_failure_email'] %>
         form_10_7959f_2_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_email'] %>
-        form_10_7959f_2_failure_email: form_10_7959f_2_failure_email
-        pega_team_missing_status_email: pega_team_missing_status_email
-        pega_team_zsf_email: pega_team_zsf_email
+        form_10_7959f_2_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_failure_email'] %>
+        pega_team_missing_status_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_missing_status_email'] %>
+        pega_team_zsf_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_zsf_email'] %> 
     lighthouse:
       api_key: <%= ENV['vanotify__services__lighthouse__api_key'] %>
       template_id:
