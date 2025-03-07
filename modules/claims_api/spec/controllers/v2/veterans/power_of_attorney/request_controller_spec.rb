@@ -621,28 +621,30 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       end
 
       describe '#validate_page_size_and_number_params' do
-        it 'assigns the default values when no page params are sent' do
-          page_params = {}
-          allow(subject).to receive(:params).and_return(page_params)
+        context 'when no page params are sent in' do
+          it 'assigns the default values when no page params are sent' do
+            page_params = {}
+            allow(subject).to receive(:params).and_return(page_params)
 
-          subject.send(:validate_page_size_and_number_params)
-          size = subject.instance_variable_get(:@page_size_param)
-          number = subject.instance_variable_get(:@page_number_param)
+            subject.send(:validate_page_size_and_number_params)
+            size = subject.instance_variable_get(:@page_size_param)
+            number = subject.instance_variable_get(:@page_number_param)
 
-          expect(size).to eq(10)
-          expect(number).to eq(1)
-        end
+            expect(size).to eq(10)
+            expect(number).to eq(1)
+          end
 
-        it 'assigns the default values when no page params are sent' do
-          page_params = {page: {}}
-          allow(subject).to receive(:params).and_return(page_params)
+          it 'assigns the default values for when empty page params are sent' do
+            page_params = {page: {} }
+            allow(subject).to receive(:params).and_return(page_params)
 
-          subject.send(:validate_page_size_and_number_params)
-          size = subject.instance_variable_get(:@page_size_param)
-          number = subject.instance_variable_get(:@page_number_param)
+            subject.send(:validate_page_size_and_number_params)
+            size = subject.instance_variable_get(:@page_size_param)
+            number = subject.instance_variable_get(:@page_number_param)
 
-          expect(size).to eq(10)
-          expect(number).to eq(1)
+            expect(size).to eq(10)
+            expect(number).to eq(1)
+          end
         end
 
         context 'when params are invalid' do
