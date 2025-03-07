@@ -72,7 +72,6 @@ module Rx
     # @return [Common::Collection[PrescriptionDetails]]
     #
     def get_all_rxs
-      binding.pry
       Common::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('medications'), ttl: CACHE_TTL) do
         perform(:get, get_path('medications'), nil, get_headers(token_headers)).body
       end
@@ -194,7 +193,8 @@ module Rx
     private
 
     def auth_headers
-      get_headers(config.base_request_headers).merge('mhvCorrelationId' => session.user_id.to_s)
+      get_headers(config.base_request_headers.merge('appToken' => config.app_token,
+                                                    'mhvCorrelationId' => session.user_id.to_s))
     end
 
     def get_headers(headers)

@@ -17,7 +17,8 @@ module Rx
     client_session Rx::ClientSession
 
     def auth_headers
-      get_headers(config.base_request_headers.merge('mhvCorrelationId' => session.user_id.to_s))
+      get_headers(config.base_request_headers.merge('appToken' => config.app_token_va_gov,
+                                                    'mhvCorrelationId' => session.user_id.to_s))
     end
 
     def get_headers(headers)
