@@ -34,7 +34,10 @@ module V1
         request.headers['If-None-Match']&.match(/W\/'(\d+)'/)&.captures&.first
       end
 
-      def set_etag(version)
+      def set_headers(version)
+        response.set_header('Cache-Control', 'private')
+        response.headers.delete('Pragma')
+        response.set_header('Expires', 1.week.since.to_s)
         response.set_header('ETag', "W/'#{version}'")
       end
 
