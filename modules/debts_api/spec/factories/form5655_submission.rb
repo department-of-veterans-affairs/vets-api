@@ -3,9 +3,10 @@
 FactoryBot.define do
   factory :debts_api_form5655_submission, class: 'DebtsApi::V0::Form5655Submission' do
     transient do
-      user { create(:user, :loa3) }
+      user { create(:user, :loa3, :with_terms_of_use_agreement, idme_uuid: SecureRandom.uuid) }
     end
     user_uuid { user.uuid }
+    user_account { user.user_account }
     form_json do
       JSON.parse(
         File.read(
