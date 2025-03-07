@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/12345%5ENI%5E200DOD%5EUSDOD
+    uri: <VETS360_URL>/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/12345%5ENI%5E200DOD%5EUSDOD
     body:
       encoding: UTF-8
       string: '{"bios":[{"bioPath":"militaryPerson.adminDecisions"},{"bioPath":"militaryPerson.adminEpisodes"},{"bioPath":"militaryPerson.dentalIndicators"},{"bioPath":"militaryPerson.militaryOccupations","parameters":{"scope":"all"}},{"bioPath":"militaryPerson.militaryServiceHistory","parameters":{"scope":"all"}},{"bioPath":"militaryPerson.militarySummary"},{"bioPath":"militaryPerson.militarySummary.customerType.dodServiceSummary"},{"bioPath":"militaryPerson.payGradeRanks","parameters":{"scope":"highest"}},{"bioPath":"militaryPerson.prisonerOfWars"},{"bioPath":"militaryPerson.transferOfEligibility"},{"bioPath":"militaryPerson.retirements"},{"bioPath":"militaryPerson.separationPays"},{"bioPath":"militaryPerson.retirementPays"},{"bioPath":"militaryPerson.combatPays"},{"bioPath":"militaryPerson.unitAssignments"}]}'

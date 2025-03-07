@@ -110,12 +110,11 @@ module ClaimsApi
           # validate target veteran exists
           target_veteran
 
-          poa_code = form_attributes.dig('poa', 'poaCode')
+          poa_code = form_attributes.dig('representative', 'poaCode')
           @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile:)
 
           validate_json_schema(FORM_NUMBER)
-          validate_accredited_representative(form_attributes.dig('poa', 'registrationNumber'),
-                                             poa_code)
+          validate_accredited_representative(poa_code)
           validate_accredited_organization(poa_code)
 
           # if we get here, the only errors not raised are form value validation errors
@@ -221,16 +220,14 @@ module ClaimsApi
           matching_request
         end
 
-        def validate_accredited_representative(registration_number, poa_code)
-          @representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes) AND representative_id = ?',
-                                                                     poa_code,
-                                                                     registration_number).order(created_at: :desc).first
+        def validate_accredited_representative(poa_code)
+          @representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes)',
+                                                                     poa_code).order(created_at: :desc).first
           # there must be a representative to appoint. This representative can be an accredited attorney, claims agent,
           #   or representative.
           if @representative.nil?
             raise ::Common::Exceptions::ResourceNotFound.new(
-              detail: "Could not find an Accredited Representative with registration number: #{registration_number} " \
-                      "and poa code: #{poa_code}"
+              detail: "Could not find an Accredited Representative with poa code: #{poa_code}"
             )
           end
         end

@@ -6,7 +6,6 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
   describe 'contact information v1', :skip_va_profile_user do
     before do
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
     end
 
     describe '.find_transaction!' do
@@ -288,7 +287,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
 
   describe 'contact information v2' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     end
 
     describe '.refresh_transaction_status() v2', :skip_vet360 do
