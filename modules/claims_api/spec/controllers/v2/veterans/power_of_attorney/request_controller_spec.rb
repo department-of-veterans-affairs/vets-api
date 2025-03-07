@@ -69,7 +69,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       context 'page number is present' do
         context 'and page size is not present' do
           it 'uses the default page size value' do
-            page_params[:pageSize] = nil
+            page_params[:page][:size] = nil
             mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
                 index_request_with(poa_codes:, page_params:, auth_header:)
@@ -83,7 +83,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         context 'and page size is present' do
           context 'and exceeds the max value allowed' do
             it 'raises a 422' do
-              page_params[:pageSize] = 101
+              page_params[:page][:size] = 101
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
                   index_request_with(poa_codes:, page_params:, auth_header:)
@@ -97,10 +97,10 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             end
           end
 
-          context 'and exceeds the max value allowed along with pageNumber' do
+          context 'and exceeds the max value allowed along with page number' do
             it 'raises a 422' do
-              page_params[:pageSize] = 101
-              page_params[:pageNumber] = 120
+              page_params[:page][:size] = 101
+              page_params[:page][:number] = 120
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
                   index_request_with(poa_codes:, page_params:, auth_header:)
@@ -120,7 +120,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       context 'page size is present' do
         context 'and page number is not present' do
           it 'returns a success' do
-            page_params[:pageNumber] = nil
+            page_params[:page][:number] = nil
             mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
                 index_request_with(poa_codes:, page_params:, auth_header:)
@@ -623,11 +623,9 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
   end
 
   def index_request_with(poa_codes:, auth_header:, filter: {}, page_params: nil)
-    page_size = page_params ? page_params[:pageSize] : nil
-    page_number = page_params ? page_params[:pageNumber] : nil
-
     post v2_veterans_power_of_attorney_requests_path,
-         params: { page: { size: page_size, number: page_number },
+         params: { page: { size: page_params&.dig(:page, :size),
+                           number: page_params&.dig(:page, :number) },
                    data: { attributes: { poaCodes: poa_codes, filter: } } }.to_json,
          headers: auth_header.merge('Content-Type' => 'application/json')
   end
