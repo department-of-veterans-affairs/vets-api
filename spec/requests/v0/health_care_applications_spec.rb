@@ -11,6 +11,14 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     )
   end
 
+  let(:headers) do
+    {
+      'ACCEPT' => 'application/json',
+      'CONTENT_TYPE' => 'application/json',
+      'HTTP_X_KEY_INFLECTION' => 'camel'
+    }
+  end
+
   describe 'GET rating_info' do
     let(:current_user) { build(:ch33_dd_user) }
 
@@ -420,7 +428,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       post(
         v0_health_care_applications_path,
         params: params.to_json,
-        headers: { 'CONTENT_TYPE' => 'application/json', 'HTTP_X_KEY_INFLECTION' => 'camel' }
+        headers:
       )
     end
 
@@ -718,6 +726,95 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           expect(JSON.parse(response.body)['data']['attributes']).to eq(body)
         end
       end
+    end
+  end
+
+  describe 'POST /v0/health_care_applications/download_pdf' do
+    subject do
+      post('/v0/health_care_applications/download_pdf', params: body, headers:)
+    end
+
+    let(:endpoint) { '/v0/health_care_applications/download_pdf' }
+    let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10EZ_from_response.pdf' }
+    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10EZ', 'unsigned', 'simple.pdf' }
+
+    let(:form_data) { get_fixture('pdf_fill/10-10EZ/simple').to_json }
+    let(:health_care_application) { build(:health_care_application, form: form_data) }
+    let(:body) { { form: form_data, asyncCompatible: true }.to_json }
+
+    after do
+      FileUtils.rm_f(response_pdf)
+    end
+
+    it 'returns a completed PDF' do
+      expect(HealthCareApplication).to receive(:new)
+        .with(hash_including('form' => form_data))
+        .and_return(health_care_application)
+
+      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
+      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
+
+      subject
+
+      expect(response).to have_http_status(:ok)
+
+      veteran_full_name = health_care_application.parsed_form['veteranFullName']
+      expected_filename = "10-10EZ_#{veteran_full_name['first']}_#{veteran_full_name['last']}.pdf"
+      expect(response.headers['Content-Disposition']).to include("filename=\"#{expected_filename}\"")
+
+      # download response content (the pdf) to disk
+      File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
+
+      # compare it with the pdf fixture
+      expect(
+        pdfs_fields_match?(response_pdf, expected_pdf)
+      ).to be(true)
+
+      # ensure that the tmp file was deleted
+      expect(
+        File.exist?('tmp/pdfs/10-10EZ_file-name-uuid.pdf')
+      ).to be(false)
+    end
+
+    it 'ensures the tmp file is deleted when send_data fails' do
+      expect(HealthCareApplication).to receive(:new)
+        .with(hash_including('form' => form_data))
+        .and_return(health_care_application)
+
+      allow_any_instance_of(ApplicationController).to receive(:send_data).and_raise(StandardError, 'send_data failed')
+
+      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
+      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
+
+      subject
+
+      expect(response).to have_http_status(:internal_server_error)
+      expect(
+        File.exist?('tmp/pdfs/10-10EZ_file-name-uuid.pdf')
+      ).to be(false)
+    end
+
+    it 'ensures the tmp file is deleted when fill_form fails' do
+      expect(HealthCareApplication).to receive(:new)
+        .with(hash_including('form' => form_data))
+        .and_return(health_care_application)
+
+      allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, 'error filling form')
+
+      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
+      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
+
+      expect_any_instance_of(ApplicationController).not_to receive(:send_data)
+
+      expect(File).not_to receive(:delete)
+
+      subject
+
+      expect(response).to have_http_status(:internal_server_error)
+
+      expect(
+        File.exist?('tmp/pdfs/10-10EZ_file-name-uuid.pdf')
+      ).to be(false)
     end
   end
 end
