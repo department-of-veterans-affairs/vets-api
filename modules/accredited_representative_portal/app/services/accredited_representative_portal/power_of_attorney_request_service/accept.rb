@@ -35,8 +35,9 @@ module AccreditedRepresentativePortal
           @resolution = poa_request.mark_accepted!(creator, reason)
         end
         response = service.submit2122(form_payload)
-        create_form_submission!(response.body)
-      # TODO: call PowerOfAttorneyFormSubmissionJob.perform_async(form_submission)
+        form_submission = create_form_submission!(response.body)
+        PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
+        form_submission
       # Invalid record - return error message with 400
       rescue ActiveRecord::RecordInvalid => e
         raise Error.new(e.message, :bad_request)
@@ -46,7 +47,6 @@ module AccreditedRepresentativePortal
         raise Error.new(e.message, BenefitsClaims::ServiceException::ERROR_MAP.invert[e.class])
       # Fatal 4xx errors or validation error: save error message, raise FatalError
       rescue *FATAL_ERROR_TYPES => e
-        resolution&.delete
         create_error_form_submission(e.message, response&.body)
         raise Error.new(e.message, BenefitsClaims::ServiceException::ERROR_MAP.invert[e.class])
       # All other errors: save error data on form submission, will result in a 500
