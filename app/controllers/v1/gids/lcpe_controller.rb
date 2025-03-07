@@ -22,16 +22,20 @@ module V1
       end
 
       def preload_version_id
-        preload_version_from_enriched_id || request.headers['If-None-Match']&.to_s
+        preload_from_enriched_id || preload_from_etag
       end
 
       # '<record id>@<preload version>'
-      def preload_version_from_enriched_id
+      def preload_from_enriched_id
         params[:id]&.split('@')&.last
       end
 
+      def preload_from_etag
+        request.headers['If-None-Match']&.match(/W\/'(\d+)'/)&.captures&.first
+      end
+
       def set_etag(version)
-        response.set_header('ETag', version)
+        response.set_header('ETag', "W/'#{version}'")
       end
 
       # If additional filter params present, bypass versioning
