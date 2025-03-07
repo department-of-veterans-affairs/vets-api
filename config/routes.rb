@@ -150,8 +150,6 @@ Rails.application.routes.draw do
 
     resources :dependents_verifications, only: %i[create index]
 
-    resources :burial_claims, only: %i[create show] if Settings.central_mail.upload.enabled
-
     post 'form0969', to: 'income_and_assets_claims#create'
     get 'form0969', to: 'income_and_assets_claims#show'
 
@@ -164,9 +162,6 @@ Rails.application.routes.draw do
     get 'claim_letters/:document_id', to: 'claim_letters#show'
 
     get 'average_days_for_claim_completion', to: 'average_days_for_claim_completion#index'
-
-    get 'virtual_agent_claim_letters', to: 'virtual_agent_claim_letters#index'
-    get 'virtual_agent_claim_letters/:document_id', to: 'virtual_agent_claim_letters#show'
 
     resources :efolder, only: %i[index show]
 
@@ -184,14 +179,6 @@ Rails.application.routes.draw do
       get 'claims', to: 'virtual_agent_claim_status#index'
       get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
-
-    resources :virtual_agent_claim, only: %i[index]
-
-    namespace :virtual_agent do
-      get 'appeal', to: 'virtual_agent_appeal#index'
-    end
-
-    resources :virtual_agent_appeal, only: %i[index]
 
     get 'intent_to_file', to: 'intent_to_files#index'
     post 'intent_to_file/:type', to: 'intent_to_files#submit'
