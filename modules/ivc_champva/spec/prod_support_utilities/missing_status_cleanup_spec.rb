@@ -3,15 +3,14 @@
 require 'rails_helper'
 
 RSpec.describe IvcChampva::ProdSupportUtilities::MissingStatusCleanup do
-
-  let(:subject) {TestClass.new}
+  subject = TestClass.new
 
   describe 'batch records' do
     subject = IvcChampva::ProdSupportUtilities::MissingStatusCleanup.new
 
     it 'returns a forms batched by form_uuid' do
-    IvcChampvaForm.delete_all
-    IvcChampvaForm.create!(
+      IvcChampvaForm.delete_all
+      IvcChampvaForm.create!(
         form_uuid: '12345678-1234-5678-1234-567812345678',
         email: 'veteran@email.com',
         first_name: 'Veteran',
@@ -22,9 +21,9 @@ RSpec.describe IvcChampva::ProdSupportUtilities::MissingStatusCleanup do
         pega_status: nil,
         case_id: nil,
         email_sent: false
-    )
+      )
 
-    IvcChampvaForm.create!(
+      IvcChampvaForm.create!(
         form_uuid: '12345678-1234-5678-1234-567812345678',
         email: 'veteran@email.com',
         first_name: 'Veteran',
@@ -35,9 +34,9 @@ RSpec.describe IvcChampva::ProdSupportUtilities::MissingStatusCleanup do
         pega_status: nil,
         case_id: nil,
         email_sent: false
-    )
+      )
 
-    IvcChampvaForm.create!(
+      IvcChampvaForm.create!(
         form_uuid: 'a2345678-1234-5678-1234-567812345678',
         email: 'applicant@email.com',
         first_name: 'Applicant',
@@ -48,18 +47,18 @@ RSpec.describe IvcChampva::ProdSupportUtilities::MissingStatusCleanup do
         pega_status: nil,
         case_id: nil,
         email_sent: false
-    )
+      )
 
-    ivc_forms = IvcChampvaForm.all
+      ivc_forms = IvcChampvaForm.all
 
-    batches = subject.batch_records(ivc_forms)
+      batches = subject.batch_records(ivc_forms)
 
-    # We should group by the two unique form_uuids that are present
-    expect(batches.count).to eq(2)
-    expect(batches.keys).to eq(
-        ['12345678-1234-5678-1234-567812345678',
-        'a2345678-1234-5678-1234-567812345678']
-    )
+      # We should group by the two unique form_uuids that are present
+      expect(batches.count).to eq(2)
+      expect(batches.keys).to eq(
+        %w[12345678-1234-5678-1234-567812345678
+           a2345678-1234-5678-1234-567812345678]
+      )
     end
   end
 end
