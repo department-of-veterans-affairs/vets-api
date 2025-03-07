@@ -283,35 +283,51 @@ module ClaimsApi
         end
 
         def validate_page_size_and_number_params
+          return if use_defaults?
+
+          valid_page_param?('size') if params[:page][:size] 
+          valid_page_param?('number') if params[:page][:number]
+
+          #   @page_size_param = params[:page][:size] ? params[:page][:size].to_i : DEFAULT_PAGE_SIZE
+          #   @page_number_param = params[:page][:number] ? params[:page][:number].to_i : DEFAULT_PAGE_NUMBER
+          # end
+
+          # if @page_size_param && @page_size_param > MAX_PAGE_SIZE
+          #   raise_param_exceeded_warning = true
+          #   include_page_size_msg = true
+          # end
+          # if @page_number_param && @page_number_param > MAX_PAGE_NUMBER
+          #   raise_param_exceeded_warning = true
+          #   include_page_number_msg = true
+          # end
+
+          # build_params_error_msg(include_page_size_msg, include_page_number_msg) if raise_param_exceeded_warning.present?
+        end
+
+        def use_defaults?
           if params[:page].blank?
             @page_size_param = DEFAULT_PAGE_SIZE
             @page_number_param = DEFAULT_PAGE_NUMBER
-          else
-            @page_size_param = params[:page][:size] ? params[:page][:size].to_i : DEFAULT_PAGE_SIZE
-            @page_number_param = params[:page][:number] ? params[:page][:number].to_i : DEFAULT_PAGE_NUMBER
-          end
 
-          verify_page_size if @page_number_param.present?
-
-          if @page_size_param && @page_size_param > MAX_PAGE_SIZE
-            raise_param_exceeded_warning = true
-            page_size_msg = "Max pageSize param value of #{MAX_PAGE_SIZE} has been exceeded"
+            true
           end
-          if @page_number_param && @page_number_param > MAX_PAGE_NUMBER
-            raise_param_exceeded_warning = true
-            page_number_msg = "Max pageNumber param value of #{MAX_PAGE_NUMBER} has been exceeded"
-          end
-
-          build_params_error_msg(page_size_msg, page_number_msg) if raise_param_exceeded_warning.present?
         end
 
-        def build_params_error_msg(size_msg, number_msg)
-          if size_msg.present? && number_msg.present?
+        def valid_page_param?(key)
+          return true if params[:page][:"#{key}"].is_a?(Integer) && params[:page][:"#{key}"]
+
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: "The page[#{key}] param value #{params[:page][:"#{key}"]} is invalid"
+          )
+        end
+
+        def build_params_error_msg(include_page_size_msg, include_page_number_msg)
+          if include_page_size_msg.present? && include_page_number_msg.present?
             msg = "Both the maximum page size param value of #{MAX_PAGE_SIZE} has been exceeded and " \
                   "the maximum page number param value of #{MAX_PAGE_NUMBER} has been exceeded."
-          elsif size_msg.present?
+          elsif include_page_size_msg.present?
             msg = "The maximum page size param value of #{MAX_PAGE_SIZE} has been exceeded."
-          elsif number_msg.present?
+          elsif include_page_number_msg.present?
             msg = "The maximum page number param value of #{MAX_PAGE_NUMBER} has been exceeded."
           end
 
@@ -324,13 +340,6 @@ module ClaimsApi
           unless poa_codes.is_a?(Array) && poa_codes.size.positive?
             raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
                                                              detail: 'poaCodes is required and cannot be empty')
-          end
-        end
-
-        def verify_page_size
-          if @page_size_param.blank?
-            raise ::Common::Exceptions::ParameterMissing.new('pageSize',
-                                                             detail: 'pageSize is required when pageNumber is present')
           end
         end
 
