@@ -3,6 +3,10 @@
 module IvcChampva
   module ProdSupportUtilities
     class MissingStatusCleanup
+      # Displays a list of all form submission batches that include a missing PEGA status
+      #
+      # @returns [Hash] a hash where keys are form UUIDs and values are arrays of
+      #   IvcChampvaForm records matching that UUID
       def get_missing_statuses
         all_nil_statuses = IvcChampvaForm.where(pega_status: nil)
         batches = batch_records(all_nil_statuses)
@@ -14,7 +18,12 @@ module IvcChampva
         batches
       end
 
-      # TODO: Condense functionality - this method is way too similar to the above
+      # Displays a list of all form submission batches that match the provided email address.
+      #
+      # @param [String] email_addr email address to search for IvcChampvaForm records by
+      #
+      # @returns [Hash] a hash where keys are form UUIDs and values are arrays of
+      #   IvcChampvaForm records matching that UUID, all with :email equal to to email_addr
       def get_batches_for_email(email_addr)
         results = IvcChampvaForm.where(email: email_addr)
         batches = batch_records(results)
@@ -25,7 +34,13 @@ module IvcChampva
         batches
       end
 
-      # records: a list of IvcChampvaForm active records
+      # Collates the provided list of IvcChampvaForms into a hash of forms batched up by
+      # their form_uuid property.
+      #
+      # @param [Array<IvcChampvaForm>] records Active record query result containing IvcChampvaForm items
+      #
+      # @returns [Hash] a hash where keys are form UUIDs and values are arrays of
+      #   IvcChampvaForm records matching that UUID
       def batch_records(records)
         batches = {}
 
@@ -38,7 +53,9 @@ module IvcChampva
         batches
       end
 
-      # batch: a list of IvcChampvaForm active records with the same form UUIDs
+      # Displays the provided IvcChampvaForm items in batches, grouped by form_uuid
+      #
+      # @param [Array<IvcChampvaForm>] batch list of IvcChampvaForm items with the same form_uuid
       def display_batch(batch)
         return unless batch.count.positive?
 
@@ -56,7 +73,12 @@ module IvcChampva
         nil
       end
 
-      # batch: a list of IvcChampvaForm active records with the same form UUIDs
+      # Set the `pega_status` property to "Manually Processed" for all IvcChampvaForm
+      # items contained in the provided batch.
+      #
+      # @param [Array<IvcChampvaForm>] batch list of IvcChampvaForm items with the same form_uuid
+      # @returns [Hash] a hash where keys are form UUIDs and values are arrays of
+      #   IvcChampvaForm records matching that UUID
       def manually_process_batch(batch)
         batch.each do |form|
           next unless form.pega_status.nil?
