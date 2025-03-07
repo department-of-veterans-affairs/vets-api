@@ -424,6 +424,5 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
         end
       end
     end
-
   end
 end
