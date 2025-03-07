@@ -42,16 +42,16 @@ module V0
     # If we were unable to submit the user's claim digitally, we allow them to the download
     # the 10-10CG PDF, pre-filled with their data, for them to mail in.
     def download_pdf
-      pdf_file_path = @claim.to_pdf(SecureRandom.uuid, sign: false)
+      source_file_path = @claim.to_pdf(SecureRandom.uuid, sign: false)
 
       client_file_name = file_name_for_pdf(@claim.veteran_data)
-      file_contents    = File.read(pdf_file_path)
+      file_contents    = File.read(source_file_path)
 
       auditor.record(:pdf_download)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
     ensure
-      File.delete(pdf_file_path) if pdf_file_path && File.exist?(pdf_file_path)
+      File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
 
     def facilities
