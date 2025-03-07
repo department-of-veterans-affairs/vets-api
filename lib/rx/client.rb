@@ -39,7 +39,7 @@ module Rx
     #
     def get_active_rxs
       Common::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL_ZERO) do
-        perform(:get, 'getactiverx', nil, get_headers(token_headers)).body
+        perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
       end
     end
 
