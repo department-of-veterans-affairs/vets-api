@@ -295,7 +295,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           .and_return(double('Record3', created_at: Time.zone.now, file: double(id: 'file3')))
       end
 
-      it 'returns supporting document ids ordered by creation time' do
+      it 'orders supporting document ids by date created' do
         result = controller.send(:supporting_document_ids, parsed_form_data)
         # Should be ordered from oldest to newest based on created_at
         expect(result).to eq(%w[doc1 doc2 doc3])
