@@ -7,6 +7,7 @@ require 'saml/responses/login'
 require 'saml/responses/logout'
 require 'saml/ssoe_settings_service'
 require 'login/after_login_actions'
+require 'user_audit_logger'
 
 module V1
   class SessionsController < ApplicationController
@@ -165,6 +166,7 @@ module V1
       else
         redirect_to url_service.login_redirect_url
       end
+      create_user_audit_log(user_verification:)
       login_stats(:success)
     end
 
@@ -411,6 +413,14 @@ module V1
     def set_cookies
       Rails.logger.info('SSO: LOGIN', sso_logging_info)
       set_api_cookie!
+    end
+
+    def create_user_audit_log(user_verification:)
+      UserAuditLogger.new(user_action_event_identifier: 'sign_in',
+                          subject_user_verification: user_verification,
+                          status: :success,
+                          acting_ip_address: request.remote_ip,
+                          acting_user_agent: request.user_agent).perform
     end
 
     def after_login_actions
