@@ -82,7 +82,9 @@
       "other": true,
       "otherDetails": "Lorem ipsum dolor sit amet."
     },
-    "treatmentReceivedNone": true,
+    "treatmentNoneCheckbox": {
+      "none": true
+    },
     "treatmentProviders": {
       "nonVa": true,
       "medicalCenter": true,

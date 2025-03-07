@@ -79,7 +79,9 @@
     "other": true,
     "otherDetails": "photographic evidence"
   },
-  "treatmentReceivedNone": false,
+  "treatmentNoneCheckbox": {
+    "none": false
+  },
   "treatmentProviders": {
     "nonVa": true,
     "medicalCenter": true,

@@ -58,7 +58,7 @@ module EVSS
                                      'behaviors' => aggregate_behaviors,
                                      'behaviorsDetails' => @form_content['behaviorsDetails'],
                                      'evidence' => aggregate_supporting_evidence,
-                                     'treatmentReceivedNone' => @form_content['treatmentNoneCheckbox'],
+                                     'treatmentNoneCheckbox' => @form_content['treatmentNoneCheckbox'],
                                      'treatmentProviders' => aggregate_treatment_providers,
                                      'treatmentProvidersDetails' => @form_content['treatmentProvidersDetails'],
                                      'optionIndicator' => @form_content['optionIndicator'],
@@ -93,7 +93,7 @@ module EVSS
         evidence.merge!(@form_content['supportingEvidenceRecords'] || {})
         evidence.merge!(@form_content['supportingEvidenceWitness'] || {})
         evidence.merge!(@form_content['supportingEvidenceOther'] || {})
-        evidence.merge!('none' => @form_content['supportingEvidenceNoneCheckbox'] || false)
+        evidence.merge!('none' => @form_content['supportingEvidenceNoneCheckbox']&.[]('none') || false)
 
         if @form_content['supportingEvidenceUnlisted'].present?
           evidence['other'] = true

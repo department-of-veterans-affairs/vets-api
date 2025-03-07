@@ -687,7 +687,7 @@ module PdfFill
 
       def set_treatment_selection
         treated = (@form_data['treatmentProviders'] || {}).any?
-        not_treated = @form_data['treatmentReceivedNone'] || false
+        not_treated = @form_data['treatmentNoneCheckbox']&.[]('none') || false
 
         return if !treated && !not_treated
 

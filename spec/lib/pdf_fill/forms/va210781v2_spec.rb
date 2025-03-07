@@ -67,16 +67,13 @@ describe PdfFill::Forms::Va210781v2 do
         form_data = {}
         new_form_class.instance_variable_set(:@form_data, form_data)
 
-        treatment_data = { 'medicalCenter' => true, 'nonVa' => true, 'vaPaid' => false }
-        new_form_class.instance_variable_set(:@form_data,
-                                             { 'treatmentProviders' => treatment_data,
-                                               'treatmentReceivedNone' => false })
+        treatment_data = { 'medicalCenter' => true, 'nonVa' => true, 'vaPaid' => true }
+        new_form_class.instance_variable_set(:@form_data, { 'treatmentProviders' => treatment_data })
 
         new_form_class.send(:set_treatment_selection)
 
         expected_data = {
           'treatmentProviders' => treatment_data,
-          'treatmentReceivedNone' => false,
           'treatment' => 0,
           'noTreatment' => 0
         }
@@ -85,19 +82,20 @@ describe PdfFill::Forms::Va210781v2 do
       end
     end
 
-    context 'when no treatment providers but treatmentReceivedNone is true' do
+    context 'when no treatment providers but treatmentNoneCheckbox is true' do
       it 'sets treatment to 1 and noTreatment to 1' do
         form_data = {}
         new_form_class.instance_variable_set(:@form_data, form_data)
 
         new_form_class.instance_variable_set(:@form_data,
-                                             { 'treatmentProviders' => {}, 'treatmentReceivedNone' => true })
+                                             { 'treatmentProviders' => {},
+                                               'treatmentNoneCheckbox' => { 'none' => true } })
 
         new_form_class.send(:set_treatment_selection)
 
         expected_data = {
           'treatmentProviders' => {},
-          'treatmentReceivedNone' => true,
+          'treatmentNoneCheckbox' => { 'none' => true },
           'treatment' => 1,
           'noTreatment' => 1
         }
@@ -106,20 +104,16 @@ describe PdfFill::Forms::Va210781v2 do
       end
     end
 
-    context 'when no treatment providers and treatmentReceivedNone is false' do
+    context 'when no treatment providers' do
       it 'does not set treatment or noTreatment' do
         form_data = {}
         new_form_class.instance_variable_set(:@form_data, form_data)
 
-        new_form_class.instance_variable_set(:@form_data,
-                                             { 'treatmentProviders' => {}, 'treatmentReceivedNone' => false })
+        new_form_class.instance_variable_set(:@form_data, { 'treatmentProviders' => {} })
 
         new_form_class.send(:set_treatment_selection)
 
-        expected_data = {
-          'treatmentProviders' => {},
-          'treatmentReceivedNone' => false
-        }
+        expected_data = { 'treatmentProviders' => {} }
 
         expect(new_form_class.instance_variable_get(:@form_data)).to eq(expected_data)
       end

@@ -403,7 +403,9 @@
         "none": false
       },
       "supportingEvidenceUnlisted": "Lorem ipsum dolor sit amet.",
-      "treatmentNoneCheckbox": false,
+      "treatmentNoneCheckbox": {
+        "none": false
+      },
       "treatmentReceivedVaProvider": {
         "vaPaid": false,
         "medicalCenter": true,
