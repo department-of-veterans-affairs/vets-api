@@ -331,6 +331,15 @@ dmc:
   url: <%= ENV['dmc__url'] %>
 dogstatsd:
   enabled: true
+
+
+bpds:
+  jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
+  mock: false
+  read_timeout: 20 # using the same timeout as lighthouse
+  schema_version: test
+  url: https://localhost:4000/api/v1/bpd # See the README for more information on how to run the BPDS locally
+
 edu:
   prefill: true
   production_excel_contents:
@@ -386,13 +395,6 @@ edu:
       - marelby.hernandez@va.gov
       - nawar.hussein@va.gov
       - engin.akman@va.gov
-
-bpds:
-  jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
-  url: https://localhost:4000/api/v1/bpd # See the README for more information on how to run the BPDS locally
-  mock: false
-  schema_version: test
-  read_timeout: 20 # using the same timeout as lighthouse
 
 # Settings for EVSS
 evss:
