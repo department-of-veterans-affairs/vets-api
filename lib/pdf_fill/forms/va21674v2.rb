@@ -814,8 +814,7 @@ module PdfFill
         }
       }.freeze
 
-      def merge_fields(options = {}) 
-        #note to self: put in student information key here for options, iterate over and over
+      def merge_fields(options = {})
         created_at = options[:created_at] if options[:created_at].present?
         student = options[:student]
         @form_data['dependents_application']['student_information'] = [student]

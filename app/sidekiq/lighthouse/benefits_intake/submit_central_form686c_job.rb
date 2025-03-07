@@ -98,17 +98,17 @@ module Lighthouse
         if claim.submittable_674?
           form_674_paths = []
           if v2
-            claim.parsed_form['dependents_application']['student_information'].each_with_index do |student, index|
-              form_674_paths << process_pdf(claim.to_pdf(form_id: FORM_ID_674_V2, student:), claim.created_at, FORM_ID_674_V2)
+            claim.parsed_form['dependents_application']['student_information'].each do |student|
+              form_674_paths << process_pdf(claim.to_pdf(form_id: FORM_ID_674_V2, student:), claim.created_at, FORM_ID_674_V2) # rubocop:disable Layout/LineLength
             end
           else
-            form_674_paths << process_pdf(claim.to_pdf(form_id: FORM_ID_674), claim.created_at, FORM_ID_674)  # rubocop:disable Layout/LineLength
+            form_674_paths << process_pdf(claim.to_pdf(form_id: FORM_ID_674), claim.created_at, FORM_ID_674)
           end
         end
         form_686c_path = process_pdf(claim.to_pdf(form_id: v2 ? FORM_ID_V2 : FORM_ID), claim.created_at, FORM_ID) if claim.submittable_686? # rubocop:disable Layout/LineLength
         # set main form_path to be first 674 in array if needed
         @form_path = form_686c_path || form_674_paths.first
-        puts @form_path
+
         @attachment_paths = claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf, claim.created_at) }
         # Treat 674 as first attachment
         if form_686c_path.present? && form_674_paths.present?

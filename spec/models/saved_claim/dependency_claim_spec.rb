@@ -3,7 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe SavedClaim::DependencyClaim do
-  let(:subject) { create(:dependency_claim) }
+  subject { create(:dependency_claim) }
+
   let(:subject_v2) { create(:dependency_claim_v2) }
 
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
@@ -77,7 +78,6 @@ RSpec.describe SavedClaim::DependencyClaim do
 
         subject_v2.upload_pdf('686C-674-V2')
       end
-
 
       it 'when :va_dependents_v2 is enabled upload 674' do
         uploader = double(ClaimsApi::VBMSUploader)

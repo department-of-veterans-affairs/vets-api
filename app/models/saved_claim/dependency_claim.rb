@@ -49,9 +49,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   def upload_pdf(form_id, doc_type: '148')
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
+
     processed_pdfs = []
     if form_id == '21-674-V2'
-      self.parsed_form['dependents_application']['student_information'].each_with_index do |student, index|
+      parsed_form['dependents_application']['student_information'].each_with_index do |student, index|
         processed_pdfs << process_pdf(to_pdf(form_id:, student:), created_at, form_id, index)
       end
     else
@@ -79,7 +80,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
       multistamp: true
     )
-    renamed_path = iterator.present? ?  "tmp/pdfs/#{form_id}_#{id}_#{iterator}_final.pdf" : "tmp/pdfs/#{form_id}_#{id}_final.pdf"
+    renamed_path = iterator.present? ? "tmp/pdfs/#{form_id}_#{id}_#{iterator}_final.pdf" : "tmp/pdfs/#{form_id}_#{id}_final.pdf" # rubocop:disable Layout/LineLength
     File.rename(processed_pdf, renamed_path) # rename for vbms upload
     renamed_path # return the renamed path
   end

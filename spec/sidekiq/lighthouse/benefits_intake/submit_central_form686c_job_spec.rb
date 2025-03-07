@@ -8,7 +8,9 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
 
   let(:user) { create(:evss_user, :loa3) }
   let(:claim) { create(:dependency_claim) }
+  let(:claim_v2) { create(:dependency_claim_v2) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload_v2) { build(:form686c_674_v2) }
   let(:birth_date) { '1809-02-12' }
   let(:vet_info) do
     {
@@ -57,90 +59,96 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
     }
   end
 
-  describe '#perform' do
-    let(:success) { true }
-    let(:path) { 'tmp/pdf_path' }
-
-    let(:lighthouse_mock) { double(:lighthouse_service) }
-
+  context 'with va_dependents_v2 disabled' do
     before do
-      expect(BenefitsIntakeService::Service).to receive(:new)
-        .with(with_upload_location: true)
-        .and_return(lighthouse_mock)
-      expect(lighthouse_mock).to receive(:uuid).and_return('uuid')
-      datestamp_double1 = double
-      datestamp_double2 = double
-      datestamp_double3 = double
-      timestamp = claim.created_at
-
-      expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
-      expect(claim).to receive(:to_pdf).and_return('path1')
-      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
-      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
-      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
-      expect(datestamp_double2).to receive(:run).with(
-        text: 'FDC Reviewed - va.gov Submission',
-        x: 400,
-        y: 770,
-        text_only: true
-      ).and_return('path3')
-      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
-      expect(datestamp_double3).to receive(:run).with(
-        text: 'Application Submitted on va.gov',
-        x: 400,
-        y: 675,
-        text_only: true,
-        timestamp:,
-        page_number: 6,
-        template: 'lib/pdf_fill/forms/pdfs/686C-674.pdf',
-        multistamp: true
-      ).and_return(path)
-
-      data = JSON.parse('{"id":"6d8433c1-cd55-4c24-affd-f592287a7572","type":"document_upload"}')
-      expect(lighthouse_mock).to receive(:upload_form).with(
-        main_document: { file: path, file_name: 'pdf_path' },
-        attachments: [],
-        form_metadata: hash_including(file_number: '796104437')
-      ).and_return(OpenStruct.new(success?: success, data:))
-
-      expect(Common::FileHelpers).to receive(:delete_file_if_exists).with(path)
-
-      expect(FormSubmission).to receive(:create).with(
-        form_type: '686C-674',
-        saved_claim: claim,
-        user_account: nil
-      ).and_return(FormSubmission.new)
-      expect(FormSubmissionAttempt).to receive(:create).with(form_submission: an_instance_of(FormSubmission),
-                                                             benefits_intake_uuid: 'uuid')
+      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
 
-    context 'with an response error' do
-      let(:success) { false }
+    describe '#perform' do
+      let(:success) { true }
+      let(:path) { 'tmp/pdf_path' }
 
-      it 'raises BenefitsIntakeResponseError and updates submission to failed' do
-        mailer_double = double('Mail::Message')
-        allow(mailer_double).to receive(:deliver_now)
+      let(:lighthouse_mock) { double(:lighthouse_service) }
+
+      before do
+        expect(BenefitsIntakeService::Service).to receive(:new)
+          .with(with_upload_location: true)
+          .and_return(lighthouse_mock)
+        expect(lighthouse_mock).to receive(:uuid).and_return('uuid')
+        datestamp_double1 = double
+        datestamp_double2 = double
+        datestamp_double3 = double
+        timestamp = claim.created_at
+
+        expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
+        expect(claim).to receive(:to_pdf).and_return('path1')
+        expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
+        expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
+        expect(PDFUtilities::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
+        expect(datestamp_double2).to receive(:run).with(
+          text: 'FDC Reviewed - va.gov Submission',
+          x: 400,
+          y: 770,
+          text_only: true
+        ).and_return('path3')
+        expect(PDFUtilities::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
+        expect(datestamp_double3).to receive(:run).with(
+          text: 'Application Submitted on va.gov',
+          x: 400,
+          y: 675,
+          text_only: true,
+          timestamp:,
+          page_number: 6,
+          template: 'lib/pdf_fill/forms/pdfs/686C-674.pdf',
+          multistamp: true
+        ).and_return(path)
+
+        data = JSON.parse('{"id":"6d8433c1-cd55-4c24-affd-f592287a7572","type":"document_upload"}')
+        expect(lighthouse_mock).to receive(:upload_form).with(
+          main_document: { file: path, file_name: 'pdf_path' },
+          attachments: [],
+          form_metadata: hash_including(file_number: '796104437')
+        ).and_return(OpenStruct.new(success?: success, data:))
+
+        expect(Common::FileHelpers).to receive(:delete_file_if_exists).with(path)
+
+        expect(FormSubmission).to receive(:create).with(
+          form_type: '686C-674',
+          saved_claim: claim,
+          user_account: nil
+        ).and_return(FormSubmission.new)
+        expect(FormSubmissionAttempt).to receive(:create).with(form_submission: an_instance_of(FormSubmission),
+                                                               benefits_intake_uuid: 'uuid')
+      end
+
+      context 'with an response error' do
+        let(:success) { false }
+
+        it 'raises BenefitsIntakeResponseError and updates submission to failed' do
+          mailer_double = double('Mail::Message')
+          allow(mailer_double).to receive(:deliver_now)
+          expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
+          expect(claim).to receive(:submittable_674?).and_return(false)
+          expect { subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct) }.to raise_error(Lighthouse::BenefitsIntake::SubmitCentralForm686cJob::BenefitsIntakeResponseError) # rubocop:disable Layout/LineLength
+
+          expect(central_mail_submission.reload.state).to eq('failed')
+        end
+      end
+
+      it 'submits the saved claim and updates submission to success' do
+        expect(VANotify::EmailJob).to receive(:perform_async).with(
+          user_struct.va_profile_email,
+          'fake_template_id',
+          {
+            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+            'first_name' => 'MARK'
+          }
+        )
         expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
         expect(claim).to receive(:submittable_674?).and_return(false)
-        expect { subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct) }.to raise_error(Lighthouse::BenefitsIntake::SubmitCentralForm686cJob::BenefitsIntakeResponseError) # rubocop:disable Layout/LineLength
-
-        expect(central_mail_submission.reload.state).to eq('failed')
+        subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
+        expect(central_mail_submission.reload.state).to eq('success')
       end
-    end
-
-    it 'submits the saved claim and updates submission to success' do
-      expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user_struct.va_profile_email,
-        'fake_template_id',
-        {
-          'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-          'first_name' => 'MARK'
-        }
-      )
-      expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
-      expect(claim).to receive(:submittable_674?).and_return(false)
-      subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
-      expect(central_mail_submission.reload.state).to eq('success')
     end
   end
 
