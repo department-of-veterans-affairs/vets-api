@@ -522,6 +522,9 @@ features:
   dependents_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for Dependents Backup Path failure exhaustion
+  dependents_failure_callback_email:
+    actor_type: user
+    description: Enables the dependents action needed email callback to be used when an action needed email is triggered
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -938,10 +941,6 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
-  mhv_account_creation_after_login:
-    actor_type: user
-    descriptiom: Enables access to MHV Account Creation API
-    enable_in_development: true
   mhv_accelerated_delivery_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching MR data from LightHouse
@@ -1252,6 +1251,9 @@ features:
   my_va_enable_mhv_link:
     actor_type: user
     description: Enables the "Visit MHV" CTA link under Health care section
+  my_va_new_mhv_urls:
+    actor_type: user
+    description: Updates URLs for the "Health care" section of My VA
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)
