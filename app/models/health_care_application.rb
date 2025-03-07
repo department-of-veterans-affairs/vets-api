@@ -77,7 +77,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_sync
-    p '~~~~~~~~~~~~~~~ sync'
+    Rails.logger.info '~~~~~~~~~~~~~~~ sync'
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     result = begin
@@ -90,7 +90,7 @@ class HealthCareApplication < ApplicationRecord
       )
     end
     # message out valid submission {state: "received"}
-    p '~~~~~~~~~~~~~~~ received anon sync'
+    Rails.logger.info '~~~~~~~~~~~~~~~ received anon sync'
 
     Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
 
@@ -119,11 +119,11 @@ class HealthCareApplication < ApplicationRecord
       raise(Common::Exceptions::ValidationErrors, self)
     end
     # message out valid submission {state: "received"}
-    p '~~~~~~~~~~~~~~~ received'
+    Rails.logger.info '~~~~~~~~~~~~~~~ received'
 
     if email.present? || async_compatible
       save!
-      p '~~~~~~~~~~~~~~~ save!d'
+      Rails.logger.info '~~~~~~~~~~~~~~~ save!d'
       submit_async
     else
       submit_sync
@@ -215,7 +215,7 @@ class HealthCareApplication < ApplicationRecord
       timestamp: result[:timestamp]
     )
 
-    p '~~~~~~~~~~~~~~~ sent'
+    Rails.logger.info '~~~~~~~~~~~~~~~ sent'
     # message out successful submission {state: "sent"}
   end
 
@@ -254,7 +254,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_async
-    p '~~~~~~~~~~~~~~~ async', email.present?
+    Rails.logger.info '~~~~~~~~~~~~~~~ async', email.present?
     submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
