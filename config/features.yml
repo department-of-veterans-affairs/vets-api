@@ -1498,10 +1498,6 @@ features:
     actor_type: user
     description: Allows updates to the static landing widget on the Public Websites page
     enable_in_development: true
-  va_online_scheduling_sts_oauth_token:
-    actor_type: user
-    description: Allows toggling of MAP STS OAuth token for VAOS
-    enable_in_development: true
   va_online_scheduling_vaos_service_cc_appointments:
     actor_type: user
     description: Toggle for new vaos service cc appointments.
