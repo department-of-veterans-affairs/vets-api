@@ -5,59 +5,61 @@ module IvcChampva
     class MissingStatusCleanup
       # TODO: can we combine this with IvcChampva::ProdSupportUtilities::Insights::get_user_batches_in_window ?
       # Or does this function belong in `Insights` class?
-      def get_statuses
+      def get_missing_statuses
         all_nil_statuses = IvcChampvaForm.where(pega_status: nil)
-
-        batches = {}
-
-        # Group all nil results into batches by form UUID
-        all_nil_statuses.map do |el|
-          batch = IvcChampvaForm.where(form_uuid: el.form_uuid)
-          batches[el.form_uuid] = batch
-        end
-
+        batches = batch_records(all_nil_statuses)
         # Print out details of each batch that contains a missing PEGA status:
         batches.each_value do |batch|
-          nil_in_batch = batch.where(pega_status: nil)
-          el = nil_in_batch[0]
-          fraction = "#{nil_in_batch.length}/#{batch.length}"
-          puts '---'
-          puts "#{el.first_name} #{el.last_name} missing PEGA status on #{fraction} attachments - #{el.email}\n"
-          puts "Form UUID:   #{el.form_uuid}"
-          puts "Uploaded at: #{el.created_at}"
-          puts "S3 Status:   #{nil_in_batch.distinct.pluck(:s3_status)}\n"
+          display_batch(batch)
         end
+
         batches
       end
 
       # TODO: Condense functionality - this method is way too similar to the above
       def get_batches_for_email(email_addr)
         results = IvcChampvaForm.where(email: email_addr)
+        batches = batch_records(results)
+        batches.each_value do |batch|
+          display_batch(batch)
+        end
 
+        batches
+      end
+
+      # records: a list of IvcChampvaForm active records
+      def batch_records(records)
         batches = {}
 
-        # Group all results into batches by form UUID
-        results.map do |el|
+        # Group all records into batches by form UUID
+        records.map do |el|
           batch = IvcChampvaForm.where(form_uuid: el.form_uuid)
           batches[el.form_uuid] = batch
         end
 
-        # Print out details of each batch:
-        batches.each_value do |batch|
-          nil_in_batch = batch.where(pega_status: nil)
-          el = batch[0] # nil_in_batch[0]
-          fraction = "#{nil_in_batch.length}/#{batch.length}"
-          puts '---'
-          puts "#{el.first_name} #{el.last_name} missing PEGA status on #{fraction} attachments - #{el.email}\n"
-          puts "Form UUID:   #{el.form_uuid}"
-          puts "Form:   #{el.form_number}"
-          puts "Uploaded at: #{el.created_at}"
-          puts "S3 Status:   #{batch.distinct.pluck(:s3_status)}\n"
-        end
         batches
       end
 
-      def clear_batch(batch)
+      # batch: a list of IvcChampvaForm active records with the same form UUIDs
+      def display_batch(batch)
+        return unless batch.count.positive?
+
+        nil_in_batch = batch.where(pega_status: nil)
+
+        form = batch[0] # Grab a representative form
+        fraction = "#{nil_in_batch.length}/#{batch.length}"
+        puts '---'
+        puts "#{form.first_name} #{form.last_name} missing PEGA status on #{fraction} attachments - #{form.email}\n"
+        puts "Form UUID:   #{form.form_uuid}"
+        puts "Form:   #{form.form_number}"
+        puts "Uploaded at: #{form.created_at}"
+        puts "S3 Status:   #{nil_in_batch.distinct.pluck(:s3_status)}\n"
+
+        nil
+      end
+
+      # batch: a list of IvcChampvaForm active records with the same form UUIDs
+      def manually_process_batch(batch)
         batch.each_value do |form|
           next unless form.pega_status.nil?
 
@@ -65,6 +67,7 @@ module IvcChampva
           form.update(pega_status: 'Manually Processed')
           form.save
         end
+
         batch
       end
     end

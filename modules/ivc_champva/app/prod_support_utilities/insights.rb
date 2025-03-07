@@ -38,7 +38,6 @@ module IvcChampva
         display_frequency(freq)
         display_averages(submissions, start_date, end_date, gate, form_number)
 
-        # multi_submits.sort_by(&:last).reverse.to_h
         nil
       end
 
@@ -73,8 +72,6 @@ module IvcChampva
           next if time_differences.empty?
 
           all_time_differences << (time_differences.sum / time_differences.size)
-          # Leaving this here because it's useful for deeper inspection
-          # puts "#{email}'s avg time between submits for #{num_of_resubmits} is: #{make_time_str(avg)}"
         end
 
         # return average of all averages for users with n resubmits
@@ -88,33 +85,14 @@ module IvcChampva
                                 .where(form_number:)
                                 .where(created_at: start_date..end_date)
 
-        batches = {}
-
-        # Group all results into batches by form UUID
-        results.map do |el|
-          batch = IvcChampvaForm.where(form_uuid: el.form_uuid)
-          batches[el.form_uuid] = batch
-        end
-
-        batches
-      end
-
-      def make_time_str(duration_seconds)
-        ActiveSupport::Duration.build(duration_seconds).parts.map do |key, value|
-          [value.to_i, ' ', key].join
-        end.join(', ')
+        # Return the results grouped into batches by form_uuid
+        missing_status_cleanup.batch_records(results)
       end
 
       def count_frequency(submitters)
-        result_hash = {}
-        submitters.each_value do |num_submissions|
-          if result_hash[num_submissions].nil?
-            result_hash[num_submissions] = 1
-          else
-            result_hash[num_submissions] += 1
-          end
+        submitters.each.with_object(Hash.new(0)) do |num_submissions, result_hash|
+          result_hash[num_submissions] += 1
         end
-        result_hash
       end
 
       def display_frequency(freq_hash)
@@ -144,6 +122,16 @@ module IvcChampva
         end
 
         nil
+      end
+
+      def make_time_str(duration_seconds)
+        ActiveSupport::Duration.build(duration_seconds).parts.map do |key, value|
+          [value.to_i, ' ', key].join
+        end.join(', ')
+      end
+
+      def missing_status_cleanup
+        IvcChampva::ProdSupportUtilities::MissingStatusCleanup.new
       end
     end
   end
