@@ -107,19 +107,7 @@ module AccreditedRepresentativePortal
       )
     }
 
-    ##
-    # This `concerning` block puts up some flashing lights around this
-    # complexity. It potentially wants to coexist directly with other model
-    # functionality or at a higher business logic layer, but extra care might be
-    # needed to pull that off without making a mess. This block is especially
-    # narrow--it only defines two scopes and no instance methods for example.
-    #
     concerning :ProcessedScopes do
-      ##
-      # The 3x `LEFT OUTER JOIN`s with very particular join conditions make
-      # expressing both of the `processed` and `not_processed` relations easy
-      # to express with very simple `WHERE` conditions.
-      #
       processed_join_sql_template = <<~SQL.squish
         LEFT OUTER JOIN "ar_power_of_attorney_request_resolutions" "resolution" ON
           "resolution"."power_of_attorney_request_id" = "ar_power_of_attorney_requests"."id"
@@ -143,18 +131,17 @@ module AccreditedRepresentativePortal
         )
 
       ##
-      # `processed` and `not_processed` are the logical negation of one another,
-      # but this isn't enforced structurally in the code. An application of De
-      # Morgan's law is evident here. `invert_where` is a possibility to pull
-      # this off too, but it's not so usable because it inverts conditions that
-      # were chained prior.
+      # `processed`and `not_processed` are the logical negation of one another.
+      # `invert_where` from `ActiveRecord` is a way to negate SQL where
+      # conditions, and it would be nice if we could use it here. But it has
+      # the problem of also negating any conditions that were chained earlier in
+      # a relation.
+      #
+      # Moral of the story, if the definition of one of these is updated, the
+      # other needs to be too.
       #
       included do
         scope :processed, lambda {
-          ##
-          # Must be resolved, and either the resolution is not an acceptance, or if
-          # it is, there must be a form submission that succeeded.
-          #
           relation =
             joins(processed_join_sql)
 
@@ -166,10 +153,6 @@ module AccreditedRepresentativePortal
         }
 
         scope :not_processed, lambda {
-          ##
-          # Must be unresolved, or the resolution is an acceptance and there also
-          # must not be a form submission that succeeded.
-          #
           relation =
             joins(processed_join_sql)
 
