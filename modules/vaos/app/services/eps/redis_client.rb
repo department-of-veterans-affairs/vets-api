@@ -89,6 +89,18 @@ module Eps
       parsed_identifiers.dig(:data, :attributes, attribute)
     end
 
+    # Retrieves all stored attributes for a given referral number from the Redis cache.
+    #
+    # @param referral_number [String] The referral number associated with the cached data.
+    # @return [Hash] A hash of referral attributes if data exists, otherwise nil
+    def fetch_referral_attributes(referral_number:)
+      identifiers = referral_identifiers(referral_number:)
+      return nil if identifiers.nil?
+
+      parsed_identifiers = Oj.load(identifiers).with_indifferent_access
+      parsed_identifiers.dig(:data, :attributes)
+    end
+
     private
 
     # Retrieves the referral identifiers for a given referral number.

@@ -4,7 +4,7 @@ require 'common/exceptions'
 
 module VAOS
   module V2
-    class AppointmentsController < VAOS::BaseController # rubocop:disable Metrics/ClassLength
+    class AppointmentsController < VAOS::BaseController
       before_action :authorize_with_facilities
 
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
@@ -64,20 +64,22 @@ module VAOS
 
       def create_draft
         referral_id = draft_params[:referral_id]
-        # TODO: validate referral_id from the cache from prior referrals response
+        # TODO: validate referral_id and other needed referral data from the cache from prior referrals response
+
+        cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
 
         referral_check_result = check_referral_usage(referral_id)
         unless referral_check_result[:success]
           render json: referral_check_result[:json], status: referral_check_result[:status] and return
         end
 
-        # TODO: cache provider_id, appointment_type_id, end_date from prior referrals response and use here
-        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: draft_params[:referral_id])
-        provider = eps_provider_service.get_provider_service(provider_id: draft_params[:provider_id])
+        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
+        provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
+
         response_data = OpenStruct.new(
           id: draft_appointment.id,
           provider:,
-          slots: fetch_provider_slots,
+          slots: fetch_provider_slots(cached_referral_data),
           drive_time: fetch_drive_times(provider)
         )
 
@@ -132,6 +134,16 @@ module VAOS
       def eps_provider_service
         @eps_provider_service ||=
           Eps::ProviderService.new(current_user)
+      end
+
+      ##
+      # Lazily initializes and returns an instance of {Eps::RedisClient}.
+      # Ensures a single instance is used within the service to interact with Redis.
+      #
+      # @return [Eps::RedisClient] Memoized instance of the Redis client.
+      #
+      def eps_redis_client
+        @eps_redis_client ||= Eps::RedisClient.new
       end
 
       def appointments
@@ -237,16 +249,8 @@ module VAOS
 
       def draft_params
         params.require(:referral_id)
-        params.require(:provider_id)
-        params.require(:appointment_type_id)
-        params.require(:start_date)
-        params.require(:end_date)
         params.permit(
-          :referral_id,
-          :provider_id,
-          :appointment_type_id,
-          :start_date,
-          :end_date
+          :referral_id
         )
       end
 
@@ -441,13 +445,24 @@ module VAOS
         }
       end
 
-      def fetch_provider_slots
+      # Fetches available provider slots using referral data.
+      #
+      # @param referral_data [Hash] Includes:
+      #   - `:provider_id` [String] The provider's ID.
+      #   - `:appointment_type_id` [String] The appointment type.
+      #   - `:start_date` [String] The earliest appointment date (ISO 8601).
+      #   - `:end_date` [String] The latest appointment date (ISO 8601).
+      #
+      # @raise [ArgumentError] If required parameters are missing.
+      # @return [OpenStruct] API response with available slots.
+      #
+      def fetch_provider_slots(referral_data)
         eps_provider_service.get_provider_slots(
-          draft_params[:provider_id],
+          referral_data[:provider_id],
           {
-            appointmentTypeId: draft_params[:appointment_type_id],
-            startOnOrAfter: draft_params[:start_date],
-            startBefore: draft_params[:end_date]
+            appointmentTypeId: referral_data[:appointment_type_id],
+            startOnOrAfter: referral_data[:start_date],
+            startBefore: referral_data[:end_date]
           }
         )
       end
