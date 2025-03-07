@@ -498,6 +498,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             expect(error_message).to eq([nil, 'Upload failed'])
           end
         end
+
         context 'when file uploads fail with other errors retry once' do
           subject(:result) { controller.send(:handle_file_uploads, form_id, parsed_form_data) }
 
