@@ -291,16 +291,7 @@ module ClaimsApi
           @page_size_param = params[:page][:size] ? params[:page][:size].to_i : DEFAULT_PAGE_SIZE
           @page_number_param = params[:page][:number] ? params[:page][:number].to_i : DEFAULT_PAGE_NUMBER
 
-          # if @page_size_param && @page_size_param > MAX_PAGE_SIZE
-          #   raise_param_exceeded_warning = true
-          #   include_page_size_msg = true
-          # end
-          # if @page_number_param && @page_number_param > MAX_PAGE_NUMBER
-          #   raise_param_exceeded_warning = true
-          #   include_page_number_msg = true
-          # end
-
-          # build_params_error_msg(include_page_size_msg, include_page_number_msg) if raise_param_exceeded_warning.present?
+          verify_under_max_values!
         end
 
         def use_defaults?
@@ -309,6 +300,21 @@ module ClaimsApi
             @page_number_param = DEFAULT_PAGE_NUMBER
 
             true
+          end
+        end
+
+        def verify_under_max_values!
+          if @page_size_param && @page_size_param > MAX_PAGE_SIZE
+            raise_param_exceeded_warning = true
+            include_page_size_msg = true
+          end
+          if @page_number_param && @page_number_param > MAX_PAGE_NUMBER
+            raise_param_exceeded_warning = true
+            include_page_number_msg = true
+          end
+          if raise_param_exceeded_warning.present?
+            build_params_error_msg(include_page_size_msg,
+                                   include_page_number_msg)
           end
         end
 
