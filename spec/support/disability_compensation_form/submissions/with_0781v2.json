@@ -399,6 +399,9 @@
       "supportingEvidenceOther": {
         "personal": true
       },
+      "supportingEvidenceNoneCheckbox": {
+        "none": false
+      },
       "supportingEvidenceUnlisted": "Lorem ipsum dolor sit amet.",
       "treatmentNoneCheckbox": false,
       "treatmentReceivedVaProvider": {
