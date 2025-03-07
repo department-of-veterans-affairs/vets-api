@@ -32,7 +32,7 @@ RSpec.describe SignIn::TokenResponseGenerator do
       let(:session_container) { create(:session_container) }
       let(:code_validator) { instance_double(SignIn::CodeValidator, perform: validated_credential) }
       let(:session_creator) { instance_double(SignIn::SessionCreator, perform: session_container) }
-      let(:user_action_event_identifier) { 'user_login' }
+      let(:user_action_event_identifier) { 'sign_in' }
       let(:user_action_event) { create(:user_action_event, identifier: user_action_event_identifier) }
       let(:user_action) { create(:user_action, user_action_event:) }
       let(:token_serializer) { instance_double(SignIn::TokenSerializer, perform: expected_token_response) }

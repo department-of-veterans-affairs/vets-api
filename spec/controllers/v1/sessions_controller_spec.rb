@@ -610,7 +610,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       uri.query = expected_redirect_params
       uri.to_s
     end
-    let(:user_action_event_identifier) { 'user_login' }
+    let(:user_action_event_identifier) { 'sign_in' }
     let(:user_action_event) { create(:user_action_event, identifier: user_action_event_identifier) }
 
     context 'when too much time passed to consume the SAML Assertion' do
