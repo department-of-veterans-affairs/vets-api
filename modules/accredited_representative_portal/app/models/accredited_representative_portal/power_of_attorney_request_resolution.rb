@@ -9,6 +9,7 @@ module AccreditedRepresentativePortal
     RESOLVING_TYPES = %w[
       PowerOfAttorneyRequestExpiration
       PowerOfAttorneyRequestDecision
+      PowerOfAttorneyRequestWithdrawal
     ].freeze
 
     delegated_type :resolving,
