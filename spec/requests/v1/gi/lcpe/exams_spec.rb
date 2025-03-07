@@ -22,7 +22,7 @@ RSpec.describe 'V1::GI::LCPE::Exams', type: :request do
           get v1_gi_lcpe_exams_url, params: { state: 'MT' }
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('gi/lcpe/exams')
-          expect(response.headers['Etag']).not_to match(/W\/'\d+'/)
+          expect(response.headers['Etag']).not_to match(%r{W/'\d+'})
         end
       end
     end
