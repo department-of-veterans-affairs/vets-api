@@ -288,9 +288,8 @@ module ClaimsApi
           valid_page_param?('size') if params[:page][:size]
           valid_page_param?('number') if params[:page][:number]
 
-          #   @page_size_param = params[:page][:size] ? params[:page][:size].to_i : DEFAULT_PAGE_SIZE
-          #   @page_number_param = params[:page][:number] ? params[:page][:number].to_i : DEFAULT_PAGE_NUMBER
-          # end
+          @page_size_param = params[:page][:size] ? params[:page][:size].to_i : DEFAULT_PAGE_SIZE
+          @page_number_param = params[:page][:number] ? params[:page][:number].to_i : DEFAULT_PAGE_NUMBER
 
           # if @page_size_param && @page_size_param > MAX_PAGE_SIZE
           #   raise_param_exceeded_warning = true

@@ -687,6 +687,34 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             }
           end
         end
+
+        context 'when only one param is sent' do
+          context 'sets the param value and uses the default for the other' do
+            it 'sets default page number when page size is sent in' do
+              page_params = {page: { size: 5 } }
+              allow(subject).to receive(:params).and_return(page_params)
+
+              subject.send(:validate_page_size_and_number_params)
+              size = subject.instance_variable_get(:@page_size_param)
+              number = subject.instance_variable_get(:@page_number_param)
+
+              expect(size).to eq(5)
+              expect(number).to eq(1)
+            end
+
+            it 'sets default page size when page number is sent in' do
+              page_params = {page: { number: 2 } }
+              allow(subject).to receive(:params).and_return(page_params)
+
+              subject.send(:validate_page_size_and_number_params)
+              size = subject.instance_variable_get(:@page_size_param)
+              number = subject.instance_variable_get(:@page_number_param)
+
+              expect(size).to eq(10)
+              expect(number).to eq(2)
+            end
+          end
+        end
       end
     end
   end
