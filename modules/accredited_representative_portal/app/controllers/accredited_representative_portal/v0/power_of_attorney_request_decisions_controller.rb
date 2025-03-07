@@ -47,17 +47,9 @@ module AccreditedRepresentativePortal
       end
 
       def send_declination_email(poa_request)
-        form = poa_request.power_of_attorney_form
-        claimant = form.parsed_data['dependent'] || form.parsed_data['veteran']
-        return unless claimant && claimant['email']
-
         notification = poa_request.notifications.create!(type: 'declined')
-        first_name = claimant['name']['first']
         PowerOfAttorneyRequestEmailJob.perform_async(
-          claimant['email'],
-          Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_submit_decline_email,
-          notification.id,
-          { 'first_name' => first_name }
+          notification.id
         )
       end
     end
