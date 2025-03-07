@@ -136,9 +136,9 @@ module DebtsApi
       public_metadata.dig('streamlined', 'value') == true
     end
 
-    def upsert_in_progress_form(user_account_id:)
+    def upsert_in_progress_form(user_account:)
       form = InProgressForm.find_or_initialize_by(form_id: '5655', user_uuid:)
-      form.user_account = UserAccount.find(user_account_id)
+      form.user_account = user_account
       form.real_user_uuid = user_uuid
 
       form.update!(form_data: ipf_data, metadata: fresh_metadata)

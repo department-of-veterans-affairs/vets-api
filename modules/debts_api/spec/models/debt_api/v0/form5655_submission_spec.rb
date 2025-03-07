@@ -52,7 +52,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
 
         data = '{"its":"me"}'
         form5655_submission.ipf_data = data
-        form5655_submission.upsert_in_progress_form(user_account_id: form5655_submission.user_account_id)
+        form5655_submission.upsert_in_progress_form(user_account: form5655_submission.user_account)
         form = InProgressForm.find_by(form_id: '5655', user_uuid: form5655_submission.user_uuid)
         expect(form&.form_data).to eq(data)
       end
@@ -68,7 +68,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
         expect(form&.form_data).not_to eq(data)
 
         form5655_submission.ipf_data = data
-        form5655_submission.upsert_in_progress_form(user_account_id: form5655_submission.user_account_id)
+        form5655_submission.upsert_in_progress_form(user_account: form5655_submission.user_account)
         form = InProgressForm.find_by(form_id: '5655', user_uuid: form5655_submission.user_uuid)
         expect(form&.form_data).to eq(data)
       end

@@ -6,7 +6,7 @@ FactoryBot.define do
       user { create(:user, :loa3, :with_terms_of_use_agreement, idme_uuid: SecureRandom.uuid) }
     end
     user_uuid { user.uuid }
-    user_account_id { user.user_account.id }
+    user_account { user.user_account }
     form_json do
       JSON.parse(
         File.read(

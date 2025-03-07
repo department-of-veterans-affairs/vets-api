@@ -39,7 +39,7 @@ module DebtsApi
         submission_id = params[:submission_id]
 
         DebtsApi::V0::FsrRehydrationService.attempt_rehydration(user_uuid: current_user.uuid,
-                                                                user_account_id: current_user.user_account.id,
+                                                                user_account: current_user.user_account,
                                                                 submission_id:)
 
         render json: { result: 'FSR rehydrated' }
