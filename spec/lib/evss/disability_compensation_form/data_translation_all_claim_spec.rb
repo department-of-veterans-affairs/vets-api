@@ -1570,7 +1570,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                 'specialIssues' => ['POW'],
                 'vaMistreatmentDescription' => 'va condition description',
                 'vaMistreatmentLocation' => 'va location',
-                'vaMistreatmentDate' => 'the third of october'
               }
             ]
           }
