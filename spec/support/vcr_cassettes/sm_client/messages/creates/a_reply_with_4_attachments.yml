@@ -100,7 +100,7 @@ http_interactions:
       string: '{"id":674865,"category":"OTHER","subject":"CI Run","body":"Continuous
         Integration","attachment":true,"attachments":{"attachment":[{"id":674861,"name":"sm_file1.jpg","attachmentSize":210000},{"id":674862,"name":"sm_file2.jpg","attachmentSize":210000},{"id":674863,"name":"sm_file3.jpg","attachmentSize":210000},{"id":674864,"name":"sm_file4.jpg","attachmentSize":210000}]},"sentDate":"Tue,
         31 Jan 2017 21:30:50 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":613586,"recipientName":"Vets.gov
-        Testing_DAYT29","readReceipt":null}'
+        Testing_DAYT29","readReceipt":null,"suggestedNameDisplay":null }'
     http_version:
   recorded_at: Tue, 31 Jan 2017 21:30:50 GMT
 recorded_with: VCR 3.0.3
