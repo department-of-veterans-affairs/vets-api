@@ -28,11 +28,6 @@ RSpec.describe 'VAOS::V2::CommunityCare::Eligibility', type: :request do
     context 'loa3 user' do
       let(:current_user) { build(:user, :vaos) }
 
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                  instance_of(User)).and_return(true)
-      end
-
       it 'has access and returns eligibility true', :skip_mvi do
         VCR.use_cassette('vaos/cc_eligibility/get_eligibility_true', match_requests_on: %i[method path query]) do
           logged_info =
