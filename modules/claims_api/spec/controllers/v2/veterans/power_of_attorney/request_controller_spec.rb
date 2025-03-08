@@ -456,7 +456,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         .and_return(terminate_existing_requests)
       allow(terminate_existing_requests).to receive(:call).and_return(nil)
       allow(ClaimsApi::PowerOfAttorneyRequestService::CreateRequest).to receive(:new)
-        .with(anything, anything, anything, anything)
+        .with(anything, anything, anything)
         .and_return(create_request)
       allow(create_request).to receive(:call).and_return(create_request_response)
     end
