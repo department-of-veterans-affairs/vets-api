@@ -946,6 +946,7 @@ mhv:
     collection_caching_enabled: false
     host: https://mhv-api.example.com
     mock: true
+    x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
     host: https://mhv-api.example.com
@@ -960,6 +961,7 @@ mhv:
     subject: "Proxy Client"
     user_type: usertype
 mhv_mobile:
+  x_api_key: fake-x-api-key 
   sm:
     app_token: fake-app-token
 mobile_lighthouse:
