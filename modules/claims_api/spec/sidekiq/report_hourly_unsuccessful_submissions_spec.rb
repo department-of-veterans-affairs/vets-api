@@ -72,7 +72,10 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
                                                                       transaction_id: 'transaction_3',
                                                                       id: '4')
 
-        expected_vagov_claims = [claim_three.id, claim_four.id]
+        expected_vagov_claims = [
+          [claim_three.id, claim_three.transaction_id],
+          [claim_four.id, claim_four.transaction_id]
+        ]
 
         expect(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).with(
           errored_disability_claims: [],
@@ -136,7 +139,10 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
                                              'Retries will fail.' }],
                transaction_id: 'transaction_5')
 
-        expected_vagov_claims = [claim_three.id, claim_four.id]
+        expected_vagov_claims = [
+          [claim_three.id, claim_three.transaction_id],
+          [claim_four.id, claim_four.transaction_id]
+        ]
 
         expect(ClaimsApi::Slack::FailedSubmissionsMessenger).to receive(:new).with(
           errored_disability_claims: [],
