@@ -16,7 +16,7 @@ module DebtsApi
       end
 
       def monthly_income
-        render json: income_calculator.get_monthly_income
+        render json: income_calculator.combined_monthly_income_statement
       end
 
       def monthly_expenses
