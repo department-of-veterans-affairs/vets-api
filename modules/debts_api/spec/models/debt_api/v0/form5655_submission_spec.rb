@@ -234,7 +234,9 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
 
   describe '#send_failed_form_email' do
     let(:form5655_submission) { create(:debts_api_form5655_submission) }
+
     # look into if we test the mailer now that we removed the silent error
+    # Look into StatsD increment for when mailer is sent
     before do
       ipf_data = get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/ipf/non_streamlined')
       form5655_submission.update(

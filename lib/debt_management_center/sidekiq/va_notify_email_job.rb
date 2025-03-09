@@ -12,7 +12,10 @@ module DebtManagementCenter
     sidekiq_retries_exhausted do |job, ex|
       options = job['args'][3] || {}
       StatsD.increment("#{STATS_KEY}.retries_exhausted")
-      alert_silent_error if options['failure_mailer'] == true
+      if options['failure_mailer'] == true
+        StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.send_failed_form_email.failure")
+        StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:register_failure])
+      end
       Rails.logger.error <<~LOG
         VANotifyEmailJob retries exhausted:
         Exception: #{ex.class} - #{ex.message}
@@ -22,8 +25,12 @@ module DebtManagementCenter
 
     def perform(identifier, template_id, personalisation = nil, options = {})
       id_type = options['id_type'] || 'email'
+      binding.pry
       notify_client = VaNotify::Service.new(Settings.vanotify.services.dmc.api_key)
       notify_client.send_email(email_params(identifier, template_id, personalisation, id_type))
+      if options['failure_mailer'] == true
+        StatsD.increment("#{V0::Form5655Submission::STATS_KEY}.send_failed_form_email.failure")
+      end
       StatsD.increment("#{STATS_KEY}.success")
     rescue => e
       StatsD.increment("#{STATS_KEY}.failure")
@@ -55,10 +62,6 @@ module DebtManagementCenter
       else
         raise UnrecognizedIdentifier, id_type
       end
-    end
-
-    def alert_silent_error
-      StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:register_failure])
     end
   end
 end
