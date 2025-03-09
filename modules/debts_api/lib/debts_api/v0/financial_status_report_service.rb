@@ -175,7 +175,8 @@ module DebtsApi
       DebtManagementCenter::VANotifyEmailJob.perform_async(
         options['email'],
         options['template_id'],
-        options['email_personalization_info']
+        options['email_personalization_info'],
+        { id_type: 'email', failure_mailer: false }
       )
     end
 
