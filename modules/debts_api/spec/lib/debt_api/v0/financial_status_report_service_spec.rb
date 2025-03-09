@@ -523,7 +523,8 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
         email,
         described_class::VHA_CONFIRMATION_TEMPLATE,
-        email_personalization_info
+        email_personalization_info,
+        { id_type: 'email', failure_mailer: false }
       )
       service.send_vha_confirmation_email('ok',
                                           { 'email' => email,

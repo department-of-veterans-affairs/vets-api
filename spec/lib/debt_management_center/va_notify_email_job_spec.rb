@@ -21,11 +21,13 @@ RSpec.describe DebtManagementCenter::VANotifyEmailJob, type: :worker do
         Exception: #{exception.class} - #{exception.message}
         Backtrace: #{exception.backtrace.join("\n")}
       LOG
+      job = { 'args' => [nil, nil, nil, {}] }
+
       expect(StatsD).to receive(:increment).with(
         "#{DebtManagementCenter::VANotifyEmailJob::STATS_KEY}.retries_exhausted"
       )
       expect(Rails.logger).to receive(:error).with(expected_log_message)
-      config.sidekiq_retries_exhausted_block.call('unused', exception)
+      config.sidekiq_retries_exhausted_block.call(job, exception)
     end
   end
 end
