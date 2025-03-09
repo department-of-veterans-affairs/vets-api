@@ -25,7 +25,6 @@ module DebtManagementCenter
 
     def perform(identifier, template_id, personalisation = nil, options = {})
       id_type = options['id_type'] || 'email'
-      binding.pry
       notify_client = VaNotify::Service.new(Settings.vanotify.services.dmc.api_key)
       notify_client.send_email(email_params(identifier, template_id, personalisation, id_type))
       if options['failure_mailer'] == true
