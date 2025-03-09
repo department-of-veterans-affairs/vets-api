@@ -12,7 +12,7 @@ module DebtManagementCenter
     sidekiq_retries_exhausted do |job, ex|
       options = job['args'][3] || {}
       StatsD.increment("#{STATS_KEY}.retries_exhausted")
-      alert_silent_error if options['failure_mailer']
+      alert_silent_error if options['failure_mailer'] == true
       Rails.logger.error <<~LOG
         VANotifyEmailJob retries exhausted:
         Exception: #{ex.class} - #{ex.message}

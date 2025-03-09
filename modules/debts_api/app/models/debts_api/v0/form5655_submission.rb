@@ -107,7 +107,7 @@ module DebtsApi
           submission_email,
           SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
           failure_email_personalization_info,
-          { id_type: 'email', failure_mailer: true}
+          { id_type: 'email', failure_mailer: true }
         )
 
         Rails.logger.info("Failed 5655 form: #{id} email scheduled with jid: #{jid}")
