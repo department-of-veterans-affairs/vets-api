@@ -85,6 +85,10 @@ bip:
     url: https://claims-uat.dev8.bip.va.gov
 bpds:
   jwt_secret: <%= ENV['bpds__jwt_secret'] %>
+  mock: false
+  read_timeout: 20 # using the same timeout as lighthouse
+  schema_version: test
+  url: https://localhost:4000/api/v1/bpd # See the README for more information on how to run the BPDS locally
 brd:
   api_key: <%= ENV['brd__api_key'] %>
   base_name: <%= ENV['brd__base_name'] %>
@@ -378,16 +382,17 @@ edu:
     - engin.akman@va.gov
   staging_spool_contents:
     emails:
-    - noah.stern@va.gov
-    - gregg.puhala@va.gov
-    - kara.ciprich@va.gov
-    - napoleon.kernessant@govcio.com
-    - vishnhav.ashok@va.gov
-    - donna.saunders@va.gov
-    - ariana.adili@govcio.com
-    - marelby.hernandez@va.gov
-    - nawar.hussein@va.gov
-    - engin.akman@va.gov
+      - noah.stern@va.gov
+      - gregg.puhala@va.gov
+      - kara.ciprich@va.gov
+      - napoleon.kernessant@govcio.com
+      - vishnhav.ashok@va.gov
+      - donna.saunders@va.gov
+      - ariana.adili@govcio.com
+      - marelby.hernandez@va.gov
+      - nawar.hussein@va.gov
+      - engin.akman@va.gov
+# Settings for EVSS
 evss:
   alternate_service_name: wss-form526-services-web-v2
   aws:
@@ -649,7 +654,9 @@ kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: <%= ENV['kafka_producer__aws_role_arn'] %>
   broker_urls: <%= ENV['kafka_producer__broker_urls'] %>
+  sasl_mechanisms: 'OAUTHBEARER'
   schema_registry_url: <%= ENV['kafka_proudcer__schema_registry_url'] %>
+  security_protocol: 'sasl_ssl'
 kms_key_id: <%= ENV['kms_key_id'] %>
 lgy:
   api_key: <%= ENV['lgy__api_key'] %>
