@@ -127,7 +127,7 @@ class FormProfile
     '21P-0516-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-527EZ' => ::FormProfiles::VA21p527ez,
-    '21P-530EZ' => ::FormProfiles::VA21p530ez,
+    '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
     '22-10203' => ::FormProfiles::VA10203,
@@ -182,8 +182,7 @@ class FormProfile
   #
   def self.prepend_module(form_class, form_id)
     namespaces = {
-      '21P-527EZ' => 'Pensions',
-      '21P-530EZ' => 'Burials'
+      '21P-527EZ' => 'Pensions'
     }
 
     namespace = namespaces[form_id]

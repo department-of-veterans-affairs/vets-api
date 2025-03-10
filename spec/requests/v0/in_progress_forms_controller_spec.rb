@@ -13,8 +13,8 @@ RSpec.describe V0::InProgressFormsController do
 
     before do
       sign_in_as(user)
-      Flipper.disable(:va_v3_contact_information_service)
-      Flipper.disable(:remove_pciu)
+      allow(Flipper).to receive(:enabled?).with(:in_progress_form_custom_expiration).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       enabled_forms = FormProfile.prefill_enabled_forms << 'FAKEFORM'
       allow(FormProfile).to receive(:prefill_enabled_forms).and_return(enabled_forms)
       allow(FormProfile).to receive(:load_form_mapping).with('FAKEFORM').and_return(
@@ -133,10 +133,6 @@ RSpec.describe V0::InProgressFormsController do
     end
 
     describe '#show' do
-      before do
-        Flipper.disable('remove_pciu_2')
-      end
-
       let(:user) { build(:user, :loa3, address: build(:mpi_profile_address)) }
       let!(:in_progress_form) { create(:in_progress_form, :with_nested_metadata, user_uuid: user.uuid) }
 
@@ -271,6 +267,12 @@ RSpec.describe V0::InProgressFormsController do
     describe '#update' do
       let(:user) { loa3_user }
 
+      before do
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:intent_to_file_lighthouse_enabled,
+                                                  instance_of(User)).and_return(true)
+      end
+
       context 'with a new form' do
         let(:new_form) { create(:in_progress_form, user_uuid: user.uuid) }
 
@@ -337,7 +339,7 @@ RSpec.describe V0::InProgressFormsController do
 
         it "can't have non-hash formData" do
           put v0_in_progress_form_url(new_form.form_id),
-              params: { form_data: 'Hello!' }.to_json,
+              params: { form_data: '' }.to_json,
               headers: { 'CONTENT_TYPE' => 'application/json' }
           expect(response).to have_http_status(:error)
         end

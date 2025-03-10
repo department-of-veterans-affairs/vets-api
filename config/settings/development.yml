@@ -85,6 +85,10 @@ bip:
     url: https://claims-uat.dev8.bip.va.gov
 bpds:
   jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
+  mock: false
+  read_timeout: 20 # using the same timeout as lighthouse
+  schema_version: test
+  url: https://localhost:4000/api/v1/bpd # See the README for more information on how to run the BPDS locally
 brd:
   api_key: fake_key
   base_name: https://something.fake.va.gov
@@ -645,6 +649,11 @@ ivc_forms:
   sidekiq:
     missing_form_status_job:
       enabled: true
+kafka_producer:
+  aws_region: "us-gov-west-1"
+  aws_role_arn: "arn:aws:iam::123456789012:role/role-name" # this is an example
+  broker_urls: ["localhost:19092"] # for local Kafka cluster in Docker
+  schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
 kms_key_id: ~
 lgy:
   api_key: ~
@@ -824,6 +833,7 @@ maintenance:
     es: PH7OPR4
     evss: PZKWB6Y
     form1010d: P69N8ZY
+    form107959a: POTKY39
     form107959c: PEP32F2
     form107959f1: P63EKXC
     form107959f2: PZWR9XI
@@ -947,6 +957,14 @@ mhv:
     host: https://mhv-api.example.com
     mhv_sm_x_api_key: ~
     mock: true
+  uhd:
+    app_id: 1000
+    app_token: faketoken
+    host: https://example.myhealth.va.gov
+    mock: true
+    security_host: https://security.example.myhealth.va.gov
+    subject: "Proxy Client"
+    user_type: usertype
 mhv_mobile:
   sm:
     app_token: fake-app-token
