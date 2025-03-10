@@ -93,7 +93,7 @@ Rails.application.reloader.to_prepare do
     ClaimsApi::LocalBGS.breakers_service,
     MebApi::DGI::Configuration.instance.breakers_service,
     MebApi::DGI::Letters::Configuration.instance.breakers_service,
-    Lighthouse::VeteransHealth::Configuration.instance.breakers_service,
+    Lighthouse::VeteransHealth::Configuration.instance.breakers_service
   ]
 
   services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled
