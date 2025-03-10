@@ -23,7 +23,7 @@ RSpec.describe SAML::URLService do
     SAML::URLService::VIRTUAL_HOST_MAPPINGS.each do |vhost_url, values|
       context "virtual host: #{vhost_url}" do
         let(:saml_settings) do
-          callback_path = URI.parse(Settings.saml_ssoe.callback_url).path
+          callback_path = URI.parse(IdentitySettings.saml_ssoe.callback_url).path
           build(:settings_no_context, assertion_consumer_service_url: "#{vhost_url}#{callback_path}")
         end
         let(:expected_saml_url) { "#{saml_settings.idp_sso_target_url}?SAMLRequest=" }
@@ -345,7 +345,7 @@ RSpec.describe SAML::URLService do
     SAML::URLService::VIRTUAL_HOST_MAPPINGS.each do |vhost_url, values|
       context "virtual host: #{vhost_url}" do
         let(:saml_settings) do
-          callback_path = URI.parse(Settings.saml_ssoe.callback_url).path
+          callback_path = URI.parse(IdentitySettings.saml_ssoe.callback_url).path
           build(:settings_no_context, assertion_consumer_service_url: "#{vhost_url}#{callback_path}")
         end
         let(:expected_saml_url) { "#{saml_settings.idp_sso_target_url}?SAMLRequest=" }
@@ -593,7 +593,8 @@ RSpec.describe SAML::URLService do
     around do |example|
       Timecop.freeze('2018-04-09T17:52:03Z')
       RequestStore.store['request_id'] = '123'
-      with_settings(Settings.saml_ssoe, relay: "http://#{slug_id}.review.vetsgov-internal/auth/login/callback") do
+      with_settings(IdentitySettings.saml_ssoe,
+                    relay: "http://#{slug_id}.review.vetsgov-internal/auth/login/callback") do
         with_settings(Settings, review_instance_slug: slug_id) do
           example.run
         end
