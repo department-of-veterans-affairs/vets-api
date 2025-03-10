@@ -68,6 +68,9 @@ features:
   benefits_require_gateway_origin:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
+  bpds_service_enabled:
+    actor_type: user
+    description: Enables the BPDS service
   caregiver_use_facilities_API:
     actor_type: cookie_id
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
@@ -794,10 +797,6 @@ features:
   simple_forms_email_notifications:
     actor_type: user
     description: Enables form email notifications upon certain state changes (error and received)
-    enable_in_development: true
-  simple_forms_notification_callbacks:
-    actor_type: user
-    description: Enables form email notification callback for Simple Forms
     enable_in_development: true
   form2010206:
     actor_type: user
