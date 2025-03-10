@@ -13,6 +13,8 @@ module Lighthouse
     # Documentation located at:
     # https://developer.va.gov/explore/health/docs/fhir?version=current
     class Client < Common::Client::Base
+      STATSD_KEY_PREFIX = 'api.lighthouse.veterans_health'
+
       include Common::Client::Concerns::Monitoring
       configuration Lighthouse::VeteransHealth::Configuration
 
@@ -123,19 +125,23 @@ module Lighthouse
       end
 
       def perform_get(uri_path, **params)
-        perform(:get, uri_path, params, headers_hash)
+        with_monitoring do
+          perform(:get, uri_path, params, headers_hash)
+        end
       rescue Common::Client::Errors::ClientError => e
         log_operation_outcome(e)
         raise e
       end
 
       def authenticate(params)
-        perform(
-          :post,
-          'oauth2/health/system/v1/token',
-          URI.encode_www_form(params),
-          { 'Content-Type': 'application/x-www-form-urlencoded' }
-        )
+        with_monitoring do
+          perform(
+            :post,
+            'oauth2/health/system/v1/token',
+            URI.encode_www_form(params),
+            { 'Content-Type': 'application/x-www-form-urlencoded' }
+          )
+        end
       rescue Common::Client::Errors::ClientError => e
         log_operation_outcome(e)
         raise e
