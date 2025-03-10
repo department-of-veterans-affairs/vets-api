@@ -22,7 +22,7 @@ module DebtsApi
         pdf.move_down 30
         add_header_columns(pdf)
         pdf.move_down 20
-        copays = copays_service.dig(:data)
+        copays = copays_service[:data]
 
         if copays.any?
           table_data = [[{ content: COPAY_TABLE_TITLE, inline_format: true }, 'AMOUNT DUE', 'COPAY BILLING REF#']]
