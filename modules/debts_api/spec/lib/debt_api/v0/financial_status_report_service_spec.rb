@@ -129,7 +129,8 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
                 'name' => user_data.first_name,
                 'time' => '48 hours',
                 'date' => Time.zone.now.strftime('%m/%d/%Y')
-              }
+              },
+              { id_type: 'email' }
             )
             service.submit_vba_fsr(valid_form_data)
           end
