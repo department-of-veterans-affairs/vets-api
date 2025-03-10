@@ -58,20 +58,14 @@ describe Kafka::AvroProducer do
 
     context 'with dynamic schema registry retrieval' do
       it 'produces a message to the specified topic' do
-        url = 'http://sandbox.lighthouse.va.gov/ves-event-bus-infra/schema-registry/subjects/submission_trace_mock_dev-value/versions/1'
-        with_settings(Settings.kafka_producer,
-                      schema_registry_url: url) do
-          VCR.use_cassette('kafka/topic1') do
-            VCR.use_cassette('kafka/topic2') do
-              avro_producer.produce('topic-1', valid_payload)
-              avro_producer.produce('topic-2', valid_payload)
-              expect(avro_producer.producer.client.messages.length).to eq(2)
-              topic_1_messages = avro_producer.producer.client.messages_for('topic-1')
-              expect(topic_1_messages.length).to eq(1)
-              expect(topic_1_messages[0][:payload]).to be_a(String)
-              expect(topic_1_messages[0][:payload]).to eq(topic1_payload_value)
-            end
-          end
+        VCR.use_cassette('kafka/topics') do
+          avro_producer.produce('topic-1', valid_payload)
+          avro_producer.produce('topic-2', valid_payload)
+          expect(avro_producer.producer.client.messages.length).to eq(2)
+          topic_1_messages = avro_producer.producer.client.messages_for('topic-1')
+          expect(topic_1_messages.length).to eq(1)
+          expect(topic_1_messages[0][:payload]).to be_a(String)
+          expect(topic_1_messages[0][:payload]).to eq(topic1_payload_value)
         end
       end
     end

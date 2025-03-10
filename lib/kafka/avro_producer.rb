@@ -2,7 +2,7 @@
 
 require 'avro'
 require 'kafka/producer_manager'
-require 'kafka/confluent_schema_registry'
+require 'kafka/schema_registry/service'
 require 'logger'
 
 module Kafka
@@ -11,7 +11,7 @@ module Kafka
 
     def initialize(producer: nil)
       @producer = producer || Kafka::ProducerManager.instance.producer
-      @registry = Kafka::ConfluentSchemaRegistry.new(Settings.kafka_producer.schema_registry_url)
+      @registry = SchemaRegistry::Service.new
     end
 
     def produce(topic, payload, schema_version: 1)
