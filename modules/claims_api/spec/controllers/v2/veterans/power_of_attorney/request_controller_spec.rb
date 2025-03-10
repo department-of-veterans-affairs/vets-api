@@ -75,7 +75,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
                 VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
                   index_request_with(poa_codes:, page_params:, auth_header:)
 
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:bad_request)
                   expect(response.parsed_body['errors'][0]['detail']).to eq(
                     'The maximum page size param value of 100 has been exceeded.'
                   )
@@ -92,7 +92,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
                 VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
                   index_request_with(poa_codes:, page_params:, auth_header:)
 
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:bad_request)
                   expect(response.parsed_body['errors'][0]['detail']).to eq(
                     'Both the maximum page size param value of 100 has been exceeded ' \
                     'and the maximum page number param value of 100 has been exceeded.'
@@ -643,7 +643,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             expect do
               subject.send(:validate_page_size_and_number_params)
             end.to(raise_error do |error|
-              expect(error.message).to eq('Unprocessable Entity')
+              expect(error.message).to eq('Bad request')
               expect(error.errors[0].detail).to eq("The page[number] param value #{param_val} is invalid")
             end)
           end
@@ -656,7 +656,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             expect do
               subject.send(:validate_page_size_and_number_params)
             end.to(raise_error do |error|
-              expect(error.message).to eq('Unprocessable Entity')
+              expect(error.message).to eq('Bad request')
               expect(error.errors[0].detail).to eq("The page[size] param value #{param_val} is invalid")
             end)
           end
@@ -669,7 +669,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             expect do
               subject.send(:validate_page_size_and_number_params)
             end.to(raise_error do |error|
-              expect(error.message).to eq('Unprocessable Entity')
+              expect(error.message).to eq('Bad request')
             end)
           end
         end
