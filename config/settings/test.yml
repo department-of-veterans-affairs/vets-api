@@ -647,7 +647,9 @@ kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: 'arn:aws:iam::123456789012:role/role-name' # this is an example
   broker_urls: ['localhost:19092'] # for local Kafka cluster in Docker
-  schema_registry_url: 'http://localhost:8081' # for local Schema Registry in Docker
+  sasl_mechanisms: 'GSSAPI'
+  schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
+  security_protocol: 'plaintext'
 kms_key_id: ~
 lgy:
   api_key: fake_api_key

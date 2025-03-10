@@ -654,7 +654,9 @@ kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: <%= ENV['kafka_producer__aws_role_arn'] %>
   broker_urls: <%= ENV['kafka_producer__broker_urls'] %>
+  sasl_mechanisms: 'OAUTHBEARER'
   schema_registry_url: <%= ENV['kafka_proudcer__schema_registry_url'] %>
+  security_protocol: 'sasl_ssl'
 kms_key_id: <%= ENV['kms_key_id'] %>
 lgy:
   api_key: <%= ENV['lgy__api_key'] %>
