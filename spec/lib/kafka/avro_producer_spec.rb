@@ -6,7 +6,7 @@ require 'kafka/oauth_token_refresher'
 
 describe Kafka::AvroProducer do
   let(:avro_producer) { described_class.new }
-  let(:schema_path) { Rails.root.join('lib', 'kafka', 'schemas', 'test-value-1.avsc').to_s }
+  let(:schema_path) { Rails.root.join('lib', 'kafka', 'schemas', 'test-value-1.avsc') }
   let(:schema) { Avro::Schema.parse(File.read(schema_path)) }
   let(:valid_payload) { { 'data' => { 'key' => 'value' } } }
   let(:invalid_payload) { { 'invalid_key' => 'value' } }
