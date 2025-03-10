@@ -10,7 +10,8 @@ module DebtManagementCenter
     class UnrecognizedIdentifier < StandardError; end
 
     sidekiq_retries_exhausted do |job, ex|
-      options = job['args'][3] || {}
+      options = (job['args'][3] || {}).transform_keys(&:to_s)
+
       StatsD.increment("#{STATS_KEY}.retries_exhausted")
       if options['failure_mailer'] == true
         StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.send_failed_form_email.failure")
@@ -24,6 +25,8 @@ module DebtManagementCenter
     end
 
     def perform(identifier, template_id, personalisation = nil, options = {})
+      options = (options || {}).transform_keys(&:to_s)
+
       id_type = options['id_type'] || 'email'
       notify_client = VaNotify::Service.new(Settings.vanotify.services.dmc.api_key)
       notify_client.send_email(email_params(identifier, template_id, personalisation, id_type))

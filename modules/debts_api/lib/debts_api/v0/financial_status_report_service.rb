@@ -266,7 +266,9 @@ module DebtsApi
       email = @user.email&.downcase
       return if email.blank?
 
-      DebtManagementCenter::VANotifyEmailJob.perform_async(email, template_id, email_personalization_info)
+      DebtManagementCenter::VANotifyEmailJob.perform_async(
+        email, template_id, email_personalization_info, { id_type: 'email' }
+      )
     end
 
     def email_personalization_info
