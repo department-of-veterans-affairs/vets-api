@@ -10863,15 +10863,15 @@
                               "type": "object",
                               "properties": {
                                 "firstName": {
-                                  "description": "First name for the dependdent claimant.",
+                                  "description": "First name for the dependent claimant.",
                                   "type": "string"
                                 },
                                 "lastName": {
-                                  "description": "Last name for the dependdent claimant.",
+                                  "description": "Last name for the dependent claimant.",
                                   "type": "string"
                                 },
                                 "middleName": {
-                                  "description": "Middle name for the dependdent claimant.",
+                                  "description": "Middle name for the dependent claimant.",
                                   "type": "string"
                                 }
                               }
