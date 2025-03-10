@@ -18,12 +18,12 @@ module SignIn
 
     def public_keys
       public_keys = [private_key.public_key]
-      old_key_file_path = Settings.sign_in.jwt_old_encode_key
+      old_key_file_path = IdentitySettings.sign_in.jwt_old_encode_key
       public_keys.push private_key(file_path: old_key_file_path).public_key if old_key_file_path
       public_keys
     end
 
-    def private_key(file_path: Settings.sign_in.jwt_encode_key)
+    def private_key(file_path: IdentitySettings.sign_in.jwt_encode_key)
       OpenSSL::PKey::RSA.new(File.read(file_path))
     end
   end
