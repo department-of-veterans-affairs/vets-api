@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'string_helpers'
+require 'statsd_endpoint_tag_filter'
 
 module Breakers
   class StatsdPlugin
@@ -10,7 +10,7 @@ module Breakers
       tags = []
       if upstream_request
         if upstream_request.url&.path
-          tags.append("endpoint:#{StringHelpers.filtered_endpoint_tag(upstream_request.url.path)}")
+          tags.append("endpoint:#{StatsdEndpointTagFilter.redact(upstream_request.url.path)}")
         end
         tags.append("method:#{upstream_request.method}") if upstream_request.method
         tags.append("source:#{source_app}") if source_app
