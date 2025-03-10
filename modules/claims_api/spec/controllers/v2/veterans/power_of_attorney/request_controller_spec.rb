@@ -8,16 +8,23 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
   describe '#index' do
     let(:scopes) { %w[claim.read] }
+    let(:page_params) { { page: { size: 10, number: 2 } } }
 
-    it 'raises a ParameterMissing error if poaCodes is not present' do
-      expect do
-        subject.index
-      end.to raise_error(Common::Exceptions::ParameterMissing)
+    context 'when poaCodes is not present' do
+      before do
+        allow(subject).to receive(:params).and_return(page_params)
+      end
+
+      it 'raises a ParameterMissing error' do
+        expect do
+          subject.index
+        end.to raise_error(Common::Exceptions::ParameterMissing)
+      end
     end
 
     context 'when poaCodes is present but empty' do
       before do
-        allow(subject).to receive(:form_attributes).and_return({ 'poaCodes' => [] })
+        allow(subject).to receive_messages(form_attributes: { 'poaCodes' => [] }, params: page_params)
       end
 
       it 'raises a ParameterMissing error' do
@@ -56,15 +63,60 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       end
     end
 
-    context 'when pageIndex is present but pageSize is not' do
-      before do
-        allow(subject).to receive(:form_attributes).and_return({ 'poaCodes' => %w[002 003 083], 'pageIndex' => '2' })
+    context 'page params' do
+      let(:poa_codes) { %w[002 003 083] }
+
+      context 'page number is present' do
+        context 'and page size is present' do
+          context 'and exceeds the max value allowed' do
+            it 'raises a 422' do
+              page_params[:page][:size] = 101
+              mock_ccg(scopes) do |auth_header|
+                VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
+                  index_request_with(poa_codes:, page_params:, auth_header:)
+
+                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response.parsed_body['errors'][0]['detail']).to eq(
+                    'The maximum page size param value of 100 has been exceeded.'
+                  )
+                end
+              end
+            end
+          end
+
+          context 'and exceeds the max value allowed along with page number' do
+            it 'raises a 422' do
+              page_params[:page][:size] = 101
+              page_params[:page][:number] = 120
+              mock_ccg(scopes) do |auth_header|
+                VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
+                  index_request_with(poa_codes:, page_params:, auth_header:)
+
+                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response.parsed_body['errors'][0]['detail']).to eq(
+                    'Both the maximum page size param value of 100 has been exceeded ' \
+                    'and the maximum page number param value of 100 has been exceeded.'
+                  )
+                end
+              end
+            end
+          end
+        end
       end
 
-      it 'raises a ParameterMissing error' do
-        expect do
-          subject.index
-        end.to raise_error(Common::Exceptions::ParameterMissing)
+      context 'page size is present' do
+        context 'and page number is not present' do
+          it 'returns a success' do
+            page_params[:page][:number] = nil
+            mock_ccg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
+                index_request_with(poa_codes:, page_params:, auth_header:)
+
+                expect(response).to have_http_status(:ok)
+              end
+            end
+          end
+        end
       end
     end
 
@@ -554,12 +606,110 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           end.to raise_error(Common::Exceptions::UnprocessableEntity)
         end
       end
+
+      describe '#validate_page_size_and_number_params' do
+        context 'when no page params are sent in' do
+          it 'assigns the default values when no page params are sent' do
+            page_params = {}
+            allow(subject).to receive(:params).and_return(page_params)
+
+            subject.send(:validate_page_size_and_number_params)
+            size = subject.instance_variable_get(:@page_size_param)
+            number = subject.instance_variable_get(:@page_number_param)
+
+            expect(size).to eq(10)
+            expect(number).to eq(1)
+          end
+
+          it 'assigns the default values for when empty page params are sent' do
+            page_params = { page: {} }
+            allow(subject).to receive(:params).and_return(page_params)
+
+            subject.send(:validate_page_size_and_number_params)
+            size = subject.instance_variable_get(:@page_size_param)
+            number = subject.instance_variable_get(:@page_number_param)
+
+            expect(size).to eq(10)
+            expect(number).to eq(1)
+          end
+        end
+
+        context 'when params are invalid' do
+          it 'returns a 422 when a boolean is sent in' do
+            param_val = true
+            page_params = { page: { number: param_val } }
+            allow(subject).to receive(:params).and_return(page_params)
+
+            expect do
+              subject.send(:validate_page_size_and_number_params)
+            end.to(raise_error do |error|
+              expect(error.message).to eq('Unprocessable Entity')
+              expect(error.errors[0].detail).to eq("The page[number] param value #{param_val} is invalid")
+            end)
+          end
+
+          it 'returns a 422 when a alpha string is sent in' do
+            param_val = 'abcdefg'
+            page_params = { page: { size: param_val } }
+            allow(subject).to receive(:params).and_return(page_params)
+
+            expect do
+              subject.send(:validate_page_size_and_number_params)
+            end.to(raise_error do |error|
+              expect(error.message).to eq('Unprocessable Entity')
+              expect(error.errors[0].detail).to eq("The page[size] param value #{param_val} is invalid")
+            end)
+          end
+
+          it 'returns a 422 when an array is sent in' do
+            param_val = [true, '123', 'cdef']
+            page_params = { page: { size: 5, number: param_val } }
+            allow(subject).to receive(:params).and_return(page_params)
+
+            expect do
+              subject.send(:validate_page_size_and_number_params)
+            end.to(raise_error do |error|
+              expect(error.message).to eq('Unprocessable Entity')
+            end)
+          end
+        end
+
+        context 'when only one param is sent' do
+          context 'sets the param value and uses the default for the other' do
+            it 'sets default page number when page size is sent in' do
+              page_params = { page: { size: 5 } }
+              allow(subject).to receive(:params).and_return(page_params)
+
+              subject.send(:validate_page_size_and_number_params)
+              size = subject.instance_variable_get(:@page_size_param)
+              number = subject.instance_variable_get(:@page_number_param)
+
+              expect(size).to eq(5)
+              expect(number).to eq(1)
+            end
+
+            it 'sets default page size when page number is sent in' do
+              page_params = { page: { number: 2 } }
+              allow(subject).to receive(:params).and_return(page_params)
+
+              subject.send(:validate_page_size_and_number_params)
+              size = subject.instance_variable_get(:@page_size_param)
+              number = subject.instance_variable_get(:@page_number_param)
+
+              expect(size).to eq(10)
+              expect(number).to eq(2)
+            end
+          end
+        end
+      end
     end
   end
 
-  def index_request_with(poa_codes:, auth_header:, filter: {})
+  def index_request_with(poa_codes:, auth_header:, filter: {}, page_params: nil)
     post v2_veterans_power_of_attorney_requests_path,
-         params: { data: { attributes: { poaCodes: poa_codes, filter: } } }.to_json,
+         params: { page: { size: page_params&.dig(:page, :size),
+                           number: page_params&.dig(:page, :number) },
+                   data: { attributes: { poaCodes: poa_codes, filter: } } }.to_json,
          headers: auth_header.merge('Content-Type' => 'application/json')
   end
 
