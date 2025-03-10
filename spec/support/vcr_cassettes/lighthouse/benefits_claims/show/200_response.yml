@@ -264,6 +264,71 @@ http_interactions:
                               "status": "NEEDED_FROM_YOU",
                               "uploaded": true,
                               "uploadsAllowed": false
+                           },
+                           {
+                              "closedDate": null,
+                              "description": "VA Form 21-4142",
+                              "displayName": "21-4142/21-4142a",
+                              "overdue": false,
+                              "receivedDate": "2023-03-15",
+                              "requestedDate": "2023-04-14",
+                              "suspenseDate": null,
+                              "id": 394443,
+                              "status": "NEEDED_FROM_YOU",
+                              "uploaded": true,
+                              "uploadsAllowed": false
+                           },
+                           {
+                              "closedDate": null,
+                              "description": "VA DD214",
+                              "displayName": "Proof of Service (DD214, etc.)",
+                              "overdue": false,
+                              "receivedDate": "2023-03-15",
+                              "requestedDate": "2023-04-14",
+                              "suspenseDate": null,
+                              "id": 394443,
+                              "status": "NEEDED_FROM_YOU",
+                              "uploaded": true,
+                              "uploadsAllowed": false
+                           },
+                           {
+                              "closedDate": null,
+                              "description": "VA needs your payment information",
+                              "displayName": "Employment information needed",
+                              "overdue": false,
+                              "receivedDate": "2023-03-15",
+                              "requestedDate": "2023-04-14",
+                              "suspenseDate": null,
+                              "id": 394443,
+                              "status": "NEEDED_FROM_YOU",
+                              "uploaded": true,
+                              "uploadsAllowed": false
+                           },
+                           {
+                              "closedDate": null,
+                              "description": "Treasury mandate",
+                              "displayName": "EFT - Treasury Mandate Notification",
+                              "overdue": false,
+                              "receivedDate": "2023-03-15",
+                              "requestedDate": "2023-04-14",
+                              "suspenseDate": null,
+                              "id": 394443,
+                              "status": "NEEDED_FROM_YOU",
+                              "uploaded": true,
+                              "uploadsAllowed": false
+                           },
+                           {
+                              "closedDate": null,
+                              "description": "PTSD followup clarifications",
+                              "displayName": "PTSD - Need stressor details/med evid of stressful incdnt",
+                              "overdue": false,
+                              "receivedDate": "2023-03-15",
+                              "requestedDate": "2023-04-14",
+                              "suspenseDate": null,
+                              "id": 394443,
+                              "status": "NEEDED_FROM_YOU",
+                              "uploaded": true,
+                              "uploadsAllowed": false
                            }
                        ]
                     }

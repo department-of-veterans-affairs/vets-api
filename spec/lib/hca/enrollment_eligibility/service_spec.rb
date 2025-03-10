@@ -4,64 +4,51 @@ require 'rails_helper'
 require 'hca/enrollment_eligibility/service'
 
 describe HCA::EnrollmentEligibility::Service do
-  context 'with a user who has dependents', run_at: 'Tue, 31 Oct 2023 12:04:33 GMT' do
-    it 'gets data for prefilling 1010ezr' do
-      VCR.use_cassette(
-        'hca/ee/dependents',
-        VCR::MATCH_EVERYTHING.merge(erb: true)
-      ) do
-        expect(described_class.new.get_ezr_data('1012829228V424035').to_h).to eq(
-          {
-            medicareClaimNumber: nil,
-            isEnrolledMedicarePartA: false,
-            medicarePartAEffectiveDate: nil,
-            isMedicaidEligible: false,
-            dependents: [{ fullName: { first: 'CHILD', last: 'BISHOP' },
-                           socialSecurityNumber: '234114455',
-                           becameDependent: '2020-10-01',
-                           dependentRelation: 'Daughter',
-                           disabledBefore18: false,
-                           attendedSchoolLastYear: false,
-                           cohabitedLastYear: true,
-                           dateOfBirth: '2020-10-01' }],
-            spouseFullName: { first: 'VSDV', last: 'SDVSDV' },
-            maritalStatus: 'Married',
-            dateOfMarriage: '2000-10-15',
-            cohabitedLastYear: true,
-            spouseDateOfBirth: '1950-02-17',
-            spouseSocialSecurityNumber: '435345344'
-          }
-        )
+  describe '#get_ezr_data' do
+    let(:veteran_data) do
+      data = JSON.parse(File.read('spec/fixtures/form1010_ezr/veteran_data.json'))
+      financial_info = data['nonPrefill']['previousFinancialInfo']
+
+      data.delete('nonPrefill')
+      data.merge('previousFinancialInfo' => financial_info)
+    end
+
+    context "when the 'ezr_form_prefill_with_providers_and_dependents' flipper is enabled" do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(true)
+      end
+
+      it 'gets Veteran data relevant to the 1010ezr', run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
+        VCR.use_cassette(
+          'form1010_ezr/lookup_user_with_ezr_prefill_data',
+          match_requests_on: %i[method uri body], erb: true
+        ) do
+          expect(
+            described_class.new.get_ezr_data(
+              '1012829228V424035'
+            ).to_h.deep_stringify_keys
+          ).to eq(veteran_data)
+        end
       end
     end
-  end
 
-  describe '#get_ezr_data', run_at: 'Tue, 24 Oct 2023 17:27:12 GMT' do
-    it 'gets data for prefilling 1010ezr' do
-      VCR.use_cassette(
-        'hca/ee/lookup_user_2023',
-        VCR::MATCH_EVERYTHING.merge(erb: true)
-      ) do
-        expect(
-          described_class.new.get_ezr_data(
-            '1013032368V065534'
-          ).to_h.deep_stringify_keys
-        ).to eq(
-          { 'providers' =>
-            [{ 'insuranceGroupCode' => '123456',
-               'insuranceName' => 'Aetna',
-               'insurancePolicyHolderName' => 'Four IVMTEST',
-               'insurancePolicyNumber' => '123456' },
-             { 'insuranceGroupCode' => 'G1234',
-               'insuranceName' => 'MyInsurance',
-               'insurancePolicyHolderName' => 'FirstName ZZTEST',
-               'insurancePolicyNumber' => 'P1234' }],
-            'medicareClaimNumber' => '873462432',
-            'isEnrolledMedicarePartA' => true,
-            'medicarePartAEffectiveDate' => '1999-10-16',
-            'maritalStatus' => 'Married',
-            'isMedicaidEligible' => true }
-        )
+    context "when the 'ezr_form_prefill_with_providers_and_dependents' flipper is disabled" do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(false)
+      end
+
+      it 'gets Veteran data relevant to the 1010ezr, except for insurance providers and dependents',
+         run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
+        VCR.use_cassette(
+          'form1010_ezr/lookup_user_with_ezr_prefill_data',
+          match_requests_on: %i[method uri body], erb: true
+        ) do
+          expect(
+            described_class.new.get_ezr_data(
+              '1012829228V424035'
+            ).to_h.deep_stringify_keys
+          ).to eq(veteran_data.except!('providers', 'dependents'))
+        end
       end
     end
   end
