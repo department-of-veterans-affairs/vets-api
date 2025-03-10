@@ -251,6 +251,61 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
       end
 
+      context 'when :cst_show_document_upload_status is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(false)
+        end
+
+        it 'doesnt show the evidenceSubmissions section in claim attributes' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'evidenceSubmissions')).to be_nil
+        end
+      end
+
+      context 'when :cst_show_document_upload_status is enabled' do
+        let(:claim_id) { '600383363' }
+
+        context 'when record does not have a tracked item' do
+          before do
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(true)
+            create(:bd_lh_evidence_submission_success, claim_id:)
+          end
+
+          it 'shows the evidenceSubmissions section in claim attributes' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              get(:show, params: { id: claim_id })
+            end
+            parsed_body = JSON.parse(response.body)
+            expect(parsed_body.dig('data', 'attributes', 'evidenceSubmissions').size).to eq(1)
+          end
+        end
+
+        context 'when record has a tracked item' do
+          let(:tracked_item_id) { 394_443 }
+
+          before do
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(true)
+            create(:bd_lh_evidence_submission_success, claim_id:, tracked_item_id:)
+          end
+
+          it 'shows the evidenceSubmissions section in claim attributes' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              get(:show, params: { id: claim_id })
+            end
+            parsed_body = JSON.parse(response.body)
+            evidence_submissions = parsed_body.dig('data', 'attributes', 'evidenceSubmissions')
+            expect(evidence_submissions.size).to eq(1)
+            expect(evidence_submissions[0]['tracked_item_id']).to eq(tracked_item_id)
+          end
+        end
+      end
+
       it 'returns a status of 200' do
         VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
           get(:show, params: { id: '600383363' })
