@@ -30,7 +30,12 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
     end
 
     context 'when feature flag is enabled' do
-      before { Flipper.enable(:accredited_representative_portal_pilot) }
+      before do
+        allow(Flipper).to receive(:enabled?).with(
+          :accredited_representative_portal_pilot,
+          instance_of(AccreditedRepresentativePortal::RepresentativeUser)
+        ).and_return(true)
+      end
 
       context 'when authenticated' do
         context 'with a valid audience' do
@@ -61,7 +66,12 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
     end
 
     context 'when feature flag is disabled' do
-      before { Flipper.disable(:accredited_representative_portal_pilot) }
+      before do
+        allow(Flipper).to receive(:enabled?).with(
+          :accredited_representative_portal_pilot,
+          instance_of(AccreditedRepresentativePortal::RepresentativeUser)
+        ).and_return(false)
+      end
 
       it 'returns 403 Forbidden regardless of authentication' do
         expect(subject).to have_http_status(:forbidden)
