@@ -89,7 +89,7 @@ module AccreditedRepresentativePortal
       # There is one claimant per accreditation. The claimant then gets a permutation
       # of having a series of one of each POA request resolution and applies it.
       # All this cycles around the accreditations. Finally, give each accredited
-      # individual one unresolved POA request.
+      # individual one pending POA request.
       #
       def insert_poa_requests(accreditations)
         poa_forms = []
