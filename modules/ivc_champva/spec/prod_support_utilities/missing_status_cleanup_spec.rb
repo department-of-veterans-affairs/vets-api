@@ -3,8 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe IvcChampva::ProdSupportUtilities::MissingStatusCleanup do
-  subject = TestClass.new
-
   describe 'batch records' do
     subject = IvcChampva::ProdSupportUtilities::MissingStatusCleanup.new
 
