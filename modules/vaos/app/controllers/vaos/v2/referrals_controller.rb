@@ -13,7 +13,7 @@ module VAOS
           referral_status_param
         )
 
-        render json: Ccra::ReferralListSerializer.new(response)
+        render json: Ccra::ReferralListSerializer.new(response).serializable_hash
       end
 
       # GET /v2/referrals/:id
@@ -24,7 +24,7 @@ module VAOS
           referral_mode_param
         )
 
-        render json: Ccra::ReferralDetailSerializer.new(response)
+        render json: Ccra::ReferralDetailSerializer.new(response).serializable_hash
       end
 
       private

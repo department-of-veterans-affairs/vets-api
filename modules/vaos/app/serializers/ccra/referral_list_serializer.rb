@@ -6,21 +6,20 @@ module Ccra
   class ReferralListSerializer
     include JSONAPI::Serializer
 
+    set_id :referral_id
     set_type :referrals
 
-    # Serialize each referral list entry as an array
-    def initialize(referrals)
-      @referrals = referrals || []
+    attribute :type_of_care
+
+    attribute :expiration_date do |referral|
+      referral.expiration_date&.strftime('%Y-%m-%d')
     end
 
-    def as_json(*)
-      @referrals.map do |referral|
-        {
-          id: referral.referral_id,
-          type_of_care: referral.type_of_care,
-          expiration_date: referral.expiration_date&.strftime('%Y-%m-%d')
-        }.compact
-      end
+    # Override to handle nil collection
+    def serializable_hash(...)
+      return { data: [] } unless @resource.is_a?(Array)
+
+      super
     end
   end
 end

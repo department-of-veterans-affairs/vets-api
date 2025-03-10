@@ -6,21 +6,12 @@ module Ccra
   class ReferralDetailSerializer
     include JSONAPI::Serializer
 
+    set_id :referral_number
     set_type :referral
 
-    # Serializes the referral detail
-    def initialize(referral)
-      @referral = referral
-    end
-
-    def as_json(*)
-      {
-        id: @referral.referral_number,
-        type_of_care: @referral.type_of_care,
-        provider_name: @referral.provider_name,
-        location: @referral.location,
-        expiration_date: @referral.expiration_date
-      }.compact
-    end
+    attribute :type_of_care
+    attribute :provider_name
+    attribute :location
+    attribute :expiration_date
   end
 end

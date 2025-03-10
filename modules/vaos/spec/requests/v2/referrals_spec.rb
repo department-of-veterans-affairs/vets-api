@@ -31,12 +31,21 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         sign_in_as(user)
       end
 
-      it 'returns referrals list' do
+      it 'returns referrals list in JSON:API format' do
         get '/vaos/v2/referrals'
 
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)).to be_an(Array)
-        expect(JSON.parse(response.body).length).to eq(3)
+        response_data = JSON.parse(response.body)
+
+        expect(response_data).to have_key('data')
+        expect(response_data['data']).to be_an(Array)
+        expect(response_data['data'].length).to eq(3)
+
+        first_referral = response_data['data'].first
+        expect(first_referral).to have_key('id')
+        expect(first_referral).to have_key('type')
+        expect(first_referral).to have_key('attributes')
+        expect(first_referral['attributes']).to have_key('type_of_care')
       end
     end
   end
@@ -70,11 +79,21 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         sign_in_as(user)
       end
 
-      it 'returns referral detail' do
+      it 'returns referral detail in JSON:API format' do
         get "/vaos/v2/referrals/#{referral_id}"
 
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['id']).to eq(referral_id)
+        response_data = JSON.parse(response.body)
+
+        expect(response_data).to have_key('data')
+        expect(response_data['data']).to have_key('id')
+        expect(response_data['data']['id']).to eq(referral_id)
+        expect(response_data['data']).to have_key('type')
+        expect(response_data['data']['type']).to eq('referral')
+        expect(response_data['data']).to have_key('attributes')
+        expect(response_data['data']['attributes']).to have_key('type_of_care')
+        expect(response_data['data']['attributes']).to have_key('provider_name')
+        expect(response_data['data']['attributes']).to have_key('location')
       end
     end
 

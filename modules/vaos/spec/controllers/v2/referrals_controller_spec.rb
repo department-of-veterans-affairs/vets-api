@@ -49,20 +49,22 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
           .and_return(referral_list_entries)
       end
 
-      it 'returns a list of referrals' do
+      it 'returns a list of referrals in JSON:API format' do
         get '/vaos/v2/referrals'
 
         expect(response).to have_http_status(:ok)
 
         response_data = JSON.parse(response.body)
-        expect(response_data).to be_a(Array)
-        expect(response_data.size).to eq(3)
+        expect(response_data).to have_key('data')
+        expect(response_data['data']).to be_an(Array)
+        expect(response_data['data'].size).to eq(3)
 
         # Verify first referral entry structure
-        first_referral = response_data.first
+        first_referral = response_data['data'].first
         expect(first_referral['id']).to eq('5682')
-        expect(first_referral['type_of_care']).to eq('CARDIOLOGY')
-        expect(first_referral['expiration_date']).to eq('2024-05-27')
+        expect(first_referral['type']).to eq('referrals')
+        expect(first_referral['attributes']['type_of_care']).to eq('CARDIOLOGY')
+        expect(first_referral['attributes']['expiration_date']).to eq('2024-05-27')
       end
 
       context 'with a custom status parameter' do
@@ -117,17 +119,19 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
           .and_return(referral_detail)
       end
 
-      it 'returns a referral detail' do
+      it 'returns a referral detail in JSON:API format' do
         get "/vaos/v2/referrals/#{referral_id}"
 
         expect(response).to have_http_status(:ok)
 
         response_data = JSON.parse(response.body)
-        expect(response_data['id']).to eq(referral_id)
-        expect(response_data['type_of_care']).to eq('CARDIOLOGY')
-        expect(response_data['provider_name']).to eq('Dr. Smith')
-        expect(response_data['location']).to eq('VA Medical Center')
-        expect(response_data['expiration_date']).to eq('2024-05-27')
+        expect(response_data).to have_key('data')
+        expect(response_data['data']['id']).to eq(referral_id)
+        expect(response_data['data']['type']).to eq('referral')
+        expect(response_data['data']['attributes']['type_of_care']).to eq('CARDIOLOGY')
+        expect(response_data['data']['attributes']['provider_name']).to eq('Dr. Smith')
+        expect(response_data['data']['attributes']['location']).to eq('VA Medical Center')
+        expect(response_data['data']['attributes']['expiration_date']).to eq('2024-05-27')
       end
 
       context 'with a custom mode parameter' do
