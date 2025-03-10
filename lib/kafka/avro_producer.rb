@@ -52,8 +52,8 @@ module Kafka
 
       # Add magic byte and schema ID to the payload
       magic_byte = [0].pack('C')
-      # NOTE: Use fetched schema id from schema registry but if not found, ID = 5 is the Event Bus schema ID for test schema.
-      # replace this with the actual schema ID when running locally
+      # NOTE: Use fetched schema id from schema registry but if not found,
+      # ID = 5 is the Event Bus schema ID for test schema.replace this with the actual schema ID when running locally
       @schema_id ||= 5
       schema_id_bytes = [@schema_id].pack('N') # should be schema id
       magic_byte + schema_id_bytes + avro_payload

@@ -57,15 +57,27 @@ describe Kafka::AvroProducer do
     end
 
     context 'with dynamic schema registry retrieval' do
-      it 'produces a message to the specified topic' do
-        VCR.use_cassette('kafka/topics') do
-          avro_producer.produce('topic-1', valid_payload)
-          avro_producer.produce('topic-2', valid_payload)
-          expect(avro_producer.producer.client.messages.length).to eq(2)
-          topic_1_messages = avro_producer.producer.client.messages_for('topic-1')
-          expect(topic_1_messages.length).to eq(1)
-          expect(topic_1_messages[0][:payload]).to be_a(String)
-          expect(topic_1_messages[0][:payload]).to eq(topic1_payload_value)
+      context 'of an existing schema' do
+        it 'produces a message to the specified topic' do
+          VCR.use_cassette('kafka/topics') do
+            avro_producer.produce('topic-1', valid_payload)
+            avro_producer.produce('topic-2', valid_payload)
+            expect(avro_producer.producer.client.messages.length).to eq(2)
+            topic_1_messages = avro_producer.producer.client.messages_for('topic-1')
+            expect(topic_1_messages.length).to eq(1)
+            expect(topic_1_messages[0][:payload]).to be_a(String)
+            expect(topic_1_messages[0][:payload]).to eq(topic1_payload_value)
+          end
+        end
+      end
+
+      context 'of an non-existing schema' do
+        it 'raises approriate error' do
+          VCR.use_cassette('kafka/topics404') do
+            expect do
+              avro_producer.produce('topic-999', valid_payload)
+            end.to raise_error(Faraday::ResourceNotFound)
+          end
         end
       end
     end

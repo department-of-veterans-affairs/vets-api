@@ -16,6 +16,7 @@ module Kafka
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
           conn.use :breakers
+          conn.use Faraday::Response::RaiseError
           conn.adapter Faraday.default_adapter
         end
       end
