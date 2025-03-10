@@ -26,9 +26,9 @@ module DebtManagementCenter
 
     def perform(identifier, template_id, personalisation = nil, options = {})
       options = (options || {}).transform_keys(&:to_s)
-
       id_type = options['id_type'] || 'email'
       notify_client = VaNotify::Service.new(Settings.vanotify.services.dmc.api_key)
+
       notify_client.send_email(email_params(identifier, template_id, personalisation, id_type))
       if options['failure_mailer'] == true
         StatsD.increment("#{V0::Form5655Submission::STATS_KEY}.send_failed_form_email.success")
