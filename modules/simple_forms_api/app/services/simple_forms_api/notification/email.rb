@@ -140,44 +140,26 @@ module SimpleFormsApi
       end
 
       def async_job_with_form_data(email, first_name, at, template_id)
-        if Flipper.enabled?(:simple_forms_notification_callbacks)
-          VANotify::EmailJob.perform_at(
-            at,
-            email,
-            template_id,
-            get_personalization(first_name),
-            *email_args
-          )
-        else
-          VANotify::EmailJob.perform_at(
-            at,
-            email,
-            template_id,
-            get_personalization(first_name)
-          )
-        end
+        VANotify::EmailJob.perform_at(
+          at,
+          email,
+          template_id,
+          get_personalization(first_name),
+          *email_args
+        )
       end
 
       def async_job_with_user_account(user_account, at, template_id)
         first_name_from_user_account = get_first_name_from_user_account
         return unless first_name_from_user_account
 
-        if Flipper.enabled?(:simple_forms_notification_callbacks)
-          VANotify::UserAccountJob.perform_at(
-            at,
-            user_account.id,
-            template_id,
-            get_personalization(first_name_from_user_account),
-            *email_args
-          )
-        else
-          VANotify::UserAccountJob.perform_at(
-            at,
-            user_account.id,
-            template_id,
-            get_personalization(first_name_from_user_account)
-          )
-        end
+        VANotify::UserAccountJob.perform_at(
+          at,
+          user_account.id,
+          template_id,
+          get_personalization(first_name_from_user_account),
+          *email_args
+        )
       end
 
       def send_email_now(template_id)
