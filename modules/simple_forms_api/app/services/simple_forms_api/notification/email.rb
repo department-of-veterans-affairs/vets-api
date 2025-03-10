@@ -140,44 +140,26 @@ module SimpleFormsApi
       end
 
       def async_job_with_form_data(email, first_name, at, template_id)
-        if Flipper.enabled?(:simple_forms_notification_callbacks)
-          VANotify::EmailJob.perform_at(
-            at,
-            email,
-            template_id,
-            get_personalization(first_name),
-            *email_args
-          )
-        else
-          VANotify::EmailJob.perform_at(
-            at,
-            email,
-            template_id,
-            get_personalization(first_name)
-          )
-        end
+        VANotify::EmailJob.perform_at(
+          at,
+          email,
+          template_id,
+          get_personalization(first_name),
+          *email_args
+        )
       end
 
       def async_job_with_user_account(user_account, at, template_id)
         first_name_from_user_account = get_first_name_from_user_account
         return unless first_name_from_user_account
 
-        if Flipper.enabled?(:simple_forms_notification_callbacks)
-          VANotify::UserAccountJob.perform_at(
-            at,
-            user_account.id,
-            template_id,
-            get_personalization(first_name_from_user_account),
-            *email_args
-          )
-        else
-          VANotify::UserAccountJob.perform_at(
-            at,
-            user_account.id,
-            template_id,
-            get_personalization(first_name_from_user_account)
-          )
-        end
+        VANotify::UserAccountJob.perform_at(
+          at,
+          user_account.id,
+          template_id,
+          get_personalization(first_name_from_user_account),
+          *email_args
+        )
       end
 
       def send_email_now(template_id)
@@ -309,25 +291,30 @@ module SimpleFormsApi
 
       # email and first name for form 20-10207
       def form20_10207_contact_info
-        preparer_types = %w[veteran third-party-veteran non-veteran third-party-non-veteran]
+        return unless form_data
 
-        return unless preparer_types.include?(@form_data['preparer_type'])
+        preparer_type = form_data['preparer_type']
 
-        email_and_first_name = [@user&.va_profile_email]
-        # veteran
-        email_and_first_name << if @form_data['preparer_type'] == 'veteran'
-                                  @form_data['veteran_full_name']['first']
+        return unless %w[veteran third-party-veteran non-veteran third-party-non-veteran].include?(preparer_type)
 
-                                # non-veteran
-                                elsif @form_data['preparer_type'] == 'non-veteran'
-                                  @form_data['non_veteran_full_name']['first']
+        email = if preparer_type.include?('non-veteran')
+                  form_data['non_veteran_email_address']
+                else
+                  form_data['veteran_email_address']
+                end
 
-                                  # third-party
-                                else
-                                  @form_data['third_party_full_name']['first']
-                                end
+        first_name = case preparer_type
+                     when 'veteran'
+                       form_data.dig('veteran_full_name', 'first')
+                     when 'non-veteran'
+                       form_data.dig('non_veteran_full_name', 'first')
+                     when /third-party/
+                       form_data.dig('third_party_full_name', 'first')
+                     end
 
-        email_and_first_name
+        email ||= user&.va_profile_email
+
+        [email, first_name]
       end
 
       # email and first name for form 21-0845

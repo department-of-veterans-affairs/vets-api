@@ -25,6 +25,8 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
     login_as(representative_user)
   end
 
+  after { Flipper.disable(:accredited_representative_portal_pilot) }
+
   describe 'POST /accredited_representative_portal/v0/form21a' do
     context 'with valid JSON' do
       let!(:in_progress_form) { create(:in_progress_form, form_id: '21a', user_uuid: representative_user.uuid) }

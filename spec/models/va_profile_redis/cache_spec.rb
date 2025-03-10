@@ -7,7 +7,7 @@ describe VAProfileRedis::Cache, :skip_vet360 do
 
   describe 'ContactInformationServiceV1' do
     before do
-      Flipper.disable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       allow(user).to receive(:vet360_id).and_return('1')
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
     end
