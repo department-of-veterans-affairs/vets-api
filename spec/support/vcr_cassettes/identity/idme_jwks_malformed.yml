@@ -77,7 +77,7 @@ http_interactions:
     uri: https://api.idmelabs.com/oauth/token
     body:
       encoding: UTF-8
-      string: '{"grant_type":"authorization_code","code":"04e3f01f11764b50becb0cdcb618b804","client_id":"dde0b5b8bfc023a093830e64ef83f148","client_<DMC_TOKEN>":"e745319288bd005c9fca7d8164f302c7","redirect_uri":"http://localhost:3000/v0/sign_in/idme/callback"}'
+      string: '{"grant_type":"authorization_code","code":"04e3f01f11764b50becb0cdcb618b804","client_id":"dde0b5b8bfc023a093830e64ef83f148","client_<DMC_TOKEN>":"ab52e4c10fc438f739b9fa502bb03422","redirect_uri":"http://localhost:3000/v0/sign_in/idme/callback"}'
     headers:
       Accept:
       - application/json
@@ -186,6 +186,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: "\"\\\"eyJraWQiOiJ3T0s4WEI1RzNiNEI2QXd1TDNuUmdEVkNQYmZ0RHZBTkpJQ09vbDlXVTgwIiwiYWxnIjoiUlNBLU9BRVAiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIn0.hmqW65SIrJMlz0AbuwrSvT6bovYRH6MQxoJOMkRwj71azBq_28eMfsk9z5Znt_l3xqdzLaNmaPICn63MfQPO5yezQFAf3yTm1DE54xk7B_BaklzOMd43MpCEcGujK7Px4C9GGPtpbEDvKrh1EO4pt1Nq6Ue5o-4CUPueJ5WVK66ZHY6T4wwM-DrBnD7hTR0833BXdq_AL2XCrjxMUkXbJijGtklV84xBHVvThoXGd9DKHK0wHrbHvxSdB3wuvhTy-y55QmWVifbQCQf9ZWAKD-2_wC0YNs9qwN81iKKm1xoe9YZ3JXEZijRb767D-MWMYOGxKKnH7QzRbpSeX3p8dw.q-KYiO6PAt1j_1yE1P-XCQ.TM2JjLNUb2xgHhGMAUI1UO5pn2Um5m7hctMZsAe3XaxxOxzwdl37oPhVRe0pkBr7-K2cJv-28PLYFmAn6RBb7fSCDQZP-0LmSjDOUDw4jHEwDBVW3bDPNzFkyZWcOxnyXBLkv-0dTa5bSNalK_ccz1IXM3-VFuOgPJK15DpTnJmdbSFKuHjgrBqKKy542ipg8g14f0g_dpSFN6sri-D6HUPst6OI7p-OMROdMKejriKprWmFF4xxvzyvieJMrBXQswBo3TA9fWaLyAE6Lzv0-TfBdiR_UPrO7KbWWReA3KXs_WqfHfOVwcA6mrlji0xFeZ3YipFXcwkGSethNwUrRoSZEnQ7j8EQ8UYHdIaSVUggvMSZW_LzteemkA6BHF3Pzq9aUn_aJA2BB_CrrL_TY9_cPwjK1cLYWq6EfHKhYjw3fXybVzIxLMuBimYYOy7wK16-z_rKOJNzlPnGhraiuV8Ogc5g3SAnQNJYVkMLgxQTcmI8-qcsBddihEHN242EQM1JRjTVok8aEsOB-v2Phdb3oEn5qvcg7xrLg6MhQ5ihbowoUo9QfTO2P-XOxjMftLI6TTadKxvX1H_XQD-S7hlQD_c7KxPv-tFLpf1-O9DCLlDzwvsu-ULOR_pQl52UYehzH4mf5vstyvFxvVGGaWDqtAFtDDs65ZQmXwcVye98EWS0e28wRuuHWWiF-NVRYM5ggfVPnSg5hplMchS0iZVtPKlaWPUYT91n3J3cEwTrT7LIzDR4bzOMtiQqRn_CL2nZHPkgbVMxJgOSbhbJ_71gjjwL7bCIQtNZWdKZPU9Bw7fqZXSLhM02qDROoM-KtSJNNYXwAcqP2yPs5YWLX7egYcTclHdy7FWE_iBz6DnrUR44Xq4KmyLmRET8sQiTzS18gSiJ2XibSyg4p7_dTUZUiURDcmuSFNy9JY27ixygRRRAOBGcPVmho7tS85DKRkOD8jGpxVVHD-EKOa4z9NtToZGqIWbDPv-_baMhC07I9ZPdBNgB42qKcSazh1FUjgeEnhT59Xhtm4LedOj0hXUruHLgfXH5srTT05_ag6y7SeojsK1Vv05PdrAcrJd0gEsEuJ0bsTJ3SxXwrMW64x25lLsHJ8UpCSLHglJqKnC6Rt9a_CjYvLXlqZ3EC3-Ea1GWGm1wY16JjB7H0UqTIiuU10m0s50WeEJ4elnais8eiBrWvogAW_iN9_Nuk8Z35B32CHRHmVCnzeMFfl_Qo-25sGueqBvXL8zrmSomqj0-Tt-TVD_5_yV00XAQkXgxySnOMDG4iMHqjJhMYOUpInRoDhGleZRPkCEomI-WdslpDD9Qlri609r26AoErnPxiR0avx-PS8txx7KK8Qw3KvNPRMW4UGzyoew298uSZGq6p0GjjRWwbaR4fw4P9LEDEJcOTyMIHULIlib_XkI2dIRdaHjXCGd1MQVllQQwzbWEkAJyGTmGJW-q1NL9-q2EUqlybf_lJ_g9rRq9G4rkuralJRoKtJ00YcDl70P_dpGUt78jPzG_Uvyg0hI3c6zmwnz5TNGla4Pp307Q6z10zI9OpMuZdX9V9CNsUt7SS4yRmkL27SjS2LHqDaCoiW5iZH-JgIDtbqxJThzVDrQcb2u8QVPc-IS4x3_RLU35NjU.H4AiWOkNvhW0JjC2iHEpF5NxVe4anPQtBSs7D6-J3P4\\\"\""
-    http_version: 
+    http_version:
   recorded_at: Thu, 23 Dec 2021 16:09:22 GMT
 recorded_with: VCR 6.1.0
