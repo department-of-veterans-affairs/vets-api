@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/permissions
+    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v1/permissions
     body:
       encoding: UTF-8
       string: '{"bio":{"originatingSourceSystem":"VETSGOV","permissionType":"TextPermission","permissionValue":true,"sourceDate":"2019-09-23T11:52:03.000-06:00","sourceSystemUser":"1234","permissionId":401,"vet360Id":"1411684","effectiveStartDate":null,"effectiveEndDate":null}}'
@@ -49,6 +49,6 @@ http_interactions:
       encoding: UTF-8
       string: '{"messages":[{"key":"permissionId.Null","severity":"ERROR","text":"must
         be null"}],"txAuditId":"ae251144-3d86-4d8e-9c2f-1a66a4168f85","status":"REJECTED"}'
-    http_version: 
+    http_version:
   recorded_at: Fri, 10 Jan 2020 19:20:09 GMT
 recorded_with: VCR 5.0.0

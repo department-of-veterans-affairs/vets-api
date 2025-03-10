@@ -42,7 +42,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
   before do
     allow_any_instance_of(RES::Ch31Form).to receive(:submit).and_return(true)
-    Flipper.enable(:veteran_readiness_employment_to_res)
   end
 
   describe '#add_claimant_info' do
@@ -128,19 +127,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         context 'flipper enabled' do
           it 'stops submission if location is not in list' do
             expect_any_instance_of(RES::Ch31Form).to receive(:submit)
-            claim.add_claimant_info(user_object)
-
-            claim.send_to_vre(user_object)
-          end
-        end
-
-        context 'flipper disabled' do
-          before do
-            Flipper.disable(:veteran_readiness_employment_to_res)
-          end
-
-          it 'stops submission if location is not in list' do
-            expect(VRE::Ch31Form).not_to receive(:new)
             claim.add_claimant_info(user_object)
 
             claim.send_to_vre(user_object)

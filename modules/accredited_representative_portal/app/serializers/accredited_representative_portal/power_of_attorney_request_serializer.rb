@@ -2,10 +2,23 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestSerializer < ApplicationSerializer
+    REDACTION_POLICY = {
+      FIELDS: %w[ssn vaFileNumber].freeze,
+      CHARS_VISIBLE: 4
+    }.freeze
+
     attributes :claimant_id, :created_at, :expires_at
 
     attribute :power_of_attorney_form do |poa_request|
       poa_request.power_of_attorney_form.parsed_data.tap do |form|
+        PowerOfAttorneyRequest::ClaimantTypes::ALL.product(REDACTION_POLICY[:FIELDS]).each do |(claimant_type, key)|
+          value = form.dig(claimant_type, key).to_s
+          next if value.blank?
+
+          redacted_value = value[-REDACTION_POLICY[:CHARS_VISIBLE]..]
+          form[claimant_type][key] = redacted_value
+        end
+
         case poa_request.claimant_type
         when PowerOfAttorneyRequest::ClaimantTypes::DEPENDENT
           form['claimant'] = form.delete('dependent')
@@ -47,12 +60,15 @@ module AccreditedRepresentativePortal
 
     attribute :power_of_attorney_form_submission,
               if: ->(poa_request) { poa_request.accepted? } do |poa_request|
-      time = poa_request.created_at.to_i
       status =
-        case time % 3
-        when 0 then 'PENDING'
-        when 1 then 'FAILED'
-        when 2 then 'SUCCEEDED'
+        case poa_request.power_of_attorney_form_submission&.status
+        when PowerOfAttorneyFormSubmission::Statuses::SUCCEEDED
+          'SUCCEEDED'
+        when PowerOfAttorneyFormSubmission::Statuses::ENQUEUE_FAILED,
+          PowerOfAttorneyFormSubmission::Statuses::FAILED
+          'FAILED'
+        else
+          'PENDING'
         end
 
       { status: }

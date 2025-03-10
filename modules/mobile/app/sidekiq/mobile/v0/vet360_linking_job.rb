@@ -38,7 +38,7 @@ module Mobile
           mobile_user.vet360_linked = false
         end
 
-        result = if Flipper.enabled?(:mobile_v2_contact_info)
+        result = if Flipper.enabled?(:remove_pciu)
                    VAProfile::V2::Person::Service.new(user).init_vet360_id
                  else
                    VAProfile::Person::Service.new(user).init_vet360_id

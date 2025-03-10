@@ -16,6 +16,25 @@ FactoryBot.define do
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS] }
   end
 
+  factory :bd_lh_evidence_submission_success, class: 'EvidenceSubmission' do
+    association :user_account, factory: :user_account
+    created_at { DateTime.now.utc }
+    delete_date { DateTime.now.utc + 60.days }
+    upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS] }
+    job_class { 'Lighthouse::BenefitsDocuments::Service' }
+    request_id { 123_456 }
+    template_metadata do
+      { 'personalisation' => {
+        'first_name' => 'test',
+        'document_type' => 'Birth Certificate',
+        'file_name' => 'testfile.txt',
+        'obfuscated_file_name' => 'tesXXile.txt',
+        'date_submitted' => BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(DateTime.now),
+        'date_failed' => nil
+      } }.to_json
+    end
+  end
+
   factory :bd_evidence_submission_not_for_deletion, class: 'EvidenceSubmission' do
     association :user_account, factory: :user_account
     created_at { DateTime.now.utc - 61.days }
@@ -115,8 +134,17 @@ FactoryBot.define do
     association :user_account, factory: :user_account
     created_at { 5.days.ago }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
-    job_class { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
+    job_class { 'BenefitsDocuments::Service' }
     va_notify_id { 123 }
+    va_notify_date { DateTime.now.utc }
+  end
+
+  factory :bd_evidence_submission_failed_va_notify_email_enqueued_evss, class: 'EvidenceSubmission' do
+    association :user_account, factory: :user_account
+    created_at { 5.days.ago }
+    upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
+    job_class { 'EVSSClaimService' }
+    va_notify_id { 222 }
     va_notify_date { DateTime.now.utc }
   end
 
@@ -124,7 +152,7 @@ FactoryBot.define do
     association :user_account, factory: :user_account
     created_at { 5.days.ago }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
-    job_class { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
+    job_class { 'BenefitsDocuments::Service' }
     va_notify_id { 123 }
     va_notify_date { DateTime.now.utc }
     va_notify_status { 'success' }
