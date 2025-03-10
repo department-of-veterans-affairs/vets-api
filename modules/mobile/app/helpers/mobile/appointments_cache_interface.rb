@@ -42,7 +42,25 @@ module Mobile
         include_pending: true
       )
     rescue => e
-      raise Common::Exceptions::BadGateway.new(detail: e.try(:errors).try(:first).try(:detail))
+      error_details = {
+        error_class: e.class.name,
+        error_message: e.message,
+        backtrace: e.backtrace&.first(5), # Capture first 5 lines of backtrace
+        user_id: user.id,
+        start_date: start_date,
+        end_date: end_date
+      }
+    
+      # Add more specific error details if available
+      if e.respond_to?(:errors) && e.errors.is_a?(Array) && e.errors.first.respond_to?(:detail)
+        error_details[:specific_error] = e.errors.first.detail
+      end
+    
+      # Log the detailed error
+      Rails.logger.error("External service fetch failed: #{error_details.to_json}")
+    
+      # You can still raise a BadGateway exception, but now with more context
+      raise Common::Exceptions::BadGateway.new(detail: "External service error: #{e.message}")
     end
 
     # must break the cache if user is requesting dates beyond default range to ensure the integrity of the cache.
