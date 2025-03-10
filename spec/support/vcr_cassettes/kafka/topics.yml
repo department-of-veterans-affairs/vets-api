@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:8081/schemas/ids/topic-1
+    uri: http://localhost:8081/subjects/topic-1/versions/latest
     body:
       encoding: US-ASCII
       string: ''
@@ -63,7 +63,7 @@ http_interactions:
   recorded_at: Tue, 10 Aug 2021 15:55:41 GMT
 - request:
     method: get
-    uri: http://localhost:8081/schemas/ids/topic-2
+    uri: http://localhost:8081/subjects/topic-2/versions/latest
     body:
       encoding: US-ASCII
       string: ''
