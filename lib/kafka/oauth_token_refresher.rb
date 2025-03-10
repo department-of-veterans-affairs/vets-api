@@ -8,7 +8,7 @@ module Kafka
     def on_oauthbearer_token_refresh(event)
       signer = AwsMskIamSaslSigner::MSKTokenProvider.new(region: Settings.kafka_producer.aws_region)
       token = signer.generate_auth_token_from_role_arn(
-       Settings.kafka_producer.aws_role_arn
+        Settings.kafka_producer.aws_role_arn
       )
 
       if token
@@ -24,4 +24,4 @@ module Kafka
       end
     end
   end
-n
+end
