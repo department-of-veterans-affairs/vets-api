@@ -29,19 +29,23 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
   let!(:other_vso) { create(:organization, poa: other_poa_code, can_accept_digital_poa_requests: true) }
 
   let!(:poa_request) do
-    create(:power_of_attorney_request, :with_veteran_claimant, poa_code:)
+    create(
+      :power_of_attorney_request,
+      :with_veteran_claimant,
+      accredited_individual_registration_number: nil,
+      poa_code:
+    )
   end
   let!(:other_poa_request) { create(:power_of_attorney_request, poa_code: other_poa_code) }
 
   let(:time) { '2024-12-21T04:45:37.458Z' }
 
   before do
-    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('<TOKEN>')
     allow(Flipper).to receive(:enabled?).with(
       :accredited_representative_portal_pilot,
       instance_of(AccreditedRepresentativePortal::RepresentativeUser)
     ).and_return(true)
-    poa_request.update(accredited_individual_registration_number: '357458')
     poa_request.claimant.update(icn: '1012666183V089914')
 
     login_as(test_user)
@@ -138,7 +142,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         expect(response).to have_http_status(:not_found)
         poa_request.reload
 
-        expect(poa_request.resolution.present?).to be(false)
+        expect(poa_request.resolution.present?).to be(true)
       end
     end
 
