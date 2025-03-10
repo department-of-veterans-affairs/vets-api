@@ -18,7 +18,7 @@ module GI
       end
 
       def get_licenses_and_certs_v1(params = {})
-        config.etag = compare_versions if versioning_enabled?
+        config.set_etag(v_cache) if versioning_enabled?
         response = perform(:get, 'v1/lcpe/lacs', params)
         lcpe_response(response)
       end
@@ -31,7 +31,7 @@ module GI
       end
 
       def get_exams_v1(params = {})
-        config.etag = compare_versions if versioning_enabled?
+        config.set_etag(v_cache) if versioning_enabled?
         response = perform(:get, 'v1/lcpe/exams', params)
         lcpe_response(response)
       end
@@ -54,13 +54,6 @@ module GI
         @lcpe_cache ||= LCPERedis.new(lcpe_type: redis_key)
       end
 
-      # query GIDS with cache version if more recent than client version
-      def compare_versions
-        return if [v_client, v_cache].all?(&:blank?)
-
-        [v_client.to_i, v_cache.to_i].max.to_s
-      end
-
       def v_cache
         @v_cache ||= lcpe_cache.cached_version
       end
@@ -68,7 +61,7 @@ module GI
       # Validate client has fresh collection before querying details
       def validate_client_version
         # client (and not vets-api cache) must have fresh version
-        config.etag = v_client
+        config.set_etag(v_client)
         validation_response = perform(:get, "v1/lcpe/#{redis_key}", {})
         case validation_response.status
         when 304

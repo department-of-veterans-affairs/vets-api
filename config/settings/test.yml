@@ -83,7 +83,11 @@ bip:
     mock: false
     url: https://claims-uat.dev8.bip.va.gov
 bpds:
-  jwt_secret: FAKE_SECRET
+  jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
+  mock: false
+  read_timeout: 20 # using the same timeout as lighthouse
+  schema_version: test
+  url: https://localhost:4000/api/v1/bpd # See the README for more information on how to run the BPDS locally
 brd:
   api_key: testapikeyhere
   base_name: staging-api.va.gov/services

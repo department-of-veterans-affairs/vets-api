@@ -1,0 +1,77 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/claims/v2/veterans/123498767V234859/power-of-attorney/29b7c214-4a61-425e-97f2-1a56de869524"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 16 Jan 2025 16:16:37 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Reset:
+      - '24'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      Ratelimit-Limit:
+      - '120'
+      Etag:
+      - W/"67b28006fd457f0098fd70638e6794e8"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 1ba326afd549925de35cadf38f116636816403c7
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - c9890add-12b4-46c4-86f7-a6401c91bee3
+      X-Runtime:
+      - '0.425435'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"a4dd5bb0-d47b-4ca9-9afc-d7ce6a820985","type":"claimsApiPowerOfAttorneys","attributes":{"dateRequestAccepted":"2025-01-16","previousPoa":"-","representative":{"veteran":{"address":{"addressLine1":"123","addressLine2":"2a","city":"city","countryCode":"US","stateCode":"OR","zipCode":"12345","zipCodeSuffix":"6789"}},"representative":{"poaCode":"067","registrationNumber":"999999999999","type":"ATTORNEY","address":{"addressLine1":"123","addressLine2":"2a","city":"city","countryCode":"US","stateCode":"OR","zipCode":"12345","zipCodeSuffix":"6789"}}},"status":"errored", "errors":[{"title":"some error","detail":"error detail","code":"PDF_SUBMISSION"}]}}}'
+  recorded_at: Thu, 16 Jan 2025 16:16:37 GMT
+recorded_with: VCR 6.3.1

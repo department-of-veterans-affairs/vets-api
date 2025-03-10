@@ -6,7 +6,7 @@ module V1
       class ExamsController < GIDS::LCPEController
         def index
           exams = service.get_exams_v1(scrubbed_params)
-          set_etag(exams[:version]) unless bypass_versioning?
+          set_headers(exams[:version]) unless bypass_versioning?
           render json: exams
         end
 

@@ -49,7 +49,10 @@ module ClaimsApi
 
     def individual_accepted_email_contents(poa, rep)
       {
-        recipient_identifier: icn_for_vanotify(poa.auth_headers),
+        recipient_identifier: {
+          id_type: 'ICN',
+          id_value: icn_for_vanotify(poa.auth_headers)
+        },
         personalisation: {
           first_name: value_or_default_for_field(claimant_first_name(poa)),
           rep_first_name: value_or_default_for_field(rep.first_name),
@@ -66,7 +69,10 @@ module ClaimsApi
 
     def organization_accepted_email_contents(poa, org)
       {
-        recipient_identifier: icn_for_vanotify(poa.auth_headers),
+        recipient_identifier: {
+          id_type: 'ICN',
+          id_value: icn_for_vanotify(poa.auth_headers)
+        },
         personalisation: {
           first_name: value_or_default_for_field(claimant_first_name(poa)),
           org_name: value_or_default_for_field(org.name),

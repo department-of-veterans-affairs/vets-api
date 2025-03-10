@@ -151,8 +151,6 @@ RSpec.describe SignIn::UserLoader do
 
           before do
             allow(MHV::AccountCreatorJob).to receive(:perform_async)
-            allow(Flipper).to receive(:enabled?).with(:mhv_account_creation_after_login,
-                                                      user_account).and_return(enabled)
           end
 
           it 'enqueues an MHV::AccountCreatorJob' do
