@@ -3,10 +3,10 @@
 require 'rails_helper'
 
 describe ClaimsApi::PowerOfAttorneyRequestService::Orchestrator do
-  subject { described_class.new(veteran_participant_id, form_data, claimant_participant_id, poa_key) }
+  subject { described_class.new(veteran_participant_id, form_data, claimant_participant_id) }
 
   let(:veteran_participant_id) { '600043284' }
-  let(:poa_key) { :serviceOrganization }
+  let(:poa_key) { :poa }
   let(:claimant_participant_id) { '600036513' }
   let(:form_data) do
     {

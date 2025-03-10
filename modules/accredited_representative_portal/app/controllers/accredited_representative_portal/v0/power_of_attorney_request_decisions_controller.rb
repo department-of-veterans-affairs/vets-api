@@ -26,6 +26,9 @@ module AccreditedRepresentativePortal
         when 'declination'
           @poa_request.mark_declined!(creator, reason)
           send_declination_email(@poa_request)
+
+          Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
+          Monitoring.new.track_duration('ar.poa.request.declined.duration', from: @poa_request.created_at)
           render json: {}, status: :ok
         else
           render json: {

@@ -161,6 +161,11 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   def send_failure_email(email) # rubocop:disable Metrics/MethodLength
     # if the claim is both a 686c and a 674, send a combination email.
     # otherwise, check to see which individual type it is and send the corresponding email.
+    personalisation = {
+      'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+      'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+      'confirmation_number' => confirmation_number
+    }
     template_id = if submittable_686? && submittable_674?
                     Settings.vanotify.services.va_gov.template_id.form21_686c_674_action_needed_email
                   elsif submittable_686?
@@ -171,17 +176,16 @@ class SavedClaim::DependencyClaim < CentralMailClaim
                     Rails.logger.error('Email template cannot be assigned for SavedClaim', saved_claim_id: id)
                     nil
                   end
-
     if email.present? && template_id.present?
-      VANotify::EmailJob.perform_async(
-        email,
-        template_id,
-        {
-          'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => confirmation_number
-        }
-      )
+      if Flipper.enabled?(:dependents_failure_callback_email)
+        Dependents::Form686c674FailureEmailJob.perform_async(id, email, template_id, personalisation)
+      else
+        VANotify::EmailJob.perform_async(
+          email,
+          template_id,
+          personalisation
+        )
+      end
     end
   end
 
