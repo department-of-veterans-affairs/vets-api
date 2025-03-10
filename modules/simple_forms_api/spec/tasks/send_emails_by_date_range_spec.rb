@@ -5,15 +5,13 @@ require 'rake'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 RSpec.describe 'simple_forms_api:send_emails_by_date_range', type: :task do
+  load File.expand_path('../../lib/tasks/send_emails_by_date_range.rake', __dir__)
+
   let(:task) { Rake::Task['simple_forms_api:send_emails_by_date_range'] }
   let(:notification_email) { double(send: nil) }
 
   before do
-    load File.expand_path('../../lib/tasks/send_emails_by_date_range.rake', __dir__)
     Rake::Task.define_task(:environment)
-
-    allow(Rails.logger).to receive(:info)
-    allow(Rails.logger).to receive(:error)
   end
 
   after { task.reenable }
@@ -33,12 +31,12 @@ RSpec.describe 'simple_forms_api:send_emails_by_date_range', type: :task do
           anything,
           notification_type: :received,
           user_account: anything
-        ).and_return(notification_email)
+        ).once.and_return(notification_email)
         expect(SimpleFormsApi::Notification::Email).to receive(:new).with(
           anything,
           notification_type: :error,
           user_account: anything
-        ).and_return(notification_email)
+        ).once.and_return(notification_email)
 
         task.invoke(start_date, end_date)
       end

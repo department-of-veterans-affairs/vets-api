@@ -10,6 +10,7 @@ namespace :simple_forms_api do
     form_submission_attempts = FormSubmissionAttempt.where(updated_at: date_range).where.not(aasm_state: :pending)
     successful_uuids = []
 
+    Rails.logger.info "Total FormSubmissionAttempts found: #{form_submission_attempts.count}"
     form_submission_attempts.map do |form_submission_attempt|
       confirmation_number = form_submission_attempt.benefits_intake_uuid
       Rails.logger.info "Attempting to enqueue email for: #{confirmation_number}"
