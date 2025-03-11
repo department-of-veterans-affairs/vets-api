@@ -63,7 +63,6 @@ Rails.application.reloader.to_prepare do
     EVSS::Letters::Configuration.instance.breakers_service,
     EVSS::PCIUAddress::Configuration.instance.breakers_service,
     EVSS::Dependents::Configuration.instance.breakers_service,
-    EVSS::ReferenceData::Configuration.instance.breakers_service,
     Gibft::Configuration.instance.breakers_service,
     GI::Configuration.instance.breakers_service,
     HCA::Configuration.instance.breakers_service,
