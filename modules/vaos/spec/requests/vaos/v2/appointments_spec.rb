@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../../app/services/eps/redis_client.rb'
 
 RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
   include SchemaMatchers
@@ -1020,6 +1021,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     end
 
     let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
+    # let(:eps_redis_client) do
+    #   {
+    #     Eps::RedisClient.new
+    #   }
+    # end
     let(:draft_params) do
       {
         referral_id: 'ref-123',
@@ -1151,6 +1157,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                       allow_any_instance_of(Eps::AppointmentService)
                         .to receive(:get_appointments)
                         .and_return(OpenStruct.new(data: []))
+                      eps_redis_client = Eps::RedisClient.new
+                      eps_redis_client.save(referral_number: 'ref-123', referral: draft_appointment_response)
+                      binding.pry
                       post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
                       expect(response).to have_http_status(:created)

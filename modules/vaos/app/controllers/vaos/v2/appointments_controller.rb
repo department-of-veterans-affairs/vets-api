@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/exceptions'
+require_relative '../../../services/eps/redis_client'
 
 module VAOS
   module V2
@@ -65,6 +66,11 @@ module VAOS
       def create_draft
         referral_id = draft_params[:referral_id]
         # TODO: validate referral_id from the cache from prior referrals response
+        binding.pry
+        cached_patient_id = eps_redis_client.fetch_attribute(referral_number: referral_id, attribute: :patient_id)
+        unless validate_ref_id(cached_patient_id, current_user[:icn_with_aaid])
+          render json:, status: 401 and return
+        end
 
         referral_check_result = check_referral_usage(referral_id)
         unless referral_check_result[:success]
@@ -132,6 +138,11 @@ module VAOS
       def eps_provider_service
         @eps_provider_service ||=
           Eps::ProviderService.new(current_user)
+      end
+
+      def eps_redis_client
+        @eps_redis_client ||=
+          Eps::RedisClient.new
       end
 
       def appointments
