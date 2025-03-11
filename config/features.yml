@@ -80,9 +80,6 @@ features:
   caregiver_carma_submitted_at:
     actor_type: user
     description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
-  caregiver1010:
-    actor_type: user
-    description: Enables new features while investigating 1010CG errors
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
@@ -798,10 +795,6 @@ features:
     actor_type: user
     description: Enables form email notifications upon certain state changes (error and received)
     enable_in_development: true
-  simple_forms_notification_callbacks:
-    actor_type: user
-    description: Enables form email notification callback for Simple Forms
-    enable_in_development: true
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
@@ -961,6 +954,9 @@ features:
     actor_type: user
     description: Control whether vets-api allows fetching Surgical Pathology data from MHV UHD
     enable_in_development: false
+  mhv_accelerated_delivery_uhd_ch_enabled:
+    actor_type: user
+    description: Control whether vets-api allows fetching Chem/Hem data from MHV UHD
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
@@ -1111,6 +1107,10 @@ features:
   mhv_medications_remove_landing_page:
     actor_type: user
     description: Enables/disables removal of landing page
+    enable_in_development: true
+  mhv_medications_show_ipe_content:
+    actor_type: user
+    description: Enables/disables ipe content
     enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
