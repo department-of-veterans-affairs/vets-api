@@ -37,6 +37,10 @@ module AccreditedRepresentativePortal
         response = service.submit2122(form_payload)
         form_submission = create_form_submission!(response.body)
         PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
+
+        Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
+        Monitoring.new.track_duration('ar.poa.request.accepted.duration', from: @poa_request.created_at)
+
         form_submission
       # Invalid record - return error message with 400
       rescue ActiveRecord::RecordInvalid => e
@@ -79,6 +83,9 @@ module AccreditedRepresentativePortal
           service_response: response_body,
           error_message: message
         )
+
+        Monitoring.new.track_duration('ar.poa.submission.duration', from: @poa_request.created_at)
+        Monitoring.new.track_duration('ar.poa.submission.enqueue_failed.duration', from: @poa_request.created_at)
       end
 
       def form_payload
@@ -92,10 +99,14 @@ module AccreditedRepresentativePortal
       end
 
       def organization_data
+        registration_number =
+          creator.get_registration_number(
+            poa_request.power_of_attorney_holder_type
+          )
+
         {
           poaCode: poa_request.power_of_attorney_holder_poa_code,
-          # TODO: update when allowing non-veteran claimant submissions
-          registrationNumber: poa_request.accredited_individual_registration_number
+          registrationNumber: registration_number
         }
       end
 

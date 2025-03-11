@@ -4,7 +4,7 @@ module AccreditedRepresentativePortal
   class UserAccountAccreditedIndividual < ApplicationRecord
     enum(
       :power_of_attorney_holder_type,
-      PowerOfAttorneyHolder::Types::ALL.zip(PowerOfAttorneyHolder::Types::ALL).to_h,
+      PowerOfAttorneyHolder::Types::ALL.index_by(&:itself),
       validate: true
     )
 

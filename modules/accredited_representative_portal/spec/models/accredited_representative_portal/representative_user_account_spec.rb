@@ -18,7 +18,7 @@ module AccreditedRepresentativePortal
         let(:user_email) { nil }
 
         it 'does not raise ArgumentError' do
-          expect { subject }.not_to raise_error(ArgumentError)
+          expect { subject }.not_to raise_error
         end
       end
 
@@ -94,8 +94,8 @@ module AccreditedRepresentativePortal
       end
     end
 
-    describe '#registration_number' do
-      subject { user_account.registration_number(power_of_attorney_holder_type) }
+    describe '#get_registration_number' do
+      subject { user_account.get_registration_number(power_of_attorney_holder_type) }
 
       context 'without a user email set' do
         let(:user_email) { nil }

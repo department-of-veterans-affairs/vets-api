@@ -55,13 +55,11 @@ module EVSS
       def create_form_v2
         prepare_veteran_info.merge({
                                      'events' => @form_content['events'],
-                                     'workBehaviors' => @form_content['workBehaviors'],
-                                     'healthBehaviors' => @form_content['healthBehaviors'],
-                                     'otherBehaviors' => @form_content['otherBehaviors'],
+                                     'behaviors' => aggregate_behaviors,
                                      'behaviorsDetails' => @form_content['behaviorsDetails'],
-                                     'evidence' => @form_content['evidence'],
-                                     'traumaTreatment' => @form_content['traumaTreatment'],
-                                     'treatmentProviders' => @form_content['treatmentProviders'],
+                                     'evidence' => aggregate_supporting_evidence,
+                                     'treatmentNoneCheckbox' => @form_content['treatmentNoneCheckbox'],
+                                     'treatmentProviders' => aggregate_treatment_providers,
                                      'treatmentProvidersDetails' => @form_content['treatmentProvidersDetails'],
                                      'optionIndicator' => @form_content['optionIndicator'],
                                      'additionalInformation' => @form_content['additionalInformation']
@@ -79,6 +77,36 @@ module EVSS
           'veteranSecondaryPhone' => '', # No secondary phone available in 526 PreFill
           'veteranServiceNumber' => '' # No veteran service number available in 526 PreFill
         }
+      end
+
+      def aggregate_behaviors
+        (@form_content['workBehaviors'] || {})
+          .merge(@form_content['healthBehaviors'] || {})
+          .merge(@form_content['otherBehaviors'] || {})
+          .select { |_key, value| value }
+      end
+
+      def aggregate_supporting_evidence
+        evidence = {}
+
+        evidence.merge!(@form_content['supportingEvidenceReports'] || {})
+        evidence.merge!(@form_content['supportingEvidenceRecords'] || {})
+        evidence.merge!(@form_content['supportingEvidenceWitness'] || {})
+        evidence.merge!(@form_content['supportingEvidenceOther'] || {})
+        evidence.merge!('none' => @form_content['supportingEvidenceNoneCheckbox']&.[]('none') || false)
+
+        if @form_content['supportingEvidenceUnlisted'].present?
+          evidence['other'] = true
+          evidence['otherDetails'] = @form_content['supportingEvidenceUnlisted']
+        end
+
+        evidence.select { |_key, value| value }
+      end
+
+      def aggregate_treatment_providers
+        (@form_content['treatmentReceivedVaProvider'] || {})
+          .merge(@form_content['treatmentReceivedNonVaProvider'] || {})
+          .select { |_key, value| value }
       end
 
       def split_incidents(incidents)

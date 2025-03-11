@@ -57,7 +57,7 @@ RSpec.describe AccreditedRepresentativePortal::UserAccountAccreditedIndividual, 
     end
   end
 
-  describe '.for_user' do
+  describe '.for_user_account_email' do
     let!(:existing_record) do
       described_class.create!(
         accredited_individual_registration_number: 'REG002',
