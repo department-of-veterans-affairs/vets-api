@@ -21,6 +21,11 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
   let(:client_stub) { instance_double(CentralMail::Service) }
   let(:faraday_response) { instance_double(Faraday::Response) }
 
+  after do
+    client_stub { nil }
+    faraday_response { nil }
+  end
+
   it_behaves_like 'a monitored worker'
 
   describe 'uploads a valid payload' do
