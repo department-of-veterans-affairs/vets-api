@@ -35,8 +35,13 @@ module AccreditedRepresentativePortal
           @resolution = poa_request.mark_accepted!(creator, reason)
         end
         response = service.submit2122(form_payload)
-        create_form_submission!(response.body)
-      # TODO: call PowerOfAttorneyFormSubmissionJob.perform_async(form_submission)
+        form_submission = create_form_submission!(response.body)
+        PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
+
+        Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
+        Monitoring.new.track_duration('ar.poa.request.accepted.duration', from: @poa_request.created_at)
+
+        form_submission
       # Invalid record - return error message with 400
       rescue ActiveRecord::RecordInvalid => e
         raise Error.new(e.message, :bad_request)
@@ -46,7 +51,6 @@ module AccreditedRepresentativePortal
         raise Error.new(e.message, BenefitsClaims::ServiceException::ERROR_MAP.invert[e.class])
       # Fatal 4xx errors or validation error: save error message, raise FatalError
       rescue *FATAL_ERROR_TYPES => e
-        resolution&.delete
         create_error_form_submission(e.message, response&.body)
         raise Error.new(e.message, BenefitsClaims::ServiceException::ERROR_MAP.invert[e.class])
       # All other errors: save error data on form submission, will result in a 500
@@ -79,6 +83,9 @@ module AccreditedRepresentativePortal
           service_response: response_body,
           error_message: message
         )
+
+        Monitoring.new.track_duration('ar.poa.submission.duration', from: @poa_request.created_at)
+        Monitoring.new.track_duration('ar.poa.submission.enqueue_failed.duration', from: @poa_request.created_at)
       end
 
       def form_payload
@@ -92,10 +99,14 @@ module AccreditedRepresentativePortal
       end
 
       def organization_data
+        registration_number =
+          creator.get_registration_number(
+            poa_request.power_of_attorney_holder_type
+          )
+
         {
           poaCode: poa_request.power_of_attorney_holder_poa_code,
-          # TODO: update when allowing non-veteran claimant submissions
-          registrationNumber: poa_request.accredited_individual_registration_number
+          registrationNumber: registration_number
         }
       end
 
