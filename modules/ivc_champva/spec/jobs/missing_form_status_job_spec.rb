@@ -16,6 +16,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
   before do
     allow(Settings.ivc_forms.sidekiq.missing_form_status_job).to receive(:enabled).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:champva_vanotify_custom_callback, @current_user).and_return(true)
     allow(StatsD).to receive(:gauge)
     allow(StatsD).to receive(:increment)
 
@@ -24,12 +25,14 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
                                                       track_failed_send_zsf_notification_to_pega: nil))
     # Save the original form creation times so we can restore them later
     @original_creation_times = forms.map(&:created_at)
+    @original_uuids = forms.map(&:form_uuid)
   end
 
   after do
-    # Restore original form creation times for time sensitive tests
+    # Restore original dummy form created_at/form_uuid props in case we've adjusted them
     forms.each_with_index do |form, index|
       form.update(created_at: @original_creation_times[index])
+      form.update(form_uuid: @original_uuids[index])
     end
   end
 
@@ -103,6 +106,30 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
     # Check that forms created in the last minute are ignored
     expect(StatsD).to have_received(:gauge).with('ivc_champva.forms_missing_status.count', forms.count - 1)
+  end
+
+  it 'processes nil forms in batches that belong to the same submission' do
+    # Set shared `form_uuid` so these two now belong to the same batch:
+    forms[0].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
+    forms[1].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
+
+    # Perform the job that checks form statuses
+    job.perform
+
+    # Check that we processed batches rather than individual forms:
+    expect(StatsD).to have_received(:gauge).with('ivc_champva.forms_missing_status.count', forms.count - 1)
+  end
+
+  it 'groups nil statuses into batches by uuid' do
+    # Set shared `form_uuid` so these two now belong to the same batch:
+    forms[0].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
+    forms[1].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
+
+    # Perform the job that checks form statuses
+    batches = job.get_nil_batches
+
+    expect(batches.count == forms.count - 1).to be true
+    expect(batches['78444a0b-3ac8-454d-a28d-8d63cddd0d3b'].count == 2).to be true
   end
 
   it 'sends the count of forms to DataDog' do

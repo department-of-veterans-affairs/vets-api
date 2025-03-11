@@ -76,21 +76,48 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
     end
 
     describe 'when bulk status update fails' do
-      it 'logs the error' do
-        create_list(:form_submission, 2, :pending)
-        message = 'error'
-        response = double(body: message, success?: false)
-        service = double(bulk_status: response)
+      let(:service) { instance_double(BenefitsIntake::Service) }
+      let(:form_submissions) { create_list(:form_submission, 4, :pending) }
+      let(:success_response) { double(body: success_body, success?: true) }
+      let(:failure_response) { double(body: failure_body, success?: false) }
+      let(:success_body) do
+        { 'data' =>
+          [{
+            'id' => form_submissions.first.form_submission_attempts.first.benefits_intake_uuid,
+            'type' => 'document_upload',
+            'attributes' => {
+              'guid' => form_submissions.first.form_submission_attempts.first.benefits_intake_uuid,
+              'status' => 'pending',
+              'code' => 'DOC108',
+              'detail' => 'Maximum page size exceeded. Limit is 78 in x 101 in.',
+              'updated_at' => '2018-07-30T17:31:15.958Z',
+              'created_at' => '2018-07-30T17:31:15.958Z'
+            }
+          }] }
+      end
+      let(:failure_body) { 'error' }
 
-        allow(BenefitsIntake::Service).to receive(:new).and_return(service)
+      before do
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:error)
+        allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send)
 
-        BenefitsIntakeStatusJob.new.perform
+        allow(BenefitsIntake::Service).to receive(:new).and_return(service)
+        allow(service).to(
+          receive(:bulk_status).and_return(success_response, success_response, failure_response, success_response)
+        )
 
-        expect(Rails.logger).to have_received(:error).with('Error processing Intake Status batch',
-                                                           class: 'BenefitsIntakeStatusJob', message:)
+        described_class.new(batch_size: 1).perform
+      end
+
+      it 'logs the error' do
+        expect(Rails.logger).to have_received(:error).with('Errors occurred while processing Intake Status batch',
+                                                           class: 'BenefitsIntakeStatusJob', errors: [failure_body])
         expect(Rails.logger).not_to have_received(:info).with('BenefitsIntakeStatusJob ended')
+      end
+
+      it 'does not short circuit the batch processing job' do
+        expect(service).to have_received(:bulk_status).exactly(4).times
       end
     end
 

@@ -21,10 +21,8 @@ module ClaimsApi
       ClaimsApi::VANotifyFollowUpJob.perform_async(res.id) if res.present?
     rescue => e
       msg = "VA Notify email notification failed to send with error #{e}"
-      slack_alert_on_failure('ClaimsApi::VANotifyDeclinedJob', msg)
-
       ClaimsApi::Logger.log(LOG_TAG, detail: msg)
-
+      slack_alert_on_failure('ClaimsApi::VANotifyDeclinedJob', msg)
       raise e
     end
 
@@ -46,7 +44,10 @@ module ClaimsApi
 
     def send_organization_notification(ptcpnt_id:, first_name:)
       content = {
-        recipient_identifier: ptcpnt_id,
+        recipient_identifier: {
+          id_type: 'PID',
+          id_value: ptcpnt_id
+        },
         personalisation: {
           first_name: first_name || '',
           form_type: 'Appointment of Veterans Service Organization as Claimantʼs Representative (VA Form 21-22)'
@@ -61,7 +62,10 @@ module ClaimsApi
       representative_type_text = get_representative_type_text(representative_type:)
 
       content = {
-        recipient_identifier: ptcpnt_id,
+        recipient_identifier: {
+          id_type: 'PID',
+          id_value: ptcpnt_id
+        },
         personalisation: {
           first_name: first_name || '',
           representative_type: representative_type_text || 'representative',
