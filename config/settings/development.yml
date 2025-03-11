@@ -85,6 +85,10 @@ bip:
     url: https://claims-uat.dev8.bip.va.gov
 bpds:
   jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
+  mock: false
+  read_timeout: 20 # using the same timeout as lighthouse
+  schema_version: test
+  url: https://localhost:4000/api/v1/bpd # See the README for more information on how to run the BPDS locally
 brd:
   api_key: fake_key
   base_name: https://something.fake.va.gov
@@ -649,7 +653,9 @@ kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: "arn:aws:iam::123456789012:role/role-name" # this is an example
   broker_urls: ["localhost:19092"] # for local Kafka cluster in Docker
+  sasl_mechanisms: 'GSSAPI'
   schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
+  security_protocol: 'plaintext'
 kms_key_id: ~
 lgy:
   api_key: ~
@@ -921,6 +927,15 @@ mhv:
     sts:
       issuer: http://localhost:3000
       service_account_id: c34b86f2130ff3cd4b1d309bc09d8740
+  api_gateway:
+    hosts:
+      bluebutton: fake-host
+      fhir: fake-host
+      pharmacy: fake-host
+      phrmgr: fake-host
+      security: fake-host
+      sm_patient: fake-host
+      usermgmt: fake-host
   bb:
     collection_caching_enabled: true
     mock: true
@@ -941,6 +956,8 @@ mhv:
     app_token: fake-app-token
     host: fake-host
     mhv_x_api_key: ~
+    x_api_key: fake-x-api-key
+    x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
   rx:
     app_token: fake-app-token
@@ -953,6 +970,14 @@ mhv:
     host: https://mhv-api.example.com
     mhv_sm_x_api_key: ~
     mock: true
+  uhd:
+    app_id: 1000
+    app_token: faketoken
+    host: https://example.myhealth.va.gov
+    mock: true
+    security_host: https://security.example.myhealth.va.gov
+    subject: "Proxy Client"
+    user_type: usertype
 mhv_mobile:
   sm:
     app_token: fake-app-token
