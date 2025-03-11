@@ -1069,6 +1069,10 @@ features:
     actor_type: user
     description: Enables/disables Medical Records new landing page content
     enable_in_development: true
+  mhv_medical_records_filter_and_sort:
+    actor_type: user
+    description: Enables/disables Medical Records new filter and sort changes
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
