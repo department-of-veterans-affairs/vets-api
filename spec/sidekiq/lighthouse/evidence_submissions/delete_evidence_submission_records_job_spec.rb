@@ -18,7 +18,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJ
     context 'when EvidenceSubmission records have a delete_date set' do
       it 'deletes only the records with a past or current delete_time' do
         expect(StatsD).to receive(:increment)
-          .with('worker.cst.delete_evidence_submission_records.count').exactly(1).time
+          .with('worker.cst.delete_evidence_submission_records.count', 2).exactly(1).time
         expect(Rails.logger)
           .to receive(:info)
           .with("#{subject} deleted 2 of 3 EvidenceSubmission records")

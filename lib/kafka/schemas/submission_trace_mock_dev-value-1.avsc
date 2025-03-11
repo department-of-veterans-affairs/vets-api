@@ -1,0 +1,12 @@
+{
+  "type": "record",
+  "name": "TestRecord",
+  "namespace": "gov.va.eventbus.test.data",
+  "fields": [
+    {
+      "name": "data",
+      "type": { "type": "map", "values": "string" },
+      "default": {}
+    }
+  ]
+}
