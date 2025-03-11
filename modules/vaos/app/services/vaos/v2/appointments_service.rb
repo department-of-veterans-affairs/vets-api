@@ -259,6 +259,35 @@ module VAOS
         merged_data.sort_by { |appt| appt[:start] || '' }
       end
 
+      ##
+      # Retrieves all appointments over a 200-year window, a temporary range to be replaced with passed
+      # in date from referral data.
+      #
+      # Uses a fixed date range to fetch all appointments.
+      # If the response contains failures (in :meta), it returns the raw response.
+      # Otherwise, it returns a hash with appointment data and any partial errors.
+      #
+      # @param pagination_params [Hash] pagination options (e.g. page and per_page).
+      #
+      # @return [Hash] A hash consistent with the structure returned by #get_appointments:
+      #   - :data [Array] the appointment data
+      #   - :meta [Hash] any partial error details
+      #
+      # TODO: accept date from cached referral data to use for range
+      def get_all_appointments(pagination_params)
+        start_date = (Time.zone.today - 100.years).in_time_zone
+        end_date   = (Time.zone.today + 100.years).in_time_zone
+
+        response = send_appointments_request(start_date, end_date, __method__, pagination_params)
+
+        return response if response.dig(:meta, :failures)
+
+        {
+          data: response.body[:data],
+          meta: partial_errors(response, __method__)
+        }
+      end
+
       memoize :get_facility_timezone_memoized
 
       private
@@ -1057,35 +1086,6 @@ module VAOS
 
       def eps_serializer
         @eps_serializer ||= VAOS::V2::EpsAppointment.new
-      end
-
-      ##
-      # Retrieves all appointments over a 200-year window, a temporary range to be replaced with passed
-      # in date from referral data.
-      #
-      # Uses a fixed date range to fetch all appointments.
-      # If the response contains failures (in :meta), it returns the raw response.
-      # Otherwise, it returns a hash with appointment data and any partial errors.
-      #
-      # @param pagination_params [Hash] pagination options (e.g. page and per_page).
-      #
-      # @return [Hash] A hash consistent with the structure returned by #get_appointments:
-      #   - :data [Array] the appointment data
-      #   - :meta [Hash] any partial error details
-      #
-      # TODO: accept date from cached referral data to use for range
-      def get_all_appointments(pagination_params)
-        start_date = (Time.zone.today - 100.years).in_time_zone
-        end_date   = (Time.zone.today + 100.years).in_time_zone
-
-        response = send_appointments_request(start_date, end_date, __method__, pagination_params)
-
-        return response if response.dig(:meta, :failures)
-
-        {
-          data: response.body[:data],
-          meta: partial_errors(response, __method__)
-        }
       end
 
       ##
