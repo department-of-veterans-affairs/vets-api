@@ -28,7 +28,7 @@ Rspec.describe Pensions::BenefitsIntake::SubmissionHandler do
 
     it 'logs silent failure' do
       expect(notification).to receive(:deliver).with(:error).and_return false
-      message = "#{handler.to_s}: on_failure silent failure not avoided"
+      message = "#{handler}: on_failure silent failure not avoided"
       expect(monitor).to receive(:log_silent_failure).with(hash_including(message:), call_location: nil)
       expect { instance.handle(:failure) }.to raise_error message
     end
