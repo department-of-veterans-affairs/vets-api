@@ -74,7 +74,7 @@ describe IvcChampva::VesDataValidator do
     end
   end
 
-  describe '@request_body key has a missing value' do
+  describe 'request_body key has a missing value' do
     it 'raises a missing exception' do
       expect do
         IvcChampva::VesDataValidator.validate_presence_and_stringiness(nil, 'sponsor first name')

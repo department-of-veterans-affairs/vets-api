@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-# TODO: add validators for non-required, but structure constrained types:
-# - validate phone number structure: ^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$
-
 module IvcChampva
   class VesDataValidator
     @childtype_list = %w[ADOPTED STEPCHILD NATURAL].freeze
@@ -30,6 +27,7 @@ module IvcChampva
         .then { |s| validate_date_of_birth(s) }
         .then { |s| validate_person_uuid(s) }
         .then { |s| validate_ssn(s) }
+        .then { |s| validate_sponsor_phone(s) }
 
       request_body
     end
@@ -60,9 +58,9 @@ module IvcChampva
 
     def self.validate_certification(request_body)
       certification = request_body[:certification]
-
-      validate_presence_and_stringiness(certification[:signature], 'certification signature')
-      validate_date(certification[:signatureDate], 'certification signature date')
+      validate_certification_signature(certification)
+        .then { |c| validate_certification_signature_date(c) }
+        .then { |c| validate_certification_phone(c) }
 
       request_body
     end
@@ -156,10 +154,36 @@ module IvcChampva
       beneficiary
     end
 
+    def self.validate_beneficiary_phone(beneficiary)
+      validate_phone(beneficiary, 'beneficiary phone')
+    end
+
+    def self.validate_sponsor_phone(sponsor)
+      validate_phone(sponsor, 'sponsor phone') if sponsor[:phoneNumber]
+
+      sponsor
+    end
+
     def self.validate_sponsor_address(request_body)
       validate_address(request_body[:address], 'sponsor')
 
       request_body
+    end
+
+    def self.validate_certification_signature_date(certification)
+      validate_date(certification[:signatureDate], 'certification signature date')
+      certification
+    end
+
+    def self.validate_certification_signature(certification)
+      validate_presence_and_stringiness(certification[:signature], 'certification signature')
+      certification
+    end
+
+    def self.validate_certification_phone(certification)
+      validate_phone(certification, 'certification phone') if certification[:phoneNumber]
+
+      certification
     end
 
     def self.validate_address(address, name)
@@ -174,6 +198,15 @@ module IvcChampva
       validate_presence_and_stringiness(request_body[:ssn], 'ssn')
       unless request_body[:ssn].match?(/^(?!(000|666|9))\d{3}(?!00)\d{2}(?!0000)\d{4}$/)
         raise ArgumentError, 'ssn is invalid. Must be 9 digits (see regex for more detail)'
+      end
+
+      request_body
+    end
+
+    def self.validate_phone(request_body, name)
+      validate_presence_and_stringiness(request_body[:phoneNumber], 'ssn')
+      unless request_body[:phoneNumber].match?(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/)
+        raise ArgumentError, "#{name} is invalid. See regex for more detail"
       end
 
       request_body
