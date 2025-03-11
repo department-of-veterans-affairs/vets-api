@@ -40,12 +40,10 @@ module Eps
     #   - On failure: { success: false, error: <error_message>, status: <http_status_code> }
     #
     def create_draft_appointment(referral_id, pagination_params = {})
-      cached_referral_data = redis_client.fetch_referral_attributes(referral_number: referral_id)
-      if cached_referral_data.nil?
-        Rails.logger.error('Error fetching referral data from cache', { referral_id: })
-        return { success: false, error: 'Unable to retrieve referral data', status: :bad_gateway }
-      end
+      result = fetch_cached_referral_data(referral_id)
+      return { success: false, error: result[:error], status: result[:status] } unless result[:success]
 
+      cached_referral_data = result[:data]
       validation_result = validate_referral_data(referral_id, cached_referral_data)
       return validation_result[:error_response] unless validation_result[:valid]
 
@@ -95,6 +93,23 @@ module Eps
     private
 
     ##
+    # Fetch referral data from Redis cache with error handling
+    #
+    # @param referral_id [String] The referral ID to fetch from cache
+    # @return [Hash] Hash with structure { success: true/false, data: <data>, error: <error_message>, status: <status_code> }
+    #
+    def fetch_cached_referral_data(referral_id)
+      data = redis_client.fetch_referral_attributes(referral_number: referral_id)
+      { success: true, data: data }
+    rescue Redis::BaseError => e
+      Rails.logger.error('Redis error fetching referral data', { referral_id: referral_id, error: e.message })
+      { success: false, error: 'Unable to retrieve referral data from cache', status: :bad_gateway }
+    rescue => e
+      Rails.logger.error('Unexpected error fetching referral data from cache', { referral_id: referral_id, error: e.message })
+      { success: false, error: 'Unable to retrieve referral data', status: :internal_server_error }
+    end
+
+    ##
     # Collect all necessary components for a draft appointment
     #
     # @param referral_id [String] The referral ID for the appointment
@@ -105,40 +120,20 @@ module Eps
       operations = [
         { key: :draft, action: ->(_) { attempt_draft_creation(referral_id) } },
         { key: :provider, action: ->(_) { fetch_provider_data(referral_id, referral_data[:provider_id]) } },
-        { key: :slots, action: ->(_) { retrieve_provider_slots(referral_id, referral_data) } },
+        { key: :slots, action: ->(_) { fetch_provider_slots(referral_id, referral_data) } },
         { key: :drive_time, action: ->(results) { calculate_drive_times(referral_id, results[:provider]) } }
       ]
 
-      process_draft_creation_steps(operations)
-    end
-
-    ##
-    # Processes a sequence of draft appointment creation steps and collects their results
-    #
-    # @param operations [Array<Hash>] Array of operation definitions with :key and :action keys
-    # @return [Hash] Hash containing all results or error information
-    #
-    def process_draft_creation_steps(operations)
       results = {}
 
       operations.each do |operation|
         result = operation[:action].call(results)
-        return format_draft_error_response(result) if result[:error]
+        return { error: true, error_response: result[:error_response] } if result[:error]
 
         results[operation[:key]] = result[:data]
       end
 
       { error: false, **results }
-    end
-
-    ##
-    # Formats an error result for consistent draft appointment error response structure
-    #
-    # @param result [Hash] Result hash containing error response
-    # @return [Hash] Formatted hash with error flag and error response
-    #
-    def format_draft_error_response(result)
-      { error: true, error_response: result[:error_response] }
     end
 
     ##
@@ -253,8 +248,16 @@ module Eps
     # @param referral_data [Hash] The referral data containing provider and appointment information
     # @return [Hash] Result hash with slot data or error information
     #
-    def retrieve_provider_slots(referral_id, referral_data)
-      slots = fetch_provider_slots(referral_data)
+    def fetch_provider_slots(referral_id, referral_data)
+      slots = provider_services.get_provider_slots(
+        referral_data[:provider_id],
+        {
+          appointmentTypeId: referral_data[:appointment_type_id],
+          startOnOrAfter: referral_data[:start_date],
+          startBefore: referral_data[:end_date]
+        }
+      )
+
       { error: false, data: slots }
     rescue Common::Exceptions::BackendServiceException => e
       Rails.logger.error('Error fetching provider slots',
@@ -360,23 +363,6 @@ module Eps
     # @return [Eps::ProviderService] ProviderService instance
     def provider_services
       @provider_services ||= Eps::ProviderService.new(user)
-    end
-
-    ##
-    # Fetches slots from provider based on referral data
-    #
-    # @param referral_data [Hash] The referral data containing provider_id and appointment_type_id
-    # @return [Array<Hash>] Array of available slots
-    #
-    def fetch_provider_slots(referral_data)
-      provider_services.get_provider_slots(
-        referral_data[:provider_id],
-        {
-          appointmentTypeId: referral_data[:appointment_type_id],
-          startOnOrAfter: referral_data[:start_date],
-          startBefore: referral_data[:end_date]
-        }
-      )
     end
 
     ##
