@@ -76,6 +76,7 @@ describe ClaimsApi::BenefitClaimWebService do
         VCR.use_cassette('claims_api/bgs/benefit_claim_web_service/find_bnft_claim_by_clmant_id') do
           res = subject.find_bnft_claim_by_clmant_id(dependent_participant_id:)
 
+          expect(res).to be_a Hash
           expect(res[:bnft_claim_dto][0][:bnft_claim_id]).to eq('600596284')
           expect(res[:bnft_claim_dto].count).to eq(2)
         end
