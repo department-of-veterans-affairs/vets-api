@@ -43,6 +43,24 @@ FactoryBot.define do
       end
     end
 
+    trait :with_form_submission do
+      after(:build) do |poa_request, _evaluator|
+        poa_request.power_of_attorney_form_submission = build(:power_of_attorney_form_submission,
+                                                              status: :succeeded,
+                                                              power_of_attorney_request: poa_request)
+      end
+    end
+
+    trait :with_failed_form_submission do
+      after(:build) do |poa_request, _evaluator|
+        poa_request.power_of_attorney_form_submission = build(
+          :power_of_attorney_form_submission,
+          power_of_attorney_request: poa_request,
+          status: :failed
+        )
+      end
+    end
+
     trait :with_declination do
       after(:build) do |poa_request, evaluator|
         poa_request.resolution = build(
@@ -59,6 +77,17 @@ FactoryBot.define do
         poa_request.resolution = build(
           :power_of_attorney_request_resolution,
           :expiration,
+          power_of_attorney_request: poa_request,
+          resolution_created_at: evaluator.resolution_created_at
+        )
+      end
+    end
+
+    trait :with_replacement do
+      after(:build) do |poa_request, evaluator|
+        poa_request.resolution = build(
+          :power_of_attorney_request_resolution,
+          :replacement,
           power_of_attorney_request: poa_request,
           resolution_created_at: evaluator.resolution_created_at
         )

@@ -85,6 +85,10 @@ bip:
     url: https://claims-uat.dev8.bip.va.gov
 bpds:
   jwt_secret: <%= ENV['bpds__jwt_secret'] %>
+  mock: false
+  read_timeout: 20 # using the same timeout as lighthouse
+  schema_version: test
+  url: https://localhost:4000/api/v1/bpd # See the README for more information on how to run the BPDS locally
 brd:
   api_key: <%= ENV['brd__api_key'] %>
   base_name: <%= ENV['brd__base_name'] %>
@@ -378,16 +382,17 @@ edu:
     - engin.akman@va.gov
   staging_spool_contents:
     emails:
-    - noah.stern@va.gov
-    - gregg.puhala@va.gov
-    - kara.ciprich@va.gov
-    - napoleon.kernessant@govcio.com
-    - vishnhav.ashok@va.gov
-    - donna.saunders@va.gov
-    - ariana.adili@govcio.com
-    - marelby.hernandez@va.gov
-    - nawar.hussein@va.gov
-    - engin.akman@va.gov
+      - noah.stern@va.gov
+      - gregg.puhala@va.gov
+      - kara.ciprich@va.gov
+      - napoleon.kernessant@govcio.com
+      - vishnhav.ashok@va.gov
+      - donna.saunders@va.gov
+      - ariana.adili@govcio.com
+      - marelby.hernandez@va.gov
+      - nawar.hussein@va.gov
+      - engin.akman@va.gov
+# Settings for EVSS
 evss:
   alternate_service_name: wss-form526-services-web-v2
   aws:
@@ -415,7 +420,6 @@ evss:
   mock_pciu: <%= ENV['evss__mock_pciu'] %>
   mock_pciu_address: <%= ENV['evss__mock_pciu_address'] %>
   mock_ppiu: <%= ENV['evss__mock_ppiu'] %>
-  mock_reference: <%= ENV['evss__mock_reference'] %>
   mock_vso_search: <%= ENV['evss__mock_vso_search'] %>
   pciu:
     timeout: 30
@@ -641,10 +645,17 @@ ivc_forms:
     aws_access_key_id: <%= ENV['ivc_forms__s3__aws_access_key_id'] %>
     aws_secret_access_key: <%= ENV['ivc_forms__s3__aws_secret_access_key'] %>
     bucket: <%= ENV['ivc_forms__s3__bucket'] %>
-    region: us-east-2
+    region: us-gov-west-1
   sidekiq:
     missing_form_status_job:
       enabled: true
+kafka_producer:
+  aws_region: "us-gov-west-1"
+  aws_role_arn: <%= ENV['kafka_producer__aws_role_arn'] %>
+  broker_urls: <%= ENV['kafka_producer__broker_urls'] %>
+  sasl_mechanisms: 'OAUTHBEARER'
+  schema_registry_url: <%= ENV['kafka_proudcer__schema_registry_url'] %>
+  security_protocol: 'sasl_ssl'
 kms_key_id: <%= ENV['kms_key_id'] %>
 lgy:
   api_key: <%= ENV['lgy__api_key'] %>
@@ -815,6 +826,7 @@ maintenance:
     es: <%= ENV['maintenance__services__es'] %>
     evss: <%= ENV['maintenance__services__evss'] %>
     form1010d: P69N8ZY
+    form107959a: POTKY39
     form107959c: PEP32F2
     form107959f1: P63EKXC
     form107959f2: PZWR9XI
@@ -906,6 +918,15 @@ mhv:
     sts:
       issuer: <%= ENV['mhv__account_creation__sts__issuer'] %>
       service_account_id: <%= ENV['mhv__account_creation__sts__service_account_id'] %>
+  api_gateway:
+    hosts:
+      bluebutton: <%= ENV['mhv__api_gateway__hosts__bluebutton'] %>
+      fhir: <%= ENV['mhv__api_gateway__hosts__fhir'] %>
+      pharmacy: <%= ENV['mhv__api_gateway__hosts__pharmacy'] %>
+      phrmgr: <%= ENV['mhv__api_gateway__hosts__phrmgr'] %>
+      security: <%= ENV['mhv__api_gateway__hosts__security'] %>
+      sm_patient: <%= ENV['mhv__api_gateway__hosts__sm_patient'] %>
+      usermgmt: <%= ENV['mhv__api_gateway__hosts__usermgmt'] %>
   bb:
     collection_caching_enabled: true
     mock: <%= ENV['mhv__bb__mock'] %>
@@ -920,6 +941,8 @@ mhv:
     app_token: <%= ENV['mhv__medical_records__app_token'] %>
     host: <%= ENV['mhv__medical_records__host'] %>
     mhv_x_api_key: <%= ENV['mhv__medical_records__mhv_x_api_key'] %>
+    x_api_key: <%= ENV['mhv__medical_records__x_api_key'] %>
+    x_api_key_v2: <%= ENV['mhv__medical_records__x_api_key_v2'] %>
     x_auth_key: <%= ENV['mhv__medical_records__x_auth_key'] %>
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
@@ -932,6 +955,14 @@ mhv:
     host: <%= ENV['mhv__sm__host'] %>
     mhv_sm_x_api_key: <%= ENV['mhv__sm__mhv_sm_x_api_key'] %>
     mock: <%= ENV['mhv__sm__mock'] %>
+  uhd:
+    app_id: <%= ENV['mhv__uhd__app_id'] %>
+    app_token: <%= ENV['mhv__uhd__app_token'] %>
+    host: <%= ENV['mhv__uhd__host'] %>
+    mock: false
+    security_host: <%= ENV['mhv__uhd__security_host'] %>
+    subject: "Proxy Client"
+    user_type: <%= ENV['mhv__uhd__user_type'] %>
 mhv_mobile:
   sm:
     app_token: <%= ENV['mhv_mobile__sm__app_token'] %>
@@ -1456,20 +1487,20 @@ vanotify:
     ivc_champva:
       api_key: <%= ENV['vanotify__services__ivc_champva__api_key'] %>
       failure_email_threshold_days: 7
-      pega_inbox_address: fake_email_address
+      pega_inbox_address: <%= ENV['vanotify__services__ivc_champva__pega_inbox_address'] %>
       template_id:
         form_10_10d_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_10d_email'] %>
         form_10_10d_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_10d_failure_email'] %>
         form_10_7959a_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959a_email'] %>
-        form_10_7959a_failure_email: form_10_7959a_failure_email
+        form_10_7959a_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959a_failure_email'] %>
         form_10_7959c_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959c_email'] %>
-        form_10_7959c_failure_email: form_10_7959c_failure_email
+        form_10_7959c_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959c_failure_email'] %>
         form_10_7959f_1_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_1_email'] %>
         form_10_7959f_1_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_1_failure_email'] %>
         form_10_7959f_2_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_email'] %>
-        form_10_7959f_2_failure_email: form_10_7959f_2_failure_email
-        pega_team_missing_status_email: pega_team_missing_status_email
-        pega_team_zsf_email: pega_team_zsf_email
+        form_10_7959f_2_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_failure_email'] %>
+        pega_team_missing_status_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_missing_status_email'] %>
+        pega_team_zsf_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_zsf_email'] %> 
     lighthouse:
       api_key: <%= ENV['vanotify__services__lighthouse__api_key'] %>
       template_id:
