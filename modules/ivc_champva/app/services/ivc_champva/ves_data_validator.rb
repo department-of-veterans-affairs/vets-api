@@ -7,6 +7,14 @@
 
 module IvcChampva
   class VesDataValidator
+    @childtype_list = %w[ADOPTED STEPCHILD NATURAL].freeze
+    @relationship_list = %w[SPOUSE EX_SPOUSE CAREGIVER CHILD].freeze
+    @gender_list = %w[MALE FEMALE].freeze
+
+    class << self
+      attr_reader :childtype_list, :relationship_list, :gender
+    end
+
     # This function will run through all the individual validators
     def self.validate(request_body)
       validate_application_type(request_body)
@@ -45,6 +53,7 @@ module IvcChampva
         .then { |b| validate_date_of_birth(b) }
         .then { |b| validate_person_uuid(b) }
         .then { |b| validate_beneficiary_address(b) }
+        .then { |b| validate_beneficiary_relationship(b) }
         .then { |b| validate_ssn(b) }
 
       beneficiary
@@ -64,6 +73,9 @@ module IvcChampva
 
     def self.validate_application_type(request_body)
       validate_presence_and_stringiness(request_body[:applicationType], 'application type')
+      unless request_body[:applicationType] == 'CHAMPVA'
+        raise ArgumentError, 'application type invalid. Must be CHAMPVA'
+      end
 
       request_body
     end
@@ -113,6 +125,28 @@ module IvcChampva
       beneficiary
     end
 
+    def self.validate_beneficiary_relationship(beneficiary)
+      title = 'beneficiary relationship to sponsor'
+      validate_presence_and_stringiness(beneficiary[:relationshipToSponsor], title)
+      unless relationship_list.include?(beneficiary[:relationshipToSponsor])
+        raise ArgumentError, "#{title} is invalid. Must be in #{relationship_list.join(', ')}"
+      end
+
+      validate_beneficiary_childtype(beneficiary) if beneficiary[:relationshipToSponsor] == 'CHILD'
+
+      beneficiary
+    end
+
+    def self.validate_beneficiary_childtype(beneficiary)
+      title = 'beneficiary childtype'
+      validate_nonempty_presence_and_stringiness(beneficiary[:childtype], title)
+      unless childtype_list.include?(beneficiary[:childtype])
+        raise ArgumentError, "#{title} is invalid. Must be in #{childtype_list.join(', ')}"
+      end
+
+      beneficiary
+    end
+
     def self.validate_sponsor_address(request_body)
       validate_address(request_body[:address], 'sponsor')
 
@@ -120,10 +154,10 @@ module IvcChampva
     end
 
     def self.validate_address(address, name)
-      validate_presence_and_stringiness(address[:city], "#{name} city")
-      validate_presence_and_stringiness(address[:state], "#{name} state")
-      validate_presence_and_stringiness(address[:zipCode], "#{name} zip code")
-      validate_presence_and_stringiness(address[:streetAddress], "#{name} street address")
+      validate_nonempty_presence_and_stringiness(address[:city], "#{name} city")
+      validate_nonempty_presence_and_stringiness(address[:state], "#{name} state")
+      validate_nonempty_presence_and_stringiness(address[:zipCode], "#{name} zip code")
+      validate_nonempty_presence_and_stringiness(address[:streetAddress], "#{name} street address")
     end
 
     def self.validate_ssn(request_body)
@@ -138,10 +172,8 @@ module IvcChampva
 
     def self.validate_date(date, name)
       validate_presence_and_stringiness(date, name)
-      raise ArgumentError, 'date is invalid. Must match YYYY-MM-DD' unless date.match?(/^\d{4}-\d{2}-\d{2}$/)
+      raise ArgumentError, "#{name} is invalid. Must match YYYY-MM-DD" unless date.match?(/^\d{4}-\d{2}-\d{2}$/)
 
-      # TODO: once we know the exact date format VES is expecting we can
-      # do further checks here.
       date
     end
 
@@ -153,6 +185,11 @@ module IvcChampva
     def self.validate_presence_and_stringiness(value, error_label)
       raise ArgumentError, "#{error_label} is missing" unless value
       raise ArgumentError, "#{error_label} is not a string" if value.class != String
+    end
+
+    def self.validate_nonempty_presence_and_stringiness(value, error_label)
+      validate_presence_and_stringiness(value, error_label)
+      raise ArgumentError, "#{error_label} is an empty string" if value.length.zero?
     end
   end
 end
