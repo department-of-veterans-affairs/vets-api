@@ -13,7 +13,6 @@ module ClaimsApi
       current_date = Time.current.iso8601
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <arg0>
-          <vnpProcId>0</vnpProcId>
           <vnpProcTypeCd>#{PROC_TYPE_CD}</vnpProcTypeCd>
           <vnpProcStateTypeCd>#{PROC_STATE}</vnpProcStateTypeCd>
           <creatdDt>#{current_date}</creatdDt>
