@@ -7,7 +7,8 @@ require 'kafka/oauth_token_refresher'
 describe Kafka::AvroProducer do
   let(:avro_producer) { described_class.new }
   let(:schema_path) { Rails.root.join('lib', 'kafka', 'schemas', 'submission_trace_mock_dev-value-1.avsc') }
-  let(:schema) { Avro::Schema.parse(File.read(schema_path)) }
+  let(:schema_file) { File.read(schema_path) }
+  let(:schema) { Avro::Schema.parse(schema_file) }
   let(:valid_payload) { { 'data' => { 'key' => 'value' } } }
   let(:invalid_payload) { { 'invalid_key' => 'value' } }
 
@@ -85,14 +86,13 @@ describe Kafka::AvroProducer do
     context 'with hardcoded schema registry retrieval' do
       before do
         allow(Flipper).to receive(:enabled?).with(:kafka_producer_fetch_schema_dynamically).and_return(false)
-        allow(Avro::Schema).to receive(:parse).and_return(schema)
+        allow(File).to receive(:read).and_return(schema_file)
       end
 
       it 'produces a message to the specified topic' do
-        avro_producer.produce('test', valid_payload)
-
+        avro_producer.produce('submission_trace_mock_dev', valid_payload)
         expect(avro_producer.producer.client.messages.length).to eq(1)
-        topic_1_messages = avro_producer.producer.client.messages_for('test')
+        topic_1_messages = avro_producer.producer.client.messages_for('submission_trace_mock_dev')
         expect(topic_1_messages.length).to eq(1)
         expect(topic_1_messages[0][:payload]).to be_a(String)
         expect(topic_1_messages[0][:payload]).to eq(topic1_payload_value)
