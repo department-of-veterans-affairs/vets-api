@@ -3,7 +3,6 @@
 # TODO: add validators for non-required, but structure constrained types:
 # - validate phone number structure: ^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$
 # - validate gender values
-# - validate relationship to veteran
 
 module IvcChampva
   class VesDataValidator

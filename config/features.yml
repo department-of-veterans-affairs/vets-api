@@ -68,6 +68,9 @@ features:
   benefits_require_gateway_origin:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
+  bpds_service_enabled:
+    actor_type: user
+    description: Enables the BPDS service
   caregiver_use_facilities_API:
     actor_type: cookie_id
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
@@ -77,9 +80,6 @@ features:
   caregiver_carma_submitted_at:
     actor_type: user
     description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
-  caregiver1010:
-    actor_type: user
-    description: Enables new features while investigating 1010CG errors
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
@@ -154,6 +154,10 @@ features:
   ezr_route_guard_enabled:
     actor_type: user
     description: Enables the route guard authentication for 10-10EZR application
+    enable_in_development: true
+  ezr_form_prefill_with_providers_and_dependents:
+    actor_type: user
+    description: Adds insurance providers and dependents to ezr prefill data
     enable_in_development: true
   cerner_override_653:
     actor_type: user
@@ -515,6 +519,9 @@ features:
   dependents_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for Dependents Backup Path failure exhaustion
+  dependents_failure_callback_email:
+    actor_type: user
+    description: Enables the dependents action needed email callback to be used when an action needed email is triggered
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -537,10 +544,6 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
-    enable_in_development: true
-  disability_526_max_cfi_service_switch:
-    actor_type: user
-    description: Enables the use of the new Max Ratings CFI service instead of the VRO client for fetching max ratings.
     enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
@@ -792,10 +795,6 @@ features:
     actor_type: user
     description: Enables form email notifications upon certain state changes (error and received)
     enable_in_development: true
-  simple_forms_notification_callbacks:
-    actor_type: user
-    description: Enables form email notification callback for Simple Forms
-    enable_in_development: true
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
@@ -935,10 +934,6 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
-  mhv_account_creation_after_login:
-    actor_type: user
-    descriptiom: Enables access to MHV Account Creation API
-    enable_in_development: true
   mhv_accelerated_delivery_enabled:
     actor_type: user
     description: Control whether vets-api allows fetching MR data from LightHouse
@@ -951,6 +946,17 @@ features:
     actor_type: user
     description: Control fetching OH vitals data
     enable_in_development: false
+  mhv_accelerated_delivery_uhd_enabled:
+    actor_type: user
+    description: Control whether vets-api allows fetching any MR data from MHV UHD
+    enable_in_development: false
+  mhv_accelerated_delivery_uhd_sp_enabled:
+    actor_type: user
+    description: Control whether vets-api allows fetching Surgical Pathology data from MHV UHD
+    enable_in_development: false
+  mhv_accelerated_delivery_uhd_ch_enabled:
+    actor_type: user
+    description: Control whether vets-api allows fetching Chem/Hem data from MHV UHD
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
@@ -1063,6 +1069,10 @@ features:
     actor_type: user
     description: Enables/disables Medical Records new landing page content
     enable_in_development: true
+  mhv_medical_records_filter_and_sort:
+    actor_type: user
+    description: Enables/disables Medical Records new filter and sort changes
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
@@ -1101,6 +1111,10 @@ features:
   mhv_medications_remove_landing_page:
     actor_type: user
     description: Enables/disables removal of landing page
+    enable_in_development: true
+  mhv_medications_show_ipe_content:
+    actor_type: user
+    description: Enables/disables ipe content
     enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
@@ -1241,6 +1255,9 @@ features:
   my_va_enable_mhv_link:
     actor_type: user
     description: Enables the "Visit MHV" CTA link under Health care section
+  my_va_new_mhv_urls:
+    actor_type: user
+    description: Updates URLs for the "Health care" section of My VA
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)
@@ -1361,6 +1378,10 @@ features:
   show_payment_history_mvp:
     actor_type: user
     description: Enables the Payment History MVP features for development
+    enable_in_development: true
+  vha_show_payment_history:
+    actor_type: user
+    description: Enables the VHA Payment history (including copay resolution) feature for combined debt portal
     enable_in_development: true
   submission_pdf_s3_upload:
     actor_type: user
@@ -1602,14 +1623,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for warning user of appointment conflicts on the direct scheduling calendar during booking.
-  va_v2_person_service:
-    actor_type: user
-    description: When enabled, the VAProfile::V2::Person::Service will be enabled
-    enable_in_development: true
-  va_v3_contact_information_service:
-    actor_type: user
-    description: When enabled, the VAProfile::V3::ContactInformation will be enabled
-    enable_in_development: true
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -1640,6 +1653,14 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
+  payment_history_exclude_third_party_disbursements:
+    actor_type: user
+    description: When enabled, a user viewing the payment history will only see payments disbursed to them.
+    enable_in_development: false
+  payment_history_recategorize_hardship:
+    actor_type: user
+    description: When enabled, recategorize Hardship payments sent to the veteran as Ch33 Hardship
+    enable_in_development: false
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
@@ -1725,9 +1746,6 @@ features:
   mobile_appeal_model:
     actor_type: user
     description: For mobile app, enables use of strict models for parsing appeals
-  mobile_v2_contact_info:
-    actor_type: user
-    description: For mobile app, enables ContactInformationV2 Service.
   mobile_push_register_logging:
     actor_type: user
     description: For mobile app, logs push register errors for debugging
@@ -1749,9 +1767,6 @@ features:
   disability_compensation_prevent_submission_job:
     actor_type: user
     description: If enabled, the submission form526 record will be created, but there will be submission job
-  disability_compensation_remove_pciu:
-    actor_type: user
-    description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)
   disability_compensation_use_api_provider_for_bdd_instructions:
     actor_type: user
     description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading BDD instructions
@@ -1835,10 +1850,6 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
-  burial_module_enabled:
-    actor_type: user
-    description: Enables new Burial module
-    enable_in_development: true
   burial_document_upload_update:
     actor_type: user
     description: Show updated document upload page
@@ -1861,9 +1872,6 @@ features:
   burial_browser_monitoring_enabled:
     actor_type: user
     description: Burial Datadog RUM monitoring
-  burial_form_profile_module_enabled:
-    actor_type: user
-    description: Use the module version of the FormProfile
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
@@ -1979,9 +1987,6 @@ features:
   remove_pciu:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information with PCIU backup calls
-  remove_pciu_2:
-    actor_type: user
-    description: If enabled, removes all PCIU requests in form pre-fill.
   show_yellow_ribbon_table:
     actor_type: user
     description: Used to show yellow ribbon table in Comparison Tool
