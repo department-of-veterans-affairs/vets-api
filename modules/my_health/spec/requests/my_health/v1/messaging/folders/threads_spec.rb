@@ -56,7 +56,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders::Threads', type: :request do
 
           expect(response).to be_successful
           expect(response.body).to be_a(String)
-          expect(response).to match_response_schema('message_threads')
+          expect(response).to match_response_schema('my_health/messaging/v1/message_threads')
         end
 
         it 'responds to GET #index when camel-inflected' do
@@ -68,7 +68,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders::Threads', type: :request do
 
           expect(response).to be_successful
           expect(response.body).to be_a(String)
-          expect(response).to match_camelized_response_schema('message_threads')
+          expect(response).to match_camelized_response_schema('my_health/messaging/v1/message_threads')
         end
 
         it 'responds to GET #index when requires_oh_messages param is provided' do
@@ -92,7 +92,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders::Threads', type: :request do
 
           json_response = JSON.parse(response.body)
           expect(json_response).to eq({ 'data' => [] })
-          expect(response).to match_response_schema('message_threads_no_messages')
+          expect(response).to match_response_schema('my_health/messaging/v1/message_threads_no_messages')
         end
       end
     end
