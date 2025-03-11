@@ -59,9 +59,9 @@ RSpec.describe SFTPWriter::Remote do
         remote.write(contents, filename)
       end
 
-      it 'logs how many bytes were uploaded' do
-        expect(logger).to receive(:info).with(%r{Uploaded #{contents.size} bytes to /remote/path/#{filename}})
-        remote.write(contents, filename)
+      it 'returns the number of bytes sent' do
+        bytes_sent = remote.write(contents, filename)
+        expect(bytes_sent).to eq(contents.size)
       end
     end
 
@@ -73,8 +73,13 @@ RSpec.describe SFTPWriter::Remote do
       end
 
       it 'does not upload any data' do
-        expect(logger).to receive(:warn).with(%r{Warning: Uploaded 0 bytes to /remote/path/#{filename}})
+        expect(mock_sftp).not_to receive(:upload!).with(instance_of(StringIO), "/remote/path/#{filename}")
         remote.write(contents, filename)
+      end
+
+      it 'returns 0 for bytes sent' do
+        bytes_sent = remote.write(contents, filename)
+        expect(bytes_sent).to eq(0)
       end
     end
   end

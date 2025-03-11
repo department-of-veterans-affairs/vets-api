@@ -53,14 +53,7 @@ module SFTPWriter
         end
       end
 
-      # There was a scenario where the hostname on production accidentally got changed and
-      # nothing got sent as a result. We were requested to log how many bytes were sent to
-      # help track down the issue if it ever happens again.
-      if bytes_sent.positive?
-        @logger.info("Uploaded #{bytes_sent} bytes to #{path}")
-      else
-        @logger.warn("Warning: Uploaded 0 bytes to #{path}")
-      end
+      bytes_sent
     end
 
     private
