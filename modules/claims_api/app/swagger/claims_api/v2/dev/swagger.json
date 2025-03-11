@@ -9331,7 +9331,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:163:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:164:in `representative'"
                       }
                     }
                   ]
@@ -9468,10 +9468,8 @@
                         "email": null,
                         "relationship": null
                       },
-                      "poa": {
-                        "poaCode": "067",
-                        "registrationNumber": "999999999999",
-                        "jobTitle": "MyJob"
+                      "representative": {
+                        "poaCode": "067"
                       },
                       "recordConsent": true,
                       "consentLimits": [
@@ -9516,7 +9514,7 @@
                           "additionalProperties": false,
                           "required": [
                             "veteran",
-                            "poa",
+                            "representative",
                             "recordConsent",
                             "consentAddressChange"
                           ],
@@ -9729,29 +9727,18 @@
                                 }
                               }
                             },
-                            "poa": {
+                            "representative": {
                               "description": "Details of the requested Power of Attorney representing the veteran.",
                               "type": "object",
                               "additionalProperties": false,
                               "required": [
-                                "poaCode",
-                                "registrationNumber"
+                                "poaCode"
                               ],
                               "properties": {
                                 "poaCode": {
                                   "description": "The POA code of the accredited representative or organization.",
                                   "type": "string",
                                   "example": "A1Q"
-                                },
-                                "registrationNumber": {
-                                  "description": "Registration Number of the accredited representative.",
-                                  "type": "string",
-                                  "example": "12345"
-                                },
-                                "jobTitle": {
-                                  "description": "Job title of the accredited representative.",
-                                  "type": "string",
-                                  "example": "Veteran Service Representative"
                                 }
                               }
                             },
@@ -9852,10 +9839,10 @@
                   "errors": [
                     {
                       "title": "Unprocessable entity",
-                      "detail": "The property /poa did not contain the required key poaCode",
+                      "detail": "The property /representative did not contain the required key poaCode",
                       "status": "422",
                       "source": {
-                        "pointer": "data/attributes/poa"
+                        "pointer": "data/attributes/representative"
                       }
                     }
                   ]
@@ -9914,7 +9901,7 @@
                     {
                       "status": "404",
                       "title": "Resource not found",
-                      "detail": "Could not find an Accredited Representative with registration number: 999999999999 and poa code: 067"
+                      "detail": "Could not find an Accredited Representative with poa code: 067"
                     }
                   ]
                 },
@@ -9987,7 +9974,7 @@
                         "additionalProperties": false,
                         "required": [
                           "veteran",
-                          "poa",
+                          "representative",
                           "recordConsent",
                           "consentAddressChange"
                         ],
@@ -10203,29 +10190,18 @@
                               }
                             }
                           },
-                          "poa": {
+                          "representative": {
                             "description": "Details of the requested Power of Attorney representing the veteran.",
                             "type": "object",
                             "additionalProperties": false,
                             "required": [
-                              "poaCode",
-                              "registrationNumber"
+                              "poaCode"
                             ],
                             "properties": {
                               "poaCode": {
                                 "description": "The POA code of the accredited representative or organization.",
                                 "type": "string",
                                 "example": "A1Q"
-                              },
-                              "registrationNumber": {
-                                "description": "Registration Number of the accredited representative.",
-                                "type": "string",
-                                "example": "12345"
-                              },
-                              "jobTitle": {
-                                "description": "Job title of the accredited representative.",
-                                "type": "string",
-                                "example": "Veteran Service Representative"
                               }
                             }
                           },
@@ -10278,10 +10254,8 @@
                         "email": "test@test.com",
                         "insuranceNumber": "1234567890"
                       },
-                      "poa": {
-                        "poaCode": "067",
-                        "registrationNumber": "999999999999",
-                        "jobTitle": "MyJob"
+                      "representative": {
+                        "poaCode": "067"
                       },
                       "recordConsent": true,
                       "consentAddressChange": true,
@@ -10466,12 +10440,15 @@
                                 "type": "object",
                                 "properties": {
                                   "firstName": {
+                                    "description": "First name for the veteran.",
                                     "type": "string"
                                   },
                                   "lastName": {
+                                    "description": "Last name for the veteran.",
                                     "type": "string"
                                   },
                                   "middleName": {
+                                    "description": "Middle name for the veteran.",
                                     "type": "string"
                                   }
                                 }
@@ -10479,24 +10456,38 @@
                               "claimant": {
                                 "type": "object",
                                 "properties": {
-                                  "city": {
+                                  "firstName": {
+                                    "description": "First name for the dependent claimant.",
                                     "type": "string"
                                   },
-                                  "country": {
+                                  "lastName": {
+                                    "description": "Last name for the dependent claimant.",
                                     "type": "string"
                                   },
-                                  "militaryPo": {
-                                    "type": "string"
-                                  },
-                                  "militaryPostalCode": {
-                                    "type": "string"
-                                  },
-                                  "state": {
-                                    "type": "string"
-                                  },
-                                  "zip": {
+                                  "middleName": {
+                                    "description": "Middle name for the dependent claimant.",
                                     "type": "string"
                                   }
+                                }
+                              },
+                              "address": {
+                                "city": {
+                                  "type": "string"
+                                },
+                                "country": {
+                                  "type": "string"
+                                },
+                                "militaryPo": {
+                                  "type": "string"
+                                },
+                                "militaryPostalCode": {
+                                  "type": "string"
+                                },
+                                "state": {
+                                  "type": "string"
+                                },
+                                "zip": {
+                                  "type": "string"
                                 }
                               },
                               "representative": {
@@ -10517,20 +10508,25 @@
                                 }
                               },
                               "receivedDate": {
+                                "description": "Date the request for representation was established.",
                                 "type": "string",
                                 "format": "date-time"
                               },
                               "actionedDate": {
+                                "description": "Date the request for representation was accepted or declined by a representative.",
                                 "type": "string",
                                 "format": "date-time"
                               },
                               "status": {
+                                "description": "Status of the request for representation.",
                                 "type": "string"
                               },
                               "declinedReason": {
+                                "description": "Reason for declining the request for representation.",
                                 "type": "string"
                               },
                               "consentAddressChange": {
+                                "description": "Authorization for Representative to Act on Claimant's Behalf to Change Claimant's Address.",
                                 "type": "boolean",
                                 "enum": [
                                   true,
@@ -10538,6 +10534,7 @@
                                 ]
                               },
                               "recordConsent": {
+                                "description": "Authorization for Representative's Access to Records Protected by Section 7332, Title 38, U.S.C.",
                                 "type": "boolean",
                                 "enum": [
                                   true,
@@ -10872,12 +10869,15 @@
                               "type": "object",
                               "properties": {
                                 "firstName": {
+                                  "description": "First name for the veteran.",
                                   "type": "string"
                                 },
                                 "lastName": {
+                                  "description": "Last name for the veteran.",
                                   "type": "string"
                                 },
                                 "middleName": {
+                                  "description": "Middle name for the veteran.",
                                   "type": "string"
                                 }
                               }
@@ -10885,24 +10885,38 @@
                             "claimant": {
                               "type": "object",
                               "properties": {
-                                "city": {
+                                "firstName": {
+                                  "description": "First name for the dependent claimant.",
                                   "type": "string"
                                 },
-                                "country": {
+                                "lastName": {
+                                  "description": "Last name for the dependent claimant.",
                                   "type": "string"
                                 },
-                                "militaryPo": {
-                                  "type": "string"
-                                },
-                                "militaryPostalCode": {
-                                  "type": "string"
-                                },
-                                "state": {
-                                  "type": "string"
-                                },
-                                "zip": {
+                                "middleName": {
+                                  "description": "Middle name for the dependent claimant.",
                                   "type": "string"
                                 }
+                              }
+                            },
+                            "address": {
+                              "city": {
+                                "type": "string"
+                              },
+                              "country": {
+                                "type": "string"
+                              },
+                              "militaryPo": {
+                                "type": "string"
+                              },
+                              "militaryPostalCode": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "string"
+                              },
+                              "zip": {
+                                "type": "string"
                               }
                             },
                             "representative": {
@@ -10923,20 +10937,25 @@
                               }
                             },
                             "receivedDate": {
+                              "description": "Date the request for representation was established.",
                               "type": "string",
                               "format": "date-time"
                             },
                             "actionedDate": {
+                              "description": "Date the request for representation was accepted or declined by a representative.",
                               "type": "string",
                               "format": "date-time"
                             },
                             "status": {
+                              "description": "Status of the request for representation.",
                               "type": "string"
                             },
                             "declinedReason": {
+                              "description": "Reason for declining the request for representation.",
                               "type": "string"
                             },
                             "consentAddressChange": {
+                              "description": "Authorization for Representative to Act on Claimant's Behalf to Change Claimant's Address.",
                               "type": "boolean",
                               "enum": [
                                 true,
@@ -10944,6 +10963,7 @@
                               ]
                             },
                             "recordConsent": {
+                              "description": "Authorization for Representative's Access to Records Protected by Section 7332, Title 38, U.S.C.",
                               "type": "boolean",
                               "enum": [
                                 true,
@@ -11179,12 +11199,15 @@
                               "type": "object",
                               "properties": {
                                 "firstName": {
+                                  "description": "First name for the veteran.",
                                   "type": "string"
                                 },
                                 "lastName": {
+                                  "description": "Last name for the veteran.",
                                   "type": "string"
                                 },
                                 "middleName": {
+                                  "description": "Middle name for the veteran.",
                                   "type": "string"
                                 }
                               }
@@ -11192,24 +11215,38 @@
                             "claimant": {
                               "type": "object",
                               "properties": {
-                                "city": {
+                                "firstName": {
+                                  "description": "First name for the dependent claimant.",
                                   "type": "string"
                                 },
-                                "country": {
+                                "lastName": {
+                                  "description": "Last name for the dependent claimant.",
                                   "type": "string"
                                 },
-                                "militaryPo": {
-                                  "type": "string"
-                                },
-                                "militaryPostalCode": {
-                                  "type": "string"
-                                },
-                                "state": {
-                                  "type": "string"
-                                },
-                                "zip": {
+                                "middleName": {
+                                  "description": "Middle name for the dependent claimant.",
                                   "type": "string"
                                 }
+                              }
+                            },
+                            "address": {
+                              "city": {
+                                "type": "string"
+                              },
+                              "country": {
+                                "type": "string"
+                              },
+                              "militaryPo": {
+                                "type": "string"
+                              },
+                              "militaryPostalCode": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "string"
+                              },
+                              "zip": {
+                                "type": "string"
                               }
                             },
                             "representative": {
@@ -11230,20 +11267,25 @@
                               }
                             },
                             "receivedDate": {
+                              "description": "Date the request for representation was established.",
                               "type": "string",
                               "format": "date-time"
                             },
                             "actionedDate": {
+                              "description": "Date the request for representation was accepted or declined by a representative.",
                               "type": "string",
                               "format": "date-time"
                             },
                             "status": {
+                              "description": "Status of the request for representation.",
                               "type": "string"
                             },
                             "declinedReason": {
+                              "description": "Reason for declining the request for representation.",
                               "type": "string"
                             },
                             "consentAddressChange": {
+                              "description": "Authorization for Representative to Act on Claimant's Behalf to Change Claimant's Address.",
                               "type": "boolean",
                               "enum": [
                                 true,
@@ -11251,6 +11293,7 @@
                               ]
                             },
                             "recordConsent": {
+                              "description": "Authorization for Representative's Access to Records Protected by Section 7332, Title 38, U.S.C.",
                               "type": "boolean",
                               "enum": [
                                 true,

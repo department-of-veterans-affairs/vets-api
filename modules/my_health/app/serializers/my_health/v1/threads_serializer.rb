@@ -27,6 +27,8 @@ module MyHealth
       attribute :has_attachment, &:thread_has_attachment
       attribute :unsent_drafts
       attribute :unread_messages
+      attribute :is_oh_message
+      attribute :suggested_name_display
 
       link :self do |object|
         MyHealth::UrlHelper.new.v1_thread_url(object.thread_id)

@@ -40,7 +40,7 @@ describe TravelPay::ClaimsService do
             'id' => '73611905-71bf-46ed-b1ec-e790593b8565',
             'claimNumber' => 'TC0004',
             'claimName' => '9d81c1a1-cd05-47c6-be97-d14dec579893',
-            'claimStatus' => 'Claim Submitted',
+            'claimStatus' => 'ClaimSubmitted',
             'appointmentDateTime' => nil,
             'facilityName' => 'Tomah VA Medical Center',
             'createdOn' => '2023-12-29T22:00:57.915Z',
@@ -67,7 +67,7 @@ describe TravelPay::ClaimsService do
     end
 
     it 'returns sorted and parsed claims' do
-      expected_statuses = ['In Progress', 'In Progress', 'Incomplete', 'Claim Submitted']
+      expected_statuses = ['In progress', 'In progress', 'Incomplete', 'Claim submitted']
 
       claims = @service.get_claims
       actual_statuses = claims[:data].pluck('claimStatus')
