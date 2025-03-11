@@ -175,8 +175,6 @@ describe VAOS::V2::AppointmentsService do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
                                                   instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
       end
 
@@ -286,8 +284,6 @@ describe VAOS::V2::AppointmentsService do
     context 'using VPG' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
-                                                  instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
                                                   instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
@@ -426,8 +422,6 @@ describe VAOS::V2::AppointmentsService do
       before do
         Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
         allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(true)
@@ -667,7 +661,6 @@ describe VAOS::V2::AppointmentsService do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
@@ -936,7 +929,6 @@ describe VAOS::V2::AppointmentsService do
   describe '#get_appointment' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
     end
 
@@ -1033,7 +1025,6 @@ describe VAOS::V2::AppointmentsService do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
@@ -1056,7 +1047,6 @@ describe VAOS::V2::AppointmentsService do
         it 'returns an appointment without a travel claim attached if claim does not exist' do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
@@ -1080,7 +1070,6 @@ describe VAOS::V2::AppointmentsService do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
         allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
         allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
       end
@@ -1184,7 +1173,6 @@ describe VAOS::V2::AppointmentsService do
                                                       user).and_return(true)
             allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(true)
             allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
-            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
             allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
             allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           end
@@ -1219,7 +1207,6 @@ describe VAOS::V2::AppointmentsService do
           before do
             allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
                                                       user).and_return(false)
-            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
           end
 
           it 'returns a cancelled status and the cancelled appointment information' do
@@ -1252,7 +1239,6 @@ describe VAOS::V2::AppointmentsService do
     context 'when there is a server error in updating an appointment' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
       end
 
       it 'throws a BackendServiceException' do
@@ -1292,8 +1278,6 @@ describe VAOS::V2::AppointmentsService do
   describe '#get_appointments merge' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
       allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(true)
@@ -1420,8 +1404,6 @@ describe VAOS::V2::AppointmentsService do
       Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
       allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                 instance_of(User)).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
     end
 

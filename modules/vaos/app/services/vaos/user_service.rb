@@ -13,18 +13,7 @@ module VAOS
         return cached.token
       end
 
-      if Flipper.enabled?(:va_online_scheduling_sts_oauth_token, user)
-        new_sts_session_token(user)
-      else
-        new_session_token(user)
-      end
-    end
-
-    def extend_session(account_uuid)
-      unless session_creation_locked?(account_uuid)
-        lock_session_creation(account_uuid)
-        VAOS::ExtendSessionJob.perform_async(account_uuid)
-      end
+      new_sts_session_token(user)
     end
 
     def update_session_token(account_uuid)
@@ -64,10 +53,6 @@ module VAOS
       redis_session_lock.expire(account_uuid, REDIS_CONFIG[:va_mobile_session_refresh_lock][:each_ttl])
     end
 
-    def session_creation_locked?(account_uuid)
-      !redis_session_lock.get(account_uuid).nil?
-    end
-
     def save_session!(account_uuid, token)
       session_store = SessionStore.new(
         account_uuid:,
@@ -76,21 +61,6 @@ module VAOS
       )
       session_store.save
       session_store.expire(ttl_duration_from_token(token))
-    end
-
-    def new_session_token(user)
-      url = '/users/v2/session?processRules=true'
-      token = VAOS::JwtWrapper.new(user).token
-      response = perform(:post, url, token, headers)
-      raise Common::Exceptions::BackendServiceException.new('VAOS_502', source: self.class) unless body?(response)
-
-      Rails.logger.info('VAOS session created',
-                        { account_uuid: user.account_uuid, jti: decoded_token(token)['jti'] })
-
-      token = response.body
-      lock_session_creation(user.account_uuid)
-      save_session!(user.account_uuid, token)
-      token
     end
 
     # Creates a new session token using the Security Token Service (STS).
@@ -157,10 +127,6 @@ module VAOS
 
     def decoded_token(token)
       JWT.decode(token, nil, false).first
-    end
-
-    def body?(response)
-      response&.body && response.body.present?
     end
   end
 end

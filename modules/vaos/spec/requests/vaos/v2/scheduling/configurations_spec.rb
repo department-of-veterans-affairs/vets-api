@@ -11,7 +11,6 @@ RSpec.describe 'VAOS::V2::Scheduling::Configurations', :skip_mvi, type: :request
   before do
     Flipper.enable('va_online_scheduling')
     allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, instance_of(User)).and_return(true)
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
