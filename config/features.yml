@@ -1375,6 +1375,10 @@ features:
     actor_type: user
     description: Enables the Payment History MVP features for development
     enable_in_development: true
+  vha_show_payment_history:
+    actor_type: user
+    description: Enables the VHA Payment history (including copay resolution) feature for combined debt portal
+    enable_in_development: true
   submission_pdf_s3_upload:
     actor_type: user
     description: Used to toggle use of uploading a submission pdf to S3 and returning a pre-signed url.
