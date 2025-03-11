@@ -201,4 +201,16 @@ describe IvcChampva::VesDataValidator do
                          "beneficiary childtype is invalid. Must be in #{possible_values}")
     end
   end
+
+  describe 'beneficiary gender not in accepted values' do
+    it 'raises an exception' do
+      possible_values = IvcChampva::VesDataValidator.gender_list.join(', ')
+      @request_body[:beneficiaries][0][:gender] = 'INVALID'
+
+      expect do
+        IvcChampva::VesDataValidator.validate(@request_body)
+      end.to raise_error(ArgumentError,
+                         "beneficiary gender is invalid. Must be in #{possible_values}")
+    end
+  end
 end

@@ -2,7 +2,6 @@
 
 # TODO: add validators for non-required, but structure constrained types:
 # - validate phone number structure: ^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$
-# - validate gender values
 
 module IvcChampva
   class VesDataValidator
@@ -11,7 +10,7 @@ module IvcChampva
     @gender_list = %w[MALE FEMALE].freeze
 
     class << self
-      attr_reader :childtype_list, :relationship_list, :gender
+      attr_reader :childtype_list, :relationship_list, :gender_list
     end
 
     # This function will run through all the individual validators
@@ -53,6 +52,7 @@ module IvcChampva
         .then { |b| validate_person_uuid(b) }
         .then { |b| validate_beneficiary_address(b) }
         .then { |b| validate_beneficiary_relationship(b) }
+        .then { |b| validate_beneficiary_gender(b) }
         .then { |b| validate_ssn(b) }
 
       beneficiary
@@ -116,6 +116,16 @@ module IvcChampva
       validate_date(object[:dateOfBirth], 'date of birth')
 
       object
+    end
+
+    def self.validate_beneficiary_gender(beneficiary)
+      title = 'beneficiary gender'
+      validate_nonempty_presence_and_stringiness(beneficiary[:gender], title)
+      unless gender_list.include?(beneficiary[:gender])
+        raise ArgumentError, "#{title} is invalid. Must be in #{gender_list.join(', ')}"
+      end
+
+      beneficiary
     end
 
     def self.validate_beneficiary_address(beneficiary)
