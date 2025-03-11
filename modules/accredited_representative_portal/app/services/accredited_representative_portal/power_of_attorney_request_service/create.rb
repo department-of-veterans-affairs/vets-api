@@ -61,6 +61,7 @@ module AccreditedRepresentativePortal
           end
 
           request.save!
+          Monitoring.new.track_count('ar.poa.request.count')
         end
 
         request
