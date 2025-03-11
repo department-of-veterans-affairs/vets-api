@@ -56,7 +56,7 @@ RSpec.describe VeteranVerification::Service do
 
       describe 'when requesting status' do
         let(:icn) { '1012667145V762142' }
-        let (:error_icn) { '1012666182V20' }
+        let(:error_icn) { '1012666182V20' }
 
         it 'retrieves veteran confirmation status from the Lighthouse API' do
           VCR.use_cassette('lighthouse/veteran_verification/status/200_response') do
@@ -78,7 +78,9 @@ RSpec.describe VeteranVerification::Service do
         it 'retrieves error status from the Lighthouse API' do
           VCR.use_cassette('lighthouse/veteran_verification/status/200_error_response') do
             expect(StatsD).to receive(:increment).with(
-              "#{breakers_service_name}.success", 1, tags: ["endpoint:/services/veteran_verification/v2/status/#{error_icn}", "method:get"]
+              "#{breakers_service_name}.success", 1, tags: [
+                "endpoint:/services/veteran_verification/v2/status/#{error_icn}", 'method:get'
+              ]
             )
             expect(StatsD).to receive(:increment).with(
               VeteranVerification::Constants::STATSD_VET_VERIFICATION_TOTAL_KEY

@@ -16,8 +16,8 @@ module BenefitsDocuments
     SYSTEM_NAME = 'VA.gov'
     API_SCOPES = %w[documents.read documents.write].freeze
     BASE_PATH = 'services/benefits-documents/v1/'
-    DOCUMENTS_PATH = "documents".freeze
-    DOCUMENTS_STATUS_PATH = "uploads/status".freeze
+    DOCUMENTS_PATH = 'documents'
+    DOCUMENTS_STATUS_PATH = 'uploads/status'
     TOKEN_PATH = '/oauth2/benefits-documents/system/v1/token'
     QA_TESTING_DOMAIN = Settings.lighthouse.benefits_documents.host
 
