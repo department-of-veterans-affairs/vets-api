@@ -1849,9 +1849,6 @@ features:
   burial_document_upload_update:
     actor_type: user
     description: Show updated document upload page
-  burial_location_of_death_update:
-    actor_type: user
-    description: Show updated location of death pattern
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
@@ -1878,15 +1875,6 @@ features:
     actor_type: user
     description: Implement multiple page response pattern
     enable_in_development: true
-  pension_introduction_update:
-    actor_type: user
-    description: Show updated introduction page
-  pension_supporting_documents_update:
-    actor_type: user
-    description: Show updated supporting documents page
-  pension_document_upload_update:
-    actor_type: user
-    description: Show updated document upload page
   pension_confirmation_update:
     actor_type: user
     description: Show updated confirmation page
