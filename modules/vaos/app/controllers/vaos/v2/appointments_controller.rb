@@ -64,27 +64,14 @@ module VAOS
 
       def create_draft
         referral_id = draft_params[:referral_id]
-        # TODO: validate referral_id and other needed referral data from the cache from prior referrals response
+        result = eps_appointment_service.create_draft_appointment(referral_id, pagination_params)
 
-        cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
-
-        referral_check_result = check_referral_usage(referral_id)
-        unless referral_check_result[:success]
-          render json: referral_check_result[:json], status: referral_check_result[:status] and return
+        if result[:success]
+          serialized = Eps::DraftAppointmentSerializer.new(result[:data])
+          render json: serialized, status: :created
+        else
+          render json: { message: result[:error] }, status: result[:status]
         end
-
-        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
-        provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
-
-        response_data = OpenStruct.new(
-          id: draft_appointment.id,
-          provider:,
-          slots: fetch_provider_slots(cached_referral_data),
-          drive_time: fetch_drive_times(provider)
-        )
-
-        serialized = Eps::DraftAppointmentSerializer.new(response_data)
-        render json: serialized, status: :created
       end
 
       def update
@@ -443,72 +430,6 @@ module VAOS
             type: params.dig(:address, :type)
           }
         }
-      end
-
-      # Fetches available provider slots using referral data.
-      #
-      # @param referral_data [Hash] Includes:
-      #   - `:provider_id` [String] The provider's ID.
-      #   - `:appointment_type_id` [String] The appointment type.
-      #   - `:start_date` [String] The earliest appointment date (ISO 8601).
-      #   - `:end_date` [String] The latest appointment date (ISO 8601).
-      #
-      # @raise [ArgumentError] If required parameters are missing.
-      # @return [OpenStruct] API response with available slots.
-      #
-      def fetch_provider_slots(referral_data)
-        eps_provider_service.get_provider_slots(
-          referral_data[:provider_id],
-          {
-            appointmentTypeId: referral_data[:appointment_type_id],
-            startOnOrAfter: referral_data[:start_date],
-            startBefore: referral_data[:end_date]
-          }
-        )
-      end
-
-      def fetch_drive_times(provider)
-        user_address = current_user.vet360_contact_info&.residential_address
-
-        return nil unless user_address&.latitude && user_address.longitude
-
-        eps_provider_service.get_drive_times(
-          destinations: {
-            provider.id => {
-              latitude: provider.location[:latitude],
-              longitude: provider.location[:longitude]
-            }
-          },
-          origin: {
-            latitude: user_address.latitude,
-            longitude: user_address.longitude
-          }
-        )
-      end
-
-      ##
-      # Checks if a referral is already in use by cross referrencing referral number against complete
-      # list of existing appointments
-      #
-      # @param referral_id [String] the referral number to check.
-      # @return [Hash] Result hash:
-      #   - If referral is unused: { success: true }
-      #   - If an error occurs: { success: false, json: { message: ... }, status: :bad_gateway }
-      #   - If referral exists: { success: false, json: { message: ... }, status: :unprocessable_entity }
-      #
-      # TODO: pass in date from cached referral data to use as range for CCRA appointments call
-      def check_referral_usage(referral_id)
-        check = appointments_service.referral_appointment_already_exists?(referral_id, pagination_params)
-
-        if check[:error]
-          { success: false, json: { message: "Error checking appointments: #{check[:failures]}" },
-            status: :bad_gateway }
-        elsif check[:exists]
-          { success: false, json: { message: 'No new appointment created: referral is already used' },
-            status: :unprocessable_entity }
-        else
-          { success: true }
-        end
       end
     end
   end
