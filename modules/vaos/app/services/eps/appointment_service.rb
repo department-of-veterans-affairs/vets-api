@@ -40,101 +40,28 @@ module Eps
     #   - On failure: { success: false, error: <error_message>, status: <http_status_code> }
     #
     def create_draft_appointment(referral_id, pagination_params = {})
-      begin
-        cached_referral_data = redis_client.fetch_referral_attributes(referral_number: referral_id)
-        if cached_referral_data.nil?
-          Rails.logger.error('VAOS Error fetching referral data from cache', { referral_id: })
-          return { success: false, error: 'Unable to retrieve referral data', status: :bad_gateway }
-        end
-
-        required_fields = [:provider_id, :appointment_type_id]
-        missing_fields = required_fields.select { |field| cached_referral_data[field].nil? }
-
-        unless missing_fields.empty?
-          Rails.logger.error('VAOS Missing referral data fields',
-                             { referral_id:, missing_fields: })
-          return {
-            success: false,
-            error: "Referral data is incomplete. Missing: #{missing_fields.join(', ')}",
-            status: :bad_gateway
-          }
-        end
-
-        referral_check = appointments_service.referral_appointment_already_exists?(referral_id, pagination_params)
-        if referral_check[:error]
-          Rails.logger.error('VAOS Error checking appointments', { failures: referral_check[:failures] })
-          return {
-            success: false,
-            error: "Error checking appointments: #{referral_check[:failures]}",
-            status: :bad_gateway
-          }
-        elsif referral_check[:exists]
-          Rails.logger.info('VAOS Referral already used', { referral_id: })
-          return {
-            success: false,
-            error: 'No new appointment created: referral is already used',
-            status: :unprocessable_entity
-          }
-        end
-
-        begin
-          draft_appointment = persist_draft_appointment(referral_id:)
-        rescue Common::Exceptions::BackendServiceException => e
-          Rails.logger.error('VAOS Error creating draft appointment',
-                             { referral_id:, error: e.message })
-          return { success: false, error: 'Error creating draft appointment', status: :bad_request }
-        end
-
-        begin
-          provider = provider_services.get_provider_service(provider_id: cached_referral_data[:provider_id])
-        rescue Common::Exceptions::BackendServiceException => e
-          Rails.logger.error('VAOS Error fetching provider data',
-                             { referral_id:, error: e.message })
-          return { success: false, error: 'Error fetching provider data', status: :not_found }
-        end
-
-        begin
-          slots = fetch_provider_slots(cached_referral_data)
-        rescue Common::Exceptions::BackendServiceException => e
-          Rails.logger.error('VAOS Error fetching provider slots',
-                             { referral_id:, error: e.message })
-          return { success: false, error: 'Error fetching provider slots', status: :bad_request }
-        end
-
-        begin
-          drive_time = fetch_drive_times(provider)
-        rescue Common::Exceptions::BackendServiceException => e
-          Rails.logger.error('VAOS Error fetching drive times',
-                             { referral_id:, error: e.message })
-          return { success: false, error: 'Error fetching drive times', status: :bad_request }
-        end
-
-        response_data = OpenStruct.new(
-          id: draft_appointment.id,
-          provider:,
-          slots:,
-          drive_time:
-        )
-
-        { success: true, data: response_data }
-      rescue Common::Exceptions::BackendServiceException => e
-        status = e.status
-        Rails.logger.error('VAOS Backend service error', { referral_id:, error: e.message, status: })
-
-        mapped_status = case status
-                        when 400
-                          :bad_request
-                        when 404
-                          :not_found
-                        else
-                          :bad_gateway
-                        end
-
-        { success: false, error: e.message, status: mapped_status }
-      rescue => e
-        Rails.logger.error('VAOS Error creating draft appointment', { referral_id:, error: e.message })
-        { success: false, error: 'Error creating draft appointment', status: :internal_server_error }
+      cached_referral_data = redis_client.fetch_referral_attributes(referral_number: referral_id)
+      if cached_referral_data.nil?
+        Rails.logger.error('Error fetching referral data from cache', { referral_id: })
+        return { success: false, error: 'Unable to retrieve referral data', status: :bad_gateway }
       end
+
+      validation_result = validate_referral_data(referral_id, cached_referral_data)
+      return validation_result[:error_response] unless validation_result[:valid]
+
+      referral_check = appointments_service.referral_appointment_already_exists?(referral_id, pagination_params)
+      existing_appointment_result = check_for_existing_appointment(referral_id, referral_check)
+      return existing_appointment_result[:error_response] unless existing_appointment_result[:valid]
+
+      components = collect_draft_appointment_components(referral_id, cached_referral_data)
+      return components[:error_response] if components[:error]
+
+      build_draft_appointment_response(components)
+    rescue Common::Exceptions::BackendServiceException => e
+      handle_service_exception(e, referral_id)
+    rescue => e
+      Rails.logger.error('Error creating draft appointment', { referral_id:, error: e.message })
+      { success: false, error: 'Error creating draft appointment', status: :internal_server_error }
     end
 
     ##
@@ -166,6 +93,213 @@ module Eps
     end
 
     private
+
+    ##
+    # Collect all necessary components for a draft appointment
+    #
+    # @param referral_id [String] The referral ID for the appointment
+    # @param referral_data [Hash] The referral data with provider information
+    # @return [Hash] Hash containing all draft appointment components or error information
+    #
+    def collect_draft_appointment_components(referral_id, referral_data)
+      operations = [
+        { key: :draft, action: ->(_) { attempt_draft_creation(referral_id) } },
+        { key: :provider, action: ->(_) { fetch_provider_data(referral_id, referral_data[:provider_id]) } },
+        { key: :slots, action: ->(_) { retrieve_provider_slots(referral_id, referral_data) } },
+        { key: :drive_time, action: ->(results) { calculate_drive_times(referral_id, results[:provider]) } }
+      ]
+
+      process_draft_creation_steps(operations)
+    end
+
+    ##
+    # Processes a sequence of draft appointment creation steps and collects their results
+    #
+    # @param operations [Array<Hash>] Array of operation definitions with :key and :action keys
+    # @return [Hash] Hash containing all results or error information
+    #
+    def process_draft_creation_steps(operations)
+      results = {}
+
+      operations.each do |operation|
+        result = operation[:action].call(results)
+        return format_draft_error_response(result) if result[:error]
+
+        results[operation[:key]] = result[:data]
+      end
+
+      { error: false, **results }
+    end
+
+    ##
+    # Formats an error result for consistent draft appointment error response structure
+    #
+    # @param result [Hash] Result hash containing error response
+    # @return [Hash] Formatted hash with error flag and error response
+    #
+    def format_draft_error_response(result)
+      { error: true, error_response: result[:error_response] }
+    end
+
+    ##
+    # Handle service exceptions with proper status code mapping
+    #
+    # @param exception [Common::Exceptions::BackendServiceException] The exception to handle
+    # @param referral_id [String] The referral ID for context in logging
+    # @return [Hash] Formatted error response
+    #
+    def handle_service_exception(exception, referral_id)
+      status = exception.status
+      Rails.logger.error('Backend service error', { referral_id:, error: exception.message, status: })
+
+      mapped_status = map_http_status(status)
+      { success: false, error: exception.message, status: mapped_status }
+    end
+
+    ##
+    # Validate referral data has required fields
+    #
+    # @param referral_id [String] The referral ID for context in logging
+    # @param cached_referral_data [Hash] The referral data to validate
+    # @return [Hash] Result with :valid flag and :error_response if invalid
+    #
+    def validate_referral_data(referral_id, cached_referral_data)
+      required_fields = %i[provider_id appointment_type_id start_date end_date]
+      missing_fields = required_fields.select { |field| cached_referral_data[field].nil? }
+
+      if missing_fields.empty?
+        { valid: true }
+      else
+        Rails.logger.error('Missing referral data fields',
+                           { referral_id:, missing_fields: })
+        {
+          valid: false,
+          error_response: {
+            success: false,
+            error: "Referral data is incomplete. Missing: #{missing_fields.join(', ')}",
+            status: :bad_gateway
+          }
+        }
+      end
+    end
+
+    ##
+    # Check if an appointment already exists for the given referral
+    #
+    # @param referral_id [String] The referral ID for context in logging
+    # @param referral_check [Hash] The referral check result to validate
+    # @return [Hash] Result with :valid flag and :error_response if invalid
+    #
+    def check_for_existing_appointment(referral_id, referral_check)
+      return { valid: true } unless referral_check[:error] || referral_check[:exists]
+
+      if referral_check[:error]
+        Rails.logger.error('Error checking appointments', { failures: referral_check[:failures] })
+        error_message = "Error checking appointments: #{referral_check[:failures]}"
+        status = :bad_gateway
+      else # referral_check[:exists]
+        Rails.logger.info('Referral already used', { referral_id: })
+        error_message = 'No new appointment created: referral is already used'
+        status = :unprocessable_entity
+      end
+
+      {
+        valid: false,
+        error_response: { success: false, error: error_message, status: }
+      }
+    end
+
+    ##
+    # Attempt to create a draft appointment and handle any errors
+    #
+    # @param referral_id [String] The referral ID to use for the appointment
+    # @return [Hash] Result hash with error status and appropriate data
+    #
+    def attempt_draft_creation(referral_id)
+      draft_appointment = persist_draft_appointment(referral_id:)
+      { error: false, data: draft_appointment }
+    rescue Common::Exceptions::BackendServiceException => e
+      Rails.logger.error('Error creating draft appointment',
+                         { referral_id:, error: e.message })
+      {
+        error: true,
+        error_response: { success: false, error: 'Error creating draft appointment', status: :bad_request }
+      }
+    end
+
+    ##
+    # Fetch provider data from provider service
+    #
+    # @param referral_id [String] The referral ID for context in logging
+    # @param provider_id [String] The provider ID to retrieve
+    # @return [Hash] Result hash with provider data or error information
+    #
+    def fetch_provider_data(referral_id, provider_id)
+      provider = provider_services.get_provider_service(provider_id:)
+      { error: false, data: provider }
+    rescue Common::Exceptions::BackendServiceException => e
+      Rails.logger.error('Error fetching provider data',
+                         { referral_id:, error: e.message })
+      {
+        error: true,
+        error_response: { success: false, error: 'Error fetching provider data', status: :not_found }
+      }
+    end
+
+    ##
+    # Retrieve available slots for a provider
+    #
+    # @param referral_id [String] The referral ID for context in logging
+    # @param referral_data [Hash] The referral data containing provider and appointment information
+    # @return [Hash] Result hash with slot data or error information
+    #
+    def retrieve_provider_slots(referral_id, referral_data)
+      slots = fetch_provider_slots(referral_data)
+      { error: false, data: slots }
+    rescue Common::Exceptions::BackendServiceException => e
+      Rails.logger.error('Error fetching provider slots',
+                         { referral_id:, error: e.message })
+      {
+        error: true,
+        error_response: { success: false, error: 'Error fetching provider slots', status: :bad_request }
+      }
+    end
+
+    ##
+    # Calculate drive times between user and provider
+    #
+    # @param referral_id [String] The referral ID for context in logging
+    # @param provider [OpenStruct] The provider data containing location information
+    # @return [Hash] Result hash with drive time data or error information
+    #
+    def calculate_drive_times(referral_id, provider)
+      drive_time = fetch_drive_times(provider)
+      { error: false, data: drive_time }
+    rescue Common::Exceptions::BackendServiceException => e
+      Rails.logger.error('Error fetching drive times',
+                         { referral_id:, error: e.message })
+      {
+        error: true,
+        error_response: { success: false, error: 'Error fetching drive times', status: :bad_request }
+      }
+    end
+
+    ##
+    # Map HTTP status code to symbolic representation
+    #
+    # @param status [Integer] The numeric HTTP status code
+    # @return [Symbol] The corresponding symbolic HTTP status
+    #
+    def map_http_status(status)
+      case status
+      when 400
+        :bad_request
+      when 404
+        :not_found
+      else
+        :bad_gateway
+      end
+    end
 
     ##
     # Create a draft appointment in EPS by making an API call to the EPS endpoint
@@ -276,6 +410,23 @@ module Eps
 
     def appointments_service
       @appointments_service ||= VAOS::V2::AppointmentsService.new(user)
+    end
+
+    ##
+    # Build a successful response from draft appointment components
+    #
+    # @param components [Hash] The components of a draft appointment
+    # @return [Hash] Success response with appointment data
+    #
+    def build_draft_appointment_response(components)
+      response_data = OpenStruct.new(
+        id: components[:draft].id,
+        provider: components[:provider],
+        slots: components[:slots],
+        drive_time: components[:drive_time]
+      )
+
+      { success: true, data: response_data }
     end
   end
 end
