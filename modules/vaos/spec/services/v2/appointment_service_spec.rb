@@ -2096,7 +2096,7 @@ describe VAOS::V2::AppointmentsService do
 
     before do
       Timecop.freeze(current_time)
-      Flipper.disable(:va_online_scheduling_use_vpg)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
     end
 
     after do
