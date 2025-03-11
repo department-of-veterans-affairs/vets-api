@@ -1,9 +1,9 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type" : "object",
   "required": ["data", "meta"],
   "properties": {
-    "data": {
+    "data" : {
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
@@ -11,11 +11,11 @@
         "type": "object",
         "required": ["id", "type", "attributes"],
         "properties": {
-          "id": { "type": "string" },
-          "type": { "enum": ["all_triage_teams"] },
+          "id": { "type": "string"},
+          "type": { "enum": ["triage_teams"] },
           "attributes": {
             "type": "object",
-            "$ref": "all_triage_team.json"
+            "$ref": "triage_team.json"
           }
         }
       }
@@ -24,15 +24,6 @@
       "type": "object",
       "required": ["sort"],
       "properties": {
-        "associatedTriageGroups": {
-          "type": "integer"
-        },
-        "friendlyTriageTeamPilotFacilities":{
-          "type": "string"
-        },
-        "associatedBlockedTriageGroups": {
-          "type": "integer"
-        },
         "sort": {
           "type": "object"
         }

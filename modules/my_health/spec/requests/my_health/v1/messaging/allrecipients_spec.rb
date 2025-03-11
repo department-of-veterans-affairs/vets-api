@@ -48,7 +48,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('all_triage_teams')
+      expect(response).to match_response_schema('my_health/messaging/v1/all_triage_teams')
     end
 
     it 'responds to GET #index when camel-inflected' do
@@ -58,7 +58,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
-      expect(response).to match_camelized_response_schema('all_triage_teams')
+      expect(response).to match_camelized_response_schema('my_health/messaging/v1/all_triage_teams')
     end
 
     it 'responds to GET #index with requires_oh flag' do
@@ -68,7 +68,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Allrecipients', type: :request do
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('all_triage_teams')
+      expect(response).to match_response_schema('my_health/messaging/v1/all_triage_teams')
     end
   end
 end
