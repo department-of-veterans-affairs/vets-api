@@ -1192,6 +1192,7 @@ vanotify:
         form686c_confirmation_email: fake_template_id
         form686c_reminder_email: fake_template_id
         form1010ez_reminder_email: fake_template_id
+        form10_3542_smoc_failure_email: form10_3452_smoc_failure_email_template_id
         form1880_reminder_email: form1880_reminder_email_template_id
         in_progress_reminder_email_generic: fake_template_id
         direct_deposit: direct_deposit_template_id

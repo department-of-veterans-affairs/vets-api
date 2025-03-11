@@ -6,7 +6,7 @@ module TravelPay
     include Sidekiq::Job
     include Sidekiq::MonitoredWorker
 
-    def perform(appt_datetime)
+    def perform(icn, appt_datetime)
       Rails.logger.info(message: 'SMOC transaction START')
 
       appt_id = get_appt_or_raise(appt_datetime)
@@ -24,8 +24,8 @@ module TravelPay
       # VANotify notify modules/va_notify/README.md
       notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
       notify_client.send_email({
-                                 recipient_identifier: { id_value: 'ICN_VALUE_HERE', id_type: 'ICN' },
-                                 template_id: Settings.vanotify.services.your_va_notify_service_name_here.template_id.some_template_name
+                                 recipient_identifier: { id_value: icn, id_type: 'ICN' },
+                                 template_id: Settings.vanotify.services.va_gov.template_id.form10_3542_smoc_failure_email
                                })
     end
 
