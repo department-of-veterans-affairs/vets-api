@@ -44,7 +44,7 @@ module Lighthouse
           _count: params[:count]
         }
 
-        first_response = perform_get('services/fhir/v0/r4/DiagnosticReport', **params.compact)
+        first_response = perform_get('DiagnosticReport', **params.compact)
         get_list(first_response)
       end
 
@@ -54,12 +54,12 @@ module Lighthouse
           _count: 100
         }
 
-        first_response = perform_get('services/fhir/v0/r4/AllergyIntolerance', **params.compact)
+        first_response = perform_get('AllergyIntolerance', **params.compact)
         get_list(first_response)
       end
 
       def get_allergy_intolerance(id)
-        perform_get("services/fhir/v0/r4/AllergyIntolerance/#{id}")
+        perform_get("AllergyIntolerance/#{id}")
       end
 
       def list_bp_observations
@@ -76,7 +76,7 @@ module Lighthouse
           _count: 100
         }
 
-        first_response = perform_get('services/fhir/v0/r4/Condition', **params)
+        first_response = perform_get('Condition', **params)
         get_list(first_response)
       end
 
@@ -86,12 +86,12 @@ module Lighthouse
           _count: 100
         }.merge(params_override)
 
-        first_response = perform_get('services/fhir/v0/r4/Observation', **params)
+        first_response = perform_get('Observation', **params)
         get_list(first_response)
       end
 
       def get_observation(id)
-        perform_get("services/fhir/v0/r4/Observation/#{id}")
+        perform_get("Observation/#{id}")
       end
 
       def list_medication_requests
@@ -99,7 +99,7 @@ module Lighthouse
           patient: @icn,
           _count: 100
         }
-        first_response = perform_get('services/fhir/v0/r4/MedicationRequest', **params)
+        first_response = perform_get('MedicationRequest', **params)
         get_list(first_response)
       end
 
@@ -137,7 +137,7 @@ module Lighthouse
         with_monitoring do
           perform(
             :post,
-            'oauth2/health/system/v1/token',
+            '/oauth2/health/system/v1/token',
             URI.encode_www_form(params),
             { 'Content-Type': 'application/x-www-form-urlencoded' }
           )

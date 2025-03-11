@@ -70,7 +70,7 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
       end
 
       describe 'when the caller requests the DiagnosticReports resource' do
-        let(:diagnostic_report_api_path) { 'services/fhir/v0/r4/DiagnosticReport' }
+        let(:diagnostic_report_api_path) { 'DiagnosticReport' }
         let(:params_hash) do
           { patient: @client.instance_variable_get(:@icn),
             _count: 100 }
@@ -132,7 +132,7 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
       end
 
       describe 'when the caller requests the BP Observations resource' do
-        let(:observations_api_path) { 'services/fhir/v0/r4/Observation' }
+        let(:observations_api_path) { 'Observation' }
         let(:params_hash) do
           {
             patient: @client.instance_variable_get(:@icn),
@@ -155,7 +155,7 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
       end
 
       describe 'when the caller requests the MedicationRequest resource' do
-        let(:medications_api_path) { 'services/fhir/v0/r4/MedicationRequest' }
+        let(:medications_api_path) { 'MedicationRequest' }
         let(:params_hash) do
           { patient: @client.instance_variable_get(:@icn),
             _count: 100 }
@@ -217,7 +217,7 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
       end
 
       describe '#list_conditions' do
-        let(:conditions_api_path) { 'services/fhir/v0/r4/Condition' }
+        let(:conditions_api_path) { 'Condition' }
         let(:params_hash) do
           { patient: @client.instance_variable_get(:@icn),
             _count: 100 }

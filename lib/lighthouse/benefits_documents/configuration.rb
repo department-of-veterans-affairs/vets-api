@@ -15,10 +15,10 @@ module BenefitsDocuments
 
     SYSTEM_NAME = 'VA.gov'
     API_SCOPES = %w[documents.read documents.write].freeze
-    BASE_PATH = 'services/benefits-documents/v1'
-    DOCUMENTS_PATH = "#{BASE_PATH}/documents".freeze
-    DOCUMENTS_STATUS_PATH = "#{BASE_PATH}/uploads/status".freeze
-    TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token'
+    BASE_PATH = 'services/benefits-documents/v1/'
+    DOCUMENTS_PATH = "documents".freeze
+    DOCUMENTS_STATUS_PATH = "uploads/status".freeze
+    TOKEN_PATH = '/oauth2/benefits-documents/system/v1/token'
     QA_TESTING_DOMAIN = Settings.lighthouse.benefits_documents.host
 
     ##
@@ -38,11 +38,7 @@ module BenefitsDocuments
     # @return [String] Base path for veteran_verification URLs.
     #
     def base_path(host = nil)
-      (host || documents_settings.host).to_s
-    end
-
-    def base_api_path(host = nil)
-      "#{base_path(host)}/"
+      (host || documents_settings.host).to_s + "/#{BASE_PATH}"
     end
 
     ##
@@ -118,7 +114,7 @@ module BenefitsDocuments
     #
     # @return [Faraday::Connection] a Faraday connection instance.
     #
-    def connection(api_path = base_api_path)
+    def connection(api_path = base_path)
       @conn ||= Faraday.new(api_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use :breakers
         faraday.use Faraday::Response::RaiseError
