@@ -34,7 +34,43 @@ describe MyHealth::V1::AllTriageTeamsSerializer, type: :serializer do
     expect(attributes['preferred_team']).to eq triage_team.preferred_team
   end
 
-  it 'includes :relationship_type' do
-    expect(attributes['relationship_type']).to eq triage_team.relationship_type
+  it 'includes :relation_type' do
+    expect(attributes['relation_type']).to eq triage_team.relation_type
+  end
+
+  it 'includes :lead_provider_name' do
+    expect(attributes['lead_provider_name']).to eq triage_team.lead_provider_name
+  end
+
+  it 'includes :location_name' do
+    expect(attributes['location_name']).to eq triage_team.location_name
+  end
+
+  it 'includes :team_name' do
+    expect(attributes['team_name']).to eq triage_team.team_name
+  end
+
+  it 'includes :suggested_name_display' do
+    expect(attributes['suggested_name_display']).to eq triage_team.suggested_name_display
+  end
+
+  it 'includes :health_care_system_name' do
+    expect(attributes['health_care_system_name']).to eq triage_team.health_care_system_name
+  end
+
+  it 'includes :group_type_enum_val' do
+    expect(attributes['group_type_enum_val']).to eq triage_team.group_type_enum_val
+  end
+
+  it 'includes :sub_group_type_enum_val' do
+    expect(attributes['sub_group_type_enum_val']).to eq triage_team.sub_group_type_enum_val
+  end
+
+  it 'includes :group_type_patient_display' do
+    expect(attributes['group_type_patient_display']).to eq triage_team.group_type_patient_display
+  end
+
+  it 'includes :sub_group_type_patient_display' do
+    expect(attributes['sub_group_type_patient_display']).to eq triage_team.sub_group_type_patient_display
   end
 end
