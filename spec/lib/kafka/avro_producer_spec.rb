@@ -85,6 +85,7 @@ describe Kafka::AvroProducer do
     context 'with hardcoded schema registry retrieval' do
       before do
         allow(Flipper).to receive(:enabled?).with(:kafka_producer_fetch_schema_dynamically).and_return(false)
+        allow(Avro::Schema).to receive(:parse).and_return(schema)
       end
 
       it 'produces a message to the specified topic' do
