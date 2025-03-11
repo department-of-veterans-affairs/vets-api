@@ -47,7 +47,7 @@ module Eps
       validation_result = validate_referral_data(referral_id, cached_referral_data)
       return validation_result[:error_response] unless validation_result[:valid]
 
-      referral_check = appointments_service.referral_appointment_already_exists?(referral_id, pagination_params)
+      referral_check = referral_appointment_already_exists?(referral_id, pagination_params)
       existing_appointment_result = check_for_existing_appointment(referral_id, referral_check)
       return existing_appointment_result[:error_response] unless existing_appointment_result[:valid]
 
@@ -107,6 +107,19 @@ module Eps
     rescue => e
       Rails.logger.error('Unexpected error fetching referral data from cache', { referral_id: referral_id, error: e.message })
       { success: false, error: 'Unable to retrieve referral data', status: :internal_server_error }
+    end
+
+    def referral_appointment_already_exists?(referral_id, pagination_params = {})
+      vaos_response = appointments_service.get_all_appointments(pagination_params)
+      vaos_request_failures = vaos_response[:meta][:failures]
+
+      return { error: true, failures: vaos_request_failures } if vaos_request_failures.present?
+      return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
+
+      eps_appointments = get_appointments[:data]
+      return { exists: true } if eps_appointments.any? { |appt| appt[:referral][:referral_number] == referral_id }
+
+      { exists: false }
     end
 
     ##
