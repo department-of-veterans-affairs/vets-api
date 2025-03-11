@@ -5,7 +5,7 @@ module Swagger
     class BurialClaims
       include Swagger::Blocks
 
-      swagger_path '/v0/burial_claims' do
+      swagger_path '/burials/v0/claims' do
         operation :post do
           extend Swagger::Responses::ValidationError
           extend Swagger::Responses::SavedForm

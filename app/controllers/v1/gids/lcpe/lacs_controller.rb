@@ -5,7 +5,9 @@ module V1
     module LCPE
       class LacsController < GIDS::LCPEController
         def index
-          render json: service.get_licenses_and_certs_v1(scrubbed_params)
+          lacs = service.get_licenses_and_certs_v1(scrubbed_params)
+          set_headers(lacs[:version]) unless bypass_versioning?
+          render json: lacs
         end
 
         def show

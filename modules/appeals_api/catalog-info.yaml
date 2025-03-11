@@ -18,4 +18,4 @@ spec:
   owner: lighthouse-banana-peels
   system: vets-api
   definition:
-    $text: https://api.va.gov/services/appeals/docs/v2/decision_reviews
+    $text: https://api.va.gov/services/appeals/v2/decision_reviews/docs

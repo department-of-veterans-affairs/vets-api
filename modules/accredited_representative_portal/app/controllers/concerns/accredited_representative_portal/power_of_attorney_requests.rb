@@ -10,9 +10,9 @@ module AccreditedRepresentativePortal
     #
     concerning :ExceptionRendering do
       included do
-        rescue_from ActiveRecord::RecordNotFound do |e|
+        rescue_from ActiveRecord::RecordNotFound do |_e|
           render(
-            json: { errors: [e.message] },
+            json: { errors: ['Record not found'] },
             status: :not_found
           )
         end
