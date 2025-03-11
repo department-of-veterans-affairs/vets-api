@@ -1562,10 +1562,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for routing slots search requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
-  va_online_scheduling_datadog_RUM:
-    actor_type: user
-    description: Enables datadog Real User Monitoring.
-    enable_in_development: true
   va_online_scheduling_cc_direct_scheduling:
     actor_type: user
     description: Enables CC direct scheduling.
