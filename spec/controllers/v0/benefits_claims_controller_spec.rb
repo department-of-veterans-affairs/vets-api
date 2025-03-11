@@ -83,9 +83,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             end
 
             parsed_body = JSON.parse(response.body)
-            expect(parsed_body['data'].select do |claim|
-              claim['id'] == claim_id
-            end[0]['attributes']['hasFailedUploads']).to be false
+            expect(parsed_body['data'].select { |claim| claim['id'] == claim_id }[0]['attributes']['hasFailedUploads'])
+              .to be false
           end
         end
 
@@ -100,9 +99,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
             end
 
             parsed_body = JSON.parse(response.body)
-            expect(parsed_body['data'].select do |claim|
-              claim['id'] == claim_id
-            end[0]['attributes']['hasFailedUploads']).to be true
+            expect(parsed_body['data'].select { |claim| claim['id'] == claim_id }[0]['attributes']['hasFailedUploads'])
+              .to be true
           end
         end
       end
