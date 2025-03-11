@@ -1,0 +1,30 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: cert-fetch
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      restartPolicy: Never
+      containers:
+        - name: cert-fetch
+          image: '{{ .Values.certContainer.image }}'
+          imagePullPolicy: {{ .Values.certContainer.pullPolicy }}
+          command: ["/bin/sh", "-c", "cp -r /usr/local/share/ca-certificates/* /certs/ && cp -r /etc/ssl/certs/* /ssl-certs/"]
+          volumeMounts:
+            - name: certs-volume
+              mountPath: /certs
+            - name: ssl-certs-volume
+              mountPath: /ssl-certs
+      volumes:
+        - name: certs-volume
+          emptyDir: {}
+        - name: ssl-certs-volume
+          emptyDir: {}
+  backoffLimit: 1
