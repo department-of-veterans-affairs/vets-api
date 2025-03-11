@@ -418,7 +418,6 @@ evss:
   mock_pciu: true
   mock_pciu_address: false
   mock_ppiu: true
-  mock_reference: true
   mock_vso_search: false
   pciu:
     timeout: 30
