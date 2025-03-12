@@ -23,7 +23,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
 
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
+  create_enum "bpds_submission_status", ["pending", "submitted"]
   create_enum "itf_remediation_status", ["unprocessed"]
+  create_enum "lighthouse_submission_status", ["pending", "submitted"]
   create_enum "user_action_status", ["initial", "success", "error"]
 
   create_table "account_login_stats", force: :cascade do |t|
@@ -429,6 +431,30 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.index ["location"], name: "index_base_facilities_on_location", using: :gist
     t.index ["name"], name: "index_base_facilities_on_name", opclass: :gin_trgm_ops, using: :gin
     t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true
+  end
+
+  create_table "bpds_submission_attempts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "bpds_submission_id", null: false
+    t.enum "status", default: "pending", enum_type: "bpds_submission_status"
+    t.jsonb "metadata_ciphertext"
+    t.jsonb "payload_ciphertext"
+    t.jsonb "error_message_ciphertext"
+    t.jsonb "response_ciphertext"
+    t.datetime "bpds_updated_at"
+    t.string "bpds_id"
+    t.index ["bpds_submission_id"], name: "index_bpds_submission_attempts_on_bpds_submission_id"
+  end
+
+  create_table "bpds_submissions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "saved_claim_id", null: false
+    t.enum "latest_status", default: "pending", enum_type: "bpds_submission_status"
+    t.string "form_id", null: false
+    t.string "va_claim_id"
+    t.jsonb "reference_data_ciphertext"
   end
 
   create_table "central_mail_submissions", id: :serial, force: :cascade do |t|
@@ -1069,6 +1095,30 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.index ["status_last_polled_at"], name: "index_lighthouse526_document_uploads_on_status_last_polled_at"
   end
 
+  create_table "lighthouse_submission_attempts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "lighthouse_submission_id", null: false
+    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
+    t.jsonb "metadata_ciphertext"
+    t.jsonb "payload_ciphertext"
+    t.jsonb "error_message_ciphertext"
+    t.jsonb "response_ciphertext"
+    t.datetime "lighthouse_updated_at"
+    t.string "benefits_intake_uuid"
+    t.index ["lighthouse_submission_id"], name: "idx_on_lighthouse_submission_id_e6e3dbad55"
+  end
+
+  create_table "lighthouse_submissions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "saved_claim_id", null: false
+    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
+    t.string "form_id", null: false
+    t.string "va_claim_id"
+    t.jsonb "reference_data_ciphertext"
+  end
+
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
     t.string "pagerduty_id"
     t.string "external_service"
@@ -1374,6 +1424,27 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.string "updated_by"
   end
 
+  create_table "sub_tests", force: :cascade do |t|
+    t.string "subtestable_type", null: false
+    t.bigint "subtestable_id", null: false
+    t.string "sub_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subtestable_type", "subtestable_id"], name: "index_sub_tests_on_subtestable"
+  end
+
+  create_table "subtest_ones", force: :cascade do |t|
+    t.string "sub_one"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "subtest_twos", force: :cascade do |t|
+    t.string "sub_two"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "terms_of_use_agreements", force: :cascade do |t|
     t.uuid "user_account_id", null: false
     t.string "agreement_version", null: false
@@ -1381,6 +1452,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_account_id"], name: "index_terms_of_use_agreements_on_user_account_id"
+  end
+
+  create_table "test_ones", force: :cascade do |t|
+    t.string "one"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "test_twos", force: :cascade do |t|
+    t.string "two"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "test_user_dashboard_tud_account_availability_logs", force: :cascade do |t|
@@ -1415,6 +1498,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.string "mfa_code"
     t.uuid "logingov_uuid"
     t.text "id_types", default: [], array: true
+  end
+
+  create_table "tests", force: :cascade do |t|
+    t.string "testable_type", null: false
+    t.bigint "testable_id", null: false
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["testable_type", "testable_id"], name: "index_tests_on_testable"
   end
 
   create_table "tooltips", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1846,6 +1938,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
   add_foreign_key "ar_power_of_attorney_request_withdrawals", "ar_power_of_attorney_requests", column: "superseding_power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_requests", "user_accounts", column: "claimant_id"
   add_foreign_key "async_transactions", "user_accounts"
+  add_foreign_key "bpds_submission_attempts", "bpds_submissions"
   add_foreign_key "claim_va_notifications", "saved_claims"
   add_foreign_key "claims_api_claim_submissions", "claims_api_auto_established_claims", column: "claim_id"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
@@ -1863,6 +1956,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
   add_foreign_key "in_progress_forms", "user_accounts"
   add_foreign_key "lighthouse526_document_uploads", "form526_submissions"
   add_foreign_key "lighthouse526_document_uploads", "form_attachments"
+  add_foreign_key "lighthouse_submission_attempts", "lighthouse_submissions"
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
