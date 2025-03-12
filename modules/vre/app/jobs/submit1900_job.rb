@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require '../services/vre/monitor'
-
 module VRE
   class Submit1900Job
     include Sidekiq::Job
