@@ -104,7 +104,7 @@ module PDFUtilities
           pdf.draw_text(timestamp.strftime('%Y-%m-%d %I:%M %p %Z'), at: [x, y - 12], size:)
           (reader.page_count - page_number).times { pdf.start_new_page }
         else
-          pdf.draw_text stamp_text, at: [x, y], size:
+          pdf.draw_text(stamp_text, at: [x, y], size:)
         end
       end
 
@@ -116,7 +116,7 @@ module PDFUtilities
 
     # create the stamp text to be used
     def stamp_text
-      stamp = text.dup
+      stamp = text
       unless text_only
         stamp += if File.basename(file_path) == 'vba_40_10007-stamped.pdf'
                    " #{I18n.l(timestamp4010007, format: :pdf_stamp4010007)}"
