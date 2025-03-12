@@ -1,38 +1,73 @@
 # frozen_string_literal: true
 
-class EpsAppointmentWorker
-  include Sidekiq::Worker
+module Eps
+  ##
+  # EpsAppointmentWorker is a Sidekiq worker that polls the EPS service to check the status of an appointment.
+  # It retries up to a maximum number of times before sending a failure message if the appointment is not completed.
+  #
+  class EpsAppointmentWorker
+    include Sidekiq::Worker
 
-  def perform(appointment_id)
-    service = Eps::AppointmentService.new
-    begin
-      # Poll get_appointments with the appointment_id to check if the appointment has finished submitting
-      # (Add logic here to determine if the appointment has finished submitting based on the response)
-      response = service.get_appointment(appointment_id:)
-      if appointment_finished?(response)
-        # Appointment finished successfully
-        send_vanotify_message(success: true)
-      else
-        # Re-enqueue the worker to poll again after a delay
-        self.class.perform_in(1.minutes, appointment_id)
+    MAX_RETRIES = 3
+
+    ##
+    # Performs the Sidekiq job to check the status of an appointment.
+    #
+    # @param appointment_id [String] The ID of the appointment to check.
+    # @param retry_count [Integer] The current retry count (default is 0).
+    #
+    def perform(appointment_id, retry_count = 0)
+      service = Eps::AppointmentService.new
+      begin
+        # Poll get_appointments with the appointment_id to check if the appointment has finished submitting
+        response = service.get_appointment(appointment_id:)
+        if appointment_finished?(response)
+          # Appointment finished successfully, do nothing
+        elsif retry_count < MAX_RETRIES
+          # Re-enqueue the worker to poll again after a delay
+          self.class.perform_in(1.minute, appointment_id, retry_count + 1)
+        else
+          # Max retries reached, send failure message
+          send_vanotify_message(success: false, error: 'Could not complete booking')
+        end
+      rescue => e
+        send_vanotify_message(success: false, error: e.message)
       end
-    rescue StandardError => e
-      send_vanotify_message(success: false, error: e.message)
     end
-  end
 
-  private
+    private
 
-  def appointment_finished?(response)
-    # Check if the appointment state is 'completed' or the status is 'booked'
-    response.state == 'completed' || response.appointmentDetails&.status == 'booked'
-  end
+    ##
+    # Checks if the appointment has finished successfully.
+    #
+    # @param response [OpenStruct] The response from the EPS service.
+    # @return [Boolean] True if the appointment is completed or booked, false otherwise.
+    #
+    def appointment_finished?(response)
+      response.state == 'completed' || response.appointmentDetails&.status == 'booked'
+    end
 
-  def send_vanotify_message(success:, error: nil)
-    if success
-      # Code to send success message via VANotify
-    else
-      # Code to send failure message via VANotify with error details
+    ##
+    # Checks if the appointment has failed.
+    #
+    # @param response [OpenStruct] The response from the EPS service.
+    # @return [Boolean] True if the appointment status is 'booking-failed' or 'cancel-failed' or if there is an error, false otherwise.
+    #
+    def appointment_failed?(response)
+      appointment_status = response.appointmentDetails&.status
+      appointment_status == 'booking-failed' || appointment_status == 'cancel-failed' || response.error.present?
+    end
+
+    ##
+    # Sends a failure message via VANotify.
+    #
+    # @param success [Boolean] Indicates if the operation was successful.
+    # @param error [String, nil] The error message, if any.
+    #
+    def send_vanotify_message(success:, error: nil)
+      unless success
+        # Code to send failure message via VANotify with error details
+      end
     end
   end
 end
