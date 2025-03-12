@@ -79,7 +79,10 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
 
         let(:ind_expected_params) do
           {
-            recipient_identifier: rep_poa.auth_headers[notification_key],
+            recipient_identifier: {
+              id_type: 'ICN',
+              id_value: org_poa.auth_headers[notification_key]
+            },
             personalisation: {
               first_name: rep_poa.auth_headers['va_eauth_firstName'],
               rep_first_name: va_notify_rep.first_name,
@@ -119,7 +122,10 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
 
         let(:dependent_expected_params) do
           {
-            recipient_identifier: rep_dep_poa.auth_headers[notification_key],
+            recipient_identifier: {
+              id_type: 'ICN',
+              id_value: org_poa.auth_headers[notification_key]
+            },
             personalisation: {
               first_name: dependent_poa.auth_headers['va_eauth_firstName'],
               rep_first_name: va_notify_rep.first_name,
@@ -159,7 +165,10 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
 
         let(:org_expected_params) do
           {
-            recipient_identifier: org_poa.auth_headers[notification_key],
+            recipient_identifier: {
+              id_type: 'ICN',
+              id_value: org_poa.auth_headers[notification_key]
+            },
             personalisation: {
               first_name: organization_poa.auth_headers['va_eauth_firstName'],
               org_name: va_notify_org.name,
