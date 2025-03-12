@@ -106,7 +106,6 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         expect(Rails.logger).to receive(:error).with(
           "Form5655Submission id: #{form_submission.id} failed", 'VBASubmissionJob#perform: abc-123'
         )
-
         expect(Rails.logger).to receive(:error).with(expected_log_message)
         config.sidekiq_retries_exhausted_block.call(msg, standard_exception)
         expect(form_submission.reload.error_message).to eq('VBASubmissionJob#perform: abc-123')

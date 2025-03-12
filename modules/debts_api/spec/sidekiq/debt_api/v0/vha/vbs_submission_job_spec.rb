@@ -42,13 +42,7 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::VBSSubmissionJob, type: :worker do
         LOG
 
         statsd_key = DebtsApi::V0::Form5655::VHA::VBSSubmissionJob::STATS_KEY
-        statsd_keys = [
-          "#{statsd_key}.failure",
-          "#{statsd_key}.retries_exhausted",
-          'api.fsr_submission.failure'
-        ]
-
-        statsd_keys.each do |key|
+        ["#{statsd_key}.failure", "#{statsd_key}.retries_exhausted", 'api.fsr_submission.failure'].each do |key|
           expect(StatsD).to receive(:increment).with(key)
         end
 

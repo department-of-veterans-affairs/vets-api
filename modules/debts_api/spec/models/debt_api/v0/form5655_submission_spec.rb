@@ -175,7 +175,6 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
         expect(StatsD).to receive(:increment).with(
           'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
         )
-
         expect(StatsD).to receive(:increment).with(
           'api.fsr_submission.send_failed_form_email.enqueue'
         )
