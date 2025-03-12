@@ -420,7 +420,6 @@ evss:
   mock_pciu: <%= ENV['evss__mock_pciu'] %>
   mock_pciu_address: <%= ENV['evss__mock_pciu_address'] %>
   mock_ppiu: <%= ENV['evss__mock_ppiu'] %>
-  mock_reference: <%= ENV['evss__mock_reference'] %>
   mock_vso_search: <%= ENV['evss__mock_vso_search'] %>
   pciu:
     timeout: 30
@@ -654,7 +653,9 @@ kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: <%= ENV['kafka_producer__aws_role_arn'] %>
   broker_urls: <%= ENV['kafka_producer__broker_urls'] %>
+  sasl_mechanisms: 'OAUTHBEARER'
   schema_registry_url: <%= ENV['kafka_proudcer__schema_registry_url'] %>
+  security_protocol: 'sasl_ssl'
 kms_key_id: <%= ENV['kms_key_id'] %>
 lgy:
   api_key: <%= ENV['lgy__api_key'] %>
@@ -917,6 +918,15 @@ mhv:
     sts:
       issuer: <%= ENV['mhv__account_creation__sts__issuer'] %>
       service_account_id: <%= ENV['mhv__account_creation__sts__service_account_id'] %>
+  api_gateway:
+    hosts:
+      bluebutton: <%= ENV['mhv__api_gateway__hosts__bluebutton'] %>
+      fhir: <%= ENV['mhv__api_gateway__hosts__fhir'] %>
+      pharmacy: <%= ENV['mhv__api_gateway__hosts__pharmacy'] %>
+      phrmgr: <%= ENV['mhv__api_gateway__hosts__phrmgr'] %>
+      security: <%= ENV['mhv__api_gateway__hosts__security'] %>
+      sm_patient: <%= ENV['mhv__api_gateway__hosts__sm_patient'] %>
+      usermgmt: <%= ENV['mhv__api_gateway__hosts__usermgmt'] %>
   bb:
     collection_caching_enabled: true
     mock: <%= ENV['mhv__bb__mock'] %>
@@ -931,6 +941,8 @@ mhv:
     app_token: <%= ENV['mhv__medical_records__app_token'] %>
     host: <%= ENV['mhv__medical_records__host'] %>
     mhv_x_api_key: <%= ENV['mhv__medical_records__mhv_x_api_key'] %>
+    x_api_key: <%= ENV['mhv__medical_records__x_api_key'] %>
+    x_api_key_v2: <%= ENV['mhv__medical_records__x_api_key_v2'] %>
     x_auth_key: <%= ENV['mhv__medical_records__x_auth_key'] %>
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
@@ -1480,9 +1492,9 @@ vanotify:
         form_10_10d_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_10d_email'] %>
         form_10_10d_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_10d_failure_email'] %>
         form_10_7959a_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959a_email'] %>
-        form_10_7959a_failure_email: form_10_7959a_failure_email
+        form_10_7959a_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959a_failure_email'] %>
         form_10_7959c_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959c_email'] %>
-        form_10_7959c_failure_email: form_10_7959c_failure_email
+        form_10_7959c_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959c_failure_email'] %>
         form_10_7959f_1_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_1_email'] %>
         form_10_7959f_1_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_1_failure_email'] %>
         form_10_7959f_2_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_email'] %>

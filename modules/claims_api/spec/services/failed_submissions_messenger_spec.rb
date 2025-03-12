@@ -11,7 +11,7 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
 
   context 'when there is one type of each error' do
     let(:errored_disability_claims) { Array.new(1) { SecureRandom.uuid } }
-    let(:errored_va_gov_claims) { Array.new(1) { SecureRandom.uuid } }
+    let(:errored_va_gov_claims) { Array.new(1) { [SecureRandom.uuid, SecureRandom.uuid] } }
     let(:errored_poa) { Array.new(1) { SecureRandom.uuid } }
     let(:errored_itf) { Array.new(1) { SecureRandom.uuid } }
     let(:errored_ews) { Array.new(1) { SecureRandom.uuid } }
@@ -96,12 +96,15 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
 
   context 'when there are more than 10 failed va.gov submissions' do
     let(:num_errors) { 12 }
-    let(:errored_va_gov_claims) { Array.new(num_errors) { SecureRandom.uuid } }
+    let(:errored_va_gov_claims) { Array.new(num_errors) { [SecureRandom.uuid, SecureRandom.uuid] } }
     let(:from) { '03:59PM EST' }
     let(:to) { '04:59PM EST' }
     let(:environment) { 'production' }
 
     it 'sends error ids with links to logs' do
+      first_cid = errored_va_gov_claims.first[0]
+      first_tid = errored_va_gov_claims.first[1]
+
       messenger = described_class.new(
         errored_va_gov_claims:,
         from:,
@@ -132,8 +135,10 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
           a_hash_including(
             text: {
               type: 'mrkdwn',
-              text: a_string_including('```', '<https://vagov.ddog-gov.com/logs?query=',
-                                       "|#{errored_va_gov_claims.first}>", '```')
+              text: a_string_including('```',
+                                       'CID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_cid}>",
+                                       'TID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_tid}",
+                                       '```')
             }
           )
         )
@@ -143,6 +148,38 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
       end
 
       messenger.notify!
+    end
+
+    context 'if transaction ids are missing' do
+      let(:errored_va_gov_claims) { Array.new(num_errors) { [SecureRandom.uuid, nil] } }
+
+      it 'avoids linking to logs that are not there' do
+        first_cid = errored_va_gov_claims.first[0]
+        first_tid = errored_va_gov_claims.first[1]
+        puts first_tid
+        messenger = described_class.new(
+          errored_va_gov_claims:,
+          from:,
+          to:,
+          environment:
+        )
+
+        expect(notifier).to receive(:notify) do |_text, args|
+          expect(args[:blocks]).to include(
+            a_hash_including(
+              text: {
+                type: 'mrkdwn',
+                text: a_string_including('```',
+                                         'CID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_cid}>",
+                                         'TID', 'N/A',
+                                         '```')
+              }
+            )
+          )
+        end
+
+        messenger.notify!
+      end
     end
 
     context 'when there are intent to file errors' do
