@@ -189,164 +189,81 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       FileUtils.rm_f(response_pdf)
     end
 
-    context 'caregiver1010 toggle off' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(false)
-      end
+    it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
+      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+        form: form_data
+      ).and_return(
+        claim
+      )
 
-      it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
-        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-          form: form_data
-        ).and_return(
-          claim
-        )
+      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
+      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
+      expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:pdf_download)
 
-        expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
-        expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
-        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:pdf_download)
+      subject
 
-        subject
+      expect(response).to have_http_status(:ok)
 
-        expect(response).to have_http_status(:ok)
+      # download response conent (the pdf) to disk
+      File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
 
-        # download response conent (the pdf) to disk
-        File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
+      # compare it with the pdf fixture
+      expect(
+        pdfs_fields_match?(response_pdf, expected_pdf)
+      ).to be(true)
 
-        # compare it with the pdf fixture
-        expect(
-          pdfs_fields_match?(response_pdf, expected_pdf)
-        ).to eq(true)
-
-        # ensure that the tmp file was deleted
-        expect(
-          File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-        ).to eq(false)
-      end
-
-      it 'ensures the tmp file is deleted when send_data fails', run_at: '2017-07-25 00:00:00 -0400' do
-        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-          form: form_data
-        ).and_return(claim)
-
-        allow_any_instance_of(ApplicationController).to receive(:send_data).and_raise(StandardError, 'send_data failed')
-
-        expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
-        expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
-        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:pdf_download)
-
-        subject
-
-        expect(response).to have_http_status(:internal_server_error)
-        expect(
-          File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-        ).to eq(false)
-      end
-
-      it 'ensures the tmp file is deleted when fill_form fails', run_at: '2017-07-25 00:00:00 -0400' do
-        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-          form: form_data
-        ).and_return(claim)
-
-        allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, 'error filling form')
-
-        expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
-        expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
-
-        expect_any_instance_of(ApplicationController).not_to receive(:send_data)
-
-        expect(File).not_to receive(:delete)
-
-        subject
-
-        expect(response).to have_http_status(:internal_server_error)
-
-        expect(
-          File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-        ).to eq(false)
-      end
+      # ensure that the tmp file was deleted
+      expect(
+        File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
+      ).to be(false)
     end
 
-    context 'caregiver1010 toggle on' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(true)
-      end
+    it 'ensures the tmp file is deleted when send_data fails', run_at: '2017-07-25 00:00:00 -0400' do
+      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+        form: form_data
+      ).and_return(claim)
 
-      it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
-        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-          form: form_data
-        ).and_return(
-          claim
-        )
+      allow_any_instance_of(ApplicationController).to receive(:send_data).and_raise(StandardError, 'send_data failed')
 
-        expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
-        expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
-        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:pdf_download)
+      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
+      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
+      expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:pdf_download)
 
-        subject
+      subject
 
-        expect(response).to have_http_status(:ok)
+      expect(response).to have_http_status(:internal_server_error)
+      expect(
+        File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
+      ).to be(false)
+    end
 
-        # download response conent (the pdf) to disk
-        File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
+    it 'ensures the tmp file is deleted when fill_form fails', run_at: '2017-07-25 00:00:00 -0400' do
+      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+        form: form_data
+      ).and_return(claim)
 
-        # compare it with the pdf fixture
-        expect(
-          pdfs_fields_match?(response_pdf, expected_pdf)
-        ).to eq(true)
+      allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, 'error filling form')
 
-        # ensure that the tmp file was deleted
-        expect(
-          File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-        ).to eq(false)
-      end
+      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
+      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
 
-      it 'ensures the tmp file is deleted when send_data fails', run_at: '2017-07-25 00:00:00 -0400' do
-        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-          form: form_data
-        ).and_return(claim)
+      expect_any_instance_of(ApplicationController).not_to receive(:send_data)
 
-        allow_any_instance_of(ApplicationController).to receive(:send_data).and_raise(StandardError, 'send_data failed')
+      expect(File).not_to receive(:delete)
 
-        expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
-        expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
-        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:pdf_download)
+      subject
 
-        subject
+      expect(response).to have_http_status(:internal_server_error)
 
-        expect(response).to have_http_status(:internal_server_error)
-        expect(
-          File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-        ).to eq(false)
-      end
-
-      it 'ensures the tmp file is deleted when fill_form fails', run_at: '2017-07-25 00:00:00 -0400' do
-        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-          form: form_data
-        ).and_return(claim)
-
-        allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, 'error filling form')
-
-        expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
-        expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
-
-        expect_any_instance_of(ApplicationController).not_to receive(:send_data)
-
-        expect(File).not_to receive(:delete)
-
-        subject
-
-        expect(response).to have_http_status(:internal_server_error)
-
-        expect(
-          File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-        ).to eq(false)
-      end
+      expect(
+        File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
+      ).to be(false)
     end
   end
 
-  describe 'GET /v0/caregivers_assistance_claims/facilities' do
+  describe 'POST /v0/caregivers_assistance_claims/facilities' do
     subject do
-      get('/v0/caregivers_assistance_claims/facilities', params:, headers:)
+      post('/v0/caregivers_assistance_claims/facilities', params: params.to_json, headers:)
     end
 
     let(:headers) do
@@ -356,22 +273,25 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       }
     end
 
-    let(:params) do
+    let(:unmodified_params) do
       {
-        'zip' => '90210',
-        'state' => 'CA',
-        'lat' => '34.0522',
-        'long' => '-118.2437',
-        'radius' => '50',
-        'visn' => '1',
-        'type' => '1',
-        'mobile' => '1',
-        'page' => '1',
-        'per_page' => '10',
-        'facilityIds' => 'vha_123,vha_456',
-        'services' => ['1'],
-        'bbox' => ['2']
+        zip: '90210',
+        state: 'CA',
+        lat: 34.0522,
+        long: -118.2437,
+        radius: 50,
+        visn: '1',
+        type: '1',
+        mobile: true,
+        page: 1,
+        per_page: 10,
+        services: ['1'],
+        bbox: [2]
       }
+    end
+
+    let(:params) do
+      unmodified_params.merge(facility_ids: 'vha_123,vha_456')
     end
 
     let(:mock_facility_response) do
@@ -399,7 +319,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
     it 'calls the Lighthouse facilities service with the permitted params' do
       subject
 
-      expected_params = ActionController::Parameters.new(params).permit!
+      expected_params = unmodified_params.merge(facilityIds: 'vha_123,vha_456')
 
       expect(lighthouse_service).to have_received(:get_paginated_facilities)
         .with(expected_params)

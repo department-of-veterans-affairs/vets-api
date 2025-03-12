@@ -335,11 +335,11 @@ class GetContestableIssuesSchemaValidationError < PiiLog
   end
 
   def data_pointers
-    errors.map { |schema_error| schema_error['data_pointer'] }
+    errors.pluck('data_pointer')
   end
 
   def local_schemas
-    errors.map { |schema_error| schema_error['schema'] }
+    errors.pluck('schema')
   end
 end
 

@@ -9,8 +9,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   include VBADocuments::Fixtures
 
   let(:test_caller) { { 'caller' => 'tester' } }
-  let(:client_stub) { instance_double('CentralMail::Service') }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:client_stub) { instance_double(CentralMail::Service) }
+  let(:faraday_response) { instance_double(Faraday::Response) }
   let(:valid_metadata) { get_fixture('valid_metadata.json').read }
   let(:missing_first) { get_fixture('missing_first_metadata.json').read }
   let(:missing_last) { get_fixture('missing_last_metadata.json').read }
@@ -89,7 +89,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     allow(people_double).to receive(:find_by_ssn).and_return({ first_nm: 'JOE', last_nm: 'SMITH',
                                                                ssn_nbr: '555-55-5555',
                                                                brthdy_dt: Date.parse('1970-01-01') })
-    bgs_double = instance_double('BGS::Services')
+    bgs_double = instance_double(BGS::Services)
     allow(bgs_double).to receive(:people).and_return(people_double)
     allow(BGS::Services).to receive(:new).and_return(bgs_double)
 
@@ -98,14 +98,14 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     allow(profile_double).to receive(:icn).and_return('2112')
     mpi_result = double
     allow(mpi_result).to receive(:profile).and_return(profile_double)
-    mpi_double = instance_double('MPI::Service')
+    mpi_double = instance_double(MPI::Service)
     allow(mpi_double).to receive(:find_profile_by_attributes).and_return(mpi_result)
     allow(MPI::Service).to receive(:new).and_return(mpi_double)
   end
 
   describe '#perform' do
-    let(:upload) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
-    let(:v2_upload) { FactoryBot.create(:upload_submission, :status_uploaded, :version_2) }
+    let(:upload) { create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
+    let(:v2_upload) { create(:upload_submission, :status_uploaded, :version_2) }
 
     context 'duplicates' do
       before(:context) do
@@ -148,7 +148,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         pids.each { |pid| Process.waitpid(pid) } # wait for my children to complete
         responses = []
         temp_files.each do |tf|
-          responses << File.open(tf.path, &:read)
+          responses << File.read(tf.path)
         end
         expect(responses.select { |e| e.eql?('true') }.length).to eq(1)
         expect(responses.select { |e| e.eql?('false') }.length).to eq(num_times - 1)
@@ -250,13 +250,19 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(capture_body).to have_key('metadata')
       expect(capture_body).to have_key('document')
       expect(capture_body).to have_key('attachment1')
+
+      # metadata is json that is sent to EMMS as part of our submission to them
       metadata = JSON.parse(capture_body['metadata'])
       expect(metadata['uuid']).to eq(upload.guid)
       expect(metadata['source']).to eq('test consumer via VA API')
       expect(metadata['numberAttachments']).to eq(1)
       expect(metadata['ICN']).to eq('2112')
+
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('received')
+
+      # confirm UploadSubmission Db record has the icn stored in the metadata field
+      expect(updated.metadata['icn']).to eq('2112')
     end
 
     it 'trims leading\trailing whitespace from consumer supplied fileNumber metadata part' do
@@ -838,8 +844,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
         it 'does not update the upload\'s status' do
           expect(upload.status).to eql('uploaded')
-          expect(upload.code).to be(nil)
-          expect(upload.detail).to be(nil)
+          expect(upload.code).to be_nil
+          expect(upload.detail).to be_nil
         end
       end
 

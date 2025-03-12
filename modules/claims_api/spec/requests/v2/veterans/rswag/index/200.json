@@ -1,0 +1,128 @@
+{
+  "type": "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "attributes"],
+        "properties": {
+          "id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["power-of-attorney-request"]
+          },
+          "attributes": {
+            "type": "object",
+            "required": ["veteran", "claimant", "representative"],
+            "properties": {
+              "veteran": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "description": "First name for the veteran.",
+                    "type": ["string", "null"]
+                  },
+                  "lastName": {
+                    "description": "Last name for the veteran.",
+                    "type": ["string", "null"]
+                  },
+                  "middleName": {
+                    "description": "Middle name for the veteran.",
+                    "type": ["string", "null"]
+                  }
+                }
+              },
+              "claimant": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "description": "First name for the dependent claimant.",
+                    "type": ["string", "null"]
+                  },
+                  "lastName": {
+                    "description": "Last name for the dependent claimant.",
+                    "type": ["string", "null"]
+                  },
+                  "middleName": {
+                    "description": "Middle name for the dependent claimant.",
+                    "type": ["string", "null"]
+                  }
+                }
+              },
+              "address": {
+                "city": {
+                  "type": ["string", "null"]
+                },
+                "country": {
+                  "type": ["string", "null"]
+                },
+                "militaryPo": {
+                  "type": ["string", "null"]
+                },
+                "militaryPostalCode": {
+                  "type": ["string", "null"]
+                },
+                "state": {
+                  "type": ["string", "null"]
+                },
+                "zip": {
+                  "type": ["string", "null"]
+                }
+              },
+              "representative": {
+                "type": "object",
+                "properties": {
+                  "poaCode": {
+                    "type": ["string", "null"]
+                  },
+                  "vsoUserEmail": {
+                    "type": ["string", "null"]
+                  },
+                  "vsoUserFirstName": {
+                    "type": ["string", "null"]
+                  },
+                  "vsoUserLastName": {
+                    "type": ["string", "null"]
+                  }
+                }
+              },
+              "receivedDate": {
+                "description": "Date the request for representation was established.",
+                "type": ["string", "null"],
+                "format": "date-time"
+              },
+              "actionedDate": {
+                "description": "Date the request for representation was accepted or declined by a representative.",
+                "type": ["string", "null"],
+                "format": "date-time"
+              },
+              "status": {
+                "description": "Status of the request for representation.",
+                "type": ["string", "null"]
+              },
+              "declinedReason": {
+                "description": "Reason for declining the request for representation.",
+                "type": ["string", "null"]
+              },
+              "consentAddressChange": {
+                "description": "Authorization for Representative to Act on Claimant's Behalf to Change Claimant's Address.",
+                "type": ["boolean", "null"],
+                "enum": [true, false, null]
+              },
+              "recordConsent": {
+                "description": "Authorization for Representative's Access to Records Protected by Section 7332, Title 38, U.S.C.",
+                "type": ["boolean", "null"],
+                "enum": [true, false, null]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

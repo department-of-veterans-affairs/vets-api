@@ -40,6 +40,11 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
     allow(MPI::Service).to receive(:new).and_return(mpi_service)
   end
 
+  after do
+    mpi_service { nil }
+    vanotify_service { nil }
+  end
+
   describe 'perform' do
     let(:submitted_appeal_uuid) { 'e076ea91-6b99-4912-bffc-a8318b9b403f' }
     let(:appeal_submission) do
@@ -107,8 +112,6 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
         it 'increments statsd correctly when email is sent' do
           expect { described_class.new.sidekiq_retries_exhausted_block.call(msg) }
             .to trigger_statsd_increment('worker.decision_review.form4142_submit.permanent_error')
-            .and trigger_statsd_increment('silent_failure', tags:)
-            .and trigger_statsd_increment('silent_failure_avoided_no_confirmation', tags:)
             .and trigger_statsd_increment('worker.decision_review.form4142_submit.retries_exhausted.email_queued')
         end
 

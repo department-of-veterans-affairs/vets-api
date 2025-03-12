@@ -14,13 +14,13 @@ FactoryBot.define do
     military_status { 'A' }
     race { attributes_for(:race) }
 
-    current_name { attributes_for :full_name }
-    service_name { attributes_for :full_name }
-    address { attributes_for :address }
+    current_name { attributes_for(:full_name) }
+    service_name { attributes_for(:full_name) }
+    address { attributes_for(:address) }
     service_records { [attributes_for(:service_record)] }
   end
 
   factory :veteran_foreign_address, parent: :veteran do
-    address { attributes_for :foreign_address }
+    address { attributes_for(:foreign_address) }
   end
 end

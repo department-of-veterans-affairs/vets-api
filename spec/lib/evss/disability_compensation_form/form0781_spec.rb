@@ -33,7 +33,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
         let(:form_content_v1) { { 'form526' => {} } }
 
         it 'returns a nil value' do
-          expect(subject_v1.translate).to eq nil
+          expect(subject_v1.translate).to be_nil
         end
       end
     end
@@ -51,7 +51,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
         let(:form_content_v2) { { 'form526' => {} } }
 
         it 'returns a nil value' do
-          expect(subject_v2.translate).to eq nil
+          expect(subject_v2.translate).to be_nil
         end
       end
     end
@@ -123,7 +123,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
       let(:incidents) { [] }
 
       it 'returns a nil value' do
-        expect(subject_v1.send(:split_incidents, incidents)).to eq nil
+        expect(subject_v1.send(:split_incidents, incidents)).to be_nil
       end
     end
   end
@@ -187,6 +187,62 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
             'first' => 'Beyonce',
             'middle' => nil,
             'last' => 'Knowles'
+          )
+        end
+      end
+    end
+  end
+
+  describe 'when using form v2' do
+    describe '#aggregate_behaviors' do
+      context 'when all behavior categories have values' do
+        it 'merges all behaviors and removes falsy values' do
+          expect(subject_v2.send(:aggregate_behaviors)).to eq(
+            {
+              'reassignment' => true,
+              'performance' => true,
+              'consultations' => true,
+              'episodes' => true,
+              'selfMedication' => true,
+              'substances' => true,
+              'appetite' => true,
+              'screenings' => true,
+              'relationships' => true,
+              'unlisted' => true
+            }
+          )
+        end
+      end
+    end
+
+    describe '#aggregate_supporting_evidence' do
+      context 'when supportingEvidenceUnlisted is present' do
+        it 'adds other and otherDetails' do
+          expect(subject_v2.send(:aggregate_supporting_evidence)).to eq(
+            {
+              'police' => true,
+              'medical' => true,
+              'counseling' => true,
+              'family' => true,
+              'service' => true,
+              'personal' => true,
+              'other' => true,
+              'otherDetails' => 'Lorem ipsum dolor sit amet.'
+            }
+          )
+        end
+      end
+    end
+
+    describe '#aggregate_treatment_providers' do
+      context 'when treatment providers have values' do
+        it 'merges treatment providers and removes falsy values' do
+          expect(subject_v2.send(:aggregate_treatment_providers)).to eq(
+            {
+              'medicalCenter' => true,
+              'dod' => true,
+              'nonVa' => true
+            }
           )
         end
       end

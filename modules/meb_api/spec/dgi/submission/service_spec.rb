@@ -13,7 +13,7 @@ RSpec.describe MebApi::DGI::Submission::Service do
       end
     end
   end
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:claimant_params) do
     {
       form_id: 1,

@@ -18,21 +18,29 @@
     "nonMst": true,
     "other": false
   },
-  "eventsDetails": [
+  "events": [
     {
       "details": "Lorem ipsum dolor sit amet.",
       "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
-      "timing": "Summer of '70"
+      "timing": "Summer of '70",
+      "otherReports": { "police": true },
+      "agency": "SVI",
+      "city": "Dallas",
+      "state": "TX",
+      "township": "",
+      "country": "USA"
     },
     {
       "details": "Lorem ipsum dolor sit amet.",
       "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
-      "timing": "June 2007"
+      "timing": "June 2007",
+      "unlistedReport": "incident report"
     },
     {
       "details": "Lorem ipsum dolor sit amet..",
       "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
-      "timing": "February 14, 2020"
+      "timing": "February 14, 2020",
+      "militaryReports": { "restricted": true }
     },
     {
       "details": "Lorem ipsum dolor sit amet..",
@@ -55,41 +63,15 @@
       "timing": "Summer of '69"
     }
   ],
-  "reports": {
-    "yes": true,
-    "no": false,
-    "restricted": true,
-    "unrestricted": false,
-    "neither": false,
-    "police": true,
-    "other": true
-  },
-  "reportsDetails": {
-    "police": {
-      "agency": "SVI",
-      "city": "Dallas",
-      "state": "TX",
-      "township": "",
-      "country": "USA"
-    },
-    "other": "incident report"
-  },
   "behaviors": {
     "reassignment": true,
-    "absences": false,
     "performance": true,
-    "consultations": false,
     "episodes": true,
-    "medications": false,
     "selfMedication": true,
-    "substances": false,
     "appetite": true,
-    "pregnancy": false,
     "screenings": true,
-    "socialEconomic": false,
     "relationships": true,
-    "misconduct": false,
-    "otherBehavior": "Lorem"
+    "unlisted": true
   },
   "behaviorsDetails": {
     "reassignment": "requested duty assignment",
@@ -99,31 +81,29 @@
     "appetite": "skipping meals",
     "screenings": "positive tests",
     "relationships": "separation",
-    "otherBehavior": "Lorem ipsum dolor sit amet."
+    "unlisted": "Lorem ipsum dolor sit amet."
   },
   "evidence": {
-    "crisisCenter": true,
+    "crisis": true,
     "counseling": true,
     "family": true,
     "faculty": true,
     "police": true,
-    "medical": true,
+    "physicians": true,
     "clergy": true,
-    "peers": true,
-    "journal": true,
+    "service": true,
+    "personal": true,
     "none": true,
     "other": true,
     "otherDetails": "photographic evidence"
   },
-  "traumaTreatment": false,
-  "treatmentProviders": {
-    "privateCare": true,
-    "vetCenter": false,
-    "communityCare": false,
-    "vamc": true,
-    "cboc": false,
-    "mtf": true,
+  "treatmentNoneCheckbox": {
     "none": false
+  },
+  "treatmentProviders": {
+    "nonVa": true,
+    "medicalCenter": true,
+    "dod": true
   },
   "treatmentProvidersDetails": [
     {
@@ -144,11 +124,6 @@
       "noDates": true
     }
   ],
-  "optionIndicator": {
-    "yes": false,
-    "no": false,
-    "revoke": false,
-    "notEnrolled": true
-  },
+  "optionIndicator": "notEnrolled",
   "signatureDate": "2016-01-31"
 }

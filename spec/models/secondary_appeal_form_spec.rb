@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'decision_review_v1/service'
 
 RSpec.describe SecondaryAppealForm, type: :model do
   subject { build(:secondary_appeal_form4142) }

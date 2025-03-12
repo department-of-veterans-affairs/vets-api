@@ -6,10 +6,12 @@ require 'hca/user_attributes'
 require 'hca/enrollment_eligibility/service'
 require 'hca/enrollment_eligibility/status_matcher'
 require 'mpi/service'
+require 'hca/overrides_parser'
 
 class HealthCareApplication < ApplicationRecord
   include SentryLogging
   include VA1010Forms::Utils
+  include FormValidation
 
   FORM_ID = '10-10EZ'
   ACTIVEDUTY_ELIGIBILITY = 'TRICARE'
@@ -70,8 +72,12 @@ class HealthCareApplication < ApplicationRecord
     async_submission_failed? && email.present?
   end
 
+  def form_id
+    self.class::FORM_ID
+  end
+
   def submit_sync
-    @parsed_form = override_parsed_form(parsed_form)
+    @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
@@ -240,7 +246,7 @@ class HealthCareApplication < ApplicationRecord
 
   def submit_async
     submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
-    @parsed_form = override_parsed_form(parsed_form)
+    @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     "HCA::#{submission_job}".constantize.perform_async(
       self.class.get_user_identifier(user),
@@ -259,14 +265,9 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def log_async_submission_failure
-    log_zero_silent_failures unless Flipper.enabled?(:hca_zero_silent_failures)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
     log_submission_failure_details
-  end
-
-  def log_zero_silent_failures
-    StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   end
 
   def log_submission_failure_details
@@ -304,10 +305,7 @@ class HealthCareApplication < ApplicationRecord
         }
       }
 
-    params = [email, template_id, { 'salutation' => salutation }, api_key]
-    params << metadata if Flipper.enabled?(:hca_zero_silent_failures)
-
-    VANotify::EmailJob.perform_async(*params)
+    VANotify::EmailJob.perform_async(email, template_id, { 'salutation' => salutation }, api_key, metadata)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_failure_email_sent")
   rescue => e
     log_exception_to_sentry(e)
@@ -315,7 +313,9 @@ class HealthCareApplication < ApplicationRecord
 
   def form_matches_schema
     if form.present?
-      JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM_ID], parsed_form).each do |v|
+      schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
+      validation_errors = validate_form_with_retries(schema, parsed_form)
+      validation_errors.each do |v|
         errors.add(:form, v.to_s)
       end
     end

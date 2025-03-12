@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'evss/error_middleware'
 
 describe EVSS::ErrorMiddleware do
-  let(:current_user) { FactoryBot.build(:evss_user) }
+  let(:current_user) { build(:evss_user) }
   let(:auth_headers) { EVSS::AuthHeaders.new(current_user).to_h }
   let(:transaction_id) { auth_headers['va_eauth_service_transaction_id'] }
   let(:claims_service) { EVSS::ClaimsService.new(auth_headers) }

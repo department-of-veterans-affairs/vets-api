@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'bgs_service/org_web_service'
 
 describe Veteran::User do
   context 'initialization' do
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
 
-    let(:ows) { ClaimsApi::LocalBGS }
+    let(:ows) { ClaimsApi::OrgWebService }
 
     it 'initializes from a user' do
       VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id') do
@@ -23,8 +24,8 @@ describe Veteran::User do
         allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
           .and_return({ person_poa_history: nil })
         veteran = Veteran::User.new(user)
-        expect(veteran.power_of_attorney).to eq(nil)
-        expect(veteran.previous_power_of_attorney).to eq(nil)
+        expect(veteran.power_of_attorney).to be_nil
+        expect(veteran.previous_power_of_attorney).to be_nil
       end
     end
 
@@ -34,9 +35,9 @@ describe Veteran::User do
           .and_return({
                         person_poa_history: {
                           person_poa: [
-                            { begin_dt: Time.zone.now - 2.years, legacy_poa_cd: '233' },
-                            { begin_dt: Time.zone.now - 1.year, legacy_poa_cd: '133' },
-                            { begin_dt: Time.zone.now - 3.years, legacy_poa_cd: '333' }
+                            { begin_dt: 2.years.ago, legacy_poa_cd: '233' },
+                            { begin_dt: 1.year.ago, legacy_poa_cd: '133' },
+                            { begin_dt: 3.years.ago, legacy_poa_cd: '333' }
                           ]
                         }
                       })

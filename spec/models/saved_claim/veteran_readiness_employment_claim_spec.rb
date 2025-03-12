@@ -6,7 +6,7 @@ require 'claims_api/vbms_uploader'
 
 RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   let(:claim) { create(:veteran_readiness_employment_claim) }
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { create(:evss_user, :loa3) }
   let(:new_address_hash) do
     {
       newAddress: {
@@ -42,7 +42,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
   before do
     allow_any_instance_of(RES::Ch31Form).to receive(:submit).and_return(true)
-    Flipper.enable(:veteran_readiness_employment_to_res)
   end
 
   describe '#add_claimant_info' do
@@ -75,6 +74,14 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
   describe '#send_to_vre' do
     subject { claim.send_to_vre(user_object) }
+
+    it 'propagates errors from send_to_lighthouse!' do
+      allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'Attachment error')
+
+      expect do
+        claim.send_to_lighthouse!(user_object)
+      end.to raise_error(StandardError, 'Attachment error')
+    end
 
     context 'when VBMS response is VBMSDownForMaintenance' do
       before do
@@ -120,19 +127,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         context 'flipper enabled' do
           it 'stops submission if location is not in list' do
             expect_any_instance_of(RES::Ch31Form).to receive(:submit)
-            claim.add_claimant_info(user_object)
-
-            claim.send_to_vre(user_object)
-          end
-        end
-
-        context 'flipper disabled' do
-          before do
-            Flipper.disable(:veteran_readiness_employment_to_res)
-          end
-
-          it 'stops submission if location is not in list' do
-            expect(VRE::Ch31Form).not_to receive(:new)
             claim.add_claimant_info(user_object)
 
             claim.send_to_vre(user_object)

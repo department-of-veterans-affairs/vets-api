@@ -51,6 +51,11 @@ RSpec.shared_examples 'VBADocuments::UploadSerializer' do
     end
   end
 
+  it 'includes :final_status' do
+    expect(attributes['final_status']).to be_in([true, false])
+    expect(attributes['final_status']).to eq(upload_submission.in_final_status?)
+  end
+
   it 'includes :updated_at' do
     expect_time_eq(attributes['updated_at'], upload_submission.updated_at)
   end
@@ -71,8 +76,8 @@ RSpec.shared_examples 'VBADocuments::UploadSerializer' do
   end
 
   context 'when render_location is false or nil' do
-    it 'includes :location with nil' do
-      expect(attributes['location']).to eq nil
+    it 'excludes :location' do
+      expect(attributes).not_to have_key('location')
     end
   end
 

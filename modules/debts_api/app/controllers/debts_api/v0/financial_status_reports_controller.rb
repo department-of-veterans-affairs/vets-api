@@ -139,7 +139,7 @@ module DebtsApi
             :stocks_and_other_bonds,
             :real_estate_owned,
             :total_assets,
-            { automobiles: %i[make model year resale_value],
+            { automobiles: %i[make model resale_value year],
               other_assets: name_amount }
           ],
           installment_contracts_and_other_debts: [
@@ -210,7 +210,7 @@ module DebtsApi
             {
               monetary_assets: %i[name amount],
               other_assets: %i[name amount],
-              automobiles: %i[make model resale_value]
+              automobiles: %i[make model resale_value year]
             }
           ],
           benefits: { spouse_benefits: %i[compensation_and_pension education] },
@@ -266,6 +266,28 @@ module DebtsApi
             :resolution_waiver_check,
             :resolution_option,
             :resolution_comment,
+            :payee_number,
+            :person_entitled,
+            :deduction_code,
+            :benefit_type,
+            :diary_code,
+            :diary_code_description,
+            :amount_overpaid,
+            :amount_withheld,
+            :original_ar,
+            :current_ar,
+            :composite_debt_id,
+            :selected_debt_id,
+            :debt_type,
+            :file_number,
+            { fiscal_transaction_data: %i[debt_id debt_increase_amount hines_code offset_amount offset_type
+                                          payment_type transaction_admin_amount transaction_court_amount
+                                          transaction_date transaction_description transaction_explanation
+                                          transaction_fiscal_code transaction_fiscal_source
+                                          transaction_fiscal_year transaction_interest_amount
+                                          transaction_marshall_amount transaction_principal_amount
+                                          transaction_total_amount] },
+            { debt_history: %i[date letter_code description] },
             :p_s_seq_num,
             :p_s_tot_seq_num,
             :p_s_facility_num,
@@ -307,7 +329,6 @@ module DebtsApi
             :p_h_icn_number,
             :p_h_account_number,
             :p_h_large_font_indcator,
-            :debt_type,
             { details: [] },
             { station: {} }
           ],
@@ -331,7 +352,7 @@ module DebtsApi
             :additional_comments,
             { bankruptcy: %i[date_discharged court_location docket_number] }
           ],
-          income: [:veteran_or_spouse],
+          income: %i[veteran_or_spouse compensation_and_pension],
           gmt_data: %i[
             is_eligible_for_streamlined gmt_threshold error income_upper_threshold
             asset_threshold discretionary_income_threshold income_below_gmt

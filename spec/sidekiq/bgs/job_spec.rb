@@ -3,16 +3,16 @@
 require 'rails_helper'
 
 RSpec.describe BGS::Job, type: :job do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
 
   describe '#in_progress_form_copy' do
     it 'returns nil if the in progress form is blank' do
       job = described_class.new
 
       in_progress_form = job.in_progress_form_copy(nil)
-      expect(in_progress_form).to eq(nil)
+      expect(in_progress_form).to be_nil
     end
 
     it 'returns an object with metadata and formdata' do
@@ -34,7 +34,7 @@ RSpec.describe BGS::Job, type: :job do
       job = described_class.new
 
       in_progress_form = job.salvage_save_in_progress_form('686C-674', user.uuid, nil)
-      expect(in_progress_form).to eq(nil)
+      expect(in_progress_form).to be_nil
     end
 
     it 'upserts an InProgressForm' do
@@ -45,7 +45,7 @@ RSpec.describe BGS::Job, type: :job do
       job = described_class.new
 
       in_progress_form = job.salvage_save_in_progress_form('686C-674', user.uuid, in_progress_form)
-      expect(in_progress_form).to eq(true)
+      expect(in_progress_form).to be(true)
     end
   end
 

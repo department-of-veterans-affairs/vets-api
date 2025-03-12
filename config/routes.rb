@@ -28,6 +28,7 @@ Rails.application.routes.draw do
     unless Settings.vsp_environment == 'production'
       resources :client_configs, param: :client_id
       resources :service_account_configs, param: :service_account_id
+      get '/user_info', to: 'user_info#show'
     end
   end
 
@@ -113,6 +114,7 @@ Rails.application.routes.draw do
       collection do
         post(':form_type', action: :create, as: :form_type)
         get(:stem_claim_status)
+        get('download_pdf/:id', action: :download_pdf, as: :download_pdf)
       end
     end
 
@@ -122,6 +124,7 @@ Rails.application.routes.draw do
         get(:enrollment_status)
         get(:rating_info)
         get(:facilities)
+        post(:download_pdf)
       end
     end
 
@@ -130,7 +133,7 @@ Rails.application.routes.draw do
 
     resources :caregivers_assistance_claims, only: :create do
       collection do
-        get(:facilities)
+        post(:facilities)
         post(:download_pdf)
       end
     end
@@ -147,8 +150,6 @@ Rails.application.routes.draw do
 
     resources :dependents_verifications, only: %i[create index]
 
-    resources :burial_claims, only: %i[create show] if Settings.central_mail.upload.enabled
-
     post 'form0969', to: 'income_and_assets_claims#create'
     get 'form0969', to: 'income_and_assets_claims#show'
 
@@ -162,9 +163,6 @@ Rails.application.routes.draw do
 
     get 'average_days_for_claim_completion', to: 'average_days_for_claim_completion#index'
 
-    get 'virtual_agent_claim_letters', to: 'virtual_agent_claim_letters#index'
-    get 'virtual_agent_claim_letters/:document_id', to: 'virtual_agent_claim_letters#show'
-
     resources :efolder, only: %i[index show]
 
     resources :evss_claims, only: %i[index show] do
@@ -176,23 +174,13 @@ Rails.application.routes.draw do
     resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     resource :rated_disabilities, only: %i[show]
-    resource :rated_disabilities_discrepancies, only: %i[show]
 
     namespace :virtual_agent do
       get 'claims', to: 'virtual_agent_claim_status#index'
       get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
 
-    resources :virtual_agent_claim, only: %i[index]
-
-    namespace :virtual_agent do
-      get 'appeal', to: 'virtual_agent_appeal#index'
-    end
-
-    resources :virtual_agent_appeal, only: %i[index]
-
     get 'intent_to_file', to: 'intent_to_files#index'
-    get 'intent_to_file/:type/active', to: 'intent_to_files#active'
     post 'intent_to_file/:type', to: 'intent_to_files#submit'
 
     get 'welcome', to: 'example#welcome', as: :welcome
@@ -412,45 +400,17 @@ Rails.application.routes.draw do
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
 
-      resources :lce, only: :index, defaults: { format: :json }
-
-      namespace :lce do
-        resources :certifications, only: :show, defaults: { format: :json }
-
-        resources :exams, only: :show, defaults: { format: :json }
-
-        resources :licenses, only: :show, defaults: { format: :json }
-
-        resources :preps, only: :show, defaults: { format: :json }
+      namespace :lcpe do
+        resources :lacs, only: %i[index show], defaults: { format: :json }
+        resources :exams, only: %i[index show], defaults: { format: :json }
       end
     end
 
-    resource :decision_review_evidence, only: :create
-
-    namespace :higher_level_reviews do
-      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
-    end
-    resources :higher_level_reviews, only: %i[create show]
-
-    namespace :notice_of_disagreements do
-      get 'contestable_issues', to: 'contestable_issues#index'
-    end
-    resources :notice_of_disagreements, only: %i[create show]
-
     resource :post911_gi_bill_status, only: [:show]
-
-    namespace :supplemental_claims do
-      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
-    end
-    resources :supplemental_claims, only: %i[create show]
 
     scope format: false do
       resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
     end
-  end
-
-  namespace :v2, defaults: { format: 'json' } do
-    resources :higher_level_reviews, only: %i[create show]
   end
 
   root 'v0/example#index', module: 'v0'
@@ -461,7 +421,6 @@ Rails.application.routes.draw do
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
     mount Veteran::Engine, at: '/veteran'
-    mount VAForms::Engine, at: '/va_forms'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
@@ -469,9 +428,8 @@ Rails.application.routes.draw do
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
+  mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
-  mount CovidResearch::Engine, at: '/covid-research'
-  mount CovidVaccine::Engine, at: '/covid_vaccine'
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'

@@ -12,6 +12,35 @@ module BenefitsClaims
 
     FILTERED_STATUSES = %w[CANCELED ERRORED PENDING].freeze
 
+    SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
+
+    FRIENDLY_DISPLAY_MAPPING = {
+      '21-4142/21-4142a' => 'Authorization to Disclose Information',
+      'Proof of Service (DD214, etc.)' => 'Proof of Service',
+      'Employment information needed' => 'Employment information',
+      'EFT - Treasury Mandate Notification' => 'Direct deposit information',
+      'PTSD - Need stressor details/med evid of stressful incdnt' => 'Details about cause of PTSD'
+    }.freeze
+
+    FRIENDLY_DESCRIPTION_MAPPING = {
+      '21-4142/21-4142a' => 'We need your permission to request your personal information from a non-VA source,' \
+                            ' like a private doctor or hospital.',
+      'Proof of Service (DD214, etc.)' => 'We need copies of your separation papers for all periods of service.',
+      'Employment information needed' => 'We need employment information from your most recent employer.',
+      'EFT - Treasury Mandate Notification' => 'We need your direct deposit information in order to pay benefits,' \
+                                               ' if awarded.',
+      'PTSD - Need stressor details/med evid of stressful incdnt' => 'We need information about the cause of' \
+                                                                     ' your posttraumatic stress disorder (PTSD).'
+    }.freeze
+
+    SUPPORT_ALIASES_MAPPING = {
+      '21-4142/21-4142a' => ['VA Form 21-4142'],
+      'Proof of Service (DD214, etc.)' => ['Form DD214'],
+      'Employment information needed' => ['VA Form 21-4192'],
+      'EFT - Treasury Mandate Notification' => ['EFT - Treasure Mandate Notification'],
+      'PTSD - Need stressor details/med evid of stressful incdnt' => ['VA Form 21-0781', 'PTSD - Need stressor details']
+    }.freeze
+
     def initialize(icn)
       @icn = icn
       if icn.blank?
@@ -24,10 +53,6 @@ module BenefitsClaims
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
       claims['data'] = filter_by_status(claims['data'])
-      # Manual status override for PMR Pending items
-      # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
-      # This should be removed when the items are re-categorized by BGS
-      claims['data'].each { |claim| override_pmr_pending(claim) }
       claims
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -37,10 +62,11 @@ module BenefitsClaims
 
     def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       claim = config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
-      # Manual status override for PMR Pending items
+      # Manual status override for certain tracked items
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
       # This should be removed when the items are re-categorized by BGS
-      override_pmr_pending(claim['data'])
+      override_tracked_items(claim['data']) if Flipper.enabled?(:cst_override_pmr_pending_tracked_items)
+      apply_friendlier_language(claim['data']) if Flipper.enabled?(:cst_friendly_evidence_requests)
       claim
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -50,6 +76,28 @@ module BenefitsClaims
 
     def get_power_of_attorney(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       config.get("#{@icn}/power-of-attorney", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+    rescue Faraday::TimeoutError
+      raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
+    end
+
+    def get_2122_submission(
+      id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {}
+    )
+      config.get("#{@icn}/power-of-attorney/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+    rescue Faraday::TimeoutError
+      raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
+    end
+
+    def submit2122(attributes, lighthouse_client_id = nil,
+                   lighthouse_rsa_key_path = nil, options = {})
+      data = { data: { attributes: } }
+      config.post(
+        "#{@icn}/2122", data, lighthouse_client_id, lighthouse_rsa_key_path, options
+      )
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError, Faraday::ServerError => e
@@ -128,7 +176,6 @@ module BenefitsClaims
       endpoint, path = submit_endpoint(options)
 
       body = prepare_submission_body(body, options[:transaction_id])
-
       response = config.post(
         path,
         body,
@@ -262,13 +309,27 @@ module BenefitsClaims
       items.reject { |item| FILTERED_STATUSES.include?(item.dig('attributes', 'status')) }
     end
 
-    def override_pmr_pending(claim)
+    def override_tracked_items(claim)
       tracked_items = claim['attributes']['trackedItems']
       return unless tracked_items
 
       tracked_items.select { |i| i['displayName'] == 'PMR Pending' }.each do |i|
         i['status'] = 'NEEDED_FROM_OTHERS'
         i['displayName'] = 'Private Medical Record'
+      end
+      tracked_items
+    end
+
+    def apply_friendlier_language(claim)
+      tracked_items = claim['attributes']['trackedItems']
+      return unless tracked_items
+
+      tracked_items.each do |i|
+        display_name = i['displayName']
+        i['canUploadFile'] = true # default to showing uploader at all times. this is in flux.
+        i['friendlyName'] = FRIENDLY_DISPLAY_MAPPING[display_name]
+        i['friendlyDescription'] = FRIENDLY_DESCRIPTION_MAPPING[display_name]
+        i['supportAliases'] = SUPPORT_ALIASES_MAPPING[display_name] || []
       end
       tracked_items
     end

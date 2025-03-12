@@ -3,7 +3,8 @@
 require 'rails_helper'
 require_relative '../../../../rails_helper'
 require 'token_validation/v2/client'
-require 'bgs_service/local_bgs'
+require 'bgs_service/claimant_web_service'
+require 'bgs_service/org_web_service'
 
 RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
   let(:veteran_id) { '1013062086V794840' }
@@ -13,16 +14,16 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
   let(:individual_poa_code) { 'A1H' }
   let(:organization_poa_code) { '083' }
   let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }
-  let(:local_bgs) { ClaimsApi::LocalBGS }
+  let(:claimant_web_service) { ClaimsApi::ClaimantWebService }
+  let(:org_web_service) { ClaimsApi::OrgWebService }
 
   describe 'PowerOfAttorney' do
     before do
-      FactoryBot.create(:veteran_representative, representative_id: '999999999999',
-                                                 poa_codes: [organization_poa_code])
-      FactoryBot.create(:veteran_organization, poa: organization_poa_code,
-                                               name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
-
-      Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+      create(:veteran_representative, representative_id: '999999999999',
+                                      poa_codes: [organization_poa_code])
+      create(:veteran_organization, poa: organization_poa_code,
+                                    name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return(false)
     end
 
     describe 'submit2122' do
@@ -53,9 +54,9 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
           context 'when valid' do
             it 'returns a 202' do
               mock_ccg(scopes) do |auth_header|
-                expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                   .and_return(bgs_poa)
-                allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                   .and_return({ person_poa_history: nil })
 
                 post appoint_organization_path, params: data.to_json, headers: auth_header
@@ -86,7 +87,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   it 'returns a 422 when no zipCode is included in the veteran data' do
                     VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                       mock_ccg(scopes) do |auth_header|
-                        allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                        allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                           .and_return({ person_poa_history: nil })
 
                         json = JSON.parse(request_body)
@@ -110,9 +111,9 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   it 'returns a 202 when no zipCode is included in the veteran data' do
                     VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                       mock_ccg(scopes) do |auth_header|
-                        expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                        expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                           .and_return(bgs_poa)
-                        allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                        allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                           .and_return({ person_poa_history: nil })
 
                         json = JSON.parse(request_body)
@@ -174,7 +175,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
               context 'when the lighthouse_claims_api_poa_dependent_claimants feature is enabled' do
                 before do
-                  Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
+                  allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                      .and_return(true)
                 end
 
                 context 'and the request includes a claimant' do
@@ -231,7 +233,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
               context 'when the lighthouse_claims_api_poa_dependent_claimants feature is disabled' do
                 before do
-                  Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+                  allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                      .and_return false
                 end
 
                 it 'does not add the dependent object to the auth_headers' do
@@ -282,9 +285,9 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
             it 'returns a success response' do
               mock_ccg(scopes) do |auth_header|
-                expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                   .and_return(bgs_poa)
-                allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                   .and_return({ person_poa_history: nil })
                 allow_any_instance_of(ClaimsApi::V2::ApplicationController)
                   .to receive(:target_veteran).and_return(no_first_name_target_veteran)
@@ -316,7 +319,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
             it 'returns a 422' do
               mock_ccg(scopes) do |auth_header|
-                allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                   .and_return({ person_poa_history: nil })
                 allow_any_instance_of(ClaimsApi::V2::ApplicationController)
                   .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
@@ -356,7 +359,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               it 'returns a 422 with no zipCode' do
                 VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                   mock_ccg(scopes) do |auth_header|
-                    allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                    allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                       .and_return({ person_poa_history: nil })
 
                     json = JSON.parse(request_body)
@@ -393,9 +396,9 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               it 'returns a 202 with no zipCode' do
                 VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                   mock_ccg(scopes) do |auth_header|
-                    expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                    expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                       .and_return(bgs_poa)
-                    allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                    allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                       .and_return({ person_poa_history: nil })
 
                     json = JSON.parse(request_body)
@@ -416,9 +419,9 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               it 'allows an empty string' do
                 data[:data][:attributes][:veteran][:email] = ''
                 mock_ccg(scopes) do |auth_header|
-                  expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                  expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                     .and_return(bgs_poa)
-                  allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                  allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                     .and_return({ person_poa_history: nil })
 
                   post appoint_organization_path, params: data.to_json, headers: auth_header
@@ -430,9 +433,9 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               it "allows a valid 'normal' looking email" do
                 data[:data][:attributes][:veteran][:email] = 'valid@email.com'
                 mock_ccg(scopes) do |auth_header|
-                  expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                  expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                     .and_return(bgs_poa)
-                  allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                  allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                     .and_return({ person_poa_history: nil })
 
                   post appoint_organization_path, params: data.to_json, headers: auth_header
@@ -453,7 +456,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(json_response['errors'][0]['detail']).to eq(
                     'The property /veteran/email did not match the following requirements: ' \
-                    '{"description"=>"Email address of the veteran.", "type"=>"string", ' \
+                    '{"description"=>"Email address for the veteran.", "type"=>"string", ' \
                     '"pattern"=>"^(?!.*\\\\s).+@.+\\\\..+|^$", "maxLength"=>61, "example"=>' \
                     '"veteran@example.com"}'
                   )
@@ -470,7 +473,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(json_response['errors'][0]['detail']).to eq(
                     'The property /veteran/email did not match the following requirements: ' \
-                    '{"description"=>"Email address of the veteran.", "type"=>"string", ' \
+                    '{"description"=>"Email address for the veteran.", "type"=>"string", ' \
                     '"pattern"=>"^(?!.*\\\\s).+@.+\\\\..+|^$", "maxLength"=>61, "example"=>' \
                     '"veteran@example.com"}'
                   )
@@ -488,9 +491,9 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
         context 'POA organization' do
           it 'returns a 202 response when successful' do
             mock_ccg_for_fine_grained_scope(poa_scopes) do |auth_header|
-              expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+              expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                 .and_return(bgs_poa)
-              allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+              allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
 
               post appoint_organization_path, params: data.to_json, headers: auth_header
@@ -510,19 +513,19 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
       context 'multiple reps with same poa code and registration number' do
         let(:rep_id) do
-          FactoryBot.create(:veteran_representative, representative_id: '999999999999',
-                                                     poa_codes: [organization_poa_code],
-                                                     first_name: 'George', last_name: 'Washington-test').id
+          create(:veteran_representative, representative_id: '999999999999',
+                                          poa_codes: [organization_poa_code],
+                                          first_name: 'George', last_name: 'Washington-test').id
         end
 
         it 'returns the last one with a 202 response' do
           mock_ccg(scopes) do |auth_header|
-            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
               .and_return(bgs_poa)
-            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             expect(ClaimsApi::V2::PoaFormBuilderJob).to receive(:perform_async) do |*args|
-              expect(args[2]).to eq(rep_id)
+              expect(args[3]).to eq(rep_id)
             end
 
             post appoint_organization_path, params: data.to_json, headers: auth_header
@@ -551,7 +554,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(response_body['title']).to eq('Unprocessable entity')
                   expect(response_body['status']).to eq('422')
-                  expect(response_body['detail']).to eq(detail)
+                  expect(response_body['detail']).to include(detail)
                 end
               end
             end
@@ -605,7 +608,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
               it 'returns an error response' do
                 mock_ccg(scopes) do |auth_header|
-                  allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                  allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                     .and_return({ person_poa_history: nil })
                   allow_any_instance_of(ClaimsApi::V2::ApplicationController)
                     .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
@@ -615,6 +618,43 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(response_body['status']).to eq('422')
                   expect(response_body['detail']).to eq('Must have either first or last name')
+                end
+              end
+            end
+
+            describe 'with non-US countryCode provided without areaCode' do
+              let(:veteran) do
+                {
+                  address: {
+                    addressLine1: '123',
+                    addressLine2: '2a',
+                    city: 'city',
+                    countryCode: 'US',
+                    stateCode: 'OR',
+                    zipCode: '12345',
+                    zipCodeSuffix: '6789'
+                  },
+                  phone: {
+                    countryCode: '44',
+                    phoneNumber: '3664242'
+                  }
+                }
+              end
+              let(:request_body) do
+                Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                'power_of_attorney', '2122', 'valid.json').read
+              end
+
+              it 'returns a 200' do
+                mock_ccg(scopes) do |auth_header|
+                  allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
+                    .and_return({ person_poa_history: nil })
+                  json = JSON.parse(request_body)
+                  json['data']['attributes']['veteran'] = veteran
+                  request_body = json.to_json
+
+                  post validate2122_path, params: request_body, headers: auth_header
+                  expect(response).to have_http_status(:ok)
                 end
               end
             end
@@ -679,7 +719,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 end
 
                 before do
-                  Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
+                  allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                      .and_return true
 
                   allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
                     .to receive(:user_profile).and_return(user_profile)
@@ -730,7 +771,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 end
 
                 before do
-                  Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+                  allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                      .and_return false
                 end
 
                 it 'does not call validate_poa_code_exists! and validate_dependent_by_participant_id!' do
@@ -787,6 +829,153 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                       response_body = JSON.parse(response.body)['errors'][0]
                       expect(response).to have_http_status(:unprocessable_entity)
                       expect(response_body['detail']).to eq(error_msg)
+                    end
+                  end
+                end
+              end
+
+              describe 'phone number validation' do
+                let(:request_body) do
+                  Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                  'power_of_attorney', '2122', 'valid.json').read
+                end
+
+                let(:claimant) do
+                  {
+                    claimantId: '456',
+                    email: 'lillian@disney.com',
+                    relationship: 'Spouse',
+                    address: {
+                      addressLine1: '2688 S Camino Real',
+                      city: 'Palm Springs',
+                      stateCode: 'CA',
+                      countryCode: 'US',
+                      zipCode: '92264'
+                    },
+                    phone: {
+                      areaCode: '303',
+                      phoneNumber: '5551337'
+                    }
+                  }
+                end
+                let(:claimant_international) do
+                  {
+                    claimantId: '456',
+                    email: 'lillian@disney.com',
+                    relationship: 'Spouse',
+                    address: {
+                      addressLine1: '2688 S Camino Real',
+                      city: 'Palm Springs',
+                      stateCode: 'CA',
+                      countryCode: 'US',
+                      zipCode: '92264'
+                    },
+                    phone: {
+                      countryCode: '1',
+                      areaCode: '303',
+                      phoneNumber: '5551337'
+                    }
+                  }
+                end
+
+                context 'when claimant.phone.countryCode is "1" and areaCode is not provided' do
+                  let(:error_msg) do
+                    'The property /claimant/phone/areaCode did not match the following requirements:'
+                  end
+
+                  it 'returns a meaningful 422' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        claimant_international[:phone][:areaCode] = nil
+                        json['data']['attributes']['claimant'] = claimant_international
+                        request_body = json.to_json
+                        post validate2122_path, params: request_body, headers: auth_header
+
+                        response_body = JSON.parse(response.body)['errors'][0]
+                        expect(response).to have_http_status(:unprocessable_entity)
+                        expect(response_body['detail']).to include(error_msg)
+                      end
+                    end
+                  end
+                end
+
+                context 'when claimant.phone.countryCode is "1" and areaCode is provided' do
+                  it 'returns a 200' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        claimant_international[:phone][:phoneNumber] = '5551337'
+                        json['data']['attributes']['claimant'] = claimant_international
+                        request_body = json.to_json
+                        post validate2122_path, params: request_body, headers: auth_header
+
+                        expect(response).to have_http_status(:ok)
+                      end
+                    end
+                  end
+                end
+
+                context 'when claimant.phoneNumber contains a dash' do
+                  it 'returns a 200' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        claimant[:phone][:phoneNumber] = '555-1337'
+                        json['data']['attributes']['claimant'] = claimant
+                        request_body = json.to_json
+                        post validate2122_path, params: request_body, headers: auth_header
+
+                        expect(response).to have_http_status(:ok)
+                      end
+                    end
+                  end
+                end
+
+                context 'when it a US number contains a space' do
+                  it 'returns a 200' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        claimant[:phone][:phoneNumber] = '555 1337'
+                        json['data']['attributes']['claimant'] = claimant
+                        request_body = json.to_json
+                        post validate2122_path, params: request_body, headers: auth_header
+
+                        expect(response).to have_http_status(:ok)
+                      end
+                    end
+                  end
+                end
+
+                context 'when an international number contains dashes' do
+                  it 'returns a 200' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        claimant_international[:phone][:phoneNumber] = '44-1234-567890'
+                        json['data']['attributes']['claimant'] = claimant_international
+                        request_body = json.to_json
+                        post validate2122_path, params: request_body, headers: auth_header
+
+                        expect(response).to have_http_status(:ok)
+                      end
+                    end
+                  end
+                end
+
+                context 'when an international number contains spaces' do
+                  it 'returns a 200' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        claimant_international[:phone][:phoneNumber] = '44 1234 567890'
+                        json['data']['attributes']['claimant'] = claimant_international
+                        request_body = json.to_json
+                        post validate2122_path, params: request_body, headers: auth_header
+
+                        expect(response).to have_http_status(:ok)
+                      end
                     end
                   end
                 end

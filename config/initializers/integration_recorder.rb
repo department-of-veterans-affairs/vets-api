@@ -105,7 +105,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
 
       def record_feature_settings
         directory = File.dirname(feature_path)
-        FileUtils.mkdir_p(directory) unless File.exist?(directory)
+        FileUtils.mkdir_p(directory)
         File.binwrite(feature_path, { replay_settings: feature_settings }.to_yaml)
       end
 

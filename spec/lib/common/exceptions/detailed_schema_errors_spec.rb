@@ -110,7 +110,7 @@ describe Common::Exceptions::DetailedSchemaErrors do
     it 'shows received size & uniqueness in meta' do
       data['favoriteFruits'] = %w[a a a b c d e f]
       expect(subject[:meta][:received_size]).to eq 8
-      expect(subject[:meta][:received_unique_items]).to eq false
+      expect(subject[:meta][:received_unique_items]).to be false
     end
 
     it 'respects maximum size' do
@@ -125,7 +125,7 @@ describe Common::Exceptions::DetailedSchemaErrors do
 
     it 'respects uniqueness constraint' do
       data['favoriteFruits'] = %w[a a a a]
-      expect(subject[:meta][:unique_items]).to eq true
+      expect(subject[:meta][:unique_items]).to be true
     end
   end
 

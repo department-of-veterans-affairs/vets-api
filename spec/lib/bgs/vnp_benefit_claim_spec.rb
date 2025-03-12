@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'bgs/vnp_benefit_claim'
 
 RSpec.describe BGS::VnpBenefitClaim do
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { create(:evss_user, :loa3) }
   let(:proc_id) { '3828033' }
   let(:participant_id) { '146189' }
   let(:veteran_hash) do

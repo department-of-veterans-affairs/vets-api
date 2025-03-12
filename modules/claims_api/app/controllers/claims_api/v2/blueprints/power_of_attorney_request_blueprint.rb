@@ -4,98 +4,109 @@ module ClaimsApi
   module V2
     module Blueprints
       class PowerOfAttorneyRequestBlueprint < Blueprinter::Base
-        class Veteran < Blueprinter::Base
-          transform Transformers::LowerCamelTransformer
+        view :index_or_show do
+          field :id do |request|
+            request['id']
+          end
 
-          fields(
-            :first_name,
-            :middle_name,
-            :last_name
-          )
+          field :type do
+            'power-of-attorney-request'
+          end
+
+          field :attributes do |request|
+            {
+              veteran: {
+                first_name: request['vetFirstName'],
+                middle_name: request['vetMiddleName'],
+                last_name: request['vetLastName']
+              },
+              claimant: {
+                first_name: request.dig('claimant', 'firstName'),
+                middle_name: request.dig('claimant', 'middleName'),
+                last_name: request.dig('claimant', 'lastName')
+              },
+              address: {
+                city: request.dig('claimant', 'address', 'city'),
+                state_code: request.dig('claimant', 'address', 'stateCode'),
+                zip_code: request.dig('claimant', 'address', 'zipCode'),
+                countryCode: request.dig('claimant', 'address', 'countryCode')
+              },
+              representative: {
+                poa_code: request['poaCode']
+              },
+              received_date: request['dateRequestReceived'],
+              actioned_date: request['dateRequestActioned'],
+              status: request['secondaryStatus'],
+              declined_reason: request['declinedReason'],
+              consent_address_change: request['changeAddressAuth'] == 'Y',
+              record_consent: request['healthInfoAuth'] == 'Y'
+            }
+          end
+
+          transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
         end
 
-        class Representative < Blueprinter::Base
-          transform Transformers::LowerCamelTransformer
+        # rubocop:disable Naming/VariableNumber
+        view :create do
+          field :id do |request|
+            request['id']
+          end
 
-          fields(
-            :first_name,
-            :last_name,
-            :email
-          )
+          field :type do
+            'power-of-attorney-request'
+          end
+
+          field :attributes do |request|
+            {
+              veteran: {
+                service_number: request.dig('veteran', 'serviceNumber'),
+                service_branch: request.dig('veteran', 'serviceBranch'),
+                address: {
+                  address_line_1: request.dig('veteran', 'address', 'addressLine1'),
+                  address_line_2: request.dig('veteran', 'address', 'addressLine2'),
+                  city: request.dig('veteran', 'address', 'city'),
+                  state_code: request.dig('veteran', 'address', 'stateCode'),
+                  countryCode: request.dig('veteran', 'address', 'countryCode'),
+                  zip_code: request.dig('veteran', 'address', 'zipCode'),
+                  zip_code_suffix: request.dig('veteran', 'address', 'zipCodeSuffix')
+                },
+                phone: {
+                  area_code: request.dig('veteran', 'phone', 'areaCode'),
+                  phone_number: request.dig('veteran', 'phone', 'phoneNumber')
+                },
+                email: request.dig('veteran', 'email'),
+                insurance_number: request.dig('veteran', 'insuranceNumber')
+              },
+              claimant: {
+                claimant_id: request.dig('claimant', 'claimantId'),
+                address: {
+                  address_line_1: request.dig('claimant', 'address', 'addressLine1'),
+                  address_line_2: request.dig('claimant', 'address', 'addressLine2'),
+                  city: request.dig('claimant', 'address', 'city'),
+                  state_code: request.dig('claimant', 'address', 'stateCode'),
+                  countryCode: request.dig('claimant', 'address', 'countryCode'),
+                  zip_code: request.dig('claimant', 'address', 'zipCode'),
+                  zip_code_suffix: request.dig('claimant', 'address', 'zipCodeSuffix')
+                },
+                phone: {
+                  area_code: request.dig('claimant', 'phone', 'areaCode'),
+                  phone_number: request.dig('claimant', 'phone', 'phoneNumber')
+                },
+                email: request.dig('claimant', 'email'),
+                relationship: request.dig('claimant', 'relationship')
+              },
+              representative: {
+                poa_code: request.dig('representative', 'poaCode')
+              },
+              record_consent: request['recordConsent'],
+              consent_limits: request['consentLimits'],
+              consent_address_change: request['consentAddressChange']
+            }
+          end
+
+          transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
         end
-
-        class Decision < Blueprinter::Base
-          transform Transformers::LowerCamelTransformer
-
-          fields(
-            :status,
-            :declining_reason
-          )
-
-          field(
-            :created_at,
-            datetime_format: :iso8601.to_proc
-          )
-
-          association :created_by, blueprint: Representative
-        end
-
-        class Claimant < Blueprinter::Base
-          transform Transformers::LowerCamelTransformer
-
-          fields(
-            :first_name,
-            :last_name,
-            :relationship_to_veteran
-          )
-        end
-
-        class Address < Blueprinter::Base
-          transform Transformers::LowerCamelTransformer
-
-          fields(
-            :city, :state, :zip, :country,
-            :military_post_office,
-            :military_postal_code
-          )
-        end
-
-        class Attributes < Blueprinter::Base
-          transform Transformers::LowerCamelTransformer
-
-          fields(
-            :power_of_attorney_code
-          )
-
-          field(
-            :authorizes_address_changing,
-            name: :is_address_changing_authorized
-          )
-
-          field(
-            :authorizes_treatment_disclosure,
-            name: :is_treatment_disclosure_authorized
-          )
-
-          association :veteran, blueprint: Veteran
-          association :claimant, blueprint: Claimant
-          association :claimant_address, blueprint: Address
-          association :decision, blueprint: Decision
-
-          field(
-            :created_at,
-            datetime_format: :iso8601.to_proc
-          )
-        end
-
-        transform Transformers::LowerCamelTransformer
-
-        identifier :id
-        field(:type) { 'powerOfAttorneyRequest' }
-
-        association :attributes, blueprint: Attributes do |poa_request|
-          poa_request
-        end
+        # rubocop:enable Naming/VariableNumber
       end
     end
   end

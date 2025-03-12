@@ -24,6 +24,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     allow(LogService).to receive(:new).and_return(logger)
     allow(logger).to receive(:call).and_yield(span)
     allow(span).to receive(:set_tag)
+    allow(span).to receive(:set_error)
     allow(Rails.logger).to receive(:error)
     allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
   end
@@ -49,6 +50,9 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
             'type' => 'inquiry',
             'attributes' =>
              { 'inquiry_number' => 'A-4',
+               'allow_attachments' => nil,
+               'allow_replies' => nil,
+               'has_attachments' => true,
                'attachments' => [{ 'Id' => '4', 'Name' => 'testfile.txt' }],
                'category_name' => 'Benefits issues outside the U.S.',
                'created_on' => '8/5/2024 4:51:52 PM',
@@ -119,6 +123,9 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           'type' => 'inquiry',
           'attributes' =>
           { 'inquiry_number' => 'A-1',
+            'allow_attachments' => nil,
+            'allow_replies' => nil,
+            'has_attachments' => true,
             'attachments' => [{ 'Id' => '1', 'Name' => 'testfile.txt' }],
             'category_name' => 'Debt for benefit overpayments and health care copay bills',
             'created_on' => '8/5/2024 4:51:52 PM',
@@ -194,6 +201,9 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
               'type' => 'inquiry',
               'attributes' =>
               { 'inquiry_number' => 'A-123456',
+                'allow_attachments' => nil,
+                'allow_replies' => nil,
+                'has_attachments' => nil,
                 'attachments' => [{ 'Id' => '012345', 'Name' => 'File A.pdf' }],
                 'category_name' => 'Debt for benefit overpayments and health care copay bills',
                 'created_on' => '8/5/2024 4:51:52 PM',

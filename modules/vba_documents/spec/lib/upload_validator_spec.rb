@@ -10,7 +10,7 @@ RSpec.describe VBADocuments::UploadValidations do
   include VBADocuments::UploadValidations
 
   let(:valid_doc) { get_fixture('valid_multipart_pdf_attachments.blob').path }
-  let(:upload_submission) { FactoryBot.create(:upload_submission, :status_uploaded) }
+  let(:upload_submission) { create(:upload_submission, :status_uploaded) }
   let(:timestamp) { DateTime.now }
   let(:parts) { VBADocuments::MultipartParser.parse(valid_doc) }
 

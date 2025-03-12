@@ -12,6 +12,7 @@ module PdfFill
       include CommonPtsd
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
+      START_PAGE = 8
 
       # rubocop:disable Layout/LineLength
       KEY = {
@@ -139,7 +140,7 @@ module PdfFill
             key: 'F[0].#subform[2].Other_Traumatic_Events[0]'
           }
         },
-        'eventsDetails' => {
+        'events' => {
           limit: 6,
           first_key: 'details',
           question_text: 'EVENT DETAILS',
@@ -390,14 +391,14 @@ module PdfFill
             question_suffix: 'B[9]',
             question_text: 'ADDTIONAL INFORMATION ABOUT Disciplinary or legal difficulties.'
           },
-          'otherBehavior' => {
+          'unlisted' => {
             key: 'F[0].#subform[4].List_Additional_Behavioral_Changes[0]',
             limit: 784,
             question_num: 10,
             question_suffix: 'C',
             question_text: 'ADDTIONAL INFORMATION ABOUT Additional behavioral changes.'
           },
-          'otherBehaviorOverflow' => {
+          'unlistedOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'C',
@@ -454,7 +455,7 @@ module PdfFill
           }
         },
         'evidence' => { # question_num: 12
-          'crisisCenter' => {
+          'crisis' => {
             key: 'F[0].#subform[4].A_Rape_Crisis_Center_Or_Center_For_Domestic_Abuse[0]'
           },
           'counseling' => {
@@ -469,16 +470,16 @@ module PdfFill
           'police' => {
             key: 'F[0].#subform[4].Civilian_Police_Reports[0]'
           },
-          'medical' => {
+          'physicians' => {
             key: 'F[0].#subform[4].Medical_Reports_From_Civilian_Physicians_Or_Caregivers_Who_Treated_You_Immediately_Following_The_Incident_Or_Sometime_Later[0]'
           },
           'clergy' => {
             key: 'F[0].#subform[4].A_Chaplain_Or_Clergy[0]'
           },
-          'peers' => {
+          'service' => {
             key: 'F[0].#subform[4].Fellow_Service_Members[0]'
           },
-          'journal' => {
+          'personal' => {
             key: 'F[0].#subform[4].Personal_Diaries_Or_Journals[0]'
           },
           'none' => {
@@ -506,22 +507,22 @@ module PdfFill
           key: 'F[0].#subform[4].Treatment_No[0]'
         },
         'treatmentProviders' => { # question_num: 13B
-          'privateCare' => {
+          'nonVa' => {
             key: 'F[0].#subform[4].Private_Healthcare_Provider[0]'
           },
-          'vetCenter' => {
+          'vaCenters' => {
             key: 'F[0].#subform[4].VA_Vet_Center[0]'
           },
-          'communityCare' => {
+          'vaPaid' => {
             key: 'F[0].#subform[4].Community_Care_Paid_For_By_VA[0]'
           },
-          'vamc' => {
+          'medicalCenter' => {
             key: 'F[0].#subform[4].VA_Medical_Center_And_Community_Based_Outpatient_Clinics[0]'
           },
-          'cboc' => {
+          'communityOutpatient' => {
             key: 'F[0].#subform[4].VA_Medical_Center_And_Community_Based_Outpatient_Clinics[0]'
           },
-          'mtf' => {
+          'dod' => {
             key: 'F[0].#subform[4].Department_Of_Defense_Military_Treatment_Facilities[0]'
           }
         },
@@ -610,6 +611,36 @@ module PdfFill
       }.freeze
       # rubocop:enable Layout/LineLength
 
+      SECTIONS = [
+        {
+          label: 'Section I: Veteran\'s Identification Information',
+          top_level_keys: %w[
+            veteranFullName vaFileNumber veteranDateOfBirth veteranServiceNumber veteranPhone veteranIntPhone
+            email emailOverflow
+          ]
+        },
+        {
+          label: 'Section II: Traumatic Event(s) Information',
+          top_level_keys: ['events']
+        },
+        {
+          label: 'Section III: Additional Information Associated with the In-service Traumatic Event(s)',
+          top_level_keys: %w[behaviors behaviorsDetails reportsDetails evidence]
+        },
+        {
+          label: 'Section IV: Treatment Information',
+          top_level_keys: ['treatmentProvidersDetails']
+        },
+        {
+          label: 'Section V: Remarks',
+          top_level_keys: %w[additionalInformation additionalInformationOverflow]
+        },
+        {
+          label: 'Section VII: Certification and Signature',
+          top_level_keys: %w[signature signatureDate]
+        }
+      ].freeze
+
       def merge_fields(_options = {})
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
         @form_data = expand_ssn(@form_data)
@@ -618,12 +649,13 @@ module PdfFill
         split_phone(@form_data, 'veteranPhone')
 
         set_treatment_selection
-        set_reports_selection
+        set_option_indicator
 
-        format_other_behavior_details
-        format_police_report_location
+        if @form_data['events']&.any?
+          process_reports
+          expand_collection('events', :format_event, 'eventOverflow')
+        end
 
-        expand_collection('eventsDetails', :format_event, 'eventOverflow')
         expand_collection('treatmentProvidersDetails', :format_provider, 'providerOverflow')
 
         expand_signature(@form_data['veteranFullName'], @form_data['signatureDate'])
@@ -654,39 +686,73 @@ module PdfFill
       end
 
       def set_treatment_selection
-        treated = @form_data['traumaTreatment']
-        return if treated.nil?
+        treated = (@form_data['treatmentProviders'] || {}).any?
+        not_treated = @form_data['treatmentNoneCheckbox']&.[]('none') || false
+
+        return if !treated && !not_treated
 
         @form_data['treatment'] = treated ? 0 : 1
-        @form_data['noTreatment'] = treated ? 0 : 1
+        @form_data['noTreatment'] = not_treated ? 1 : 0
       end
 
-      def set_reports_selection
-        reports = @form_data['reports']
-        return if reports.nil?
+      def process_reports
+        report_filed = false
+        no_report = false
+        police_reports = []
+        unlisted_reports = []
+        reports_details = @form_data['reportsDetails'] ||= {}
 
-        @form_data['reportFiled'] = reports['yes'] ? 0 : nil
-        @form_data['noReportFiled'] = reports['no'] ? 1 : nil
-        @form_data['restrictedReport'] = reports['restricted'] ? 0 : nil
-        @form_data['unrestrictedReport'] = reports['unrestricted'] ? 1 : nil
-        @form_data['neitherReport'] = reports['neither'] ? 2 : nil
-        @form_data['policeReport'] = reports['police'] ? 3 : nil
-        @form_data['otherReport'] = reports['other'] ? 4 : nil
+        @form_data['events'].each do |event|
+          reports = merge_reports(event)
+          unlisted_report = event['unlistedReport']
+          next if reports.empty? && unlisted_report&.blank?
+
+          report_filed ||= reports.except('none').values.include?(true)
+          no_report ||= reports['none']
+
+          set_report_types(reports, unlisted_report)
+
+          police_report = format_police_details(event)
+          police_reports << police_report unless police_report.empty?
+
+          unlisted_reports << unlisted_report if unlisted_report.present?
+        end
+
+        @form_data['reportFiled'] = report_filed ? 0 : nil
+        @form_data['noReportFiled'] = no_report && !report_filed ? 1 : nil
+
+        reports_details['police'] = police_reports.join('; ') unless police_reports.empty?
+        reports_details['other'] = unlisted_reports.join('; ') unless unlisted_reports.empty?
       end
 
-      def format_other_behavior_details
-        other_behavior = @form_data['behaviors']&.[]('otherBehavior')
-        return if other_behavior.blank?
-
-        details = @form_data['behaviorsDetails']['otherBehavior']
-        @form_data['behaviorsDetails']['otherBehavior'] = "#{other_behavior}: #{details}"
+      def merge_reports(event)
+        (event['militaryReports'] || {})
+          .merge(event['otherReports'] || {})
+          .merge('unlistedReport' => event['unlistedReport'])
       end
 
-      def format_police_report_location
-        report = @form_data['reportsDetails']&.[]('police')
-        return if report.blank?
+      # Numbers correspond to a predefined "export value" assigned to each checkbox option on the PDF form:
+      def set_report_types(reports, unlisted_report)
+        @form_data['restrictedReport'] ||= reports['restricted'] ? 0 : nil
+        @form_data['unrestrictedReport'] ||= reports['unrestricted'] ? 1 : nil
+        @form_data['neitherReport'] ||= reports['pre2005'] ? 2 : nil
+        @form_data['policeReport'] ||= reports['police'] ? 3 : nil
+        @form_data['otherReport'] ||= reports['unsure'] || unlisted_report ? 4 : nil
+      end
 
-        @form_data['reportsDetails']['police'] = report.values.reject(&:empty?).join(', ')
+      def set_option_indicator
+        selected_option = @form_data['optionIndicator']
+        valid_options = %w[yes no revoke notEnrolled]
+
+        return if selected_option.nil? || valid_options.exclude?(selected_option)
+
+        @form_data['optionIndicator'] = valid_options.index_with { |_option| false }
+        @form_data['optionIndicator'][selected_option] = true
+      end
+
+      def format_police_details(event)
+        fields = %w[agency city state township country]
+        fields.map { |field| event[field] }.compact_blank.join(', ')
       end
 
       def expand_collection(collection, format_method, overflow_key)

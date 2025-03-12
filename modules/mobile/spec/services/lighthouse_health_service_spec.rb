@@ -7,15 +7,15 @@ describe Mobile::V0::LighthouseHealth::Service do
   let(:service) { Mobile::V0::LighthouseHealth::Service.new(user) }
   let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
   let(:access_token) do
-    'eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.'\
-      'eyJ2ZXIiOjEsImp0aSI6IkFULnpoUTZHUDFqRjY2T2g3NG9BcFlDaWxLeHZWUFFDck9yM2JISUlJYkk2c2ciLCJpc3M'\
-      'iOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Im'\
-      'h0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2MzQ3NDU1NTYsImV4cCI6MTYzN'\
-      'Dc0NTg1NiwiY2lkIjoiMG9hZDB4Z2dpcktMZjJnZXIycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9JbW11bml6'\
-      'YXRpb24ucmVhZCIsImxhdW5jaC9wYXRpZW50IiwicGF0aWVudC9Mb2NhdGlvbi5yZWFkIl0sInN1YiI6IjBvYWQweGd'\
-      'naXJLTGYyZ2VyMnA3In0.dTIB2NGaxAJpalS8aK04VBbBRXlbn7YJF032i4Bw-4sjmycEKZJ3208O5tnZnWpFp4MxC0'\
-      'oVql3DV7IuhuPNWxJYgdoOTn1RgW6HvevUAc_WAyOFweNUlxHKxFFDN1RXFf-07ufwQNIeLM0MQYDRNuFdHoIMDb_YJ'\
-      '1fre6J_b3Ab5Le_fGhmpCMB3BdK1Ki5dmBeE0b2v9foLuornfkSpGbsmmPP1XYUaISLJHfu-0gl_5G4VdFFawqlC2fF'\
+    'eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.' \
+      'eyJ2ZXIiOjEsImp0aSI6IkFULnpoUTZHUDFqRjY2T2g3NG9BcFlDaWxLeHZWUFFDck9yM2JISUlJYkk2c2ciLCJpc3M' \
+      'iOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Im' \
+      'h0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2MzQ3NDU1NTYsImV4cCI6MTYzN' \
+      'Dc0NTg1NiwiY2lkIjoiMG9hZDB4Z2dpcktMZjJnZXIycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9JbW11bml6' \
+      'YXRpb24ucmVhZCIsImxhdW5jaC9wYXRpZW50IiwicGF0aWVudC9Mb2NhdGlvbi5yZWFkIl0sInN1YiI6IjBvYWQweGd' \
+      'naXJLTGYyZ2VyMnA3In0.dTIB2NGaxAJpalS8aK04VBbBRXlbn7YJF032i4Bw-4sjmycEKZJ3208O5tnZnWpFp4MxC0' \
+      'oVql3DV7IuhuPNWxJYgdoOTn1RgW6HvevUAc_WAyOFweNUlxHKxFFDN1RXFf-07ufwQNIeLM0MQYDRNuFdHoIMDb_YJ' \
+      '1fre6J_b3Ab5Le_fGhmpCMB3BdK1Ki5dmBeE0b2v9foLuornfkSpGbsmmPP1XYUaISLJHfu-0gl_5G4VdFFawqlC2fF' \
       '9MgGLUZg5C6Xn8odDrz_ADJ2W5yNhRDH8qwmxVOL8g5HaDZRaP9GJwmkXSk9Dhk2XPhG89jmtpkp7xyICUU7sh8Onw'
   end
   let(:expected_item) do

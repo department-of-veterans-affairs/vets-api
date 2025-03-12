@@ -4,10 +4,10 @@ require 'rails_helper'
 require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm686cJob, type: :job do
-  let(:job) { subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info) }
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:job) { subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, nil) }
+  let(:user) { create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:birth_date) { '1809-02-12' }
   let(:client_stub) { instance_double(BGS::Form686c) }
   let(:vet_info) do
@@ -83,7 +83,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
         expect(client_stub).to receive(:submit).once
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(user.uuid, user.icn,
                                                                       dependency_claim.id, encrypted_vet_info,
-                                                                      an_instance_of(String))
+                                                                      an_instance_of(String), nil)
 
         expect { job }.not_to raise_error
       end

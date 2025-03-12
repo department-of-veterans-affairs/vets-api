@@ -8,16 +8,23 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
   describe '#index' do
     let(:scopes) { %w[claim.read] }
+    let(:page_params) { { page: { size: 10, number: 2 } } }
 
-    it 'raises a ParameterMissing error if poaCodes is not present' do
-      expect do
-        subject.index
-      end.to raise_error(Common::Exceptions::ParameterMissing)
+    context 'when poaCodes is not present' do
+      before do
+        allow(subject).to receive(:params).and_return(page_params)
+      end
+
+      it 'raises a ParameterMissing error' do
+        expect do
+          subject.index
+        end.to raise_error(Common::Exceptions::ParameterMissing)
+      end
     end
 
     context 'when poaCodes is present but empty' do
       before do
-        allow(subject).to receive(:form_attributes).and_return({ 'poaCodes' => [] })
+        allow(subject).to receive_messages(form_attributes: { 'poaCodes' => [] }, params: page_params)
       end
 
       it 'raises a ParameterMissing error' do
@@ -36,7 +43,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             index_request_with(poa_codes:, auth_header:)
 
             expect(response).to have_http_status(:ok)
-            expect(JSON.parse(response.body).size).to eq(3)
+            expect(JSON.parse(response.body)['data'].size).to eq(3)
           end
         end
       end
@@ -56,15 +63,60 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       end
     end
 
-    context 'when pageIndex is present but pageSize is not' do
-      before do
-        allow(subject).to receive(:form_attributes).and_return({ 'poaCodes' => %w[002 003 083], 'pageIndex' => '2' })
+    context 'page params' do
+      let(:poa_codes) { %w[002 003 083] }
+
+      context 'page number is present' do
+        context 'and page size is present' do
+          context 'and exceeds the max value allowed' do
+            it 'raises a 422' do
+              page_params[:page][:size] = 101
+              mock_ccg(scopes) do |auth_header|
+                VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
+                  index_request_with(poa_codes:, page_params:, auth_header:)
+
+                  expect(response).to have_http_status(:bad_request)
+                  expect(response.parsed_body['errors'][0]['detail']).to eq(
+                    'The maximum page size param value of 100 has been exceeded.'
+                  )
+                end
+              end
+            end
+          end
+
+          context 'and exceeds the max value allowed along with page number' do
+            it 'raises a 422' do
+              page_params[:page][:size] = 101
+              page_params[:page][:number] = 120
+              mock_ccg(scopes) do |auth_header|
+                VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
+                  index_request_with(poa_codes:, page_params:, auth_header:)
+
+                  expect(response).to have_http_status(:bad_request)
+                  expect(response.parsed_body['errors'][0]['detail']).to eq(
+                    'Both the maximum page size param value of 100 has been exceeded ' \
+                    'and the maximum page number param value of 100 has been exceeded.'
+                  )
+                end
+              end
+            end
+          end
+        end
       end
 
-      it 'raises a ParameterMissing error' do
-        expect do
-          subject.index
-        end.to raise_error(Common::Exceptions::ParameterMissing)
+      context 'page size is present' do
+        context 'and page number is not present' do
+          it 'returns a success' do
+            page_params[:page][:number] = nil
+            mock_ccg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
+                index_request_with(poa_codes:, page_params:, auth_header:)
+
+                expect(response).to have_http_status(:ok)
+              end
+            end
+          end
+        end
       end
     end
 
@@ -138,52 +190,112 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     end
   end
 
+  describe '#show' do
+    let(:scopes) { %w[claim.read] }
+
+    it 'returns a not found status if the PowerOfAttorneyRequest is not found' do
+      mock_ccg(scopes) do |auth_header|
+        show_request_with(id: 'some-missing-id', auth_header:)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when the PowerOfAttorneyRequest is found' do
+      let(:poa_request) { create(:claims_api_power_of_attorney_request) }
+      let(:service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Show) }
+
+      before do
+        allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
+        allow(service).to receive(:get_poa_request).and_return({})
+      end
+
+      it 'returns a successful response' do
+        mock_ccg(scopes) do |auth_header|
+          show_request_with(id: poa_request.id, auth_header:)
+
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+  end
+
   describe '#decide' do
     let(:scopes) { %w[claim.write] }
-
-    it 'raises a ParameterMissing error if procId is not present' do
-      expect do
-        subject.decide
-      end.to raise_error(Common::Exceptions::ParameterMissing)
+    let(:id) { '348fa995-5b29-4819-91af-13f1bb3c7d77' }
+    let(:request_response) do
+      ClaimsApi::PowerOfAttorneyRequest.new(
+        id: '348fa995-5b29-4819-91af-13f1bb3c7d77',
+        proc_id: '76529',
+        veteran_icn: '1008714701V416111',
+        claimant_icn: '',
+        poa_code: '123',
+        metadata: {},
+        power_of_attorney_id: nil
+      )
     end
 
-    context 'when decision is not present' do
-      before do
-        allow(subject).to receive(:form_attributes).and_return({ 'procId' => '76529' })
+    context 'when the decide endpoint is called' do
+      context 'when decision is not present' do
+        let(:decision) { '' }
+
+        before do
+          allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
+        end
+
+        it 'raises an error if decision is not present' do
+          mock_ccg(scopes) do |auth_header|
+            VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
+              decide_request_with(id:, decision:, auth_header:)
+              expect(response).to have_http_status(:bad_request)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['title']).to eq('Missing parameter')
+              expect(response_body['errors'][0]['status']).to eq('400')
+            end
+          end
+        end
       end
 
-      it 'raises a ParameterMissing error if decision is not present' do
-        expect do
-          subject.decide
-        end.to raise_error(Common::Exceptions::ParameterMissing)
-      end
-    end
+      context 'when decision is not ACCEPTED or DECLINED' do
+        let(:decision) { 'indecision' }
 
-    context 'when decision is not ACCEPTED or DECLINED' do
-      before do
-        allow(subject).to receive(:form_attributes).and_return({ 'procId' => '76529', 'decision' => 'invalid' })
-      end
+        before do
+          allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
+        end
 
-      it 'raises a ParameterMissing error' do
-        expect do
-          subject.decide
-        end.to raise_error(Common::Exceptions::ParameterMissing)
+        it 'raises an error if decision is not valid' do
+          mock_ccg(scopes) do |auth_header|
+            VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
+              decide_request_with(id:, decision:, auth_header:)
+              expect(response).to have_http_status(:bad_request)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['title']).to eq('Missing parameter')
+              expect(response_body['errors'][0]['status']).to eq('400')
+            end
+          end
+        end
       end
     end
 
     context 'when procId is present and valid and decision is accepted' do
-      let(:proc_id) { '76529' }
       let(:decision) { 'ACCEPTED' }
+      let(:service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Show) }
+
+      before do
+        allow(ClaimsApi::PowerOfAttorneyRequest).to(receive(:find_by).and_return(request_response))
+        allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
+          .to receive(:fetch_ptcpnt_id).with(anything).and_return('5196105942')
+        allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
+        allow(service).to receive(:get_poa_request).and_return({})
+      end
 
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do
         mock_ccg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
-            decide_request_with(proc_id:, decision:, auth_header:)
-
+            decide_request_with(id:, decision:, auth_header:)
             expect(response).to have_http_status(:ok)
             response_body = JSON.parse(response.body)
-            expect(response_body['procId']).to eq(proc_id)
-            expect(response_body['secondaryStatus']).to eq('ACC')
+            expect(response_body['data']['id']).to eq(id)
           end
         end
       end
@@ -203,12 +315,15 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         }
       end
       let(:mock_lockbox) { double('Lockbox', encrypt: 'encrypted value') }
+      let(:decision) { 'DECLINED' }
+      let(:representative_id) { '456' }
 
       before do
         allow(ClaimsApi::ManageRepresentativeService).to receive(:new).with(anything).and_return(service)
-        allow(service).to receive(:read_poa_request_by_ptcpnt_id).with(ptcpnt_id: '123456789')
+        allow(service).to receive(:read_poa_request_by_ptcpnt_id).with(anything)
                                                                  .and_return(poa_request_response)
         allow(service).to receive(:update_poa_request).with(anything).and_return('a successful response')
+        allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
         allow(Lockbox).to receive(:new).and_return(mock_lockbox)
       end
 
@@ -219,10 +334,12 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
         it 'enqueues the VANotifyDeclinedJob' do
           mock_ccg(scopes) do |auth_header|
-            expect do
-              decide_request_with(proc_id: '76529', decision: 'DECLINED', auth_header:, ptcpnt_id: '123456789',
-                                  representative_id: '456')
-            end.to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size).by(1)
+            VCR.use_cassette('mpi/find_candidate/valid') do
+              expect do
+                decide_request_with(id:, decision:, auth_header:,
+                                    representative_id:)
+              end.to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size).by(1)
+            end
           end
         end
       end
@@ -233,26 +350,28 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         end
 
         it 'does not enqueue the VANotifyDeclinedJob' do
-          mock_ccg(scopes) do |auth_header|
-            expect do
-              decide_request_with(proc_id: '76529', decision: 'DECLINED', auth_header:, ptcpnt_id: '123456789',
-                                  representative_id: '456')
-            end.not_to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size)
+          VCR.use_cassette('mpi/find_candidate/valid') do
+            mock_ccg(scopes) do |auth_header|
+              expect do
+                decide_request_with(id:, decision:, auth_header:,
+                                    representative_id:)
+              end.not_to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size)
+            end
           end
         end
       end
     end
 
-    context 'when procId is present but invalid' do
-      let(:proc_id) { '1' }
+    context 'when id is present but invalid' do
+      let(:id) { '1' }
       let(:decision) { 'ACCEPTED' }
+      let(:representative_id) { '456' }
 
       it 'raises an error' do
         mock_ccg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_not_found') do
-            decide_request_with(proc_id:, decision:, auth_header:)
-
-            expect(response).to have_http_status(:internal_server_error)
+            decide_request_with(id:, decision:, auth_header:, representative_id:)
+            expect(response).to have_http_status(:not_found)
           end
         end
       end
@@ -270,7 +389,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             addressLine1: '2719 Hyperion Ave',
             addressLine2: 'Apt 2',
             city: 'Los Angeles',
-            country: 'USA',
+            countryCode: 'US',
             stateCode: 'CA',
             zipCode: '92264',
             zipCodeSuffix: '0200'
@@ -282,10 +401,8 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           email: 'test@test.com',
           insuranceNumber: '1234567890'
         },
-        poa: {
-          poaCode: '003',
-          registrationNumber: '12345',
-          jobTitle: 'MyJob'
+        representative: {
+          poaCode: '003'
         },
         recordConsent: true,
         consentAddressChange: true,
@@ -295,6 +412,23 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
           HIV
           ALCOHOLISM
         ]
+      }
+    end
+    let(:claimant_information) do
+      {
+        claimant: {
+          address: {
+            addressLine1: '2719 Hyperion Ave',
+            addressLine2: 'Apt 2',
+            city: 'Los Angeles',
+            countryCode: 'US',
+            stateCode: 'CA',
+            zipCode: '92264',
+            zipCodeSuffix: '0200'
+          },
+          claimantId: '1012667145V762142',
+          relationship: 'Spouse'
+        }
       }
     end
     let(:veteran_id) { '1012667145V762142' }
@@ -362,19 +496,19 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     before do
       allow_any_instance_of(ClaimsApi::FormSchemas).to receive(:validate!).and_return(nil)
       allow_any_instance_of(described_class).to receive(:validate_accredited_representative)
-        .with(anything, anything)
+        .with(anything)
         .and_return(nil)
       allow_any_instance_of(described_class).to receive(:validate_accredited_organization)
         .with(anything)
         .and_return(nil)
       allow_any_instance_of(described_class).to receive(:representative_data).and_return(representative_data)
-      Flipper.disable(:lighthouse_claims_v2_poa_requests_skip_bgs)
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return(false)
       allow(ClaimsApi::PowerOfAttorneyRequestService::TerminateExistingRequests).to receive(:new)
         .with(anything)
         .and_return(terminate_existing_requests)
       allow(terminate_existing_requests).to receive(:call).and_return(nil)
       allow(ClaimsApi::PowerOfAttorneyRequestService::CreateRequest).to receive(:new)
-        .with(anything, anything, anything, anything)
+        .with(anything, anything, anything)
         .and_return(create_request)
       allow(create_request).to receive(:call).and_return(create_request_response)
     end
@@ -382,30 +516,218 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     it 'returns a created status, Lighthouse ID, and type in the response' do
       mock_ccg(scopes) do |auth_header|
         create_request_with(veteran_id:, form_attributes:, auth_header:)
-
         expect(response).to have_http_status(:created)
-        expect(JSON.parse(response.body)['data']['attributes']['id']).not_to be_nil
-        expect(JSON.parse(response.body)['data']['attributes']['type']).to eq('power-of-attorney-request')
+        expect(JSON.parse(response.body)['data']['id']).not_to be_nil
+        expect(JSON.parse(response.body)['data']['type']).to eq('power-of-attorney-request')
+      end
+    end
+
+    context 'handling countryCodes' do
+      it 'returns a 422 when the veteran countryCode has no match in the BRD countries list' do
+        mock_ccg(scopes) do |auth_header|
+          form_attributes[:veteran][:address][:countryCode] = '76'
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'The country provided is not valid.'
+          )
+        end
+      end
+
+      it 'returns a 201 when the veteran countryCode is lowercase but has a match' do
+        mock_ccg(scopes) do |auth_header|
+          form_attributes[:veteran][:address][:countryCode] = 'pk'
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:created)
+        end
+      end
+
+      it 'returns a 422 when the claimant countryCode has no match in the BRD countries list' do
+        mock_ccg(scopes) do |auth_header|
+          form_attributes.merge!(claimant_information)
+          form_attributes[:claimant][:address][:countryCode] = '76'
+          create_request_with(veteran_id:, form_attributes:, auth_header:)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'The country provided is not valid.'
+          )
+        end
+      end
+
+      describe '#validate_country_code' do
+        let(:min_form_attributes) do
+          {
+            'veteran' => {
+              'address' => {
+                'countryCode' => 'GB-WLS'
+              }
+            }
+          }
+        end
+
+        before do
+          allow(subject).to receive(:form_attributes).and_return(min_form_attributes)
+        end
+
+        it 'allows a countryCode with 6 characters and a dash' do
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'allows a countryCode with numbers and letters and a dash' do
+          min_form_attributes['veteran']['address']['countryCode'] = 'TR-01'
+
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'allows a countryCode when sent in lowercase' do
+          min_form_attributes['veteran']['address']['countryCode'] = 'gb'
+
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'allows a countryCode when sent in mixed case' do
+          min_form_attributes['veteran']['address']['countryCode'] = 'gb-WlS'
+
+          response = subject.send(:validate_country_code)
+          expect(response).to be_nil
+        end
+
+        it 'denies an invalid countryCode' do
+          min_form_attributes['veteran']['address']['countryCode'] = '%&-T)'
+
+          expect do
+            subject.send(:validate_country_code)
+          end.to raise_error(Common::Exceptions::UnprocessableEntity)
+        end
+      end
+
+      describe '#validate_page_size_and_number_params' do
+        context 'when no page params are sent in' do
+          it 'assigns the default values when no page params are sent' do
+            page_params = {}
+            allow(subject).to receive(:params).and_return(page_params)
+
+            subject.send(:validate_page_size_and_number_params)
+            size = subject.instance_variable_get(:@page_size_param)
+            number = subject.instance_variable_get(:@page_number_param)
+
+            expect(size).to eq(10)
+            expect(number).to eq(1)
+          end
+
+          it 'assigns the default values for when empty page params are sent' do
+            page_params = { page: {} }
+            allow(subject).to receive(:params).and_return(page_params)
+
+            subject.send(:validate_page_size_and_number_params)
+            size = subject.instance_variable_get(:@page_size_param)
+            number = subject.instance_variable_get(:@page_number_param)
+
+            expect(size).to eq(10)
+            expect(number).to eq(1)
+          end
+        end
+
+        context 'when params are invalid' do
+          it 'returns a 422 when a boolean is sent in' do
+            param_val = true
+            page_params = { page: { number: param_val } }
+            allow(subject).to receive(:params).and_return(page_params)
+
+            expect do
+              subject.send(:validate_page_size_and_number_params)
+            end.to(raise_error do |error|
+              expect(error.message).to eq('Bad request')
+              expect(error.errors[0].detail).to eq("The page[number] param value #{param_val} is invalid")
+            end)
+          end
+
+          it 'returns a 422 when a alpha string is sent in' do
+            param_val = 'abcdefg'
+            page_params = { page: { size: param_val } }
+            allow(subject).to receive(:params).and_return(page_params)
+
+            expect do
+              subject.send(:validate_page_size_and_number_params)
+            end.to(raise_error do |error|
+              expect(error.message).to eq('Bad request')
+              expect(error.errors[0].detail).to eq("The page[size] param value #{param_val} is invalid")
+            end)
+          end
+
+          it 'returns a 422 when an array is sent in' do
+            param_val = [true, '123', 'cdef']
+            page_params = { page: { size: 5, number: param_val } }
+            allow(subject).to receive(:params).and_return(page_params)
+
+            expect do
+              subject.send(:validate_page_size_and_number_params)
+            end.to(raise_error do |error|
+              expect(error.message).to eq('Bad request')
+            end)
+          end
+        end
+
+        context 'when only one param is sent' do
+          context 'sets the param value and uses the default for the other' do
+            it 'sets default page number when page size is sent in' do
+              page_params = { page: { size: 5 } }
+              allow(subject).to receive(:params).and_return(page_params)
+
+              subject.send(:validate_page_size_and_number_params)
+              size = subject.instance_variable_get(:@page_size_param)
+              number = subject.instance_variable_get(:@page_number_param)
+
+              expect(size).to eq(5)
+              expect(number).to eq(1)
+            end
+
+            it 'sets default page size when page number is sent in' do
+              page_params = { page: { number: 2 } }
+              allow(subject).to receive(:params).and_return(page_params)
+
+              subject.send(:validate_page_size_and_number_params)
+              size = subject.instance_variable_get(:@page_size_param)
+              number = subject.instance_variable_get(:@page_number_param)
+
+              expect(size).to eq(10)
+              expect(number).to eq(2)
+            end
+          end
+        end
       end
     end
   end
 
-  def index_request_with(poa_codes:, auth_header:, filter: {})
+  def index_request_with(poa_codes:, auth_header:, filter: {}, page_params: nil)
     post v2_veterans_power_of_attorney_requests_path,
-         params: { data: { attributes: { poaCodes: poa_codes, filter: } } }.to_json,
-         headers: auth_header
+         params: { page: { size: page_params&.dig(:page, :size),
+                           number: page_params&.dig(:page, :number) },
+                   data: { attributes: { poaCodes: poa_codes, filter: } } }.to_json,
+         headers: auth_header.merge('Content-Type' => 'application/json')
   end
 
-  def decide_request_with(proc_id:, decision:, auth_header:, ptcpnt_id: nil, representative_id: nil)
-    post v2_veterans_power_of_attorney_requests_decide_path,
-         params: { data: { attributes: { procId: proc_id, decision:, participantId: ptcpnt_id,
+  def show_request_with(id:, auth_header:)
+    get "/services/claims/v2/veterans/power-of-attorney-requests/#{id}", headers: auth_header
+  end
+
+  def decide_request_with(id:, decision:, auth_header:, representative_id: nil)
+    post "/services/claims/v2/veterans/power-of-attorney-requests/#{id}/decide",
+         params: { data: { attributes: { id:,
+                                         decision:,
                                          representativeId: representative_id } } }.to_json,
-         headers: auth_header
+         headers: auth_header.merge('Content-Type' => 'application/json')
   end
 
   def create_request_with(veteran_id:, form_attributes:, auth_header:)
     post "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney-request",
          params: { data: { attributes: form_attributes } }.to_json,
-         headers: auth_header
+         headers: auth_header.merge('Content-Type' => 'application/json')
   end
 end

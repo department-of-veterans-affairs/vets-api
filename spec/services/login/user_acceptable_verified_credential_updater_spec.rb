@@ -14,7 +14,7 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdater do
       let(:user_account) { nil }
 
       it 'returns nil' do
-        expect(subject).to eq nil
+        expect(subject).to be_nil
       end
     end
 
@@ -26,7 +26,7 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdater do
         let(:icn) { nil }
 
         it 'returns nil' do
-          expect(subject).to eq nil
+          expect(subject).to be_nil
         end
       end
 

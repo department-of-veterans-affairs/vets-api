@@ -10,7 +10,7 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
   let(:user) { create(:user, :loa3) }
   let(:claim) { create(:evss_claim, user_uuid: user.uuid) }
   let(:tracker) { EVSSClaimsSyncStatusTracker.find_or_build(user.uuid) }
-  let(:client_stub) { instance_double('EVSS::ClaimsService') }
+  let(:client_stub) { instance_double(EVSS::ClaimsService) }
 
   describe '#perform' do
     before do

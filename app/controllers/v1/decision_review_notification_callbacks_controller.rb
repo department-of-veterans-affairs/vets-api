@@ -13,6 +13,7 @@ module V1
     skip_before_action :authenticate, only: [:create]
     skip_after_action :set_csrf_header, only: [:create]
     before_action :authenticate_header, only: [:create]
+    before_action :log_non_module_controller
 
     STATSD_KEY_PREFIX = 'api.decision_review.notification_callback'
 
@@ -46,6 +47,13 @@ module V1
     end
 
     private
+
+    def log_non_module_controller
+      Rails.logger.warn({
+                          message: 'Calling decision reviews controller outside module',
+                          action: 'Notification callbacks controller'
+                        })
+    end
 
     def log_params(payload, is_success)
       {

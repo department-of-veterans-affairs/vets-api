@@ -19,7 +19,6 @@ require 'evss/disability_compensation_form/configuration'
 require 'evss/documents_service'
 require 'evss/letters/service'
 require 'evss/pciu_address/configuration'
-require 'evss/reference_data/configuration'
 require 'gi/configuration'
 require 'gibft/configuration'
 require 'hca/configuration'
@@ -63,7 +62,6 @@ Rails.application.reloader.to_prepare do
     EVSS::Letters::Configuration.instance.breakers_service,
     EVSS::PCIUAddress::Configuration.instance.breakers_service,
     EVSS::Dependents::Configuration.instance.breakers_service,
-    EVSS::ReferenceData::Configuration.instance.breakers_service,
     Gibft::Configuration.instance.breakers_service,
     GI::Configuration.instance.breakers_service,
     HCA::Configuration.instance.breakers_service,
@@ -87,7 +85,6 @@ Rails.application.reloader.to_prepare do
     VAOS::Configuration.instance.breakers_service,
     Vye::DGIB::Configuration.instance.breakers_service,
     IAMSSOeOAuth::Configuration.instance.breakers_service,
-    CovidVaccine::V0::VetextConfiguration.instance.breakers_service,
     VEText::Configuration.instance.breakers_service,
     PagerDuty::Configuration.instance.breakers_service,
     ClaimsApi::LocalBGS.breakers_service,

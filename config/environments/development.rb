@@ -74,10 +74,17 @@ Rails.application.configure do
   # Raises error for missing translations.
   config.i18n.raise_on_missing_translations = true
 
+  config.action_controller.raise_on_missing_callback_actions = true
+
   ConfigHelper.setup_action_mailer(config)
 
   config.rails_semantic_logger.semantic   = false
   config.rails_semantic_logger.started    = true
   config.rails_semantic_logger.processing = true
   config.rails_semantic_logger.rendered   = true
+  # Prepend all log lines with the following tags.
+  config.log_tags = {
+    request_id: :request_id,
+    correlation_id: ->(request) { request.headers['Correlation-ID'] }
+  }
 end

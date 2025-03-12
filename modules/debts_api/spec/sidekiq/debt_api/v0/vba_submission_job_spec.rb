@@ -21,7 +21,7 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
 
       it 'updates submission on success' do
         described_class.new.perform(form_submission.id, user.uuid)
-        expect(form_submission.submitted?).to eq(true)
+        expect(form_submission.submitted?).to be(true)
       end
     end
 
@@ -67,6 +67,10 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         }
       end
 
+      before do
+        allow(Flipper).to receive(:enabled?).with(:debts_silent_failure_mailer).and_return(false)
+      end
+
       it 'handles MissingUserAttributesError' do
         expected_log_message = <<~LOG
           V0::Form5655::VBASubmissionJob retries exhausted:
@@ -82,8 +86,6 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         expect(Rails.logger).to receive(:error).with(
           "Form5655Submission id: #{form_submission.id} failed", 'VBASubmissionJob#perform: abc-123'
         )
-        expect(StatsD).to receive(:increment).with('silent_failure',
-                                                   tags: %w[service:debt-resolution function:register_failure])
         expect(Rails.logger).to receive(:error).with(expected_log_message)
         config.sidekiq_retries_exhausted_block.call(msg, missing_attributes_exception)
         expect(form_submission.reload.error_message).to eq('VBASubmissionJob#perform: abc-123')
@@ -104,8 +106,6 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         expect(Rails.logger).to receive(:error).with(
           "Form5655Submission id: #{form_submission.id} failed", 'VBASubmissionJob#perform: abc-123'
         )
-        expect(StatsD).to receive(:increment).with('silent_failure',
-                                                   tags: %w[service:debt-resolution function:register_failure])
         expect(Rails.logger).to receive(:error).with(expected_log_message)
         config.sidekiq_retries_exhausted_block.call(msg, standard_exception)
         expect(form_submission.reload.error_message).to eq('VBASubmissionJob#perform: abc-123')

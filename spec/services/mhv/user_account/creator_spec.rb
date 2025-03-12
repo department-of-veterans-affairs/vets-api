@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'mhv/account_creation/service'
 
 RSpec.describe MHV::UserAccount::Creator do
-  subject { described_class.new(user_verification:, break_cache:) }
+  subject { described_class.new(user_verification:, break_cache:, from_cache_only:) }
 
   let(:user_account) { create(:user_account, icn:) }
   let(:user_verification) { create(:user_verification, user_account:, user_credential_email:) }
@@ -14,6 +14,7 @@ RSpec.describe MHV::UserAccount::Creator do
   let(:email) { 'some-email@email.com' }
   let(:tou_occurred_at) { terms_of_use_agreement&.created_at }
   let(:break_cache) { false }
+  let(:from_cache_only) { false }
   let(:mhv_client) { instance_double(MHV::AccountCreation::Service) }
   let(:mhv_response_body) do
     {
@@ -30,7 +31,7 @@ RSpec.describe MHV::UserAccount::Creator do
 
     allow(MHV::AccountCreation::Service).to receive(:new).and_return(mhv_client)
     allow(mhv_client).to receive(:create_account)
-      .with(icn:, email:, tou_occurred_at:, break_cache:)
+      .with(icn:, email:, tou_occurred_at:, break_cache:, from_cache_only:)
       .and_return(mhv_response_body)
   end
 
@@ -50,13 +51,6 @@ RSpec.describe MHV::UserAccount::Creator do
       context 'when icn is not present' do
         let(:icn) { nil }
         let(:expected_error_message) { 'ICN must be present' }
-
-        it_behaves_like 'an invalid creator'
-      end
-
-      context 'when email is not present' do
-        let(:user_credential_email) { nil }
-        let(:expected_error_message) { 'Email must be present' }
 
         it_behaves_like 'an invalid creator'
       end
@@ -80,7 +74,8 @@ RSpec.describe MHV::UserAccount::Creator do
       context 'when break_cache is false' do
         it 'calls MHV::AccountCreation::Service#create_account with break_cache: false' do
           subject.perform
-          expect(mhv_client).to have_received(:create_account).with(icn:, email:, tou_occurred_at:, break_cache: false)
+          expect(mhv_client).to have_received(:create_account).with(icn:, email:, tou_occurred_at:, break_cache: false,
+                                                                    from_cache_only:)
         end
       end
 
@@ -89,7 +84,39 @@ RSpec.describe MHV::UserAccount::Creator do
 
         it 'calls MHV::AccountCreation::Service#create_account with break_cache: true' do
           subject.perform
-          expect(mhv_client).to have_received(:create_account).with(icn:, email:, tou_occurred_at:, break_cache: true)
+          expect(mhv_client).to have_received(:create_account).with(icn:, email:, tou_occurred_at:, break_cache: true,
+                                                                    from_cache_only:)
+        end
+      end
+
+      context 'when from_cache_only is true' do
+        let(:from_cache_only) { true }
+        let(:expected_cache_key) { "mhv_account_creation_#{icn}" }
+
+        before do
+          allow(Rails.cache).to receive(:read).with(expected_cache_key).and_return(mhv_response_body)
+        end
+
+        it 'calls MHV::AccountCreation::Service#create_account with from_cache_only: true' do
+          subject.perform
+          expect(mhv_client).to have_received(:create_account).with(icn:, email:, tou_occurred_at:, break_cache:,
+                                                                    from_cache_only: true)
+        end
+
+        context 'when the response is cached' do
+          it 'returns the cached response' do
+            mhv_user_account = subject.perform
+            expect(mhv_user_account).to be_a(MHVUserAccount)
+            expect(mhv_user_account).to be_valid
+          end
+        end
+
+        context 'when the response is not cached' do
+          let(:mhv_response_body) { nil }
+
+          it 'returns nil' do
+            expect(subject.perform).to be_nil
+          end
         end
       end
     end
@@ -138,13 +165,19 @@ RSpec.describe MHV::UserAccount::Creator do
         icn:
       }
     end
+    let(:mhv_error_body) { { 'message' => 'some-message', 'errorCode' => 'some-code' } }
 
     before do
-      allow(mhv_client).to receive(:create_account).and_raise(Common::Client::Errors::ClientError, 'error')
+      allow(mhv_client).to receive(:create_account).and_raise(
+        Common::Client::Errors::ClientError.new('error', 400, mhv_error_body)
+      )
     end
 
-    it 'logs and raises an error' do
-      expect { subject.perform }.to raise_error(MHV::UserAccount::Errors::MHVClientError)
+    it 'logs and raises an error with expected body' do
+      expect { subject.perform }.to raise_error(MHV::UserAccount::Errors::MHVClientError) do |error|
+        expect(error.body).to eq(mhv_error_body)
+      end
+
       expect(Rails.logger).to have_received(:error).with(expected_log_message, expected_log_payload)
     end
   end

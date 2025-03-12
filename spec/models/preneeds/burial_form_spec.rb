@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Preneeds::BurialForm do
   subject { described_class.new(params) }
 
-  let(:params) { attributes_for :burial_form }
+  let(:params) { attributes_for(:burial_form) }
 
   describe 'when setting defaults' do
     it 'generates a tracking_number' do

@@ -14,6 +14,7 @@ require 'shoulda/matchers'
 require 'support/stub_va_profile'
 require 'support/mpi/stub_mpi'
 require 'support/factory_bot'
+require 'support/authenticated_session_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -59,13 +60,24 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
 
   config.infer_spec_type_from_file_location!
+  config.include FactoryBot::Syntax::Methods
 
   # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 
+  ## authentication_session_helper
+  config.include AuthenticatedSessionHelper, type: :request
+  config.include AuthenticatedSessionHelper, type: :controller
+
   config.include StatsD::Instrument::Matchers
+
+  config.include FactoryBot::Syntax::Methods
+
+  config.before :each, type: :controller do
+    request.host = Settings.hostname
+  end
 end
 
 Gem::Deprecate.skip = true

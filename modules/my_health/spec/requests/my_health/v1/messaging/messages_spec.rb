@@ -53,7 +53,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('category')
+      expect(response).to match_response_schema('my_health/messaging/v1/category')
     end
 
     it 'responds to GET messages/categories when camel-inflected' do
@@ -63,7 +63,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
-      expect(response).to match_camelized_response_schema('category')
+      expect(response).to match_camelized_response_schema('my_health/messaging/v1/category')
     end
 
     it 'returns message signature preferences' do
@@ -72,7 +72,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
       end
 
       result = JSON.parse(response.body)
-      expect(result['data']['includeSignature']).to eq(true)
+      expect(result['data']['includeSignature']).to be(true)
       expect(result['data']['signatureTitle']).to eq('test-api title')
       expect(result['data']['signatureName']).to eq('test-api Name')
     end
@@ -96,7 +96,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
       # It should decode html entities
       expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('Quote test: “test”')
       expect(JSON.parse(response.body)['data']['attributes']['body']).to eq(expected_body_content)
-      expect(response).to match_response_schema('message')
+      expect(response).to match_response_schema('my_health/messaging/v1/message')
     end
 
     it 'responds to GET #show when camel-inflected' do
@@ -106,7 +106,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
-      expect(response).to match_camelized_response_schema('message')
+      expect(response).to match_camelized_response_schema('my_health/messaging/v1/message')
     end
 
     describe 'POST create' do
@@ -133,7 +133,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
-          expect(response).to match_response_schema('message')
+          expect(response).to match_response_schema('my_health/messaging/v1/message')
         end
 
         it 'without attachments when camel-inflected' do
@@ -145,7 +145,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
-          expect(response).to match_camelized_response_schema('message')
+          expect(response).to match_camelized_response_schema('my_health/messaging/v1/message')
         end
 
         it 'with attachments' do
@@ -157,7 +157,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
-          expect(response).to match_response_schema('message_with_attachment')
+          expect(response).to match_response_schema('my_health/messaging/v1/message_with_attachment')
         end
 
         it 'with attachments when camel-inflected' do
@@ -169,7 +169,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
-          expect(response).to match_camelized_response_schema('message_with_attachment')
+          expect(response).to match_camelized_response_schema('my_health/messaging/v1/message_with_attachment')
         end
       end
 
@@ -185,7 +185,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
-          expect(response).to match_response_schema('message')
+          expect(response).to match_response_schema('my_health/messaging/v1/message')
         end
 
         it 'without attachments when camel-inflected' do
@@ -199,7 +199,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
-          expect(response).to match_camelized_response_schema('message')
+          expect(response).to match_camelized_response_schema('my_health/messaging/v1/message')
         end
 
         it 'with attachments' do
@@ -211,7 +211,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
-          expect(response).to match_response_schema('message_with_attachment')
+          expect(response).to match_response_schema('my_health/messaging/v1/message_with_attachment')
         end
 
         it 'with attachments when camel-inflected' do
@@ -225,7 +225,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
-          expect(response).to match_camelized_response_schema('message_with_attachment')
+          expect(response).to match_camelized_response_schema('my_health/messaging/v1/message_with_attachment')
         end
       end
     end
@@ -250,7 +250,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         expect(first_message['sent_date']).to be_nil
         expect(first_message['draft_date']).to eq('2023-12-19T17:21:47.000+00:00')
         expect(first_message['triage_group_name']).to eq('TG API TESTING')
-        expect(first_message['has_attachments']).to eq(false)
+        expect(first_message['has_attachments']).to be(false)
         expect(first_message['subject']).to eq('Test Inquiry')
         expect(first_message['category']).to eq('TEST_RESULTS')
         expect(first_message['folder_id']).to eq(-2)

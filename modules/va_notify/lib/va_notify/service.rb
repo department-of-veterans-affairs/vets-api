@@ -117,7 +117,7 @@ module VaNotify
         source_location: find_caller_locations,
         callback_klass: callback_options[:callback_klass] || callback_options['callback_klass'],
         callback_metadata: callback_options[:callback_metadata] || callback_options['callback_metadata'],
-        template_id: template_id
+        template_id:
       )
 
       if notification.save
@@ -135,7 +135,7 @@ module VaNotify
         'VANotify notification record failed to save',
         {
           error_messages: notification.errors,
-          template_id: template_id
+          template_id:
         }
       )
     end
@@ -145,7 +145,7 @@ module VaNotify
         "VANotify notification: #{notification.id} saved",
         {
           source_location: notification.source_location,
-          template_id: template_id,
+          template_id:,
           callback_metadata: notification.callback_metadata,
           callback_klass: notification.callback_klass
         }
@@ -164,7 +164,7 @@ module VaNotify
       caller_locations.each do |location|
         next if ignored_files.any? { |path| location.path.include?(path) }
 
-        return "#{location.path}:#{location.lineno} in #{location.label}"
+        return "#{location.path}:#{location.lineno} in #{location.base_label}"
       end
     end
   end

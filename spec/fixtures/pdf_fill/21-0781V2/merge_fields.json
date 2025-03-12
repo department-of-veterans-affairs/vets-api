@@ -31,11 +31,24 @@
     "nonMst": true,
     "other": false
   },
-  "eventsDetails": [
+  "events": [
     {
       "details": "Lorem ipsum dolor sit amet.",
       "location": "abcdefghijklmn opqrstuvwxyz1234a",
       "timing": "Summer of '70",
+      "militaryReports": {
+        "restricted": true,
+        "unrestricted": false,
+        "pre2005": false
+      },
+      "otherReports": {
+        "police": true
+      },
+      "agency": "SVI",
+      "city": "Dallas",
+      "state": "TX",
+      "township": "",
+      "country": "USA",
       "eventOverflow": {
         "value": "",
         "extras_value": "Event Number: 1\n\nEvent Description: \n\nLorem ipsum dolor sit amet.\n\nEvent Location: \n\nabcdefghijklmn opqrstuvwxyz1234a\n\nEvent Date: \n\nSummer of '70"
@@ -45,41 +58,23 @@
       "details": "Lorem ipsum dolor sit amet.",
       "location": "abcdefghijklmn opqrstuvwxyz1234a",
       "timing": "June 2007",
+      "unlistedReport": "incident report",
       "eventOverflow": {
         "value": "",
         "extras_value": "Event Number: 2\n\nEvent Description: \n\nLorem ipsum dolor sit amet.\n\nEvent Location: \n\nabcdefghijklmn opqrstuvwxyz1234a\n\nEvent Date: \n\nJune 2007"
       }
     }
   ],
-  "reports": {
-    "yes": true,
-    "no": false,
-    "restricted": true,
-    "unrestricted": false,
-    "neither": false,
-    "police": true,
-    "other": true
-  },
-  "reportsDetails": {
-    "police": "SVI, Dallas, TX, USA",
-    "other": "incident report"
-  },
   "behaviors": {
     "reassignment": true,
-    "absences": false,
     "performance": true,
     "consultations": false,
     "episodes": true,
-    "medications": false,
     "selfMedication": true,
-    "substances": false,
     "appetite": true,
-    "pregnancy": false,
     "screenings": true,
-    "socialEconomic": false,
     "relationships": true,
-    "misconduct": false,
-    "otherBehavior": "Lorem"
+    "unlisted": true
   },
   "behaviorsDetails": {
     "reassignment": "requested duty assignment",
@@ -89,7 +84,7 @@
     "appetite": "skipping meals",
     "screenings": "positive tests",
     "relationships": "separation",
-    "otherBehavior": "Lorem: Lorem ipsum dolor sit amet."
+    "unlisted": "Lorem ipsum dolor sit amet."
   },
   "evidence": {
     "crisisCenter": true,
@@ -105,15 +100,13 @@
     "other": true,
     "otherDetails": "photographic evidence"
   },
-  "traumaTreatment": false,
-  "treatmentProviders": {
-    "privateCare": true,
-    "vetCenter": false,
-    "communityCare": false,
-    "vamc": true,
-    "cboc": false,
-    "mtf": true,
+  "treatmentNoneCheckbox": {
     "none": false
+  },
+  "treatmentProviders": {
+    "nonVa": true,
+    "medicalCenter": true,
+    "dod": true
   },
   "treatmentProvidersDetails": [
     {
@@ -163,15 +156,18 @@
     "second": "45",
     "third": "6789"
   },
-  "treatment": 1,
-  "noTreatment": 1,
-  "reportFiled": 0,
-  "noReportFiled": null,
+  "treatment": 0,
+  "noTreatment": 0,
+  "reportsDetails": {
+    "police": "SVI, Dallas, TX, USA",
+    "other": "incident report"
+  },
   "restrictedReport": 0,
   "unrestrictedReport": null,
   "neitherReport": null,
   "policeReport": 3,
   "otherReport": 4,
+  "reportFiled": 0,
+  "noReportFiled": null,
   "signature": "/es/ Testy Testerson"
 }
-

@@ -8,6 +8,7 @@ require 'bgs_service/vnp_ptcpnt_addrs_service'
 require 'bgs_service/vnp_ptcpnt_phone_service'
 require 'bgs_service/vnp_ptcpnt_service'
 require 'concurrent-ruby'
+require 'brd/brd'
 
 module ClaimsApi
   module PowerOfAttorneyRequestService
@@ -16,14 +17,14 @@ module ClaimsApi
       PHONE_TYPE = 'Daytime'
       PTCPNT_TYPE = 'Person'
       REPRESENTATIVE_TYPE = 'Recognized Veterans Service Organization'
-      VDC_STATUS = 'Submitted'
+      VDC_STATUS = 'SUBMITTED'
 
-      def initialize(veteran_participant_id, form_data, claimant_participant_id = nil, poa_key = :serviceOrganization)
+      def initialize(veteran_participant_id, form_data, claimant_participant_id = nil)
         @veteran_participant_id = veteran_participant_id
         @form_data = form_data
         @claimant_participant_id = claimant_participant_id
         @has_claimant = claimant_participant_id.present?
-        @poa_key = poa_key
+        @poa_key = :poa
       end
 
       def call
@@ -49,20 +50,20 @@ module ClaimsApi
         form_promise.value!
         @veteran_vnp_ptcpnt_id = ptcpnt_promise.value![:vnp_ptcpnt_id]
 
-        create_vonapp_data(@form_data[:veteran], @veteran_vnp_ptcpnt_id, trace_digest)
+        create_vonapp_data(@form_data[:veteran], @veteran_vnp_ptcpnt_id, trace_digest, 'veteran')
 
-        if @has_claimant
-          @claimant_vnp_ptcpnt_id = create_vnp_ptcpnt(@claimant_participant_id)[:vnp_ptcpnt_id]
-          create_vonapp_data(@form_data[:claimant], @claimant_vnp_ptcpnt_id, trace_digest)
-        end
+        create_claimant(trace_digest) if @has_claimant
 
-        create_veteran_representative
+        veteran_rep_obj = create_veteran_representative
+        add_meta_ids(veteran_rep_obj)
       end
 
       private
 
-      def create_vonapp_data(person, vnp_ptcpnt_id, trace_digest) # rubocop:disable Metrics/MethodLength
+      def create_vonapp_data(person, vnp_ptcpnt_id, trace_digest, type) # rubocop:disable Metrics/MethodLength
         promises = []
+        @vnp_res_object ||= { 'meta' => {} }
+        @vnp_res_object['meta'][type] ||= {}
 
         promises << Concurrent::Promise.execute do
           Datadog::Tracing.continue_trace!(trace_digest) do
@@ -72,14 +73,16 @@ module ClaimsApi
 
         promises << Concurrent::Promise.execute do
           Datadog::Tracing.continue_trace!(trace_digest) do
-            create_vnp_mailing_address(person[:address], vnp_ptcpnt_id)
+            res = create_vnp_mailing_address(person[:address], vnp_ptcpnt_id)
+            @vnp_res_object['meta'][type.to_s]['vnp_mail_id'] = res[:vnp_ptcpnt_addrs_id] if res
           end
         end
 
         if person[:email]
           promises << Concurrent::Promise.execute do
             Datadog::Tracing.continue_trace!(trace_digest) do
-              create_vnp_email_address(person[:email], vnp_ptcpnt_id)
+              res = create_vnp_email_address(person[:email], vnp_ptcpnt_id)
+              @vnp_res_object['meta'][type.to_s]['vnp_email_id'] = res[:vnp_ptcpnt_addrs_id] if res
             end
           end
         end
@@ -87,13 +90,19 @@ module ClaimsApi
         if person[:phone]
           promises << Concurrent::Promise.execute do
             Datadog::Tracing.continue_trace!(trace_digest) do
-              create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
+              res = create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
+              @vnp_res_object['meta'][type.to_s]['vnp_phone_id'] = res[:vnp_ptcpnt_phone_id] if res
             end
           end
         end
 
         # Wait for all promises to complete and raise any errors that occurred
         promises.each(&:value!)
+      end
+
+      def create_claimant(trace_digest)
+        @claimant_vnp_ptcpnt_id = create_vnp_ptcpnt(@claimant_participant_id)[:vnp_ptcpnt_id]
+        create_vonapp_data(@form_data[:claimant], @claimant_vnp_ptcpnt_id, trace_digest, 'claimant')
       end
 
       def create_vnp_proc
@@ -161,7 +170,7 @@ module ClaimsApi
               addrs_two_txt: address[:addressLine2],
               bad_addrs_ind: nil,
               city_nm: address[:city],
-              cntry_nm: address[:country],
+              cntry_nm: ClaimsApi::BRD::COUNTRY_CODES[address[:countryCode].to_s.upcase],
               county_nm: nil,
               eft_waiver_type_nm: nil,
               email_addrs_txt: nil,
@@ -273,7 +282,7 @@ module ClaimsApi
               organization_name: @form_data.dig(@poa_key, :organizationName),
               other_service_branch: @form_data.dig(:veteran, :serviceBranchOther),
               phone_number: @form_data[:veteran][:phone].present? ? format_phone(@form_data[:veteran][:phone]) : nil,
-              poa_code: @form_data.dig(@poa_key, :poaCode),
+              poa_code: @form_data.dig(:representative, :poaCode),
               postal_code: @form_data[:veteran][:address][:zipCode],
               proc_id: @vnp_proc_id,
               representative_first_name: @form_data.dig(@poa_key, :firstName),
@@ -319,6 +328,22 @@ module ClaimsApi
 
       def format_phone(phone)
         "#{phone[:areaCode]}#{phone[:phoneNumber]}"
+      end
+
+      def add_meta_ids(vet_obj)
+        return vet_obj if @vnp_res_object['meta'].blank?
+
+        vet_obj['meta'] ||= {}
+        vet_obj['meta'] = remove_nil_values(@vnp_res_object['meta'])
+
+        vet_obj
+      end
+
+      def remove_nil_values(res_object_hash)
+        res_object_hash.each_with_object({}) do |(key, value), result|
+          cleaned_value = value.is_a?(Hash) ? remove_nil_values(value) : value
+          result[key] = cleaned_value unless cleaned_value.nil?
+        end
       end
     end
   end

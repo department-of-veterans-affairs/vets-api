@@ -35,7 +35,7 @@ RSpec.describe EducationForm::Forms::VA5490 do
         end
 
         it 'previously_applied_for_benefits? should return false' do
-          expect(subject.previously_applied_for_benefits?).to eq(false)
+          expect(subject.previously_applied_for_benefits?).to be(false)
         end
       end
 
@@ -63,7 +63,7 @@ RSpec.describe EducationForm::Forms::VA5490 do
         end
 
         it 'previously_applied_for_benefits? should return true' do
-          expect(subject.previously_applied_for_benefits?).to eq(true)
+          expect(subject.previously_applied_for_benefits?).to be(true)
         end
       end
     end

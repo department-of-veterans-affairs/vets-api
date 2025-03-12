@@ -4,8 +4,8 @@ module SAML
   # rubocop:disable Metrics/MethodLength, Metrics/ModuleLength
   module ResponseBuilder
     MHV_PREMIUM_ATYPE = [
-      '{"accountType":"Premium","availableServices":{"21":"VA Medications","4":"Secure Messaging","3":"VA Allergies"'\
-      ',"2":"Rx Refill","12":"Blue Button (all VA data)","1":"Blue Button self entered data.","11":"Blue Button (DoD)'\
+      '{"accountType":"Premium","availableServices":{"21":"VA Medications","4":"Secure Messaging","3":"VA Allergies"' \
+      ',"2":"Rx Refill","12":"Blue Button (all VA data)","1":"Blue Button self entered data.","11":"Blue Button (DoD)' \
       ' Military Service Information"}}'
     ].freeze
 
@@ -76,7 +76,7 @@ module SAML
       build_invalid_saml_response(
         in_response_to: uuid,
         decrypted_document: document_partial,
-        errors: ['The status code of the Response was not Success, was Responder => AuthnFailed '\
+        errors: ['The status code of the Response was not Success, was Responder => AuthnFailed ' \
                  '-> Subject did not consent to attribute release',
                  'SAML Response must contain 1 assertion',
                  'The Assertion must include one Conditions element',

@@ -12,7 +12,7 @@ module V0
     service_tag 'healthcare-application'
     FORM_ID = '1010ez'
 
-    skip_before_action(:authenticate, only: %i[create show enrollment_status healthcheck facilities])
+    skip_before_action(:authenticate, only: %i[create show enrollment_status healthcheck facilities download_pdf])
 
     before_action :record_submission_attempt, only: :create
     before_action :load_user, only: %i[create enrollment_status]
@@ -30,6 +30,11 @@ module V0
 
       hca_rating_info = { user_percent_of_disability: disability_rating }
       render json: HCARatingInfoSerializer.new(hca_rating_info)
+    end
+
+    def show
+      application = HealthCareApplication.find(params[:id])
+      render json: HealthCareApplicationSerializer.new(application)
     end
 
     def create
@@ -50,11 +55,6 @@ module V0
       else
         render json: result
       end
-    end
-
-    def show
-      application = HealthCareApplication.find(params[:id])
-      render json: HealthCareApplicationSerializer.new(application)
     end
 
     def enrollment_status
@@ -83,7 +83,27 @@ module V0
       render(json: active_facilities(lighthouse_facilities))
     end
 
+    # If we were unable to submit the user's claim digitally, we allow them to the download
+    # the 10-10EZ PDF, pre-filled with their data, for them to mail in.
+    def download_pdf
+      source_file_path = PdfFill::Filler.fill_form(health_care_application, SecureRandom.uuid)
+
+      client_file_name = file_name_for_pdf(health_care_application.parsed_form)
+      file_contents    = File.read(source_file_path)
+
+      send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
+    ensure
+      File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
+    end
+
     private
+
+    def file_name_for_pdf(parsed_form)
+      veteran_name = parsed_form.try(:[], 'veteranFullName')
+      first_name = veteran_name.try(:[], 'first') || 'First'
+      last_name = veteran_name.try(:[], 'last') || 'Last'
+      "10-10EZ_#{first_name}_#{last_name}.pdf"
+    end
 
     def active_facilities(lighthouse_facilities)
       active_ids = active_ves_facility_ids
@@ -110,6 +130,10 @@ module V0
     end
 
     def lighthouse_facilities_service
+      if Flipper.enabled?(:hca_ez_use_facilities_v2)
+        @lighthouse_facilities_service ||= FacilitiesApi::V2::Lighthouse::Client.new
+      end
+
       @lighthouse_facilities_service ||= Lighthouse::Facilities::V1::Client.new
     end
 

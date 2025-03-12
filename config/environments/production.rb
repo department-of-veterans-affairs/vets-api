@@ -63,7 +63,8 @@ Rails.application.configure do
     consumer_username: ->(request) { request.headers['X-Consumer-Username'] },
     consumer_custom_id: ->(request) { request.headers['X-Consumer-Custom-ID'] },
     credential_username: ->(request) { request.headers['X-Credential-Username'] },
-    csrf_token: ->(request) { request.headers['X-Csrf-Token'] }
+    csrf_token: ->(request) { request.headers['X-Csrf-Token'] },
+    correlation_id: ->(request) { request.headers['Correlation-ID'] }
   }
 
   config.rails_semantic_logger.format = :json
@@ -106,7 +107,7 @@ Rails.application.configure do
   config.active_support.disallowed_deprecation_warnings = []
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
-  config.log_formatter = ::Logger::Formatter.new
+  config.log_formatter = Logger::Formatter.new
 
   # Use a different logger for distributed setups.
   # require 'syslog/logger'

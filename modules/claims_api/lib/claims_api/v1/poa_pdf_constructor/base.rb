@@ -93,6 +93,20 @@ module ClaimsApi
           "#{address['numberAndStreet']}, #{address['city']} #{address['state']} #{address['zipFirstFive']}"
         end
 
+        def handle_country_code(phone)
+          return if phone.blank?
+
+          country_code = phone['countryCode']
+          area_code = phone['areaCode']
+          phone_number = phone['phoneNumber']
+
+          if country_code.blank?
+            "#{area_code} #{phone_number}"
+          else
+            "+#{country_code} #{area_code} #{phone_number}"
+          end
+        end
+
         private
 
         #
@@ -140,6 +154,13 @@ module ClaimsApi
             flatten: true
           )
           @page2_path = temp_path
+        end
+
+        # With how the PDF reads, we leave blank if included in the form data, all other scenarios they are checked
+        def set_limitation_of_consent_check_box(consent_limits, item)
+          return 1 if consent_limits.blank?
+
+          consent_limits.include?(item) ? 0 : 1
         end
 
         #

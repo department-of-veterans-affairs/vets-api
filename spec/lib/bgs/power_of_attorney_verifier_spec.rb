@@ -4,8 +4,8 @@ require 'rails_helper'
 require 'bgs/power_of_attorney_verifier'
 
 describe BGS::PowerOfAttorneyVerifier do
-  let(:user) { FactoryBot.create(:user, :loa3) }
-  let(:identity) { FactoryBot.create(:user_identity) }
+  let(:user) { create(:user, :loa3) }
+  let(:identity) { create(:user_identity) }
 
   before do
     external_key = user.common_name || user.email
@@ -16,7 +16,7 @@ describe BGS::PowerOfAttorneyVerifier do
   end
 
   it 'does not raise an exception if poa matches' do
-    FactoryBot.create(
+    create(
       :representative,
       poa_codes: ['A1Q'],
       first_name: identity.first_name,
@@ -28,7 +28,7 @@ describe BGS::PowerOfAttorneyVerifier do
   end
 
   it 'raises an exception if poa does not matches' do
-    FactoryBot.create(
+    create(
       :representative,
       poa_codes: ['B1Q'],
       first_name: identity.first_name,
@@ -73,7 +73,7 @@ describe BGS::PowerOfAttorneyVerifier do
       end
 
       it "does an additional search using 'middle_initial'" do
-        FactoryBot.create(
+        create(
           :representative,
           representative_id: '1234',
           poa_codes: ['A1Q'],
@@ -81,7 +81,7 @@ describe BGS::PowerOfAttorneyVerifier do
           last_name: identity.last_name,
           middle_initial: 'B'
         )
-        FactoryBot.create(
+        create(
           :representative,
           representative_id: '5678',
           poa_codes: ['B1Q'],
@@ -106,7 +106,7 @@ describe BGS::PowerOfAttorneyVerifier do
       context 'and the additional search returns a single result' do
         context 'and the poa code does match' do
           it 'does not error' do
-            FactoryBot.create(
+            create(
               :representative,
               representative_id: '1234',
               poa_codes: ['A1Q'],
@@ -114,7 +114,7 @@ describe BGS::PowerOfAttorneyVerifier do
               last_name: identity.last_name,
               middle_initial: 'B'
             )
-            FactoryBot.create(
+            create(
               :representative,
               representative_id: '5678',
               poa_codes: ['B1Q'],
@@ -131,7 +131,7 @@ describe BGS::PowerOfAttorneyVerifier do
 
         context 'and the poa code does not match' do
           it 'raises an error' do
-            FactoryBot.create(
+            create(
               :representative,
               representative_id: '1234',
               poa_codes: ['NOT GONNA MATCH'],
@@ -139,7 +139,7 @@ describe BGS::PowerOfAttorneyVerifier do
               last_name: identity.last_name,
               middle_initial: 'B'
             )
-            FactoryBot.create(
+            create(
               :representative,
               representative_id: '5678',
               poa_codes: ['B1Q'],
@@ -159,7 +159,7 @@ describe BGS::PowerOfAttorneyVerifier do
 
       context 'and the additional search still returns multiple results' do
         it "raises an error for 'ambiguity'" do
-          FactoryBot.create(
+          create(
             :representative,
             representative_id: '1234',
             poa_codes: ['A1Q'],
@@ -167,7 +167,7 @@ describe BGS::PowerOfAttorneyVerifier do
             last_name: identity.last_name,
             middle_initial: 'B'
           )
-          FactoryBot.create(
+          create(
             :representative,
             representative_id: '5678',
             poa_codes: ['B1Q'],
@@ -232,7 +232,7 @@ describe BGS::PowerOfAttorneyVerifier do
       end
 
       it "does an additional search using 'poa_code'" do
-        FactoryBot.create(
+        create(
           :representative,
           representative_id: '1234',
           poa_codes: ['A1Q'],
@@ -240,7 +240,7 @@ describe BGS::PowerOfAttorneyVerifier do
           last_name: identity.last_name,
           middle_initial: 'B'
         )
-        FactoryBot.create(
+        create(
           :representative,
           representative_id: '5678',
           poa_codes: ['B1Q'],
@@ -265,7 +265,7 @@ describe BGS::PowerOfAttorneyVerifier do
       context 'and the additional search returns a single result' do
         context 'and the poa code does match' do
           it 'does not error' do
-            FactoryBot.create(
+            create(
               :representative,
               representative_id: '1234',
               poa_codes: ['A1Q'],
@@ -273,7 +273,7 @@ describe BGS::PowerOfAttorneyVerifier do
               last_name: identity.last_name,
               middle_initial: 'B'
             )
-            FactoryBot.create(
+            create(
               :representative,
               representative_id: '5678',
               poa_codes: ['B1Q'],
@@ -290,7 +290,7 @@ describe BGS::PowerOfAttorneyVerifier do
 
         context 'and the poa code does not match' do
           it 'raises an error' do
-            FactoryBot.create(
+            create(
               :representative,
               representative_id: '1234',
               poa_codes: ['NOT GONNA MATCH'],
@@ -298,7 +298,7 @@ describe BGS::PowerOfAttorneyVerifier do
               last_name: identity.last_name,
               middle_initial: 'B'
             )
-            FactoryBot.create(
+            create(
               :representative,
               representative_id: '5678',
               poa_codes: ['B1Q'],
@@ -318,7 +318,7 @@ describe BGS::PowerOfAttorneyVerifier do
 
       context 'and the additional search still returns multiple results' do
         it "raises an error for 'ambiguity'" do
-          FactoryBot.create(
+          create(
             :representative,
             representative_id: '1234',
             poa_codes: ['A1Q'],
@@ -326,7 +326,7 @@ describe BGS::PowerOfAttorneyVerifier do
             last_name: identity.last_name,
             middle_initial: 'B'
           )
-          FactoryBot.create(
+          create(
             :representative,
             representative_id: '5678',
             poa_codes: ['A1Q'],

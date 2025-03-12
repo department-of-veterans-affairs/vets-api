@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/virus_scan'
-require 'ddtrace'
+require 'datadog'
 
 class Shrine
   module Plugins

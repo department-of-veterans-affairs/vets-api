@@ -1,0 +1,52 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+    "lac": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "enriched_id": { 
+            "type": "string"
+          },
+          "lac_nm": { 
+            "type": "string"
+          },
+          "edu_lac_type_nm": { 
+            "type": "string"
+          },
+          "state": { 
+            "type": "string"
+          },
+          "tests": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "object",
+              "properties" : {
+                "name": {
+                  "type": "string"
+                },
+                "fee": {
+                  "type": ["string", "null"]
+                }
+              }
+            }
+          },
+          "institution": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "institution.json"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+  

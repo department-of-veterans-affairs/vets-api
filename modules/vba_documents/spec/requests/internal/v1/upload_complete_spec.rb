@@ -89,7 +89,7 @@ RSpec.describe 'VBADocument::Internal::V1::UploadComplete', type: :request do
   end
 
   context 'with a notification message type' do
-    let(:upload) { FactoryBot.create(:upload_submission) }
+    let(:upload) { create(:upload_submission) }
     # rubocop:disable Layout/LineLength
     let(:headers) do
       {

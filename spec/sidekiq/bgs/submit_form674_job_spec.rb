@@ -4,9 +4,9 @@ require 'rails_helper'
 require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm674Job, type: :job do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:birth_date) { '1809-02-12' }
   let(:client_stub) { instance_double(BGS::Form674) }
   let(:vet_info) do
@@ -39,7 +39,8 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       participant_id: vet_info['veteran_information']['participant_id'],
       icn: vet_info['veteran_information']['icn'],
       uuid: vet_info['veteran_information']['uuid'],
-      common_name: vet_info['veteran_information']['common_name']
+      common_name: vet_info['veteran_information']['common_name'],
+      auto674: nil
     )
   end
   let(:encrypted_user_struct) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }

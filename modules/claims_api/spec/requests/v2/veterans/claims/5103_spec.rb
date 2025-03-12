@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../../rails_helper'
+require 'bgs_service/person_web_service'
 
 RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
   let(:veteran_id) { '1012667145V762142' }
@@ -268,7 +269,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
 
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
-                    post(sub_path, headers: auth_header, params: json_params)
+                    post sub_path, headers: auth_header, params: json_params, as: :json
                     expect(response).to have_http_status(:unprocessable_entity)
                   end
                 end
@@ -279,7 +280,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
                 json_params['data']['attributes']['trackedItemIds'] = [false]
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
-                    post(sub_path, headers: auth_header, params: json_params)
+                    post sub_path, headers: auth_header, params: json_params, as: :json
                     parsed_response = JSON.parse(response.body)
                     expect(response).to have_http_status(:unprocessable_entity)
                     expect(parsed_response['errors'][0]['detail']).to eq(

@@ -15,38 +15,36 @@ FactoryBot.define do
     }
 
     factory :va1995_full_form do
-      form { File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'kitchen_sink.json')) }
+      form { Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'kitchen_sink.json').read }
     end
 
     factory :va1995_with_stem do
       form {
-        File.read(
-          Rails.root.join(
-            'spec',
-            'fixtures',
-            'education_benefits_claims',
-            '1995'
-          )
-        )
+        Rails.root.join(
+          'spec',
+          'fixtures',
+          'education_benefits_claims',
+          '1995'
+        ).read
       }
     end
 
     factory :va1995_ch33_post911 do
-      form { File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'ch33_post911.json')) }
+      form { Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'ch33_post911.json').read }
     end
 
     factory :va1995_ch33_fry do
-      form { File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'ch33_fry.json')) }
+      form { Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'ch33_fry.json').read }
     end
 
     # Montgomery GI Bill (MGIB-AD, Chapter 30)
     factory :va1995_ch30 do
-      form { File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'ch30.json')) }
+      form { Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'ch30.json').read }
     end
 
     # Montgomery GI Bill Selected Reserve (MGIB-SR, Chapter 1606)
     factory :va1995_ch1606 do
-      form { File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'ch1606.json')) }
+      form { Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'ch1606.json').read }
     end
   end
 end

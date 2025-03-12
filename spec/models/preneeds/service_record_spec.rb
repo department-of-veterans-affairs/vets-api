@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Preneeds::ServiceRecord do
   subject { described_class.new(params) }
 
-  let(:params) { attributes_for :service_record }
+  let(:params) { attributes_for(:service_record) }
 
   it 'specifies the permitted_params' do
     expect(described_class.permitted_params).to include(

@@ -6,7 +6,7 @@ require 'evss/documents_service'
 describe EVSS::DocumentsService do
   subject { described_class.new(auth_headers) }
 
-  let(:current_user) { FactoryBot.create(:evss_user) }
+  let(:current_user) { create(:evss_user) }
   let(:auth_headers) { EVSS::AuthHeaders.new(current_user).to_h }
   let(:transaction_id) { auth_headers['va_eauth_service_transaction_id'] }
 
@@ -26,7 +26,7 @@ describe EVSS::DocumentsService do
         erb: { transaction_id: },
         match_requests_on: VCR.all_matches
       ) do
-        demo_file_name = ::Rails.root.join(*'/spec/fixtures/files/doctors-note.pdf'.split('/')).to_s
+        demo_file_name = Rails.root.join(*'/spec/fixtures/files/doctors-note.pdf'.split('/')).to_s
         File.open(demo_file_name, 'rb') do |f|
           response = subject.upload(f, document_data)
           expect(response).to be_success
@@ -49,7 +49,7 @@ describe EVSS::DocumentsService do
     context 'with a backend service error' do
       it 'raises EVSSError' do
         VCR.use_cassette('evss/documents/upload_with_errors') do
-          demo_file_name = ::Rails.root.join(*'/spec/fixtures/files/doctors-note.pdf'.split('/')).to_s
+          demo_file_name = Rails.root.join(*'/spec/fixtures/files/doctors-note.pdf'.split('/')).to_s
           File.open(demo_file_name, 'rb') do |f|
             expect { subject.upload(f, document_data) }.to raise_exception(EVSS::ErrorMiddleware::EVSSError)
           end

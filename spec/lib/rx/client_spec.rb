@@ -29,7 +29,7 @@ describe Rx::Client do
       VCR.use_cassette('rx_client/preferences/gets_rx_preferences') do
         client_response = client.get_preferences
         expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
-        expect(client_response.rx_flag).to eq(true)
+        expect(client_response.rx_flag).to be(true)
       end
     end
 
@@ -37,11 +37,11 @@ describe Rx::Client do
       VCR.use_cassette('rx_client/preferences/sets_rx_preferences') do
         client_response = client.post_preferences(email_address: 'kamyar.karshenas@va.gov', rx_flag: false)
         expect(client_response.email_address).to eq('kamyar.karshenas@va.gov')
-        expect(client_response.rx_flag).to eq(false)
+        expect(client_response.rx_flag).to be(false)
         # Change it back to what it was to make this test idempotent
         client_response = client.post_preferences(email_address: 'Praneeth.Gaganapally@va.gov', rx_flag: true)
         expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
-        expect(client_response.rx_flag).to eq(true)
+        expect(client_response.rx_flag).to be(true)
       end
     end
 
@@ -72,7 +72,7 @@ describe Rx::Client do
         if caching_enabled
           expect(cache_key_for(client_response)).to eq("#{client.session.user_id}:getactiverx")
         else
-          expect(cache_key_for(client_response)).to eq(nil)
+          expect(cache_key_for(client_response)).to be_nil
         end
       end
     end
@@ -87,7 +87,7 @@ describe Rx::Client do
         if caching_enabled
           expect(cache_key_for(client_response)).to eq("#{client.session.user_id}:gethistoryrx")
         else
-          expect(cache_key_for(client_response)).to eq(nil)
+          expect(cache_key_for(client_response)).to be_nil
         end
       end
     end
@@ -144,8 +144,8 @@ describe Rx::Client do
           client_response = client.get_tracking_history_rx(13_650_541)
           expect(client_response).to be_a(Common::Collection)
           expect(client_response.members.first.prescription_id).to eq(13_650_541)
-          expect(client_response.cached?).to eq(false)
-          expect(cache_key_for(client_response)).to eq(nil)
+          expect(client_response.cached?).to be(false)
+          expect(cache_key_for(client_response)).to be_nil
         end
       end
     end

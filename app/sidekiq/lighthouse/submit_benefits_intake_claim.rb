@@ -2,18 +2,16 @@
 
 require 'central_mail/service'
 require 'pdf_utilities/datestamp_pdf'
-require 'pension_burial/tag_sentry'
-require 'burials/monitor'
-require 'burials/notification_email'
 require 'pcpg/monitor'
 require 'benefits_intake_service/service'
-require 'simple_forms_api_submission/metadata_validator'
+require 'lighthouse/benefits_intake/metadata'
 require 'pdf_info'
 
 module Lighthouse
   class SubmitBenefitsIntakeClaim
     include Sidekiq::Job
     include SentryLogging
+
     class BenefitsIntakeClaimError < StandardError; end
 
     FOREIGN_POSTALCODE = '00000'
@@ -30,16 +28,6 @@ module Lighthouse
         "Failed all retries on Lighthouse::SubmitBenefitsIntakeClaim, last error: #{msg['error_message']}"
       )
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
-
-      begin
-        claim = SavedClaim.find(msg['args'].first)
-      rescue
-        claim = nil
-      end
-      if %w[21P-530EZ].include?(claim&.form_id)
-        burial_monitor = Burials::Monitor.new
-        burial_monitor.track_submission_exhaustion(msg, claim)
-      end
     end
 
     def perform(saved_claim_id)
@@ -82,7 +70,7 @@ module Lighthouse
       address = form['claimantAddress'] || form['veteranAddress']
 
       # also validates/manipulates the metadata
-      BenefitsIntake::Metadata.generate(
+      ::BenefitsIntake::Metadata.generate(
         veteran_full_name['first'],
         veteran_full_name['last'],
         form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
@@ -107,15 +95,7 @@ module Lighthouse
         text_only: true
       )
 
-      document = stamped_path2
-
-      if ['21P-530EZ'].include?(record.form_id)
-        # If you are doing a burial form, add the extra box that is filled out
-        document = stamped_pdf_with_form(record.form_id, stamped_path2,
-                                         record.created_at)
-      end
-
-      @lighthouse_service.valid_document?(document:)
+      @lighthouse_service.valid_document?(document: stamped_path2)
     rescue => e
       StatsD.increment("#{STATSD_KEY_PREFIX}.document_upload_error")
       raise e
@@ -136,27 +116,12 @@ module Lighthouse
       }
     end
 
-    # This seems to be specific to burials
-    # This is stamping the (Do not write in this space portion of the PDF)
-    def stamped_pdf_with_form(form_id, path, timestamp)
-      PDFUtilities::DatestampPdf.new(path).run(
-        text: 'Application Submitted on va.gov',
-        x: 425,
-        y: 675,
-        text_only: true, # passing as text only because we override how the date is stamped in this instance
-        timestamp:,
-        page_number: 5,
-        size: 9,
-        template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
-        multistamp: true
-      )
-    end
-
     def generate_log_details(e = nil)
       details = {
         claim_id: @claim&.id,
         benefits_intake_uuid: @lighthouse_service&.uuid,
-        confirmation_number: @claim&.confirmation_number
+        confirmation_number: @claim&.confirmation_number,
+        form_id: @claim&.form_id
       }
       details['error'] = e.message if e
       details
@@ -191,8 +156,6 @@ module Lighthouse
 
     def send_confirmation_email
       @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
-
-      Burials::NotificationEmail.new(@claim.id).deliver(:confirmation) if %w[21P-530EZ].include?(@claim&.form_id)
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
                         generate_log_details(e))

@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe V0::BenefitsClaimsController, type: :controller do
   let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
-  let(:dependent_user) { FactoryBot.build(:dependent_user_with_relationship, :loa3) }
+  let(:dependent_user) { build(:dependent_user_with_relationship, :loa3) }
 
   before do
     sign_in_as(user)
@@ -33,7 +33,19 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(response).to have_http_status(:ok)
         # NOTE: There are 8 items in the VCR cassette, but some of them will
         # get filtered out by the service based on their 'status' values
-        expect(EVSSClaim.all.count).to equal(5)
+        expect(EVSSClaim.all.count).to equal(6)
+      end
+
+      it 'returns claimType language modifications' do
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          get(:index)
+        end
+        parsed_body = JSON.parse(response.body)
+
+        expect(parsed_body['data']
+          .select { |claim| claim['attributes']['claimType'] == 'expenses related to death or burial' }.count).to eq 1
+        expect(parsed_body['data']
+          .select { |claim| claim['attributes']['claimType'] == 'Death' }.count).to eq 0
       end
     end
 
@@ -102,6 +114,198 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
   describe '#show' do
     context 'when successful' do
+      context 'when cst_override_reserve_records_website flipper is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(true)
+        end
+
+        it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2,
+                                 'displayName')).to eq('RV1 - Reserve Records Request')
+          # In the cassette, this value is NEEDED_FROM_YOU
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_OTHERS')
+        end
+      end
+
+      context 'when cst_override_reserve_records_website flipper is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_override_reserve_records_website).and_return(false)
+        end
+
+        it 'leaves the tracked item status as NEEDED_FROM_YOU' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2,
+                                 'displayName')).to eq('RV1 - Reserve Records Request')
+          # Do not modify the cassette value
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2, 'status')).to eq('NEEDED_FROM_YOU')
+        end
+      end
+
+      context 'when :cst_suppress_evidence_requests_website is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(true)
+        end
+
+        it 'excludes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(8)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 0,
+                                 'displayName')).to eq('Private Medical Record')
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 1,
+                                 'displayName')).to eq('Submit buddy statement(s)')
+        end
+      end
+
+      context 'when :cst_suppress_evidence_requests_website is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_website).and_return(false)
+        end
+
+        it 'includes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems').size).to eq(9)
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 0,
+                                 'displayName')).to eq('Private Medical Record')
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 1,
+                                 'displayName')).to eq('Submit buddy statement(s)')
+          expect(parsed_body.dig('data', 'attributes', 'trackedItems', 2, 'displayName')).to eq('Attorney Fees')
+        end
+      end
+
+      context 'when :cst_friendly_evidence_requests is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_friendly_evidence_requests).and_return(true)
+        end
+
+        it 'modifies the claim data to include additional, human-readable fields' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
+          can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
+          expect(can_upload_values).to eq([true, true, true, true, true, true, true, true])
+          friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
+          expect(friendly_name_values).to include('Authorization to Disclose Information')
+          expect(friendly_name_values).to include('Proof of Service')
+          expect(friendly_name_values).to include('Employment information')
+          expect(friendly_name_values).to include('Direct deposit information')
+          expect(friendly_name_values).to include('Details about cause of PTSD')
+          friendly_description_values = tracked_items.map { |i| i['friendlyDescription'] }
+          expect(friendly_description_values).to include('We need your permission to request your personal' \
+                                                         ' information from a non-VA source, like a private' \
+                                                         ' doctor or hospital.')
+          expect(friendly_description_values).to include('We need copies of your separation papers for all' \
+                                                         ' periods of service.')
+          expect(friendly_description_values).to include('We need employment information from your most' \
+                                                         ' recent employer.')
+          expect(friendly_description_values).to include('We need your direct deposit information in' \
+                                                         ' order to pay benefits, if awarded.')
+          expect(friendly_description_values).to include('We need information about the cause of' \
+                                                         ' your posttraumatic stress disorder (PTSD).')
+          support_alias_values = tracked_items.map { |i| i['supportAliases'] }
+          expect(support_alias_values).to include(['VA Form 21-4142'])
+          expect(support_alias_values).to include(['Form DD214'])
+          expect(support_alias_values).to include(['VA Form 21-4192'])
+          expect(support_alias_values).to include(['EFT - Treasure Mandate Notification'])
+          expect(support_alias_values).to include(['VA Form 21-0781', 'PTSD - Need stressor details'])
+        end
+      end
+
+      context 'when :cst_friendly_evidence_requests is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_friendly_evidence_requests).and_return(false)
+        end
+
+        it 'does not modify the claim data and leaves the less-readable data as-is' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
+          can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
+          expect(can_upload_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil])
+          friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
+          expect(friendly_name_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil])
+          friendly_description_values = tracked_items.map { |i| i['friendlyDescription'] }
+          expect(friendly_description_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil])
+          support_alias_values = tracked_items.map { |i| i['supportAliases'] }
+          expect(support_alias_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil])
+        end
+      end
+
+      context 'when :cst_show_document_upload_status is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(false)
+        end
+
+        it 'doesnt show the evidenceSubmissions section in claim attributes' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:show, params: { id: '600383363' })
+          end
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body.dig('data', 'attributes', 'evidenceSubmissions')).to be_nil
+        end
+      end
+
+      context 'when :cst_show_document_upload_status is enabled' do
+        let(:claim_id) { '600383363' }
+
+        context 'when record does not have a tracked item' do
+          before do
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(true)
+            create(:bd_lh_evidence_submission_success, claim_id:)
+          end
+
+          it 'shows the evidenceSubmissions section in claim attributes' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              get(:show, params: { id: claim_id })
+            end
+            parsed_body = JSON.parse(response.body)
+            expect(parsed_body.dig('data', 'attributes', 'evidenceSubmissions').size).to eq(1)
+          end
+        end
+
+        context 'when record has a tracked item' do
+          let(:tracked_item_id) { 394_443 }
+
+          before do
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:cst_show_document_upload_status).and_return(true)
+            create(:bd_lh_evidence_submission_success, claim_id:, tracked_item_id:)
+          end
+
+          it 'shows the evidenceSubmissions section in claim attributes' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              get(:show, params: { id: claim_id })
+            end
+            parsed_body = JSON.parse(response.body)
+            evidence_submissions = parsed_body.dig('data', 'attributes', 'evidenceSubmissions')
+            expect(evidence_submissions.size).to eq(1)
+            expect(evidence_submissions[0]['tracked_item_id']).to eq(tracked_item_id)
+          end
+        end
+      end
+
       it 'returns a status of 200' do
         VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
           get(:show, params: { id: '600383363' })
@@ -126,7 +330,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         expect(response).to have_http_status(:ok)
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body['data']['attributes']['canUpload']).to eq(true)
+        expect(parsed_body['data']['attributes']['canUpload']).to be(true)
       end
 
       it 'logs the claim type details' do
@@ -162,8 +366,8 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                 { message_type: 'lh.cst.evidence_requests',
                   claim_id: '600383363',
                   tracked_item_id: 395_084,
-                  tracked_item_type: 'Request 1',
-                  tracked_item_status: 'NEEDED_FROM_YOU' })
+                  tracked_item_type: 'Private Medical Record',
+                  tracked_item_status: 'NEEDED_FROM_OTHERS' })
         expect(Rails.logger)
           .to have_received(:info)
           .with('Evidence Request Types',
@@ -172,6 +376,16 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                   tracked_item_id: 394_443,
                   tracked_item_type: 'Submit buddy statement(s)',
                   tracked_item_status: 'NEEDED_FROM_YOU' })
+      end
+
+      it 'returns claimType language modifications' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/200_death_claim_response') do
+          get(:show, params: { id: '600229972' })
+        end
+        parsed_body = JSON.parse(response.body)
+
+        expect(parsed_body['data']['attributes']['claimType'] == 'expenses related to death or burial').to be true
+        expect(parsed_body['data']['attributes']['claimType'] == 'Death').to be false
       end
     end
 

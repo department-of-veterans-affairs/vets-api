@@ -34,7 +34,13 @@ class FormProfiles::VA686c674 < FormProfile
   private
 
   def prefill_form_address
-    mailing_address = VAProfileRedis::ContactInformation.for_user(user).mailing_address if user.vet360_id.present?
+    replace_pciu = Flipper.enabled?(:remove_pciu, user)
+    redis_prefill = if replace_pciu
+                      VAProfileRedis::V2::ContactInformation.for_user(user)
+                    else
+                      VAProfileRedis::ContactInformation.for_user(user)
+                    end
+    mailing_address = redis_prefill&.mailing_address if replace_pciu || user.vet360_id.present?
     return if mailing_address.blank?
 
     @form_address = FormAddress.new(
@@ -49,5 +55,12 @@ class FormProfiles::VA686c674 < FormProfile
         :international_postal_code
       ).merge(country_name: mailing_address.country_code_iso3)
     )
+  end
+
+  def va_file_number_last_four
+    response = BGS::People::Request.new.find_person_by_participant_id(user:)
+    (
+      response.file_number.presence || user.ssn.presence
+    )&.last(4)
   end
 end

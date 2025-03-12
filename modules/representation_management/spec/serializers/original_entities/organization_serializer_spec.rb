@@ -23,7 +23,8 @@ describe RepresentationManagement::OriginalEntities::OrganizationSerializer, typ
            zip_suffix: '6789',
            phone: '222-222-2222',
            lat: '39',
-           long: '-75')
+           long: '-75',
+           can_accept_digital_poa_requests: true)
   end
   let(:data) { subject.serializable_hash.with_indifferent_access['data'] }
   let(:attributes) { data['attributes'] }
@@ -98,5 +99,9 @@ describe RepresentationManagement::OriginalEntities::OrganizationSerializer, typ
 
   it 'includes long' do
     expect(attributes['long']).to eq(-75)
+  end
+
+  it 'includes can_accept_digital_poa_requests' do
+    expect(attributes['can_accept_digital_poa_requests']).to be true
   end
 end

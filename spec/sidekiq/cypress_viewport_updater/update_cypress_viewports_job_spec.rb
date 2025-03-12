@@ -8,14 +8,14 @@ RSpec.describe CypressViewportUpdater::UpdateCypressViewportsJob do
     let!(:analytics) do
       allow(Google::Auth::ServiceAccountCredentials).to receive(:make_creds).and_return(true)
 
-      instance_double('CypressViewportUpdater::GoogleAnalyticsReports',
+      instance_double(CypressViewportUpdater::GoogleAnalyticsReports,
                       request_reports: true,
                       user_report: true,
                       viewport_report: true)
     end
-    let!(:viewports) { instance_double('CypressViewportUpdater::Viewports', create: true) }
+    let!(:viewports) { instance_double(CypressViewportUpdater::Viewports, create: true) }
     let!(:github) do
-      instance_double('CypressViewportUpdater::GithubService',
+      instance_double(CypressViewportUpdater::GithubService,
                       get_content: true,
                       create_branch: true,
                       update_content: true,

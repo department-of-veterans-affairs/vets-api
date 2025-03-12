@@ -155,7 +155,7 @@ describe DebtManagementCenter::PaymentsService do
       before { bgs_payments[:payments][:payment] = [] }
 
       it 'returns nil' do
-        expect(subject.compensation_and_pension).to eq(nil)
+        expect(subject.compensation_and_pension).to be_nil
       end
     end
 
@@ -167,7 +167,7 @@ describe DebtManagementCenter::PaymentsService do
       end
 
       it 'returns nil' do
-        expect(subject.compensation_and_pension).to eq(nil)
+        expect(subject.compensation_and_pension).to be_nil
       end
     end
   end
@@ -187,7 +187,7 @@ describe DebtManagementCenter::PaymentsService do
       before { bgs_payments[:payments][:payment] = [] }
 
       it 'returns nil' do
-        expect(subject.education).to eq(nil)
+        expect(subject.education).to be_nil
       end
     end
 
@@ -199,7 +199,7 @@ describe DebtManagementCenter::PaymentsService do
       end
 
       it 'returns nil' do
-        expect(subject.education).to eq(nil)
+        expect(subject.education).to be_nil
       end
     end
   end

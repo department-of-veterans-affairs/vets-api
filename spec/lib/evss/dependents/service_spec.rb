@@ -9,7 +9,7 @@ describe EVSS::Dependents::Service do
   let(:transaction_id) { service.transaction_id }
 
   def returns_form(response)
-    expect(response['submitProcess'].present?).to eq(true)
+    expect(response['submitProcess'].present?).to be(true)
   end
 
   def it_handles_errors(method, form = nil, form_id = nil)

@@ -35,6 +35,16 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   validate :validate_686_form_data, on: :run_686_form_jobs
   validate :address_exists
 
+  attr_accessor :use_v2
+
+  after_initialize do
+    self.form_id = if Flipper.enabled?(:va_dependents_v2)
+                     use_v2 || form_id == '686C-674-V2' ? '686C-674-V2' : self.class::FORM.upcase
+                   else
+                     self.class::FORM.upcase
+                   end
+  end
+
   def upload_pdf(form_id, doc_type: '148')
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
@@ -50,7 +60,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
   def process_pdf(pdf_path, timestamp = nil, form_id = nil)
     processed_pdf = PDFUtilities::DatestampPdf.new(pdf_path).run(
-      text: 'Application Submitted on va.gov',
+      text: 'Application Submitted on site',
       x: form_id == '686C-674' ? 400 : 300,
       y: form_id == '686C-674' ? 675 : 775,
       text_only: true, # passing as text only because we override how the date is stamped in this instance
@@ -113,7 +123,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     # add the two arrays together but also account for nil arrays
     supporting_documents = [child_documents, spouse_documents].compact.reduce([], :|)
     if supporting_documents.present?
-      files = PersistentAttachment.where(guid: supporting_documents.map { |doc| doc['confirmation_code'] })
+      files = PersistentAttachment.where(guid: supporting_documents.pluck('confirmation_code'))
       files.find_each { |f| f.update(saved_claim_id: id) }
     end
   end
@@ -128,6 +138,15 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploader.upload!
   end
 
+  # temporarily commented out before v2 rolls out. will be updated before v2's release.
+  # def form_matches_schema
+  #   return unless form_is_string
+  #
+  #   JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[form_id], parsed_form).each do |v|
+  #     errors.add(:form, v.to_s)
+  #   end
+  # end
+
   def to_pdf(form_id: FORM)
     self.form_id = form_id
 
@@ -137,11 +156,16 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   # this failure email is not the ideal way to handle the Notification Emails as
   # part of the ZSF work, but with the initial timeline it handles the email as intended.
   # Future work will be integrating into the Va Notify common lib:
-  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/va_notify/notification_email.rb
+  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
 
   def send_failure_email(email) # rubocop:disable Metrics/MethodLength
     # if the claim is both a 686c and a 674, send a combination email.
     # otherwise, check to see which individual type it is and send the corresponding email.
+    personalisation = {
+      'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+      'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+      'confirmation_number' => confirmation_number
+    }
     template_id = if submittable_686? && submittable_674?
                     Settings.vanotify.services.va_gov.template_id.form21_686c_674_action_needed_email
                   elsif submittable_686?
@@ -152,17 +176,16 @@ class SavedClaim::DependencyClaim < CentralMailClaim
                     Rails.logger.error('Email template cannot be assigned for SavedClaim', saved_claim_id: id)
                     nil
                   end
-
     if email.present? && template_id.present?
-      VANotify::EmailJob.perform_async(
-        email,
-        template_id,
-        {
-          'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => confirmation_number
-        }
-      )
+      if Flipper.enabled?(:dependents_failure_callback_email)
+        Dependents::Form686c674FailureEmailJob.perform_async(id, email, template_id, personalisation)
+      else
+        VANotify::EmailJob.perform_async(
+          email,
+          template_id,
+          personalisation
+        )
+      end
     end
   end
 

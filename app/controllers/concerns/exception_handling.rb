@@ -3,7 +3,7 @@
 require 'common/exceptions'
 require 'common/client/errors'
 require 'json_schema/json_api_missing_attribute'
-require 'ddtrace'
+require 'datadog'
 
 module ExceptionHandling
   extend ActiveSupport::Concern
@@ -37,7 +37,8 @@ module ExceptionHandling
         when ActionController::InvalidAuthenticityToken
           Common::Exceptions::Forbidden.new(detail: 'Invalid Authenticity Token')
         when Common::Exceptions::TokenValidationError,
-            Common::Exceptions::BaseError, JsonSchema::JsonApiMissingAttribute
+            Common::Exceptions::BaseError, JsonSchema::JsonApiMissingAttribute,
+          Common::Exceptions::ServiceUnavailable, Common::Exceptions::BadGateway
           exception
         when ActionController::ParameterMissing
           Common::Exceptions::ParameterMissing.new(exception.param)

@@ -87,14 +87,4 @@ end
 
 RSpec.configure do |config|
   config.include BGSClientSpecHelpers, :bgs
-
-  unless Settings.bgs.refactor.nil?
-    config.before(:example, :bgs) do
-      allow(Flipper).to(
-        receive(:enabled?)
-          .with(:claims_api_local_bgs_refactor)
-          .and_return(Settings.bgs.refactor)
-      )
-    end
-  end
 end

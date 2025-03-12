@@ -125,7 +125,7 @@ RSpec.describe VANotify::Veteran, type: :model do
       let(:user_account) { nil }
 
       it 'returns nil if no matching account is found' do
-        expect(subject.icn).to eq(nil)
+        expect(subject.icn).to be_nil
       end
     end
 
@@ -133,7 +133,7 @@ RSpec.describe VANotify::Veteran, type: :model do
       let(:icn) { nil }
 
       it 'returns nil if no icn is found' do
-        expect(subject.icn).to eq(nil)
+        expect(subject.icn).to be_nil
       end
     end
   end

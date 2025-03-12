@@ -88,67 +88,80 @@ class FormProfile
   MAPPINGS = Rails.root.glob('config/form_profile_mappings/*.yml').map { |f| File.basename(f, '.*') }
 
   ALL_FORMS = {
+    acc_rep_management: %w[21-22 21-22A],
+    adapted_housing: ['26-4555'],
+    coe: ['26-1880'],
+    decision_review: %w[20-0995 20-0996 10182],
+    dependents: %w[686C-674 686C-674-V2],
+    dispute_debt: ['DISPUTE-DEBT'],
     edu: %w[22-1990 22-1990N 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
     evss: ['21-526EZ'],
-    hca: %w[1010ez 10-10EZR],
-    pension_burial: %w[21P-530EZ 21P-527EZ],
-    dependents: ['686C-674'],
-    decision_review: %w[20-0995 20-0996 10182],
-    mdot: ['MDOT'],
+    form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
+    form_upload: %w[
+      21-0779-UPLOAD
+      21-4192-UPLOAD
+      21-509-UPLOAD
+      21-8940-UPLOAD
+      21P-0516-1-UPLOAD
+      21P-0518-1-UPLOAD
+    ],
     fsr: ['5655'],
-    vre_counseling: ['28-8832'],
-    vre_readiness: ['28-1900'],
-    coe: ['26-1880'],
-    adapted_housing: ['26-4555'],
+    hca: %w[1010ez 10-10EZR],
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
-    form_upload_flow: ['FORM-UPLOAD-FLOW'],
-    acc_rep_management: %w[21-22 21-22A],
-    form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
-    dispute_debt: ['DISPUTE-DEBT']
+    mdot: ['MDOT'],
+    pension_burial: %w[21P-530EZ 21P-527EZ],
+    vre_counseling: ['28-8832'],
+    vre_readiness: ['28-1900']
   }.freeze
 
   FORM_ID_TO_CLASS = {
     '0873' => ::FormProfiles::VA0873,
-    '1010EZ' => ::FormProfiles::VA1010ez,
     '10-10EZR' => ::FormProfiles::VA1010ezr,
     '10-7959C' => ::FormProfiles::VHA107959c,
+    '1010EZ' => ::FormProfiles::VA1010ez,
     '10182' => ::FormProfiles::VA10182,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
+    '21-0779-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-0966' => ::FormProfiles::VA210966,
+    '21-22' => ::FormProfiles::VA2122,
+    '21-22A' => ::FormProfiles::VA2122a,
+    '21-4192-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-509-UPLOAD' => ::FormProfiles::FormUpload,
     '21-526EZ' => ::FormProfiles::VA526ez,
+    '21-686C' => ::FormProfiles::VA21686c,
+    '21-8940-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0516-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-527EZ' => ::FormProfiles::VA21p527ez,
+    '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
+    '22-0993' => ::FormProfiles::VA0993,
+    '22-0994' => ::FormProfiles::VA0994,
+    '22-10203' => ::FormProfiles::VA10203,
     '22-1990' => ::FormProfiles::VA1990,
-    '22-1990N' => ::FormProfiles::VA1990n,
     '22-1990E' => ::FormProfiles::VA1990e,
     '22-1990EMEB' => ::FormProfiles::VA1990emeb,
+    '22-1990EZ' => ::FormProfiles::VA1990ez,
+    '22-1990N' => ::FormProfiles::VA1990n,
+    '22-1990S' => ::FormProfiles::VA1990s,
     '22-1995' => ::FormProfiles::VA1995,
     '22-5490' => ::FormProfiles::VA5490,
     '22-5490E' => ::FormProfiles::VA5490e,
     '22-5495' => ::FormProfiles::VA5495,
-    '21P-530EZ' => ::FormProfiles::VA21p530ez,
-    '21-686C' => ::FormProfiles::VA21686c,
-    '686C-674' => ::FormProfiles::VA686c674,
-    '40-10007' => ::FormProfiles::VA4010007,
-    '21P-527EZ' => ::FormProfiles::VA21p527ez,
-    '22-0993' => ::FormProfiles::VA0993,
-    '22-0994' => ::FormProfiles::VA0994,
-    'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
-    'MDOT' => ::FormProfiles::MDOT,
-    '22-10203' => ::FormProfiles::VA10203,
-    '22-1990S' => ::FormProfiles::VA1990s,
-    '5655' => ::FormProfiles::VA5655,
-    '28-8832' => ::FormProfiles::VA288832,
-    '28-1900' => ::FormProfiles::VA281900,
-    '22-1990EZ' => ::FormProfiles::VA1990ez,
     '26-1880' => ::FormProfiles::VA261880,
     '26-4555' => ::FormProfiles::VA264555,
-    '21-0966' => ::FormProfiles::VA210966,
-    'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow,
-    '21-22' => ::FormProfiles::VA2122,
-    '21-22A' => ::FormProfiles::VA2122a,
+    '28-1900' => ::FormProfiles::VA281900,
+    '28-8832' => ::FormProfiles::VA288832,
+    '40-10007' => ::FormProfiles::VA4010007,
+    '5655' => ::FormProfiles::VA5655,
+    '686C-674-V2' => ::FormProfiles::VA686c674v2,
+    '686C-674' => ::FormProfiles::VA686c674,
+    'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt,
+    'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
-    'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt
+    'MDOT' => ::FormProfiles::MDOT
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
@@ -165,10 +178,35 @@ class FormProfile
     forms
   end
 
+  # Prepends the appropriate form class namespace based on the given form_class, form_id and Flipper settings
+  #
+  # @param form_class [Class] The name of the Class (e.g., ::FormProfiles::VA21p527ez).
+  # @param form_id [String] The name of the Form (e.g., '21P-527EZ').
+  # @return [Module] The corresponding namespace module for form profiles, defaulting to FormProfiles.
+  #
+  # @example Usage
+  #   prepend_module(::FormProfiles::VA21p527ez, '21P-527EZ') #=> Pensions::FormProfiles::VA21p527ez
+  #   prepend_module(::FormProfiles::VA21p530ez', '21P-530EZ')  #=> Burials::FormProfiles::VA21p530ez
+  #   prepend_module(::FormProfiles::VA4010007, '40-10007')  #=> ::FormProfiles::VA4010007 (no flipper)
+  #
+  def self.prepend_module(form_class, form_id)
+    namespaces = {
+      '21P-527EZ' => 'Pensions'
+    }
+
+    namespace = namespaces[form_id]
+    if namespace && Flipper.enabled?(:"#{namespace.singularize.downcase}_form_profile_module_enabled", @user)
+      "#{namespace}::#{form_class}".constantize
+    else
+      form_class
+    end
+  end
+
   # lookup FormProfile subclass by form_id and initialize (or use FormProfile if lookup fails)
   def self.for(form_id:, user:)
     form_id = form_id.upcase
-    FORM_ID_TO_CLASS.fetch(form_id, self).new(form_id:, user:)
+    form_class = FORM_ID_TO_CLASS.fetch(form_id, self)
+    prepend_module(form_class, form_id).new(form_id:, user:)
   end
 
   def initialize(form_id:, user:)
@@ -205,6 +243,7 @@ class FormProfile
     @contact_information = initialize_contact_information
     @military_information = initialize_military_information
     form = form_id == '1010EZ' ? '1010ez' : form_id
+
     if FormProfile.prefill_enabled_forms.include?(form)
       mappings = self.class.mappings_for_form(form_id)
 
@@ -282,10 +321,14 @@ class FormProfile
   def initialize_contact_information
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
-    Rails.logger.info("User Vet360 Contact Info, Address? #{opt[:address].present?}
-      Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
-
+    if Flipper.enabled?(:remove_pciu, user)
+      # Monitor logs to validate the presence of Contact Information V2 user data
+      Rails.logger.info("VAProfile Contact Info: Address? #{opt[:address].present?},
+        Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
+    end
     opt[:address] ||= user_address_hash
+
+    # The following pciu lines need to removed when tearing down the EVSS PCIU service.
     opt[:email] ||= extract_pciu_data(:pciu_email)
     if opt[:home_phone].nil?
       opt[:home_phone] = pciu_primary_phone
@@ -293,7 +336,6 @@ class FormProfile
     end
 
     format_for_schema_compatibility(opt)
-
     FormContactInformation.new(opt)
   end
 
@@ -302,7 +344,9 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    if VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
+    if Flipper.enabled?(:remove_pciu, user) && user.icn.present?
+      @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
+    elsif VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
       @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
     else
       Rails.logger.info('Vet360 Contact Info Null')
@@ -330,7 +374,6 @@ class FormProfile
       opt[:address][:street2] = apt[1]
       opt[:address][:street] = opt[:address][:street].gsub(/\W?\s+#{apt[1]}/, '').strip
     end
-
     %i[home_phone us_phone mobile_phone].each do |phone|
       opt[phone] = opt[phone].gsub(/\D/, '') if opt[phone]
     end
@@ -361,6 +404,11 @@ class FormProfile
 
     home = vet360_contact_info&.home_phone
     return home if home&.area_code && home.phone_number
+
+    if Flipper.enabled?(:remove_pciu, user)
+      # Track precense of home and mobile
+      Rails.logger.info("VAProfile Phone Object: Home? #{home.present?}, Mobile? #{mobile.present?}")
+    end
 
     phone_struct = Struct.new(:area_code, :phone_number)
 
@@ -417,15 +465,15 @@ class FormProfile
     when Hash
       clean_hash!(value)
     when Array
-      value.map { |v| clean!(v) }.delete_if(&:blank?)
+      value.map { |v| clean!(v) }.compact_blank!
     else
       value
     end
   end
 
   def clean_hash!(hash)
-    hash.deep_transform_keys! { |k| k.camelize(:lower) }
+    hash.deep_transform_keys! { |k| k.to_s.camelize(:lower) }
     hash.each { |k, v| hash[k] = clean!(v) }
-    hash.delete_if { |_k, v| v.blank? }
+    hash.compact_blank!
   end
 end

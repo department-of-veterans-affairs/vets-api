@@ -108,7 +108,11 @@ class FormProfiles::VA21686c < FormProfile
   end
 
   def prefill
-    return {} unless user.authorize :evss, :access?
+    if Flipper.enabled?(:remove_pciu, user)
+      return {} unless user.authorize :va_profile, :access_to_v2?
+    else
+      return {} unless user.authorize :evss, :access?
+    end
 
     @veteran_information = initialize_veteran_information
     super

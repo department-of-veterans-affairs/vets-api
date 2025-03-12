@@ -3,10 +3,10 @@
 require 'rails_helper'
 
 describe ClaimsApi::PowerOfAttorneyRequestService::Orchestrator do
-  subject { described_class.new(veteran_participant_id, form_data, claimant_participant_id, poa_key) }
+  subject { described_class.new(veteran_participant_id, form_data, claimant_participant_id) }
 
   let(:veteran_participant_id) { '600043284' }
-  let(:poa_key) { :serviceOrganization }
+  let(:poa_key) { :poa }
   let(:claimant_participant_id) { '600036513' }
   let(:form_data) do
     {
@@ -122,7 +122,19 @@ describe ClaimsApi::PowerOfAttorneyRequestService::Orchestrator do
           'veteranLastName' => 'WAGNER',
           'veteranMiddleName' => nil,
           'veteranSSN' => '796140369',
-          'veteranVAFileNumber' => nil
+          'veteranVAFileNumber' => nil,
+          'meta' => {
+            'veteran' => {
+              'vnp_mail_id' => '144764',
+              'vnp_email_id' => '144765',
+              'vnp_phone_id' => '102326'
+            },
+            'claimant' => {
+              'vnp_mail_id' => '144766',
+              'vnp_email_id' => '144767',
+              'vnp_phone_id' => '102327'
+            }
+          }
         }
 
         expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::CreateRequest)

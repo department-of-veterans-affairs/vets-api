@@ -72,6 +72,7 @@ module VetsAPI
                       methods: :any,
                       credentials: true,
                       expose: %w[
+                        Timing-Allow-Origin
                         X-RateLimit-Limit
                         X-RateLimit-Remaining
                         X-RateLimit-Reset

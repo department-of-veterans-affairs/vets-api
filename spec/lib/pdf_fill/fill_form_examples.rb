@@ -14,6 +14,7 @@ require 'rails_helper'
 # - :input_data_fixture_dir (String): Directory path for input data fixtures. Default to "pdf_fill/#{form_id}".
 # - :output_pdf_fixture_dir (String): Directory path for output PDF fixtures. Default to "pdf_fill/#{form_id}".
 # - :fill_options (Hash): Options to be passed to the `fill_form` method. Default empty.
+# - :test_data_types (Array): Array of form data to validate. Defaults to %w[simple kitchen_sink overflow]
 #
 # Example Usage:
 #
@@ -23,16 +24,18 @@ require 'rails_helper'
 #   use_vets_json_schema: true,
 #   input_data_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures',
 #   output_pdf_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures'
+#   test_data_types: %w[simple]
 # }
 RSpec.shared_examples 'a form filler' do |options|
-  form_id, factory = options.values_at(:form_id, :factory)
+  form_id, factory, test_data_types = options.values_at(:form_id, :factory, :test_data_types)
+  test_data_types ||= %w[simple kitchen_sink overflow]
 
   describe PdfFill::Filler, type: :model do
     context "form #{form_id}", run_at: '2017-07-25 00:00:00 -0400' do
       let(:input_data_fixture_dir) { options[:input_data_fixture_dir] || "spec/fixtures/pdf_fill/#{form_id}" }
       let(:output_pdf_fixture_dir) { options[:output_pdf_fixture_dir] || "spec/fixtures/pdf_fill/#{form_id}" }
 
-      %w[simple kitchen_sink overflow].each do |type|
+      test_data_types.each do |type|
         context "with #{type} test data" do
           let(:form_data) do
             return get_fixture_absolute("#{input_data_fixture_dir}/#{type}") unless options[:use_vets_json_schema]
@@ -42,10 +45,11 @@ RSpec.shared_examples 'a form filler' do |options|
           end
 
           let(:saved_claim) do
-            if form_id == '21P-530EZ'
+            if %w[21P-530EZ 686C-674-V2].include?(form_id)
               claim = create(factory)
               claim.update(form: form_data.to_json)
-              claim
+              # refresh claim to reset instance methods like parsed_form
+              SavedClaim.find(claim.id)
             else
               create(factory, form: form_data.to_json)
             end
@@ -53,7 +57,6 @@ RSpec.shared_examples 'a form filler' do |options|
 
           it 'fills the form correctly' do
             if type == 'overflow'
-              # pdfs_fields_match? only compares based on filled fields, it doesn't read the extras page
               the_extras_generator = nil
 
               expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
@@ -74,14 +77,14 @@ RSpec.shared_examples 'a form filler' do |options|
 
               expect(
                 FileUtils.compare_file(extras_path, "#{output_pdf_fixture_dir}/overflow_extras.pdf")
-              ).to eq(true)
+              ).to be(true)
 
               File.delete(extras_path)
             end
 
             expect(
               pdfs_fields_match?(file_path, "#{output_pdf_fixture_dir}/#{type}.pdf")
-            ).to eq(true)
+            ).to be(true)
 
             File.delete(file_path)
           end

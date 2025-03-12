@@ -286,7 +286,7 @@
     "addl_inc_records": [
       {
         "name": "Social Security",
-        "amount": "4639.90"
+        "amount": "4429.90"
       }
     ],
     "spouse": {}
@@ -318,7 +318,7 @@
   "other_expenses": [
     {
       "name": "Clothing",
-      "amount": "6759"
+      "amount": "6799"
     }
   ],
   "additional_data": {
@@ -327,7 +327,7 @@
   "income": [
     {
       "veteran_or_spouse": "VETERAN",
-      "compensation_and_pension": "3261.1",
+      "compensation_and_pension": "3061.1",
       "education": "50"
     }
   ],

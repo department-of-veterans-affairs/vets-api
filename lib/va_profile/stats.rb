@@ -54,7 +54,7 @@ module VAProfile
       end
 
       def final_status?(status)
-        status.present? && success?(status) || failure?(status)
+        (status.present? && success?(status)) || failure?(status)
       end
 
       def success?(status)

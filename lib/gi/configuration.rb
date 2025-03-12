@@ -20,16 +20,15 @@ module GI
     end
 
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+      Faraday.new(base_path, headers: request_headers, request: request_options) do |conn|
         conn.use :breakers
         conn.request :json
         # Uncomment this out for generating curl output
         # conn.request :curl, ::Logger.new(STDOUT), :warn
 
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
-        conn.response :betamocks if use_mocks?
         conn.response :snakecase
-        conn.response :raise_custom_error, error_prefix: service_name
+        conn.response :raise_custom_error, error_prefix: service_name, allow_not_modified: versioning_enabled?
         conn.response :gids_errors
         conn.response :json_parser
 
@@ -37,9 +36,14 @@ module GI
       end
     end
 
-    # To be overridden in gi/lce/configuration
-    def use_mocks?
-      false
+    private
+
+    def request_headers
+      base_request_headers
+    end
+
+    def versioning_enabled?
+      try(:etag).present?
     end
   end
 end

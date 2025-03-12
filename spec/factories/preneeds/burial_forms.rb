@@ -11,15 +11,15 @@ FactoryBot.define do
       [attributes_for(:preneed_attachment_hash), attributes_for(:preneed_attachment_hash)]
     end
 
-    applicant { attributes_for :applicant }
-    claimant { attributes_for :claimant }
+    applicant { attributes_for(:applicant) }
+    claimant { attributes_for(:claimant) }
     currently_buried_persons { [attributes_for(:currently_buried_person), attributes_for(:currently_buried_person)] }
-    veteran { attributes_for :veteran }
+    veteran { attributes_for(:veteran) }
   end
 
   factory :burial_form_foreign_address, parent: :burial_form do
-    applicant { attributes_for :applicant_foreign_address }
-    claimant { attributes_for :claimant_foreign_address }
-    veteran { attributes_for :veteran_foreign_address }
+    applicant { attributes_for(:applicant_foreign_address) }
+    claimant { attributes_for(:claimant_foreign_address) }
+    veteran { attributes_for(:veteran_foreign_address) }
   end
 end

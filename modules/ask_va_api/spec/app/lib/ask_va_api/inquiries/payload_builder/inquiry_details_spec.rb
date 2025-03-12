@@ -29,6 +29,22 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
           their_relationship_to_veteran:
         }
       end
+      let(:general_question_result) do
+        {
+          inquiry_about: 'A general question',
+          dependent_relationship: nil,
+          veteran_relationship: nil,
+          level_of_authentication: 'Personal'
+        }
+      end
+      let(:about_me_veteran_result) do
+        {
+          inquiry_about: 'About Me, the Veteran',
+          dependent_relationship: nil,
+          veteran_relationship: nil,
+          level_of_authentication: 'Personal'
+        }
+      end
 
       context 'when category is education and topic is NOT VRE' do
         let(:select_category) { 'Education benefits and work study' }
@@ -37,12 +53,29 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
 
         it 'returns the correct info' do
           expect(builder.call)
-            .to eq({
-                     inquiry_about: 'A general question',
-                     dependent_relationship: nil,
-                     veteran_relationship: nil,
-                     level_of_authentication: 'Personal'
-                   })
+            .to eq(general_question_result)
+        end
+      end
+
+      context 'when category is benefits outside us and topic edu' do
+        let(:select_category) { 'Benefits issues outside the U.S.' }
+        let(:select_topic) { 'Education benefits and work study' }
+        let(:who_is_your_question_about) { 'Myself' }
+
+        it 'returns the correct info' do
+          expect(builder.call)
+            .to eq(general_question_result)
+        end
+      end
+
+      context 'when who_is_your_question_about is a general question' do
+        let(:select_category) { 'Benefits issues outside the U.S.' }
+        let(:select_topic) { 'Education benefits and work study' }
+        let(:who_is_your_question_about) { "It's a general question" }
+
+        it 'returns the correct info' do
+          expect(builder.call)
+            .to eq(general_question_result)
         end
       end
 
@@ -54,12 +87,16 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
 
         it 'returns a payload structure to CRM API' do
           expect(builder.call)
-            .to eq({
-                     inquiry_about: 'About Me, the Veteran',
-                     dependent_relationship: nil,
-                     veteran_relationship: nil,
-                     level_of_authentication: 'Personal'
-                   })
+            .to eq(about_me_veteran_result)
+        end
+
+        context 'when who_is_your_question_about is nil' do
+          let(:who_is_your_question_about) { nil }
+
+          it 'returns a payload structure to CRM API' do
+            expect(builder.call)
+              .to eq(about_me_veteran_result)
+          end
         end
       end
 

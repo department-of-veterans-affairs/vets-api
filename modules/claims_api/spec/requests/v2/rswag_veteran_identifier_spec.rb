@@ -41,10 +41,10 @@ describe 'Veteran Identifier', openapi_spec: Rswag::TextHelpers.new.claims_api_d
       let(:veteran) { ClaimsApi::Veteran.new }
       let(:veteran_mpi_data) { MPIData.new }
       let(:profile) do
-        FactoryBot.build(:mpi_profile,
-                         icn: test_user_icn,
-                         participant_id: nil,
-                         participant_ids: [])
+        build(:mpi_profile,
+              icn: test_user_icn,
+              participant_id: nil,
+              participant_ids: [])
       end
 
       describe 'Getting a successful response' do

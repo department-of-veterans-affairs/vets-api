@@ -1,5 +1,18 @@
 # frozen_string_literal: true
 
+# ENVs from Parent Helm Chart are all lowercase.
+# To keep with the convention, they should all
+# be upcased in order to not disrupt other ENVs.
+# This code adds an upcased version
+# ENV['example'] => ENV['EXAMPLE]
+ENV.each_key do |key|
+  next unless key == key.downcase
+
+  # WARNING: changing this will cause all deployed
+  # settings with ENVs to be nil.
+  ENV[key.upcase] = ENV.fetch(key)
+end
+
 Config.setup do |config|
   # Name of the constant exposing loaded settings
   config.const_name = 'Settings'
@@ -37,5 +50,5 @@ Config.setup do |config|
 
   # Whether nil values will overwrite an existing value when merging configs. Default: true
   #
-  config.merge_nil_values = false
+  config.merge_nil_values = true
 end

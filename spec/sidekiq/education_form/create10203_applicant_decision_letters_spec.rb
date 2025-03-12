@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EducationForm::Create10203ApplicantDecisionLetters, type: :model, form: :education_benefits do
+RSpec.describe EducationForm::Create10203ApplicantDecisionLetters, form: :education_benefits, type: :model do
   subject { described_class.new }
 
   let(:time) { Time.zone.now }

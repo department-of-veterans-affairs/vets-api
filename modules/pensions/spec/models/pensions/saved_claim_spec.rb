@@ -7,18 +7,18 @@ require_relative '../../support/saved_claims_spec_helper'
 RSpec.describe Pensions::SavedClaim, :uploader_helpers do
   subject { described_class.new }
 
-  let(:instance) { FactoryBot.build(:pensions_module_pension_claim) }
+  let(:instance) { build(:pensions_module_pension_claim) }
 
   it_behaves_like 'saved_claim_with_confirmation_number'
 
   context 'saved claims w/ attachments' do
     stub_virus_scan
 
-    let!(:attachment1) { FactoryBot.create(:pension_burial) }
-    let!(:attachment2) { FactoryBot.create(:pension_burial) }
+    let!(:attachment1) { create(:pension_burial) }
+    let!(:attachment2) { create(:pension_burial) }
 
     let(:claim) do
-      FactoryBot.create(
+      create(
         :pensions_module_pension_claim,
         form: {
           veteranFullName: {
@@ -49,32 +49,7 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
       )
     end
 
-    context 'using JSON Schema' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
-      end
-
-      describe '#process_attachments!' do
-        it 'sets the attachments saved_claim_id' do
-          expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async).with(claim.id)
-          claim.process_attachments!
-          expect(claim.persistent_attachments.size).to eq(2)
-        end
-      end
-
-      describe '#destroy' do
-        it 'also destroys the persistent_attachments' do
-          claim.process_attachments!
-          expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
-        end
-      end
-    end
-
     context 'using JSON Schemer' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(true)
-      end
-
       describe '#process_attachments!' do
         it 'sets the attachments saved_claim_id' do
           expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async).with(claim.id)

@@ -23,7 +23,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
 
     context 'when a disabilities response does not contains rating any disability' do
       it 'mutates none of the disabilities with a max rating' do
-        VCR.use_cassette('virtual_regional_office/max_ratings_none') do
+        VCR.use_cassette('disability_max_ratings/max_ratings_none') do
           subject
           max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
           expect(max_ratings).to eq([nil, nil, nil])
@@ -33,7 +33,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
 
     context 'when a disabilities response contains rating for a single disability' do
       it 'mutates just the rated disability with a max rating' do
-        VCR.use_cassette('virtual_regional_office/max_ratings') do
+        VCR.use_cassette('disability_max_ratings/max_ratings') do
           subject
           max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
           expect(max_ratings).to eq([10, nil, nil])
@@ -43,7 +43,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
 
     context 'when a disabilities response contains rating for a multiple disabilities' do
       it 'mutates just the rated disabilities with a max rating' do
-        VCR.use_cassette('virtual_regional_office/max_ratings_multiple') do
+        VCR.use_cassette('disability_max_ratings/max_ratings_multiple') do
           subject
           max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
           expect(max_ratings).to eq([10, 60, nil])
@@ -70,7 +70,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
         end
 
         it 'no disabilities to mutate' do
-          VCR.use_cassette('virtual_regional_office/max_ratings') do
+          VCR.use_cassette('disability_max_ratings/max_ratings') do
             subject
             max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
             expect(max_ratings).to eq([])
@@ -88,7 +88,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
         end
 
         it 'mutates only the valid disability with a max rating' do
-          VCR.use_cassette('virtual_regional_office/max_ratings') do
+          VCR.use_cassette('disability_max_ratings/max_ratings') do
             subject
             max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
             expect(max_ratings).to eq([10, nil, nil])
@@ -97,9 +97,9 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
       end
     end
 
-    context 'when max rating VRO endpoint fails' do
+    context 'when max rating endpoint fails' do
       it 'mutates none of the disabilities with a max rating' do
-        VCR.use_cassette('virtual_regional_office/max_ratings_failure') do
+        VCR.use_cassette('disability_max_ratings/max_ratings_failure') do
           subject
           max_ratings = disabilities_response.rated_disabilities.map(&:maximum_rating_percentage)
           expect(max_ratings).to eq([nil, nil, nil])
@@ -111,7 +111,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
   describe 'log_hyphenated_diagnostic_codes' do
     subject { described_class.log_hyphenated_diagnostic_codes(rated_disabilities) }
 
-    before { allow(Rails.logger).to receive(:info) }
+    before { allow(StatsD).to receive(:increment) }
 
     let(:rated_disabilities) do
       disabilities_data.map { |dis| DisabilityCompensation::ApiProvider::RatedDisability.new(**dis) }
@@ -124,19 +124,34 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
       ]
     end
 
-    it 'sends the correct output to Rails log' do
+    it 'increments StatsD metrics for each rated disability' do
       subject
-      expect(Rails.logger).to have_received(:info).with(
-        'Max CFI rated disability',
-        { diagnostic_code: 6260, diagnostic_code_type: :primary_max_rating, hyphenated_diagnostic_code: nil }
+
+      expect(StatsD).to have_received(:increment).with(
+        'api.max_cfi.rated_disability',
+        tags: [
+          'diagnostic_code:6260',
+          'diagnostic_code_type:primary_max_rating',
+          'hyphenated_diagnostic_code:'
+        ]
       )
-      expect(Rails.logger).to have_received(:info).with(
-        'Max CFI rated disability',
-        { diagnostic_code: 7347, diagnostic_code_type: :digestive_system, hyphenated_diagnostic_code: nil }
+
+      expect(StatsD).to have_received(:increment).with(
+        'api.max_cfi.rated_disability',
+        tags: [
+          'diagnostic_code:7347',
+          'diagnostic_code_type:digestive_system',
+          'hyphenated_diagnostic_code:'
+        ]
       )
-      expect(Rails.logger).to have_received(:info).with(
-        'Max CFI rated disability',
-        { diagnostic_code: 6516, diagnostic_code_type: :analogous_code, hyphenated_diagnostic_code: 6599 }
+
+      expect(StatsD).to have_received(:increment).with(
+        'api.max_cfi.rated_disability',
+        tags: [
+          'diagnostic_code:6516',
+          'diagnostic_code_type:analogous_code',
+          'hyphenated_diagnostic_code:6599'
+        ]
       )
     end
   end
@@ -202,6 +217,64 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
       let(:rd_hash) { { diagnostic_code: 7347 } }
 
       it { is_expected.to be_truthy }
+    end
+  end
+
+  describe 'get_ratings' do
+    let(:diagnostic_codes) { [6260, 7347, 6516] }
+
+    it 'calls the DisabilityMaxRating::Client to fetch multiple max ratings' do
+      VCR.use_cassette('disability_max_ratings/max_ratings_multiple') do
+        diagnostic_codes = [6260, 7101, 6204]
+        result = described_class.send(:get_ratings, diagnostic_codes)
+        expect(result).to eq([
+                               { 'diagnostic_code' => 7101, 'max_rating' => 60.0 },
+                               { 'diagnostic_code' => 6260, 'max_rating' => 10.0 }
+                             ])
+      end
+    end
+
+    it 'calls the DisabilityMaxRating::Client to fetch single max ratings' do
+      VCR.use_cassette('disability_max_ratings/max_ratings') do
+        diagnostic_codes = [6260]
+        result = described_class.send(:get_ratings, diagnostic_codes)
+        expect(result).to eq([{ 'diagnostic_code' => 6260, 'max_rating' => 10.0 }])
+      end
+    end
+
+    it 'returns an empty array when no ratings are found' do
+      VCR.use_cassette('disability_max_ratings/max_ratings_none') do
+        result = described_class.send(:get_ratings, diagnostic_codes)
+        expect(result).to eq([])
+      end
+    end
+
+    it 'logs an error when the DisabilityMaxRating client raises a ClientError' do
+      VCR.use_cassette('disability_max_ratings/max_ratings_failure') do
+        expect(Rails.logger).to receive(:error).with(
+          'Get Max Ratings Failed  the server responded with status 500.',
+          hash_including(:backtrace)
+        )
+
+        result = described_class.send(:get_ratings, diagnostic_codes)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when the API times out' do
+      before do
+        allow_any_instance_of(DisabilityMaxRatings::Client).to receive(:post_for_max_ratings)
+          .and_raise(Faraday::TimeoutError)
+      end
+
+      it 'logs the timeout error and returns nil' do
+        expect(Rails.logger).to receive(:error).with(
+          'Get Max Ratings Failed: Request timed out.'
+        )
+
+        result = described_class.send(:get_ratings, diagnostic_codes)
+        expect(result).to be_nil
+      end
     end
   end
 end

@@ -334,12 +334,12 @@
                     "areaCode": {
                       "description": "Area code of Point of Contact.",
                       "type": "string",
-                      "example": "123"
+                      "example": "555"
                     },
                     "phoneNumber": {
                       "description": "Primary phone of Point of Contact.",
                       "type": "string",
-                      "example": "1231234"
+                      "example": "5555555"
                     }
                   }
                 }
@@ -467,7 +467,7 @@
                 "example": "1980-02-05"
               },
               "activeDutyEndDate": {
-                "description": "Date Completed Active Duty.  If in the future, 'separationLocationCode' is required.",
+                "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                 "type": "string",
                 "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                 "example": "1990-01-02"
@@ -549,10 +549,12 @@
               "required": ["areaCode", "phoneNumber"],
               "properties": {
                 "areaCode": {
-                  "type": "string"
+                  "type": "string",
+                  "example": "555"
                 },
                 "phoneNumber": {
-                  "type": "string"
+                  "type": "string",
+                  "example": "5555555"
                 }
               }
             },

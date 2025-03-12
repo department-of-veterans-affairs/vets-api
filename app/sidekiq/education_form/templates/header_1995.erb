@@ -2,7 +2,11 @@
 <%= applicant_name&.first&.upcase&.strip %>
 <%= applicant_name&.middle&.upcase&.strip %>
 <%= applicant_name&.last&.upcase&.strip %>
+<% if @applicant.benefitAppliedFor.eql?('chapter35') || (@applicant.benefitAppliedFor.blank? && @applicant.benefitUpdate.eql?('chapter35')) -%>
 <%= @applicant.sponsorSocialSecurityNumber&.gsub(/[^\d]/, '') %>
+<% else -%>
+<%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/, '') %>
+<% end -%>
 <%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/, '') %>
 <%= header_form_type %>
 

@@ -866,7 +866,7 @@ RSpec.describe SAML::User do
       let(:service_name) { 'dslogon' }
       let(:account_type) { '1' }
 
-      xit 'has various important attributes' do
+      it 'has various important attributes', skip: 'Unknown reason for skip' do
         expect(subject.to_hash).to eq(
           birth_date: nil,
           authn_context:,
@@ -897,10 +897,10 @@ RSpec.describe SAML::User do
       let(:multifactor) { true }
       let(:saml_attributes) do
         build(:ssoe_idme_dslogon_level2_singlefactor,
-              va_eauth_gcIds: ['1013173963V366678^NI^200M^USVHA^P|'\
-                               '2106798217^NI^200DOD^USDOD^A'\
-                               '363761e8857642f7b77ef7d99200e711^PN^200VIDM^USDVA^A|'\
-                               '2106798217^NI^200DOD^USDOD^A|'\
+              va_eauth_gcIds: ['1013173963V366678^NI^200M^USVHA^P|' \
+                               '2106798217^NI^200DOD^USDOD^A' \
+                               '363761e8857642f7b77ef7d99200e711^PN^200VIDM^USDVA^A|' \
+                               '2106798217^NI^200DOD^USDOD^A|' \
                                '1013173963^PN^200PROV^USDVA^A'])
       end
       let(:service_name) { 'dslogon' }

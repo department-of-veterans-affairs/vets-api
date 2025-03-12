@@ -17,7 +17,7 @@ describe IvcChampva::PdfFiller do
         data = JSON.parse(File.read(file_path))
         form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
         expect do
-          described_class.new(form_number: nil, form: form)
+          described_class.new(form_number: nil, form:)
         end.to raise_error(RuntimeError, 'form_number is required')
       end
     end
@@ -26,7 +26,7 @@ describe IvcChampva::PdfFiller do
       it 'throws an error' do
         form_number = forms.first
         expect do
-          described_class.new(form_number: form_number, form: nil)
+          described_class.new(form_number:, form: nil)
         end.to raise_error(RuntimeError, 'form needs a data attribute')
       end
     end
@@ -41,7 +41,7 @@ describe IvcChampva::PdfFiller do
         expect(File.exist?(file_path)).to be(true), "Fixture file not found: #{file_path}"
         data = JSON.parse(File.read(file_path))
         form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
-        pdf_filler = described_class.new(form_number: form_number, form: form, uuid: uuid)
+        pdf_filler = described_class.new(form_number:, form:, uuid:)
 
         allow(File).to receive(:exist?).and_return(true)
         allow(IvcChampva::PdfStamper).to receive(:stamp_pdf)
@@ -59,7 +59,7 @@ describe IvcChampva::PdfFiller do
         expect(File.exist?(file_path)).to be(true), "Fixture file not found: #{file_path}"
         data = JSON.parse(File.read(file_path))
         form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
-        pdf_filler = described_class.new(form_number: form_number, form: form)
+        pdf_filler = described_class.new(form_number:, form:)
 
         allow(File).to receive(:exist?).and_return(false)
 
@@ -75,7 +75,7 @@ describe IvcChampva::PdfFiller do
         expect(File.exist?(file_path)).to be(true), "Fixture file not found: #{file_path}"
         data = JSON.parse(File.read(file_path))
         form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
-        pdf_filler = described_class.new(form_number: form_number, form: form, uuid: uuid)
+        pdf_filler = described_class.new(form_number:, form:, uuid:)
 
         allow(File).to receive(:exist?).and_return(true)
         allow(IvcChampva::PdfStamper).to receive(:stamp_pdf)
@@ -95,16 +95,19 @@ describe IvcChampva::PdfFiller do
         expect(File.exist?(file_path)).to be(true), "Fixture file not found: #{file_path}"
         data = JSON.parse(File.read(file_path))
         form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
-        pdf_filler = described_class.new(form_number: form_number, form: form)
+        pdf_filler = described_class.new(form_number:, form:)
 
         template_path = "#{IvcChampva::PdfFiller::TEMPLATE_BASE}/#{form_number}.pdf"
         tempfile = double('Tempfile')
 
         allow(Tempfile).to receive(:new).and_return(tempfile)
         allow(IO).to receive(:copy_stream)
+        # Allow both close and flush to be called on the tempfile
         allow(tempfile).to receive(:close)
+        allow(tempfile).to receive(:flush)
 
         expect(IO).to receive(:copy_stream).with(template_path, tempfile)
+        expect(tempfile).to receive(:flush) # This is the new line for testing flush
         pdf_filler.create_tempfile
       end
     end

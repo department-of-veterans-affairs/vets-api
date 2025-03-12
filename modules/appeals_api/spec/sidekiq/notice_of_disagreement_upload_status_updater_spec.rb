@@ -4,14 +4,19 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_monitored_worker.rb')
 
 describe AppealsApi::NoticeOfDisagreementUploadStatusUpdater, type: :job do
-  let(:client_stub) { instance_double('CentralMail::Service') }
+  let(:client_stub) { instance_double(CentralMail::Service) }
   let(:upload) { create(:notice_of_disagreement, status: 'submitted') }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:faraday_response) { instance_double(Faraday::Response) }
   let(:in_process_element) do
     [{ uuid: 'ignored',
        status: 'In Process',
        errorMessage: '',
        lastUpdated: '2018-04-25 00:02:39' }]
+  end
+
+  after do
+    client_stub { nil }
+    faraday_response { nil }
   end
 
   it_behaves_like 'a monitored worker'

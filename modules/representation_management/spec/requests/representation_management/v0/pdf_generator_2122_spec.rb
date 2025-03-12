@@ -10,13 +10,14 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
     let(:params) do
       {
         pdf_generator2122: {
+          representative_submission_method: 'digital',
           record_consent: '',
           consent_address_change: '',
           consent_limits: [],
           claimant: {
             date_of_birth: '1980-12-31',
             relationship: 'Spouse',
-            phone: '5555555555',
+            phone: '555-555-5555', # This is a 10 digit phone number as submitted by the frontend
             email: 'claimant@example.com',
             name: {
               first: 'John',
@@ -39,7 +40,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
             date_of_birth: '1980-12-31',
             service_number: '123456789',
             service_branch: 'ARMY',
-            phone: '5555555555',
+            phone: '555-555-5555', # This is a 10 digit phone number as submitted by the frontend
             email: 'veteran@example.com',
             name: {
               first: 'John',
@@ -64,12 +65,28 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
       }
     end
 
-    context 'When submitting all fields with valid data' do
-      before do
+    context "When representative_submission_method is 'digital'" do
+      it 'does not clear the saved form' do
+        expect_any_instance_of(ApplicationController).not_to receive(:clear_saved_form).with('21-22')
+
         post(base_path, params:)
       end
+    end
 
-      it 'responds with a ok status' do
+    context "When representative_submission_method is not 'digital'" do
+      it 'clears the saved form' do
+        params[:pdf_generator2122][:representative_submission_method] = 'paper'
+
+        expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('21-22').once
+
+        post(base_path, params:)
+      end
+    end
+
+    context 'When submitting all fields with valid data' do
+      before { post(base_path, params:) }
+
+      it 'responds with an ok status' do
         expect(response).to have_http_status(:ok)
       end
 
@@ -84,7 +101,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
         post(base_path, params:)
       end
 
-      it 'responds with a ok status' do
+      it 'responds with an ok status' do
         expect(response).to have_http_status(:ok)
       end
 
@@ -99,7 +116,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
         post(base_path, params:)
       end
 
-      it 'responds with a ok status' do
+      it 'responds with an ok status' do
         expect(response).to have_http_status(:ok)
       end
 
@@ -117,7 +134,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
         post(base_path, params:)
       end
 
-      it 'responds with a ok status' do
+      it 'responds with an ok status' do
         expect(response).to have_http_status(:ok)
       end
 

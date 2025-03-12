@@ -9,7 +9,7 @@ RSpec.describe Preneeds::PreneedAttachmentHash do
 
   describe '#get_file' do
     it 'gets the file from the preneed attachment' do
-      expect(preneed_attachment_hash.get_file.exists?).to eq(true)
+      expect(preneed_attachment_hash.get_file.exists?).to be(true)
     end
   end
 

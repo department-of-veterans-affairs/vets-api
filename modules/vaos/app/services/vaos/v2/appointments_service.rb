@@ -17,7 +17,8 @@ module VAOS
 
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
-      APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
+      APPOINTMENTS_OH_REQUESTS = :va_online_scheduling_OH_request
+      APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS = :va_online_scheduling_OH_direct_schedule
       APPOINTMENT_TYPES = {
         va: 'VA',
         cc_appointment: 'COMMUNITY_CARE_APPOINTMENT',
@@ -32,47 +33,65 @@ module VAOS
 
       # rubocop:disable Metrics/MethodLength
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {}, include = {})
-        params = date_params(start_date, end_date).merge(page_params(pagination_params))
-                                                  .merge(status_params(statuses))
-                                                  .compact
-
         cnp_count = 0
 
-        with_monitoring do
-          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
-                       perform(:get, appointments_base_path_vpg, params, headers)
-                     else
-                       perform(:get, appointments_base_path_vaos, params, headers)
-                     end
+        response = send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
+        return response if response.dig(:meta, :failures)
 
-          validate_response_schema(response, 'appointments_index')
-          appointments = response.body[:data]
-          appointments.each do |appt|
-            prepare_appointment(appt, include)
-            cnp_count += 1 if cnp?(appt)
-          end
+        appointments = response.body[:data]
 
-          if Flipper.enabled?(:appointments_consolidation, user)
-            filterer = AppointmentsPresentationFilter.new
-            appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
-          end
-
-          # log count of C&P appointments in the appointments list, per GH#78141
-          log_cnp_appt_count(cnp_count) if cnp_count.positive?
-          {
-            data: deserialized_appointments(appointments),
-            meta: pagination(pagination_params).merge(partial_errors(response))
-          }
+        appointments.each do |appt|
+          prepare_appointment(appt, include)
+          cnp_count += 1 if cnp?(appt)
         end
-      rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError,
-             Common::Exceptions::GatewayTimeout, MAP::SecurityToken::Errors::ApplicationMismatchError,
-             MAP::SecurityToken::Errors::MissingICNError => e
+
+        appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
+
+        if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
+          appointments = merge_all_travel_claims(start_date, end_date, appointments)
+        end
+
+        if Flipper.enabled?(:appointments_consolidation, user)
+          filterer = AppointmentsPresentationFilter.new
+          appointments.keep_if { |appt| filterer.user_facing?(appt) }
+        end
+
+        # log count of C&P appointments in the appointments list, per GH#78141
+        log_cnp_appt_count(cnp_count) if cnp_count.positive?
         {
-          data: {},
-          meta: pagination(pagination_params).merge({
-                                                      failures: parse_possible_token_related_errors(e)
-                                                    })
+          data: deserialized_appointments(appointments),
+          meta: pagination(pagination_params).merge(partial_errors(response, __method__))
         }
+      end
+
+      ##
+      # Checks whether a referral has already been used in an existing appointment.
+      #
+      # This method first retrieves all VAOS appointments using a 200‐year date range via
+      # #get_all_appointments. If that response contains any failures, it returns an error hash
+      # with the failure messages. If a VAOS appointment is found with a matching referral_id,
+      # it returns { exists: true }. Otherwise, it checks the EPS appointments for a matching
+      # referral number and returns { exists: true } if found. If no matching appointment is found,
+      # it returns { exists: false }.
+      #
+      # @param referral_id [String] the referral identifier to check.
+      # @param pagination_params [Hash] (optional) pagination options (e.g. page and per_page).
+      #
+      # @return [Hash] a result hash that is one of:
+      #   - { error: true, failures: [...] } if an error occurred during the appointment retrieval,
+      #   - { exists: true } if an appointment with the given referral exists,
+      #   - { exists: false } if no appointment with the referral is found.
+      def referral_appointment_already_exists?(referral_id, pagination_params = {})
+        vaos_response = get_all_appointments(pagination_params)
+        vaos_request_failures = vaos_response[:meta][:failures]
+
+        return { error: true, failures: vaos_request_failures } if vaos_request_failures.present?
+        return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
+
+        eps_appointments = eps_appointments_service.get_appointments[:data]
+        return { exists: true } if eps_appointments.any? { |appt| appt[:referral][:referral_number] == referral_id }
+
+        { exists: false }
       end
 
       # rubocop:enable Metrics/MethodLength
@@ -84,7 +103,13 @@ module VAOS
           # We always fetch facility and clinic information when getting a single appointment
           include[:facilities] = true
           include[:clinics] = true
+
           prepare_appointment(appointment, include)
+
+          if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
+            appointment = merge_one_travel_claim(appointment)
+          end
+
           OpenStruct.new(appointment)
         end
       end
@@ -97,11 +122,10 @@ module VAOS
         params = VAOS::V2::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
         params.compact_blank!
         with_monitoring do
-          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
-                       perform(:post, appointments_base_path_vpg, params, headers)
+          response = if params[:status] == 'proposed'
+                       create_appointment_request(params)
                      else
-                       perform(:post, appointments_base_path_vaos, params, headers)
+                       create_direct_scheduling_appointment(params)
                      end
 
           if request_object_body[:kind] == 'clinic' &&
@@ -116,10 +140,30 @@ module VAOS
           merge_clinic(new_appointment)
           merge_facility(new_appointment)
           set_modality(new_appointment)
+          new_appointment[:pending] = request?(new_appointment)
+          new_appointment[:past] = past?(new_appointment)
+          new_appointment[:future] = future?(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
           raise e
+        end
+      end
+
+      def create_direct_scheduling_appointment(params)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
+           Flipper.enabled?(APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS, user)
+          perform(:post, appointments_base_path_vpg, params, headers)
+        else
+          perform(:post, appointments_base_path_vaos, params, headers)
+        end
+      end
+
+      def create_appointment_request(params)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) && Flipper.enabled?(APPOINTMENTS_OH_REQUESTS, user)
+          perform(:post, appointments_base_path_vpg, params, headers)
+        else
+          perform(:post, appointments_base_path_vaos, params, headers)
         end
       end
 
@@ -169,12 +213,11 @@ module VAOS
         nil
       end
 
-      def get_recent_sorted_appointments
-        end_time = Date.current.end_of_day.yesterday
-        start_time = 1.year.ago
-        statuses = 'booked,fulfilled,arrived'
-
-        appointments = get_appointments(start_time, end_time, statuses)
+      def get_sorted_recent_appointments
+        appointments = get_appointments(1.year.ago, 1.year.from_now, 'booked,fulfilled,arrived,proposed')
+        if appointments[:data].length.zero?
+          appointments = get_appointments(3.years.ago, Date.current.end_of_day.yesterday, 'booked,fulfilled,arrived')
+        end
         sort_recent_appointments(appointments[:data])
       end
 
@@ -205,13 +248,24 @@ module VAOS
         facility_info[:timezone]&.[](:time_zone_id)
       end
 
+      def merge_appointments(eps_appointments, appointments)
+        normalized_new = eps_appointments.map(&:serializable_hash)
+        existing_referral_ids = appointments.to_set { |a| a.dig(:referral, :referral_number) }
+        date_and_time_for_referral_list = appointments.pluck(:start)
+        merged_data = appointments + normalized_new.reject do |a|
+          existing_referral_ids.include?(a.dig(:referral,
+                                               :referral_number)) && date_and_time_for_referral_list.include?(a[:start])
+        end
+        merged_data.sort_by { |appt| appt[:start] || '' }
+      end
+
       memoize :get_facility_timezone_memoized
 
       private
 
       # rubocop:disable Metrics/MethodLength
-      def parse_possible_token_related_errors(e)
-        prefix = 'VAOS::V2::AppointmentService#get_appointments'
+      def parse_possible_token_related_errors(e, method_name)
+        prefix = "VAOS::V2::AppointmentService##{method_name}"
         sanitized_icn = VAOS::Anonymizers.anonymize_icns(user.icn)
         sanitized_message = VAOS::Anonymizers.anonymize_icns(e.message)
         case e
@@ -235,6 +289,7 @@ module VAOS
           { message:, status:, icn: sanitized_icn, context: }
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       # Modifies the appointment, extracting individual fields from the appointment. This currently includes:
@@ -339,6 +394,10 @@ module VAOS
         set_type(appointment)
 
         set_modality(appointment)
+
+        appointment[:past] = past?(appointment)
+        appointment[:future] = future?(appointment)
+        appointment[:pending] = request?(appointment)
       end
 
       def find_and_merge_provider_name(appointment)
@@ -581,6 +640,58 @@ module VAOS
         appt[:kind] == 'telehealth'
       end
 
+      # Determines if the appointment is a request type.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is a request, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def request?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        %w[REQUEST COMMUNITY_CARE_REQUEST].include?(appt[:type])
+      end
+
+      # Determines if the appointment occurs in the past.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment occurs in the past, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def past?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt_start = appt[:start] || appt.dig(:requested_periods, 0, :start)
+
+        unless appt_start.nil?
+          appt[:past] = if appt[:kind] == 'telehealth'
+                          (appt_start.to_datetime + 240.minutes) < Time.now.utc
+                        else
+                          (appt_start.to_datetime + 60.minutes) < Time.now.utc
+                        end
+        end
+      end
+
+      # Determines if the appointment occurs in the future.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment occurs in the future, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def future?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt_start = appt[:start] || appt.dig(:requested_periods, 0, :start)
+
+        appt[:future] = !request?(appt) &&
+                        !past?(appt) &&
+                        !appt_start.nil? &&
+                        appt_start.to_datetime > Time.now.utc.beginning_of_day
+      end
+
       # Determines if the appointment is for compensation and pension.
       #
       # @param appt [Hash] the appointment to check
@@ -774,18 +885,29 @@ module VAOS
           modality = 'communityCare'
         end
 
-        Rails.logger.info("VAOS appointment id #{appointment[:id]} modality cannot be determined.") if modality.nil?
-
+        log_modality_failure(appointment) if modality.nil?
         appointment[:modality] = modality
       end
 
+      def log_modality_failure(appointment)
+        context = {
+          service_type: appointment[:service_type],
+          service_category_text: appointment.dig(:service_category, 0, :text),
+          kind: appointment[:kind],
+          atlas: appointment.dig(:telehealth, :atlas),
+          vvs_kind: appointment.dig(:telehealth, :vvs_kind)
+        }.to_json
+        Rails.logger.warn("VAOS appointment id #{appointment[:id]} modality cannot be determined", context)
+      end
+
       def telehealth_modality(appointment)
+        vvs_kind = appointment.dig(:telehealth, :vvs_kind)
         if !appointment.dig(:telehealth, :atlas).nil?
           'vaVideoCareAtAnAtlasLocation'
-        elsif %w[CLINIC_BASED STORE_FORWARD].include?(appointment.dig(:telehealth, :vvs_kind))
+        elsif %w[CLINIC_BASED STORE_FORWARD].include?(vvs_kind)
           'vaVideoCareAtAVaLocation'
-        elsif appointment.dig(:telehealth, :vvs_kind) == 'MOBILE_ANY/ADHOC'
-          appointment.dig(:extension, :patient_has_mobile_gfe) ? 'vaVideoCareOnGfe' : 'vaVideoCareAtHome'
+        elsif vvs_kind.nil? || vvs_kind == 'MOBILE_ANY' || vvs_kind == 'ADHOC'
+          'vaVideoCareAtHome'
         end
       end
 
@@ -813,10 +935,10 @@ module VAOS
         }
       end
 
-      def partial_errors(response)
+      def partial_errors(response, method_name)
         return { failures: [] } if response.body[:failures].blank?
 
-        log_partial_errors(response)
+        log_partial_errors(response, method_name)
 
         {
           failures: response.body[:failures]
@@ -829,7 +951,7 @@ module VAOS
       #
       # @return [nil]
       #
-      def log_partial_errors(response)
+      def log_partial_errors(response, method_name)
         return unless response.status == 200
 
         failures_dup = response.body[:failures].deep_dup
@@ -839,7 +961,7 @@ module VAOS
         end
 
         log_message_to_sentry(
-          'VAOS::V2::AppointmentService#get_appointments has response errors.',
+          "VAOS::V2::AppointmentService##{method_name} has response errors.",
           :info,
           failures: failures_dup.to_json
         )
@@ -901,6 +1023,157 @@ module VAOS
         return unless response.success? && response.body[:data].present?
 
         SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
+      end
+
+      def merge_all_travel_claims(start_date, end_date, appointments)
+        service = TravelPay::ClaimAssociationService.new(user)
+        service.associate_appointments_to_claims(
+          {
+            'start_date' => start_date,
+            'end_date' => end_date,
+            'appointments' => appointments
+          }
+        )
+      end
+
+      def merge_one_travel_claim(appointment)
+        service = TravelPay::ClaimAssociationService.new(user)
+        service.associate_single_appointment_to_claim({ 'appointment' => appointment })
+      end
+
+      def eps_appointments_service
+        @eps_appointments_service ||=
+          Eps::AppointmentService.new(user)
+      end
+
+      def eps_appointments
+        @eps_appointments ||= begin
+          appointments = eps_appointments_service.get_appointments[:data]
+          appointments = [] if appointments.blank? || appointments.all?(&:empty?)
+          appointments.reject! { |appt| appt.dig(:appointment_details, :start).nil? }
+          appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
+        end
+      end
+
+      def eps_serializer
+        @eps_serializer ||= VAOS::V2::EpsAppointment.new
+      end
+
+      ##
+      # Retrieves all appointments over a 200-year window, a temporary range to be replaced with passed
+      # in date from referral data.
+      #
+      # Uses a fixed date range to fetch all appointments.
+      # If the response contains failures (in :meta), it returns the raw response.
+      # Otherwise, it returns a hash with appointment data and any partial errors.
+      #
+      # @param pagination_params [Hash] pagination options (e.g. page and per_page).
+      #
+      # @return [Hash] A hash consistent with the structure returned by #get_appointments:
+      #   - :data [Array] the appointment data
+      #   - :meta [Hash] any partial error details
+      #
+      # TODO: accept date from cached referral data to use for range
+      def get_all_appointments(pagination_params)
+        start_date = (Time.zone.today - 100.years).in_time_zone
+        end_date   = (Time.zone.today + 100.years).in_time_zone
+
+        response = send_appointments_request(start_date, end_date, __method__, pagination_params)
+
+        return response if response.dig(:meta, :failures)
+
+        {
+          data: response.body[:data],
+          meta: partial_errors(response, __method__)
+        }
+      end
+
+      ##
+      # Sends an appointment request to the upstream API.
+      #
+      # Builds the request parameters from the given date range, pagination options, and status filters,
+      # sends the GET request to the appropriate endpoint (VAOS or VPG), and validates the response schema.
+      # In case of an error, it returns a structured error hash.
+      #
+      # @param start_date [Time, DateTime, String] the start date for the appointment query.
+      # @param end_date [Time, DateTime, String] the end date for the appointment query.
+      # @param caller_name [Symbol, String] the name of the calling method (used for logging errors).
+      # @param pagination_params [Hash] (optional) pagination options (e.g. page and per_page).
+      # @param statuses [Array, nil] (optional) a list of appointment statuses to filter by.
+      #
+      # @return [Object, Hash] the API response object if successful, or a hash with error details
+      #   in the format { data: {}, meta: { failures: ... } } if an error occurs.
+      def send_appointments_request(start_date, end_date, caller_name, pagination_params = {}, statuses = nil)
+        req_params = build_appointment_request_params(start_date, end_date, pagination_params, statuses)
+
+        response   = perform_appointment_request(req_params)
+        validate_response_schema(response, 'appointments_index')
+        response
+      rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError,
+             Common::Exceptions::GatewayTimeout, MAP::SecurityToken::Errors::ApplicationMismatchError,
+             MAP::SecurityToken::Errors::MissingICNError => e
+        handle_appointment_request_error(e, caller_name, pagination_params)
+      end
+
+      ##
+      # Builds a hash of request parameters for the appointments API.
+      #
+      # Combines the date range, pagination options, and status filters into a single hash
+      # and removes any nil values.
+      #
+      # @param start_date [Time, DateTime, String] the start of the date range.
+      # @param end_date [Time, DateTime, String] the end of the date range.
+      # @param pagination_params [Hash] pagination options (e.g. page and per_page).
+      # @param statuses [Array, nil] a list of appointment statuses to filter by.
+      #
+      # @return [Hash] the merged request parameters with nil values removed.
+      def build_appointment_request_params(start_date, end_date, pagination_params, statuses)
+        date_params(start_date, end_date)
+          .merge(page_params(pagination_params))
+          .merge(status_params(statuses))
+          .compact
+      end
+
+      ##
+      # Performs a GET request to the appointments API.
+      #
+      # Chooses the appropriate endpoint (VAOS or VPG) based on feature flags,
+      # and sends a GET request with the given request parameters and headers,
+      # all within a monitoring block.
+      #
+      # @param req_params [Hash] The request parameters to be sent with the GET request.
+      # @return [Faraday::Response] The API response.
+      def perform_appointment_request(req_params)
+        with_monitoring do
+          if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+            perform(:get, appointments_base_path_vpg, req_params, headers)
+          else
+            perform(:get, appointments_base_path_vaos, req_params, headers)
+          end
+        end
+      end
+
+      ##
+      # Handles errors from the appointment request.
+      #
+      # Constructs and returns a hash with an empty data payload and metadata
+      # containing parsed failure messages from the given exception.
+      #
+      # @param exception [Exception] the exception raised during the request.
+      # @param caller_name [Symbol, String] the name of the calling method for logging.
+      # @param pagination_params [Hash] the pagination parameters used in the request.
+      #
+      # @return [Hash] a hash with keys:
+      #   - :data, an empty hash,
+      #   - :meta, a merge of pagination info and a :failures array with error messages.
+      def handle_appointment_request_error(exception, caller_name, pagination_params)
+        {
+          data: {},
+          meta: pagination(pagination_params).merge({
+                                                      failures: parse_possible_token_related_errors(exception,
+                                                                                                    caller_name)
+                                                    })
+        }
       end
     end
   end

@@ -38,6 +38,8 @@ module IvcChampva
       else
         raise "stamped template file does not exist: #{stamped_template_path}"
       end
+    ensure
+      tempfile&.close!
     end
 
     def create_tempfile
@@ -46,6 +48,7 @@ module IvcChampva
       template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
       Tempfile.new(['', '.pdf'], Rails.root.join('tmp')).tap do |tmpfile|
         IO.copy_stream(template_form_path, tmpfile)
+        tmpfile.flush
         tmpfile.close
       end
     end

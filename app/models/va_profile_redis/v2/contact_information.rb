@@ -142,7 +142,7 @@ module VAProfileRedis
       end
 
       # This method allows us to populate the local instance of a
-      # VAProfileRedis::V2::ContactInformation object with the uuid necessary
+      # VAProfileRedis::V2::ContactInformation object with the icn necessary
       # to perform subsequent actions on the key such as deletion.
       def populate_from_redis
         response_from_redis_or_service
@@ -167,11 +167,7 @@ module VAProfileRedis
       end
 
       def response_from_redis_or_service
-        unless VAProfile::Configuration::SETTINGS.contact_information.cache_enabled
-          return contact_info_service.get_person
-        end
-
-        do_cached_with(key: @user.uuid) do
+        do_cached_with(key: @user.icn) do
           contact_info_service.get_person
         end
       end

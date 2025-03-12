@@ -9,8 +9,8 @@ RSpec.describe ClaimFastTracking::Constants do
     subject { ClaimFastTracking::Constants::DISABILITIES }
 
     it 'all structs should have values for required keys' do
-      expect(subject.values.pluck(:code).any?(nil)).to eq false
-      expect(subject.values.pluck(:label).any?(nil)).to eq false
+      expect(subject.values.pluck(:code).any?(nil)).to be false
+      expect(subject.values.pluck(:label).any?(nil)).to be false
     end
   end
 

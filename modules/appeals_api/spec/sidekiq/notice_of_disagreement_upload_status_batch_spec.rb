@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 describe AppealsApi::NoticeOfDisagreementUploadStatusBatch, type: :job do
-  let(:client_stub) { instance_double('CentralMail::Service') }
+  let(:client_stub) { instance_double(CentralMail::Service) }
   let!(:upload) { create(:notice_of_disagreement, status: 'submitted') }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:faraday_response) { instance_double(Faraday::Response) }
   let(:in_process_element) do
     [{ uuid: 'ignored',
        status: cmp_status,
@@ -13,6 +13,11 @@ describe AppealsApi::NoticeOfDisagreementUploadStatusBatch, type: :job do
        lastUpdated: '2018-04-25 00:02:39' }]
   end
   let(:cmp_status) { 'In Process' }
+
+  after do
+    client_stub { nil }
+    faraday_response { nil }
+  end
 
   describe '#perform' do
     before do

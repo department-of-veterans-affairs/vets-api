@@ -4,26 +4,25 @@ module ClaimsApi
   class VANotifyAcceptedJob < ClaimsApi::ServiceBase
     LOG_TAG = 'va_notify_accepted_job'
 
-    def perform(poa_id, rep)
+    def perform(poa_id, rep_id)
       return if skip_notification_email?
 
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+      process = ClaimsApi::Process.find_or_create_by(processable: poa, step_type: 'CLAIMANT_NOTIFICATION')
+      process.update!(step_status: 'IN_PROGRESS')
 
-      unless poa
-        raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
-          detail: "Could not find Power of Attorney with id: #{poa_id}"
-        )
-      end
       if organization_filing?(poa.form_data)
         org = find_org(poa, '2122')
         res = send_organization_notification(poa, org)
       else
+        rep = ::Veteran::Service::Representative.where(representative_id: rep_id).order(created_at: :desc).first
         poa_code_from_form('2122a', poa)
         res = send_representative_notification(poa, rep)
       end
+      process.update!(step_status: 'SUCCESS', error_messages: [], completed_at: Time.zone.now)
       schedule_follow_up_check(res.id) if res.present?
     rescue => e
-      handle_failure(poa_id, e)
+      handle_failure(poa_id, e, process)
     end
 
     # 2122a
@@ -38,22 +37,22 @@ module ClaimsApi
 
     private
 
-    def handle_failure(poa_id, error)
+    def handle_failure(poa_id, error, process)
       job_name = 'ClaimsApi::VANotifyAcceptedJob'
       msg = "VA Notify email notification failed to send for #{poa_id} with error #{error}"
+      process.update!(step_status: 'FAILED', error_messages: [{ title: 'VA Notify Error',
+                                                                detail: msg }])
+      ClaimsApi::Logger.log(LOG_TAG, detail: msg)
       slack_alert_on_failure(job_name, msg)
-
-      ClaimsApi::Logger.log(
-        LOG_TAG,
-        detail: msg
-      )
-      # retry job
       raise error
     end
 
     def individual_accepted_email_contents(poa, rep)
       {
-        recipient_identifier: icn_for_vanotify(poa.auth_headers),
+        recipient_identifier: {
+          id_type: 'ICN',
+          id_value: icn_for_vanotify(poa.auth_headers)
+        },
         personalisation: {
           first_name: value_or_default_for_field(claimant_first_name(poa)),
           rep_first_name: value_or_default_for_field(rep.first_name),
@@ -70,7 +69,10 @@ module ClaimsApi
 
     def organization_accepted_email_contents(poa, org)
       {
-        recipient_identifier: icn_for_vanotify(poa.auth_headers),
+        recipient_identifier: {
+          id_type: 'ICN',
+          id_value: icn_for_vanotify(poa.auth_headers)
+        },
         personalisation: {
           first_name: value_or_default_for_field(claimant_first_name(poa)),
           org_name: value_or_default_for_field(org.name),
@@ -173,7 +175,7 @@ module ClaimsApi
     end
 
     def claimant_first_name(poa)
-      poa.auth_headers['va_eauth_firstName']
+      poa.form_data.dig('claimant', 'firstName').presence || poa.auth_headers['va_eauth_firstName']
     end
 
     def organization_filing?(form_data)

@@ -17,6 +17,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Radiology', type: :request do
     bb_internal_client = BBInternal::Client.new(
       session: {
         user_id: 11_375_034,
+        icn: '1000000000V000000',
         patient_id: '11382904',
         expires_at: 1.hour.from_now,
         token: 'SESSION_TOKEN'

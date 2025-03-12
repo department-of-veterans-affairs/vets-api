@@ -22,7 +22,7 @@ describe Shrine::Plugins::ValidateVirusFree do
 
     before do
       allow_any_instance_of(klass).to receive(:get)
-        .and_return(instance_double('Shrine::UploadedFile', download: instance_double('File', path: 'foo/bar.jpg')))
+        .and_return(instance_double(Shrine::UploadedFile, download: instance_double(File, path: 'foo/bar.jpg')))
 
       allow(File).to receive(:chmod).with(0o640, 'foo/bar.jpg').and_return(1)
     end

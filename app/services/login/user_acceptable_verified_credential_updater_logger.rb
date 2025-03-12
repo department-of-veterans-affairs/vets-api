@@ -66,7 +66,7 @@ module Login
 
       keys << "#{STATSD_KEY_PREFIX}.#{added_from_type}.#{added_type}.added"
 
-      if added_from_type == MHV_TYPE || added_from_type == DSLOGON_TYPE
+      if [MHV_TYPE, DSLOGON_TYPE].include?(added_from_type)
         keys << "#{STATSD_KEY_PREFIX}.#{MHV_TYPE}_#{DSLOGON_TYPE}.#{added_type}.added"
       end
 

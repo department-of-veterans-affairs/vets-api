@@ -131,7 +131,7 @@ module VAProfile
           city,
           province,
           international_postal_code
-        ].join('')
+        ].join
 
         errors.add(:address, 'must contain ASCII characters only') unless address.ascii_only?
       end

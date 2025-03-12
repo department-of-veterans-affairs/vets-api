@@ -15,7 +15,7 @@ RSpec.describe EducationStemClaimStatusSerializer do
     end
 
     it 'includes automated_denial' do
-      expect(attributes['automated_denial']).to eq(false)
+      expect(attributes['automated_denial']).to be(false)
     end
 
     it 'includes remaining_entitlement' do
@@ -64,7 +64,7 @@ RSpec.describe EducationStemClaimStatusSerializer do
     let(:attributes) { data['attributes'] }
 
     it 'includes automated_denial' do
-      expect(attributes['automated_denial']).to eq(true)
+      expect(attributes['automated_denial']).to be(true)
     end
 
     it 'includes remaining_entitlement' do

@@ -236,7 +236,7 @@ RSpec.describe SignIn::SessionSpawner do
         expect(access_token.refresh_token_hash).to eq(expected_refresh_token_hash)
         expect(access_token.parent_refresh_token_hash).to eq(expected_parent_refresh_token_hash)
         expect(access_token.last_regeneration_time).to eq(expected_last_regeneration_time)
-        expect(access_token.device_secret_hash).to eq(nil)
+        expect(access_token.device_secret_hash).to be_nil
         expect(access_token.user_attributes).to eq(JSON.parse(current_session.user_attributes))
       end
     end

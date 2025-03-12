@@ -188,7 +188,7 @@ describe Pensions::PdfFill::Va21p527ez do
       form_data = { 'bankAccount' => { 'accountType' => nil } }
       form = described_class.new(form_data)
       form.expand_direct_deposit_information
-      expect(form.instance_variable_get('@form_data')['bankAccount']['accountType']).to eq(nil)
+      expect(form.instance_variable_get('@form_data')['bankAccount']['accountType']).to be_nil
     end
   end
 

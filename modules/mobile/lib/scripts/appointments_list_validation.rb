@@ -34,9 +34,7 @@ class AppointmentsListValidation
       web_only: in_web_only,
       mobile_only: in_mobile_only
     }
-    # rubocop:disable Lint/Debugger
     pp results
-    # rubocop:enable Lint/Debugger
   end
 
   private
@@ -65,7 +63,7 @@ class AppointmentsListValidation
     @mobile_ids ||= begin
       response = get_mobile_appointments
       parsed = JSON.parse(response.body)
-      parsed['data'].collect { |appt| appt['id'] }
+      parsed['data'].pluck('id')
     end
   end
 
@@ -73,7 +71,7 @@ class AppointmentsListValidation
     files = Dir["#{@path_to_html}/*.txt"]
     files.map do |file|
       puts "READING FILE: #{file}"
-      File.open(file).read
+      File.read(file)
     end
   end
 

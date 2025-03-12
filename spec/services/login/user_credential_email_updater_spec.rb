@@ -15,7 +15,7 @@ RSpec.describe Login::UserCredentialEmailUpdater do
       let(:credential_email) { nil }
 
       it 'returns nil' do
-        expect(subject).to eq nil
+        expect(subject).to be_nil
       end
     end
 
@@ -26,7 +26,7 @@ RSpec.describe Login::UserCredentialEmailUpdater do
         let(:user_verification) { nil }
 
         it 'returns nil' do
-          expect(subject).to eq nil
+          expect(subject).to be_nil
         end
       end
 

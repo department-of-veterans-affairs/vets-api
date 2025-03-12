@@ -10,6 +10,7 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :work
 
     before do
       allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission)
+      allow(Flipper).to receive(:enabled?).and_return(false)
     end
 
     context 'with retries exhausted' do
@@ -35,10 +36,6 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :work
         ["#{statsd_key}.failure", "#{statsd_key}.retries_exhausted", 'api.fsr_submission.failure'].each do |key|
           expect(StatsD).to receive(:increment).with(key)
         end
-
-        expect(StatsD).to receive(:increment).with(
-          'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
-        )
 
         config.sidekiq_retries_exhausted_block.call(msg, standard_exception)
       end

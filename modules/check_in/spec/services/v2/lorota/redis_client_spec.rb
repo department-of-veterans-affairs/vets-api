@@ -105,14 +105,14 @@ describe V2::Lorota::RedisClient do
 
       it 'returns nil' do
         Timecop.travel(redis_expiry_time.from_now) do
-          expect(redis_client.get(check_in_uuid: uuid)).to eq(nil)
+          expect(redis_client.get(check_in_uuid: uuid)).to be_nil
         end
       end
     end
 
     context 'when cache does not exist' do
       it 'returns nil' do
-        expect(redis_client.get(check_in_uuid: uuid)).to eq(nil)
+        expect(redis_client.get(check_in_uuid: uuid)).to be_nil
       end
     end
   end
@@ -122,7 +122,7 @@ describe V2::Lorota::RedisClient do
     let(:token) { '12345' }
 
     it 'saves the value in cache' do
-      expect(redis_client.save(check_in_uuid: uuid, token:)).to eq(true)
+      expect(redis_client.save(check_in_uuid: uuid, token:)).to be(true)
 
       val = Rails.cache.read(
         "check_in_lorota_v2_#{uuid}_read.full",
@@ -164,14 +164,14 @@ describe V2::Lorota::RedisClient do
 
       it 'returns nil' do
         Timecop.travel(retry_attempt_expiry.from_now) do
-          expect(redis_client.retry_attempt_count(uuid:)).to eq(nil)
+          expect(redis_client.retry_attempt_count(uuid:)).to be_nil
         end
       end
     end
 
     context 'when cache does not exist' do
       it 'returns nil' do
-        expect(redis_client.retry_attempt_count(uuid:)).to eq(nil)
+        expect(redis_client.retry_attempt_count(uuid:)).to be_nil
       end
     end
   end
@@ -181,7 +181,7 @@ describe V2::Lorota::RedisClient do
     let(:retry_count) { 3 }
 
     it 'saves the value in cache' do
-      expect(redis_client.save_retry_attempt_count(uuid:, retry_count:)).to eq(true)
+      expect(redis_client.save_retry_attempt_count(uuid:, retry_count:)).to be(true)
 
       val = Rails.cache.read(
         "authentication_retry_limit_#{uuid}",
@@ -194,7 +194,7 @@ describe V2::Lorota::RedisClient do
   describe '#icn' do
     context 'when cache does not exist' do
       it 'returns nil' do
-        expect(redis_client.icn(uuid:)).to eq(nil)
+        expect(redis_client.icn(uuid:)).to be_nil
       end
     end
 
@@ -225,7 +225,7 @@ describe V2::Lorota::RedisClient do
 
       it 'returns nil' do
         Timecop.travel(redis_expiry_time.from_now) do
-          expect(redis_client.icn(uuid:)).to eq(nil)
+          expect(redis_client.icn(uuid:)).to be_nil
         end
       end
     end

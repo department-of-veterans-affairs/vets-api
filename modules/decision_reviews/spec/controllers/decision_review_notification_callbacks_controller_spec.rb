@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require './modules/decision_reviews/spec/dr_spec_helper'
 
 RSpec.describe DecisionReviews::V1::DecisionReviewNotificationCallbacksController, type: :controller do
   routes { DecisionReviews::Engine.routes }
@@ -26,7 +26,7 @@ RSpec.describe DecisionReviews::V1::DecisionReviewNotificationCallbacksControlle
   describe '#create' do
     before do
       request.headers['Authorization'] = "Bearer #{Settings.nod_vanotify_status_callback.bearer_token}"
-      Flipper.enable(:nod_callbacks_endpoint)
+      allow(Flipper).to receive(:enabled?).with(:nod_callbacks_endpoint).and_return(true)
 
       allow(DecisionReviewNotificationAuditLog).to receive(:create!)
     end
@@ -147,7 +147,7 @@ RSpec.describe DecisionReviews::V1::DecisionReviewNotificationCallbacksControlle
 
   describe 'feature flag is disabled' do
     before do
-      Flipper.disable :nod_callbacks_endpoint
+      allow(Flipper).to receive(:enabled?).with(:nod_callbacks_endpoint).and_return(false)
     end
 
     it 'returns a 404 error code' do

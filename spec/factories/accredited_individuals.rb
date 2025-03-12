@@ -21,6 +21,10 @@ FactoryBot.define do
       end
     end
 
+    trait :representative do
+      individual_type { 'representative' }
+    end
+
     trait :attorney do
       poa_code { Faker::Alphanumeric.alphanumeric(number: 3).upcase }
       individual_type { 'attorney' }

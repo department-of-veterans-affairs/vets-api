@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe VeteranDeviceRecord, type: :model do
   describe 'Veteran Device Record' do
-    let(:current_user) { FactoryBot.build(:user) }
+    let(:current_user) { build(:user) }
 
     before do
       @device = create(:device, :fitbit)

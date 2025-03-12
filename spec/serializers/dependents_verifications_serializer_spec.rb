@@ -39,7 +39,7 @@ describe DependentsVerificationsSerializer, type: :serializer do
 
       it "returns true when at least one has a diary_reason_type of '24'
       AND a diary_lc_status_type of 'PEND' AND the due_date is within 7 years" do
-        expect(attributes['prompt_renewal']).to eq true
+        expect(attributes['prompt_renewal']).to be true
       end
     end
 
@@ -48,7 +48,7 @@ describe DependentsVerificationsSerializer, type: :serializer do
 
       it "returns true when it has a diary_reason_type of '24'
       AND a diary_lc_status_type of 'PEND' AND the due_date is within 7 years" do
-        expect(attributes['prompt_renewal']).to eq true
+        expect(attributes['prompt_renewal']).to be true
       end
 
       context 'and the due_date is in the future' do
@@ -63,7 +63,7 @@ describe DependentsVerificationsSerializer, type: :serializer do
           let(:dependent_verifications) { build(:dependent_verifications) }
 
           it 'returns true when the diary_entry is due less than 7 years from now' do
-            expect(attributes['prompt_renewal']).to eq true
+            expect(attributes['prompt_renewal']).to be true
           end
         end
 
@@ -72,7 +72,7 @@ describe DependentsVerificationsSerializer, type: :serializer do
           let(:dependent_verifications) { build(:dependent_verifications, :due_in_7_years_1_day) }
 
           it 'returns false when the diary_entry is due more than 7 years from now' do
-            expect(attributes['prompt_renewal']).to eq false
+            expect(attributes['prompt_renewal']).to be false
           end
         end
       end
@@ -82,7 +82,7 @@ describe DependentsVerificationsSerializer, type: :serializer do
       let(:dependent_verifications) { build(:dependent_verifications, :no_entries) }
 
       it 'returns false' do
-        expect(attributes['prompt_renewal']).to eq false
+        expect(attributes['prompt_renewal']).to be false
       end
     end
 
@@ -90,7 +90,7 @@ describe DependentsVerificationsSerializer, type: :serializer do
       let(:dependent_verifications) { build(:dependent_verifications, :status_type_cxcl) }
 
       it 'returns false' do
-        expect(attributes['prompt_renewal']).to eq false
+        expect(attributes['prompt_renewal']).to be false
       end
     end
   end

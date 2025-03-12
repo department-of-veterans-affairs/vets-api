@@ -54,14 +54,12 @@ module EVSS
 
       def create_form_v2
         prepare_veteran_info.merge({
-                                     'eventsDetails' => @form_content['eventsDetails'],
-                                     'reports' => @form_content['reports'],
-                                     'reportsDetails' => @form_content['reportsDetails'],
-                                     'behaviors' => @form_content['behaviors'],
+                                     'events' => @form_content['events'],
+                                     'behaviors' => aggregate_behaviors,
                                      'behaviorsDetails' => @form_content['behaviorsDetails'],
-                                     'evidence' => @form_content['evidence'],
-                                     'traumaTreatment' => @form_content['traumaTreatment'],
-                                     'treatmentProviders' => @form_content['treatmentProviders'],
+                                     'evidence' => aggregate_supporting_evidence,
+                                     'treatmentNoneCheckbox' => @form_content['treatmentNoneCheckbox'],
+                                     'treatmentProviders' => aggregate_treatment_providers,
                                      'treatmentProvidersDetails' => @form_content['treatmentProvidersDetails'],
                                      'optionIndicator' => @form_content['optionIndicator'],
                                      'additionalInformation' => @form_content['additionalInformation']
@@ -81,6 +79,36 @@ module EVSS
         }
       end
 
+      def aggregate_behaviors
+        (@form_content['workBehaviors'] || {})
+          .merge(@form_content['healthBehaviors'] || {})
+          .merge(@form_content['otherBehaviors'] || {})
+          .select { |_key, value| value }
+      end
+
+      def aggregate_supporting_evidence
+        evidence = {}
+
+        evidence.merge!(@form_content['supportingEvidenceReports'] || {})
+        evidence.merge!(@form_content['supportingEvidenceRecords'] || {})
+        evidence.merge!(@form_content['supportingEvidenceWitness'] || {})
+        evidence.merge!(@form_content['supportingEvidenceOther'] || {})
+        evidence.merge!('none' => @form_content['supportingEvidenceNoneCheckbox']&.[]('none') || false)
+
+        if @form_content['supportingEvidenceUnlisted'].present?
+          evidence['other'] = true
+          evidence['otherDetails'] = @form_content['supportingEvidenceUnlisted']
+        end
+
+        evidence.select { |_key, value| value }
+      end
+
+      def aggregate_treatment_providers
+        (@form_content['treatmentReceivedVaProvider'] || {})
+          .merge(@form_content['treatmentReceivedNonVaProvider'] || {})
+          .select { |_key, value| value }
+      end
+
       def split_incidents(incidents)
         return nil if incidents.blank?
 
@@ -93,7 +121,7 @@ module EVSS
           location['state'],
           location['country'],
           location['additionalDetails']
-        ].reject(&:blank?).join(', ')
+        ].compact_blank.join(', ')
       end
 
       def full_name

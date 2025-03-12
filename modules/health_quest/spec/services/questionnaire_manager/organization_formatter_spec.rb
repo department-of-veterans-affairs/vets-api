@@ -21,7 +21,7 @@ describe HealthQuest::QuestionnaireManager::OrganizationFormatter do
 
   describe 'attributes' do
     it 'responds to orgs_array' do
-      expect(subject.build([], []).respond_to?(:orgs_array)).to eq(true)
+      expect(subject.build([], []).respond_to?(:orgs_array)).to be(true)
     end
   end
 

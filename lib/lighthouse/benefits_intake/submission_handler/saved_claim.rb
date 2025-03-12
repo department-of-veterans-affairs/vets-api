@@ -24,7 +24,7 @@ module BenefitsIntake
         @call_location = call_location
         @additional_context = context.merge(additional_context)
 
-        case result
+        case result.to_s
         when 'failure'
           on_failure
         when 'success'
@@ -36,7 +36,7 @@ module BenefitsIntake
 
       private
 
-      attr_reader :additional_context, :call_location, :claim, :context
+      attr_reader :additional_context, :avoided, :call_location, :claim, :context
 
       # the type of SavedClaim to be queried
       def claim_class
@@ -46,34 +46,18 @@ module BenefitsIntake
       # the monitor to be used
       # @see ZeroSilentFailures::Monitor
       def monitor
-        @monitor ||= ZeroSilentFailures::Monitor.new('benefits-intake')
-      end
-
-      # the email handler to be used
-      # @see VANotify::NotificationEmail
-      def notification_email
-        nil
+        @monitor ||= ZeroSilentFailures::Monitor.new('lighthouse-benefits-intake')
       end
 
       # handle a failure result
+      # inheriting class must assign @avoided before calling `super`
       def on_failure
-        avoided = false
-        if notification_email
-          notification_email.deliver(:error)
-          avoided = true
-        elsif claim.respond_to?('send_failure_email')
-          claim.send_failure_email
-          avoided = true
-        end
+        raise "#{self.class}: on_failure silent failure not avoided" unless avoided
 
-        if avoided
-          monitor.log_silent_failure_avoided(additional_context, nil, call_location:)
-        else
-          monitor.log_silent_failure(additional_context, nil, call_location:)
-        end
+        monitor.log_silent_failure_avoided(additional_context, call_location:)
       rescue => e
         @additional_context = additional_context.merge({ message: e.message })
-        monitor.log_silent_failure(additional_context, nil, call_location:)
+        monitor.log_silent_failure(additional_context, call_location:)
         raise e
       end
 

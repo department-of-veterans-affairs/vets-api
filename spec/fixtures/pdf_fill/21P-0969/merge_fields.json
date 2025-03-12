@@ -103,5 +103,120 @@
       "payer": "Personnel Management"
     }
   ],
-  "unassociatedIncome": "YES"
+  "associatedIncomes": [
+      {
+        "recipientRelationship": 2,
+        "recipientRelationshipOverflow": "CUSTODIAN",
+        "otherRecipientRelationshipType": null,
+        "recipientName": "Jim Brown",
+        "payer": "Jack Smith",
+        "incomeType": 0,
+        "incomeTypeOverflow": "INTEREST",
+        "otherIncomeType": null,
+        "grossMonthlyIncome": {
+            "cents": "00",
+            "dollars": "345",
+            "thousands": "12"
+        },
+        "grossMonthlyIncomeOverflow": 12345,
+        "accountValue": {
+            "cents": "00",
+            "dollars": "987",
+            "thousands": "012",
+            "millions": "00"
+        },
+        "accountValueOverflow": 12987
+      },
+      {
+        "recipientRelationship": 5,
+        "recipientRelationshipOverflow": "OTHER",
+        "otherRecipientRelationshipType": "Friend",
+        "recipientName": "Brandon Jones",
+        "payer": "Harold Washington",
+        "incomeType": 1,
+        "incomeTypeOverflow": "DIVIDENDS",
+        "otherIncomeType": null,
+        "grossMonthlyIncome": {
+            "cents": "00",
+            "dollars": "987",
+            "thousands": "23"
+        },
+        "grossMonthlyIncomeOverflow": 23987,
+        "accountValue": {
+            "cents": "00",
+            "dollars": "900",
+            "thousands": "009",
+            "millions": "00"
+        },
+        "accountValueOverflow": 9900
+      }
+    ],
+  "ownedAssets": [
+    {
+      "recipientRelationship": 2,
+      "recipientRelationshipOverflow": "CUSTODIAN",
+      "otherRecipientRelationshipType": null,
+      "recipientName": "Jim Brown",
+      "assetType": 0,
+      "assetTypeOverflow": "FARM",
+      "grossMonthlyIncome": {
+        "cents": "55",
+        "dollars": "555",
+        "thousands": "05"
+      },
+      "grossMonthlyIncomeOverflow": 5555.55,
+      "ownedPortionValue": {
+        "cents": "55",
+        "dollars": "555",
+        "thousands": "555",
+        "millions": "05"
+      },
+      "ownedPortionValueOverflow": 5555555.55
+    },
+    {
+      "recipientRelationship": 5,
+      "recipientRelationshipOverflow": "OTHER",
+      "otherRecipientRelationshipType": "Friend",
+      "recipientName": "Brandon Jones",
+      "assetType": 1,
+      "assetTypeOverflow": "BUSINESS",
+      "grossMonthlyIncome": {
+        "cents": "99",
+        "dollars": "999",
+        "thousands": "00"
+      },
+      "grossMonthlyIncomeOverflow": 999.99,
+      "ownedPortionValue": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "010",
+        "millions": "00"
+      },
+      "ownedPortionValueOverflow": 10000
+    },
+    {
+      "recipientRelationship": 4,
+      "recipientRelationshipOverflow": "PARENT",
+      "otherRecipientRelationshipType": null,
+      "recipientName": "Edmund Doe",
+      "assetType": 2,
+      "assetTypeOverflow": "RENTAL_PROPERTY",
+      "grossMonthlyIncome": {
+        "cents": "45",
+        "dollars": "123",
+        "thousands": "00"
+      },
+      "grossMonthlyIncomeOverflow": 123.45,
+      "ownedPortionValue": {
+        "cents": "67",
+        "dollars": "345",
+        "thousands": "012",
+        "millions": "00"
+      },
+      "ownedPortionValueOverflow": 12345.67
+    }
+  ],
+  "unassociatedIncome": "YES",
+  "associatedIncome": 0,
+  "ownedAsset": 0
 }
