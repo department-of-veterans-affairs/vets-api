@@ -4,7 +4,20 @@ require 'logging/monitor'
 
 module DecisionReviews
   class NotificationMonitor < Logging::Monitor
-    def log_silent_failure
+    def log_silent_failure(additional_context, _user_account_uuid = nil, call_location: nil)
+      metric = 'silent_failure'
+      message = 'Silent failure!'
+      function = additional_context[:function]
+
+      payload = {
+        statsd: metric,
+        service:,
+        function:,
+        additional_context:
+      }
+
+      StatsD.increment(metric, tags: ["service:#{service}", "function:#{function}"])
+      Rails.logger.error(message, payload)
     end
 
     def log_silent_failure_avoided(additional_context, _user_account_uuid = nil, call_location: nil,
@@ -19,6 +32,7 @@ module DecisionReviews
       end
 
       payload = {
+        statsd: metric,
         service:,
         function:,
         additional_context:

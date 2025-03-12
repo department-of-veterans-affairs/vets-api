@@ -7,10 +7,11 @@ module DecisionReviews
   class FormNotificationCallback < ::VeteranFacingServices::NotificationCallback::SavedClaim
     def update_database
       DecisionReviewNotificationAuditLog.create!(
-        notification_id: notification.notification_id, 
-        reference: notification.reference, 
-        status: notification.status, 
-        payload: notification.to_json)
+        notification_id: notification.notification_id,
+        reference: notification.reference,
+        status: notification.status,
+        payload: notification.to_json
+      )
     end
 
     private
