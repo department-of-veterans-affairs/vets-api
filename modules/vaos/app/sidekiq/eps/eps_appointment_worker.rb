@@ -10,13 +10,15 @@ module Eps
 
     MAX_RETRIES = 3
 
+    @retry_count = 0
+
     ##
     # Performs the Sidekiq job to check the status of an appointment.
     #
     # @param appointment_id [String] The ID of the appointment to check.
     # @param retry_count [Integer] The current retry count (default is 0).
     #
-    def perform(appointment_id, retry_count = 0)
+    def perform(appointment_id, user)
       service = Eps::AppointmentService.new(user)
       begin
         # Poll get_appointments with the appointment_id to check if the appointment has finished submitting
