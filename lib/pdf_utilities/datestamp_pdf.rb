@@ -7,6 +7,8 @@ module PDFUtilities
   # @see https://github.com/jkraemer/pdf-forms
   PDFTK = PdfForms.new(Settings.binaries.pdftk)
 
+  class DatestampPdfError < StandardError; end
+
   # add a watermark datestamp to an existing pdf
   class DatestampPdf
     # prepare to datestamp an existing pdf document
@@ -36,14 +38,12 @@ module PDFUtilities
     #
     def run(settings)
       settings = default_settings.merge(settings)
-      settings.each do |key, value|
-        instance_variable_set("@#{key}", value)
-      end
+      settings.each { |key, value| instance_variable_set("@#{key}", value) }
 
       generate_stamp
       stamp_pdf
     rescue => e
-      Rails.logger.error "Failed to generate datestamp file: #{e.message}"
+      Rails.logger.error("Failed to generate datestamp file: #{e.message}", backtrace: e.backtrace)
       Common::FileHelpers.delete_file_if_exists(stamped_pdf)
       raise
     ensure
@@ -121,14 +121,25 @@ module PDFUtilities
     # combine the input and background pdfs into the stamped_pdf
     # @see https://www.pdflabs.com/docs/pdftk-man-page/#dest-op-stamp
     def stamp_pdf
+      Rails.logger.info("Stamping PDF: #{file_path} with stamp: #{stamp_path}")
+
+      raise DatestampPdfError, "Original PDF missing: #{file_path}" unless File.exist?(file_path)
+      raise DatestampPdfError, "Generated stamp missing: #{stamp_path}" unless File.exist?(stamp_path)
+
       @stamped_pdf = "#{Common::FileHelpers.random_file_path}.pdf"
+
       if multistamp
         PDFUtilities::PDFTK.multistamp(file_path, stamp_path, stamped_pdf)
       else
         PDFUtilities::PDFTK.stamp(file_path, stamp_path, stamped_pdf)
       end
 
+      raise DatestampPdfError, 'Stamped PDF was not created' unless File.exist?(stamped_pdf)
+
       stamped_pdf
+    rescue => e
+      Rails.logger.error "Pdftk stamp failed: #{e.class} - #{e.message}"
+      raise e
     end
 
     # DatestampPdf class

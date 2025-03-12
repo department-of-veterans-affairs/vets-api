@@ -18,13 +18,18 @@ module SimpleFormsApi
     end
 
     def stamp_pdf
+      Rails.logger.info("Starting PDF stamping for: #{stamped_template_path}")
+
       all_form_stamps.each do |desired_stamp|
+        Rails.logger.info("Stamping form with: #{desired_stamp}") if desired_stamp
         stamp_form(desired_stamp)
       end
 
-      # Stamp the text which specifies the user's auth level (footer)
+      Rails.logger.info('Stamping authentication footer')
       verify { stamp_all_pages(get_auth_text_stamp, append_to_stamp: auth_text) }
     rescue => e
+      Rails.logger.error("Error in stamp_pdf: #{e.class} - #{e.message}")
+      Rails.logger.error(e.backtrace.join("\n"))
       raise StandardError, "An error occurred while stamping the PDF: #{e}"
     end
 
@@ -86,6 +91,9 @@ module SimpleFormsApi
 
     def perform_multistamp(stamp_path)
       out_path = Rails.root.join("#{Common::FileHelpers.random_file_path}.pdf")
+
+      Rails.logger.info("Performing multistamp on #{stamped_template_path} using stamp at #{stamp_path}")
+
       pdftk.multistamp(stamped_template_path, stamp_path, out_path)
       multistamp_cleanup(out_path)
     rescue => e
@@ -98,12 +106,21 @@ module SimpleFormsApi
     end
 
     def verify
+      unless File.exist?(stamped_template_path)
+        raise StandardError, "Stamped template path does not exist: #{stamped_template_path}"
+      end
+
       orig_size = File.size(stamped_template_path)
       yield
       stamped_size = File.size(stamped_template_path)
 
-      raise StandardError, 'The PDF remained unchanged upon stamping.' unless stamped_size > orig_size
+      unless stamped_size > orig_size
+        Rails.logger.info("Original PDF size: #{orig_size} bytes")
+        Rails.logger.info("Stamped PDF size: #{stamped_size} bytes")
+        raise StandardError, 'The PDF remained unchanged upon stamping.'
+      end
     rescue => e
+      Rails.logger.error("Verification error: #{e.class} - #{e.message}")
       raise StandardError, "An error occurred while verifying stamp: #{e}"
     end
 
@@ -179,6 +196,7 @@ module SimpleFormsApi
 
     def handle_multistamp_error(e)
       Rails.logger.error 'Simple forms api - Failed to perform multistamp', message: e.message
+      Rails.logger.error(e.backtrace.join("\n"))
       Common::FileHelpers.delete_file_if_exists(out_path)
       raise e
     end
