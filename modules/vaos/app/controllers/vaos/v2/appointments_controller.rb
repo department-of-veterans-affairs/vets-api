@@ -81,9 +81,7 @@ module VAOS
 
         # Check if referral is already in use
         referral_usage = check_referral_usage(referral_id)
-        unless referral_usage[:success]
-          render json: referral_usage[:json], status: referral_usage[:status] and return
-        end
+        render json: referral_usage[:json], status: referral_usage[:status] and return unless referral_usage[:success]
 
         draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
         provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
@@ -609,7 +607,7 @@ module VAOS
             status: :bad_gateway
           }
         else
-          { success: true, slots: slots }
+          { success: true, slots: }
         end
       end
     end
