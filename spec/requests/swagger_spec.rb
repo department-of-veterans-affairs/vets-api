@@ -214,7 +214,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     it 'supports getting an disability_compensation_in_progress form' do
       create(:in_progress_526_form, user_uuid: mhv_user.uuid)
       stub_evss_pciu(mhv_user)
-      VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+      VCR.use_cassette('lighthouse/claims/200_response') do
         expect(subject).to validate(
           :get,
           '/v0/disability_compensation_in_progress_forms/{id}',
@@ -431,7 +431,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       ) do
         expect(subject).to validate(
           :post,
-          '/v0/burial_claims',
+          '/burials/v0/claims',
           200,
           '_data' => {
             'burial_claim' => {
@@ -442,7 +442,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
         expect(subject).to validate(
           :post,
-          '/v0/burial_claims',
+          '/burials/v0/claims',
           422,
           '_data' => {
             'burial_claim' => {
@@ -1170,10 +1170,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     describe 'disability compensation' do
       before do
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
-        # TODO: remove Flipper feature toggle when lighthouse provider is implemented
-        Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider_foreground')
         Flipper.disable('disability_compensation_prevent_submission_job')
         Flipper.disable('disability_compensation_production_tester')
+        allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+        allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
       end
 
       let(:form526v2) do
@@ -1182,13 +1182,13 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'supports getting rated disabilities' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 401)
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+        VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 200, headers)
         end
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
+        VCR.use_cassette('lighthouse/veteran_verification/disability_rating/400_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 400, headers)
         end
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
+        VCR.use_cassette('lighthouse/veteran_verification/disability_rating/502_response') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 502, headers)
         end
       end
@@ -2712,8 +2712,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     describe 'profile/status', :skip_va_profile_user do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
-                                                  instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
 
         # vet360_id appears in the API request URI so we need it to match the cassette
@@ -2803,14 +2801,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     describe 'contact infromation v2', :skip_vet360 do
       before do
-        Flipper.enable(:va_v3_contact_information_service)
-        Flipper.enable(:remove_pciu)
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-      end
-
-      after do
-        Flipper.disable(:va_v3_contact_information_service)
-        Flipper.disable(:remove_pciu)
       end
 
       describe 'profiles v2', :initiate_vaprofile, :skip_vet360 do
@@ -2821,6 +2813,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
 
         it 'supports getting service history data' do
+          allow(Flipper).to receive(:enabled?).with(:profile_show_military_academy_attendance, nil).and_return(false)
           expect(subject).to validate(:get, '/v0/profile/service_history', 401)
           VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
             expect(subject).to validate(:get, '/v0/profile/service_history', 200, headers)
@@ -2994,6 +2987,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
 
         it 'supports the address validation api' do
+          allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
           address = build(:va_profile_v3_validation_address, :multiple_matches)
           VCR.use_cassette(
             'va_profile/address_validation/validate_match',
@@ -3464,6 +3458,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'when :va_dependents_v2 is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
         end
 
         let!(:user) { build(:user, ssn: '796043735') }
@@ -3508,6 +3504,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'when :va_dependents_v2 is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
         end
 
         let!(:user) { build(:user, ssn: '796043735') }
@@ -3992,6 +3990,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/coe/download_coe')
       subject.untested_mappings.delete('/v0/coe/document_download/{id}')
       subject.untested_mappings.delete('/v0/caregivers_assistance_claims/download_pdf')
+      subject.untested_mappings.delete('/v0/health_care_applications/download_pdf')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')

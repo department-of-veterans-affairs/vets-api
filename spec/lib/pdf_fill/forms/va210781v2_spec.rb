@@ -44,7 +44,6 @@ describe PdfFill::Forms::Va210781v2 do
         'veteranFullName' => { 'first' => 'Foo',
                                'last' => 'Bar' } }
     end
-    let(:new_form_class) { described_class.new(form_data) }
 
     it 'expands the Signature and Signature Date correctly' do
       new_form_class.expand_signature(form_data['veteranFullName'], form_data['signatureDate'])
@@ -59,6 +58,65 @@ describe PdfFill::Forms::Va210781v2 do
           },
           'signatureDate' => '2017-02-14' }
       )
+    end
+  end
+
+  describe '#set_treatment_selection' do
+    context 'when treatment providers are present' do
+      it 'sets treatment to 0 and noTreatment to 0' do
+        form_data = {}
+        new_form_class.instance_variable_set(:@form_data, form_data)
+
+        treatment_data = { 'medicalCenter' => true, 'nonVa' => true, 'vaPaid' => true }
+        new_form_class.instance_variable_set(:@form_data, { 'treatmentProviders' => treatment_data })
+
+        new_form_class.send(:set_treatment_selection)
+
+        expected_data = {
+          'treatmentProviders' => treatment_data,
+          'treatment' => 0,
+          'noTreatment' => 0
+        }
+
+        expect(new_form_class.instance_variable_get(:@form_data)).to eq(expected_data)
+      end
+    end
+
+    context 'when no treatment providers but treatmentNoneCheckbox is true' do
+      it 'sets treatment to 1 and noTreatment to 1' do
+        form_data = {}
+        new_form_class.instance_variable_set(:@form_data, form_data)
+
+        new_form_class.instance_variable_set(:@form_data,
+                                             { 'treatmentProviders' => {},
+                                               'treatmentNoneCheckbox' => { 'none' => true } })
+
+        new_form_class.send(:set_treatment_selection)
+
+        expected_data = {
+          'treatmentProviders' => {},
+          'treatmentNoneCheckbox' => { 'none' => true },
+          'treatment' => 1,
+          'noTreatment' => 1
+        }
+
+        expect(new_form_class.instance_variable_get(:@form_data)).to eq(expected_data)
+      end
+    end
+
+    context 'when no treatment providers' do
+      it 'does not set treatment or noTreatment' do
+        form_data = {}
+        new_form_class.instance_variable_set(:@form_data, form_data)
+
+        new_form_class.instance_variable_set(:@form_data, { 'treatmentProviders' => {} })
+
+        new_form_class.send(:set_treatment_selection)
+
+        expected_data = { 'treatmentProviders' => {} }
+
+        expect(new_form_class.instance_variable_get(:@form_data)).to eq(expected_data)
+      end
     end
   end
 
@@ -77,7 +135,7 @@ describe PdfFill::Forms::Va210781v2 do
         {
           'events' => [
             {
-              'reports' => {
+              'otherReports' => {
                 'police' => true
               },
               'agency' => 'Local Police Department',
@@ -89,8 +147,16 @@ describe PdfFill::Forms::Va210781v2 do
         }
       end
 
-      let(:event_with_other_reports) do
-        { 'events' => [{ 'otherReports' => 'incident report' }] }
+      let(:event_with_unlisted_reports) do
+        { 'events' => [{ 'unlistedReport' => 'incident report' }] }
+      end
+
+      let(:event_with_no_report) do
+        { 'events' => [{ 'otherReports' => { 'none' => true } }] }
+      end
+
+      let(:event_with_military_report) do
+        { 'events' => [{ 'militaryReports' => { 'restricted' => true } }] }
       end
 
       context 'when police location details are present' do
@@ -104,30 +170,66 @@ describe PdfFill::Forms::Va210781v2 do
         end
       end
 
-      context 'when otherReports are provided' do
-        it 'collects and formats otherReports correctly' do
-          new_form_class.instance_variable_set(:@form_data, event_with_other_reports)
+      context 'when an unlistedReport is provided' do
+        it 'collects and formats unlistedReport correctly' do
+          new_form_class.instance_variable_set(:@form_data, event_with_unlisted_reports)
           new_form_class.send(:process_reports)
 
           expect(new_form_class.instance_variable_get(:@form_data)['reportsDetails']['other']).to eq('incident report')
+        end
+      end
+
+      context 'when at least one report is filed' do
+        it 'sets reportFiled to 0' do
+          new_form_class.instance_variable_set(:@form_data, event_with_military_report)
+          new_form_class.send(:process_reports)
+
+          expect(new_form_class.instance_variable_get(:@form_data)['reportFiled']).to eq(0)
+          expect(new_form_class.instance_variable_get(:@form_data)['noReportFiled']).to be_nil
+        end
+      end
+
+      context 'when no reports are filed' do
+        it 'sets noReportFiled to 1' do
+          new_form_class.instance_variable_set(:@form_data, event_with_no_report)
+          new_form_class.send(:process_reports)
+
+          expect(new_form_class.instance_variable_get(:@form_data)['noReportFiled']).to eq(1)
+          expect(new_form_class.instance_variable_get(:@form_data)['reportFiled']).to be_nil
+        end
+      end
+
+      context 'when both reportFiled and noReportFiled conditions are met' do
+        it 'sets only reportFiled to 0' do
+          new_form_class.instance_variable_set(:@form_data, {
+                                                 'events' => [
+                                                   {
+                                                     'militaryReports' => { 'restricted' => true },
+                                                     'otherReports' => { 'none' => true }
+                                                   }
+                                                 ]
+                                               })
+          new_form_class.send(:process_reports)
+
+          expect(new_form_class.instance_variable_get(:@form_data)['reportFiled']).to eq(0)
+          expect(new_form_class.instance_variable_get(:@form_data)['noReportFiled']).to be_nil
         end
       end
     end
   end
 
   describe '#set_report_types' do
-    let(:event_with_other_reports) { { 'otherReports' => 'incident report' } }
+    let(:event_with_unlisted_reports) { { 'unlistedReport' => 'incident report' } }
 
     context 'when some reports are true' do
       it 'sets the correct values in @form_data' do
         form_data = {}
         new_form_class.instance_variable_set(:@form_data, form_data)
 
-        reports = { 'restricted' => true, 'unrestricted' => false, 'neither' => false, 'police' => true }
-        new_form_class.send(:set_report_types, event_with_other_reports, true, reports)
+        reports = { 'restricted' => true, 'unrestricted' => false, 'pre2005' => false, 'police' => true }
+        new_form_class.send(:set_report_types, reports, event_with_unlisted_reports)
 
         expected_data = {
-          'reportFiled' => 0,
           'restrictedReport' => 0,
           'unrestrictedReport' => nil,
           'neitherReport' => nil,
@@ -139,13 +241,13 @@ describe PdfFill::Forms::Va210781v2 do
       end
     end
 
-    context 'when only otherReports is present' do
+    context 'when only an unlistedReport is present' do
       it 'sets only otherReport' do
         form_data = {}
         new_form_class.instance_variable_set(:@form_data, form_data)
 
-        reports = { 'restricted' => false, 'unrestricted' => false, 'neither' => false, 'police' => false }
-        new_form_class.send(:set_report_types, event_with_other_reports, false, reports)
+        reports = { 'restricted' => false, 'unrestricted' => false, 'pre2005' => false, 'police' => false }
+        new_form_class.send(:set_report_types, reports, event_with_unlisted_reports)
 
         expect(new_form_class.instance_variable_get(:@form_data)['otherReport']).to eq(4)
       end

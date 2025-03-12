@@ -17,41 +17,29 @@ module AccreditedRepresentativePortal
       end
 
       def create
-        type = deserialize_type
         reason = decision_params[:reason]
 
-        ApplicationRecord.transaction do
-          resolving = PowerOfAttorneyRequestDecision.create!(type:, creator:)
+        case decision_params[:type]
+        when 'acceptance'
+          PowerOfAttorneyRequestService::Accept.new(@poa_request, creator, reason).call
+          render json: {}, status: :ok
+        when 'declination'
+          @poa_request.mark_declined!(creator, reason)
+          send_declination_email(@poa_request)
 
-          ##
-          # This form triggers the uniqueness validation, while the
-          # `@poa_request.create_resolution!` form triggers a more obscure
-          # `RecordNotSaved` error that is less functional for getting
-          # validation errors.
-          #
-          PowerOfAttorneyRequestResolution.create!(
-            power_of_attorney_request: @poa_request,
-            resolving:,
-            reason:
-          )
+          Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
+          Monitoring.new.track_duration('ar.poa.request.declined.duration', from: @poa_request.created_at)
+          render json: {}, status: :ok
+        else
+          render json: {
+            errors: ['Invalid type parameter - Types accepted: [acceptance declination]']
+          }, status: :bad_request
         end
-
-        render json: {}, status: :ok
+      rescue PowerOfAttorneyRequestService::Accept::Error => e
+        render json: { errors: [e.message] }, status: e.status
       end
 
       private
-
-      def deserialize_type
-        case decision_params[:type]
-        when 'acceptance'
-          PowerOfAttorneyRequestDecision::Types::ACCEPTANCE
-        when 'declination'
-          PowerOfAttorneyRequestDecision::Types::DECLINATION
-        else
-          # So that validations will get their chance to complain.
-          decision_params[:type]
-        end
-      end
 
       def decision_params
         params.require(:decision).permit(:type, :reason)
@@ -59,6 +47,13 @@ module AccreditedRepresentativePortal
 
       def creator
         current_user.user_account
+      end
+
+      def send_declination_email(poa_request)
+        notification = poa_request.notifications.create!(type: 'declined')
+        PowerOfAttorneyRequestEmailJob.perform_async(
+          notification.id
+        )
       end
     end
   end

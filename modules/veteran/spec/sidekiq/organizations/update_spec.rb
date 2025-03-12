@@ -11,7 +11,7 @@ RSpec.shared_examples 'a organization email or phone update process' do |flag_ty
     let(:address_exists) { true }
 
     before do
-      Flipper.disable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(false)
       allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
     end
 
@@ -26,12 +26,8 @@ RSpec.shared_examples 'a organization email or phone update process' do |flag_ty
     let(:address_exists) { true }
 
     before do
-      Flipper.enable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
       allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::V3::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
-    end
-
-    after do
-      Flipper.disable(:va_v3_contact_information_service)
     end
 
     it 'does not call validate_address or VAProfile::V3::AddressValidation::Service.new' do
@@ -131,7 +127,7 @@ RSpec.describe Organizations::Update do
     end
 
     before do
-      Flipper.disable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(false)
       allow_any_instance_of(VAProfile::AddressValidation::Service).to receive(:candidate).and_return(api_response_v2)
     end
 
@@ -167,10 +163,6 @@ RSpec.describe Organizations::Update do
       let(:address_changed) { true }
       let!(:organization) { create_organization }
 
-      before do
-        Flipper.disable(:va_v3_contact_information_service)
-      end
-
       it 'updates the address' do
         subject.perform(json_data)
         organization.reload
@@ -184,10 +176,6 @@ RSpec.describe Organizations::Update do
       let(:address_exists) { false }
       let(:address_changed) { true }
       let!(:organization) { create_organization }
-
-      before do
-        Flipper.disable(:va_v3_contact_information_service)
-      end
 
       it 'updates the address' do
         subject.perform(json_data)
@@ -370,7 +358,6 @@ RSpec.describe Organizations::Update do
 
       context 'when the first retry has non-zero coordinates' do
         before do
-          Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2,
                                                                    api_response1_v2)
@@ -392,7 +379,6 @@ RSpec.describe Organizations::Update do
 
       context 'when the second retry has non-zero coordinates' do
         before do
-          Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2,
                                                                    api_response_with_zero_v2,
@@ -415,7 +401,6 @@ RSpec.describe Organizations::Update do
 
       context 'when the third retry has non-zero coordinates' do
         before do
-          Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2,
                                                                    api_response_with_zero_v2,
@@ -439,7 +424,6 @@ RSpec.describe Organizations::Update do
 
       context 'when the retry coordinates are all zero' do
         before do
-          Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2,
                                                                    api_response_with_zero_v2,
@@ -546,13 +530,9 @@ RSpec.describe Organizations::Update do
       end
 
       before do
-        Flipper.enable(:va_v3_contact_information_service)
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
         address_validation_service = VAProfile::V3::AddressValidation::Service
         allow_any_instance_of(address_validation_service).to receive(:candidate).and_return(api_response_v3)
-      end
-
-      after do
-        Flipper.disable(:va_v3_contact_information_service)
       end
 
       context 'when JSON parsing fails' do
