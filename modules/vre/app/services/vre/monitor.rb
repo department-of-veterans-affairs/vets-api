@@ -30,7 +30,7 @@ module VRE
 
       StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
       Rails.logger.error(
-        "Failed all retries on VRE::VRESubmit1900Job, last error: #{msg['error_message']}"
+        "Failed all retries on VRE::VreSubmit1900Job, last error: #{msg['error_message']}"
       )
     end
   end
