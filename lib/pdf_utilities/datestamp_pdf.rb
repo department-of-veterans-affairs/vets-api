@@ -44,7 +44,6 @@ module PDFUtilities
     # @option settings [Boolean] :multistamp apply stamped pdf page to corresponding input pdf; default false
     #
     # @return [String] path to generated stamped pdf
-    # @raise [DatestampPdfError] if the stamping process fails
     #
     def run(settings)
       settings = default_settings.merge(settings)

@@ -7,19 +7,17 @@ describe SimpleFormsApi::PdfStamper do
   form_numbers = SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP.values
 
   describe '#stamp_pdf' do
-    let(:datestamp_instance) { instance_double(PDFUtilities::DatestampPdf) }
-    let(:current_file_path) { 'current-file-path' }
-    let(:current_loa) { 3 }
-
-    before do
-      allow(instance).to receive(:verify).and_call_original
-      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_instance)
-      allow(datestamp_instance).to receive(:run).and_return(current_file_path)
-      allow(File).to receive_messages(rename: true, exist?: true)
-      allow(File).to receive(:size).and_return(0, 1)
-    end
-
     context 'when the form is specified' do
+      let(:datestamp_instance) { instance_double(PDFUtilities::DatestampPdf) }
+      let(:current_file_path) { 'current-file-path' }
+      let(:current_loa) { 3 }
+
+      before do
+        allow(instance).to receive(:verify).and_call_original
+        allow(File).to receive_messages(rename: true, exist?: true)
+        allow(File).to receive(:size).and_return(0, 1)
+      end
+
       form_numbers.each do |form_number|
         context "for form #{form_number}" do
           let(:data) do
@@ -31,6 +29,11 @@ describe SimpleFormsApi::PdfStamper do
           end
           let(:timestamp) { nil }
           let(:instance) { described_class.new(stamped_template_path:, form:, current_loa:, timestamp:) }
+
+          before do
+            allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_instance)
+            allow(datestamp_instance).to receive(:run).and_return(current_file_path)
+          end
 
           context 'applying stamps as specified by the form model' do
             context 'page is specified' do
@@ -133,11 +136,20 @@ describe SimpleFormsApi::PdfStamper do
     end
 
     context 'when the form is not specified' do
+      let(:datestamp_instance) { instance_double(PDFUtilities::DatestampPdf) }
+      let(:current_file_path) { 'current-file-path' }
+      let(:current_loa) { 3 }
+
+      before do
+        allow(instance).to receive(:verify).and_call_original
+        allow(File).to receive_messages(rename: true, exist?: true)
+        allow(File).to receive(:size).and_return(0, 1)
+      end
+
       PersistentAttachments::VAForm::CONFIGS.keys.map(&:downcase).each do |form_number|
         context "for form #{form_number}" do
           let(:form_id) { "vba_#{form_number.gsub('-', '_')}" }
           let(:stamped_template_path) { "modules/simple_forms_api/spec/fixtures/pdfs/#{form_id}-completed.pdf" }
-          let(:current_file_path) { 'current-file-path' }
           let(:timestamp) { Time.current }
           let(:instance) { described_class.new(stamped_template_path:, current_loa:, timestamp:) }
 
@@ -147,7 +159,12 @@ describe SimpleFormsApi::PdfStamper do
           end
 
           context 'when stamped_template_path exists' do
-            before { instance.stamp_pdf }
+            before do
+              allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_instance)
+              allow(datestamp_instance).to receive(:run).and_return(current_file_path)
+
+              instance.stamp_pdf
+            end
 
             it 'calls the Datestamp PDF service' do
               expect(datestamp_instance).to have_received(:run)
@@ -160,6 +177,29 @@ describe SimpleFormsApi::PdfStamper do
             it 'verifies the file size' do
               expect(File).to have_received(:exist?).with(stamped_template_path)
               expect(File).to have_received(:size).with(stamped_template_path).twice
+            end
+          end
+
+          context 'when actually stamping the pdf' do
+            subject(:run) { instance.stamp_pdf }
+
+            let(:stamped_template_path) { Common::FileHelpers.random_file_path }
+
+            before do
+              Prawn::Document.generate(stamped_template_path, margin: [0, 0]) do |pdf|
+                5.times { pdf.start_new_page }
+              end
+
+              allow(PDFUtilities::DatestampPdf).to receive(:new).and_call_original
+              allow_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run).and_call_original
+              allow(instance).to receive(:verify).and_call_original
+              allow(File).to receive(:rename).and_call_original
+              allow(File).to receive(:exist?).and_call_original
+              allow(File).to receive(:size).and_call_original
+            end
+
+            it 'does not raise an error' do
+              expect { run }.not_to raise_error
             end
           end
         end
