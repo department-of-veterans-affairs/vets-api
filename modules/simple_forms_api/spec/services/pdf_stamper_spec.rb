@@ -136,39 +136,30 @@ describe SimpleFormsApi::PdfStamper do
       PersistentAttachments::VAForm::CONFIGS.keys.map(&:downcase).each do |form_number|
         context "for form #{form_number}" do
           let(:form_id) { "vba_#{form_number.gsub('-', '_')}" }
-          let(:stamped_template_path) do
-            "modules/simple_forms_api/spec/fixtures/pdfs/#{form_id}-completed.pdf"
-          end
+          let(:stamped_template_path) { "modules/simple_forms_api/spec/fixtures/pdfs/#{form_id}-completed.pdf" }
           let(:current_file_path) { 'current-file-path' }
-          let(:instance) do
-            described_class.new(stamped_template_path:, current_loa:, timestamp: Time.current)
+          let(:timestamp) { Time.current }
+          let(:instance) { described_class.new(stamped_template_path:, current_loa:, timestamp:) }
+
+          before do
+            allow(instance).to receive(:verified_multistamp)
+            allow(instance).to receive(:get_page_configuration)
           end
 
-          context 'applying stamps as specified by the form model' do
-            context 'page is specified' do
-              before do
-                allow(instance).to receive(:verified_multistamp)
-                allow(instance).to receive(:get_page_configuration)
-              end
+          context 'when stamped_template_path exists' do
+            before { instance.stamp_pdf }
 
-              it 'calls the Datestamp PDF service' do
-                instance.stamp_pdf
+            it 'calls the Datestamp PDF service' do
+              expect(datestamp_instance).to have_received(:run)
+            end
 
-                expect(datestamp_instance).to have_received(:run)
-              end
+            it 'renames the file' do
+              expect(File).to have_received(:rename).with(current_file_path, stamped_template_path)
+            end
 
-              it 'renames the file' do
-                instance.stamp_pdf
-
-                expect(File).to have_received(:rename).with(current_file_path, stamped_template_path)
-              end
-
-              it 'verifies the file size' do
-                instance.stamp_pdf
-
-                expect(File).to have_received(:exist?).with(stamped_template_path)
-                expect(File).to have_received(:size).with(stamped_template_path).twice
-              end
+            it 'verifies the file size' do
+              expect(File).to have_received(:exist?).with(stamped_template_path)
+              expect(File).to have_received(:size).with(stamped_template_path).twice
             end
           end
         end

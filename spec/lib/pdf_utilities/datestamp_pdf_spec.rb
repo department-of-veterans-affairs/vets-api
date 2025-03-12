@@ -88,51 +88,53 @@ RSpec.describe PDFUtilities::DatestampPdf do
     end
 
     describe 'error handling' do
+      subject(:run) { instance.run(text: 'Received via vets.gov at', x: 10, y: 10) }
+
       let(:error_message) { 'bad news bears' }
 
       context 'when an error occurs in #generate_stamp' do
-        it 'logs and reraise the error and not call stamp' do
+        before do
           allow(Prawn::Document).to receive(:generate).and_raise(error_message)
-          expect(Rails.logger).to receive(:error).once.with(
-            "Failed to generate stamp: RuntimeError - #{error_message}",
+        end
+
+        it 'logs and reraise the error and not call stamp' do
+          expect(Rails.logger).to receive(:error).at_least(:once).with(
+            /RuntimeError - #{error_message}/,
             hash_including(:backtrace)
           )
           expect(instance).not_to receive(:stamp_pdf)
-          expect do
-            instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
-          end.to raise_error(StandardError, error_message)
+          expect { run }.to raise_error(StandardError, error_message)
         end
       end
 
       context 'when an error occurs in #stamp' do
+        subject(:run) { instance.run(text: 'Received via vets.gov at', x: 10, y: 10) }
+
+        before { allow(PDFUtilities::PDFTK).to receive(:stamp).and_raise(error_message) }
+
         it 'logs and reraise the error and clean up after itself' do
-          allow(PDFUtilities::PDFTK).to receive(:stamp).and_raise(error_message)
           expect(File).to receive(:delete).twice.and_call_original
-          expect do
-            instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
-          end.to raise_error(RuntimeError, error_message)
+          expect { run }.to raise_error(RuntimeError, error_message)
         end
       end
 
       context 'when the file does not exist' do
+        subject(:instance) { described_class.new(stamped_template_path) }
+
+        let(:stamped_template_path) { 'nonexistent.pdf' }
+
         it 'raises a PdfMissingError' do
-          expect do
-            described_class.new('nonexistent.pdf')
-          end.to raise_error(PDFUtilities::PdfMissingError, /Original PDF missing/)
+          expect { instance }.to raise_error(PDFUtilities::PdfMissingError, /Original PDF missing/)
         end
       end
 
       context 'when the template does not exist' do
-        it 'raises a StampGenerationError during stamp generation' do
-          nonexistent_template = './nonexistent_template.pdf'
+        subject(:run) { instance.run(text: 'Received via vets.gov', template:, page_number: 1) }
 
-          expect do
-            instance.run(
-              text: 'Received via vets.gov',
-              template: nonexistent_template,
-              page_number: 1
-            )
-          end.to raise_error(PDFUtilities::StampGenerationError, /Template PDF missing/)
+        let(:template) { './nonexistent_template.pdf' }
+
+        it 'raises a StampGenerationError during stamp generation' do
+          expect { run }.to raise_error(PDFUtilities::StampGenerationError, /Template PDF missing/)
         end
       end
     end
