@@ -115,8 +115,15 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
     context 'when type is requested' do
       let(:type) { 'requested' }
 
-      it 'returns nil' do
-        expect(notification.personalisation).to be_nil
+      it 'returns the full hash for the digital submit confirmation email' do
+        expected_hash = {
+          'first_name' => notification.first_name,
+          'last_name' => notification.last_name,
+          'submit_date' => notification.submit_date,
+          'expiration_date' => notification.expiration_date,
+          'representative_name' => notification.representative_name
+        }
+        expect(notification.personalisation).to eq(expected_hash)
       end
     end
   end
@@ -157,6 +164,48 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
 
       it 'returns nil' do
         expect(notification.template_id).to be_nil
+      end
+    end
+  end
+
+  describe 'dates' do
+    let(:notification) { create(:power_of_attorney_request_notification) }
+
+    it 'returns the submit date' do
+      expect(notification.submit_date).to eq(Time.zone.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'))
+    end
+
+    it 'returns the expiration date' do
+      matching_time = Time.zone.now.in_time_zone('Eastern Time (US & Canada)') + 60.days
+      expect(notification.expiration_date).to eq(matching_time.strftime('%B %d, %Y'))
+    end
+  end
+
+  describe '#representative_name' do
+    let(:representative) { create(:representative, first_name: 'Rep', last_name: 'Name') }
+    let(:organization) { create(:organization, name: 'Org Name') }
+
+    context 'when accredited_individual and accredited_organization are present' do
+      it 'returns the full name of the individual and the name of the organization' do
+        binding.pry
+        poa_request = create(:power_of_attorney_request, accredited_individual_registration_number: representative.representative_id,
+                                                         power_of_attorney_holder_poa_code: organization.poa)
+        notification = create(:power_of_attorney_request_notification, power_of_attorney_request: poa_request)
+        expect(notification.representative_name).to eq(
+          "#{notification.accredited_individual.full_name.strip} accredited with #{notification.accredited_organization.name.strip}"
+        )
+      end
+    end
+
+    context 'when accredited_individual is present' do
+      it 'returns the full name of the individual' do
+        expect(notification.representative_name).to eq(notification.accredited_individual.full_name.strip)
+      end
+    end
+
+    context 'when accredited_organization is present' do
+      it 'returns the name of the organization' do
+        expect(notification.representative_name).to eq(notification.accredited_organization.name.strip)
       end
     end
   end
