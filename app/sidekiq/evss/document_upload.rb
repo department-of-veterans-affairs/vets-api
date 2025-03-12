@@ -38,28 +38,33 @@ class EVSS::DocumentUpload
   sidekiq_retries_exhausted do |msg, _ex|
     verify_msg(msg)
 
-    evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
+    # Attempt to find evidence_submission record in case it was already created in evss_claim_service.rb
+    evidence_submission = EvidenceSubmission.find_or_create_by(job_id: msg['jid'])
 
-    if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission
-      update_evidence_submission(evidence_submission, msg)
+    if can_update_evidence_submission(evidence_submission)
+      update_evidence_submission_for_failure(evidence_submission, msg)
     else
       call_failure_notification(msg)
     end
   end
 
-  def perform(auth_headers, user_uuid, document_hash)
+  def perform(auth_headers, user_uuid, document_hash, evidence_submission_id)
     @auth_headers = auth_headers
     @user_uuid = user_uuid
     @document_hash = document_hash
 
     validate_document!
     pull_file_from_cloud!
-    perform_document_upload_to_evss
-    evidence_submission = EvidenceSubmission.find_by(job_id: jid)
 
-    if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission
-      update_evidence_submission_status(evidence_submission)
+    evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_id)
+
+    if can_update_evidence_submission(evidence_submission)
+      update_evidence_submission_with_job_details(evidence_submission)
     end
+
+    perform_document_upload_to_evss
+
+    update_evidence_submission_for_success(evidence_submission) if can_update_evidence_submission(evidence_submission)
     clean_up!
   end
 
@@ -81,7 +86,7 @@ class EVSS::DocumentUpload
     !(%w[evss_claim_id tracked_item_id document_type file_name] - args[2].keys).empty?
   end
 
-  def self.update_evidence_submission(evidence_submission, msg)
+  def self.update_evidence_submission_for_failure(evidence_submission, msg)
     current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
     evidence_submission.update(
       upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
@@ -92,8 +97,7 @@ class EVSS::DocumentUpload
         personalisation: update_personalisation(current_personalisation, msg['failed_at'])
       }.to_json
     )
-    message = "#{name} EvidenceSubmission updated"
-    ::Rails.logger.info(message)
+    add_log('FAILED', evidence_submission.claim_id, evidence_submission.id)
     StatsD.increment('silent_failure_avoided_no_confirmation',
                      tags: ['service:claim-status', "function: #{message}"])
   rescue => e
@@ -182,11 +186,34 @@ class EVSS::DocumentUpload
     @file_body ||= perform_initial_file_read
   end
 
-  def update_evidence_submission_status(evidence_submission)
+  def update_evidence_submission_with_job_details(evidence_submission)
+    evidence_submission.update!(
+      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:QUEUED],
+      job_id: jid,
+      job_class: self.class
+    )
+    StatsD.increment('cst.evss.document_uploads.evidence_submission_record_updated.queued')
+    add_log('QUEUED', evidence_submission.claim_id, evidence_submission.id)
+  end
+
+  def update_evidence_submission_for_success(evidence_submission)
     evidence_submission.update!(
       upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
       delete_date: (DateTime.current + 60.days).utc
     )
     StatsD.increment('cst.evss.document_uploads.evidence_submission_record_updated.success')
+    add_log('SUCCESS', evidence_submission.claim_id, evidence_submission.id)
+  end
+
+  def can_update_evidence_submission(evidence_submission)
+    Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission
+  end
+
+  def add_log(type, claim_id, evidence_submission_id)
+    ::Rails.logger.info("EVSS - Updated Evidence Submission Record to #{type}", {
+                          claim_id:,
+                          evidence_submission_id:,
+                          job_id: jid
+                        })
   end
 end

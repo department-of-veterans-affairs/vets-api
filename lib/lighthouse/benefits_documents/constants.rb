@@ -5,7 +5,9 @@ module BenefitsDocuments
     UPLOAD_STATUS = {
       PENDING: 'IN_PROGRESS',
       FAILED: 'FAILED',
-      SUCCESS: 'SUCCESS'
+      SUCCESS: 'SUCCESS',
+      QUEUED: 'QUEUED',
+      CREATED: 'CREATED'
     }.freeze
 
     VANOTIFY_STATUS = {
