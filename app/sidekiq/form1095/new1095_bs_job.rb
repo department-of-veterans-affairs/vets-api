@@ -5,9 +5,13 @@ require 'sentry_logging'
 module Form1095
   class New1095BsJob
     include Sidekiq::Job
-    include SentryLogging
 
     sidekiq_options(retry: false)
+
+    # this method adds a prefix to the log message to enable datadog monitoring
+    def log_error(message)
+      Rails.logger.error("Form1095B Job Error: #{message}")
+    end
 
     def bucket
       @bucket ||= Aws::S3::Resource.new(
@@ -168,7 +172,9 @@ module Form1095
 
       all_succeeded
     rescue => e
-      log_exception_to_sentry(e, 'context' => "Error processing file: #{file_details}, on line #{lines}")
+      message = "Error processing file: #{file_details}, on line #{lines};"\
+                "#{e.message}"
+      log_error(message)
       false
     end
 
@@ -194,7 +200,7 @@ module Form1095
 
       process_file?(temp_file, file_details)
     rescue => e
-      Rails.logger.error(e.message)
+      log_error(e.message)
       false
     end
 
@@ -215,8 +221,9 @@ module Form1095
           Rails.logger.info "Successfully read #{@form_count} 1095B forms from #{file_name}, deleting file from S3"
           bucket.delete_objects(delete: { objects: [{ key: file_name }] })
         else
-          Rails.logger.error  "failed to save #{@error_count} forms from file: #{file_name};" \
-                              " successfully saved #{@form_count} forms"
+          message = "failed to save #{@error_count} forms from file: #{file_name}; " \
+                    "successfully saved #{@form_count} forms"
+          log_error(message)
         end
       end
 
