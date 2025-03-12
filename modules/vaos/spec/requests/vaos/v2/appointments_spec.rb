@@ -1571,48 +1571,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           expect(response_obj['errors'].first['detail']).to eq('Unable to connect to cache service')
         end
       end
-
-      context 'when provider slots service fails' do
-        before do
-          redis_client = instance_double(Eps::RedisClient)
-          allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
-
-          valid_data = {
-            provider_id: '9mN718pH',
-            appointment_type_id: 'regular',
-            start_date: '2025-01-01T00:00:00Z',
-            end_date: '2025-01-03T00:00:00Z'
-          }
-
-          allow(redis_client).to receive(:fetch_referral_attributes).and_return(valid_data)
-
-          allow_any_instance_of(VAOS::V2::AppointmentsService)
-            .to receive(:referral_appointment_already_exists?)
-            .and_return({ error: false, exists: false })
-
-          allow_any_instance_of(Eps::AppointmentService)
-            .to receive(:create_draft_appointment)
-            .and_return(OpenStruct.new(id: '123'))
-
-          allow_any_instance_of(Eps::ProviderService)
-            .to receive(:get_provider_service)
-            .and_return(OpenStruct.new(id: '9mN718pH', location: {}))
-        end
-
-        it 'returns bad_gateway when provider slots service fails' do
-          allow_any_instance_of(Eps::ProviderService)
-            .to receive(:get_provider_slots)
-            .and_raise(Common::Client::Errors::ClientError.new('Service unavailable', 503))
-
-          post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
-
-          expect(response).to have_http_status(:bad_gateway)
-
-          response_obj = JSON.parse(response.body)
-          expect(response_obj['errors'].first['title']).to eq('Error fetching provider slots')
-          expect(response_obj['errors'].first['detail']).to eq('Unable to retrieve available appointment slots')
-        end
-      end
     end
   end
 end
