@@ -96,7 +96,7 @@ module BenefitsDocuments
       )
       StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_created.success')
       ::Rails.logger.info('LH - Created Evidence Submission Record', {
-                            claim_id: document.evss_claim_id,
+                            claim_id: document.claim_id,
                             evidence_submission_id: es.id
                           })
       es
