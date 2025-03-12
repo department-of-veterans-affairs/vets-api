@@ -13,11 +13,11 @@ module VRE
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
-      VRE::VreSubmit1900Job.trigger_failure_events(msg) if Flipper.enabled?(:vre_trigger_action_needed_email)
+      VreSubmit1900Job.trigger_failure_events(msg) if Flipper.enabled?(:vre_trigger_action_needed_email)
     end
 
     def perform(claim_id, encrypted_user)
-      claim = VRE::VeteranReadinessEmploymentClaim.find claim_id
+      claim = VeteranReadinessEmploymentClaim.find claim_id
       user = OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user)))
       claim.send_to_vre(user)
     rescue => e
@@ -26,7 +26,7 @@ module VRE
     end
 
     def self.trigger_failure_events(msg)
-      monitor = VRE::VREMonitor.new
+      monitor = VREMonitor.new
       claim_id, encrypted_user = msg['args']
       claim = ::SavedClaim.find(claim_id)
       user = encrypted_user.present? ? OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) : nil
