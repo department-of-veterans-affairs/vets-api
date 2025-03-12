@@ -196,3 +196,7 @@ common:
     # readinessConfigMap:
     #   name:
     #   data: {}
+
+certContainer:
+  image: "008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/va-certs:latest"
+  pullPolicy: IfNotPresent

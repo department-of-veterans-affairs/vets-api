@@ -49,6 +49,10 @@ spec:
         - name: ddsocket
           hostPath:
             path: /var/run/datadog
+        - name: certs-volume
+          emptyDir: {}
+        - name: ssl-certs-volume
+          emptyDir: {}
 {{ toYaml $root.Values.common.volumes | indent 8 }}
       {{- if $root.Values.mockData.enabled }}
       initContainers:
@@ -134,6 +138,10 @@ spec:
               {{- end }}
             - name: ddsocket
               mountPath: /var/run/datadog
+            - name: certs-volume
+              mountPath: /usr/local/share/ca-certificates  # Attach extracted CA certs
+            - name: ssl-certs-volume
+              mountPath: /etc/ssl/certs  # Attach extracted SSL certs
 {{ toYaml $root.Values.common.volumeMounts | indent 12 }}
           env:
             - name: POD_NAME

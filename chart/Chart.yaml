@@ -116,7 +116,8 @@ type: application
 # 0.15.12  - Discard ImageMagick k8s changes
 # 0.15.13  - Add external secret that removes SETTINGS__ prefix for env var injection
 # 0.15.14  - remove secret with SETTINGS__ prefix, as no longer used
-version: 0.15.14
+# 0.15.15  - mount va certificate as volume mount as fallback mechanism
+version: 0.15.15
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
