@@ -17,7 +17,7 @@ module Eps
     # @param retry_count [Integer] The current retry count (default is 0).
     #
     def perform(appointment_id, retry_count = 0)
-      service = Eps::AppointmentService.new
+      service = Eps::AppointmentService.new(user)
       begin
         # Poll get_appointments with the appointment_id to check if the appointment has finished submitting
         response = service.get_appointment(appointment_id:)
@@ -51,7 +51,7 @@ module Eps
     # Checks if the appointment has failed.
     #
     # @param response [OpenStruct] The response from the EPS service.
-    # @return [Boolean] True if the appointment status is 'booking-failed' or 'cancel-failed' or if there is an error, false otherwise.
+    # @return [Boolean] True for status 'booking-failed', 'cancel-failed' or if there is an error. Default false
     #
     def appointment_failed?(response)
       appointment_status = response.appointmentDetails&.status
