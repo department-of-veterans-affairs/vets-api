@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../app/services/ch31_form'
-require_relative '../../errors/ch31_errors'
 
 RSpec.describe VRE::Ch31Form do
   let(:claim) { create(:veteran_readiness_employment_claim) }
