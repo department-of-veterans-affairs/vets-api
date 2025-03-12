@@ -19,12 +19,12 @@ module ClaimsApi
       REPRESENTATIVE_TYPE = 'Recognized Veterans Service Organization'
       VDC_STATUS = 'NEW'
 
-      def initialize(veteran_participant_id, form_data, claimant_participant_id = nil, poa_key = :serviceOrganization)
+      def initialize(veteran_participant_id, form_data, claimant_participant_id = nil)
         @veteran_participant_id = veteran_participant_id
         @form_data = form_data
         @claimant_participant_id = claimant_participant_id
         @has_claimant = claimant_participant_id.present?
-        @poa_key = poa_key
+        @poa_key = :poa
       end
 
       def call
@@ -118,7 +118,7 @@ module ClaimsApi
             {
               vnp_proc_id: @vnp_proc_id,
               vnp_ptcpnt_id: nil
-            }.merge(bgs_jrn_fields)
+            }
           )
       end
 
@@ -136,7 +136,7 @@ module ClaimsApi
             tin_waiver_reason_type_cd: nil,
             ptcpnt_fk_ptcpnt_id: nil,
             corp_ptcpnt_id: participant_id
-          }.merge(bgs_jrn_fields)
+          }
         )
       end
 
@@ -151,8 +151,9 @@ module ClaimsApi
               last_nm: person[:lastName],
               brthdy_dt: person[:birthdate],
               ssn_nbr: person[:ssn],
-              file_nbr: person[:va_file_number]
-            }.merge(bgs_jrn_fields)
+              file_nbr: person[:va_file_number],
+              person_type_nm: 'Veteran'
+            }
           )
       end
 
@@ -170,7 +171,7 @@ module ClaimsApi
               addrs_two_txt: address[:addressLine2],
               bad_addrs_ind: nil,
               city_nm: address[:city],
-              cntry_nm: ClaimsApi::BRD::COUNTRY_CODES[(address[:countryCode]).to_s.upcase],
+              cntry_nm: ClaimsApi::BRD::COUNTRY_CODES[address[:countryCode].to_s.upcase],
               county_nm: nil,
               eft_waiver_type_nm: nil,
               email_addrs_txt: nil,
@@ -196,7 +197,7 @@ module ClaimsApi
               zip_first_suffix_nbr: address[:zipCodeSuffix],
               zip_prefix_nbr: address[:zipCode],
               zip_second_suffix_nbr: nil
-            }.merge(bgs_jrn_fields)
+            }
           )
       end
       # rubocop: enable Metrics/MethodLength
@@ -241,7 +242,7 @@ module ClaimsApi
               zip_first_suffix_nbr: nil,
               zip_prefix_nbr: nil,
               zip_second_suffix_nbr: nil
-            }.merge(bgs_jrn_fields)
+            }
           )
       end
       # rubocop: enable Metrics/MethodLength
@@ -282,7 +283,7 @@ module ClaimsApi
               organization_name: @form_data.dig(@poa_key, :organizationName),
               other_service_branch: @form_data.dig(:veteran, :serviceBranchOther),
               phone_number: @form_data[:veteran][:phone].present? ? format_phone(@form_data[:veteran][:phone]) : nil,
-              poa_code: @form_data.dig(@poa_key, :poaCode),
+              poa_code: @form_data.dig(:representative, :poaCode),
               postal_code: @form_data[:veteran][:address][:zipCode],
               proc_id: @vnp_proc_id,
               representative_first_name: @form_data.dig(@poa_key, :firstName),

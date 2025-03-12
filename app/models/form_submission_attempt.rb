@@ -39,7 +39,7 @@ class FormSubmissionAttempt < ApplicationRecord
                      user_account_uuid: form_submission.user_account_id }
         if should_send_simple_forms_email
           Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
-          simple_forms_enqueue_result_email(:error)
+          simple_forms_enqueue_result_email
         elsif form_type == CentralMail::SubmitForm4142Job::FORM4142_FORMSUBMISSION_TYPE
           form526_form4142_email(log_info)
         end
@@ -54,7 +54,7 @@ class FormSubmissionAttempt < ApplicationRecord
 
     event :vbms do
       after do
-        simple_forms_enqueue_result_email(:received) if should_send_simple_forms_email
+        simple_forms_enqueue_result_email if should_send_simple_forms_email
       end
 
       transitions from: :pending, to: :vbms
@@ -137,12 +137,15 @@ class FormSubmissionAttempt < ApplicationRecord
     simple_forms_form_number && Flipper.enabled?(:simple_forms_email_notifications)
   end
 
-  def simple_forms_enqueue_result_email(notification_type)
-    SimpleFormsApi::Notification::SendNotificationEmailJob.new.perform(
-      notification_type:,
-      form_submission_attempt: self,
-      form_number: simple_forms_form_number,
-      user_account:
+  def simple_forms_enqueue_result_email
+    form_number = simple_forms_form_number
+    Rails.logger.info('Queuing SimpleFormsAPI notification email to VaNotify', form_number:, benefits_intake_uuid:)
+    jid = SimpleFormsApi::Notification::SendNotificationEmailJob.perform_async(benefits_intake_uuid, form_number)
+    Rails.logger.info(
+      'Queuing SimpleFormsAPI notification email to VaNotify completed',
+      jid:,
+      form_number:,
+      benefits_intake_uuid:
     )
   end
 
