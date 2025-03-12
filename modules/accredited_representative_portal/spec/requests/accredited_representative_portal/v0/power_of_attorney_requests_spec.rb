@@ -254,6 +254,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         create(:power_of_attorney_request, :with_acceptance, :with_form_submission,
                resolution_created_at: time_plus_one_day, poa_code:)
       end
+      let!(:replaced_request) do
+        create(:power_of_attorney_request, :with_replacement, resolution_created_at: time, poa_code:)
+      end
       let!(:expired_request) do
         create(:power_of_attorney_request, :with_expiration, resolution_created_at: time_plus_one_day, poa_code:)
       end
@@ -269,7 +272,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(parsed_response.map { |poa| poa['id'] }).to include(accepted_failed_request.id)
         expect(parsed_response.map { |poa| poa['id'] }).not_to include(expired_request.id)
         expect(parsed_response.map { |h| h['createdAt'] }).to eq(
-          [time, time, time, time_plus_one_day]
+          [time_plus_one_day, time, time, time]
         )
       end
 
