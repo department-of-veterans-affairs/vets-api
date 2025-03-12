@@ -2,34 +2,34 @@
 
 module Eps
   ##
-  # EpsAppointmentWorker is a Sidekiq worker that polls the EPS service to check the status of an appointment.
-  # It retries up to a maximum number of times before sending a failure message if the appointment is not completed.
+  # EpsAppointmentWorker is responsible for handling the appointment processing
+  # and retrying the job if the appointment is not finished.
   #
+  # It includes the Sidekiq::Worker module to leverage Sidekiq's background job
+  # processing capabilities.
+  #
+  # The worker retries the job up to MAX_RETRIES times if the appointment is in
+  # a pending state. If the maximum retries are reached, it sends a failure message.
   class EpsAppointmentWorker
     include Sidekiq::Worker
 
     MAX_RETRIES = 3
 
-    @retry_count = 0
-
     ##
-    # Performs the Sidekiq job to check the status of an appointment.
+    # Performs the job to process the appointment.
     #
-    # @param appointment_id [String] The ID of the appointment to check.
-    # @param retry_count [Integer] The current retry count (default is 0).
-    #
-    def perform(appointment_id, user)
+    # @param appointment_id [String] the ID of the appointment to process
+    # @param user [User] the user associated with the appointment
+    # @param retry_count [Integer] the current retry count (default: 0)
+    def perform(appointment_id, user, retry_count = 0)
       service = Eps::AppointmentService.new(user)
       begin
-        # Poll get_appointments with the appointment_id to check if the appointment has finished submitting
-        response = service.get_appointment(appointment_id:)
+        response = service.get_appointment(appointment_id: appointment_id)
         if appointment_finished?(response)
           # Appointment finished successfully, do nothing
         elsif retry_count < MAX_RETRIES
-          # Re-enqueue the worker to poll again after a delay
-          self.class.perform_in(1.minute, appointment_id, retry_count + 1)
+          self.class.perform_in(1.minute, appointment_id, user, retry_count + 1)
         else
-          # Max retries reached, send failure message
           send_vanotify_message(success: false, error: 'Could not complete booking')
         end
       rescue => e
@@ -40,36 +40,21 @@ module Eps
     private
 
     ##
-    # Checks if the appointment has finished successfully.
+    # Checks if the appointment is finished.
     #
-    # @param response [OpenStruct] The response from the EPS service.
-    # @return [Boolean] True if the appointment is completed or booked, false otherwise.
-    #
+    # @param response [Object] the response object from the appointment service
+    # @return [Boolean] true if the appointment is finished, false otherwise
     def appointment_finished?(response)
       response.state == 'completed' || response.appointmentDetails&.status == 'booked'
     end
 
     ##
-    # Checks if the appointment has failed.
+    # Sends a failure message via VANotify with error details.
     #
-    # @param response [OpenStruct] The response from the EPS service.
-    # @return [Boolean] True for status 'booking-failed', 'cancel-failed' or if there is an error. Default false
-    #
-    def appointment_failed?(response)
-      appointment_status = response.appointmentDetails&.status
-      appointment_status == 'booking-failed' || appointment_status == 'cancel-failed' || response.error.present?
-    end
-
-    ##
-    # Sends a failure message via VANotify.
-    #
-    # @param success [Boolean] Indicates if the operation was successful.
-    # @param error [String, nil] The error message, if any.
-    #
+    # @param success [Boolean] the success status of the message
+    # @param error [String, nil] the error message (default: nil)
     def send_vanotify_message(success:, error: nil)
-      unless success
-        # Code to send failure message via VANotify with error details
-      end
+      # Code to send failure message via VANotify with error details
     end
   end
 end

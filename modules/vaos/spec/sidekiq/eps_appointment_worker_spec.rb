@@ -2,9 +2,6 @@
 
 require 'rails_helper'
 
-##
-# RSpec tests for Eps::EpsAppointmentWorker
-#
 RSpec.describe Eps::EpsAppointmentWorker, type: :job do
   subject(:worker) { described_class.new }
 
@@ -43,8 +40,10 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
       end
 
       it 'sends failure message after max retries' do
+        # rubocop:disable RSpec/SubjectStub
         expect(worker).to receive(:send_vanotify_message).with(success: false, error: 'Could not complete booking')
-        worker.perform(appointment_id, user, 3)
+        worker.perform(appointment_id, user, Eps::EpsAppointmentWorker::MAX_RETRIES)
+        # rubocop:enable RSpec/SubjectStub
       end
     end
   end
