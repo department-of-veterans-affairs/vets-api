@@ -16,8 +16,6 @@ describe VAOS::V2::SystemsService do
     context 'using VAOS' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                  instance_of(User)).and_return(true)
       end
 
       context 'with 7 clinics' do
@@ -44,8 +42,6 @@ describe VAOS::V2::SystemsService do
     context 'using VPG' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                  instance_of(User)).and_return(true)
       end
 
       context 'with 7 clinics' do
@@ -95,11 +91,6 @@ describe VAOS::V2::SystemsService do
     end
 
     context 'when the upstream server returns status code 200' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                  user).and_return(true)
-      end
-
       it 'returns a list of available slots' do
         VCR.use_cassette('vaos/v2/systems/get_available_slots_200', match_requests_on: %i[method path query]) do
           available_slots = subject.get_available_slots(location_id: '983',
