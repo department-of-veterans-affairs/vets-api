@@ -61,11 +61,9 @@ module BenefitsDocuments
       end
 
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
-      
+
       evidence_submission_id = nil
-      if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && !Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
-        evidence_submission_id = create_initial_evidence_submission(document_data)
-      end
+      evidence_submission_id = create_initial_evidence_submission(document_data) if can_create_evidence_submission
 
       uploader = LighthouseDocumentUploader.new(user_icn, document_data.uploader_ids)
       uploader.store!(document_data.file_obj)
@@ -163,6 +161,12 @@ module BenefitsDocuments
       temp_file = Tempfile.new(pdf_filename, encoding: 'ASCII-8BIT')
       temp_file.write(File.read(pdf_path))
       ActionDispatch::Http::UploadedFile.new(filename: pdf_filename, type: 'application/pdf', tempfile: temp_file)
+    end
+
+    def can_create_evidence_submission
+      Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && !Flipper.enabled?(
+        :cst_synchronous_evidence_uploads, @user
+      )
     end
   end
 end
