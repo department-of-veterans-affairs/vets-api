@@ -9,6 +9,7 @@ describe SimpleFormsApi::PdfStamper do
   describe '#stamp_pdf' do
     let(:datestamp_instance) { instance_double(PDFUtilities::DatestampPdf) }
     let(:current_file_path) { 'current-file-path' }
+    let(:current_loa) { 3 }
 
     before do
       allow(instance).to receive(:verify).and_call_original
@@ -29,7 +30,6 @@ describe SimpleFormsApi::PdfStamper do
             'modules/simple_forms_api/spec/fixtures/pdfs/vba_21_0779-completed.pdf'
           end
           let(:timestamp) { nil }
-          let(:current_loa) { 3 }
           let(:instance) { described_class.new(stamped_template_path:, form:, current_loa:, timestamp:) }
 
           context 'applying stamps as specified by the form model' do
@@ -83,7 +83,7 @@ describe SimpleFormsApi::PdfStamper do
               end
             end
 
-            context 'form is not specified' do
+            context 'form is nil' do
               let(:form) { nil }
 
               it 'does not call stamp_form' do
@@ -141,7 +141,7 @@ describe SimpleFormsApi::PdfStamper do
           end
           let(:current_file_path) { 'current-file-path' }
           let(:instance) do
-            described_class.new(stamped_template_path:, current_loa: 3, timestamp: Time.current)
+            described_class.new(stamped_template_path:, current_loa:, timestamp: Time.current)
           end
 
           context 'applying stamps as specified by the form model' do

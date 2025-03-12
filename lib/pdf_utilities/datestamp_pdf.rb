@@ -8,33 +8,43 @@ module PDFUtilities
   PDFTK = PdfForms.new(Settings.binaries.pdftk)
 
   class DatestampPdfError < StandardError; end
+  class PdfMissingError < DatestampPdfError; end
+  class StampGenerationError < DatestampPdfError; end
+  class PdfStampingError < DatestampPdfError; end
 
   # add a watermark datestamp to an existing pdf
   class DatestampPdf
     # prepare to datestamp an existing pdf document
     #
-    # @param file_path [String]
-    # @param append_to_stamp [String] text to append to the stamp
+    # @param file_path [String] path to the PDF file
+    # @param append_to_stamp [String, nil] text to append to the stamp
+    # @raise [PdfMissingError] if the PDF file doesn't exist
     #
     def initialize(file_path, append_to_stamp: nil)
       @file_path = file_path
       @append_to_stamp = append_to_stamp
+
+      raise PdfMissingError, "Original PDF missing: #{file_path}" unless File.exist?(file_path)
+    rescue => e
+      Rails.logger.error("Failed to initialize DatestampPdf: #{e.class} - #{e.message}", backtrace: e.backtrace)
+      raise e
     end
 
     # create a datestamped pdf copy of `file_path`
     #
     # @param settings [Hash] options for generating the datestamp
     # @option settings [String] :text the stamp text
-    # @option settings [String] :x stamp x coordinate; default 5
-    # @option settings [String] :y stamp y coordinate; default 5
-    # @option settings [String] :text_only only stamp the provided text, no timestamp; default false
-    # @option settings [String] :size font size; default 10
-    # @option settings [String] :timestamp the timestamp to include; default Time.zone.now
-    # @option settings [String] :page_number on which page to place the stamp; default nil
-    # @option settings [String] :template another pdf on which to base the stamped pdf; default nil
-    # @option settings [String] :multistamp apply stamped pdf page to corresponding input pdf; default false
+    # @option settings [Integer] :x stamp x coordinate; default 5
+    # @option settings [Integer] :y stamp y coordinate; default 5
+    # @option settings [Boolean] :text_only only stamp the provided text, no timestamp; default false
+    # @option settings [Integer] :size font size; default 10
+    # @option settings [Time] :timestamp the timestamp to include; default Time.zone.now
+    # @option settings [Integer, nil] :page_number on which page to place the stamp; default nil
+    # @option settings [String, nil] :template another pdf on which to base the stamped pdf; default nil
+    # @option settings [Boolean] :multistamp apply stamped pdf page to corresponding input pdf; default false
     #
     # @return [String] path to generated stamped pdf
+    # @raise [DatestampPdfError] if the stamping process fails
     #
     def run(settings)
       settings = default_settings.merge(settings)
@@ -43,9 +53,9 @@ module PDFUtilities
       generate_stamp
       stamp_pdf
     rescue => e
-      Rails.logger.error("Failed to generate datestamp file: #{e.message}", backtrace: e.backtrace)
+      Rails.logger.error("Failed to generate datestamp file: #{e.class} - #{e.message}", backtrace: e.backtrace)
       Common::FileHelpers.delete_file_if_exists(stamped_pdf)
-      raise
+      raise e
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path)
     end
@@ -86,26 +96,27 @@ module PDFUtilities
       @stamp_path = Common::FileHelpers.random_file_path
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
         if page_number.present? && template.present?
+          raise StampGenerationError, "Template PDF missing: #{template}" unless File.exist?(template)
+
           reader = PDF::Reader.new(template)
-          page_number.times do
-            pdf.start_new_page
-          end
-          (pdf.draw_text stamp_text, at: [x, y], size:)
-          (pdf.draw_text timestamp.strftime('%Y-%m-%d %I:%M %p %Z'), at: [x, y - 12], size:)
-          (reader.page_count - page_number).times do
-            pdf.start_new_page
-          end
+          page_number.times { pdf.start_new_page }
+          pdf.draw_text(stamp_text, at: [x, y], size:)
+          pdf.draw_text(timestamp.strftime('%Y-%m-%d %I:%M %p %Z'), at: [x, y - 12], size:)
+          (reader.page_count - page_number).times { pdf.start_new_page }
         else
           pdf.draw_text stamp_text, at: [x, y], size:
         end
       end
 
       stamp_path
+    rescue => e
+      Rails.logger.error("Failed to generate stamp: #{e.class} - #{e.message}", backtrace: e.backtrace)
+      raise
     end
 
     # create the stamp text to be used
     def stamp_text
-      stamp = text
+      stamp = text.dup
       unless text_only
         stamp += if File.basename(file_path) == 'vba_40_10007-stamped.pdf'
                    " #{I18n.l(timestamp4010007, format: :pdf_stamp4010007)}"
@@ -134,11 +145,12 @@ module PDFUtilities
         PDFUtilities::PDFTK.stamp(file_path, stamp_path, stamped_pdf)
       end
 
-      raise DatestampPdfError, 'Stamped PDF was not created' unless File.exist?(stamped_pdf)
+      raise StampGenerationError, 'Stamped PDF was not created' unless File.exist?(stamped_pdf)
 
       stamped_pdf
     rescue => e
-      Rails.logger.error "Pdftk stamp failed: #{e.class} - #{e.message}"
+      Common::FileHelpers.delete_file_if_exists(stamped_pdf)
+      Rails.logger.error("PDF stamping failed: #{e.class} - #{e.message}", backtrace: e.backtrace)
       raise e
     end
 

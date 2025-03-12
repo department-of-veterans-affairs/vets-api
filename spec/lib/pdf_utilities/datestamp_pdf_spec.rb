@@ -93,7 +93,10 @@ RSpec.describe PDFUtilities::DatestampPdf do
       context 'when an error occurs in #generate_stamp' do
         it 'logs and reraise the error and not call stamp' do
           allow(Prawn::Document).to receive(:generate).and_raise(error_message)
-          expect(Rails.logger).to receive(:error).once.with("Failed to generate datestamp file: #{error_message}")
+          expect(Rails.logger).to receive(:error).once.with(
+            "Failed to generate stamp: RuntimeError - #{error_message}",
+            hash_including(:backtrace)
+          )
           expect(instance).not_to receive(:stamp_pdf)
           expect do
             instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
@@ -107,7 +110,29 @@ RSpec.describe PDFUtilities::DatestampPdf do
           expect(File).to receive(:delete).twice.and_call_original
           expect do
             instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
-          end.to raise_error(StandardError, error_message)
+          end.to raise_error(RuntimeError, error_message)
+        end
+      end
+
+      context 'when the file does not exist' do
+        it 'raises a PdfMissingError' do
+          expect do
+            described_class.new('nonexistent.pdf')
+          end.to raise_error(PDFUtilities::PdfMissingError, /Original PDF missing/)
+        end
+      end
+
+      context 'when the template does not exist' do
+        it 'raises a StampGenerationError during stamp generation' do
+          nonexistent_template = './nonexistent_template.pdf'
+
+          expect do
+            instance.run(
+              text: 'Received via vets.gov',
+              template: nonexistent_template,
+              page_number: 1
+            )
+          end.to raise_error(PDFUtilities::StampGenerationError, /Template PDF missing/)
         end
       end
     end
