@@ -20,6 +20,7 @@ module VAOS
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
       CACHE_ERROR_MSG = 'Error fetching referral data from cache'
+      PROVIDER_SLOTS_ERROR_MSG = 'Error fetching provider slots'
 
       rescue_from Redis::BaseError, with: :handle_redis_error
 
@@ -72,29 +73,31 @@ module VAOS
 
         cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
 
-        validation_result = validate_referral_data(cached_referral_data)
-        unless validation_result[:valid]
-          missing_attributes = validation_result[:missing_attributes].join(', ')
-          render json: {
-            errors: [{
-              title: 'Invalid referral data',
-              detail: "Required referral data is missing or incomplete: #{missing_attributes}"
-            }]
-          }, status: :unprocessable_entity and return
+        # Validate referral data
+        referral_validation = check_referral_data_validation(cached_referral_data)
+        unless referral_validation[:success]
+          render json: referral_validation[:json], status: referral_validation[:status] and return
         end
 
-        referral_check_result = check_referral_usage(referral_id)
-        unless referral_check_result[:success]
-          render json: referral_check_result[:json], status: referral_check_result[:status] and return
+        # Check if referral is already in use
+        referral_usage = check_referral_usage(referral_id)
+        unless referral_usage[:success]
+          render json: referral_usage[:json], status: referral_usage[:status] and return
         end
 
         draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
         provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
 
+        # Check for provider slots
+        slots_validation = build_provider_slots_response(cached_referral_data)
+        unless slots_validation[:success]
+          render json: slots_validation[:json], status: slots_validation[:status] and return
+        end
+
         response_data = OpenStruct.new(
           id: draft_appointment.id,
           provider:,
-          slots: fetch_provider_slots(cached_referral_data),
+          slots: slots_validation[:slots],
           drive_time: fetch_drive_times(provider)
         )
 
@@ -467,8 +470,7 @@ module VAOS
       #   - `:start_date` [String] The earliest appointment date (ISO 8601).
       #   - `:end_date` [String] The latest appointment date (ISO 8601).
       #
-      # @raise [ArgumentError] If required parameters are missing.
-      # @return [OpenStruct] API response with available slots.
+      # @return [Array, nil] Available slots array or nil if error occurs
       #
       def fetch_provider_slots(referral_data)
         eps_provider_service.get_provider_slots(
@@ -479,6 +481,10 @@ module VAOS
             startBefore: referral_data[:end_date]
           }
         )
+      rescue => e
+        Rails.logger.error("Provider slots error: #{e.message}")
+        StatsD.increment("#{STATSD_KEY}.provider_slots_error")
+        nil
       end
 
       def fetch_drive_times(provider)
@@ -552,8 +558,59 @@ module VAOS
 
         {
           valid: missing_attributes.empty?,
-          missing_attributes: missing_attributes.map(&:to_s)
+          missing_attributes: missing_attributes.map(&:to_s).join(', ')
         }
+      end
+
+      ##
+      # Validates referral data and builds a formatted response object
+      #
+      # @param referral_data [Hash, nil] The referral data from the cache
+      # @return [Hash] Result hash:
+      #   - If data is valid: { success: true }
+      #   - If data is invalid: { success: false, json: { errors: [...] }, status: :unprocessable_entity }
+      def check_referral_data_validation(referral_data)
+        validation_result = validate_referral_data(referral_data)
+        if validation_result[:valid]
+          { success: true }
+        else
+          missing_attributes = validation_result[:missing_attributes]
+          {
+            success: false,
+            json: {
+              errors: [{
+                title: 'Invalid referral data',
+                detail: "Required referral data is missing or incomplete: #{missing_attributes}"
+              }]
+            },
+            status: :unprocessable_entity
+          }
+        end
+      end
+
+      ##
+      # Fetches provider slots and builds a formatted response object
+      #
+      # @param referral_data [Hash] The referral data containing appointment details
+      # @return [Hash] Result hash:
+      #   - If slots are retrieved: { success: true, slots: [...] }
+      #   - If slots cannot be retrieved: { success: false, json: { errors: [...] }, status: :bad_gateway }
+      def build_provider_slots_response(referral_data)
+        slots = fetch_provider_slots(referral_data)
+        if slots.nil?
+          {
+            success: false,
+            json: {
+              errors: [{
+                title: PROVIDER_SLOTS_ERROR_MSG,
+                detail: 'Unable to retrieve available appointment slots'
+              }]
+            },
+            status: :bad_gateway
+          }
+        else
+          { success: true, slots: slots }
+        end
       end
     end
   end
