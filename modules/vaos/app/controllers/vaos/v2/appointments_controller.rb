@@ -74,10 +74,11 @@ module VAOS
 
         validation_result = validate_referral_data(cached_referral_data)
         unless validation_result[:valid]
+          missing_attributes = validation_result[:missing_attributes].join(', ')
           render json: {
             errors: [{
               title: 'Invalid referral data',
-              detail: "Required referral data is missing or incomplete: #{validation_result[:missing_attributes].join(', ')}"
+              detail: "Required referral data is missing or incomplete: #{missing_attributes}"
             }]
           }, status: :unprocessable_entity and return
         end
@@ -268,7 +269,6 @@ module VAOS
         )
       end
 
-      # rubocop:disable Metrics/MethodLength
       def create_params
         @create_params ||= begin
           # Gets around a bug that turns param values of [] into [""]. This changes them back to [].
@@ -547,7 +547,7 @@ module VAOS
       def validate_referral_data(referral_data)
         return { valid: false, missing_attributes: ['all required attributes'] } if referral_data.nil?
 
-        required_attributes = [:provider_id, :appointment_type_id, :start_date, :end_date]
+        required_attributes = %i[provider_id appointment_type_id start_date end_date]
         missing_attributes = required_attributes.select { |attr| referral_data[attr].blank? }
 
         {
@@ -558,5 +558,3 @@ module VAOS
     end
   end
 end
-
-# rubocop:enable Metrics/MethodLength
