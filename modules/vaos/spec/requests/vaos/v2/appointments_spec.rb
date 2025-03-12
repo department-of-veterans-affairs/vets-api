@@ -1571,6 +1571,50 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           expect(response_obj['errors'].first['detail']).to eq('Unable to connect to cache service')
         end
       end
+
+      context 'when cached referral data is incomplete' do
+        it 'returns an unprocessable_entity status when required attributes are missing' do
+          redis_client = instance_double(Eps::RedisClient)
+          allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
+
+          incomplete_data = {
+            provider_id: '9mN718pH',
+            # appointment_type_id is missing
+            start_date: '2025-01-01T00:00:00Z',
+            end_date: '2025-01-03T00:00:00Z'
+          }
+
+          allow(redis_client).to receive(:fetch_referral_attributes).and_return(incomplete_data)
+          allow_any_instance_of(Eps::AppointmentService)
+            .to receive(:get_appointments)
+            .and_return(OpenStruct.new(data: []))
+
+          post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+          expect(response).to have_http_status(:unprocessable_entity)
+
+          response_obj = JSON.parse(response.body)
+          expect(response_obj['errors'].first['title']).to eq('Invalid referral data')
+          expect(response_obj['errors'].first['detail']).to include('appointment_type_id')
+        end
+
+        it 'returns an unprocessable_entity status when no referral data is found' do
+          redis_client = instance_double(Eps::RedisClient)
+          allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
+          allow(redis_client).to receive(:fetch_referral_attributes).and_return(nil)
+          allow_any_instance_of(Eps::AppointmentService)
+            .to receive(:get_appointments)
+            .and_return(OpenStruct.new(data: []))
+
+          post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+          expect(response).to have_http_status(:unprocessable_entity)
+
+          response_obj = JSON.parse(response.body)
+          expect(response_obj['errors'].first['title']).to eq('Invalid referral data')
+          expect(response_obj['errors'].first['detail']).to include('all required attributes')
+        end
+      end
     end
   end
 end

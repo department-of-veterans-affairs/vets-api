@@ -66,6 +66,7 @@ module VAOS
         render json: { data: serialized }, status: :created
       end
 
+      # rubocop:disable Metrics/MethodLength
       def create_draft
         referral_id = draft_params[:referral_id]
         # TODO: validate referral_id and other needed referral data from the cache from prior referrals response
@@ -601,3 +602,5 @@ module VAOS
     end
   end
 end
+
+# rubocop:enable Metrics/MethodLength
