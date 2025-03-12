@@ -982,7 +982,6 @@ features:
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
-    enable_in_development: true
   mhv_secure_messaging_filter_accordion:
     actor_type: user
     description: Enables/disables Secure Messaging Filter Accordion re-design updates on VA.gov
@@ -1068,6 +1067,10 @@ features:
   mhv_medical_records_update_landing_page:
     actor_type: user
     description: Enables/disables Medical Records new landing page content
+    enable_in_development: true
+  mhv_medical_records_filter_and_sort:
+    actor_type: user
+    description: Enables/disables Medical Records new filter and sort changes
     enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
@@ -1375,6 +1378,10 @@ features:
     actor_type: user
     description: Enables the Payment History MVP features for development
     enable_in_development: true
+  vha_show_payment_history:
+    actor_type: user
+    description: Enables the VHA Payment history (including copay resolution) feature for combined debt portal
+    enable_in_development: true
   submission_pdf_s3_upload:
     actor_type: user
     description: Used to toggle use of uploading a submission pdf to S3 and returning a pre-signed url.
@@ -1645,6 +1652,14 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
+  payment_history_exclude_third_party_disbursements:
+    actor_type: user
+    description: When enabled, a user viewing the payment history will only see payments disbursed to them.
+    enable_in_development: false
+  payment_history_recategorize_hardship:
+    actor_type: user
+    description: When enabled, recategorize Hardship payments sent to the veteran as Ch33 Hardship
+    enable_in_development: false
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
