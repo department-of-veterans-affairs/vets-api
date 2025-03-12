@@ -10,12 +10,6 @@ require 'lighthouse/benefits_documents/constants'
 require 'lighthouse/benefits_documents/utilities/helpers'
 
 RSpec.describe EVSS::DocumentUpload, type: :job do
-  subject(:job) do
-    described_class.perform_async(auth_headers,
-                                  user.uuid,
-                                  document_data.to_serializable_hash)
-  end
-
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
   let(:user) { create(:user, :loa3) }
   let(:user_account) { create(:user_account) }
@@ -35,7 +29,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
     )
   end
   let(:job_class) { 'EVSS::DocumentUpload' }
-  let(:job_id) { job }
+  let(:job_id) { '5555' }
   let(:client_stub) { instance_double(EVSS::DocumentsService) }
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
   let(:issue_instant) { Time.now.to_i }
@@ -94,10 +88,10 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         allow(uploader_stub).to receive(:read_for_upload) { file }
         expect(uploader_stub).to receive(:remove!).once
         expect(client_stub).to receive(:upload).with(file, document_data)
-        allow(EvidenceSubmission).to receive(:find_by).with({ job_id: job_id.to_s })
+        allow(EvidenceSubmission).to receive(:find_by).with({ id: evidence_submission_pending.id })
                                                       .and_return(evidence_submission_pending)
-        described_class.drain
-        evidence_submission = EvidenceSubmission.find_by(job_id:)
+        described_class.new.perform(auth_headers, user.uuid, document_data.to_serializable_hash, evidence_submission_pending.id)
+        evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_pending.id)
         expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
         expect(evidence_submission.delete_date).not_to be_nil
         expect(StatsD)
@@ -106,7 +100,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       end
 
       it 'when there is no EvidenceSubmission' do
-        allow(EVSS::DocumentUpload).to receive(:update_evidence_submission)
+        allow(EVSS::DocumentUpload).to receive(:update_evidence_submission_for_failure)
         allow(EVSSClaimDocumentUploader).to receive(:new) { uploader_stub }
         allow(EVSS::DocumentsService).to receive(:new) { client_stub }
         allow(uploader_stub).to receive(:retrieve_from_store!).with(file_name) { file }
@@ -115,7 +109,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         expect(client_stub).to receive(:upload).with(file, document_data)
         allow(EvidenceSubmission).to receive(:find_by).with({ job_id: job_id.to_s })
                                                       .and_return(nil)
-        described_class.drain
+        described_class.new.perform(auth_headers, user.uuid, document_data.to_serializable_hash, evidence_submission_pending.id)
         expect(EvidenceSubmission.count).to equal(0)
         expect(EVSS::DocumentUpload).not_to have_received(:update_evidence_submission)
       end
@@ -142,7 +136,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       it 'updates an evidence submission record with a FAILED status with date_failed' do
         EVSS::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) do
           allow(EvidenceSubmission).to receive(:find_by)
-            .with({ job_id: })
+            .with({ id: evidence_submission_pending.id })
             .and_return(evidence_submission_pending)
           expect(Rails.logger)
             .to receive(:info)
@@ -151,7 +145,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
                                                      tags: ['service:claim-status', "function: #{message}"])
         end
         expect(EvidenceSubmission.va_notify_email_not_queued.length).to equal(1)
-        evidence_submission = EvidenceSubmission.find_by(job_id:)
+        evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_pending.id)
         current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
         expect(evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
         expect(evidence_submission.error_message).to eql('EVSS::DocumentUpload document upload failure')
@@ -209,7 +203,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       expect(uploader_stub).to receive(:remove!).once
       expect(client_stub).to receive(:upload).with(file, document_data)
       expect(EvidenceSubmission.count).to equal(0)
-      described_class.new.perform(auth_headers, user.uuid, document_data.to_serializable_hash)
+      described_class.new.perform(auth_headers, user.uuid, document_data.to_serializable_hash, nil)
     end
 
     context 'when cst_send_evidence_failure_emails is enabled' do
