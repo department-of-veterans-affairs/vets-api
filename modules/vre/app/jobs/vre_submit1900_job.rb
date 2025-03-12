@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VRE
-  class VRESubmit1900Job
+  class VreSubmit1900Job
     include Sidekiq::Job
     include SentryLogging
 
@@ -13,7 +13,7 @@ module VRE
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
-      VRE::VRESubmit1900Job.trigger_failure_events(msg) if Flipper.enabled?(:vre_trigger_action_needed_email)
+      VRE::VreSubmit1900Job.trigger_failure_events(msg) if Flipper.enabled?(:vre_trigger_action_needed_email)
     end
 
     def perform(claim_id, encrypted_user)
@@ -21,7 +21,7 @@ module VRE
       user = OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user)))
       claim.send_to_vre(user)
     rescue => e
-      Rails.logger.warn("VRE::VRESubmit1900Job failed, retrying...: #{e.message}")
+      Rails.logger.warn("VRE::VreSubmit1900Job failed, retrying...: #{e.message}")
       raise
     end
 
