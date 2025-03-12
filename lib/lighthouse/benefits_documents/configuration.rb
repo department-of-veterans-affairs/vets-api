@@ -62,7 +62,7 @@ module BenefitsDocuments
                   'Content-Type' => 'multipart/form-data' }
 
       body = generate_upload_body(document_data, file_body)
-      connection.post(DOCUMENTS_PATH, body, headers)
+      connection.post(BASE_PATH + DOCUMENTS_PATH, body, headers)
     end
 
     def generate_upload_body(document_data, file_body)
@@ -106,7 +106,7 @@ module BenefitsDocuments
         }
       }.to_json
 
-      documents_status_api_connection.post(DOCUMENTS_STATUS_PATH, body, headers)
+      documents_status_api_connection.post(BASE_PATH + DOCUMENTS_STATUS_PATH, body, headers)
     end
 
     ##
