@@ -68,7 +68,7 @@ module IvcChampva
         puts "Form UUID:   #{form.form_uuid}"
         puts "Form:   #{form.form_number}"
         puts "Uploaded at: #{form.created_at}"
-        puts "S3 Status:   #{nil_in_batch.distinct.pluck(:s3_status)}\n"
+        puts "S3 Status:   #{batch.distinct.pluck(:s3_status)}\n"
 
         nil
       end
@@ -82,8 +82,8 @@ module IvcChampva
       def manually_process_batch(batch)
         batch.each do |form|
           next unless form.pega_status.nil?
-
-          puts "Setting #{form.file_name} to 'Manually Processed'"
+          # In this context, `form.file_name` has this structure: "#{uuid}_#{form_id}_supporting_doc-#{index}.pdf"
+          Rails.logger.info("IVC ChampVA Forms - Setting #{form.file_name} to 'Manually Processed'")
           form.update(pega_status: 'Manually Processed')
           form.save
         end

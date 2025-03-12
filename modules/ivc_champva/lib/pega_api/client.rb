@@ -15,10 +15,13 @@ module IvcChampva
       #
       # @param date_start [Date, nil] the start date of the report
       # @param date_end [Date, nil] the end date of the report
+      # @param case_id [string, nil] PEGA case ID of a given submission
+      # @param uuid [string, nil] Form UUID of a given submission
+      #
       # @return [Array<Hash>] the report rows
-      def get_report(date_start, date_end)
+      def get_report(date_start, date_end, case_id = '', uuid = '')
         resp = connection.post(config.base_path) do |req|
-          req.headers = headers(date_start, date_end)
+          req.headers = headers(date_start, date_end, case_id, uuid)
         end
 
         raise "response code: #{resp.status}, response body: #{resp.body}" unless resp.status == 200
@@ -41,16 +44,21 @@ module IvcChampva
       ##
       # Assembles headers for the Pega API request
       #
-      # @param date_start [Date, nil] the start date of the report
-      # @param date_end [Date, nil] the end date of the report
+      # @param date_start [string, nil] the start date of the report
+      # @param date_end [string, nil] the end date of the report
+      # @param case_id [string, nil] PEGA case ID of a given submission
+      # @param uuid [string, nil] Form UUID of a given submission
+      #
       # @return [Hash] the headers
-      def headers(date_start, date_end)
+      def headers(date_start, date_end, case_id='', uuid='')
+        # TODO: reorder params so `case_id` is last?
         {
           :content_type => 'application/json',
-          'x-api-key' => Settings.ivc_champva.pega_api.api_key.to_s,
-          'date_start' => date_start.to_s,
-          'date_end' => date_end.to_s,
-          'case_id' => '' # case_id seems to have no effect, but it is required by the API
+          'x-api-key' => 'REPLACE ME',
+          'date_start' => date_start,
+          'date_end' => date_end,
+          'case_id' => case_id,
+          'uuid' => uuid,
         }
       end
 
@@ -58,23 +66,23 @@ module IvcChampva
       # Checks if a provided IvcChampvaForm record has a corresponding PEGA report
       #
       # @param record [IvcChampvaForm] the form record to check against the PEGA reporting API
-      # @return [Hash|boolean] Either a single PEGA report or `false` (if no report was found)
+      #
+      # @return [Hash|boolean] Either a list of PEGA reports or `false` if no report was found
       def record_has_matching_report(record)
-        # A report looks like:
-        # {"Creation Date"=>"2024-12-17T07:42:28.307000", "PEGA Case ID"=>"D-XXXXX", "Status"=>"Processed"}
+        # A report looks like (note the UUID truncation 'e+'):
+        # { "Creation Date"=>"2024-12-17T07:42:28.307000",
+        #   "PEGA Case ID"=>"D-XXXXX",
+        #   "Status"=>"Processed",
+        #   "UUID"=> "78444a0b-3ac8-454d-a28d-8d6f0e+" }
 
         # Querying by date requires a window of at least 1 day:
         date_start = record.created_at.strftime('%m/%d/%Y')
         date_end = (record.created_at + 1.day).strftime('%m/%d/%Y')
-        # There should only be one match per case ID, so query reports and grab 0th item:
-        # TODO:
-        #  In practice this won't actually work, cause any report with a `nil`
-        #  `pega_status` on our side won't actually have a `case_id` to filter by...
-        #  what we REALLY need is to add the `form_uuid` property into the PEGA reports
-        report = get_report(date_start, date_end).select { |report| report['PEGA Case ID'] == record.case_id }[0]
+        reports = get_report(date_start, date_end, '', record.form_uuid)
+
         # If a report exists, return the IVC record and the corresponding report
         # otherwise, return false
-        record && report ? report : false
+        record && reports ? reports : false
       end
     end
   end
