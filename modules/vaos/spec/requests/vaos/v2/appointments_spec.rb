@@ -1491,6 +1491,23 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
         end
       end
+
+      context 'when Redis connection fails' do
+        it 'returns a bad_gateway status and appropriate error message' do
+          # Mock the Redis client to raise a connection error
+          redis_client = instance_double(Eps::RedisClient)
+          allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
+          allow(redis_client).to receive(:fetch_referral_attributes).and_raise(Redis::BaseError, 'Redis connection refused')
+
+          post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+          expect(response).to have_http_status(:bad_gateway)
+
+          response_obj = JSON.parse(response.body)
+          expect(response_obj['errors'].first['title']).to eq('Error fetching referral data from cache')
+          expect(response_obj['errors'].first['detail']).to eq('Unable to connect to cache service')
+        end
+      end
     end
   end
 end
