@@ -1605,7 +1605,23 @@ features:
   va_online_scheduling_fe_source_of_truth:
     actor_type: user
     enable_in_development: true
-    description: Toggle for changes made in the FE based on API source of truth changes.
+    description: Toggle to use API response as the source of truth in FE for upcoming/past/pending appointments.
+  va_online_scheduling_fe_source_of_truth_va:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use API response as the source of truth in FE for VA appointment and request types.
+  va_online_scheduling_fe_source_of_truth_cc:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use API response as the source of truth in FE for CC appointment and request types.
+  va_online_scheduling_fe_source_of_truth_modality:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use API response as the source of truth in FE for in person, phone, claims exam, covid vaccine modalities.
+  va_online_scheduling_fe_source_of_truth_telehealth:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use API response as the source of truth in FE for Video at VA, Video at ATLAS, Video at Home modalities.
   va_online_scheduling_past_appt_date_range:
     actor_type: user
     enable_in_development: true
