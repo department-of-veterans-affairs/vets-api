@@ -138,7 +138,7 @@ class EVSSClaimService
       user_account:,
       template_metadata: { personalisation: create_personalisation(document) }.to_json
     )
-    StatsD.increment('cst.evss.document_uploads.evidence_submission_record_created.success')
+    StatsD.increment('cst.evss.document_uploads.evidence_submission_record_created')
     ::Rails.logger.info('EVSS - Created Evidence Submission Record', {
                           claim_id: document.evss_claim_id,
                           evidence_submission_id: es.id

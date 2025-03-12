@@ -209,6 +209,7 @@ module Lighthouse
             upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
           )
           StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_updated.added_request_id')
+          add_log('PENDING', evidence_submission.claim_id, evidence_submission.id)
         else
           raise StandardError
         end

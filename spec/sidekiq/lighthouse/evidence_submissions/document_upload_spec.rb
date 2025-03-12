@@ -77,6 +77,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
     before do
       allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
       allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:info)
     end
 
     context 'when upload succeeds' do
@@ -105,17 +106,29 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         expect(uploader_stub).to receive(:remove!).once
         expect(client_stub).to receive(:upload_document).with(file, document_data).and_return(success_response)
         allow(EvidenceSubmission).to receive(:find_by)
-          .with({ job_id: })
+          .with({ id: evidence_submission_pending.id })
           .and_return(evidence_submission_pending)
-        described_class.drain # runs all queued jobs of this class
+        # Runs all queued jobs of this class
+        described_class.new.perform(user_icn,
+                                    document_data.to_serializable_hash,
+                                    evidence_submission_pending.id)
         # After running DocumentUpload job, there should be an updated EvidenceSubmission record
         # with the response request_id
-        new_evidence_submission = EvidenceSubmission.find_by(job_id:)
+        new_evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_pending.id)
         expect(new_evidence_submission.request_id).to eql(success_response.body.dig('data', 'requestId'))
         expect(new_evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
         expect(StatsD)
           .to have_received(:increment)
+          .with('cst.lighthouse.document_uploads.evidence_submission_record_updated.queued')
+        expect(Rails.logger)
+          .to have_received(:info)
+          .with('LH - Updated Evidence Submission Record to QUEUED', any_args)
+        expect(StatsD)
+          .to have_received(:increment)
           .with('cst.lighthouse.document_uploads.evidence_submission_record_updated.added_request_id')
+        expect(Rails.logger)
+          .to have_received(:info)
+          .with('LH - Updated Evidence Submission Record to PENDING', any_args)
       end
 
       it 'there is no EvidenceSubmission' do

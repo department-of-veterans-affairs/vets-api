@@ -38,8 +38,7 @@ class EVSS::DocumentUpload
   sidekiq_retries_exhausted do |msg, _ex|
     verify_msg(msg)
 
-    # Attempt to find evidence_submission record in case it was already created in evss_claim_service.rb
-    evidence_submission = EvidenceSubmission.find_or_create_by(job_id: msg['jid'])
+    evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
 
     if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission
       update_evidence_submission_for_failure(evidence_submission, msg)
