@@ -65,11 +65,22 @@ module VAOS
         render json: { data: serialized }, status: :created
       end
 
+      # rubocop:disable Metrics/MethodLength
       def create_draft
         referral_id = draft_params[:referral_id]
         # TODO: validate referral_id and other needed referral data from the cache from prior referrals response
 
         cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
+
+        validation_result = validate_referral_data(cached_referral_data)
+        unless validation_result[:valid]
+          render json: {
+            errors: [{
+              title: 'Invalid referral data',
+              detail: "Required referral data is missing or incomplete: #{validation_result[:missing_attributes].join(', ')}"
+            }]
+          }, status: :unprocessable_entity and return
+        end
 
         referral_check_result = check_referral_usage(referral_id)
         unless referral_check_result[:success]
@@ -527,6 +538,25 @@ module VAOS
         render json: { errors: [{ title: CACHE_ERROR_MSG, detail: 'Unable to connect to cache service' }] },
                status: :bad_gateway
       end
+
+      ##
+      # Validates that all required referral data attributes are present
+      #
+      # @param referral_data [Hash, nil] The referral data from the cache
+      # @return [Hash] Hash with :valid boolean and :missing_attributes array
+      def validate_referral_data(referral_data)
+        return { valid: false, missing_attributes: ['all required attributes'] } if referral_data.nil?
+
+        required_attributes = [:provider_id, :appointment_type_id, :start_date, :end_date]
+        missing_attributes = required_attributes.select { |attr| referral_data[attr].blank? }
+
+        {
+          valid: missing_attributes.empty?,
+          missing_attributes: missing_attributes.map(&:to_s)
+        }
+      end
     end
   end
 end
+
+# rubocop:enable Metrics/MethodLength
