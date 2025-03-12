@@ -9,7 +9,10 @@ module MyHealth
       set_id :triage_team_id
 
       attributes :triage_team_id, :name, :station_number,
-                 :blocked_status, :preferred_team, :relationship_type
+                 :blocked_status, :preferred_team, :relation_type, :lead_provider_name,
+                 :location_name, :team_name, :suggested_name_display, :health_care_system_name,
+                 :group_type_enum_val, :sub_group_type_enum_val, :group_type_patient_display,
+                 :sub_group_type_patient_display
     end
   end
 end

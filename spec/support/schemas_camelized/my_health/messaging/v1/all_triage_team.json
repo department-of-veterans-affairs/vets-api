@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": [
+    "triageTeamId",
+    "name",
+    "stationNumber",
+    "blockedStatus",
+    "preferredTeam",
+    "relationType",
+    "locationName",
+    "leadProviderName",
+    "teamName",
+    "suggestedNameDisplay",
+    "healthCareSystemName",
+    "groupTypeEnumVal",
+    "subGroupTypeEnumVal",
+    "groupTypePatientDisplay",
+    "subGroupTypePatientDisplay"
+  ],
+  "properties": {
+    "triageTeamId": {
+      "type": "integer"
+    },
+    "name": {
+      "type": "string"
+    },
+    "stationNumber": {
+      "type": "string"
+    },
+    "blockedStatus": {
+      "type": "boolean"
+    },
+    "preferredTeam": {
+      "type": "boolean"
+    },
+    "relationType": {
+      "type": "string"
+    },
+    "leadProviderName": {
+      "type": "string"
+    },
+    "locationName": {
+      "type": "string"
+    },
+    "teamName": {
+      "type": "string"
+    },
+    "suggestedNameDisplay": {
+      "type": "string"
+    },
+    "healthCareSystemName": {
+      "type": "string"
+    },
+    "groupTypeEnumVal": {
+      "type": "string"
+    },
+    "subGroupTypeEnumVal": {
+      "type": "string"
+    },
+    "groupTypePatientDisplay": {
+      "type": "string"
+    },
+    "subGroupTypePatientDisplay": {
+      "type": "string"
+    }
+  }
+}
