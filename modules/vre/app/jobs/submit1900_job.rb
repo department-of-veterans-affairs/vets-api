@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VRE
-  class Submit1900Job
+  class VRESubmit1900Job
     include Sidekiq::Job
     include SentryLogging
 
@@ -21,12 +21,12 @@ module VRE
       user = OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user)))
       claim.send_to_vre(user)
     rescue => e
-      Rails.logger.warn("VRE::Submit1900Job failed, retrying...: #{e.message}")
+      Rails.logger.warn("VRE::VRESubmit1900Job failed, retrying...: #{e.message}")
       raise
     end
 
     def self.trigger_failure_events(msg)
-      monitor = VRE::Monitor.new
+      monitor = VRE::VREMonitor.new
       claim_id, encrypted_user = msg['args']
       claim = ::SavedClaim.find(claim_id)
       user = encrypted_user.present? ? OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) : nil
