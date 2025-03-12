@@ -1616,8 +1616,8 @@ spec/mailers/previews/appeals_api_weekly_error_report_mailer_preview.rb @departm
 spec/mailers/previews/ch31_submissions_report_mailer_preview.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/mailers/previews/claims_api_submission_report_mailer_preview.rb @department-of-veterans-affairs/lighthouse-dash
 spec/mailers/previews/claims_api_unsuccessful_report_mailer_preview.rb @department-of-veterans-affairs/lighthouse-dash
-spec/mailers/previews/school_certifying_officials_mailer_preview.rb
-spec/mailers/previews/stem_applicant_confirmation_mailer_preview.rb
+spec/mailers/previews/school_certifying_officials_mailer_preview.rb @department-of-veterans-affairs/backend-review-group
+spec/mailers/previews/stem_applicant_confirmation_mailer_preview.rb @department-of-veterans-affairs/backend-review-group
 spec/mailers/previews/stem_applicant_denial_mailer_preview.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/mailers/previews/stem_applicant_sco_mailer_preview.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/mailers/rrd_mas_notification_mailer_spec.rb @department-of-veterans-affairs/backend-review-group
