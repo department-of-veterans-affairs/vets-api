@@ -32,12 +32,19 @@ module Lighthouse
         end
       end
 
-      def perform(user_icn, document_hash)
+      def perform(user_icn, document_hash, evidence_submission_id)
         @user_icn = user_icn
         @document_hash = document_hash
 
         initialize_upload_document
-        perform_document_upload_to_lighthouse
+
+        evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_id)
+        if can_update_evidence_submission(evidence_submission)
+          update_evidence_submission_with_job_details(evidence_submission)
+        end
+
+        perform_document_upload_to_lighthouse(evidence_submission)
+
         clean_up!
       end
 
@@ -57,17 +64,16 @@ module Lighthouse
 
       def self.update_evidence_submission_for_failure(evidence_submission, msg)
         current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
-        evidence_submission.update(
+        evidence_submission.update!(
           upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
-          failed_date: DateTime.now.utc,
-          acknowledgement_date: (DateTime.current + 30.days).utc,
+          failed_date: DateTime.current,
+          acknowledgement_date: (DateTime.current + 30.days),
           error_message: 'Lighthouse::EvidenceSubmissions::DocumentUpload document upload failure',
           template_metadata: {
             personalisation: update_personalisation(current_personalisation, msg['failed_at'])
           }.to_json
         )
-        message = "#{name} EvidenceSubmission updated"
-        ::Rails.logger.info(message)
+        add_log('FAILED', evidence_submission.claim_id, evidence_submission.id)
         StatsD.increment('silent_failure_avoided_no_confirmation',
                          tags: ['service:claim-status', "function: #{message}"])
       rescue => e
@@ -131,13 +137,12 @@ module Lighthouse
         raise Common::Exceptions::ValidationErrors, document unless document.valid?
       end
 
-      def perform_document_upload_to_lighthouse
-        evidence_submission = EvidenceSubmission.find_by(job_id: jid)
+      def perform_document_upload_to_lighthouse(evidence_submission)
         Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
           span.set_tag('Document File Size', file_body.size)
           response = client.upload_document(file_body, document) # returns upload response which includes requestId
-          if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission
-            update_evidence_submission_for_in_progress(jid, response)
+          if can_update_evidence_submission(evidence_submission)
+            update_evidence_submission_for_in_progress(response, evidence_submission)
           end
         end
       end
@@ -170,16 +175,38 @@ module Lighthouse
         @file_body ||= perform_initial_file_read
       end
 
+      def can_update_evidence_submission(evidence_submission)
+        !!(Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission)
+      end
+
+      def add_log(type, claim_id, evidence_submission_id)
+        ::Rails.logger.info("LH - Updated Evidence Submission Record to #{type}", {
+                              claim_id:,
+                              evidence_submission_id:,
+                              job_id: jid
+                            })
+      end
+
+      def update_evidence_submission_with_job_details(evidence_submission)
+        evidence_submission.update!(
+          upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:QUEUED],
+          job_id: jid,
+          job_class: self.class
+        )
+        StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_updated.queued')
+        add_log('QUEUED', evidence_submission.claim_id, evidence_submission.id)
+      end
+
       # For lighthouse uploads if the response is successful then we leave the upload_status as PENDING
       # and the polling job in Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUploadPollingJob
       # will then make a call to lighthouse later to check on the status of the upload and update accordingly
-      def update_evidence_submission_for_in_progress(job_id, response)
-        evidence_submission = EvidenceSubmission.find_by(job_id:)
+      def update_evidence_submission_for_in_progress(response, evidence_submission)
         request_successful = response.body.dig('data', 'success')
         if request_successful
           request_id = response.body.dig('data', 'requestId')
           evidence_submission.update!(
-            request_id:
+            request_id:,
+            upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
           )
           StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_updated.added_request_id')
         else

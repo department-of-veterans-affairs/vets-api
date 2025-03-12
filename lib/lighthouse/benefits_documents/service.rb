@@ -101,22 +101,6 @@ module BenefitsDocuments
                           })
       es
     end
-    # def record_evidence_submission(document, job_id)
-    #   user_account = UserAccount.find(@user.user_account_uuid)
-    #   EvidenceSubmission.create(
-    #     claim_id: document.claim_id,
-    #     # Doing `.first` here since document.tracked_item_id is an array with 1 tracked item
-    #     # TODO update this and remove the first when the below pr is worked
-    #     # Created https://github.com/department-of-veterans-affairs/va.gov-team/issues/101200 for this work
-    #     tracked_item_id: document.tracked_item_id&.first,
-    #     job_id:,
-    #     job_class: self.class,
-    #     upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
-    #     user_account:,
-    #     template_metadata: { personalisation: create_personalisation(document) }.to_json
-    #   )
-    #   StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_created')
-    # end
 
     def create_personalisation(document)
       { first_name: document.first_name.titleize,
