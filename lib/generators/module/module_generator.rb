@@ -8,9 +8,14 @@ class ModuleGenerator < Rails::Generators::NamedBase
   include ModuleHelper
 
   def create_directory_structure
-    # create the dir structure here
+    # create the dir structure
     %w[controllers models serializers services].each do |dir|
-      FileUtils.mkdir_p "modules/#{file_name}/app/#{dir}"
+      FileUtils.mkdir_p "modules/#{file_name}/app/#{dir}/#{file_name}"
+    end
+
+    # create the Rspec dir structure
+    %w[controllers models lib serializers services factories support].each do |dir|
+      FileUtils.mkdir_p "modules/#{file_name}/spec/#{dir}/#{file_name}"
     end
   end
 
@@ -46,6 +51,18 @@ class ModuleGenerator < Rails::Generators::NamedBase
 
     # create gemfile
     template 'Gemfile.erb', File.join(path, 'Gemfile')
+
+    # create adr-dir
+    template 'adr-dir.erb', File.join(path, '.adr-dir')
+
+    # create irbrc
+    template 'irbrc.erb', File.join(path, '.irbrc')
+
+    # create rspec
+    template 'rspec.erb', File.join(path, '.rspec')
+
+    # create gitignore
+    template 'gitignore.erb', File.join(path, '.gitignore')
   end
 
   # rubocop:disable Rails/Output
