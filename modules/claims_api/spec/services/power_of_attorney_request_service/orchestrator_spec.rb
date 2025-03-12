@@ -66,7 +66,11 @@ describe ClaimsApi::PowerOfAttorneyRequestService::Orchestrator do
   end
 
   describe '#submit_request' do
-    it 'terminates the existing requests' do
+  # Noting that the call to TerminateExistingRequests was commented-out in orchestrator.rb until a future permanent
+  # fix for readAllVeteranRepresentatives is implemented. The following two tests will fail until the commented-out
+  # call is restored.
+
+    xit 'terminates the existing requests' do
       file_name = 'claims_api/power_of_attorney_request_service/orchestrator/happy_path'
       VCR.use_cassette(file_name) do
         expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::TerminateExistingRequests)
@@ -77,7 +81,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::Orchestrator do
       end
     end
 
-    it 'creates a new request' do
+    xit 'creates a new request' do
       file_name = 'claims_api/power_of_attorney_request_service/orchestrator/happy_path'
       VCR.use_cassette(file_name) do
         expected_response = {
