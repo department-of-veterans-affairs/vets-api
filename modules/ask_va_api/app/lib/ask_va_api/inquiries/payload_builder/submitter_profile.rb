@@ -33,7 +33,7 @@ module AskVAApi
             Suffix: @translator.call(:suffix, submitter_info[:suffix]),
             Pronouns: formatted_pronouns(inquiry_params[:pronouns]) || inquiry_params[:pronouns_not_listed_text],
             Country: country_data(inquiry_params[:country]),
-            **address_data(submitter_address, inquiry_params[:postal_code]),
+            **address_data(submitter_address, inquiry_params[:your_postal_code]),
             DateOfBirth: submitter_info[:date_of_birth]
           }
         end

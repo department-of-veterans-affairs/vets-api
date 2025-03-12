@@ -419,7 +419,6 @@ evss:
   mock_pciu: true
   mock_pciu_address: false
   mock_ppiu: true
-  mock_reference: true
   mock_vso_search: false
   pciu:
     timeout: 30
@@ -1548,6 +1547,7 @@ vanotify:
       template_id:
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
         appoint_a_representative_digital_submit_confirmation_email: appoint_a_rep_v2_digital_submit_confirm_email_template_id
+        appoint_a_representative_digital_submit_decline_email: appoint_a_rep_v2_digital_submit_decline_email_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
