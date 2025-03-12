@@ -61,17 +61,14 @@ module BenefitsDocuments
       end
 
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
-
+      if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && !Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
+        create_initial_evidence_submission(document_data)
+      end
       uploader = LighthouseDocumentUploader.new(user_icn, document_data.uploader_ids)
       uploader.store!(document_data.file_obj)
       # The uploader sanitizes the filename before storing, so set our doc to match
       document_data.file_name = uploader.final_filename
-      job_id = document_upload(user_icn, document_data.to_serializable_hash)
-      if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) &&
-         !Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
-        record_evidence_submission(document_data, job_id)
-      end
-      job_id
+      document_upload(user_icn, document_data.to_serializable_hash)
     rescue CarrierWave::IntegrityError => e
       handle_error(e, lighthouse_client_id, uploader.store_dir)
       raise e
@@ -85,22 +82,37 @@ module BenefitsDocuments
       end
     end
 
-    def record_evidence_submission(document, job_id)
-      user_account = UserAccount.find(@user.user_account_uuid)
-      EvidenceSubmission.create(
+    def create_initial_evidence_submission(document)
+      es = EvidenceSubmission.create(
         claim_id: document.claim_id,
-        # Doing `.first` here since document.tracked_item_id is an array with 1 tracked item
-        # TODO update this and remove the first when the below pr is worked
-        # Created https://github.com/department-of-veterans-affairs/va.gov-team/issues/101200 for this work
         tracked_item_id: document.tracked_item_id&.first,
-        job_id:,
-        job_class: self.class,
-        upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
+        upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED],
         user_account:,
         template_metadata: { personalisation: create_personalisation(document) }.to_json
       )
-      StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_created')
+      StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_created.success')
+      ::Rails.logger.info('LH - Created Evidence Submission Record', {
+                            claim_id: document.evss_claim_id,
+                            evidence_submission_id: es.id
+                          })
+      es
     end
+    # def record_evidence_submission(document, job_id)
+    #   user_account = UserAccount.find(@user.user_account_uuid)
+    #   EvidenceSubmission.create(
+    #     claim_id: document.claim_id,
+    #     # Doing `.first` here since document.tracked_item_id is an array with 1 tracked item
+    #     # TODO update this and remove the first when the below pr is worked
+    #     # Created https://github.com/department-of-veterans-affairs/va.gov-team/issues/101200 for this work
+    #     tracked_item_id: document.tracked_item_id&.first,
+    #     job_id:,
+    #     job_class: self.class,
+    #     upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
+    #     user_account:,
+    #     template_metadata: { personalisation: create_personalisation(document) }.to_json
+    #   )
+    #   StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_created')
+    # end
 
     def create_personalisation(document)
       { first_name: document.first_name.titleize,
