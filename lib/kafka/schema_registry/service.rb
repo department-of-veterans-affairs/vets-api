@@ -71,19 +71,9 @@ module Kafka
         get('/config', idempotent: true)
       end
 
-      # Update global config
-      def update_global_config(config)
-        put('/config', body: config.to_json, idempotent: true)
-      end
-
       # Get config for subject
       def subject_config(subject)
         get("/config/#{subject}", idempotent: true)
-      end
-
-      # Update config for subject
-      def update_subject_config(subject, config)
-        put("/config/#{subject}", body: config.to_json, idempotent: true)
       end
 
       private
