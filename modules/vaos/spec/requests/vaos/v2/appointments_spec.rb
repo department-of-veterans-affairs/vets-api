@@ -1446,8 +1446,10 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               }
             ])
 
-          vaos_appointments = OpenStruct.new(data: [], meta: { pagination: { total_entries: 1 } })
-          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_all_appointments).and_return(vaos_appointments)
+          vaos_appointments = OpenStruct.new(data: [], meta: {})
+          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_all_appointments).and_return(
+            vaos_appointments
+          )
           allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
 
           updated_referral_identifiers = {
@@ -1508,7 +1510,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           redis_client = instance_double(Eps::RedisClient)
           allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
           allow(redis_client).to receive(:fetch_referral_attributes).and_raise(Redis::BaseError,
-'Redis connection refused')
+                                                                               'Redis connection refused')
 
           post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
