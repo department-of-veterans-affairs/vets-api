@@ -99,6 +99,91 @@ describe TravelPay::ClaimsService do
       end
     end
 
+    context 'get claim details' do
+      let(:user) { build(:user) }
+      let(:claim_details_data) do
+        {
+          'data' =>
+            {
+              'claimId' => 'uuid1',
+              'claimNumber' => 'TC0000000000001',
+              'claimantFirstName' => 'Nolle',
+              'claimantMiddleName' => 'Polite',
+              'claimantLastName' => 'Barakat',
+              'claimStatus' => 'PreApprovedForPayment',
+              'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
+              'facilityName' => 'Cheyenne VA Medical Center',
+              'totalCostRequested' => 20.00,
+              'reimbursementAmount' => 14.52,
+              'createdOn' => '2025-03-12T20:27:14.088Z',
+              'modifiedOn' => '2025-03-12T20:27:14.088Z',
+              'appointment' => {
+                'id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                'appointmentSource' => 'API',
+                'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
+                'appointmentType' => 'EnvironmentalHealth',
+                'facilityId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                'facilityName' => 'Cheyenne VA Medical Center',
+                'serviceConnectedDisability' => 30,
+                'appointmentStatus' => 'Complete',
+                'externalAppointmentId' => '12345',
+                'associatedClaimId' => 'uuid1',
+                'associatedClaimNumber' => 'TC0000000000001',
+                'isCompleted' => true
+              },
+              'expenses' => [
+                {
+                  'id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                  'expenseType' => 'Mileage',
+                  'name' => '',
+                  'dateIncurred' => '2024-01-01T16:45:34.465Z',
+                  'description' => 'mileage-expense',
+                  'costRequested' => 20.00,
+                  'costSubmitted' => 20.00
+                }
+              ],
+              'rejectionReason' => {
+                'rejectionReasonId' => '12345',
+                'rejectionReasonName' => 'Because',
+                'rejectionReasonTitle' => 'Just because',
+                'rejectionReasonDescription' => 'Because I said so'
+              }
+            }
+        }
+      end
+      let(:claim_details_response) do
+        Faraday::Response.new(
+          body: claim_details_data
+        )
+      end
+
+      let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+
+      before do
+        allow_any_instance_of(TravelPay::ClaimsClient)
+          .to receive(:get_claim_by_id)
+          .and_return(claim_details_response)
+
+        auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+        @service = TravelPay::ClaimsService.new(auth_manager)
+      end
+
+      it 'returns a single claim details when passed a valid id' do
+        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+        expected_claim = claim_details_data['data']
+        actual_claim = @service.get_claim_details(claim_id)
+
+        expect(actual_claim).to eq(expected_claim)
+      end
+
+      it 'throws an ArgumentException if claim_id is invalid format' do
+        claim_id = 'this-is-definitely-a-uuid-right'
+
+        expect { @service.get_claim_details(claim_id) }
+          .to raise_error(ArgumentError, /valid UUID/i)
+      end
+    end
+
     context 'filter by appt date' do
       it 'returns claims that match appt date if specified' do
         claims = @service.get_claims({ 'appt_datetime' => '2024-01-01' })
