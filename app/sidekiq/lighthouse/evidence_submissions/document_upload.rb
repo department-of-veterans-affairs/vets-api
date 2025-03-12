@@ -206,7 +206,7 @@ module Lighthouse
           request_id = response.body.dig('data', 'requestId')
           evidence_submission.update!(
             request_id:,
-            upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
+            upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
           )
           StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_updated.added_request_id')
         else
