@@ -22,7 +22,9 @@ module Kafka
         config.kafka = {
           'bootstrap.servers': Settings.kafka_producer.broker_urls.join(','),
           'request.required.acks': 1,
-          'message.timeout.ms': 100
+          'message.timeout.ms': 100,
+          'security.protocol': Settings.kafka_producer.security_protocol,
+          'sasl.mechanisms': Settings.kafka_producer.sasl_mechanisms
         }
         config.logger = Rails.logger
         config.client_class = if Rails.env.test?
