@@ -41,7 +41,7 @@ class EVSS::DocumentUpload
     # Attempt to find evidence_submission record in case it was already created in evss_claim_service.rb
     evidence_submission = EvidenceSubmission.find_or_create_by(job_id: msg['jid'])
 
-    if can_update_evidence_submission(evidence_submission)
+    if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission
       update_evidence_submission_for_failure(evidence_submission, msg)
     else
       call_failure_notification(msg)
@@ -206,7 +206,7 @@ class EVSS::DocumentUpload
   end
 
   def can_update_evidence_submission(evidence_submission)
-    Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission
+    !!(Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission)
   end
 
   def add_log(type, claim_id, evidence_submission_id)
