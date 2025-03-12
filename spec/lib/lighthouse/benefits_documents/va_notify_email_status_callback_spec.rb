@@ -25,7 +25,7 @@ describe BenefitsDocuments::VANotifyEmailStatusCallback do
         end
 
         let!(:evidence_submission_evss) do
-          create(:bd_evss_evidence_submission_failed_va_notify_email_enqueued,
+          create(:bd_evidence_submission_failed_va_notify_email_enqueued_evss,
                  va_notify_id: notification_record_evss.notification_id)
         end
 
@@ -97,7 +97,7 @@ describe BenefitsDocuments::VANotifyEmailStatusCallback do
         end
 
         let!(:evidence_submission_evss) do
-          create(:bd_evss_evidence_submission_failed_va_notify_email_enqueued,
+          create(:bd_evidence_submission_failed_va_notify_email_enqueued_evss,
                  va_notify_id: notification_record_evss.notification_id)
         end
 
