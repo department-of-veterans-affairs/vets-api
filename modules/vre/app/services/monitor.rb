@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VRE
-  class Monitor < ::ZeroSilentFailures::Monitor
+  class VREMonitor < ::ZeroSilentFailures::Monitor
     # statsd key for api
     CLAIM_STATS_KEY = 'vre-application'
 
@@ -30,7 +30,7 @@ module VRE
 
       StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
       Rails.logger.error(
-        "Failed all retries on VRE::Submit1900Job, last error: #{msg['error_message']}"
+        "Failed all retries on VRE::VRESubmit1900Job, last error: #{msg['error_message']}"
       )
     end
   end
