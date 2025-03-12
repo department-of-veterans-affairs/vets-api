@@ -12,7 +12,7 @@ module IvcChampva
     def perform # rubocop:disable Metrics/MethodLength
       return unless Settings.ivc_forms.sidekiq.missing_form_status_job.enabled
 
-      batches = missingStatusCleanup.get_missing_statuses
+      batches = missing_status_cleanup.get_missing_statuses
 
       return unless batches.any?
 
@@ -23,7 +23,7 @@ module IvcChampva
 
       batches.each_value do |batch|
         form = batch[0] # get a representative form from this submission batch
-        
+
         # Check reporting API to see if this missing status is a false positive
         next if num_docs_match_reports?(batch)
 
@@ -113,21 +113,21 @@ module IvcChampva
       end
     end
 
-    ## 
-    # Checks PEGA reporting API to see if this batch's form_uuid is associated with an 
+    ##
+    # Checks PEGA reporting API to see if this batch's form_uuid is associated with an
     # identical number of records on PEGA's side - If so, sets these records to
     # "Manually Processed" and returns true. If the numbers differ, returns false.
     #
-    # @param batch [Array<IvcChampvaForm>] An array of IVC CHAMPVA form objects with common form_uuid 
+    # @param batch [Array<IvcChampvaForm>] An array of IVC CHAMPVA form objects with common form_uuid
     #   (representing a single user's submission, including all supporting documents)
     # @return [boolean] true if PEGA's reporting API has same number of documents for this batch; false otherwise
     def num_docs_match_reports?(batch)
       return false if batch.empty?
-    
-      matching_reports = pegaApiClient.record_has_matching_report(batch.first)
-      
+
+      matching_reports = pega_api_client.record_has_matching_report(batch.first)
+
       if batch.count == matching_reports.count
-        missingStatusCleanup.manually_process_batch(batch)
+        missing_status_cleanup.manually_process_batch(batch)
         true
       else
         false
@@ -150,12 +150,12 @@ module IvcChampva
       @monitor ||= IvcChampva::Monitor.new
     end
 
-    def missingStatusCleanup
-      @missingStatusCleanup ||= IvcChampva::ProdSupportUtilities::MissingStatusCleanup.new
+    def missing_status_cleanup
+      @missing_status_cleanup ||= IvcChampva::ProdSupportUtilities::MissingStatusCleanup.new
     end
 
-    def pegaApiClient
-      @pegaApiClient ||= IvcChampva::PegaApi::Client.new
+    def pega_api_client
+      @pega_api_client ||= IvcChampva::PegaApi::Client.new
     end
   end
 end
