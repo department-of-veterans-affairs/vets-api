@@ -54,7 +54,7 @@ module IvcChampva
         # TODO: reorder params so `case_id` is last?
         {
           :content_type => 'application/json',
-          'x-api-key' => 'REPLACE ME',
+          'x-api-key' => Settings.ivc_champva.pega_api.api_key.to_s,
           'date_start' => date_start,
           'date_end' => date_end,
           'case_id' => case_id,
