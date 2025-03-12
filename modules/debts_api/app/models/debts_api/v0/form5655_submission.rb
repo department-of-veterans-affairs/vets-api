@@ -110,7 +110,7 @@ module DebtsApi
           { id_type: 'email', failure_mailer: true }
         )
 
-        Rails.logger.info("Failed 5655 form: #{id} email scheduled with jid: #{jid}")
+        Rails.logger.info("Failed 5655 email enqueued form: #{id} email scheduled with jid: #{jid}")
       end
     end
 
