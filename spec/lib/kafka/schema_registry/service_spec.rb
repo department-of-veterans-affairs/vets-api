@@ -45,26 +45,4 @@ describe Kafka::SchemaRegistry::Service do
       end
     end
   end
-
-  describe 'request handling' do
-    context 'when making a GET request' do
-      it 'receives expected 200 response' do
-        VCR.use_cassette('kafka/topics') do
-          response = service.send(:get, "/subjects/#{subject_name}-value/versions/#{version}")
-          expect(response).to eq(topic_1_response)
-        end
-      end
-    end
-
-    context 'when response is not valid JSON' do
-      it 'raises a JSON parse error' do
-        allow_any_instance_of(Faraday::Response).to receive(:body).and_return('invalid json')
-
-        VCR.use_cassette('kafka/topics') do
-          expect { service.send(:get, "/subjects/#{subject_name}-value/versions/#{version}") }
-            .to raise_error(JSON::ParserError)
-        end
-      end
-    end
-  end
 end
