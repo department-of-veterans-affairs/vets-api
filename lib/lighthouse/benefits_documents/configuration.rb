@@ -169,7 +169,7 @@ module BenefitsDocuments
 
     def documents_status_access_token
       # Lighthouse requires the documents status endpoint be tested on the QA testing domain
-      ENV['RAILS_ENV'] == 'test' ? access_token(nil, nil, { host:  QA_TESTING_DOMAIN }) : access_token
+      ENV['RAILS_ENV'] == 'test' ? access_token(nil, nil, { host: QA_TESTING_DOMAIN }) : access_token
     end
 
     def documents_status_api_connection
