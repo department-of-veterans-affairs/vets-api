@@ -86,16 +86,10 @@ module VAOS
         draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
         provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
 
-        # Check for provider slots
-        slots_validation = build_provider_slots_response(cached_referral_data)
-        unless slots_validation[:success]
-          render json: slots_validation[:json], status: slots_validation[:status] and return
-        end
-
         response_data = OpenStruct.new(
           id: draft_appointment.id,
           provider:,
-          slots: slots_validation[:slots],
+          slots: fetch_provider_slots(cached_referral_data),
           drive_time: fetch_drive_times(provider)
         )
 
@@ -479,10 +473,6 @@ module VAOS
             startBefore: referral_data[:end_date]
           }
         )
-      rescue => e
-        Rails.logger.error("Provider slots error: #{e.message}")
-        StatsD.increment("#{STATSD_KEY}.provider_slots_error")
-        nil
       end
 
       def fetch_drive_times(provider)
