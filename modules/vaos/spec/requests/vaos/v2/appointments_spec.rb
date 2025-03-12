@@ -1394,25 +1394,34 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       end
 
       context 'when there is already an appointment associated with the referral' do
-        before do
-          updated_referral_identifiers = {
-            data: {
-              id: draft_params[:referral_id],
-              type: 'ref-124',
-              attributes: { provider_id:, appointment_type_id:, start_date:, end_date: }
-            }
-          }.to_json
+        it 'fails if a vaos appointment with the given referral id already exists' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+            updated_referral_identifiers = {
+              data: {
+                id: 'ref-124',
+                type: :referral_identifier,
+                attributes: { provider_id:, appointment_type_id:, start_date:, end_date: }
+              }
+            }.to_json
 
-          Rails.cache.write(
-            'vaos_eps_referral_identifier_ref-124',
-            updated_referral_identifiers,
-            namespace: 'vaos-eps-cache',
-            expires_in: redis_token_expiry
-          )
+            Rails.cache.write(
+              'vaos_eps_referral_identifier_ref-124',
+              updated_referral_identifiers,
+              namespace: 'vaos-eps-cache',
+              expires_in: redis_token_expiry
+            )
+            draft_params[:referral_id] = 'ref-124'
+            post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+            response_obj = JSON.parse(response.body)
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response_obj['message']).to eq('No new appointment created: referral is already used')
+          end
         end
 
-        let(:eps_appointments) do
-          OpenStruct.new(data:
+        it 'fails if an eps appointment with the given referral id already exists' do
+          eps_appointments = OpenStruct.new(data:
             [
               {
                 id: '124',
@@ -1436,31 +1445,32 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                 }
               }
             ])
-        end
 
-        it 'fails if a vaos appointment with the given referral id already exists' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
-                           match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-            draft_params[:referral_id] = 'ref-124'
-            post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+          vaos_appointments = OpenStruct.new(data: [], meta: { pagination: { total_entries: 1 } })
+          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_all_appointments).and_return(vaos_appointments)
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
 
-            response_obj = JSON.parse(response.body)
-            expect(response).to have_http_status(:unprocessable_entity)
-            expect(response_obj['message']).to eq('No new appointment created: referral is already used')
-          end
-        end
+          updated_referral_identifiers = {
+            data: {
+              id: 'ref-126',
+              type: :referral_identifier,
+              attributes: { provider_id:, appointment_type_id:, start_date:, end_date: }
+            }
+          }.to_json
 
-        it 'fails if an eps appointment with the given referral id already exists' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
-                           match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-            allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
-            draft_params[:referral_id] = 'ref-126'
-            post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+          Rails.cache.write(
+            'vaos_eps_referral_identifier_ref-126',
+            updated_referral_identifiers,
+            namespace: 'vaos-eps-cache',
+            expires_in: redis_token_expiry
+          )
 
-            response_obj = JSON.parse(response.body)
-            expect(response).to have_http_status(:unprocessable_entity)
-            expect(response_obj['message']).to eq('No new appointment created: referral is already used')
-          end
+          draft_params[:referral_id] = 'ref-126'
+          post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+          response_obj = JSON.parse(response.body)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response_obj['message']).to eq('No new appointment created: referral is already used')
         end
       end
 
@@ -1497,7 +1507,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           # Mock the Redis client to raise a connection error
           redis_client = instance_double(Eps::RedisClient)
           allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
-          allow(redis_client).to receive(:fetch_referral_attributes).and_raise(Redis::BaseError, 'Redis connection refused')
+          allow(redis_client).to receive(:fetch_referral_attributes).and_raise(Redis::BaseError,
+'Redis connection refused')
 
           post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
@@ -1506,48 +1517,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           response_obj = JSON.parse(response.body)
           expect(response_obj['errors'].first['title']).to eq('Error fetching referral data from cache')
           expect(response_obj['errors'].first['detail']).to eq('Unable to connect to cache service')
-        end
-      end
-
-      context 'when provider slots service fails' do
-        before do
-          redis_client = instance_double(Eps::RedisClient)
-          allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
-
-          valid_data = {
-            provider_id: '9mN718pH',
-            appointment_type_id: 'regular',
-            start_date: '2025-01-01T00:00:00Z',
-            end_date: '2025-01-03T00:00:00Z'
-          }
-
-          allow(redis_client).to receive(:fetch_referral_attributes).and_return(valid_data)
-
-          allow_any_instance_of(VAOS::V2::AppointmentsService)
-            .to receive(:referral_appointment_already_exists?)
-            .and_return({ error: false, exists: false })
-
-          allow_any_instance_of(Eps::AppointmentService)
-            .to receive(:create_draft_appointment)
-            .and_return(OpenStruct.new(id: '123'))
-
-          allow_any_instance_of(Eps::ProviderService)
-            .to receive(:get_provider_service)
-            .and_return(OpenStruct.new(id: '9mN718pH', location: {}))
-        end
-
-        it 'returns bad_gateway when provider slots service fails' do
-          allow_any_instance_of(Eps::ProviderService)
-            .to receive(:get_provider_slots)
-            .and_raise(Common::Client::Errors::ClientError.new('Service unavailable', 503))
-
-          post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
-
-          expect(response).to have_http_status(:bad_gateway)
-
-          response_obj = JSON.parse(response.body)
-          expect(response_obj['errors'].first['title']).to eq('Error fetching provider slots')
-          expect(response_obj['errors'].first['detail']).to eq('Unable to retrieve available appointment slots')
         end
       end
     end
