@@ -66,7 +66,7 @@ module BenefitsDocuments
       if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && !Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
         evidence_submission_id = create_initial_evidence_submission(document_data)
       end
-      
+
       uploader = LighthouseDocumentUploader.new(user_icn, document_data.uploader_ids)
       uploader.store!(document_data.file_obj)
       # The uploader sanitizes the filename before storing, so set our doc to match
@@ -86,6 +86,7 @@ module BenefitsDocuments
     end
 
     def create_initial_evidence_submission(document)
+      user_account = UserAccount.find(@user.user_account_uuid)
       es = EvidenceSubmission.create(
         claim_id: document.claim_id,
         tracked_item_id: document.tracked_item_id&.first,
