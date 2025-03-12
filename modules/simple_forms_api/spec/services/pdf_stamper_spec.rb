@@ -183,12 +183,15 @@ describe SimpleFormsApi::PdfStamper do
           context 'when actually stamping the pdf' do
             subject(:run) { instance.stamp_pdf }
 
-            let(:stamped_template_path) { Common::FileHelpers.random_file_path }
+            let(:original_pdf_path) { "modules/simple_forms_api/spec/fixtures/pdfs/#{form_id}-completed.pdf" }
+            let(:tmp_dir) { Rails.root.join('tmp', 'stamped_pdfs') }
+            let(:stamped_output_path) { "#{tmp_dir}/#{form_id}-stamped.pdf" }
 
             before do
-              Prawn::Document.generate(stamped_template_path, margin: [0, 0]) do |pdf|
-                5.times { pdf.start_new_page }
-              end
+              FileUtils.mkdir_p(tmp_dir)
+              FileUtils.cp(original_pdf_path, stamped_output_path)
+
+              allow(instance).to receive(:stamped_template_path).and_return(stamped_output_path)
 
               allow(PDFUtilities::DatestampPdf).to receive(:new).and_call_original
               allow_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run).and_call_original
@@ -198,8 +201,9 @@ describe SimpleFormsApi::PdfStamper do
               allow(File).to receive(:size).and_call_original
             end
 
-            it 'does not raise an error' do
+            it 'does not raise an error and deposits stamped PDFs into tmp/' do
               expect { run }.not_to raise_error
+              expect(File).to exist(stamped_output_path)
             end
           end
         end
