@@ -105,7 +105,7 @@ describe TravelPay::ClaimsService do
         {
           'data' =>
             {
-              'claimId' => 'uuid1',
+              'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
               'claimNumber' => 'TC0000000000001',
               'claimantFirstName' => 'Nolle',
               'claimantMiddleName' => 'Polite',
@@ -127,7 +127,7 @@ describe TravelPay::ClaimsService do
                 'serviceConnectedDisability' => 30,
                 'appointmentStatus' => 'Complete',
                 'externalAppointmentId' => '12345',
-                'associatedClaimId' => 'uuid1',
+                'associatedClaimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
                 'associatedClaimNumber' => 'TC0000000000001',
                 'isCompleted' => true
               },
