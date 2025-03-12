@@ -12,12 +12,6 @@ module Kafka
         data.fetch('schema')
       end
 
-      def register(subject, schema)
-        data = post("/subjects/#{subject}/versions", body: { schema: schema.to_s }.to_json)
-
-        data.fetch('id')
-      end
-
       # List all subjects
       def subjects
         get('/subjects', idempotent: true)
@@ -30,7 +24,7 @@ module Kafka
 
       # Get a specific version for a subject
       def subject_version(subject, version = 'latest')
-        get("/subjects/#{subject}/versions/#{version}", idempotent: true)
+        get("/subjects/#{subject}-value/versions/#{version}", idempotent: true)
       end
 
       # Get the subject and version for a schema id

@@ -15,7 +15,7 @@ module Kafka
       @schema_id = nil
     end
 
-    def produce(topic, payload, schema_version: 1)
+    def produce(topic, payload, schema_version: 'latest')
       schema = get_schema(topic, schema_version)
       encoded_payload = encode_payload(schema, payload)
       producer.produce_sync(topic:, payload: encoded_payload)
@@ -30,7 +30,7 @@ module Kafka
 
     def get_schema(topic, schema_version)
       if Flipper.enabled?(:kafka_producer_fetch_schema_dynamically)
-        response = @registry.subject_version(topic)
+        response = @registry.subject_version(topic, schema_version)
         schema = response['schema']
         @schema_id = response['id']
       else
