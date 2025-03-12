@@ -9,7 +9,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
   let(:lighthouse_document_upload) { create(:bd_evidence_submission_pending, job_class: 'BenefitsDocuments::Service') }
   let(:lighthouse_document_upload_timeout) { create(:bd_evidence_submission_timeout) }
   let(:past_date_time) { DateTime.new(1985, 10, 26) }
-  let(:current_date_time) { DateTime.now.utc }
+  let(:current_date_time) { DateTime.current }
   let(:issue_instant) { Time.now.to_i }
 
   describe '#update_status' do
@@ -64,10 +64,10 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
               expect { status_updater.update_status }
                 .to change(lighthouse_document_upload, :acknowledgement_date)
                 .from(nil)
-                .to(be_within(1.second).of((current_date_time + 30.days).utc))
+                .to(be_within(1.second).of((current_date_time + 30.days)))
                 .and change(lighthouse_document_upload, :failed_date)
                 .from(nil)
-                .to(be_within(1.second).of(current_date_time.utc))
+                .to(be_within(1.second).of(current_date_time))
                 .and change(lighthouse_document_upload, :upload_status)
                 .from(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
                 .to(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
@@ -85,7 +85,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
               expect { status_updater.update_status }
                 .to change(lighthouse_document_upload, :delete_date)
                 .from(nil)
-                .to(be_within(1.second).of((current_date_time + 60.days).utc))
+                .to(be_within(1.second).of((current_date_time + 60.days)))
                 .and change(lighthouse_document_upload, :upload_status)
                 .from(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
                 .to(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
