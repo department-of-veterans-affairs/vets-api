@@ -20,8 +20,8 @@ module DecisionReviews
       DecisionReviews::NotificationMonitor.new(service_name)
     end
 
-    def zsf_additional_context
-      context.merge(function: 'form submission')
+    def context
+      super.merge(function: 'form submission')
     end
   end
 end
