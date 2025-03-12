@@ -109,22 +109,45 @@ describe Eps::AppointmentService do
   end
 
   describe 'create_draft_appointment' do
+    let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
     let(:referral_id) { 'test-referral-id' }
+    let(:redis_token_expiry) { 59.minutes }
+    let(:provider_id) { '9mN718pH' }
+    let(:appointment_type_id) { 'ov' }
+    let(:start_date) { '2025-01-01T00:00:00Z' }
+    let(:end_date) { '2025-01-03T00:00:00Z' }
+    let(:referral_identifiers) do
+      {
+        data: {
+          id: :referral_id,
+          type: :referral_identifier,
+          attributes: { provider_id:, appointment_type_id:, start_date:, end_date: }
+        }
+      }.to_json
+    end
     let(:successful_draft_appt_response) do
       double('Response', status: 200, body: { 'id' => appointment_id,
                                               'state' => 'draft',
                                               'patientId' => icn })
     end
 
+    before do
+      allow(Rails).to receive(:cache).and_return(memory_store)
+      Rails.cache.clear
+      Rails.cache.write(
+        "vaos_eps_referral_identifier_#{referral_id}",
+        referral_identifiers,
+        namespace: 'vaos-eps-cache',
+        expires_in: redis_token_expiry
+      )
+    end
+
     context 'when creating draft appointment for a given referral_id' do
-      before do
-        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(successful_draft_appt_response)
-      end
-
-      it 'returns the appointments scheduled' do
-        exp_response = OpenStruct.new(successful_draft_appt_response.body)
-
-        expect(service.create_draft_appointment(referral_id:)).to eq(exp_response)
+      it 'returns a successful response with appointment data' do
+        result = service.create_draft_appointment(referral_id)
+        expect(result[:success]).to be true
+        expect(result[:data]).to be_a(OpenStruct)
+        expect(result[:data].id).to eq('draft-123')
       end
     end
 
@@ -143,7 +166,7 @@ describe Eps::AppointmentService do
 
       it 'throws exception' do
         expect do
-          service.create_draft_appointment(referral_id:)
+          service.create_draft_appointment(referral_id)
         end.to raise_error(Common::Exceptions::BackendServiceException,
                            /VA900/)
       end
