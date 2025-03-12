@@ -28,8 +28,7 @@ module SimpleFormsApi
       Rails.logger.info('Stamping authentication footer')
       verify { stamp_all_pages(get_auth_text_stamp, append_to_stamp: auth_text) }
     rescue => e
-      Rails.logger.error("Error in stamp_pdf: #{e.class} - #{e.message}")
-      Rails.logger.error(e.backtrace.join("\n"))
+      Rails.logger.error("Error in stamp_pdf: #{e.class} - #{e.message}", backtrace: e.backtrace)
       raise StandardError, "An error occurred while stamping the PDF: #{e}"
     end
 
@@ -195,8 +194,7 @@ module SimpleFormsApi
     end
 
     def handle_multistamp_error(e)
-      Rails.logger.error 'Simple forms api - Failed to perform multistamp', message: e.message
-      Rails.logger.error(e.backtrace.join("\n"))
+      Rails.logger.error('Simple forms api - Failed to perform multistamp', message: e.message, backtrace: e.backtrace)
       Common::FileHelpers.delete_file_if_exists(out_path)
       raise e
     end
