@@ -176,6 +176,16 @@ describe TravelPay::ClaimsService do
         expect(actual_claim).to eq(expected_claim)
       end
 
+      # TODO: - what does the TP API return if the claim isn't found?
+      # Update this test with that response once we get it from the API team
+      #
+      # it 'returns nil if a claim with the given id was not found' do
+      #   claim_id = SecureRandom.uuid
+      #   actual_claim = @service.get_claim_details(claim_id)
+
+      #   expect(actual_claim).to be_nil
+      # end
+
       it 'throws an ArgumentException if claim_id is invalid format' do
         claim_id = 'this-is-definitely-a-uuid-right'
 
