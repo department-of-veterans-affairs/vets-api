@@ -25,12 +25,6 @@ describe Kafka::AvroProducer do
   end
   let(:invalid_payload_format) { 'invalid' }
 
-  before do
-    allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('test'))
-    allow(Flipper).to receive(:enabled?).with(:kafka_producer).and_return(true)
-    allow(Kafka::OauthTokenRefresher).to receive(:new).and_return(double(on_oauthbearer_token_refresh: 'token'))
-  end
-
   describe '#validate_payload!' do
     # valid data format
     it 'validates the payload against the schema' do
