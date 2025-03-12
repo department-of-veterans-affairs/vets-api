@@ -4,6 +4,4 @@ class UserActionEventSerializer
   include JSONAPI::Serializer
 
   attribute :details, :created_at, :updated_at, :event_type, :identifier
-
-  has_many :user_actions
 end
