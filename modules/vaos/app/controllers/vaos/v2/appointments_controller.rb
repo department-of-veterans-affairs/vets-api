@@ -19,6 +19,9 @@ module VAOS
       REASON = 'reason'
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
+      CACHE_ERROR_MSG = 'Error fetching referral data from cache'
+
+      rescue_from Redis::BaseError, with: :handle_redis_error
 
       def index
         appointments[:data].each do |appt|
@@ -509,6 +512,20 @@ module VAOS
         else
           { success: true }
         end
+      end
+
+      ##
+      # Handles Redis connection and operational errors throughout the controller.
+      # Provides a consistent error response when Redis is unavailable or operations fail.
+      #
+      # @param error [Redis::BaseError] The Redis exception that was raised
+      # @return [void]
+      # @see Redis::BaseError
+      def handle_redis_error(error)
+        Rails.logger.error("Redis error: #{error.message}")
+        StatsD.increment("#{STATSD_KEY}.redis_error")
+        render json: { errors: [{ title: CACHE_ERROR_MSG, detail: 'Unable to connect to cache service' }] },
+               status: :bad_gateway
       end
     end
   end
