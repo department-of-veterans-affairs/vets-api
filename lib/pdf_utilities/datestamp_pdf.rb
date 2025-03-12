@@ -110,7 +110,7 @@ module PDFUtilities
       stamp_path
     rescue => e
       Rails.logger.error("Failed to generate stamp: #{e.class} - #{e.message}", backtrace: e.backtrace)
-      raise
+      raise e
     end
 
     # create the stamp text to be used
