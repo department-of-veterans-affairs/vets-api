@@ -3,5 +3,10 @@
 require 'vre/engine'
 
 module VRE
-  # Your code goes here...
+  # The module path
+  MODULE_PATH = 'modules/pensions'
+
+  # API Version 0
+  module V0
+  end
 end
