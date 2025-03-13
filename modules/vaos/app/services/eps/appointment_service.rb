@@ -116,10 +116,12 @@ module Eps
       OpenStruct.new(response.body)
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error("Draft appointment error: #{e.message}")
-      build_error_response(DRAFT_APPOINTMENT_ERROR_MSG, "Unable to create draft appointment: #{e.message}", :bad_request)
+      build_error_response(DRAFT_APPOINTMENT_ERROR_MSG, "Unable to create draft appointment: #{e.message}",
+                           :bad_request)
     rescue => e
       Rails.logger.error("Draft appointment error: #{e.message}")
-      build_error_response(DRAFT_APPOINTMENT_ERROR_MSG, "Unexpected error creating draft appointment: #{e.message}", :bad_request)
+      build_error_response(DRAFT_APPOINTMENT_ERROR_MSG, "Unexpected error creating draft appointment: #{e.message}",
+                           :bad_request)
     end
 
     ##
@@ -139,11 +141,11 @@ module Eps
         success: false,
         json: {
           errors: [{
-            title: title,
-            detail: detail
+            title:,
+            detail:
           }]
         },
-        status: status
+        status:
       }
     end
 
@@ -187,7 +189,10 @@ module Eps
         }
       }
 
-      payload[:additional_patient_attributes] = params[:additional_patient_attributes] if params[:additional_patient_attributes]
+      if params[:additional_patient_attributes]
+        payload[:additional_patient_attributes] =
+          params[:additional_patient_attributes]
+      end
 
       payload
     end
@@ -385,7 +390,8 @@ module Eps
       provider_service.get_provider_service(provider_id:)
     rescue => e
       Rails.logger.error("Provider service error: #{e.message}")
-      build_error_response(PROVIDER_ERROR_MSG, "Unexpected error fetching provider information: #{e.message}", :not_found)
+      build_error_response(PROVIDER_ERROR_MSG, "Unexpected error fetching provider information: #{e.message}",
+                           :not_found)
     end
 
     ##
@@ -398,7 +404,7 @@ module Eps
     #
     def get_drive_times(provider, user)
       user_address = user.vet360_contact_info&.residential_address
-      return nil unless user_address&.latitude && user_address&.longitude
+      return nil unless user_address&.latitude && user_address.longitude
 
       provider_service.get_drive_times(
         destinations: {
@@ -409,7 +415,8 @@ module Eps
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error("Drive times error: #{e.message}")
       status = e.status == 400 ? :bad_request : nil
-      build_error_response(DRIVE_TIME_ERROR_MSG, "Invalid coordinates for drive time calculation: #{e.message}", status || :bad_request)
+      build_error_response(DRIVE_TIME_ERROR_MSG, "Invalid coordinates for drive time calculation: #{e.message}",
+                           status || :bad_request)
     rescue => e
       Rails.logger.error("Drive times error: #{e.message}")
       build_error_response(DRIVE_TIME_ERROR_MSG, "Unexpected error calculating drive times: #{e.message}", :bad_request)
