@@ -25,6 +25,7 @@ module BGS
       @proc_state = 'Ready' if user.auto674.present?
     end
 
+    # rubocop:disable Metrics/MethodLength
     def submit(payload)
       veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130SCHATTEBN').create
 
@@ -55,11 +56,15 @@ module BGS
           bgs_service.create_note(benefit_claim_record[:benefit_claim_id], note_text)
 
           bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')
+        else
+          Rails.logger.info("Saved Claim submitted automatically with proc_state of #{@proc_state}",
+                            { saved_claim_id: @saved_claim.id, proc_id: @proc_id })
         end
       rescue
         log_submit_failure(error)
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
