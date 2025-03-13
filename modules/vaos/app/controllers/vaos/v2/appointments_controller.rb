@@ -249,6 +249,7 @@ module VAOS
         )
       end
 
+      # rubocop:disable Metrics/MethodLength
       def create_params
         @create_params ||= begin
           # Gets around a bug that turns param values of [] into [""]. This changes them back to [].
