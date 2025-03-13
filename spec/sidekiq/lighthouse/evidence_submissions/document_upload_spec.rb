@@ -10,11 +10,6 @@ require 'lighthouse/benefits_documents/constants'
 require 'lighthouse/benefits_documents/utilities/helpers'
 
 RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
-  # subject(:job) do
-  #   described_class.perform_async(user_icn,
-  #                                 document_data.to_serializable_hash)
-  # end
-
   let(:user_icn) { user_account.icn }
   let(:claim_id) { 4567 }
   let(:file_name) { 'doctors-note.pdf' }
@@ -36,37 +31,11 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   let(:user_account) { create(:user_account) }
   let(:job_id) { '1234' }
   let(:client_stub) { instance_double(BenefitsDocuments::WorkerService) }
-  let(:job_class) { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
   let(:issue_instant) { Time.current.to_i }
   let(:current_date_time) { DateTime.current }
-  let(:msg) do
-    {
-      'jid' => job_id,
-      'args' => [user_account.icn,
-                 { 'first_name' => 'Bob',
-                   'claim_id' => claim_id,
-                   'document_type' => document_type,
-                   'file_name' => file_name,
-                   'tracked_item_id' => tracked_item_ids }],
-      'created_at' => issue_instant,
-      'failed_at' => issue_instant
-    }
-  end
   let(:file) { Rails.root.join('spec', 'fixtures', 'files', file_name).read }
   let(:formatted_submit_date) do
     BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
-  end
-
-  # Create Evidence Submission records from factory
-  let(:evidence_submission_failed) do
-    create(:bd_lh_evidence_submission_failed_type1_error)
-  end
-  let(:evidence_submission_created) do
-    create(:bd_evidence_submission_created,
-           tracked_item_id: tracked_item_ids,
-           claim_id:,
-           job_id:,
-           job_class: described_class)
   end
 
   def mock_response(status:, body:)
@@ -80,9 +49,17 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
       allow(Rails.logger).to receive(:info)
     end
 
+    # Create Evidence Submission records from factory
+    let(:evidence_submission_created) do
+      create(:bd_evidence_submission_created,
+             tracked_item_id: tracked_item_ids,
+             claim_id:,
+             job_id:,
+             job_class: described_class)
+    end
+
     context 'when upload succeeds' do
       let(:uploader_stub) { instance_double(LighthouseDocumentUploader) }
-      let(:message) { "#{job_class} EvidenceSubmission updated" }
       let(:success_response) do
         mock_response(
           status: 200,
@@ -132,6 +109,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
       end
 
       it 'there is no evidence submission id' do
+        allow(Lighthouse::EvidenceSubmissions::DocumentUpload).to receive(:update_evidence_submission_for_failure)
         allow(LighthouseDocumentUploader).to receive(:new) { uploader_stub }
         allow(BenefitsDocuments::WorkerService).to receive(:new) { client_stub }
         allow(uploader_stub).to receive(:retrieve_from_store!).with(file_name) { file }
@@ -145,25 +123,21 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         described_class.new.perform(user_icn,
                                     document_data.to_serializable_hash,
                                     nil)
+        expect(EvidenceSubmission.count).to equal(0)
+        expect(Lighthouse::EvidenceSubmissions::DocumentUpload)
+          .not_to have_received(:update_evidence_submission_for_failure)
       end
     end
 
     context 'when upload fails' do
-      let(:failure_response) do
-        {
-          data: {
-            success: false
-          }
-        }
-      end
-      let(:error_message) { "#{job_class} failed to create EvidenceSubmission" }
+      let(:error_message) { "#{described_class} failed to create EvidenceSubmission" }
       let(:tags) { ['service:claim-status', "function: #{error_message}"] }
       let(:failed_date) do
         BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
       end
 
-      context 'when there is an evidence submission record that errors' do
-        let(:msg_with_errors) do ## added 'test' so file would error
+      context 'when there is an evidence submission record that fails' do
+        let(:msg_with_errors) do
           {
             'jid' => job_id,
             'args' => [user_account.icn,
@@ -175,43 +149,26 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
                        evidence_submission_created.id],
             'created_at' => issue_instant,
             'failed_at' => issue_instant,
-            'error_message' => error_message,
+            'error_message' => 'An error ',
             'error_class' => 'Faraday::BadRequestError'
           }
         end
+        let(:message) { "#{described_class} EvidenceSubmission updated" }
 
         it 'updates an evidence submission record to FAILED' do
           described_class.within_sidekiq_retries_exhausted_block(msg_with_errors) do
             allow(EvidenceSubmission).to receive(:find_by)
-              .with({ id: evidence_submission_created.id })
+              .with({ id: msg_with_errors['args'][2] })
               .and_return(evidence_submission_created)
-            # expect(described_class).to receive(:perform_async).with(
-            #   user_account.icn,
-            #   {
-            #     first_name: 'Bob',
-            #     document_type: document_description,
-            #     filename: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
-            #     date_submitted: formatted_submit_date,
-            #     date_failed: formatted_submit_date
-            #   },
-            #   evidence_submission_created.id
-            # )
-            allow(described_class).to receive(:update_evidence_submission_for_failure)
-            expect(described_class).to receive(:update_evidence_submission_for_failure)
-              .with(evidence_submission_created, msg_with_errors)
-            # allow(EvidenceSubmission).to receive(:update!)
-            # expect(EvidenceSubmission).to receive(:update!)
-            # allow(evidence_submission_created).to receive(:update_evidence_submission_for_failure)
-            # expect(evidence_submission_created).to receive(:update_evidence_submission_for_failure)
-            # expect(Rails.logger)
-            #   .to have_received(:info)
-            #   .with('LH - Updated Evidence Submission Record to FAILED', any_args)
-            # expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation',
-            #                                            tags: ['service:claim-status', "function: #{message}"])
+            allow(EvidenceSubmission).to receive(:update!)
+            expect(Rails.logger)
+              .to receive(:info)
+              .with('LH - Updated Evidence Submission Record to FAILED', any_args)
+            expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation',
+                                                       tags: ['service:claim-status', "function: #{message}"])
           end
 
           failed_evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_created.id)
-          byebug
           current_personalisation = JSON.parse(failed_evidence_submission.template_metadata)['personalisation']
           expect(failed_evidence_submission.upload_status).to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
           expect(failed_evidence_submission.error_message)
@@ -227,30 +184,49 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         end
       end
 
-      it 'does not have an evidence submission record' do
-        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_failure_emails).and_return(true)
-        allow(described_class).to receive(:update_evidence_submission_for_failure)
-        Lighthouse::EvidenceSubmissions::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) do
-          allow(EvidenceSubmission).to receive(:find_by)
-            .with({ id: nil })
-            .and_return(nil)
-          expect(Lighthouse::FailureNotification).to receive(:perform_async).with(
-            user_account.icn,
-            {
-              first_name: 'Bob',
-              document_type: document_description,
-              filename: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
-              date_submitted: formatted_submit_date,
-              date_failed: formatted_submit_date
-            }
-          )
-          expect(described_class).not_to receive(:update_evidence_submission_for_failure)
-          expect(EvidenceSubmission.count).to equal(0)
+      context 'does not have an evidence submission id' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_failure_emails).and_return(true)
+          allow(described_class).to receive(:update_evidence_submission_for_failure)
+        end
+
+        let(:msg_with_nil_es_id) do
+          {
+            'jid' => job_id,
+            'args' => [user_account.icn,
+                       { 'first_name' => 'Bob',
+                         'claim_id' => claim_id,
+                         'document_type' => document_type,
+                         'file_name' => file_name,
+                         'tracked_item_id' => tracked_item_ids }],
+            'created_at' => issue_instant,
+            'failed_at' => issue_instant
+          }
+        end
+
+        it 'does not update an evidence submission record' do
+          Lighthouse::EvidenceSubmissions::DocumentUpload.within_sidekiq_retries_exhausted_block(msg_with_nil_es_id) do
+            allow(EvidenceSubmission).to receive(:find_by)
+              .with({ id: nil })
+              .and_return(nil)
+            expect(Lighthouse::FailureNotification).to receive(:perform_async).with(
+              user_account.icn,
+              {
+                first_name: 'Bob',
+                document_type: document_description,
+                filename: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
+                date_submitted: formatted_submit_date,
+                date_failed: formatted_submit_date
+              }
+            )
+            expect(described_class).not_to receive(:update_evidence_submission_for_failure)
+            expect(EvidenceSubmission.count).to equal(0)
+          end
         end
       end
 
       context 'when args malformed' do
-        let(:msg_with_errors) do ## added 'test' so file would error
+        let(:msg_args_malformed) do ## added 'test' so file would error
           {
             'jid' => job_id,
             'args' => ['test',
@@ -268,30 +244,88 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
 
         it 'fails to create a failed evidence submission record' do
           expect do
-            described_class.within_sidekiq_retries_exhausted_block(msg_with_errors) {}
-          end.to raise_error(StandardError, "Missing fields in #{job_class}")
+            described_class.within_sidekiq_retries_exhausted_block(msg_args_malformed) {}
+          end.to raise_error(StandardError, "Missing fields in #{described_class}")
         end
       end
 
-      it 'raises an error when Lighthouse returns a failure response' do
-        allow(client_stub).to receive(:upload_document).with(file, document_data).and_return(failure_response)
-        expect do
-          described_class.new.perform(user_icn,
-                                      document_data.to_serializable_hash,
-                                      evidence_submission_created.id)
-        end.to raise_error(StandardError)
+      context 'when error occurs updating evidence submission to FAILED' do
+        let(:msg_args) do
+          {
+            'jid' => job_id,
+            'args' => [
+              user_account.icn,
+              { 'first_name' => 'Bob',
+                'claim_id' => claim_id,
+                'document_type' => document_type,
+                'file_name' => file_name,
+                'tracked_item_id' => tracked_item_ids },
+              evidence_submission_created.id
+            ],
+            'created_at' => issue_instant,
+            'failed_at' => issue_instant
+          }
+        end
+        let(:log_error_message) { "#{described_class} failed to update EvidenceSubmission" }
+        let(:statsd_error_tags) { ['service:claim-status', "function: #{log_error_message}"] }
+
+        before do
+          allow_any_instance_of(EvidenceSubmission).to receive(:update!).and_raise(StandardError)
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'error is raised and logged' do
+          described_class.within_sidekiq_retries_exhausted_block(msg_args) do
+            expect(Rails.logger)
+              .to receive(:error)
+              .with(log_error_message, { message: 'StandardError' })
+            expect(StatsD).to receive(:increment).with('silent_failure',
+                                                       tags: statsd_error_tags)
+          end
+        end
+      end
+
+      context 'when lighthouse returns a failure response' do
+        let(:failure_response) do
+          {
+            data: {
+              success: false
+            }
+          }
+        end
+
+        it 'raises an error' do
+          allow(client_stub).to receive(:upload_document).with(file, document_data).and_return(failure_response)
+          expect do
+            described_class.new.perform(user_icn,
+                                        document_data.to_serializable_hash,
+                                        evidence_submission_created.id)
+          end.to raise_error(StandardError)
+        end
       end
     end
   end
 
   context 'when :cst_send_evidence_submission_failure_emails is disabled' do
     before do
-      allow(Lighthouse::FailureNotification).to receive(:perform_async)
       allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(false)
     end
 
+    let(:msg) do
+      {
+        'jid' => job_id,
+        'args' => [user_account.icn,
+                   { 'first_name' => 'Bob',
+                     'claim_id' => claim_id,
+                     'document_type' => document_type,
+                     'file_name' => file_name,
+                     'tracked_item_id' => tracked_item_ids }],
+        'created_at' => issue_instant,
+        'failed_at' => issue_instant
+      }
+    end
+
     let(:uploader_stub) { instance_double(LighthouseDocumentUploader) }
-    let(:tags) { ['service:claim-status', 'function: evidence upload to Lighthouse'] }
 
     it 'retrieves the file, uploads to Lighthouse and returns a success response' do
       allow(LighthouseDocumentUploader).to receive(:new) { uploader_stub }
@@ -302,14 +336,16 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
       expect(client_stub).to receive(:upload_document).with(file, document_data)
       expect(EvidenceSubmission.count).to equal(0)
       described_class.new.perform(user_icn,
-                                  document_data.to_serializable_hash,
-                                  evidence_submission_created.id)
+                                  document_data.to_serializable_hash, nil)
     end
 
     context 'when cst_send_evidence_failure_emails is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_failure_emails).and_return(true)
       end
+
+      let(:log_message) { "#{described_class} exhaustion handler email queued" }
+      let(:statsd_tags) { ['service:claim-status', 'function: evidence upload to Lighthouse'] }
 
       it 'calls Lighthouse::FailureNotification' do
         described_class.within_sidekiq_retries_exhausted_block(msg) do
@@ -326,8 +362,20 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
           expect(EvidenceSubmission.count).to equal(0)
           expect(Rails.logger)
             .to receive(:info)
-            .with("#{job_class} exhaustion handler email queued")
-          expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
+            .with(log_message)
+          expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: statsd_tags)
+        end
+      end
+    end
+
+    context 'when cst_send_evidence_failure_emails is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_failure_emails).and_return(false)
+      end
+
+      it 'does not call Lighthouse::Failure Notification' do
+        described_class.within_sidekiq_retries_exhausted_block(msg) do
+          expect(Lighthouse::FailureNotification).not_to receive(:perform_async)
         end
       end
     end

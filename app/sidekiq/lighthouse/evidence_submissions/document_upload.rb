@@ -31,7 +31,7 @@ module Lighthouse
         end
       end
 
-      def perform(user_icn, document_hash, evidence_submission_id)
+      def perform(user_icn, document_hash, evidence_submission_id = nil)
         @user_icn = user_icn
         @document_hash = document_hash
 
@@ -75,7 +75,7 @@ module Lighthouse
                          tags: ['service:claim-status', "function: #{message}"])
       rescue => e
         error_message = "#{name} failed to update EvidenceSubmission"
-        ::Rails.logger.error(error_message, { messsage: e.message })
+        ::Rails.logger.error(error_message, { message: e.message })
         StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
       end
 

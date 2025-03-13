@@ -47,7 +47,7 @@ class EVSS::DocumentUpload
     end
   end
 
-  def perform(auth_headers, user_uuid, document_hash, evidence_submission_id)
+  def perform(auth_headers, user_uuid, document_hash, evidence_submission_id = nil)
     @auth_headers = auth_headers
     @user_uuid = user_uuid
     @document_hash = document_hash
@@ -100,7 +100,7 @@ class EVSS::DocumentUpload
                      tags: ['service:claim-status', "function: #{message}"])
   rescue => e
     error_message = "#{name} failed to update EvidenceSubmission"
-    ::Rails.logger.info(error_message, { messsage: e.message })
+    ::Rails.logger.error(error_message, { message: e.message })
     StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
   end
 
