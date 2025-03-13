@@ -29,10 +29,9 @@ describe DecisionReviews::FormNotificationCallback do
         callback_klass: described_class.to_s,
         callback_metadata: {
           email_type: :error,
-          form_id: '995',
-          saved_claim_id:,
+          form_type: 'SC',
+          appeal_submission_id:,
           email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email, # rubocop:disable Layout/LineLength
-          service_name: 'supplemental-claims'
         }
       )
     end
