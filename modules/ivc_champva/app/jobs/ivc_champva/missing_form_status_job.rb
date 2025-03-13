@@ -113,6 +113,10 @@ module IvcChampva
       end
     end
 
+    def fetch_forms_by_uuid(form_uuid)
+      @fetch_forms_by_uuid ||= IvcChampvaForm.where(form_uuid:)
+    end
+
     ##
     # Checks PEGA reporting API to see if this batch's form_uuid is associated with an
     # identical number of records on PEGA's side - If so, sets these records to
@@ -135,10 +139,6 @@ module IvcChampva
     rescue PegaApiError => e
       Rails.logger.error "IVC Champva Forms - PegaApiError: #{e.message}"
       false
-    end
-
-    def fetch_forms_by_uuid(form_uuid)
-      @fetch_forms_by_uuid ||= IvcChampvaForm.where(form_uuid:)
     end
 
     ##
