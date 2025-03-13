@@ -79,7 +79,7 @@ module ClaimsApi
 
       def build_error_block(title, errors)
         text = if title == 'Va Gov Disability Compensation'
-                 errors.map { |eid, tid| "CID: #{link_value(eid)} / TID: #{link_value(tid)}" }.join("\n")
+                 errors.map { |eid, tid| "CID: #{link_value(eid, :eid)} / TID: #{link_value(tid, :tid)}" }.join("\n")
                else
                  errors.join("\n")
                end
@@ -93,8 +93,10 @@ module ClaimsApi
         }
       end
 
-      def link_value(id)
+      def link_value(id, type = :eid)
         return 'N/A' if id.blank?
+
+        return 'N/A' if type == :tid && TID_SUBSTRING_WHITELIST.none? { |substr| id.upcase.include? substr }
 
         time_stamps = datadog_timestamps
 
