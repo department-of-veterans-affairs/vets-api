@@ -86,6 +86,37 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     expect(forms[0].reload.email_sent).to be false
   end
 
+  it 'checks PEGA reporting API and updates form pega_status if form has actually been processed' do
+    # The `pega_status` stored on a form object may be innacurate if the PEGA service
+    # had an unrelated failure when attempting to update the status via the API.
+    # As a result, we double-check PEGA's reporting API for any submissions that
+    # are due to send a "missing status failure email", and bail if they're in that system.
+
+    threshold = 5 # using 5 since dummy forms have `created_at` set to 1 week ago
+    allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
+    allow(job).to receive(:num_docs_match_reports?).and_return(false) # Default
+
+    # Roll up the form submissions into batches and grab the first and last for testing
+    _uuid, batch = job.missing_status_cleanup.get_missing_statuses(true).first
+
+    # Mock checking the reporting API to pretend like this form w missing status has
+    # been ingested on the PEGA side
+    allow(job).to receive(:num_docs_match_reports?).with(batch).and_return(true) # Batch we're interested in
+
+    # Verify that the first batch is past threshold and has no email sent:
+    expect(days_since_now(batch[0].created_at) > threshold).to be true
+    expect(batch[0].email_sent).to be false
+
+    # Identify the form as lapsed and check PEGA API before sending a failure email:
+    job.perform
+
+    # Re-fetch batches to ensure we have updated data
+    _uuid, batch = job.missing_status_cleanup.get_missing_statuses(true).first
+
+    # Verify that the failure email was not sent for first batch, as it HAS been ingested into PEGA
+    expect(batch[0].email_sent).to be false
+  end
+
   it 'does not mark email_sent true when email fails to send' do
     threshold = 5
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
