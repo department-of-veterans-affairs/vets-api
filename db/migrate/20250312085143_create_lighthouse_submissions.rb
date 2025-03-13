@@ -7,7 +7,6 @@ class CreateLighthouseSubmissions < ActiveRecord::Migration[7.2]
       t.integer :saved_claim_id, null: false
       t.enum :latest_status, enum_type: 'lighthouse_submission_status', default: 'pending'
       t.string :form_id, null: false
-      t.string :va_claim_id
       t.jsonb :reference_data_ciphertext
     end
   end
