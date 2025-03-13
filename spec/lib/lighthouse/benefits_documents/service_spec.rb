@@ -71,7 +71,7 @@ RSpec.describe BenefitsDocuments::Service do
           expect(evidence_submission.tracked_item_id).to be(1)
           expect(StatsD)
             .to have_received(:increment)
-            .with('cst.lighthouse.document_uploads.evidence_submission_record_created.success')
+            .with('cst.lighthouse.document_uploads.evidence_submission_record_created')
           expect(Rails.logger)
             .to have_received(:info)
             .with('LH - Created Evidence Submission Record', any_args)
