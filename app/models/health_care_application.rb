@@ -92,6 +92,7 @@ class HealthCareApplication < ApplicationRecord
     # message out valid submission {state: "received"}
     Rails.logger.info '~~~~~~~~~~~~~~~ received anon sync'
 
+    # HCA::EventBusSubmissionJob.perform_sync(1, 2, id, 4, true)
     Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
 
     result
@@ -119,7 +120,8 @@ class HealthCareApplication < ApplicationRecord
       raise(Common::Exceptions::ValidationErrors, self)
     end
     # message out valid submission {state: "received"}
-    Rails.logger.info '~~~~~~~~~~~~~~~ received'
+    Rails.logger.info '~~~~~~~~~~~~~~~ received, id:', id
+    # HCA::MockSubmissionJob.perform_sync(1, 2, id, 4, true)
 
     if email.present? || async_compatible
       save!
@@ -128,6 +130,9 @@ class HealthCareApplication < ApplicationRecord
     else
       submit_sync
     end
+
+    Rails.logger.info '~~~~~~~~~~~~~~~ received end, id:', id
+    HCA::MockSubmissionJob.perform_sync(1, 2, id, 4, true)
   end
 
   def self.determine_active_duty(primary_eligibility, veteran)
@@ -225,6 +230,17 @@ class HealthCareApplication < ApplicationRecord
 
   def parsed_form
     @parsed_form ||= form.present? ? JSON.parse(form) : nil
+  end
+
+  def build_event_payload(state)
+    # { "data" => { "ICN" => 1234567790, "currentID" => [HCA id], "submissionName" => "1010EZ", state => [received|sent|error]}}
+    user_icn = user&.icn || self.class.user_icn(self.class.user_attributes(parsed_form))
+    { 'data' => {
+      'ICN' => user_icn,
+      'currentID' => id,
+      'submissionName' => '1010EZ',
+      'state' => state}
+    }
   end
 
   private

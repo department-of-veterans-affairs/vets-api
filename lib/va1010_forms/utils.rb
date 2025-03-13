@@ -8,17 +8,23 @@ module VA1010Forms
   module Utils
     include ActionView::Helpers::NumberHelper
     def es_submit(parsed_form, user_identifier, form_id)
-      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, user_identifier, form_id)
-      submission_body = submission_body(formatted)
-      response = perform(:post, '', submission_body)
+      # formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, user_identifier, form_id)
+      # submission_body = submission_body(formatted)
+      # response = perform(:post, '', submission_body)
+      #
+      # root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first
+      # form_submission_id = root.locate('formSubmissionId').first.text.to_i
 
-      root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first
-      form_submission_id = root.locate('formSubmissionId').first.text.to_i
-
+      # {
+      #   success: true,
+      #   formSubmissionId: form_submission_id,
+      #   timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
+      # }
+      #
       {
         success: true,
-        formSubmissionId: form_submission_id,
-        timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
+        formSubmissionId: 123,
+        timestamp: Time.now.getlocal.to_s
       }
     end
 
