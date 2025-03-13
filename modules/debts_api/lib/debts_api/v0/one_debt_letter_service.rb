@@ -4,15 +4,50 @@ require 'debt_management_center/base_service'
 
 module DebtsApi
   class V0::OneDebtLetterService
+    # rubocop:disable Metrics/LineLength
+    COPAY_TABLE_DESCRIPTION = '<i>– You are receiving this billing statement because you are currently enrolled in a priority group requiring copayments for treatment of nonservice-connected conditions.</i>'
+    COPAY_PAYMENT_INSTRUCTIONS = 'To Pay Your Copay Bills:<br><b>In Person:</b>: At your local Veteran Affairs Medical Center Agent Cashier’s Office<br><b>By Phone</b>: Contact VA at 1-888-827-4817<br><b>Online</b>: Pay by ACH withdrawal from your bank account, or by debit or credit card at www.pay.gov'
+    # rubocop:enable Metrics/LineLength
+    COPAY_TOTAL_TEXT = 'Total Copayment Due'
+    COPAY_TABLE_TITLE = '<b><i>VA Medical Center Copay Charges</i></b>'
+
     def initialize(user)
       @user = user
     end
 
+    # rubocop:disable Metrics/MethodLength
     def get_pdf
       debt_letter_pdf = Prawn::Document.new(page_size: 'LETTER') do |pdf|
         add_and_format_logo(pdf)
         pdf.move_down 30
         add_header_columns(pdf)
+        pdf.move_down 20
+        copays = copays_service[:data]
+
+        if copays.any?
+          table_data = [[{ content: COPAY_TABLE_TITLE, inline_format: true }, 'AMOUNT DUE', 'COPAY BILLING REF#']]
+          table_data << [{ content: COPAY_TABLE_DESCRIPTION, inline_format: true }, '', '']
+          copays.each_with_index do |copay, copay_index|
+            copay_details = copay['details']
+            copay_details.each_with_index do |detail, index|
+              description = add_copay_description(detail, index, copay_index)
+              table_data << copay_table_item(description, detail)
+            end
+            table_data << [copay['station']['facilitYDesc'], '', '']
+          end
+          formatted_copay_total = copays_amount_due(copays)
+          table_data << [{ content: COPAY_TOTAL_TEXT, inline_format: true, align: :right }, formatted_copay_total, '']
+
+          table_data << [{ content: COPAY_PAYMENT_INSTRUCTIONS, inline_format: true }, '', '']
+          pdf.table(table_data, width: pdf.bounds.width, cell_style: { padding: 5, size: 8 }) do
+            cells.borders = %i[left right]
+            rows(0).borders = %i[top bottom left right]
+            rows(-1).borders = %i[bottom left right]
+            column(1).align = :right
+          end
+        else
+          pdf.text 'No copay charges due.', size: 10
+        end
       end.render
 
       legalese_pdf = load_legalese_pdf
@@ -20,6 +55,7 @@ module DebtsApi
 
       combined_pdf.to_pdf
     end
+    # rubocop:enable Metrics/MethodLength
 
     def save_pdf(filename = default_filename)
       save_pdf_content(filename, get_pdf)
@@ -27,6 +63,29 @@ module DebtsApi
     end
 
     private
+
+    def copay_table_item(description, detail)
+      [
+        { content: description, inline_format: true } || '',
+        "$#{format_amount(detail['pDTransAmt'] || 0)}",
+        detail['pDRefNo'] || ''
+      ]
+    end
+
+    def copays_amount_due(copays)
+      total_copays = copays.sum { |c| c['pHAmtDue'] }
+      "$#{format_amount(total_copays)}"
+    end
+
+    def format_amount(amount)
+      format('%.2f', amount || 0.0)
+    end
+
+    def add_copay_description(detail, index, copay_index)
+      indentation = Prawn::Text::NBSP * 6 # 6 non-breaking spaces
+      sanitized_description = detail['pDTransDescOutput'].gsub(/&nbsp;|\s+/, ' ').strip
+      index.zero? ? "#{copay_index + 1}.   #{sanitized_description}" : "#{indentation}#{sanitized_description}"
+    end
 
     def add_header_columns(pdf)
       header_y = pdf.bounds.height - 75
@@ -100,6 +159,10 @@ module DebtsApi
       )
 
       CombinePDF.load(legalese_path)
+    end
+
+    def copays_service
+      MedicalCopays::VBS::Service.build(user: @user).get_copays
     end
   end
 end
