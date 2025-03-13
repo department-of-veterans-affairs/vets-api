@@ -2,6 +2,12 @@
 
 module Eps
   class AppointmentService < BaseService
+    CACHE_ERROR_MSG = 'Error fetching referral data from cache'
+    DRIVE_TIME_ERROR_MSG = 'Invalid coordinates for drive time calculation'
+    PROVIDER_ERROR_MSG = 'Error fetching provider information'
+    PROVIDER_SLOTS_ERROR_MSG = 'Error fetching provider slots'
+    DRAFT_APPOINTMENT_ERROR_MSG = 'Error creating draft appointment'
+
     ##
     # Get a specific appointment from EPS by ID
     #
@@ -33,12 +39,43 @@ module Eps
     ##
     # Create draft appointment in EPS
     #
+    # @param referral_id [String] The ID of the referral to use for the draft appointment
     # @return OpenStruct response from EPS create draft appointment endpoint
+    #   - On error: returns { error: true, json: { errors: [...] }, status: appropriate_status }
     #
     def create_draft_appointment(referral_id:)
       response = perform(:post, "/#{config.base_path}/appointments",
                          { patientId: patient_id, referralId: referral_id }, headers)
       OpenStruct.new(response.body)
+    rescue Common::Client::Errors::ClientError => e
+      Rails.logger.error("Draft appointment error: #{e.message}")
+      status = :bad_request
+
+      {
+        error: true,
+        success: false,
+        json: {
+          errors: [{
+            title: DRAFT_APPOINTMENT_ERROR_MSG,
+            detail: "Unable to create draft appointment: #{e.message}"
+          }]
+        },
+        status: status
+      }
+    rescue => e
+      Rails.logger.error("Draft appointment error: #{e.message}")
+
+      {
+        error: true,
+        success: false,
+        json: {
+          errors: [{
+            title: DRAFT_APPOINTMENT_ERROR_MSG,
+            detail: "Unexpected error creating draft appointment: #{e.message}"
+          }]
+        },
+        status: :bad_request
+      }
     end
 
     ##
@@ -73,8 +110,11 @@ module Eps
         user
       )
 
-      # If response_data is a hash with a :success key, it's an error response
-      return response_data if response_data.is_a?(Hash) && response_data.key?(:success)
+      # If response_data is a hash with an error key, it's an error response
+      if response_data.is_a?(Hash) && response_data[:error]
+        # Explicitly preserve the status code from the error
+        return response_data
+      end
 
       { success: true, response_data: response_data }
     end
@@ -198,27 +238,22 @@ module Eps
     #   - If validation fails: { success: false, json: { errors: [...] }, status: Symbol }
     #
     def create_draft_appointment_with_validation(referral_id:, pagination_params: {})
-      # Fetch referral attributes from Redis
       referral_data = fetch_referral_attributes(referral_number: referral_id)
-
-      # Check if referral_data contains an error structure
       return referral_data if referral_data.is_a?(Hash) && referral_data[:error]
 
-      # Validate referral data
       validation_result = build_referral_validation_response(referral_data)
       return validation_result unless validation_result[:success]
 
-      # Check if referral is already in use
       usage_result = check_referral_usage(referral_id, pagination_params)
       return usage_result unless usage_result[:success]
 
-      # Create draft appointment
       draft_appointment = create_draft_appointment(referral_id: referral_id)
+      return draft_appointment if draft_appointment.is_a?(Hash) && draft_appointment[:error]
 
       {
         success: true,
-        draft_appointment: draft_appointment,
-        referral_data: referral_data
+        draft_appointment:,
+        referral_data:
       }
     end
 
@@ -284,7 +319,8 @@ module Eps
           success: false,
           json: {
             errors: [{
-              message: "Error checking existing appointments: #{check[:failures]}"
+              title: 'Error checking appointments',
+              detail: "Error checking if referral is already used: #{check[:failures]}"
             }]
           },
           status: :bad_gateway
@@ -294,7 +330,8 @@ module Eps
           success: false,
           json: {
             errors: [{
-              message: 'No new appointment created: referral is already used'
+              title: 'Referral already used',
+              detail: 'No new appointment created: referral is already used'
             }]
           },
           status: :unprocessable_entity
@@ -321,8 +358,8 @@ module Eps
         success: false,
         json: {
           errors: [{
-            title: 'Cache error',
-            detail: 'Unable to connect to cache service'
+            title: CACHE_ERROR_MSG,
+            detail: "Unable to connect to cache service: #{e.message}"
           }]
         },
         status: :bad_gateway
@@ -339,6 +376,7 @@ module Eps
     #   - `:end_date` [String] The latest appointment date (ISO 8601).
     #
     # @return [Array, nil] Available slots array or nil if error occurs
+    #   - On error: returns { error: true, json: { errors: [...] }, status: appropriate_status }
     #
     def fetch_provider_slots(referral_data)
       provider_service.get_provider_slots(
@@ -350,9 +388,21 @@ module Eps
         }
       )
     rescue => e
+      status = e.status || :bad_gateway
       Rails.logger.error("Provider slots error: #{e.message}")
       StatsD.increment('api.vaos.va_mobile.response.partial.provider_slots_error')
-      nil
+
+      {
+        error: true,
+        success: false,
+        json: {
+          errors: [{
+            title: PROVIDER_SLOTS_ERROR_MSG,
+            detail: "Unexpected error fetching provider slots: #{e.message}"
+          }]
+        },
+        status:
+      }
     end
 
     ##
@@ -360,9 +410,24 @@ module Eps
     #
     # @param provider_id [String] The provider ID
     # @return [OpenStruct] The provider service information
+    #   - On error: returns { error: true, json: { errors: [...] }, status: appropriate_status }
     #
     def get_provider_service(provider_id:)
       provider_service.get_provider_service(provider_id: provider_id)
+    rescue => e
+      Rails.logger.error("Provider service error: #{e.message}")
+
+      {
+        error: true,
+        success: false,
+        json: {
+          errors: [{
+            title: PROVIDER_ERROR_MSG,
+            detail: "Unexpected error fetching provider information: #{e.message}"
+          }]
+        },
+        status: :not_found
+      }
     end
 
     ##
@@ -371,6 +436,7 @@ module Eps
     # @param provider [OpenStruct] The provider object with location information
     # @param user [User] The current user with address information
     # @return [Hash, nil] Drive time information or nil if not available
+    #   - On error: returns { error: true, json: { errors: [...] }, status: appropriate_status }
     #
     def get_drive_times(provider, user)
       user_address = user.vet360_contact_info&.residential_address
@@ -389,6 +455,35 @@ module Eps
           longitude: user_address.longitude
         }
       )
+    rescue Common::Client::Errors::ClientError => e
+      Rails.logger.error("Drive times error: #{e.message}")
+      status = :bad_request if e.status == 400
+
+      {
+        error: true,
+        success: false,
+        json: {
+          errors: [{
+            title: DRIVE_TIME_ERROR_MSG,
+            detail: "Invalid coordinates for drive time calculation: #{e.message}"
+          }]
+        },
+        status: status || :bad_request # Default to bad_request for drive time errors
+      }
+    rescue => e
+      Rails.logger.error("Drive times error: #{e.message}")
+
+      {
+        error: true,
+        success: false,
+        json: {
+          errors: [{
+            title: DRIVE_TIME_ERROR_MSG,
+            detail: "Unexpected error calculating drive times: #{e.message}"
+          }]
+        },
+        status: :bad_request # Default to bad_request for drive time errors
+      }
     end
 
     ##
@@ -397,25 +492,20 @@ module Eps
     # @param draft_appointment [OpenStruct] The draft appointment object
     # @param referral_data [Hash] The referral data
     # @param user [User] The current user
-    # @return [OpenStruct] The complete response data
+    # @return [OpenStruct] The complete response data or error hash
     #
     def build_draft_appointment_response(draft_appointment, referral_data, user)
       provider = get_provider_service(provider_id: referral_data[:provider_id])
-      slots = fetch_provider_slots(referral_data)
-      drive_time = get_drive_times(provider, user)
+      return provider if provider.is_a?(Hash) && provider[:error]
 
-      # Check if drive_time contains an error structure
+      slots = fetch_provider_slots(referral_data)
+      if slots.is_a?(Hash) && slots[:error]
+        return slots
+      end
+
+      drive_time = get_drive_times(provider, user)
       if drive_time.is_a?(Hash) && drive_time[:error]
-        return {
-          success: false,
-          json: {
-            errors: [{
-              title: 'Invalid coordinates',
-              detail: drive_time[:message] || 'Invalid coordinates for drive time calculation'
-            }]
-          },
-          status: drive_time[:status] || :bad_request
-        }
+        return drive_time
       end
 
       OpenStruct.new(
