@@ -3,11 +3,11 @@
 module BenefitsDocuments
   module Constants
     UPLOAD_STATUS = {
+      CREATED: 'CREATED',
+      QUEUED: 'QUEUED',
       PENDING: 'IN_PROGRESS',
       FAILED: 'FAILED',
-      SUCCESS: 'SUCCESS',
-      QUEUED: 'QUEUED',
-      CREATED: 'CREATED'
+      SUCCESS: 'SUCCESS'
     }.freeze
 
     VANOTIFY_STATUS = {
