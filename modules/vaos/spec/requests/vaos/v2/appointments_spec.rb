@@ -1158,7 +1158,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                         .to receive(:get_appointments)
                         .and_return(OpenStruct.new(data: []))
                       eps_redis_client = Eps::RedisClient.new
-                      eps_redis_client.save(referral_number: 'ref-123', referral: draft_appointment_response)
+                      eps_redis_client.save(referral_number: 'ref-123', referral: {}) #TODO: save a referral object
                       binding.pry
                       post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 

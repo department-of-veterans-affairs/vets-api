@@ -67,7 +67,9 @@ module VAOS
         referral_id = draft_params[:referral_id]
         # TODO: validate referral_id from the cache from prior referrals response
         binding.pry
-        cached_patient_id = eps_redis_client.fetch_attribute(referral_number: referral_id, attribute: :patient_id)
+        # TODO: fetch referral object attribute for patient icn from cache - if not there, make referral service call
+        # TODO: find open api doc referral object structure to know what attribute to fetch from cache
+        cached_patient_id = eps_redis_client.fetch_attribute(referral_number: referral_id, attribute: )
         unless validate_ref_id(cached_patient_id, current_user[:icn_with_aaid])
           render json:, status: 401 and return
         end
