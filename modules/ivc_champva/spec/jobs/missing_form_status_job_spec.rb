@@ -97,7 +97,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     allow(job).to receive(:num_docs_match_reports?).and_return(false) # Default
 
     # Roll up the form submissions into batches and grab the first and last for testing
-    _uuid, batch = job.missing_status_cleanup.get_missing_statuses(true).first
+    original_uuid, batch = job.missing_status_cleanup.get_missing_statuses(true).first
 
     # Mock checking the reporting API to pretend like this form w missing status has
     # been ingested on the PEGA side
@@ -111,7 +111,8 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     job.perform
 
     # Re-fetch batches to ensure we have updated data
-    _uuid, batch = job.missing_status_cleanup.get_missing_statuses(true).first
+    batches = job.missing_status_cleanup.get_missing_statuses(true)
+    batch = batches[original_uuid]
 
     # Verify that the failure email was not sent for first batch, as it HAS been ingested into PEGA
     expect(batch[0].email_sent).to be false
