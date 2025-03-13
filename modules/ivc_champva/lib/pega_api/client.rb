@@ -50,13 +50,13 @@ module IvcChampva
       # @param uuid [string, nil] Form UUID of a given submission
       #
       # @return [Hash] the headers
-      def headers(date_start, date_end, case_id='', uuid='')
+      def headers(date_start='', date_end='', case_id='', uuid='')
         # TODO: reorder params so `case_id` is last?
         {
           :content_type => 'application/json',
           'x-api-key' => Settings.ivc_champva.pega_api.api_key.to_s,
-          'date_start' => date_start,
-          'date_end' => date_end,
+          'date_start' => date_start.to_s,
+          'date_end' => date_end.to_s,
           'case_id' => case_id,
           'uuid' => uuid,
         }

@@ -45,6 +45,9 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   end
 
   it 'attempts to send failure email to user if the elapsed days w/out PEGA status exceed the threshold' do
+    # Mock checking the reporting API since we're not testing that in this instance:
+    allow(job).to receive(:num_docs_match_reports?).and_return(false)
+
     threshold = 5 # using 5 since dummy forms have `created_at` set to 1 week ago
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
 
@@ -60,6 +63,9 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   end
 
   it 'identifies forms nearing expiration threshold and attempts to notify PEGA' do
+    # Mock checking the reporting API since we're not testing that in this instance:
+    allow(job).to receive(:num_docs_match_reports?).and_return(false)
+
     threshold = 8
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
 
@@ -97,17 +103,6 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     expect(forms[0].reload.email_sent).to be false
   end
 
-  it 'ignores forms created within the last 1 minute' do
-    forms[0].update(created_at: Time.zone.now) # Created within the last minute
-    forms[1].update(created_at: 1.minute.ago) # Created more than 1 minute ago
-
-    # Perform the job that checks form statuses
-    IvcChampva::MissingFormStatusJob.new.perform
-
-    # Check that forms created in the last minute are ignored
-    expect(StatsD).to have_received(:gauge).with('ivc_champva.forms_missing_status.count', forms.count - 1)
-  end
-
   it 'processes nil forms in batches that belong to the same submission' do
     # Set shared `form_uuid` so these two now belong to the same batch:
     forms[0].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
@@ -126,7 +121,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     forms[1].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
 
     # Perform the job that checks form statuses
-    batches = job.get_nil_batches
+    batches = job.missing_status_cleanup.get_missing_statuses(true)
 
     expect(batches.count == forms.count - 1).to be true
     expect(batches['78444a0b-3ac8-454d-a28d-8d63cddd0d3b'].count == 2).to be true

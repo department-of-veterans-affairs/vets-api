@@ -5,11 +5,16 @@ module IvcChampva
     class MissingStatusCleanup
       # Displays a list of all form submission batches that include a missing PEGA status
       #
+      # @param [boolean] silent whether or not to `puts` the batch information
+      #
       # @returns [Hash] a hash where keys are form UUIDs and values are arrays of
       #   IvcChampvaForm records matching that UUID
-      def get_missing_statuses
+      def get_missing_statuses(silent=false)
         all_nil_statuses = IvcChampvaForm.where(pega_status: nil)
         batches = batch_records(all_nil_statuses)
+
+        return batches if silent
+
         # Print out details of each batch that contains a missing PEGA status:
         batches.each_value do |batch|
           display_batch(batch)
@@ -21,12 +26,16 @@ module IvcChampva
       # Displays a list of all form submission batches that match the provided email address.
       #
       # @param [String] email_addr email address to search for IvcChampvaForm records by
+      # @param [boolean] silent whether or not to `puts` the batch information
       #
       # @returns [Hash] a hash where keys are form UUIDs and values are arrays of
       #   IvcChampvaForm records matching that UUID, all with :email equal to to email_addr
-      def get_batches_for_email(email_addr)
+      def get_batches_for_email(email_addr, silent=false)
         results = IvcChampvaForm.where(email: email_addr)
         batches = batch_records(results)
+
+        return batches if silent
+
         batches.each_value do |batch|
           display_batch(batch)
         end

@@ -75,6 +75,7 @@ RSpec.describe IvcChampva::PegaApi::Client do
       expect(result['date_start']).to eq('2024-11-01')
       expect(result['date_end']).to eq('2024-12-31')
       expect(result['case_id']).to eq('')
+      expect(result['uuid']).to eq('')
     end
 
     it 'returns the right headers with nil dates' do
@@ -85,6 +86,7 @@ RSpec.describe IvcChampva::PegaApi::Client do
       expect(result['date_start']).to eq('')
       expect(result['date_end']).to eq('')
       expect(result['case_id']).to eq('')
+      expect(result['uuid']).to eq('')
     end
   end
 
