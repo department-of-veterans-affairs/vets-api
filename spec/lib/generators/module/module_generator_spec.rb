@@ -22,7 +22,7 @@ describe ModuleGenerator do
       end
     end
 
-    it 'the directories should exist' do
+    it 'the spec directories should exist' do
       ModuleGenerator.new([module_name]).create_directory_structure
       %w[controllers models lib serializers services factories support].each do |module_dir|
         expect(File.directory?("#{spec_path}/#{module_dir}/#{module_name}")).to be(true)
