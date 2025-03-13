@@ -8,6 +8,7 @@ module V0
                        only: %i[authorize callback token refresh revoke revoke_all_sessions logout
                                 logingov_logout_proxy]
     before_action :access_token_authenticate, only: :revoke_all_sessions
+    before_action -> { access_token_authenticate(skip_error_handling: true) }, only: :authorize_sso
 
     def authorize # rubocop:disable Metrics/MethodLength
       type = params[:type].presence
@@ -46,6 +47,51 @@ module V0
     rescue => e
       log_message_to_sentry(e.message, :error)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE)
+      handle_pre_login_error(e, client_id)
+    end
+
+    def authorize_sso # rubocop:disable Metrics/MethodLength
+      client_state = params[:state].presence
+      code_challenge = params[:code_challenge].presence
+      code_challenge_method = params[:code_challenge_method].presence
+      client_id = params[:client_id].presence
+
+      validate_authorize_sso_params(client_id)
+
+      user_attributes = SignIn::AccessTokenSSOValidator.new(access_token: @access_token,
+                                                            client_config: client_config(client_id)).perform
+      state = SignIn::StatePayloadJwtEncoder.new(code_challenge:,
+                                                 code_challenge_method:,
+                                                 acr: user_attributes[:acr],
+                                                 client_config: client_config(client_id),
+                                                 type: user_attributes[:type],
+                                                 client_state:,
+                                                 scope: nil).perform
+      state_payload = SignIn::StatePayloadJwtDecoder.new(state_payload_jwt: state).perform
+      user_code_map = SignIn::UserCodeMapCreator.new(user_attributes:,
+                                                     state_payload:,
+                                                     verified_icn: user_attributes[:icn],
+                                                     request_ip: request.remote_ip).perform
+
+      params_hash = { code: user_code_map.login_code, type: user_code_map.type }
+      params_hash.merge!(state: user_code_map.client_state) if user_code_map.client_state.present?
+
+      sign_in_logger.info('authorize sso', { client_id: })
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SSO_SUCCESS, tags: ["client_id:#{client_id}"])
+
+      render body: SignIn::RedirectUrlGenerator.new(redirect_uri: user_code_map.client_config.redirect_uri,
+                                                    terms_code: user_code_map.terms_code,
+                                                    terms_redirect_uri: user_code_map.client_config.terms_of_use_url,
+                                                    params_hash:).perform,
+             content_type: 'text/html'
+    rescue SignIn::Errors::StandardError => e
+      sign_in_logger.info('authorize sso redirect', { errors: e.message, client_id: })
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SSO_REDIRECT)
+      render body: { redirect_url: 'some-redirect-url' },
+             content_type: 'text/html'
+    rescue => e
+      log_message_to_sentry(e.message, :error)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SSO_FAILURE)
       handle_pre_login_error(e, client_id)
     end
 
@@ -238,6 +284,12 @@ module V0
       end
       unless client_config(client_id).valid_service_level?(acr)
         raise SignIn::Errors::MalformedParamsError.new message: 'ACR is not valid'
+      end
+    end
+
+    def validate_authorize_sso_params(client_id)
+      if client_config(client_id).blank?
+        raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
     end
 

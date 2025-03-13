@@ -72,7 +72,7 @@ module SignIn
 
     def token_json_payload
       payload = {}
-      payload[:refresh_token] = encrypted_refresh_token
+      payload[:refresh_token] = encrypted_refresh_token unless web_sso_client
       payload[:access_token] = encoded_access_token
       payload[:anti_csrf_token] = anti_csrf_token if anti_csrf_enabled_client?
       payload[:device_secret] = device_secret if device_secret_enabled_client?
@@ -122,6 +122,10 @@ module SignIn
 
     def encoded_access_token
       @encoded_access_token ||= AccessTokenJwtEncoder.new(access_token: session_container.access_token).perform
+    end
+
+    def web_sso_client
+      @web_sso_client ||= session_container.web_sso_client
     end
 
     def anti_csrf_token
