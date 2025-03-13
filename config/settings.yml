@@ -22,6 +22,8 @@ ask_va_api:
     client_id: <%= ENV['ask_va_api__crm_api__client_id'] %>
     client_secret: <%= ENV['ask_va_api__crm_api__client_secret'] %>
     ocp_apim_subscription_key: <%= ENV['ask_va_api__crm_api__ocp_apim_subscription_key'] %>
+    e_subscription_key: <%= ENV['ask_va_api__crm_api__e_subscription_key'] %>
+    s_subscription_key: <%= ENV['ask_va_api__crm_api__s_subscription_key'] %>
     resource: <%= ENV['ask_va_api__crm_api__resource'] %>
     service_name: VEIS-API
     tenant_id: <%= ENV['ask_va_api__crm_api__tenant_id'] %>

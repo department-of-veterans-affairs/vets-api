@@ -22,6 +22,8 @@ ask_va_api:
     client_id: client_id
     client_secret: secret
     ocp_apim_subscription_key: subscription_key
+    e_subscription_key: e_subscription_key
+    s_subscription_key: s_subscription_key
     resource: resource
     service_name: VEIS-API
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
