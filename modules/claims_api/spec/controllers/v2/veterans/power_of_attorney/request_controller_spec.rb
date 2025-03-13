@@ -8,7 +8,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
   describe '#index' do
     let(:scopes) { %w[claim.read] }
-    let(:page_params) { { page: { size: 10, number: 2 } } }
+    let(:page_params) { { page: { size: '10', number: '2' } } }
 
     context 'when poaCodes is not present' do
       before do
@@ -70,7 +70,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         context 'and page size is present' do
           context 'and exceeds the max value allowed' do
             it 'raises a 422' do
-              page_params[:page][:size] = 101
+              page_params[:page][:size] = '101'
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
                   index_request_with(poa_codes:, page_params:, auth_header:)
@@ -86,8 +86,8 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
           context 'and exceeds the max value allowed along with page number' do
             it 'raises a 422' do
-              page_params[:page][:size] = 101
-              page_params[:page][:number] = 120
+              page_params[:page][:size] = '101'
+              page_params[:page][:number] = '120'
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
                   index_request_with(poa_codes:, page_params:, auth_header:)
@@ -677,7 +677,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         context 'when only one param is sent' do
           context 'sets the param value and uses the default for the other' do
             it 'sets default page number when page size is sent in' do
-              page_params = { page: { size: 5 } }
+              page_params = { page: { size: '5' } }
               allow(subject).to receive(:params).and_return(page_params)
 
               subject.send(:validate_page_size_and_number_params)
@@ -689,7 +689,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             end
 
             it 'sets default page size when page number is sent in' do
-              page_params = { page: { number: 2 } }
+              page_params = { page: { number: '2' } }
               allow(subject).to receive(:params).and_return(page_params)
 
               subject.send(:validate_page_size_and_number_params)
