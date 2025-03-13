@@ -172,7 +172,7 @@ module Form1095
 
       all_succeeded
     rescue => e
-      message = "Error processing file: #{file_details}, on line #{lines};"\
+      message = "Error processing file: #{file_details[:name]}, on line #{lines}; "\
                 "#{e.message}"
       log_error(message)
       false
