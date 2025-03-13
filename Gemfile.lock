@@ -915,7 +915,7 @@ GEM
       hashie (>= 1.2.0, < 6.0)
       jwt (>= 1.5.6)
     retriable (3.1.2)
-    rexml (3.4.0)
+    rexml (3.4.1)
     rgeo (3.0.1)
     rgeo-activerecord (8.0.0)
       activerecord (>= 7.0)
@@ -1004,7 +1004,7 @@ GEM
       rubocop (~> 1.72, >= 1.72.1)
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
-    ruby-saml (1.17.0)
+    ruby-saml (1.18.0)
       nokogiri (>= 1.13.10)
       rexml
     ruby-vips (2.2.2)
