@@ -6,9 +6,16 @@ module RepresentationManagement
       service_tag 'representation-management'
       before_action :feature_enabled
 
+      DOES_NOT_ACCEPT_DIGITAL_REQUESTS = 'Accredited organization must be able to accept digital Power of Attorney Requests'
+      MISSING_ICN = 'User is missing an ICN value'
+      MISSING_PARTICIPANT_ID = 'User is missing a Corp Participant ID value'
+      DEPENDENT_SUBMITTER = 'User must submit as the Veteran for digital Power of Attorney Requests'
+
       def create
-        if !form.valid?
-          render json: { errors: form.errors.full_messages }, status: :unprocessable_entity
+        validate_request_data
+
+        if @errors.any?
+          render json: { errors: @errors }, status: :unprocessable_entity
         elsif orchestrate_response[:errors]&.any?
           render json: { errors: orchestrate_response[:errors] }, status: :unprocessable_entity
         else
@@ -68,6 +75,36 @@ module RepresentationManagement
             service_branch:,
             user: current_user
           ).call
+      end
+
+      def validate_request_data
+        @errors = []
+
+        validate_user_identifiers
+        validate_form
+        validate_organization_accepts_digital_requests
+        validate_user_is_veteran_submitter
+      end
+
+      def validate_form
+        unless form.valid?
+          @errors << form.errors.full_messages
+          @errors.flatten!
+        end
+      end
+
+      def validate_organization_accepts_digital_requests
+        @errors << DOES_NOT_ACCEPT_DIGITAL_REQUESTS unless form.organization&.can_accept_digital_poa_requests
+      end
+
+      def validate_user_identifiers
+        @errors << MISSING_ICN if current_user.icn.blank?
+
+        @errors << MISSING_PARTICIPANT_ID if current_user.participant_id.blank?
+      end
+
+      def validate_user_is_veteran_submitter
+        @errors << DEPENDENT_SUBMITTER if dependent
       end
     end
   end
