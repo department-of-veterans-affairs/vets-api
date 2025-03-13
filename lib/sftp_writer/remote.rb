@@ -48,9 +48,8 @@ module SFTPWriter
 
       if Settings.hostname.eql?('api.va.gov')
         mkdir_safe(path)
-        sftp.upload!(StringIO.new(contents), path) do |_event, _uploader, offset, _data|
-          bytes_sent = offset
-        end
+        sftp.upload!(StringIO.new(contents), path)
+        bytes_sent = check_remote_file_size(path)
       end
 
       bytes_sent
@@ -81,6 +80,18 @@ module SFTPWriter
 
     def sanitize(filename)
       filename.tr(':', '_')
+    end
+
+    def check_remote_file_size(remote_path)
+      key_data = File.read(@config.key_path)
+      Net::SSH.start(
+        @config.host,
+        @config.user,
+        port: @config.port,
+        key_data: [key_data]
+      ) do |ssh|
+        ssh.exec!("stat --format='%s' #{remote_path}")&.strip&.to_i
+      end
     end
   end
 end

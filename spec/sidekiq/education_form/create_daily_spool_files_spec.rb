@@ -315,9 +315,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
         # any readable file will work for this spec
         key_path = Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
         with_settings(Settings.edu.sftp, host: 'localhost', key_path:) do
-          sftp_session_mock = instance_double(Net::SSH::Connection::Session)
-          sftp_mock = instance_double(Net::SFTP::Session, session: sftp_session_mock)
+          session_mock = instance_double(Net::SSH::Connection::Session)
 
+          sftp_mock = instance_double(Net::SFTP::Session, session: session_mock)
           expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
           expect(sftp_mock).to receive(:open?).once.and_return(true)
           expect(sftp_mock).to receive(:mkdir!).with('spool_files').once.and_return(true)
@@ -325,7 +325,10 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
             expect(path).to eq File.join(Settings.edu.sftp.relative_path, filename)
             expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
           end
-          expect(sftp_session_mock).to receive(:close)
+          expect(session_mock).to receive(:close)
+
+          allow_any_instance_of(SFTPWriter::Remote).to receive(:check_remote_file_size).with(anything).and_return(4619)
+
           expect { subject.perform }.to trigger_statsd_gauge(
             'worker.education_benefits_claim.transmissions.307.22-1990',
             value: 1
@@ -353,21 +356,21 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
             .with(Settings.edu.sftp, logger: anything)
             .and_return(sftp_writer_mock)
 
-          allow(sftp_writer_mock).to receive(:write).once.and_return(4615)
+          allow(sftp_writer_mock).to receive(:write).once.and_return(4619)
           allow(sftp_writer_mock).to receive(:close).once.and_return(true)
 
-          log_message = 'Uploaded 4615 bytes to region: eastern'
+          log_message = 'Uploaded 4619 bytes to region: eastern'
           instance = described_class.new
           allow(instance).to receive(:log_to_slack)
 
           instance.perform
-          expect(instance).to have_received(:log_to_slack).with(log_message)
+          expect(instance).to have_received(:log_to_slack).with(include(log_message))
         end
       end
 
       it 'notifies the slack channel with a warning if no files were written' do
         allow(Rails.env).to receive(:production?).and_return(true)
-        Settings.hostname = 'api.va.gov'
+        allow(Settings).to receive(:hostname).and_return('api.va.gov')
         expect(EducationBenefitsClaim.unprocessed).not_to be_empty
 
         # any readable file will work for this spec
