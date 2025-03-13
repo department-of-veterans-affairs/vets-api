@@ -201,6 +201,9 @@ module Eps
       # Fetch referral attributes from Redis
       referral_data = fetch_referral_attributes(referral_number: referral_id)
 
+      # Check if referral_data contains an error structure
+      return referral_data if referral_data.is_a?(Hash) && referral_data[:error]
+
       # Validate referral data
       validation_result = build_referral_validation_response(referral_data)
       return validation_result unless validation_result[:success]
@@ -306,9 +309,24 @@ module Eps
     #
     # @param referral_number [String] The referral number
     # @return [Hash, nil] The referral attributes or nil if not found
+    #   - On Redis error: returns { error: true, json: { errors: [...] }, status: :bad_gateway }
     #
     def fetch_referral_attributes(referral_number:)
       redis_client.fetch_referral_attributes(referral_number: referral_number)
+    rescue Redis::BaseError => e
+      Rails.logger.error("Redis error: #{e.message}")
+      StatsD.increment('api.vaos.va_mobile.response.partial.redis_error')
+      {
+        error: true,
+        success: false,
+        json: {
+          errors: [{
+            title: 'Cache error',
+            detail: 'Unable to connect to cache service'
+          }]
+        },
+        status: :bad_gateway
+      }
     end
 
     ##
