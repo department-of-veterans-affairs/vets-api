@@ -228,12 +228,20 @@ module Lighthouse
       def send_confirmation_email(user)
         return if user.va_profile_email.blank?
 
-        VANotify::ConfirmationEmail.send(
-          email_address: user.va_profile_email,
-          template_id: Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
-          first_name: user&.first_name&.upcase,
-          user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
-        )
+        template_id = Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email
+        if Flipper.enabled?(:dependents_confirmation_callback_email)
+          Dependents::Form686c674ConfirmationEmailJob.perform_async(@claim.id, user.va_profile_email, template_id, {
+                                                                      first_name: user&.first_name&.upcase,
+                                                                      user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID})"
+                                                                    })
+        else
+          VANotify::ConfirmationEmail.send(
+            email_address: user.va_profile_email,
+            template_id: template_id,
+            first_name: user&.first_name&.upcase,
+            user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
+          )
+        end
       end
 
       def self.trigger_failure_events(msg)
