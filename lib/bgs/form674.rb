@@ -46,7 +46,7 @@ module BGS
       Rails.logger.info('21-674 Automatic Claim Prior to submission', { saved_claim_id: @saved_claim.id, proc_id: @proc_id }) if @proc_state == 'Ready' # rubocop:disable Layout/LineLength
       benefit_claim_record = BenefitClaim.new(args: benefit_claim_args(vnp_benefit_claim_record, veteran)).create
       Rails.logger.info("21-674 Automatic Benefit Claim successfully created through BGS: #{benefit_claim_record[:benefit_claim_id]}", { saved_claim_id: @saved_claim.id, proc_id: @proc_id }) if @proc_state == 'Ready' # rubocop:disable Layout/LineLength
-      
+
       begin
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
 
