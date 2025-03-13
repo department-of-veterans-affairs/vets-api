@@ -20,7 +20,7 @@ RSpec.describe 'simple_forms_api:send_emails_by_date_range', type: :task do
     let(:start_date) { '1 January 2025' }
     let(:end_date) { '3 January 2025' }
 
-    context 'FormSubmissionAttempts are a VFF-form, in an end-state and updated in the right time period' do
+    context 'FormSubmissionAttempts are a Simple Form, in an end-state and updated in the right time period' do
       before do
         create(:form_submission_attempt, :vbms, updated_at: Time.zone.parse('2 January 2025'))
         create(:form_submission_attempt, :failure, updated_at: Time.zone.parse('2 January 2025'))
