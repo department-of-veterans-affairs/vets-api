@@ -25,7 +25,7 @@ module IvcChampva
         form = batch[0] # get a representative form from this submission batch
 
         # Check reporting API to see if this missing status is a false positive
-        next if num_docs_match_reports?(batch)
+        next if Flipper.enabled?(:champva_enable_pega_report_check, @current_user) && num_docs_match_reports?(batch)
 
         # Check if we've been missing Pega status for > custom threshold of days:
         elapsed_days = (current_time - form.created_at).to_i / 1.day

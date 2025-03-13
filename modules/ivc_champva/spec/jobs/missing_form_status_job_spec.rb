@@ -45,8 +45,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   end
 
   it 'attempts to send failure email to user if the elapsed days w/out PEGA status exceed the threshold' do
-    # Mock checking the reporting API since we're not testing that in this instance:
-    allow(job).to receive(:num_docs_match_reports?).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
 
     threshold = 5 # using 5 since dummy forms have `created_at` set to 1 week ago
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
@@ -63,8 +62,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   end
 
   it 'identifies forms nearing expiration threshold and attempts to notify PEGA' do
-    # Mock checking the reporting API since we're not testing that in this instance:
-    allow(job).to receive(:num_docs_match_reports?).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
 
     threshold = 8
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
@@ -91,6 +89,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     # had an unrelated failure when attempting to update the status via the API.
     # As a result, we double-check PEGA's reporting API for any submissions that
     # are due to send a "missing status failure email", and bail if they're in that system.
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(true)
 
     threshold = 5 # using 5 since dummy forms have `created_at` set to 1 week ago
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
@@ -119,6 +118,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   end
 
   it 'does not mark email_sent true when email fails to send' do
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
     threshold = 5
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
     allow(IvcChampva::Email).to receive(:new).and_return(double(send_email: false))
@@ -136,6 +136,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   end
 
   it 'processes nil forms in batches that belong to the same submission' do
+    allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
     # Set shared `form_uuid` so these two now belong to the same batch:
     forms[0].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
     forms[1].update(form_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
