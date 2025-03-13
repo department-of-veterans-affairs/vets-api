@@ -22,6 +22,10 @@ Rails.application.routes.draw do
   get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_in#logingov_logout_proxy'
   get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_in#revoke_all_sessions'
 
+  #Pdf_to_html_EX conversion
+  post 'pdf_to_html/convert', to: 'pdf_to_html#convert'
+
+
   namespace :sign_in do
     get '/openid_connect/certs', to: 'openid_connect_certificates#index'
 
