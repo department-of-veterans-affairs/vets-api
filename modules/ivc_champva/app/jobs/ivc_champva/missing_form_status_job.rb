@@ -12,7 +12,7 @@ module IvcChampva
     def perform # rubocop:disable Metrics/MethodLength
       return unless Settings.ivc_forms.sidekiq.missing_form_status_job.enabled
 
-      batches = missing_status_cleanup.get_missing_statuses(true)
+      batches = missing_status_cleanup.get_missing_statuses(silent: true)
 
       return unless batches.any?
 

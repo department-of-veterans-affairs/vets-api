@@ -47,12 +47,12 @@ RSpec.describe IvcChampva::ProdSupportUtilities::MissingStatusCleanup do
 
     it 'sets statuses to "Manually Processed" on provided batch' do
       batches = subject.batch_records(forms)
-      uuid, batch = batches.first
+      _uuid, batch = batches.first
 
       statuses_before = batch.map(&:pega_status).uniq
       expect(statuses_before).to eq([nil])
 
-      result = subject.manually_process_batch(batch)
+      subject.manually_process_batch(batch)
 
       statuses_after = batch.map(&:pega_status).uniq
       expect(statuses_after).to eq(['Manually Processed'])
