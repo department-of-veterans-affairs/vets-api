@@ -208,7 +208,7 @@ class EVSS::DocumentUpload
   def update_evidence_submission_for_success(evidence_submission)
     evidence_submission.update!(
       upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
-      delete_date: (DateTime.current + 60.days).utc
+      delete_date: (DateTime.current + 60.days)
     )
     StatsD.increment('cst.evss.document_uploads.evidence_submission_record_updated.success')
     self.class.add_log('SUCCESS', evidence_submission.claim_id, evidence_submission.id, jid)
