@@ -67,6 +67,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
     before do
       allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(false)
     end
 
     it 'returns a single claim on success' do
