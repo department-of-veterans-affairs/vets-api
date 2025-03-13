@@ -58,7 +58,7 @@ module VeteranVerification
         error,
         self.class.to_s.underscore,
         lighthouse_client_id,
-        "#{config.base_api_path}/#{endpoint}",
+        "#{config.base_path}/#{endpoint}",
         options
       )
     end

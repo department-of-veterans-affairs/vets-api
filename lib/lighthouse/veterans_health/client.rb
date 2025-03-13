@@ -13,6 +13,8 @@ module Lighthouse
     # Documentation located at:
     # https://developer.va.gov/explore/health/docs/fhir?version=current
     class Client < Common::Client::Base
+      STATSD_KEY_PREFIX = 'api.lighthouse.veterans_health'
+
       include Common::Client::Concerns::Monitoring
       configuration Lighthouse::VeteransHealth::Configuration
 
@@ -42,7 +44,7 @@ module Lighthouse
           _count: params[:count]
         }
 
-        first_response = perform_get('services/fhir/v0/r4/DiagnosticReport', **params.compact)
+        first_response = perform_get('DiagnosticReport', **params.compact)
         get_list(first_response)
       end
 
@@ -52,12 +54,12 @@ module Lighthouse
           _count: 100
         }
 
-        first_response = perform_get('services/fhir/v0/r4/AllergyIntolerance', **params.compact)
+        first_response = perform_get('AllergyIntolerance', **params.compact)
         get_list(first_response)
       end
 
       def get_allergy_intolerance(id)
-        perform_get("services/fhir/v0/r4/AllergyIntolerance/#{id}")
+        perform_get("AllergyIntolerance/#{id}")
       end
 
       def list_bp_observations
@@ -74,7 +76,7 @@ module Lighthouse
           _count: 100
         }
 
-        first_response = perform_get('services/fhir/v0/r4/Condition', **params)
+        first_response = perform_get('Condition', **params)
         get_list(first_response)
       end
 
@@ -84,12 +86,12 @@ module Lighthouse
           _count: 100
         }.merge(params_override)
 
-        first_response = perform_get('services/fhir/v0/r4/Observation', **params)
+        first_response = perform_get('Observation', **params)
         get_list(first_response)
       end
 
       def get_observation(id)
-        perform_get("services/fhir/v0/r4/Observation/#{id}")
+        perform_get("Observation/#{id}")
       end
 
       def list_medication_requests
@@ -97,7 +99,7 @@ module Lighthouse
           patient: @icn,
           _count: 100
         }
-        first_response = perform_get('services/fhir/v0/r4/MedicationRequest', **params)
+        first_response = perform_get('MedicationRequest', **params)
         get_list(first_response)
       end
 
@@ -123,19 +125,23 @@ module Lighthouse
       end
 
       def perform_get(uri_path, **params)
-        perform(:get, uri_path, params, headers_hash)
+        with_monitoring do
+          perform(:get, uri_path, params, headers_hash)
+        end
       rescue Common::Client::Errors::ClientError => e
         log_operation_outcome(e)
         raise e
       end
 
       def authenticate(params)
-        perform(
-          :post,
-          'oauth2/health/system/v1/token',
-          URI.encode_www_form(params),
-          { 'Content-Type': 'application/x-www-form-urlencoded' }
-        )
+        with_monitoring do
+          perform(
+            :post,
+            '/oauth2/health/system/v1/token',
+            URI.encode_www_form(params),
+            { 'Content-Type': 'application/x-www-form-urlencoded' }
+          )
+        end
       rescue Common::Client::Errors::ClientError => e
         log_operation_outcome(e)
         raise e

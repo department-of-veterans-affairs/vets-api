@@ -6,8 +6,17 @@ require 'common/client/middleware/response/raise_custom_error'
 module Lighthouse
   module VeteransHealth
     class Configuration < Common::Client::Configuration::REST
+      VETERANS_HEALTH_PATH = 'services/fhir/v0/r4/'
+
+      ##
+      # @return [Config::Options] Settings for veterans_health API.
+      #
+      def settings
+        Settings.lighthouse.veterans_health
+      end
+
       def base_path
-        Settings.lighthouse.veterans_health.url
+        "#{settings.url}/#{VETERANS_HEALTH_PATH}"
       end
 
       def service_name
@@ -15,7 +24,7 @@ module Lighthouse
       end
 
       def rsa_key
-        @key ||= OpenSSL::PKey::RSA.new(File.read(Settings.lighthouse.veterans_health.fast_tracker.api_key))
+        @key ||= OpenSSL::PKey::RSA.new(File.read(settings.fast_tracker.api_key))
       end
 
       def connection
@@ -33,7 +42,7 @@ module Lighthouse
 
           faraday.response :json
 
-          faraday.response :betamocks if Settings.lighthouse.veterans_health.use_mocks
+          faraday.response :betamocks if settings.use_mocks
           faraday.adapter Faraday.default_adapter
         end
       end
