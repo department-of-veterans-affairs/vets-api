@@ -37,8 +37,8 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   let(:job_id) { '1234' }
   let(:client_stub) { instance_double(BenefitsDocuments::WorkerService) }
   let(:job_class) { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
-  let(:issue_instant) { Time.now.to_i }
-  let(:current_date_time) { DateTime.now.utc }
+  let(:issue_instant) { Time.current.to_i }
+  let(:current_date_time) { DateTime.current }
   let(:msg) do
     {
       'jid' => job_id,

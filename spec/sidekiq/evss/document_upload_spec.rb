@@ -32,8 +32,8 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   let(:job_id) { '5555' }
   let(:client_stub) { instance_double(EVSS::DocumentsService) }
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
-  let(:issue_instant) { Time.now.to_i }
-  let(:current_date_time) { DateTime.now.utc }
+  let(:issue_instant) { Time.current.to_i }
+  let(:current_date_time) { DateTime.current }
   let(:evidence_submission_queued) do
     create(:bd_evidence_submission_pending,
            tracked_item_id:,
@@ -164,8 +164,8 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         expect(current_personalisation['date_failed']).to eql(failed_date)
 
         Timecop.freeze(current_date_time) do
-          expect(evidence_submission.failed_date).to be_within(1.second).of(current_date_time.utc)
-          expect(evidence_submission.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days).utc)
+          expect(evidence_submission.failed_date).to be_within(1.second).of(current_date_time)
+          expect(evidence_submission.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days))
         end
         Timecop.unfreeze
       end
