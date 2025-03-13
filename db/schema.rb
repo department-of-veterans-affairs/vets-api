@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_13_130931) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_13_190720) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -268,6 +268,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_13_130931) do
     t.string "veteran_icn"
     t.jsonb "metadata", default: {}
     t.index ["veteran_icn"], name: "index_appeals_api_supplemental_claims_on_veteran_icn"
+  end
+
+  create_table "ar_icn_temporary_identifiers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "icn", null: false
+    t.datetime "created_at"
   end
 
   create_table "ar_power_of_attorney_form_submissions", force: :cascade do |t|
