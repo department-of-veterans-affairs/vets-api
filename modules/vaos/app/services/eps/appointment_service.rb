@@ -37,48 +37,6 @@ module Eps
     end
 
     ##
-    # Create draft appointment in EPS
-    #
-    # @param referral_id [String] The ID of the referral to use for the draft appointment
-    # @return OpenStruct response from EPS create draft appointment endpoint
-    #   - On error: returns { error: true, json: { errors: [...] }, status: appropriate_status }
-    #
-    def create_draft_appointment(referral_id:)
-      response = perform(:post, "/#{config.base_path}/appointments",
-                         { patientId: patient_id, referralId: referral_id }, headers)
-      OpenStruct.new(response.body)
-    rescue Common::Client::Errors::ClientError => e
-      Rails.logger.error("Draft appointment error: #{e.message}")
-      status = :bad_request
-
-      {
-        error: true,
-        success: false,
-        json: {
-          errors: [{
-            title: DRAFT_APPOINTMENT_ERROR_MSG,
-            detail: "Unable to create draft appointment: #{e.message}"
-          }]
-        },
-        status:
-      }
-    rescue => e
-      Rails.logger.error("Draft appointment error: #{e.message}")
-
-      {
-        error: true,
-        success: false,
-        json: {
-          errors: [{
-            title: DRAFT_APPOINTMENT_ERROR_MSG,
-            detail: "Unexpected error creating draft appointment: #{e.message}"
-          }]
-        },
-        status: :bad_request
-      }
-    end
-
-    ##
     # Create a draft appointment with complete validation and response building
     #
     # This method performs the full process of creating a draft appointment:
@@ -148,6 +106,50 @@ module Eps
     end
 
     private
+
+    ##
+    # Create draft appointment in EPS
+    #
+    # @param referral_id [String] The ID of the referral to use for the draft appointment
+    # @return OpenStruct response from EPS create draft appointment endpoint
+    #   - On error: returns { error: true, json: { errors: [...] }, status: appropriate_status }
+    #
+    def submit_draft_appointment(referral_id:)
+      response = perform(:post, "/#{config.base_path}/appointments",
+                         { patientId: patient_id, referralId: referral_id }, headers)
+      OpenStruct.new(response.body)
+    rescue Common::Client::Errors::ClientError => e
+      Rails.logger.error("Draft appointment error: #{e.message}")
+      build_error_response(DRAFT_APPOINTMENT_ERROR_MSG, "Unable to create draft appointment: #{e.message}", :bad_request)
+    rescue => e
+      Rails.logger.error("Draft appointment error: #{e.message}")
+      build_error_response(DRAFT_APPOINTMENT_ERROR_MSG, "Unexpected error creating draft appointment: #{e.message}", :bad_request)
+    end
+
+    ##
+    # Builds a standardized error response hash
+    #
+    # @param title [String] The error title/category
+    # @param detail [String] The detailed error message
+    # @param status [Symbol] The HTTP status code to return
+    # @param stats_key [String, nil] Optional StatsD key for error tracking
+    # @return [Hash] Standardized error response hash
+    #
+    def build_error_response(title, detail, status, stats_key = nil)
+      StatsD.increment(stats_key) if stats_key.present?
+
+      {
+        error: true,
+        success: false,
+        json: {
+          errors: [{
+            title: title,
+            detail: detail
+          }]
+        },
+        status: status
+      }
+    end
 
     ##
     # Merge provider data with appointment data
@@ -247,7 +249,7 @@ module Eps
       usage_result = check_referral_usage(referral_id, pagination_params)
       return usage_result unless usage_result[:success]
 
-      draft_appointment = create_draft_appointment(referral_id:)
+      draft_appointment = submit_draft_appointment(referral_id:)
       return draft_appointment if draft_appointment.is_a?(Hash) && draft_appointment[:error]
 
       {
@@ -288,16 +290,11 @@ module Eps
       if validation_result[:valid]
         { success: true }
       else
-        {
-          success: false,
-          json: {
-            errors: [{
-              title: 'Invalid referral data',
-              detail: "Required referral data is missing or incomplete: #{validation_result[:missing_attributes].join(', ')}"
-            }]
-          },
-          status: :unprocessable_entity
-        }
+        build_error_response(
+          'Invalid referral data',
+          "Required referral data is missing or incomplete: #{validation_result[:missing_attributes].join(', ')}",
+          :unprocessable_entity
+        )
       end
     end
 
@@ -315,27 +312,17 @@ module Eps
       check = appointments_service.referral_appointment_already_exists?(referral_id, pagination_params)
 
       if check[:error]
-        {
-          success: false,
-          json: {
-            errors: [{
-              title: 'Error checking appointments',
-              detail: "Error checking if referral is already used: #{check[:failures]}"
-            }]
-          },
-          status: :bad_gateway
-        }
+        build_error_response(
+          'Error checking appointments',
+          "Error checking if referral is already used: #{check[:failures]}",
+          :bad_gateway
+        )
       elsif check[:exists]
-        {
-          success: false,
-          json: {
-            errors: [{
-              title: 'Referral already used',
-              detail: 'No new appointment created: referral is already used'
-            }]
-          },
-          status: :unprocessable_entity
-        }
+        build_error_response(
+          'Referral already used',
+          'No new appointment created: referral is already used',
+          :unprocessable_entity
+        )
       else
         { success: true }
       end
@@ -352,18 +339,12 @@ module Eps
       redis_client.fetch_referral_attributes(referral_number:)
     rescue Redis::BaseError => e
       Rails.logger.error("Redis error: #{e.message}")
-      StatsD.increment('api.vaos.va_mobile.response.partial.redis_error')
-      {
-        error: true,
-        success: false,
-        json: {
-          errors: [{
-            title: CACHE_ERROR_MSG,
-            detail: "Unable to connect to cache service: #{e.message}"
-          }]
-        },
-        status: :bad_gateway
-      }
+      build_error_response(
+        CACHE_ERROR_MSG,
+        "Unable to connect to cache service: #{e.message}",
+        :bad_gateway,
+        'api.vaos.va_mobile.response.partial.redis_error'
+      )
     end
 
     ##
@@ -390,19 +371,12 @@ module Eps
     rescue => e
       status = e.status || :bad_gateway
       Rails.logger.error("Provider slots error: #{e.message}")
-      StatsD.increment('api.vaos.va_mobile.response.partial.provider_slots_error')
-
-      {
-        error: true,
-        success: false,
-        json: {
-          errors: [{
-            title: PROVIDER_SLOTS_ERROR_MSG,
-            detail: "Unexpected error fetching provider slots: #{e.message}"
-          }]
-        },
-        status:
-      }
+      build_error_response(
+        PROVIDER_SLOTS_ERROR_MSG,
+        "Unexpected error fetching provider slots: #{e.message}",
+        status,
+        'api.vaos.va_mobile.response.partial.provider_slots_error'
+      )
     end
 
     ##
@@ -416,18 +390,7 @@ module Eps
       provider_service.get_provider_service(provider_id:)
     rescue => e
       Rails.logger.error("Provider service error: #{e.message}")
-
-      {
-        error: true,
-        success: false,
-        json: {
-          errors: [{
-            title: PROVIDER_ERROR_MSG,
-            detail: "Unexpected error fetching provider information: #{e.message}"
-          }]
-        },
-        status: :not_found
-      }
+      build_error_response(PROVIDER_ERROR_MSG, "Unexpected error fetching provider information: #{e.message}", :not_found)
     end
 
     ##
@@ -441,7 +404,7 @@ module Eps
     def get_drive_times(provider, user)
       user_address = user.vet360_contact_info&.residential_address
 
-      return nil unless user_address&.latitude && user_address.longitude
+      return nil unless user_address&.latitude && user_address&.longitude
 
       provider_service.get_drive_times(
         destinations: {
@@ -458,32 +421,10 @@ module Eps
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error("Drive times error: #{e.message}")
       status = :bad_request if e.status == 400
-
-      {
-        error: true,
-        success: false,
-        json: {
-          errors: [{
-            title: DRIVE_TIME_ERROR_MSG,
-            detail: "Invalid coordinates for drive time calculation: #{e.message}"
-          }]
-        },
-        status: status || :bad_request # Default to bad_request for drive time errors
-      }
+      build_error_response(DRIVE_TIME_ERROR_MSG, "Invalid coordinates for drive time calculation: #{e.message}", status || :bad_request)
     rescue => e
       Rails.logger.error("Drive times error: #{e.message}")
-
-      {
-        error: true,
-        success: false,
-        json: {
-          errors: [{
-            title: DRIVE_TIME_ERROR_MSG,
-            detail: "Unexpected error calculating drive times: #{e.message}"
-          }]
-        },
-        status: :bad_request # Default to bad_request for drive time errors
-      }
+      build_error_response(DRIVE_TIME_ERROR_MSG, "Unexpected error calculating drive times: #{e.message}", :bad_request)
     end
 
     ##
