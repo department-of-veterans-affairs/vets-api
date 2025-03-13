@@ -24,10 +24,9 @@ module PDFUtilities
       @file_path = file_path
       @append_to_stamp = append_to_stamp
 
-      raise PdfMissingError, "Original PDF missing: #{file_path}" unless File.exist?(file_path)
+      raise PdfMissingError, 'Original PDF is missing' unless File.exist?(file_path)
     rescue => e
-      Rails.logger.error("Failed to initialize DatestampPdf: #{e.class} - #{e.message}", backtrace: e.backtrace)
-      raise e
+      log_and_raise_error('Failed to initialize DatestampPdf', e)
     end
 
     # create a datestamped pdf copy of `file_path`
@@ -52,9 +51,8 @@ module PDFUtilities
       generate_stamp
       stamp_pdf
     rescue => e
-      Rails.logger.error("Failed to generate datestamp file: #{e.class} - #{e.message}", backtrace: e.backtrace)
       Common::FileHelpers.delete_file_if_exists(stamped_pdf)
-      raise e
+      log_and_raise_error('Failed to generate datestamp file', e)
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path)
     end
@@ -109,8 +107,7 @@ module PDFUtilities
 
       stamp_path
     rescue => e
-      Rails.logger.error("Failed to generate stamp: #{e.class} - #{e.message}", backtrace: e.backtrace)
-      raise e
+      log_and_raise_error('Failed to generate stamp', e)
     end
 
     # create the stamp text to be used
@@ -149,7 +146,11 @@ module PDFUtilities
       stamped_pdf
     rescue => e
       Common::FileHelpers.delete_file_if_exists(stamped_pdf)
-      Rails.logger.error("PDF stamping failed: #{e.class} - #{e.message}", backtrace: e.backtrace)
+      log_and_raise_error('PDF stamping failed', e)
+    end
+
+    def log_and_raise_error(message, e)
+      Rails.logger.error(message, class: e.class, message: e.message, backtrace: e.backtrace)
       raise e
     end
 
