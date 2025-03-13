@@ -439,7 +439,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.bigint "bpds_submission_id", null: false
     t.enum "status", default: "pending", enum_type: "bpds_submission_status"
     t.jsonb "metadata_ciphertext"
-    t.jsonb "payload_ciphertext"
     t.jsonb "error_message_ciphertext"
     t.jsonb "response_ciphertext"
     t.datetime "bpds_updated_at"
@@ -1101,7 +1100,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.bigint "lighthouse_submission_id", null: false
     t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.jsonb "metadata_ciphertext"
-    t.jsonb "payload_ciphertext"
     t.jsonb "error_message_ciphertext"
     t.jsonb "response_ciphertext"
     t.datetime "lighthouse_updated_at"
@@ -1115,7 +1113,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.integer "saved_claim_id", null: false
     t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.string "form_id", null: false
-    t.string "va_claim_id"
     t.jsonb "reference_data_ciphertext"
   end
 
