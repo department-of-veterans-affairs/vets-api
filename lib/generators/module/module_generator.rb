@@ -11,12 +11,18 @@ class ModuleGenerator < Rails::Generators::NamedBase
     # create the dir structure
     %w[controllers models serializers services].each do |dir|
       FileUtils.mkdir_p "modules/#{file_name}/app/#{dir}/#{file_name}"
+      FileUtils.touch("modules/#{file_name}/app/#{dir}/#{file_name}/.gitkeep")
     end
 
     # create the Rspec dir structure
     %w[controllers models lib serializers services factories support].each do |dir|
       FileUtils.mkdir_p "modules/#{file_name}/spec/#{dir}/#{file_name}"
+      FileUtils.touch("modules/#{file_name}/spec/#{dir}/#{file_name}/.gitkeep")
     end
+
+    # create the documentation folder
+    FileUtils.mkdir_p "modules/#{file_name}/documentation/"
+    FileUtils.touch("modules/#{file_name}/documentation/.gitkeep")
   end
 
   def create_engine
