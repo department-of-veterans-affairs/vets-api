@@ -168,7 +168,7 @@ describe TravelPay::ClaimsService do
         @service = TravelPay::ClaimsService.new(auth_manager)
       end
 
-      it 'returns a single claim details when passed a valid id' do
+      it 'returns expanded claim details when passed a valid id' do
         claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
         expected_claim = claim_details_data['data']
         actual_claim = @service.get_claim_details(claim_id)

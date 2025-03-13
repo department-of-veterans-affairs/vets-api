@@ -70,7 +70,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(false)
     end
 
-    it 'returns a single claim on success' do
+    it 'returns a single claim summary on success when claims_management flipper is disabled' do
       VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[method path]) do
         # This claim ID matches a claim ID in the cassette.
         claim_id = '33016896-ed7f-4d4f-a81b-cc4f2ca0832c'
@@ -84,7 +84,8 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       end
     end
 
-    it 'returns a Not Found response if claim number valid but claim not found' do
+    # TODO: Add a test for the v2 version once we get Swagger docs as to what the response is
+    it 'returns a Not Found response if claim ID valid but claim not found' do
       VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[method path]) do
         # This claim ID matches a claim ID in the cassette.
         claim_id = SecureRandom.uuid
@@ -101,6 +102,23 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
       get '/travel_pay/v0/claims/123', headers: { 'Authorization' => 'Bearer vagov_token' }
       expect(response).to have_http_status(:service_unavailable)
+    end
+
+    it 'returns expanded claim details on success when claims_management flipper is enabled' do
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(true)
+
+      VCR.use_cassette('travel_pay/show/success-details', match_requests_on: %i[method path]) do
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        expected_claim_num = 'TC0000000000001'
+
+        get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
+        actual_claim_num = JSON.parse(response.body)['claimNumber']
+
+        expect(response).to have_http_status(:ok)
+        expect(actual_claim_num).to eq(expected_claim_num)
+      end
     end
   end
 
