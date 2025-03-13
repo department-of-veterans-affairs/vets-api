@@ -16,7 +16,6 @@ module MebApi
         claimant_id = claimant_response['claimant_id']
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
         claim_letter_response = letter_service.get_claim_letter(claimant_id, @form_type)
-        is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
 
         response = if valid_claimant_response?(claimant_response)
                      claim_letter_response
@@ -26,7 +25,7 @@ module MebApi
 
         date = Time.now.getlocal
         timestamp = date.strftime('%m/%d/%Y %I:%M:%S %p')
-        filename = is_eligible ? "Post-9/11 GI_Bill_CoE_#{timestamp}" : "Post-9/11 GI_Bill_Denial_#{timestamp}"
+        filename = "Post-9/11 GI_Bill_CoE_#{timestamp}"
 
         send_data response.body, filename: "#{filename}.pdf", type: 'application/pdf', disposition: 'attachment'
 
