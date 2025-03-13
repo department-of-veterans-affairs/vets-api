@@ -1499,7 +1499,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           expect(response).to have_http_status(:bad_gateway)
 
           response_obj = JSON.parse(response.body)
-          expect(response_obj['errors'].first['title']).to eq('Error fetching referral data from cache')
+          expect(response_obj['errors'].first['title']).to eq('Cache error')
           expect(response_obj['errors'].first['detail']).to eq('Unable to connect to cache service')
         end
       end
