@@ -114,9 +114,7 @@ module AccreditedRepresentativePortal
       end
 
       def check_for_changes
-        # hits on submit
-        # debugger
-        in_progress_form = InProgressForm.form_for_user(params[:formNumber], @current_user)
+        in_progress_form = ArpInProgressForm.form_for_user(params[:formNumber], @current_user)
         if in_progress_form
           prefill_data_service = SimpleFormsApi::PrefillDataService.new(prefill_data: in_progress_form.form_data,
                                                                         form_data: params[:formData],

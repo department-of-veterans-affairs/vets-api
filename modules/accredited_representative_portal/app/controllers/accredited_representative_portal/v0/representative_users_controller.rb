@@ -29,7 +29,7 @@ module AccreditedRepresentativePortal
       private
 
       def in_progress_forms
-        InProgressForm.for_user(@current_user).map do |form|
+        ArpInProgressForm.for_user(@current_user).map do |form|
           {
             form: form.form_id,
             metadata: form.metadata,

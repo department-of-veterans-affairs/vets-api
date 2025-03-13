@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_04_165503) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_13_134327) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -349,6 +349,22 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_04_165503) do
     t.index ["accredited_individual_registration_number", "power_of_attorney_holder_type", "user_account_email"], name: "ar_user_account_accredited_individuals_hardcoding", unique: true
     t.index ["accredited_individual_registration_number", "power_of_attorney_holder_type", "user_account_email"], name: "index_ar_user_account_accredited_individuals_unique", unique: true
     t.index ["power_of_attorney_holder_type", "user_account_email"], name: "ar_uniq_power_of_attorney_holder_type_user_account_email", unique: true
+  end
+
+  create_table "arp_in_progress_forms", force: :cascade do |t|
+    t.string "user_uuid", null: false
+    t.string "form_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.json "metadata"
+    t.datetime "expires_at"
+    t.text "form_data_ciphertext"
+    t.text "encrypted_kms_key"
+    t.uuid "user_account_id"
+    t.integer "status", default: 0
+    t.index ["form_id", "user_uuid"], name: "index_arp_in_progress_forms_on_form_id_and_user_uuid", unique: true
+    t.index ["user_account_id"], name: "index_arp_in_progress_forms_on_user_account_id"
+    t.index ["user_uuid"], name: "index_arp_in_progress_forms_on_user_uuid"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|

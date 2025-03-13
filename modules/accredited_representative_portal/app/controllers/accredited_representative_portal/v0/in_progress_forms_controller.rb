@@ -31,7 +31,7 @@ module AccreditedRepresentativePortal
       private
 
       def find_form
-        InProgressForm.form_for_user(params[:id], @current_user)
+        ArpInProgressForm.form_for_user(params[:id], @current_user)
       end
 
       def build_form
@@ -43,7 +43,7 @@ module AccreditedRepresentativePortal
       # relations. It is totally analogous to the query convenience
       # `form_for_user` that they expose.
       def build_form_for_user(form_id, user)
-        InProgressForm.new.tap do |form|
+        ArpInProgressForm.new.tap do |form|
           form.real_user_uuid = user.uuid
           form.assign_attributes(
             user_uuid: user.uuid,
