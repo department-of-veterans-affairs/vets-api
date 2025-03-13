@@ -6,7 +6,7 @@ require 'lighthouse/benefits_documents/constants'
 require 'lighthouse/benefits_documents/utilities/helpers'
 
 RSpec.describe BenefitsDocuments::UploadStatusUpdater do
-  let(:lighthouse_document_upload) { create(:bd_evidence_submission_pending, job_class: 'BenefitsDocuments::Service') }
+  let(:lighthouse_document_upload) { create(:bd_evidence_submission_pending, job_class: 'BenefitsDocuments::Service', claim_id: '1234') }
   let(:lighthouse_document_upload_timeout) { create(:bd_evidence_submission_timeout) }
   let(:past_date_time) { DateTime.new(1985, 10, 26) }
   let(:current_date_time) { DateTime.current }
@@ -38,10 +38,20 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
       it 'logs the document_status_response to the Rails logger' do
         Timecop.freeze(past_date_time) do
           expect(Rails.logger).to receive(:info).with(
+            'LH - Status changed',
+            old_status: lighthouse_document_upload.upload_status,
+            status:,
+            status_response: document_status_response,
+            evidence_submission_id: lighthouse_document_upload.id,
+            claim_id: lighthouse_document_upload.claim_id
+          )
+          expect(Rails.logger).to receive(:info).with(
             'BenefitsDocuments::UploadStatusUpdater',
             status:,
             status_response: document_status_response,
-            updated_at: past_date_time
+            updated_at: past_date_time,
+            evidence_submission_id: lighthouse_document_upload.id,
+            claim_id: lighthouse_document_upload.claim_id
           )
 
           status_updater.update_status
@@ -81,6 +91,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
       else # testing success status
         context 'when completed successfully' do
           it 'updates status, and delete_date' do
+            allow(Rails.logger).to receive(:info)
             Timecop.freeze(current_date_time) do
               expect { status_updater.update_status }
                 .to change(lighthouse_document_upload, :delete_date)
