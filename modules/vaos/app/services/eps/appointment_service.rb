@@ -398,20 +398,13 @@ module Eps
     #
     def get_drive_times(provider, user)
       user_address = user.vet360_contact_info&.residential_address
-
       return nil unless user_address&.latitude && user_address&.longitude
 
       provider_service.get_drive_times(
         destinations: {
-          provider.id => {
-            latitude: provider.location[:latitude],
-            longitude: provider.location[:longitude]
-          }
+          provider.id => { latitude: provider.location[:latitude], longitude: provider.location[:longitude] }
         },
-        origin: {
-          latitude: user_address.latitude,
-          longitude: user_address.longitude
-        }
+        origin: { latitude: user_address.latitude, longitude: user_address.longitude }
       )
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error("Drive times error: #{e.message}")
