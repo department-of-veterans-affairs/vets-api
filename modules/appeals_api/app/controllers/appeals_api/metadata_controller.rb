@@ -193,8 +193,8 @@ module AppealsApi
         version: '2.0.0',
         internal_only: true,
         status: VERSION_STATUS[:current],
-        path: '/services/appeals/docs/v2/decision_reviews',
-        healthcheck: '/services/appeals/v2/healthcheck'
+        path: '/services/appeals/v2/decision_reviews/docs',
+        healthcheck: '/services/appeals/v2/decision_reviews/healthcheck'
       }
     end
   end

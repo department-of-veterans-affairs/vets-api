@@ -51,7 +51,6 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
         country: 'USA',
         email_address: 'test@example.com',
         phone_number: '987-654-3210',
-        postal_code: '12345',
         preferred_name: 'Test User',
         pronouns:,
         school_obj: {
@@ -80,7 +79,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
           Name: 'California',
           StateCode: 'CA'
         },
-        ZipCode: '12345',
+        ZipCode: '90001',
         DateOfBirth: '1980-05-15',
         BusinessPhone: nil,
         PersonalPhone: '987-654-3210',

@@ -38,7 +38,7 @@ module Mobile
           prescriptions: access?(mhv_prescriptions: :access?),
           scheduleAppointments: access?(schedule_appointment: :access?),
           secureMessaging: access?(mhv_messaging: :mobile_access?),
-          userProfileUpdate: access?(vet360: :access?)
+          userProfileUpdate: access?(va_profile: :access_to_v2?)
         }
       end
       # rubocop:enable Metrics/MethodLength

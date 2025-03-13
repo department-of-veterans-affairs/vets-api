@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/1/addresses/status/a030185b-e88b-4e0d-a043-93e4f34c60d6
+    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v1/1/addresses/status/a030185b-e88b-4e0d-a043-93e4f34c60d6
     body:
       encoding: US-ASCII
       string: ''
@@ -51,6 +51,6 @@ http_interactions:
         Martin Luther King Rd","cityName":"Fulton","stateCode":"MS","zipCode5":"38843","county":{},"countryName":"USA","countryCodeISO3":"USA","sourceDate":"2020-01-16T03:23:16Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","vet360Id":1},"txOutput":[{"addressId":15035,"addressType":"Domestic","addressPOU":"RESIDENCE/CHOICE","addressLine1":"1494
         Martin Luther King Rd","cityName":"Fulton","stateCode":"MS","zipCode5":"38843","zipCode4":"6911","county":{"countyName":"Itawamba
         County","countyCode":"28057"},"countryName":"United States","countryCodeFIPS":"US","countryCodeISO2":"US","countryCodeISO3":"USA","confidenceScore":"100","latitude":"34.1987","longitude":"-88.5259","geocodePrecision":"31","geocodeDate":"2020-01-16T03:23:17.000Z","createDate":"2018-09-05T16:58:15Z","updateDate":"2020-01-16T03:23:17Z","txAuditId":"a030185b-e88b-4e0d-a043-93e4f34c60d6","sourceSystem":"VETSGOV","sourceDate":"2020-01-16T03:23:16Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","effectiveStartDate":"2020-01-16T03:23:16.000Z","vet360Id":1}]}'
-    http_version: 
+    http_version:
   recorded_at: Thu, 16 Jan 2020 03:26:45 GMT
 recorded_with: VCR 5.0.0

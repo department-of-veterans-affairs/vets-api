@@ -7,7 +7,7 @@ module Form1095
     include Sidekiq::Job
     include SentryLogging
 
-    sidekiq_options(unique_for: 4.hours)
+    sidekiq_options(retry: false)
 
     def bucket
       @bucket ||= Aws::S3::Resource.new(

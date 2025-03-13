@@ -56,8 +56,11 @@ module VBMS
     end
 
     def generate_pdf(submittable_686_form, submittable_674_form)
-      claim.upload_pdf('686C-674') if submittable_686_form
-      claim.upload_pdf('21-674', doc_type: '142') if submittable_674_form
+      use_v2 = Flipper.enabled?(:va_dependents_v2)
+      pdf686 = use_v2 ? '686C-674-V2' : '686C-674'
+      pdf674 = use_v2 ? '21-674-V2' : '21-674'
+      claim.upload_pdf(pdf686) if submittable_686_form
+      claim.upload_pdf(pdf674, doc_type: '142') if submittable_674_form
     end
 
     def get_doc_type(guid, parsed_form)

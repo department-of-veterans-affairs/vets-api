@@ -24,7 +24,10 @@ describe ClaimsApi::VANotifyDeclinedJob, type: :job do
     it 'sends a declined service organization notification' do
       expect(vanotify_service).to receive(:send_email)
         .with({
-                recipient_identifier: ptcpnt_id,
+                recipient_identifier: {
+                  id_type: 'PID',
+                  id_value: ptcpnt_id
+                },
                 personalisation: {
                   first_name:,
                   form_type: 'Appointment of Veterans Service Organization as Claimantʼs Representative (VA Form 21-22)'
@@ -52,7 +55,10 @@ describe ClaimsApi::VANotifyDeclinedJob, type: :job do
     it 'sends a declined individual/representative notification' do
       expect(vanotify_service).to receive(:send_email)
         .with({
-                recipient_identifier: ptcpnt_id,
+                recipient_identifier: {
+                  id_type: 'PID',
+                  id_value: ptcpnt_id
+                },
                 personalisation: {
                   first_name:,
                   representative_type: 'claims agent',

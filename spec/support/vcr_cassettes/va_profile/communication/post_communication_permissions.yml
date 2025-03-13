@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://int.vet360.va.gov/communication-hub/communication/v1/2.16.840.1.113883.4.349/18277%5EPI%5E200VETS%5EUSDVA/communication-permissions
+    uri: <VETS360_URL>/communication-hub/communication/v1/2.16.840.1.113883.4.349/18277%5EPI%5E200VETS%5EUSDVA/communication-permissions
     body:
       encoding: UTF-8
       string: '{"bio":{"allowed":false,"communicationChannelId":1,"communicationItemId":2,"vaProfileId":18277,"sourceDate":"2021-03-24T22:38:21Z"}}'

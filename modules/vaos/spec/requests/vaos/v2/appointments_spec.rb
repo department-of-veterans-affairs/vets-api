@@ -112,8 +112,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
       end
 
@@ -216,8 +214,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
@@ -358,8 +354,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           before do
             allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                       instance_of(User)).and_return(false)
-            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                      instance_of(User)).and_return(true)
             allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
             allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details,
                                                       instance_of(User)).and_return(false)
@@ -413,8 +407,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
             allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                       instance_of(User)).and_return(false)
-            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                      instance_of(User)).and_return(true)
             allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
             allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details,
                                                       instance_of(User)).and_return(false)
@@ -697,8 +689,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       context 'when the VAOS service returns a single appointment' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                    instance_of(User)).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
@@ -868,8 +858,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
                                                     instance_of(User)).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                    instance_of(User)).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
@@ -921,8 +909,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
                                                     instance_of(User)).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                    instance_of(User)).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
@@ -940,8 +926,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
                                                   instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
       end
 
@@ -1012,8 +996,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
   context 'for eps referrals' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)

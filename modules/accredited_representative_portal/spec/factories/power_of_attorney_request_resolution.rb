@@ -73,5 +73,16 @@ FactoryBot.define do
         resolution.created_at = evaluator.resolution_created_at if evaluator.resolution_created_at
       end
     end
+
+    trait :replacement do
+      after(:build) do |resolution, evaluator|
+        resolution.resolving =
+          build(
+            :power_of_attorney_request_withdrawal, :replacement,
+            resolution:
+          )
+        resolution.created_at = evaluator.resolution_created_at if evaluator.resolution_created_at
+      end
+    end
   end
 end

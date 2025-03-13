@@ -41,7 +41,7 @@ module TravelPay
         raw_claims = faraday_response.body['data'].deep_dup
 
         data = raw_claims&.map do |sc|
-          sc['claimStatus'] = sc['claimStatus'].underscore.titleize
+          sc['claimStatus'] = sc['claimStatus'].underscore.humanize
           sc
         end
 
@@ -67,7 +67,7 @@ module TravelPay
 
       claim_data = faraday_response.body['data']&.dig(0)
 
-      claim_data['claimStatus'] = claim_data['claimStatus'].underscore.titleize if claim_data
+      claim_data['claimStatus'] = claim_data['claimStatus'].underscore.humanize if claim_data
 
       appt['travelPayClaim'] = {}
       appt['travelPayClaim']['metadata'] = build_metadata(faraday_response.body)

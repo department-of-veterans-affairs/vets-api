@@ -54,10 +54,21 @@ module AccreditedRepresentativePortal
           # PowerOfAttorneyForm expects the incoming data to be json, not a hash
           request.build_power_of_attorney_form(data: @form_data.to_json)
 
+          if unresolved_requests.any?
+            unresolved_requests.each do |unresolved|
+              unresolved.mark_replaced!(request)
+            end
+          end
+
           request.save!
+          Monitoring.new.track_count('ar.poa.request.count')
         end
 
         request
+      end
+
+      def unresolved_requests
+        @unresolved_requests ||= PowerOfAttorneyRequest.unresolved.where(claimant: @claimant)
       end
     end
   end

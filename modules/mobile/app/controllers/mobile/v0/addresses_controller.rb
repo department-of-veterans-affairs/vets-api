@@ -26,7 +26,7 @@ module Mobile
       end
 
       def validate
-        validated_address_params = if Flipper.enabled?(:mobile_v2_contact_info)
+        validated_address_params = if Flipper.enabled?(:remove_pciu)
                                      VAProfile::Models::V3::ValidationAddress.new(address_params)
                                    else
                                      VAProfile::Models::ValidationAddress.new(address_params)
@@ -77,7 +77,7 @@ module Mobile
       end
 
       def validation_service
-        if Flipper.enabled?(:mobile_v2_contact_info)
+        if Flipper.enabled?(:remove_pciu)
           VAProfile::V3::AddressValidation::Service.new
         else
           VAProfile::AddressValidation::Service.new

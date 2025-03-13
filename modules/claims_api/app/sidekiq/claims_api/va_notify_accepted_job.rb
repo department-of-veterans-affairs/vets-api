@@ -42,19 +42,17 @@ module ClaimsApi
       msg = "VA Notify email notification failed to send for #{poa_id} with error #{error}"
       process.update!(step_status: 'FAILED', error_messages: [{ title: 'VA Notify Error',
                                                                 detail: msg }])
+      ClaimsApi::Logger.log(LOG_TAG, detail: msg)
       slack_alert_on_failure(job_name, msg)
-
-      ClaimsApi::Logger.log(
-        LOG_TAG,
-        detail: msg
-      )
-      # retry job
       raise error
     end
 
     def individual_accepted_email_contents(poa, rep)
       {
-        recipient_identifier: icn_for_vanotify(poa.auth_headers),
+        recipient_identifier: {
+          id_type: 'ICN',
+          id_value: icn_for_vanotify(poa.auth_headers)
+        },
         personalisation: {
           first_name: value_or_default_for_field(claimant_first_name(poa)),
           rep_first_name: value_or_default_for_field(rep.first_name),
@@ -71,7 +69,10 @@ module ClaimsApi
 
     def organization_accepted_email_contents(poa, org)
       {
-        recipient_identifier: icn_for_vanotify(poa.auth_headers),
+        recipient_identifier: {
+          id_type: 'ICN',
+          id_value: icn_for_vanotify(poa.auth_headers)
+        },
         personalisation: {
           first_name: value_or_default_for_field(claimant_first_name(poa)),
           org_name: value_or_default_for_field(org.name),

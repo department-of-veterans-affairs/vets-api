@@ -120,7 +120,7 @@ RSpec.describe 'AskVAApi::V0::AddressValidation', type: :request do
     let(:incorrect_address_pou) { build(:va_profile_v3_address, :incorrect_address_pou) }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
     end
 
     shared_examples 'invalid address' do

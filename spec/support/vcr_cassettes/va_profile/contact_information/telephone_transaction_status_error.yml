@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/1/telephones/status/d47b3d96-9ddd-42be-ac57-8e564aa38029
+    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v1/1/telephones/status/d47b3d96-9ddd-42be-ac57-8e564aa38029
     body:
       encoding: US-ASCII
       string: ''
@@ -50,6 +50,6 @@ http_interactions:
       string: '{"messages":[{"code":"CORE103","key":"_CUF_NOT_FOUND","severity":"ERROR","text":"The
         tx for id/criteria d47b3d96-9ddd-42be-ac57-8e564aa38029 could not be found.
         Please correct your request and try again!"}],"status":"COMPLETED_FAILURE"}'
-    http_version: 
+    http_version:
   recorded_at: Fri, 10 Jan 2020 20:54:33 GMT
 recorded_with: VCR 5.0.0

@@ -6,10 +6,7 @@ RSpec.describe Mobile::V0::Vet360LinkingJob, type: :job do
   let(:user) { create(:user, :loa3) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
   end
 
   context 'when linking request is successfully made' do

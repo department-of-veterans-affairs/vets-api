@@ -15,7 +15,7 @@ module TravelPay
 
       {
         data: claims.map do |sc|
-          sc['claimStatus'] = sc['claimStatus'].underscore.titleize
+          sc['claimStatus'] = sc['claimStatus'].underscore.humanize
           sc
         end
       }
@@ -37,7 +37,7 @@ module TravelPay
             'message' => faraday_response.body['message']
           },
           data: raw_claims&.map do |sc|
-            sc['claimStatus'] = sc['claimStatus'].underscore.titleize
+            sc['claimStatus'] = sc['claimStatus'].underscore.humanize
             sc
           end
         }
@@ -64,7 +64,7 @@ module TravelPay
       claim = claims.find { |c| c['id'] == claim_id }
 
       if claim
-        claim['claimStatus'] = claim['claimStatus'].underscore.titleize
+        claim['claimStatus'] = claim['claimStatus'].underscore.humanize
         claim
       end
     end

@@ -3,7 +3,15 @@
 FactoryBot.define do
   factory :form_submission do
     form_type { '21-4142' }
-    form_data { '{}' }
+    form_data do
+      {
+        'id_number' => { 'ssn' => '444444444' },
+        'postal_code' => '12345',
+        'full_name' => { 'first' => 'First', 'last' => 'Last' },
+        'email' => 'a@b.com',
+        'form_name' => 'Form Name'
+      }.to_json
+    end
 
     trait :pending do
       form_submission_attempts { create_list(:form_submission_attempt, 1, :pending) }

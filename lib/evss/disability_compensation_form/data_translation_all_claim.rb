@@ -390,7 +390,7 @@ module EVSS
       end
 
       def translate_mailing_address(address)
-        pciu_address = {
+        va_profile_address = {
           'country' => address['country'],
           'addressLine1' => address['addressLine1'],
           'addressLine2' => address['addressLine2'],
@@ -399,20 +399,20 @@ module EVSS
           'endingDate' => address.dig('effectiveDate', 'to')
         }
 
-        pciu_address['type'] = get_address_type(address)
+        va_profile_address['type'] = get_address_type(address)
 
         zip_code = split_zip_code(address['zipCode']) if address['zipCode']
 
-        case pciu_address['type']
+        case va_profile_address['type']
         when 'DOMESTIC'
-          pciu_address.merge!(set_domestic_address(address, zip_code))
+          va_profile_address.merge!(set_domestic_address(address, zip_code))
         when 'MILITARY'
-          pciu_address.merge!(set_military_address(address, zip_code))
+          va_profile_address.merge!(set_military_address(address, zip_code))
         when 'INTERNATIONAL'
-          pciu_address.merge!(set_international_address(address))
+          va_profile_address.merge!(set_international_address(address))
         end
 
-        pciu_address.compact
+        va_profile_address.compact
       end
 
       def get_address_type(address)

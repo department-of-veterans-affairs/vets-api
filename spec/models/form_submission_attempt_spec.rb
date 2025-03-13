@@ -8,7 +8,7 @@ RSpec.describe FormSubmissionAttempt, type: :model do
   end
 
   describe 'state machine' do
-    before { allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send) }
+    before { allow_any_instance_of(SimpleFormsApi::Notification::Email).to receive(:send) }
 
     let(:config) do
       {
@@ -23,59 +23,24 @@ RSpec.describe FormSubmissionAttempt, type: :model do
     context 'transitioning to a failure state' do
       let(:notification_type) { :error }
 
-      it 'transitions to a failure state' do
-        form_submission_attempt = create(:form_submission_attempt)
-
-        expect(form_submission_attempt)
-          .to transition_from(:pending).to(:failure).on_event(:fail)
-      end
-
       context 'is a simple form' do
-        context 'is a digitized form' do
-          let(:form_submission) { build(:form_submission, form_type: '21-4142') }
+        let(:form_submission) { build(:form_submission, form_type: '21-4142') }
+        let(:form_submission_attempt) { create(:form_submission_attempt, form_submission:) }
 
-          it 'sends an error email' do
-            notification_email = double
-            allow(notification_email).to receive(:send)
-            allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
-              config,
-              notification_type:,
-              user_account: anything
-            ).and_return(notification_email)
-            form_submission_attempt = create(:form_submission_attempt, form_submission:)
-
-            form_submission_attempt.fail!
-
-            expect(notification_email).to have_received(:send)
-          end
+        it 'transitions to a failure state' do
+          expect(form_submission_attempt)
+            .to transition_from(:pending).to(:failure).on_event(:fail)
         end
 
-        context 'is an uploaded scanned pdf' do
-          let(:form_submission) { build(:form_submission, form_type: '21-0779') }
-          let(:config) do
-            {
-              form_number: anything,
-              form_name: anything,
-              first_name: anything,
-              email: anything,
-              date_submitted: anything,
-              confirmation_number: anything,
-              lighthouse_updated_at: anything
-            }
-          end
+        it 'enqueues an error email' do
+          allow(SimpleFormsApi::Notification::SendNotificationEmailJob).to receive(:perform_async)
 
-          it 'sends an error email' do
-            send_notification_email_job = double
-            allow(send_notification_email_job).to receive(:perform)
-            allow(SimpleFormsApi::Notification::SendNotificationEmailJob).to receive(:new).and_return(
-              send_notification_email_job
-            )
-            form_submission_attempt = create(:form_submission_attempt, form_submission:)
+          form_submission_attempt.fail!
 
-            form_submission_attempt.fail!
-
-            expect(send_notification_email_job).to have_received(:perform)
-          end
+          expect(SimpleFormsApi::Notification::SendNotificationEmailJob).to have_received(:perform_async).with(
+            form_submission_attempt.benefits_intake_uuid,
+            'vba_21_4142'
+          )
         end
       end
 
@@ -83,12 +48,12 @@ RSpec.describe FormSubmissionAttempt, type: :model do
         let(:form_submission) { build(:form_submission, form_type: 'some-other-form') }
 
         it 'does not send an error email' do
-          allow(SimpleFormsApi::NotificationEmail).to receive(:new)
+          allow(SimpleFormsApi::Notification::Email).to receive(:new)
           form_submission_attempt = create(:form_submission_attempt, form_submission:)
 
           form_submission_attempt.fail!
 
-          expect(SimpleFormsApi::NotificationEmail).not_to have_received(:new)
+          expect(SimpleFormsApi::Notification::Email).not_to have_received(:new)
         end
 
         context 'is a form526_form4142 form' do
@@ -164,46 +129,15 @@ RSpec.describe FormSubmissionAttempt, type: :model do
       end
 
       it 'sends a received email' do
-        notification_email = double
-        allow(notification_email).to receive(:send)
-        allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
-          config,
-          notification_type:,
-          user_account: anything
-        ).and_return(notification_email)
+        allow(SimpleFormsApi::Notification::SendNotificationEmailJob).to receive(:perform_async)
         form_submission_attempt = create(:form_submission_attempt)
 
         form_submission_attempt.vbms!
 
-        expect(notification_email).to have_received(:send)
-      end
-
-      context 'form_data is nil' do
-        let(:config) do
-          {
-            form_data: nil,
-            form_number: anything,
-            date_submitted: anything,
-            lighthouse_updated_at: anything,
-            confirmation_number: anything
-          }
-        end
-
-        it 'gracefully handles the nil form_data' do
-          notification_email = double
-          allow(JSON).to receive(:parse)
-          allow(SimpleFormsApi::NotificationEmail).to receive(:new).with(
-            config,
-            notification_type:,
-            user_account: anything
-          ).and_return(notification_email)
-          allow(notification_email).to receive(:send)
-          form_submission_attempt = create(:form_submission_attempt)
-
-          form_submission_attempt.vbms!
-
-          expect(JSON).to have_received(:parse).with('{}')
-        end
+        expect(SimpleFormsApi::Notification::SendNotificationEmailJob).to have_received(:perform_async).with(
+          form_submission_attempt.benefits_intake_uuid,
+          'vba_21_4142'
+        )
       end
     end
   end

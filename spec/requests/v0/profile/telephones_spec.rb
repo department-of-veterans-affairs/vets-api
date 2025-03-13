@@ -22,7 +22,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
 
     describe 'POST /v0/profile/telephones/create_or_update' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu,
                                                   instance_of(User)).and_return(false)
       end
 
@@ -40,7 +40,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
 
     describe 'POST /v0/profile/telephones' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu,
                                                   instance_of(User)).and_return(false)
       end
 
@@ -76,7 +76,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
 
       context 'with a 400 response' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+          allow(Flipper).to receive(:enabled?).with(:remove_pciu,
                                                     instance_of(User)).and_return(false)
         end
 
@@ -138,7 +138,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
 
     describe 'PUT /v0/profile/telephones' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu,
                                                   instance_of(User)).and_return(false)
         telephone.id = 42
       end
@@ -273,7 +273,6 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
 
     before do
       sign_in_as(user)
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     end
 

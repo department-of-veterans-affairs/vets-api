@@ -95,10 +95,8 @@ module ClaimsApi
                 email: request.dig('claimant', 'email'),
                 relationship: request.dig('claimant', 'relationship')
               },
-              poa: {
-                poa_code: request.dig('poa', 'poaCode'),
-                registration_number: request.dig('poa', 'registrationNumber'),
-                job_title: request.dig('poa', 'jobTitle')
+              representative: {
+                poa_code: request.dig('representative', 'poaCode')
               },
               record_consent: request['recordConsent'],
               consent_limits: request['consentLimits'],

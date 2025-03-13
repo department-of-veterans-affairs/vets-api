@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/telephones
+    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v1/telephones
     body:
       encoding: UTF-8
       string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2020-01-17T04:21:59.000Z","sourceSystemUser":"1234","telephoneId":17259,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true,"effectiveStartDate":"2020-01-17T04:21:59.000Z","effectiveEndDate":null}}'
@@ -48,6 +48,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"txAuditId":"e9f12a44-c13d-4f46-8cf3-aab80c0edd4d","status":"RECEIVED"}'
-    http_version: 
+    http_version:
   recorded_at: Fri, 17 Jan 2020 04:21:59 GMT
 recorded_with: VCR 5.0.0

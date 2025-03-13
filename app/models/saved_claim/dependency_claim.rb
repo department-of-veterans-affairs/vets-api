@@ -6,6 +6,7 @@ require 'pdf_utilities/datestamp_pdf'
 class SavedClaim::DependencyClaim < CentralMailClaim
   FORM = '686C-674'
   STUDENT_ATTENDING_COLLEGE_KEYS = %w[
+    student_information
     student_name_and_ssn
     student_address_marriage_tuition
     last_term_school_information
@@ -49,18 +50,28 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
 
-    upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:)
-    uploaded_forms << form_id
-    save
+    processed_pdfs = []
+    if form_id == '21-674-V2'
+      parsed_form['dependents_application']['student_information'].each_with_index do |student, index|
+        processed_pdfs << process_pdf(to_pdf(form_id:, student:), created_at, form_id, index)
+      end
+    else
+      processed_pdfs << process_pdf(to_pdf(form_id:), created_at, form_id)
+    end
+    processed_pdfs.each do |processed_pdf|
+      upload_to_vbms(path: processed_pdf, doc_type:)
+      uploaded_forms << form_id
+      save
+    end
   rescue => e
     Rails.logger.debug('DependencyClaim: Issue Uploading to VBMS in upload_pdf method',
                        { saved_claim_id: id, form_id:, error: e })
     raise e
   end
 
-  def process_pdf(pdf_path, timestamp = nil, form_id = nil)
+  def process_pdf(pdf_path, timestamp = nil, form_id = nil, iterator = nil)
     processed_pdf = PDFUtilities::DatestampPdf.new(pdf_path).run(
-      text: 'Application Submitted on va.gov',
+      text: 'Application Submitted on site',
       x: form_id == '686C-674' ? 400 : 300,
       y: form_id == '686C-674' ? 675 : 775,
       text_only: true, # passing as text only because we override how the date is stamped in this instance
@@ -69,7 +80,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
       multistamp: true
     )
-    renamed_path = "tmp/pdfs/#{form_id}_#{id}_final.pdf"
+    renamed_path = iterator.present? ? "tmp/pdfs/#{form_id}_#{id}_#{iterator}_final.pdf" : "tmp/pdfs/#{form_id}_#{id}_final.pdf" # rubocop:disable Layout/LineLength
     File.rename(processed_pdf, renamed_path) # rename for vbms upload
     renamed_path # return the renamed path
   end
@@ -147,20 +158,19 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   #   end
   # end
 
-  def to_pdf(form_id: FORM)
+  def to_pdf(form_id: FORM, student: nil)
     self.form_id = form_id
-
-    PdfFill::Filler.fill_form(self, nil, { created_at: })
+    PdfFill::Filler.fill_form(self, nil, { created_at:, student: })
   end
-
-  # this failure email is not the ideal way to handle the Notification Emails as
-  # part of the ZSF work, but with the initial timeline it handles the email as intended.
-  # Future work will be integrating into the Va Notify common lib:
-  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
 
   def send_failure_email(email) # rubocop:disable Metrics/MethodLength
     # if the claim is both a 686c and a 674, send a combination email.
     # otherwise, check to see which individual type it is and send the corresponding email.
+    personalisation = {
+      'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+      'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+      'confirmation_number' => confirmation_number
+    }
     template_id = if submittable_686? && submittable_674?
                     Settings.vanotify.services.va_gov.template_id.form21_686c_674_action_needed_email
                   elsif submittable_686?
@@ -171,17 +181,16 @@ class SavedClaim::DependencyClaim < CentralMailClaim
                     Rails.logger.error('Email template cannot be assigned for SavedClaim', saved_claim_id: id)
                     nil
                   end
-
     if email.present? && template_id.present?
-      VANotify::EmailJob.perform_async(
-        email,
-        template_id,
-        {
-          'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => confirmation_number
-        }
-      )
+      if Flipper.enabled?(:dependents_failure_callback_email)
+        Dependents::Form686c674FailureEmailJob.perform_async(id, email, template_id, personalisation)
+      else
+        VANotify::EmailJob.perform_async(
+          email,
+          template_id,
+          personalisation
+        )
+      end
     end
   end
 

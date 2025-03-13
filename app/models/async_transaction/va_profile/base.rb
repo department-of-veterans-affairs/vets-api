@@ -43,7 +43,7 @@ module AsyncTransaction
       #
       def self.start(user, response)
         # vet360_id is no longer required for Contact Information API V2
-        source_id = if Flipper.enabled?(:va_v3_contact_information_service,
+        source_id = if Flipper.enabled?(:remove_pciu,
                                         user)
                       user.vet360_id || user.uuid
                     else

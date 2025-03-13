@@ -9,7 +9,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
     let(:invalid_address) { build(:va_profile_validation_address).to_h }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(false)
     end
 
     shared_examples 'invalid address' do
@@ -132,7 +132,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
     let(:incorrect_address_pou) { build(:va_profile_v3_address, :incorrect_address_pou) }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
     end
 
     shared_examples 'invalid address' do

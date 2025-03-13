@@ -107,7 +107,7 @@ RSpec.shared_examples 'engine status updater job with base forms' do |subclass|
     end
 
     it 'handles request errors and increments the statsd metric' do
-      allow(service).to receive(service_method).and_raise(DecisionReviewV1::ServiceException)
+      allow(service).to receive(service_method).and_raise(DecisionReviews::V1::ServiceException)
 
       subject.new.perform
 
@@ -179,7 +179,7 @@ RSpec.shared_examples 'engine status updater job with base forms' do |subclass|
     end
 
     context 'and it is a temporary error' do
-      let(:exception) { DecisionReviewV1::ServiceException.new(key: 'DR_504') }
+      let(:exception) { DecisionReviews::V1::ServiceException.new(key: 'DR_504') }
 
       it 'handles request errors and increments the statsd metric' do
         subject.new.perform
@@ -190,7 +190,7 @@ RSpec.shared_examples 'engine status updater job with base forms' do |subclass|
     end
 
     context 'and it is a 404 error' do
-      let(:exception) { DecisionReviewV1::ServiceException.new(key: 'DR_404') }
+      let(:exception) { DecisionReviews::V1::ServiceException.new(key: 'DR_404') }
 
       it 'updates the status of the record' do
         subject.new.perform

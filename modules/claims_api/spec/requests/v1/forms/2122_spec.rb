@@ -34,7 +34,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
     stub_poa_verification
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
     allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
-    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return false
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                        .and_return false
   end
 
   describe '#2122' do
@@ -628,7 +629,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         include_context 'stub validation methods'
 
         before do
-          Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return false
         end
 
         it "does not include the 'dependent object in the auth_headers" do
@@ -900,7 +901,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
       context 'when the lighthouse_claims_api_poa_dependent_claimants feature is disabled' do
         before do
-          Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return false
         end
 
         it 'calls neither validate_poa_code_exists! nor validate_dependent_by_participant_id!' do

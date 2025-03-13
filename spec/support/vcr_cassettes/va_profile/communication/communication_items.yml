@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://int.vet360.va.gov/communication-hub/communication/v1/communication-items
+    uri: <VETS360_URL>/communication-hub/communication/v1/communication-items
     body:
       encoding: US-ASCII
       string: ''

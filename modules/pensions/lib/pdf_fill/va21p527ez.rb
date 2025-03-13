@@ -1542,7 +1542,7 @@ module Pensions
 
         country = address['country'].present? ? "#{address['country']}, " : ''
         address_arr = [
-          (address['street']).to_s, address['street2'].presence,
+          address['street'].to_s, address['street2'].presence,
           "#{address['city']}, #{address['state']}, #{country}#{address['postalCode']}"
         ].compact
 
@@ -1601,7 +1601,7 @@ module Pensions
         end
         @form_data['transferredAssets'] = to_radio_yes_no(@form_data['transferredAssets'])
         @form_data['homeOwnership'] = to_radio_yes_no(@form_data['homeOwnership'])
-        if (@form_data['homeOwnership']) == 1
+        if @form_data['homeOwnership'] == 1
           @form_data['homeAcreageMoreThanTwo'] = to_radio_yes_no(@form_data['homeAcreageMoreThanTwo'])
           @form_data['landMarketable'] = to_radio_yes_no(@form_data['landMarketable'])
         end

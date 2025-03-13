@@ -6,7 +6,7 @@ VAProfilePolicy = Struct.new(:user, :va_profile) do
   end
 
   def access_to_v2?
-    if Flipper.enabled?(:va_v3_contact_information_service, user)
+    if Flipper.enabled?(:remove_pciu, user)
       user.icn.present?
     else
       user.vet360_id.present?

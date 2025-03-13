@@ -17,17 +17,17 @@ module AccreditedRepresentativePortal
       end
 
       def index
+        relation = policy_scope(PowerOfAttorneyRequest)
         status = params[:status].presence
-        rel = policy_scope(PowerOfAttorneyRequest)
 
-        rel =
+        relation =
           case status
           when Statuses::PENDING
-            rel.unresolved.order(created_at: :asc)
+            pending(relation)
           when Statuses::PROCESSED
-            rel.resolved.not_expired.order('resolution.created_at DESC')
+            processed(relation)
           when NilClass
-            rel
+            relation
           else
             raise ActionController::BadRequest, <<~MSG.squish
               Invalid status parameter.
@@ -35,7 +35,8 @@ module AccreditedRepresentativePortal
             MSG
           end
 
-        poa_requests = rel.includes(scope_includes).limit(100)
+        # `limit(100)` in case pagination isn't introduced quickly enough.
+        poa_requests = relation.includes(scope_includes).limit(100)
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
 
         render json: serializer.serializable_hash, status: :ok
@@ -55,9 +56,22 @@ module AccreditedRepresentativePortal
         ].freeze
       end
 
+      def pending(relation)
+        relation
+          .not_processed
+          .order(created_at: :desc)
+      end
+
+      def processed(relation)
+        relation.processed.decisioned.order(
+          resolution: { created_at: :desc }
+        )
+      end
+
       def scope_includes
         [
           :power_of_attorney_form,
+          :power_of_attorney_form_submission,
           :accredited_individual,
           :accredited_organization,
           { resolution: :resolving }

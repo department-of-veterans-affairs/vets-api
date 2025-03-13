@@ -3,8 +3,9 @@
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestDecisionPolicy < ApplicationPolicy
     def create?
-      poa_request_policy = Pundit.policy(@user, PowerOfAttorneyRequest)
-      poa_request_policy.create_decision?
+      Pundit
+        .policy(@user, PowerOfAttorneyRequest)
+        .create_decision?
     end
   end
 end
