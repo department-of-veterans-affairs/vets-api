@@ -9,6 +9,8 @@ module IvcChampva
     include Sidekiq::Job
     sidekiq_options retry: 3
 
+    attr_accessor :additional_context
+
     def perform # rubocop:disable Metrics/MethodLength
       return unless Settings.ivc_forms.sidekiq.missing_form_status_job.enabled
 

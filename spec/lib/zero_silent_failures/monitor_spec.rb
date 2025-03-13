@@ -38,7 +38,7 @@ RSpec.describe ZeroSilentFailures::Monitor do
 
     describe '#log_silent_failure_avoided' do
       it 'logs a silent failure with call location and no confirmation' do
-        payload[:statsd] = 'silent_failure_avoided_no_confirmation'
+        payload[:statsd] = 'silent_failure_avoided'
 
         expect(monitor).to receive(:parse_caller).with(call_location).and_call_original
         expect(StatsD).to receive(:increment).with('silent_failure_avoided', tags:)
