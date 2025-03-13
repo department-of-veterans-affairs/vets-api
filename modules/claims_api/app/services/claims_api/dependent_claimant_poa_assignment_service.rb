@@ -101,16 +101,13 @@ module ClaimsApi
     end
 
     def assign_poa_to_dependent_via_update_benefit_claim?
-      first_open_claim = dependent_claims.find do |claim|
-        claim[:phase_type] != 'Complete' && claim[:ptcpnt_vet_id] == @veteran_participant_id
-      end
-      if first_open_claim.nil? || first_open_claim.blank?
+      first_open_claim_details
+
+      if first_open_claim_details.nil? || first_open_claim_details.blank?
         log(detail: 'Dependent has no open claims.', statuses: dependent_claims.pluck(:phase_type).uniq)
 
         raise ::Common::Exceptions::ServiceError
       end
-
-      first_open_claim_details = claim_details(first_open_claim[:benefit_claim_id])
 
       benefit_claim_update_input = build_benefit_claim_update_input(claim_details: first_open_claim_details)
 
@@ -126,11 +123,7 @@ module ClaimsApi
     end
 
     def dependent_claims
-      @bgs_claim_status_service ||= ClaimsApi::EbenefitsBnftClaimStatusWebService.new(
-        external_uid: @dependent_participant_id,
-        external_key: @dependent_participant_id
-      )
-      res = @bgs_claim_status_service.find_benefit_claims_status_by_ptcpnt_id(@dependent_participant_id)
+      res = e_benefits_bnft_claim_status_web_service.find_benefit_claims_status_by_ptcpnt_id(@dependent_participant_id)
 
       benefit_claims = Array.wrap(res&.dig(:benefit_claims_dto, :benefit_claim))
 
@@ -141,8 +134,8 @@ module ClaimsApi
       raise ::Common::Exceptions::ResourceNotFound
     end
 
-    def bgs_claim_status_service
-      @bgs_claim_status_service ||= ClaimsApi::EbenefitsBnftClaimStatusWebService.new(
+    def e_benefits_bnft_claim_status_web_service
+      @e_benefits_bnft_claim_status_web_service ||= ClaimsApi::EbenefitsBnftClaimStatusWebService.new(
         external_uid: @dependent_participant_id,
         external_key: @dependent_participant_id
       )
@@ -192,6 +185,22 @@ module ClaimsApi
         log(level: :error, detail: 'Program type code not recognized', pgm_type_cd:)
 
         raise ::Common::Exceptions::BadRequest
+      end
+    end
+
+    def first_open_claim_details
+      first_open_claim = dependent_claims.find do |claim|
+        claim[:phase_type] != 'Complete' && claim[:ptcpnt_vet_id] == @veteran_participant_id
+      end
+
+      if first_open_claim.present?
+        claim_details(first_open_claim[:benefit_claim_id])
+      elsif first_open_claim.nil?
+        open_claims = benefit_claim_web_service.find_bnft_claim_by_clmant_id(
+          dependent_participant_id: @dependent_participant_id
+        )
+        first_claim_id = open_claims.present? ? open_claims[:bnft_claim_dto].first[:bnft_claim_id] : nil
+        claim_details(first_claim_id)
       end
     end
   end
