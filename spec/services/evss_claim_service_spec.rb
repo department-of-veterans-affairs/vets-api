@@ -161,7 +161,7 @@ RSpec.describe EVSSClaimService do
         expect(current_personalisation['date_submitted']).to eql(submitted_date)
         expect(StatsD)
           .to have_received(:increment)
-          .with('cst.evss.document_uploads.evidence_submission_record_created.success')
+          .with('cst.evss.document_uploads.evidence_submission_record_created')
       end
     end
 
