@@ -69,16 +69,12 @@ module Eps
       )
 
       # If response_data is a hash with an error key, it's an error response
-      if response_data.is_a?(Hash) && response_data[:error]
-        # Explicitly preserve the status code from the error
-        return response_data
-      end
+      return response_data if response_data.is_a?(Hash) && response_data[:error]
 
       { success: true, response_data: }
     end
 
     ##
-    #
     # Submit an appointment to EPS for booking
     #
     # @param appointment_id [String] The ID of the appointment to submit
@@ -89,7 +85,7 @@ module Eps
     # @option params [String] :referral_number The referral number
     # @option params [Hash] :additional_patient_attributes Optional patient details (address, contact info)
     # @raise [ArgumentError] If any required parameters are missing
-    # @return OpenStruct response from EPS submit appointment endpoint
+    # @return [OpenStruct] response from EPS submit appointment endpoint
     #
     def submit_appointment(appointment_id, params = {})
       raise ArgumentError, 'appointment_id is required and cannot be blank' if appointment_id.blank?
@@ -111,7 +107,7 @@ module Eps
     # Create draft appointment in EPS
     #
     # @param referral_id [String] The ID of the referral to use for the draft appointment
-    # @return OpenStruct response from EPS create draft appointment endpoint
+    # @return [OpenStruct] response from EPS create draft appointment endpoint
     #   - On error: returns { error: true, json: { errors: [...] }, status: appropriate_status }
     #
     def submit_draft_appointment(referral_id:)
@@ -155,13 +151,13 @@ module Eps
     # Merge provider data with appointment data
     #
     # @param appointments [Array<Hash>] Array of appointment data
-    # @raise [Common::Exceptions::BackendServiceException] If provider data cannot be fetched
     # @return [Array<Hash>] Array of appointment data with provider data merged in
+    #
     def merge_provider_data_with_appointments(appointments)
       return [] if appointments.nil?
 
       provider_ids = appointments.pluck(:provider_service_id).compact.uniq
-      providers = provider_services.get_provider_services_by_ids(provider_ids:)
+      providers = provider_service.get_provider_services_by_ids(provider_ids:)
 
       appointments.each do |appointment|
         next unless appointment[:provider_service_id]
@@ -175,6 +171,12 @@ module Eps
       appointments
     end
 
+    ##
+    # Builds the submit payload for an appointment
+    #
+    # @param params [Hash] Hash containing appointment parameters
+    # @return [Hash] Formatted payload for the submit endpoint
+    #
     def build_submit_payload(params)
       payload = {
         network_id: params[:network_id],
@@ -185,9 +187,7 @@ module Eps
         }
       }
 
-      if params[:additional_patient_attributes]
-        payload[:additional_patient_attributes] = params[:additional_patient_attributes]
-      end
+      payload[:additional_patient_attributes] = params[:additional_patient_attributes] if params[:additional_patient_attributes]
 
       payload
     end
@@ -196,14 +196,16 @@ module Eps
     # Get instance of ProviderService
     #
     # @return [Eps::ProviderService] ProviderService instance
-    def provider_services
-      @provider_services ||= Eps::ProviderService.new(user)
+    #
+    def provider_service
+      @provider_service ||= Eps::ProviderService.new(user)
     end
 
     ##
     # Get instance of AppointmentsService
     #
     # @return [VAOS::V2::AppointmentsService] AppointmentsService instance
+    #
     def appointments_service
       @appointments_service ||= VAOS::V2::AppointmentsService.new(user)
     end
@@ -212,16 +214,9 @@ module Eps
     # Get instance of RedisClient
     #
     # @return [Eps::RedisClient] RedisClient instance
+    #
     def redis_client
       @redis_client ||= Eps::RedisClient.new
-    end
-
-    ##
-    # Get instance of ProviderService
-    #
-    # @return [Eps::ProviderService] ProviderService instance
-    def provider_service
-      @provider_service ||= Eps::ProviderService.new(user)
     end
 
     ##
@@ -420,7 +415,7 @@ module Eps
       )
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error("Drive times error: #{e.message}")
-      status = :bad_request if e.status == 400
+      status = e.status == 400 ? :bad_request : nil
       build_error_response(DRIVE_TIME_ERROR_MSG, "Invalid coordinates for drive time calculation: #{e.message}", status || :bad_request)
     rescue => e
       Rails.logger.error("Drive times error: #{e.message}")
