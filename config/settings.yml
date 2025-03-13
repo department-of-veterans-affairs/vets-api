@@ -420,7 +420,6 @@ evss:
   mock_pciu: <%= ENV['evss__mock_pciu'] %>
   mock_pciu_address: <%= ENV['evss__mock_pciu_address'] %>
   mock_ppiu: <%= ENV['evss__mock_ppiu'] %>
-  mock_reference: <%= ENV['evss__mock_reference'] %>
   mock_vso_search: <%= ENV['evss__mock_vso_search'] %>
   pciu:
     timeout: 30
@@ -1527,6 +1526,7 @@ vanotify:
       template_id:
         appoint_a_representative_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_confirmation_email'] %>
         appoint_a_representative_digital_submit_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_submit_confirmation_email'] %>
+        appoint_a_representative_digital_submit_decline_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_submit_decline_email'] %>
         career_counseling_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__career_counseling_confirmation_email'] %>
         ch31_central_mail_form_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
         ch31_vbms_form_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>
