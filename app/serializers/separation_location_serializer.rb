@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class EVSSSeparationLocationSerializer
+class SeparationLocationSerializer
   def initialize(resource)
     @resource = resource
   end

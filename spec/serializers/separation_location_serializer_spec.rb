@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EVSSSeparationLocationSerializer, type: :serializer do
+RSpec.describe SeparationLocationSerializer, type: :serializer do
   subject { described_class.new(intake_sites_response).to_json }
 
   let(:separation_locations) do
