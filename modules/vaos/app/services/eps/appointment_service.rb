@@ -60,7 +60,7 @@ module Eps
             detail: "Unable to create draft appointment: #{e.message}"
           }]
         },
-        status: status
+        status:
       }
     rescue => e
       Rails.logger.error("Draft appointment error: #{e.message}")
@@ -97,8 +97,8 @@ module Eps
     def create_draft_appointment_with_response(referral_id:, user:, pagination_params: {})
       # Use the validation step to create a draft appointment
       validation_result = create_draft_appointment_with_validation(
-        referral_id: referral_id,
-        pagination_params: pagination_params
+        referral_id:,
+        pagination_params:
       )
 
       return validation_result unless validation_result[:success]
@@ -116,7 +116,7 @@ module Eps
         return response_data
       end
 
-      { success: true, response_data: response_data }
+      { success: true, response_data: }
     end
 
     ##
@@ -247,7 +247,7 @@ module Eps
       usage_result = check_referral_usage(referral_id, pagination_params)
       return usage_result unless usage_result[:success]
 
-      draft_appointment = create_draft_appointment(referral_id: referral_id)
+      draft_appointment = create_draft_appointment(referral_id:)
       return draft_appointment if draft_appointment.is_a?(Hash) && draft_appointment[:error]
 
       {
@@ -349,7 +349,7 @@ module Eps
     #   - On Redis error: returns { error: true, json: { errors: [...] }, status: :bad_gateway }
     #
     def fetch_referral_attributes(referral_number:)
-      redis_client.fetch_referral_attributes(referral_number: referral_number)
+      redis_client.fetch_referral_attributes(referral_number:)
     rescue Redis::BaseError => e
       Rails.logger.error("Redis error: #{e.message}")
       StatsD.increment('api.vaos.va_mobile.response.partial.redis_error')
@@ -413,7 +413,7 @@ module Eps
     #   - On error: returns { error: true, json: { errors: [...] }, status: appropriate_status }
     #
     def get_provider_service(provider_id:)
-      provider_service.get_provider_service(provider_id: provider_id)
+      provider_service.get_provider_service(provider_id:)
     rescue => e
       Rails.logger.error("Provider service error: #{e.message}")
 
@@ -441,7 +441,7 @@ module Eps
     def get_drive_times(provider, user)
       user_address = user.vet360_contact_info&.residential_address
 
-      return nil unless user_address&.latitude && user_address&.longitude
+      return nil unless user_address&.latitude && user_address.longitude
 
       provider_service.get_drive_times(
         destinations: {
@@ -499,20 +499,16 @@ module Eps
       return provider if provider.is_a?(Hash) && provider[:error]
 
       slots = fetch_provider_slots(referral_data)
-      if slots.is_a?(Hash) && slots[:error]
-        return slots
-      end
+      return slots if slots.is_a?(Hash) && slots[:error]
 
       drive_time = get_drive_times(provider, user)
-      if drive_time.is_a?(Hash) && drive_time[:error]
-        return drive_time
-      end
+      return drive_time if drive_time.is_a?(Hash) && drive_time[:error]
 
       OpenStruct.new(
         id: draft_appointment.id,
-        provider: provider,
-        slots: slots,
-        drive_time: drive_time
+        provider:,
+        slots:,
+        drive_time:
       )
     end
   end
