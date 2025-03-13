@@ -24,7 +24,7 @@ module Lighthouse
         verify_msg(msg)
         # Grab the evidence_submission_id from the msg args
         evidence_submission = EvidenceSubmission.find_by(id: msg['args'][2])
-        if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && !evidence_submission.nil?
+        if can_update_evidence_submission(evidence_submission)
           update_evidence_submission_for_failure(evidence_submission, msg)
         else
           call_failure_notification(msg)
@@ -37,7 +37,7 @@ module Lighthouse
 
         initialize_upload_document
         evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_id)
-        if can_update_evidence_submission(evidence_submission)
+        if self.class.can_update_evidence_submission(evidence_submission)
           update_evidence_submission_with_job_details(evidence_submission)
         end
         perform_document_upload_to_lighthouse(evidence_submission)
@@ -128,6 +128,10 @@ module Lighthouse
                             })
       end
 
+      def self.can_update_evidence_submission(evidence_submission)
+        Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && !evidence_submission.nil?
+      end
+
       private
 
       def initialize_upload_document
@@ -146,7 +150,7 @@ module Lighthouse
         Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
           span.set_tag('Document File Size', file_body.size)
           response = client.upload_document(file_body, document) # returns upload response which includes requestId
-          if can_update_evidence_submission(evidence_submission)
+          if self.class.can_update_evidence_submission(evidence_submission)
             update_evidence_submission_for_in_progress(response, evidence_submission)
           end
         end
@@ -178,10 +182,6 @@ module Lighthouse
 
       def file_body
         @file_body ||= perform_initial_file_read
-      end
-
-      def can_update_evidence_submission(evidence_submission)
-        !!(Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission)
       end
 
       def update_evidence_submission_with_job_details(evidence_submission)

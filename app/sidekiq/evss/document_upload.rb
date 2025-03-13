@@ -40,7 +40,7 @@ class EVSS::DocumentUpload
     # Grab the evidence_submission_id from the msg args
     evidence_submission = EvidenceSubmission.find_by(id: msg['args'][3])
 
-    if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && !evidence_submission.nil?
+    if can_update_evidence_submission(evidence_submission)
       update_evidence_submission_for_failure(evidence_submission, msg)
     else
       call_failure_notification(msg)
@@ -55,11 +55,13 @@ class EVSS::DocumentUpload
     validate_document!
     pull_file_from_cloud!
     evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_id)
-    if can_update_evidence_submission(evidence_submission)
+    if self.class.can_update_evidence_submission(evidence_submission)
       update_evidence_submission_with_job_details(evidence_submission)
     end
     perform_document_upload_to_evss
-    update_evidence_submission_for_success(evidence_submission) if can_update_evidence_submission(evidence_submission)
+    if self.class.can_update_evidence_submission(evidence_submission)
+      update_evidence_submission_for_success(evidence_submission)
+    end
     clean_up!
   end
 
@@ -149,6 +151,10 @@ class EVSS::DocumentUpload
                         })
   end
 
+  def self.can_update_evidence_submission(evidence_submission)
+    Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && !evidence_submission.nil?
+  end
+
   private
 
   def validate_document!
@@ -206,9 +212,5 @@ class EVSS::DocumentUpload
     )
     StatsD.increment('cst.evss.document_uploads.evidence_submission_record_updated.success')
     self.class.add_log('SUCCESS', evidence_submission.claim_id, evidence_submission.id, jid)
-  end
-
-  def can_update_evidence_submission(evidence_submission)
-    !!(Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission)
   end
 end

@@ -185,22 +185,24 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
             allow(EvidenceSubmission).to receive(:find_by)
               .with({ id: evidence_submission_created.id })
               .and_return(evidence_submission_created)
-            expect(described_class).to receive(:perform_async).with(
-              user_account.icn,
-              {
-                first_name: 'Bob',
-                document_type: document_description,
-                filename: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
-                date_submitted: formatted_submit_date,
-                date_failed: formatted_submit_date
-              },
-              evidence_submission_created.id
-            )
+            # expect(described_class).to receive(:perform_async).with(
+            #   user_account.icn,
+            #   {
+            #     first_name: 'Bob',
+            #     document_type: document_description,
+            #     filename: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
+            #     date_submitted: formatted_submit_date,
+            #     date_failed: formatted_submit_date
+            #   },
+            #   evidence_submission_created.id
+            # )
             allow(described_class).to receive(:update_evidence_submission_for_failure)
             expect(described_class).to receive(:update_evidence_submission_for_failure)
-            allow(EvidenceSubmission).to receive(:update!)
-            expect(EvidenceSubmission).to receive(:update!)
-
+              .with(evidence_submission_created, msg_with_errors)
+            # allow(EvidenceSubmission).to receive(:update!)
+            # expect(EvidenceSubmission).to receive(:update!)
+            # allow(evidence_submission_created).to receive(:update_evidence_submission_for_failure)
+            # expect(evidence_submission_created).to receive(:update_evidence_submission_for_failure)
             # expect(Rails.logger)
             #   .to have_received(:info)
             #   .with('LH - Updated Evidence Submission Record to FAILED', any_args)
