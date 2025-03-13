@@ -66,20 +66,17 @@ module VAOS
         render json: { data: serialized }, status: :created
       end
 
-      # rubocop:disable Metrics/MethodLength
       def create_draft
         referral_id = draft_params[:referral_id]
         # TODO: validate referral_id and other needed referral data from the cache from prior referrals response
 
         cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
 
-        # Validate referral data
         referral_validation = check_referral_data_validation(cached_referral_data)
         unless referral_validation[:success]
           render json: referral_validation[:json], status: referral_validation[:status] and return
         end
 
-        # Check if referral is already in use
         referral_usage = check_referral_usage(referral_id)
         render json: referral_usage[:json], status: referral_usage[:status] and return unless referral_usage[:success]
 
@@ -264,6 +261,7 @@ module VAOS
         )
       end
 
+      # rubocop:disable Metrics/MethodLength
       def create_params
         @create_params ||= begin
           # Gets around a bug that turns param values of [] into [""]. This changes them back to [].
