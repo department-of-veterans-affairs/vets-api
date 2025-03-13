@@ -96,7 +96,8 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
 
   context 'when there are more than 10 failed va.gov submissions' do
     let(:num_errors) { 12 }
-    let(:errored_va_gov_claims) { Array.new(num_errors) { [SecureRandom.uuid, SecureRandom.uuid] } }
+    let(:tid_prefix) { 'FORM526SUBMISSION' }
+    let(:errored_va_gov_claims) { Array.new(num_errors) { [SecureRandom.uuid, "#{tid_prefix}#{SecureRandom.uuid}"] } }
     let(:from) { '03:59PM EST' }
     let(:to) { '04:59PM EST' }
     let(:environment) { 'production' }
@@ -150,35 +151,37 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
       messenger.notify!
     end
 
-    context 'if transaction ids are missing' do
-      let(:errored_va_gov_claims) { Array.new(num_errors) { [SecureRandom.uuid, nil] } }
+    context 'if transaction ids are not in the substring whitelist' do
+      [nil, SecureRandom.uuid].each do |tid|
+        let(:errored_va_gov_claims) { Array.new(num_errors) { [SecureRandom.uuid, tid] } }
 
-      it 'avoids linking to logs that are not there' do
-        first_cid = errored_va_gov_claims.first[0]
-        first_tid = errored_va_gov_claims.first[1]
-        puts first_tid
-        messenger = described_class.new(
-          errored_va_gov_claims:,
-          from:,
-          to:,
-          environment:
-        )
-
-        expect(notifier).to receive(:notify) do |_text, args|
-          expect(args[:blocks]).to include(
-            a_hash_including(
-              text: {
-                type: 'mrkdwn',
-                text: a_string_including('```',
-                                         'CID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_cid}>",
-                                         'TID', 'N/A',
-                                         '```')
-              }
-            )
+        it 'avoids linking to logs that are not there' do
+          first_cid = errored_va_gov_claims.first[0]
+          first_tid = errored_va_gov_claims.first[1]
+          puts first_tid
+          messenger = described_class.new(
+            errored_va_gov_claims:,
+            from:,
+            to:,
+            environment:
           )
-        end
 
-        messenger.notify!
+          expect(notifier).to receive(:notify) do |_text, args|
+            expect(args[:blocks]).to include(
+              a_hash_including(
+                text: {
+                  type: 'mrkdwn',
+                  text: a_string_including('```',
+                                           'CID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_cid}>",
+                                           'TID', 'N/A',
+                                           '```')
+                }
+              )
+            )
+          end
+
+          messenger.notify!
+        end
       end
     end
 
