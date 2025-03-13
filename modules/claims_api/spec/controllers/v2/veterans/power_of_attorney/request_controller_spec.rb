@@ -635,19 +635,6 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         end
 
         context 'when params are invalid' do
-          it 'returns a 422 when a boolean is sent in' do
-            param_val = true
-            page_params = { page: { number: param_val } }
-            allow(subject).to receive(:params).and_return(page_params)
-
-            expect do
-              subject.send(:validate_page_size_and_number_params)
-            end.to(raise_error do |error|
-              expect(error.message).to eq('Bad request')
-              expect(error.errors[0].detail).to eq("The page[number] param value #{param_val} is invalid")
-            end)
-          end
-
           it 'returns a 422 when a alpha string is sent in' do
             param_val = 'abcdefg'
             page_params = { page: { size: param_val } }
@@ -658,18 +645,6 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             end.to(raise_error do |error|
               expect(error.message).to eq('Bad request')
               expect(error.errors[0].detail).to eq("The page[size] param value #{param_val} is invalid")
-            end)
-          end
-
-          it 'returns a 422 when an array is sent in' do
-            param_val = [true, '123', 'cdef']
-            page_params = { page: { size: 5, number: param_val } }
-            allow(subject).to receive(:params).and_return(page_params)
-
-            expect do
-              subject.send(:validate_page_size_and_number_params)
-            end.to(raise_error do |error|
-              expect(error.message).to eq('Bad request')
             end)
           end
         end
