@@ -43,8 +43,10 @@ module BGS
       # temporary logging to troubleshoot
       log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
 
+      Rails.logger.info('21-674 Automatic Claim Prior to submission', { saved_claim_id: @saved_claim.id, proc_id: @proc_id }) if @proc_state == 'Ready' # rubocop:disable Layout/LineLength
       benefit_claim_record = BenefitClaim.new(args: benefit_claim_args(vnp_benefit_claim_record, veteran)).create
-
+      Rails.logger.info("21-674 Automatic Benefit Claim successfully created through BGS: #{benefit_claim_record[:benefit_claim_id]}", { saved_claim_id: @saved_claim.id, proc_id: @proc_id }) if @proc_state == 'Ready' # rubocop:disable Layout/LineLength
+      
       begin
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
 
@@ -57,7 +59,7 @@ module BGS
 
           bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')
         else
-          Rails.logger.info("Saved Claim submitted automatically with proc_state of #{@proc_state}",
+          Rails.logger.info("21-674 Saved Claim submitted automatically to RBPS with proc_state of #{@proc_state}",
                             { saved_claim_id: @saved_claim.id, proc_id: @proc_id })
         end
       rescue
