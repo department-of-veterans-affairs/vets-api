@@ -95,7 +95,11 @@ module SignIn
     end
 
     def refresh_created_time
-      @refresh_created_time ||= Time.zone.now
+      @refresh_created_time ||= web_sso_session_creation || Time.zone.now
+    end
+
+    def web_sso_session_creation
+      OAuthSession.find_by(id: validated_credential.web_sso_session_id)&.refresh_creation
     end
 
     def refresh_expiration_time
