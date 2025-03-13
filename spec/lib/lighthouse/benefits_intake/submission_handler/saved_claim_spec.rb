@@ -17,15 +17,14 @@ Rspec.describe BenefitsIntake::SubmissionHandler::SavedClaim do
     it 'logs silent failure avoided' do
       instance = handler.new('fake-claim-id')
       expect(instance).to receive(:avoided).and_return true
-      expect(monitor).to receive(:log_silent_failure_no_confirmation).with(hash_including(claim_id: claim.id),
+      expect(monitor).to receive(:log_silent_failure_avoided).with(hash_including(claim_id: claim.id),
                                                                    call_location: nil)
 
       instance.handle(:failure)
     end
 
     it 'logs silent failure' do
-      klass = BenefitsIntake::SubmissionHandler::SavedClaim.to_s
-      message = "#{klass}: on_failure silent failure not avoided"
+      message = "#{handler}: on_failure silent failure not avoided"
       expect(monitor).to receive(:log_silent_failure).with(hash_including(message:), call_location: nil)
 
       expect { handler.new('fake-claim-id').handle(:failure) }.to raise_error message

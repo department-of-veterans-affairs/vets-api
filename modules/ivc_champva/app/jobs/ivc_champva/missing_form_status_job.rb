@@ -66,17 +66,8 @@ module IvcChampva
     def send_failure_email(form, template_id, additional_context)
       form_data = construct_email_payload(form, template_id)
 
-
       if (callback = Flipper.enabled?(:champva_vanotify_custom_callback, @current_user))
-        form_data = form_data.merge(
-          {
-            callback_klass: 'IvcChampva::ZsfEmailNotificationCallback',
-            callback_metadata: {
-              statsd_tags: { service: 'veteran-ivc-champva-forms', function: 'IVC CHAMPVA send_failure_email' },
-              additional_context:
-            }
-          }
-        )
+        form_data = form_data.merge(callback_hash)
       end
 
       ActiveRecord::Base.transaction do
@@ -88,6 +79,17 @@ module IvcChampva
           raise ActiveRecord::Rollback, 'Pega Status Update/Action Required Email send failure'
         end
       end
+    end
+
+    # return the hash fields used for vanotify callback
+    def callback_hash
+      {
+        callback_klass: 'IvcChampva::ZsfEmailNotificationCallback',
+        callback_metadata: {
+          statsd_tags: { service: 'veteran-ivc-champva-forms', function: 'IVC CHAMPVA send_failure_email' },
+          additional_context:
+        }
+      }
     end
 
     # Fires off a notification email to Pega so they know the communication status of
