@@ -38,7 +38,7 @@ class EVSS::DocumentUpload
   sidekiq_retries_exhausted do |msg, _ex|
     verify_msg(msg)
 
-    evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
+    evidence_submission = EvidenceSubmission.find_by(id: msg['args'][3])
 
     if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission
       update_evidence_submission_for_failure(evidence_submission, msg)
@@ -96,7 +96,7 @@ class EVSS::DocumentUpload
         personalisation: update_personalisation(current_personalisation, msg['failed_at'])
       }.to_json
     )
-    add_log('FAILED', evidence_submission.claim_id, evidence_submission.id)
+    add_log('FAILED', evidence_submission.claim_id, evidence_submission.id, msg['jid'])
     StatsD.increment('silent_failure_avoided_no_confirmation',
                      tags: ['service:claim-status', "function: #{message}"])
   rescue => e
@@ -143,6 +143,14 @@ class EVSS::DocumentUpload
 
   def self.helpers
     BenefitsDocuments::Utilities::Helpers
+  end
+
+  def self.add_log(type, claim_id, evidence_submission_id, job_id)
+    ::Rails.logger.info("EVSS - Updated Evidence Submission Record to #{type}", {
+                          claim_id:,
+                          evidence_submission_id:,
+                          job_id:
+                        })
   end
 
   private
@@ -192,7 +200,7 @@ class EVSS::DocumentUpload
       job_class: self.class
     )
     StatsD.increment('cst.evss.document_uploads.evidence_submission_record_updated.queued')
-    add_log('QUEUED', evidence_submission.claim_id, evidence_submission.id)
+    self.class.add_log('QUEUED', evidence_submission.claim_id, evidence_submission.id, jid)
   end
 
   def update_evidence_submission_for_success(evidence_submission)
@@ -201,18 +209,10 @@ class EVSS::DocumentUpload
       delete_date: (DateTime.current + 60.days).utc
     )
     StatsD.increment('cst.evss.document_uploads.evidence_submission_record_updated.success')
-    add_log('SUCCESS', evidence_submission.claim_id, evidence_submission.id)
+    self.class.add_log('SUCCESS', evidence_submission.claim_id, evidence_submission.id, jid)
   end
 
   def can_update_evidence_submission(evidence_submission)
     !!(Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission)
-  end
-
-  def add_log(type, claim_id, evidence_submission_id)
-    ::Rails.logger.info("EVSS - Updated Evidence Submission Record to #{type}", {
-                          claim_id:,
-                          evidence_submission_id:,
-                          job_id: jid
-                        })
   end
 end

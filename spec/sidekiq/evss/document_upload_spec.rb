@@ -34,14 +34,23 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
   let(:issue_instant) { Time.now.to_i }
   let(:current_date_time) { DateTime.now.utc }
+  let(:evidence_submission_queued) do
+    create(:bd_evidence_submission_pending,
+           tracked_item_id:,
+           claim_id:,
+           job_id:,
+           job_class: described_class)
+  end
   let(:msg) do
     {
       'jid' => job_id,
-      'args' => [{ 'va_eauth_firstName' => 'Bob' }, user_account_uuid,
+      'args' => [{ 'va_eauth_firstName' => 'Bob' },
+                 user_account_uuid,
                  { 'evss_claim_id' => claim_id,
                    'tracked_item_id' => tracked_item_id,
                    'document_type' => document_type,
-                   'file_name' => file_name }],
+                   'file_name' => file_name },
+                 evidence_submission_queued.id],
       'created_at' => issue_instant,
       'failed_at' => issue_instant
     }
@@ -49,11 +58,14 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   let(:msg_with_errors) do ## added 'test' so file would error
     {
       'jid' => job_id,
-      'args' => ['test', { 'va_eauth_firstName' => 'Bob' }, user_account_uuid,
+      'args' => ['test',
+                 { 'va_eauth_firstName' => 'Bob' },
+                 user_account_uuid,
                  { 'evss_claim_id' => claim_id,
                    'tracked_item_id' => tracked_item_id,
                    'document_type' => document_type,
-                   'file_name' => file_name }],
+                   'file_name' => file_name },
+                 evidence_submission_queued.id],
       'created_at' => issue_instant,
       'failed_at' => issue_instant
     }
@@ -107,7 +119,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         allow(uploader_stub).to receive(:read_for_upload) { file }
         expect(uploader_stub).to receive(:remove!).once
         expect(client_stub).to receive(:upload).with(file, document_data)
-        allow(EvidenceSubmission).to receive(:find_by).with({ job_id: job_id.to_s })
+        allow(EvidenceSubmission).to receive(:find_by).with({ id: evidence_submission_pending.id })
                                                       .and_return(nil)
         described_class.new.perform(auth_headers, user.uuid, document_data.to_serializable_hash, evidence_submission_pending.id)
         expect(EvidenceSubmission.count).to equal(0)
@@ -136,7 +148,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       it 'updates an evidence submission record with a FAILED status with date_failed' do
         EVSS::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) do
           allow(EvidenceSubmission).to receive(:find_by)
-            .with({ id: evidence_submission_pending.id })
+            .with({ id: msg['args'][3] })
             .and_return(evidence_submission_pending)
           expect(Rails.logger)
             .to receive(:info)
@@ -161,7 +173,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       context 'when there is no EvidenceSubmission record' do
         before do
           allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_failure_emails).and_return(true)
-          allow(EVSS::DocumentUpload).to receive(:update_evidence_submission)
+          allow(EVSS::DocumentUpload).to receive(:update_evidence_submission_for_failure)
           allow(EVSS::DocumentUpload).to receive(:call_failure_notification)
         end
 
@@ -171,7 +183,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
               .with({ job_id: })
               .and_return(nil)
           end
-          expect(EVSS::DocumentUpload).not_to have_received(:update_evidence_submission)
+          expect(EVSS::DocumentUpload).not_to have_received(:update_evidence_submission_for_failure)
           expect(EVSS::DocumentUpload).to have_received(:call_failure_notification)
         end
       end
