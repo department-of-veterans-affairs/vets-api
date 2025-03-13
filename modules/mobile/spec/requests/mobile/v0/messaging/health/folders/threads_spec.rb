@@ -48,17 +48,19 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders::Threads', type: :request
            'messageCount' => 1,
            'category' => 'EDUCATION',
            'subject' => 'Education Inquiry',
-           'triageGroupName' => 'WORKLOAD CAPTURE_SLC 4_Mohammad',
+           'triageGroupName' => 'WORKLOAD CAPTURE_SLC 4_Donald',
            'sentDate' => '2023-02-15T17:01:55.000Z',
            'draftDate' => nil,
            'senderId' => 20_029,
-           'senderName' => 'ISLAM, MOHAMMAD  RAFIQ',
+           'senderName' => 'JAMES, DONALD',
            'recipientName' => 'ECSTEN, THOMAS ',
            'recipientId' => 6_820_911,
            'proxySenderName' => nil,
            'hasAttachment' => false,
            'unsentDrafts' => false,
-           'unreadMessages' => false },
+           'unreadMessages' => false,
+           'isOhMessage' => false,
+           'suggestedNameDisplay' => nil },
         'links' => { 'self' => 'http://www.example.com/my_health/v1/messaging/threads/7298505' } }
     end
 

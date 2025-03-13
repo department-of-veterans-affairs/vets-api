@@ -80,9 +80,6 @@ features:
   caregiver_carma_submitted_at:
     actor_type: user
     description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
-  caregiver1010:
-    actor_type: user
-    description: Enables new features while investigating 1010CG errors
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
@@ -798,10 +795,6 @@ features:
     actor_type: user
     description: Enables form email notifications upon certain state changes (error and received)
     enable_in_development: true
-  simple_forms_notification_callbacks:
-    actor_type: user
-    description: Enables form email notification callback for Simple Forms
-    enable_in_development: true
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
@@ -817,6 +810,9 @@ features:
   form210972:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-0972
+  form214138:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21-4138
   form214142:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4142
@@ -961,6 +957,9 @@ features:
     actor_type: user
     description: Control whether vets-api allows fetching Surgical Pathology data from MHV UHD
     enable_in_development: false
+  mhv_accelerated_delivery_uhd_ch_enabled:
+    actor_type: user
+    description: Control whether vets-api allows fetching Chem/Hem data from MHV UHD
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
@@ -986,7 +985,6 @@ features:
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
-    enable_in_development: true
   mhv_secure_messaging_filter_accordion:
     actor_type: user
     description: Enables/disables Secure Messaging Filter Accordion re-design updates on VA.gov
@@ -1073,6 +1071,10 @@ features:
     actor_type: user
     description: Enables/disables Medical Records new landing page content
     enable_in_development: true
+  mhv_medical_records_filter_and_sort:
+    actor_type: user
+    description: Enables/disables Medical Records new filter and sort changes
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
@@ -1111,6 +1113,10 @@ features:
   mhv_medications_remove_landing_page:
     actor_type: user
     description: Enables/disables removal of landing page
+    enable_in_development: true
+  mhv_medications_show_ipe_content:
+    actor_type: user
+    description: Enables/disables ipe content
     enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
@@ -1375,6 +1381,10 @@ features:
     actor_type: user
     description: Enables the Payment History MVP features for development
     enable_in_development: true
+  vha_show_payment_history:
+    actor_type: user
+    description: Enables the VHA Payment history (including copay resolution) feature for combined debt portal
+    enable_in_development: true
   submission_pdf_s3_upload:
     actor_type: user
     description: Used to toggle use of uploading a submission pdf to S3 and returning a pre-signed url.
@@ -1503,10 +1513,6 @@ features:
     actor_type: user
     description: Allows updates to the static landing widget on the Public Websites page
     enable_in_development: true
-  va_online_scheduling_sts_oauth_token:
-    actor_type: user
-    description: Allows toggling of MAP STS OAuth token for VAOS
-    enable_in_development: true
   va_online_scheduling_vaos_service_cc_appointments:
     actor_type: user
     description: Toggle for new vaos service cc appointments.
@@ -1519,10 +1525,6 @@ features:
     actor_type: user
     description: Toggle for new vaos service va appointments.
     enable_in_development: true
-  va_online_scheduling_vaos_v2_next:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for tickets with the label vaos-v2-next will be behind this flag
   va_online_scheduling_vaos_alternate_route:
     actor_type: user
     enable_in_development: false
@@ -1535,14 +1537,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for the breadcrumb and url changes for mhv
-  va_online_scheduling_use_dsot:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for querying Drupal Source of Truth for Acheron flag
-  va_online_scheduling_poc_type_of_care:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for proof of concept to help Veteran contact a facility when the type of care is not available
   va_dependents_v2:
     actor_type: user
     description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
@@ -1567,10 +1561,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for routing slots search requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
-  va_online_scheduling_datadog_RUM:
-    actor_type: user
-    description: Enables datadog Real User Monitoring.
-    enable_in_development: true
   va_online_scheduling_cc_direct_scheduling:
     actor_type: user
     description: Enables CC direct scheduling.
@@ -1602,7 +1592,23 @@ features:
   va_online_scheduling_fe_source_of_truth:
     actor_type: user
     enable_in_development: true
-    description: Toggle for changes made in the FE based on API source of truth changes.
+    description: Toggle to use API response as the source of truth in FE for upcoming/past/pending appointments.
+  va_online_scheduling_fe_source_of_truth_va:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use API response as the source of truth in FE for VA appointment and request types.
+  va_online_scheduling_fe_source_of_truth_cc:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use API response as the source of truth in FE for CC appointment and request types.
+  va_online_scheduling_fe_source_of_truth_modality:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use API response as the source of truth in FE for in person, phone, claims exam, covid vaccine modalities.
+  va_online_scheduling_fe_source_of_truth_telehealth:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use API response as the source of truth in FE for Video at VA, Video at ATLAS, Video at Home modalities.
   va_online_scheduling_past_appt_date_range:
     actor_type: user
     enable_in_development: true
@@ -1645,6 +1651,14 @@ features:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
     enable_in_development: true
+  payment_history_exclude_third_party_disbursements:
+    actor_type: user
+    description: When enabled, a user viewing the payment history will only see payments disbursed to them.
+    enable_in_development: false
+  payment_history_recategorize_hardship:
+    actor_type: user
+    description: When enabled, recategorize Hardship payments sent to the veteran as Ch33 Hardship
+    enable_in_development: false
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History

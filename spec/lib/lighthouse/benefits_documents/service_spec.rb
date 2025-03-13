@@ -40,7 +40,7 @@ RSpec.describe BenefitsDocuments::Service do
         }
       end
 
-      let(:issue_instant) { Time.now.to_i }
+      let(:issue_instant) { Time.current.to_i }
       let(:submitted_date) do
         BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
       end

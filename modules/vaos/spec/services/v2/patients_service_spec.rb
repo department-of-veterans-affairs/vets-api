@@ -19,8 +19,6 @@ describe VAOS::V2::PatientsService do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
                                                     user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                    user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
@@ -38,8 +36,6 @@ describe VAOS::V2::PatientsService do
       context 'using VPG' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                    instance_of(User)).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(true)
         end
 
@@ -60,8 +56,6 @@ describe VAOS::V2::PatientsService do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
                                                     user).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                    user).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
@@ -78,8 +72,6 @@ describe VAOS::V2::PatientsService do
       context 'using VPG' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                    instance_of(User)).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(true)
         end
 
