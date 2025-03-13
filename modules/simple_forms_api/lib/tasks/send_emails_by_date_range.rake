@@ -4,15 +4,18 @@
 #   rails "simple_forms_api:send_emails_by_date_range[1 January 2025,2 January 2025]"
 namespace :simple_forms_api do
   task :send_emails_by_date_range, %i[start_date end_date] => :environment do |_, args|
+    errors = []
     start_date, end_date = parse_date_args(args)
     form_submission_attempts = fetch_form_submission_attempts(start_date, end_date)
     Rails.logger.info "Total FormSubmissionAttempts found: #{form_submission_attempts.count}"
     successful_uuids = process_form_submission_attempts(form_submission_attempts)
     log_successful_attempts(successful_uuids)
+    log_errors(errors)
+    log_counts(successful_uuids.count, errors.count)
   rescue => e
     Rails.logger.error("Error in send_emails_by_date_range: #{e.message}")
     Rails.logger.error(e.backtrace.join("\n"))
-    raise e
+    errors << e
   end
 
   def parse_date_args(args)
@@ -21,7 +24,11 @@ namespace :simple_forms_api do
 
   def fetch_form_submission_attempts(start_date, end_date)
     date_range = (start_date..end_date)
-    FormSubmissionAttempt.where(updated_at: date_range).where.not(aasm_state: :pending)
+    FormSubmissionAttempt
+      .joins(:form_submission)
+      .where(updated_at: date_range)
+      .where.not(aasm_state: :pending)
+      .where(form_submissions: { form_type: SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP.keys })
   end
 
   def process_form_submission_attempts(form_submission_attempts)
@@ -47,6 +54,16 @@ namespace :simple_forms_api do
   def log_successful_attempts(successful_uuids)
     Rails.logger.info 'Successful UUIDS & notification types:'
     Rails.logger.info successful_uuids
+  end
+
+  def log_errors(errors)
+    Rails.logger.error 'Errors:'
+    Rails.logger.error errors
+  end
+
+  def log_counts(successful_count, error_count)
+    Rails.logger.info "Total successful: #{successful_count}"
+    Rails.logger.info "Total errors: #{error_count}"
   end
 
   def get_notification_type(form_submission_attempt)
