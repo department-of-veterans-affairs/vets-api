@@ -810,6 +810,9 @@ features:
   form210972:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-0972
+  form214138:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21-4138
   form214142:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4142
@@ -982,7 +985,6 @@ features:
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
-    enable_in_development: true
   mhv_secure_messaging_filter_accordion:
     actor_type: user
     description: Enables/disables Secure Messaging Filter Accordion re-design updates on VA.gov
@@ -1068,6 +1070,10 @@ features:
   mhv_medical_records_update_landing_page:
     actor_type: user
     description: Enables/disables Medical Records new landing page content
+    enable_in_development: true
+  mhv_medical_records_filter_and_sort:
+    actor_type: user
+    description: Enables/disables Medical Records new filter and sort changes
     enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
@@ -1507,10 +1513,6 @@ features:
     actor_type: user
     description: Allows updates to the static landing widget on the Public Websites page
     enable_in_development: true
-  va_online_scheduling_sts_oauth_token:
-    actor_type: user
-    description: Allows toggling of MAP STS OAuth token for VAOS
-    enable_in_development: true
   va_online_scheduling_vaos_service_cc_appointments:
     actor_type: user
     description: Toggle for new vaos service cc appointments.
@@ -1523,10 +1525,6 @@ features:
     actor_type: user
     description: Toggle for new vaos service va appointments.
     enable_in_development: true
-  va_online_scheduling_vaos_v2_next:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for tickets with the label vaos-v2-next will be behind this flag
   va_online_scheduling_vaos_alternate_route:
     actor_type: user
     enable_in_development: false
@@ -1539,14 +1537,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for the breadcrumb and url changes for mhv
-  va_online_scheduling_use_dsot:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for querying Drupal Source of Truth for Acheron flag
-  va_online_scheduling_poc_type_of_care:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for proof of concept to help Veteran contact a facility when the type of care is not available
   va_dependents_v2:
     actor_type: user
     description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
@@ -1571,10 +1561,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for routing slots search requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
-  va_online_scheduling_datadog_RUM:
-    actor_type: user
-    description: Enables datadog Real User Monitoring.
-    enable_in_development: true
   va_online_scheduling_cc_direct_scheduling:
     actor_type: user
     description: Enables CC direct scheduling.
@@ -1606,7 +1592,23 @@ features:
   va_online_scheduling_fe_source_of_truth:
     actor_type: user
     enable_in_development: true
-    description: Toggle for changes made in the FE based on API source of truth changes.
+    description: Toggle to use API response as the source of truth in FE for upcoming/past/pending appointments.
+  va_online_scheduling_fe_source_of_truth_va:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use API response as the source of truth in FE for VA appointment and request types.
+  va_online_scheduling_fe_source_of_truth_cc:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use API response as the source of truth in FE for CC appointment and request types.
+  va_online_scheduling_fe_source_of_truth_modality:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use API response as the source of truth in FE for in person, phone, claims exam, covid vaccine modalities.
+  va_online_scheduling_fe_source_of_truth_telehealth:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle to use API response as the source of truth in FE for Video at VA, Video at ATLAS, Video at Home modalities.
   va_online_scheduling_past_appt_date_range:
     actor_type: user
     enable_in_development: true
