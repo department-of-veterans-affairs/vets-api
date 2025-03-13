@@ -44,7 +44,6 @@ describe PdfFill::Forms::Va210781v2 do
         'veteranFullName' => { 'first' => 'Foo',
                                'last' => 'Bar' } }
     end
-    let(:new_form_class) { described_class.new(form_data) }
 
     it 'expands the Signature and Signature Date correctly' do
       new_form_class.expand_signature(form_data['veteranFullName'], form_data['signatureDate'])
@@ -59,6 +58,65 @@ describe PdfFill::Forms::Va210781v2 do
           },
           'signatureDate' => '2017-02-14' }
       )
+    end
+  end
+
+  describe '#set_treatment_selection' do
+    context 'when treatment providers are present' do
+      it 'sets treatment to 0 and noTreatment to 0' do
+        form_data = {}
+        new_form_class.instance_variable_set(:@form_data, form_data)
+
+        treatment_data = { 'medicalCenter' => true, 'nonVa' => true, 'vaPaid' => true }
+        new_form_class.instance_variable_set(:@form_data, { 'treatmentProviders' => treatment_data })
+
+        new_form_class.send(:set_treatment_selection)
+
+        expected_data = {
+          'treatmentProviders' => treatment_data,
+          'treatment' => 0,
+          'noTreatment' => 0
+        }
+
+        expect(new_form_class.instance_variable_get(:@form_data)).to eq(expected_data)
+      end
+    end
+
+    context 'when no treatment providers but treatmentNoneCheckbox is true' do
+      it 'sets treatment to 1 and noTreatment to 1' do
+        form_data = {}
+        new_form_class.instance_variable_set(:@form_data, form_data)
+
+        new_form_class.instance_variable_set(:@form_data,
+                                             { 'treatmentProviders' => {},
+                                               'treatmentNoneCheckbox' => { 'none' => true } })
+
+        new_form_class.send(:set_treatment_selection)
+
+        expected_data = {
+          'treatmentProviders' => {},
+          'treatmentNoneCheckbox' => { 'none' => true },
+          'treatment' => 1,
+          'noTreatment' => 1
+        }
+
+        expect(new_form_class.instance_variable_get(:@form_data)).to eq(expected_data)
+      end
+    end
+
+    context 'when no treatment providers' do
+      it 'does not set treatment or noTreatment' do
+        form_data = {}
+        new_form_class.instance_variable_set(:@form_data, form_data)
+
+        new_form_class.instance_variable_set(:@form_data, { 'treatmentProviders' => {} })
+
+        new_form_class.send(:set_treatment_selection)
+
+        expected_data = { 'treatmentProviders' => {} }
+
+        expect(new_form_class.instance_variable_get(:@form_data)).to eq(expected_data)
+      end
     end
   end
 

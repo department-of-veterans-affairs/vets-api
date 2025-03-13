@@ -76,186 +76,35 @@ describe VAOS::UserService do
 
   after { Timecop.return }
 
-  context 'Feature toggle va_online_scheduling_sts_oauth_token disabled' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                instance_of(User)).and_return(false)
-    end
-
-    describe '#session' do
-      describe '#session' do
-        let(:response) { double('response', body: token) }
-
-        context 'with a 200 response' do
-          it 'returns the session token' do
-            VCR.use_cassette('vaos/users/post_session') do
-              session_token = subject.session(user)
-              expect(session_token).to be_a(String)
-            end
-          end
-
-          it 'makes a call out to the the VAOS user service once' do
-            VCR.use_cassette('vaos/users/post_session') do
-              expect(subject).to receive(:perform).once.and_return(response)
-              subject.session(user)
-            end
-          end
-
-          it 'sets the cached token ttl to expire fortyfive seconds before the VAMF token expires' do
-            VCR.use_cassette('vaos/users/post_session') do
-              subject.session(user)
-              expect($redis.ttl("va-mobile-session:#{user.account_uuid}")).to eq(855)
-            end
-          end
-        end
-
-        context 'with a 400 response' do
-          it 'raises a client error' do
-            VCR.use_cassette('vaos/users/post_session_400') do
-              expect { subject.session(user) }.to raise_error(
-                Common::Exceptions::BackendServiceException
-              )
-            end
-          end
-        end
-
-        context 'with a 403 response' do
-          it 'raises a client error' do
-            VCR.use_cassette('vaos/users/post_session_403') do
-              expect { subject.session(user) }.to raise_error(
-                Common::Exceptions::BackendServiceException
-              )
-            end
-          end
-        end
-
-        context 'with a blank response' do
-          it 'raises a client error' do
-            VCR.use_cassette('vaos/users/post_session_blank_body') do
-              expect { subject.session(user) }.to raise_error(
-                Common::Exceptions::BackendServiceException
-              )
-            end
-          end
-        end
+  describe '#session' do
+    context 'when a successful request to the Mobile OAuth Secure Token Service is made' do
+      before do
+        allow_any_instance_of(MAP::SecurityToken::Service).to receive(:token).and_return(expected_sts_token)
       end
 
-      describe '#extend_session' do
-        before do
-          VCR.use_cassette('vaos/users/post_session') do
-            subject.session(user)
-          end
-        end
-
-        context 'with one call inside the original lock (< 60s)' do
-          it 'does not trigger the extend session job' do
-            VCR.use_cassette('vaos/users/get_user_jwts') do
-              expect(VAOS::ExtendSessionJob).not_to receive(:perform_async).with(user.account_uuid)
-              subject.extend_session(user.account_uuid)
-            end
-          end
-        end
-
-        context 'with one call outside the lock (> 60s)' do
-          it 'triggers the extend session job' do
-            VCR.use_cassette('vaos/users/get_user_jwts') do
-              Timecop.travel(2.minutes.from_now)
-              expect(VAOS::ExtendSessionJob).to receive(:perform_async).with(user.account_uuid).once
-              subject.extend_session(user.account_uuid)
-            end
-          end
-        end
-
-        context 'with multiple calls outside the original lock (> 60s)' do
-          it 'triggers the extend session job only once' do
-            VCR.use_cassette('vaos/users/get_user_jwts') do
-              Timecop.travel(2.minutes.from_now)
-              expect(VAOS::ExtendSessionJob).to receive(:perform_async).with(user.account_uuid).once
-              subject.extend_session(user.account_uuid)
-              subject.extend_session(user.account_uuid)
-            end
-          end
-        end
-      end
-    end
-
-    describe '#update_session_token' do
-      context 'with a cached token' do
-        before do
-          VCR.use_cassette('vaos/users/post_session') do
-            subject.session(user)
-          end
-        end
-
-        context 'with a 200 response' do
-          it 'updates and returns the new session token' do
-            VCR.use_cassette('vaos/users/get_user_jwts') do
-              expect(subject.update_session_token(user.account_uuid)).to eq(refresh_token)
-            end
-          end
-        end
+      it 'returns the session token' do
+        expect(subject.session(user)).to eq(expected_sts_token[:access_token])
       end
 
-      context 'with no cached token' do
-        it 'returns nil and logs warning' do
-          allow(Rails.logger).to receive(:warn)
-          allow_any_instance_of(VAOS::UserService).to receive(:cached_by_account_uuid).and_return(nil)
+      it 'saves the session token in the cache' do
+        subject.session(user)
+        token = Oj.load($redis.get("va-mobile-session:#{user.account_uuid}"))[:token]
 
-          expect(subject.update_session_token(user.account_uuid)).to be_nil
-          expect(Rails.logger).to have_received(:warn).with('VAOS no session to update', anything)
-        end
-      end
-
-      context 'with session update failure' do
-        it 'logs the error and re-raises the exception' do
-          allow(Rails.logger).to receive(:error)
-          allow_any_instance_of(VAOS::UserService).to receive(:cached_by_account_uuid)
-            .and_raise(Common::Exceptions::BackendServiceException)
-
-          expect { subject.update_session_token(user.account_uuid) }
-            .to raise_error(Common::Exceptions::BackendServiceException)
-          expect(Rails.logger).to have_received(:error).with('VAOS session update failed', anything)
-        end
+        expect(token).to eq(expected_sts_token[:access_token])
       end
     end
   end
 
-  context 'Feature toggle va_online_scheduling_sts_oauth_token enabled' do
+  context 'when a request to the Mobile OAuth Secure Token Service fails' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                instance_of(User)).and_return(true)
+      allow_any_instance_of(MAP::SecurityToken::Service).to receive(:token)
+        .and_raise(Common::Client::Errors::ClientError)
     end
 
-    describe '#session' do
-      context 'when a successful request to the Mobile OAuth Secure Token Service is made' do
-        before do
-          allow_any_instance_of(MAP::SecurityToken::Service).to receive(:token).and_return(expected_sts_token)
-        end
-
-        it 'returns the session token' do
-          expect(subject.session(user)).to eq(expected_sts_token[:access_token])
-        end
-
-        it 'saves the session token in the cache' do
-          subject.session(user)
-          token = Oj.load($redis.get("va-mobile-session:#{user.account_uuid}"))[:token]
-
-          expect(token).to eq(expected_sts_token[:access_token])
-        end
-      end
-    end
-
-    context 'when a request to the Mobile OAuth Secure Token Service fails' do
-      before do
-        allow_any_instance_of(MAP::SecurityToken::Service).to receive(:token)
-          .and_raise(Common::Client::Errors::ClientError)
-      end
-
-      it 'raises a Common::Client::Errors::ClientError' do
-        expect { subject.session(user) }.to raise_error(
-          Common::Client::Errors::ClientError
-        )
-      end
+    it 'raises a Common::Client::Errors::ClientError' do
+      expect { subject.session(user) }.to raise_error(
+        Common::Client::Errors::ClientError
+      )
     end
   end
 

@@ -76,6 +76,7 @@ class Message < Common::Base
   attribute :attachment2_id, Integer
   attribute :attachment3_id, Integer
   attribute :attachment4_id, Integer
+  attribute :suggested_name_display, String
 
   # This is only used for validating uploaded files, never rendered
   attribute :uploads, Array[ActionDispatch::Http::UploadedFile]

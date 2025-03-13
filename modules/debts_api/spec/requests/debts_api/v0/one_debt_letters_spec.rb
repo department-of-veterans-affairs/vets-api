@@ -10,6 +10,12 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
   end
 
   describe '#download_pdf' do
+    before do
+      vbs_service_double = instance_double(MedicalCopays::VBS::Service)
+      allow(vbs_service_double).to receive(:get_copays).and_return({ data: [] })
+      allow(MedicalCopays::VBS::Service).to receive(:build).and_return(vbs_service_double)
+    end
+
     it 'returns pdf' do
       expect(StatsD).to receive(:increment).with(
         'api.rack.request',

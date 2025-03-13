@@ -11,6 +11,7 @@ module Common
       attribute :user_id, Integer
       attribute :expires_at, Common::UTCTime
       attribute :token, String
+      attribute :user_uuid, String
 
       validates_numericality_of :user_id
 

@@ -88,7 +88,7 @@ module AskVAApi
 
         def education_benefits?
           category == 'Education benefits and work study' &&
-            topic != 'Veteran Readiness and Employment'
+            topic != 'Veteran Readiness and Employment (Chapter 31)'
         end
 
         def benefits_outside_us_edu?

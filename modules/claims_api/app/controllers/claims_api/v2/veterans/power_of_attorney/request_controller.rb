@@ -11,26 +11,27 @@ module ClaimsApi
     module Veterans
       class PowerOfAttorney::RequestController < ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController
         FORM_NUMBER = 'POA_REQUEST'
+        MAX_PAGE_SIZE = 100
+        MAX_PAGE_NUMBER = 100
+        DEFAULT_PAGE_SIZE = 10
+        DEFAULT_PAGE_NUMBER = 1
 
+        # POST /power-of-attorney-requests
         def index
           poa_codes = form_attributes['poaCodes']
-          page_size = form_attributes['pageSize']
-          page_index = form_attributes['pageIndex']
+          validate_page_size_and_number_params
+
           filter = form_attributes['filter'] || {}
 
-          unless poa_codes.is_a?(Array) && poa_codes.size.positive?
-            raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
-                                                             detail: 'poaCodes is required and cannot be empty')
-          end
-
-          if page_index.present? && page_size.blank?
-            raise ::Common::Exceptions::ParameterMissing.new('pageSize',
-                                                             detail: 'pageSize is required when pageIndex is present')
-          end
-
+          verify_poa_codes_data(poa_codes)
           validate_filter!(filter)
 
-          service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(poa_codes:, page_size:, page_index:, filter:)
+          service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(
+            poa_codes:,
+            page_size: @page_size_param,
+            page_index: page_number_to_index(@page_number_param),
+            filter:
+          )
 
           poa_list = service.get_poa_list
 
@@ -127,10 +128,11 @@ module ClaimsApi
 
           # skip the BGS API calls in lower environments to prevent 3rd parties from creating data in external systems
           unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
-            res = ClaimsApi::PowerOfAttorneyRequestService::Orchestrator.new(target_veteran.participant_id,
-                                                                             bgs_form_attributes.deep_symbolize_keys,
-                                                                             user_profile&.profile&.participant_id,
-                                                                             :poa).submit_request
+            res = ClaimsApi::PowerOfAttorneyRequestService::Orchestrator
+                  .new(target_veteran.participant_id,
+                       bgs_form_attributes.deep_symbolize_keys,
+                       user_profile&.profile&.participant_id).submit_request
+
             claimant_icn = form_attributes.dig('claimant', 'claimantId')
             poa_request = ClaimsApi::PowerOfAttorneyRequest.create!(proc_id: res['procId'],
                                                                     veteran_icn: params[:veteranId],
@@ -279,6 +281,78 @@ module ClaimsApi
               detail: "Status(es) must be one of: #{valid_statuses.join(', ')}"
             )
           end
+        end
+
+        def validate_page_size_and_number_params
+          return if use_defaults?
+
+          valid_page_param?('size') if params[:page][:size]
+          valid_page_param?('number') if params[:page][:number]
+
+          @page_size_param = params[:page][:size] ? params[:page][:size].to_i : DEFAULT_PAGE_SIZE
+          @page_number_param = params[:page][:number] ? params[:page][:number].to_i : DEFAULT_PAGE_NUMBER
+
+          verify_under_max_values!
+        end
+
+        def use_defaults?
+          if params[:page].blank?
+            @page_size_param = DEFAULT_PAGE_SIZE
+            @page_number_param = DEFAULT_PAGE_NUMBER
+
+            true
+          end
+        end
+
+        def verify_under_max_values!
+          if @page_size_param && @page_size_param > MAX_PAGE_SIZE
+            raise_param_exceeded_warning = true
+            include_page_size_msg = true
+          end
+          if @page_number_param && @page_number_param > MAX_PAGE_NUMBER
+            raise_param_exceeded_warning = true
+            include_page_number_msg = true
+          end
+          if raise_param_exceeded_warning.present?
+            build_params_error_msg(include_page_size_msg,
+                                   include_page_number_msg)
+          end
+        end
+
+        def valid_page_param?(key)
+          return true if params[:page][:"#{key}"].is_a?(Integer) && params[:page][:"#{key}"]
+
+          raise ::Common::Exceptions::BadRequest.new(
+            detail: "The page[#{key}] param value #{params[:page][:"#{key}"]} is invalid"
+          )
+        end
+
+        def build_params_error_msg(include_page_size_msg, include_page_number_msg)
+          if include_page_size_msg.present? && include_page_number_msg.present?
+            msg = "Both the maximum page size param value of #{MAX_PAGE_SIZE} has been exceeded and " \
+                  "the maximum page number param value of #{MAX_PAGE_NUMBER} has been exceeded."
+          elsif include_page_size_msg.present?
+            msg = "The maximum page size param value of #{MAX_PAGE_SIZE} has been exceeded."
+          elsif include_page_number_msg.present?
+            msg = "The maximum page number param value of #{MAX_PAGE_NUMBER} has been exceeded."
+          end
+
+          raise ::Common::Exceptions::BadRequest.new(
+            detail: msg
+          )
+        end
+
+        def verify_poa_codes_data(poa_codes)
+          unless poa_codes.is_a?(Array) && poa_codes.size.positive?
+            raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
+                                                             detail: 'poaCodes is required and cannot be empty')
+          end
+        end
+
+        def page_number_to_index(number)
+          return 0 if number <= 0
+
+          number - 1
         end
 
         def normalize(item)

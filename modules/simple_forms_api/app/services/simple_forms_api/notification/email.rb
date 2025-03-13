@@ -6,66 +6,9 @@ module SimpleFormsApi
       attr_reader :form_number, :confirmation_number, :date_submitted, :expiration_date, :lighthouse_updated_at,
                   :notification_type, :user, :user_account, :form_data
 
-      TEMPLATE_IDS = {
-        'vba_21_0845' => {
-          confirmation: Settings.vanotify.services.va_gov.template_id.form21_0845_confirmation_email,
-          error: Settings.vanotify.services.va_gov.template_id.form21_0845_error_email,
-          received: Settings.vanotify.services.va_gov.template_id.form21_0845_received_email
-        },
-        'vba_21p_0847' => {
-          confirmation: Settings.vanotify.services.va_gov.template_id.form21p_0847_confirmation_email,
-          error: Settings.vanotify.services.va_gov.template_id.form21p_0847_error_email,
-          received: Settings.vanotify.services.va_gov.template_id.form21p_0847_received_email
-        },
-        'vba_21_0966' => {
-          confirmation: Settings.vanotify.services.va_gov.template_id.form21_0966_confirmation_email,
-          error: Settings.vanotify.services.va_gov.template_id.form21_0966_error_email,
-          received: Settings.vanotify.services.va_gov.template_id.form21_0966_received_email
-        },
-        'vba_21_0966_intent_api' => {
-          received: Settings.vanotify.services.va_gov.template_id.form21_0966_itf_api_received_email
-        },
-        'vba_21_0972' => {
-          confirmation: Settings.vanotify.services.va_gov.template_id.form21_0972_confirmation_email,
-          error: Settings.vanotify.services.va_gov.template_id.form21_0972_error_email,
-          received: Settings.vanotify.services.va_gov.template_id.form21_0972_received_email
-        },
-        'vba_21_4142' => {
-          confirmation: Settings.vanotify.services.va_gov.template_id.form21_4142_confirmation_email,
-          error: Settings.vanotify.services.va_gov.template_id.form21_4142_error_email,
-          received: Settings.vanotify.services.va_gov.template_id.form21_4142_received_email
-        },
-        'vba_21_10210' => {
-          confirmation: Settings.vanotify.services.va_gov.template_id.form21_10210_confirmation_email,
-          error: Settings.vanotify.services.va_gov.template_id.form21_10210_error_email,
-          received: Settings.vanotify.services.va_gov.template_id.form21_10210_received_email
-        },
-        'vba_20_10206' => {
-          confirmation: Settings.vanotify.services.va_gov.template_id.form20_10206_confirmation_email,
-          error: Settings.vanotify.services.va_gov.template_id.form20_10206_error_email,
-          received: Settings.vanotify.services.va_gov.template_id.form20_10206_received_email
-        },
-        'vba_20_10207' => {
-          confirmation: Settings.vanotify.services.va_gov.template_id.form20_10207_confirmation_email,
-          error: Settings.vanotify.services.va_gov.template_id.form20_10207_error_email,
-          received: Settings.vanotify.services.va_gov.template_id.form20_10207_received_email
-        },
-        'vba_40_0247' => {
-          confirmation: Settings.vanotify.services.va_gov.template_id.form40_0247_confirmation_email,
-          error: Settings.vanotify.services.va_gov.template_id.form40_0247_error_email,
-          received: nil
-        },
-        'vba_40_10007' => {
-          confirmation: nil,
-          error: Settings.vanotify.services.va_gov.template_id.form40_10007_error_email,
-          received: nil
-        },
-        'vba_26_4555' => {
-          confirmation: Settings.vanotify.services.va_gov.template_id.form26_4555_confirmation_email,
-          rejected: Settings.vanotify.services.va_gov.template_id.form26_4555_rejected_email,
-          duplicate: Settings.vanotify.services.va_gov.template_id.form26_4555_duplicate_email
-        }
-      }.freeze
+      TEMPLATE_IDS = YAML.load_file(
+        'modules/simple_forms_api/app/services/simple_forms_api/notification/template_ids.yml'
+      )
       SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
       def initialize(config, notification_type: :confirmation, user: nil, user_account: nil)
@@ -87,7 +30,7 @@ module SimpleFormsApi
       def send(at: nil)
         return unless flipper?
 
-        template_id = TEMPLATE_IDS[form_number][notification_type]
+        template_id = TEMPLATE_IDS[form_number][notification_type.to_s]
         return unless template_id
 
         sent_to_va_notify = if at
@@ -140,44 +83,26 @@ module SimpleFormsApi
       end
 
       def async_job_with_form_data(email, first_name, at, template_id)
-        if Flipper.enabled?(:simple_forms_notification_callbacks)
-          VANotify::EmailJob.perform_at(
-            at,
-            email,
-            template_id,
-            get_personalization(first_name),
-            *email_args
-          )
-        else
-          VANotify::EmailJob.perform_at(
-            at,
-            email,
-            template_id,
-            get_personalization(first_name)
-          )
-        end
+        VANotify::EmailJob.perform_at(
+          at,
+          email,
+          template_id,
+          get_personalization(first_name),
+          *email_args
+        )
       end
 
       def async_job_with_user_account(user_account, at, template_id)
         first_name_from_user_account = get_first_name_from_user_account
         return unless first_name_from_user_account
 
-        if Flipper.enabled?(:simple_forms_notification_callbacks)
-          VANotify::UserAccountJob.perform_at(
-            at,
-            user_account.id,
-            template_id,
-            get_personalization(first_name_from_user_account),
-            *email_args
-          )
-        else
-          VANotify::UserAccountJob.perform_at(
-            at,
-            user_account.id,
-            template_id,
-            get_personalization(first_name_from_user_account)
-          )
-        end
+        VANotify::UserAccountJob.perform_at(
+          at,
+          user_account.id,
+          template_id,
+          get_personalization(first_name_from_user_account),
+          *email_args
+        )
       end
 
       def send_email_now(template_id)

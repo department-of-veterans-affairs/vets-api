@@ -98,6 +98,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
     context 'with valid params' do
       it 'creates an acceptance decision' do
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).not_to receive(:perform_async)
         use_cassette('202_response') do
           post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
                params: { decision: { type: 'acceptance', reason: nil } }
@@ -113,6 +114,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       end
 
       it 'creates a declination decision' do
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).to receive(:perform_async)
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'declination', reason: 'bad data' } }
 
@@ -152,6 +154,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       end
 
       it 'returns an error' do
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).not_to receive(:perform_async)
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'declination', reason: 'bad data' } }
 
@@ -163,6 +166,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
   describe 'Full decision cycle' do
     it 'creates acceptance decision with veteran claimant' do
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).not_to receive(:perform_async)
       use_cassette('202_response') do
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'acceptance', reason: nil } }
@@ -177,6 +181,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     end
 
     it 'creates declination decision with proper params' do
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).to receive(:perform_async)
       post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
            params: { decision: { type: 'declination', reason: 'bad data' } }
 
@@ -199,6 +204,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     it 'returns an error if decision already exists' do
       create(:power_of_attorney_request_resolution, :expiration,
              power_of_attorney_request: poa_request)
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).not_to receive(:perform_async)
 
       post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
            params: { decision: { type: 'declination', reason: 'bad data' } }

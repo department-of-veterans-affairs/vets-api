@@ -42,35 +42,39 @@ RSpec.describe Form1010cg::SubmissionJob do
   describe '#notify' do
     subject(:notify) { described_class.new.notify(params) }
 
+    let(:tags) { ["params:#{params}", "claim_id:#{claim.id}"] }
+
+    before { allow(StatsD).to receive(:increment) }
+
     context 'retry_count is 0' do
-      let(:params) { { 'retry_count' => 0 } }
+      let(:params) { { 'retry_count' => 0, 'args' => [claim.id] } }
 
       it 'increments applications_retried statsd' do
-        expect { notify }.to trigger_statsd_increment('api.form1010cg.async.applications_retried')
+        expect(StatsD).to receive(:increment).with('api.form1010cg.async.applications_retried')
+        notify
       end
     end
 
     context 'retry_count is not 0 or 9' do
-      let(:params) { { 'retry_count' => 5 } }
+      let(:params) { { 'retry_count' => 5, 'args' => [claim.id] } }
 
       it 'does not increment applications_retried statsd' do
-        expect { notify }.not_to trigger_statsd_increment('api.form1010cg.async.applications_retried')
+        expect(StatsD).not_to receive(:increment).with('api.form1010cg.async.applications_retried')
+        notify
       end
 
       it 'does not increment failed_ten_retries statsd' do
-        expect do
-          notify
-        end.not_to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ["params:#{params}"])
+        expect(StatsD).not_to receive(:increment).with('api.form1010cg.async.failed_ten_retries', tags:)
+        notify
       end
     end
 
     context 'retry_count is 9' do
-      let(:params) { { 'retry_count' => 9 } }
+      let(:params) { { 'retry_count' => 9, 'args' => [claim.id] } }
 
       it 'increments failed_ten_retries statsd' do
-        expect do
-          notify
-        end.to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ["params:#{params}"])
+        expect(StatsD).to receive(:increment).with('api.form1010cg.async.failed_ten_retries', tags:)
+        notify
       end
     end
   end
@@ -129,7 +133,7 @@ RSpec.describe Form1010cg::SubmissionJob do
 
           expect(VANotify::EmailJob).to receive(:perform_async).with(*template_params)
           expect(StatsD).to receive(:increment).with(
-            "#{statsd_key_prefix}submission_failure_email_sent"
+            "#{statsd_key_prefix}submission_failure_email_sent", tags: ["claim_id:#{claim.id}"]
           )
         end
       end
@@ -173,7 +177,7 @@ RSpec.describe Form1010cg::SubmissionJob do
 
           expect(VANotify::EmailJob).to receive(:perform_async)
           expect(StatsD).to receive(:increment).with(
-            "#{statsd_key_prefix}submission_failure_email_sent"
+            "#{statsd_key_prefix}submission_failure_email_sent", tags: ["claim_id:#{claim.id}"]
           )
           expect(StatsD).to receive(:increment).with(
             "#{statsd_key_prefix}record_parse_error",

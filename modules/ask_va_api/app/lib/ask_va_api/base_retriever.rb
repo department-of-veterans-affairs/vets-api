@@ -12,12 +12,15 @@ module AskVAApi
     def call
       data = fetch_data
 
-      if data.is_a?(Array)
-        data.map { |item| entity_class.new(item) }
-      else
-        entity_class.new(data)
-      end
+      return data.map { |item| entity_class.new(item) } if data.is_a?(Array)
+
+      entity_class.new(data)
     rescue => e
+      if e.message.include?('"Message":"Data Validation: No Contact found by ICN"') &&
+         e.instance_of?(AskVAApi::Inquiries::InquiriesRetrieverError)
+        return []
+      end
+
       ::ErrorHandler.handle_service_error(e)
     end
 
