@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'kafka/producer_manager'
 
 workers Integer(ENV.fetch('WEB_CONCURRENCY', 0))
