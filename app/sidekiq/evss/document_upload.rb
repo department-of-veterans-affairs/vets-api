@@ -37,10 +37,10 @@ class EVSS::DocumentUpload
 
   sidekiq_retries_exhausted do |msg, _ex|
     verify_msg(msg)
-
+    # Grab the evidence_submission_id from the msg args
     evidence_submission = EvidenceSubmission.find_by(id: msg['args'][3])
 
-    if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission
+    if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && !evidence_submission.nil?
       update_evidence_submission_for_failure(evidence_submission, msg)
     else
       call_failure_notification(msg)
@@ -54,15 +54,11 @@ class EVSS::DocumentUpload
 
     validate_document!
     pull_file_from_cloud!
-
     evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_id)
-
     if can_update_evidence_submission(evidence_submission)
       update_evidence_submission_with_job_details(evidence_submission)
     end
-
     perform_document_upload_to_evss
-
     update_evidence_submission_for_success(evidence_submission) if can_update_evidence_submission(evidence_submission)
     clean_up!
   end

@@ -22,10 +22,9 @@ module Lighthouse
 
       sidekiq_retries_exhausted do |msg, _ex|
         verify_msg(msg)
-
-        evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
-
-        if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission
+        # Grab the evidence_submission_id from the msg args
+        evidence_submission = EvidenceSubmission.find_by(id: msg['args'][2])
+        if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && !evidence_submission.nil?
           update_evidence_submission_for_failure(evidence_submission, msg)
         else
           call_failure_notification(msg)
@@ -37,14 +36,11 @@ module Lighthouse
         @document_hash = document_hash
 
         initialize_upload_document
-
         evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_id)
         if can_update_evidence_submission(evidence_submission)
           update_evidence_submission_with_job_details(evidence_submission)
         end
-
         perform_document_upload_to_lighthouse(evidence_submission)
-
         clean_up!
       end
 
@@ -73,7 +69,8 @@ module Lighthouse
             personalisation: update_personalisation(current_personalisation, msg['failed_at'])
           }.to_json
         )
-        add_log('FAILED', evidence_submission.claim_id, evidence_submission.id)
+
+        add_log('FAILED', evidence_submission.claim_id, evidence_submission.id, msg['jid'])
         StatsD.increment('silent_failure_avoided_no_confirmation',
                          tags: ['service:claim-status', "function: #{message}"])
       rescue => e
@@ -121,6 +118,14 @@ module Lighthouse
 
       def self.helpers
         BenefitsDocuments::Utilities::Helpers
+      end
+
+      def self.add_log(type, claim_id, evidence_submission_id, job_id)
+        ::Rails.logger.info("LH - Updated Evidence Submission Record to #{type}", {
+                              claim_id:,
+                              evidence_submission_id:,
+                              job_id:
+                            })
       end
 
       private
@@ -179,14 +184,6 @@ module Lighthouse
         !!(Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission)
       end
 
-      def add_log(type, claim_id, evidence_submission_id)
-        ::Rails.logger.info("LH - Updated Evidence Submission Record to #{type}", {
-                              claim_id:,
-                              evidence_submission_id:,
-                              job_id: jid
-                            })
-      end
-
       def update_evidence_submission_with_job_details(evidence_submission)
         evidence_submission.update!(
           upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:QUEUED],
@@ -194,7 +191,7 @@ module Lighthouse
           job_class: self.class
         )
         StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_updated.queued')
-        add_log('QUEUED', evidence_submission.claim_id, evidence_submission.id)
+        self.class.add_log('QUEUED', evidence_submission.claim_id, evidence_submission.id, jid)
       end
 
       # For lighthouse uploads if the response is successful then we leave the upload_status as PENDING
@@ -209,7 +206,7 @@ module Lighthouse
             upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
           )
           StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_updated.added_request_id')
-          add_log('PENDING', evidence_submission.claim_id, evidence_submission.id)
+          self.class.add_log('PENDING', evidence_submission.claim_id, evidence_submission.id, jid)
         else
           raise StandardError
         end
