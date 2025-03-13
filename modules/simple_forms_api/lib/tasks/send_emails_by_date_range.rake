@@ -32,6 +32,7 @@ namespace :simple_forms_api do
   end
 
   def process_form_submission_attempts(form_submission_attempts)
+    error_notifications_sent = []
     form_submission_attempts.map do |form_submission_attempt|
       confirmation_number = form_submission_attempt.benefits_intake_uuid
       Rails.logger.info "Attempting to enqueue email for: #{confirmation_number}"
@@ -39,6 +40,7 @@ namespace :simple_forms_api do
       time_to_send = now.tomorrow.change(hour: 9, min: 0)
       form_submission = form_submission_attempt.form_submission
       notification_type = get_notification_type(form_submission_attempt)
+      error_notifications_sent << confirmation_number if notification_type == :error
 
       SimpleFormsApi::Notification::Email.new(
         config(form_submission_attempt, form_submission, confirmation_number),
@@ -49,6 +51,8 @@ namespace :simple_forms_api do
       Rails.logger.info "Successfully enqueued email for: #{confirmation_number}"
       [confirmation_number, notification_type]
     end
+    Rails.logger.info 'Successful error notifications sent:'
+    Rails.logger.info error_notifications_sent
   end
 
   def log_successful_attempts(successful_uuids)
