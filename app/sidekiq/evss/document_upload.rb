@@ -95,6 +95,7 @@ class EVSS::DocumentUpload
       }.to_json
     )
     add_log('FAILED', evidence_submission.claim_id, evidence_submission.id, msg['jid'])
+    message = "#{name} EvidenceSubmission updated"
     StatsD.increment('silent_failure_avoided_no_confirmation',
                      tags: ['service:claim-status', "function: #{message}"])
   rescue => e
