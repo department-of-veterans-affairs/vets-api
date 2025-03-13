@@ -86,7 +86,7 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     expect(forms[0].reload.email_sent).to be false
   end
 
-  it 'checks PEGA reporting API and updates form pega_status if form has actually been processed' do
+  it 'checks PEGA reporting API and declines to send failure email if form has actually been processed' do
     # The `pega_status` stored on a form object may be innacurate if the PEGA service
     # had an unrelated failure when attempting to update the status via the API.
     # As a result, we double-check PEGA's reporting API for any submissions that
@@ -96,12 +96,12 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     allow(Settings.vanotify.services.ivc_champva).to receive(:failure_email_threshold_days).and_return(threshold)
     allow(job).to receive(:num_docs_match_reports?).and_return(false) # Default
 
-    # Roll up the form submissions into batches and grab the first and last for testing
+    # Roll up the form submissions into batches and grab the first for testing
     original_uuid, batch = job.missing_status_cleanup.get_missing_statuses(true).first
 
     # Mock checking the reporting API to pretend like this form w missing status has
     # been ingested on the PEGA side
-    allow(job).to receive(:num_docs_match_reports?).with(batch).and_return(true) # Batch we're interested in
+    allow(job).to receive(:num_docs_match_reports?).with(batch).and_return(true)
 
     # Verify that the first batch is past threshold and has no email sent:
     expect(days_since_now(batch[0].created_at) > threshold).to be true

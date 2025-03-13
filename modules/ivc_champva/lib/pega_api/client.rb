@@ -51,7 +51,6 @@ module IvcChampva
       #
       # @return [Hash] the headers
       def headers(date_start, date_end, case_id = '', uuid = '')
-        # TODO: reorder params so `case_id` is last?
         {
           :content_type => 'application/json',
           'x-api-key' => Settings.ivc_champva.pega_api.api_key.to_s,
@@ -69,7 +68,7 @@ module IvcChampva
       #
       # @return [Hash|boolean] Either a list of PEGA reports or `false` if no report was found
       def record_has_matching_report(record)
-        # A report looks like (note the UUID truncation 'e+'):
+        # A report looks like this (note the UUID truncation 'e+'):
         # { "Creation Date"=>"2024-12-17T07:42:28.307000",
         #   "PEGA Case ID"=>"D-XXXXX",
         #   "Status"=>"Processed",
