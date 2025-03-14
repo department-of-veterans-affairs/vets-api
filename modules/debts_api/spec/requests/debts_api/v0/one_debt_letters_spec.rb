@@ -19,7 +19,6 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
     it 'returns pdf' do
       VCR.use_cassette('bgs/people_service/person_data') do
         VCR.use_cassette('debts/get_letters', VCR::MATCH_EVERYTHING) do
-
           get '/debts_api/v0/download_one_debt_letter_pdf'
 
           expect(response).to have_http_status(:ok)
