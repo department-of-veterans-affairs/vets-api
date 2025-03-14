@@ -44,7 +44,7 @@ module Burials
       def perform(saved_claim_id, user_account_uuid = nil)
         init(saved_claim_id, user_account_uuid)
 
-        return if form_submission_pending_or_success
+        #return if form_submission_pending_or_success
 
         # generate and validate claim pdf documents
         @form_path = process_document(@claim.to_pdf)
@@ -133,7 +133,7 @@ module Burials
           timestamp: @claim.created_at,
           page_number: 5,
           size: 9,
-          template: "#{Burials::MODULE_PATH}/lib/pdf_fill/forms/pdfs/#{@claim.form_id}.pdf",
+          template: "#{Burials::MODULE_PATH}/lib/burials/pdf_fill/forms/pdfs/#{@claim.form_id}.pdf",
           multistamp: true
         )
 
