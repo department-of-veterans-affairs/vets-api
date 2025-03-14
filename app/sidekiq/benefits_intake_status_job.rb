@@ -16,6 +16,24 @@ class BenefitsIntakeStatusJob
   STATS_KEY = 'api.benefits_intake.submission_status'
   STALE_SLA = Settings.lighthouse.benefits_intake.report.stale_sla || 10
   BATCH_SIZE = Settings.lighthouse.benefits_intake.report.batch_size || 1000
+  FORM_IDS = BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS.keys.map(&:to_s)
+  DEFAULTS = {
+    '686C-674' => {
+      claim: SavedClaim::DependencyClaim,
+      monitor: Dependents::Monitor,
+      email_keys: %w[dependents_application veteran_contact_information email_address]
+    },
+    '28-8832' => {
+      claim: SavedClaim::EducationCareerCounselingClaim,
+      monitor: PCPG::Monitor,
+      email_keys: %w[claimantInformation emailAddress]
+    },
+    '28-1900' => {
+      claim: SavedClaim::VeteranReadinessEmploymentClaim,
+      monitor: VRE::Monitor,
+      email_keys: ['email']
+    }
+  }.freeze
 
   attr_reader :batch_size
 
