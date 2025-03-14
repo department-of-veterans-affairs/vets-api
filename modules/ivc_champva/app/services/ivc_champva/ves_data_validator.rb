@@ -2,13 +2,9 @@
 
 module IvcChampva
   class VesDataValidator
-    @childtype_list = %w[ADOPTED STEPCHILD NATURAL].freeze
-    @relationship_list = %w[SPOUSE EX_SPOUSE CAREGIVER CHILD].freeze
-    @gender_list = %w[MALE FEMALE].freeze
-
-    class << self
-      attr_reader :childtype_list, :relationship_list, :gender_list
-    end
+    CHILDTYPES = %w[ADOPTED STEPCHILD NATURAL].freeze
+    RELATIONSHIPS = %w[SPOUSE EX_SPOUSE CAREGIVER CHILD].freeze
+    GENDERS = %w[MALE FEMALE].freeze
 
     # This function will run through all the individual validators
     def self.validate(request_body)
@@ -119,8 +115,8 @@ module IvcChampva
     def self.validate_beneficiary_gender(beneficiary)
       title = 'beneficiary gender'
       validate_nonempty_presence_and_stringiness(beneficiary[:gender], title)
-      unless gender_list.include?(beneficiary[:gender])
-        raise ArgumentError, "#{title} is invalid. Must be in #{gender_list.join(', ')}"
+      unless VesDataValidator::GENDERS.include?(beneficiary[:gender])
+        raise ArgumentError, "#{title} is invalid. Must be in #{VesDataValidator::GENDERS.join(', ')}"
       end
 
       beneficiary
@@ -135,8 +131,8 @@ module IvcChampva
     def self.validate_beneficiary_relationship(beneficiary)
       title = 'beneficiary relationship to sponsor'
       validate_presence_and_stringiness(beneficiary[:relationshipToSponsor], title)
-      unless relationship_list.include?(beneficiary[:relationshipToSponsor])
-        raise ArgumentError, "#{title} is invalid. Must be in #{relationship_list.join(', ')}"
+      unless VesDataValidator::RELATIONSHIPS.include?(beneficiary[:relationshipToSponsor])
+        raise ArgumentError, "#{title} is invalid. Must be in #{VesDataValidator::RELATIONSHIPS.join(', ')}"
       end
 
       validate_beneficiary_childtype(beneficiary) if beneficiary[:relationshipToSponsor] == 'CHILD'
@@ -147,8 +143,8 @@ module IvcChampva
     def self.validate_beneficiary_childtype(beneficiary)
       title = 'beneficiary childtype'
       validate_nonempty_presence_and_stringiness(beneficiary[:childtype], title)
-      unless childtype_list.include?(beneficiary[:childtype])
-        raise ArgumentError, "#{title} is invalid. Must be in #{childtype_list.join(', ')}"
+      unless VesDataValidator::CHILDTYPES.include?(beneficiary[:childtype])
+        raise ArgumentError, "#{title} is invalid. Must be in #{VesDataValidator::CHILDTYPES.join(', ')}"
       end
 
       beneficiary

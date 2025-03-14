@@ -180,7 +180,7 @@ describe IvcChampva::VesDataValidator do
 
   describe 'beneficiary relationship to sponsor not in accepted values' do
     it 'raises an exception' do
-      possible_values = IvcChampva::VesDataValidator.relationship_list.join(', ')
+      possible_values = IvcChampva::VesDataValidator::RELATIONSHIPS.join(', ')
       @request_body[:beneficiaries][0][:relationshipToSponsor] = 'INVALID'
 
       expect do
@@ -192,7 +192,7 @@ describe IvcChampva::VesDataValidator do
 
   describe 'beneficiary childtype not in accepted values' do
     it 'raises an exception' do
-      possible_values = IvcChampva::VesDataValidator.childtype_list.join(', ')
+      possible_values = IvcChampva::VesDataValidator::CHILDTYPES.join(', ')
       @request_body[:beneficiaries][0][:childtype] = 'INVALID'
 
       expect do
@@ -204,7 +204,7 @@ describe IvcChampva::VesDataValidator do
 
   describe 'beneficiary gender not in accepted values' do
     it 'raises an exception' do
-      possible_values = IvcChampva::VesDataValidator.gender_list.join(', ')
+      possible_values = IvcChampva::VesDataValidator::GENDERS.join(', ')
       @request_body[:beneficiaries][0][:gender] = 'INVALID'
 
       expect do
