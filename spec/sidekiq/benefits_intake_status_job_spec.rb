@@ -76,26 +76,53 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
     end
 
     describe 'when bulk status update fails' do
-      it 'logs the error' do
-        create_list(:form_submission, 2, :pending)
-        message = 'error'
-        response = double(body: message, success?: false)
-        service = double(bulk_status: response)
+      let(:service) { instance_double(BenefitsIntake::Service) }
+      let(:form_submissions) { create_list(:form_submission, 4, :pending) }
+      let(:success_response) { double(body: success_body, success?: true) }
+      let(:failure_response) { double(body: failure_body, success?: false) }
+      let(:success_body) do
+        { 'data' =>
+          [{
+            'id' => form_submissions.first.form_submission_attempts.first.benefits_intake_uuid,
+            'type' => 'document_upload',
+            'attributes' => {
+              'guid' => form_submissions.first.form_submission_attempts.first.benefits_intake_uuid,
+              'status' => 'pending',
+              'code' => 'DOC108',
+              'detail' => 'Maximum page size exceeded. Limit is 78 in x 101 in.',
+              'updated_at' => '2018-07-30T17:31:15.958Z',
+              'created_at' => '2018-07-30T17:31:15.958Z'
+            }
+          }] }
+      end
+      let(:failure_body) { 'error' }
 
-        allow(BenefitsIntake::Service).to receive(:new).and_return(service)
+      before do
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:error)
+        allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send)
 
-        BenefitsIntakeStatusJob.new.perform
+        allow(BenefitsIntake::Service).to receive(:new).and_return(service)
+        allow(service).to(
+          receive(:bulk_status).and_return(success_response, success_response, failure_response, success_response)
+        )
 
-        expect(Rails.logger).to have_received(:error).with('Error processing Intake Status batch',
-                                                           class: 'BenefitsIntakeStatusJob', message:)
+        described_class.new(batch_size: 1).perform
+      end
+
+      it 'logs the error' do
+        expect(Rails.logger).to have_received(:error).with('Errors occurred while processing Intake Status batch',
+                                                           class: 'BenefitsIntakeStatusJob', errors: [failure_body])
         expect(Rails.logger).not_to have_received(:info).with('BenefitsIntakeStatusJob ended')
+      end
+
+      it 'does not short circuit the batch processing job' do
+        expect(service).to have_received(:bulk_status).exactly(4).times
       end
     end
 
     describe 'updating the form submission status' do
-      before { allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send) }
+      before { allow_any_instance_of(SimpleFormsApi::Notification::Email).to receive(:send) }
 
       it 'updates the status with vbms from the bulk status report endpoint' do
         pending_form_submission_attempts = create_list(:form_submission_attempt, 1, :pending)
@@ -209,38 +236,6 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
       end
 
       # end 'updating the form submission status'
-    end
-
-    describe 'updating the Burial form submission status' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:burial_received_email_notification).and_return(true)
-      end
-
-      it 'updates the burial status with vbms from the bulk status report endpoint' do
-        claim = build(:burial_claim)
-        pending_form_submission_attempts = create_list(:form_submission_attempt, 1, :pending)
-        batch_uuids = pending_form_submission_attempts.map(&:benefits_intake_uuid)
-        data = batch_uuids.map { |id| { 'id' => id, 'attributes' => { 'status' => 'vbms' } } }
-        response = double(success?: true, body: { 'data' => data })
-
-        status_job = BenefitsIntakeStatusJob.new
-
-        claim.update!(id: rand(100..1000))
-        pfsa = pending_form_submission_attempts.first
-        pfsa.form_submission.update!(form_type: claim.form_id, saved_claim_id: claim.id)
-
-        expect(status_job).to receive(:log_result).with('success', pfsa.form_submission.form_type,
-                                                        pfsa.benefits_intake_uuid, anything)
-        expect_any_instance_of(Burials::NotificationEmail).to receive(:deliver).with(:received)
-        expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
-          .with(uuids: batch_uuids).and_return(response)
-
-        status_job.perform
-
-        pending_form_submission_attempts.each do |form_submission_attempt|
-          expect(form_submission_attempt.reload.aasm_state).to eq 'vbms'
-        end
-      end
     end
 
     # end #perform

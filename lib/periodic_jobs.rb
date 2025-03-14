@@ -248,7 +248,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
 
   # Daily cleanup of > 12 month old UserAction records
-  mgr.register('45 3 * * *', 'UserActionEventsCleanupJob')
+  mgr.register('45 3 * * *', 'UserActionsCleanupJob')
 
   # CST Daily job that deletes EvidenceSubmissions when their delete_date has been met
   mgr.register('0 6 * * *', 'Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJob')
@@ -258,4 +258,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Daily cron job to send Failure Notification Emails to Veterans for their failed evidence submissions.
   mgr.register('5 0 * * *', 'Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob')
+
+  # Daily cron job to delete Form1095B forms for years prior to the current tax year.
+  mgr.register('0 4 * * *', 'Form1095::DeleteOld1095BsJob')
 }

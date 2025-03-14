@@ -19,6 +19,11 @@ describe AppealsApi::CentralMailUpdater do
     allow(client_stub).to receive(:status).and_return(faraday_response)
   end
 
+  after do
+    client_stub { nil }
+    faraday_response { nil }
+  end
+
   context 'uses different statuses/attributes matching for nod and hlr' do
     before do
       allow(faraday_response).to receive(:success?).and_return(true)

@@ -120,7 +120,7 @@ RSpec.describe EVSSClaimService do
       user.save!
     end
 
-    let(:issue_instant) { Time.now.to_i }
+    let(:issue_instant) { Time.current.to_i }
     let(:submitted_date) do
       BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
     end
@@ -148,6 +148,7 @@ RSpec.describe EVSSClaimService do
     context 'when :cst_send_evidence_submission_failure_emails is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:cst_send_evidence_submission_failure_emails).and_return(true)
+        allow(StatsD).to receive(:increment)
       end
 
       it 'records evidence submission PENDING' do
@@ -158,6 +159,9 @@ RSpec.describe EVSSClaimService do
         expect(evidence_submission.upload_status)
           .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
         expect(current_personalisation['date_submitted']).to eql(submitted_date)
+        expect(StatsD)
+          .to have_received(:increment)
+          .with('cst.evss.document_uploads.evidence_submission_record_created')
       end
     end
 

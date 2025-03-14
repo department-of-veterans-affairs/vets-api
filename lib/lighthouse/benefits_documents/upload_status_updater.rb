@@ -95,7 +95,7 @@ module BenefitsDocuments
       @pending_evidence_submission.update!(
         upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
         failed_date: DateTime.now.utc,
-        acknowledgement_date: (DateTime.current + 30.days).utc,
+        acknowledgement_date: (DateTime.current + 30.days),
         error_message: @lighthouse_document_status_response['error'],
         template_metadata: {
           personalisation: update_personalisation
@@ -113,7 +113,7 @@ module BenefitsDocuments
     def process_upload
       @pending_evidence_submission.update!(
         upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
-        delete_date: (DateTime.current + 60.days).utc
+        delete_date: (DateTime.current + 60.days)
       )
     end
   end

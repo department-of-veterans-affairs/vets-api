@@ -151,7 +151,7 @@ describe VAOS::V2::AppointmentsService do
   before do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     Flipper.enable_actor(:appointments_consolidation, user)
-    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
   end
 
   describe '#post_appointment' do
@@ -173,8 +173,9 @@ describe VAOS::V2::AppointmentsService do
 
     context 'using VAOS' do
       before do
-        Flipper.disable(:va_online_scheduling_use_vpg)
-        Flipper.disable(:va_online_scheduling_OH_request)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
+                                                  instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
       end
 
       context 'when va appointment create request is valid' do
@@ -282,12 +283,20 @@ describe VAOS::V2::AppointmentsService do
 
     context 'using VPG' do
       before do
-        Flipper.enable(:va_online_scheduling_use_vpg)
-        Flipper.enable(:va_online_scheduling_OH_request)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
+                                                  instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                  instance_of(User)).and_return(true)
       end
 
       context 'when va appointment create request is valid' do
         # appointment created using the Jacqueline Morgan user
+
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+                                                    instance_of(User)).and_return(true)
+        end
 
         it 'returns the created appointment - va - booked' do
           VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M_vpg',
@@ -341,6 +350,11 @@ describe VAOS::V2::AppointmentsService do
       end
 
       context 'when cc appointment create request is valid' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+                                                    instance_of(User)).and_return(true)
+        end
+
         it 'returns the created appointment - cc - proposed' do
           VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_2222022_vpg',
                            match_requests_on: %i[method path query]) do
@@ -356,6 +370,11 @@ describe VAOS::V2::AppointmentsService do
       end
 
       context 'when the patientIcn is missing' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+                                                    instance_of(User)).and_return(true)
+        end
+
         it 'raises a backend exception' do
           VCR.use_cassette('vaos/v2/appointments/post_appointments_400_vpg',
                            match_requests_on: %i[method path query]) do
@@ -381,6 +400,11 @@ describe VAOS::V2::AppointmentsService do
       end
 
       context 'when the upstream server returns a 500' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+                                                    instance_of(User)).and_return(true)
+        end
+
         it 'raises a backend exception' do
           VCR.use_cassette('vaos/v2/appointments/post_appointments_500_vpg',
                            match_requests_on: %i[method path query]) do
@@ -397,7 +421,10 @@ describe VAOS::V2::AppointmentsService do
     context 'using VAOS' do
       before do
         Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
-        Flipper.disable(:va_online_scheduling_use_vpg)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(true)
       end
 
       after do
@@ -539,7 +566,7 @@ describe VAOS::V2::AppointmentsService do
 
       context 'when requesting a list of appointments containing a booked cc appointment' do
         it 'sets cancellable to false' do
-          Flipper.disable(:appointments_consolidation)
+          allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(false)
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility2)
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_cc_booked',
                            allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
@@ -631,14 +658,15 @@ describe VAOS::V2::AppointmentsService do
       end
 
       context 'includes travel claims' do
-        it 'returns a list of appointments with travel claim information attached' do
+        before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
+        end
 
+        it 'returns a list of appointments with travel claim information attached' do
           VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                              allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
@@ -656,6 +684,10 @@ describe VAOS::V2::AppointmentsService do
     end
 
     context 'when a MAP token error occurs' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
+      end
+
       it 'logs missing ICN error' do
         expected_error = MAP::SecurityToken::Errors::MissingICNError.new 'Missing ICN message'
         # Set up SessionService to raise the expected error. Although the error should be raised by
@@ -895,11 +927,12 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#get_appointment' do
-    context 'using VAOS' do
-      before do
-        Flipper.disable(:va_online_scheduling_use_vpg)
-      end
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
+    end
 
+    context 'using VAOS' do
       context 'with an appointment' do
         context 'with Jacqueline Morgan' do
           it 'returns a proposed appointment' do
@@ -989,14 +1022,15 @@ describe VAOS::V2::AppointmentsService do
       end
 
       context 'when travel reimbursement claims are included' do
-        it 'returns an appointment with a travel claim attached if claim exists' do
+        before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
+        end
 
+        it 'returns an appointment with a travel claim attached if claim exists' do
           VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_instance',
                            match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_with_avs',
@@ -1013,7 +1047,6 @@ describe VAOS::V2::AppointmentsService do
         it 'returns an appointment without a travel claim attached if claim does not exist' do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
@@ -1035,7 +1068,10 @@ describe VAOS::V2::AppointmentsService do
 
     context 'using VPG' do
       before do
-        Flipper.enable(:va_online_scheduling_use_vpg)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
       end
 
       context 'with an appointment' do
@@ -1133,8 +1169,12 @@ describe VAOS::V2::AppointmentsService do
       context 'with Jaqueline Morgan' do
         context 'using VPG' do
           before do
-            Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
-            Flipper.enable(:va_online_scheduling_use_vpg)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+                                                      user).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
+            allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           end
 
           it 'returns a cancelled status and the cancelled appointment information' do
@@ -1165,7 +1205,8 @@ describe VAOS::V2::AppointmentsService do
 
         context 'using vaos-service' do
           before do
-            Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+                                                      user).and_return(false)
           end
 
           it 'returns a cancelled status and the cancelled appointment information' do
@@ -1197,7 +1238,7 @@ describe VAOS::V2::AppointmentsService do
 
     context 'when there is a server error in updating an appointment' do
       before do
-        Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations, user).and_return(false)
       end
 
       it 'throws a BackendServiceException' do
@@ -1235,6 +1276,13 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#get_appointments merge' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(true)
+    end
+
     context 'when include eps is true' do
       it 'merges eps appointments with vaos appointments' do
         VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
@@ -1345,6 +1393,92 @@ describe VAOS::V2::AppointmentsService do
                 expect(no_name_provider.provider_name).to eq('unknown')
               end
             end
+          end
+        end
+      end
+    end
+  end
+
+  describe '#referral_appointment_already_exists?' do
+    before do
+      Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+    end
+
+    context 'when requests to check existing appointments are successful' do
+      it 'returns hash with boolean indicating no existing appointments are tied to referral' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_v2',
+                         match_requests_on: %i[method query]) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          check = subject.referral_appointment_already_exists?('ref-150')
+          expect(check).to be_a(Hash)
+          expect(check[:exists]).to be(false)
+          expect(check).not_to have_key(:failure)
+        end
+      end
+
+      it 'returns hash with boolean indicating there is an existing CCRA appointment' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_v2',
+                         match_requests_on: %i[method query]) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          check = subject.referral_appointment_already_exists?('ref-122')
+          expect(check).to be_a(Hash)
+          expect(check[:exists]).to be(true)
+          expect(check).not_to have_key(:failure)
+        end
+      end
+
+      it 'returns hash with boolean indicating there is an existing EPS appointment' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_v2',
+                         match_requests_on: %i[method query]) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          check = subject.referral_appointment_already_exists?('1234567890')
+          expect(check).to be_a(Hash)
+          expect(check[:exists]).to be(true)
+          expect(check).not_to have_key(:failure)
+        end
+      end
+
+      # replicates tests for get_appointments to ensure consistent logging
+      context 'upstream api failures' do
+        context 'when the call for vaos appointments returns a partial failure' do
+          it 'logs the failures, anonymizes the ICNs sent to the log, and returns the failure messages' do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_partial_errors_v2',
+                             match_requests_on: %i[method path query]) do
+              expected_msg = 'VAOS::V2::AppointmentService#get_all_appointments has response errors. : ' \
+                             '{:failures=>"[{\\"system\\":\\"VSP\\",\\"status\\":\\"500\\",\\"code\\":10000,\\"' \
+                             'message\\":\\"Could not fetch appointments from Vista Scheduling Provider\\",\\"' \
+                             'detail\\":\\"icn=d12672eba61b7e9bc50bb6085a0697133a5fbadf195e6cade452ddaad7921c1d, ' \
+                             'startDate=1921-09-02T00:00:00Z, endDate=2121-09-02T00:00:00Z\\"}]"}'
+
+              allow(Rails.logger).to receive(:info)
+
+              check = subject.referral_appointment_already_exists?('ref-150')
+              expect(Rails.logger).to have_received(:info).with(expected_msg)
+              expect(check).to be_a(Hash)
+              expect(check).not_to have_key(:exists)
+              expect(check[:error]).to be(true)
+              expect(check).to have_key(:failures)
+              expect(check[:failures].count).to eq(1)
+              expect(check[:failures][0][:message]).to eq('Could not fetch appointments from Vista Scheduling Provider')
+            end
+          end
+        end
+
+        context 'when a MAP token error occurs' do
+          it 'logs missing ICN error' do
+            expected_error = MAP::SecurityToken::Errors::MissingICNError.new 'Missing ICN message'
+            allow_any_instance_of(VAOS::SessionService).to receive(:headers).and_raise(expected_error)
+            allow(Rails.logger).to receive(:warn).at_least(:once)
+            check = subject.referral_appointment_already_exists?('ref-150')
+
+            expected_message = 'VAOS::V2::AppointmentService#get_all_appointments missing ICN'
+            expect(Rails.logger)
+              .to have_received(:warn)
+              .with(expected_message)
+            expect(check[:failures]).to eq('Missing ICN message')
           end
         end
       end

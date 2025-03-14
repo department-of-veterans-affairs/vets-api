@@ -38,8 +38,10 @@ class EVSS::DocumentUpload
   sidekiq_retries_exhausted do |msg, _ex|
     verify_msg(msg)
 
-    if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
-      update_evidence_submission(msg)
+    evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
+
+    if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission
+      update_evidence_submission(evidence_submission, msg)
     else
       call_failure_notification(msg)
     end
@@ -53,7 +55,11 @@ class EVSS::DocumentUpload
     validate_document!
     pull_file_from_cloud!
     perform_document_upload_to_evss
-    update_evidence_submission_status(jid) if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
+    evidence_submission = EvidenceSubmission.find_by(job_id: jid)
+
+    if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission
+      update_evidence_submission_status(evidence_submission)
+    end
     clean_up!
   end
 
@@ -75,12 +81,11 @@ class EVSS::DocumentUpload
     !(%w[evss_claim_id tracked_item_id document_type file_name] - args[2].keys).empty?
   end
 
-  def self.update_evidence_submission(msg)
-    evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
+  def self.update_evidence_submission(evidence_submission, msg)
     current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
     evidence_submission.update(
       upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
-      failed_date: DateTime.now.utc,
+      failed_date: DateTime.current,
       acknowledgement_date: (DateTime.current + 30.days).utc,
       error_message: 'EVSS::DocumentUpload document upload failure',
       template_metadata: {
@@ -177,11 +182,11 @@ class EVSS::DocumentUpload
     @file_body ||= perform_initial_file_read
   end
 
-  def update_evidence_submission_status(job_id)
-    evidence_submission = EvidenceSubmission.find_by(job_id:)
+  def update_evidence_submission_status(evidence_submission)
     evidence_submission.update!(
       upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
-      delete_date: (DateTime.current + 60.days).utc
+      delete_date: (DateTime.current + 60.days)
     )
+    StatsD.increment('cst.evss.document_uploads.evidence_submission_record_updated.success')
   end
 end

@@ -23,8 +23,10 @@ module Lighthouse
       sidekiq_retries_exhausted do |msg, _ex|
         verify_msg(msg)
 
-        if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
-          update_evidence_submission_for_failure(msg)
+        evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
+
+        if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission
+          update_evidence_submission_for_failure(evidence_submission, msg)
         else
           call_failure_notification(msg)
         end
@@ -53,13 +55,12 @@ module Lighthouse
         !(%w[first_name claim_id document_type file_name tracked_item_id] - args[1].keys).empty?
       end
 
-      def self.update_evidence_submission_for_failure(msg)
-        evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
+      def self.update_evidence_submission_for_failure(evidence_submission, msg)
         current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
         evidence_submission.update(
           upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
-          failed_date: DateTime.now.utc,
-          acknowledgement_date: (DateTime.current + 30.days).utc,
+          failed_date: DateTime.current,
+          acknowledgement_date: (DateTime.current + 30.days),
           error_message: 'Lighthouse::EvidenceSubmissions::DocumentUpload document upload failure',
           template_metadata: {
             personalisation: update_personalisation(current_personalisation, msg['failed_at'])
@@ -131,10 +132,11 @@ module Lighthouse
       end
 
       def perform_document_upload_to_lighthouse
+        evidence_submission = EvidenceSubmission.find_by(job_id: jid)
         Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
           span.set_tag('Document File Size', file_body.size)
           response = client.upload_document(file_body, document) # returns upload response which includes requestId
-          if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
+          if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && evidence_submission
             update_evidence_submission_for_in_progress(jid, response)
           end
         end
@@ -179,6 +181,7 @@ module Lighthouse
           evidence_submission.update!(
             request_id:
           )
+          StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_updated.added_request_id')
         else
           raise StandardError
         end

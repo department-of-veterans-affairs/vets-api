@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe RepresentationManagement::PowerOfAttorneyRequestService::Orchestrate do
   describe '#call' do
     subject do
-      described_class.new(data:, dependent:, service_branch:, user:)
+      described_class.new(data:, dependent:, form_data_object:, service_branch:, user:)
     end
 
     let(:user) { create(:user, :loa3) }
@@ -53,6 +53,7 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestService::Orchestr
         representative_id: representative.representative_id
       }
     end
+    let(:form_data_object) { RepresentationManagement::Form2122Data.new(data) }
 
     it 'creates a new AccreditedRepresentativePortal::PowerOfAttorneyRequest' do
       expect { subject.call }.to change(AccreditedRepresentativePortal::PowerOfAttorneyRequest, :count).by(1)
@@ -60,6 +61,11 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestService::Orchestr
 
     it 'creates a new AccreditedRepresentativePortal::PowerOfAttorneyForm' do
       expect { subject.call }.to change(AccreditedRepresentativePortal::PowerOfAttorneyForm, :count).by(1)
+    end
+
+    it 'enqueues a AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob' do
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).to receive(:perform_async)
+      subject.call
     end
 
     context 'when there is a form in progress' do
@@ -101,9 +107,31 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestService::Orchestr
         expect { subject.call }.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyForm, :count)
       end
 
+      it 'does not enqueue a AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob' do
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).not_to receive(:perform_async)
+        subject.call
+      end
+
       it 'does not attempt to destroy a form in progress' do
         expect(InProgressForm).not_to receive(:form_for_user)
 
+        subject.call
+      end
+    end
+
+    context 'when there is an error destroying the form' do
+      before do
+        allow(InProgressForm).to receive(:form_for_user).and_raise(StandardError, 'test')
+      end
+
+      it 'adds the test error message' do
+        result = subject.call
+
+        expect(result[:errors]).to eq(['test'])
+      end
+
+      it 'does enqueue a AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob' do
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).to receive(:perform_async)
         subject.call
       end
     end
