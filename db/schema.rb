@@ -271,7 +271,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_13_190720) do
   end
 
   create_table "ar_icn_temporary_identifiers", force: :cascade do |t|
-    t.string "icn"
+    t.string "icn_ciphertext", null: false
+    t.text "encrypted_kms_key"
     t.datetime "created_at"
   end
 
