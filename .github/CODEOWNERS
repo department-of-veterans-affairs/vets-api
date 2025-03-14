@@ -566,6 +566,7 @@ app/swagger/swagger/schemas/health/meta.rb @department-of-veterans-affairs/vfs-m
 app/swagger/swagger/schemas/health/prescriptions.rb @department-of-veterans-affairs/vfs-mhv-medications
 app/swagger/swagger/schemas/health/trackings.rb @department-of-veterans-affairs/vfs-mhv-medications
 app/swagger/swagger/schemas/health/triage_teams.rb @department-of-veterans-affairs/vfs-mhv-medications
+app/swagger/swagger/schemas/intent_to_file.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/dbex-trex
 app/swagger/swagger/schemas/letter_beneficiary.rb@department-of-veterans-affairs/mobile-api-team
 app/swagger/swagger/schemas/maintenance_windows.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/onsite_notifications.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
