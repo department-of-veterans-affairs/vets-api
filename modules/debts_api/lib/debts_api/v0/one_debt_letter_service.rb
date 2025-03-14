@@ -7,9 +7,12 @@ module DebtsApi
     # rubocop:disable Metrics/LineLength
     COPAY_TABLE_DESCRIPTION = '<i>– You are receiving this billing statement because you are currently enrolled in a priority group requiring copayments for treatment of nonservice-connected conditions.</i>'
     COPAY_PAYMENT_INSTRUCTIONS = 'To Pay Your Copay Bills:<br><b>In Person:</b>: At your local Veteran Affairs Medical Center Agent Cashier’s Office<br><b>By Phone</b>: Contact VA at 1-888-827-4817<br><b>Online</b>: Pay by ACH withdrawal from your bank account, or by debit or credit card at www.pay.gov'
+    DEBT_PAYMENT_INSTRUCTIONS = "To Pay Your VA Benefit Debt:\n<b>By Phone</b>: Contact VA’s Debt Management Center at 1-800-827-0648\n<b>Online</b>: Pay by ACH withdrawal from your bank account, or by debit or credit card at www.pay.va.gov"
+    BENEFITS_TABLE_DESCRIPTION = '<i>– Veterans Benefits Administration overpayments are due to changes in your entitlement which result in you being paid more than you were entitled to receive.</i>'
     # rubocop:enable Metrics/LineLength
     COPAY_TOTAL_TEXT = 'Total Copayment Due'
     COPAY_TABLE_TITLE = '<b><i>VA Medical Center Copay Charges</i></b>'
+    DEBT_TOTAL_TEXT = 'Total VBA Overpayment Due'
 
     def initialize(user)
       @user = user
@@ -47,6 +50,39 @@ module DebtsApi
           end
         else
           pdf.text 'No copay charges due.', size: 10
+        end
+
+        pdf.move_down 20
+
+        binding.pry
+        debts = debts_service[:debts]
+
+        if debts.any?
+          table_data = [['Benefits Overpayment', 'AMOUNT DUE', '']]
+          table_data << [{ content: BENEFITS_TABLE_DESCRIPTION, inline_format: true }, '', '']
+          debts.each_with_index do |debt, debt_index|
+            line_number = debt_index + 1
+            table_data << [
+              "#{line_number}.  #{debt['benefitType']}" || '',
+              "$#{format_amount(debt['currentAR'] || 0)}", # Plain string
+              ''
+            ]
+          end
+
+          total_debts = debts.sum { |d| (d['currentAR'] || 0).to_f }
+          formatted_debt_total = "$#{format_amount(total_debts)}"
+          table_data << [DEBT_TOTAL_TEXT, formatted_debt_total, '']
+          table_data << [{ content: DEBT_PAYMENT_INSTRUCTIONS, inline_format: true }, '', '']
+          pdf.table(table_data, width: pdf.bounds.width, cell_style: { padding: 5, size: 8 }) do
+            cells.borders = [:left, :right]
+            row(0).columns(0).style(font_style: :bold_italic)
+            rows(0).borders = [:top, :bottom, :left, :right]
+            rows(-1).borders = [:bottom, :left, :right]
+            rows(-2).columns(0).align = :right
+            column(1).align = :right
+          end
+        else
+          pdf.text "No overpayments due.", size: 10
         end
       end.render
 
@@ -159,6 +195,10 @@ module DebtsApi
       )
 
       CombinePDF.load(legalese_path)
+    end
+
+    def debts_service
+      DebtManagementCenter::DebtsService.new(@user).get_debts
     end
 
     def copays_service
