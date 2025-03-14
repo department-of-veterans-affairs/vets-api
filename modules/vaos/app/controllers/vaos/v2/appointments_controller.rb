@@ -66,10 +66,17 @@ module VAOS
       def create_draft
         referral_id = draft_params[:referral_id]
 
+        address = current_user.vet360_contact_info&.residential_address
+        user_coordinates = if address&.latitude && address.longitude
+                             { latitude: address.latitude, longitude: address.longitude }
+                           else
+                             {}
+                           end
+
         result = eps_appointment_service.create_draft_appointment_with_response(
-          referral_id: referral_id,
-          user: current_user,
-          pagination_params: pagination_params
+          referral_id:,
+          user_coordinates:,
+          pagination_params:
         )
 
         render json: result[:json], status: result[:status] and return unless result[:success]

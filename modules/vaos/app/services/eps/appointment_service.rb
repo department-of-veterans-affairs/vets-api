@@ -46,14 +46,13 @@ module Eps
     # 4. Builds the complete response with provider, slots and drive time information
     #
     # @param referral_id [String] The referral ID to use
-    # @param user [User] The current user
+    # @param user_coordinates [Hash] containins user coordinates { latitude:, longitude: }
     # @param pagination_params [Hash] Optional pagination parameters for referral usage check
     # @return [Hash] Result hash:
     #   - If successful: { success: true, response_data: OpenStruct }
     #   - If validation fails: { success: false, json: { errors: [...] }, status: Symbol }
     #
-    def create_draft_appointment_with_response(referral_id:, user:, pagination_params: {})
-      # Use the validation step to create a draft appointment
+    def create_draft_appointment_with_response(referral_id:, user_coordinates:, pagination_params: {})
       validation_result = create_draft_appointment_with_validation(
         referral_id:,
         pagination_params:
@@ -61,14 +60,12 @@ module Eps
 
       return validation_result unless validation_result[:success]
 
-      # Build the complete response with provider, slots and drive time information
       response_data = build_draft_appointment_response(
         validation_result[:draft_appointment],
         validation_result[:referral_data],
-        user
+        user_coordinates
       )
 
-      # If response_data is a hash with an error key, it's an error response
       return response_data if response_data.is_a?(Hash) && response_data[:error]
 
       { success: true, response_data: }
@@ -398,25 +395,24 @@ module Eps
     # Gets drive times for a provider
     #
     # @param provider [OpenStruct] The provider object with location information
-    # @param user [User] The current user with address information
+    # @param user_coordinates [Hash] Hash containing user coordinates { latitude:, longitude: }
     # @return [Hash, nil] Drive time information or nil if not available
     #   - On error: returns { error: true, json: { errors: [...] }, status: appropriate_status }
     #
-    def get_drive_times(provider, user)
-      user_address = user.vet360_contact_info&.residential_address
-      return nil unless user_address&.latitude && user_address.longitude
+    def get_drive_times(provider, user_coordinates)
+      return nil unless user_coordinates[:latitude] && user_coordinates[:longitude]
 
       provider_service.get_drive_times(
         destinations: {
           provider.id => { latitude: provider.location[:latitude], longitude: provider.location[:longitude] }
         },
-        origin: { latitude: user_address.latitude, longitude: user_address.longitude }
+        origin: { latitude: user_coordinates[:latitude], longitude: user_coordinates[:longitude] }
       )
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error("Drive times error: #{e.message}")
       status = e.status == 400 ? :bad_request : nil
       build_error_response(DRIVE_TIME_ERROR_MSG, "Invalid coordinates for drive time calculation: #{e.message}",
-                           status || :bad_request)
+                          status || :bad_request)
     rescue => e
       Rails.logger.error("Drive times error: #{e.message}")
       build_error_response(DRIVE_TIME_ERROR_MSG, "Unexpected error calculating drive times: #{e.message}", :bad_request)
@@ -427,17 +423,17 @@ module Eps
     #
     # @param draft_appointment [OpenStruct] The draft appointment object
     # @param referral_data [Hash] The referral data
-    # @param user [User] The current user
+    # @param user_coordinates [Hash] Hash containing user coordinates { latitude:, longitude: }
     # @return [OpenStruct] The complete response data or error hash
     #
-    def build_draft_appointment_response(draft_appointment, referral_data, user)
+    def build_draft_appointment_response(draft_appointment, referral_data, user_coordinates)
       provider = get_provider_service(provider_id: referral_data[:provider_id])
       return provider if provider.is_a?(Hash) && provider[:error]
 
       slots = fetch_provider_slots(referral_data)
       return slots if slots.is_a?(Hash) && slots[:error]
 
-      drive_time = get_drive_times(provider, user)
+      drive_time = get_drive_times(provider, user_coordinates)
       return drive_time if drive_time.is_a?(Hash) && drive_time[:error]
 
       OpenStruct.new(
