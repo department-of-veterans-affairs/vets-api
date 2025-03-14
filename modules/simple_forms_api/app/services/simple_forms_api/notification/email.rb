@@ -33,8 +33,9 @@ module SimpleFormsApi
         template_id = TEMPLATE_IDS[form_number][notification_type.to_s]
         return unless template_id
 
-        email_job_id = if at
-                         enqueue_email(at, template_id)
+        scheduled_at = at
+        email_job_id = if scheduled_at
+                         enqueue_email(scheduled_at, template_id)
                        else
                          send_email_now(template_id)
                        end
