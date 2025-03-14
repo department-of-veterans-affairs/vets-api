@@ -34,12 +34,20 @@ module SimpleFormsApi
         template_id = Settings.vanotify.services.va_gov.template_id[template_id_suffix]
         return unless template_id
 
-        sent_to_va_notify = if at
-                              enqueue_email(at, template_id)
-                            else
-                              send_email_now(template_id)
-                            end
-        StatsD.increment('silent_failure', tags: statsd_tags) if error_notification? && !sent_to_va_notify
+        email_job_id = if at
+                         enqueue_email(at, template_id)
+                       else
+                         send_email_now(template_id)
+                       end
+
+        if email_job_id
+          Rails.logger.info('Simple Forms - Email job enqueued', email_job_id:, confirmation_number:)
+        elsif error_notification?
+          StatsD.increment('silent_failure', tags: statsd_tags)
+          Rails.logger.error('Simple Forms - Error email job failed to enqueue', confirmation_number:)
+        else
+          Rails.logger.error('Simple Forms - Non-error email job failed to enqueue', confirmation_number:)
+        end
       end
 
       private
