@@ -51,7 +51,6 @@ RSpec.describe BenefitsDocuments::Service do
           allow(Flipper).to receive(:enabled?).with(:cst_synchronous_evidence_uploads,
                                                     instance_of(User)).and_return(false)
           allow(StatsD).to receive(:increment)
-          allow(Rails.logger).to receive(:info)
         end
 
         it 'enqueues a job' do
@@ -60,21 +59,18 @@ RSpec.describe BenefitsDocuments::Service do
           end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
         end
 
-        it 'records evidence submission with CREATED status' do
+        it 'records evidence submission with PENDING status' do
           subject.queue_document_upload(params)
           expect(EvidenceSubmission.count).to eq(1)
           evidence_submission = EvidenceSubmission.first
           current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
           expect(evidence_submission.upload_status)
-            .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED])
+            .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
           expect(current_personalisation['date_submitted']).to eql(submitted_date)
           expect(evidence_submission.tracked_item_id).to be(1)
           expect(StatsD)
             .to have_received(:increment)
             .with('cst.lighthouse.document_uploads.evidence_submission_record_created')
-          expect(Rails.logger)
-            .to have_received(:info)
-            .with('LH - Created Evidence Submission Record', any_args)
         end
       end
 

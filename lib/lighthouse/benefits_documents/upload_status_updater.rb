@@ -71,15 +71,7 @@ module BenefitsDocuments
     private
 
     def status_changed?
-      ::Rails.logger.info(
-        'LH - Status changed',
-        old_status: @pending_evidence_submission.upload_status,
-        status: @lighthouse_document_status_response['status'],
-        status_response: @lighthouse_document_status_response,
-        evidence_submission_id: @pending_evidence_submission.id,
-        claim_id: @pending_evidence_submission.claim_id
-      ) if @lighthouse_document_status_response['status'] != @pending_evidence_submission.upload_status
-      @lighthouse_document_status_response['status'] != @pending_evidence_submission.upload_status
+      @lighthouse_document_status_response != @pending_evidence_submission.upload_status
     end
 
     def failed?
@@ -91,13 +83,11 @@ module BenefitsDocuments
     end
 
     def log_status
-      ::Rails.logger.info(
+      Rails.logger.info(
         'BenefitsDocuments::UploadStatusUpdater',
         status: @lighthouse_document_status_response['status'],
         status_response: @lighthouse_document_status_response,
-        updated_at: DateTime.now.utc,
-        evidence_submission_id: @pending_evidence_submission.id,
-        claim_id: @pending_evidence_submission.claim_id
+        updated_at: DateTime.now.utc
       )
     end
 
