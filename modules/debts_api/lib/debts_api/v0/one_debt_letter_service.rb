@@ -81,7 +81,7 @@ module DebtsApi
             column(1).align = :right
           end
         else
-          pdf.text "No overpayments due.", size: 10
+          pdf.text 'No overpayments due.', size: 10
         end
       end.render
 
