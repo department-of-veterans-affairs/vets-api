@@ -68,9 +68,8 @@ namespace :simple_forms_api do
   def log_errors(errors)
     Rails.logger.error 'Errors:'
     errors.each do |error|
-      Rails.logger.error error.confirmation_number
-      Rails.logger.error error.message
-      Rails.logger.error error.backtrace.join("\n")
+      Rails.logger.error('SendEmailsByDateRange error.', confirmation_number: error.confirmation_number,
+                                                         message: error.message, backtrace: error.backtrace.join('\n'))
     end
   end
 
