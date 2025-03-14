@@ -17,14 +17,15 @@ module HCA
       )
     end
 
-    def perform(user_identifier, encrypted_form, health_care_application_id, google_analytics_client_id, succeed)
+    def perform(user_identifier, encrypted_form, health_care_application_id, google_analytics_client_id, succeed = true)
       # super
       @health_care_application = HealthCareApplication.find(health_care_application_id)
+
       Rails.logger.info '~~~~~~~~~~~~~~~ mock perform'
       raise unless succeed
 
       @health_care_application.set_result_on_success!(
-        {formSubmissionId: 'mock_ves_form_id', timestamp: Time.current}
+        { formSubmissionId: 'mock_ves_form_id', timestamp: Time.current }
       )
     rescue
       @health_care_application.update!(state: 'error')
