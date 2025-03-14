@@ -6,7 +6,7 @@ module RepresentationManagement
       service_tag 'representation-management'
       before_action :feature_enabled
 
-      DOES_NOT_ACCEPT_DIGITAL_REQUESTS = 'Accredited organization must be able to accept digital Power of Attorney Requests'
+      DOES_NOT_ACCEPT_DIGITAL_REQUESTS = 'Accredited organization does not accept digital Power of Attorney Requests'
       MISSING_ICN = 'User is missing an ICN value'
       MISSING_PARTICIPANT_ID = 'User is missing a Corp Participant ID value'
       DEPENDENT_SUBMITTER = 'User must submit as the Veteran for digital Power of Attorney Requests'
