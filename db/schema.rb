@@ -270,7 +270,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_13_190720) do
     t.index ["veteran_icn"], name: "index_appeals_api_supplemental_claims_on_veteran_icn"
   end
 
-  create_table "ar_icn_temporary_identifiers", force: :cascade do |t|
+  create_table "ar_icn_temporary_identifiers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "icn_ciphertext", null: false
     t.text "encrypted_kms_key"
     t.datetime "created_at"
