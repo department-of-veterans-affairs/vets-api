@@ -598,10 +598,6 @@ features:
     actor_type: user
     description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
     enable_in_development: true
-  facilities_use_address_typeahead:
-    actor_type: user
-    description: Use the address typeahead for the facility locator
-    enable_in_development: true
   facilities_ppms_suppress_all:
     actor_type: user
     description: Hide all ppms search options
@@ -1117,6 +1113,10 @@ features:
   mhv_medications_show_ipe_content:
     actor_type: user
     description: Enables/disables ipe content
+    enable_in_development: true
+  mhv_medications_partial_fill_content:
+    actor_type: user
+    description: Enables/disables partial fill content
     enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
@@ -1880,15 +1880,6 @@ features:
     actor_type: user
     description: Implement multiple page response pattern
     enable_in_development: true
-  pension_introduction_update:
-    actor_type: user
-    description: Show updated introduction page
-  pension_supporting_documents_update:
-    actor_type: user
-    description: Show updated supporting documents page
-  pension_document_upload_update:
-    actor_type: user
-    description: Show updated document upload page
   pension_confirmation_update:
     actor_type: user
     description: Show updated confirmation page
@@ -2043,6 +2034,9 @@ features:
   kafka_producer:
     actor_type: cookie_id
     description: Enables the Kafka producer for the VA.gov platform
+  kafka_producer_fetch_schema_dynamically:
+    actor_type: cookie_id
+    description: Enables the Kafka producer to fetch schema dynamically
   show_about_yellow_ribbon_program:
     actor_type: user
     description: If enabled, show additional info about the yellow ribbon program
