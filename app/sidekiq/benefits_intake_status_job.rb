@@ -169,7 +169,7 @@ class BenefitsIntakeStatusJob
         claim.send_failure_email(email)
         PCPG::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
       else
-        PCPG::Monitor.new.log_silent_failure(ocntext, nil, call_location:)
+        PCPG::Monitor.new.log_silent_failure(context, nil, call_location:)
       end
     end
 
