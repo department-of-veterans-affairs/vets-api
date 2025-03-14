@@ -10,7 +10,7 @@ module Crm
       'test' => 'iris-dev',
       'development' => 'iris-dev',
       'staging' => 'veft-preprod',
-      'production' => 'veft-prod'
+      'production' => 'veft'
     }.freeze
 
     def_delegators :settings,
