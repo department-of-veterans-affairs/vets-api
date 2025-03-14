@@ -647,6 +647,19 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
               expect(error.errors[0].detail).to eq("The page[size] param value #{param_val} is invalid")
             end)
           end
+
+          it 'returns a 422 when a mixed string is sent in' do
+            param_val = '12bbb'
+            page_params = { page: { number: param_val } }
+            allow(subject).to receive(:params).and_return(page_params)
+
+            expect do
+              subject.send(:validate_page_size_and_number_params)
+            end.to(raise_error do |error|
+              expect(error.message).to eq('Bad request')
+              expect(error.errors[0].detail).to eq("The page[number] param value #{param_val} is invalid")
+            end)
+          end
         end
 
         context 'when only one param is sent' do
