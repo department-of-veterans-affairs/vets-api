@@ -47,6 +47,39 @@ FactoryBot.define do
     created_at { DateTime.new(1985, 10, 26).utc }
   end
 
+  factory :bd_evidence_submission_created, class: 'EvidenceSubmission' do
+    association :user_account, factory: :user_account
+    created_at { DateTime.now.utc }
+    upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED] }
+    template_metadata do
+      { 'personalisation' => {
+        'first_name' => 'test',
+        'document_type' => 'Birth Certificate',
+        'file_name' => 'testfile.txt',
+        'obfuscated_file_name' => 'tesXXile.txt',
+        'date_submitted' => BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(DateTime.now),
+        'date_failed' => nil
+      } }.to_json
+    end
+  end
+
+  factory :bd_evidence_submission_queued, class: 'EvidenceSubmission' do
+    association :user_account, factory: :user_account
+    created_at { DateTime.now.utc }
+    job_id { 12_343 }
+    upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:QUEUED] }
+    template_metadata do
+      { 'personalisation' => {
+        'first_name' => 'test',
+        'document_type' => 'Birth Certificate',
+        'file_name' => 'testfile.txt',
+        'obfuscated_file_name' => 'tesXXile.txt',
+        'date_submitted' => BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(DateTime.now),
+        'date_failed' => nil
+      } }.to_json
+    end
+  end
+
   factory :bd_evidence_submission_pending, class: 'EvidenceSubmission' do
     association :user_account, factory: :user_account
     created_at { DateTime.now.utc }
