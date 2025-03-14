@@ -125,12 +125,12 @@ class HealthCareApplication < ApplicationRecord
     # message out valid submission {state: "received"}
     Rails.logger.info '~~~~~~~~~~~~~~~ received, id:', id
     save!
+    Rails.logger.info '~~~~~~~~~~~~~~~ received saved, id:', id
 
     # SEND "received" message to EventBus
     HCA::EventBusSubmissionJob.perform_async('topic', build_event_payload('received'))
-    
+
     if email.present? || async_compatible
-      Rails.logger.info '~~~~~~~~~~~~~~~ save!d'
       submit_async
     else
       submit_sync
@@ -224,7 +224,7 @@ class HealthCareApplication < ApplicationRecord
       timestamp: result[:timestamp]
     )
 
-    HCA:EventBusSubmissionJob.perform_async('topic', build_event_payload('sent'))
+    HCA::EventBusSubmissionJob.perform_async('topic', build_event_payload('sent'))
 
     Rails.logger.info '~~~~~~~~~~~~~~~ sent'
     # message out successful submission {state: "sent"}
