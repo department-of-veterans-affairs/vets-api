@@ -62,11 +62,12 @@ module BenefitsDocuments
 
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
+      uploader = LighthouseDocumentUploader.new(user_icn, document_data.uploader_ids)
+      uploader.store!(document_data.file_obj)
+
       evidence_submission_id = nil
       evidence_submission_id = create_initial_evidence_submission(document_data).id if can_create_evidence_submission
 
-      uploader = LighthouseDocumentUploader.new(user_icn, document_data.uploader_ids)
-      uploader.store!(document_data.file_obj)
       # The uploader sanitizes the filename before storing, so set our doc to match
       document_data.file_name = uploader.final_filename
       document_upload(user_icn, document_data.to_serializable_hash, evidence_submission_id)

@@ -8,12 +8,16 @@ class EvidenceSubmission < ApplicationRecord
   has_encrypted :template_metadata, key: :kms_key, **lockbox_options
 
   # Lighthouse upload statuses:
-  # IN_PROGRESS: the workflow is currently executing.
-  # SUCCESS: the workflow has completed all steps successfully.
-  # FAILED: the workflow could not complete because a step encountered a non-recoverable error.
+  # CREATED: the evidence submission record is created.
+  # QUEUED: the evidence submission record has been given a job id.
+  # IN_PROGRESS: the evidence submission record is sent to Lighthouse.
+  # SUCCESS: the evidence submission record has been sent to EVSS or added to the e-folder.
+  # FAILED: the evidence submission record could not complete because a step encountered a non-recoverable error.
+  scope :created, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED]) }
+  scope :queued, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:QUEUED]) }
+  scope :pending, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]) }
   scope :completed, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]) }
   scope :failed, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]) }
-  scope :pending, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]) }
   # used for sending failure notification emails
   scope :va_notify_email_queued, lambda {
     where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
