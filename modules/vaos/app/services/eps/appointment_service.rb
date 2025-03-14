@@ -412,7 +412,7 @@ module Eps
       Rails.logger.error("Drive times error: #{e.message}")
       status = e.status == 400 ? :bad_request : nil
       build_error_response(DRIVE_TIME_ERROR_MSG, "Invalid coordinates for drive time calculation: #{e.message}",
-                          status || :bad_request)
+                           status || :bad_request)
     rescue => e
       Rails.logger.error("Drive times error: #{e.message}")
       build_error_response(DRIVE_TIME_ERROR_MSG, "Unexpected error calculating drive times: #{e.message}", :bad_request)
