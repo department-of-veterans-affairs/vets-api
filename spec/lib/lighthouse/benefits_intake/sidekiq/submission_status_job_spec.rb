@@ -98,7 +98,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
       let(:form_id) { pending.form_submission.form_type }
 
       before do
-        allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send)
+        allow_any_instance_of(SimpleFormsApi::Notification::Email).to receive(:send)
       end
 
       it 'skips non present uuid' do

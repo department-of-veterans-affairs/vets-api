@@ -21,11 +21,35 @@ RSpec.describe DebtManagementCenter::VANotifyEmailJob, type: :worker do
         Exception: #{exception.class} - #{exception.message}
         Backtrace: #{exception.backtrace.join("\n")}
       LOG
+      job = { 'args' => [nil, nil, nil, {}] }
+
       expect(StatsD).to receive(:increment).with(
         "#{DebtManagementCenter::VANotifyEmailJob::STATS_KEY}.retries_exhausted"
       )
+      expect(StatsD).not_to receive(:increment).with(
+        "#{DebtsApi::V0::Form5655Submission::STATS_KEY}.send_failed_form_email.failure"
+      )
       expect(Rails.logger).to receive(:error).with(expected_log_message)
-      config.sidekiq_retries_exhausted_block.call('unused', exception)
+      config.sidekiq_retries_exhausted_block.call(job, exception)
+    end
+
+    context 'when firing a silent error email' do
+      let(:email) { 'test@tester.com' }
+      let(:template_id) { '123-abc' }
+      let(:job_args) { [email, template_id, nil, { 'failure_mailer' => true }] }
+
+      it 'increments the failure counter' do
+        expect(StatsD).to receive(:increment).with(
+          'silent_failure', tags: %w[service:debt-resolution function:register_failure]
+        )
+
+        expect(StatsD).to receive(:increment).with('api.dmc.va_notify_email.retries_exhausted')
+        expect(StatsD).to receive(:increment).with(
+          "#{DebtsApi::V0::Form5655Submission::STATS_KEY}.send_failed_form_email.failure"
+        )
+
+        described_class.sidekiq_retries_exhausted_block.call({ 'args' => job_args }, exception)
+      end
     end
   end
 end
