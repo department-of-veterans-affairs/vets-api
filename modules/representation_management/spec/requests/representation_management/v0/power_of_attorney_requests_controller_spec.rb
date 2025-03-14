@@ -93,7 +93,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
               expect(response).to have_http_status(:unprocessable_entity)
             end
 
-            it 'responds with a meaningful error message' do
+            it 'responds with an error message specifying the Veteran first name can not be blank' do
               expect(response.body).to eq({ errors: ["Veteran first name can't be blank"] }.to_json)
             end
           end
@@ -109,7 +109,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
               expect(response).to have_http_status(:unprocessable_entity)
             end
 
-            it 'responds with a meaningful error message' do
+            it 'responds with an error message specifying that the organization must accept digital poa requests' do
               error_message = 'Accredited organization must be able to accept digital Power of Attorney Requests'
               expect(response.body).to eq({ errors: [error_message] }.to_json)
             end
@@ -144,7 +144,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
               expect(response).to have_http_status(:unprocessable_entity)
             end
 
-            it 'responds with a meaningful error message' do
+            it 'responds with an error message that the user must submit as the Veteran' do
               error_message = 'User must submit as the Veteran for digital Power of Attorney Requests'
               expect(response.body).to eq({ errors: [error_message] }.to_json)
             end
@@ -164,7 +164,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
           expect(response).to have_http_status(:unprocessable_entity)
         end
 
-        it 'responds with a meaningful error message' do
+        it 'responds with an error message specifying that the user must have a corp participant id' do
           error_message = 'User is missing a Corp Participant ID value'
           expect(response.body).to eq({ errors: [error_message] }.to_json)
         end
@@ -182,7 +182,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
           expect(response).to have_http_status(:unprocessable_entity)
         end
 
-        it 'responds with a meaningful error message' do
+        it 'responds with an error message specifying that the user must have and ICN' do
           error_message = 'User is missing an ICN value'
           expect(response.body).to eq({ errors: [error_message] }.to_json)
         end
