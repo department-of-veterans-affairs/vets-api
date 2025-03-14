@@ -10,8 +10,8 @@ class EvidenceSubmission < ApplicationRecord
   # Internal Upload statuses:
   # CREATED: (Internal status) - the evidence submission record is created.
   # QUEUED: (Internal status) - the evidence submission record has been given a job id.
-  # FAILED: the evidence submission record errored in evss_claim_service.rb, evss/document_upload.rb, benefits_documents/service.rb,
-  # or lighthouse/evidence_submission/document_upload.rb.
+  # FAILED: the evidence submission record errored in evss_claim_service.rb, evss/document_upload.rb,
+  # benefits_documents/service.rb, or lighthouse/evidence_submission/document_upload.rb.
 
   # Lighthouse upload statuses:
   # IN_PROGRESS: the workflow is currently executing.
