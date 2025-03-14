@@ -110,7 +110,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
             end
 
             it 'responds with an error message specifying that the organization must accept digital poa requests' do
-              error_message = 'Accredited organization does not accept digital Power of Attorney Requests'
+              error_message = 'Organization does not accept digital Power of Attorney Requests'
               expect(response.body).to eq({ errors: [error_message] }.to_json)
             end
           end
@@ -165,7 +165,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
         end
 
         it 'responds with an error message specifying that the user must have a corp participant id' do
-          error_message = 'User is missing a Corp Participant ID value'
+          error_message = 'User Corp Participant ID value is blank'
           expect(response.body).to eq({ errors: [error_message] }.to_json)
         end
       end
@@ -183,7 +183,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
         end
 
         it 'responds with an error message specifying that the user must have and ICN' do
-          error_message = 'User is missing an ICN value'
+          error_message = 'User ICN value is missing'
           expect(response.body).to eq({ errors: [error_message] }.to_json)
         end
       end
