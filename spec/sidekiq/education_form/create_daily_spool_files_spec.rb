@@ -325,9 +325,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
             expect(path).to eq File.join(Settings.edu.sftp.relative_path, filename)
             expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
           end
+          expect(sftp_mock).to receive(:stat!).with(anything).and_return(4619)
           expect(session_mock).to receive(:close)
-
-          allow_any_instance_of(SFTPWriter::Remote).to receive(:check_remote_file_size).with(anything).and_return(4619)
 
           expect { subject.perform }.to trigger_statsd_gauge(
             'worker.education_benefits_claim.transmissions.307.22-1990',
