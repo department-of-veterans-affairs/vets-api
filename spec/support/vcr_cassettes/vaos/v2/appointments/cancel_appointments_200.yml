@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments/70060
+    uri: <VA_MOBILE_URL>/vaos/v1/patients/1012846043V576341/appointments/70060
     body:
       encoding: UTF-8
       string: '{"status":"cancelled"}'
@@ -60,7 +60,7 @@ http_interactions:
   recorded_at: Wed, 15 Dec 2021 18:51:34 GMT
 - request:
     method: put
-    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012845331V153043/appointments/62104
+    uri: <VA_MOBILE_URL>/vaos/v1/patients/1012845331V153043/appointments/62104
     body:
       encoding: UTF-8
       string: '{"status":"cancelled"}'
