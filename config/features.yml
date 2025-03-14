@@ -101,6 +101,9 @@ features:
     description: Use Lighthouse Facilities API V2 for EZ queries
   hca_cache_facilities:
     actor_type: user
+    description: Return facilities list from health_facility table
+  hca_cache_facilities_job:
+    actor_type: user
     description: Use import job to update health facilities daily to limit facilities api requests
   hca_insurance_v2_enabled:
     actor_type: user
