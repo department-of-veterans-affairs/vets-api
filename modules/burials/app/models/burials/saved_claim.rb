@@ -89,7 +89,7 @@ module Burials
         text_only: true, # passing as text only because we override how the date is stamped in this instance
         timestamp:,
         page_number: 6,
-        template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+        template: "lib/burials/pdf_fill/forms/pdfs/#{form_id}.pdf",
         multistamp: true
       )
       renamed_path = "tmp/pdfs/#{form_id}_#{id}_final.pdf"
