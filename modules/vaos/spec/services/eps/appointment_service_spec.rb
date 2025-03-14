@@ -15,6 +15,7 @@ describe Eps::AppointmentService do
   before do
     allow(config).to receive(:base_path).and_return('api/v1')
     allow_any_instance_of(Eps::BaseService).to receive_messages(config:, headers:)
+    allow_any_instance_of(Eps::BaseService).to receive(:patient_id).and_return(icn)
   end
 
   describe '#get_appointment' do
@@ -110,21 +111,62 @@ describe Eps::AppointmentService do
 
   describe 'create_draft_appointment_with_response' do
     let(:referral_id) { 'test-referral-id' }
+    let(:user_coordinates) { { latitude: 38.9072, longitude: -77.0369 } }
+    let(:pagination_params) { { page: 1, per_page: 10 } }
+    let(:referral_data) do
+      {
+        provider_id: 'provider-123',
+        appointment_type_id: 'ov',
+        start_date: '2025-01-01T00:00:00Z',
+        end_date: '2025-01-31T00:00:00Z'
+      }
+    end
+    let(:draft_appointment) { OpenStruct.new(id: appointment_id, state: 'draft', patient_id: icn) }
+    let(:provider_service_response) { OpenStruct.new(id: 'provider-123', name: 'Test Provider', location: { latitude: 38.8977, longitude: -77.0365 }) }
+    let(:slots_response) { [{ id: 'slot-1', start_time: '2025-01-15T09:00:00Z', end_time: '2025-01-15T09:30:00Z' }] }
+    let(:drive_time_response) { { 'provider-123' => { distance: 5.2, duration: 15 } } }
+
     let(:successful_draft_appt_response) do
       double('Response', status: 200, body: { 'id' => appointment_id,
                                               'state' => 'draft',
                                               'patientId' => icn })
     end
 
-    context 'when creating draft appointment for a given referral_id' do
-      before do
-        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(successful_draft_appt_response)
-      end
+    before do
+      redis_client = instance_double(Eps::RedisClient)
+      allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
+      allow(redis_client).to receive(:fetch_referral_attributes).and_return(referral_data)
 
-      it 'returns the appointments scheduled' do
-        exp_response = OpenStruct.new(successful_draft_appt_response.body)
+      appointments_service = instance_double(VAOS::V2::AppointmentsService)
+      allow(VAOS::V2::AppointmentsService).to receive(:new).and_return(appointments_service)
+      allow(appointments_service).to receive(:referral_appointment_already_exists?).and_return({ exists: false })
 
-        expect(service.create_draft_appointment_with_response(referral_id:)).to eq(exp_response)
+      allow_any_instance_of(VAOS::SessionService).to receive(:perform)
+        .with(:post, "/#{config.base_path}/appointments", { patientId: icn, referralId: referral_id }, headers)
+        .and_return(successful_draft_appt_response)
+
+      provider_service = instance_double(Eps::ProviderService)
+      allow(Eps::ProviderService).to receive(:new).and_return(provider_service)
+      allow(provider_service).to receive(:get_provider_service).and_return(provider_service_response)
+      allow(provider_service).to receive(:get_provider_slots).and_return(slots_response)
+      allow(provider_service).to receive(:get_drive_times).and_return(drive_time_response)
+    end
+
+    context 'when creating draft appointment with all dependencies successful' do
+      it 'returns a successful response with draft appointment, provider, slots, and drive time data' do
+        result = service.create_draft_appointment_with_response(
+          referral_id:,
+          user_coordinates:,
+          pagination_params:
+        )
+
+        expect(result).to be_a(Hash)
+        expect(result[:success]).to be(true)
+        expect(result[:response_data]).to be_a(OpenStruct)
+        expect(result[:response_data].id).to eq(appointment_id)
+        expect(result[:response_data].provider).to eq(provider_service_response)
+        expect(result[:response_data].slots).to eq(slots_response)
+        expect(result[:response_data].drive_time).to eq(drive_time_response)
       end
     end
 
@@ -141,11 +183,155 @@ describe Eps::AppointmentService do
         allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
       end
 
-      it 'throws exception' do
-        expect do
-          service.create_draft_appointment(referral_id:)
-        end.to raise_error(Common::Exceptions::BackendServiceException,
-                           /VA900/)
+      it 'returns an error response hash' do
+        result = service.create_draft_appointment_with_response(
+          referral_id:,
+          user_coordinates:
+        )
+
+        expect(result).to be_a(Hash)
+        expect(result[:success]).to be(false)
+        expect(result[:error]).to be(true)
+        expect(result[:status]).to eq(:bad_request)
+        expect(result[:json][:errors]).to be_a(Array)
+        expect(result[:json][:errors].first[:title]).to eq('Error creating draft appointment')
+        expect(result[:json][:errors].first[:detail]).to include('Unexpected error creating draft appointment')
+      end
+    end
+
+    context 'when Redis cache fails' do
+      before do
+        redis_client = instance_double(Eps::RedisClient)
+        allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
+        allow(redis_client).to receive(:fetch_referral_attributes).and_raise(Redis::BaseError.new('Connection refused'))
+      end
+
+      it 'returns an error about cache service' do
+        result = service.create_draft_appointment_with_response(
+          referral_id:,
+          user_coordinates:
+        )
+
+        expect(result[:success]).to be(false)
+        expect(result[:error]).to be(true)
+        expect(result[:status]).to eq(:bad_gateway)
+        expect(result[:json][:errors].first[:title]).to eq('Error fetching referral data from cache')
+        expect(result[:json][:errors].first[:detail]).to include('Unable to connect to cache service')
+      end
+    end
+
+    context 'when referral data is invalid' do
+      let(:incomplete_referral_data) do
+        {
+          provider_id: 'provider-123'
+        }
+      end
+
+      before do
+        redis_client = instance_double(Eps::RedisClient)
+        allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
+        allow(redis_client).to receive(:fetch_referral_attributes).and_return(incomplete_referral_data)
+      end
+
+      it 'returns an error about invalid referral data' do
+        result = service.create_draft_appointment_with_response(
+          referral_id:,
+          user_coordinates:
+        )
+
+        expect(result[:success]).to be(false)
+        expect(result[:error]).to be(true)
+        expect(result[:status]).to eq(:unprocessable_entity)
+        expect(result[:json][:errors].first[:title]).to eq('Invalid referral data')
+        expect(result[:json][:errors].first[:detail]).to include('Required referral data is missing or incomplete')
+      end
+    end
+
+    context 'when the referral is already in use' do
+      before do
+        appointments_service = instance_double(VAOS::V2::AppointmentsService)
+        allow(VAOS::V2::AppointmentsService).to receive(:new).and_return(appointments_service)
+        allow(appointments_service).to receive(:referral_appointment_already_exists?).and_return({ exists: true })
+      end
+
+      it 'returns an error that referral is already used' do
+        result = service.create_draft_appointment_with_response(
+          referral_id:,
+          user_coordinates:
+        )
+
+        expect(result[:success]).to be(false)
+        expect(result[:error]).to be(true)
+        expect(result[:status]).to eq(:unprocessable_entity)
+        expect(result[:json][:errors].first[:title]).to eq('Referral already used')
+        expect(result[:json][:errors].first[:detail]).to include('No new appointment created: referral is already used')
+      end
+    end
+
+    context 'when checking referral usage returns an error' do
+      before do
+        appointments_service = instance_double(VAOS::V2::AppointmentsService)
+        allow(VAOS::V2::AppointmentsService).to receive(:new).and_return(appointments_service)
+        allow(appointments_service).to receive(:referral_appointment_already_exists?)
+          .and_return({ error: true, failures: ['Network error'] })
+      end
+
+      it 'returns an error about checking appointments' do
+        result = service.create_draft_appointment_with_response(
+          referral_id:,
+          user_coordinates:
+        )
+
+        expect(result[:success]).to be(false)
+        expect(result[:error]).to be(true)
+        expect(result[:status]).to eq(:bad_gateway)
+        expect(result[:json][:errors].first[:title]).to eq('Error checking appointments')
+        expect(result[:json][:errors].first[:detail]).to include('Error checking if referral is already used')
+      end
+    end
+
+    context 'when provider service cannot be retrieved' do
+      before do
+        provider_service = instance_double(Eps::ProviderService)
+        allow(Eps::ProviderService).to receive(:new).and_return(provider_service)
+        allow(provider_service).to receive(:get_provider_service)
+          .and_raise(Common::Exceptions::BackendServiceException.new('PROVIDER_ERROR', status: 404))
+      end
+
+      it 'returns an error about provider information' do
+        result = service.create_draft_appointment_with_response(
+          referral_id:,
+          user_coordinates:
+        )
+
+        expect(result[:success]).to be(false)
+        expect(result[:error]).to be(true)
+        expect(result[:status]).to eq(:not_found)
+        expect(result[:json][:errors].first[:title]).to eq('Error fetching provider information')
+        expect(result[:json][:errors].first[:detail]).to include('Unexpected error fetching provider information')
+      end
+    end
+
+    context 'when provider slots cannot be retrieved' do
+      before do
+        provider_service = instance_double(Eps::ProviderService)
+        allow(Eps::ProviderService).to receive(:new).and_return(provider_service)
+        allow(provider_service).to receive(:get_provider_service).and_return(provider_service_response)
+        allow(provider_service).to receive(:get_provider_slots)
+          .and_raise(Common::Exceptions::BackendServiceException.new(nil, {}, 500, 'Provider slots error'))
+      end
+
+      it 'returns an error about provider slots' do
+        result = service.create_draft_appointment_with_response(
+          referral_id:,
+          user_coordinates:
+        )
+
+        expect(result[:success]).to be(false)
+        expect(result[:error]).to be(true)
+        expect(result[:status]).to eq(:bad_gateway)
+        expect(result[:json][:errors].first[:title]).to eq('Error fetching provider slots')
+        expect(result[:json][:errors].first[:detail]).to include('Unexpected error fetching provider slots')
       end
     end
   end
