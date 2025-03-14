@@ -57,10 +57,7 @@ class BenefitsIntakeStatusJob
       total_handled += handle_response(response)
     end
 
-    unless errors.empty?
-      Rails.logger.error('Errors occurred while processing Intake Status batch', class: self.class.name,
-                                                                                 errors:)
-    end
+    log_errors(errors) unless errors.empty?
 
     [total_handled, true]
   rescue => e
@@ -193,5 +190,9 @@ class BenefitsIntakeStatusJob
     @_form_submission_attempts_hash ||= FormSubmissionAttempt
                                         .where(aasm_state: 'pending')
                                         .index_by(&:benefits_intake_uuid)
+  end
+
+  def log_errors(errors)
+    Rails.logger.error('Errors occurred while processing Intake Status batch', class: self.class.name, errors:)
   end
 end
