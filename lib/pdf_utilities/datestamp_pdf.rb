@@ -150,7 +150,8 @@ module PDFUtilities
     end
 
     def log_and_raise_error(message, e)
-      Rails.logger.error(message, class: e.class, message: e.message, backtrace: e.backtrace)
+      monitor = Logging::Monitor.new('pdf_utilities')
+      monitor.track_request(:error, message, 'api.simple_forms.error', exception: e.message, backtrace: e.backtrace)
       raise e
     end
 

@@ -96,7 +96,8 @@ module SimpleFormsApi
       pdftk.multistamp(stamped_template_path, stamp_path, out_path)
       multistamp_cleanup(out_path)
     rescue => e
-      handle_multistamp_error(e)
+      Common::FileHelpers.delete_file_if_exists(out_path)
+      log_and_raise_error('Simple forms api - Failed to perform multistamp', e)
     end
 
     def multistamp_cleanup(out_path)
@@ -119,8 +120,7 @@ module SimpleFormsApi
         raise StandardError, 'The PDF remained unchanged upon stamping.'
       end
     rescue => e
-      Rails.logger.error("Verification error: #{e.class} - #{e.message}")
-      raise StandardError, "An error occurred while verifying stamp: #{e}"
+      log_and_raise_error('Failed to verify stamp', e)
     end
 
     def get_page_configuration(stamp)
@@ -193,9 +193,9 @@ module SimpleFormsApi
       end
     end
 
-    def handle_multistamp_error(e)
-      Rails.logger.error('Simple forms api - Failed to perform multistamp', message: e.message, backtrace: e.backtrace)
-      Common::FileHelpers.delete_file_if_exists(out_path)
+    def log_and_raise_error(message, e)
+      monitor = Logging::Monitor.new('veteran-facing-forms')
+      monitor.track_request(:error, message, 'api.simple_forms.error', exception: e.message, backtrace: e.backtrace)
       raise e
     end
   end
