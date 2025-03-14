@@ -114,23 +114,20 @@ module SimpleFormsApi
 
       def send_email_now(template_id)
         email_address = form.notification_email_address || user&.email
+        personalization = get_personalization
 
-        if email_address
+        if email_address && personalization
           VANotify::EmailJob.perform_async(
             email_address,
             template_id,
-            get_personalization
+            personalization
           )
         end
       end
 
       def get_personalization
-        config = {
-          created_at: date_submitted,
-          benefits_intake_uuid:,
-          lighthouse_updated_at:
-        }
-        personalization = SimpleFormsApi::Notification::Personalization.new(form:, config:)
+        config = { date_submitted:, confirmation_number:, lighthouse_updated_at: }
+        personalization = SimpleFormsApi::Notification::Personalization.new(form:, config:, expiration_date:)
         personalization.to_hash
       end
 

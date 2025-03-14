@@ -6,11 +6,9 @@ module SimpleFormsApi
       attr_reader :first_name, :form, :date_submitted, :confirmation_number, :lighthouse_updated_at, :expiration_date
 
       def initialize(form:, config:, expiration_date: nil)
-        check_missing_keys(config)
-
         @first_name = form.notification_first_name&.titleize
-        @date_submitted = config[:created_at]
-        @confirmation_number = config[:benefits_intake_uuid]
+        @date_submitted = config[:date_submitted]
+        @confirmation_number = config[:confirmation_number]
         @lighthouse_updated_at = config[:lighthouse_updated_at]
         @form = form
         @expiration_date = expiration_date
@@ -30,23 +28,6 @@ module SimpleFormsApi
       end
 
       private
-
-      def check_missing_keys(config)
-        all_keys = %i[created_at benefits_intake_uuid]
-
-        missing_keys = all_keys.select { |key| config[key].to_s.empty? }
-
-        if missing_keys.any?
-          Rails.logger.error(
-            'Missing keys in SimpleFormsApi::Notification::Personalization',
-            missing_keys: missing_keys.join
-          )
-          raise(
-            ArgumentError,
-            "Missing keys in SimpleFormsApi::Notification::Personalization: #{missing_keys.join(', ')}"
-          )
-        end
-      end
 
       def form21_0966_personalization
         intent_to_file_benefits, intent_to_file_benefits_links = get_intent_to_file_benefits_variables
