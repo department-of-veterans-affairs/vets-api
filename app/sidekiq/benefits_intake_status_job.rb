@@ -142,11 +142,14 @@ class BenefitsIntakeStatusJob
   def log_result(result, form_id, uuid, time_to_transition = nil, error_message = nil)
     StatsD.increment("#{STATS_KEY}.#{form_id}.#{result}")
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
-    if result == 'failure'
-      Rails.logger.error('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:, error_message:)
-    else
-      Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:)
-    end
+
+    log_level = result == 'failure' ? :error : :info
+
+    kwargs = { result:, form_id:, uuid: }
+    kwargs[:time_to_transition] = time_to_transition if time_to_transition
+    kwargs[:error_message] = error_message if error_message
+
+    Rails.logger.public_send(log_level, 'BenefitsIntakeStatusJob', **kwargs)
   end
 
   def monitor_failure(form_id, claim_id, benefits_intake_uuid)
