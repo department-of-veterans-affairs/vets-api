@@ -11,6 +11,19 @@ module BenefitsClaims
         super('pension-itf')
       end
 
+      # This metric does not include retries from failed attempts
+      def track_create_itf_initiated(itf_type, form_start_date, user_account_uuid, form_id)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.initiated")
+        context = {
+          itf_type:,
+          form_start_date:,
+          user_account_uuid:
+        }
+        Rails.logger.info("Lighthouse::CreateIntentToFileJob create #{itf_type} ITF initiated for form ##{form_id}",
+                          context)
+      end
+
+      # This metric includes retries from failed attempts
       def track_create_itf_begun(itf_type, form_start_date, user_account_uuid)
         StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.begun")
         context = {
