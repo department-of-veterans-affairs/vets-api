@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
+require 'pensions/benefits_intake/pension_benefit_intake_job'
 require 'pensions/notification_email'
 
 RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
