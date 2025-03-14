@@ -9,8 +9,8 @@ module Form1095
     sidekiq_options(retry: false)
 
     # this method adds a prefix to the log message to enable datadog monitoring
-    def log_error(message)
-      Rails.logger.error("Form1095B Job Error: #{message}")
+    def log_message(level, message)
+      Rails.logger.send(level, "Form1095B Job #{level.capitalize}: #{message}")
     end
 
     def bucket
@@ -118,7 +118,7 @@ module Form1095
       if !corrected && existing_form.present? # returns true to indicate successful entry
         return true
       elsif corrected && existing_form.nil?
-        Rails.logger.warn "Form for year #{form_data[:tax_year]} not found, but file is for Corrected 1095-B forms."
+        log_message(:warn, "Form for year #{form_data[:tax_year]} not found, but file is for Corrected 1095-B forms.")
       end
 
       rv = false
@@ -151,7 +151,7 @@ module Form1095
 
       unless save_data?(data, corrected)
         @error_count += 1
-        Rails.logger.warn "Failed to save form with unique ID: #{unique_id}"
+        log_message(:warn, "Failed to save form with unique ID: #{unique_id}")
         return false
       end
 
@@ -174,14 +174,14 @@ module Form1095
     rescue => e
       message = "Error processing file: #{file_details[:name]}, on line #{lines}; "\
                 "#{e.message}"
-      log_error(message)
+      log_message(:error, message)
       false
     end
 
     # downloading file to the disk and then reading that file,
     # this will allow us to read large S3 files without exhausting resources/crashing the system
     def download_and_process_file?(file_name)
-      Rails.logger.info "processing file: #{file_name}"
+      log_message(:info, "processing file: #{file_name}")
 
       @form_count = 0
       @error_count = 0
@@ -200,7 +200,7 @@ module Form1095
 
       process_file?(temp_file, file_details)
     rescue => e
-      log_error(e.message)
+      log_message(:error, e.message)
       false
     end
 
@@ -223,7 +223,7 @@ module Form1095
         else
           message = "failed to save #{@error_count} forms from file: #{file_name}; " \
                     "successfully saved #{@form_count} forms"
-          log_error(message)
+          log_message(:error, message)
         end
       end
 
