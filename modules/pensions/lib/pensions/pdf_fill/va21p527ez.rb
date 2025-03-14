@@ -18,7 +18,7 @@ module Pensions
       FORM_ID = Pensions::FORM_ID
 
       # The PDF Template
-      TEMPLATE = "#{Pensions::MODULE_PATH}/lib/pdf_fill/pdfs/21P-527EZ.pdf".freeze
+      TEMPLATE = "#{Pensions::MODULE_PATH}/lib/pensions/pdf_fill/pdfs/21P-527EZ.pdf".freeze
 
       # The Index Iterator Key
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
