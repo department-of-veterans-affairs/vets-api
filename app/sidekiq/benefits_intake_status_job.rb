@@ -87,15 +87,15 @@ class BenefitsIntakeStatusJob
     0.tap do |total_handled|
       form_submission_attempts_by_uuid = batch.index_by(&:benefits_intake_uuid)
 
-      (response.body['data'] || []).each do |submission|
-        total_handled += handle_submission(submission, form_submission_attempts_by_uuid)
+      (response.body['data'] || []).each do |response_submission|
+        total_handled += handle_submission(response_submission, form_submission_attempts_by_uuid)
       end
     end
   end
 
   # https://developer.va.gov/explore/api/benefits-intake/docs
-  def handle_submission(submission, form_submission_attempts_by_uuid)
-    uuid = submission['id']
+  def handle_submission(response_submission, form_submission_attempts_by_uuid)
+    uuid = response_submission['id']
     form_submission_attempt = form_submission_attempts_by_uuid[uuid]
     return 0 unless form_submission_attempt
 
@@ -103,32 +103,32 @@ class BenefitsIntakeStatusJob
     form_id = form_submission&.form_type
     saved_claim_id = form_submission&.saved_claim_id
 
-    process_submission_by_status(submission, form_submission_attempt, form_id, uuid, saved_claim_id)
+    process_submission_by_status(response_submission, form_submission_attempt, form_id, uuid, saved_claim_id)
 
     1
   end
 
   # rubocop:disable Metrics/MethodLength
-  def process_submission_by_status(submission, form_submission_attempt, form_id, uuid, saved_claim_id)
+  def process_submission_by_status(response_submission, form_submission_attempt, form_id, uuid, saved_claim_id)
     time_to_transition = (Time.zone.now - form_submission_attempt.created_at).truncate
-    status = submission.dig('attributes', 'status')
-    lighthouse_updated_at = submission.dig('attributes', 'updated_at')
+    status = response_submission.dig('attributes', 'status')
+    lighthouse_updated_at = response_submission.dig('attributes', 'updated_at')
 
     case status
     # Expired - Indicates that documents were not successfully uploaded within the 15-minute window.
     # Error - Indicates that there was an error. Refer to the error code and detail for further information.
-
     when 'expired', 'error'
       error_message = if status == 'expired'
                         'expired'
                       else
-                        "#{submission.dig('attributes', 'code')}: #{submission.dig('attributes', 'detail')}"
+                        "#{response_submission.dig('attributes', 'code')}: " \
+                          "#{response_submission.dig('attributes', 'detail')}"
                       end
       form_submission_attempt.update(error_message:, lighthouse_updated_at:)
       form_submission_attempt.fail!
       log_result('failure', form_id, uuid, time_to_transition, error_message)
       monitor_failure(form_id, saved_claim_id, uuid)
-    # VBMS - Indicates that the submission was successfully uploaded into a Veteran's eFolder within VBMS
+    # VBMS - Indicates that the response_submission was successfully uploaded into a Veteran's eFolder within VBMS.
     when 'vbms'
       form_submission_attempt.update(lighthouse_updated_at:)
       form_submission_attempt.vbms!
