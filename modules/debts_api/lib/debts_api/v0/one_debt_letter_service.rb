@@ -73,10 +73,10 @@ module DebtsApi
           table_data << [DEBT_TOTAL_TEXT, formatted_debt_total, '']
           table_data << [{ content: DEBT_PAYMENT_INSTRUCTIONS, inline_format: true }, '', '']
           pdf.table(table_data, width: pdf.bounds.width, cell_style: { padding: 5, size: 8 }) do
-            cells.borders = [:left, :right]
+            cells.borders = %i[left right]
             row(0).columns(0).style(font_style: :bold_italic)
-            rows(0).borders = [:top, :bottom, :left, :right]
-            rows(-1).borders = [:bottom, :left, :right]
+            rows(0).borders = %i[top bottom left right]
+            rows(-1).borders = %i[bottom left right]
             rows(-2).columns(0).align = :right
             column(1).align = :right
           end
