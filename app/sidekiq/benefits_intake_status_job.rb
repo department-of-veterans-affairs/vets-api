@@ -49,7 +49,10 @@ class BenefitsIntakeStatusJob
       # Log the entire response for debugging purposes
       Rails.logger.info("Received bulk status response: #{response.body}")
 
-      errors << response.body unless response.success?
+      unless response.success?
+        errors << response.body
+        next
+      end
 
       total_handled += handle_response(response)
     end
