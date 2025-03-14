@@ -16,6 +16,12 @@ module DecisionReviews
       SavedClaim::SupplementalClaim
     ].freeze
 
+    APPEAL_TYPE_TO_SERVICE_MAP = {
+      'HLR' => 'higher-level-review',
+      'NOD' => 'board-appeal',
+      'SC' => 'supplemental-claims'
+    }.freeze
+
     ERROR_STATUS = 'error'
 
     STATSD_KEY_PREFIX = 'worker.decision_review.failure_notification_email'
@@ -89,7 +95,7 @@ module DecisionReviews
       vanotify_service.send_email({ email_address:, template_id:, personalisation:, reference: })
     end
 
-    def send_email_with_vanotify_form_callback(submission, filename, created_at, template_id)
+    def send_email_with_vanotify_form_callback(submission, filename, created_at, template_id) # rubocop:disable Metrics/MethodLength
       email_address = submission.current_email_address
       personalisation = {
         first_name: submission.get_mpi_profile.given_names[0],
@@ -100,7 +106,8 @@ module DecisionReviews
         callback_klass: DecisionReviews::FormNotificationCallback,
         callback_metadata: {
           email_type: :error,
-          form_type: submission.type_of_appeal,
+          service_name: APPEAL_TYPE_TO_SERVICE_MAP[submission.type_of_appeal],
+          function: 'form submission',
           submitted_appeal_uuid: submission.submitted_appeal_uuid,
           email_template_id: template_id
         }
@@ -109,7 +116,6 @@ module DecisionReviews
         Settings.vanotify.services.benefits_decision_review.api_key,
         callback_options
       )
-
       vanotify_service_callback.send_email({ email_address:, template_id:, personalisation: })
     end
 

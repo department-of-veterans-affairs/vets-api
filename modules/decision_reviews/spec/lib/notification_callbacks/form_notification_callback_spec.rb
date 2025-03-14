@@ -7,7 +7,7 @@ describe DecisionReviews::FormNotificationCallback do
   subject { described_class }
 
   let(:reference) { "SC-form-#{SecureRandom.uuid}" }
-  let(:saved_claim_id) { SecureRandom.uuid }
+  let(:submitted_appeal_uuid) { SecureRandom.uuid }
 
   before do
     allow(DecisionReviewNotificationAuditLog).to receive(:create!)
@@ -29,9 +29,10 @@ describe DecisionReviews::FormNotificationCallback do
         callback_klass: described_class.to_s,
         callback_metadata: {
           email_type: :error,
-          form_type: 'SC',
-          appeal_submission_id:,
-          email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email, # rubocop:disable Layout/LineLength
+          service_name: 'supplemental-claims',
+          function: 'form submission',
+          submitted_appeal_uuid:,
+          email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email # rubocop:disable Layout/LineLength
         }
       )
     end
@@ -41,9 +42,8 @@ describe DecisionReviews::FormNotificationCallback do
         expect(message).to eq('Silent failure avoided')
         expect(payload[:service]).to eq('supplemental-claims')
         expect(payload[:function]).to eq('form submission')
-        expect(payload[:additional_context][:callback_metadata][:form_id]).to eq('995')
-        expect(payload[:additional_context][:callback_metadata][:saved_claim_id])
-          .to eq(saved_claim_id)
+        expect(payload[:additional_context][:callback_metadata][:submitted_appeal_uuid])
+          .to eq(submitted_appeal_uuid)
       end
       expect(Rails.logger).to receive(:info).with('DecisionReviews::FormNotificationCallback: Delivered',
                                                   anything)
@@ -78,10 +78,10 @@ describe DecisionReviews::FormNotificationCallback do
         callback_klass: described_class.to_s,
         callback_metadata: {
           email_type: :error,
-          form_id: '995',
-          saved_claim_id:,
-          email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email, # rubocop:disable Layout/LineLength
-          service_name: 'supplemental-claims'
+          service_name: 'supplemental-claims',
+          function: 'form submission',
+          submitted_appeal_uuid:,
+          email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email # rubocop:disable Layout/LineLength
         }
       )
     end
@@ -91,9 +91,8 @@ describe DecisionReviews::FormNotificationCallback do
         expect(message).to eq('Silent failure!')
         expect(payload[:service]).to eq('supplemental-claims')
         expect(payload[:function]).to eq('form submission')
-        expect(payload[:additional_context][:callback_metadata][:form_id]).to eq('995')
-        expect(payload[:additional_context][:callback_metadata][:saved_claim_id])
-          .to eq(saved_claim_id)
+        expect(payload[:additional_context][:callback_metadata][:submitted_appeal_uuid])
+          .to eq(submitted_appeal_uuid)
       end
       expect(Rails.logger).to receive(:error).with('DecisionReviews::FormNotificationCallback: Permanent Failure',
                                                    anything)
@@ -128,10 +127,10 @@ describe DecisionReviews::FormNotificationCallback do
         callback_klass: described_class.to_s,
         callback_metadata: {
           email_type: :error,
-          form_id: '995',
-          saved_claim_id:,
-          email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email, # rubocop:disable Layout/LineLength
-          service_name: 'supplemental-claims'
+          service_name: 'supplemental-claims',
+          function: 'form submission',
+          submitted_appeal_uuid:,
+          email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email # rubocop:disable Layout/LineLength
         }
       )
     end
@@ -168,7 +167,7 @@ describe DecisionReviews::FormNotificationCallback do
         callback_metadata: {
           email_type: :error,
           form_id: '995',
-          saved_claim_id:,
+          submitted_appeal_uuid:,
           email_template_id: Settings.vanotify.services.benefits_decision_review.template_id.supplemental_claim_form_error_email, # rubocop:disable Layout/LineLength
           service_name: 'supplemental-claims'
         }

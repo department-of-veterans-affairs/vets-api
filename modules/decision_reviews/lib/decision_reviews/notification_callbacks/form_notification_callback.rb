@@ -19,9 +19,5 @@ module DecisionReviews
     def monitor
       DecisionReviews::NotificationMonitor.new(service_name)
     end
-
-    def context
-      super.merge(function: 'form submission')
-    end
   end
 end

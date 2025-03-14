@@ -169,7 +169,8 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
               callback_metadata: {
                 email_template_id: 'fake_sc_template_id',
                 email_type: :error,
-                form_type: 'SC',
+                service_name: 'supplemental-claims',
+                function: 'form submission',
                 submitted_appeal_uuid: guid1
               }
             }

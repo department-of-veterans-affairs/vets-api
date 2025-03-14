@@ -5,7 +5,7 @@ require 'logging/monitor'
 module DecisionReviews
   class NotificationMonitor < Logging::Monitor
     def track(error_level, message, metric, call_location: nil, **context) # rubocop:disable Lint/UnusedMethodArgument
-      function = context[:function]
+      function = context[:callback_metadata][:function]
       tags = (["service:#{service}", "function:#{function}"] + (context[:tags] || [])).uniq
       StatsD.increment(metric, tags:)
 
@@ -25,7 +25,7 @@ module DecisionReviews
     def log_silent_failure(additional_context, _user_account_uuid = nil, call_location: nil) # rubocop:disable Lint/UnusedMethodArgument
       metric = 'silent_failure'
       message = 'Silent failure!'
-      function = additional_context[:function]
+      function = additional_context[:callback_metadata][:function]
 
       payload = {
         statsd: metric,
@@ -42,8 +42,7 @@ module DecisionReviews
                                    email_confirmed: false)
       metric = 'silent_failure_avoided'
       message = 'Silent failure avoided'
-      function = additional_context[:function]
-
+      function = additional_context[:callback_metadata][:function]
       unless email_confirmed
         metric = "#{metric}_no_confirmation"
         message = "#{message} (no confirmation)"
