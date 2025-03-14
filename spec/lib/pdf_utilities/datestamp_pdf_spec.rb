@@ -99,8 +99,8 @@ RSpec.describe PDFUtilities::DatestampPdf do
 
         it 'logs and reraise the error and not call stamp' do
           expect(Rails.logger).to receive(:error).at_least(:once).with(
-            /RuntimeError - #{error_message}/,
-            hash_including(:backtrace)
+            /Failed to generate/,
+            hash_including(context: hash_including(exception: error_message))
           )
           expect(instance).not_to receive(:stamp_pdf)
           expect { run }.to raise_error(StandardError, error_message)
@@ -124,7 +124,7 @@ RSpec.describe PDFUtilities::DatestampPdf do
         let(:stamped_template_path) { 'nonexistent.pdf' }
 
         it 'raises a PdfMissingError' do
-          expect { instance }.to raise_error(PDFUtilities::PdfMissingError, /Original PDF missing/)
+          expect { instance }.to raise_error(PDFUtilities::PdfMissingError, /Original PDF is missing/)
         end
       end
 

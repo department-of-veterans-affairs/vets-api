@@ -28,8 +28,8 @@ module SimpleFormsApi
       Rails.logger.info('Stamping authentication footer')
       verify { stamp_all_pages(get_auth_text_stamp, append_to_stamp: auth_text) }
     rescue => e
-      Rails.logger.error("Error in stamp_pdf: #{e.class} - #{e.message}", backtrace: e.backtrace)
-      raise StandardError, "An error occurred while stamping the PDF: #{e}"
+      message = "An error occurred while stamping the PDF: Error in stamp_pdf: #{e.class} - #{e.message}"
+      log_and_raise_error(message, e)
     end
 
     def stamp_uuid(uuid)
@@ -82,8 +82,7 @@ module SimpleFormsApi
       stamp_path = generate_prawn_document(stamp, page_configuration)
       perform_multistamp(stamp_path)
     rescue => e
-      Rails.logger.error 'Simple forms api - Failed to generate stamped file', message: e.message
-      raise
+      log_and_raise_error('Simple forms api - Failed to generate stamped file', e)
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
     end
