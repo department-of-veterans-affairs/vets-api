@@ -82,7 +82,11 @@ class HealthCareApplication < ApplicationRecord
 
     result = begin
       # HCA::Service.new(user).submit_form(parsed_form)
-      'mock_ves_form_id'
+      {
+        success: true,
+        formSubmissionId: 123,
+        timestamp: Time.now.getlocal.to_s
+      }
     rescue Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
 
@@ -93,7 +97,10 @@ class HealthCareApplication < ApplicationRecord
     # message out valid submission {state: "received"}
     Rails.logger.info '~~~~~~~~~~~~~~~ received anon sync'
 
-    HCA::EventBusSubmissionJob.perform_async('topic', build_event_payload('received', result))
+    HCA::EventBusSubmissionJob.perform_async(
+      'submission_trace_mock_dev',
+      build_event_payload('sent', result[:formSubmissionId])
+    )
 
     # HCA::EventBusSubmissionJob.perform_sync(1, 2, id, 4, true)
     Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
@@ -128,7 +135,7 @@ class HealthCareApplication < ApplicationRecord
     Rails.logger.info '~~~~~~~~~~~~~~~ received saved, id:', id
 
     # SEND "received" message to EventBus
-    HCA::EventBusSubmissionJob.perform_async('topic', build_event_payload('received'))
+    HCA::EventBusSubmissionJob.perform_async('submission_trace_mock_dev', build_event_payload('received'))
 
     if email.present? || async_compatible
       submit_async
@@ -224,7 +231,10 @@ class HealthCareApplication < ApplicationRecord
       timestamp: result[:timestamp]
     )
 
-    HCA::EventBusSubmissionJob.perform_async('topic', build_event_payload('sent'))
+    HCA::EventBusSubmissionJob.perform_async(
+      'submission_trace_mock_dev',
+      build_event_payload('sent', result[:formSubmissionId].to_s)
+    )
 
     Rails.logger.info '~~~~~~~~~~~~~~~ sent'
     # message out successful submission {state: "sent"}
@@ -241,17 +251,18 @@ class HealthCareApplication < ApplicationRecord
   def build_event_payload(state, next_id = nil)
     # { "data" => { "ICN" => 1234567790, "currentID" => [HCA id], "submissionName" => "1010EZ", state => [received|sent|error]}}
     user_icn = user&.icn || '12345678' # self.class.user_icn(self.class.user_attributes(parsed_form))
-    payload = { 'data' => {
-      'ICN' => user_icn,
-      'currentID' => id,
-      'submissionName' => '1010EZ',
-      'state' => state}
+    payload = {
+      'data' => {
+        'ICN' => user_icn,
+        'currentID' => id.to_s,
+        'submissionName' => '1010EZ',
+        'state' => state
+      }
     }
 
-    payload.merge!('nextID' => next_id) if next_id
+    payload['data'].merge!('nextID' => next_id.to_s) if next_id
     payload
   end
-
 
   private
 

@@ -7,6 +7,7 @@ module HCA
     sidekiq_options retry: false
 
     def perform(topic, payload)
+      Rails.logger.info '~~~~~~~~~~~~~~~ job', topic, payload
       Kafka::AvroProducer.new.produce(topic, payload)
     end
   end
