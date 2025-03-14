@@ -27,7 +27,7 @@ namespace :simple_forms_api do
 
     confirmation_numbers = form_submission_attempts.map do |form_submission_attempt|
       confirmation_number = form_submission_attempt.benefits_intake_uuid
-      send_email(form_submission_attempt, failure_notifications_sent)
+      send_email(form_submission_attempt, failure_notifications_sent, confirmation_number)
       Rails.logger.info "Successfully enqueued email for: #{confirmation_number}"
       confirmation_number
     rescue => e
@@ -38,7 +38,7 @@ namespace :simple_forms_api do
     [confirmation_numbers, failure_notifications_sent]
   end
 
-  def send_email(form_submission_attempt, error_notifications_sent)
+  def send_email(form_submission_attempt, error_notifications_sent, confirmation_number)
     Rails.logger.info "Attempting to enqueue email for: #{confirmation_number}"
     now = Time.now.in_time_zone('Eastern Time (US & Canada)')
     time_to_send = now.tomorrow.change(hour: 9, min: 0)
@@ -68,8 +68,8 @@ namespace :simple_forms_api do
   def log_errors(errors)
     Rails.logger.error 'Errors:'
     errors.each do |error|
-      Rails.logger.error('SendEmailsByDateRange error.', confirmation_number: error.confirmation_number,
-                                                         message: error.message, backtrace: error.backtrace.join('\n'))
+      Rails.logger.error('SendEmailsByDateRange error.', confirmation_number: error[:confirmation_number],
+                                                         message: error[:message], backtrace: error[:backtrace])
     end
   end
 
