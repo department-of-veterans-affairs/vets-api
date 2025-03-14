@@ -20,7 +20,9 @@ class EvidenceSubmission < ApplicationRecord
 
   scope :created, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED]) }
   scope :queued, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:QUEUED]) }
-  scope :pending, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]) }
+  scope :pending, lambda {
+    where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]).where.not(request_id: nil)
+  }
   scope :completed, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]) }
   scope :failed, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]) }
   # used for sending failure notification emails
@@ -43,6 +45,6 @@ class EvidenceSubmission < ApplicationRecord
   end
 
   def pending?
-    upload_status == BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
+    upload_status == BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING] && request_id.present?
   end
 end
