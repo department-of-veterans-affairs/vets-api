@@ -77,10 +77,12 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_sync
+    Rails.logger.info '~~~~~~~~~~~~~~~ sync'
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     result = begin
-      HCA::Service.new(user).submit_form(parsed_form)
+      # HCA::Service.new(user).submit_form(parsed_form)
+      'mock_ves_form_id'
     rescue Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
 
@@ -88,7 +90,12 @@ class HealthCareApplication < ApplicationRecord
         nil, detail: e.message
       )
     end
+    # message out valid submission {state: "received"}
+    Rails.logger.info '~~~~~~~~~~~~~~~ received anon sync'
 
+    HCA::EventBusSubmissionJob.perform_async('topic', build_event_payload('received', result))
+
+    # HCA::EventBusSubmissionJob.perform_sync(1, 2, id, 4, true)
     Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
 
     result
@@ -115,13 +122,21 @@ class HealthCareApplication < ApplicationRecord
 
       raise(Common::Exceptions::ValidationErrors, self)
     end
+    # message out valid submission {state: "received"}
+    Rails.logger.info '~~~~~~~~~~~~~~~ received, id:', id
+    save!
+    Rails.logger.info '~~~~~~~~~~~~~~~ received saved, id:', id
+
+    # SEND "received" message to EventBus
+    HCA::EventBusSubmissionJob.perform_async('topic', build_event_payload('received'))
 
     if email.present? || async_compatible
-      save!
       submit_async
     else
       submit_sync
     end
+
+    Rails.logger.info '~~~~~~~~~~~~~~~ received end, id:', id
   end
 
   def self.determine_active_duty(primary_eligibility, veteran)
@@ -208,6 +223,11 @@ class HealthCareApplication < ApplicationRecord
       form_submission_id_string: result[:formSubmissionId].to_s,
       timestamp: result[:timestamp]
     )
+
+    HCA::EventBusSubmissionJob.perform_async('topic', build_event_payload('sent'))
+
+    Rails.logger.info '~~~~~~~~~~~~~~~ sent'
+    # message out successful submission {state: "sent"}
   end
 
   def form_submission_id
@@ -217,6 +237,21 @@ class HealthCareApplication < ApplicationRecord
   def parsed_form
     @parsed_form ||= form.present? ? JSON.parse(form) : nil
   end
+
+  def build_event_payload(state, next_id = nil)
+    # { "data" => { "ICN" => 1234567790, "currentID" => [HCA id], "submissionName" => "1010EZ", state => [received|sent|error]}}
+    user_icn = user&.icn || '12345678' # self.class.user_icn(self.class.user_attributes(parsed_form))
+    payload = { 'data' => {
+      'ICN' => user_icn,
+      'currentID' => id,
+      'submissionName' => '1010EZ',
+      'state' => state}
+    }
+
+    payload.merge!('nextID' => next_id) if next_id
+    payload
+  end
+
 
   private
 
@@ -245,7 +280,9 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_async
-    submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
+    Rails.logger.info '~~~~~~~~~~~~~~~ async', email.present?
+    # submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
+    submission_job = 'MockSubmissionJob'
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     "HCA::#{submission_job}".constantize.perform_async(

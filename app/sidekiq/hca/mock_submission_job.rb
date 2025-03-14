@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module HCA
-  class SubmissionJob < BaseSubmissionJob
+  class MockSubmissionJob < BaseSubmissionJob
     # retry for  2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
     sidekiq_options retry: 16
@@ -17,8 +17,16 @@ module HCA
       )
     end
 
-    def perform(*args)
-      super
+    def perform(user_identifier, encrypted_form, health_care_application_id, google_analytics_client_id, succeed = true)
+      # super
+      @health_care_application = HealthCareApplication.find(health_care_application_id)
+
+      Rails.logger.info '~~~~~~~~~~~~~~~ mock perform'
+      raise unless succeed
+
+      @health_care_application.set_result_on_success!(
+        { formSubmissionId: 'mock_ves_form_id', timestamp: Time.current }
+      )
     rescue
       @health_care_application.update!(state: 'error')
       Rails.logger.info '~~~~~~~~~~~~~~~ error'
