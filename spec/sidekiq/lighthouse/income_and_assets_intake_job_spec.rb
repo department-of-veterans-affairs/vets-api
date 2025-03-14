@@ -87,7 +87,6 @@ RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
   describe '#process_document' do
     let(:service) { double('service') }
     let(:pdf_path) { 'random/path/to/pdf' }
-    let(:datestamp_pdf_double) { instance_double(PDFUtilities::DatestampPdf) }
 
     before do
       job.instance_variable_set(:@intake_service, service)
@@ -95,13 +94,11 @@ RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
 
     it 'returns a datestamp pdf path' do
       run_count = 0
-      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
-      allow(datestamp_pdf_double).to receive(:run) {
-        run_count += 1
-        pdf_path
-      }
+      allow_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run) {
+                                                             run_count += 1
+                                                             pdf_path
+                                                           }
       allow(service).to receive(:valid_document?).and_return(pdf_path)
-      allow(File).to receive(:exist?).with(pdf_path).and_return(true)
       new_path = job.send(:process_document, 'test/path')
 
       expect(new_path).to eq(pdf_path)
