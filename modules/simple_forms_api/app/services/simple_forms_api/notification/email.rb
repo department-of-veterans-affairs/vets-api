@@ -34,8 +34,9 @@ module SimpleFormsApi
         template_id = Settings.vanotify.services.va_gov.template_id[template_id_suffix]
         return unless template_id
 
-        email_job_id = if at
-                         enqueue_email(at, template_id)
+        scheduled_at = at
+        email_job_id = if scheduled_at
+                         enqueue_email(scheduled_at, template_id)
                        else
                          send_email_now(template_id)
                        end
