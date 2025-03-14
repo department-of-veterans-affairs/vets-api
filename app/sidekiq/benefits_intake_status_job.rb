@@ -112,6 +112,7 @@ class BenefitsIntakeStatusJob
   def process_submission_by_status(response_submission, form_submission_attempt, form_id, uuid, saved_claim_id)
     time_to_transition = (Time.zone.now - form_submission_attempt.created_at).truncate
     status = response_submission.dig('attributes', 'status')
+    final_status = response_submission.dig('attributes', 'final_status')
     lighthouse_updated_at = response_submission.dig('attributes', 'updated_at')
 
     case status
@@ -134,7 +135,8 @@ class BenefitsIntakeStatusJob
       form_submission_attempt.vbms!
       log_result('success', form_id, uuid, time_to_transition)
     else
-      log_result(time_to_transition > STALE_SLA.days ? 'stale' : 'pending', form_id, uuid, time_to_transition)
+      status = (time_to_transition > STALE_SLA.days && final_status == true ? 'stale' : 'pending')
+      log_result(status, form_id, uuid, time_to_transition)
     end
   end
   # rubocop:enable Metrics/MethodLength
