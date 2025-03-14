@@ -415,7 +415,6 @@ evss:
   mock_common_service: <%= ENV['evss__mock_common_service'] %>
   mock_disabilities_form: <%= ENV['evss__mock_disabilities_form'] %>
   mock_gi_bill_status: <%= ENV['evss__mock_gi_bill_status'] %>
-  mock_itf: <%= ENV['evss__mock_itf'] %>
   mock_letters: <%= ENV['evss__mock_letters'] %>
   mock_pciu: <%= ENV['evss__mock_pciu'] %>
   mock_pciu_address: <%= ENV['evss__mock_pciu_address'] %>
@@ -1500,7 +1499,7 @@ vanotify:
         form_10_7959f_2_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_email'] %>
         form_10_7959f_2_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_failure_email'] %>
         pega_team_missing_status_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_missing_status_email'] %>
-        pega_team_zsf_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_zsf_email'] %> 
+        pega_team_zsf_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_zsf_email'] %>
     lighthouse:
       api_key: <%= ENV['vanotify__services__lighthouse__api_key'] %>
       template_id:
