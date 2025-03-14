@@ -45,6 +45,6 @@ class EvidenceSubmission < ApplicationRecord
   end
 
   def pending?
-    upload_status == BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING] && !request_id.nil?
+    upload_status == BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING] && request_id.present?
   end
 end
