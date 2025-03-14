@@ -366,7 +366,7 @@ module Eps
         }
       )
     rescue => e
-      status = e.status || :bad_gateway
+      status = e.respond_to?(:status) ? e.status : :bad_gateway
       Rails.logger.error("Provider slots error: #{e.message}")
       build_error_response(
         PROVIDER_SLOTS_ERROR_MSG,
