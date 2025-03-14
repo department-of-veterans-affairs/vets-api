@@ -54,7 +54,6 @@ module DebtsApi
 
         pdf.move_down 20
 
-        binding.pry
         debts = debts_service[:debts]
 
         if debts.any?
