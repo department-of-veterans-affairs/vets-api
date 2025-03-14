@@ -18,18 +18,14 @@ module SimpleFormsApi
     end
 
     def stamp_pdf
-      Rails.logger.info("Starting PDF stamping for: #{stamped_template_path}")
-
       all_form_stamps.each do |desired_stamp|
-        Rails.logger.info("Stamping form with: #{desired_stamp}") if desired_stamp
         stamp_form(desired_stamp)
       end
 
-      Rails.logger.info('Stamping authentication footer')
+      # Stamp the text which specifies the user's auth level (footer)
       verify { stamp_all_pages(get_auth_text_stamp, append_to_stamp: auth_text) }
     rescue => e
-      message = "An error occurred while stamping the PDF: Error in stamp_pdf: #{e.class} - #{e.message}"
-      log_and_raise_error(message, e)
+      raise StandardError, "An error occurred while stamping the PDF: #{e}"
     end
 
     def stamp_uuid(uuid)
@@ -82,21 +78,18 @@ module SimpleFormsApi
       stamp_path = generate_prawn_document(stamp, page_configuration)
       perform_multistamp(stamp_path)
     rescue => e
-      log_and_raise_error('Simple forms api - Failed to generate stamped file', e)
+      Rails.logger.error 'Simple forms api - Failed to generate stamped file', message: e.message
+      raise
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
     end
 
     def perform_multistamp(stamp_path)
       out_path = Rails.root.join("#{Common::FileHelpers.random_file_path}.pdf")
-
-      Rails.logger.info("Performing multistamp on #{stamped_template_path} using stamp at #{stamp_path}")
-
       pdftk.multistamp(stamped_template_path, stamp_path, out_path)
       multistamp_cleanup(out_path)
     rescue => e
-      Common::FileHelpers.delete_file_if_exists(out_path)
-      log_and_raise_error('Simple forms api - Failed to perform multistamp', e)
+      handle_multistamp_error(e)
     end
 
     def multistamp_cleanup(out_path)
@@ -105,21 +98,13 @@ module SimpleFormsApi
     end
 
     def verify
-      unless File.exist?(stamped_template_path)
-        raise StandardError, "Stamped template path does not exist: #{stamped_template_path}"
-      end
-
       orig_size = File.size(stamped_template_path)
       yield
       stamped_size = File.size(stamped_template_path)
 
-      unless stamped_size > orig_size
-        Rails.logger.info("Original PDF size: #{orig_size} bytes")
-        Rails.logger.info("Stamped PDF size: #{stamped_size} bytes")
-        raise StandardError, 'The PDF remained unchanged upon stamping.'
-      end
+      raise StandardError, 'The PDF remained unchanged upon stamping.' unless stamped_size > orig_size
     rescue => e
-      log_and_raise_error('Failed to verify stamp', e)
+      raise StandardError, "An error occurred while verifying stamp: #{e}"
     end
 
     def get_page_configuration(stamp)
@@ -192,9 +177,9 @@ module SimpleFormsApi
       end
     end
 
-    def log_and_raise_error(message, e)
-      monitor = Logging::Monitor.new('veteran-facing-forms')
-      monitor.track_request(:error, message, 'api.simple_forms.error', exception: e.message, backtrace: e.backtrace)
+    def handle_multistamp_error(e)
+      Rails.logger.error 'Simple forms api - Failed to perform multistamp', message: e.message
+      Common::FileHelpers.delete_file_if_exists(out_path)
       raise e
     end
   end
