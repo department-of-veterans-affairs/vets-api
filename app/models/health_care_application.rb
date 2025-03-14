@@ -81,12 +81,12 @@ class HealthCareApplication < ApplicationRecord
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     result = begin
-      # HCA::Service.new(user).submit_form(parsed_form)
-      {
-        success: true,
-        formSubmissionId: 123,
-        timestamp: Time.now.getlocal.to_s
-      }
+      HCA::Service.new(user).submit_form(parsed_form)
+      # {
+      #   success: true,
+      #   formSubmissionId: 123,
+      #   timestamp: Time.now.getlocal.to_s
+      # }
     rescue Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
 
@@ -97,13 +97,14 @@ class HealthCareApplication < ApplicationRecord
     # message out valid submission {state: "received"}
     Rails.logger.info '~~~~~~~~~~~~~~~ received anon sync'
 
+    set_result_on_success!(result)
     HCA::EventBusSubmissionJob.perform_async(
+      # replace with prod topic name
       'submission_trace_mock_dev',
       build_event_payload('sent', result[:formSubmissionId])
     )
 
-    # HCA::EventBusSubmissionJob.perform_sync(1, 2, id, 4, true)
-    Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
+    Rails.logger.info "~~~~~~~~~~~~~~~ SubmissionID=#{result[:formSubmissionId]}"
 
     result
   rescue
@@ -249,8 +250,19 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def build_event_payload(state, next_id = nil)
-    # { "data" => { "ICN" => 1234567790, "currentID" => [HCA id], "submissionName" => "1010EZ", state => [received|sent|error]}}
-    user_icn = user&.icn || '12345678' # self.class.user_icn(self.class.user_attributes(parsed_form))
+    user_icn = user&.icn || self.class.user_icn(self.class.user_attributes(parsed_form))
+    # user_icn = user&.icn || '12345678'
+
+    # test schema: {
+    #   "data" => {
+    #     "ICN" => 1234567790,
+    #     "currentID" => [HCA id],
+    #     "submissionName" => "1010EZ",
+    #     "state" => [received|sent|error],
+    #     "nextID"? => [VES form ID]
+    #   }
+    # }
+    # replace with final schema when defined
     payload = {
       'data' => {
         'ICN' => user_icn,
@@ -292,8 +304,11 @@ class HealthCareApplication < ApplicationRecord
 
   def submit_async
     Rails.logger.info '~~~~~~~~~~~~~~~ async', email.present?
-    # submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
-    submission_job = 'MockSubmissionJob'
+
+    submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
+    # if testing locally, use the below instead of the above:
+    # submission_job = 'MockSubmissionJob'
+
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     "HCA::#{submission_job}".constantize.perform_async(
