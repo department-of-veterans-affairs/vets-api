@@ -108,7 +108,7 @@ describe Eps::AppointmentService do
     end
   end
 
-  describe 'create_draft_appointment' do
+  describe 'create_draft_appointment_with_response' do
     let(:referral_id) { 'test-referral-id' }
     let(:successful_draft_appt_response) do
       double('Response', status: 200, body: { 'id' => appointment_id,
@@ -124,7 +124,7 @@ describe Eps::AppointmentService do
       it 'returns the appointments scheduled' do
         exp_response = OpenStruct.new(successful_draft_appt_response.body)
 
-        expect(service.create_draft_appointment(referral_id:)).to eq(exp_response)
+        expect(service.create_draft_appointment_with_response(referral_id:)).to eq(exp_response)
       end
     end
 
