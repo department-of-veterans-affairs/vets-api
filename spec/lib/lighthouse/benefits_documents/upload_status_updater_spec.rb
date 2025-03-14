@@ -39,8 +39,10 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
         } }.to_json
       end
 
-      it 'logs the document_status_response to the Rails logger' do
+      it 'logs the document_status_response to the Rails logger when a status change occurred' do
         Timecop.freeze(past_date_time) do
+          expect(lighthouse_document_upload.upload_status).to eq(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
+          expect(status).not_to eq(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
           expect(Rails.logger).to receive(:info).with(
             'LH - Status changed',
             old_status: lighthouse_document_upload.upload_status,
