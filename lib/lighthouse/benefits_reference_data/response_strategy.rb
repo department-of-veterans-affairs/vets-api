@@ -2,7 +2,7 @@
 
 require 'common/models/concerns/cache_aside'
 
-module EVSS
+module Lighthouse
   module ReferenceData
     class ResponseStrategy < Common::RedisStore
       include Common::CacheAside

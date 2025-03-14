@@ -4,7 +4,7 @@ require 'evss/common_service'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/disability_compensation_form/form4142'
 require 'evss/disability_compensation_form/service'
-require 'evss/reference_data/response_strategy'
+require 'lighthouse/benefits_reference_data/response_strategy'
 require 'disability_compensation/factories/api_provider_factory'
 
 module V0
@@ -30,7 +30,7 @@ module V0
     end
 
     def separation_locations
-      response = EVSS::ReferenceData::ResponseStrategy.new.cache_by_user_and_type(
+      response = Lighthouse::ReferenceData::ResponseStrategy.new.cache_by_user_and_type(
         :all_users,
         :get_separation_locations
       ) do
