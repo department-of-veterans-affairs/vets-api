@@ -16,7 +16,11 @@ module Kafka
       @schema_id = nil
     end
 
-    def produce(topic, payload, schema_version: 1)
+    def produce(topic, payload, schema_version: 'latest')
+      trace = Kafka::FormTrace.new(payload)
+
+      raise Common::Exceptions::ValidationErrors, trace.errors unless trace.valid?
+
       schema = get_schema(topic, schema_version)
       encoded_payload = encode_payload(schema, payload)
       producer.produce_sync(topic:, payload: encoded_payload)
