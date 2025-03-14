@@ -39,7 +39,7 @@ module Rx
     #
     def get_active_rxs
       Common::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL_ZERO) do
-        perform(:get, 'prescription/getactiverx', nil, token_headers).body
+        perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
       end
     end
 
@@ -50,7 +50,7 @@ module Rx
     #
     def get_active_rxs_with_details
       Common::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL) do
-        perform(:get, 'prescription/getactiverx', nil, token_headers).body
+        perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
       end
     end
 
@@ -61,7 +61,7 @@ module Rx
     #
     def get_history_rxs
       Common::Collection.fetch(::Prescription, cache_key: cache_key('gethistoryrx'), ttl: CACHE_TTL_ZERO) do
-        perform(:get, 'prescription/gethistoryrx', nil, token_headers).body
+        perform(:get, get_path('gethistoryrx'), nil, get_headers(token_headers)).body
       end
     end
 
@@ -73,7 +73,7 @@ module Rx
     #
     def get_all_rxs
       Common::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('medications'), ttl: CACHE_TTL) do
-        perform(:get, 'prescription/medications', nil, token_headers).body
+        perform(:get, get_path('medications'), nil, get_headers(token_headers)).body
       end
     end
 
@@ -83,7 +83,7 @@ module Rx
     # @return [Common::Collection[PrescriptionDocumentation]]
     #
     def get_rx_documentation(ndc)
-      perform(:get, "prescription/getrxdoc/#{ndc}", nil, token_headers).body
+      perform(:get, get_path("getrxdoc/#{ndc}"), nil, get_headers(token_headers)).body
     end
 
     ##
@@ -115,7 +115,7 @@ module Rx
     # @return [Tracking]
     #
     def get_tracking_rx(id)
-      json = perform(:get, "prescription/rxtracking/#{id}", nil, token_headers).body
+      json = perform(:get, get_path("rxtracking/#{id}"), nil, get_headers(token_headers)).body
       data = json[:data].first.merge(prescription_id: id)
       Tracking.new(json.merge(data:))
     end
@@ -127,7 +127,7 @@ module Rx
     # @return [Common::Collection[Tracking]]
     #
     def get_tracking_history_rx(id)
-      json = perform(:get, "prescription/rxtracking/#{id}", nil, token_headers).body
+      json = perform(:get, get_path("rxtracking/#{id}"), nil, get_headers(token_headers)).body
       tracking_history = json[:data].map { |t| t.to_h.merge(prescription_id: id) }
       Common::Collection.new(::Tracking, **json.merge(data: tracking_history))
     end
@@ -139,7 +139,7 @@ module Rx
     # @return [Faraday::Env]
     #
     def post_refill_rxs(ids)
-      if (result = perform(:post, 'prescription/rxrefill', ids, token_headers))
+      if (result = perform(:post, 'prescription/rxrefill', ids, get_headers(token_headers)))
         increment_refill(ids.size)
       end
       result
@@ -152,7 +152,7 @@ module Rx
     # @return [Faraday::Env]
     #
     def post_refill_rx(id)
-      if (result = perform(:post, "prescription/rxrefill/#{id}", nil, token_headers))
+      if (result = perform(:post, get_path("rxrefill/#{id}"), nil, get_headers(token_headers)))
         keys = [cache_key('getactiverx'), cache_key('gethistoryrx')].compact
         Common::Collection.bust(keys) unless keys.empty?
         increment_refill
@@ -191,6 +191,25 @@ module Rx
     end
 
     private
+
+    def auth_headers
+      get_headers(config.base_request_headers.merge('appToken' => config.app_token,
+                                                    'mhvCorrelationId' => session.user_id.to_s))
+    end
+
+    def get_headers(headers)
+      headers = headers.dup
+      if Flipper.enabled?(:mhv_medications_add_x_api_key)
+        headers.merge('x-api-key' => Settings.mhv_mobile.x_api_key)
+      else
+        headers
+      end
+    end
+
+    def get_path(endpoint)
+      base_path = Flipper.enabled?(:mhv_medications_add_x_api_key) ? 'v1/pharmacy/ess' : 'prescription'
+      "#{base_path}/#{endpoint}"
+    end
 
     def cache_key(action)
       return nil unless config.caching_enabled?
