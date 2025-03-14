@@ -16,10 +16,12 @@ module Burials
 
         # The ID of the form being processed
         FORM_ID = '21P-530EZ'
+
         # An external iterator used in data processing
         ITERATOR = ::PdfFill::HashConverter::ITERATOR
+
         # The path to the PDF template for the form
-        TEMPLATE = "#{Burials::MODULE_PATH}/lib/pdf_fill/forms/pdfs/#{FORM_ID}.pdf".freeze
+        TEMPLATE = "#{Burials::MODULE_PATH}/lib/burials/pdf_fill/forms/pdfs/#{FORM_ID}.pdf".freeze
 
         # A mapping of care facilities to their labels
         PLACE_OF_DEATH_KEY = {
