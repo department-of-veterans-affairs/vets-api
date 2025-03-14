@@ -1580,6 +1580,31 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           expect(response_obj['errors'].first['detail']).to eq('Unable to connect to cache service: Redis connection refused')
         end
       end
+
+      context 'when provider slots cannot be retrieved' do
+        it 'returns an appropriate error response' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200') do
+            VCR.use_cassette('vaos/eps/get_drive_times/200') do
+              VCR.use_cassette 'vaos/eps/get_provider_slots/500' do
+                VCR.use_cassette 'vaos/eps/get_provider_service/200' do
+                  VCR.use_cassette 'vaos/eps/draft_appointment/200' do
+                    VCR.use_cassette 'vaos/eps/token/token_200' do
+                      allow_any_instance_of(Eps::AppointmentService)
+                        .to receive(:get_appointments)
+                        .and_return(OpenStruct.new(data: []))
+                      post '/vaos/v2/appointments/draft', params: draft_params
+
+                      expect(response).to have_http_status(:bad_gateway)
+                      response_obj = JSON.parse(response.body)
+                      expect(response_obj['errors'].first['title']).to eq('Error fetching provider slots')
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
     end
   end
 end
