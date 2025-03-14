@@ -157,7 +157,7 @@ RSpec.describe EVSSClaimService do
         evidence_submission = EvidenceSubmission.first
         current_personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
         expect(evidence_submission.upload_status)
-          .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED])
+          .to eql(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
         expect(current_personalisation['date_submitted']).to eql(submitted_date)
         expect(StatsD)
           .to have_received(:increment)
@@ -179,7 +179,7 @@ RSpec.describe EVSSClaimService do
     it 'updates document with sanitized filename' do
       subject.upload_document(document)
       job = EVSS::DocumentUpload.jobs.last
-      doc_args = job['args'][2]
+      doc_args = job['args'].last
       expect(doc_args['file_name']).to match(/filewithspaces.*\.txt/)
     end
   end

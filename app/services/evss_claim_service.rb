@@ -65,12 +65,12 @@ class EVSSClaimService
     headers = auth_headers.clone
     headers_supplemented = supplement_auth_headers(evss_claim_document.evss_claim_id, headers)
 
-    evidence_submission_id = nil
-    if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
-      evidence_submission_id = create_initial_evidence_submission(evss_claim_document).id
-    end
     job_id = EVSS::DocumentUpload.perform_async(headers, @user.user_account_uuid,
-                                                evss_claim_document.to_serializable_hash, evidence_submission_id)
+                                                evss_claim_document.to_serializable_hash)
+
+    if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
+      record_evidence_submission(evss_claim_document, job_id)
+    end
     record_workaround('document_upload', evss_claim_document.evss_claim_id, job_id) if headers_supplemented
 
     job_id
@@ -129,21 +129,18 @@ class EVSSClaimService
                         })
   end
 
-  def create_initial_evidence_submission(document)
+  def record_evidence_submission(document, job_id)
     user_account = UserAccount.find(@user.user_account_uuid)
-    es = EvidenceSubmission.create(
+    EvidenceSubmission.create(
       claim_id: document.evss_claim_id,
       tracked_item_id: document.tracked_item_id,
-      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED],
+      job_id:,
+      job_class: self.class,
+      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
       user_account:,
       template_metadata: { personalisation: create_personalisation(document) }.to_json
     )
     StatsD.increment('cst.evss.document_uploads.evidence_submission_record_created')
-    ::Rails.logger.info('EVSS - Created Evidence Submission Record', {
-                          claim_id: document.evss_claim_id,
-                          evidence_submission_id: es.id
-                        })
-    es
   end
 
   def create_personalisation(document)
