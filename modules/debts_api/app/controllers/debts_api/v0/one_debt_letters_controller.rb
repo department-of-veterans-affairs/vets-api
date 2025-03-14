@@ -9,6 +9,7 @@ module DebtsApi
 
       def download_pdf
         service = DebtsApi::V0::OneDebtLetterService.new(current_user)
+
         file_contents = service.get_pdf
 
         send_data file_contents, filename: file_name_for_pdf, type: 'application/pdf', disposition: 'attachment'

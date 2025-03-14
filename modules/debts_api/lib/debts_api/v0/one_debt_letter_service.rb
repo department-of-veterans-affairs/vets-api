@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'debt_management_center/base_service'
+require 'debt_management_center/debts_service'
 
 module DebtsApi
   class V0::OneDebtLetterService
