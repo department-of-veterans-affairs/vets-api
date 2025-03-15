@@ -4,8 +4,8 @@ require 'rails_helper'
 require 'bgs_service/local_bgs'
 
 Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
+  let(:dependent_participant_id) { '600052700' }
   describe '#assign_poa_to_dependent!' do
-    let(:dependent_participant_id) { '600052700' }
     let(:service) do
       described_class.new(poa_code: '002', veteran_participant_id: '600052699', dependent_participant_id:,
                           veteran_file_number: '796163671', claimant_ssn: '796163672')
@@ -131,9 +131,9 @@ Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
       end
     end
 
-    describe '#bgs_claim_status_service' do
+    describe '#e_benefits_bnft_claim_status_web_service' do
       it 'requires the service statement' do
-        res = service.send(:bgs_claim_status_service)
+        res = service.send(:e_benefits_bnft_claim_status_web_service)
         expect(res).to be_a(ClaimsApi::EbenefitsBnftClaimStatusWebService)
       end
     end
@@ -156,6 +156,46 @@ Rspec.describe ClaimsApi::DependentClaimantPoaAssignmentService do
       it 'requires the service statement' do
         res = service.send(:person_web_service)
         expect(res).to be_a(ClaimsApi::PersonWebService)
+      end
+    end
+
+    describe '#first_open_claim_details' do
+      it 'collects open claims' do
+        VCR.use_cassette(
+          'claims_api/bgs/e_benefits_bnft_claim_status_web_service/find_benefit_claims_status_by_ptcpnt_id'
+        ) do
+          res = service.send(:first_open_claim_details)
+          expect(res).to be_a(Hash)
+          expect(res[:bnft_claim_id]).to eq('256009')
+          expect(res[:bnft_claim_type_cd]).to eq('690AUTRWPMC')
+        end
+      end
+
+      context 'dependent_claims does not return claims' do
+        it 'finds an open claim anyway' do
+          VCR.use_cassette('claims_api/bgs/benefit_claim_web_service/find_bnft_claim_by_clmant_id') do
+            allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService).to receive(
+              :dependent_claims
+            ).and_return([])
+            res = service.send(:first_open_claim_details)
+
+            expect(res[:bnft_claim_id]).to eq('600537706')
+            expect(res[:bnft_claim_type_cd]).to eq('400SUPP')
+          end
+        end
+      end
+
+      context 'dependent_claims and find_bnft_claim_by_clmant_id do not find claims' do
+        it 'does not find any open claims, and returns nil' do
+          allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService).to receive(
+            :dependent_claims
+          ).and_return([])
+          allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService).to receive(
+            :first_open_claim_details
+          ).and_return(nil)
+        rescue => e
+          expect(e).to be_a(Common::Exceptions::ServiceError)
+        end
       end
     end
   end
