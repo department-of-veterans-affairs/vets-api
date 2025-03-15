@@ -320,7 +320,8 @@ module ClaimsApi
         end
 
         def valid_page_param?(key)
-          return true if params[:page][:"#{key}"].is_a?(Integer) && params[:page][:"#{key}"]
+          param_val = params[:page][:"#{key}"]
+          return true if param_val.is_a?(String) && param_val.match?(/^\d+?$/) && param_val
 
           raise ::Common::Exceptions::BadRequest.new(
             detail: "The page[#{key}] param value #{params[:page][:"#{key}"]} is invalid"
