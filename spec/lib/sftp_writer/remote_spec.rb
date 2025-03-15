@@ -41,10 +41,15 @@ RSpec.describe SFTPWriter::Remote do
       before do
         allow(mock_sftp).to receive(:mkdir!).and_return(true)
 
-        allow(mock_sftp)
-          .to receive(:upload!)
-          .with(anything, anything)
-          .and_yield(:open, mock_uploader, contents.size, 'data')
+        allow(mock_sftp).to receive(:upload!).with(anything, anything) do |_, _, &block|
+          if block_given?
+            block.call(:open, mock_uploader, 0, nil)
+            block.call(:put, mock_uploader, contents.size, contents)
+            block.call(:close, mock_uploader, contents.size, nil)
+          end
+        end
+
+        allow(mock_sftp).to receive(:stat!).with(anything).and_return(double(size: contents.size))
 
         allow(Settings).to receive(:hostname).and_return('api.va.gov')
       end

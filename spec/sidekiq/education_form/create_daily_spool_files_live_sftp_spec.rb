@@ -56,7 +56,6 @@ if ENV['RUN_SFTP_TEST'] == 'true'
       # rubocop:disable Lint/UselessMethodDefinition
       context 'in the production env' do
         it 'counts the number of bytes written in a live sftp' do
-          puts "\n\n\n*** Happy Path Testing ***\n\n\n"
           allow(Rails.env).to receive(:production?).and_return(true)
           allow(Settings).to receive(:hostname).and_return('api.va.gov')
 
@@ -84,7 +83,6 @@ if ENV['RUN_SFTP_TEST'] == 'true'
         end
 
         it 'writes a warning message to slack if no bytes were sent in a live sftp' do
-          puts "\n\n\n*** No Bytes Sent Testing ***\n\n\n"
           allow(Rails.env).to receive(:production?).and_return(true)
           allow(Settings).to receive(:hostname).and_return('api.va.gov')
 
@@ -113,7 +111,6 @@ if ENV['RUN_SFTP_TEST'] == 'true'
         end
 
         it 'writes a warning message to slack if bytes sent do not match the remote file size in a live sftp' do
-          puts "\n\n\n*** File Size Mismatch Testing ***\n\n\n"
           allow(Rails.env).to receive(:production?).and_return(true)
           allow(Settings).to receive(:hostname).and_return('api.va.gov')
 
