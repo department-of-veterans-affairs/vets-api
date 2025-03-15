@@ -4,7 +4,7 @@ require 'common/exceptions'
 
 module VAOS
   module V2
-    class AppointmentsController < VAOS::BaseController # rubocop:disable Metrics/ClassLength
+    class AppointmentsController < VAOS::BaseController
       before_action :authorize_with_facilities
 
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
@@ -64,25 +64,14 @@ module VAOS
 
       def create_draft
         referral_id = draft_params[:referral_id]
-        # TODO: validate referral_id from the cache from prior referrals response
+        result = eps_appointment_service.create_draft_appointment(referral_id, pagination_params)
 
-        referral_check_result = check_referral_usage(referral_id)
-        unless referral_check_result[:success]
-          render json: referral_check_result[:json], status: referral_check_result[:status] and return
+        if result[:success]
+          serialized = Eps::DraftAppointmentSerializer.new(result[:data])
+          render json: serialized, status: :created
+        else
+          render json: { message: result[:error] }, status: result[:status]
         end
-
-        # TODO: cache provider_id, appointment_type_id, end_date from prior referrals response and use here
-        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: draft_params[:referral_id])
-        provider = eps_provider_service.get_provider_service(provider_id: draft_params[:provider_id])
-        response_data = OpenStruct.new(
-          id: draft_appointment.id,
-          provider:,
-          slots: fetch_provider_slots,
-          drive_time: fetch_drive_times(provider)
-        )
-
-        serialized = Eps::DraftAppointmentSerializer.new(response_data)
-        render json: serialized, status: :created
       end
 
       def update
@@ -132,6 +121,16 @@ module VAOS
       def eps_provider_service
         @eps_provider_service ||=
           Eps::ProviderService.new(current_user)
+      end
+
+      ##
+      # Lazily initializes and returns an instance of {Eps::RedisClient}.
+      # Ensures a single instance is used within the service to interact with Redis.
+      #
+      # @return [Eps::RedisClient] Memoized instance of the Redis client.
+      #
+      def eps_redis_client
+        @eps_redis_client ||= Eps::RedisClient.new
       end
 
       def appointments
@@ -237,16 +236,8 @@ module VAOS
 
       def draft_params
         params.require(:referral_id)
-        params.require(:provider_id)
-        params.require(:appointment_type_id)
-        params.require(:start_date)
-        params.require(:end_date)
         params.permit(
-          :referral_id,
-          :provider_id,
-          :appointment_type_id,
-          :start_date,
-          :end_date
+          :referral_id
         )
       end
 
@@ -439,61 +430,6 @@ module VAOS
             type: params.dig(:address, :type)
           }
         }
-      end
-
-      def fetch_provider_slots
-        eps_provider_service.get_provider_slots(
-          draft_params[:provider_id],
-          {
-            appointmentTypeId: draft_params[:appointment_type_id],
-            startOnOrAfter: draft_params[:start_date],
-            startBefore: draft_params[:end_date]
-          }
-        )
-      end
-
-      def fetch_drive_times(provider)
-        user_address = current_user.vet360_contact_info&.residential_address
-
-        return nil unless user_address&.latitude && user_address.longitude
-
-        eps_provider_service.get_drive_times(
-          destinations: {
-            provider.id => {
-              latitude: provider.location[:latitude],
-              longitude: provider.location[:longitude]
-            }
-          },
-          origin: {
-            latitude: user_address.latitude,
-            longitude: user_address.longitude
-          }
-        )
-      end
-
-      ##
-      # Checks if a referral is already in use by cross referrencing referral number against complete
-      # list of existing appointments
-      #
-      # @param referral_id [String] the referral number to check.
-      # @return [Hash] Result hash:
-      #   - If referral is unused: { success: true }
-      #   - If an error occurs: { success: false, json: { message: ... }, status: :bad_gateway }
-      #   - If referral exists: { success: false, json: { message: ... }, status: :unprocessable_entity }
-      #
-      # TODO: pass in date from cached referral data to use as range for CCRA appointments call
-      def check_referral_usage(referral_id)
-        check = appointments_service.referral_appointment_already_exists?(referral_id, pagination_params)
-
-        if check[:error]
-          { success: false, json: { message: "Error checking appointments: #{check[:failures]}" },
-            status: :bad_gateway }
-        elsif check[:exists]
-          { success: false, json: { message: 'No new appointment created: referral is already used' },
-            status: :unprocessable_entity }
-        else
-          { success: true }
-        end
       end
     end
   end
