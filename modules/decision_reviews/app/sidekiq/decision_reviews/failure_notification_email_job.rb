@@ -3,6 +3,7 @@
 require 'sidekiq'
 require 'decision_reviews/v1/constants'
 require 'decision_reviews/notification_callbacks/form_notification_callback'
+require 'decision_reviews/notification_callbacks/evidence_notification_callback'
 
 module DecisionReviews
   class FailureNotificationEmailJob
@@ -25,6 +26,8 @@ module DecisionReviews
     ERROR_STATUS = 'error'
 
     STATSD_KEY_PREFIX = 'worker.decision_review.failure_notification_email'
+
+    VANOTIFY_API_KEY = Settings.vanotify.services.benefits_decision_review.api_key
 
     def perform
       return unless should_perform?
@@ -53,7 +56,7 @@ module DecisionReviews
     end
 
     def vanotify_service
-      @service ||= ::VaNotify::Service.new(Settings.vanotify.services.benefits_decision_review.api_key)
+      @service ||= ::VaNotify::Service.new(VANOTIFY_API_KEY)
     end
 
     # Fetches SavedClaim records for DecisionReview that have an error status for the form or any evidence attachments
@@ -149,14 +152,43 @@ module DecisionReviews
         appeal_type = submission.type_of_appeal
         reference = "#{appeal_type}-evidence-#{upload.lighthouse_upload_id}"
 
-        response = send_email_with_vanotify(submission, upload.masked_attachment_filename, upload.created_at,
-                                            DecisionReviews::V1::EVIDENCE_TEMPLATE_IDS[appeal_type], reference)
+        response = if evidence_callbacks_enabled?
+                     send_email_with_vanotify_evidence_callback(submission, upload.masked_attachment_filename,
+                                                                upload.created_at)
+                   else
+                     send_email_with_vanotify(submission, upload.masked_attachment_filename, upload.created_at,
+                                              DecisionReviews::V1::EVIDENCE_TEMPLATE_IDS[appeal_type], reference)
+                   end
+
         upload.update(failure_notification_sent_at: DateTime.now)
 
         record_evidence_email_send_successful(upload, response.id)
       rescue => e
         record_evidence_email_send_failure(upload, e)
       end
+    end
+
+    def send_email_with_vanotify_evidence_callback(submission, filename, created_at)
+      email_address = submission.current_email_address
+      template_id = DecisionReviews::V1::EVIDENCE_TEMPLATE_IDS[submission.type_of_appeal]
+      personalisation = {
+        first_name: submission.get_mpi_profile.given_names[0],
+        filename:,
+        date_submitted: created_at.strftime('%B %d, %Y')
+      }
+      callback_options = {
+        callback_klass: DecisionReviews::EvidenceNotificationCallback.name,
+        callback_metadata: {
+          email_type: :error,
+          service_name: APPEAL_TYPE_TO_SERVICE_MAP[submission.type_of_appeal],
+          function: 'evidence submission to lighthouse',
+          submitted_appeal_uuid: submission.submitted_appeal_uuid,
+          email_template_id: template_id
+        }
+      }
+
+      service = ::VaNotify::Service.new(VANOTIFY_API_KEY, callback_options)
+      service.send_email({ email_address:, template_id:, personalisation: })
     end
 
     def send_secondary_form_emails
@@ -261,6 +293,10 @@ module DecisionReviews
 
     def form_callbacks_enabled?
       Flipper.enabled? :decision_review_notification_form_callbacks
+    end
+
+    def evidence_callbacks_enabled?
+      Flipper.enabled? :decision_review_notification_evidence_callbacks
     end
   end
 end
