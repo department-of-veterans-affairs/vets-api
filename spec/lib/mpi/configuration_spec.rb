@@ -35,7 +35,7 @@ describe MPI::Configuration do
   end
 
   describe '.open_timeout' do
-    context 'when Settings.mvi.open_timeout is set' do
+    context 'when IdentitySettings.mvi.open_timeout is set' do
       it 'uses the setting' do
         expect(MPI::Configuration.instance.open_timeout).to eq(15)
       end
@@ -43,7 +43,7 @@ describe MPI::Configuration do
   end
 
   describe '.read_timeout' do
-    context 'when Settings.mvi.timeout is set' do
+    context 'when IdentitySettings.mvi.timeout is set' do
       it 'uses the setting' do
         expect(MPI::Configuration.instance.read_timeout).to eq(30)
       end
