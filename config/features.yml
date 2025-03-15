@@ -499,6 +499,9 @@ features:
   decision_review_notification_form_callbacks:
     actor_type: user
     description: Enable using DecisionReviews::FormNotificationCallback to handle VA Notify notification status changes
+  decision_review_notification_evidence_callbacks:
+    actor_type: user
+    description: Enable using DecisionReviews::EvidenceNotificationCallback to handle VA Notify notification status changes
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
