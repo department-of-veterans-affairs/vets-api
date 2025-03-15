@@ -8,7 +8,7 @@ RSpec.describe FormSubmissionAttempt, type: :model do
   end
 
   describe 'state machine' do
-    before { allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send) }
+    before { allow_any_instance_of(SimpleFormsApi::Notification::Email).to receive(:send) }
 
     let(:config) do
       {
@@ -38,10 +38,8 @@ RSpec.describe FormSubmissionAttempt, type: :model do
           form_submission_attempt.fail!
 
           expect(SimpleFormsApi::Notification::SendNotificationEmailJob).to have_received(:perform_async).with(
-            notification_type:,
-            form_submission_attempt:,
-            form_number: 'vba_21_4142',
-            user_account: anything
+            form_submission_attempt.benefits_intake_uuid,
+            'vba_21_4142'
           )
         end
       end
@@ -50,12 +48,12 @@ RSpec.describe FormSubmissionAttempt, type: :model do
         let(:form_submission) { build(:form_submission, form_type: 'some-other-form') }
 
         it 'does not send an error email' do
-          allow(SimpleFormsApi::NotificationEmail).to receive(:new)
+          allow(SimpleFormsApi::Notification::Email).to receive(:new)
           form_submission_attempt = create(:form_submission_attempt, form_submission:)
 
           form_submission_attempt.fail!
 
-          expect(SimpleFormsApi::NotificationEmail).not_to have_received(:new)
+          expect(SimpleFormsApi::Notification::Email).not_to have_received(:new)
         end
 
         context 'is a form526_form4142 form' do
@@ -137,10 +135,8 @@ RSpec.describe FormSubmissionAttempt, type: :model do
         form_submission_attempt.vbms!
 
         expect(SimpleFormsApi::Notification::SendNotificationEmailJob).to have_received(:perform_async).with(
-          notification_type:,
-          form_submission_attempt:,
-          form_number: anything,
-          user_account: anything
+          form_submission_attempt.benefits_intake_uuid,
+          'vba_21_4142'
         )
       end
     end

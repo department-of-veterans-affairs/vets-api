@@ -93,7 +93,7 @@ test_users.csv
 **/.DS_STORE
 
 # Ignore VIM/vscode artifact files
-.ignore 
+.ignore
 *.swp
 .vscode
 
@@ -116,3 +116,6 @@ staging.benefits_claims.pem
 
 # ignore Yardoc generation
 .yardoc/
+
+# ignore all local settings files
+**/*.local.yml
