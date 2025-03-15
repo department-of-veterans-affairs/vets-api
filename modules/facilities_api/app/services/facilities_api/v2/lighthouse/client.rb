@@ -55,6 +55,20 @@ module FacilitiesApi
           response = perform(:get, '/services/va_facilities/v1/facilities', filtered_params)
           V2::Lighthouse::Response.new(response.body, response.status).facilities
         end
+
+        ##
+        # Request a list of all facility ids matching the params provided
+        # @param params [Hash] a hash of parameter objects
+        #   see https://developer.va.gov/explore/api/va-facilities/docs for more options
+        # @example  client.get_facility_ids()
+        # @example  client.get_facility_ids(type: 'health')
+        # @return [Array<V2::Lighthouse::Facility>]
+        #
+        def get_facility_ids(params)
+          filtered_params = params.slice(:type)
+          response = perform(:get, '/services/va_facilities/v1/ids', filtered_params)
+          V2::Lighthouse::Response.new(response.body, response.status)
+        end
       end
     end
   end

@@ -238,6 +238,8 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
   end
 
   describe 'GET facilities' do
+    before { allow(Flipper).to receive(:enabled?).with(:hca_cache_facilities).and_return(false) }
+
     context 'with the v2 feature flag enabled' do
       before { allow(Flipper).to receive(:enabled?).with(:hca_ez_use_facilities_v2).and_return(true) }
 
@@ -419,6 +421,30 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           expect(response).to have_http_status(:ok)
           expect(response.parsed_body[0]).to be_nil
         end
+      end
+    end
+
+    context 'with :hca_cache_facilities enabled' do
+      before { allow(Flipper).to receive(:enabled?).with(:hca_cache_facilities).and_return(true) }
+
+      it 'responds with serialized facilities data for supported facilities' do
+        mock_facilities = [
+          { name: 'My VA Facility', station_number: '123', postal_name: 'OH' },
+          { name: 'A VA Facility', station_number: '222', postal_name: 'OH' },
+          { name: 'My Other VA Facility', station_number: '231', postal_name: 'NH' }
+        ]
+        mock_facilities.each { |attrs| create(:health_facility, attrs) }
+
+        get(facilities_v0_health_care_applications_path(state: 'OH'))
+
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body).to contain_exactly({
+                                                          'id' => mock_facilities[0][:station_number],
+                                                          'name' => mock_facilities[0][:name]
+                                                        }, {
+                                                          'id' => mock_facilities[1][:station_number],
+                                                          'name' => mock_facilities[1][:name]
+                                                        })
       end
     end
   end

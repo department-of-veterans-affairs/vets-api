@@ -78,9 +78,14 @@ module V0
     end
 
     def facilities
-      lighthouse_facilities = lighthouse_facilities_service.get_facilities(lighthouse_facilities_params)
+      if Flipper.enabled?(:hca_cache_facilities)
+        facilities = HealthFacility.where(postal_name: params[:state])
+        render json: facilities.map { |facility| { id: facility.station_number, name: facility.name } }
+      else
+        lighthouse_facilities = lighthouse_facilities_service.get_facilities(lighthouse_facilities_params)
 
-      render(json: active_facilities(lighthouse_facilities))
+        render(json: active_facilities(lighthouse_facilities))
+      end
     end
 
     # If we were unable to submit the user's claim digitally, we allow them to the download
