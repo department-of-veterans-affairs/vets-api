@@ -64,7 +64,6 @@ module RepresentationManagement
           RepresentationManagement::PowerOfAttorneyRequestService::Orchestrate.new(
             data: flatten_form_params,
             dependent:,
-            form_data_object: form,
             service_branch:,
             user: current_user
           ).call
