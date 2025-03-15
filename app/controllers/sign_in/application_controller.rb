@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'shared_rails_logging'
+
 module SignIn
   class ApplicationController < ActionController::API
     include SignIn::Authentication

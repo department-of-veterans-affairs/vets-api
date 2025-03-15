@@ -81,7 +81,9 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       it 'logs error to sentry' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error,
                                                                                       sentry_log_level,
-                                                                                      sentry_context)
+                                                                                      sentry_context,
+                                                                                      {},
+                                                                                      false)
         subject
       end
     end
@@ -504,7 +506,9 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       it 'logs error to sentry' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(expected_error,
                                                                                       sentry_log_level,
-                                                                                      sentry_context)
+                                                                                      sentry_context,
+                                                                                      {},
+                                                                                      false)
         subject
       end
 
