@@ -15,7 +15,7 @@ module DebtManagementCenter
       StatsD.increment("#{STATS_KEY}.retries_exhausted")
       if options['failure_mailer'] == true
         StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.send_failed_form_email.failure")
-        StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:register_failure])
+        StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:sidekiq_retries_exhausted])
       end
       Rails.logger.error <<~LOG
         VANotifyEmailJob retries exhausted:
