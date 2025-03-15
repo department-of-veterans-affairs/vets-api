@@ -56,7 +56,8 @@ module RepresentationManagement
       end
 
       def form
-        @form ||= RepresentationManagement::Form2122Data.new(flatten_form_params)
+        @form ||= RepresentationManagement::Form2122DigitalSubmission.new(user: current_user, dependent:,
+                                                                          **flatten_form_params)
       end
 
       def orchestrate_response
