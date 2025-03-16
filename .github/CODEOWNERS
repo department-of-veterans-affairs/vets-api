@@ -1239,6 +1239,7 @@ spec/factories/gi_bill_status_response.rb @department-of-veterans-affairs/govcio
 spec/factories/gids_response.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/hca_attachment.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/health_care_application.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/factories/health_facilities.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/iam_introspection_responses.rb @department-of-veterans-affairs/octo-identity
 spec/factories/iam_user_identities.rb @department-of-veterans-affairs/octo-identity
 spec/factories/iam_users.rb @department-of-veterans-affairs/octo-identity
@@ -1280,6 +1281,7 @@ spec/factories/sequences.rb @department-of-veterans-affairs/va-api-engineers @de
 spec/factories/sessions.rb @department-of-veterans-affairs/octo-identity
 spec/factories/sign_in @department-of-veterans-affairs/octo-identity
 spec/factories/spool_file_events.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/factories/std_institution_facilities.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/supporting_evidence_attachment.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/tooltips.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/backend-review-group
 spec/factories/triage_teams.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
