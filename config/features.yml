@@ -2037,3 +2037,15 @@ features:
   show_about_yellow_ribbon_program:
     actor_type: user
     description: If enabled, show additional info about the yellow ribbon program
+  meb_address_validation_api:
+    actor_type: user
+    description: If enabled, address will be validated against addres validation endpointå
+    enable_in_development: false
+  toe_address_validation_api:
+    actor_type: user
+    description: If enabled, address will be validated against addres validation endpoint
+    enable_in_development: false
+  dea_fry_address_validation_api:
+    actor_type: user
+    description: If enabled, address will be validated against addres validation endpoint
+    enable_in_development: false
