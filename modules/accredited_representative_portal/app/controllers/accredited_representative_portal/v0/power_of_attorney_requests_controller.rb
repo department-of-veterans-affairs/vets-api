@@ -37,27 +37,13 @@ module AccreditedRepresentativePortal
             MSG
           end
 
-        poa_requests = relation
-                       .includes(scope_includes)
-                       .paginate(page: page_params[:number], per_page: page_params[:size])
-
-        # Add pagination headers for API clients
-        response.headers['X-Total'] = poa_requests.total_entries.to_s
-        response.headers['X-Total-Pages'] = poa_requests.total_pages.to_s
-        response.headers['X-Per-Page'] = poa_requests.per_page.to_s
-        response.headers['X-Page'] = poa_requests.current_page.to_s
+        poa_requests = relation.includes(scope_includes)
+                               .paginate(page: page_params[:number], per_page: page_params[:size])
 
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
         render json: {
           data: serializer.serializable_hash,
-          meta: {
-            pagination: {
-              current_page: poa_requests.current_page,
-              per_page: poa_requests.per_page,
-              total_pages: poa_requests.total_pages,
-              total_count: poa_requests.total_entries
-            }
-          }
+          meta: pagination_meta(poa_requests)
         }, status: :ok
       end
       # rubocop:enable Metrics/MethodLength
@@ -96,6 +82,17 @@ module AccreditedRepresentativePortal
           :accredited_organization,
           { resolution: :resolving }
         ]
+      end
+
+      def pagination_meta(poa_requests)
+        {
+          page: {
+            number: poa_requests.current_page,
+            size: poa_requests.limit_value,
+            total: poa_requests.total_entries,
+            total_pages: poa_requests.total_pages
+          }
+        }
       end
     end
   end
