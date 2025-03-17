@@ -4,18 +4,35 @@ require 'rails_helper'
 
 RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
   describe '#perform' do
-    let(:mock_facility_ids_response) do
-      FacilitiesApi::V2::Lighthouse::Response.new({
-        'data' =>
-          %w[vha_635HB vha_463GA vha_463GE]
-      }.to_json, 200)
+    let(:mock_get_facilities_page_one) do
+      FacilitiesApi::V2::Lighthouse::Response.new(
+        {
+          'data' => [
+            { 'id' => 'vha_635HB', 'attributes' => { 'name' => 'My Fake VA Clinic' } },
+            { 'id' => 'vha_463GA', 'attributes' => { 'name' => 'Yet Another Clinic Name' } }
+          ],
+          'meta' => { 'pagination' => { 'currentPage' => 1, 'perPage' => 1000, 'totalPages' => 2,
+                                        'totalEntries' => 4 } }
+        }.to_json, 200
+      ).facilities
+    end
+
+    let(:mock_get_facilities_page_two) do
+      FacilitiesApi::V2::Lighthouse::Response.new(
+        {
+          'data' => [
+            { 'id' => 'vha_463GE', 'attributes' => { 'name' => 'My Other Fake VA Clinic' } }
+          ],
+          'meta' => { 'pagination' => { 'currentPage' => 2, 'perPage' => 2, 'totalPages' => 2, 'totalEntries' => 4 } }
+        }.to_json, 200
+      ).facilities
     end
 
     let(:mock_institution_data) do
       [
-        { name: 'My Fake Clinic', station_number: '635HB', street_state_id: 'AK' },
-        { name: 'Yet Another Clinic Name', station_number: '463GA', street_state_id: 'OH' },
-        { name: 'My Other Fake Clinic', station_number: '463GE', street_state_id: 'FL' }
+        { name: 'MY FAKE VA CLINIC', station_number: '635HB', street_state_id: 'AK' },
+        { name: 'YET ANOTHER CLINIC NAME', station_number: '463GA', street_state_id: 'OH' },
+        { name: 'MY OTHER FAKE VA CLINIC', station_number: '463GE', street_state_id: 'FL' }
       ]
     end
 
@@ -32,12 +49,13 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
       end
 
       # Add existing health_facility record
-      create(:health_facility, name: mock_institution_data.first[:name],
+      create(:health_facility, name: 'My Fake VA Clinic',
                                station_number: mock_institution_data.first[:station_number],
                                postal_name: mock_institution_data.first[:street_state_id])
 
       allow(FacilitiesApi::V2::Lighthouse::Client).to receive(:new).and_return(lighthouse_service)
-      allow(lighthouse_service).to receive(:get_facility_ids).and_return(mock_facility_ids_response)
+      allow(lighthouse_service).to receive(:get_facilities)
+        .and_return(mock_get_facilities_page_one, mock_get_facilities_page_two)
       allow(Rails.logger).to receive(:info)
     end
 
@@ -47,21 +65,45 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
           'Job started with 1 existing health facilities.'
         )
         expect(Rails.logger).to receive(:info).with(
-          'Job ended with 3 health facilities.'
+          'Job ended with 2 health facilities.'
         )
         expect do
           described_class.new.perform
-        end.to change(HealthFacility, :count).by(2)
+        end.to change(HealthFacility, :count).by(1)
 
         station_numbers = mock_institution_data.map { |institution| institution[:station_number] }
-        expect(HealthFacility.where(station_number: station_numbers).pluck(:station_number).count).to eq 3
+        expect(HealthFacility
+          .where(station_number: station_numbers)
+          .pluck(:name)).to eq ['My Fake VA Clinic', 'Yet Another Clinic Name']
+      end
+
+      context 'pagination' do
+        mock_per_page = 2
+        before { stub_const("#{described_class}::PER_PAGE", mock_per_page) }
+
+        it 'fetches multiple pages of facilities' do
+          expect(lighthouse_service).to receive(:get_facilities).with(type: 'health', per_page: mock_per_page,
+                                                                      page: 1).and_return(mock_get_facilities_page_one)
+          expect(lighthouse_service).to receive(:get_facilities).with(type: 'health', per_page: mock_per_page,
+                                                                      page: 2).and_return(mock_get_facilities_page_two)
+
+          expect do
+            described_class.new.perform
+          end.to change(HealthFacility, :count).by(2)
+
+          # Verify the correct facilities are added
+          expect(HealthFacility.pluck(:name)).to contain_exactly(
+            'My Fake VA Clinic',
+            'Yet Another Clinic Name',
+            'My Other Fake VA Clinic'
+          )
+        end
       end
     end
 
     context 'error' do
-      it 'logs errors when api call fails' do
-        expect(lighthouse_service).to receive(:get_facility_ids).and_raise(StandardError,
-                                                                           'something broke')
+      it 'logs errors when API call fails' do
+        expect(lighthouse_service).to receive(:get_facilities).and_raise(StandardError, 'something broke')
         expect(Rails.logger).to receive(:info).with(
           'Job started with 1 existing health facilities.'
         )
