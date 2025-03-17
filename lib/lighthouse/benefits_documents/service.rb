@@ -64,42 +64,41 @@ module BenefitsDocuments
 
       uploader = LighthouseDocumentUploader.new(user_icn, document_data.uploader_ids)
       uploader.store!(document_data.file_obj)
+
+      evidence_submission_id = nil
+      evidence_submission_id = create_initial_evidence_submission(document_data).id if can_create_evidence_submission
+
       # The uploader sanitizes the filename before storing, so set our doc to match
       document_data.file_name = uploader.final_filename
-      job_id = document_upload(user_icn, document_data.to_serializable_hash)
-      if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) &&
-         !Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
-        record_evidence_submission(document_data, job_id)
-      end
-      job_id
+      document_upload(user_icn, document_data.to_serializable_hash, evidence_submission_id)
     rescue CarrierWave::IntegrityError => e
       handle_error(e, lighthouse_client_id, uploader.store_dir)
       raise e
     end
 
-    def document_upload(user_icn, document_hash)
+    def document_upload(user_icn, document_hash, evidence_submission_id)
       if Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
         Lighthouse::DocumentUploadSynchronous.upload(user_icn, document_hash)
       else
-        Lighthouse::EvidenceSubmissions::DocumentUpload.perform_async(user_icn, document_hash)
+        Lighthouse::EvidenceSubmissions::DocumentUpload.perform_async(user_icn, document_hash, evidence_submission_id)
       end
     end
 
-    def record_evidence_submission(document, job_id)
+    def create_initial_evidence_submission(document)
       user_account = UserAccount.find(@user.user_account_uuid)
-      EvidenceSubmission.create(
+      es = EvidenceSubmission.create(
         claim_id: document.claim_id,
-        # Doing `.first` here since document.tracked_item_id is an array with 1 tracked item
-        # TODO update this and remove the first when the below pr is worked
-        # Created https://github.com/department-of-veterans-affairs/va.gov-team/issues/101200 for this work
         tracked_item_id: document.tracked_item_id&.first,
-        job_id:,
-        job_class: self.class,
-        upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
+        upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED],
         user_account:,
         template_metadata: { personalisation: create_personalisation(document) }.to_json
       )
       StatsD.increment('cst.lighthouse.document_uploads.evidence_submission_record_created')
+      ::Rails.logger.info('LH - Created Evidence Submission Record', {
+                            claim_id: document.claim_id,
+                            evidence_submission_id: es.id
+                          })
+      es
     end
 
     def create_personalisation(document)
@@ -163,6 +162,12 @@ module BenefitsDocuments
       temp_file = Tempfile.new(pdf_filename, encoding: 'ASCII-8BIT')
       temp_file.write(File.read(pdf_path))
       ActionDispatch::Http::UploadedFile.new(filename: pdf_filename, type: 'application/pdf', tempfile: temp_file)
+    end
+
+    def can_create_evidence_submission
+      Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && !Flipper.enabled?(
+        :cst_synchronous_evidence_uploads, @user
+      )
     end
   end
 end

@@ -47,6 +47,39 @@ FactoryBot.define do
     created_at { DateTime.new(1985, 10, 26).utc }
   end
 
+  factory :bd_evidence_submission_created, class: 'EvidenceSubmission' do
+    association :user_account, factory: :user_account
+    created_at { DateTime.now.utc }
+    upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED] }
+    template_metadata do
+      { 'personalisation' => {
+        'first_name' => 'test',
+        'document_type' => 'Birth Certificate',
+        'file_name' => 'testfile.txt',
+        'obfuscated_file_name' => 'tesXXile.txt',
+        'date_submitted' => BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(DateTime.now),
+        'date_failed' => nil
+      } }.to_json
+    end
+  end
+
+  factory :bd_evidence_submission_queued, class: 'EvidenceSubmission' do
+    association :user_account, factory: :user_account
+    created_at { DateTime.now.utc }
+    job_id { 12_343 }
+    upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:QUEUED] }
+    template_metadata do
+      { 'personalisation' => {
+        'first_name' => 'test',
+        'document_type' => 'Birth Certificate',
+        'file_name' => 'testfile.txt',
+        'obfuscated_file_name' => 'tesXXile.txt',
+        'date_submitted' => BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(DateTime.now),
+        'date_failed' => nil
+      } }.to_json
+    end
+  end
+
   factory :bd_evidence_submission_pending, class: 'EvidenceSubmission' do
     association :user_account, factory: :user_account
     created_at { DateTime.now.utc }
@@ -113,7 +146,7 @@ FactoryBot.define do
   factory :bd_evss_evidence_submission_failed_type1_error, class: 'EvidenceSubmission' do
     association :user_account, factory: :user_account
     created_at { DateTime.now.utc }
-    job_class { 'EVSS::DocumentUpload' }
+    job_class { 'EVSSClaimService' }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
     failed_date { DateTime.now.utc }
     acknowledgement_date { DateTime.now.utc + 30.days }
@@ -139,7 +172,7 @@ FactoryBot.define do
     va_notify_date { DateTime.now.utc }
   end
 
-  factory :bd_evidence_submission_failed_va_notify_email_enqueued_evss, class: 'EvidenceSubmission' do
+  factory :bd_evss_evidence_submission_failed_va_notify_email_enqueued, class: 'EvidenceSubmission' do
     association :user_account, factory: :user_account
     created_at { 5.days.ago }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }

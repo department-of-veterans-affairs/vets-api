@@ -12,14 +12,14 @@ module Burials
 
     initializer 'burials.zero_silent_failures' do |app|
       app.config.to_prepare do
-        require_all "#{__dir__}/../zero_silent_failures"
+        require_all "#{__dir__}/zero_silent_failures"
       end
     end
 
     initializer 'burials.pdf_fill.register_form' do |app|
       app.config.to_prepare do
         require 'pdf_fill/filler'
-        require_relative '../pdf_fill/forms/va21p530ez'
+        require 'burials/pdf_fill/forms/va21p530ez'
 
         # Register our Burial Pdf Fill form
         ::PdfFill::Filler.register_form(Burials::PdfFill::Forms::Va21p530ez::FORM_ID,
@@ -30,10 +30,11 @@ module Burials
     initializer 'burials.benefits_intake.register_handler' do |app|
       app.config.to_prepare do
         require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
-        require_relative '../benefits_intake/submission_handler'
+        require 'burials/benefits_intake/submission_handler'
 
         # Register our Burial Benefits Intake Submission Handler
-        ::BenefitsIntake::SubmissionStatusJob.register_handler('21P-530EZ', Burials::BenefitsIntake::SubmissionHandler)
+        ::BenefitsIntake::SubmissionStatusJob.register_handler(Burials::FORM_ID,
+                                                               Burials::BenefitsIntake::SubmissionHandler)
       end
     end
   end

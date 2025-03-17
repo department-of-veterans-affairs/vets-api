@@ -23,7 +23,7 @@ RSpec.describe V0::RatedDisabilitiesController, type: :controller do
         expect(response).to have_http_status(:ok)
       end
 
-      it 'only returns active ratings' do
+      it 'only returns active ratings', run_at: '2025-02-01T18:48:27Z' do
         VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_inactives_response') do
           get(:show)
         end

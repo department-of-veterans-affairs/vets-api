@@ -35,7 +35,7 @@ RSpec.describe VRE::Monitor do
         message: msg
       }
 
-      expect(monitor).to receive(:log_silent_failure_avoided).with(payload, nil, anything)
+      expect(monitor).to receive(:log_silent_failure_no_confirmation).with(payload, nil, anything)
       expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
       expect(Rails.logger).to receive(:error).with(log)
 

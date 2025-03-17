@@ -118,7 +118,7 @@ RSpec.describe Burials::SavedClaim do
         text_only: true,
         timestamp:,
         page_number: 6,
-        template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+        template: "#{Burials::MODULE_PATH}/lib/burials/pdf_fill/forms/pdfs/#{form_id}.pdf",
         multistamp: true
       )
       expect(File).to have_received(:rename).with(processed_pdf_path, renamed_path)
