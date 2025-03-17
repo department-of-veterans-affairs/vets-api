@@ -1260,6 +1260,9 @@ features:
   my_va_new_mhv_urls:
     actor_type: user
     description: Updates URLs for the "Health care" section of My VA
+  my_va_mhv_link_design_update:
+    actor_type: user
+    description: Updates to hyperlink design for the "Health care" section of My VA
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)
