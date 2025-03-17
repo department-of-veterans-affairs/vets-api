@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'kafka/producer_manager'
+# require 'kafka/producer_manager'
 
 workers Integer(ENV.fetch('WEB_CONCURRENCY', 0))
 threads_count_min = Integer(ENV.fetch('RAILS_MIN_THREADS', 5))
@@ -15,6 +15,6 @@ on_worker_boot do
   ActiveRecord::Base.establish_connection
 end
 
-on_worker_shutdown do
-  Kafka::ProducerManager.instance.producer&.close
-end
+# on_worker_shutdown do
+#   Kafka::ProducerManager.instance.producer&.close
+# end
