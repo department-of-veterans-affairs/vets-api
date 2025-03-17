@@ -655,10 +655,10 @@ module PdfFill
 
         if @form_data['events']&.any?
           process_reports
-          expand_collection('events', :format_event, 'eventOverflow', extras_redesign)
+          expand_collection('events', :format_event, 'eventOverflow', extras_redesign:)
         end
 
-        expand_collection('treatmentProvidersDetails', :format_provider, 'providerOverflow', extras_redesign)
+        expand_collection('treatmentProvidersDetails', :format_provider, 'providerOverflow', extras_redesign:)
 
         expand_signature(@form_data['veteranFullName'], @form_data['signatureDate'])
 
@@ -757,16 +757,16 @@ module PdfFill
         fields.map { |field| event[field] }.compact_blank.join(', ')
       end
 
-      def expand_collection(collection, format_method, overflow_key, extras_redesign)
+      def expand_collection(collection, format_method, overflow_key, extras_redesign: false)
         collection = @form_data[collection]
         return if collection.blank?
 
         collection.each_with_index do |item, index|
-          format_item_overflow(item, index + 1, format_method, overflow_key, extras_redesign)
+          format_item_overflow(item, index + 1, format_method, overflow_key, extras_redesign:)
         end
       end
 
-      def format_item_overflow(item, index, format_method, overflow_key, extras_redesign)
+      def format_item_overflow(item, index, format_method, overflow_key, extras_redesign: false)
         item_overflow = if extras_redesign
                           send(format_method, item, index, extras_redesign:)
                         else
