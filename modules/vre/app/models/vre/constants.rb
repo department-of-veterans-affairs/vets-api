@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module VRE
   class Constants
     FORM = '28-1900'.freeze
