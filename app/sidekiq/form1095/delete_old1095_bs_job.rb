@@ -23,8 +23,8 @@ module Form1095
 
     private
 
-      def log_message(message)
-        Rails.logger.info("Form1095B Deletion Job: #{message}")
-      end
+    def log_message(message)
+      Rails.logger.info("Form1095B Deletion Job: #{message}")
+    end
   end
 end

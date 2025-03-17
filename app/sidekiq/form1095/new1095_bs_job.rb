@@ -9,20 +9,20 @@ module Form1095
     sidekiq_options(retry: false)
 
     def perform
-      Rails.logger.info 'Checking for new 1095-B data'
+      log_message(:info, 'Checking for new 1095-B data')
 
       file_names = get_bucket_files
       if file_names.empty?
-        Rails.logger.info 'No new 1095 files found'
+        log_message(:info, 'No new 1095 files found')
       else
-        Rails.logger.info "#{file_names.size} files found"
+        log_message(:info, "#{file_names.size} files found")
       end
 
       files_read_count = 0
       file_names.each do |file_name|
         if download_and_process_file?(file_name)
           files_read_count += 1
-          Rails.logger.info "Successfully read #{@form_count} 1095B forms from #{file_name}, deleting file from S3"
+          log_message(:info, "Successfully read #{@form_count} 1095B forms from #{file_name}, deleting file from S3")
           bucket.delete_objects(delete: { objects: [{ key: file_name }] })
         else
           message = "failed to save #{@error_count} forms from file: #{file_name}; " \
@@ -31,7 +31,7 @@ module Form1095
         end
       end
 
-      Rails.logger.info "#{files_read_count}/#{file_names.size} files read successfully"
+      log_message(:info, "#{files_read_count}/#{file_names.size} files read successfully")
     end
 
     private
@@ -200,8 +200,7 @@ module Form1095
 
       all_succeeded
     rescue => e
-      message = "Error processing file: #{file_details[:name]}, on line #{lines}; "\
-                "#{e.message}"
+      message = "Error processing file: #{file_details[:name]}, on line #{lines}; #{e.message}"
       log_message(:error, message)
       false
     end
