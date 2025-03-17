@@ -183,5 +183,127 @@ http_interactions:
                 "schema": "{\"type\":\"record\",\"name\":\"TestRecord\",\"namespace\":\"gov.va.eventbus.test.data\",\"fields\":[{\"name\":\"data\",\"type\":{\"type\":\"map\",\"values\":\"string\"},\"default\":{}}]}"
               }'
   recorded_at: Tue, 10 Aug 2021 15:55:41 GMT
+- request:
+    method: get
+    uri: http://localhost:8081/subjects/topic-3-value/versions/latest
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 10 Aug 2021 15:55:41 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.9.0
+      B3:
+      - e1836f37ef12a997-bd3cba28a9b29067-1
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - e208742
+      X-Vamf-Timestamp:
+      - '2021-08-03T18:59:01+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{
+                  "subject": "topic-3-value",
+                  "version": 1,
+                  "id": 5,
+                  "schema": "{\"type\":\"record\",\"name\":\"SubmissionTrace\",\"namespace\":\"gov.va.eventbus.test.data\",\"fields\":[{\"name\":\"priorId\",\"type\":[\"null\",\"string\"]},{\"name\":\"currentId\",\"type\":\"string\"},{\"name\":\"nextId\",\"type\":[\"null\",\"string\"]},{\"name\":\"icn\",\"type\":[\"null\",\"string\"]},{\"name\":\"vasiId\",\"type\":\"string\"},{\"name\":\"systemName\",\"type\":[{\"type\":\"enum\",\"name\":\"systemName\",\"symbols\":[\"Lighthouse\",\"CMP\",\"VBMS\",\"VA_gov\",\"VES\"]}]},{\"name\":\"submissionName\",\"type\":[{\"type\":\"enum\",\"name\":\"submissionName\",\"symbols\":[\"F1010EZ\",\"F527EZ\"]}]},{\"name\":\"state\",\"type\":[{\"type\":\"enum\",\"name\":\"state\",\"symbols\":[\"received\",\"sent\",\"completed\",\"error\"]}]},{\"name\":\"timestamp\",\"type\":\"string\"},{\"name\":\"additionalIds\",\"type\":[\"null\",\"string\"]}]}"
+              }'
+  recorded_at: Tue, 10 Aug 2021 15:55:41 GMT  
+- request:
+    method: get
+    uri: http://localhost:8081/subjects/topic-4-value/versions/latest
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 10 Aug 2021 15:55:41 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.9.0
+      B3:
+      - e1836f37ef12a997-bd3cba28a9b29067-1
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - e208742
+      X-Vamf-Timestamp:
+      - '2021-08-03T18:59:01+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{
+                  "subject": "topic-3-value",
+                  "version": 1,
+                  "id": 5,
+                  "schema": "{\"type\":\"record\",\"name\":\"SubmissionTrace\",\"namespace\":\"gov.va.eventbus.test.data\",\"fields\":[{\"name\":\"priorId\",\"type\":[\"null\",\"string\"]},{\"name\":\"currentId\",\"type\":\"string\"},{\"name\":\"nextId\",\"type\":[\"null\",\"string\"]},{\"name\":\"icn\",\"type\":[\"null\",\"string\"]},{\"name\":\"vasiId\",\"type\":\"string\"},{\"name\":\"systemName\",\"type\":[{\"type\":\"enum\",\"name\":\"systemName\",\"symbols\":[\"Lighthouse\",\"CMP\",\"VBMS\",\"VA_gov\",\"VES\"]}]},{\"name\":\"submissionName\",\"type\":[{\"type\":\"enum\",\"name\":\"submissionName\",\"symbols\":[\"F1010EZ\",\"F527EZ\"]}]},{\"name\":\"state\",\"type\":[{\"type\":\"enum\",\"name\":\"state\",\"symbols\":[\"received\",\"sent\",\"completed\",\"error\"]}]},{\"name\":\"timestamp\",\"type\":\"string\"},{\"name\":\"additionalIds\",\"type\":[\"null\",\"string\"]}]}"
+              }'
+  recorded_at: Tue, 10 Aug 2021 15:55:41 GMT  
 
 recorded_with: VCR 6.0.0
