@@ -1211,6 +1211,7 @@ reports:
 res:
   api_key: ~
   base_url: ~
+  mock_ch_31: ~
 review_instance_slug: ~
 rrd:
   alerts:
