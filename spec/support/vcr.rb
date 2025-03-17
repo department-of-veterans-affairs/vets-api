@@ -51,6 +51,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VRO_URL>') { Settings.virtual_regional_office.url }
   c.filter_sensitive_data('<VRO_API_KEY>') { Settings.virtual_regional_office.api_key }
   c.filter_sensitive_data('<CONTENTION_CLASSIFICATION_API_URL>') { Settings.contention_classification_api.url }
+  c.filter_sensitive_data('<VA_MOBILE_URL>') { Settings.va_mobile.url }
   c.filter_sensitive_data('<ARP_ALLOW_LIST_ACCESS_TOKEN>') do
     Settings.accredited_representative_portal.allow_list.github.access_token
   end
