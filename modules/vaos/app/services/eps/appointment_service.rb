@@ -60,15 +60,11 @@ module Eps
 
       return validation_result unless validation_result[:success]
 
-      response_data = build_draft_appointment_response(
+      build_draft_appointment_response(
         validation_result[:draft_appointment],
         validation_result[:referral_data],
         user_coordinates
       )
-
-      return response_data if response_data.is_a?(Hash) && response_data[:error]
-
-      { success: true, response_data: }
     end
 
     ##

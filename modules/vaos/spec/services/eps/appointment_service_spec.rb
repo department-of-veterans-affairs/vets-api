@@ -160,13 +160,11 @@ describe Eps::AppointmentService do
           pagination_params:
         )
 
-        expect(result).to be_a(Hash)
-        expect(result[:success]).to be(true)
-        expect(result[:response_data]).to be_a(OpenStruct)
-        expect(result[:response_data].id).to eq(appointment_id)
-        expect(result[:response_data].provider).to eq(provider_service_response)
-        expect(result[:response_data].slots).to eq(slots_response)
-        expect(result[:response_data].drive_time).to eq(drive_time_response)
+        expect(result).to be_a(OpenStruct)
+        expect(result.id).to eq(appointment_id)
+        expect(result.provider).to eq(provider_service_response)
+        expect(result.slots).to eq(slots_response)
+        expect(result.drive_time).to eq(drive_time_response)
       end
     end
 
@@ -190,7 +188,6 @@ describe Eps::AppointmentService do
         )
 
         expect(result).to be_a(Hash)
-        expect(result[:success]).to be(false)
         expect(result[:error]).to be(true)
         expect(result[:status]).to eq(:bad_request)
         expect(result[:json][:errors]).to be_a(Array)

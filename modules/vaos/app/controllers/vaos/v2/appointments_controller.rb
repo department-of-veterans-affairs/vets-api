@@ -86,10 +86,9 @@ module VAOS
           drive_time: fetch_drive_times(provider)
         )
 
-        render json: result[:json], status: result[:status] and return unless result[:success]
+        render json: result[:json], status: result[:status] and return if result[:error]
 
-        serialized = Eps::DraftAppointmentSerializer.new(result[:response_data])
-        render json: serialized, status: :created
+        render json: Eps::DraftAppointmentSerializer.new(result), status: :created
       end
 
       def update
