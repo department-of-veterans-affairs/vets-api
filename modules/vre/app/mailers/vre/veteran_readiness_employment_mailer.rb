@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class VRE
+module VRE
   class VeteranReadinessEmploymentMailer < ApplicationMailer
     def build(pid, email_addr, routed_to_cmp)
       email_addr = 'kcrawford@governmentcio.com' if FeatureFlipper.staging_email?
