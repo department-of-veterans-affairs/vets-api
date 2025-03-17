@@ -165,7 +165,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             response2 = instance_double(Notifications::Client::ResponseNotification, id: notification_id2)
             allow(vanotify_service_instance).to receive(:send_email).and_return(response, response2)
             expected_callback_options = {
-              callback_klass: DecisionReviews::FormNotificationCallback,
+              callback_klass: 'DecisionReviews::FormNotificationCallback',
               callback_metadata: {
                 email_template_id: 'fake_sc_template_id',
                 email_type: :error,

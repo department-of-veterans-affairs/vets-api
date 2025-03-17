@@ -103,7 +103,7 @@ module DecisionReviews
         date_submitted: created_at.strftime('%B %d, %Y')
       }
       callback_options = {
-        callback_klass: DecisionReviews::FormNotificationCallback,
+        callback_klass: DecisionReviews::FormNotificationCallback.to_s,
         callback_metadata: {
           email_type: :error,
           service_name: APPEAL_TYPE_TO_SERVICE_MAP[submission.type_of_appeal],
@@ -125,12 +125,13 @@ module DecisionReviews
       submissions.each do |submission|
         appeal_type = submission.type_of_appeal
         reference = "#{appeal_type}-form-#{submission.submitted_appeal_uuid}"
+        email_template_id = DecisionReviews::V1::FORM_TEMPLATE_IDS[appeal_type]
         response = if form_callbacks_enabled?
                      send_email_with_vanotify_form_callback(submission, nil, submission.created_at,
-                                                            DecisionReviews::V1::FORM_TEMPLATE_IDS[appeal_type])
+                                                            email_template_id)
                    else
                      send_email_with_vanotify(submission, nil, submission.created_at,
-                                              DecisionReviews::V1::FORM_TEMPLATE_IDS[appeal_type], reference)
+                                              email_template_id, reference)
                    end
 
         submission.update(failure_notification_sent_at: DateTime.now)
