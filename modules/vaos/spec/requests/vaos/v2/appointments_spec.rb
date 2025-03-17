@@ -111,8 +111,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
       end
 
@@ -215,8 +213,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
@@ -357,8 +353,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           before do
             allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                       instance_of(User)).and_return(false)
-            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                      instance_of(User)).and_return(true)
             allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
             allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details,
                                                       instance_of(User)).and_return(false)
@@ -412,8 +406,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
             allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                       instance_of(User)).and_return(false)
-            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                      instance_of(User)).and_return(true)
             allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
             allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details,
                                                       instance_of(User)).and_return(false)
@@ -696,8 +688,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       context 'when the VAOS service returns a single appointment' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                    instance_of(User)).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
@@ -840,6 +830,74 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             )
           end
         end
+
+        it 'displays telehealth link if current time is within lower boundary' do
+          Timecop.freeze(DateTime.parse('2023-10-13T14:31:00Z'))
+
+          stub_facilities
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
+            .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_telehealth_info',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            get '/vaos/v2/appointments/75105', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            data = json_body_for(response)['attributes']
+            expect(data['telehealth']['displayLink']).to be(true)
+
+            Timecop.unfreeze
+          end
+        end
+
+        it 'hides telehealth link if current time is outside lower boundary' do
+          Timecop.freeze(DateTime.parse('2023-10-13T14:29:00Z'))
+
+          stub_facilities
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
+            .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_telehealth_info',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            get '/vaos/v2/appointments/75105', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            data = json_body_for(response)['attributes']
+            expect(data['telehealth']['displayLink']).to be(false)
+
+            Timecop.unfreeze
+          end
+        end
+
+        it 'displays telehealth link if current time is within upper boundary' do
+          Timecop.freeze(DateTime.parse('2023-10-13T19:00:00Z'))
+
+          stub_facilities
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
+            .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_telehealth_info',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            get '/vaos/v2/appointments/75105', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            data = json_body_for(response)['attributes']
+            expect(data['telehealth']['displayLink']).to be(true)
+
+            Timecop.unfreeze
+          end
+        end
+
+        it 'hides telehealth link if current time is outside upper boundary' do
+          Timecop.freeze(DateTime.parse('2023-10-13T19:01:00Z'))
+
+          stub_facilities
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
+            .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_telehealth_info',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            get '/vaos/v2/appointments/75105', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            data = json_body_for(response)['attributes']
+            expect(data['telehealth']['displayLink']).to be(false)
+
+            Timecop.unfreeze
+          end
+        end
       end
 
       context 'when the VAOS service errors on retrieving an appointment' do
@@ -867,8 +925,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
                                                     instance_of(User)).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                    instance_of(User)).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
@@ -920,8 +976,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
                                                     instance_of(User)).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                    instance_of(User)).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
@@ -939,8 +993,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
                                                   instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
       end
 
@@ -1011,8 +1063,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
   context 'for eps referrals' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)

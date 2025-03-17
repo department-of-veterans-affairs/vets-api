@@ -21,8 +21,10 @@ ask_va_api:
     base_url: <%= ENV['ask_va_api__crm_api__base_url'] %>
     client_id: <%= ENV['ask_va_api__crm_api__client_id'] %>
     client_secret: <%= ENV['ask_va_api__crm_api__client_secret'] %>
+    e_subscription_key: <%= ENV['ask_va_api__crm_api__e_subscription_key'] %>
     ocp_apim_subscription_key: <%= ENV['ask_va_api__crm_api__ocp_apim_subscription_key'] %>
     resource: <%= ENV['ask_va_api__crm_api__resource'] %>
+    s_subscription_key: <%= ENV['ask_va_api__crm_api__s_subscription_key'] %>
     service_name: VEIS-API
     tenant_id: <%= ENV['ask_va_api__crm_api__tenant_id'] %>
     veis_api_path: eis/vagov.lob.ava/api
@@ -1528,6 +1530,7 @@ vanotify:
       template_id:
         appoint_a_representative_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_confirmation_email'] %>
         appoint_a_representative_digital_submit_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_submit_confirmation_email'] %>
+        appoint_a_representative_digital_submit_decline_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_submit_decline_email'] %>
         career_counseling_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__career_counseling_confirmation_email'] %>
         ch31_central_mail_form_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__ch31_central_mail_form_confirmation_email'] %>
         ch31_vbms_form_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__ch31_vbms_form_confirmation_email'] %>

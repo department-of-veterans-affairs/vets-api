@@ -21,8 +21,10 @@ ask_va_api:
     base_url: https://dev.integration.d365.va.gov
     client_id: client_id
     client_secret: secret
+    e_subscription_key: e_subscription_key
     ocp_apim_subscription_key: subscription_key
     resource: resource
+    s_subscription_key: s_subscription_key
     service_name: VEIS-API
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     veis_api_path: eis/vagov.lob.ava/api
@@ -1549,6 +1551,7 @@ vanotify:
       template_id:
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
         appoint_a_representative_digital_submit_confirmation_email: appoint_a_rep_v2_digital_submit_confirm_email_template_id
+        appoint_a_representative_digital_submit_decline_email: appoint_a_rep_v2_digital_submit_decline_email_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
