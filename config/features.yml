@@ -1944,6 +1944,11 @@ features:
       A switch that toggles availability of the submit mileage expense feature.
       Enabled - Requests are handled as normal. Frontend features are available per toggle settings.
       Disabled - Requests are not handled. Server returns a 503 (Service Unavailable) until re-enabled. Frontend features are not available.
+  travel_pay_claims_management:
+    actor_type: user
+    enable_in_development: true
+    description: >-
+      A switch that toggles new claims management functionality. 
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
