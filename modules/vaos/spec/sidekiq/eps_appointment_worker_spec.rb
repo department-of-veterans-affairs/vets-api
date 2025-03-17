@@ -41,7 +41,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
 
       it 'sends failure message after max retries' do
         # rubocop:disable RSpec/SubjectStub
-        expect(worker).to receive(:send_vanotify_message).with(success: false, error: 'Could not complete booking')
+        expect(worker).to receive(:send_vanotify_message).with(user:, error: 'Could not complete booking')
         worker.perform(appointment_id, user, Eps::EpsAppointmentWorker::MAX_RETRIES)
         # rubocop:enable RSpec/SubjectStub
       end
