@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:8081/subjects/topic-999-value/versions/latest
+    uri: https://localhost:8081/subjects/topic-999-value/versions/latest
     body:
       encoding: US-ASCII
       string: ''
