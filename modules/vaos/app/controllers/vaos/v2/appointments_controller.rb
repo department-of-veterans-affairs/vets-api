@@ -66,24 +66,17 @@ module VAOS
       def create_draft
         referral_id = draft_params[:referral_id]
 
-        cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
+        address = current_user.vet360_contact_info&.residential_address
+        user_coordinates = if address&.latitude && address.longitude
+                             { latitude: address.latitude, longitude: address.longitude }
+                           else
+                             {}
+                           end
 
-        referral_validation = check_referral_data_validation(cached_referral_data)
-        unless referral_validation[:success]
-          render json: referral_validation[:json], status: referral_validation[:status] and return
-        end
-
-        referral_usage = check_referral_usage(referral_id)
-        render json: referral_usage[:json], status: referral_usage[:status] and return unless referral_usage[:success]
-
-        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
-        provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
-
-        response_data = OpenStruct.new(
-          id: draft_appointment.id,
-          provider:,
-          slots: fetch_provider_slots(cached_referral_data),
-          drive_time: fetch_drive_times(provider)
+        result = eps_appointment_service.create_draft_appointment_with_response(
+          referral_id:,
+          user_coordinates:,
+          pagination_params:
         )
 
         render json: result[:json], status: result[:status] and return if result[:error]
