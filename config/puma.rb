@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'kafka/producer_manager'
+
 workers Integer(ENV.fetch('WEB_CONCURRENCY', 0))
 threads_count_min = Integer(ENV.fetch('RAILS_MIN_THREADS', 5))
 threads_count_max = Integer(ENV.fetch('RAILS_MAX_THREADS', 5))
