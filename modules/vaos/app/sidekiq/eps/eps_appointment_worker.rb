@@ -30,10 +30,12 @@ module Eps
         elsif retry_count < MAX_RETRIES
           self.class.perform_in(1.minute, appointment_id, user, retry_count + 1)
         else
-          send_vanotify_message(success: false, error: 'Could not complete booking')
+          send_vanotify_message(user:, error: 'Could not complete booking')
         end
+      rescue Eps::AppointmentService::ServiceError => e
+        send_vanotify_message(user:, error: 'Service error, please contact support')
       rescue => e
-        send_vanotify_message(success: false, error: e.message)
+        send_vanotify_message(user:, error: e.message)
       end
     end
 
@@ -51,10 +53,14 @@ module Eps
     ##
     # Sends a failure message via VANotify with error details.
     #
-    # @param success [Boolean] the success status of the message
     # @param error [String, nil] the error message (default: nil)
-    def send_vanotify_message(success:, error: nil)
-      # Code to send failure message via VANotify with error details
+    def send_vanotify_message(user:, error: nil)
+      va_notify_service = VANotify::Service.new
+      va_notify_service.send_sms(
+        phone_number: user.phone_number,
+        template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
+        personalisation: { error: error }
+      )
     end
   end
 end
