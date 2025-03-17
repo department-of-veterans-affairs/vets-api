@@ -88,6 +88,11 @@ module IvcChampva
 
           attachment.save
           render json: PersistentAttachmentSerializer.new(attachment)
+        else
+          raise Common::Exceptions::UnprocessableEntity.new(
+            detail: "Unsupported form_id: #{params[:form_id]}",
+            source: 'IvcChampva::V1::UploadsController'
+          )
         end
       end
 

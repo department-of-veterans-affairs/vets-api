@@ -2,7 +2,20 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyFormSubmission < ApplicationRecord
-    enum :status, %w[enqueue_succeeded enqueue_failed succeeded failed].index_by(&:itself)
+    module Statuses
+      ALL = [
+        ENQUEUE_SUCCEEDED = 'enqueue_succeeded',
+        ENQUEUE_FAILED = 'enqueue_failed',
+        SUCCEEDED = 'succeeded',
+        FAILED = 'failed'
+      ].freeze
+    end
+
+    enum(
+      :status,
+      Statuses::ALL.index_by(&:itself),
+      validate: true
+    )
 
     belongs_to :power_of_attorney_request
 

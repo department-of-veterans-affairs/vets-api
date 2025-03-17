@@ -192,4 +192,60 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
       end
     end
   end
+
+  describe 'when using form v2' do
+    describe '#aggregate_behaviors' do
+      context 'when all behavior categories have values' do
+        it 'merges all behaviors and removes falsy values' do
+          expect(subject_v2.send(:aggregate_behaviors)).to eq(
+            {
+              'reassignment' => true,
+              'performance' => true,
+              'consultations' => true,
+              'episodes' => true,
+              'selfMedication' => true,
+              'substances' => true,
+              'appetite' => true,
+              'screenings' => true,
+              'relationships' => true,
+              'unlisted' => true
+            }
+          )
+        end
+      end
+    end
+
+    describe '#aggregate_supporting_evidence' do
+      context 'when supportingEvidenceUnlisted is present' do
+        it 'adds other and otherDetails' do
+          expect(subject_v2.send(:aggregate_supporting_evidence)).to eq(
+            {
+              'police' => true,
+              'medical' => true,
+              'counseling' => true,
+              'family' => true,
+              'service' => true,
+              'personal' => true,
+              'other' => true,
+              'otherDetails' => 'Lorem ipsum dolor sit amet.'
+            }
+          )
+        end
+      end
+    end
+
+    describe '#aggregate_treatment_providers' do
+      context 'when treatment providers have values' do
+        it 'merges treatment providers and removes falsy values' do
+          expect(subject_v2.send(:aggregate_treatment_providers)).to eq(
+            {
+              'medicalCenter' => true,
+              'dod' => true,
+              'nonVa' => true
+            }
+          )
+        end
+      end
+    end
+  end
 end

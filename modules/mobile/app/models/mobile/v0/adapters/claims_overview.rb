@@ -76,7 +76,7 @@ module Mobile
           appeal_key = APPEALS_TYPES.key(type)
           appeal_display_text = APPEALS_DISPLAY_TYPES[appeal_key]
           program_area_sym = program_area.blank? ? :other : program_area.to_sym
-          program_area_text = PROGRAM_AREA_MAP[program_area_sym] ? (PROGRAM_AREA_MAP[program_area_sym]).to_s : ''
+          program_area_text = PROGRAM_AREA_MAP[program_area_sym] ? PROGRAM_AREA_MAP[program_area_sym].to_s : ''
           if type == APPEALS_TYPES[:appeal] || type == APPEALS_TYPES[:legacy]
             "#{program_area_text} #{appeal_display_text}".lstrip
           else
