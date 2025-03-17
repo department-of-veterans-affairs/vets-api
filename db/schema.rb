@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_04_165503) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1028,6 +1028,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_04_165503) do
     t.datetime "updated_at", null: false
     t.string "case_id"
     t.boolean "email_sent", default: false, null: false
+    t.uuid "application_uuid"
+    t.string "ves_status"
+    t.jsonb "ves_data"
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
   end
 
