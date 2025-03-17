@@ -57,9 +57,84 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         get('/accredited_representative_portal/v0/power_of_attorney_requests')
 
         expect(response).to have_http_status(:ok)
-        expect(parsed_response.size).to eq(1)
-        expect(parsed_response.first['id']).to eq(poa_request.id)
-        expect(parsed_response.map { |p| p['id'] }).not_to include(other_poa_request.id)
+        expect(parsed_response.to_h['data'].size).to eq(1)
+        expect(parsed_response.to_h['data'].first['id']).to eq(poa_request.id)
+        expect(parsed_response.to_h['data'].map { |p| p['id'] }).not_to include(other_poa_request.id)
+      end
+
+      describe 'pagination' do
+        let!(:poa_requests) do
+          (1..30).map do |i|
+            create(:power_of_attorney_request, :with_veteran_claimant,
+                   created_at: time.to_time - i.hours,
+                   poa_code:)
+          end
+        end
+
+        it 'returns the first page with default pagination' do
+          get('/accredited_representative_portal/v0/power_of_attorney_requests')
+
+          expect(response).to have_http_status(:ok)
+
+          # Default pagination should return 10 items (first page)
+          expect(parsed_response.to_h['data'].size).to eq(10)
+
+          # Check pagination headers
+          expect(response.headers['X-Total']).to eq('31')
+          expect(response.headers['X-Total-Pages']).to eq('4')
+          expect(response.headers['X-Per-Page']).to eq('10')
+          expect(response.headers['X-Page']).to eq('1')
+        end
+
+        it 'returns the requested page with custom page size' do
+          get('/accredited_representative_portal/v0/power_of_attorney_requests',
+              params: { page: { number: 2, size: 10 } })
+
+          expect(response).to have_http_status(:ok)
+
+          # Second page should have remaining items (10 out of 31 total)
+          expect(parsed_response.to_h['data'].size).to eq(10)
+
+          # Check pagination headers
+          expect(response.headers['X-Total']).to eq('31')
+          expect(response.headers['X-Total-Pages']).to eq('4')
+          expect(response.headers['X-Per-Page']).to eq('10')
+          expect(response.headers['X-Page']).to eq('2')
+        end
+
+        it 'returns empty array for page beyond available data' do
+          get('/accredited_representative_portal/v0/power_of_attorney_requests',
+              params: { page: { number: 5, size: 10 } })
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response.to_h['data']).to be_empty
+
+          # Pagination headers should still be correct
+          expect(response.headers['X-Total']).to eq('31')
+          expect(response.headers['X-Total-Pages']).to eq('4')
+          expect(response.headers['X-Per-Page']).to eq('10')
+          expect(response.headers['X-Page']).to eq('5')
+        end
+
+        it 'returns errors for invalid pagination parameters' do
+          get('/accredited_representative_portal/v0/power_of_attorney_requests',
+              params: { page: { number: 0 } })
+
+          expect(response).to have_http_status(:bad_request)
+          expect(parsed_response.to_h['errors']).to include(/Invalid parameters/)
+
+          get('/accredited_representative_portal/v0/power_of_attorney_requests',
+              params: { page: { size: 5 } })
+
+          expect(response).to have_http_status(:bad_request)
+          expect(parsed_response.to_h['errors']).to include(/Invalid parameters/)
+
+          get('/accredited_representative_portal/v0/power_of_attorney_requests',
+              params: { page: { size: 101 } })
+
+          expect(response).to have_http_status(:bad_request)
+          expect(parsed_response.to_h['errors']).to include(/Invalid parameters/)
+        end
       end
 
       describe 'a variety of POA request configurations' do
@@ -108,7 +183,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           get('/accredited_representative_portal/v0/power_of_attorney_requests')
 
           expect(response).to have_http_status(:ok)
-          expect(parsed_response).to eq(
+          expect(parsed_response.to_h['data']).to eq(
             [
               {
                 'id' => poa_request.id,
@@ -222,6 +297,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
               }
             ]
           )
+
+          # Check pagination headers
+          expect(response.headers['X-Total']).to eq('5')
+          expect(response.headers['X-Total-Pages']).to eq('1')
+          expect(response.headers['X-Per-Page']).to eq('10')
+          expect(response.headers['X-Page']).to eq('1')
         end
       end
     end
@@ -263,27 +344,86 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
       it 'returns the list of pending power of attorney requests sorted by creation ascending' do
         get('/accredited_representative_portal/v0/power_of_attorney_requests?status=pending')
-        parsed_response = JSON.parse(response.body)
         expect(response).to have_http_status(:ok)
-        expect(parsed_response.length).to eq 4
-        expect(parsed_response.map { |poa| poa['id'] }).to include(poa_request.id)
-        expect(parsed_response.map { |poa| poa['id'] }).to include(pending_request2.id)
-        expect(parsed_response.map { |poa| poa['id'] }).to include(accepted_pending_request.id)
-        expect(parsed_response.map { |poa| poa['id'] }).to include(accepted_failed_request.id)
-        expect(parsed_response.map { |poa| poa['id'] }).not_to include(expired_request.id)
-        expect(parsed_response.map { |h| h['createdAt'] }).to eq(
+        expect(parsed_response.to_h['data'].length).to eq 4
+        expect(parsed_response.to_h['data'].map { |poa| poa['id'] }).to include(poa_request.id)
+        expect(parsed_response.to_h['data'].map { |poa| poa['id'] }).to include(pending_request2.id)
+        expect(parsed_response.to_h['data'].map { |poa| poa['id'] }).to include(accepted_pending_request.id)
+        expect(parsed_response.to_h['data'].map { |poa| poa['id'] }).to include(accepted_failed_request.id)
+        expect(parsed_response.to_h['data'].map { |poa| poa['id'] }).not_to include(expired_request.id)
+        expect(parsed_response.to_h['data'].map { |h| h['createdAt'] }).to eq(
           [time_plus_one_day, time, time, time]
         )
+
+        # Check pagination headers
+        expect(response.headers['X-Total']).to eq('4')
+        expect(response.headers['X-Total-Pages']).to eq('1')
+        expect(response.headers['X-Per-Page']).to eq('10')
+        expect(response.headers['X-Page']).to eq('1')
       end
 
       it 'returns the list of completed power of attorney requests sorted by resolution creation descending' do
         get('/accredited_representative_portal/v0/power_of_attorney_requests?status=processed')
         expect(response).to have_http_status(:ok)
-        expect(parsed_response.length).to eq 2
-        expect(parsed_response.map { |poa| poa['id'] }).to include(declined_request.id)
-        expect(parsed_response.map { |poa| poa['id'] }).to include(accepted_success_request.id)
-        expect(parsed_response.map { |poa| poa['id'] }).not_to include(expired_request.id)
-        expect(parsed_response.map { |h| h['resolution']['createdAt'] }).to eq([time_plus_one_day, time])
+        expect(parsed_response.to_h['data'].length).to eq 2
+        expect(parsed_response.to_h['data'].map { |poa| poa['id'] }).to include(declined_request.id)
+        expect(parsed_response.to_h['data'].map { |poa| poa['id'] }).to include(accepted_success_request.id)
+        expect(parsed_response.to_h['data'].map { |poa| poa['id'] }).not_to include(expired_request.id)
+        expect(parsed_response.to_h['data'].map { |h| h['resolution']['createdAt'] }).to eq([time_plus_one_day, time])
+
+        # Check pagination headers
+        expect(response.headers['X-Total']).to eq('2')
+        expect(response.headers['X-Total-Pages']).to eq('1')
+        expect(response.headers['X-Per-Page']).to eq('10')
+        expect(response.headers['X-Page']).to eq('1')
+      end
+
+      describe 'pagination with status filter' do
+        before do
+          # Create additional pending requests to test pagination with status filter
+          15.times do |i|
+            create(:power_of_attorney_request, created_at: time.to_time - i.days, poa_code:)
+          end
+
+          # Create additional processed requests
+          10.times do |i|
+            create(:power_of_attorney_request, :with_declination,
+                   resolution_created_at: time.to_time - i.days, poa_code:)
+          end
+        end
+
+        it 'paginates pending requests correctly' do
+          path = '/accredited_representative_portal/v0/power_of_attorney_requests' \
+                 '?status=pending&page[number]=1&page[size]=10'
+          get path
+
+          expect(response).to have_http_status(:ok)
+
+          expect(parsed_response.to_h['data'].length).to eq(10)
+
+          # Check pagination headers
+          expect(response.headers['X-Total']).to eq('19')
+          expect(response.headers['X-Total-Pages']).to eq('2')
+          expect(response.headers['X-Per-Page']).to eq('10')
+          expect(response.headers['X-Page']).to eq('1')
+        end
+
+        it 'paginates processed requests correctly' do
+          path = '/accredited_representative_portal/v0/power_of_attorney_requests' \
+                 '?status=processed&page[number]=1&page[size]=10'
+          get path
+
+          expect(response).to have_http_status(:ok)
+
+          # First page with size 5 of processed requests
+          expect(parsed_response.to_h['data'].length).to eq(10)
+
+          # Check pagination headers
+          expect(response.headers['X-Total']).to eq('12')
+          expect(response.headers['X-Total-Pages']).to eq('2')
+          expect(response.headers['X-Per-Page']).to eq('10')
+          expect(response.headers['X-Page']).to eq('1')
+        end
       end
     end
 
@@ -297,11 +437,17 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         get('/accredited_representative_portal/v0/power_of_attorney_requests')
 
         expect(response).to have_http_status(:ok)
-        expect(parsed_response).to eq([])
+        expect(parsed_response.to_h['data']).to eq([])
+
+        # Check pagination headers for empty collection
+        expect(response.headers['X-Total']).to eq('0')
+        expect(response.headers['X-Total-Pages']).to eq('1')
+        expect(response.headers['X-Per-Page']).to eq('10')
+        expect(response.headers['X-Page']).to eq('1')
       end
     end
 
-    context 'when user’s VSO does not accept digital POAs' do
+    context 'when user\'s VSO does not accept digital POAs' do
       before do
         vso.update!(can_accept_digital_poa_requests: false)
       end
@@ -323,7 +469,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       end
     end
 
-    context 'when user is unauthorized (trying to access another VSO’s POA request)' do
+    context 'when user is unauthorized (trying to access another VSO\'s POA request)' do
       it 'returns 404 Not Found' do
         get("/accredited_representative_portal/v0/power_of_attorney_requests/#{other_poa_request.id}")
 
@@ -331,7 +477,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       end
     end
 
-    context 'when user’s VSO does not accept digital POAs' do
+    context 'when user\'s VSO does not accept digital POAs' do
       before do
         vso.update!(can_accept_digital_poa_requests: false)
       end
