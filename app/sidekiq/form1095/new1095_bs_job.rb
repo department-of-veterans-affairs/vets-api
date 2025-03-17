@@ -8,9 +8,37 @@ module Form1095
 
     sidekiq_options(retry: false)
 
+    def perform
+      Rails.logger.info 'Checking for new 1095-B data'
+
+      file_names = get_bucket_files
+      if file_names.empty?
+        Rails.logger.info 'No new 1095 files found'
+      else
+        Rails.logger.info "#{file_names.size} files found"
+      end
+
+      files_read_count = 0
+      file_names.each do |file_name|
+        if download_and_process_file?(file_name)
+          files_read_count += 1
+          Rails.logger.info "Successfully read #{@form_count} 1095B forms from #{file_name}, deleting file from S3"
+          bucket.delete_objects(delete: { objects: [{ key: file_name }] })
+        else
+          message = "failed to save #{@error_count} forms from file: #{file_name}; " \
+                    "successfully saved #{@form_count} forms"
+          log_message(:error, message)
+        end
+      end
+
+      Rails.logger.info "#{files_read_count}/#{file_names.size} files read successfully"
+    end
+
+    private
+
     # this method adds a prefix to the log message to enable datadog monitoring
     def log_message(level, message)
-      Rails.logger.send(level, "Form1095B Job #{level.capitalize}: #{message}")
+      Rails.logger.send(level, "Form1095B Creation Job #{level.capitalize}: #{message}")
     end
 
     def bucket
@@ -202,32 +230,6 @@ module Form1095
     rescue => e
       log_message(:error, e.message)
       false
-    end
-
-    def perform
-      Rails.logger.info 'Checking for new 1095-B data'
-
-      file_names = get_bucket_files
-      if file_names.empty?
-        Rails.logger.info 'No new 1095 files found'
-      else
-        Rails.logger.info "#{file_names.size} files found"
-      end
-
-      files_read_count = 0
-      file_names.each do |file_name|
-        if download_and_process_file?(file_name)
-          files_read_count += 1
-          Rails.logger.info "Successfully read #{@form_count} 1095B forms from #{file_name}, deleting file from S3"
-          bucket.delete_objects(delete: { objects: [{ key: file_name }] })
-        else
-          message = "failed to save #{@error_count} forms from file: #{file_name}; " \
-                    "successfully saved #{@form_count} forms"
-          log_message(:error, message)
-        end
-      end
-
-      Rails.logger.info "#{files_read_count}/#{file_names.size} files read successfully"
     end
   end
 end
