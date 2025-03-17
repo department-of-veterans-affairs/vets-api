@@ -1,61 +1,56 @@
 ---
 http_interactions:
-  - request:
-      method: get
-      uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/alltriageteams?requiresOHTriageGroup=1"
-      body:
-        encoding: US-ASCII
-        string: ""
-      headers:
-        Accept:
-          - application/json
-        Content-Type:
-          - application/json
-        User-Agent:
-          - Vets.gov Agent
-        Token: "<SESSION_TOKEN>"
-        Accept-Encoding:
-          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-    response:
-      status:
-        code: 200
-        message: OK
-      headers:
-        Date:
-          - Tue, 16 Jul 2024 14:09:42 GMT
-        Content-Type:
-          - application/json
-        Content-Length:
-          - "657"
-        X-Amzn-Requestid:
-          - 3b9e5fd9-17d2-4d0b-809d-dc20756f01b1
-        X-Xss-Protection:
-          - 1; mode=block
-        X-Frame-Options:
-          - DENY
-        X-Amzn-Remapped-Connection:
-          - keep-alive
-        X-Amz-Apigw-Id:
-          - bAjOBEitvHMFsRQ=
-        Cache-Control:
-          - no-cache, no-store, max-age=0, must-revalidate
-        Expires:
-          - "0"
-        X-Content-Type-Options:
-          - nosniff
-        Pragma:
-          - no-cache
-        X-Amzn-Remapped-Date:
-          - Tue, 26 Aug 2024 14:09:42 GMT
-        Strict-Transport-Security:
-          - max-age=16000000; includeSubDomains; preload;
-      body:
-        encoding: ASCII-8BIT
-        string:
-          '[{"associatedTriageGroups":4,"associatedBlockedTriageGroups":2},{"triageTeam":[{"triageTeamId":2513134,"name":"Dr House
-          Triage","stationNumber":"989","blockedStatus":true,"preferredTeam":true,"relationshipType":"PATIENT"},{"triageTeamId":2431751,"name":"Dr Jackyll
-          Triage DAYT29","stationNumber":"989","blockedStatus":false,"preferredTeam":true,"relationshipType":"PATIENT"},{"triageTeamId":3728001,"name":"OH
-          TG GROUP 001","stationNumber":"989","blockedStatus":true,"preferredTeam":true,"relationshipType":"PATIENT"},{"triageTeamId":3728006,"name":"OH
-          TG GROUP 002 ","stationNumber":"989","blockedStatus":false,"preferredTeam":true,"relationshipType":"PATIENT"}]}]'
-    recorded_at: Tue, 26 Aug 2024 14:09:42 GMT
-recorded_with: VCR 6.2.0
+- request:
+    method: get
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/alltriageteams?requiresOHTriageGroup=1"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 15:16:36 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '4323'
+      X-Amzn-Requestid:
+      - 5c42419b-233f-4214-87c5-13c47cae2f82
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - HApdUHGoPHMFhiA=
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      Pragma:
+      - no-cache
+      X-Amzn-Remapped-Date:
+      - Thu, 06 Mar 2025 15:16:36 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '[{"associatedTriageGroups":9,"friendlyTriageTeamPilotFacilities":"979","associatedBlockedTriageGroups":0},{"triageTeam":[{"triageTeamId":4399547,"name":"589GR Pharmacy Ask a pharmacist SLC10 JAMES, DON","stationNumber":"979","blockedStatus":false,"preferredTeam":true,"locationName":"Robert J. Dole VA Medical And Regional Office Center","leadProviderName":"James, Donald","teamName":"SLC10","suggestedNameDisplay":"Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr","healthCareSystemName":"VA Wichita Health Care","groupTypeEnumVal":"PHARMACY","subGroupTypeEnumVal":"ASK_A_PHARMACIST","groupTypePatientDisplay":"Pharmacy","subGroupTypePatientDisplay":"Ask a pharmacist","relationType":"PATIENT"}]}]'
+  recorded_at: Thu, 06 Mar 2025 15:16:36 GMT
+recorded_with: VCR 6.3.1

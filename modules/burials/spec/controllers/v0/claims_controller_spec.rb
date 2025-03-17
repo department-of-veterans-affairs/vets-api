@@ -8,25 +8,10 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
   let(:monitor) { double('Burials::Monitor') }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(anything).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:burial_module_enabled, anything).and_return true
-
     allow(Burials::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
                                        track_create_error: nil, track_create_success: nil,
                                        track_create_validation_error: nil, track_process_attachment_error: nil)
-  end
-
-  context 'module is not enabled' do
-    it 'returns Forbidden' do
-      allow(Flipper).to receive(:enabled?).with(:burial_module_enabled, anything).and_return false
-
-      expect(Burials::SavedClaim).not_to receive(:new)
-
-      get '/burials/v0/claims/:id', params: { id: 'test-id' }
-
-      expect(response).to have_http_status(:forbidden)
-    end
   end
 
   context 'with a user' do

@@ -71,7 +71,17 @@ module BenefitsDocuments
     private
 
     def status_changed?
-      @lighthouse_document_status_response != @pending_evidence_submission.upload_status
+      if @lighthouse_document_status_response['status'] != @pending_evidence_submission.upload_status
+        ::Rails.logger.info(
+          'LH - Status changed',
+          old_status: @pending_evidence_submission.upload_status,
+          status: @lighthouse_document_status_response['status'],
+          status_response: @lighthouse_document_status_response,
+          evidence_submission_id: @pending_evidence_submission.id,
+          claim_id: @pending_evidence_submission.claim_id
+        )
+      end
+      @lighthouse_document_status_response['status'] != @pending_evidence_submission.upload_status
     end
 
     def failed?
@@ -83,11 +93,13 @@ module BenefitsDocuments
     end
 
     def log_status
-      Rails.logger.info(
+      ::Rails.logger.info(
         'BenefitsDocuments::UploadStatusUpdater',
         status: @lighthouse_document_status_response['status'],
         status_response: @lighthouse_document_status_response,
-        updated_at: DateTime.now.utc
+        updated_at: DateTime.now.utc,
+        evidence_submission_id: @pending_evidence_submission.id,
+        claim_id: @pending_evidence_submission.claim_id
       )
     end
 
@@ -95,7 +107,7 @@ module BenefitsDocuments
       @pending_evidence_submission.update!(
         upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
         failed_date: DateTime.now.utc,
-        acknowledgement_date: (DateTime.current + 30.days).utc,
+        acknowledgement_date: (DateTime.current + 30.days),
         error_message: @lighthouse_document_status_response['error'],
         template_metadata: {
           personalisation: update_personalisation
@@ -113,7 +125,7 @@ module BenefitsDocuments
     def process_upload
       @pending_evidence_submission.update!(
         upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
-        delete_date: (DateTime.current + 60.days).utc
+        delete_date: (DateTime.current + 60.days)
       )
     end
   end
