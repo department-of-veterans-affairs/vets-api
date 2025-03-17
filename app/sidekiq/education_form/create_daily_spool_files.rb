@@ -109,7 +109,7 @@ module EducationForm
             bytes_sent = writer.write(contents, filename)
 
             if bytes_sent.eql?(contents.size) && Settings.hostname.eql?('api.va.gov')
-              log_info("Uploaded #{bytes_sent} bytes to region: #{region}")
+              log_info("Successfully uploaded #{bytes_sent} bytes to region: #{region}")
             elsif Settings.hostname.eql?('api.va.gov')
               log_info("Warning: Uploaded #{bytes_sent} bytes to region: #{region}")
             end
