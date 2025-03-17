@@ -19,13 +19,9 @@ module PdfFill
     def create_block(value, metadata)
       lambda do |pdf|
         pdf.move_down(10)
-        prefix = metadata[:question_num].to_s
-        prefix += metadata[:question_suffix] if metadata[:question_suffix].present?
-        prefix = "#{prefix}. #{metadata[:question_text].humanize}"
-        i = metadata[:i]
-        prefix += " Line #{i + 1}" if i.present?
+        prefix = format_prefix(metadata)
 
-        pdf.text("#{prefix}:", { style: extras_redesign ? :normal : :bold })
+        pdf.text("#{prefix}:", { style: extras_redesign ? :normal : :bold }) if prefix.present?
         pdf.text(value.to_s, { style: extras_redesign ? :bold : :normal })
       end
     end
@@ -181,6 +177,29 @@ module PdfFill
     rescue
       Rails.logger.error("Error formatting submit date for PdfFill: #{date}")
       nil
+    end
+
+    private
+
+    def format_prefix(metadata)
+      prefix = metadata[:question_num].to_s
+      prefix += metadata[:question_suffix] if metadata[:question_suffix].present?
+
+      if extras_redesign && (metadata[:top_level_key] == 'treatmentProvidersDetails')
+        return format_treatment_prefix(metadata)
+
+      end
+
+      prefix += ". #{metadata[:question_text].humanize}"
+      i = metadata[:i]
+      prefix += " Line #{i + 1}" if i.present?
+
+      prefix
+    end
+
+    def format_treatment_prefix(metadata)
+      is_first_provider = metadata[:i].zero?
+      is_first_provider ? "#{metadata[:question_num]}. #{metadata[:question_text]}" : nil
     end
   end
 end

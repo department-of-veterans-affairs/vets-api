@@ -144,6 +144,7 @@ module PdfFill
           limit: 6,
           first_key: 'details',
           question_text: 'EVENT DETAILS',
+          item_label: 'Event',
           question_num: 9,
           'details' => {
             key: "F[0].#subform[2].Brief_Description_Of_The_Traumatic_Events[#{ITERATOR}]",
@@ -641,7 +642,8 @@ module PdfFill
         }
       ].freeze
 
-      def merge_fields(_options = {})
+      def merge_fields(options = {})
+        extras_redesign = options.fetch(:extras_redesign, false)
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
         @form_data = expand_ssn(@form_data)
         @form_data['veteranDateOfBirth'] = expand_veteran_dob(@form_data)
@@ -653,10 +655,10 @@ module PdfFill
 
         if @form_data['events']&.any?
           process_reports
-          expand_collection('events', :format_event, 'eventOverflow')
+          expand_collection('events', :format_event, 'eventOverflow', extras_redesign)
         end
 
-        expand_collection('treatmentProvidersDetails', :format_provider, 'providerOverflow')
+        expand_collection('treatmentProvidersDetails', :format_provider, 'providerOverflow', extras_redesign)
 
         expand_signature(@form_data['veteranFullName'], @form_data['signatureDate'])
 
@@ -755,41 +757,82 @@ module PdfFill
         fields.map { |field| event[field] }.compact_blank.join(', ')
       end
 
-      def expand_collection(collection, format_method, overflow_key)
+      def expand_collection(collection, format_method, overflow_key, extras_redesign)
         collection = @form_data[collection]
         return if collection.blank?
 
         collection.each_with_index do |item, index|
-          format_item_overflow(item, index + 1, format_method, overflow_key)
+          format_item_overflow(item, index + 1, format_method, overflow_key, extras_redesign)
         end
       end
 
-      def format_item_overflow(item, index, format_method, overflow_key)
-        item_overflow = send(format_method, item, index)
+      def format_item_overflow(item, index, format_method, overflow_key, extras_redesign)
+        item_overflow = if extras_redesign
+                          send(format_method, item, index, extras_redesign:)
+                        else
+                          send(format_method, item, index)
+                        end
 
         return if item_overflow.blank?
 
-        item[overflow_key] = PdfFill::FormValue.new('', item_overflow.compact.join("\n\n"))
+        formatted_overflow = if extras_redesign
+                               item_overflow.map do |entry|
+                                 entry[:value].empty? ? entry[:label] : "#{entry[:label]}: #{entry[:value]}"
+                               end.join("\n\n")
+                             else
+                               item_overflow.compact.join("\n\n")
+                             end
+
+        item[overflow_key] = PdfFill::FormValue.new('', formatted_overflow)
       end
 
-      def format_event(event, index)
+      def format_event(event, index, extras_redesign: false)
         return if event.blank?
 
-        event_overflow = ["Event Number: #{index}"]
-        event_details = event['details'] || ''
-        event_location = event['location'] || ''
-        event_timing = event['timing'] || ''
+        extras_redesign ? format_event_structured(event, index) : format_event_text(event, index)
+      end
 
-        event_overflow.push("Event Description: \n\n#{event_details}")
-        event_overflow.push("Event Location: \n\n#{event_location}")
-        event_overflow.push("Event Date: \n\n#{event_timing}")
+      def format_event_structured(event, index)
+        item_label = @form_data['events'].is_a?(Array) ? 'Event' : @form_data.dig('events', 'item_label') || 'Event'
+
+        [
+          { label: "#{item_label} #{index}", value: '' },
+          { label: 'Description', value: event['details'].to_s.strip },
+          { label: 'Location', value: event['location'].to_s.strip },
+          { label: 'Date', value: event['timing'].to_s.strip }
+        ]
+      end
+
+      def format_event_text(event, index)
+        event_overflow = ["Event Number: #{index}"]
+        event_overflow.push("Event Description: \n\n#{event['details'] || ''}")
+        event_overflow.push("Event Location: \n\n#{event['location'] || ''}")
+        event_overflow.push("Event Date: \n\n#{event['timing'] || ''}")
 
         event_overflow
       end
 
-      def format_provider(provider, index)
+      def format_provider(provider, index, extras_redesign: false)
         return if provider.blank?
 
+        extras_redesign ? format_provider_structured(provider, index) : format_provider_text(provider, index)
+      end
+
+      def format_provider_structured(provider, index)
+        facility_info = provider['facilityInfo']
+        month = provider['treatmentMonth'] || 'XX'
+        year = provider['treatmentYear'] || 'XXXX'
+        no_date = provider['noDates']
+        treatment_date = no_date ? "Don't have date" : "#{month}-#{year}"
+
+        [
+          { label: "Treatment Facility #{index}", value: '' },
+          { label: 'Facility name', value: facility_info.to_s.strip },
+          { label: 'Treatment date', value: treatment_date }
+        ]
+      end
+
+      def format_provider_text(provider, index)
         provider_overflow = ["Treatment Information Number: #{index}"]
         facility_info = provider['facilityInfo']
         month = provider['treatmentMonth'] || 'XX'
