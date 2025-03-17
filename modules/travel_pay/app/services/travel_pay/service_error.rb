@@ -22,7 +22,14 @@ module TravelPay
         symbolized_body = error.response_body.deep_symbolize_keys
         message = symbolized_body[:message]
       rescue
-        raise Common::Exceptions::ServiceError
+        Rails.logger.error(
+          message: 'raise_mapped_error received nil response_body. ' \
+                   "status: #{error.response_status}, returning 500. " \
+                   "message: #{error.message}"
+        )
+        raise Common::Exceptions::ServiceError.new(
+          errors: [{ title: error.message, status: 500 }]
+        )
       end
 
       # Log here
