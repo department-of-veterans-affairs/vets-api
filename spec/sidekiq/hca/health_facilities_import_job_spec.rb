@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
   describe '#perform' do
+    let(:statsd_key_prefix) { HCA::Service::STATSD_KEY_PREFIX }
     let(:mock_get_facilities_page_one) do
       FacilitiesApi::V2::Lighthouse::Response.new(
         {
@@ -57,6 +58,11 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
       allow(lighthouse_service).to receive(:get_facilities)
         .and_return(mock_get_facilities_page_one, mock_get_facilities_page_two)
       allow(Rails.logger).to receive(:info)
+      allow(StatsD).to receive(:increment)
+    end
+
+    it 'has a retry count of 10' do
+      expect(described_class.get_sidekiq_options['retry']).to eq(10)
     end
 
     context 'success' do
@@ -67,6 +73,9 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
         expect(Rails.logger).to receive(:info).with(
           'Job ended with 2 health facilities.'
         )
+
+        expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.health_facilities_import_job_complete")
+
         expect do
           described_class.new.perform
         end.to change(HealthFacility, :count).by(1)
@@ -113,6 +122,19 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
         expect do
           described_class.new.perform
         end.to raise_error(RuntimeError, "Failed to import health facilities in #{described_class.name}")
+      end
+
+      describe 'when retries are exhausted' do
+        it 'logs error and increments StatsD' do
+          described_class.within_sidekiq_retries_exhausted_block do
+            expect(Rails.logger).to receive(:error).with(
+              "#{described_class.name} failed with no retries left."
+            )
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}.health_facilities_import_job_failed_no_retries"
+            )
+          end
+        end
       end
     end
   end

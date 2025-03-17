@@ -6,6 +6,15 @@ module HCA
 
     PER_PAGE = 1000
 
+    # retry for 0d 4h 22m 38s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    sidekiq_options retry: 10
+
+    sidekiq_retries_exhausted do
+      Rails.logger.error("#{HCA::HealthFacilitiesImportJob} failed with no retries left.")
+      StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.health_facilities_import_job_failed_no_retries")
+    end
+
     def perform
       Rails.logger.info("Job started with #{HealthFacility.count} existing health facilities.")
       facilities_from_lighthouse = get_facilities_from_lighthouse
@@ -28,7 +37,7 @@ module HCA
       HealthFacility.insert_all(health_facilities, unique_by: :station_number) # rubocop:disable Rails/SkipsModelValidations
 
       Rails.logger.info("Job ended with #{HealthFacility.count} health facilities.")
-      # StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.health_facilities_api_import_complete")
+      StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.health_facilities_import_job_complete")
     rescue => e
       Rails.logger.error("Error occurred in #{self.class.name}: #{e.message}")
       raise "Failed to import health facilities in #{self.class.name}"
