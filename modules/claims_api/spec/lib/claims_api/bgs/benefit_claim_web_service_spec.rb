@@ -73,7 +73,7 @@ describe ClaimsApi::BenefitClaimWebService do
       let(:dependent_participant_id) { '600036156' }
 
       it 'returns a successful response' do
-        VCR.use_cassette('claims_api/bgs/benefit_claim_web_service/servie_spec') do
+        VCR.use_cassette('claims_api/bgs/benefit_claim_web_service/service_spec') do
           res = subject.find_bnft_claim_by_clmant_id(dependent_participant_id:)
 
           expect(res).to be_a Hash
