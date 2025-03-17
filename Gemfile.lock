@@ -627,10 +627,10 @@ GEM
     jwe (0.4.0)
     jwt (2.10.1)
       base64
-    karafka-core (2.4.8)
-      karafka-rdkafka (>= 0.17.6, < 0.19.0)
+    karafka-core (2.4.10)
+      karafka-rdkafka (>= 0.17.6, < 0.20.0)
       logger (>= 1.6.0)
-    karafka-rdkafka (0.18.1)
+    karafka-rdkafka (0.19.0)
       ffi (~> 1.15)
       mini_portile2 (~> 2.6)
       rake (> 12)
@@ -663,7 +663,7 @@ GEM
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
     lockbox (2.0.1)
-    logger (1.6.5)
+    logger (1.6.6)
     loofah (2.24.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -1126,7 +1126,7 @@ GEM
       addressable
       faraday (>= 1.9, < 3)
       nokogiri (>= 1.13.9)
-    waterdrop (2.8.1)
+    waterdrop (2.8.2)
       karafka-core (>= 2.4.3, < 3.0.0)
       karafka-rdkafka (>= 0.17.5)
       zeitwerk (~> 2.3)
@@ -1159,7 +1159,7 @@ GEM
     xmlmapper (0.8.1)
       nokogiri (~> 1.11)
     yard (0.9.37)
-    zeitwerk (2.7.1)
+    zeitwerk (2.7.2)
 
 PLATFORMS
   aarch64-linux
