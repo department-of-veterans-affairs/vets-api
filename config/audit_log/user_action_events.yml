@@ -1,4 +1,60 @@
----
 user_login:
   event_type: authentication
   details: User logged in
+
+sign_in: 
+  event_type: sign_in
+  details: Sign in {{ on VA.gov }}
+
+  event_type: verify_identity
+  details: Verify identity* {{ on ID.me }}
+
+profile:
+  event_type: update_mailing_address 	
+  details: Update mailing address
+
+  event_type: update_phone_number
+  details: Update phone number
+
+  event_type: update_email_address
+  details: Update email address
+
+payments:
+  event_type: add_direct_deposit_pension
+  details: Add direct deposit for pension
+
+  event_type: update_direct_deposit_pension
+  details: Update direct deposit for pension
+  
+  event_type: add_direct_deposit_disability 
+  details: Add direct deposit for 
+  
+  event_type: update_direct_deposit_disability
+  details: Update direct deposit for pension
+  
+  event_type: add_direct_deposit_tuition 
+  details: Add direct deposit for tuition 
+  
+  event_type: update_direct_deposit_tuition
+  details: Update direct deposit for tuition 
+
+  event_type: add_direct_deposit_travel_pay
+  details: Add direct deposit for travel pay reimbursement
+
+  event_type: update_direct_deposit_travel_pay
+  details: Update direct deposit for travel pay reimbursement
+
+
+documents:
+  event_type: download_blue_button_report
+  details: Download {{ Blue Button report }}
+
+  event_type: download_va_benefits_letter
+  details: Download {{ VA benefits letter }}
+  
+  event_type: download_va_health_summary
+  details: Download {{ VA Health summary PDF }}
+
+forms:
+  event_type: submit_va_form_10-10ez
+  details: Submit {{ VA Form 10-10EZ Application for Health Benefits }}
