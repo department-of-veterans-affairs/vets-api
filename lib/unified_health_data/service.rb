@@ -6,6 +6,9 @@ require_relative 'models/lab_or_test'
 
 module UnifiedHealthData
   class Service < Common::Client::Base
+    STATSD_KEY_PREFIX = 'api.uhd'
+    include Common::Client::Concerns::Monitoring
+
     configuration UnifiedHealthData::Configuration
 
     def initialize(user)
@@ -14,30 +17,34 @@ module UnifiedHealthData
     end
 
     def get_labs(start_date:, end_date:)
-      token = fetch_access_token
-      patient_id = @user.icn
-      path = "#{config.base_path}labs?patient-id=#{patient_id}&start-date=#{start_date}&end-date=#{end_date}"
-      response = perform(:get, path, nil, { 'Authorization' => token })
-      body = parse_response_body(response.body)
+      with_monitoring do
+        token = fetch_access_token
+        patient_id = @user.icn
+        path = "#{config.base_path}labs?patient-id=#{patient_id}&start-date=#{start_date}&end-date=#{end_date}"
+        response = perform(:get, path, nil, { 'Authorization' => token })
+        body = parse_response_body(response.body)
 
-      combined_records = fetch_combined_records(body)
-      parsed_records = parse_labs(combined_records)
-      filter_records(parsed_records)
+        combined_records = fetch_combined_records(body)
+        parsed_records = parse_labs(combined_records)
+        filter_records(parsed_records)
+      end
     end
 
     private
 
     def fetch_access_token
-      response = connection.post(config.token_path) do |req|
-        req.headers['Content-Type'] = 'application/json'
-        req.body = {
-          appId: config.app_id,
-          appToken: config.app_token,
-          subject: config.subject,
-          userType: config.user_type
-        }.to_json
+      with_monitoring do
+        response = connection.post(config.token_path) do |req|
+          req.headers['Content-Type'] = 'application/json'
+          req.body = {
+            appId: config.app_id,
+            appToken: config.app_token,
+            subject: config.subject,
+            userType: config.user_type
+          }.to_json
+        end
+        response.headers['authorization']
       end
-      response.headers['authorization']
     end
 
     def filter_records(records)
