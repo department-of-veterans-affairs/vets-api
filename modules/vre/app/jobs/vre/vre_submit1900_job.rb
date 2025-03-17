@@ -17,7 +17,7 @@ module VRE
     end
 
     def perform(claim_id, encrypted_user)
-      claim = VRE::VeteranReadinessEmploymentClaim.find claim_id
+      claim = VREVeteranReadinessEmploymentClaim.find claim_id
       user = OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user)))
       claim.send_to_vre(user)
     rescue => e
