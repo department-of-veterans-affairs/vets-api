@@ -103,7 +103,7 @@ module DebtsApi
         submission_email = ipf_form['personal_data']['email_address'].downcase
 
         jid = DebtManagementCenter::VANotifyEmailJob.perform_in(
-          6.hours,
+          24.hours,
           submission_email,
           SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
           failure_email_personalization_info,
