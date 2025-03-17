@@ -321,7 +321,7 @@ module SimpleFormsApi
           confirmation_number:,
           date_submitted: Time.zone.today.strftime('%B %d, %Y')
         }
-        notification_email = SimpleFormsApi::NotificationEmail.new(
+        notification_email = SimpleFormsApi::Notification::Email.new(
           config,
           notification_type: :confirmation,
           user: @current_user
@@ -337,7 +337,7 @@ module SimpleFormsApi
           date_submitted: Time.zone.today.strftime('%B %d, %Y'),
           expiration_date: Time.zone.parse(expiration_date).strftime('%B %d, %Y')
         }
-        notification_email = SimpleFormsApi::NotificationEmail.new(
+        notification_email = SimpleFormsApi::Notification::Email.new(
           config,
           notification_type: :received,
           user: @current_user
@@ -352,7 +352,7 @@ module SimpleFormsApi
           confirmation_number:,
           date_submitted: Time.zone.today.strftime('%B %d, %Y')
         }
-        notification_email = SimpleFormsApi::NotificationEmail.new(
+        notification_email = SimpleFormsApi::Notification::Email.new(
           config,
           notification_type:,
           user: @current_user

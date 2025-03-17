@@ -18,11 +18,15 @@ RSpec.describe DebtsApi::V0::OneDebtLetterService, type: :service do
     end
 
     it 'returns a pdf' do
-      service = DebtsApi::V0::OneDebtLetterService.new(user)
-      pdf = service.get_pdf
+      VCR.use_cassette('bgs/people_service/person_data') do
+        VCR.use_cassette('debts/get_letters', VCR::MATCH_EVERYTHING) do
+          service = DebtsApi::V0::OneDebtLetterService.new(user)
+          pdf = service.get_pdf
 
-      expect(pdf).to be_a(String)
-      expect(pdf).to include('%PDF-1.6')
+          expect(pdf).to be_a(String)
+          expect(pdf).to include('%PDF-1.6')
+        end
+      end
     end
   end
 end

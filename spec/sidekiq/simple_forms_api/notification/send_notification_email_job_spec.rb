@@ -38,13 +38,13 @@ RSpec.describe SimpleFormsApi::Notification::SendNotificationEmailJob, type: :wo
     context 'when submitted with digital form submission tool' do
       let(:form_number) { 'abc-123' }
 
-      it_behaves_like 'sends notification email', SimpleFormsApi::NotificationEmail
+      it_behaves_like 'sends notification email', SimpleFormsApi::Notification::Email
     end
 
     context 'when submitted with Form Upload tool' do
       let(:form_number) { '21-0779' }
 
-      it_behaves_like 'sends notification email', SimpleFormsApi::FormUploadNotificationEmail
+      it_behaves_like 'sends notification email', SimpleFormsApi::Notification::FormUploadEmail
     end
   end
 

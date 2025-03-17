@@ -2,6 +2,7 @@
 
 require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_claims/constants'
+require 'lighthouse/benefits_documents/constants'
 
 module V0
   class BenefitsClaimsController < ApplicationController
@@ -16,6 +17,10 @@ module V0
 
       claims['data'].each do |claim|
         update_claim_type_language(claim)
+        # Add has_failed_uploads field for document uploads that were added
+        if Flipper.enabled?(:cst_show_document_upload_status)
+          claim['attributes']['hasFailedUploads'] = add_has_failed_uploads(claim)
+        end
       end
 
       tap_claims(claims['data'])
@@ -115,6 +120,14 @@ module V0
       if language_map.key?(claim.dig('attributes', 'claimType'))
         claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
       end
+    end
+
+    def add_has_failed_uploads(claim)
+      failed_evidence_submissions = EvidenceSubmission.where(
+        claim_id: claim['id'],
+        upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
+      )
+      failed_evidence_submissions.count.positive?
     end
 
     def add_evidence_submissions(claim)

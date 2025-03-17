@@ -62,9 +62,10 @@ module AskVAApi
             SchoolObj: build_school_object,
             SubmitterQuestion: inquiry_params[:question],
             SubmitterStateOfSchool: build_state_data(:school_obj, :state_abbreviation),
-            SubmitterStateOfProperty: build_state_data(:address, :state),
+            SubmitterStateOfProperty: build_state_data(:state_of_property, nil),
             SubmitterStateOfResidency: build_residency_state_data,
-            SubmitterZipCodeOfResidency: inquiry_params[:postal_code],
+            SubmitterZipCodeOfResidency: inquiry_params[:your_postal_code] ||
+              inquiry_params[:family_member_postal_code],
             UntrustedFlag: false,
             VeteranDateOfDeath: inquiry_params[:date_of_death],
             VeteranRelationship: translate_field(:veteran_relationship),
@@ -116,22 +117,23 @@ module AskVAApi
 
         def build_residency_state_data
           {
-            Name: fetch_state(inquiry_params.dig(:state_or_residency, :residency_state)),
-            StateCode: inquiry_params.dig(:state_or_residency, :residency_state)
-          }
-        end
-
-        def property_state_data
-          {
-            Name: fetch_state(inquiry_params.dig(:address, :state)),
-            StateCode: inquiry_params.dig(:address, :state)
+            Name: fetch_state(inquiry_params.dig(:state_or_residency, :residency_state)) ||
+              inquiry_params[:family_members_location_of_residence],
+            StateCode: inquiry_params.dig(:state_or_residency, :residency_state) ||
+              fetch_state_code(inquiry_params[:family_members_location_of_residence])
           }
         end
 
         def build_state_data(obj, key)
+          state = if key.nil?
+                    inquiry_params[obj]
+                  else
+                    inquiry_params.dig(obj, key)
+                  end
+
           {
-            Name: fetch_state(inquiry_params.dig(obj, key)),
-            StateCode: inquiry_params.dig(obj, key)
+            Name: fetch_state(state),
+            StateCode: fetch_state_code(state) || state
           }
         end
 

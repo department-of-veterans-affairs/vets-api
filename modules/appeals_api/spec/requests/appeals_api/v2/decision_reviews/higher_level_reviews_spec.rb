@@ -220,29 +220,29 @@ describe 'AppealsApi::V2::DecisionReviews::HigherLevelReviews', type: :request d
       end
     end
 
-    # it 'updates the appeal status once submitted to central mail' do
-    #   client_stub = instance_double(CentralMail::Service)
-    #   faraday_response = instance_double(Faraday::Response)
+    it 'updates the appeal status once submitted to central mail' do
+      client_stub = instance_double(CentralMail::Service)
+      faraday_response = instance_double(Faraday::Response)
 
-    #   allow(CentralMail::Service).to receive(:new) { client_stub }
-    #   allow(client_stub).to receive(:upload).and_return(faraday_response)
-    #   allow(faraday_response).to receive(:success?).and_return(true)
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(client_stub).to receive(:upload).and_return(faraday_response)
+      allow(faraday_response).to receive(:success?).and_return(true)
 
-    #   with_settings(Settings.vanotify.services.lighthouse.template_id,
-    #                 higher_level_review_received: 'veteran_template',
-    #                 higher_level_review_received_claimant: 'claimant_template') do
-    #     client = instance_double(VaNotify::Service)
-    #     allow(VaNotify::Service).to receive(:new).and_return(client)
-    #     allow(client).to receive(:send_email)
+      with_settings(Settings.vanotify.services.lighthouse.template_id,
+                    higher_level_review_received: 'veteran_template',
+                    higher_level_review_received_claimant: 'claimant_template') do
+        client = instance_double(VaNotify::Service)
+        allow(VaNotify::Service).to receive(:new).and_return(client)
+        allow(client).to receive(:send_email)
 
-    #     Sidekiq::Testing.inline! do
-    #       post(path, params: data_default, headers: headers_default)
-    #     end
+        Sidekiq::Testing.inline! do
+          post(path, params: data_default, headers: headers_default)
+        end
 
-    #     hlr = AppealsApi::HigherLevelReview.find_by(id: parsed['data']['id'])
-    #     expect(hlr.status).to eq('submitted')
-    #   end
-    # end
+        hlr = AppealsApi::HigherLevelReview.find_by(id: parsed['data']['id'])
+        expect(hlr.status).to eq('submitted')
+      end
+    end
 
     context 'when invalid headers supplied' do
       it 'returns an error' do
