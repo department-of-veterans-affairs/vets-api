@@ -2,7 +2,7 @@
 
 module VRE
   class Constants
-    FORM = '28-1900'.freeze
+    FORM = '28-1900'
     # We will be adding numbers here and eventually completeley removing this and the caller to open up VRE submissions
     # to all vets
     PERMITTED_OFFICE_LOCATIONS = %w[].freeze

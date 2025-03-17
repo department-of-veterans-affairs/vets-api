@@ -12,7 +12,7 @@ module VRE
 
       mail(
         to: email_addr,
-        subject: 'VR&E Counseling Request Confirmation',
+        subject: 'VR&E Counseling Request Confirmation', # rubocop:disable Rails/I18nLocaleTexts
         body: ERB.new(template).result(binding)
       )
     end
