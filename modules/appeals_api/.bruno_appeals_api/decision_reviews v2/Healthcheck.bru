@@ -1,0 +1,15 @@
+meta {
+  name: Healthcheck
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_uri}}/services/appeals/v2/decision_reviews/healthcheck
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}

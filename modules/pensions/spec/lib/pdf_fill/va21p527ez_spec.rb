@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pdf_fill/va21p527ez'
+require 'pensions/pdf_fill/va21p527ez'
 require 'lib/pdf_fill/fill_form_examples'
 
 def basic_class

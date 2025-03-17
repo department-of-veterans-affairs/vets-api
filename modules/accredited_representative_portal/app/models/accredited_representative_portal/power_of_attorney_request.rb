@@ -2,29 +2,30 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequest < ApplicationRecord
-    module ClaimantTypes
-      ALL = [
-        DEPENDENT = 'dependent',
-        VETERAN = 'veteran'
-      ].freeze
-    end
-
     EXPIRY_DURATION = 60.days
 
     belongs_to :claimant, class_name: 'UserAccount'
 
     has_one :power_of_attorney_form,
             inverse_of: :power_of_attorney_request,
-            required: true
+            required: true # for now
+
+    # TODO: Enforce this in the DB.
+    has_one :power_of_attorney_form_submission
 
     has_one :resolution,
             class_name: 'PowerOfAttorneyRequestResolution',
             inverse_of: :power_of_attorney_request
 
+    has_many :notifications,
+             class_name: 'PowerOfAttorneyRequestNotification',
+             inverse_of: :power_of_attorney_request
+
     belongs_to :accredited_organization, class_name: 'Veteran::Service::Organization',
                                          foreign_key: :power_of_attorney_holder_poa_code,
                                          primary_key: :poa,
                                          optional: true
+
     belongs_to :accredited_individual, class_name: 'Veteran::Service::Representative',
                                        foreign_key: :accredited_individual_registration_number,
                                        primary_key: :representative_id,
@@ -32,7 +33,19 @@ module AccreditedRepresentativePortal
 
     before_validation :set_claimant_type
 
-    validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
+    module ClaimantTypes
+      ALL = [
+        DEPENDENT = 'dependent',
+        VETERAN = 'veteran'
+      ].freeze
+    end
+
+    enum(
+      :claimant_type,
+      ClaimantTypes::ALL.index_by(&:itself),
+      validate: true
+    )
+
     validates :power_of_attorney_holder_type, inclusion: { in: PowerOfAttorneyHolder::Types::ALL }
 
     accepts_nested_attributes_for :power_of_attorney_form
@@ -63,6 +76,11 @@ module AccreditedRepresentativePortal
       resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestExpiration)
     end
 
+    def replaced?
+      resolved? && resolution.resolving.is_a?(PowerOfAttorneyRequestWithdrawal) &&
+        resolution.resolving.type == PowerOfAttorneyRequestWithdrawal::Types::REPLACEMENT
+    end
+
     def mark_accepted!(creator, reason)
       PowerOfAttorneyRequestDecision.create_acceptance!(
         creator:, power_of_attorney_request: self, reason:
@@ -75,17 +93,81 @@ module AccreditedRepresentativePortal
       )
     end
 
+    def mark_replaced!(superseding_power_of_attorney_request)
+      PowerOfAttorneyRequestWithdrawal.create_replacement!(
+        power_of_attorney_request: self,
+        superseding_power_of_attorney_request:
+      )
+    end
+
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
-    scope :not_expired, lambda {
-      where.not(resolution: { resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration' })
-    }
 
-    scope :for_user, lambda { |user|
-      for_power_of_attorney_holders(
-        user.activated_power_of_attorney_holders
+    scope :decisioned, lambda {
+      where(
+        resolution: {
+          resolving_type: PowerOfAttorneyRequestDecision.to_s
+        }
       )
     }
+
+    concerning :ProcessedScopes do
+      processed_join_sql_template = <<~SQL.squish
+        LEFT OUTER JOIN "ar_power_of_attorney_request_resolutions" "resolution" ON
+          "resolution"."power_of_attorney_request_id" = "ar_power_of_attorney_requests"."id"
+        LEFT OUTER JOIN "ar_power_of_attorney_request_decisions" "acceptance" ON
+          "resolution"."resolving_type" = :resolving_type AND
+          "resolution"."resolving_id" = "acceptance"."id" AND
+          "acceptance"."type" = :decision_type
+        LEFT OUTER JOIN "ar_power_of_attorney_form_submissions" "succeeded_form_submission" ON
+          "succeeded_form_submission"."power_of_attorney_request_id" = "ar_power_of_attorney_requests"."id" AND
+          "succeeded_form_submission"."status" = :submission_status
+      SQL
+
+      processed_join_sql =
+        ApplicationRecord.sanitize_sql(
+          [
+            processed_join_sql_template,
+            { resolving_type: PowerOfAttorneyRequestDecision,
+              decision_type: PowerOfAttorneyRequestDecision::Types::ACCEPTANCE,
+              submission_status: PowerOfAttorneyFormSubmission::Statuses::SUCCEEDED }
+          ]
+        )
+
+      ##
+      # `processed`and `not_processed` are the logical negation of one another.
+      # `invert_where` from `ActiveRecord` is a way to negate SQL where
+      # conditions, and it would be nice if we could use it here. But it has
+      # the problem of also negating any conditions that were chained earlier in
+      # a relation.
+      #
+      # Moral of the story, if the definition of one of these is updated, the
+      # other needs to be too.
+      #
+      included do
+        scope :processed, lambda {
+          relation =
+            joins(processed_join_sql)
+
+          relation.where.not(resolution: { id: nil }).merge(
+            relation.where(resolution: { acceptance: { id: nil } }).or(
+              relation.where.not(succeeded_form_submission: { id: nil })
+            )
+          )
+        }
+
+        scope :not_processed, lambda {
+          relation =
+            joins(processed_join_sql)
+
+          relation.where(resolution: { id: nil }).or(
+            relation.where.not(resolution: { acceptance: { id: nil } }).merge(
+              relation.where(succeeded_form_submission: { id: nil })
+            )
+          )
+        }
+      end
+    end
 
     scope :for_power_of_attorney_holders, lambda { |poa_holders|
       return none if poa_holders.empty?

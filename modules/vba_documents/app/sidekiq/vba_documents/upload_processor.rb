@@ -36,7 +36,7 @@ module VBADocuments
         end
       end
 
-      response&.success? ? true : false
+      response&.success? || false
     end
 
     private
