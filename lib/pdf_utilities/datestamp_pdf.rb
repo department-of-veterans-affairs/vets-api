@@ -152,7 +152,8 @@ module PDFUtilities
     def log_and_raise_error(message, e)
       combined_message = "#{message}: #{e.message}"
       monitor = Logging::Monitor.new('pdf_utilities')
-      monitor.track_request(:error, combined_message, 'api.datestamp_pdf.error', exception: e, backtrace: e.backtrace)
+      monitor.track_request(:error, combined_message, 'api.datestamp_pdf.error', exception: e.message,
+                                                                                 backtrace: e.backtrace)
 
       raise e.class, combined_message, e.backtrace
     end
