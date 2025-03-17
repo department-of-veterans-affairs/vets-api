@@ -35,6 +35,7 @@ module Pensions
       # handle a success result
       def on_success
         notification_email.deliver(:received)
+        super
       end
 
       # handle a stale result
