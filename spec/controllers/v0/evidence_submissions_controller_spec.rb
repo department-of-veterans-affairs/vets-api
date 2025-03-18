@@ -90,6 +90,70 @@ RSpec.describe V0::EvidenceSubmissionsController, type: :controller do
       end
     end
 
+    context 'when there is a FAILED evidence submission record with a tracked item id' do
+      context 'when a claim with a tracked item is returned' do
+        let(:tracked_item_id) { 394_443 }
+
+        before do
+          create(:bd_lh_evidence_submission_failed_type1_error, claim_id:, user_account:, tracked_item_id:)
+        end
+
+        it 'returns a status of 200 with evidence submission records and tracked item information' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:index)
+          end
+          expect(response).to have_http_status(:ok)
+          parsed_body = JSON.parse(response.body)
+          data = parsed_body['data']
+          expect(data.size).to eq(1)
+          expect(data[0]['tracked_item_id']).to eq(tracked_item_id)
+          expect(data[0]['tracked_item_display_name']).to eq('Submit buddy statement(s)')
+        end
+      end
+
+      context 'when a claim without that tracked item is returned' do
+        let(:tracked_item_id) { 394_999 }
+
+        before do
+          create(:bd_lh_evidence_submission_failed_type1_error, claim_id:, user_account:, tracked_item_id:)
+        end
+
+        it 'returns a status of 200 with evidence submission records and tracked item information' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+            get(:index)
+          end
+          expect(response).to have_http_status(:ok)
+          parsed_body = JSON.parse(response.body)
+          data = parsed_body['data']
+          expect(data.size).to eq(1)
+
+          expect(data[0]['tracked_item_id']).to eq(tracked_item_id)
+          expect(data[0]['tracked_item_display_name']).to be_nil
+        end
+      end
+
+      context 'when a claim without tracked items is returned' do
+        let(:tracked_item_id) { 394_999 }
+
+        before do
+          create(:bd_lh_evidence_submission_failed_type1_error, claim_id:, user_account:, tracked_item_id:)
+        end
+
+        it 'returns a status of 200 with evidence submission records and tracked item information' do
+          VCR.use_cassette('lighthouse/benefits_claims/show/200_no_tracked_items_response') do
+            get(:index)
+          end
+          expect(response).to have_http_status(:ok)
+          parsed_body = JSON.parse(response.body)
+          data = parsed_body['data']
+          expect(data.size).to eq(1)
+
+          expect(data[0]['tracked_item_id']).to eq(tracked_item_id)
+          expect(data[0]['tracked_item_display_name']).to be_nil
+        end
+      end
+    end
+
     context 'when there are 2 FAILED evidence submission record' do
       before do
         create(:bd_lh_evidence_submission_failed_type1_error, claim_id:, user_account:)

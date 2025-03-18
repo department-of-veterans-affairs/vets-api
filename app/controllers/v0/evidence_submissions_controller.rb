@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_claims/service'
+require 'lighthouse/benefits_claims/utilities/helpers'
 module V0
   class EvidenceSubmissionsController < ApplicationController
     service_tag 'claims-shared'
@@ -43,10 +44,10 @@ module V0
 
     def build_filtered_evidence_submission_record(evidence_submission, tracked_items)
       personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
-      tracked_item_display_name = if tracked_items && evidence_submission.tracked_item_id
-                                    get_tracked_item_display_name(evidence_submission.tracked_item_id,
-                                                                  tracked_items)
-                                  end
+      tracked_item_display_name = BenefitsClaims::Utilities::Helpers.get_tracked_item_display_name(
+        evidence_submission.tracked_item_id,
+        tracked_items
+      )
 
       { acknowledgement_date: evidence_submission.acknowledgement_date,
         claim_id: evidence_submission.claim_id,
