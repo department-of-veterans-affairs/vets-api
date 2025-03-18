@@ -3,6 +3,8 @@
 require 'lighthouse/benefits_claims/service'
 module V0
   class EvidenceSubmissionsController < ApplicationController
+    service_tag 'claims-shared'
+
     def index
       evidence_submissions = filter_evidence_submissions(get_failed_evidence_submissions)
       render json: { data: evidence_submissions }
