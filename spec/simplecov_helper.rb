@@ -83,6 +83,7 @@ class SimpleCovHelper
     add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
     add_group 'TravelPay', 'modules/travel_pay/'
     add_group 'Uploaders', 'app/uploaders'
+    add_group 'VRE', 'modules/vre/'
     add_group 'VaNotify', 'modules/va_notify/'
     add_group 'VAOS', 'modules/vaos/'
     add_group 'VBADocuments', 'modules/vba_documents/'

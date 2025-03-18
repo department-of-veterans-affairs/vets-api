@@ -128,6 +128,7 @@ PATH
       sidekiq
     veteran (0.0.1)
     veteran_confirmation (0.0.1)
+    vre (0.1.0)
     vye (0.1.0)
 
 GEM
@@ -537,7 +538,7 @@ GEM
     google-cloud-env (2.2.1)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.1.0)
-    google-protobuf (4.29.3)
+    google-protobuf (4.30.1)
       bigdecimal
       rake (>= 13)
     googleauth (1.13.1)
@@ -624,7 +625,8 @@ GEM
     jsonapi-parser (0.1.1)
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
-    jwe (0.4.0)
+    jwe (1.0.0)
+      base64
     jwt (2.10.1)
       base64
     karafka-core (2.4.10)
@@ -718,14 +720,14 @@ GEM
     nio4r (2.7.4-java)
     nkf (0.2.0)
     nkf (0.2.0-java)
-    nokogiri (1.18.3)
+    nokogiri (1.18.4)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.18.3-aarch64-linux-gnu)
+    nokogiri (1.18.4-aarch64-linux-gnu)
       racc (~> 1.4)
-    nokogiri (1.18.3-java)
+    nokogiri (1.18.4-java)
       racc (~> 1.4)
-    nokogiri (1.18.3-x86_64-linux-gnu)
+    nokogiri (1.18.4-x86_64-linux-gnu)
       racc (~> 1.4)
     nori (2.7.1)
       bigdecimal
@@ -1371,6 +1373,7 @@ DEPENDENCIES
   veteran_confirmation!
   vets_json_schema!
   virtus
+  vre!
   vye!
   warden-github
   waterdrop
