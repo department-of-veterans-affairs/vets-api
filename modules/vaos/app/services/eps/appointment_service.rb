@@ -36,22 +36,6 @@ module Eps
       OpenStruct.new(data: merged_appointments)
     end
 
-    ##
-    # Create a draft appointment with complete validation and response building
-    #
-    # This method performs the full process of creating a draft appointment:
-    # 1. Fetches and validates referral data from Redis
-    # 2. Checks if the referral is already in use
-    # 3. Creates a draft appointment if validations pass
-    # 4. Builds the complete response with provider, slots and drive time information
-    #
-    # @param referral_id [String] The referral ID to use
-    # @param user_coordinates [Hash] containins user coordinates { latitude:, longitude: }
-    # @param pagination_params [Hash] Optional pagination parameters for referral usage check
-    # @return [Hash] Result hash:
-    #   - If successful: { success: true, response_data: OpenStruct }
-    #   - If validation fails: { success: false, json: { errors: [...] }, status: Symbol }
-    #
     def create_draft_appointment_with_response(referral_id:, user_coordinates:, pagination_params: {})
       validation_result = create_draft_appointment_with_validation(
         referral_id:,
@@ -96,13 +80,6 @@ module Eps
 
     private
 
-    ##
-    # Create draft appointment in EPS
-    #
-    # @param referral_id [String] The ID of the referral to use for the draft appointment
-    # @return [OpenStruct] response from EPS create draft appointment endpoint
-    #   - On error: returns { error: true, json: { errors: [...] }, status: appropriate_status }
-    #
     def submit_draft_appointment(referral_id:)
       response = perform(:post, "/#{config.base_path}/appointments",
                          { patientId: patient_id, referralId: referral_id }, headers)
@@ -117,15 +94,6 @@ module Eps
                            :bad_request)
     end
 
-    ##
-    # Builds a standardized error response hash
-    #
-    # @param title [String] The error title/category
-    # @param detail [String] The detailed error message
-    # @param status [Symbol] The HTTP status code to return
-    # @param stats_key [String, nil] Optional StatsD key for error tracking
-    # @return [Hash] Standardized error response hash
-    #
     def build_error_response(title, detail, status, stats_key = nil)
       StatsD.increment(stats_key) if stats_key.present?
 
@@ -142,12 +110,6 @@ module Eps
       }
     end
 
-    ##
-    # Merge provider data with appointment data
-    #
-    # @param appointments [Array<Hash>] Array of appointment data
-    # @return [Array<Hash>] Array of appointment data with provider data merged in
-    #
     def merge_provider_data_with_appointments(appointments)
       return [] if appointments.nil?
 
@@ -166,12 +128,6 @@ module Eps
       appointments
     end
 
-    ##
-    # Builds the submit payload for an appointment
-    #
-    # @param params [Hash] Hash containing appointment parameters
-    # @return [Hash] Formatted payload for the submit endpoint
-    #
     def build_submit_payload(params)
       payload = {
         network_id: params[:network_id],
@@ -190,48 +146,18 @@ module Eps
       payload
     end
 
-    ##
-    # Get instance of ProviderService
-    #
-    # @return [Eps::ProviderService] ProviderService instance
-    #
     def provider_service
       @provider_service ||= Eps::ProviderService.new(user)
     end
 
-    ##
-    # Get instance of AppointmentsService
-    #
-    # @return [VAOS::V2::AppointmentsService] AppointmentsService instance
-    #
     def appointments_service
       @appointments_service ||= VAOS::V2::AppointmentsService.new(user)
     end
 
-    ##
-    # Get instance of RedisClient
-    #
-    # @return [Eps::RedisClient] RedisClient instance
-    #
     def redis_client
       @redis_client ||= Eps::RedisClient.new
     end
 
-    ##
-    # Create draft appointment in EPS with validation
-    #
-    # This method performs the following steps:
-    # 1. Fetches referral attributes from Redis
-    # 2. Validates the referral data
-    # 3. Checks if the referral is already in use
-    # 4. Creates a draft appointment if validations pass
-    #
-    # @param referral_id [String] The ID of the referral to use for the draft appointment
-    # @param pagination_params [Hash] Optional pagination parameters for referral usage check
-    # @return [Hash] Result hash:
-    #   - If successful: { success: true, draft_appointment: OpenStruct, referral_data: Hash }
-    #   - If validation fails: { success: false, json: { errors: [...] }, status: Symbol }
-    #
     def create_draft_appointment_with_validation(referral_id:, pagination_params: {})
       referral_data = fetch_referral_attributes(referral_number: referral_id)
       return referral_data if referral_data.is_a?(Hash) && referral_data[:error]
@@ -252,12 +178,6 @@ module Eps
       }
     end
 
-    ##
-    # Validates that all required referral data attributes are present
-    #
-    # @param referral_data [Hash, nil] The referral data from the cache
-    # @return [Hash] Hash with :valid boolean and :missing_attributes array
-    #
     def validate_referral_data(referral_data)
       return { valid: false, missing_attributes: ['all required attributes'] } if referral_data.nil?
 
@@ -270,14 +190,6 @@ module Eps
       }
     end
 
-    ##
-    # Builds a formatted response for referral data validation
-    #
-    # @param referral_data [Hash, nil] The referral data from the cache
-    # @return [Hash] Result hash:
-    #   - If data is valid: { success: true }
-    #   - If data is invalid: { success: false, json: { errors: [...] }, status: :unprocessable_entity }
-    #
     def build_referral_validation_response(referral_data)
       validation_result = validate_referral_data(referral_data)
       if validation_result[:valid]
@@ -291,16 +203,6 @@ module Eps
       end
     end
 
-    ##
-    # Checks if a referral is already in use
-    #
-    # @param referral_id [String] The referral ID to check
-    # @param pagination_params [Hash] Optional pagination parameters
-    # @return [Hash] Result hash:
-    #   - If referral is unused: { success: true }
-    #   - If an error occurs: { success: false, json: { errors: [...] }, status: :bad_gateway }
-    #   - If referral exists: { success: false, json: { errors: [...] }, status: :unprocessable_entity }
-    #
     def check_referral_usage(referral_id, pagination_params = {})
       check = appointments_service.referral_appointment_already_exists?(referral_id, pagination_params)
 
@@ -321,13 +223,6 @@ module Eps
       end
     end
 
-    ##
-    # Fetches referral attributes from Redis
-    #
-    # @param referral_number [String] The referral number
-    # @return [Hash, nil] The referral attributes or nil if not found
-    #   - On Redis error: returns { error: true, json: { errors: [...] }, status: :bad_gateway }
-    #
     def fetch_referral_attributes(referral_number:)
       redis_client.fetch_referral_attributes(referral_number:)
     rescue Redis::BaseError => e
@@ -340,18 +235,6 @@ module Eps
       )
     end
 
-    ##
-    # Fetches available provider slots using referral data
-    #
-    # @param referral_data [Hash] Includes:
-    #   - `:provider_id` [String] The provider's ID.
-    #   - `:appointment_type_id` [String] The appointment type.
-    #   - `:start_date` [String] The earliest appointment date (ISO 8601).
-    #   - `:end_date` [String] The latest appointment date (ISO 8601).
-    #
-    # @return [Array, nil] Available slots array or nil if error occurs
-    #   - On error: returns { error: true, json: { errors: [...] }, status: appropriate_status }
-    #
     def fetch_provider_slots(referral_data)
       provider_service.get_provider_slots(
         referral_data[:provider_id],
@@ -372,13 +255,6 @@ module Eps
       )
     end
 
-    ##
-    # Gets provider service information by ID
-    #
-    # @param provider_id [String] The provider ID
-    # @return [OpenStruct] The provider service information
-    #   - On error: returns { error: true, json: { errors: [...] }, status: appropriate_status }
-    #
     def get_provider_service(provider_id:)
       provider_service.get_provider_service(provider_id:)
     rescue => e
@@ -387,14 +263,6 @@ module Eps
                            :not_found)
     end
 
-    ##
-    # Gets drive times for a provider
-    #
-    # @param provider [OpenStruct] The provider object with location information
-    # @param user_coordinates [Hash] Hash containing user coordinates { latitude:, longitude: }
-    # @return [Hash, nil] Drive time information or nil if not available
-    #   - On error: returns { error: true, json: { errors: [...] }, status: appropriate_status }
-    #
     def get_drive_times(provider, user_coordinates)
       return nil unless user_coordinates[:latitude] && user_coordinates[:longitude]
 
@@ -414,14 +282,6 @@ module Eps
       build_error_response(DRIVE_TIME_ERROR_MSG, "Unexpected error calculating drive times: #{e.message}", :bad_request)
     end
 
-    ##
-    # Builds the complete response data for a draft appointment
-    #
-    # @param draft_appointment [OpenStruct] The draft appointment object
-    # @param referral_data [Hash] The referral data
-    # @param user_coordinates [Hash] Hash containing user coordinates { latitude:, longitude: }
-    # @return [OpenStruct] The complete response data or error hash
-    #
     def build_draft_appointment_response(draft_appointment, referral_data, user_coordinates)
       provider = get_provider_service(provider_id: referral_data[:provider_id])
       return provider if provider.is_a?(Hash) && provider[:error]
