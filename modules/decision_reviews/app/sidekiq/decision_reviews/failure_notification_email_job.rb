@@ -56,6 +56,23 @@ module DecisionReviews
       @service ||= ::VaNotify::Service.new(Settings.vanotify.services.benefits_decision_review.api_key)
     end
 
+    def vanotify_service_with_callback(submission, template_id)
+      callback_options = {
+        callback_klass: DecisionReviews::FormNotificationCallback.to_s,
+        callback_metadata: {
+          email_type: :error,
+          service_name: APPEAL_TYPE_TO_SERVICE_MAP[submission.type_of_appeal],
+          function: 'form submission',
+          submitted_appeal_uuid: submission.submitted_appeal_uuid,
+          email_template_id: template_id
+        }
+      }
+      ::VaNotify::Service.new(
+        Settings.vanotify.services.benefits_decision_review.api_key,
+        callback_options
+      )
+    end
+
     # Fetches SavedClaim records for DecisionReview that have an error status for the form or any evidence attachments
     def errored_saved_claims
       @errored_saved_claims ||= ::SavedClaim.where(type: SAVED_CLAIM_MODEL_TYPES)
@@ -95,28 +112,16 @@ module DecisionReviews
       vanotify_service.send_email({ email_address:, template_id:, personalisation:, reference: })
     end
 
-    def send_email_with_vanotify_form_callback(submission, filename, created_at, template_id) # rubocop:disable Metrics/MethodLength
+    def send_email_with_vanotify_form_callback(submission, filename, created_at, template_id)
       email_address = submission.current_email_address
       personalisation = {
         first_name: submission.get_mpi_profile.given_names[0],
         filename:,
         date_submitted: created_at.strftime('%B %d, %Y')
       }
-      callback_options = {
-        callback_klass: DecisionReviews::FormNotificationCallback.to_s,
-        callback_metadata: {
-          email_type: :error,
-          service_name: APPEAL_TYPE_TO_SERVICE_MAP[submission.type_of_appeal],
-          function: 'form submission',
-          submitted_appeal_uuid: submission.submitted_appeal_uuid,
-          email_template_id: template_id
-        }
-      }
-      vanotify_service_callback = ::VaNotify::Service.new(
-        Settings.vanotify.services.benefits_decision_review.api_key,
-        callback_options
-      )
-      vanotify_service_callback.send_email({ email_address:, template_id:, personalisation: })
+
+      vanotify_service_with_callback = vanotify_service_with_callback(submission, template_id)
+      vanotify_service_with_callback.send_email({ email_address:, template_id:, personalisation: })
     end
 
     def send_form_emails
