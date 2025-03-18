@@ -20,6 +20,13 @@ module IvcChampva
           form_id = get_form_id
           Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
           parsed_form_data = JSON.parse(params.to_json)
+
+          puts parsed_form_data
+
+          # TODO: add same feature toggle as below for VES integration
+          # expect this formatter to raise errors if data is invalid
+          # ves_request = IvcChampva::VesDataFormatter.format(parsed_form_data)
+
           statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
 
           response = build_json(statuses, error_message)
@@ -30,7 +37,7 @@ module IvcChampva
             # TODO: Make call to VES with parsed_form_data e.g.,
 
             # ves_client = IvcChampva::VesApi::Client.new
-            # ves_client.submit_1010d('fake-id', 'fake-user', parsed_form_data)
+            # ves_client.submit_1010d('fake-id', 'fake-user', ves_request)
 
             # TODO: Add error handling for VES failures.
           end
