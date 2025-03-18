@@ -955,6 +955,10 @@ features:
     actor_type: user
     description: Control fetching OH allergies data
     enable_in_development: false
+  mhv_accelerated_delivery_labs_and_tests_enabled:
+    actor_type: user
+    description: Control fetching OH labs and tests data (web)
+    enable_in_development: false
   mhv_accelerated_delivery_vital_signs_enabled:
     actor_type: user
     description: Control fetching OH vitals data
