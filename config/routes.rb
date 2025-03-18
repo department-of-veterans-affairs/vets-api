@@ -158,6 +158,8 @@ Rails.application.routes.draw do
       post 'benefits_documents', to: 'benefits_documents#create'
     end
 
+    resources :evidence_submissions, only: %i[index]
+
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
 

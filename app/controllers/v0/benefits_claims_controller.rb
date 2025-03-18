@@ -161,7 +161,7 @@ module V0
         failed_date: evidence_submission.failed_date,
         file_name: personalisation['file_name'],
         id: evidence_submission.id,
-        lighthouse_upload: evidence_submission.job_class == 'BenefitsDocuments::Service',
+        lighthouse_upload: evidence_submission.job_class == 'Lighthouse::EvidenceSubmissions::DocumentUpload',
         tracked_item_id: evidence_submission.tracked_item_id,
         tracked_item_display_name:,
         upload_status: evidence_submission.upload_status,
