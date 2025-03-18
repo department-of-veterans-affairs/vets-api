@@ -58,13 +58,14 @@ module AskVAApi
         def school_state_and_profile_data
           {
             LevelOfAuthentication: translate_field(:level_of_authentication),
-            MedicalCenter: inquiry_params[:your_health_facility],
+            MedicalCenter: medical_center_guid_lookup,
             SchoolObj: build_school_object,
             SubmitterQuestion: inquiry_params[:question],
             SubmitterStateOfSchool: build_state_data(:school_obj, :state_abbreviation),
-            SubmitterStateOfProperty: build_state_data(:address, :state),
+            SubmitterStateOfProperty: build_state_data(:state_of_property, nil),
             SubmitterStateOfResidency: build_residency_state_data,
-            SubmitterZipCodeOfResidency: inquiry_params[:postal_code],
+            SubmitterZipCodeOfResidency: inquiry_params[:your_postal_code] ||
+              inquiry_params[:family_member_postal_code],
             UntrustedFlag: false,
             VeteranDateOfDeath: inquiry_params[:date_of_death],
             VeteranRelationship: translate_field(:veteran_relationship),
@@ -116,28 +117,41 @@ module AskVAApi
 
         def build_residency_state_data
           {
-            Name: fetch_state(inquiry_params.dig(:state_or_residency, :residency_state)),
-            StateCode: inquiry_params.dig(:state_or_residency, :residency_state)
-          }
-        end
-
-        def property_state_data
-          {
-            Name: fetch_state(inquiry_params.dig(:address, :state)),
-            StateCode: inquiry_params.dig(:address, :state)
+            Name: fetch_state(inquiry_params.dig(:state_or_residency, :residency_state)) ||
+              inquiry_params[:family_members_location_of_residence],
+            StateCode: inquiry_params.dig(:state_or_residency, :residency_state) ||
+              fetch_state_code(inquiry_params[:family_members_location_of_residence])
           }
         end
 
         def build_state_data(obj, key)
+          state = if key.nil?
+                    inquiry_params[obj]
+                  else
+                    inquiry_params.dig(obj, key)
+                  end
+
           {
-            Name: fetch_state(inquiry_params.dig(obj, key)),
-            StateCode: inquiry_params.dig(obj, key)
+            Name: fetch_state(state),
+            StateCode: fetch_state_code(state) || state
           }
         end
 
         def dependent_of_veteran?
           inquiry_params[:who_is_your_question_about] == 'Myself' &&
             inquiry_params[:relationship_to_veteran] == "I'm a family member of a Veteran"
+        end
+
+        def medical_center_guid_lookup
+          selected_facility = retrieve_patsr_approved_facilities[:Data].find do |facility|
+            inquiry_params[:your_health_facility].include?(facility[:FacilityCode])
+          end
+
+          selected_facility[:Id]
+        end
+
+        def retrieve_patsr_approved_facilities
+          Crm::CacheData.new.fetch_and_cache_data(endpoint: 'Facilities', cache_key: 'Facilities', payload: {})
         end
       end
     end

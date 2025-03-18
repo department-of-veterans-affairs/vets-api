@@ -93,15 +93,12 @@ test_users.csv
 **/.DS_STORE
 
 # Ignore VIM/vscode artifact files
-.ignore 
+.ignore
 *.swp
 .vscode
 
 # Ignore node_modules for development tools
 node_modules
-
-# Ignore public folder (used for local document uploads)
-public
 
 # Ignore any files within clamav_tmp
 clamav_tmp/*
@@ -116,3 +113,6 @@ staging.benefits_claims.pem
 
 # ignore Yardoc generation
 .yardoc/
+
+# ignore all local settings files
+**/*.local.yml
