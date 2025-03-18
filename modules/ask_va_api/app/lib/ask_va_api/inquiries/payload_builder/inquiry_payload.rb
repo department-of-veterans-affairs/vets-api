@@ -143,6 +143,8 @@ module AskVAApi
         end
 
         def medical_center_guid_lookup
+          return nil if inquiry_params[:your_health_facility].nil?
+
           selected_facility = retrieve_patsr_approved_facilities[:Data].find do |facility|
             inquiry_params[:your_health_facility].include?(facility[:FacilityCode])
           end
