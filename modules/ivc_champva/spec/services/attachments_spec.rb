@@ -25,13 +25,13 @@ RSpec.describe IvcChampva::Attachments do
     context 'when there are supporting documents' do
       it 'renames and processes attachments' do
         expect(test_instance).to receive(:get_attachments).and_return(['attachment1.pdf', 'attachment2.png'])
-        expect(File).to receive(:rename).with('attachment1.pdf', "./#{uuid}_#{form_id}_supporting_doc-0.pdf")
-        expect(File).to receive(:rename).with('attachment2.png', "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
+        expect(File).to receive(:rename).with('attachment1.pdf', "tmp/#{uuid}_#{form_id}_supporting_doc-0.pdf")
+        expect(File).to receive(:rename).with('attachment2.png', "tmp/#{uuid}_#{form_id}_supporting_doc-1.pdf")
 
         result = test_instance.handle_attachments(file_path)
         expect(result).to contain_exactly("tmp/#{uuid}_#{form_id}-tmp.pdf",
-                                          "./#{uuid}_#{form_id}_supporting_doc-0.pdf",
-                                          "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
+                                          "tmp/#{uuid}_#{form_id}_supporting_doc-0.pdf",
+                                          "tmp/#{uuid}_#{form_id}_supporting_doc-1.pdf")
       end
     end
 
@@ -86,11 +86,11 @@ RSpec.describe IvcChampva::Attachments do
       it 'processes the rest of the attachments then throw an error' do
         expect(test_instance).to receive(:get_attachments).and_return(['attachmentA.pdf', 'attachmentB.png',
                                                                        'attachmentC.jpg', 'attachmentD.jpg'])
-        expect(File).to receive(:rename).with('attachmentA.pdf', "./#{uuid}_#{form_id}_supporting_doc-0.pdf")
-        expect(File).to receive(:rename).with('attachmentB.png', "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
+        expect(File).to receive(:rename).with('attachmentA.pdf', "tmp/#{uuid}_#{form_id}_supporting_doc-0.pdf")
+        expect(File).to receive(:rename).with('attachmentB.png', "tmp/#{uuid}_#{form_id}_supporting_doc-1.pdf")
                                         .and_raise(StandardError.new('Processing failed'))
-        expect(File).to receive(:rename).with('attachmentC.jpg', "./#{uuid}_#{form_id}_supporting_doc-2.pdf")
-        expect(File).to receive(:rename).with('attachmentD.jpg', "./#{uuid}_#{form_id}_supporting_doc-3.pdf")
+        expect(File).to receive(:rename).with('attachmentC.jpg', "tmp/#{uuid}_#{form_id}_supporting_doc-2.pdf")
+        expect(File).to receive(:rename).with('attachmentD.jpg', "tmp/#{uuid}_#{form_id}_supporting_doc-3.pdf")
 
         expected_error_message = 'Unable to process all attachments: '
         expected_error_message += 'Error processing attachment at index 1: Processing failed'
@@ -104,12 +104,12 @@ RSpec.describe IvcChampva::Attachments do
       it 'processes the rest of the attachments then throw an error with both failure messages' do
         expect(test_instance).to receive(:get_attachments).and_return(['attachmentA.pdf', 'attachmentB.png',
                                                                        'attachmentC.jpg', 'attachmentD.jpg'])
-        expect(File).to receive(:rename).with('attachmentA.pdf', "./#{uuid}_#{form_id}_supporting_doc-0.pdf")
-        expect(File).to receive(:rename).with('attachmentB.png', "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
+        expect(File).to receive(:rename).with('attachmentA.pdf', "tmp/#{uuid}_#{form_id}_supporting_doc-0.pdf")
+        expect(File).to receive(:rename).with('attachmentB.png', "tmp/#{uuid}_#{form_id}_supporting_doc-1.pdf")
                                         .and_raise(StandardError.new('Processing failed'))
-        expect(File).to receive(:rename).with('attachmentC.jpg', "./#{uuid}_#{form_id}_supporting_doc-2.pdf")
+        expect(File).to receive(:rename).with('attachmentC.jpg', "tmp/#{uuid}_#{form_id}_supporting_doc-2.pdf")
                                         .and_raise(StandardError.new('Processing failed'))
-        expect(File).to receive(:rename).with('attachmentD.jpg', "./#{uuid}_#{form_id}_supporting_doc-3.pdf")
+        expect(File).to receive(:rename).with('attachmentD.jpg', "tmp/#{uuid}_#{form_id}_supporting_doc-3.pdf")
 
         expected_error_message = 'Unable to process all attachments: '
         expected_error_message += 'Error processing attachment at index 1: Processing failed, '
@@ -137,9 +137,9 @@ RSpec.describe IvcChampva::Attachments do
     context 'when an unanticipated low-level platform-dependent error occurs' do
       it 'throws an error with hard coded details and the decoded error number when available' do
         expect(test_instance).to receive(:get_attachments).and_return(['attachmentA.pdf', 'attachmentB.png'])
-        expect(File).to receive(:rename).with('attachmentA.pdf', "./#{uuid}_#{form_id}_supporting_doc-0.pdf")
+        expect(File).to receive(:rename).with('attachmentA.pdf', "tmp/#{uuid}_#{form_id}_supporting_doc-0.pdf")
                                         .and_raise(SystemCallError.new('message with PII', -1))
-        expect(File).to receive(:rename).with('attachmentB.png', "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
+        expect(File).to receive(:rename).with('attachmentB.png', "tmp/#{uuid}_#{form_id}_supporting_doc-1.pdf")
                                         .and_raise(Errno::EEXIST)
 
         expected_error_message = 'Unable to process all attachments: '
