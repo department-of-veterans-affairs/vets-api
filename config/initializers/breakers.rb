@@ -47,6 +47,7 @@ require 'vetext/service'
 require 'lighthouse/veterans_health/configuration'
 require 'lighthouse/veteran_verification/configuration'
 require 'lighthouse/benefits_documents/configuration'
+require 'unified_health_data/configuration'
 
 Rails.application.reloader.to_prepare do
   redis_namespace = Redis::Namespace.new('breakers', redis: $redis)
@@ -95,7 +96,8 @@ Rails.application.reloader.to_prepare do
     MebApi::DGI::Letters::Configuration.instance.breakers_service,
     BenefitsDocuments::Configuration.instance.breakers_service,
     VeteranVerification::Configuration.instance.breakers_service,
-    Lighthouse::VeteransHealth::Configuration.instance.breakers_service
+    Lighthouse::VeteransHealth::Configuration.instance.breakers_service,
+    UnifiedHealthData::Configuration.instance.breakers_service
   ]
 
   services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled

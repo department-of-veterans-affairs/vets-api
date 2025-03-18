@@ -16,6 +16,10 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
     create(:bd_evidence_submission_pending, job_class: 'BenefitsDocuments::Service', request_id: 2)
   end
 
+  let!(:pending_lighthouse_document_upload_no_request_id) do
+    create(:bd_evidence_submission_pending, job_class: 'BenefitsDocuments::Service', request_id: nil)
+  end
+
   let(:error_message) do
     {
       'detail' => 'string',
@@ -49,6 +53,8 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
 
       expect(pending_es2.completed?).to be(true)
       expect(pending_es2.delete_date).to be_within(1.second).of((current_date_time + 60.days))
+
+      expect(pending_lighthouse_document_upload_no_request_id.completed?).to be(false)
 
       expect(StatsD).to have_received(:increment).with(
         'worker.lighthouse.cst_document_uploads.pending_documents_polled', 2

@@ -9,7 +9,7 @@ RSpec.shared_context 'shared data' do
         email_address: 'test@test.com',
         contact_preference: 'Email',
         preferred_name: 'Submitter',
-        your_health_facility: 'vba_349b',
+        your_health_facility: 'vha_554',
         pronouns: { he_him_his: 'true' },
         about_the_veteran: {
           first: 'Joseph',
@@ -79,7 +79,7 @@ RSpec.shared_context 'shared data' do
       InquiryTopic: 'c0da1728-d91f-ed11-b83c-001dd8069009',
       IsVeteranDeceased: 'false',
       LevelOfAuthentication: 722_310_001,
-      MedicalCenter: 'vba_349b',
+      MedicalCenter: '2da51029-6816-e611-9436-0050568d743d',
       SchoolObj: { City: nil,
                    InstitutionName: nil,
                    SchoolFacilityCode: nil,

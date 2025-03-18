@@ -29,6 +29,7 @@ module UnifiedHealthData
 
     def connection
       Faraday.new(base_path) do |conn|
+        conn.use     :breakers
         conn.request :json
         conn.response :json_parser
 
