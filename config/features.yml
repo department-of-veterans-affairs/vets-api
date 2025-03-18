@@ -510,6 +510,9 @@ features:
   decision_review_service_common_exceptions_enabled:
     actor_type: user
     description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
+  decision_review_notification_form_callbacks:
+    actor_type: user
+    description: Enable using DecisionReviews::FormNotificationCallback to handle VA Notify notification status changes
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
