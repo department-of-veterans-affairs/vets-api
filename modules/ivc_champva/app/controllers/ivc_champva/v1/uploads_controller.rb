@@ -21,8 +21,6 @@ module IvcChampva
           Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
           parsed_form_data = JSON.parse(params.to_json)
 
-          puts parsed_form_data
-
           # TODO: add same feature toggle as below for VES integration
           # expect this formatter to raise errors if data is invalid
           # ves_request = IvcChampva::VesDataFormatter.format(parsed_form_data)
