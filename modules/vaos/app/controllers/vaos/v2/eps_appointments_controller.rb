@@ -16,7 +16,7 @@ module VAOS
           begin
             referral_detail = ccra_referral_service.get_referral(
               appointment.dig(:referral, :referral_number),
-              '2' # Mode parameter, hard-coded based on examples
+              '2' # TODO: Need correct mode parameter, this one is hard-coded based on examples
             )
           rescue => e
             # Log error but continue with the request
