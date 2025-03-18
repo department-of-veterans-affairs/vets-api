@@ -633,27 +633,6 @@ module Burials
         end
 
         ##
-        # Converts the location of death by formatting facility details and adjusting specific location values
-        #
-        # @return [Hash]
-        def convert_location_of_death
-          location_of_death = @form_data['locationOfDeath']
-          return if location_of_death.blank?
-
-          location = location_of_death['location']
-          options = location_of_death[location] || @form_data[location]
-          if options.present? && location != 'other'
-            location_of_death['placeAndLocation'] = "#{options['facilityName']} - #{options['facilityLocation']}"
-          end
-
-          @form_data.delete(location)
-
-          location_of_death['location'] = 'nursingHomeUnpaid' if location == 'atHome'
-
-          expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
-        end
-
-        ##
         # Expands the burial allowance request by ensuring values are formatted as 'On' or nil
         #
         # @return [void]
@@ -877,8 +856,6 @@ module Burials
           @form_data['vaFileNumber'] = extract_va_file_number(@form_data['vaFileNumber'])
 
           expand_burial_allowance
-
-          convert_location_of_death
 
           format_currency_spacing
 
