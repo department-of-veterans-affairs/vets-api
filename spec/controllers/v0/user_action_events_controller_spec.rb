@@ -119,7 +119,8 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
               json_response_included = json_response['data']['included']
 
               expect(json_response_data.length).to eq(10)
-              expect(json_response_included.first['relationships']['user_actions']['data'].length).to eq(11)
+              expect(json_response_included.length).to eq(1)
+              expect(json_response_included.first['attributes']['identifier']).not_to be_nil
             end
           end
 
@@ -137,7 +138,8 @@ RSpec.describe V0::UserActionEventsController, type: :controller do
               expect(json_response_current_page).to eq(1)
               expect(json_response_per_page).to eq(per_page)
               expect(json_response_data.length).to eq(per_page)
-              expect(json_response_included.first['relationships']['user_actions']['data'].length).to eq(11)
+              expect(json_response_included.length).to eq(1)
+              expect(json_response_included.first['attributes']['event_type']).not_to be_nil
             end
           end
 
