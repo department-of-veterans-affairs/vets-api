@@ -1379,7 +1379,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                       expect(response).to have_http_status(:bad_request)
 
                       response_obj = JSON.parse(response.body)
-                      expect(response_obj['errors'].first['title']).to eq('Invalid coordinates for drive time calculation')
+                      error_message = response_obj['errors'].first['title']
+                      expect(error_message).to eq('Invalid coordinates for drive time calculation')
                     end
                   end
                 end
@@ -1443,9 +1444,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                 post '/vaos/v2/appointments/draft', params: draft_params
 
                 expect(response).to have_http_status(:bad_request)
-
-                # Since we don't have access to the actual response from the VCR cassette,
-                # we can't make specific assertions about the error title/detail
               end
             end
           end
@@ -1542,8 +1540,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
           response_obj = JSON.parse(response.body)
+          error_message = response_obj['errors'].first['detail']
           expect(response).to have_http_status(:bad_gateway)
-          expect(response_obj['errors'].first['detail']).to eq('Error checking if referral is already used: Missing ICN message')
+          expect(error_message).to eq('Error checking if referral is already used: Missing ICN message')
         end
 
         it 'handles partial error as 500' do
@@ -1576,8 +1575,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           expect(response).to have_http_status(:bad_gateway)
 
           response_obj = JSON.parse(response.body)
+          error_message = response_obj['errors'].first['detail']
           expect(response_obj['errors'].first['title']).to eq('Error fetching referral data from cache')
-          expect(response_obj['errors'].first['detail']).to eq('Unable to connect to cache service: Redis connection refused')
+          expect(error_message).to eq('Unable to connect to cache service: Redis connection refused')
         end
       end
 
