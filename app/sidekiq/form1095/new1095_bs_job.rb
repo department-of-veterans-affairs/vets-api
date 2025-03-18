@@ -36,7 +36,7 @@ module Form1095
 
     private
 
-    # this method adds a prefix to the log message to enable datadog monitoring
+    # used to enable datadog monitoring
     def log_message(level, message)
       Rails.logger.send(level, "Form1095B Creation Job #{level.capitalize}: #{message}")
     end
