@@ -56,7 +56,10 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
       it 'sends email notification' do
         expect(va_notify_service).to receive(:send_email).with(
           email_address: user.va_profile_email,
-          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure
+          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
+          parameters: {
+            'error' => nil
+          }
         )
         worker.__send__(:send_vanotify_message, user:)
       end
