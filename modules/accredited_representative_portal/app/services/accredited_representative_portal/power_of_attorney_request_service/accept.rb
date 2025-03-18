@@ -90,10 +90,12 @@ module AccreditedRepresentativePortal
 
       def form_payload
         {}.tap do |a|
+          limits = form_data.dig('authorizations', 'recordDisclosureLimitations').to_a
+          
           a[:veteran] = veteran_data
           a[:serviceOrganization] = organization_data
-          a[:recordConsent] = form_data.dig('authorizations', 'recordDisclosure')
-          a[:consentLimits] = form_data.dig('authorizations', 'recordDisclosureLimitations')
+          a[:recordConsent] = limits.empty?
+          a[:consentLimits] = limits
           a[:consentAddressChange] = form_data.dig('authorizations', 'addressChange')
         end
       end

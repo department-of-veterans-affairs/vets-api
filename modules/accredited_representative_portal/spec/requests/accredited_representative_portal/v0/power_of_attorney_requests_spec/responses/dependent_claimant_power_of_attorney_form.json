@@ -1,6 +1,5 @@
 {
   "authorizations": {
-    "recordDisclosure": true,
     "recordDisclosureLimitations": [],
     "addressChange": true
   },
