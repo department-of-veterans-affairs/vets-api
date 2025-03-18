@@ -128,7 +128,6 @@ module Eps
 
       {
         error: true,
-        success: false,
         json: {
           errors: [{
             title:,
