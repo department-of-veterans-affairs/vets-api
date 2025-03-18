@@ -3,11 +3,18 @@
 require 'vets/model'
 
 module UnifiedHealthData
+  class ObservationValue
+    include Vets::Model
+
+    attribute :text, String
+    attribute :type, String
+  end
+
   class Observation
     include Vets::Model
 
     attribute :test_code, String
-    attribute :value_quantity, String
+    attribute :value, UnifiedHealthData::ObservationValue
     attribute :reference_range, String
     attribute :status, String
     attribute :comments, String

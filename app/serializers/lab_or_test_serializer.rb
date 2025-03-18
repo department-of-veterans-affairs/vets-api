@@ -28,11 +28,18 @@ class LabOrTestSerializer
     observations.map do |obs|
       {
         test_code: obs.test_code,
-        value_quantity: obs.value_quantity,
+        value: serialize_value(obs.value),
         reference_range: obs.reference_range,
         status: obs.status,
         comments: obs.comments
       }
     end
+  end
+
+  def self.serialize_value(value)
+    {
+      text: value.text,
+      type: value.type
+    }
   end
 end
