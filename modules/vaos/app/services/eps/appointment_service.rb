@@ -52,13 +52,10 @@ module Eps
     #   - If successful: { success: true, response_data: OpenStruct }
     #   - If validation fails: { success: false, json: { errors: [...] }, status: Symbol }
     #
-    def create_draft_appointment_with_response(referral_id:, user_coordinates:, pagination_params: {})
-      validation_result = create_draft_appointment_with_validation(
-        referral_id:,
-        pagination_params:
-      )
+    def create_draft_appointment(referral_id:, user_coordinates:, pagination_params: {})
+      validation_result = create_draft_appointment_with_validation(referral_id:, pagination_params:)
 
-      return validation_result unless validation_result[:success]
+      return validation_result if validation_result[:error]
 
       build_draft_appointment_response(
         validation_result[:draft_appointment],
@@ -229,8 +226,8 @@ module Eps
     # @param referral_id [String] The ID of the referral to use for the draft appointment
     # @param pagination_params [Hash] Optional pagination parameters for referral usage check
     # @return [Hash] Result hash:
-    #   - If successful: { success: true, draft_appointment: OpenStruct, referral_data: Hash }
-    #   - If validation fails: { success: false, json: { errors: [...] }, status: Symbol }
+    #   - If successful: { draft_appointment: OpenStruct, referral_data: Hash }
+    #   - If validation fails: { json: { errors: [...] }, status: Symbol }
     #
     def create_draft_appointment_with_validation(referral_id:, pagination_params: {})
       referral_data = fetch_referral_attributes(referral_number: referral_id)
@@ -245,11 +242,7 @@ module Eps
       draft_appointment = submit_draft_appointment(referral_id:)
       return draft_appointment if draft_appointment.is_a?(Hash) && draft_appointment[:error]
 
-      {
-        success: true,
-        draft_appointment:,
-        referral_data:
-      }
+      { draft_appointment:, referral_data: }
     end
 
     ##
@@ -264,10 +257,7 @@ module Eps
       required_attributes = %i[provider_id appointment_type_id start_date end_date]
       missing_attributes = required_attributes.select { |attr| referral_data[attr].blank? }
 
-      {
-        valid: missing_attributes.empty?,
-        missing_attributes: missing_attributes.map(&:to_s)
-      }
+      { valid: missing_attributes.empty?, missing_attributes: missing_attributes.map(&:to_s) }
     end
 
     ##
@@ -432,12 +422,7 @@ module Eps
       drive_time = get_drive_times(provider, user_coordinates)
       return drive_time if drive_time.is_a?(Hash) && drive_time[:error]
 
-      OpenStruct.new(
-        id: draft_appointment.id,
-        provider:,
-        slots:,
-        drive_time:
-      )
+      OpenStruct.new( id: draft_appointment.id, provider:, slots:, drive_time:)
     end
   end
 end

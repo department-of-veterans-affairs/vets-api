@@ -73,7 +73,7 @@ module VAOS
                              {}
                            end
 
-        result = eps_appointment_service.create_draft_appointment_with_response(
+        result = eps_appointment_service.create_draft_appointment(
           referral_id:,
           user_coordinates:,
           pagination_params:

@@ -109,7 +109,7 @@ describe Eps::AppointmentService do
     end
   end
 
-  describe 'create_draft_appointment_with_response' do
+  describe 'create_draft_appointment' do
     let(:referral_id) { 'test-referral-id' }
     let(:user_coordinates) { { latitude: 38.9072, longitude: -77.0369 } }
     let(:pagination_params) { { page: 1, per_page: 10 } }
@@ -156,11 +156,7 @@ describe Eps::AppointmentService do
 
     context 'when creating draft appointment with all dependencies successful' do
       it 'returns a successful response with draft appointment, provider, slots, and drive time data' do
-        result = service.create_draft_appointment_with_response(
-          referral_id:,
-          user_coordinates:,
-          pagination_params:
-        )
+        result = service.create_draft_appointment(referral_id:, user_coordinates:, pagination_params:)
 
         expect(result).to be_a(OpenStruct)
         expect(result.id).to eq(appointment_id)
@@ -184,17 +180,10 @@ describe Eps::AppointmentService do
       end
 
       it 'returns an error response hash' do
-        result = service.create_draft_appointment_with_response(
-          referral_id:,
-          user_coordinates:
-        )
-
-        expect(result).to be_a(Hash)
-        expect(result[:error]).to be(true)
-        expect(result[:status]).to eq(:bad_request)
-        expect(result[:json][:errors]).to be_a(Array)
-        expect(result[:json][:errors].first[:title]).to eq('Error creating draft appointment')
-        expect(result[:json][:errors].first[:detail]).to include('Unexpected error creating draft appointment')
+        result = service.create_draft_appointment(referral_id:, user_coordinates:)
+        expect(result).to include(error: true, status: :bad_request)
+        expect(result[:json][:errors].first).to include(title: 'Error creating draft appointment',
+                                                        detail: /Unexpected error creating draft appointment/)
       end
     end
 
@@ -206,16 +195,10 @@ describe Eps::AppointmentService do
       end
 
       it 'returns an error about cache service' do
-        result = service.create_draft_appointment_with_response(
-          referral_id:,
-          user_coordinates:
-        )
-
-        expect(result[:success]).to be(false)
-        expect(result[:error]).to be(true)
-        expect(result[:status]).to eq(:bad_gateway)
-        expect(result[:json][:errors].first[:title]).to eq('Error fetching referral data from cache')
-        expect(result[:json][:errors].first[:detail]).to include('Unable to connect to cache service')
+        result = service.create_draft_appointment(referral_id:, user_coordinates:)
+        expect(result).to include(error: true, status: :bad_gateway)
+        expect(result[:json][:errors].first).to include(title: 'Error fetching referral data from cache',
+                                                        detail: /Unable to connect to cache service/)
       end
     end
 
@@ -233,16 +216,10 @@ describe Eps::AppointmentService do
       end
 
       it 'returns an error about invalid referral data' do
-        result = service.create_draft_appointment_with_response(
-          referral_id:,
-          user_coordinates:
-        )
-
-        expect(result[:success]).to be(false)
-        expect(result[:error]).to be(true)
-        expect(result[:status]).to eq(:unprocessable_entity)
-        expect(result[:json][:errors].first[:title]).to eq('Invalid referral data')
-        expect(result[:json][:errors].first[:detail]).to include('Required referral data is missing or incomplete')
+        result = service.create_draft_appointment(referral_id:, user_coordinates:)
+        expect(result).to include(error: true, status: :unprocessable_entity)
+        expect(result[:json][:errors].first).to include(title: 'Invalid referral data',
+                                                        detail: /Required referral data is missing or incomplete/)
       end
     end
 
@@ -254,16 +231,10 @@ describe Eps::AppointmentService do
       end
 
       it 'returns an error that referral is already used' do
-        result = service.create_draft_appointment_with_response(
-          referral_id:,
-          user_coordinates:
-        )
-
-        expect(result[:success]).to be(false)
-        expect(result[:error]).to be(true)
-        expect(result[:status]).to eq(:unprocessable_entity)
-        expect(result[:json][:errors].first[:title]).to eq('Referral already used')
-        expect(result[:json][:errors].first[:detail]).to include('No new appointment created: referral is already used')
+        result = service.create_draft_appointment(referral_id:, user_coordinates:)
+        expect(result).to include(error: true, status: :unprocessable_entity)
+        expect(result[:json][:errors].first).to include(title: 'Referral already used',
+                                                        detail: /No new appointment created: referral is already used/)
       end
     end
 
@@ -276,16 +247,10 @@ describe Eps::AppointmentService do
       end
 
       it 'returns an error about checking appointments' do
-        result = service.create_draft_appointment_with_response(
-          referral_id:,
-          user_coordinates:
-        )
-
-        expect(result[:success]).to be(false)
-        expect(result[:error]).to be(true)
-        expect(result[:status]).to eq(:bad_gateway)
-        expect(result[:json][:errors].first[:title]).to eq('Error checking appointments')
-        expect(result[:json][:errors].first[:detail]).to include('Error checking if referral is already used')
+        result = service.create_draft_appointment(referral_id:, user_coordinates:)
+        expect(result).to include(error: true, status: :bad_gateway)
+        expect(result[:json][:errors].first).to include(title: 'Error checking appointments',
+                                                        detail: /Error checking if referral is already used/)
       end
     end
 
@@ -298,16 +263,10 @@ describe Eps::AppointmentService do
       end
 
       it 'returns an error about provider information' do
-        result = service.create_draft_appointment_with_response(
-          referral_id:,
-          user_coordinates:
-        )
-
-        expect(result[:success]).to be(false)
-        expect(result[:error]).to be(true)
-        expect(result[:status]).to eq(:not_found)
-        expect(result[:json][:errors].first[:title]).to eq('Error fetching provider information')
-        expect(result[:json][:errors].first[:detail]).to include('Unexpected error fetching provider information')
+        result = service.create_draft_appointment(referral_id:, user_coordinates:)
+        expect(result).to include(error: true, status: :not_found)
+        expect(result[:json][:errors].first).to include(title: 'Error fetching provider information',
+                                                        detail: /Unexpected error fetching provider information/)
       end
     end
 
@@ -321,16 +280,10 @@ describe Eps::AppointmentService do
       end
 
       it 'returns an error about provider slots' do
-        result = service.create_draft_appointment_with_response(
-          referral_id:,
-          user_coordinates:
-        )
-
-        expect(result[:success]).to be(false)
-        expect(result[:error]).to be(true)
-        expect(result[:status]).to eq(:bad_gateway)
-        expect(result[:json][:errors].first[:title]).to eq('Error fetching provider slots')
-        expect(result[:json][:errors].first[:detail]).to include('Unexpected error fetching provider slots')
+        result = service.create_draft_appointment(referral_id:, user_coordinates:)
+        expect(result).to include(error: true, status: :bad_gateway)
+        expect(result[:json][:errors].first).to include(title: 'Error fetching provider slots',
+                                                        detail: /Unexpected error fetching provider slots/)
       end
     end
   end
