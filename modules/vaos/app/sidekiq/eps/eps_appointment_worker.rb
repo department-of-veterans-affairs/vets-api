@@ -12,12 +12,6 @@ module Eps
   # a pending state. If the maximum retries are reached, it sends a failure message.
   # EpsAppointmentWorker is responsible for handling the appointment processing
   # and retrying the job if the appointment is not finished.
-  #
-  # It includes the Sidekiq::Worker module to leverage Sidekiq's background job
-  # processing capabilities.
-  #
-  # The worker retries the job up to MAX_RETRIES times if the appointment is in
-  # a pending state. If the maximum retries are reached, it sends a failure message.
   class EpsAppointmentWorker
     include Sidekiq::Worker
 
@@ -25,29 +19,22 @@ module Eps
 
     ##
     # Performs the job to process the appointment.
-    # Performs the job to process the appointment.
     #
-    # @param appointment_id [String] the ID of the appointment to process
-    # @param user [User] the user associated with the appointment
-    # @param retry_count [Integer] the current retry count (default: 0)
-    def perform(appointment_id, user, retry_count = 0)
     # @param appointment_id [String] the ID of the appointment to process
     # @param user [User] the user associated with the appointment
     # @param retry_count [Integer] the current retry count (default: 0)
     def perform(appointment_id, user, retry_count = 0)
       service = Eps::AppointmentService.new(user)
       begin
-        response = service.get_appointment(appointment_id: appointment_id)
-        response = service.get_appointment(appointment_id: appointment_id)
+        response = service.get_appointment(appointment_id:)
         if appointment_finished?(response)
           # Appointment finished successfully, do nothing
         elsif retry_count < MAX_RETRIES
           self.class.perform_in(1.minute, appointment_id, user, retry_count + 1)
-          self.class.perform_in(1.minute, appointment_id, user, retry_count + 1)
         else
           send_vanotify_message(user:, error: 'Could not complete booking')
         end
-      rescue Eps::AppointmentService::ServiceError => e
+      rescue Eps::AppointmentService::ServiceError
         send_vanotify_message(user:, error: 'Service error, please contact support')
       rescue => e
         send_vanotify_message(user:, error: e.message)
@@ -58,10 +45,7 @@ module Eps
 
     ##
     # Checks if the appointment is finished.
-    # Checks if the appointment is finished.
     #
-    # @param response [Object] the response object from the appointment service
-    # @return [Boolean] true if the appointment is finished, false otherwise
     # @param response [Object] the response object from the appointment service
     # @return [Boolean] true if the appointment is finished, false otherwise
     def appointment_finished?(response)
@@ -69,16 +53,14 @@ module Eps
     end
 
     ##
-    # Sends a failure message via VANotify with error details.
+    # Sends a failure message via VaNotify with error details.
     #
+    # @param user [User] the user to send the message to
     # @param error [String, nil] the error message (default: nil)
     def send_vanotify_message(user:, error: nil)
-      va_notify_service = VANotify::Service.new
-      va_notify_service.send_sms(
-        phone_number: user.phone_number,
-        template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
-        personalisation: { error: error }
-      )
+      notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
+      notify_client.send_email(email_address: user.va_profile_email,
+                               template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure)
     end
   end
 end
