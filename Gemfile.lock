@@ -128,6 +128,7 @@ PATH
       sidekiq
     veteran (0.0.1)
     veteran_confirmation (0.0.1)
+    vre (0.1.0)
     vye (0.1.0)
 
 GEM
@@ -1372,6 +1373,7 @@ DEPENDENCIES
   veteran_confirmation!
   vets_json_schema!
   virtus
+  vre!
   vye!
   warden-github
   waterdrop
