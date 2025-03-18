@@ -63,7 +63,10 @@ describe DecisionReviewV1::Processor::Form4142Processor do
 
         it 'raises a validation error' do
           expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id) }
-            .to raise_error(RuntimeError, /Form 4142 validation failed/)
+            .to raise_error do |error|
+              expect(error).to be_a DecisionReviewV1::Processor::Form4142ValidationError
+              expect(error.message).to include("did not contain a required property of 'providerFacility'")
+            end
         end
       end
 
@@ -77,7 +80,10 @@ describe DecisionReviewV1::Processor::Form4142Processor do
 
           it 'raises a validation error' do
             expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id) }
-              .to raise_error(RuntimeError, /Form 4142 validation failed/)
+              .to raise_error do |error|
+              expect(error).to be_a DecisionReviewV1::Processor::Form4142ValidationError
+              expect(error.message).to include('value \"not-a-date\" did not match the regex')
+            end
           end
         end
       end
@@ -93,7 +99,10 @@ describe DecisionReviewV1::Processor::Form4142Processor do
 
             it 'raises a validation error' do
               expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id) }
-                .to raise_error(RuntimeError, /Form 4142 validation failed/)
+                .to raise_error do |error|
+                expect(error).to be_a DecisionReviewV1::Processor::Form4142ValidationError
+                expect(error.message).to include("did not contain a required property of '#{field}'")
+              end
             end
           end
         end
@@ -108,7 +117,10 @@ describe DecisionReviewV1::Processor::Form4142Processor do
 
         it 'raises a validation error' do
           expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id) }
-            .to raise_error(RuntimeError, /Form 4142 validation failed/)
+            .to raise_error do |error|
+              expect(error).to be_a DecisionReviewV1::Processor::Form4142ValidationError
+              expect(error.message).to include('value \"USA\" did not match one of the following values: CAN')
+            end
         end
       end
     end

@@ -125,15 +125,42 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
   end
 
   describe '#create with 4142' do
+    let(:params) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').clone }
+
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?',
                                    'DecisionReviews::V1::SupplementalClaimsController#create exception % (SC_V1)'
     end
 
+    context 'when schema validation fails' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
+        allow(Rails.logger).to receive(:error)
+        allow(StatsD).to receive(:increment)
+      end
+
+      it 'logs the error and increments the StatsD metric' do
+        VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
+          params['form4142'].delete('providerFacility')
+          post('/decision_reviews/v1/supplemental_claims',
+               params: params.to_json,
+               headers:)
+          expect do
+            DecisionReviews::Form4142Submit.drain
+          end.to raise_error(DecisionReviewV1::Processor::Form4142ValidationError, anything)
+          expect(Rails.logger).to have_received(:error).with('Form 4142 failed validation', anything)
+          expect(StatsD).to have_received(:increment)
+            .with('api.decision_review.process_form4142_submission.fail',
+                  tags: ['error:DecisionReviewV1ProcessorForm4142ValidationError'])
+          expect(StatsD).to have_received(:increment).with('worker.decision_review.form4142_submit.error')
+        end
+      end
+    end
+
     context 'when tracking 4142 is enabled' do
       subject do
         post '/decision_reviews/v1/supplemental_claims',
-             params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json,
+             params: params.to_json,
              headers:
       end
 
@@ -203,7 +230,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
               previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
               expect do
                 post '/decision_reviews/v1/supplemental_claims',
-                     params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json,
+                     params: params.to_json,
                      headers:
               end.to change(DecisionReviews::Form4142Submit.jobs, :size).by(1)
               expect(response).to be_successful
@@ -232,7 +259,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
               expect do
                 post '/decision_reviews/v1/supplemental_claims',
-                     params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json,
+                     params: params.to_json,
                      headers:
               end.to change(DecisionReviews::Form4142Submit.jobs, :size).by(1)
               expect do

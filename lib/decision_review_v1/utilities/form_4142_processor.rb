@@ -7,6 +7,13 @@ require 'simple_forms_api_submission/metadata_validator'
 
 module DecisionReviewV1
   module Processor
+    class Form4142ValidationError < StandardError
+      def initialize(errors)
+        super
+        @errors = errors
+      end
+    end
+
     class Form4142Processor
       SIGNATURE_DATE_KEY = 'signatureDate'
       SIGNATURE_TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -99,7 +106,7 @@ module DecisionReviewV1
 
         unless errors.empty?
           Rails.logger.error('Form 4142 failed validation', { errors: })
-          raise "Form 4142 validation failed: #{errors.inspect}"
+          raise Form4142ValidationError.new({ errors: })
         end
       end
     end
