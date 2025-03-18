@@ -7,7 +7,8 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
     let(:user) { create(:user, :loa3) }
     let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
     let(:base_path) { '/representation_management/v0/power_of_attorney_requests' }
-    let(:organization) { create(:organization) }
+    let(:organization) { create(:organization, can_accept_digital_poa_requests: accepts_digital_requests) }
+    let(:accepts_digital_requests) { true }
     let(:representative) { create(:representative) }
     let(:params) do
       {
@@ -15,26 +16,6 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
           record_consent: true,
           consent_address_change: true,
           consent_limits: [],
-          claimant: {
-            date_of_birth: '1980-12-31',
-            relationship: 'Spouse',
-            phone: '5555555555',
-            email: 'claimant@example.com',
-            name: {
-              first: 'John',
-              middle: 'Middle',
-              last: 'Claimant'
-            },
-            address: {
-              address_line1: '123 Fake Claimant St',
-              address_line2: '',
-              city: 'Portland',
-              state_code: 'OR',
-              country: 'USA',
-              zip_code: '12345',
-              zip_code_suffix: '6789'
-            }
-          },
           veteran: {
             ssn: '123456789',
             va_file_number: '123456789',
@@ -70,7 +51,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
       context 'with a signed in user' do
         before do
           sign_in_as(user)
-          Flipper.enable(:appoint_a_representative_enable_v2_features)
+          allow(Flipper).to receive(:enabled?).with(:appoint_a_representative_enable_v2_features).and_return(true)
         end
 
         context 'When submitting all fields with valid data' do
@@ -101,17 +82,17 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
           end
         end
 
-        context 'when an error occurs' do
+        context 'when form validation fails' do
           before do
             params[:power_of_attorney_request][:veteran][:name][:first] = nil
             post(base_path, params:)
           end
 
-          it 'responds with an unprocessable entity status' do
+          it 'responds with a 422/unprocessable_entity status' do
             expect(response).to have_http_status(:unprocessable_entity)
           end
 
-          it 'responds with a meaningful error message' do
+          it 'responds with an error message specifying the failed validation(s)' do
             expect(response.body).to eq({ errors: ["Veteran first name can't be blank"] }.to_json)
           end
         end
@@ -129,7 +110,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
     context 'when appoint_a_representative_enable_v2_features is disabled' do
       before do
         sign_in_as(user)
-        Flipper.disable(:appoint_a_representative_enable_v2_features)
+        allow(Flipper).to receive(:enabled?).with(:appoint_a_representative_enable_v2_features).and_return(false)
       end
 
       it 'returns a 404/not_found status' do
