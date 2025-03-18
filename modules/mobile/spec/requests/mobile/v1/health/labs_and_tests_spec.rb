@@ -6,11 +6,8 @@ require_relative '../../../../support/helpers/rails_helper'
 require_relative '../../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, type: :request do
-  include JsonSchemaMatchers
-  include CommitteeHelper
-
-  let!(:user) { sis_user(icn: '1000000000V000000') }
-  let(:default_params) { { 'patient-id': '1000000000V000000', start_date: '2024-01-01', end_date: '2024-12-31' } }
+  let!(:user) { sis_user(icn: '1000123456V123456') }
+  let(:default_params) { { start_date: '2024-01-01', end_date: '2024-12-31' } }
   let(:path) { '/mobile/v1/health/labs-and-tests' }
   let(:labs_cassette) { 'mobile/unified_health_data/get_labs' }
   let(:uhd_flipper) { :mhv_accelerated_delivery_uhd_enabled }
