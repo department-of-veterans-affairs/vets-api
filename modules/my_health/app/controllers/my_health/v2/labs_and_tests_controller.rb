@@ -6,6 +6,8 @@ require 'lab_or_test_serializer'
 module MyHealth
   module V2
     class LabsAndTestsController < ApplicationController
+      service_tag 'mhv-medical-records'
+
       def index
         start_date = params[:start_date]
         end_date = params[:end_date]
