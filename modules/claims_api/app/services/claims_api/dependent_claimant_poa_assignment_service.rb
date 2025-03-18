@@ -103,7 +103,7 @@ module ClaimsApi
     def assign_poa_to_dependent_via_update_benefit_claim?
       first_open_claim_details
 
-      if first_open_claim_details.nil? || first_open_claim_details.blank?
+      if first_open_claim_details.blank?
         log(detail: 'Dependent has no open claims.', statuses: dependent_claims.pluck(:phase_type).uniq)
 
         raise ::Common::Exceptions::ServiceError
@@ -195,12 +195,12 @@ module ClaimsApi
 
       if first_open_claim.present?
         claim_details(first_open_claim[:benefit_claim_id])
-      elsif first_open_claim.nil?
+      else
         open_claims = benefit_claim_web_service.find_bnft_claim_by_clmant_id(
           dependent_participant_id: @dependent_participant_id
         )
         first_claim_id = open_claims.present? ? open_claims[:bnft_claim_dto].first[:bnft_claim_id] : nil
-        claim_details(first_claim_id)
+        first_claim_id.present? ? claim_details(first_claim_id) : {}
       end
     end
   end
