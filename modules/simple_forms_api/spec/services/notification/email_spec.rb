@@ -122,6 +122,38 @@ describe SimpleFormsApi::Notification::Email do
           allow(Flipper).to receive(:enabled?).and_return true
         end
 
+        context 'fetching the template id' do
+          let(:template_id_suffix) { 'template_id_suffix' }
+          let(:template_id) { 'abc-123' }
+          let(:vanotify_settings) { double }
+          let(:vanotify_services) { double }
+          let(:va_gov) { double }
+
+          before do
+            stub_const(
+              'SimpleFormsApi::Notification::Email::TEMPLATE_IDS',
+              { 'vba_21_10210' => {
+                'confirmation' => template_id_suffix,
+                'error' => template_id_suffix,
+                'received' => template_id_suffix
+              } }
+            )
+            allow(Settings).to receive(:vanotify).and_return(vanotify_settings)
+            allow(vanotify_settings).to receive(:services).and_return(vanotify_services)
+            allow(vanotify_services).to receive(:va_gov).and_return(va_gov)
+            allow(va_gov).to receive(:template_id).and_return({ template_id_suffix => template_id })
+          end
+
+          it 'gets the correct template id' do
+            allow(VANotify::EmailJob).to receive(:perform_async)
+            subject = described_class.new(config, notification_type:)
+
+            subject.send
+
+            expect(VANotify::EmailJob).to have_received(:perform_async).with(anything, template_id, anything)
+          end
+        end
+
         it 'sends the email' do
           allow(VANotify::EmailJob).to receive(:perform_async)
           data['claim_ownership'] = 'self'

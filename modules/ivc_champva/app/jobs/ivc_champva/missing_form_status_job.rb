@@ -9,6 +9,8 @@ module IvcChampva
     include Sidekiq::Job
     sidekiq_options retry: 3
 
+    attr_accessor :additional_context
+
     def perform # rubocop:disable Metrics/MethodLength
       return unless Settings.ivc_forms.sidekiq.missing_form_status_job.enabled
 
@@ -29,10 +31,7 @@ module IvcChampva
         if elapsed_days >= threshold && !form.email_sent
           template_id = "#{form[:form_number]}-FAILURE"
           additional_context = { form_id: form[:form_number], form_uuid: form[:form_uuid] }
-          unless Flipper.enabled?(:champva_vanotify_custom_callback, @current_user)
-            monitor.log_silent_failure_avoided(additional_context)
-            monitor.track_missing_status_email_sent(form[:form_number])
-          end
+
           send_failure_email(form, template_id, additional_context)
           send_zsf_notification_to_pega(form, 'PEGA-TEAM-ZSF')
         elsif elapsed_days >= (threshold - 2) && !form.email_sent
@@ -69,26 +68,30 @@ module IvcChampva
     def send_failure_email(form, template_id, additional_context)
       form_data = construct_email_payload(form, template_id)
 
-      if Flipper.enabled?(:champva_vanotify_custom_callback, @current_user)
-        form_data = form_data.merge(
-          {
-            callback_klass: 'IvcChampva::ZsfEmailNotificationCallback',
-            callback_metadata: {
-              statsd_tags: { service: 'veteran-ivc-champva-forms', function: 'IVC CHAMPVA send_failure_email' },
-              additional_context:
-            }
-          }
-        )
+      if (callback = Flipper.enabled?(:champva_vanotify_custom_callback, @current_user))
+        form_data = form_data.merge(callback_hash)
       end
 
       ActiveRecord::Base.transaction do
         if IvcChampva::Email.new(form_data).send_email
           fetch_forms_by_uuid(form[:form_uuid]).update_all(email_sent: true) # rubocop:disable Rails/SkipsModelValidations
+          monitor.track_missing_status_email_sent(form[:form_number]) unless callback
         else
           monitor.log_silent_failure(additional_context)
           raise ActiveRecord::Rollback, 'Pega Status Update/Action Required Email send failure'
         end
       end
+    end
+
+    # return the hash fields used for vanotify callback
+    def callback_hash
+      {
+        callback_klass: 'IvcChampva::ZsfEmailNotificationCallback',
+        callback_metadata: {
+          statsd_tags: { service: 'veteran-ivc-champva-forms', function: 'IVC CHAMPVA send_failure_email' },
+          additional_context:
+        }
+      }
     end
 
     # Fires off a notification email to Pega so they know the communication status of
