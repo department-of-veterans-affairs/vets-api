@@ -122,7 +122,9 @@ describe Eps::AppointmentService do
       }
     end
     let(:draft_appointment) { OpenStruct.new(id: appointment_id, state: 'draft', patient_id: icn) }
-    let(:provider_service_response) { OpenStruct.new(id: 'provider-123', name: 'Test Provider', location: { latitude: 38.8977, longitude: -77.0365 }) }
+    let(:provider_service_response) do
+      OpenStruct.new(id: 'provider-123', name: 'Test Provider', location: { latitude: 38.8977, longitude: -77.0365 })
+    end
     let(:slots_response) { [{ id: 'slot-1', start_time: '2025-01-15T09:00:00Z', end_time: '2025-01-15T09:30:00Z' }] }
     let(:drive_time_response) { { 'provider-123' => { distance: 5.2, duration: 15 } } }
 
@@ -147,9 +149,9 @@ describe Eps::AppointmentService do
 
       provider_service = instance_double(Eps::ProviderService)
       allow(Eps::ProviderService).to receive(:new).and_return(provider_service)
-      allow(provider_service).to receive(:get_provider_service).and_return(provider_service_response)
-      allow(provider_service).to receive(:get_provider_slots).and_return(slots_response)
-      allow(provider_service).to receive(:get_drive_times).and_return(drive_time_response)
+      allow(provider_service).to receive_messages(get_provider_service: provider_service_response,
+                                                  get_provider_slots: slots_response,
+                                                  get_drive_times: drive_time_response)
     end
 
     context 'when creating draft appointment with all dependencies successful' do
