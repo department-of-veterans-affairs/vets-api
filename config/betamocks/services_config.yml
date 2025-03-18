@@ -895,6 +895,27 @@
         :uid_location: query
         :uid_locator: patient
 
+# CCRA Referral Service
+- :name: "CCRA Referral Service"
+  :base_uri: <%= "#{URI(Settings.vaos.ccra.api_url).host}:#{URI(Settings.vaos.ccra.api_url).port}" %>
+  :endpoints:
+   
+    # Get referral list (POST)
+    - :method: :post
+      :path: "/csp/healthshare/ccraint/rest/VAOS/patients/ReferralList"
+      :file_path: "vaos/ccra/referrals/referral_list"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'icn":"([^"]*)"'
+        
+    # Get referral details (POST)
+    - :method: :post
+      :path: "/csp/healthshare/ccraint/rest/ReferralUtil/GetReferral"
+      :file_path: "vaos/ccra/referrals/get_referral"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'id":"([^"]*)"'
+
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"
   :base_uri: <%= "#{URI(Settings.lighthouse.benefits_documents.host).host}:#{URI(Settings.lighthouse.benefits_documents.host).port}" %>
@@ -970,3 +991,22 @@
     - :method: :post
       :path: "/profile-service/profile/v3/*/*"
       :file_path: "vet360/profile-service/default"
+
+# MHV Unified Health Data security service
+- :name: "MHV UHD Security"
+  :base_uri: <%= "#{URI(Settings.mhv.uhd.security_host).host}:#{URI(Settings.mhv.uhd.security_host).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/mhvapi/security/v1/login"
+      :file_path: "mhv/uhd/security-service/default"
+
+# MHV Unified Health Data service
+- :name: "MHV UHD"
+  :base_uri: <%= "#{URI(Settings.mhv.uhd.host).host}:#{URI(Settings.mhv.uhd.host).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/mhvapi/v1/medicalrecords/labs"
+      :file_path: "mhv/uhd/labs"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patient-id"

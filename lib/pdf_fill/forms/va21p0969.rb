@@ -225,6 +225,79 @@ module PdfFill
             question_suffix: '(6)',
             question_text: 'VALUE OF ACCOUNT'
           }
+        },
+        # 5a
+        'ownedAsset' => {
+          key: 'F[0].Page_8[0].DependentsReceiving5a[0]'
+        },
+        # 5b - 5d
+        'ownedAssets' => {
+          limit: 3,
+          first_key: 'recipientRelationship',
+          'recipientRelationship' => {
+            key: "F[0].IncomeRecipients5[#{ITERATOR}]"
+          },
+          'recipientRelationshipOverflow' => {
+            question_num: 5,
+            question_suffix: '(1)',
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          },
+          'otherRecipientRelationshipType' => {
+            key: "F[0].OtherRelationship5[#{ITERATOR}]",
+            question_num: 5,
+            question_suffix: '(1)',
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          },
+          'recipientName' => {
+            key: "F[0].NameofIncomeRecipient5[#{ITERATOR}]",
+            question_num: 5,
+            question_suffix: '(2)',
+            question_text:
+              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+          },
+          'assetType' => {
+            key: "F[0].TypeOfAsset5[#{ITERATOR}]"
+          },
+          'assetTypeOverflow' => {
+            question_num: 5,
+            question_suffix: '(3)',
+            question_text: 'IDENTIFY THE TYPE OF ASSET AND SUBMIT THE REQUIRED FORM ASSOCIATED'
+          },
+          'grossMonthlyIncome' => {
+            'thousands' => {
+              key: "F[0].GrossMonthlyIncome1_5[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].GrossMonthlyIncome2_5[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].GrossMonthlyIncome3_5[#{ITERATOR}]"
+            }
+          },
+          'grossMonthlyIncomeOverflow' => {
+            question_num: 5,
+            question_suffix: '(4)',
+            question_text: 'GROSS MONTHLY INCOME'
+          },
+          'ownedPortionValue' => {
+            'millions' => {
+              key: "F[0].ValueOfYourPortionOfTheProperty1_5[#{ITERATOR}]"
+            },
+            'thousands' => {
+              key: "F[0].ValueOfYourPortionOfTheProperty2_5[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].ValueOfYourPortionOfTheProperty3_5[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].ValueOfYourPortionOfTheProperty4_5[#{ITERATOR}]"
+            }
+          },
+          'ownedPortionValueOverflow' => {
+            question_num: 5,
+            question_suffix: '(5)',
+            question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY'
+          }
         }
       }.freeze
 
@@ -240,6 +313,7 @@ module PdfFill
         expand_claimant_info
         expand_unassociated_incomes
         expand_associated_incomes
+        expand_owned_assets
 
         form_data
       end
@@ -327,6 +401,33 @@ module PdfFill
           'grossMonthlyIncomeOverflow' => gross_monthly_income,
           'accountValue' => IncomeAndAssets::Helpers.split_account_value(account_value),
           'accountValueOverflow' => account_value
+        }
+      end
+
+      def expand_owned_assets
+        owned_assets = form_data['ownedAssets']
+        form_data['ownedAsset'] = owned_assets&.length ? 0 : 1
+        form_data['ownedAssets'] = owned_assets&.map do |asset|
+          expand_owned_asset(asset)
+        end
+      end
+
+      def expand_owned_asset(asset)
+        recipient_relationship = asset['recipientRelationship']
+        asset_type = asset['assetType']
+        gross_monthly_income = asset['grossMonthlyIncome']
+        portion_value = asset['ownedPortionValue']
+        {
+          'recipientRelationship' => IncomeAndAssets::Constants::RECIPIENTS[recipient_relationship],
+          'recipientRelationshipOverflow' => recipient_relationship,
+          'otherRecipientRelationshipType' => asset['otherRecipientRelationshipType'],
+          'recipientName' => asset['recipientName'],
+          'assetType' => IncomeAndAssets::Constants::ASSET_TYPES[asset_type],
+          'assetTypeOverflow' => asset_type,
+          'grossMonthlyIncome' => IncomeAndAssets::Helpers.split_currency_amount(gross_monthly_income),
+          'grossMonthlyIncomeOverflow' => gross_monthly_income,
+          'ownedPortionValue' => IncomeAndAssets::Helpers.split_account_value(portion_value),
+          'ownedPortionValueOverflow' => portion_value
         }
       end
     end

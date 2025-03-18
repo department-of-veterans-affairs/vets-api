@@ -431,7 +431,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       ) do
         expect(subject).to validate(
           :post,
-          '/v0/burial_claims',
+          '/burials/v0/claims',
           200,
           '_data' => {
             'burial_claim' => {
@@ -442,7 +442,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
         expect(subject).to validate(
           :post,
-          '/v0/burial_claims',
+          '/burials/v0/claims',
           422,
           '_data' => {
             'burial_claim' => {
@@ -3990,6 +3990,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/coe/download_coe')
       subject.untested_mappings.delete('/v0/coe/document_download/{id}')
       subject.untested_mappings.delete('/v0/caregivers_assistance_claims/download_pdf')
+      subject.untested_mappings.delete('/v0/health_care_applications/download_pdf')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')
