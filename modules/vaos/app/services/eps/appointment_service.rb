@@ -421,7 +421,7 @@ module Eps
       drive_time = get_drive_times(provider, user_coordinates)
       return drive_time if drive_time.is_a?(Hash) && drive_time[:error]
 
-      OpenStruct.new( id: draft_appointment.id, provider:, slots:, drive_time:)
+      OpenStruct.new(id: draft_appointment.id, provider:, slots:, drive_time:)
     end
   end
 end
