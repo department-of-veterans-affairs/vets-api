@@ -60,7 +60,10 @@ module Eps
     def send_vanotify_message(user:, error: nil)
       notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
       notify_client.send_email(email_address: user.va_profile_email,
-                               template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure)
+                               template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
+                               parameters: {
+                                 'error' => error
+                               })
     end
   end
 end

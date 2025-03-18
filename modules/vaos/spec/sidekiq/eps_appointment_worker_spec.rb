@@ -16,7 +16,9 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
   before do
     Sidekiq::Job.clear_all
     allow(Eps::AppointmentService).to receive(:new).and_return(service)
-    allow(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key).and_return(va_notify_service)
+    allow(VaNotify::Service).to receive(:new)
+      .with(Settings.vanotify.services.va_gov.api_key)
+      .and_return(va_notify_service)
   end
 
   describe '.perform_async' do
@@ -56,7 +58,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
           email_address: user.va_profile_email,
           template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure
         )
-        worker.__send__(:send_vanotify_message, user: user)
+        worker.__send__(:send_vanotify_message, user:)
       end
     end
   end
