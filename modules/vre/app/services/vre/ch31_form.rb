@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sentry_logging'
+require_relative 'ch31_errors'
 
 module VRE
   class Ch31Form < VRE::Service
