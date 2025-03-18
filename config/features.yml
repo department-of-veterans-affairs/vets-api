@@ -197,9 +197,6 @@ features:
   champva_log_all_s3_uploads:
     actor_type: user
     description: Enables logging for all s3 uploads using UUID or keys for monitoring
-  champva_require_all_s3_success:
-    actor_type: user
-    description: Enables raising a StandardError if any supporting documents fail to upload to S3 in IVC CHAMPVA forms.
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
