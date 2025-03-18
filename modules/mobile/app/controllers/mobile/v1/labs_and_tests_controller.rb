@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'unified_health_data/service'
-require 'mobile/v1/lab_or_test_serializer'
+require 'lab_or_test_serializer'
 
 module Mobile
   module V1
