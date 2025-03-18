@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-# TODO: add validators for non-required, but structure constrained types:
-# - validate phone number structure: ^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$
-# - validate gender values
-# - validate relationship to veteran
-
 module IvcChampva
   class VesDataValidator
+    CHILDTYPES = %w[ADOPTED STEPCHILD NATURAL].freeze
+    RELATIONSHIPS = %w[SPOUSE EX_SPOUSE CAREGIVER CHILD].freeze
+    GENDERS = %w[MALE FEMALE].freeze
+
     # This function will run through all the individual validators
     def self.validate(request_body)
       validate_application_type(request_body)
@@ -24,6 +23,7 @@ module IvcChampva
         .then { |s| validate_date_of_birth(s) }
         .then { |s| validate_person_uuid(s) }
         .then { |s| validate_ssn(s) }
+        .then { |s| validate_sponsor_phone(s) }
 
       request_body
     end
@@ -45,6 +45,8 @@ module IvcChampva
         .then { |b| validate_date_of_birth(b) }
         .then { |b| validate_person_uuid(b) }
         .then { |b| validate_beneficiary_address(b) }
+        .then { |b| validate_beneficiary_relationship(b) }
+        .then { |b| validate_beneficiary_gender(b) }
         .then { |b| validate_ssn(b) }
 
       beneficiary
@@ -52,9 +54,9 @@ module IvcChampva
 
     def self.validate_certification(request_body)
       certification = request_body[:certification]
-
-      validate_presence_and_stringiness(certification[:signature], 'certification signature')
-      validate_date(certification[:signatureDate], 'certification signature date')
+      validate_certification_signature(certification)
+        .then { |c| validate_certification_signature_date(c) }
+        .then { |c| validate_certification_phone(c) }
 
       request_body
     end
@@ -64,6 +66,9 @@ module IvcChampva
 
     def self.validate_application_type(request_body)
       validate_presence_and_stringiness(request_body[:applicationType], 'application type')
+      unless request_body[:applicationType] == 'CHAMPVA'
+        raise ArgumentError, 'application type invalid. Must be CHAMPVA'
+      end
 
       request_body
     end
@@ -107,10 +112,52 @@ module IvcChampva
       object
     end
 
+    def self.validate_beneficiary_gender(beneficiary)
+      title = 'beneficiary gender'
+      validate_nonempty_presence_and_stringiness(beneficiary[:gender], title)
+      unless VesDataValidator::GENDERS.include?(beneficiary[:gender])
+        raise ArgumentError, "#{title} is invalid. Must be in #{VesDataValidator::GENDERS.join(', ')}"
+      end
+
+      beneficiary
+    end
+
     def self.validate_beneficiary_address(beneficiary)
       validate_address(beneficiary[:address], 'beneficiary')
 
       beneficiary
+    end
+
+    def self.validate_beneficiary_relationship(beneficiary)
+      title = 'beneficiary relationship to sponsor'
+      validate_presence_and_stringiness(beneficiary[:relationshipToSponsor], title)
+      unless VesDataValidator::RELATIONSHIPS.include?(beneficiary[:relationshipToSponsor])
+        raise ArgumentError, "#{title} is invalid. Must be in #{VesDataValidator::RELATIONSHIPS.join(', ')}"
+      end
+
+      validate_beneficiary_childtype(beneficiary) if beneficiary[:relationshipToSponsor] == 'CHILD'
+
+      beneficiary
+    end
+
+    def self.validate_beneficiary_childtype(beneficiary)
+      title = 'beneficiary childtype'
+      validate_nonempty_presence_and_stringiness(beneficiary[:childtype], title)
+      unless VesDataValidator::CHILDTYPES.include?(beneficiary[:childtype])
+        raise ArgumentError, "#{title} is invalid. Must be in #{VesDataValidator::CHILDTYPES.join(', ')}"
+      end
+
+      beneficiary
+    end
+
+    def self.validate_beneficiary_phone(beneficiary)
+      validate_phone(beneficiary, 'beneficiary phone')
+    end
+
+    def self.validate_sponsor_phone(sponsor)
+      validate_phone(sponsor, 'sponsor phone') if sponsor[:phoneNumber]
+
+      sponsor
     end
 
     def self.validate_sponsor_address(request_body)
@@ -119,11 +166,27 @@ module IvcChampva
       request_body
     end
 
+    def self.validate_certification_signature_date(certification)
+      validate_date(certification[:signatureDate], 'certification signature date')
+      certification
+    end
+
+    def self.validate_certification_signature(certification)
+      validate_presence_and_stringiness(certification[:signature], 'certification signature')
+      certification
+    end
+
+    def self.validate_certification_phone(certification)
+      validate_phone(certification, 'certification phone') if certification[:phoneNumber]
+
+      certification
+    end
+
     def self.validate_address(address, name)
-      validate_presence_and_stringiness(address[:city], "#{name} city")
-      validate_presence_and_stringiness(address[:state], "#{name} state")
-      validate_presence_and_stringiness(address[:zipCode], "#{name} zip code")
-      validate_presence_and_stringiness(address[:streetAddress], "#{name} street address")
+      validate_nonempty_presence_and_stringiness(address[:city], "#{name} city")
+      validate_nonempty_presence_and_stringiness(address[:state], "#{name} state")
+      validate_nonempty_presence_and_stringiness(address[:zipCode], "#{name} zip code")
+      validate_nonempty_presence_and_stringiness(address[:streetAddress], "#{name} street address")
     end
 
     def self.validate_ssn(request_body)
@@ -136,12 +199,19 @@ module IvcChampva
       request_body
     end
 
+    def self.validate_phone(request_body, name)
+      validate_presence_and_stringiness(request_body[:phoneNumber], 'ssn')
+      unless request_body[:phoneNumber].match?(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/)
+        raise ArgumentError, "#{name} is invalid. See regex for more detail"
+      end
+
+      request_body
+    end
+
     def self.validate_date(date, name)
       validate_presence_and_stringiness(date, name)
-      raise ArgumentError, 'date is invalid. Must match YYYY-MM-DD' unless date.match?(/^\d{4}-\d{2}-\d{2}$/)
+      raise ArgumentError, "#{name} is invalid. Must match YYYY-MM-DD" unless date.match?(/^\d{4}-\d{2}-\d{2}$/)
 
-      # TODO: once we know the exact date format VES is expecting we can
-      # do further checks here.
       date
     end
 
@@ -153,6 +223,11 @@ module IvcChampva
     def self.validate_presence_and_stringiness(value, error_label)
       raise ArgumentError, "#{error_label} is missing" unless value
       raise ArgumentError, "#{error_label} is not a string" if value.class != String
+    end
+
+    def self.validate_nonempty_presence_and_stringiness(value, error_label)
+      validate_presence_and_stringiness(value, error_label)
+      raise ArgumentError, "#{error_label} is an empty string" if value.length.zero?
     end
   end
 end

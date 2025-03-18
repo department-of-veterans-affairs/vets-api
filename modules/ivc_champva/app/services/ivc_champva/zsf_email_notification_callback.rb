@@ -16,7 +16,7 @@ module IvcChampva
       when 'delivered'
         # success
         StatsD.increment('api.vanotify.notifications.delivered')
-        monitor.log_silent_failure_avoided(ac, email_confirmed: true) # Log with email_confirmed
+        monitor.log_silent_failure_avoided(ac) # Log with email_confirmed
         monitor.track_missing_status_email_sent(ac['form_id']) # e.g., '10-10d'
       when 'permanent-failure'
         # delivery failed

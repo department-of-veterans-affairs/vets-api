@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vpg/v1/patients/1012846043V576341/appointments/70060
+    uri: <VA_MOBILE_URL>/vpg/v1/patients/1012846043V576341/appointments/70060
     body:
       encoding: US-ASCII
       string: ''
@@ -60,7 +60,7 @@ http_interactions:
   recorded_at: Mon, 13 Dec 2021 23:28:26 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983GB
+    uri: <VA_MOBILE_URL>/facilities/v2/facilities/983GB
     body:
       encoding: US-ASCII
       string: ''
