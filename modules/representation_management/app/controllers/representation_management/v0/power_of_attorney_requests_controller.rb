@@ -63,7 +63,7 @@ module RepresentationManagement
       def orchestrate_response
         @orchestrate_response ||=
           RepresentationManagement::PowerOfAttorneyRequestService::Orchestrate.new(
-            data: flatten_form_params,
+            data: flatten_form_params.merge(consent_limits: form.normalized_limitations_of_consent),
             dependent:,
             form_data_object: form,
             service_branch:,

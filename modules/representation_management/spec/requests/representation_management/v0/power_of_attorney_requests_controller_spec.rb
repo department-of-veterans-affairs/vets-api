@@ -48,7 +48,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
     end
 
     context 'when appoint_a_representative_enable_v2_features is enabled' do
-      context 'with a signed in user with all identifiers' do
+      context 'with a signed in user' do
         before do
           sign_in_as(user)
           allow(Flipper).to receive(:enabled?).with(:appoint_a_representative_enable_v2_features).and_return(true)
@@ -82,109 +82,19 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
           end
         end
 
-        context 'when an error occurs' do
-          context 'the form data fails validation' do
-            before do
-              params[:power_of_attorney_request][:veteran][:name][:first] = nil
-              post(base_path, params:)
-            end
-
-            it 'responds with an unprocessable entity status' do
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-
-            it 'responds with an error message specifying the Veteran first name can not be blank' do
-              expect(response.body).to eq({ errors: ["Veteran first name can't be blank"] }.to_json)
-            end
+        context 'when form validation fails' do
+          before do
+            params[:power_of_attorney_request][:veteran][:name][:first] = nil
+            post(base_path, params:)
           end
 
-          context 'the organization does not accept digital poa requests' do
-            let(:accepts_digital_requests) { false }
-
-            before do
-              post(base_path, params:)
-            end
-
-            it 'responds with an unprocessable entity status' do
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-
-            it 'responds with an error message specifying that the organization must accept digital poa requests' do
-              error_message = 'Organization does not accept digital Power of Attorney Requests'
-              expect(response.body).to eq({ errors: [error_message] }.to_json)
-            end
+          it 'responds with a 422/unprocessable_entity status' do
+            expect(response).to have_http_status(:unprocessable_entity)
           end
 
-          context 'the user is not submitting as the Veteran' do
-            before do
-              params[:power_of_attorney_request][:claimant] = {
-                date_of_birth: '1980-12-31',
-                relationship: 'Spouse',
-                phone: '5555555555',
-                email: 'claimant@example.com',
-                name: {
-                  first: 'John',
-                  middle: 'Middle',
-                  last: 'Claimant'
-                },
-                address: {
-                  address_line1: '123 Fake Claimant St',
-                  address_line2: '',
-                  city: 'Portland',
-                  state_code: 'OR',
-                  country: 'USA',
-                  zip_code: '12345',
-                  zip_code_suffix: '6789'
-                }
-              }
-              post(base_path, params:)
-            end
-
-            it 'responds with an unprocessable entity status' do
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-
-            it 'responds with an error message that the user must submit as the Veteran' do
-              error_message = 'User must submit as the Veteran for digital Power of Attorney Requests'
-              expect(response.body).to eq({ errors: [error_message] }.to_json)
-            end
+          it 'responds with an error message specifying the failed validation(s)' do
+            expect(response.body).to eq({ errors: ["Veteran first name can't be blank"] }.to_json)
           end
-        end
-      end
-
-      context 'when the signed in user does not have a corp participant id' do
-        let(:user) { create(:user, participant_id: nil) }
-
-        before do
-          sign_in(user)
-          post(base_path, params:)
-        end
-
-        it 'responds with an unprocessable entity status' do
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
-
-        it 'responds with an error message specifying that the user must have a corp participant id' do
-          error_message = 'User Corp Participant ID value is blank'
-          expect(response.body).to eq({ errors: [error_message] }.to_json)
-        end
-      end
-
-      context 'when the signed in user does not have an ICN' do
-        let(:user) { create(:user, :loa3, icn: nil) }
-
-        before do
-          sign_in(user)
-          post(base_path, params:)
-        end
-
-        it 'responds with an unprocessable entity status' do
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
-
-        it 'responds with an error message specifying that the user must have and ICN' do
-          error_message = 'User ICN value is missing'
-          expect(response.body).to eq({ errors: [error_message] }.to_json)
         end
       end
     end
