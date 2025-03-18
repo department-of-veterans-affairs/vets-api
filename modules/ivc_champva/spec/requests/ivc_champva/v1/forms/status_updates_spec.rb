@@ -151,7 +151,7 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
         {
           form_uuid: '12345678-1234-5678-1234-567812345678',
           file_names: ['12345678-1234-5678-1234-567812345678_vha_10_10d.pdf',
-                        '12345678-1234-5678-1234-567812345678_vha_10_10d1.pdf'],
+                       '12345678-1234-5678-1234-567812345678_vha_10_10d1.pdf'],
           case_id: 'ABC-1234',
           status: 'Not Processed'
         }
