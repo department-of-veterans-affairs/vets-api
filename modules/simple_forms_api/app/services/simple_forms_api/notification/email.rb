@@ -30,7 +30,8 @@ module SimpleFormsApi
       def send(at: nil)
         return unless flipper?
 
-        template_id = TEMPLATE_IDS[form_number][notification_type.to_s]
+        template_id_suffix = TEMPLATE_IDS[form_number][notification_type.to_s]
+        template_id = Settings.vanotify.services.va_gov.template_id[template_id_suffix]
         return unless template_id
 
         sent_to_va_notify = if at
