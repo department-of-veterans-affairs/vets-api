@@ -16,12 +16,18 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryPayload do
     JSON.parse(data, symbolize_names: true)
   end
 
+  let(:patsr_facilities) do
+    data = File.read('modules/ask_va_api/config/locales/get_facilities_mock_data.json')
+    JSON.parse(data, symbolize_names: true)
+  end
+
   before do
     allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
     allow(cache_data_service).to receive(:call).with(
       endpoint: 'optionset',
       cache_key: 'optionset'
     ).and_return(cached_data)
+    allow(cache_data_service).to receive(:fetch_and_cache_data).and_return(patsr_facilities)
   end
 
   describe '#call' do
