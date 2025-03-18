@@ -15,8 +15,8 @@ module PdfFill
         i = metadata[:i]
         prefix += " Line #{i + 1}" if i.present?
 
-        pdf.text("#{prefix}:", { style: :bold })
-        pdf.text(value.to_s, { style: :normal })
+        pdf.text("#{prefix}:", style: :bold)
+        pdf.text(value.to_s, style: :normal)
       end
     end
 
@@ -44,7 +44,6 @@ module PdfFill
       @generate_blocks.sort_by do |generate_block|
         metadata = generate_block[:metadata]
         [
-          metadata[:section_index] || -1,
           metadata[:question_num] || -1,
           metadata[:i] || 99_999,
           metadata[:question_suffix] || '',
@@ -63,17 +62,19 @@ module PdfFill
       pdf.font('Roboto')
     end
 
-    def generate_pdf(file_path)
+    def generate
+      folder = 'tmp/pdfs'
+      FileUtils.mkdir_p(folder)
+      file_path = "#{folder}/extras_#{SecureRandom.uuid}.pdf"
       generate_blocks = sort_generate_blocks
       Prawn::Document.generate(file_path) do |pdf|
         set_font(pdf)
-
         render_pdf_content(pdf, generate_blocks)
       end
+      file_path
     end
 
     def render_pdf_content(pdf, generate_blocks)
-      current_section_index = nil
       box_height = 25
       pdf.bounding_box(
         [pdf.bounds.left, pdf.bounds.top - box_height],
@@ -81,22 +82,9 @@ module PdfFill
         height: pdf.bounds.height - box_height
       ) do
         generate_blocks.each do |block|
-          section_index = block[:metadata][:section_index]
-          if section_index.present? && section_index != current_section_index
-            render_new_section(pdf, section_index)
-            current_section_index = section_index
-          end
           block[:block].call(pdf)
         end
       end
-    end
-
-    def generate
-      folder = 'tmp/pdfs'
-      FileUtils.mkdir_p(folder)
-      file_path = "#{folder}/extras_#{SecureRandom.uuid}.pdf"
-      generate_pdf(file_path)
-      file_path
     end
   end
 end

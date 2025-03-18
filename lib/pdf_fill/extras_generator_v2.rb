@@ -45,16 +45,40 @@ module PdfFill
       end
     end
 
-    def generate_pdf(file_path)
+    def sort_generate_blocks
       populate_section_indices!
-      generate_blocks = sort_generate_blocks
-      Prawn::Document.generate(file_path) do |pdf|
-        set_font(pdf)
-        set_header(pdf)
-
-        render_pdf_content(pdf, generate_blocks)
-        add_page_numbers(pdf)
+      @generate_blocks.sort_by do |generate_block|
+        metadata = generate_block[:metadata]
+        [
+          metadata[:section_index] || -1,
+          metadata[:question_num] || -1,
+          metadata[:i] || 99_999,
+          metadata[:question_suffix] || '',
+          metadata[:question_text] || ''
+        ]
       end
+    end
+
+    def render_pdf_content(pdf, generate_blocks)
+      set_header(pdf)
+
+      current_section_index = nil
+      box_height = 25
+      pdf.bounding_box(
+        [pdf.bounds.left, pdf.bounds.top - box_height],
+        width: pdf.bounds.width,
+        height: pdf.bounds.height - box_height
+      ) do
+        generate_blocks.each do |block|
+          section_index = block[:metadata][:section_index]
+          if section_index.present? && section_index != current_section_index
+            render_new_section(pdf, section_index)
+            current_section_index = section_index
+          end
+          block[:block].call(pdf)
+        end
+      end
+      add_page_numbers(pdf)
     end
 
     def render_new_section(pdf, section_index)
