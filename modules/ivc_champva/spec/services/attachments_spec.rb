@@ -14,12 +14,6 @@ class TestClass
 end
 
 RSpec.describe IvcChampva::Attachments do
-  before do
-    allow(Flipper).to receive(:enabled?)
-      .with(:champva_pdf_decrypt, @current_user)
-      .and_return(false)
-  end
-
   # Mocking a class to include the Attachments module
   let(:form_id) { 'vha_10_7959c' }
   let(:uuid) { 'f4ae6102-7f05-485a-948c-c0d9ef028983' }
@@ -127,26 +121,6 @@ RSpec.describe IvcChampva::Attachments do
     end
 
     context 'when a file is not found' do
-      it 'throws an error with hard coded details' do
-        expect(test_instance).to receive(:get_attachments).and_return(['attachmentA.pdf'])
-        expect(File).to receive(:rename).with('attachmentA.pdf', "./#{uuid}_#{form_id}_supporting_doc-0.pdf")
-                                        .and_raise(Errno::ENOENT.new)
-
-        expected_error_message = 'Unable to process all attachments: '
-        expected_error_message += 'Error processing attachment at index 0: ENOENT No such file or directory'
-        expect do
-          test_instance.handle_attachments(file_path)
-        end.to raise_error(StandardError, expected_error_message)
-      end
-    end
-
-    context 'when a file is not found and champva_pdf_decrypt is enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:champva_pdf_decrypt, @current_user)
-          .and_return(true)
-      end
-
       it 'throws an error with hard coded details' do
         expect(test_instance).to receive(:get_attachments).and_return(['attachmentA.pdf'])
         expect(FileUtils).to receive(:mv).with('attachmentA.pdf', "tmp/#{uuid}_#{form_id}_supporting_doc-0.pdf")
