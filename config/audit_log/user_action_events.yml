@@ -1,4 +1,3 @@
----
 user_login:
   event_type: authentication
   details: User logged in
