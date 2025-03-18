@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'va_notify'
 
 RSpec.describe Eps::EpsAppointmentWorker, type: :job do
   subject(:worker) { described_class.new }
@@ -10,10 +11,12 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
   let(:service) { instance_double(Eps::AppointmentService) }
   let(:response) { OpenStruct.new(state: 'completed', appointmentDetails: OpenStruct.new(status: 'booked')) }
   let(:unfinished_response) { OpenStruct.new(state: 'pending', appointmentDetails: OpenStruct.new(status: 'pending')) }
+  let(:va_notify_service) { instance_double(VaNotify::Service) }
 
   before do
     Sidekiq::Job.clear_all
     allow(Eps::AppointmentService).to receive(:new).and_return(service)
+    allow(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key).and_return(va_notify_service)
   end
 
   describe '.perform_async' do
@@ -44,6 +47,16 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
         expect(worker).to receive(:send_vanotify_message).with(user:, error: 'Could not complete booking')
         worker.perform(appointment_id, user, Eps::EpsAppointmentWorker::MAX_RETRIES)
         # rubocop:enable RSpec/SubjectStub
+      end
+    end
+
+    describe '#send_vanotify_message' do
+      it 'sends email notification' do
+        expect(va_notify_service).to receive(:send_email).with(
+          email_address: user.va_profile_email,
+          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure
+        )
+        worker.__send__(:send_vanotify_message, user: user)
       end
     end
   end
