@@ -1397,7 +1397,7 @@ va_profile:
   contact_information:
     cache_enabled: false
     enabled: true
-    mock: true
+    mock: false
     timeout: 30
   demographics:
     cache_enabled: false
@@ -1714,7 +1714,7 @@ vet360:
   military_personnel:
     cache_enabled: false
     enabled: true
-    mock: true
+    mock: false
     timeout: 30
   profile_information:
     enabled: true
