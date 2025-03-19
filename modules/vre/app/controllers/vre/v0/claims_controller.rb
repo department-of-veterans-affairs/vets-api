@@ -8,7 +8,7 @@ module VRE
       skip_before_action :load_user
 
       def create
-        claim = VREVeteranReadinessEmploymentClaim.new(form: filtered_params[:form])
+        claim = VRE::VREVeteranReadinessEmploymentClaim.new(form: filtered_params[:form])
 
         if claim.save
           VRE::VRESubmit1900Job.perform_async(claim.id, encrypted_user)
