@@ -165,6 +165,8 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
         expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
         subject.new.perform
         expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
+        evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_failed.id)
+        expect(evidence_submission.va_notify_date).not_to be_nil
       end
     end
   end
@@ -229,6 +231,8 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
         expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
         subject.new.perform
         expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
+        evidence_submission = EvidenceSubmission.find_by(id: evidence_submission_failed.id)
+        expect(evidence_submission.va_notify_date).not_to be_nil
       end
     end
   end
