@@ -10,7 +10,7 @@ RSpec.describe StdInstitutionFacility, type: :model do
 
   describe 'scopes' do
     let!(:active_facility) { create(:std_institution_facility, deactivation_date: nil) }
-    let!(:inactive_facility) { create(:std_institution_facility, deactivation_date: Date.today) }
+    let!(:inactive_facility) { create(:std_institution_facility, deactivation_date: Time.zone.today) }
 
     it 'includes only active facilities' do
       expect(StdInstitutionFacility.active).to include(active_facility)
