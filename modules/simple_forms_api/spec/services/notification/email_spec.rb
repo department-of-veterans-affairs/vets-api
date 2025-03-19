@@ -154,34 +154,79 @@ describe SimpleFormsApi::Notification::Email do
           end
         end
 
-        it 'sends the email' do
-          allow(VANotify::EmailJob).to receive(:perform_async)
-          data['claim_ownership'] = 'self'
-          data['claimant_type'] = 'veteran'
+        context 'success' do
+          let(:email_job_id) { 'abc-123' }
 
-          subject = described_class.new(config, notification_type:)
+          before do
+            allow(VANotify::EmailJob).to receive(:perform_async).and_return(email_job_id)
+            data['claim_ownership'] = 'self'
+            data['claimant_type'] = 'veteran'
+          end
 
-          subject.send
+          it 'sends the email' do
+            subject = described_class.new(config, notification_type:)
 
-          expect(VANotify::EmailJob).to have_received(:perform_async)
+            subject.send
+
+            expect(VANotify::EmailJob).to have_received(:perform_async)
+          end
+
+          it 'logs the email_job_id' do
+            allow(Rails.logger).to receive(:info)
+
+            subject = described_class.new(config, notification_type:)
+
+            subject.send
+
+            expect(Rails.logger).to have_received(:info).with(
+              'Simple Forms - Email job enqueued',
+              email_job_id:,
+              confirmation_number: anything
+            )
+          end
         end
 
-        context 'did not send to VA Notify because of no first name', if: notification_type == :error do
+        context 'failure' do
           let(:profile) { double(given_names: []) }
           let(:mpi_profile) { double(profile:, error: nil) }
 
-          it 'increments StatsD' do
-            data['witness_full_name']['first'] = nil
+          before do
             allow(VANotify::EmailJob).to receive(:perform_async)
             allow(VANotify::UserAccountJob).to receive(:perform_at)
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(mpi_profile)
             allow(StatsD).to receive(:increment)
+            allow(Rails.logger).to receive(:error)
+            data['witness_full_name']['first'] = nil
+          end
 
-            subject = described_class.new(config, notification_type:)
-            subject.send
+          context 'error notification', if: notification_type == :error do
+            it 'increments StatsD' do
+              subject = described_class.new(config, notification_type:)
+              subject.send
 
-            expect(VANotify::EmailJob).not_to have_received(:perform_async)
-            expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
+              expect(VANotify::EmailJob).not_to have_received(:perform_async)
+              expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
+            end
+
+            it 'logs the failure' do
+              subject = described_class.new(config, notification_type:)
+              subject.send
+
+              expect(VANotify::EmailJob).not_to have_received(:perform_async)
+              expect(Rails.logger).to have_received(:error).with('Simple Forms - Error email job failed to enqueue',
+                                                                 confirmation_number: anything)
+            end
+          end
+
+          context 'non-error notification', if: notification_type != :error do
+            it 'logs the failure' do
+              subject = described_class.new(config, notification_type:)
+              subject.send
+
+              expect(VANotify::EmailJob).not_to have_received(:perform_async)
+              expect(Rails.logger).to have_received(:error).with('Simple Forms - Non-error email job failed to enqueue',
+                                                                 confirmation_number: anything)
+            end
           end
         end
       end
@@ -396,7 +441,7 @@ describe SimpleFormsApi::Notification::Email do
                 subject.send
 
                 expect(VANotify::EmailJob).to have_received(:perform_async).with(
-                  user.va_profile_email,
+                  user.email,
                   "form21_10210_#{notification_type}_email_template_id",
                   {
                     'first_name' => 'John',
@@ -438,7 +483,7 @@ describe SimpleFormsApi::Notification::Email do
                 subject.send
 
                 expect(VANotify::EmailJob).to have_received(:perform_async).with(
-                  user.va_profile_email,
+                  user.email,
                   "form21_10210_#{notification_type}_email_template_id",
                   {
                     'first_name' => 'Joe',
@@ -637,69 +682,6 @@ describe SimpleFormsApi::Notification::Email do
       end
     end
 
-    describe '40-10007 first name' do
-      subject { described_class.new(config) }
-
-      let(:config) do
-        {
-          form_number: 'vba_40_10007',
-          form_data:,
-          confirmation_number: '8679305',
-          date_submitted: Time.zone.today.strftime('%B %d, %Y')
-        }
-      end
-
-      context 'when the applicant is the claimant ("Self")' do
-        let(:form_data) do
-          {
-            'application' => {
-              'applicant' => {
-                'applicant_relationship_to_claimant' => 'Self'
-              },
-              'claimant' => {
-                'name' => {
-                  'first' => 'Freddy'
-                }
-              },
-              'veteran' => {
-                'current_name' => {
-                  'first' => 'Bob'
-                }
-              }
-            }
-          }
-        end
-
-        it 'returns the veteran first name' do
-          expect(subject.instance_eval { form40_10007_first_name }).to eq('Freddy')
-        end
-      end
-
-      context 'when the applicant is not the claimant' do
-        let(:form_data) do
-          {
-            'application' => {
-              'applicant' => {
-                'applicant_relationship_to_claimant' => 'Authorized Agent/Rep',
-                'name' => {
-                  'first' => 'Jason'
-                }
-              },
-              'claimant' => {
-                'name' => {
-                  'first' => 'Charles'
-                }
-              }
-            }
-          }
-        end
-
-        it 'returns the claimant first name' do
-          expect(subject.instance_eval { form40_10007_first_name }).to eq('Jason')
-        end
-      end
-    end
-
     describe '21_0845' do
       let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
       let(:data) do
@@ -807,7 +789,7 @@ describe SimpleFormsApi::Notification::Email do
             subject.send
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              user.va_profile_email,
+              user.email,
               'form21_0845_confirmation_email_template_id',
               {
                 'first_name' => 'Jack',
@@ -856,7 +838,7 @@ describe SimpleFormsApi::Notification::Email do
         subject.send
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          user.va_profile_email,
+          user.email,
           "form21_0966_#{notification_type}_email_template_id",
           {
             'first_name' => 'Veteran',
@@ -928,7 +910,7 @@ describe SimpleFormsApi::Notification::Email do
             subject.send
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              user.va_profile_email,
+              user.email,
               'form21_0966_itf_api_received_email_template_id',
               {
                 'first_name' => 'Veteran',
@@ -1088,7 +1070,7 @@ describe SimpleFormsApi::Notification::Email do
             send_email
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              user.va_profile_email,
+              user.email,
               'form20_10207_confirmation_email_template_id',
               {
                 'first_name' => 'John',
@@ -1128,7 +1110,7 @@ describe SimpleFormsApi::Notification::Email do
             send_email
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              user.va_profile_email,
+              user.email,
               'form20_10207_confirmation_email_template_id',
               {
                 'first_name' => 'Joey Jo',
@@ -1168,7 +1150,7 @@ describe SimpleFormsApi::Notification::Email do
             send_email
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              user.va_profile_email,
+              user.email,
               'form20_10207_confirmation_email_template_id',
               {
                 'first_name' => 'John',
@@ -1208,7 +1190,7 @@ describe SimpleFormsApi::Notification::Email do
             send_email
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              user.va_profile_email,
+              user.email,
               'form20_10207_confirmation_email_template_id',
               {
                 'first_name' => 'Joe',
