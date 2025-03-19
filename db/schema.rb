@@ -273,6 +273,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_13_190720) do
   create_table "ar_icn_temporary_identifiers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "icn", null: false
     t.datetime "created_at"
+    t.index ["created_at"], name: "index_ar_icn_temporary_identifiers_on_created_at"
+    t.index ["icn"], name: "index_ar_icn_temporary_identifiers_on_icn"
   end
 
   create_table "ar_power_of_attorney_form_submissions", force: :cascade do |t|
