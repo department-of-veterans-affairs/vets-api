@@ -5,7 +5,6 @@ require 'common/client/base'
 module ClaimsApi
   module Slack
     class FailedSubmissionsMessenger
-
       # Transaction IDs, despite the name, can have some pretty wild stuff in them. Whitelist values we find useful.
       # Assumes comparison string is upcase'd for matching
       TID_SUBSTRING_WHITELIST = %w[
@@ -101,9 +100,8 @@ module ClaimsApi
       end
 
       def link_value(id, type = :eid)
+        id = extract_tag_from_whitelist(id) if type == :tid
         return 'N/A' if id.blank?
-
-        return 'N/A' if type == :tid && TID_SUBSTRING_WHITELIST.none? { |substr| id.upcase.include? substr }
 
         time_stamps = datadog_timestamps
 
@@ -119,6 +117,16 @@ module ClaimsApi
         three_days_ago = current - 259_200_000 # Three days ago
 
         [three_days_ago, current]
+      end
+
+      # TID value is more a string blob of various data that follows this format (including quotes):
+      # 'Form526Submission_3443656, user_uuid: [filtered], service_provider: lighthouse'
+      # The KV-looking stuff isn't useful in a DD link, so extract the "tag" at the beginning of the string
+      def extract_tag_from_whitelist(id)
+        return nil if TID_SUBSTRING_WHITELIST.none? { |s| id.upcase.include? s }
+
+        # Not scanning for beginning single quote in case it's not there
+        id.split(',').first.scan(/[a-zA-Z0-9_-]+/)[0]
       end
     end
   end
