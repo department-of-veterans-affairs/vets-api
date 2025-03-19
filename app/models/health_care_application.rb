@@ -143,8 +143,6 @@ class HealthCareApplication < ApplicationRecord
     else
       submit_sync
     end
-
-    Rails.logger.info '~~~~~~~~~~~~~~~ received end, id:', id
   end
 
   def self.determine_active_duty(primary_eligibility, veteran)
@@ -304,11 +302,9 @@ class HealthCareApplication < ApplicationRecord
 
   def submit_async
     Rails.logger.info '~~~~~~~~~~~~~~~ async', email.present?
-
     submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
     # if testing locally, use the below instead of the above:
     # submission_job = 'MockSubmissionJob'
-
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     "HCA::#{submission_job}".constantize.perform_async(
