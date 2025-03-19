@@ -30,10 +30,11 @@ module PHRMgr
     # @return [Hash] Headers with X-Authorization-Key and x-api-key header values for dependent URLs
     #
     def phr_headers
-      base_request_headers.merge('X-Authorization-Key' => Settings.mhv.medical_records.x_auth_key)
+      headers = base_request_headers.merge('X-Authorization-Key' => Settings.mhv.medical_records.x_auth_key)
       if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        base_request_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
+        headers.merge!('x-api-key' => Settings.mhv.medical_records.x_api_key_v2)
       end
+      headers
     end
 
     ##

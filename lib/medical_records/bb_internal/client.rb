@@ -29,7 +29,6 @@ module BBInternal
     #
     def get_patient
       with_custom_base_path(USERMGMT_BASE_PATH) do
-        configuration BBInternal::Configuration
         response = perform(:get, "usermgmt/patient/uid/#{@session.user_id}", nil, token_headers)
         patient = response.body
 
@@ -307,13 +306,10 @@ module BBInternal
     private
 
     def with_custom_base_path(custom_base_path)
-      old_base = BBInternal::Configuration.base_path
       if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway) && custom_base_path
         BBInternal::Configuration.custom_base_path = custom_base_path
       end
       yield
-    ensure
-      BBInternal::Configuration.custom_base_path = old_base
     end
 
     ##
