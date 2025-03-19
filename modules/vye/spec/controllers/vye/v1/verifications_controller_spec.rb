@@ -220,7 +220,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
     let(:award_end_date_1) { Date.new(2023, 12, 16) }
     let(:award_end_date_2) { Date.new(2024, 5, 11) }
     let(:award_end_date_3) { Date.new(2024, 12, 21) }
-    let(:award_end_date_x) { Date.new(2025, 12, 31) }
+    let(:award_end_date_x) { Date.new(2024, 9, 30) }
 
     let!(:user_profile) { create(:vye_user_profile, icn: current_user.icn) }
     let!(:user_info) { create(:vye_user_info, user_profile:, date_last_certified:) }
