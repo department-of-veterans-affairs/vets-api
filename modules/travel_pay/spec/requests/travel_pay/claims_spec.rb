@@ -70,7 +70,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
     end
 
     it 'returns expanded claim details on success' do
-      VCR.use_cassette('travel_pay/show/success-details', match_requests_on: %i[method path]) do
+      VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[method path]) do
         claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
         expected_claim_num = 'TC0000000000001'
 

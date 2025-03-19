@@ -3828,19 +3828,19 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'returns 404 for missing claim' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[path method]) do
+        VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[path method]) do
           expect(subject).to validate(
             :get,
             '/travel_pay/v0/claims/{id}',
             404,
-            headers.merge('id' => '8656ad4e-5cdf-41e2-bbd5-af843d2fa8fe')
+            headers.merge('id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6')
           )
         end
       end
 
       it 'returns 400 for invalid request' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[path method]) do
+        VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[path method]) do
           expect(subject).to validate(
             :get,
             '/travel_pay/v0/claims/{id}',
@@ -3852,8 +3852,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'returns 200 for successful response' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        claim_id = '33016896-ed7f-4d4f-a81b-cc4f2ca0832c'
-        VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[path method]) do
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[path method]) do
           expect(subject).to validate(
             :get,
             '/travel_pay/v0/claims/{id}',
