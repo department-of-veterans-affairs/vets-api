@@ -5,6 +5,13 @@ require 'common/client/base'
 module ClaimsApi
   module Slack
     class FailedSubmissionsMessenger
+
+      # Transaction IDs, despite the name, can have some pretty wild stuff in them. Whitelist values we find useful.
+      # Assumes comparison string is upcase'd for matching
+      TID_SUBSTRING_WHITELIST = %w[
+        FORM526SUBMISSION
+      ].freeze
+
       def initialize(options = {})
         @errored_disability_claims = options[:errored_disability_claims] # Array of id
         @errored_va_gov_claims = options[:errored_va_gov_claims] # Array of [id, transaction_id]
