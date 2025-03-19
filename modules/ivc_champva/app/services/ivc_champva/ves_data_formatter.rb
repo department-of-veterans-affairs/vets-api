@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../models/ves_request'
+require 'ivc_champva/models/ves_request'
 
 module IvcChampva
   class VesDataFormatter
