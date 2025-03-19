@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
 
@@ -151,7 +152,10 @@ module UnifiedHealthData
                    elsif obs['valueDateTime']
                      ['date-time', obs['valueDateTime']]
                    elsif obs['valueAttachment']
-                     ['attachment', obs['valueAttachment']['text']]
+                     Rails.logger.error(
+                       message: "Observation with ID #{obs['id']} has unsupported value type: Attachment"
+                     )
+                     raise Common::Exceptions::NotImplemented
                    else
                      [nil, nil]
                    end

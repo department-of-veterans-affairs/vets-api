@@ -11,6 +11,7 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
   let(:default_params) { { start_date: '2024-01-01', end_date: '2024-12-31' } }
   let(:path) { '/my_health/v2/medical_records/labs_and_tests' }
   let(:labs_cassette) { 'mobile/unified_health_data/get_labs' }
+  let(:labs_attachment_cassette) { 'mobile/unified_health_data/get_labs_value_attachment' }
   let(:ch_flipper) { :mhv_accelerated_delivery_uhd_ch_enabled }
   let(:ch_response) do
     JSON.parse(Rails.root.join(
@@ -49,6 +50,22 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
         expect(json_response.count).to eq(11)
         expect(json_response[0]).to eq(ch_response)
         expect(json_response[2]).to eq(sp_response)
+      end
+    end
+
+    context 'errors' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
+        allow(Rails.logger).to receive(:error)
+        VCR.use_cassette(labs_attachment_cassette) do
+          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+        end
+      end
+
+      it 'returns not_implemented when a value attachment is received' do
+        expect(Rails.logger).to have_received(:error).with('Observation with ID b7347c02-4abe-4784-af18-21f8c7b8fc6a has unsupported value type: Attachment')
+        expect(response.status).to eq(501)
       end
     end
   end
