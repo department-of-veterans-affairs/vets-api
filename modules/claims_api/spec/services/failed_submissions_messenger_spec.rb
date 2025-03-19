@@ -94,17 +94,19 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
     end
   end
 
-  context 'when there are more than 10 failed va.gov submissions' do
+  context 'when there are more than 10 failed va.gov submissions & TID is in whitelist' do
     let(:num_errors) { 12 }
-    let(:tid_prefix) { 'FORM526SUBMISSION' }
-    let(:errored_va_gov_claims) { Array.new(num_errors) { [SecureRandom.uuid, "#{tid_prefix}#{SecureRandom.uuid}"] } }
+    let(:tid_tag) { "Form526SubMission-#{SecureRandom.uuid}_A" }
+    let(:errored_va_gov_claims) do
+      # TID argument is built to be intentionally esoteric here, to make sure whitelisting works
+      Array.new(num_errors) { [SecureRandom.uuid, "'#{tid_tag}}_A, extra: data, to: ignore'"] }
+    end
     let(:from) { '03:59PM EST' }
     let(:to) { '04:59PM EST' }
     let(:environment) { 'production' }
 
     it 'sends error ids with links to logs' do
       first_cid = errored_va_gov_claims.first[0]
-      first_tid = errored_va_gov_claims.first[1]
 
       messenger = described_class.new(
         errored_va_gov_claims:,
@@ -138,7 +140,7 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
               type: 'mrkdwn',
               text: a_string_including('```',
                                        'CID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_cid}>",
-                                       'TID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_tid}",
+                                       'TID', '<https://vagov.ddog-gov.com/logs?query=', "|#{tid_tag}",
                                        '```')
             }
           )
