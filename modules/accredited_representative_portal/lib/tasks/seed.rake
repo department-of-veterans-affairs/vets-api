@@ -180,6 +180,13 @@ module AccreditedRepresentativePortal
             power_of_attorney_request_id: poa_request['id'],
             **resolutions[i]
           )
+          status = AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission
+                   .statuses.keys.sample
+          FactoryBot.create(
+            :power_of_attorney_form_submission,
+            status:,
+            power_of_attorney_request_id: poa_request['id']
+          )
         end
       end
 
