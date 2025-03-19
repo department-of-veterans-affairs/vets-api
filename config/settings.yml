@@ -656,7 +656,7 @@ kafka_producer:
   aws_role_arn: <%= ENV['kafka_producer__aws_role_arn'] %>
   broker_urls: <%= ENV['kafka_producer__broker_urls'] %>
   sasl_mechanisms: 'OAUTHBEARER'
-  schema_registry_url: <%= ENV['kafka_proudcer__schema_registry_url'] %>
+  schema_registry_url: <%= ENV['kafka_producer__schema_registry_url'] %>
   security_protocol: 'sasl_ssl'
 kms_key_id: <%= ENV['kms_key_id'] %>
 lgy:
@@ -1197,6 +1197,7 @@ reports:
 res:
   api_key: <%= ENV['res__api_key'] %>
   base_url: <%= ENV['res__base_url'] %>
+  mock_ch_31: <%= ENV['res__mock_ch31'] %>
 review_instance_slug: <%= ENV['review_instance_slug'] %>
 rrd:
   alerts:
@@ -1476,7 +1477,7 @@ vanotify:
       api_key: <%= ENV['vanotify__services__dmc__api_key'] %>
       template_id:
         fsr_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__fsr_confirmation_email'] %>
-        fsr_failed_email: fake_template_id
+        fsr_failed_email: <%= ENV['vanotify__services__dmc__template_id__fsr_failed_email'] %>
         fsr_streamlined_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__fsr_streamlined_confirmation_email'] %>
         vha_fsr_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__vha_fsr_confirmation_email'] %>
         vha_new_copay_statement_email: <%= ENV['vanotify__services__dmc__template_id__vha_new_copay_statement_email'] %>

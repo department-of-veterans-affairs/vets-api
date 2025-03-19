@@ -1,0 +1,7 @@
+mvi:
+  client_cert_path: /etc/pki/tls/certs/vetsgov-mvi-cert.pem
+  client_key_path: /etc/pki/tls/private/vetsgov-mvi.key
+  url: https://fwdproxy-sandbox.vfs.va.gov:4434/psim_webservice/stage1a/IdMWebService
+
+session_cookie:
+  secure: true
