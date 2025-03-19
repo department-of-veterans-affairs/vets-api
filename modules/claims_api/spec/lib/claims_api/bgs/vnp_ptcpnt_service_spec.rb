@@ -10,14 +10,9 @@ describe ClaimsApi::VnpPtcpntService do
     let(:options) { {} }
 
     it 'responds with attributes' do
-      options[:vnp_proc_id] = '3854437'
+      options[:vnp_proc_id] = '3860232'
       options[:vnp_ptcpnt_id] = nil
       options[:fraud_ind] = nil
-      options[:jrn_dt] = '2020-07-16T18:20:17Z'
-      options[:jrn_lctn_id] = 281
-      options[:jrn_obj_id] = 'VAgovAPI'
-      options[:jrn_status_type_cd] = 'U'
-      options[:jrn_user_id] = 'VAgovAPI'
       options[:legacy_poa_cd] = nil
       options[:misc_vendor_ind] = nil
       options[:ptcpnt_short_nm] = nil
@@ -29,8 +24,8 @@ describe ClaimsApi::VnpPtcpntService do
       VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_service/vnp_ptcpnt_create') do
         response = subject.vnp_ptcpnt_create(options)
         expect(response).to include(
-          { vnp_ptcpnt_id: '181913',
-            vnp_proc_id: '3854437',
+          { vnp_ptcpnt_id: '189015',
+            vnp_proc_id: '3860232',
             jrn_dt: '2020-07-16T18:20:17Z',
             jrn_lctn_id: '281',
             jrn_obj_id: 'VAgovAPI',
