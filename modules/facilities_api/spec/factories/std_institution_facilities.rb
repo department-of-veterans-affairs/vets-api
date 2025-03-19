@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :std_institution_facility do
     name { 'Fake facility name' }
