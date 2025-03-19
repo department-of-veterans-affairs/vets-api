@@ -1213,6 +1213,7 @@ reports:
 res:
   api_key: ~
   base_url: ~
+  mock_ch_31: ~
 review_instance_slug: ~
 rrd:
   alerts:
@@ -1705,7 +1706,7 @@ vet360:
   contact_information:
     cache_enabled: false
     enabled: true
-    mock: false
+    mock: true
     timeout: 30
   demographics:
     cache_enabled: false
