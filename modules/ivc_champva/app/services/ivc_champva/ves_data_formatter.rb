@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'ivc_champva/models/ves_request'
-
 module IvcChampva
   class VesDataFormatter
     CHILDTYPES = %w[ADOPTED STEPCHILD NATURAL].freeze
