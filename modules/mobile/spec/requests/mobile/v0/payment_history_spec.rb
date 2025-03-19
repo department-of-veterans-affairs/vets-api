@@ -7,6 +7,93 @@ RSpec.describe 'Mobile::V0::PaymentHistory', type: :request do
 
   let!(:user) { sis_user(email: nil) }
 
+  let(:bgs_payments) do
+    {
+      payment: [
+        {
+          beneficiary_participant_id: '600061742',
+          file_number: '796043735',
+          payee_type: 'Veteran',
+          payment_amount: '113.99',
+          payment_date: DateTime.parse('Mon, 02 Dec 2019 00:00:00 -0600'),
+          payment_status: 'Scheduled',
+          payment_type: 'Compensation & Pension - Retroactive',
+          payment_type_code: '3',
+          program_type: 'Compensation',
+          recipient_name: 'WESLEYFORD',
+          recipient_participant_id: '600061742',
+          scheduled_date: DateTime.parse('Tue, 26 Nov 2019 00:00:00 -0600'),
+          veteran_name: 'WESLEYFORD',
+          veteran_participant_id: '600061742',
+          address_eft: {},
+          check_address: {},
+          payment_record_identifier: { payment_id: '11122622' },
+          return_payment: { check_trace_number: nil, return_reason: nil }
+        },
+        {
+          beneficiary_participant_id: '600061742',
+          file_number: '796043735',
+          payee_type: 'Veteran',
+          payment_amount: '3330.71',
+          payment_date: DateTime.parse('Fri, 29 Nov 2019 00:00:00 -0600'),
+          payment_status: 'Scheduled',
+          payment_type: 'Compensation & Pension - Recurring',
+          payment_type_code: '1',
+          program_type: 'Compensation',
+          recipient_name: 'WESLEYFORD',
+          recipient_participant_id: '600061742',
+          scheduled_date: DateTime.parse('Tue, 12 Nov 2019 00:00:00 -0600'),
+          veteran_name: 'WESLEYFORD',
+          veteran_participant_id: '600061742',
+          address_eft: {},
+          check_address: {},
+          payment_record_identifier: { payment_id: '11012780' },
+          return_payment: { check_trace_number: nil, return_reason: nil }
+        },
+        {
+          beneficiary_participant_id: '600061742',
+          file_number: '796043735',
+          payee_type: 'Veteran',
+          payment_amount: '3330.71',
+          payment_date: DateTime.parse('Wed, 06 Nov 2019 00:00:00 -0600'),
+          payment_status: 'Scheduled',
+          payment_type: 'Compensation & Pension - Retroactive',
+          payment_type_code: '3',
+          program_type: 'Compensation',
+          recipient_name: 'WESLEYFORD',
+          recipient_participant_id: '600061742',
+          scheduled_date: DateTime.parse('Fri, 01 Nov 2019 00:00:00 -0500'),
+          veteran_name: 'WESLEYFORD',
+          veteran_participant_id: '600061742',
+          address_eft: {},
+          check_address: {},
+          payment_record_identifier: { payment_id: '10952622' },
+          return_payment: { check_trace_number: nil, return_reason: nil }
+        },
+        {
+          beneficiary_participant_id: '600061742',
+          file_number: '796043735',
+          payee_type: 'Veteran',
+          payment_amount: '3057.13',
+          payment_date: DateTime.parse('Mon, 01 Jul 2019 00:00:00 -0500'),
+          payment_status: 'Scheduled',
+          payment_type: 'Compensation & Pension - Recurring',
+          payment_type_code: '1',
+          program_type: 'Compensation',
+          recipient_name: 'WESLEYFORD',
+          recipient_participant_id: '600061742',
+          scheduled_date: DateTime.parse('Wed, 19 Jun 2019 00:00:00 -0500'),
+          veteran_name: 'WESLEYFORD',
+          veteran_participant_id: '600061742',
+          address_eft: {},
+          check_address: {},
+          payment_record_identifier: { payment_id: '10142672' },
+          return_payment: { check_trace_number: nil, return_reason: nil }
+        }
+      ]
+    }
+  end
+
   describe 'GET /mobile/v0/payment-history' do
     context 'without bgs access' do
       let!(:user) { sis_user(participant_id: nil) }
@@ -67,6 +154,40 @@ RSpec.describe 'Mobile::V0::PaymentHistory', type: :request do
               'perPage' => 10,
               'totalPages' => 1,
               'totalEntries' => 7
+            }
+          }
+        )
+      end
+
+      it 'returns meta data that includes the recurring payment' do
+        expect(response.parsed_body['meta']).to include(
+          {
+            'recurringPayment' => {
+              'amount' => '$3,444.70',
+              'date' => '2019-12-31T00:00:00.000-06:00'
+            }
+          }
+        )
+      end
+    end
+
+    context 'with successful response and recurring payment is not the first payment' do
+      before do
+        allow_any_instance_of(BGS::PaymentService)
+          .to receive(:payment_history).and_return({ payments: bgs_payments })
+        get '/mobile/v0/payment-history', headers: sis_headers
+      end
+
+      it 'returns a 200' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'returns the first payment with "Compensation & Pension - Recurring" paymentType' do
+        expect(response.parsed_body['meta']).to include(
+          {
+            'recurringPayment' => {
+              'amount' => '$3,330.71',
+              'date' => '2019-11-29T00:00:00.000-06:00'
             }
           }
         )
@@ -222,6 +343,17 @@ RSpec.describe 'Mobile::V0::PaymentHistory', type: :request do
           }
         )
       end
+
+      it 'returns most recent recurring payment, even if out of date range' do
+        expect(response.parsed_body['meta']).to include(
+          {
+            'recurringPayment' => {
+              'amount' => '$3,444.70',
+              'date' => '2019-12-31T00:00:00.000-06:00'
+            }
+          }
+        )
+      end
     end
 
     context 'when payments are an empty list' do
@@ -241,6 +373,14 @@ RSpec.describe 'Mobile::V0::PaymentHistory', type: :request do
 
       it 'returns an empty list' do
         expect(response.parsed_body['data'].size).to eq(0)
+      end
+
+      it 'returns an empty recurring payment' do
+        expect(response.parsed_body['meta']).to include(
+          {
+            'recurringPayment' => {}
+          }
+        )
       end
     end
 
