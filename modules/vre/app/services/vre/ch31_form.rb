@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require 'sentry_logging'
-require_relative 'ch31_errors'
 
 module VRE
   class Ch31Form < VRE::Service
+    class Ch31Error < StandardError; end
+    class Ch31NilClaimError < StandardError; end
+
     include SentryLogging
     configuration VRE::Configuration
     STATSD_KEY_PREFIX = 'api.res'
