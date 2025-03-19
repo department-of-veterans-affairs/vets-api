@@ -94,7 +94,7 @@ describe TravelPay::ClaimsClient do
 
     it 'returns response from claims/:id endpoint' do
       allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
-      @stubs.get('/api/v2/claims/uuid1') do
+      @stubs.get('/api/v1.2/claims/uuid1') do
         [
           200,
           {},
@@ -137,13 +137,7 @@ describe TravelPay::ClaimsClient do
                     'costRequested' => 20.00,
                     'costSubmitted' => 20.00
                   }
-                ],
-                'rejectionReason' => {
-                  'rejectionReasonId' => '12345',
-                  'rejectionReasonName' => 'Because',
-                  'rejectionReasonTitle' => 'Just because',
-                  'rejectionReasonDescription' => 'Because I said so'
-                }
+                ]
               }
           }
         ]

@@ -48,7 +48,7 @@ module TravelPay
       nil
     end
 
-    # Retrieves all claims from v1.2 /claims endpoint, filters for desired claim by ID
+    # Retrieves all claims from /claims endpoint, filters for desired claim by ID
     def get_claim_by_id(claim_id)
       # ensure claim ID is the right format, allowing any version
       uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
@@ -70,7 +70,7 @@ module TravelPay
       end
     end
 
-    # Retrieves expanded claim details from new v2 endpoint with additional fields
+    # Retrieves expanded claim details with additional fields
     def get_claim_details(claim_id)
       # ensure claim ID is the right format, allowing any version
       uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i

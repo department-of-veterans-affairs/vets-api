@@ -22,12 +22,7 @@ module TravelPay
         end
 
         begin
-          claim =
-            if Flipper.enabled?(:travel_pay_claims_management, @current_user)
-              claims_service.get_claim_details(params[:id])
-            else
-              claims_service.get_claim_by_id(params[:id])
-            end
+          claim = claims_service.get_claim_details(params[:id])
         rescue Faraday::Error => e
           TravelPay::ServiceError.raise_mapped_error(e)
         rescue ArgumentError => e

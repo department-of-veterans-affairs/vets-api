@@ -141,13 +141,7 @@ describe TravelPay::ClaimsService do
                   'costRequested' => 20.00,
                   'costSubmitted' => 20.00
                 }
-              ],
-              'rejectionReason' => {
-                'rejectionReasonId' => '12345',
-                'rejectionReasonName' => 'Because',
-                'rejectionReasonTitle' => 'Just because',
-                'rejectionReasonDescription' => 'Because I said so'
-              }
+              ]
             }
         }
       end
