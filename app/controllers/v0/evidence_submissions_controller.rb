@@ -7,14 +7,13 @@ module V0
     service_tag 'claims-shared'
 
     def index
-      evidence_submissions = filter_evidence_submissions(get_failed_evidence_submissions)
-      render json: { data: evidence_submissions }
+      render json: { data: filter_evidence_submissions }
     end
 
     private
 
-    def get_failed_evidence_submissions
-      EvidenceSubmission.failed.where(user_account: current_user_account.id)
+    def failed_evidence_submissions
+      @failed_evidence_submissions ||= EvidenceSubmission.failed.where(user_account: current_user_account.id)
     end
 
     def current_user_account
@@ -25,10 +24,10 @@ module V0
       BenefitsClaims::Service.new(@current_user.icn)
     end
 
-    def filter_evidence_submissions(evidence_submissions)
+    def filter_evidence_submissions
       filtered_evidence_submissions = []
       claims = {}
-      evidence_submissions.each do |es|
+      failed_evidence_submissions.each do |es|
         # When we get a claim we add it to claims so that we prevent calling lighthouse multiple times
         # to get the same claim.
         claim = claims[es.claim_id]
