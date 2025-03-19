@@ -113,12 +113,6 @@ module IvcChampva
           address: @address.to_hash
         }
 
-        # Only include keys present in the test data (keep the fields expected by the test)
-        if @person_uuid == '62345678-1234-5678-1234-567812345678'
-          hash.delete(:enrolledInPartD) if hash[:enrolledInPartD] == false
-          hash.delete(:suffix) if hash[:suffix].nil?
-        end
-
         hash.compact
       end
     end

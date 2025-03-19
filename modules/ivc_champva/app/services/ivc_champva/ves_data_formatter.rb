@@ -7,7 +7,7 @@ module IvcChampva
     CHILDTYPES = %w[ADOPTED STEPCHILD NATURAL].freeze
     RELATIONSHIPS = %w[SPOUSE EX_SPOUSE CAREGIVER CHILD].freeze
     GENDERS = %w[MALE FEMALE].freeze
-    VALID_RELATIONSHIPS_LOOKUP = RELATIONSHIPS.index_by { |r| r.downcase }.freeze
+    VALID_RELATIONSHIPS_LOOKUP = RELATIONSHIPS.index_by(&:downcase).freeze
     VALID_GENDER_LOOKUP = { 'm' => 'MALE', 'male' => 'MALE', 'f' => 'FEMALE', 'female' => 'FEMALE' }.freeze
     DEFAULT_ADDRESS = { streetAddress: 'NA', city: 'NA', state: 'NA', zipCode: 'NA' }.freeze
 
@@ -65,14 +65,19 @@ module IvcChampva
     end
 
     def self.map_beneficiary(data)
-      {
+      extract_beneficiary_data(data).merge(
         personUUID: SecureRandom.uuid,
+        supportingDocuments: format_supporting_documents(data['applicant_supporting_documents'])
+      )
+    end
+
+    def self.extract_beneficiary_data(data)
+      {
         firstName: data.dig('applicant_name', 'first'),
         middleInitial: data.dig('applicant_name', 'middle'),
         lastName: data.dig('applicant_name', 'last'),
         suffix: data.dig('applicant_name', 'suffix'),
-        ssn: data['ssn_or_tin'] || data.dig('applicant_ssn', 'ssn'),
-        dateOfBirth: data['applicant_dob'],
+        ssn: data['ssn_or_tin'] || data.dig('applicant_ssn', 'ssn'), dateOfBirth: data['applicant_dob'],
         gender: normalize_gender(data.dig('applicant_gender', 'gender')),
         emailAddress: data['applicant_email_address'],
         phoneNumber: format_phone_number(data['applicant_phone']),
@@ -83,9 +88,7 @@ module IvcChampva
         enrolledInMedicare: data.dig('applicant_medicare_status', 'eligibility') == 'enrolled' ||
           data['is_enrolled_in_medicare'],
         enrolledInPartD: data.dig('applicant_medicare_part_d', 'enrollment') == 'enrolled',
-        hasOtherInsurance: data.dig('applicant_has_ohi', 'has_ohi') == 'yes' ||
-          data['has_other_health_insurance'],
-        supportingDocuments: format_supporting_documents(data['applicant_supporting_documents'])
+        hasOtherInsurance: data.dig('applicant_has_ohi', 'has_ohi') == 'yes' || data['has_other_health_insurance']
       }
     end
 
