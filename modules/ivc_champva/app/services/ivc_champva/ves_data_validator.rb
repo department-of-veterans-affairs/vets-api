@@ -2,6 +2,9 @@
 
 module IvcChampva
   class VesDataValidator
+
+    # TODO: remove this class in favor of using the VesDataFormatter class
+
     CHILDTYPES = %w[ADOPTED STEPCHILD NATURAL].freeze
     RELATIONSHIPS = %w[SPOUSE EX_SPOUSE CAREGIVER CHILD].freeze
     GENDERS = %w[MALE FEMALE].freeze
