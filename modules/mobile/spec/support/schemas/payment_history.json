@@ -90,6 +90,21 @@
         },
         "availableYears": {
           "type": "array"
+        },
+        "recurringPayment": {
+          "type": "object",
+          "required": [
+            "amount",
+            "date"
+          ],
+          "properties": {
+            "amount": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string"
+            }
+          }
         }
       }
     }
