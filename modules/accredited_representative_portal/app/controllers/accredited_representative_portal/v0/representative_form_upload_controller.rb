@@ -8,9 +8,10 @@ module AccreditedRepresentativePortal
   module V0
     class RepresentativeFormUploadController < ApplicationController
       skip_after_action :verify_pundit_authorization
-      before_action :validate_power_of_attorney, only: :submit
+      # before_action :validate_power_of_attorney, only: :submit
 
       def submit
+        debugger
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:formNumber])
         check_for_changes
 
@@ -49,7 +50,7 @@ module AccreditedRepresentativePortal
 
         Rails.logger.info(
           'Simple forms api - scanned form uploaded',
-          { form_number: params[:form_number], status:, confirmation_number:, file_size: }
+          { form_number: params[:formNumber], status:, confirmation_number:, file_size: }
         )
         [status, confirmation_number]
       end
@@ -114,8 +115,6 @@ module AccreditedRepresentativePortal
       end
 
       def check_for_changes
-        # hits on submit
-        # debugger
         in_progress_form = InProgressForm.form_for_user(params[:formNumber], @current_user)
         if in_progress_form
           prefill_data_service = SimpleFormsApi::PrefillDataService.new(prefill_data: in_progress_form.form_data,
@@ -128,12 +127,12 @@ module AccreditedRepresentativePortal
       def create_new_form_data
         {
           ssn:,
-          postalCode: params[:formData][:postalCode],
+          postalCode: params[:representative_form_upload][:formData][:postalCode],
           full_name: {
             first: first_name,
             last: last_name
           },
-          email: params[:formData][:email],
+          email: params[:representative_form_upload][:formData][:email],
           veteranDateOfBirth: birth_date
         }
       end
