@@ -82,17 +82,15 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       end
     end
 
-    # TODO: Add a test for the v2 version once we get Swagger docs as to what the response is
-    # it 'returns a Not Found response if claim ID valid but claim not found' do
-    #   VCR.use_cassette('travel_pay/show/success-details', match_requests_on: %i[method path]) do
-    #     # This claim ID matches a claim ID in the cassette.
-    #     claim_id = SecureRandom.uuid
+    it 'returns a Bad Request response if claim ID valid but claim not found' do
+      VCR.use_cassette('travel_pay/400_claim_details', match_requests_on: %i[method path]) do
+        claim_id = 'aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e'
 
-    #     get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
+        get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
 
-    #     expect(response).to have_http_status(:not_found)
-    #   end
-    # end
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
 
     it 'returns a ServiceUnavailable response if feature flag turned off' do
       allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
