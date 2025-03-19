@@ -12,7 +12,16 @@ module SimpleFormsApi
       error: template_root.form_upload_error_email,
       received: template_root.form_upload_received_email
     }.freeze
-    SUPPORTED_FORMS = %w[21-0779 21-509 21P-0518-1 21P-0516-1 21-686c].freeze
+
+    SUPPORTED_FORMS = %w[
+      21-0779
+      21-4192
+      21-509
+      21-686c
+      21-8940
+      21P-0516-1
+      21P-0518-1
+    ].freeze
 
     def initialize(config, notification_type:)
       @notification_type = notification_type
