@@ -8,20 +8,25 @@ RSpec.describe 'VBADocument::V1::Healthcheck', type: :request do
     context 'v1' do
       let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
       let(:cache) { Rails.cache }
+      let(:messenger_instance) { instance_double(VBADocuments::Slack::Messenger) }
+      let(:s3_resource) { instance_double(Aws::S3::Resource) }
+      let(:s3_client) { instance_double(Aws::S3::Client) }
+      let(:expected_notify) do
+        { class: 'VBADocuments::MetadataController',
+          warning: ':vertical_traffic_light: ' \
+                   'Benefits Intake healthcheck failed: unable to connect to AWS S3 bucket.' }
+      end
 
       before do
         allow(Rails).to receive(:cache).and_return(memory_store)
         Rails.cache.clear
+
+        allow(Aws::S3::Resource).to receive(:new).with(anything).and_return(s3_resource)
+        allow(s3_resource).to receive(:client).and_return(s3_client)
       end
 
       it 'returns a successful health check' do
-        s3_client = instance_double(Aws::S3::Client)
         allow(s3_client).to receive(:head_bucket).with(anything).and_return(true)
-
-        s3_resource = instance_double(Aws::S3::Resource)
-        allow(s3_resource).to receive(:client).and_return(s3_client)
-
-        allow(Aws::S3::Resource).to receive(:new).with(anything).and_return(s3_resource)
 
         get '/services/vba_documents/v1/healthcheck'
 
@@ -33,20 +38,9 @@ RSpec.describe 'VBADocument::V1::Healthcheck', type: :request do
       end
 
       it 'returns a failed health check when s3 is unavailable' do
-        messenger_instance = instance_double(VBADocuments::Slack::Messenger)
-        expected_notify = { class: 'VBADocuments::MetadataController',
-                            warning: ':vertical_traffic_light: ' \
-                                     'Benefits Intake healthcheck failed: unable to connect to AWS S3 bucket.' }
         expect(VBADocuments::Slack::Messenger).to receive(:new).with(expected_notify).and_return(messenger_instance)
         expect(messenger_instance).to receive(:notify!).once
-
-        s3_client = instance_double(Aws::S3::Client)
-
         expect(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)
-
-        s3_resource = instance_double(Aws::S3::Resource)
-        allow(s3_resource).to receive(:client).and_return(s3_client)
-        allow(Aws::S3::Resource).to receive(:new).with(anything).and_return(s3_resource)
 
         get '/services/vba_documents/v1/healthcheck'
 
@@ -55,61 +49,44 @@ RSpec.describe 'VBADocument::V1::Healthcheck', type: :request do
         expect(parsed_response['description']).to eq('VBA Documents API health check')
         expect(parsed_response['status']).to eq('fail')
         expect(parsed_response['time']).not_to be_nil
+      end
 
-        # confirm that the above slack notification had it's send timestamp recorded in the cache
-        last_notify_timestamp = Rails.cache.read(VBADocuments::MetadataController::LAST_SLACK_NOTIFICATION_TS)
-        expect(last_notify_timestamp).to be_within(0.01).of(Time.zone.now.to_i)
+      it 'saves last healthcheck fail slack notify timestamp in redis' do
+        expect(VBADocuments::Slack::Messenger).to receive(:new).with(expected_notify).and_return(messenger_instance)
+        expect(messenger_instance).to receive(:notify!).once
+        expect(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)
+
+        Timecop.freeze do
+          last_notify_timestamp = Rails.cache.read(AppealsApi::MetadataController::REDIS_LAST_SLACK_NOTIFICATION_TS)
+          expect(last_notify_timestamp).to equal(nil)
+
+          get '/services/vba_documents/v1/healthcheck'
+
+          # confirm that the above slack notification had it's send timestamp recorded in the cache
+          last_notify_timestamp = Rails.cache.read(VBADocuments::MetadataController::REDIS_LAST_SLACK_NOTIFICATION_TS)
+          expect(last_notify_timestamp).to equal(Time.zone.now.to_i)
+        end
       end
 
       it 'returns a failed health check when slack is down' do
-        messenger_instance = instance_double(VBADocuments::Slack::Messenger)
-        expected_notify = { class: 'VBADocuments::MetadataController',
-                            warning: ':vertical_traffic_light: ' \
-                                     'Benefits Intake healthcheck failed: unable to connect to AWS S3 bucket.' }
         expect(VBADocuments::Slack::Messenger).to receive(:new).with(expected_notify).and_return(messenger_instance)
-
         se = StandardError.new
         expect(messenger_instance).to receive(:notify!).once.and_raise(se)
-
-        s3_client = instance_double(Aws::S3::Client)
         expect(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)
-
-        s3_resource = instance_double(Aws::S3::Resource)
-        allow(s3_resource).to receive(:client).and_return(s3_client)
-
-        allow(Aws::S3::Resource).to receive(:new).with(anything).and_return(s3_resource)
-
         expect(Rails.logger).to receive(:error).with('Benefits Intake S3 failed Healthcheck slack notification ' \
                                                      'failed: StandardError', se)
 
         get '/services/vba_documents/v1/healthcheck'
 
-        parsed_response = JSON.parse(response.body)
         expect(response).to have_http_status(:service_unavailable)
-        expect(parsed_response['description']).to eq('VBA Documents API health check')
-        expect(parsed_response['status']).to eq('fail')
-        expect(parsed_response['time']).not_to be_nil
       end
 
-      it 'no slack notify when s3 is unavailable but slack has already reported recently' do
-        Rails.cache.write(VBADocuments::MetadataController::LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
+      it 'does not send slack notification when s3 is unavailable but slack has already reported recently' do
+        Rails.cache.write(VBADocuments::MetadataController::REDIS_LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
         expect(VBADocuments::Slack::Messenger).not_to receive(:new)
-
-        s3_client = instance_double(Aws::S3::Client)
-
         expect(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)
 
-        s3_resource = instance_double(Aws::S3::Resource)
-        allow(s3_resource).to receive(:client).and_return(s3_client)
-        allow(Aws::S3::Resource).to receive(:new).with(anything).and_return(s3_resource)
-
         get '/services/vba_documents/v1/healthcheck'
-
-        parsed_response = JSON.parse(response.body)
-        expect(response).to have_http_status(:service_unavailable)
-        expect(parsed_response['description']).to eq('VBA Documents API health check')
-        expect(parsed_response['status']).to eq('fail')
-        expect(parsed_response['time']).not_to be_nil
       end
     end
   end

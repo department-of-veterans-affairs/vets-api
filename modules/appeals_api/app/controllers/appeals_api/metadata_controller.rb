@@ -11,7 +11,7 @@ module AppealsApi
     before_action :set_default_headers
 
     WARNING_EMOJI = ':warning:'
-    LAST_SLACK_NOTIFICATION_TS = 'appeals_api:last_slack_healthcheck_notification_ts'
+    REDIS_LAST_SLACK_NOTIFICATION_TS = 'appeals_api:last_slack_healthcheck_notification_ts'
     SLACK_NOTIFICATION_LIMIT_SECONDS = 1.hour.seconds.to_i
 
     def decision_reviews
@@ -48,8 +48,8 @@ module AppealsApi
 
     # Treat s3 as an internal resource as opposed to an upstream service per VA
     def healthcheck_s3
-      s3_heathy = s3_is_healthy?
-      if !s3_heathy && elapsed_seconds_since_last_slack_notify > SLACK_NOTIFICATION_LIMIT_SECONDS
+      s3_healthy = s3_is_healthy?
+      if !s3_healthy && elapsed_seconds_since_last_slack_notify > SLACK_NOTIFICATION_LIMIT_SECONDS
         begin
           slack_details = {
             class: self.class.name,
@@ -58,16 +58,16 @@ module AppealsApi
           AppealsApi::Slack::Messager.new(slack_details).notify!
 
           # save the timestamp of the last slack notification
-          Rails.cache.write(LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
+          Rails.cache.write(REDIS_LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
         rescue => e
           Rails.logger.error("Appeals API S3 failed Healthcheck slack notification failed: #{e.message}", e)
         end
       end
       render json: {
         description: 'Appeals API health check',
-        status: s3_heathy ? 'pass' : 'fail',
+        status: s3_healthy ? 'pass' : 'fail',
         time: Time.zone.now.to_formatted_s(:iso8601)
-      }, status: s3_heathy ? 200 : 503
+      }, status: s3_healthy ? 200 : 503
     end
 
     def s3_is_healthy?
@@ -83,7 +83,7 @@ module AppealsApi
     end
 
     def elapsed_seconds_since_last_slack_notify
-      last_slack_notify_ts = Rails.cache.read(LAST_SLACK_NOTIFICATION_TS)
+      last_slack_notify_ts = Rails.cache.read(REDIS_LAST_SLACK_NOTIFICATION_TS)
       return Float::MAX if last_slack_notify_ts.nil?
 
       Time.zone.now - Time.zone.at(last_slack_notify_ts)

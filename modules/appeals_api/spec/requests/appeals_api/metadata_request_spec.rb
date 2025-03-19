@@ -6,20 +6,21 @@ require 'appeals_api/health_checker'
 describe 'metadata request api', type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
   let(:cache) { Rails.cache }
+  let(:s3_client) { instance_double(Aws::S3::Client) }
+  let(:s3_resource) { instance_double(Aws::S3::Resource) }
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
+
+    allow(Aws::S3::Resource).to receive(:new).with(anything).and_return(s3_resource)
+    allow(s3_resource).to receive(:client).and_return(s3_client)
   end
 
   RSpec.shared_examples 'a healthcheck' do |path|
     it 'returns a successful healthcheck' do
       # stub successful s3 up call
-      s3_client = instance_double(Aws::S3::Client)
       allow(s3_client).to receive(:head_bucket).with(anything).and_return(true)
-      s3_resource = instance_double(Aws::S3::Resource)
-      allow(s3_resource).to receive(:client).and_return(s3_client)
-      allow(Aws::S3::Resource).to receive(:new).with(anything).and_return(s3_resource)
 
       get path
 
@@ -32,9 +33,10 @@ describe 'metadata request api', type: :request do
   end
 
   RSpec.shared_examples 'a failed healthcheck' do |path|
+    let(:messenger_instance) { instance_double(AppealsApi::Slack::Messager) }
+
     it 'returns a failed healthcheck due to s3' do
       # Slack notification expected
-      messenger_instance = instance_double(AppealsApi::Slack::Messager)
       expected_notify = { class: 'AppealsApi::MetadataController',
                           warning: ':warning: ' \
                                    'Appeals API healthcheck failed: unable to connect to AWS S3 bucket.' }
@@ -42,11 +44,7 @@ describe 'metadata request api', type: :request do
       expect(messenger_instance).to receive(:notify!).once
 
       # stub failed s3 up call
-      s3_client = instance_double(Aws::S3::Client)
       expect(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)
-      s3_resource = instance_double(Aws::S3::Resource)
-      allow(s3_resource).to receive(:client).and_return(s3_client)
-      allow(Aws::S3::Resource).to receive(:new).with(anything).and_return(s3_resource)
 
       get path
 
@@ -55,32 +53,35 @@ describe 'metadata request api', type: :request do
       expect(parsed_response['description']).to eq('Appeals API health check')
       expect(parsed_response['status']).to eq('fail')
       expect(parsed_response['time']).not_to be_nil
-
-      # confirm that the above slack notification had it's send timestamp recorded in the cache
-      last_notify_timestamp = Rails.cache.read(AppealsApi::MetadataController::LAST_SLACK_NOTIFICATION_TS)
-      expect(last_notify_timestamp).to be_within(0.01).of(Time.zone.now.to_i)
     end
 
-    it 'no slack notify when s3 is unavailable but slack has already reported recently' do
-      Rails.cache.write(AppealsApi::MetadataController::LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
+    it 'saves last healthcheck fail slack notify timestamp in redis' do
+      expect(AppealsApi::Slack::Messager).to receive(:new).and_return(messenger_instance)
+      expect(messenger_instance).to receive(:notify!).once
+      expect_any_instance_of(AppealsApi::MetadataController).to receive(:s3_is_healthy?).and_return(false)
+      Timecop.freeze do
+        last_notify_timestamp = Rails.cache.read(AppealsApi::MetadataController::REDIS_LAST_SLACK_NOTIFICATION_TS)
+        expect(last_notify_timestamp).to equal(nil)
+
+        get path
+
+        # confirm that the above slack notification had it's send timestamp recorded in the cache
+        last_notify_timestamp = Rails.cache.read(AppealsApi::MetadataController::REDIS_LAST_SLACK_NOTIFICATION_TS)
+        expect(last_notify_timestamp).to equal(Time.zone.now.to_i)
+      end
+    end
+
+    it 'does not send slack notification when s3 is unavailable but slack has already reported recently' do
+      Rails.cache.write(AppealsApi::MetadataController::REDIS_LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
+
+      # stub failed s3 up call
+      expect(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)
+      allow(Aws::S3::Resource).to receive(:new).with(anything).and_return(s3_resource)
 
       # expect NO slack notification
       expect(AppealsApi::Slack::Messager).not_to receive(:new)
 
-      # stub failed s3 up call
-      s3_client = instance_double(Aws::S3::Client)
-      expect(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)
-      s3_resource = instance_double(Aws::S3::Resource)
-      allow(s3_resource).to receive(:client).and_return(s3_client)
-      allow(Aws::S3::Resource).to receive(:new).with(anything).and_return(s3_resource)
-
       get path
-
-      parsed_response = JSON.parse(response.body)
-      expect(response).to have_http_status(:service_unavailable)
-      expect(parsed_response['description']).to eq('Appeals API health check')
-      expect(parsed_response['status']).to eq('fail')
-      expect(parsed_response['time']).not_to be_nil
     end
   end
 
