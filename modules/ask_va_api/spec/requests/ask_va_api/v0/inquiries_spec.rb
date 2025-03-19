@@ -19,6 +19,10 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
   let(:invalid_id) { 'A-20240423-30709' }
   let(:static_data_mock) { File.read('modules/ask_va_api/config/locales/static_data.json') }
   let(:cache_data) { JSON.parse(static_data_mock, symbolize_names: true) }
+  let(:patsr_facilities) do
+    data = File.read('modules/ask_va_api/config/locales/get_facilities_mock_data.json')
+    JSON.parse(data, symbolize_names: true)
+  end
 
   before do
     allow(LogService).to receive(:new).and_return(logger)
@@ -76,21 +80,25 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
       end
 
       context 'when an error occurs' do
-        context 'when a service error' do
-          let(:error_message) do
-            'AskVAApi::Inquiries::InquiriesRetrieverError: Data Validation: No Contact found by ICN'
+        context 'when No Contact found by ICN' do
+          let(:service) { instance_double(Crm::Service) }
+          let(:body) do
+            '{"Data":null,"Message":"Data Validation: No Contact found by ICN"' \
+              ',"ExceptionOccurred":true,"ExceptionMessage"' \
+              ':"Data Validation: No Contact found by ICN","MessageId":"19d9799c-159f-4901-8672-6bdfc1d4cc0f"}'
           end
+          let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
           before do
-            allow_any_instance_of(Crm::Service)
-              .to receive(:call)
-              .and_raise(Crm::ErrorHandler::ServiceError.new(error_message))
+            allow(Crm::Service).to receive(:new).and_return(service)
+            allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+            allow(service).to receive(:call).and_return(failure)
             get inquiry_path
           end
 
-          it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                          'Crm::ErrorHandler::ServiceError: ' \
-                          'AskVAApi::Inquiries::InquiriesRetrieverError: Data Validation: No Contact found by ICN'
+          it 'returns an empty array' do
+            expect(JSON.parse(response.body)['data']).to eq([])
+          end
         end
 
         context 'when a standard error' do
@@ -428,6 +436,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
         endpoint: 'optionset',
         cache_key: 'optionset'
       ).and_return(cached_data)
+      allow(cache_data_service).to receive(:fetch_and_cache_data).and_return(patsr_facilities)
     end
 
     context 'POST #create' do

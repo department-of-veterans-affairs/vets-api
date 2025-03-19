@@ -22,6 +22,8 @@ class MessageThread < Common::Base
   attribute :thread_has_attachment, Boolean
   attribute :unsent_drafts, Boolean
   attribute :unread_messages, Boolean
+  attribute :is_oh_message, Boolean
+  attribute :suggested_name_display, String
 
   def initialize(attributes = {})
     super(attributes)

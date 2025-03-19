@@ -59,11 +59,11 @@ module AccreditedRepresentativePortal
       def pending(relation)
         relation
           .not_processed
-          .order(created_at: :asc)
+          .order(created_at: :desc)
       end
 
       def processed(relation)
-        relation.processed.not_expired.order(
+        relation.processed.decisioned.order(
           resolution: { created_at: :desc }
         )
       end

@@ -20,8 +20,10 @@ ask_va_api:
     base_url: https://dev.integration.d365.va.gov
     client_id: client_id
     client_secret: secret
+    e_subscription_key: e_subscription_key
     ocp_apim_subscription_key: subscription_key
     resource: resource
+    s_subscription_key: s_subscription_key
     service_name: VEIS-API
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     veis_api_path: eis/vagov.lob.ava/api
@@ -418,7 +420,6 @@ evss:
   mock_pciu: true
   mock_pciu_address: false
   mock_ppiu: true
-  mock_reference: true
   mock_vso_search: false
   pciu:
     timeout: 30
@@ -647,7 +648,9 @@ kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: 'arn:aws:iam::123456789012:role/role-name' # this is an example
   broker_urls: ['localhost:19092'] # for local Kafka cluster in Docker
-  schema_registry_url: 'http://localhost:8081' # for local Schema Registry in Docker
+  sasl_mechanisms: 'GSSAPI'
+  schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
+  security_protocol: 'plaintext'
 kms_key_id: ~
 lgy:
   api_key: fake_api_key
@@ -919,6 +922,15 @@ mhv:
     sts:
       issuer: http://localhost:3000
       service_account_id: c34b86f2130ff3cd4b1d309bc09d8740
+  api_gateway:
+    hosts:
+      bluebutton: http://example.org
+      fhir: http://example.org
+      pharmacy: http://example.org
+      phrmgr: http://example.org
+      security: http://example.org
+      sm_patient: http://example.org
+      usermgmt: http://example.org
   bb:
     collection_caching_enabled: true
     mock: true
@@ -939,6 +951,8 @@ mhv:
     app_token: xyz
     host: http://example.org
     mhv_x_api_key: ~
+    x_api_key: fake-x-api-key
+    x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
   rx:
     app_token: fake-app-token
@@ -1193,6 +1207,7 @@ reports:
 res:
   api_key: fake_auth
   base_url: https://fake_url.com
+  mock_ch_31: ~
 review_instance_slug: ~
 rrd:
   alerts:
@@ -1529,6 +1544,7 @@ vanotify:
       template_id:
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
         appoint_a_representative_digital_submit_confirmation_email: appoint_a_rep_v2_digital_submit_confirm_email_template_id
+        appoint_a_representative_digital_submit_decline_email: appoint_a_rep_v2_digital_submit_decline_email_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id

@@ -28,7 +28,7 @@ RSpec.describe PCPG::Monitor do
           message: msg
         }
 
-        expect(monitor).to receive(:log_silent_failure_avoided).with(payload, current_user.uuid, anything)
+        expect(monitor).to receive(:log_silent_failure_no_confirmation).with(payload, current_user.uuid, anything)
         expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
         expect(Rails.logger).to receive(:error).with(log, user_uuid: current_user.uuid, **payload)
 
@@ -66,7 +66,7 @@ RSpec.describe PCPG::Monitor do
           message: msg
         }
 
-        expect(monitor).to receive(:log_silent_failure_avoided).with(payload, current_user.uuid, anything)
+        expect(monitor).to receive(:log_silent_failure_no_confirmation).with(payload, current_user.uuid, anything)
         expect(StatsD).to receive(:increment).with("#{benefits_intake_submission_stats_key}.exhausted")
         expect(Rails.logger).to receive(:error).with(log, user_uuid: current_user.uuid, **payload)
         email_address = claim.parsed_form.dig('claimantInformation', 'emailAddress')

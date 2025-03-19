@@ -62,11 +62,15 @@ module SimpleFormsApi
       end
 
       def form_upload_notification_email
-        SimpleFormsApi::FormUploadNotificationEmail.new(config, notification_type:)
+        SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type:)
       end
 
       def notification_email
-        SimpleFormsApi::NotificationEmail.new(config, notification_type:, user_account:)
+        SimpleFormsApi::Notification::Email.new(
+          config,
+          notification_type:,
+          user_account:
+        )
       end
 
       def time_to_send

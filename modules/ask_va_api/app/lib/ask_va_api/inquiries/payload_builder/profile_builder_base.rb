@@ -31,12 +31,12 @@ module AskVAApi
           }
         end
 
-        def address_data(address, postal_code, location_of_residence = nil)
+        def address_data(address, postal_code = nil, location_of_residence = nil)
           {
             Street: address[:street],
             City: address[:city],
             State: state_data(address[:state], location_of_residence),
-            ZipCode: postal_code
+            ZipCode: address[:postal_code] || postal_code
           }
         end
       end

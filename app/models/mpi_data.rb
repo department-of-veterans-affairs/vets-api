@@ -200,7 +200,7 @@ class MPIData < Common::RedisStore
   def perform_orchestrated_search(search_response)
     mpi_service.find_profile_by_attributes_with_orch_search(
       first_name: search_response.profile.given_names.first,
-      last_name: search_response.profile.given_names.last,
+      last_name: search_response.profile.family_name,
       birth_date: search_response.profile.birth_date,
       ssn: search_response.profile.ssn,
       edipi: search_response.profile.edipi

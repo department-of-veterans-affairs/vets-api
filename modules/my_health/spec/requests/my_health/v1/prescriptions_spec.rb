@@ -123,7 +123,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
           expect(JSON.parse(response.body)['data']).to be_truthy
 
-          pending_med = (JSON.parse(response.body)['data']).find do |rx|
+          pending_med = JSON.parse(response.body)['data'].find do |rx|
             rx['attributes']['prescription_source'] == 'PD'
           end
 
@@ -146,7 +146,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
           expect(JSON.parse(response.body)['data']).to be_truthy
 
-          pending_med = (JSON.parse(response.body)['data']).find do |rx|
+          pending_med = JSON.parse(response.body)['data'].find do |rx|
             rx['attributes']['prescription_source'] == 'PD'
           end
 
@@ -169,7 +169,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
           expect(JSON.parse(response.body)['data']).to be_truthy
 
-          grouped_med_list = (JSON.parse(response.body)['data'])
+          grouped_med_list = JSON.parse(response.body)['data']
           first_rx = grouped_med_list.find do |rx|
             rx['attributes']['grouped_medications'].present?
           end

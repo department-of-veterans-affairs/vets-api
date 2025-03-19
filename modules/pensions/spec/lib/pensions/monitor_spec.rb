@@ -292,7 +292,6 @@ RSpec.describe Pensions::Monitor do
 
           expect(Pensions::NotificationEmail).to receive(:new).with(claim.id).and_return notification
           expect(notification).to receive(:deliver).with(:error)
-          expect(monitor).to receive(:log_silent_failure_avoided).with(payload, current_user.uuid, anything)
 
           expect(monitor).to receive(:track_request).with(
             'error',

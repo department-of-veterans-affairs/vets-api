@@ -42,14 +42,7 @@ module V0
     # If we were unable to submit the user's claim digitally, we allow them to the download
     # the 10-10CG PDF, pre-filled with their data, for them to mail in.
     def download_pdf
-      source_file_path = if Flipper.enabled?(:caregiver1010)
-                           @claim.to_pdf(SecureRandom.uuid,
-                                         sign: false)
-                         else
-                           PdfFill::Filler.fill_form(
-                             @claim, SecureRandom.uuid, sign: false
-                           )
-                         end
+      source_file_path = @claim.to_pdf(SecureRandom.uuid, sign: false)
 
       client_file_name = file_name_for_pdf(@claim.veteran_data)
       file_contents    = File.read(source_file_path)
