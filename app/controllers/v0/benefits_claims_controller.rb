@@ -169,16 +169,6 @@ module V0
         va_notify_status: evidence_submission.va_notify_status }
     end
 
-    def get_tracked_item_display_name(evidence_submission_tracked_item_id, tracked_items)
-      return nil if tracked_items.nil?
-
-      tracked_items.each do |item|
-        return item['displayName'] if item['id'] == evidence_submission_tracked_item_id
-      end
-
-      nil
-    end
-
     def log_claim_details(claim_info)
       ::Rails.logger.info('Claim Type Details',
                           { message_type: 'lh.cst.claim_types',
