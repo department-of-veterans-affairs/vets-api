@@ -392,6 +392,14 @@ RSpec.describe HealthCareApplication, type: :model do
   describe '#process!' do
     let(:health_care_application) { build(:health_care_application) }
 
+    before do
+      allow_any_instance_of(MPI::Service).to receive(
+        :find_profile_by_attributes
+      ).and_return(
+        create(:find_profile_response, profile: OpenStruct.new(icn: '123'))
+      )
+    end
+
     it 'calls prefill fields' do
       expect(health_care_application).to receive(:prefill_fields)
 
@@ -493,7 +501,7 @@ RSpec.describe HealthCareApplication, type: :model do
       context 'with async_compatible not set' do
         let(:service_instance) { instance_double(HCA::Service) }
         let(:parsed_form) { health_care_application.send(:parsed_form) }
-        let(:success_result) { { formSubmissionId: '123' } }
+        let(:success_result) { { success: true, formSubmissionId: '123', timestamp: Time.now.getlocal.to_s } }
 
         before do
           allow(HCA::Service).to receive(:new).and_return(service_instance)
@@ -786,6 +794,14 @@ RSpec.describe HealthCareApplication, type: :model do
         formSubmissionId: 123,
         timestamp: '2017-08-03 22:02:18 -0400'
       }
+    end
+
+    before do 
+      allow_any_instance_of(MPI::Service).to receive(
+        :find_profile_by_attributes
+      ).and_return(
+        create(:find_profile_response, profile: OpenStruct.new(icn: '123'))
+      )
     end
 
     it 'sets the right fields and save the application' do
