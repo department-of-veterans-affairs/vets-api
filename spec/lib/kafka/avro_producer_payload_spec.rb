@@ -22,15 +22,14 @@ describe Kafka::AvroProducer do
   end
   let(:invalid_payload_format) { 'invalid' }
   let(:topic3_payload_value) do
-    <<~PAYLOAD
-      \x00\x00\x00\x00\x05\x00
-      \n12345\x00\x02\x12ICN123456
-      \x12VASI98765\x00\x00\x00\x00\x00\x00
-      (2024-03-04T12:00:00Z\x00
-    PAYLOAD
+    "\x00\x00\x00\x00\x05\x00\n12345\x00\x02\x12ICN123456\x12VASI98765\x00\x00\x00\x00\x00\x00(2024-03-04T12:00:00Z\x00"
   end
 
-  describe '#validate_payload!' do
+  before do
+    allow(Flipper).to receive(:enabled?).with(:kafka_producer_fetch_schema_dynamically).and_return(true)
+  end
+
+  describe 'validate payload' do
     # valid data format
     it 'validates the payload against the schema' do
       VCR.use_cassette('kafka/topics') do
