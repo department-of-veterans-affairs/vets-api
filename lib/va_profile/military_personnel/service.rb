@@ -28,7 +28,6 @@ module VAProfile
       def get_service_history
         with_monitoring do
           edipi_present!
-# binding.pry
           response = perform(:post, identity_path, VAProfile::Models::ServiceHistory.in_json)
 
           ServiceHistoryResponse.from(@current_user, response)

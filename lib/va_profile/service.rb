@@ -21,7 +21,6 @@ module VAProfile
 
       VAProfile::Stats.increment('total_operations')
       config.base_request_headers.merge(headers)
-      # stuff here is where we make the call to here: lib/common/client/base.rb:113
       super(method, path, body, headers)
     end
 
