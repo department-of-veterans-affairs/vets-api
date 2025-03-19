@@ -16,7 +16,7 @@ module VAProfile
       end
 
       def mock_enabled?
-        VAProfile::Configuration::SETTINGS.contact_information.mock || false
+        true
       end
     end
   end
