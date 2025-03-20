@@ -28,20 +28,19 @@ module IvcChampva
                     :is_death_on_active_service, :phone_number, :address, :person_uuid
 
       def initialize(params = {})
-        @person_uuid = params[:person_uuid] || params[:personUUID]
-        @first_name = params[:first_name] || params[:firstName]
-        @last_name = params[:last_name] || params[:lastName]
-        @middle_initial = params[:middle_initial] || params[:middleInitial]
-        @suffix = params[:suffix] || params['suffix']
+        @person_uuid = params[:person_uuid]
+        @first_name = params[:first_name]
+        @last_name = params[:last_name]
+        @middle_initial = params[:middle_initial]
+        @suffix = params[:suffix]
         @ssn = params[:ssn]
-        @va_file_number = params[:va_file_number] || params[:vaFileNumber] || params[:vaClaimNumber] || ''
-        @date_of_birth = params[:date_of_birth] || params[:dateOfBirth]
-        @date_of_marriage = params[:date_of_marriage] || params[:dateOfMarriage] || ''
-        @is_deceased = params[:is_deceased] || params[:isDeceased]
-        @date_of_death = params[:date_of_death] || params[:dateOfDeath]
-        @is_death_on_active_service = params[:is_death_on_active_service] || params[:isDeathOnActiveService] ||
-                                      params[:isActiveServiceDeath] || false
-        @phone_number = params[:phone_number] || params[:phoneNumber]
+        @va_file_number = params[:va_claim_number]
+        @date_of_birth = params[:date_of_birth]
+        @date_of_marriage = params[:date_of_marriage]
+        @is_deceased = params[:sponsor_is_deceased]
+        @date_of_death = params[:date_of_death]
+        @is_death_on_active_service = params[:is_death_on_active_service] || false
+        @phone_number = params[:phone_number]
         @address = Address.new(params[:address] || {})
       end
 
@@ -72,21 +71,21 @@ module IvcChampva
                     :date_of_birth, :address, :person_uuid
 
       def initialize(params = {})
-        @person_uuid = params[:person_uuid] || params[:personUUID]
-        @first_name = params[:first_name] || params[:firstName]
-        @last_name = params[:last_name] || params[:lastName]
-        @middle_initial = params[:middle_initial] || params[:middleInitial]
+        @person_uuid = params[:person_uuid]
+        @first_name = params[:first_name]
+        @last_name = params[:last_name]
+        @middle_initial = params[:middle_initial]
         @suffix = params[:suffix]
         @ssn = params[:ssn]
-        @email_address = params[:email_address] || params[:emailAddress]
-        @phone_number = params[:phone_number] || params[:phoneNumber]
+        @email_address = params[:email_address]
+        @phone_number = params[:phone_number]
         @gender = params[:gender]
-        @enrolled_in_medicare = params[:enrolled_in_medicare] || params[:enrolledInMedicare]
-        @enrolled_in_part_d = params[:enrolled_in_part_d] || params[:enrolledInPartD]
-        @has_other_insurance = params[:has_other_insurance] || params[:hasOtherInsurance]
-        @relationship_to_sponsor = params[:relationship_to_sponsor] || params[:relationshipToSponsor]
-        @child_type = params[:child_type] || params[:childtype]
-        @date_of_birth = params[:date_of_birth] || params[:dateOfBirth]
+        @enrolled_in_medicare = params[:enrolled_in_medicare]
+        @enrolled_in_part_d = params[:enrolled_in_part_d]
+        @has_other_insurance = params[:has_other_insurance]
+        @relationship_to_sponsor = params[:relationship_to_sponsor]
+        @child_type = params[:child_type]
+        @date_of_birth = params[:date_of_birth]
         @address = Address.new(params[:address] || {})
       end
 
@@ -118,10 +117,10 @@ module IvcChampva
       attr_accessor :street_address, :city, :state, :zip_code
 
       def initialize(params = {})
-        @street_address = params[:street_address] || params[:streetAddress] || 'NA'
-        @city = params[:city] || 'NA'
-        @state = params[:state] || 'NA'
-        @zip_code = params[:zip_code] || params[:zipCode] || 'NA'
+        @street_address = params[:street_address] || params[:streetAddress] || DEFAULT_ADDRESS[:street_address]
+        @city = params[:city] || DEFAULT_ADDRESS[:city]
+        @state = params[:state] || DEFAULT_ADDRESS[:state]
+        @zip_code = params[:zip_code] || params[:zipCode] || DEFAULT_ADDRESS[:zip_code]
       end
 
       def to_hash
@@ -140,13 +139,13 @@ module IvcChampva
 
       def initialize(params = {})
         @signature = params[:signature]
-        @signature_date = params[:signature_date] || params[:signatureDate]
-        @first_name = params[:first_name] || params[:firstName]
-        @last_name = params[:last_name] || params[:lastName]
-        @middle_initial = params[:middle_initial] || params[:middleInitial]
-        @phone_number = params[:phone_number] || params[:phoneNumber]
+        @signature_date = params[:signature_date]
+        @first_name = params[:first_name]
+        @last_name = params[:last_name]
+        @middle_initial = params[:middle_initial]
+        @phone_number = params[:phone_number]
         @relationship = params[:relationship]
-        @address = params[:address]
+        @address = Address.new(params[:address])
       end
 
       def to_hash
@@ -157,7 +156,8 @@ module IvcChampva
           lastName: @last_name,
           middleInitial: @middle_initial,
           phoneNumber: @phone_number,
-          relationship: @relationship
+          relationship: @relationship,
+          address: @address.to_hash
         }
         hash.compact
       end

@@ -95,15 +95,15 @@ module IvcChampva
         lastName: transliterate_and_strip(certification_data['last_name']),
         middleInitial: certification_data['middle_initial'],
         phoneNumber: format_phone_number(certification_data['phone_number']),
-        relationship: certification_data['relationship']
+        relationship: certification_data['relationship'],
+        address: map_address(certification_data)
       }
     end
 
     def self.map_address(address_data)
       return DEFAULT_ADDRESS unless address_data.is_a?(Hash)
-
       {
-        streetAddress: address_data['street_combined'] || address_data['street'] || 'NA',
+        streetAddress: address_data['street_combined'] || address_data['street'] || address_data['street_address'] || 'NA',
         city: address_data['city'] || 'NA',
         state: address_data['state'] || 'NA',
         zipCode: address_data['postal_code'] || 'NA'
