@@ -7,6 +7,11 @@ require 'stringio'
 describe MedicalRecords::Client do
   context 'when a valid session exists', :vcr do
     before(:all) do
+      VCR.configure do |vcr_config|
+        vcr_config.default_cassette_options = {
+          allow_playback_repeats: true
+        }
+      end
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
                        match_requests_on: %i[method sm_user_ignoring_path_param]) do
         VCR.use_cassette 'mr_client/session' do

@@ -8,6 +8,11 @@ UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 describe BBInternal::Client do
   before(:all) do
+    VCR.configure do |vcr_config|
+      vcr_config.default_cassette_options = {
+        allow_playback_repeats: true
+      }
+    end
     VCR.use_cassette 'mr_client/bb_internal/session_auth' do
       @client ||= begin
         client = BBInternal::Client.new(session: { user_id: '11375034', icn: '1012740022V620959' })
