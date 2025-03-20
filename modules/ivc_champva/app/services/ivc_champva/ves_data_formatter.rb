@@ -63,7 +63,6 @@ module IvcChampva
     end
 
     def self.map_beneficiary(data)
-      puts "data.dig('applicant_name', 'first'): #{data.dig('applicant_name', 'first')}"
       {
         person_uuid: SecureRandom.uuid,
         first_name: transliterate_and_strip(data.dig('applicant_name', 'first')),
@@ -90,7 +89,7 @@ module IvcChampva
       return {} unless certification_data
 
       {
-        signature: signature,
+        signature:,
         signature_date: certification_data['date'],
         first_name: transliterate_and_strip(certification_data['first_name']),
         last_name: transliterate_and_strip(certification_data['last_name']),
@@ -103,8 +102,9 @@ module IvcChampva
 
     def self.map_address(address_data)
       return DEFAULT_ADDRESS unless address_data.is_a?(Hash)
+
       {
-        street_address: address_data['street_combined'] || address_data['street'] || 
+        street_address: address_data['street_combined'] || address_data['street'] ||
           address_data['street_address'] || DEFAULT_ADDRESS[:street_address],
         city: address_data['city'] || DEFAULT_ADDRESS[:city],
         state: address_data['state'] || DEFAULT_ADDRESS[:state],
@@ -179,6 +179,10 @@ module IvcChampva
       case childtype.to_s.downcase
       when 'blood'
         'NATURAL'
+      when 'adoption'
+        'ADOPTED'
+      when 'step'
+        'STEPCHILD'
       else
         childtype.to_s.upcase
       end
