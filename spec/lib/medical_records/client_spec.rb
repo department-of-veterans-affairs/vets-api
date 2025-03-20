@@ -16,6 +16,7 @@ describe MedicalRecords::Client do
                        match_requests_on: %i[method sm_user_ignoring_path_param]) do
         VCR.use_cassette 'mr_client/session' do
           VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
+            Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
             @client ||= begin
               client = MedicalRecords::Client.new(session: { user_id: '22406991', icn: '1013868614V792025' })
               client.authenticate
@@ -27,6 +28,7 @@ describe MedicalRecords::Client do
     end
 
     before do
+      Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
       MedicalRecords::Client.send(:public, *MedicalRecords::Client.protected_instance_methods)
 
       # Redirect FHIR logger's output to the buffer before each test

@@ -14,12 +14,17 @@ describe BBInternal::Client do
       }
     end
     VCR.use_cassette 'mr_client/bb_internal/session_auth' do
+      Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
       @client ||= begin
         client = BBInternal::Client.new(session: { user_id: '11375034', icn: '1012740022V620959' })
         client.authenticate
         client
       end
     end
+  end
+
+  before do
+    Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
   end
 
   let(:client) { @client }
