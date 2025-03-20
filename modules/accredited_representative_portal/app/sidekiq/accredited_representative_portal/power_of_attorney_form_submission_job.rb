@@ -73,12 +73,19 @@ module AccreditedRepresentativePortal
       @response_status ||= response.dig('data', 'attributes', 'status')
     end
 
+    def completed_steps
+      [].tap do |steps|
+        response.dig('data', 'attributes', 'steps').to_a.each do |step|
+          steps << step['type'] if step['status'] == 'SUCCESS'
+        end
+      end
+    end
+
     def new_status
-      case response_status
-      when 'updated'
+      return :failed if response_status == 'errored'
+
+      if Set.new(completed_steps) >= Set.new(%w[PDF_SUBMISSION POA_UPDATE POA_ACCESS_UPDATE])
         :succeeded
-      when 'errored'
-        :failed
       else
         :enqueue_succeeded
       end
