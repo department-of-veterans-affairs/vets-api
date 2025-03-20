@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../models/vre/vre_veteran_readiness_employment_claim'
-require_relative '../../services/vre/vre_monitor'
-
 module VRE
   class VRESubmit1900Job
     include Sidekiq::Job
