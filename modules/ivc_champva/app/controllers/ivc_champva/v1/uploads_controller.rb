@@ -20,19 +20,24 @@ module IvcChampva
           form_id = get_form_id
           Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
           parsed_form_data = JSON.parse(params.to_json)
+
+          # TODO: add a VES data validation check to be confident that VES submission will succeed before
+          # proceeding with the Pega upload
+
           statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
+
+          # TODO: Add feature toggle around this
+          if Settings.vsp_environment != 'production' && form_id == 'vha_10_10d'
+            ves_client = IvcChampva::VesApi::Client.new
+            ves_client.submit_1010d('fake-id', 'fake-user', parsed_form_data)
+
+            # TODO: Add error handling for VES failures.
+          end
 
           response = build_json(statuses, error_message)
 
           if @current_user && response[:status] == 200
             InProgressForm.form_for_user(params[:form_number], @current_user)&.destroy!
-            # TODO: Add feature toggle around this
-            # TODO: Make call to VES with parsed_form_data e.g.,
-
-            # ves_client = IvcChampva::VesApi::Client.new
-            # ves_client.submit_1010d('fake-id', 'fake-user', parsed_form_data)
-
-            # TODO: Add error handling for VES failures.
           end
 
           render json: response[:json], status: response[:status]

@@ -20,9 +20,13 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     'vha_10_7959a.json'
   ]
 
+  let(:ves_client) { double('IvcChampva::VesApi::Client') }
+
   before do
     @original_aws_config = Aws.config.dup
     Aws.config.update(stub_responses: true)
+    allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
+    allow(ves_client).to receive(:submit_1010d)
   end
 
   after do
@@ -64,6 +68,28 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         post '/ivc_champva/v1/forms', params: data_with_docs
 
         expect(response).to have_http_status(:internal_server_error)
+      end
+
+      context 'when environment is production' do
+        it 'does not submit to VES' do
+          with_settings(Settings, vsp_environment: 'production') do
+            post '/ivc_champva/v1/forms', params: data
+            expect(ves_client).not_to have_received(:submit_1010d)
+          end
+        end
+      end
+
+      context 'when environment is not production' do
+        it 'submits to VES only for form 10-10D' do
+          with_settings(Settings, vsp_environment: 'staging') do
+            post '/ivc_champva/v1/forms', params: data
+            if data['form_number'] == '10-10D'
+              expect(ves_client).to have_received(:submit_1010d)
+            else
+              expect(ves_client).not_to have_received(:submit_1010d)
+            end
+          end
+        end
       end
     end
   end
