@@ -15,6 +15,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Session', type: :request do
   let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
   before do
+    Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
     allow(PHRMgr::Client).to receive(:new).and_return(PHRMgr::Client.new(12_345))

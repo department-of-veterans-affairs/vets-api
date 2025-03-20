@@ -14,6 +14,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Radiology', type: :request do
   let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
   before do
+    Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
     bb_internal_client = BBInternal::Client.new(
       session: {
         user_id: 11_375_034,
