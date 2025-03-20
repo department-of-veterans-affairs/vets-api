@@ -312,6 +312,14 @@ module BBInternal
       yield
     end
 
+    def token_headers
+      super.merge('x-api-key' => config.x_api_key)
+    end
+
+    def auth_headers
+      super.merge('x-api-key' => config.x_api_key)
+    end
+
     ##
     # Overriding this to ensure a unique namespace for the redis lock.
     #

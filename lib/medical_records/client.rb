@@ -44,7 +44,7 @@ module MedicalRecords
     #
     def base_path
       if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        "#{Settings.mhv.api_gateway.hosts.fhir}/fhir/"
+        "#{Settings.mhv.api_gateway.hosts.fhir}/v1/fhir/"
       else
         "#{Settings.mhv.medical_records.host}/fhir/"
       end
@@ -217,9 +217,9 @@ module MedicalRecords
     # @return [FHIR::ClientReply]
     #
     def fhir_search_query(fhir_model, params)
-      default_headers = { 'Cache-Control': 'no-cache' }
+      default_headers = { 'Cache-Control' => 'no-cache' }
       if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        default_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
+        default_headers = default_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
       end
 
       params[:headers] = default_headers.merge(params.fetch(:headers, {}))
@@ -234,7 +234,7 @@ module MedicalRecords
     def fhir_read(fhir_model, id)
       default_headers = {}
       if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        default_headers.merge!('x-api-key' => Settings.mhv.medical_records.x_api_key)
+        default_headers = default_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
       end
 
       result = fhir_client.read(fhir_model, id, nil, nil, { headers: default_headers })
