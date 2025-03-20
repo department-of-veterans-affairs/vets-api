@@ -67,7 +67,7 @@ module VRE
       email_addr = Constants::REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
       Rails.logger.info('VRE claim sending email:', { email: email_addr, user_uuid: user.uuid })
       VRE::VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
-                                             @sent_to_lighthouse).deliver_later
+                                                  @sent_to_lighthouse).deliver_later
 
       send_to_res(user)
     end
@@ -80,7 +80,7 @@ module VRE
     def upload_to_vbms(user:, doc_type: '1167')
       form_path = PdfFill::Filler.fill_form(self, nil, { created_at: })
 
-      uploader = ClaimsApi::VBMSUploader.new(
+      uploader = ::ClaimsApi::VBMSUploader.new(
         filepath: Rails.root.join(form_path),
         file_number: parsed_form['veteranInformation']['VAFileNumber'] || parsed_form['veteranInformation']['ssn'],
         doc_type:
@@ -151,7 +151,7 @@ module VRE
     def send_vbms_confirmation_email(user)
       return if user.va_profile_email.blank?
 
-      VANotify::EmailJob.perform_async(
+      ::VANotify::EmailJob.perform_async(
         user.va_profile_email,
         Settings.vanotify.services.va_gov.template_id.ch31_vbms_form_confirmation_email,
         {
@@ -164,7 +164,7 @@ module VRE
     def send_lighthouse_confirmation_email(user)
       return if user.va_profile_email.blank?
 
-      VANotify::EmailJob.perform_async(
+      ::VANotify::EmailJob.perform_async(
         user.va_profile_email,
         Settings.vanotify.services.va_gov.template_id.ch31_central_mail_form_confirmation_email,
         {
@@ -176,10 +176,10 @@ module VRE
 
     def process_attachments!
       refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
-      files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
+      files = ::PersistentAttachment.where(guid: refs.map(&:confirmationCode))
       files.find_each { |f| f.update(saved_claim_id: id) }
 
-      Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
+      ::Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
     end
 
     def business_line
@@ -192,7 +192,7 @@ module VRE
     # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
     def send_failure_email(email)
       if email.present?
-        VANotify::EmailJob.perform_async(
+        ::VANotify::EmailJob.perform_async(
           email,
           Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
           {
@@ -239,7 +239,7 @@ module VRE
     end
 
     def veteran_va_file_number(user)
-      response = BGS::People::Request.new.find_person_by_participant_id(user:)
+      response = ::BGS::People::Request.new.find_person_by_participant_id(user:)
       response.file_number
     rescue
       nil
