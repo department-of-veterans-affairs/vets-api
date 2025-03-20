@@ -32,7 +32,11 @@ module Rx
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      "#{Settings.mhv.rx.host}/mhv-api/patient/v1/"
+      if Flipper.enabled?(:mhv_medications_add_x_api_key)
+        "#{Settings.mhv.rx.host}/v1/"
+      else
+        "#{Settings.mhv.rx.host}/mhv-api/patient/v1/"
+      end
     end
 
     ##
