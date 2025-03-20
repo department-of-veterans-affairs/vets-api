@@ -104,10 +104,11 @@ module IvcChampva
     def self.map_address(address_data)
       return DEFAULT_ADDRESS unless address_data.is_a?(Hash)
       {
-        street_address: address_data['street_combined'] || address_data['street'] || address_data['street_address'] || 'NA',
-        city: address_data['city'] || 'NA',
-        state: address_data['state'] || 'NA',
-        zip_code: address_data['postal_code'] || 'NA'
+        street_address: address_data['street_combined'] || address_data['street'] || 
+          address_data['street_address'] || DEFAULT_ADDRESS[:street_address],
+        city: address_data['city'] || DEFAULT_ADDRESS[:city],
+        state: address_data['state'] || DEFAULT_ADDRESS[:state],
+        zip_code: address_data['postal_code'] || DEFAULT_ADDRESS[:zip_code]
       }
     end
 
