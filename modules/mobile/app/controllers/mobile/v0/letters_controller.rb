@@ -86,7 +86,7 @@ module Mobile
       private
 
       def download_lighthouse_letters(params)
-        lighthouse_service.download_letter(icn, params[:type], download_options_hash)
+        lighthouse_service.download_letter({ icn: }, params[:type], download_options_hash)
       end
 
       def icn
