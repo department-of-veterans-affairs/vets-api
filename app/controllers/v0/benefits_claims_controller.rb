@@ -3,6 +3,7 @@
 require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_claims/constants'
 require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/benefits_claims/utilities/helpers'
 
 module V0
   class BenefitsClaimsController < ApplicationController
@@ -148,10 +149,10 @@ module V0
 
     def build_filtered_evidence_submission_record(evidence_submission, tracked_items)
       personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
-      tracked_item_display_name = if tracked_items && evidence_submission.tracked_item_id
-                                    get_tracked_item_display_name(evidence_submission.tracked_item_id,
-                                                                  tracked_items)
-                                  end
+      tracked_item_display_name = BenefitsClaims::Utilities::Helpers.get_tracked_item_display_name(
+        evidence_submission.tracked_item_id,
+        tracked_items
+      )
 
       { acknowledgement_date: evidence_submission.acknowledgement_date,
         claim_id: evidence_submission.claim_id,
@@ -161,19 +162,11 @@ module V0
         failed_date: evidence_submission.failed_date,
         file_name: personalisation['file_name'],
         id: evidence_submission.id,
-        lighthouse_upload: evidence_submission.job_class == 'BenefitsDocuments::Service',
+        lighthouse_upload: evidence_submission.job_class == 'Lighthouse::EvidenceSubmissions::DocumentUpload',
         tracked_item_id: evidence_submission.tracked_item_id,
         tracked_item_display_name:,
         upload_status: evidence_submission.upload_status,
         va_notify_status: evidence_submission.va_notify_status }
-    end
-
-    def get_tracked_item_display_name(evidence_submission_tracked_item_id, tracked_items)
-      tracked_items.each do |item|
-        return item['displayName'] if item['id'] == evidence_submission_tracked_item_id
-      end
-
-      nil
     end
 
     def log_claim_details(claim_info)
