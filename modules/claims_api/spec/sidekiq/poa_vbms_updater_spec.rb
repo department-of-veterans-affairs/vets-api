@@ -110,6 +110,90 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       end
     end
 
+    context 'deciding to send a VA Notify email' do
+      let(:allow_poa_c_add) { 'Y' }
+      let(:consent_address_change) { true }
+
+      before do
+        create_mock_lighthouse_service
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return true
+      end
+
+      let(:poa) { create_poa }
+      let(:header_key) { ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY }
+
+      context 'when the header key and rep are present' do
+        it 'sends the vanotify job' do
+          poa.auth_headers.merge!({
+                                    header_key => 'this_value'
+                                  })
+          poa.save!
+
+          allow_any_instance_of(ClaimsApi::ServiceBase).to receive(:vanotify?).and_return true
+          expect(ClaimsApi::VANotifyAcceptedJob).to receive(:perform_async)
+
+          subject.new.perform(poa.id, 'Rep Data')
+        end
+      end
+
+      context 'when the flipper is off' do
+        it 'does not send the vanotify job' do
+          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
+          Flipper.disable(:lighthouse_claims_api_v2_poa_va_notify)
+
+          poa.auth_headers.merge!({
+                                    header_key => 'this_value'
+                                  })
+          poa.save!
+
+          expect(ClaimsApi::VANotifyAcceptedJob).not_to receive(:perform_async)
+
+          subject.new.perform(poa.id, 'Rep Data')
+        end
+      end
+
+      context 'does not send the va notify job' do
+        it 'when the rep is not present' do
+          poa.auth_headers.merge!({
+                                    header_key => 'this_value'
+                                  })
+          poa.save!
+
+          expect(ClaimsApi::VANotifyAcceptedJob).not_to receive(:perform_async)
+
+          subject.new.perform(poa.id, nil)
+        end
+
+        it 'when the header key is not present' do
+          expect(ClaimsApi::VANotifyAcceptedJob).not_to receive(:perform_async)
+
+          subject.new.perform(poa.id, 'Rep data')
+        end
+      end
+    end
+
+    context 'inability to save the poa form' do
+      let(:allow_poa_c_add) { 'Y' }
+      let(:consent_address_change) { true }
+
+      it 'logs to the ClaimsApi logger & re-raises' do
+        err_msg = Faker::Lorem.sentence
+        Sidekiq::Testing.inline! do
+          poa = create_poa(allow_poa_access: true)
+          create_mock_lighthouse_service
+          allow_any_instance_of(ClaimsApi::PowerOfAttorney).to receive(:save!).and_raise StandardError.new(err_msg)
+          allow(ClaimsApi::Logger).to receive(:log) # Ignore other logger calls we're not testing for, if they exist
+          expect(ClaimsApi::Logger).to receive(:log).with(
+            'poa_vbms_updater',
+            poa_id: poa.id,
+            detail: 'Re-raising Error',
+            error: err_msg
+          )
+          expect { subject.new.perform(poa.id) }.to raise_error StandardError
+        end
+      end
+    end
+
     context 'when an errored job has exhausted its retries' do
       let(:allow_poa_c_add) { 'Y' }
       let(:consent_address_change) { true }
