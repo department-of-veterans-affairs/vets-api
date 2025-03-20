@@ -99,14 +99,13 @@ module Common
           @service = create_new_breakers_service(breakers_matcher, breakers_exception_handler)
         end
 
-        ##
-        # Default matcher.
-        # 
-        # This may be overridden to match on request details.
-        #
         def breakers_matcher
+          base_uri = URI.parse(base_path)
           proc do |breakers_service, request_env, request_service_name|
-            request_service_name == breakers_service.name
+            return true if request_service_name && request_service_name == breakers_service.name
+
+            request_env.url.host == base_uri.host && request_env.url.port == base_uri.port &&
+              request_env.url.path =~ /^#{base_uri.path}/
           end
         end
 

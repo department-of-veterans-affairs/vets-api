@@ -86,10 +86,8 @@ module Common
 
           if handlers.include?(Breakers::UptimeMiddleware)
             if handlers.first == Breakers::UptimeMiddleware
-              if !connection.app.service_name
-                raise BreakersImplementationError, 'Please pass a service_name argument to the Breakers middleware'
-              end
-
+              message = "Please pass a service_name argument to the Breakers middleware for service: #{service_name}"
+              warn(message) unless connection.app.service_name
               return connection
             end
 
