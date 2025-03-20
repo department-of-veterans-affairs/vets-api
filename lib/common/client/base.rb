@@ -85,7 +85,13 @@ module Common
           end
 
           if handlers.include?(Breakers::UptimeMiddleware)
-            return connection if handlers.first == Breakers::UptimeMiddleware
+            if handlers.first == Breakers::UptimeMiddleware
+              if !connection.app.service_name
+                raise BreakersImplementationError, 'Please pass a service_name argument to the Breakers middleware'
+              end
+
+              return connection
+            end
 
             raise BreakersImplementationError, 'Breakers should be the first middleware implemented.'
           else
