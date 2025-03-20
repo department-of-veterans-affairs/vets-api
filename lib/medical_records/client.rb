@@ -82,9 +82,14 @@ module MedicalRecords
     end
 
     def get_patient_by_identifier(fhir_client, identifier)
+      default_headers = { 'Cache-Control' => 'no-cache' }
+      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+        default_headers = default_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
+      end
+
       result = fhir_client.search(FHIR::Patient, {
                                     search: { parameters: { identifier: } },
-                                    headers: { 'Cache-Control': 'no-cache' }
+                                    headers: default_headers
                                   })
 
       # MHV will return a 202 if and only if the patient does not exist. It will not return 202 for

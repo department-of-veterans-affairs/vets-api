@@ -49,7 +49,11 @@ module Common
 
         def get_jwt_from_headers(res_headers)
           # Get the JWT token from the headers
-          auth_header = res_headers['authorization']
+          auth_header = if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+                          res_headers['x-amzn-remapped-authorization']
+                        else
+                          res_headers['authorization']
+                        end
           if auth_header.nil? || !auth_header.start_with?('Bearer ')
             raise Common::Exceptions::Unauthorized, detail: 'Invalid or missing authorization header'
           end
