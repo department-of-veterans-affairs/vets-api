@@ -147,17 +147,6 @@ describe Kafka::AvroProducer do
       end
     end
 
-    it 'raises a validation error when state has an invalid value' do
-      invalid_payload = valid_payload.dup
-      invalid_payload['state'] = 'invalid_state'
-
-      VCR.use_cassette('kafka/topics') do
-        expect do
-          avro_producer.produce('topic-3', invalid_payload)
-        end.to raise_error(Avro::SchemaValidator::ValidationError)
-      end
-    end
-
     # timestamp
     it 'raises a validation error when timestamp is missing' do
       invalid_payload = valid_payload.dup

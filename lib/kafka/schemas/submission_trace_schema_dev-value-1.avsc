@@ -63,18 +63,7 @@
     },
     {
       "name": "state",
-      "type": [
-        {
-          "type": "enum",
-          "name": "state",
-          "symbols": [
-            "received",
-            "sent",
-            "completed",
-            "error"
-          ]
-        }
-      ]
+      "type": "string"
     },
     {
       "name": "timestamp",
@@ -84,7 +73,10 @@
       "name": "additionalIds",
       "type": [
         "null",
-        "string"
+        {
+          "type": "array",
+          "items": "string"
+        }
       ]
     }
   ]
