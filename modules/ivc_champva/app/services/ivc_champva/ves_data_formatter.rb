@@ -47,8 +47,8 @@ module IvcChampva
     def self.map_sponsor(veteran_data)
       {
         personUUID: SecureRandom.uuid,
-        firstName: veteran_data.dig('full_name', 'first'),
-        lastName: veteran_data.dig('full_name', 'last'),
+        firstName: transliterate_and_strip(veteran_data.dig('full_name', 'first')),
+        lastName: transliterate_and_strip(veteran_data.dig('full_name', 'last')),
         middleInitial: veteran_data.dig('full_name', 'middle'),
         ssn: veteran_data['ssn_or_tin'],
         vaFileNumber: veteran_data['va_claim_number'] || '',
@@ -65,9 +65,9 @@ module IvcChampva
     def self.map_beneficiary(data)
       {
         personUUID: SecureRandom.uuid,
-        firstName: data.dig('applicant_name', 'first'),
+        firstName: transliterate_and_strip(data.dig('applicant_name', 'first')),
         middleInitial: data.dig('applicant_name', 'middle'),
-        lastName: data.dig('applicant_name', 'last'),
+        lastName: transliterate_and_strip(data.dig('applicant_name', 'last')),
         suffix: data.dig('applicant_name', 'suffix'),
         ssn: data['ssn_or_tin'] || data.dig('applicant_ssn', 'ssn'),
         dateOfBirth: data['applicant_dob'],
@@ -76,8 +76,8 @@ module IvcChampva
         phoneNumber: format_phone_number(data['applicant_phone']),
         address: map_address(data['applicant_address']),
         relationshipToSponsor: convert_relationship(data['vet_relationship']),
-        childtype: data.dig('childtype', 'relationship_to_veteran') ||
-          data.dig('applicant_relationship_origin', 'relationship_to_veteran'),
+        childtype: normalize_childtype(data.dig('childtype', 'relationship_to_veteran') || 
+          data.dig('applicant_relationship_origin', 'relationship_to_veteran')),
         enrolledInMedicare: data.dig('applicant_medicare_status', 'eligibility') == 'enrolled' ||
           data['is_enrolled_in_medicare'],
         enrolledInPartD: data.dig('applicant_medicare_part_d', 'enrollment') == 'enrolled',
@@ -91,8 +91,8 @@ module IvcChampva
       {
         signature:,
         signatureDate: certification_data['date'],
-        firstName: certification_data['first_name'],
-        lastName: certification_data['last_name'],
+        firstName: transliterate_and_strip(certification_data['first_name']),
+        lastName: transliterate_and_strip(certification_data['last_name']),
         middleInitial: certification_data['middle_initial'],
         phoneNumber: format_phone_number(certification_data['phone_number']),
         relationship: certification_data['relationship']
@@ -136,6 +136,20 @@ module IvcChampva
       digits
     end
 
+    def format_date(date_string)
+      return nil if date_string.blank?
+
+      return date_string if date_string.match?(/^\d{4}-\d{2}-\d{2}$/)
+
+      begin
+        # parsed_form_data should be correct already
+        # TODO: add checks for other delimiters
+        Date.parse(date_string, '%d-%m-%Y').strftime('%Y-%m-%d')
+      rescue
+        date_string
+      end
+    end
+
     def self.normalize_gender(gender)
       return nil if gender.blank?
 
@@ -157,7 +171,19 @@ module IvcChampva
       raise ArgumentError, "Relationship #{relationship} is invalid. Must be in #{RELATIONSHIPS.join(', ')}"
     end
 
+    def self.normalize_childtype(childtype)
+      return nil if childtype.blank?
+      
+      case childtype.to_s.downcase
+      when 'blood'
+        'NATURAL'
+      else
+        childtype.to_s.upcase
+      end
+    end
+
     def self.transliterate_and_strip(text)
+      return nil if text.blank?
       I18n.transliterate(text).gsub(%r{[^a-zA-Z\-\/\s]}, '').strip
     end
 
@@ -222,10 +248,6 @@ module IvcChampva
     def self.validate_name_fields(object, prefix)
       validate_presence_and_stringiness(object[:firstName], "#{prefix} first name")
       validate_presence_and_stringiness(object[:lastName], "#{prefix} last name")
-
-      object[:firstName] = transliterate_and_strip(object[:firstName])
-      object[:lastName] = transliterate_and_strip(object[:lastName])
-
       object
     end
 
@@ -234,24 +256,13 @@ module IvcChampva
       validate_presence_and_stringiness(beneficiary[:relationshipToSponsor], 'beneficiary relationship to sponsor')
 
       unless RELATIONSHIPS.include?(beneficiary[:relationshipToSponsor])
-        beneficiary[:relationshipToSponsor] = convert_relationship(beneficiary[:relationshipToSponsor])
-      end
-
-      unless RELATIONSHIPS.include?(beneficiary[:relationshipToSponsor])
         raise ArgumentError, "beneficiary relationship to sponsor is invalid. Must be in #{RELATIONSHIPS.join(', ')}"
       end
 
       # Validate childtype if relationship is CHILD
       if beneficiary[:relationshipToSponsor] == 'CHILD'
         validate_nonempty_presence_and_stringiness(beneficiary[:childtype], 'beneficiary childtype')
-
-        case beneficiary[:childtype]
-        when 'blood'
-          beneficiary[:childtype] = 'NATURAL'
-        else
-          beneficiary[:childtype] = beneficiary[:childtype].upcase if beneficiary[:childtype]
-        end
-
+        
         unless CHILDTYPES.include?(beneficiary[:childtype])
           raise ArgumentError, "beneficiary childtype is invalid. Must be in #{CHILDTYPES.join(', ')}"
         end
@@ -262,9 +273,6 @@ module IvcChampva
 
     def self.validate_gender(beneficiary)
       validate_presence_and_stringiness(beneficiary[:gender], 'beneficiary gender')
-
-      # Try to normalize the gender first
-      beneficiary[:gender] = normalize_gender(beneficiary[:gender])
 
       unless GENDERS.include?(beneficiary[:gender])
         raise ArgumentError, "beneficiary gender is invalid. Must be in #{GENDERS.join(', ')}"
@@ -296,9 +304,6 @@ module IvcChampva
 
     def self.validate_ssn(ssn, name)
       validate_presence_and_stringiness(ssn, name)
-      formatted_ssn = format_ssn(ssn)
-      ssn = formatted_ssn if formatted_ssn
-
       unless ssn.match?(/^(?!(000|666|9))\d{3}(?!00)\d{2}(?!0000)\d{4}$/)
         raise ArgumentError, "#{name} is invalid. Must be 9 digits (see regex for more detail)"
       end
@@ -308,10 +313,6 @@ module IvcChampva
 
     def self.validate_phone(object, name)
       validate_presence_and_stringiness(object[:phoneNumber], 'phone number')
-
-      formatted_phone = format_phone_number(object[:phoneNumber])
-      object[:phoneNumber] = formatted_phone if formatted_phone.present?
-
       unless object[:phoneNumber].match?(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/)
         raise ArgumentError, "#{name} is invalid. See regex for more detail"
       end
@@ -327,19 +328,6 @@ module IvcChampva
     def self.validate_nonempty_presence_and_stringiness(value, error_label)
       validate_presence_and_stringiness(value, error_label)
       raise ArgumentError, "#{error_label} is an empty string" if value.length.zero?
-    end
-
-    def format_date(date_string)
-      return nil if date_string.blank?
-
-      return date_string if date_string.match?(/^\d{4}-\d{2}-\d{2}$/)
-
-      begin
-        # TODO: verify incoming date format
-        Date.parse(date_string, '%d-%m-%Y').strftime('%Y-%m-%d')
-      rescue
-        date_string
-      end
     end
   end
 end
