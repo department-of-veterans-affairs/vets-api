@@ -949,11 +949,11 @@ mhv:
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     app_token_va_gov: <%= ENV['mhv__rx__app_token_va_gov'] %>
+    base_path: <%= ENV['mhv__rx__base_path'] %>
     collection_caching_enabled: <%= ENV['mhv__rx__collection_caching_enabled'] %>
     host: <%= ENV['mhv__rx__host'] %>
     mock: <%= ENV['mhv__rx__mock'] %>
     x_api_key: <%= ENV['mhv__rx__x_api_key'] %>
-    base_path: <%= ENV['mhv__rx__base_path'] %>
   sm:
     app_token: <%= ENV['mhv__sm__app_token'] %>
     host: <%= ENV['mhv__sm__host'] %>
