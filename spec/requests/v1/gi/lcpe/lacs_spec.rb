@@ -9,7 +9,7 @@ RSpec.describe 'V1::GI::LCPE::Lacs', type: :request do
 
   let(:v_fresh) { '3' }
   let(:v_stale) { '2' }
-  let(:enriched_id) { "1@#{v_client}" }
+  let(:enriched_id) { "1v#{v_client}" }
 
   describe 'GET v1/gi/lcpe/lacs' do
     let(:lcpe_type) { 'lacs' }
