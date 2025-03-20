@@ -74,7 +74,9 @@ module Swagger::Schemas
       property :facilityName, type: :string, example: 'Cheyenne VA Medical Center'
       property :totalCostRequested, type: :number, example: 20.00
       property :reimbursementAmount, type: :number, example: 14.52
-      property :appointment, type: :object do key :$ref, :TravelPayAppointment end
+      property :appointment, type: :object do 
+        key :$ref, :TravelPayAppointment 
+      end
       property :expenses, type: :array do
         items do
           key :$ref, :TravelPayExpense
