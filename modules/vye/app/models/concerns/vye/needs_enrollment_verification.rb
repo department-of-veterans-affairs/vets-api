@@ -7,11 +7,17 @@ module Vye
       return @enrollments if defined?(@enrollments)
 
       setup
+      puts "start enrollments date is #{@today}"
       awards.each do |award|
         @award = award
+        puts "Processing award: #{@award.id}"
+        puts "----------------------------------------"
+        puts "award_begin_date: #{@award[:award_begin_date]}"
+        puts "award_end_date: #{@award[:award_end_date]}"
+        puts "----------------------------------------"
 
         eval_case_eom
-
+#byebug
         next if flag_open_cert
         next if eval_case1a
         next if eval_case1b
@@ -109,6 +115,7 @@ module Vye
     end
 
     def eval_case_eom
+      puts "start eval_case_eom"
       return unless last_day_of_month?
       return unless abd_before_today? && !aed_before_today?
 
@@ -118,7 +125,7 @@ module Vye
         else
           date_last_certified
         end
-
+      puts "pushing enrollment for case_eom"
       push_enrollment(
         award_id: @award.id,
         act_begin:,
@@ -133,6 +140,7 @@ module Vye
     end
 
     def flag_open_cert
+      puts "start flag_open_cert"
       return unless dlc_before_ldpm? || date_last_certified.blank?
       return unless @award.award_ind_current?
       return if @award.award_end_date.present?
@@ -147,6 +155,7 @@ module Vye
     end
 
     def eval_case1a
+      puts "start eval_case1a"
       return unless dlc_before_ldpm? || date_last_certified.blank?
       return unless @award.award_ind_current?
       return if @award.award_end_date.blank?
@@ -155,7 +164,7 @@ module Vye
       return unless ldpm_before_aed? && are_dates_the_same(@award.award_begin_date, @award.award_end_date)
 
       @supress_future_award = true
-
+      puts "pushing enrollment for case_1a"
       push_enrollment(
         award_id: @award.id,
         act_begin: date_last_certified,
@@ -170,6 +179,7 @@ module Vye
     end
 
     def eval_case1b
+      puts "start eval_case1b"
       return unless dlc_before_ldpm? || date_last_certified.blank?
       return unless @award.award_ind_current?
       return if @award.award_end_date.blank?
@@ -177,6 +187,7 @@ module Vye
       return unless current_rec_ended?
       return if ldpm_before_aed? && are_dates_the_same(@award.award_begin_date, @award.award_end_date)
 
+      puts "pushing enrollment for case_1b"
       push_enrollment(
         award_id: @award.id,
         act_begin: date_last_certified,
@@ -191,6 +202,7 @@ module Vye
     end
 
     def eval_case2
+      puts "start eval_case2"
       return unless dlc_before_ldpm? || date_last_certified.blank?
       return unless @award.award_ind_current?
       return if @award.award_end_date.blank?
@@ -198,6 +210,7 @@ module Vye
       return if current_rec_ended?
       return unless ldpm_before_aed? && !ldpm_before_abd?
 
+      puts "pushing enrollment for case_2"
       push_enrollment(
         award_id: @award.id,
         act_begin: date_last_certified,
@@ -212,6 +225,7 @@ module Vye
     end
 
     def eval_case3
+      puts "start eval_case3"
       return unless dlc_before_ldpm? || date_last_certified.blank?
       return unless @award.award_ind_current?
       return if @award.award_end_date.blank?
@@ -219,6 +233,7 @@ module Vye
       return if current_rec_ended?
       return if ldpm_before_aed? && !ldpm_before_abd?
 
+      puts "pushing enrollment for case_3"
       push_enrollment(
         award_id: @award.id,
         act_begin: date_last_certified,
@@ -233,11 +248,13 @@ module Vye
     end
 
     def eval_case4
+      puts "start eval_case4"
       return unless dlc_before_ldpm? || date_last_certified.blank?
       return unless @award.award_ind_future? && !@supress_future_award
       return unless @open_cert
       return unless ldpm_before_abd?
 
+      puts "pushing enrollment for case_4"
       push_enrollment(
         award_id: @open_cert_award_id,
         act_begin: date_last_certified,
@@ -253,12 +270,14 @@ module Vye
     end
 
     def eval_case5
+      puts "start eval_case5"
       return unless dlc_before_ldpm? || date_last_certified.blank?
       return unless @award.award_ind_future? && !@supress_future_award
       return unless @open_cert
       return if ldpm_before_abd?
       return unless ldpm_before_aed?
 
+      puts "pushing enrollment for case_5"
       push_enrollment(
         award_id: @open_cert_award_id,
         act_begin: date_last_certified,
@@ -274,12 +293,14 @@ module Vye
     end
 
     def eval_case6
+      puts "start eval_case6"
       return unless dlc_before_ldpm? || date_last_certified.blank?
       return unless @award.award_ind_future? && !@supress_future_award
       return if @open_cert
       return if ldpm_before_abd?
       return if date_last_certified.present?
 
+      puts "pushing enrollment for case_6"
       push_enrollment(
         award_id: @award.id,
         act_begin: @award.award_begin_date,
@@ -294,6 +315,7 @@ module Vye
     end
 
     def eval_case7
+      puts "start eval_case7"
       return unless dlc_before_ldpm? || date_last_certified.blank?
       return unless @award.award_ind_future? && !@supress_future_award
       return if @open_cert
@@ -301,6 +323,7 @@ module Vye
       return if date_last_certified.blank?
       return unless ldpm_before_aed?
 
+      puts "pushing enrollment for case_7"
       push_enrollment(
         award_id: @award.id,
         act_begin: @award.award_begin_date,
@@ -315,6 +338,7 @@ module Vye
     end
 
     def eval_case8
+      puts "start eval_case8"
       return unless dlc_before_ldpm? || date_last_certified.blank?
       return unless @award.award_ind_future? && !@supress_future_award
       return if @open_cert
@@ -322,6 +346,7 @@ module Vye
       return if date_last_certified.blank?
       return if ldpm_before_aed?
 
+      puts "pushing enrollment for case_8"
       push_enrollment(
         award_id: @award.id,
         act_begin: @award.award_begin_date,
@@ -336,10 +361,12 @@ module Vye
     end
 
     def eval_case9
+      puts "start eval_case9"
       return if dlc_before_ldpm? || date_last_certified.blank?
       return unless aed_before_today?
       return unless are_dates_the_same(@award.award_begin_date, @award.award_end_date)
 
+      puts "pushing enrollment for case_9"
       push_enrollment(
         award_id: @award.id,
         act_begin: date_last_certified,
