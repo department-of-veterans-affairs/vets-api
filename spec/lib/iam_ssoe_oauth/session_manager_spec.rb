@@ -7,6 +7,14 @@ describe 'IAMSSOeOAuth::SessionManager' do
   let(:access_token) { 'ypXeAwQedpmAy5xFD2u5' }
   let(:session_manager) { IAMSSOeOAuth::SessionManager.new(access_token) }
 
+  before do
+    allow(IAMSSOeOAuth::Configuration.instance).to receive(:ssl_cert)
+      .and_return(instance_double('OpenSSL::X509::Certificate'))
+    allow(IAMSSOeOAuth::Configuration.instance).to receive(:ssl_key)
+      .and_return(instance_double('OpenSSL::PKey::RSA'))
+  end
+
+
   describe '#find_or_create_user' do
     context 'with a valid access token' do
       before do
