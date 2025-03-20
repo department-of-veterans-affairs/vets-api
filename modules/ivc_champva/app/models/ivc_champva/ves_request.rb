@@ -108,7 +108,6 @@ module IvcChampva
           dateOfBirth: @date_of_birth,
           address: @address.to_hash
         }
-
         hash.compact
       end
     end
@@ -145,7 +144,7 @@ module IvcChampva
         @middle_initial = params[:middle_initial]
         @phone_number = params[:phone_number]
         @relationship = params[:relationship]
-        @address = Address.new(params[:address])
+        @address = Address.new(params[:address] || {})
       end
 
       def to_hash
