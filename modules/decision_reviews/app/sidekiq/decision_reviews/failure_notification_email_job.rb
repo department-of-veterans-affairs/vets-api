@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require 'decision_reviews/v1/constants'
+require 'decision_reviews/notification_callbacks/form_notification_callback'
 
 module DecisionReviews
   class FailureNotificationEmailJob
@@ -14,6 +15,12 @@ module DecisionReviews
       SavedClaim::HigherLevelReview
       SavedClaim::SupplementalClaim
     ].freeze
+
+    APPEAL_TYPE_TO_SERVICE_MAP = {
+      'HLR' => 'higher-level-review',
+      'NOD' => 'board-appeal',
+      'SC' => 'supplemental-claims'
+    }.freeze
 
     ERROR_STATUS = 'error'
 
@@ -47,6 +54,23 @@ module DecisionReviews
 
     def vanotify_service
       @service ||= ::VaNotify::Service.new(Settings.vanotify.services.benefits_decision_review.api_key)
+    end
+
+    def vanotify_service_with_callback(submission, template_id)
+      callback_options = {
+        callback_klass: DecisionReviews::FormNotificationCallback.to_s,
+        callback_metadata: {
+          email_type: :error,
+          service_name: APPEAL_TYPE_TO_SERVICE_MAP[submission.type_of_appeal],
+          function: 'form submission',
+          submitted_appeal_uuid: submission.submitted_appeal_uuid,
+          email_template_id: template_id
+        }
+      }
+      ::VaNotify::Service.new(
+        Settings.vanotify.services.benefits_decision_review.api_key,
+        callback_options
+      )
     end
 
     # Fetches SavedClaim records for DecisionReview that have an error status for the form or any evidence attachments
@@ -88,15 +112,33 @@ module DecisionReviews
       vanotify_service.send_email({ email_address:, template_id:, personalisation:, reference: })
     end
 
+    def send_email_with_vanotify_form_callback(submission, filename, created_at, template_id)
+      email_address = submission.current_email_address
+      personalisation = {
+        first_name: submission.get_mpi_profile.given_names[0],
+        filename:,
+        date_submitted: created_at.strftime('%B %d, %Y')
+      }
+
+      vanotify_service_with_callback = vanotify_service_with_callback(submission, template_id)
+      vanotify_service_with_callback.send_email({ email_address:, template_id:, personalisation: })
+    end
+
     def send_form_emails
       StatsD.increment("#{STATSD_KEY_PREFIX}.form.processing_records", submissions.size)
 
       submissions.each do |submission|
         appeal_type = submission.type_of_appeal
         reference = "#{appeal_type}-form-#{submission.submitted_appeal_uuid}"
+        email_template_id = DecisionReviews::V1::FORM_TEMPLATE_IDS[appeal_type]
+        response = if form_callbacks_enabled?
+                     send_email_with_vanotify_form_callback(submission, nil, submission.created_at,
+                                                            email_template_id)
+                   else
+                     send_email_with_vanotify(submission, nil, submission.created_at,
+                                              email_template_id, reference)
+                   end
 
-        response = send_email_with_vanotify(submission, nil, submission.created_at,
-                                            DecisionReviews::V1::FORM_TEMPLATE_IDS[appeal_type], reference)
         submission.update(failure_notification_sent_at: DateTime.now)
 
         record_form_email_send_successful(submission, response.id)
@@ -221,6 +263,10 @@ module DecisionReviews
 
     def secondary_forms_enabled?
       Flipper.enabled? :decision_review_notify_4142_failures
+    end
+
+    def form_callbacks_enabled?
+      Flipper.enabled? :decision_review_notification_form_callbacks
     end
   end
 end
