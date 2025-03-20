@@ -163,13 +163,13 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     let(:datestamp_pdf_double) { instance_double(PDFUtilities::DatestampPdf) }
 
     before do
-      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
       job.instance_variable_set(:@intake_service, service)
       job.instance_variable_set(:@claim, claim)
     end
 
     it 'returns a datestamp pdf path' do
       run_count = 0
+      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
       allow(datestamp_pdf_double).to receive(:run) {
         run_count += 1
         pdf_path
