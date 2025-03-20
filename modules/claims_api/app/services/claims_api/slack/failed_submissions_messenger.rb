@@ -123,7 +123,7 @@ module ClaimsApi
       # 'Form526Submission_3443656, user_uuid: [filtered], service_provider: lighthouse'
       # The KV-looking stuff isn't useful in a DD link, so extract the "tag" at the beginning of the string
       def extract_tag_from_whitelist(id)
-        return nil if TID_SUBSTRING_WHITELIST.none? { |s| id.upcase.include? s }
+        return nil if TID_SUBSTRING_WHITELIST.none? { |s| id&.upcase&.include? s }
 
         # Not scanning for beginning single quote in case it's not there
         id.split(',').first.scan(/[a-zA-Z0-9_-]+/)[0]
