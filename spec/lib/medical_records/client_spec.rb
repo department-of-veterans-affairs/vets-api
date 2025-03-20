@@ -462,6 +462,7 @@ describe MedicalRecords::Client do
                        match_requests_on: %i[method sm_user_ignoring_path_param]) do
         VCR.use_cassette 'mr_client/session' do
           VCR.use_cassette 'mr_client/get_a_patient_by_identifier_hapi_1363' do
+            Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
             partial_client ||= begin
               partial_client = MedicalRecords::Client.new(session: { user_id: '22406991',
                                                                      icn: '1013868614V792025' })
@@ -482,6 +483,7 @@ describe MedicalRecords::Client do
                        match_requests_on: %i[method sm_user_ignoring_path_param]) do
         VCR.use_cassette 'mr_client/session' do
           VCR.use_cassette 'mr_client/get_a_patient_by_identifier_not_found' do
+            Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
             partial_client ||= begin
               partial_client = MedicalRecords::Client.new(session: { user_id: '22406991',
                                                                      icn: '1013868614V792025' })
