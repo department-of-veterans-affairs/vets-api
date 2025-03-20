@@ -154,13 +154,12 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
     end
 
     context 'if transaction ids are not in the substring whitelist' do
-      [nil, SecureRandom.uuid].each do |tid|
-        let(:errored_va_gov_claims) { Array.new(num_errors) { [SecureRandom.uuid, tid] } }
+      let(:num_errors) { 1 }
 
+      [nil, SecureRandom.uuid, 'NOT_WHITELISTED_TAG'].each do |tid|
         it 'avoids linking to logs that are not there' do
+          errored_va_gov_claims = Array.new(num_errors) { [SecureRandom.uuid, tid] }
           first_cid = errored_va_gov_claims.first[0]
-          first_tid = errored_va_gov_claims.first[1]
-          puts first_tid
           messenger = described_class.new(
             errored_va_gov_claims:,
             from:,
