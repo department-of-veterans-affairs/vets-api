@@ -106,8 +106,8 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 400
-      message: Bad Request
+      code: 404
+      message: Not Found
     headers:
       Date:
       - Tue, 28 Feb 2023 21:02:39 GMT
@@ -167,7 +167,7 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"errors":[{"status":404,"code":"not_found","title":"Endpoint not found."}]}'
+      string: '{"errors":[{"status":404,"code":"not_found","title":"Claim not found."}]}'
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: post
