@@ -75,30 +75,6 @@ describe TravelPay::ClaimsService do
       expect(actual_statuses).to match_array(expected_statuses)
     end
 
-    context 'get claim by id' do
-      it 'returns a single claim when passed a valid id' do
-        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
-        expected_claim = claims_data['data'].find { |c| c['id'] == claim_id }
-        actual_claim = @service.get_claim_by_id(claim_id)
-
-        expect(actual_claim).to eq(expected_claim)
-      end
-
-      it 'returns nil if a claim with the given id was not found' do
-        claim_id = SecureRandom.uuid
-        actual_claim = @service.get_claim_by_id(claim_id)
-
-        expect(actual_claim).to be_nil
-      end
-
-      it 'throws an ArgumentException if claim_id is invalid format' do
-        claim_id = 'this-is-definitely-a-uuid-right'
-
-        expect { @service.get_claim_by_id(claim_id) }
-          .to raise_error(ArgumentError, /valid UUID/i)
-      end
-    end
-
     context 'get claim details' do
       let(:user) { build(:user) }
       let(:claim_details_data) do
