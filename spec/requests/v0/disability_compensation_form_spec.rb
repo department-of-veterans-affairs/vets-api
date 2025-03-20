@@ -118,7 +118,6 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
       VCR.insert_cassette('va_profile/military_personnel/post_read_service_history_200')
       VCR.insert_cassette('lighthouse/direct_deposit/show/200_valid')
       VCR.insert_cassette('lighthouse/direct_deposit/update/200_valid')
-      VCR.insert_cassette('evss/intent_to_file/active_compensation')
     end
 
     after do
@@ -126,7 +125,6 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
       VCR.eject_cassette('va_profile/military_personnel/post_read_service_history_200')
       VCR.eject_cassette('lighthouse/direct_deposit/show/200_valid')
       VCR.eject_cassette('lighthouse/direct_deposit/update/200_valid')
-      VCR.eject_cassette('evss/intent_to_file/active_compensation')
     end
 
     context 'with a valid 200 evss response' do

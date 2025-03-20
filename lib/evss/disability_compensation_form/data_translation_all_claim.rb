@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'evss/ppiu/service'
-require 'evss/intent_to_file/service'
 
 module EVSS
   module DisabilityCompensationForm

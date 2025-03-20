@@ -13,12 +13,12 @@ module ClaimsApi
           property :id do
             key :type, :string
             key :example, '1056'
-            key :description, 'Intent to File ID from EVSS'
+            key :description, 'Intent to File ID from Lighthouse'
           end
 
           property :type do
             key :type, :string
-            key :example, 'evss_intent_to_file_intent_to_files'
+            key :example, 'disability_compensation_intent_to_files'
             key :description, 'Required by JSON API standard'
           end
 
