@@ -4,6 +4,9 @@ require 'sentry_logging'
 
 module VRE
   class Ch31Form < VRE::Service
+    class Ch31Error < StandardError; end
+    class Ch31NilClaimError < StandardError; end
+
     include SentryLogging
     configuration VRE::Configuration
     STATSD_KEY_PREFIX = 'api.res'
