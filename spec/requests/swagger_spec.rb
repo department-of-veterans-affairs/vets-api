@@ -3828,12 +3828,12 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'returns 404 for missing claim' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[path method]) do
+        VCR.use_cassette('travel_pay/404_claim_details', match_requests_on: %i[path method]) do
           expect(subject).to validate(
             :get,
             '/travel_pay/v0/claims/{id}',
             404,
-            headers.merge('id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6')
+            headers.merge('id' => 'aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e')
           )
         end
       end
