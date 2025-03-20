@@ -76,7 +76,7 @@ module IvcChampva
         phoneNumber: format_phone_number(data['applicant_phone']),
         address: map_address(data['applicant_address']),
         relationshipToSponsor: convert_relationship(data['vet_relationship']),
-        childtype: normalize_childtype(data.dig('childtype', 'relationship_to_veteran') || 
+        childtype: normalize_childtype(data.dig('childtype', 'relationship_to_veteran') ||
           data.dig('applicant_relationship_origin', 'relationship_to_veteran')),
         enrolledInMedicare: data.dig('applicant_medicare_status', 'eligibility') == 'enrolled' ||
           data['is_enrolled_in_medicare'],
@@ -173,7 +173,7 @@ module IvcChampva
 
     def self.normalize_childtype(childtype)
       return nil if childtype.blank?
-      
+
       case childtype.to_s.downcase
       when 'blood'
         'NATURAL'
@@ -184,6 +184,7 @@ module IvcChampva
 
     def self.transliterate_and_strip(text)
       return nil if text.blank?
+
       I18n.transliterate(text).gsub(%r{[^a-zA-Z\-\/\s]}, '').strip
     end
 
@@ -262,7 +263,7 @@ module IvcChampva
       # Validate childtype if relationship is CHILD
       if beneficiary[:relationshipToSponsor] == 'CHILD'
         validate_nonempty_presence_and_stringiness(beneficiary[:childtype], 'beneficiary childtype')
-        
+
         unless CHILDTYPES.include?(beneficiary[:childtype])
           raise ArgumentError, "beneficiary childtype is invalid. Must be in #{CHILDTYPES.join(', ')}"
         end
