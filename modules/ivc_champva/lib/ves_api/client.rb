@@ -154,49 +154,6 @@ module IvcChampva
           'phoneNumber' => certification_data['phone_number']
         }
       end
-
-      def format_date(date_string)
-        return nil if date_string.blank?
-
-        return date_string if date_string.match?(/^\d{4}-\d{2}-\d{2}$/)
-
-        begin
-          # TODO: verify incoming date format
-          Date.parse(date_string, '%d-%m-%Y').strftime('%Y-%m-%d')
-        rescue
-          date_string
-        end
-      end
-
-      def format_phone_number(phone)
-        return nil if phone.blank?
-
-        # If already in (XXX) XXX-XXXX format, return as is
-        return phone if phone.match?(/^\(\d{3}\) \d{3}-\d{4}$/)
-
-        # Extract digits only
-        digits = phone.to_s.gsub(/\D/, '')
-
-        # Format as (XXX) XXX-XXXX if we have 10 digits
-        if digits.length == 10
-          "(#{digits[0..2]}) #{digits[3..5]}-#{digits[6..9]}"
-        else
-          phone
-        end
-      end
-
-      def normalize_gender(gender)
-        return nil if gender.blank?
-
-        case gender.to_s.upcase
-        when 'M', 'MALE'
-          'MALE'
-        when 'F', 'FEMALE'
-          'FEMALE'
-        else
-          gender.to_s.upcase
-        end
-      end
     end
   end
 end

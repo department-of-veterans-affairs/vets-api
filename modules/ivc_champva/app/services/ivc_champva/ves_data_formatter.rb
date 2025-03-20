@@ -63,19 +63,14 @@ module IvcChampva
     end
 
     def self.map_beneficiary(data)
-      extract_beneficiary_data(data).merge(
-        personUUID: SecureRandom.uuid,
-        supportingDocuments: format_supporting_documents(data['applicant_supporting_documents'])
-      )
-    end
-
-    def self.extract_beneficiary_data(data)
       {
+        personUUID: SecureRandom.uuid,
         firstName: data.dig('applicant_name', 'first'),
         middleInitial: data.dig('applicant_name', 'middle'),
         lastName: data.dig('applicant_name', 'last'),
         suffix: data.dig('applicant_name', 'suffix'),
-        ssn: data['ssn_or_tin'] || data.dig('applicant_ssn', 'ssn'), dateOfBirth: data['applicant_dob'],
+        ssn: data['ssn_or_tin'] || data.dig('applicant_ssn', 'ssn'),
+        dateOfBirth: data['applicant_dob'],
         gender: normalize_gender(data.dig('applicant_gender', 'gender')),
         emailAddress: data['applicant_email_address'],
         phoneNumber: format_phone_number(data['applicant_phone']),
@@ -115,22 +110,12 @@ module IvcChampva
       }
     end
 
-    def self.format_supporting_documents(documents)
-      return [] unless documents.is_a?(Array)
-
-      documents.map do |doc|
-        {
-          attachmentId: doc['attachment_id'],
-          confirmationCode: doc['confirmation_code'],
-          name: doc['name']
-        }
-      end
-    end
-
     # Data formatting methods
     def self.format_phone_number(phone)
       return nil if phone.blank?
-      return phone if phone.match?(/^\(\d{3}\) \d{3}-\d{4}$/)
+
+      # regex from VES swagger
+      return phone if phone.match?(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/)
 
       # TODO: add country code check/formatting
       digits = phone.to_s.gsub(/\D/, '')
@@ -144,6 +129,8 @@ module IvcChampva
 
       digits = ssn.to_s.gsub(/\D/, '')
       return ssn unless digits.length == 9
+
+      # regex from VES swagger
       return nil unless digits.match?(/^(?!(000|666|9))\d{3}(?!00)\d{2}(?!0000)\d{4}$/)
 
       digits
@@ -340,6 +327,19 @@ module IvcChampva
     def self.validate_nonempty_presence_and_stringiness(value, error_label)
       validate_presence_and_stringiness(value, error_label)
       raise ArgumentError, "#{error_label} is an empty string" if value.length.zero?
+    end
+
+    def format_date(date_string)
+      return nil if date_string.blank?
+
+      return date_string if date_string.match?(/^\d{4}-\d{2}-\d{2}$/)
+
+      begin
+        # TODO: verify incoming date format
+        Date.parse(date_string, '%d-%m-%Y').strftime('%Y-%m-%d')
+      rescue
+        date_string
+      end
     end
   end
 end

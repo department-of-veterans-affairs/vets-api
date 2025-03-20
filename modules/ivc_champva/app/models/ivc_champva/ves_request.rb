@@ -69,7 +69,7 @@ module IvcChampva
       attr_accessor :first_name, :last_name, :middle_initial, :suffix, :ssn, :email_address,
                     :phone_number, :gender, :enrolled_in_medicare, :enrolled_in_part_d,
                     :has_other_insurance, :relationship_to_sponsor, :child_type,
-                    :date_of_birth, :address, :supporting_documents, :person_uuid
+                    :date_of_birth, :address, :person_uuid
 
       def initialize(params = {})
         @person_uuid = params[:person_uuid] || params[:personUUID]
@@ -88,9 +88,6 @@ module IvcChampva
         @child_type = params[:child_type] || params[:childtype]
         @date_of_birth = params[:date_of_birth] || params[:dateOfBirth]
         @address = Address.new(params[:address] || {})
-        @supporting_documents = (params[:supporting_documents] || params['supportingDocuments'] || []).map do |doc|
-          SupportingDocument.new(doc)
-        end
       end
 
       def to_hash
@@ -161,25 +158,6 @@ module IvcChampva
           middleInitial: @middle_initial,
           phoneNumber: @phone_number,
           relationship: @relationship
-        }
-        hash.compact
-      end
-    end
-
-    class SupportingDocument
-      attr_accessor :attachment_id, :confirmation_code, :name
-
-      def initialize(params = {})
-        @attachment_id = params[:attachment_id] || params[:attachmentId]
-        @confirmation_code = params[:confirmation_code] || params[:confirmationCode]
-        @name = params[:name]
-      end
-
-      def to_hash
-        hash = {
-          attachmentId: @attachment_id,
-          confirmationCode: @confirmation_code,
-          name: @name
         }
         hash.compact
       end
