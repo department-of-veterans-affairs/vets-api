@@ -9,10 +9,9 @@ describe 'IAMSSOeOAuth::SessionManager' do
 
   before do
     allow(IAMSSOeOAuth::Configuration).to receive(:instance).and_return(
-      instance_double('IAMSSOeOAuth::Configuration',
-        ssl_cert: instance_double('OpenSSL::X509::Certificate'),
-        ssl_key: instance_double('OpenSSL::PKey::RSA')
-      )
+      instance_double(IAMSSOeOAuth::Configuration,
+                      ssl_cert: instance_double(OpenSSL::X509::Certificate),
+                      ssl_key: instance_double(OpenSSL::PKey::RSA))
     )
   end
 
