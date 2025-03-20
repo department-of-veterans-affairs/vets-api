@@ -106,7 +106,7 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
       context 'submission to VRE' do
         before do
           # As the PERMITTED_OFFICE_LOCATIONS constant at
-          # the top of: app/models/saved_claim/veteran_readiness_employment_claim.rb gets changed, you
+          # modules/vre/app/models/vre/constants.rb gets changed, you
           # may need to change this mock below and maybe even move it into different 'it'
           # blocks if you need to test different routing offices
           expect_any_instance_of(BGS::RORoutingService).to receive(:get_regional_office_by_zip_code).and_return(
@@ -123,18 +123,16 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
 
       # We want all submission to go through with RES
       context 'non-submission to VRE' do
-        context 'flipper enabled' do
-          it 'stops submission if location is not in list' do
-            expect_any_instance_of(VRE::Ch31Form).to receive(:submit)
-            claim.add_claimant_info(user_object)
+        it 'stops submission if location is not in list' do
+          expect_any_instance_of(VRE::Ch31Form).to receive(:submit)
+          claim.add_claimant_info(user_object)
 
-            claim.send_to_vre(user_object)
-          end
+          claim.send_to_vre(user_object)
         end
       end
     end
 
-    context 'when user has no PID' do
+    context 'when user has no participant ID' do
       let(:user_object) { create(:unauthorized_evss_user) }
 
       it 'PDF is sent to Central Mail and not VBMS' do
