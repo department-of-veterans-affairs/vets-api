@@ -2043,10 +2043,10 @@ features:
     actor_type: user
     description: If enabled, use new form and api endpoint for Ch31 VR&E form
   is_updated_gi:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled, use updated gi design
   gi_ct_collab:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled, use VEBT/EDM team GI Comparison Tool homepage
   show_rudisill_1995:
     actor_type: user
