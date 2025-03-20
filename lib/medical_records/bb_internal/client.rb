@@ -95,8 +95,10 @@ module BBInternal
         study_id = get_study_id_from_cache(id)
 
         # Perform the API call with the original studyIdUrn
-        response = perform(:get, "bluebutton/studyjob/#{session.patient_id}/icn/#{session.icn}/studyid/#{study_id}", nil,
-                           token_headers)
+        response = perform(
+          :get, "bluebutton/studyjob/#{session.patient_id}/icn/#{session.icn}/studyid/#{study_id}", nil,
+          token_headers
+        )
         data = response.body
 
         # Transform the response to replace the studyIdUrn with the UUID
@@ -116,8 +118,10 @@ module BBInternal
     def list_images(id)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
         study_id = get_study_id_from_cache(id)
-        response = perform(:get, "bluebutton/studyjob/zip/preview/list/#{session.patient_id}/studyidUrn/#{study_id}", nil,
-                           token_headers)
+        response = perform(
+          :get, "bluebutton/studyjob/zip/preview/list/#{session.patient_id}/studyidUrn/#{study_id}", nil,
+          token_headers
+        )
         response.body
       end
     end
