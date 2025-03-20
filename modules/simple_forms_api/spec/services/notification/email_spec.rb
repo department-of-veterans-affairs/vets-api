@@ -441,7 +441,7 @@ describe SimpleFormsApi::Notification::Email do
                 subject.send
 
                 expect(VANotify::EmailJob).to have_received(:perform_async).with(
-                  user.va_profile_email,
+                  user.email,
                   "form21_10210_#{notification_type}_email_template_id",
                   {
                     'first_name' => 'John',
@@ -483,7 +483,7 @@ describe SimpleFormsApi::Notification::Email do
                 subject.send
 
                 expect(VANotify::EmailJob).to have_received(:perform_async).with(
-                  user.va_profile_email,
+                  user.email,
                   "form21_10210_#{notification_type}_email_template_id",
                   {
                     'first_name' => 'Joe',
@@ -682,69 +682,6 @@ describe SimpleFormsApi::Notification::Email do
       end
     end
 
-    describe '40-10007 first name' do
-      subject { described_class.new(config) }
-
-      let(:config) do
-        {
-          form_number: 'vba_40_10007',
-          form_data:,
-          confirmation_number: '8679305',
-          date_submitted: Time.zone.today.strftime('%B %d, %Y')
-        }
-      end
-
-      context 'when the applicant is the claimant ("Self")' do
-        let(:form_data) do
-          {
-            'application' => {
-              'applicant' => {
-                'applicant_relationship_to_claimant' => 'Self'
-              },
-              'claimant' => {
-                'name' => {
-                  'first' => 'Freddy'
-                }
-              },
-              'veteran' => {
-                'current_name' => {
-                  'first' => 'Bob'
-                }
-              }
-            }
-          }
-        end
-
-        it 'returns the veteran first name' do
-          expect(subject.instance_eval { form40_10007_first_name }).to eq('Freddy')
-        end
-      end
-
-      context 'when the applicant is not the claimant' do
-        let(:form_data) do
-          {
-            'application' => {
-              'applicant' => {
-                'applicant_relationship_to_claimant' => 'Authorized Agent/Rep',
-                'name' => {
-                  'first' => 'Jason'
-                }
-              },
-              'claimant' => {
-                'name' => {
-                  'first' => 'Charles'
-                }
-              }
-            }
-          }
-        end
-
-        it 'returns the claimant first name' do
-          expect(subject.instance_eval { form40_10007_first_name }).to eq('Jason')
-        end
-      end
-    end
-
     describe '21_0845' do
       let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
       let(:data) do
@@ -852,7 +789,7 @@ describe SimpleFormsApi::Notification::Email do
             subject.send
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              user.va_profile_email,
+              user.email,
               'form21_0845_confirmation_email_template_id',
               {
                 'first_name' => 'Jack',
@@ -901,7 +838,7 @@ describe SimpleFormsApi::Notification::Email do
         subject.send
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
-          user.va_profile_email,
+          user.email,
           "form21_0966_#{notification_type}_email_template_id",
           {
             'first_name' => 'Veteran',
@@ -973,7 +910,7 @@ describe SimpleFormsApi::Notification::Email do
             subject.send
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              user.va_profile_email,
+              user.email,
               'form21_0966_itf_api_received_email_template_id',
               {
                 'first_name' => 'Veteran',
@@ -1133,7 +1070,7 @@ describe SimpleFormsApi::Notification::Email do
             send_email
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              user.va_profile_email,
+              user.email,
               'form20_10207_confirmation_email_template_id',
               {
                 'first_name' => 'John',
@@ -1173,7 +1110,7 @@ describe SimpleFormsApi::Notification::Email do
             send_email
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              user.va_profile_email,
+              user.email,
               'form20_10207_confirmation_email_template_id',
               {
                 'first_name' => 'Joey Jo',
@@ -1213,7 +1150,7 @@ describe SimpleFormsApi::Notification::Email do
             send_email
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              user.va_profile_email,
+              user.email,
               'form20_10207_confirmation_email_template_id',
               {
                 'first_name' => 'John',
@@ -1253,7 +1190,7 @@ describe SimpleFormsApi::Notification::Email do
             send_email
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              user.va_profile_email,
+              user.email,
               'form20_10207_confirmation_email_template_id',
               {
                 'first_name' => 'Joe',
