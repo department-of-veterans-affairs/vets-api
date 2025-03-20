@@ -261,7 +261,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
           }
 
           expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_in).with(
-            6.hours,
+            24.hours,
             'test2@test1.net',
             'fake_template_id',
             expected_personalization_info,

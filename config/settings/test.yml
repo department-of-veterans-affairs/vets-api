@@ -1210,6 +1210,7 @@ reports:
 res:
   api_key: fake_auth
   base_url: https://fake_url.com
+  mock_ch_31: ~
 review_instance_slug: ~
 rrd:
   alerts:
@@ -1620,6 +1621,7 @@ vanotify:
         login_reactivation_email: reactivation_email_test_b
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         reactivation_email_test_b: ~
+        va_appointment_failure: fake_template_id
   status_callback:
     bearer_token: fake_bearer_token
 vaos:
