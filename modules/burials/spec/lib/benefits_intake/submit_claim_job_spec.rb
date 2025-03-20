@@ -217,6 +217,12 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
 
       expect(new_path).to eq(pdf_path)
     end
+
+    it 'successfully stamps the generated pdf' do
+      expect(service).to receive(:valid_document?).and_return(pdf_path)
+      new_path = job.send(:process_document, claim.to_pdf)
+      expect(new_path).to eq(pdf_path)
+    end
     # process_document
   end
 
