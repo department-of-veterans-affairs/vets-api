@@ -155,7 +155,7 @@ describe TravelPay::ClaimsService do
         Faraday::Response.new(
           status: 404,
           body: {
-            error: { message: 'Not found'}
+            error: { message: 'Not found' }
           }
         )
       end
@@ -181,14 +181,13 @@ describe TravelPay::ClaimsService do
 
       it 'returns nil if a claim with the given id was not found' do
         allow_any_instance_of(TravelPay::ClaimsClient)
-        .to receive(:get_claim_by_id)
-        .and_return(claim_details_error_response)
+          .to receive(:get_claim_by_id)
+          .and_return(claim_details_error_response)
 
         claim_id = SecureRandom.uuid
         actual_claim = @service.get_claim_details(claim_id)
 
         expect(actual_claim).to be_nil
-
       end
 
       it 'throws an ArgumentException if claim_id is invalid format' do

@@ -48,28 +48,6 @@ module TravelPay
       nil
     end
 
-    # Retrieves all claims from /claims endpoint, filters for desired claim by ID
-    def get_claim_by_id(claim_id)
-      # ensure claim ID is the right format, allowing any version
-      uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
-
-      unless uuid_all_version_format.match?(claim_id)
-        raise ArgumentError, message: "Expected claim id to be a valid UUID, got #{claim_id}."
-      end
-
-      @auth_manager.authorize => { veis_token:, btsss_token: }
-      claims_response = client.get_claims(veis_token, btsss_token)
-
-      claims = claims_response.body['data']
-
-      claim = claims.find { |c| c['id'] == claim_id }
-
-      if claim
-        claim['claimStatus'] = claim['claimStatus'].underscore.humanize
-        claim
-      end
-    end
-
     # Retrieves expanded claim details with additional fields
     def get_claim_details(claim_id)
       # ensure claim ID is the right format, allowing any version
