@@ -20,8 +20,10 @@ ask_va_api:
     base_url: https://dev.integration.d365.va.gov
     client_id: client_id
     client_secret: secret
+    e_subscription_key: e_subscription_key
     ocp_apim_subscription_key: subscription_key
     resource: resource
+    s_subscription_key: s_subscription_key
     service_name: VEIS-API
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     veis_api_path: eis/vagov.lob.ava/api
@@ -1205,6 +1207,7 @@ reports:
 res:
   api_key: fake_auth
   base_url: https://fake_url.com
+  mock_ch_31: ~
 review_instance_slug: ~
 rrd:
   alerts:
@@ -1420,6 +1423,7 @@ vanotify:
   service_callback_tokens:
     1010_health_apps: 1010_health_apps_token
     benefits_disability: benefits_disability_token
+    benefits_management_tools: benefits_management_tools_token
     ivc_forms: ivc_forms_token
     va_gov: va_gov_token
   services:
@@ -1615,6 +1619,7 @@ vanotify:
         login_reactivation_email: reactivation_email_test_b
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         reactivation_email_test_b: ~
+        va_appointment_failure: fake_template_id
   status_callback:
     bearer_token: fake_bearer_token
 vaos:
