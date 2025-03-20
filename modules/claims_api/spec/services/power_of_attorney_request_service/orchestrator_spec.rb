@@ -143,7 +143,6 @@ describe ClaimsApi::PowerOfAttorneyRequestService::Orchestrator do
         expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::CreateRequest)
           .to receive(:call)
           .and_call_original
-
         response = subject.submit_request
 
         expect(response).to eq(expected_response)

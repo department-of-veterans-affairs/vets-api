@@ -160,6 +160,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
   describe '#process_document' do
     let(:service) { double('service') }
     let(:pdf_path) { 'random/path/to/pdf' }
+    let(:datestamp_pdf_double) { instance_double(PDFUtilities::DatestampPdf) }
 
     before do
       job.instance_variable_set(:@intake_service, service)
@@ -168,15 +169,46 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
     it 'returns a datestamp pdf path' do
       run_count = 0
-      allow_any_instance_of(PDFUtilities::DatestampPdf).to receive(:run) {
-                                                             run_count += 1
-                                                             pdf_path
-                                                           }
+      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
+      allow(datestamp_pdf_double).to receive(:run) {
+        run_count += 1
+        pdf_path
+      }
       allow(service).to receive(:valid_document?).and_return(pdf_path)
       new_path = job.send(:process_document, 'test/path')
 
       expect(new_path).to eq(pdf_path)
       expect(run_count).to eq(2)
+    end
+
+    it 'requests specific pdf stamps' do
+      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
+      expect(datestamp_pdf_double).to receive(:run).with(
+        text: 'VA.GOV',
+        timestamp: claim.created_at,
+        x: 5,
+        y: 5
+      ).and_return(pdf_path)
+
+      expect(datestamp_pdf_double).to receive(:run).with(
+        text: 'FDC Reviewed - VA.gov Submission',
+        timestamp: claim.created_at,
+        x: 429,
+        y: 770,
+        text_only: true
+      ).and_return(pdf_path)
+
+      expect(service).to receive(:valid_document?).and_return(pdf_path)
+
+      new_path = job.send(:process_document, 'test/path')
+
+      expect(new_path).to eq(pdf_path)
+    end
+
+    it 'successfully stamps the generated pdf' do
+      expect(service).to receive(:valid_document?).and_return(pdf_path)
+      new_path = job.send(:process_document, claim.to_pdf)
+      expect(new_path).to eq(pdf_path)
     end
     # process_document
   end

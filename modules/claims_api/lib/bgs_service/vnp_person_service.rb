@@ -13,8 +13,6 @@ module ClaimsApi
     # last_nm: Veteran's last name
     def vnp_person_create(opts)
       validate_opts! opts, %w[vnp_proc_id vnp_ptcpnt_id first_nm last_nm]
-
-      opts = jrn.merge(opts)
       arg_strg = convert_nil_values(opts)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <arg0>#{arg_strg}</arg0>
