@@ -51,7 +51,7 @@ describe VRE::VRESubmit1900Job do
     end
   end
 
-  describe 'raises an exception with email flipper on' do
+  describe 'queue exhaustion' do
     before do
       allow(VRE::VREVeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
       allow(VRE::VREMonitor).to receive(:new).and_return(monitor)
@@ -59,39 +59,36 @@ describe VRE::VRESubmit1900Job do
       Flipper.enable(:vre_trigger_action_needed_email)
     end
 
-    it 'when queue is exhausted' do
-      VRE::VRESubmit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-        expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
-        exhaustion_msg['args'] = [claim.id, encrypted_user]
-        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim.parsed_form['email'])
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          'test@gmail.xom',
-          'form1900_action_needed_email_template_id',
-          {
-            'first_name' => 'Homer',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => claim.confirmation_number
-          }
-        )
+    context 'when email is present' do
+      it 'raises an exception and sends email to user' do
+        VRE::VRESubmit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
+          expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
+          exhaustion_msg['args'] = [claim.id, encrypted_user]
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim.parsed_form['email'])
+          expect(VANotify::EmailJob).to receive(:perform_async).with(
+            'test@gmail.xom',
+            'form1900_action_needed_email_template_id',
+            {
+              'first_name' => 'Homer',
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+              'confirmation_number' => claim.confirmation_number
+            }
+          )
+        end
       end
     end
-  end
 
-  describe 'raises an exception with no email' do
-    before do
-      allow(VRE::VREVeteranReadinessEmploymentClaim).to receive(:find).and_return(claim)
-      allow(VRE::VREMonitor).to receive(:new).and_return(monitor)
-      allow(monitor).to receive :track_submission_exhaustion
-      user_struct.va_profile_email = nil
-      Flipper.enable(:vre_trigger_action_needed_email)
-    end
+    context 'when email is not present' do
+      it 'raises an exception and sends no email' do
+        user_struct.va_profile_email = nil
 
-    it 'when queue is exhausted with no email' do
-      VRE::VRESubmit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
-        expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
-        exhaustion_msg['args'] = [claim.id, encrypted_user]
-        claim.parsed_form.delete('email')
-        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
+        VRE::VRESubmit1900Job.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_user] }) do
+          expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
+          exhaustion_msg['args'] = [claim.id, encrypted_user]
+          claim.parsed_form.delete('email')
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
+          expect(VANotify::EmailJob).not_to receive(:perform_async)
+        end
       end
     end
   end
