@@ -64,7 +64,9 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
       end
 
       it 'returns not_implemented when a value attachment is received' do
-        expect(Rails.logger).to have_received(:error).with('Observation with ID b7347c02-4abe-4784-af18-21f8c7b8fc6a has unsupported value type: Attachment')
+        expect(Rails.logger).to have_received(:error).with(
+          'Observation with ID b7347c02-4abe-4784-af18-21f8c7b8fc6a has unsupported value type: Attachment'
+        )
         expect(response).to have_http_status(:not_implemented)
       end
     end
