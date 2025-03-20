@@ -967,6 +967,7 @@ mhv:
     host: https://mhv-api.example.com
     mock: true
     x_api_key: fake-x-api-key
+    base_path: mhv-api/patient/v1/
   sm:
     app_token: fake-app-token
     host: https://mhv-api.example.com
