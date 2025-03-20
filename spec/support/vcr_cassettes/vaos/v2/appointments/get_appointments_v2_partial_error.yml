@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments?end=2022-12-01T19:45:00Z&pageSize=0&start=2022-01-01T19:25:00Z&statuses=proposed
+    uri: <VA_MOBILE_URL>/vaos/v1/patients/1012846043V576341/appointments?end=2022-12-01T19:45:00Z&pageSize=0&start=2022-01-01T19:25:00Z&statuses=proposed
     body:
       encoding: US-ASCII
       string: ''
@@ -83,7 +83,7 @@ http_interactions:
   recorded_at: Thu, 04 Nov 2021 19:56:46 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983
+    uri: <VA_MOBILE_URL>/facilities/v2/facilities/983
     body:
       encoding: US-ASCII
       string: ''
@@ -175,7 +175,7 @@ http_interactions:
   recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/facilities/984
+    uri: <VA_MOBILE_URL>/facilities/v2/facilities/984
     body:
       encoding: US-ASCII
       string: ''
@@ -255,7 +255,7 @@ http_interactions:
   recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/facilities/984GA
+    uri: <VA_MOBILE_URL>/facilities/v2/facilities/984GA
     body:
       encoding: US-ASCII
       string: ''
@@ -347,7 +347,7 @@ http_interactions:
   recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/facilities/984GB
+    uri: <VA_MOBILE_URL>/facilities/v2/facilities/984GB
     body:
       encoding: US-ASCII
       string: ''
@@ -427,7 +427,7 @@ http_interactions:
   recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983GB
+    uri: <VA_MOBILE_URL>/facilities/v2/facilities/983GB
     body:
       encoding: US-ASCII
       string: ''
@@ -519,7 +519,7 @@ http_interactions:
   recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983GC
+    uri: <VA_MOBILE_URL>/facilities/v2/facilities/983GC
     body:
       encoding: US-ASCII
       string: ''
@@ -599,7 +599,7 @@ http_interactions:
   recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983GD
+    uri: <VA_MOBILE_URL>/facilities/v2/facilities/983GD
     body:
       encoding: US-ASCII
       string: ''
@@ -691,7 +691,7 @@ http_interactions:
   recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983HK
+    uri: <VA_MOBILE_URL>/facilities/v2/facilities/983HK
     body:
       encoding: US-ASCII
       string: ''

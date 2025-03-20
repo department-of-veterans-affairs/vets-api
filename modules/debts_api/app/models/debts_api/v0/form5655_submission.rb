@@ -90,7 +90,7 @@ module DebtsApi
       StatsD.increment("#{STATS_KEY}.failure")
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
       begin
-        send_failed_form_email unless message.include?('SharepointRequest')
+        send_failed_form_email unless message.match?(/sharepoint/i)
       rescue => e
         StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue.failure")
         Rails.logger.error("Failed to send failed form email: #{e.message}")
@@ -103,14 +103,14 @@ module DebtsApi
         submission_email = ipf_form['personal_data']['email_address'].downcase
 
         jid = DebtManagementCenter::VANotifyEmailJob.perform_in(
-          6.hours,
+          24.hours,
           submission_email,
           SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
           failure_email_personalization_info,
           { id_type: 'email', failure_mailer: true }
         )
 
-        Rails.logger.info("Failed 5655 form: #{id} email scheduled with jid: #{jid}")
+        Rails.logger.info("Failed 5655 email enqueued form: #{id} email scheduled with jid: #{jid}")
       end
     end
 
