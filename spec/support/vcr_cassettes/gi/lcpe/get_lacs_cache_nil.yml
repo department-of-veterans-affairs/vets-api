@@ -33,7 +33,7 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Etag:
-      - W/'3'
+      - W/"3"
       X-Request-Id:
       - 42eda17d-ee1b-41bc-852a-f326c5d47915
       X-Runtime:
