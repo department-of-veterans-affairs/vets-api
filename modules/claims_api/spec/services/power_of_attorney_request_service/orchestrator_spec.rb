@@ -5,64 +5,23 @@ require 'rails_helper'
 describe ClaimsApi::PowerOfAttorneyRequestService::Orchestrator do
   subject { described_class.new(veteran_participant_id, form_data, claimant_participant_id) }
 
-  let(:veteran_participant_id) { '600043284' }
+  let(:veteran_participant_id) { '600052700' }
   let(:poa_key) { :poa }
-  let(:claimant_participant_id) { '600036513' }
+  let(:claimant_participant_id) { '600052699' }
   let(:form_data) do
-    {
-      veteran: {
-        firstName: 'Vernon',
-        lastName: 'Wagner',
-        serviceBranch: 'Air Force',
-        birthdate: '1965-07-15T08:00:00Z',
-        ssn: '796140369',
-        address: {
-          addressLine1: '2719 Hyperion Ave',
-          city: 'Los Angeles',
-          stateCode: 'CA',
-          country: 'USA',
-          zipCode: '92264'
-        },
-        phone: {
-          areaCode: '555',
-          phoneNumber: '5551234'
-        },
-        email: 'test@example.com'
-      },
-      claimant: {
-        firstName: 'Lillian',
-        lastName: 'Disney',
-        email: 'lillian@disney.com',
-        relationship: 'Spouse',
-        address: {
-          addressLine1: '2688 S Camino Real',
-          city: 'Palm Springs',
-          stateCode: 'CA',
-          country: 'USA',
-          zipCode: '92264'
-        },
-        phone: {
-          areaCode: '555',
-          phoneNumber: '5551337'
-        }
-      },
-      serviceOrganization: {
-        poaCode: '074',
-        address: {
-          addressLine1: '2719 Hyperion Ave',
-          city: 'Los Angeles',
-          stateCode: 'CA',
-          country: 'USA',
-          zipCode: '92264'
-        },
-        organizationName: 'American Legion',
-        firstName: 'Bob',
-        lastName: 'GoodRep'
-      },
-      recordConsent: true,
-      consentAddressChange: true,
-      consentLimits: %w[DRUG_ABUSE SICKLE_CELL]
-    }
+    temp = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                      'power_of_attorney', 'request_representative',
+                                      'valid.json').read)
+    attributes = temp['data']['attributes']
+    # make this a valid relationship to Margie Curtis's dependent, Jerry Curtis
+    attributes['claimant']['claimantId'] = '1013030865V203693'
+    # This data needs to be 'faked' it gets added during the request controller workflow before calling this
+    attributes['veteran']['firstName'] = 'Margie'
+    attributes['veteran']['lastName'] = 'Curtis'
+    attributes['claimant']['firstName'] = 'Jerry'
+    attributes['claimant']['lastName'] = 'Curtis'
+    temp = temp.deep_symbolize_keys
+    temp[:data][:attributes]
   end
 
   describe '#submit_request' do
@@ -82,57 +41,57 @@ describe ClaimsApi::PowerOfAttorneyRequestService::Orchestrator do
       VCR.use_cassette(file_name) do
         expected_response = {
           'addressLine1' => '2719 Hyperion Ave',
-          'addressLine2' => nil,
+          'addressLine2' => 'Apt 2',
           'addressLine3' => nil,
           'changeAddressAuth' => 'true',
           'city' => 'Los Angeles',
-          'claimantPtcpntId' => '182817',
+          'claimantPtcpntId' => '189363',
           'claimantRelationship' => 'Spouse',
-          'formTypeCode' => '21-22 ',
-          'insuranceNumbers' => nil,
-          'limitationAlcohol' => 'false',
+          'formTypeCode' => '21-22',
+          'insuranceNumbers' => '1234567890',
+          'limitationAlcohol' => 'true',
           'limitationDrugAbuse' => 'true',
-          'limitationHIV' => 'false',
+          'limitationHIV' => 'true',
           'limitationSCA' => 'true',
-          'organizationName' => 'American Legion',
+          'organizationName' => nil,
           'otherServiceBranch' => nil,
           'phoneNumber' => '5555551234',
-          'poaCode' => '074',
+          'poaCode' => '067',
           'postalCode' => '92264',
-          'procId' => '3855198',
-          'representativeFirstName' => 'Bob',
-          'representativeLastName' => 'GoodRep',
+          'procId' => '3860477',
+          'representativeFirstName' => nil,
+          'representativeLastName' => nil,
           'representativeLawFirmOrAgencyName' => nil,
           'representativeTitle' => nil,
           'representativeType' => 'Recognized Veterans Service Organization',
           'section7332Auth' => 'true',
-          'serviceBranch' => 'Air Force',
-          'serviceNumber' => nil,
+          'serviceBranch' => 'Army',
+          'serviceNumber' => '123678453',
           'state' => 'CA',
-          'vdcStatus' => 'Submitted',
-          'veteranPtcpntId' => '182816',
+          'vdcStatus' => 'SUBMITTED',
+          'veteranPtcpntId' => '189362',
           'acceptedBy' => nil,
-          'claimantFirstName' => 'LILLIAN',
-          'claimantLastName' => 'DISNEY',
+          'claimantFirstName' => 'JERRY',
+          'claimantLastName' => 'CURTIS',
           'claimantMiddleName' => nil,
           'declinedBy' => nil,
           'declinedReason' => nil,
-          'secondaryStatus' => nil,
-          'veteranFirstName' => 'VERNON',
-          'veteranLastName' => 'WAGNER',
+          'secondaryStatus' => 'New',
+          'veteranFirstName' => 'MARGIE',
+          'veteranLastName' => 'CURTIS',
           'veteranMiddleName' => nil,
-          'veteranSSN' => '796140369',
+          'veteranSSN' => nil,
           'veteranVAFileNumber' => nil,
           'meta' => {
             'veteran' => {
-              'vnp_mail_id' => '144764',
-              'vnp_email_id' => '144765',
-              'vnp_phone_id' => '102326'
+              'vnp_mail_id' => '151669',
+              'vnp_email_id' => '151670',
+              'vnp_phone_id' => '108159'
             },
             'claimant' => {
-              'vnp_mail_id' => '144766',
-              'vnp_email_id' => '144767',
-              'vnp_phone_id' => '102327'
+              'vnp_mail_id' => '151671',
+              'vnp_email_id' => '151672',
+              'vnp_phone_id' => '108160'
             }
           }
         }
@@ -142,7 +101,9 @@ describe ClaimsApi::PowerOfAttorneyRequestService::Orchestrator do
           .and_call_original
         response = subject.submit_request
 
-        expect(response).to eq(expected_response)
+        # Meta does not always return in the exact same order
+        expect(response['meta']).to include(expected_response['meta'])
+        expect(response.except('meta')).to match(expected_response.except('meta'))
       end
     end
   end
