@@ -25,7 +25,7 @@ module HCA
       raise unless succeed
 
       form = self.class.decrypt_form(encrypted_form)
-      @health_care_application.form = form.to_json
+      @health_care_application.form = form
 
       @health_care_application.set_result_on_success!(
         { success: true, formSubmissionId: 'mock_ves_form_id', timestamp: Time.current }
