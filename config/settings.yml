@@ -836,10 +836,10 @@ maintenance:
     hcq: PWGA814
     idme: <%= ENV['maintenance__services__idme'] %>
     lighthouse_benefits_claims: <%= ENV['maintenance__services__lighthouse_benefits_claims'] %>
+    lighthouse_benefits_education: <%= ENV['maintenance__services__lighthouse_benefits_education'] %>
     lighthouse_benefits_intake: <%= ENV['maintenance__services__lighthouse_benefits_intake'] %>
     lighthouse_direct_deposit: <%= ENV['maintenance__services__lighthouse_direct_deposit'] %>
     lighthouse_vshe: <%= ENV['maintenance__services__lighthouse_vshe'] %>
-    lighthouse_benefits_education: <%= ENV['maintenance__services__lighthouse_benefits_education'] %>
     logingov: P2SHMM9
     mdot: PEOIHN1
     mhv: <%= ENV['maintenance__services__mhv'] %>
