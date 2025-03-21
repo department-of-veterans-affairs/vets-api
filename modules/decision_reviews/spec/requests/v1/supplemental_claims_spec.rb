@@ -125,7 +125,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
   end
 
   describe '#create with 4142' do
-    let(:params) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').clone }
+    let(:params) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').deep_dup }
 
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?',
@@ -133,7 +133,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
     end
 
     context 'when schema validation fails' do
-      let(:invalid_params) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').clone }
+      let(:invalid_params) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').deep_dup }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
