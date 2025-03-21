@@ -9,7 +9,7 @@ module Kafka
 
       def fetch(id)
         data = request("/schemas/ids/#{id}", idempotent: true)
-        data.fetch('schema')
+        data.fetch(:schema)
       end
 
       # List all subjects
@@ -54,7 +54,7 @@ module Kafka
                        expects: [200, 404],
                        body: { schema: schema.to_s }.to_json,
                        idempotent: true)
-        data.fetch('is_compatible', false) unless data.key?('error_code')
+        data.fetch(:is_compatible, false) unless data.key?('error_code')
       end
 
       # Check for specific schema compatibility issues
@@ -67,8 +67,7 @@ module Kafka
                        method: :post,
                        expects: [200, 404],
                        body: { schema: schema.to_s }.to_json, query: { verbose: true }, idempotent: true)
-
-        data.fetch('messages', []) unless data.key?('error_code')
+        data.fetch(:messages, []) unless data.key?('error_code')
       end
 
       # Get global config
