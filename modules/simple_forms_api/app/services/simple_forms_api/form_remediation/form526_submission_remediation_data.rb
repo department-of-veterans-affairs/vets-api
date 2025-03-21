@@ -2,27 +2,48 @@
 
 module SimpleFormsApi
   module FormRemediation
-    class Form526SubmissionRemediationData
-      attr_reader :file_path, :submission, :attachments, :metadata
-
-      def initialize(id:, config:)
-        @config = config
-
-        validate_input(id)
-        fetch_submission(id)
-
-        @attachments = []
-        @metadata = {}
-      rescue => e
-        config.handle_error("#{self.class.name} initialization failed", e)
+    class Form0781
+      def submission_date_stamps(timestamp)
+        [
+          {
+            coords: [460, 710],
+            text: 'Application Submitted:',
+            page: 0,
+            font_size: 12
+          },
+          {
+            coords: [460, 690],
+            text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+            page: 0,
+            font_size: 12
+          }
+        ]
       end
 
-      def hydrate!
-        form_number = fetch_submission_form_number
-        form = build_form(form_number)
-        filler = PdfFiller.new(form_number:, form:)
+      def desired_stamps
+        []
+      end
+    end
 
-        handle_submission_data(filler, form, form_number)
+    class Form526SubmissionRemediationData < SubmissionRemediationData
+      def hydrate!
+        form_content = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781a']
+        submitted_claim_id = submission.submitted_claim_id
+        submission_date = submission&.created_at
+        form_content = form_content.merge(
+          { 'signatureDate' => submission_date&.in_time_zone('Central Time (US & Canada)') }
+        )
+        @file_path = PdfFill::Filler.fill_ancillary_form(
+          form_content,
+          submitted_claim_id,
+          EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781A
+        )
+        SimpleFormsApi::PdfStamper.new(
+          stamped_template_path: file_path,
+          form: Form0781.new,
+          timestamp: submission_date
+        ).stamp_pdf
+
         self
       rescue => e
         config.handle_error('Error hydrating submission', e)
@@ -32,84 +53,8 @@ module SimpleFormsApi
 
       attr_reader :config
 
-      def validate_input(id)
-        raise ArgumentError, "No #{config.id_type} was provided" unless id
-      end
-
       def fetch_submission(id)
-        # TODO: Customize the below for Form 526
-        #
-        # form_submission_attempt = FormSubmissionAttempt.find_by(benefits_intake_uuid: id)
-        # @submission = form_submission_attempt&.form_submission
-        # validate_submission
-      end
-
-      def validate_submission
-        raise 'Submission was not found or invalid' unless submission&.latest_attempt&.send(config.id_type)
-        raise "#{self.class} cannot be built: Only VFF forms are supported" unless valid_form?
-      end
-
-      def fetch_submission_form_number
-        valid_forms_map.fetch(submission.form_type)
-      end
-
-      def build_form(form_number)
-        form_class_name = "SimpleFormsApi::#{form_number.titleize.delete(' ')}"
-        form_class = form_class_name.constantize
-        form_class.new(form_data_hash).tap do |form|
-          form.signature_date = submission.created_at.in_time_zone('America/Chicago')
-        end
-      rescue NameError => e
-        config.handle_error("Form class not found for #{form_class_name}", e)
-      end
-
-      def handle_submission_data(filler, form, form_number)
-        @file_path = generate_pdf_file(filler)
-        @metadata = validate_metadata(form)
-        @attachments = process_attachments(form, form_number)
-      end
-
-      def generate_pdf_file(filler)
-        filler.generate(timestamp: submission.created_at)
-      rescue => e
-        config.handle_error('Error generating filled submission PDF', e)
-      end
-
-      def validate_metadata(form)
-        SimpleFormsApiSubmission::MetadataValidator.validate(
-          form.metadata,
-          zip_code_is_us_based: form.zip_code_is_us_based
-        )
-      rescue => e
-        config.handle_error('Metadata validation failed', e)
-      end
-
-      def process_attachments(form, form_number)
-        case form_number
-        when 'vba_40_0247', 'vba_40_10007'
-          form.handle_attachments(file_path)
-          []
-        when 'vba_20_10207'
-          form.get_attachments
-        else
-          []
-        end
-      rescue => e
-        config.handle_error("Attachment handling failed for #{form_number}", e)
-      end
-
-      def form_data_hash
-        @form_data_hash ||= JSON.parse(submission.form_data)
-      rescue JSON::ParserError => e
-        config.handle_error('Error parsing form data', e)
-      end
-
-      def valid_forms_map
-        SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP
-      end
-
-      def valid_form?
-        valid_forms_map.key?(submission.form_type)
+        @submission = Form526Submission.find(id)
       end
     end
   end
