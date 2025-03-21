@@ -6,6 +6,8 @@ RSpec.describe V0::HealthCareApplicationsController, type: :controller do
   let(:hca_request) { file_fixture('forms/healthcare_application_request.json').read }
   let(:hca_response) { JSON.parse(file_fixture('forms/healthcare_application_response.json').read) }
 
+  before { allow(Flipper).to receive(:enabled?).with(:hca_cache_facilities).and_return(false) }
+
   describe '#create' do
     it 'creates a pending application' do
       post :create, params: JSON.parse(hca_request)
