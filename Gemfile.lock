@@ -47,7 +47,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/breakers
-  revision: ed77cd8ec312fe5d45824a7faa05f4812cf1ef92
+  revision: bf77e07738262fb300d4e9f2b78cc8d654e6b7a7
   branch: feature/service-name-matching
   specs:
     breakers (0.7.1)
