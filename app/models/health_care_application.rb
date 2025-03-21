@@ -78,16 +78,10 @@ class HealthCareApplication < ApplicationRecord
 
   def submit_sync
     Rails.logger.info '~~~~~~~~~~~~~~~ sync'
-    Rails.logger.info '~~~~~~~~~~~~~~~ sync'
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
-      # {
-      #   success: true,
-      #   formSubmissionId: 123,
-      #   timestamp: Time.now.getlocal.to_s
-      # }
       # {
       #   success: true,
       #   formSubmissionId: 123,
@@ -112,8 +106,6 @@ class HealthCareApplication < ApplicationRecord
     set_result_on_success!(result)
 
     Rails.logger.info "~~~~~~~~~~~~~~~ SubmissionID=#{result[:formSubmissionId]}"
-    Rails.logger.info "~~~~~~~~~~~~~~~ SubmissionID=#{result[:formSubmissionId]}"
-
     result
   rescue
     log_sync_submission_failure
@@ -137,13 +129,6 @@ class HealthCareApplication < ApplicationRecord
 
       raise(Common::Exceptions::ValidationErrors, self)
     end
-    # message out valid submission {state: "received"}
-    Rails.logger.info '~~~~~~~~~~~~~~~ received, id:', id
-    save!
-    Rails.logger.info '~~~~~~~~~~~~~~~ received saved, id:', id
-
-    # SEND "received" message to EventBus
-    HCA::EventBusSubmissionJob.perform_async('submission_trace_mock_dev', build_event_payload('received'))
     # message out valid submission {state: "received"}
     Rails.logger.info '~~~~~~~~~~~~~~~ received, id:', id
     save!
@@ -243,14 +228,6 @@ class HealthCareApplication < ApplicationRecord
       form_submission_id_string: result[:formSubmissionId].to_s,
       timestamp: result[:timestamp]
     )
-
-    HCA::EventBusSubmissionJob.perform_async(
-      'submission_trace_mock_dev',
-      build_event_payload('sent', result[:formSubmissionId].to_s)
-    )
-
-    Rails.logger.info '~~~~~~~~~~~~~~~ sent'
-    # message out successful submission {state: "sent"}
 
     HCA::EventBusSubmissionJob.perform_async(
       'submission_trace_mock_dev',
