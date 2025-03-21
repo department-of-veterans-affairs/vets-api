@@ -13,7 +13,8 @@ describe Ccra::ReferralDetail do
           'CategoryOfCare' => 'CARDIOLOGY',
           'TreatingProvider' => 'Dr. Smith',
           'TreatingFacility' => 'VA Medical Center',
-          'ReferralNumber' => 'VA0000005681'
+          'ReferralNumber' => 'VA0000005681',
+          'ProviderPhone' => '555-123-4567'
         }
       }
     end
@@ -24,6 +25,48 @@ describe Ccra::ReferralDetail do
       expect(subject.provider_name).to eq('Dr. Smith')
       expect(subject.location).to eq('VA Medical Center')
       expect(subject.referral_number).to eq('VA0000005681')
+      expect(subject.phone_number).to eq('555-123-4567')
+    end
+
+    context 'with facility phone instead of provider phone' do
+      let(:attributes_with_facility_phone) do
+        {
+          'Referral' => {
+            'ReferralExpirationDate' => '2024-05-27',
+            'CategoryOfCare' => 'CARDIOLOGY',
+            'TreatingProvider' => 'Dr. Smith',
+            'TreatingFacility' => 'VA Medical Center',
+            'ReferralNumber' => 'VA0000005681',
+            'FacilityPhone' => '555-987-6543'
+          }
+        }
+      end
+
+      it 'uses facility phone when provider phone is not available' do
+        detail = described_class.new(attributes_with_facility_phone)
+        expect(detail.phone_number).to eq('555-987-6543')
+      end
+    end
+
+    context 'with both provider and facility phone' do
+      let(:attributes_with_both_phones) do
+        {
+          'Referral' => {
+            'ReferralExpirationDate' => '2024-05-27',
+            'CategoryOfCare' => 'CARDIOLOGY',
+            'TreatingProvider' => 'Dr. Smith',
+            'TreatingFacility' => 'VA Medical Center',
+            'ReferralNumber' => 'VA0000005681',
+            'ProviderPhone' => '555-123-4567',
+            'FacilityPhone' => '555-987-6543'
+          }
+        }
+      end
+
+      it 'prefers provider phone over facility phone' do
+        detail = described_class.new(attributes_with_both_phones)
+        expect(detail.phone_number).to eq('555-123-4567')
+      end
     end
 
     context 'with missing Referral key' do
@@ -39,6 +82,7 @@ describe Ccra::ReferralDetail do
         expect(subject.provider_name).to be_nil
         expect(subject.location).to be_nil
         expect(subject.referral_number).to be_nil
+        expect(subject.phone_number).to be_nil
       end
     end
 
@@ -55,6 +99,7 @@ describe Ccra::ReferralDetail do
         expect(subject.provider_name).to be_nil
         expect(subject.location).to be_nil
         expect(subject.referral_number).to be_nil
+        expect(subject.phone_number).to be_nil
       end
     end
   end
