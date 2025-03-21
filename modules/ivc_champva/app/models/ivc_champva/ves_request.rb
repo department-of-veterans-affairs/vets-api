@@ -34,10 +34,10 @@ module IvcChampva
         @middle_initial = params[:middle_initial]
         @suffix = params[:suffix]
         @ssn = params[:ssn]
-        @va_file_number = params[:va_claim_number]
+        @va_file_number = params[:va_file_number] || params[:va_claim_number]
         @date_of_birth = params[:date_of_birth]
         @date_of_marriage = params[:date_of_marriage]
-        @is_deceased = params[:sponsor_is_deceased]
+        @is_deceased = params[:is_deceased] || params[:sponsor_is_deceased]
         @date_of_death = params[:date_of_death]
         @is_death_on_active_service = params[:is_death_on_active_service] || false
         @phone_number = params[:phone_number]
@@ -52,10 +52,10 @@ module IvcChampva
           middleInitial: @middle_initial,
           suffix: @suffix,
           ssn: @ssn,
-          vaFileNumber: @va_file_number,
+          vaFileNumber: @va_file_number || '',
           dateOfBirth: @date_of_birth,
           dateOfMarriage: @date_of_marriage,
-          isDeceased: @is_deceased,
+          isDeceased: @is_deceased.nil? ? false : @is_deceased,
           dateOfDeath: @date_of_death,
           isDeathOnActiveService: @is_death_on_active_service,
           address: @address.to_hash
@@ -66,7 +66,7 @@ module IvcChampva
 
     class Beneficiary
       attr_accessor :first_name, :last_name, :middle_initial, :suffix, :ssn, :email_address,
-                    :phone_number, :gender, :enrolled_in_medicare, :enrolled_in_part_d,
+                    :phone_number, :gender, :enrolled_in_medicare,
                     :has_other_insurance, :relationship_to_sponsor, :child_type,
                     :date_of_birth, :address, :person_uuid
 
@@ -81,7 +81,6 @@ module IvcChampva
         @phone_number = params[:phone_number]
         @gender = params[:gender]
         @enrolled_in_medicare = params[:enrolled_in_medicare]
-        @enrolled_in_part_d = params[:enrolled_in_part_d]
         @has_other_insurance = params[:has_other_insurance]
         @relationship_to_sponsor = params[:relationship_to_sponsor]
         @child_type = params[:child_type]
@@ -101,7 +100,6 @@ module IvcChampva
           phoneNumber: @phone_number,
           gender: @gender,
           enrolledInMedicare: @enrolled_in_medicare,
-          enrolledInPartD: @enrolled_in_part_d,
           hasOtherInsurance: @has_other_insurance,
           relationshipToSponsor: @relationship_to_sponsor,
           childtype: @child_type,
@@ -144,7 +142,7 @@ module IvcChampva
         @middle_initial = params[:middle_initial]
         @phone_number = params[:phone_number]
         @relationship = params[:relationship]
-        @address = Address.new(params[:address] || {})
+        @address = params[:address].present? ? Address.new(params[:address]) : nil
       end
 
       def to_hash
@@ -155,9 +153,12 @@ module IvcChampva
           lastName: @last_name,
           middleInitial: @middle_initial,
           phoneNumber: @phone_number,
-          relationship: @relationship,
-          address: @address.to_hash
+          relationship: @relationship
         }
+
+        # Only include address if it was provided
+        hash[:address] = @address.to_hash if @address
+
         hash.compact
       end
     end

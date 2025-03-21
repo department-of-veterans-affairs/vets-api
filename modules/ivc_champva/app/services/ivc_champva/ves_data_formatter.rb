@@ -7,7 +7,6 @@ module IvcChampva
     GENDERS = %w[MALE FEMALE].freeze
     VALID_RELATIONSHIPS_LOOKUP = RELATIONSHIPS.index_by(&:downcase).freeze
     VALID_GENDER_LOOKUP = { 'm' => 'MALE', 'male' => 'MALE', 'f' => 'FEMALE', 'female' => 'FEMALE' }.freeze
-    DEFAULT_ADDRESS = { street_address: 'NA', city: 'NA', state: 'NA', zip_code: 'NA' }.freeze
 
     # Transform parsed form data from frontend format to VES format & validate
     def self.format(parsed_form_data)
@@ -51,10 +50,10 @@ module IvcChampva
         last_name: transliterate_and_strip(veteran_data.dig('full_name', 'last')),
         middle_initial: veteran_data.dig('full_name', 'middle'),
         ssn: veteran_data['ssn_or_tin'],
-        va_file_number: veteran_data['va_claim_number'] || '',
+        va_file_number: veteran_data['va_claim_number'] || veteran_data['va_file_number'] || '',
         date_of_birth: veteran_data['date_of_birth'],
         date_of_marriage: veteran_data['date_of_marriage'] || '',
-        is_deceased: veteran_data['sponsor_is_deceased'],
+        is_deceased: veteran_data['sponsor_is_deceased'] || veteran_data['is_deceased'] || false,
         date_of_death: veteran_data['date_of_death'],
         is_death_on_active_service: veteran_data['is_active_service_death'] || false,
         phone_number: format_phone_number(veteran_data['phone_number']),
@@ -80,7 +79,6 @@ module IvcChampva
           data.dig('applicant_relationship_origin', 'relationship_to_veteran')),
         enrolled_in_medicare: data.dig('applicant_medicare_status', 'eligibility') == 'enrolled' ||
           data['is_enrolled_in_medicare'],
-        enrolled_in_part_d: data.dig('applicant_medicare_part_d', 'enrollment') == 'enrolled',
         has_other_insurance: data.dig('applicant_has_ohi', 'has_ohi') == 'yes' || data['has_other_health_insurance']
       }
     end
@@ -101,15 +99,19 @@ module IvcChampva
     end
 
     def self.map_address(address_data)
-      return DEFAULT_ADDRESS unless address_data.is_a?(Hash)
+      return nil unless address_data.is_a?(Hash)
 
-      {
+      address = {
         street_address: address_data['street_combined'] || address_data['street'] ||
-          address_data['street_address'] || DEFAULT_ADDRESS[:street_address],
-        city: address_data['city'] || DEFAULT_ADDRESS[:city],
-        state: address_data['state'] || DEFAULT_ADDRESS[:state],
-        zip_code: address_data['postal_code'] || DEFAULT_ADDRESS[:zip_code]
+                        address_data['street_address'],
+        city: address_data['city'],
+        state: address_data['state'],
+        zip_code: address_data['postal_code']
       }
+
+      return nil if address.values.all?(&:nil?)
+
+      address
     end
 
     # Data formatting methods
@@ -263,7 +265,8 @@ module IvcChampva
       validate_presence_and_stringiness(beneficiary[:relationship_to_sponsor], 'beneficiary relationship to sponsor')
 
       unless RELATIONSHIPS.include?(beneficiary[:relationship_to_sponsor])
-        raise ArgumentError, "beneficiary relationship to sponsor is invalid. Must be in #{RELATIONSHIPS.join(', ')}"
+        raise ArgumentError, "beneficiary relationship to sponsor #{beneficiary[:relationship_to_sponsor]}" \
+                             " is invalid. Must be in #{RELATIONSHIPS.join(', ')}"
       end
 
       # Validate childtype if relationship is CHILD
