@@ -90,6 +90,12 @@ class HealthCareApplication < ApplicationRecord
     rescue Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
 
+      HCA::EventBusSubmissionJob.perform_async(
+        # replace with prod topic name
+        'submission_trace_mock_dev',
+        build_event_payload('error')
+      )
+  
       raise Common::Exceptions::BackendServiceException.new(
         nil, detail: e.message
       )
@@ -98,18 +104,12 @@ class HealthCareApplication < ApplicationRecord
     Rails.logger.info '~~~~~~~~~~~~~~~ received anon sync'
 
     set_result_on_success!(result)
-    HCA::EventBusSubmissionJob.perform_async(
-      # replace with prod topic name
-      'submission_trace_mock_dev',
-      build_event_payload('sent', result[:formSubmissionId])
-    )
 
     Rails.logger.info "~~~~~~~~~~~~~~~ SubmissionID=#{result[:formSubmissionId]}"
 
     result
   rescue
     log_sync_submission_failure
-
     raise
   end
 
@@ -248,8 +248,14 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def build_event_payload(state, next_id = nil)
-    user_icn = user&.icn || self.class.user_icn(self.class.user_attributes(parsed_form))
-    # user_icn = user&.icn || '12345678'
+    begin
+      user_icn = user&.icn || self.class.user_icn(self.class.user_attributes(parsed_form))
+      # local testing
+      # user_icn = user&.icn || '12345678'
+      rescue Common::Exceptions::ValidationErrors => e
+      # if certain user attributes are missing, we can't get an ICN
+      user_icn = ''
+    end
 
     # test schema: {
     #   "data" => {
@@ -320,12 +326,22 @@ class HealthCareApplication < ApplicationRecord
   def log_sync_submission_failure
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.sync_submission_failed")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.sync_submission_failed_short_form") if short_form?
+    HCA::EventBusSubmissionJob.perform_async(
+      # replace with prod topic name
+      'submission_trace_mock_dev',
+      build_event_payload('error')
+    )
     log_submission_failure_details
   end
 
   def log_async_submission_failure
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
+    HCA::EventBusSubmissionJob.perform_async(
+      # replace with prod topic name
+      'submission_trace_mock_dev',
+      build_event_payload('error')
+    )
     log_submission_failure_details
   end
 

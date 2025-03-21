@@ -577,6 +577,11 @@ RSpec.describe HealthCareApplication, type: :model do
 
     before do
       allow(VANotify::EmailJob).to receive(:perform_async)
+      allow_any_instance_of(MPI::Service).to receive(
+        :find_profile_by_attributes
+      ).and_return(
+        create(:find_profile_response, profile: OpenStruct.new(icn: '123'))
+      )
     end
 
     describe '#send_failure_email' do

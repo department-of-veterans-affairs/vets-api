@@ -4,7 +4,7 @@ module HCA
   class MockSubmissionJob < BaseSubmissionJob
     # retry for  2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
-    sidekiq_options retry: 16
+    sidekiq_options retry: 5
 
     sidekiq_retries_exhausted do |msg, _e|
       health_care_application = HealthCareApplication.find(msg['args'][2])
@@ -24,8 +24,11 @@ module HCA
       Rails.logger.info '~~~~~~~~~~~~~~~ mock perform'
       raise unless succeed
 
+      form = self.class.decrypt_form(encrypted_form)
+      @health_care_application.form = form.to_json
+
       @health_care_application.set_result_on_success!(
-        { formSubmissionId: 'mock_ves_form_id', timestamp: Time.current }
+        { success: true, formSubmissionId: 'mock_ves_form_id', timestamp: Time.current }
       )
     rescue
       @health_care_application.update!(state: 'error')
