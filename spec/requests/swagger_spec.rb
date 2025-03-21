@@ -18,6 +18,9 @@ require 'form1010_ezr/service'
 require 'lighthouse/facilities/v1/client'
 
 RSpec.describe 'API doc validations', type: :request do
+  before do
+    Flipper.disable(:mhv_medications_add_x_api_key)
+  end
   context 'json validation' do
     it 'has valid json' do
       get '/v0/apidocs.json'
@@ -38,6 +41,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
     before do
+      Flipper.disable(:mhv_medications_add_x_api_key)
       create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid)
     end
 
@@ -4008,6 +4012,10 @@ RSpec.describe 'the v1 API documentation', order: :defined, type: %i[apivore req
   subject { Apivore::SwaggerChecker.instance_for('/v1/apidocs.json') }
 
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob', icn: '1012667145V762142') }
+
+  before do
+    Flipper.disable(:mhv_medications_add_x_api_key)
+  end
 
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
