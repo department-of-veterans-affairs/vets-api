@@ -6,6 +6,7 @@ module RepresentationManagement
   module V0
     class PowerOfAttorneyController < ApplicationController
       service_tag 'representation-management'
+      before_action :authorize_access
 
       def index
         @active_poa = lighthouse_service.get_power_of_attorney
@@ -18,6 +19,10 @@ module RepresentationManagement
       end
 
       private
+
+      def authorize_access
+        authorize(current_user, :access?, policy_class: POARequestPolicy)
+      end
 
       def lighthouse_service
         BenefitsClaims::Service.new(icn)
