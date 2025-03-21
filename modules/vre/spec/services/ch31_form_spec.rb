@@ -46,13 +46,13 @@ RSpec.describe VRE::Ch31Form do
       it 'does not successfully send to RES' do
         allow(service).to receive(:send_to_res).and_return(OpenStruct.new(body: { 'error' => 'Error' }))
 
-        expect { service.submit }.to raise_error(Ch31Error)
+        expect { service.submit }.to raise_error(VRE::Ch31Form::Ch31Error)
       end
 
       it 'handles nil claim' do
         nil_claim_service = VRE::Ch31Form.new(user:, claim: nil)
 
-        expect { nil_claim_service.submit }.to raise_error(Ch31NilClaimError)
+        expect { nil_claim_service.submit }.to raise_error(VRE::Ch31Form::Ch31NilClaimError)
       end
     end
   end
