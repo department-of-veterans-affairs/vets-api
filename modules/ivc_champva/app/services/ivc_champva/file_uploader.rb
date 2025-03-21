@@ -52,14 +52,11 @@ module IvcChampva
 
       if all_success
         generate_and_upload_meta_json
-      elsif Flipper.enabled?(:champva_require_all_s3_success, @current_user)
+      else
         monitor.track_s3_upload_error(@metadata['uuid'], s3_err)
         # Stop this submission in its tracks - entries will still be added to database
         # for these files, but user will see error on the FE saying submission failed.
         raise StandardError, "IVC ChampVa Forms - failed to upload all documents for submission: #{s3_err}"
-      else
-        # array of arrays, e.g.: [[200], [400, 'S3 error']]
-        results
       end
     end
 
@@ -100,9 +97,7 @@ module IvcChampva
         pega_status:
       )
 
-      if Flipper.enabled?(:champva_enhanced_monitor_logging, @current_user)
-        monitor.track_insert_form(@metadata['uuid'], @form_id)
-      end
+      monitor.track_insert_form(@metadata['uuid'], @form_id)
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error("Database Insertion Error for #{@metadata['uuid']}: #{e.message}")
     end

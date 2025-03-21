@@ -113,12 +113,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:file) { fixture_file_upload('locked_pdf_password_is_test.pdf') }
 
-    before do
-      allow(Flipper).to receive(:enabled?)
-        .with(:champva_pdf_decrypt, @current_user)
-        .and_return(true)
-    end
-
     context 'with locked PDF and no provided password' do
       let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
 
@@ -430,7 +424,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         let(:error_response) { [[200, nil], [400, 'Upload failed']] }
 
         before do
-          allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(false)
           allow(controller).to receive(:get_file_paths_and_metadata).and_return([file_paths, metadata])
           allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
         end
@@ -440,7 +433,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           let(:mock_s3) { instance_double(IvcChampva::S3) }
 
           before do
-            allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(true)
             allow(Flipper).to receive(:enabled?).with(:champva_log_all_s3_uploads, @current_user).and_return(false)
             allow(IvcChampva::S3).to receive(:new).and_return(mock_s3)
             allow(IvcChampva::FileUploader).to receive(:new).and_call_original
