@@ -991,6 +991,9 @@
     - :method: :post
       :path: "/profile-service/profile/v3/*/*"
       :file_path: "vet360/profile-service/default"
+    - :method: :get
+      :path: "/contact-information-hub/contact-information/v2/*/*"
+      :file_path: "vet360/contact_information_hub/default"
 
 # MHV Unified Health Data security service
 - :name: "MHV UHD Security"

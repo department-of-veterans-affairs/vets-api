@@ -656,7 +656,7 @@ kafka_producer:
   aws_role_arn: <%= ENV['kafka_producer__aws_role_arn'] %>
   broker_urls: <%= ENV['kafka_producer__broker_urls'] %>
   sasl_mechanisms: 'OAUTHBEARER'
-  schema_registry_url: <%= ENV['kafka_proudcer__schema_registry_url'] %>
+  schema_registry_url: <%= ENV['kafka_producer__schema_registry_url'] %>
   security_protocol: 'sasl_ssl'
 kms_key_id: <%= ENV['kms_key_id'] %>
 lgy:
@@ -836,6 +836,7 @@ maintenance:
     hcq: PWGA814
     idme: <%= ENV['maintenance__services__idme'] %>
     lighthouse_benefits_claims: <%= ENV['maintenance__services__lighthouse_benefits_claims'] %>
+    lighthouse_benefits_education: <%= ENV['maintenance__services__lighthouse_benefits_education'] %>
     lighthouse_benefits_intake: <%= ENV['maintenance__services__lighthouse_benefits_intake'] %>
     lighthouse_direct_deposit: <%= ENV['maintenance__services__lighthouse_direct_deposit'] %>
     lighthouse_vshe: <%= ENV['maintenance__services__lighthouse_vshe'] %>
@@ -1408,6 +1409,7 @@ vanotify:
   service_callback_tokens:
     1010_health_apps: <%= ENV['vanotify__service_callback_tokens__1010_health_apps'] %>
     benefits_disability: <%= ENV['vanotify__service_callback_tokens__benefits_disability'] %>
+    benefits_management_tools: <%= ENV['vanotify__service_callback_tokens__benefits_management_tools'] %>
     ivc_forms: <%= ENV['vanotify__service_callback_tokens__ivc_forms'] %>
     va_gov: <%= ENV['vanotify__service_callback_tokens__va_gov'] %>
   services:
@@ -1603,6 +1605,7 @@ vanotify:
         login_reactivation_email: reactivation_email_test_b
         preneeds_burial_form_email: <%= ENV['vanotify__services__va_gov__template_id__preneeds_burial_form_email'] %>
         reactivation_email_test_b: <%= ENV['vanotify__services__va_gov__template_id__reactivation_email_test_b'] %>
+        va_appointment_failure: <%= ENV['vanotify__services__va_gov__template_id__va_appointment_failure'] %>
   status_callback:
     bearer_token: <%= ENV['vanotify__status_callback__bearer_token'] %>
 vaos:
