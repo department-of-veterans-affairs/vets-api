@@ -10,6 +10,10 @@ module IvcChampva
         'https://bt41mfpkj5.execute-api.us-gov-west-1.amazonaws.com/prod/'
       end
 
+      def service_name
+        'PEGA_API'
+      end
+
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
           conn.use :breakers
