@@ -79,7 +79,7 @@ module V0
 
     def facilities
       if Flipper.enabled?(:hca_cache_facilities)
-        import_facilities_if_empty if Rails.env.development?
+        import_facilities_if_empty
         facilities = HealthFacility.where(postal_name: params[:state])
         render json: facilities.map { |facility| { id: facility.station_number, name: facility.name } }
       else
