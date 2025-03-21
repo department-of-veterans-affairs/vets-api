@@ -300,6 +300,141 @@ module PdfFill
             question_suffix: '(5)',
             question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY'
           }
+        },
+        # 7a
+        'assetTransfer' => {
+          key: 'F[0].Page_9[0].DependentsSellAssets7a[0]' # 0 yes, 1 no
+        },
+        # 7b-7d
+        'assetTransfers' => {
+          limit: 3,
+          first_key: 'originalOwnerRelationship',
+          'originalOwnerRelationship' => {
+            key: "F[0].RelationshiptoVeteran7[#{ITERATOR}]"
+          },
+          'originalOwnerRelationshipOverflow' => {
+            question_num: 7,
+            question_suffix: '(1)',
+            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN"
+          },
+          'otherOriginalOwnerRelationshipType' => {
+            key: "F[0].OtherRelationship7[#{ITERATOR}]",
+            question_num: 7,
+            question_suffix: '(2)',
+            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN"
+          },
+          'transferMethod' => {
+            key: "F[0].HowAssetTransferred[#{ITERATOR}]"
+          },
+          'transferMethodOverflow' => {
+            question_num: 7,
+            question_suffix: '(2)',
+            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED'
+          },
+          'otherTransferMethod' => {
+            key: "F[0].OtherRelationship7[#{ITERATOR}]",
+            question_num: 7,
+            question_suffix: '(2)',
+            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED'
+          },
+          'assetType' => {
+            key: "F[0].WhatAssetWasTransferred[#{ITERATOR}]"
+          },
+          'assetTypeOverflow' => {
+            question_num: 7,
+            question_suffix: '(3)',
+            question_text: 'WHAT ASSET WAS TRANSFERRED?'
+          },
+          'newOwnerName' => {
+            key: "F[0].WhoReceivedAsset[#{ITERATOR}]"
+          },
+          'newOwnerNameOverflow' => {
+            question_num: 7,
+            question_suffix: '(4)',
+            question_text: 'WHO RECEIVED THE ASSET?'
+          },
+          'newOwnerRelationship' => {
+            key: "F[0].RelationshipToNewOwner[#{ITERATOR}]"
+          },
+          'newOwnerRelationshipOverflow' => {
+            question_num: 7,
+            question_suffix: '(5)',
+            question_text: 'RELATIONSHIP TO NEW OWNER'
+          },
+          'saleReportedToIrs' => {
+            key: "F[0].WasSaleReportedToIRS[#{ITERATOR}]" # 0 yes, 1 no
+          },
+          'transferDate' => {
+            'month' => {
+              key: "F[0].DateOfTransferMonth[#{ITERATOR}]"
+            },
+            'day' => {
+              key: "F[0].DateOfTransferDay[#{ITERATOR}]"
+            },
+            'year' => {
+              key: "F[0].DateOfTransferYear[#{ITERATOR}]"
+            }
+          },
+          'assetTransferredUnderFairMarketValue' => {
+            key: "F[0].TransferredForLessThanFMV[#{ITERATOR}]" # 0 yes, 1 no
+          },
+          'fairMarketValue' => {
+            'millions' => {
+              key: "F[0].FairMarketValue1_7[#{ITERATOR}]"
+            },
+            'thousands' => {
+              key: "F[0].FairMarketValue2_7[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].FairMarketValue3_7[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].FairMarketValue4_7[#{ITERATOR}]"
+            }
+          },
+          'fairMarketValueOverflow' => {
+            question_num: 7,
+            question_suffix: '(9)',
+            question_text: 'WHAT WAS THE FAIR MARKET VALUE WHEN TRANSFERRED?'
+          },
+          'saleValue' => {
+            'millions' => {
+              key: "F[0].SalePrice1_7[#{ITERATOR}]"
+            },
+            'thousands' => {
+              key: "F[0].SalePrice2_7[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].SalePrice3_7[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].SalePrice4_7[#{ITERATOR}]"
+            }
+          },
+          'saleValueOverflow' => {
+            question_num: 7,
+            question_suffix: '(10)',
+            question_text: 'WHAT WAS THE SALE PRICE? (If applicable)'
+          },
+          'capitalGainValue' => {
+            'millions' => {
+              key: "F[0].Gain1_7[#{ITERATOR}]"
+            },
+            'thousands' => {
+              key: "F[0].Gain2_7[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].Gain3_7[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].Gain4_7[#{ITERATOR}]"
+            }
+          },
+          'capitalGainValueOverflow' => {
+            question_num: 7,
+            question_suffix: '(11)',
+            question_text: 'WHAT WAS THE GAIN? (Capital gain, etc.)'
+          }
         }
       }.freeze
 
@@ -316,6 +451,7 @@ module PdfFill
         expand_unassociated_incomes
         expand_associated_incomes
         expand_owned_assets
+        expand_asset_transfers
 
         form_data
       end
@@ -431,6 +567,14 @@ module PdfFill
           'ownedPortionValue' => split_currency_amount_lg(portion_value),
           'ownedPortionValueOverflow' => portion_value
         }
+      end
+
+      def expand_asset_transfers
+        owned_assets = form_data['ownedAssets']
+        form_data['ownedAsset'] = owned_assets&.length ? 0 : 1
+        form_data['ownedAssets'] = owned_assets&.map do |asset|
+          expand_asset_transfer(asset)
+        end
       end
     end
   end
