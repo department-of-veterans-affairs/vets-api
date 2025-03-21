@@ -453,8 +453,6 @@ flipper:
   github_organization: ~
   github_team: ~
   mute_logs: false
-form1010_ezr:
-  prefill: true
 form1095_b:
   s3:
     aws_access_key_id: ~
@@ -552,8 +550,7 @@ govdelivery:
 hca:
   ca: []
   ee:
-    mock: true
-    endpoint: http://example.com/hca
+    endpoint: http://example.com
     pass: password
     user: HCASvcUsr
   endpoint: https://test-foo.vets.gov
