@@ -281,7 +281,7 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   def initialize_payment_information
-    return {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
+    return {} unless user.authorize(:lighthouse, :direct_deposit_access?) && user.authorize(:evss, :access?)
 
     provider = ApiProviderFactory.call(type: ApiProviderFactory::FACTORIES[:ppiu],
                                        provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
@@ -301,13 +301,13 @@ class FormProfiles::VA526ez < FormProfile
       {}
     end
   rescue => e
-    log_ppiu_error(e, provider)
+    lighthouse_direct_deposit_error(e, provider)
     {}
   end
 
-  def log_ppiu_error(e, provider)
+  def lighthouse_direct_deposit_error(e, provider)
     method_name = '#initialize_payment_information'
-    error_message = "#{method_name} Failed to retrieve PPIU data from #{provider.class}: #{e.message}"
+    error_message = "#{method_name} Failed to retrieve DirectDeposit data from #{provider.class}: #{e.message}"
     Rails.logger.error(error_message)
   end
 

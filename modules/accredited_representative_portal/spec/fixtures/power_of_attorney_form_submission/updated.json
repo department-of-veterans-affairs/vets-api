@@ -32,7 +32,33 @@
           }
         }
       },
-      "status": "updated"
+      "status": "updated",
+      "steps": [
+        {
+          "type": "PDF_SUBMISSION",
+          "status": "SUCCESS",
+          "completedAt": "2025-01-06 15:39:59 UTC",
+          "nextStep": "POA_UPDATE"
+        },
+        {
+          "type": "POA_UPDATE",
+          "status": "SUCCESS",
+          "completedAt": "2025-01-06 15:40:02 UTC",
+          "nextStep": "POA_ACCESS_UPDATE"
+        },
+        {
+          "type": "POA_ACCESS_UPDATE",
+          "status": "SUCCESS",
+          "completedAt": "2025-01-06 15:40:03 UTC",
+          "nextStep": "CLAIMANT_NOTIFICATION"
+        },
+        {
+          "type": "CLAIMANT_NOTIFICATION",
+          "status": "FAILED",
+          "completedAt": null,
+          "nextStep": null
+        }
+      ]
     }
   }
 }
