@@ -82,6 +82,7 @@ module UnifiedHealthData
       code = fetch_code(record)
       encoded_data = record['resource']['presentedForm'] ? record['resource']['presentedForm'].first['data'] : ''
       sample_site = fetch_sample_site(record)
+      fetch_samples_tested(record:, contained: record['resource']['contained'])
       observations = fetch_observations(record)
       ordered_by = fetch_ordered_by(record)
 
@@ -124,8 +125,31 @@ module UnifiedHealthData
       specimen ? specimen['type']&.dig('text') : ''
     end
 
+    def fetch_samples_tested(record:, contained:)
+      specimen_references = []
+      specimens = []
+
+      return '' unless record['specimen']
+
+      if record['specimen'].is_a?(Hash)
+        specimen_references << record['specimen']['reference']
+      elsif record['specimen'].is_a?(Array)
+        specimen_references = record['specimen'].pluck('reference')
+      end
+
+      specimen_references.each do |reference|
+        specimen_object = contained.find do |resource|
+          resource['resourceType'] == 'Specimen' && resource['id'] == reference
+        end
+        specimens << specimen_object['type']['text'] if specimen_object
+      end
+
+      specimens.join(', ').strip
+    end
+
     def fetch_observations(record)
       record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
+        fetch_samples_tested(record: obs, contained: record['resource']['contained'])
         UnifiedHealthData::Observation.new(
           test_code: obs['code']['text'],
           value: fetch_observation_value(obs),
