@@ -2,3 +2,6 @@
 user_login:
   event_type: authentication
   details: User logged in
+user_profile:
+  event_type: profile
+  details: User viewed profile

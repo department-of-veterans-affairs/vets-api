@@ -4,7 +4,10 @@ require 'logging/third_party_transaction'
 
 module V0
   class UsersController < ApplicationController
+    include UserAuditable
+
     service_tag 'identity'
+    audit_user_event :user_profile, only: [:show]
 
     def show
       pre_serialized_profile = Users::Profile.new(current_user, @session_object).pre_serialize
