@@ -427,24 +427,61 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     context 'with :hca_cache_facilities enabled' do
       before { allow(Flipper).to receive(:enabled?).with(:hca_cache_facilities).and_return(true) }
 
-      it 'responds with serialized facilities data for supported facilities' do
-        mock_facilities = [
-          { name: 'My VA Facility', station_number: '123', postal_name: 'OH' },
-          { name: 'A VA Facility', station_number: '222', postal_name: 'OH' },
-          { name: 'My Other VA Facility', station_number: '231', postal_name: 'NH' }
-        ]
-        mock_facilities.each { |attrs| create(:health_facility, attrs) }
+      context 'when Rails.env.development?' do
+        before do
+          allow(Rails.env).to receive(:development?).and_return(true)
+        end
 
-        get(facilities_v0_health_care_applications_path(state: 'OH'))
+        it 'triggers HCA::HealthFacilitiesImportJob when the HealthFacility table is empty' do
+          HealthFacility.delete_all
 
-        expect(response).to have_http_status(:ok)
-        expect(response.parsed_body).to contain_exactly({
-                                                          'id' => mock_facilities[0][:station_number],
-                                                          'name' => mock_facilities[0][:name]
-                                                        }, {
-                                                          'id' => mock_facilities[1][:station_number],
-                                                          'name' => mock_facilities[1][:name]
-                                                        })
+          import_job = instance_double(HCA::HealthFacilitiesImportJob)
+          expect(HCA::HealthFacilitiesImportJob).to receive(:new).and_return(import_job)
+          expect(import_job).to receive(:perform)
+
+          get(facilities_v0_health_care_applications_path(state: 'OH'))
+        end
+
+        it 'does not trigger HCA::HealthFacilitiesImportJob when HealthFacility table is populated' do
+          create(:health_facility, name: 'Test Facility', station_number: '123', postal_name: 'OH')
+          expect(HCA::HealthFacilitiesImportJob).not_to receive(:new)
+
+          get(facilities_v0_health_care_applications_path(state: 'OH'))
+        end
+      end
+
+      context 'when Rails.env is not development?' do
+        before do
+          allow(Rails.env).to receive(:development?).and_return(false)
+        end
+
+        it 'does not call import_facilities_if_empty in non-development environments' do
+          HealthFacility.delete_all
+
+          expect(HCA::HealthFacilitiesImportJob).not_to receive(:new)
+
+          get(facilities_v0_health_care_applications_path(state: 'OH'))
+        end
+
+        it 'responds with serialized facilities data for supported facilities' do
+          mock_facilities = [
+            { name: 'My VA Facility', station_number: '123', postal_name: 'OH' },
+            { name: 'A VA Facility', station_number: '222', postal_name: 'OH' },
+            { name: 'My Other VA Facility', station_number: '231', postal_name: 'NH' }
+          ]
+          mock_facilities.each { |attrs| create(:health_facility, attrs) }
+
+          get(facilities_v0_health_care_applications_path(state: 'OH'))
+
+          expect(response).to have_http_status(:ok)
+          expect(response.parsed_body).to contain_exactly({
+                                                            'id' => mock_facilities[0][:station_number],
+                                                            'name' => mock_facilities[0][:name]
+                                                          }, {
+                                                            'id' => mock_facilities[1][:station_number],
+                                                            'name' => mock_facilities[1][:name]
+                                                          })
+        end
       end
     end
   end
