@@ -5,6 +5,8 @@ require 'pdf_fill/hash_converter'
 require 'income_and_assets/constants'
 require 'income_and_assets/helpers'
 
+# rubocop:disable Metrics/ClassLength
+
 module PdfFill
   module Forms
     class Va21p0969 < FormBase
@@ -579,3 +581,5 @@ module PdfFill
     end
   end
 end
+
+# rubocop:enable Metrics/ClassLength
