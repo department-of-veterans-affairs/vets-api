@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+# This is included from UserInfo
+
+# rubocop:disable Rails/Output
+# rubocop:disable Style/StringLiterals
+# rubocop:disable Layout/LineLength
 module Vye
   module NeedsEnrollmentVerification
     def enrollments
@@ -7,17 +12,22 @@ module Vye
       return @enrollments if defined?(@enrollments)
 
       setup
-      puts "start enrollments date is #{@today}"
+      puts "\n\n*** processing awards current date is #{today}"
       awards.each do |award|
+        # cur_award_ind is passed in from the feed, we do not determine it.
+        puts "\n\n"
         @award = award
-        puts "Processing award: #{@award.id}"
-        puts "----------------------------------------"
-        puts "award_begin_date: #{@award[:award_begin_date]}"
-        puts "award_end_date: #{@award[:award_end_date]}"
-        puts "----------------------------------------"
+        puts "award_begin_date: #{award.award_begin_date}"
+        puts "award_end_date:   #{award.award_end_date}"
+        puts "date_last_certified: #{date_last_certified}"
+        puts "award_ind_current?: #{award.award_ind_current?}"
+        puts "award_ind_future?: #{award.award_ind_future?}"
+        puts "@suppress_future_award: #{@supress_future_award}"
+        puts "@open_cert: #{@open_cert}"
+        puts "current_rec_ended?: #{current_rec_ended?}"
 
         eval_case_eom
-#byebug
+
         next if flag_open_cert
         next if eval_case1a
         next if eval_case1b
@@ -115,17 +125,32 @@ module Vye
     end
 
     def eval_case_eom
-      puts "start eval_case_eom"
+      puts "\n\n*** case_eom"
+
+      if last_day_of_month?
+        puts 'last day of month - continuing'
+      else
+        puts 'not last day of month - returning'
+      end
       return unless last_day_of_month?
+
+      if abd_before_today? && !aed_before_today?
+        puts 'award beg date is before today && award end date is not before today - continuing'
+      else
+        puts 'award beg date is not before today or award end date is not before today - returning'
+      end
       return unless abd_before_today? && !aed_before_today?
 
+      puts '***case_eom is true - pushing enrollment ***'
       act_begin =
         if dlc_before_abd? && dlc_before_ldpm?
+          puts "  date last certified is b4 award begin date & last day of previous month - assigning award begin date to act begin"
           @award.award_begin_date
         else
+          puts "  date last certified is not b4 award begin date & last day of previous month - assigning date last certified to act begin"
           date_last_certified
         end
-      puts "pushing enrollment for case_eom"
+
       push_enrollment(
         award_id: @award.id,
         act_begin:,
@@ -140,11 +165,29 @@ module Vye
     end
 
     def flag_open_cert
-      puts "start flag_open_cert"
+      puts "\n\nflag_open_cert"
+      if dlc_before_ldpm? || date_last_certified.blank?
+        puts 'date last certified is before last day of previous month or is blank - continuing'
+      else
+        puts 'date last certified is not before last day of previous month and is not blank - returning'
+      end
       return unless dlc_before_ldpm? || date_last_certified.blank?
+
+      if @award.award_ind_current?
+        puts 'award is current - continuing'
+      else
+        puts 'award is not current - returning'
+      end
       return unless @award.award_ind_current?
+
+      if @award.award_end_date.present?
+        puts 'award end date is present - returning'
+      else
+        puts 'award end date is not present - continuing'
+      end
       return if @award.award_end_date.present?
 
+      puts '*** flag_open_cert is true ***'
       @open_cert = true
       @open_cert_award_id = @award.id
       @open_cert_credit_hours = @award.number_hours
@@ -155,16 +198,53 @@ module Vye
     end
 
     def eval_case1a
-      puts "start eval_case1a"
+      puts "\n\ncase1a"
+
+      if dlc_before_ldpm? || date_last_certified.blank?
+        puts 'date last certified is before last day of previous month or is blank - continuing'
+      else
+        puts 'date last certified is not before last day of previous month and is not blank - returning'
+      end
       return unless dlc_before_ldpm? || date_last_certified.blank?
+
+      if @award.award_ind_current?
+        puts 'award is current - continuing'
+      else
+        puts 'award is not current - returning'
+      end
       return unless @award.award_ind_current?
+
+      if @award.award_end_date.blank?
+        puts 'award end date is blank - returning'
+      else
+        puts 'award end date is not blank - continuing'
+      end
       return if @award.award_end_date.blank?
+
+      if are_dates_the_same(@award.award_begin_date, date_last_certified)
+        puts 'award begin date is the same as date last certified - returning'
+      else
+        puts 'award begin date is not the same as date last certified - continuing'
+      end
       return if are_dates_the_same(@award.award_end_date, date_last_certified)
+
+      if current_rec_ended?
+        puts 'current record is ended - continuing'
+      else
+        puts 'current record is not ended - returning'
+      end
       return unless current_rec_ended?
+
+      if ldpm_before_aed? && are_dates_the_same(@award.award_begin_date, @award.award_end_date)
+        puts 'last day of previous month is before award end date && award begin date is the same as award end date - continuing'
+      else
+        puts 'last day of previous month is not before award end date || award begin date is not the same as award end date - returning'
+      end
       return unless ldpm_before_aed? && are_dates_the_same(@award.award_begin_date, @award.award_end_date)
 
+      puts '*** case1a is true pushing enrollment ***'
       @supress_future_award = true
-      puts "pushing enrollment for case_1a"
+
       push_enrollment(
         award_id: @award.id,
         act_begin: date_last_certified,
@@ -179,15 +259,51 @@ module Vye
     end
 
     def eval_case1b
-      puts "start eval_case1b"
+      puts "\n\ncase1b"
+
+      if dlc_before_ldpm? || date_last_certified.blank?
+        puts 'date last certified is before last day of previous month or is blank - continuing'
+      else
+        puts 'date last certified is not before last day of previous month and is not blank - returning'
+      end
       return unless dlc_before_ldpm? || date_last_certified.blank?
+
+      if @award.award_ind_current?
+        puts 'award is current - continuing'
+      else
+        puts 'award is not current - returning'
+      end
       return unless @award.award_ind_current?
+
+      if @award.award_end_date.blank?
+        puts 'award end date is blank - returning'
+      else
+        puts 'award end date is not blank - continuing'
+      end
       return if @award.award_end_date.blank?
+
+      if are_dates_the_same(@award.award_begin_date, date_last_certified)
+        puts 'award begin date is the same as date last certified - returning'
+      else
+        puts 'award begin date is not the same as date last certified - continuing'
+      end
       return if are_dates_the_same(@award.award_end_date, date_last_certified)
+
+      if current_rec_ended?
+        puts 'current record is ended - continuing'
+      else
+        puts 'current record is not ended - returning'
+      end
       return unless current_rec_ended?
+
+      if ldpm_before_aed? && are_dates_the_same(@award.award_begin_date, @award.award_end_date)
+        puts 'last day of previous month is before award end date && award begin date is the same as award end date - returning'
+      else
+        puts 'last day of previous month is not before award end date || award begin date is not the same as award end date - continuing'
+      end
       return if ldpm_before_aed? && are_dates_the_same(@award.award_begin_date, @award.award_end_date)
 
-      puts "pushing enrollment for case_1b"
+      puts '*** case1b is true pushing enrollment ***'
       push_enrollment(
         award_id: @award.id,
         act_begin: date_last_certified,
@@ -202,15 +318,51 @@ module Vye
     end
 
     def eval_case2
-      puts "start eval_case2"
+      puts "\n\ncase2"
+
+      if dlc_before_ldpm? || date_last_certified.blank?
+        puts 'date last certified is before last day of previous month or is blank - continuing'
+      else
+        puts 'date last certified is not before last day of previous month and is not blank - returning'
+      end
       return unless dlc_before_ldpm? || date_last_certified.blank?
+
+      if @award.award_ind_current?
+        puts 'award is current - continuing'
+      else
+        puts 'award is not current - returning'
+      end
       return unless @award.award_ind_current?
+
+      if @award.award_end_date.blank?
+        puts 'award end date is blank - returning'
+      else
+        puts 'award end date is not blank - continuing'
+      end
       return if @award.award_end_date.blank?
+
+      if are_dates_the_same(@award.award_begin_date, date_last_certified)
+        puts 'award begin date is the same as date last certified - returning'
+      else
+        puts 'award begin date is not the same as date last certified - continuing'
+      end
       return if are_dates_the_same(@award.award_end_date, date_last_certified)
+
+      if current_rec_ended?
+        puts 'current record is ended - continuing'
+      else
+        puts 'current record is not ended - returning'
+      end
       return if current_rec_ended?
+
+      if ldpm_before_aed? && !ldpm_before_abd?
+        puts 'last day of previous month is before award end date && last day of previous month is not before award begin date - continuing'
+      else
+        puts 'last day of previous month is not before award end date || last day of previous month is before award begin date - returning'
+      end
       return unless ldpm_before_aed? && !ldpm_before_abd?
 
-      puts "pushing enrollment for case_2"
+      puts '*** case2 is true pushing enrollment ***'
       push_enrollment(
         award_id: @award.id,
         act_begin: date_last_certified,
@@ -225,15 +377,51 @@ module Vye
     end
 
     def eval_case3
-      puts "start eval_case3"
+      puts "\n\ncase3"
+
+      if dlc_before_ldpm? || date_last_certified.blank?
+        puts 'date last certified is before last day of previous month or is blank - continuing'
+      else
+        puts 'date last certified is not before last day of previous month and is not blank - returning'
+      end
       return unless dlc_before_ldpm? || date_last_certified.blank?
+
+      if @award.award_ind_current?
+        puts 'award is current - continuing'
+      else
+        puts 'award is not current - returning'
+      end
       return unless @award.award_ind_current?
+
+      if @award.award_end_date.blank?
+        puts 'award end date is blank - returning'
+      else
+        puts 'award end date is not blank - continuing'
+      end
       return if @award.award_end_date.blank?
+
+      if are_dates_the_same(@award.award_begin_date, date_last_certified)
+        puts 'award begin date is the same as date last certified - returning'
+      else
+        puts 'award begin date is not the same as date last certified - continuing'
+      end
       return if are_dates_the_same(@award.award_end_date, date_last_certified)
+
+      if current_rec_ended?
+        puts 'current record is ended - continuing'
+      else
+        puts 'current record is not ended - returning'
+      end
       return if current_rec_ended?
+
+      if ldpm_before_aed? && !ldpm_before_abd?
+        puts 'last day of previous month is before award end date && last day of previous month is not before award begin date - returning'
+      else
+        puts 'last day of previous month is not before award end date || last day of previous month is before award begin date - continuing'
+      end
       return if ldpm_before_aed? && !ldpm_before_abd?
 
-      puts "pushing enrollment for case_3"
+      puts '*** case3 is true pushing enrollment ***'
       push_enrollment(
         award_id: @award.id,
         act_begin: date_last_certified,
@@ -248,13 +436,37 @@ module Vye
     end
 
     def eval_case4
-      puts "start eval_case4"
+      puts "\n\ncase4"
+
+      if dlc_before_ldpm? || date_last_certified.blank?
+        puts 'date last certified is before last day of previous month or is blank - continuing'
+      else
+        puts 'date last certified is not before last day of previous month and is not blank - returning'
+      end
       return unless dlc_before_ldpm? || date_last_certified.blank?
+
+      if @award.award_ind_future? && !@supress_future_award
+        puts 'award is future && supress future award is false - continuing'
+      else
+        puts 'award is not future || supress future award is true - returning'
+      end
       return unless @award.award_ind_future? && !@supress_future_award
+
+      if @open_cert
+        puts 'open cert is true - continuing'
+      else
+        puts 'open cert is false - returning'
+      end
       return unless @open_cert
+
+      if ldpm_before_abd?
+        puts 'last day of previous month is before award begin date - continuing'
+      else
+        puts 'last day of previous month is not before award begin date - returning'
+      end
       return unless ldpm_before_abd?
 
-      puts "pushing enrollment for case_4"
+      puts '*** case4 is true pushing enrollment ***'
       push_enrollment(
         award_id: @open_cert_award_id,
         act_begin: date_last_certified,
@@ -270,14 +482,44 @@ module Vye
     end
 
     def eval_case5
-      puts "start eval_case5"
+      puts "\n\ncase5"
+
+      if dlc_before_ldpm? || date_last_certified.blank?
+        puts 'date last certified is before last day of previous month or is blank - continuing'
+      else
+        puts 'date last certified is not before last day of previous month and is not blank - returning'
+      end
       return unless dlc_before_ldpm? || date_last_certified.blank?
+
+      if @award.award_ind_future? && !@supress_future_award
+        puts 'award is future && supress future award is false - continuing'
+      else
+        puts 'award is not future || supress future award is true - returning'
+      end
       return unless @award.award_ind_future? && !@supress_future_award
+
+      if @open_cert
+        puts 'open cert is true - continuing'
+      else
+        puts 'open cert is false - returning'
+      end
       return unless @open_cert
+
+      if ldpm_before_abd?
+        puts 'last day of previous month is before award begin date - returning'
+      else
+        puts 'last day of previous month is not before award begin date - continuing'
+      end
       return if ldpm_before_abd?
+
+      if ldpm_before_aed?
+        puts 'last day of previous month is before award end date - continuing'
+      else
+        puts 'last day of previous month is not before award end date - returning'
+      end
       return unless ldpm_before_aed?
 
-      puts "pushing enrollment for case_5"
+      puts '*** case5 is true pushing enrollment ***'
       push_enrollment(
         award_id: @open_cert_award_id,
         act_begin: date_last_certified,
@@ -293,14 +535,44 @@ module Vye
     end
 
     def eval_case6
-      puts "start eval_case6"
+      puts "\n\ncase6"
+
+      if dlc_before_ldpm? || date_last_certified.blank?
+        puts 'date last certified is before last day of previous month or is blank - continuing'
+      else
+        puts 'date last certified is not before last day of previous month and is not blank - returning'
+      end
       return unless dlc_before_ldpm? || date_last_certified.blank?
+
+      if @award.award_ind_future? && !@supress_future_award
+        puts 'award is future && supress future award is false - continuing'
+      else
+        puts 'award is not future || supress future award is true - returning'
+      end
       return unless @award.award_ind_future? && !@supress_future_award
+
+      if @open_cert
+        puts 'open cert is true - returning'
+      else
+        puts 'open cert is false - continuing'
+      end
       return if @open_cert
+
+      if ldpm_before_abd?
+        puts 'last day of previous month is before award begin date - returning'
+      else
+        puts 'last day of previous month is not before award begin date - continuing'
+      end
       return if ldpm_before_abd?
+
+      if date_last_certified.present?
+        puts 'date last certified is present - returning'
+      else
+        puts 'date last certified is not present - continuing'
+      end
       return if date_last_certified.present?
 
-      puts "pushing enrollment for case_6"
+      puts '*** case6 is true pushing enrollment ***'
       push_enrollment(
         award_id: @award.id,
         act_begin: @award.award_begin_date,
@@ -315,15 +587,51 @@ module Vye
     end
 
     def eval_case7
-      puts "start eval_case7"
+      puts "\n\ncase7"
+
+      if dlc_before_ldpm? || date_last_certified.blank?
+        puts 'date last certified is before last day of previous month or is blank - continuing'
+      else
+        puts 'date last certified is not before last day of previous month and is not blank - returning'
+      end
       return unless dlc_before_ldpm? || date_last_certified.blank?
+
+      if @award.award_ind_future? && !@supress_future_award
+        puts 'award is future && supress future award is false - continuing'
+      else
+        puts 'award is not future || supress future award is true - returning'
+      end
       return unless @award.award_ind_future? && !@supress_future_award
+
+      if @open_cert
+        puts 'open cert is true - returning'
+      else
+        puts 'open cert is false - continuing'
+      end
       return if @open_cert
+
+      if ldpm_before_abd?
+        puts 'last day of previous month is before award begin date - returning'
+      else
+        puts 'last day of previous month is not before award begin date - continuing'
+      end
       return if ldpm_before_abd?
+
+      if date_last_certified.blank?
+        puts 'date last certified is blank - returning'
+      else
+        puts 'date last certified is not blank - continuing'
+      end
       return if date_last_certified.blank?
+
+      if ldpm_before_aed?
+        puts 'last day of previous month is before award end date - continuing'
+      else
+        puts 'last day of previous month is not before award end date - returning'
+      end
       return unless ldpm_before_aed?
 
-      puts "pushing enrollment for case_7"
+      puts '*** case7 is true pushing enrollment ***'
       push_enrollment(
         award_id: @award.id,
         act_begin: @award.award_begin_date,
@@ -338,15 +646,51 @@ module Vye
     end
 
     def eval_case8
-      puts "start eval_case8"
+      puts "\n\ncase8"
+
+      if dlc_before_ldpm? || date_last_certified.blank?
+        puts 'date last certified is before last day of previous month or is blank - continuing'
+      else
+        puts 'date last certified is not before last day of previous month and is not blank - returning'
+      end
       return unless dlc_before_ldpm? || date_last_certified.blank?
+
+      if @award.award_ind_future? && !@supress_future_award
+        puts 'award is future && supress future award is false - continuing'
+      else
+        puts 'award is not future || supress future award is true - returning'
+      end
       return unless @award.award_ind_future? && !@supress_future_award
+
+      if @open_cert
+        puts 'open cert is true - returning'
+      else
+        puts 'open cert is false - continuing'
+      end
       return if @open_cert
+
+      if ldpm_before_abd?
+        puts 'last day of previous month is before award begin date - returning'
+      else
+        puts 'last day of previous month is not before award begin date - continuing'
+      end
       return if ldpm_before_abd?
+
+      if date_last_certified.blank?
+        puts 'date last certified is blank - returning'
+      else
+        puts 'date last certified is not blank - continuing'
+      end
       return if date_last_certified.blank?
+
+      if ldpm_before_aed?
+        puts 'last day of previous month is before award end date - returning'
+      else
+        puts 'last day of previous month is not before award end date - continuing'
+      end
       return if ldpm_before_aed?
 
-      puts "pushing enrollment for case_8"
+      puts '*** case8 is true pushing enrollment ***'
       push_enrollment(
         award_id: @award.id,
         act_begin: @award.award_begin_date,
@@ -361,12 +705,30 @@ module Vye
     end
 
     def eval_case9
-      puts "start eval_case9"
+      puts "\n\ncase9"
+
+      if dlc_before_ldpm? || date_last_certified.blank?
+        puts 'date last certified is before last day of previous month or is blank - returning'
+      else
+        puts 'date last certified is not before last day of previous month and is not blank - continuing'
+      end
       return if dlc_before_ldpm? || date_last_certified.blank?
+
+      if aed_before_today?
+        puts 'award end date is before today - continuing'
+      else
+        puts 'award end date is not before today - returning'
+      end
       return unless aed_before_today?
+
+      if are_dates_the_same(@award.award_begin_date, @award.award_end_date)
+        puts 'award begin date is the same as award end date - continuing'
+      else
+        puts 'award begin date is not the same as award end date - returning'
+      end
       return unless are_dates_the_same(@award.award_begin_date, @award.award_end_date)
 
-      puts "pushing enrollment for case_9"
+      puts '*** case9 is true pushing enrollment ***'
       push_enrollment(
         award_id: @award.id,
         act_begin: date_last_certified,
