@@ -18,12 +18,12 @@ module IvcChampva
       #
       # @param transaction_uuid [string] the UUID for the application
       # @param acting_user [string, nil] the acting user for the application
-      # @param parsed_form_data [hash] form data from frontend to send to VES
+      # @param ves_data [hash] form data from frontend formatted to send to VES
       # @return [Array<Message>] the report rows
-      def submit_1010d(transaction_uuid, acting_user, parsed_form_data)
+      def submit_1010d(transaction_uuid, acting_user, ves_data)
         connection.post("#{config.base_path}/champva-applications") do |req|
           req.headers = headers(transaction_uuid, acting_user)
-          req.body = convert_to_champva_application(parsed_form_data).to_json
+          req.body = ves_data.to_json
         end
 
         # TODO: check for non-200 responses and handle them appropriately
