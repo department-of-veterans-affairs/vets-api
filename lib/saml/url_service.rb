@@ -71,8 +71,8 @@ module SAML
       @query_params[:auth] = auth if auth != 'success'
       @query_params[:code] = code if code
 
-      if Settings.saml_ssoe.relay.present?
-        add_query(Settings.saml_ssoe.relay, query_params)
+      if IdentitySettings.saml_ssoe.relay.present?
+        add_query(IdentitySettings.saml_ssoe.relay, query_params)
       else
         add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
       end
@@ -171,7 +171,7 @@ module SAML
 
     # logout URL for SSOe
     def ssoe_slo_url
-      Settings.saml_ssoe.logout_url
+      IdentitySettings.saml_ssoe.logout_url
     end
 
     private
