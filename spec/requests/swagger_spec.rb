@@ -921,6 +921,21 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           end
         end
       end
+
+      context ':hca_cache_facilities feature is on' do
+        before { allow(Flipper).to receive(:enabled?).with(:hca_cache_facilities).and_return(true) }
+
+        it 'supports returning list of active facilities' do
+          create(:health_facility, name: 'Test Facility', station_number: '123', postal_name: 'OH')
+
+          expect(subject).to validate(
+            :get,
+            '/v0/health_care_applications/facilities',
+            200,
+            { '_query_string' => 'state=OH' }
+          )
+        end
+      end
     end
 
     context 'Form1010Ezr tests' do
