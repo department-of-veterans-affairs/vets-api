@@ -113,6 +113,9 @@ features:
   hca_ez_use_facilities_v2:
     actor_type: user
     description: Use Lighthouse Facilities API V2 for EZ queries
+  hca_cache_facilities_job:
+    actor_type: user
+    description: Use import job to update health facilities daily to limit facilities api requests
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
@@ -200,9 +203,6 @@ features:
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
-  champva_confirmation_email_bugfix:
-    actor_type: user
-    description: Enables fix for a bug where confirmation emails may get sent when Pega reports a status of 'Not Processed'
   champva_enhanced_monitor_logging:
     actor_type: user
     description: Enables using the new IVC CHAMPVA Monitoring logging class for enhanced Stats D info.
@@ -513,6 +513,12 @@ features:
   decision_review_notification_form_callbacks:
     actor_type: user
     description: Enable using DecisionReviews::FormNotificationCallback to handle VA Notify notification status changes
+  decision_review_notification_evidence_callbacks:
+    actor_type: user
+    description: Enable using DecisionReviews::EvidenceNotificationCallback to handle VA Notify notification status changes for evidence
+  decision_review_notification_secondary_form_callbacks:
+    actor_type: user
+    description: Enable using DecisionReviews::EvidenceNotificationCallback to handle VA Notify notification status changes for secondary form
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -687,6 +693,9 @@ features:
     actor_type: user
     description: Enables Appoint a Representative PDF generation endpoint
     enable_in_development: true
+  form4142_validate_schema:
+    actor_type: user
+    description: Enable validation of form 4142 in Form4142Processor
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.

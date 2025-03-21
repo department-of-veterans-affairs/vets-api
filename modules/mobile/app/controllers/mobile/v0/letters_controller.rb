@@ -4,7 +4,6 @@ require 'common/exceptions/record_not_found'
 require 'evss/letters/download_service'
 require 'evss/letters/service'
 require 'lighthouse/letters_generator/service'
-require 'lighthouse/letters_generator/veteran_sponsor_resolver'
 
 module Mobile
   module V0
@@ -87,37 +86,11 @@ module Mobile
       private
 
       def download_lighthouse_letters(params)
-        icns = { icn: }
-
-        if dependent_letter?(params[:type])
-          # Gets the sponsor's icn if one exists
-          sponsor_icn = Lighthouse::LettersGenerator::VeteranSponsorResolver.get_sponsor_icn(@current_user)
-          is_dependent = Lighthouse::LettersGenerator::VeteranSponsorResolver.dependent?(@current_user)
-
-          # This is an exceptional case.
-          # A Veteran who is not a dependent should not be able to access this endpoint.
-          # A dependent (Veteran or not) must have a Veteran sponsor.
-          if sponsor_icn.nil?
-            raise Common::Exceptions::BadRequest.new(
-              {
-                detail: "User #{@current_user.uuid} is #{is_dependent ? 'not' : ''} a Veteran and has no associated sponsor.", # rubocop:disable Layout/LineLength
-                source: self.class.name
-              }
-            )
-          else
-            icns[:sponsor_icn] = sponsor_icn
-          end
-        end
-
-        lighthouse_service.download_letter(icns, params[:type], download_options_hash)
+        lighthouse_service.download_letter({ icn: }, params[:type], download_options_hash)
       end
 
       def icn
         @current_user.icn
-      end
-
-      def dependent_letter?(letter_type)
-        letter_type.downcase == 'benefit_summary_dependent'
       end
 
       def validate_letter_type!
