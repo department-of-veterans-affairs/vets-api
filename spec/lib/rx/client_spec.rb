@@ -12,6 +12,12 @@ end
 
 describe Rx::Client do
   before(:all) do
+    Flipper.disable(:mhv_medications_add_x_api_key)
+    VCR.configure do |vcr_config|
+      vcr_config.default_cassette_options = {
+        allow_playback_repeats: true
+      }
+    end
     VCR.use_cassette 'rx_client/session' do
       @client ||= begin
         client = Rx::Client.new(session: { user_id: '12210827' },
