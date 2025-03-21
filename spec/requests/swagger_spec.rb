@@ -907,14 +907,18 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
       end
 
-      it 'supports returning list of active facilities' do
-        VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
-          expect(subject).to validate(
-            :get,
-            '/v0/health_care_applications/facilities',
-            200,
-            { '_query_string' => 'facilityIds[]=vha_757&facilityIds[]=vha_358' }
-          )
+      context ':hca_cache_facilities feature is off' do
+        before { allow(Flipper).to receive(:enabled?).with(:hca_cache_facilities).and_return(false) }
+
+        it 'supports returning list of active facilities' do
+          VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+            expect(subject).to validate(
+              :get,
+              '/v0/health_care_applications/facilities',
+              200,
+              { '_query_string' => 'facilityIds[]=vha_757&facilityIds[]=vha_358' }
+            )
+          end
         end
       end
     end
