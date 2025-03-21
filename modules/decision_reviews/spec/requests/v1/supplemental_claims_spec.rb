@@ -133,17 +133,20 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
     end
 
     context 'when schema validation fails' do
+      let(:invalid_params) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').clone }
+
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(true)
         allow(Rails.logger).to receive(:error)
         allow(StatsD).to receive(:increment)
       end
 
       it 'logs the error and increments the StatsD metric' do
         VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
-          params['form4142'].delete('providerFacility')
+          invalid_params['form4142']['providerFacility'] = nil
           post('/decision_reviews/v1/supplemental_claims',
-               params: params.to_json,
+               params: invalid_params.to_json,
                headers:)
           expect do
             DecisionReviews::Form4142Submit.drain
@@ -166,6 +169,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
 
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(true)
       end
 
       it 'creates a supplemental claim and queues and saves a 4142 form when 4142 info is provided' do
@@ -221,6 +225,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
     context 'when tracking 4142 is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(false)
       end
 
       it 'creates a supplemental claim and queues a 4142 form when 4142 info is provided' do

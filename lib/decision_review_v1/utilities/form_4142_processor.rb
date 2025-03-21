@@ -101,6 +101,8 @@ module DecisionReviewV1
       end
 
       def validate_form4142
+        return unless Flipper.enabled?(:form4142_validate_schema)
+
         schema = VetsJsonSchema::SCHEMAS[FORM_ID]
         errors = JSON::Validator.fully_validate(schema, @form, errors_as_objects: true)
 
