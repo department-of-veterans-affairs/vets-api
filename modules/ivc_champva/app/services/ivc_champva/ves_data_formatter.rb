@@ -196,11 +196,9 @@ module IvcChampva
       I18n.transliterate(text).gsub(%r{[^a-zA-Z\-\/\s]}, '').strip
     end
 
-    # Validation methods - consolidated
     def self.validate_sponsor(request_body)
       sponsor = request_body[:sponsor]
 
-      # Basic validation
       validate_name_fields(sponsor, 'sponsor')
       validate_address(sponsor[:address], 'sponsor')
       validate_date(sponsor[:date_of_birth], 'date of birth')
@@ -216,14 +214,15 @@ module IvcChampva
       raise ArgumentError, 'beneficiaries is invalid. Must be an array' unless beneficiaries.is_a?(Array)
 
       beneficiaries.each do |beneficiary|
-        # Basic validation
         validate_name_fields(beneficiary, 'beneficiary')
         validate_date(beneficiary[:date_of_birth], 'date of birth')
         validate_uuid(beneficiary[:person_uuid], 'person uuid')
         validate_address(beneficiary[:address], 'beneficiary')
-        validate_relationship_fields(beneficiary)
-        validate_gender(beneficiary)
         validate_ssn(beneficiary[:ssn], 'ssn')
+
+        # not required by VES
+        validate_relationship_fields(beneficiary) if beneficiary[:relationship_to_sponsor]
+        validate_gender(beneficiary) if beneficiary[:gender]
       end
 
       request_body
@@ -233,6 +232,7 @@ module IvcChampva
       certification = request_body[:certification]
       return request_body if certification.blank? || certification.empty?
 
+      # only signature and signature_date are required by VES
       validate_presence_and_stringiness(certification[:signature], 'certification signature')
       validate_date(certification[:signature_date], 'certification signature date')
       validate_phone(certification, 'certification phone') if certification[:phone_number]
@@ -292,6 +292,8 @@ module IvcChampva
     end
 
     def self.validate_address(address, name)
+      raise ArgumentError, "#{name} address is missing" if address.nil?
+
       validate_nonempty_presence_and_stringiness(address[:city], "#{name} city")
       validate_nonempty_presence_and_stringiness(address[:state], "#{name} state")
       validate_nonempty_presence_and_stringiness(address[:zip_code], "#{name} zip code")

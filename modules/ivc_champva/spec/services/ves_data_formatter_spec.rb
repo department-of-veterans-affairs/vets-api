@@ -177,6 +177,14 @@ describe IvcChampva::VesDataFormatter do
   end
 
   describe 'sponsor address' do
+    it 'raises an error when address is missing' do
+      @parsed_form_data_copy['veteran']['address'] = nil
+
+      expect do
+        IvcChampva::VesDataFormatter.format(@parsed_form_data_copy)
+      end.to raise_error(ArgumentError, 'sponsor address is missing')
+    end
+
     it 'raises an error when values are empty strings' do
       # Drop the address prop from sponsor
       @parsed_form_data_copy['veteran']['address'] = {
