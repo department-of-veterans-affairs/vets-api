@@ -21,6 +21,7 @@ RSpec.describe 'API doc validations', type: :request do
   before do
     Flipper.disable(:mhv_medications_add_x_api_key)
   end
+
   context 'json validation' do
     it 'has valid json' do
       get '/v0/apidocs.json'
