@@ -572,11 +572,37 @@ module PdfFill
       end
 
       def expand_asset_transfers
-        owned_assets = form_data['ownedAssets']
-        form_data['ownedAsset'] = owned_assets&.length ? 0 : 1
-        form_data['ownedAssets'] = owned_assets&.map do |asset|
-          expand_asset_transfer(asset)
+        asset_transfers = form_data['assetTransfers']
+        form_data['assetTransfer'] = asset_transfers&.length ? 0 : 1
+        form_data['assetTransfers'] = asset_transfers&.map do |transfer|
+          expand_asset_transfer(transfer)
         end
+      end
+
+      def expand_asset_transfer(transfer) # rubocop:disable Metrics/MethodLength
+        {
+          'originalOwnerRelationship' => transfer['originalOwnerRelationship'],
+          'originalOwnerRelationshipOverflow' => transfer['originalOwnerRelationship'],
+          'otherOriginalOwnerRelationshipType' => transfer['otherOriginalOwnerRelationshipType'],
+          'transferMethod' => transfer['transferMethod'],
+          'transferMethodOverflow' => transfer['transferMethod'],
+          'otherTransferMethod' => transfer['otherTransferMethod'],
+          'assetType' => transfer['assetType'],
+          'assetTypeOverflow' => transfer['assetType'],
+          'newOwnerName' => transfer['newOwnerName'],
+          'newOwnerNameOverflow' => transfer['newOwnerName'],
+          'newOwnerRelationship' => transfer['newOwnerRelationship'],
+          'newOwnerRelationshipOverflow' => transfer['newOwnerRelationship'],
+          'saleReportedToIrs' => transfer['saleReportedToIrs'],
+          'transferDate' => transfer['transferDate'],
+          'assetTransferredUnderFairMarketValue' => transfer['assetTransferredUnderFairMarketValue'], # 0 yes, 1 no
+          'fairMarketValue' => transfer['fairMarketValue'],
+          'fairMarketValueOverflow' => transfer['fairMarketValue'],
+          'saleValue' => transfer['saleValue'],
+          'saleValueOverflow' => transfer['saleValue'],
+          'capitalGainValue' => transfer['capitalGainValue'],
+          'capitalGainValueOverflow' => transfer['capitalGainValue']
+        }
       end
     end
   end
