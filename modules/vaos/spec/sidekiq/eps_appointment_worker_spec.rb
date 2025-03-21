@@ -52,6 +52,32 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
       end
     end
 
+    context 'when the appointment is not found' do
+      before do
+        allow(service).to receive(:get_appointment).with(appointment_id:).and_raise(Common::Exceptions::BackendServiceException.new(
+                                                                                      nil, {}, 404, 'Appointment not found'
+                                                                                    ))
+      end
+
+      it 'sends failure message after max retries' do
+        expect(worker).to receive(:send_vanotify_message).with(user:, error: 'Service error, please contact support')
+        worker.perform(appointment_id, user, Eps::EpsAppointmentWorker::MAX_RETRIES)
+      end
+    end
+
+    context 'when the upstream service returns a 500 error' do
+      before do
+        allow(service).to receive(:get_appointment).with(appointment_id:)
+                                                   .and_raise(Common::Exceptions::BackendServiceException.new(nil, {},
+                                                                                                              500, 'Internal server error'))
+      end
+
+      it 'sends failure message after max retries' do
+        expect(worker).to receive(:send_vanotify_message).with(user:, error: 'Service error, please contact support')
+        worker.perform(appointment_id, user, Eps::EpsAppointmentWorker::MAX_RETRIES)
+      end
+    end
+
     describe '#send_vanotify_message' do
       it 'sends email notification' do
         expect(va_notify_service).to receive(:send_email).with(

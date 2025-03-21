@@ -52,6 +52,5 @@ http_interactions:
       - '3600'
     body:
       encoding: UTF-8
-      string: '{"id":"6d0c8a60-5eff-44bc-b734-a65dcfdc6ca7","code":500,"errorCode":7003,"traceId":"edb650c5fed99511","message":"failed
-        to fetch appointments","meta":{"upstreamErrorSource":"mobile-appointment-service","upstreamErrorId":"1768c311-b339-4826-b014-822df0bb76bd"}}'
+      string: '{"isFault": true,"isTemporary": true,"name": "Internal Server Error"}'
   recorded_at: Wed, 26 May 2021 22:47:08 GMT
