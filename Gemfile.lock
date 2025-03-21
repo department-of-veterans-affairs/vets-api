@@ -128,6 +128,7 @@ PATH
       sidekiq
     veteran (0.0.1)
     veteran_confirmation (0.0.1)
+    vre (0.1.0)
     vye (0.1.0)
 
 GEM
@@ -360,10 +361,10 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.10.0)
+    datadog (2.12.2)
       datadog-ruby_core_source (~> 3.4)
-      libdatadog (~> 14.3.1.1.0)
-      libddwaf (~> 1.18.0.0.0)
+      libdatadog (~> 16.0.1.1.0)
+      libddwaf (~> 1.18.0.0.1)
       logger
       msgpack
     datadog-ruby_core_source (3.4.0)
@@ -642,16 +643,16 @@ GEM
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
     language_server-protocol (3.17.0.4)
-    libdatadog (14.3.1.1.0)
-    libdatadog (14.3.1.1.0-aarch64-linux)
-    libdatadog (14.3.1.1.0-x86_64-linux)
-    libddwaf (1.18.0.0.0)
+    libdatadog (16.0.1.1.0)
+    libdatadog (16.0.1.1.0-aarch64-linux)
+    libdatadog (16.0.1.1.0-x86_64-linux)
+    libddwaf (1.18.0.0.1)
       ffi (~> 1.0)
-    libddwaf (1.18.0.0.0-aarch64-linux)
+    libddwaf (1.18.0.0.1-aarch64-linux)
       ffi (~> 1.0)
-    libddwaf (1.18.0.0.0-java)
+    libddwaf (1.18.0.0.1-java)
       ffi (~> 1.0)
-    libddwaf (1.18.0.0.0-x86_64-linux)
+    libddwaf (1.18.0.0.1-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
     liquid (5.7.2)
@@ -693,8 +694,8 @@ GEM
     minitest (5.25.5)
     mock_redis (0.49.0)
       redis (~> 5)
-    msgpack (1.7.5)
-    msgpack (1.7.5-java)
+    msgpack (1.8.0)
+    msgpack (1.8.0-java)
     multi_json (1.15.0)
     multi_xml (0.6.0)
     multipart-post (2.4.1)
@@ -764,7 +765,7 @@ GEM
     ox (2.14.22)
       bigdecimal (>= 3.0)
     parallel (1.26.3)
-    parallel_tests (4.9.0)
+    parallel_tests (5.1.0)
       parallel
     parser (3.3.7.1)
       ast (~> 2.4.1)
@@ -826,7 +827,7 @@ GEM
       nio4r (~> 2.0)
     puma (6.6.0-java)
       nio4r (~> 2.0)
-    pundit (2.4.0)
+    pundit (2.5.0)
       activesupport (>= 3.0.0)
     raabro (1.4.0)
     racc (1.8.1)
@@ -1372,6 +1373,7 @@ DEPENDENCIES
   veteran_confirmation!
   vets_json_schema!
   virtus
+  vre!
   vye!
   warden-github
   waterdrop
