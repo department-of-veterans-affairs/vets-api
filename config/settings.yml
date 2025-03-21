@@ -1411,6 +1411,7 @@ vanotify:
   service_callback_tokens:
     1010_health_apps: <%= ENV['vanotify__service_callback_tokens__1010_health_apps'] %>
     benefits_disability: <%= ENV['vanotify__service_callback_tokens__benefits_disability'] %>
+    benefits_management_tools: <%= ENV['vanotify__service_callback_tokens__benefits_management_tools'] %>
     ivc_forms: <%= ENV['vanotify__service_callback_tokens__ivc_forms'] %>
     va_gov: <%= ENV['vanotify__service_callback_tokens__va_gov'] %>
   services:
