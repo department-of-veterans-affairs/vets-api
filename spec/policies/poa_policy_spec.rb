@@ -11,8 +11,6 @@ describe POAPolicy do
       it 'grants access' do
         expect(subject).to permit(user, :power_of_attorney)
       end
-
-
     end
 
     context 'when user does not have an ICN nor LOA3' do
@@ -27,8 +25,6 @@ describe POAPolicy do
       it 'denies access' do
         expect(subject).not_to permit(user, :power_of_attorney)
       end
-
-
     end
   end
 end
