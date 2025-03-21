@@ -81,6 +81,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
         allow(Flipper).to receive(:enabled?).with(:decision_review_failure_notification_email_job_enabled)
                                             .and_return(true)
         allow(Flipper).to receive(:enabled?).with(:decision_review_notify_4142_failures).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_notification_form_callbacks).and_return(false)
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:error)
         allow(StatsD).to receive(:increment)
@@ -148,6 +149,39 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             expect(Rails.logger).to have_received(:info).with(*logger_params)
             expect(StatsD).to have_received(:increment)
               .with('worker.decision_review.failure_notification_email.form.email_queued', tags: ['appeal_type:SC'])
+          end
+        end
+
+        context 'if the callback flag is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:decision_review_notification_form_callbacks).and_return(true)
+          end
+
+          it 'sends email with correct callback options' do
+            vanotify_service_instance = instance_double(VaNotify::Service)
+            allow(VaNotify::Service).to receive(:new).and_return(vanotify_service_instance)
+
+            response = instance_double(Notifications::Client::ResponseNotification, id: notification_id)
+            response2 = instance_double(Notifications::Client::ResponseNotification, id: notification_id2)
+            allow(vanotify_service_instance).to receive(:send_email).and_return(response, response2)
+            expected_callback_options = {
+              callback_klass: 'DecisionReviews::FormNotificationCallback',
+              callback_metadata: {
+                email_template_id: 'fake_sc_template_id',
+                email_type: :error,
+                service_name: 'supplemental-claims',
+                function: 'form submission',
+                submitted_appeal_uuid: guid1
+              }
+            }
+
+            subject.new.perform
+
+            expect(VaNotify::Service).to have_received(:new).with(anything, expected_callback_options)
+
+            expect(vanotify_service_instance).to have_received(:send_email).with({ email_address:,
+                                                                                   personalisation:,
+                                                                                   template_id: 'fake_sc_template_id' })
           end
         end
       end

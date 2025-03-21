@@ -72,7 +72,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyFormSubmissionJob,
           expect(poa_form_submission.status_updated_at).not_to be_nil
         end
 
-        context 'data shows status of errored' do
+        context 'data shows any steps have failed' do
           let(:expected_error_message) do
             '[{"title":"some error","detail":"error detail","code":"PDF_SUBMISSION"}]'
           end
