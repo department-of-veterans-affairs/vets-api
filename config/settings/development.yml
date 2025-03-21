@@ -1213,6 +1213,7 @@ reports:
 res:
   api_key: ~
   base_url: ~
+  mock_ch_31: ~
 review_instance_slug: ~
 rrd:
   alerts:
@@ -1428,6 +1429,7 @@ vanotify:
   service_callback_tokens:
     1010_health_apps: 1010_health_apps_token
     benefits_disability: benefits_disability_token
+    benefits_management_tools: benefits_management_tools_token
     ivc_forms: ivc_forms_token
     va_gov: va_gov_token
   services:
@@ -1623,6 +1625,7 @@ vanotify:
         login_reactivation_email: reactivation_email_test_b
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         reactivation_email_test_b: ~
+        va_appointment_failure: fake_template_id
   status_callback:
     bearer_token: fake_bearer_token
 vaos:
@@ -1704,7 +1707,7 @@ vet360:
   contact_information:
     cache_enabled: false
     enabled: true
-    mock: false
+    mock: true
     timeout: 30
   demographics:
     cache_enabled: false
