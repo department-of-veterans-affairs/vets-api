@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 # Monkeypatch to allow fhir_search to take custom headers. This is to allow us to bypass the FHIR
-# server's cache when requesting a Patient resource.
-# Patched version: fhir_client (5.0.3)
+# server's cache when requesting a FHIR resource. It also allows us to inject the x-api-key header
+# when accessing FHIR via the MHV API Gateway.
+# Patched version: department-of-veterans-affairs/fhir_client (fork of 5.0.3)
 module FHIR
   module Sections
     module Search

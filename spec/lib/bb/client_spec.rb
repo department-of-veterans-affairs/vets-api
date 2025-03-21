@@ -16,13 +16,23 @@ describe 'bb client' do
   end
 
   before(:all) do
+    VCR.configure do |vcr_config|
+      vcr_config.default_cassette_options = {
+        allow_playback_repeats: true
+      }
+    end
     VCR.use_cassette 'bb_client/session' do
+      Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
       @client ||= begin
         client = BB::Client.new(session: { user_id: '5751732' })
         client.authenticate
         client
       end
     end
+  end
+
+  before do
+    Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
   end
 
   let(:client) { @client }
