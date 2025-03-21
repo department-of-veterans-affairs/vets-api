@@ -22,7 +22,8 @@ describe Kafka::AvroProducer do
   end
   let(:invalid_payload_format) { 'invalid' }
   let(:topic3_payload_value) do
-    "\x00\x00\x00\x00\x05\x00\n12345\x00\x02\x12ICN123456\x12VASI98765\x00\x00\x00\x00\x10received(2024-03-04T12:00:00Z\x00".b    
+    "\x00\x00\x00\x00\x05\x00\n12345\x00\x02\x12ICN123456" \
+    "\x12VASI98765\x00\x00\x00\x00\x10received(2024-03-04T12:00:00Z\x00".b
   end
 
   after do
@@ -172,25 +173,25 @@ describe Kafka::AvroProducer do
 
     # additionalIds
     it 'raises no validation error when additionalIds is an array of strings' do
-      valid_payload_with_addIds = valid_payload.dup
-      valid_payload_with_addIds['additionalIds'] = ["1", "123", "abc456"]
+      valid_payload_with_add_ids = valid_payload.dup
+      valid_payload_with_add_ids['additionalIds'] = %w[1 123 abc456]
 
       VCR.use_cassette('kafka/topics') do
-        avro_producer.produce('topic-3', valid_payload)
+        avro_producer.produce('topic-3', valid_payload_with_add_ids)
         expect(avro_producer.producer.client.messages.length).to eq(1)
       end
-    end    
+    end
 
     it 'raises a validation error when additionalIds is not an array of strings' do
       invalid_payload = valid_payload.dup
-      invalid_payload['additionalIds'] = "non_array_string"
+      invalid_payload['additionalIds'] = 'non_array_string'
 
       VCR.use_cassette('kafka/topics') do
         expect do
           avro_producer.produce('topic-3', invalid_payload)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
-    end    
+    end
 
     # invalid data format
     it 'raises a validation error for invalid payload' do
