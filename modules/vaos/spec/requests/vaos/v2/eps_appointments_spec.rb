@@ -7,6 +7,8 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
 
   let(:access_token) { 'fake-access-token' }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
+  let(:described_class) { VAOS::V2::EpsAppointmentsController }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   VCR.configure do |c|
     c.debug_logger = $stdout
@@ -34,10 +36,6 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
       eps.api_url = 'https://api.wellhive.com'
     end
   end
-
-  let(:described_class) { VAOS::V2::EpsAppointmentsController }
-
-  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   context 'for eps referrals' do
     let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
