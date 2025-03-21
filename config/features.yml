@@ -510,6 +510,9 @@ features:
   decision_review_service_common_exceptions_enabled:
     actor_type: user
     description: Enable using Common::Exception classes instead of DecisionReviewV1::ServiceException
+  decision_review_notification_form_callbacks:
+    actor_type: user
+    description: Enable using DecisionReviews::FormNotificationCallback to handle VA Notify notification status changes
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -684,6 +687,9 @@ features:
     actor_type: user
     description: Enables Appoint a Representative PDF generation endpoint
     enable_in_development: true
+  form4142_validate_schema:
+    actor_type: user
+    description: Enable validation of form 4142 in Form4142Processor
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
@@ -2005,8 +2011,9 @@ features:
   remove_pciu:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information with PCIU backup calls
+    enable_in_development: true
   show_yellow_ribbon_table:
-    actor_type: user
+    actor_type: cookie_id
     description: Used to show yellow ribbon table in Comparison Tool
   banner_update_alternative_banners:
     actor_type: user
