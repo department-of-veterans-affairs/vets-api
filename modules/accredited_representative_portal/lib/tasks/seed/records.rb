@@ -83,23 +83,28 @@ module AccreditedRepresentativePortal
       ORGANIZATIONS = [
         {
           name: 'Trustworthy Organization',
-          poa: 'YHZ'
+          poa: 'YHZ',
+          can_accept_digital_poa_requests: true
         },
         {
           name: 'Good Representatives R Us',
-          poa: 'SVS'
+          poa: 'SVS',
+          can_accept_digital_poa_requests: true
         },
         {
           name: 'We Help Vets',
-          poa: 'FIX'
+          poa: 'FIX',
+          can_accept_digital_poa_requests: true
         },
         {
           name: 'The Swift Reps',
-          poa: 'MIM'
+          poa: 'MIM',
+          can_accept_digital_poa_requests: true
         },
         {
           name: 'Department of Veterans Fake Data',
-          poa: 'GWI'
+          poa: 'GWI',
+          can_accept_digital_poa_requests: true
         }
       ].freeze
 
@@ -108,68 +113,95 @@ module AccreditedRepresentativePortal
           first_name: 'Bob',
           last_name: 'Representative',
           representative_id: '10000',
-          poa_codes: %w[
-            UYX
-            GWI
-          ]
+          user_types: ['veteran_service_officer'],
+          poa_codes: %w[YHZ SVS],
+          email: 'vets.gov.user+0@gmail.com'
         },
         {
           first_name: 'Robert',
           last_name: 'Lowe',
           representative_id: '10001',
-          poa_codes: %w[
-            EUM
-            UYX
-            GWI
-            TVB
-            XRO
-          ]
+          user_types: ['veteran_service_officer'],
+          poa_codes: %w[YHZ],
+          email: 'vets.gov.user+1@gmail.com'
         },
         {
           first_name: 'Suzie',
           last_name: 'Lowe',
           representative_id: '10002',
-          poa_codes: %w[
-            TVB
-            XRO
-          ]
+          user_types: ['veteran_service_officer'],
+          poa_codes: %w[FIX],
+          email: 'vets.gov.user+2@gmail.com'
         },
         {
           first_name: 'Jewell',
           last_name: 'Armstrong',
           representative_id: '10003',
-          poa_codes: %w[
-            EUM
-            XRO
-          ]
+          user_types: ['veteran_service_officer'],
+          poa_codes: %w[YHZ],
+          email: 'vets.gov.user+4@gmail.com'
         },
         {
           first_name: 'Odis',
           last_name: 'Cruickshank',
           representative_id: '10004',
-          poa_codes: %w[
-            EUM
-            UYX
-            SVS
-            MIM
-          ]
+          user_types: ['veteran_service_officer'],
+          poa_codes: %w[YHZ SVS FIX],
+          email: 'vets.gov.user+5@gmail.com'
         },
         {
           first_name: 'Catheryn',
           last_name: 'Baumbach',
           representative_id: '10005',
-          poa_codes: %w[
-            FIX
-            SVS
-          ]
+          user_types: ['veteran_service_officer'],
+          poa_codes: %w[MIM],
+          email: 'vets.gov.user+6@gmail.com'
         },
         {
           first_name: 'Erica',
           last_name: 'Representative',
           representative_id: '10006',
-          poa_codes: %w[
-            XRO
-          ]
+          user_types: ['veteran_service_officer'],
+          poa_codes: %w[GWI],
+          email: 'vets.gov.user+7@gmail.com'
+        }
+      ].freeze
+
+      USER_ACCOUNT_ACCREDITED_INDIVIDUALS = [
+        {
+          accredited_individual_registration_number: '10000',
+          user_account_email: 'vets.gov.user+0@gmail.com',
+          user_account_icn: '1012667122V019349'
+        },
+        {
+          accredited_individual_registration_number: '10001',
+          user_account_email: 'vets.gov.user+1@gmail.com',
+          user_account_icn: '1012666182V203559'
+        },
+        {
+          accredited_individual_registration_number: '10002',
+          user_account_email: 'vets.gov.user+2@gmail.com',
+          user_account_icn: '1012829932V238054'
+        },
+        {
+          accredited_individual_registration_number: '10003',
+          user_account_email: 'vets.gov.user+4@gmail.com',
+          user_account_icn: '1012659372V317896'
+        },
+        {
+          accredited_individual_registration_number: '10004',
+          user_account_email: 'vets.gov.user+5@gmail.com',
+          user_account_icn: '1012667179V787205'
+        },
+        {
+          accredited_individual_registration_number: '10005',
+          user_account_email: 'vets.gov.user+6@gmail.com',
+          user_account_icn: '1012830899V368969'
+        },
+        {
+          accredited_individual_registration_number: '10006',
+          user_account_email: 'vets.gov.user+7@gmail.com',
+          user_account_icn: '1012643432V477452'
         }
       ].freeze
 

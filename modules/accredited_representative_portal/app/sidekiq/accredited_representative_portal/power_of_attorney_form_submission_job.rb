@@ -4,6 +4,8 @@ module AccreditedRepresentativePortal
   class PowerOfAttorneyFormSubmissionJob
     class PendingSubmissionError < StandardError; end
 
+    CRITICAL_STEPS = %w[PDF_SUBMISSION POA_UPDATE POA_ACCESS_UPDATE].freeze
+
     include Sidekiq::Job
 
     ##
@@ -73,12 +75,33 @@ module AccreditedRepresentativePortal
       @response_status ||= response.dig('data', 'attributes', 'status')
     end
 
+    def completed_steps
+      [].tap do |steps|
+        response.dig('data', 'attributes', 'steps').to_a.each do |step|
+          steps << step['type'] if step['status'] == 'SUCCESS'
+        end
+      end
+    end
+
+    def failed_steps
+      [].tap do |steps|
+        response.dig('data', 'attributes', 'steps').to_a.each do |step|
+          steps << step['type'] if step['status'] == 'FAILED'
+        end
+      end
+    end
+
+    # We are using the 'steps' data in the Lighthouse response since the
+    # main 'status' attribute does not always accurately reflect the
+    # success or failure of the request.
     def new_status
-      case response_status
-      when 'updated'
+      # If all of the 3 critical steps have succeeded, mark as succeeded
+      if Set.new(completed_steps) >= Set.new(CRITICAL_STEPS)
         :succeeded
-      when 'errored'
+      # If any of the 3 critical steps have failed, mark as failed
+      elsif Set.new(failed_steps).intersect? Set.new(CRITICAL_STEPS)
         :failed
+      # Otherwise, continue to query the request
       else
         :enqueue_succeeded
       end

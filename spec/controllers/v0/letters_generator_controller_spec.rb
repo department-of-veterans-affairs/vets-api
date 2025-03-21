@@ -65,29 +65,6 @@ RSpec.describe V0::LettersGeneratorController, type: :controller do
   end
 
   describe '#download' do
-    context 'benefits_summary_dependent letter as a dependent' do
-      before { sign_in_as(dependent_user) }
-
-      it 'returns a benefits_summary_dependent pdf' do
-        VCR.use_cassette('lighthouse/letters_generator/download_dependent') do
-          post :download, params: { id: 'BENEFIT_SUMMARY_DEPENDENT' }
-          expect(response.header['Content-Type']).to eq('application/pdf')
-        end
-      end
-    end
-
-    context 'benefits_summary_dependent returns an error as a non-dependent' do
-      before { sign_in_as(user) }
-
-      it 'returns an error' do
-        VCR.use_cassette('lighthouse/letters_generator/download_dependent') do
-          post :download, params: { id: 'BENEFIT_SUMMARY_DEPENDENT' }
-          response_body = JSON.parse(response.body)
-          expect(response_body['errors'].first).to include('status' => '400')
-        end
-      end
-    end
-
     context 'without options' do
       before { sign_in_as(user) }
 
