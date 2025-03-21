@@ -1550,7 +1550,8 @@ RSpec.describe FormProfile, type: :model do
           end
 
           it 'returns prefilled 21-526EZ' do
-            expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?)
+                                               .and_return(true).at_least(:once)
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
             expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             VCR.use_cassette('va_profile/v2/contact_information/get_address') do
