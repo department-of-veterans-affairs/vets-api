@@ -21,6 +21,10 @@ module BB
 
     CACHE_TTL = 3600 * 3 # cache for 3 hours
 
+    LEGACY_BASE_PATH = "#{Settings.mhv.rx.host}/mhv-api/patient/v1".freeze
+    APIGW_BASE_PATH = "#{Settings.mhv.api_gateway.hosts.bluebutton}/v1/bluebutton".freeze
+    APIGW_AUTH_BASE_PATH = "#{Settings.mhv.api_gateway.hosts.bluebutton}/v1/usermgmt/auth".freeze
+
     ##
     # PHR (Personal Health Record) refresh
     #
@@ -29,7 +33,8 @@ module BB
     # @return [Common::Collection]
     #
     def get_extract_status
-      json = perform(:get, 'bluebutton/extractstatus', nil, token_headers).body
+      _, prefix = base_path_and_prefix
+      json = perform(:get, "#{prefix}/extractstatus", nil, token_headers).body
       log_refresh_errors(json[:data]) if refresh_final?(json[:data])
       Common::Collection.new(ExtractStatus, **json)
     end
@@ -40,8 +45,9 @@ module BB
     # @return [Common::Collection]
     #
     def get_eligible_data_classes
+      _, prefix = base_path_and_prefix
       Common::Collection.fetch(::EligibleDataClass, cache_key: cache_key('geteligibledataclass'), ttl: CACHE_TTL) do
-        perform(:get, 'bluebutton/geteligibledataclass', nil, token_headers).body
+        perform(:get, "#{prefix}/geteligibledataclass", nil, token_headers).body
       end
     end
 
@@ -58,7 +64,8 @@ module BB
       form = BB::GenerateReportRequestForm.new(self, params)
       raise Common::Exceptions::ValidationErrors, form unless form.valid?
 
-      perform(:post, 'bluebutton/generate', form.params, token_headers).body
+      _, prefix = base_path_and_prefix
+      perform(:post, "#{prefix}/generate", form.params, token_headers).body
     end
 
     ##
@@ -75,7 +82,8 @@ module BB
       # TODO: For testing purposes, use one of the following static URIs:
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/1mb.file")
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/90mb.file")
-      uri = URI.join(config.base_path, "bluebutton/bbreport/#{doctype}")
+      base, prefix = base_path_and_prefix
+      uri = URI.join(config.base_path, "#{base}/#{prefix}/bbreport/#{doctype}")
       streaming_get(uri, token_headers, header_callback, yielder)
     end
 
@@ -83,7 +91,9 @@ module BB
     # Opt user in to VHIE sharing.
     #
     def post_opt_in
-      perform(:post, 'bluebutton/external/optinout/optin', nil, token_headers).body
+      base_path, = base_path_and_prefix
+      prefix = base_path == APIGW_BASE_PATH ? '' : 'bluebutton/external/'
+      perform(:post, "#{prefix}optinout/optin", nil, token_headers).body
     rescue ServiceException => e
       # Ignore the error that the user is already opted in to VHIE sharing.
       raise unless e.message.include? 'already.opted.in'
@@ -93,7 +103,9 @@ module BB
     # Opt user out of VHIE sharing.
     #
     def post_opt_out
-      perform(:post, 'bluebutton/external/optinout/optout', nil, token_headers).body
+      base_path, = base_path_and_prefix
+      prefix = base_path == APIGW_BASE_PATH ? '' : 'bluebutton/external/'
+      perform(:post, "#{prefix}optinout/optout", nil, token_headers).body
     rescue ServiceException => e
       # Ignore the error that the user is already opted out of VHIE sharing.
       raise unless e.message.include? 'Opt-out consent policy is already set'
@@ -105,10 +117,35 @@ module BB
     # @return [Hash] an object containing the body of the response
     #
     def get_status
-      perform(:get, 'bluebutton/external/optinout/status', nil, token_headers).body
+      base_path, = base_path_and_prefix
+      prefix = base_path == APIGW_BASE_PATH ? '' : 'bluebutton/external/'
+      perform(:get, "#{prefix}optinout/status", nil, token_headers).body
     end
 
     private
+
+    def base_path_and_prefix
+      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+        BB::Configuration.custom_base_path = APIGW_BASE_PATH
+        [APIGW_BASE_PATH, 'ess']
+      else
+        BB::Configuration.custom_base_path = LEGACY_BASE_PATH
+        [LEGACY_BASE_PATH, 'bluebutton']
+      end
+    end
+
+    def get_session_tagged
+      Sentry.set_tags(error: 'mhv_session')
+      BB::Configuration.custom_base_path = if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+                                             APIGW_AUTH_BASE_PATH
+                                           else
+                                             LEGACY_BASE_PATH
+                                           end
+      env = perform(:get, 'session', nil, auth_headers)
+
+      Sentry.get_current_scope.tags.delete(:error)
+      env
+    end
 
     def cache_key(action)
       return nil unless config.caching_enabled?
