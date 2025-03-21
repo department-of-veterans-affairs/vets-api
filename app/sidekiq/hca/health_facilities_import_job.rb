@@ -23,9 +23,9 @@ module HCA
       # name, station_number (also known as facility_id),
       # and postal_name (also known as state_code ex OH,MI)
       health_facilities = StdInstitutionFacility
-                          .joins('INNER JOIN std_states AS s ON s.id = std_institution_facilities.street_state_id')
+                          .includes(:street_state)
                           .where(station_number: facilities_from_lighthouse.keys)
-                          .pluck('std_institution_facilities.station_number, s.postal_name')
+                          .pluck(:station_number, 'std_states.postal_name')
                           .map do |station_number, postal_name|
         {
           name: facilities_from_lighthouse[station_number][:name],
