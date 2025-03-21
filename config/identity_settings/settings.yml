@@ -45,7 +45,7 @@ mhv:
 mvi:
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
-  mock: false
+  mock: true
   open_timeout: 15
   pii_logging: false
   processing_code: T
@@ -96,4 +96,4 @@ ssoe_eauth_cookie:
 
 terms_of_use:
   current_version: v1
-  enabled_clients: vaweb, mhv, myvahealth
+  enabled_clients: mhv, myvahealth, vaweb

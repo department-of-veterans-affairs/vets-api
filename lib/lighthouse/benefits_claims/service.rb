@@ -327,8 +327,8 @@ module BenefitsClaims
       tracked_items.each do |i|
         display_name = i['displayName']
         i['canUploadFile'] = true # default to showing uploader at all times. this is in flux.
-        i['friendlyName'] = FRIENDLY_DISPLAY_MAPPING[display_name] || display_name
-        i['friendlyDescription'] = FRIENDLY_DESCRIPTION_MAPPING[display_name] || i['description']
+        i['friendlyName'] = FRIENDLY_DISPLAY_MAPPING[display_name]
+        i['friendlyDescription'] = FRIENDLY_DESCRIPTION_MAPPING[display_name]
         i['supportAliases'] = SUPPORT_ALIASES_MAPPING[display_name] || []
       end
       tracked_items

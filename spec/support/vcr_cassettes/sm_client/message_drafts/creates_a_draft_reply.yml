@@ -34,7 +34,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"id":674944,"category":"OTHER","subject":"CI Run","body":"Body 1","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
-        TEST","recipientId":613586,"recipientName":"Vets.gov Testing_DAYT29","readReceipt":null}'
+        TEST","recipientId":613586,"recipientName":"Vets.gov Testing_DAYT29","readReceipt":null,"suggestedNameDisplay":null }'
     http_version: 
   recorded_at: Thu, 02 Feb 2017 17:36:37 GMT
 recorded_with: VCR 3.0.3

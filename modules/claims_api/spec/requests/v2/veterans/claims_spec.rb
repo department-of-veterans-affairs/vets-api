@@ -551,6 +551,8 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
                 .to receive(:mvi_response).and_return(profile)
               allow_any_instance_of(MPIData)
                 .to receive(:add_person_proxy).and_return(add_person_proxy_response)
+              allow(add_person_proxy_response)
+                .to receive(:error)
 
               get all_claims_path, headers: auth_header
 

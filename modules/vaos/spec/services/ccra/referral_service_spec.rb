@@ -10,7 +10,6 @@ describe Ccra::ReferralService do
 
   before do
     allow(RequestStore.store).to receive(:[]).with('request_id').and_return('request-id')
-    allow(Flipper).to receive(:enabled?).with(VAOS::SessionService::STS_OAUTH_TOKEN, user).and_return(true)
 
     # Allow any cache fetch call to return the access token if it matches our key, otherwise nil
     # This makes it so we don't need to make a real call to the token endpoint

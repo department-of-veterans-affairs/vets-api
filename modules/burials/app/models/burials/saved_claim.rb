@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'burials/processing_office'
+
 module Burials
   ##
   # Burial 21P-530EZ Active::Record
@@ -25,7 +26,7 @@ module Burials
     end
 
     # Burial Form ID
-    FORM = '21P-530EZ'
+    FORM = Burials::FORM_ID
 
     ##
     # Associates uploaded attachments with the current saved claim
@@ -71,30 +72,6 @@ module Burials
       JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[form_id], parsed_form).each do |v|
         errors.add(:form, v.to_s)
       end
-    end
-
-    ##
-    # Processes a PDF by applying a timestamp and renaming it for VBMS upload
-    #
-    # @param pdf_path [String]
-    # @param timestamp [Time, nil]
-    # @param form_id [String, nil]
-    #
-    # @return [String]
-    def process_pdf(pdf_path, timestamp = nil, form_id = nil)
-      processed_pdf = PDFUtilities::DatestampPdf.new(pdf_path).run(
-        text: 'Application Submitted on va.gov',
-        x: 400,
-        y: 675,
-        text_only: true, # passing as text only because we override how the date is stamped in this instance
-        timestamp:,
-        page_number: 6,
-        template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
-        multistamp: true
-      )
-      renamed_path = "tmp/pdfs/#{form_id}_#{id}_final.pdf"
-      File.rename(processed_pdf, renamed_path) # rename for vbms upload
-      renamed_path # return the renamed path
     end
 
     ##

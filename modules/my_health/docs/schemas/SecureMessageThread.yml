@@ -18,6 +18,8 @@ required:
   - hasAttachment
   - unsentDrafts
   - unreadMessages
+  - isOhMessage
+  - suggestedNameDisplay
 properties:
   threadId:
     type: integer
@@ -78,4 +80,9 @@ properties:
   unreadMessages:
     type: boolean
     example: true
-
+  isOhMessage:
+    type: boolean
+    example: false
+  suggestedNameDisplay:
+    type: string
+    example: "Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - Madison, James"
