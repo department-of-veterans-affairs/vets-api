@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
 
@@ -127,11 +128,7 @@ module UnifiedHealthData
       record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
         UnifiedHealthData::Observation.new(
           test_code: obs['code']['text'],
-          value_quantity: if obs['valueQuantity']
-                            "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}".strip
-                          else
-                            ''
-                          end,
+          value: fetch_observation_value(obs),
           reference_range: if obs['referenceRange']
                              obs['referenceRange'].map do |range|
                                range['text']
@@ -143,6 +140,26 @@ module UnifiedHealthData
           comments: obs['note']&.map { |note| note['text'] }&.join(', ') || ''
         )
       end
+    end
+
+    def fetch_observation_value(obs)
+      type, text = if obs['valueQuantity']
+                     ['quantity', "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}"]
+                   elsif obs['valueCodeableConcept']
+                     ['codeable-concept', obs['valueCodeableConcept']['text']]
+                   elsif obs['valueString']
+                     ['string', obs['valueString']]
+                   elsif obs['valueDateTime']
+                     ['date-time', obs['valueDateTime']]
+                   elsif obs['valueAttachment']
+                     Rails.logger.error(
+                       message: "Observation with ID #{obs['id']} has unsupported value type: Attachment"
+                     )
+                     raise Common::Exceptions::NotImplemented
+                   else
+                     [nil, nil]
+                   end
+      { text:, type: }
     end
 
     def fetch_ordered_by(record)

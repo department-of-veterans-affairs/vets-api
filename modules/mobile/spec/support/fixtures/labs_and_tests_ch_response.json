@@ -12,49 +12,70 @@
     "observations": [
       {
         "testCode": "GLUCOSE",
-        "valueQuantity": "99 mg/dL",
+        "value": {
+          "text": "99 mg/dL",
+          "type": "quantity"
+        },
         "referenceRange": "70 - 110",
         "status": "final",
         "comments": ""
       },
       {
         "testCode": "UREA NITROGEN",
-        "valueQuantity": "200 mg/dL",
+        "value": {
+          "text": "200 mg/dL",
+          "type": "quantity"
+        },
         "referenceRange": "7 - 18",
         "status": "final",
         "comments": ""
       },
       {
         "testCode": "CREATININE",
-        "valueQuantity": "5 mg/dL",
+        "value": {
+          "text": "5 mg/dL",
+          "type": "quantity"
+        },
         "referenceRange": "0.6 - 1.3",
         "status": "final",
         "comments": ""
       },
       {
         "testCode": "SODIUM",
-        "valueQuantity": "8 meq/L",
+        "value": {
+          "text": "8 meq/L",
+          "type": "quantity"
+        },
         "referenceRange": "136 - 145",
         "status": "final",
         "comments": ""
       },
       {
         "testCode": "POTASSIUM",
-        "valueQuantity": "24 meq/L",
+        "value": {
+          "text": "24 meq/L",
+          "type": "quantity"
+        },
         "referenceRange": "3.5 - 5.1",
         "status": "final",
         "comments": ""
       },
       {
         "testCode": "CHLORIDE",
-        "valueQuantity": "2 meq/L",
+        "value": {
+          "text": "2 meq/L",
+          "type": "quantity"
+        },
         "referenceRange": "98 - 107",
         "status": "final",
         "comments": ""
       },
       {
         "testCode": "CO2",
-        "valueQuantity": "2 meq/L",
+        "value": {
+          "text": "2 meq/L",
+          "type": "quantity"
+        },
         "referenceRange": "22 - 29",
         "status": "final",
         "comments": ""
