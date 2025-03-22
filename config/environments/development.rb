@@ -82,9 +82,4 @@ Rails.application.configure do
   config.rails_semantic_logger.started    = true
   config.rails_semantic_logger.processing = true
   config.rails_semantic_logger.rendered   = true
-  # Prepend all log lines with the following tags.
-  config.log_tags = {
-    request_id: :request_id,
-    correlation_id: ->(request) { request.headers['Correlation-ID'] }
-  }
 end
