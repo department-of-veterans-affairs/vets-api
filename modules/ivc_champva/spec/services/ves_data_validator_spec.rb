@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe IvcChampva::VesDataValidator do
+describe IvcChampva::VesDataFormatter do
   let(:valid_data) do
     {
       applicationType: 'CHAMPVA',
@@ -60,24 +60,86 @@ describe IvcChampva::VesDataValidator do
     }
   end
 
+  let(:parsed_form_data) do
+    {
+      'veteran' => {
+        'full_name' => { 'first' => 'Joe', 'last' => 'Johnson', 'middle' => 'X' },
+        'ssn_or_tin' => '123123123',
+        'va_claim_number' => '',
+        'date_of_birth' => '1999-01-01',
+        'phone_number' => '',
+        'address' => {
+          'street_combined' => '123 Certifier Street ',
+          'city' => 'Citytown',
+          'state' => 'AL',
+          'postal_code' => '12312'
+        },
+        'sponsor_is_deceased' => true,
+        'date_of_death' => '1999-01-01',
+        'date_of_marriage' => '',
+        'is_active_service_death' => false
+      },
+      'applicants' => [
+        {
+          'applicant_email_address' => 'johnny@alvin.gov',
+          'applicant_address' => {
+            'country' => 'USA',
+            'street' => '456 Circle Street',
+            'city' => 'Clinton',
+            'state' => 'AS',
+            'postal_code' => '56790',
+            'street_combined' => '456 Circle Street '
+          },
+          'applicant_ssn' => { 'ssn' => '345345345' },
+          'applicant_phone' => '+1 (555) 555-1234',
+          'applicant_gender' => { 'gender' => 'MALE' },
+          'applicant_dob' => '2000-01-01',
+          'applicant_name' => { 'first' => 'Johnny', 'middle' => 'T', 'last' => 'Alvin' },
+          'applicant_medicare_status' => { 'eligibility' => 'enrolled' },
+          'applicant_has_ohi' => { 'has_ohi' => 'yes' },
+          'ssn_or_tin' => '345345345',
+          'vet_relationship' => 'CHILD',
+          'childtype' => { 'relationship_to_veteran' => 'ADOPTED' },
+          'applicant_supporting_documents' => []
+        }
+      ],
+      'certification' => {
+        'date' => '1999-01-01',
+        'last_name' => 'Jones',
+        'middle_initial' => 'X',
+        'first_name' => 'Certifier',
+        'phone_number' => '(123) 123-1234'
+      },
+      'statement_of_truth_signature' => 'certifier jones'
+    }
+  end
+
   # Create a fresh deep copy before each test
   before do
     # Deep copy the object using Marshal
     @request_body = Marshal.load(Marshal.dump(valid_data))
+
+    # Mock SecureRandom.uuid to return expected values
+    uuid_sequence = %w[12345678-1234-5678-1234-567812345678 52345678-1234-5678-1234-567812345678
+                       62345678-1234-5678-1234-567812345678]
+    allow(SecureRandom).to receive(:uuid).and_return(*uuid_sequence)
   end
 
   describe 'data is valid' do
     it 'returns unmodified data' do
-      validated_data = IvcChampva::VesDataValidator.validate(@request_body)
+      validated_data = IvcChampva::VesDataFormatter.format(parsed_form_data)
 
-      expect(validated_data).to eq(@request_body)
+      puts "validated_data: #{validated_data.to_json}"
+      puts "request_body: #{@request_body}"
+
+      expect(validated_data.to_json).to eq(@request_body)
     end
   end
 
   describe 'request_body key has a missing value' do
     it 'raises a missing exception' do
       expect do
-        IvcChampva::VesDataValidator.validate_presence_and_stringiness(nil, 'sponsor first name')
+        IvcChampva::VesDataFormatter.validate_presence_and_stringiness(nil, 'sponsor first name')
       end.to raise_error(ArgumentError, 'sponsor first name is missing')
     end
   end
@@ -85,7 +147,7 @@ describe IvcChampva::VesDataValidator do
   describe 'string key has a non-string value' do
     it 'raises a non-string exception' do
       expect do
-        IvcChampva::VesDataValidator.validate_presence_and_stringiness(12, 'sponsor first name')
+        IvcChampva::VesDataFormatter.validate_presence_and_stringiness(12, 'sponsor first name')
       end.to raise_error(ArgumentError, 'sponsor first name is not a string')
     end
   end
@@ -96,7 +158,7 @@ describe IvcChampva::VesDataValidator do
         @request_body[:sponsor][:firstName] = '2Jöhn~! - Jo/hn?\\'
         expected_sponsor_name = 'John - Jo/hn'
 
-        validated_data = IvcChampva::VesDataValidator.validate(@request_body)
+        validated_data = IvcChampva::VesDataFormatter.validate_ves_data(@request_body)
 
         expect(validated_data[:sponsor][:firstName]).to eq expected_sponsor_name
       end
@@ -109,7 +171,7 @@ describe IvcChampva::VesDataValidator do
         @request_body[:sponsor][:lastName] = '2Jöhnşon~!\\'
         expected_sponsor_name = 'Johnson'
 
-        validated_data = IvcChampva::VesDataValidator.validate(@request_body)
+        validated_data = IvcChampva::VesDataFormatter.validate_ves_data(@request_body)
 
         expect(validated_data[:sponsor][:lastName]).to eq expected_sponsor_name
       end
@@ -127,7 +189,7 @@ describe IvcChampva::VesDataValidator do
       }
 
       expect do
-        IvcChampva::VesDataValidator.validate(@request_body)
+        IvcChampva::VesDataFormatter.validate_ves_data(@request_body)
       end.to raise_error(ArgumentError, 'sponsor city is an empty string')
     end
 
@@ -140,7 +202,7 @@ describe IvcChampva::VesDataValidator do
       }
 
       expect do
-        IvcChampva::VesDataValidator.validate(@request_body)
+        IvcChampva::VesDataFormatter.validate_ves_data(@request_body)
       end.to raise_error(ArgumentError, 'sponsor state is missing')
     end
   end
@@ -151,7 +213,7 @@ describe IvcChampva::VesDataValidator do
       @request_body[:sponsor][:dateOfBirth] = '01-01-2020'
 
       expect do
-        IvcChampva::VesDataValidator.validate(@request_body)
+        IvcChampva::VesDataFormatter.validate_ves_data(@request_body)
       end.to raise_error(ArgumentError, 'date of birth is invalid. Must match YYYY-MM-DD')
     end
   end
@@ -162,7 +224,7 @@ describe IvcChampva::VesDataValidator do
         @request_body[:sponsor][:ssn] = '1234567890'
 
         expect do
-          IvcChampva::VesDataValidator.validate(@request_body)
+          IvcChampva::VesDataFormatter.validate_ves_data(@request_body)
         end.to raise_error(ArgumentError, 'ssn is invalid. Must be 9 digits (see regex for more detail)')
       end
     end
@@ -173,30 +235,30 @@ describe IvcChampva::VesDataValidator do
       @request_body[:applicationUUID] = '123'
 
       expect do
-        IvcChampva::VesDataValidator.validate(@request_body)
+        IvcChampva::VesDataFormatter.validate_ves_data(@request_body)
       end.to raise_error(ArgumentError, 'application UUID is invalid. Must be 36 characters')
     end
   end
 
   describe 'beneficiary relationship to sponsor not in accepted values' do
     it 'raises an exception' do
-      possible_values = IvcChampva::VesDataValidator::RELATIONSHIPS.join(', ')
+      possible_values = IvcChampva::VesDataFormatter::RELATIONSHIPS.join(', ')
       @request_body[:beneficiaries][0][:relationshipToSponsor] = 'INVALID'
 
       expect do
-        IvcChampva::VesDataValidator.validate(@request_body)
+        IvcChampva::VesDataFormatter.validate_ves_data(@request_body)
       end.to raise_error(ArgumentError,
-                         "beneficiary relationship to sponsor is invalid. Must be in #{possible_values}")
+                         "Relationship INVALID is invalid. Must be in #{possible_values}")
     end
   end
 
   describe 'beneficiary childtype not in accepted values' do
     it 'raises an exception' do
-      possible_values = IvcChampva::VesDataValidator::CHILDTYPES.join(', ')
+      possible_values = IvcChampva::VesDataFormatter::CHILDTYPES.join(', ')
       @request_body[:beneficiaries][0][:childtype] = 'INVALID'
 
       expect do
-        IvcChampva::VesDataValidator.validate(@request_body)
+        IvcChampva::VesDataFormatter.validate_ves_data(@request_body)
       end.to raise_error(ArgumentError,
                          "beneficiary childtype is invalid. Must be in #{possible_values}")
     end
@@ -204,11 +266,11 @@ describe IvcChampva::VesDataValidator do
 
   describe 'beneficiary gender not in accepted values' do
     it 'raises an exception' do
-      possible_values = IvcChampva::VesDataValidator::GENDERS.join(', ')
+      possible_values = IvcChampva::VesDataFormatter::GENDERS.join(', ')
       @request_body[:beneficiaries][0][:gender] = 'INVALID'
 
       expect do
-        IvcChampva::VesDataValidator.validate(@request_body)
+        IvcChampva::VesDataFormatter.validate_ves_data(@request_body)
       end.to raise_error(ArgumentError,
                          "beneficiary gender is invalid. Must be in #{possible_values}")
     end
