@@ -44,6 +44,9 @@ require 'va_profile/military_personnel/configuration'
 require 'va_profile/veteran_status/configuration'
 require 'iam_ssoe_oauth/configuration'
 require 'vetext/service'
+require 'lighthouse/veterans_health/configuration'
+require 'lighthouse/veteran_verification/configuration'
+require 'lighthouse/benefits_documents/configuration'
 require 'unified_health_data/configuration'
 
 Rails.application.reloader.to_prepare do
@@ -91,6 +94,9 @@ Rails.application.reloader.to_prepare do
     ClaimsApi::LocalBGS.breakers_service,
     MebApi::DGI::Configuration.instance.breakers_service,
     MebApi::DGI::Letters::Configuration.instance.breakers_service,
+    BenefitsDocuments::Configuration.instance.breakers_service,
+    VeteranVerification::Configuration.instance.breakers_service,
+    Lighthouse::VeteransHealth::Configuration.instance.breakers_service,
     UnifiedHealthData::Configuration.instance.breakers_service
   ]
 
