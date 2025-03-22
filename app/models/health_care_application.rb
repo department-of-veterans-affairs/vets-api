@@ -77,24 +77,38 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_sync
+    Rails.logger.info '~~~~~~~~~~~~~~~ sync'
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
+      # {
+      #   success: true,
+      #   formSubmissionId: 123,
+      #   timestamp: Time.now.getlocal.to_s
+      # }
     rescue Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
 
+      HCA::EventBusSubmissionJob.perform_async(
+        # replace with prod topic name
+        'submission_trace_mock_dev',
+        build_event_payload('error')
+      )
+  
       raise Common::Exceptions::BackendServiceException.new(
         nil, detail: e.message
       )
     end
+    # message out valid submission {state: "received"}
+    Rails.logger.info '~~~~~~~~~~~~~~~ received anon sync'
 
-    Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
+    set_result_on_success!(result)
 
+    Rails.logger.info "~~~~~~~~~~~~~~~ SubmissionID=#{result[:formSubmissionId]}"
     result
   rescue
     log_sync_submission_failure
-
     raise
   end
 
@@ -115,9 +129,15 @@ class HealthCareApplication < ApplicationRecord
 
       raise(Common::Exceptions::ValidationErrors, self)
     end
+    # message out valid submission {state: "received"}
+    Rails.logger.info '~~~~~~~~~~~~~~~ received, id:', id
+    save!
+    Rails.logger.info '~~~~~~~~~~~~~~~ received saved, id:', id
+
+    # SEND "received" message to EventBus
+    HCA::EventBusSubmissionJob.perform_async('submission_trace_mock_dev', build_event_payload('received'))
 
     if email.present? || async_compatible
-      save!
       submit_async
     else
       submit_sync
@@ -208,6 +228,14 @@ class HealthCareApplication < ApplicationRecord
       form_submission_id_string: result[:formSubmissionId].to_s,
       timestamp: result[:timestamp]
     )
+
+    HCA::EventBusSubmissionJob.perform_async(
+      'submission_trace_mock_dev',
+      build_event_payload('sent', result[:formSubmissionId].to_s)
+    )
+
+    Rails.logger.info '~~~~~~~~~~~~~~~ sent'
+    # message out successful submission {state: "sent"}
   end
 
   def form_submission_id
@@ -216,6 +244,39 @@ class HealthCareApplication < ApplicationRecord
 
   def parsed_form
     @parsed_form ||= form.present? ? JSON.parse(form) : nil
+  end
+
+  def build_event_payload(state, next_id = nil)
+    begin
+      user_icn = user&.icn || self.class.user_icn(self.class.user_attributes(parsed_form))
+      # local testing
+      # user_icn = user&.icn || '12345678'
+      rescue Common::Exceptions::ValidationErrors => e
+      # if certain user attributes are missing, we can't get an ICN
+      user_icn = ''
+    end
+
+    # test schema: {
+    #   "data" => {
+    #     "ICN" => 1234567790,
+    #     "currentID" => [HCA id],
+    #     "submissionName" => "1010EZ",
+    #     "state" => [received|sent|error],
+    #     "nextID"? => [VES form ID]
+    #   }
+    # }
+    # replace with final schema when defined
+    payload = {
+      'data' => {
+        'ICN' => user_icn,
+        'currentID' => id.to_s,
+        'submissionName' => '1010EZ',
+        'state' => state
+      }
+    }
+
+    payload['data'].merge!('nextID' => next_id.to_s) if next_id
+    payload
   end
 
   private
@@ -245,7 +306,13 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_async
+    Rails.logger.info '~~~~~~~~~~~~~~~ async', email.present?
+    Rails.logger.info '~~~~~~~~~~~~~~~ async', email.present?
     submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
+    # if testing locally, use the below instead of the above:
+    # submission_job = 'MockSubmissionJob'
+    # if testing locally, use the below instead of the above:
+    # submission_job = 'MockSubmissionJob'
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     "HCA::#{submission_job}".constantize.perform_async(
@@ -261,12 +328,22 @@ class HealthCareApplication < ApplicationRecord
   def log_sync_submission_failure
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.sync_submission_failed")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.sync_submission_failed_short_form") if short_form?
+    HCA::EventBusSubmissionJob.perform_async(
+      # replace with prod topic name
+      'submission_trace_mock_dev',
+      build_event_payload('error')
+    )
     log_submission_failure_details
   end
 
   def log_async_submission_failure
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
+    HCA::EventBusSubmissionJob.perform_async(
+      # replace with prod topic name
+      'submission_trace_mock_dev',
+      build_event_payload('error')
+    )
     log_submission_failure_details
   end
 

@@ -55,11 +55,15 @@ module Kafka
       # NOTE: Use fetched schema id from schema registry but if not found,
       # ID = 5 is the Event Bus schema ID for test schema.replace this with the actual schema ID when running locally
       @schema_id ||= 5
+      # @schema_id ||= 1
+      # ^ set to [1] locally until fixed
       schema_id_bytes = [@schema_id].pack('N') # should be schema id
       magic_byte + schema_id_bytes + avro_payload
     end
 
     def validate_payload!(schema, payload)
+      Rails.logger.info '~~~~~~~~~~~~~~~ validate_payload schema, payload:', schema, payload
+
       Avro::SchemaValidator.validate!(schema, payload)
     end
 
