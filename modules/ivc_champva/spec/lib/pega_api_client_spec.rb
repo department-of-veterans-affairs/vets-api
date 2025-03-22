@@ -64,6 +64,21 @@ RSpec.describe IvcChampva::PegaApi::Client do
         expect { subject.get_report(nil, nil) }.to raise_error(IvcChampva::PegaApi::PegaApiError)
       end
     end
+
+    context 'when checking record_has_matching_report with a valid form' do
+      let(:forms) { create_list(:ivc_champva_form, 1, pega_status: 'Processed', created_at: Date.new(2024, 11, 27)) }
+      let(:faraday_response) { double('Faraday::Response', status: 200, body: body200and200) }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(faraday_response)
+      end
+
+      it 'returns an array of results where UUID matches requested record' do
+        forms[0].update(form_uuid: '9a0e9790-7e09-46ba-afcb-121a0ddd0d3b')
+        result = subject.record_has_matching_report(forms[0])
+        expect(result[0]['UUID']).to eq('9a0e9790-7e09-46ba-afcb-121a0e+')
+      end
+    end
   end
 
   describe 'headers' do
@@ -75,6 +90,7 @@ RSpec.describe IvcChampva::PegaApi::Client do
       expect(result['date_start']).to eq('2024-11-01')
       expect(result['date_end']).to eq('2024-12-31')
       expect(result['case_id']).to eq('')
+      expect(result['uuid']).to eq('')
     end
 
     it 'returns the right headers with nil dates' do
@@ -85,6 +101,7 @@ RSpec.describe IvcChampva::PegaApi::Client do
       expect(result['date_start']).to eq('')
       expect(result['date_end']).to eq('')
       expect(result['case_id']).to eq('')
+      expect(result['uuid']).to eq('')
     end
   end
 
