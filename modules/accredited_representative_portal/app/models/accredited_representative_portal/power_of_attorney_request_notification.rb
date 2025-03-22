@@ -11,6 +11,8 @@ module AccreditedRepresentativePortal
                primary_key: 'notification_id',
                optional: true
 
+    delegate :accredited_individual, :accredited_organization, to: :power_of_attorney_request
+
     validates :type, inclusion: { in: PERMITTED_TYPES }
 
     scope :requested, -> { where(type: 'requested') }
@@ -22,8 +24,16 @@ module AccreditedRepresentativePortal
       claimant_hash['email']
     end
 
+    def expiration_date
+      (base_time + 60.days).strftime('%B %d, %Y')
+    end
+
     def first_name
       claimant_hash['name']['first']
+    end
+
+    def last_name
+      claimant_hash['name']['last']
     end
 
     def personalisation
@@ -31,11 +41,33 @@ module AccreditedRepresentativePortal
         {
           'first_name' => first_name
         }
+      elsif type == 'requested'
+        {
+          'first_name' => first_name,
+          'last_name' => last_name,
+          'submit_date' => submit_date,
+          'expiration_date' => expiration_date,
+          'representative_name' => representative_name
+        }
+      end
+    end
+
+    def representative_name
+      if accredited_individual.present? && accredited_organization.present?
+        "#{accredited_individual.full_name.strip} accredited with #{accredited_organization.name.strip}"
+      elsif accredited_individual.present?
+        accredited_individual.full_name.strip
+      else
+        accredited_organization.name.strip
       end
     end
 
     def status
       va_notify_notification&.status.to_s
+    end
+
+    def submit_date
+      base_time.strftime('%B %d, %Y')
     end
 
     def template_id
@@ -52,6 +84,10 @@ module AccreditedRepresentativePortal
     end
 
     private
+
+    def base_time
+      Time.zone.now.in_time_zone('Eastern Time (US & Canada)')
+    end
 
     def claimant_hash
       @claimant_hash ||= form.parsed_data['dependent'] || form.parsed_data['veteran']
