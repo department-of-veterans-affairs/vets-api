@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vets/type/titlecase_string'
+require 'vets/model/type/titlecase_string'
 
-RSpec.describe Vets::Type::TitlecaseString do
+RSpec.describe Vets::Model::Type::TitlecaseString do
   let(:name) { 'test_titlecase_string' }
   let(:klass) { String }
   let(:titlecase_instance) { described_class.new(name, klass) }

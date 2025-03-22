@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vets/type/date_time_string'
+require 'vets/model/type/date_time_string'
 
-RSpec.describe Vets::Type::DateTimeString do
+RSpec.describe Vets::Model::Type::DateTimeString do
   let(:name) { 'test_datetime' }
   let(:klass) { String }
   let(:datetime_instance) { described_class.new(name, klass) }
