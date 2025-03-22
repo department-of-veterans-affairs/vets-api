@@ -9,7 +9,7 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
     (1.byte)...(10.megabytes)
   end
 
-  process(convert: 'jpg', if: :png?)
+  process(convert: 'jpg') { |uploader| !uploader.jpg? }
 
   def initialize(guid)
     super
