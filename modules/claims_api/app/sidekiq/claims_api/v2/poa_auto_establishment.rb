@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'claims_api/v2/poa_data_service/read_all_veteran_representative_service'
 require 'claims_api/v2/poa_data_service/vnp_pctpnt_addrs_find_by_primary_key_service'
 require 'bgs_service/veteran_representative_service'
@@ -7,13 +9,13 @@ module ClaimsApi
   module V2
     module PoaAutoEstablishment
       class MapData < ClaimsApi::ServiceBase
-        def perform(proc_id, poa_code, request_meta, vet_pctpnt_id, claimant_pctpnt_id=nil)
+        def perform(proc_id, poa_code, request_meta, vet_pctpnt_id, claimant_pctpnt_id = nil)
           @vet_pctpnt_id = vet_pctpnt_id
           @claimant_pctpnt_id = claimant_pctpnt_id
           @poa_code = poa_code
           @meta = request_meta
 
-          form_attributes = gather_data(proc_id)
+          gather_data(proc_id)
 
           # send form attributes to the next job which will be PDF construction
         end
@@ -37,7 +39,6 @@ module ClaimsApi
         end
 
         def set_form_type(data)
-          byebug
           rep_fn = data[:representative_last_name] # data[:representative_first_name]
           rep_ln = data[:representative_first_name] # data[:representative_last_name]
 
@@ -56,22 +57,21 @@ module ClaimsApi
         end
 
         def determine_form_type(type)
+          default = '2122'
           case type&.downcase&.gsub(' ', '')
-          when 'attorney'
-            return '2122a'
-          when 'claimsagent'
-            return '2122a'
+          when 'attorney' || 'claimsagent'
+            default = '2122a'
           when 'veteranserviceorganization(vso)'
-            return '2122'
-          else
-            return '2122'
+            default
           end
+
+          default
         end
 
         def gather_read_all_data(proc_id)
           res = ClaimsApi::VeteranRepresentativeService
-                              .new(external_uid: @vet_pctpnt_id, external_key: @vet_pctpnt_id)
-                              .read_all_veteran_representatives(type_code: ' ', ptcpnt_id: @vet_pctpnt_id)
+                .new(external_uid: @vet_pctpnt_id, external_key: @vet_pctpnt_id)
+                .read_all_veteran_representatives(type_code: ' ', ptcpnt_id: @vet_pctpnt_id)
 
           read_all_service.data_object(proc_id, res)
         end
@@ -82,8 +82,8 @@ module ClaimsApi
 
         def gather_vnp_addrs_data(pctpnt_id, key)
           res = ClaimsApi::VnpPtcpntAddrsService
-                    .new(external_uid: pctpnt_id, external_key: pctpnt_id)
-                    .vnp_ptcpnt_addrs_find_by_primary_key(id: @meta["vnp_mailing_addr_id"])
+                .new(external_uid: pctpnt_id, external_key: pctpnt_id)
+                .vnp_ptcpnt_addrs_find_by_primary_key(id: @meta['vnp_mailing_addr_id'])
 
           vnp_addrs_service.data_object(res, key)
         end

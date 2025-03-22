@@ -59,7 +59,6 @@ module ClaimsApi
     end
 
     def read_poa_request_by_ptcpnt_id(ptcpnt_id:)
-      byebug
       builder = Nokogiri::XML::Builder.new do
         PtcpntId ptcpnt_id
       end

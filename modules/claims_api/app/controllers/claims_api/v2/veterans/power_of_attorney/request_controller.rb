@@ -103,11 +103,10 @@ module ClaimsApi
             send_declined_notification(ptcpnt_id:, first_name:, representative_id:)
           else
             ClaimsApi::V2::PoaAutoEstablishment::MapData.new.perform(proc_id,
-              request.poa_code,
-              request.metadata, 
-              vet_ptcpnt_id, 
-              claimant_pctpnt_id
-            )
+                                                                     request.poa_code,
+                                                                     request.metadata,
+                                                                     vet_ptcpnt_id,
+                                                                     claimant_pctpnt_id)
           end
 
           service = ClaimsApi::PowerOfAttorneyRequestService::Show.new(ptcpnt_id)

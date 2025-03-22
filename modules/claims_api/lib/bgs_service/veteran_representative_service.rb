@@ -41,7 +41,7 @@ module ClaimsApi
                          action: 'readAllVeteranRepresentatives', body:,
                          key: 'VeteranRepresentativeReturnList',
                          transform_response: false) || []
-byebug
+
       [ret].flatten
     end
 
