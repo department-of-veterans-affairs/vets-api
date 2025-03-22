@@ -8,10 +8,6 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
   end
 
   before(:all) do
-    Flipper.disable(:mobile_lighthouse_claims)
-  end
-
-  after do
     Flipper.enable(:mobile_lighthouse_claims)
   end
 

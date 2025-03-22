@@ -9,7 +9,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
     let!(:user) { sis_user }
 
     before do
-      Flipper.disable(:mobile_lighthouse_claims)
+      allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_claims, instance_of(User)).and_return(false)
       create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: user.uuid)
       create(:evss_claim, id: 2, evss_id: 111_222_333, user_uuid: '1234567890')
     end
