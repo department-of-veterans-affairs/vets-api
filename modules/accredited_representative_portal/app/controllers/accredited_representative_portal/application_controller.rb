@@ -2,6 +2,8 @@
 
 module AccreditedRepresentativePortal
   class ApplicationController < SignIn::ApplicationController
+    class NotFound < StandardError; end
+
     include SignIn::AudienceValidator
     include Authenticable
     include Pundit::Authorization
@@ -12,6 +14,20 @@ module AccreditedRepresentativePortal
       render(
         json: { errors: [e.message] },
         status: :forbidden
+      )
+    end
+
+    rescue_from ActionController::BadRequest do |e|
+      render(
+        json: { errors: [e.message] },
+        status: :bad_request
+      )
+    end
+
+    rescue_from NotFound do |e|
+      render(
+        json: { errors: [e.message] },
+        status: :not_found
       )
     end
 
