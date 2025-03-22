@@ -139,10 +139,9 @@ module VAOS
           extract_appointment_fields(new_appointment)
           merge_clinic(new_appointment)
           merge_facility(new_appointment)
+          set_type(new_appointment)
           set_modality(new_appointment)
-          new_appointment[:pending] = request?(new_appointment)
-          new_appointment[:past] = past?(new_appointment)
-          new_appointment[:future] = future?(new_appointment)
+          set_derived_appointment_date_fields(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
@@ -641,6 +640,7 @@ module VAOS
       end
 
       # Determines if the appointment is a request type.
+      # Note that this should only be called after appt[:type] has been set by set_type.
       #
       # @param appt [Hash] the appointment to check
       # @return [Boolean] true if the appointment is a request, false otherwise
@@ -675,6 +675,7 @@ module VAOS
       end
 
       # Determines if the appointment occurs in the future.
+      # Note that this should only be called after appt[:type] has been set by set_type.
       #
       # @param appt [Hash] the appointment to check
       # @return [Boolean] true if the appointment occurs in the future, false otherwise
@@ -686,10 +687,9 @@ module VAOS
 
         appt_start = appt[:start] || appt.dig(:requested_periods, 0, :start)
 
-        appt[:future] = !request?(appt) &&
-                        !past?(appt) &&
-                        !appt_start.nil? &&
-                        appt_start.to_datetime > Time.now.utc.beginning_of_day
+        appt[:future] = !appt_start.nil? &&
+                        !request?(appt) &&
+                        !past?(appt)
       end
 
       # Determines if the appointment is for compensation and pension.
@@ -899,9 +899,9 @@ module VAOS
       end
 
       def set_derived_appointment_date_fields(appointment)
+        appointment[:pending] = request?(appointment)
         appointment[:past] = past?(appointment)
         appointment[:future] = future?(appointment)
-        appointment[:pending] = request?(appointment)
       end
 
       def log_modality_failure(appointment)

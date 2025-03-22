@@ -579,9 +579,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               data = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
-              expect(data.size).to eq(10)
+              expect(data.size).to eq(18)
               expect(data[0]['attributes']['location']).to eq(facility_error_msg)
-              expect(data[9]['attributes']['location']).not_to eq(facility_error_msg)
+              expect(data[17]['attributes']['location']).not_to eq(facility_error_msg)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end
@@ -594,8 +594,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               data = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
+              expect(data.size).to eq(18)
               expect(data[0]['attributes']['location']).to eq(facility_error_msg)
-              expect(data[9]['attributes']['location']).not_to eq(facility_error_msg)
+              expect(data[17]['attributes']['location']).not_to eq(facility_error_msg)
               expect(Rails.logger).not_to have_received(:info).with("Details for Cerner 'COL OR 1' Appointment",
                                                                     any_args)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
