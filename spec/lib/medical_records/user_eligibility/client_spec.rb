@@ -10,6 +10,8 @@ describe UserEligibility::Client do
     let(:client) { UserEligibility::Client.new(user_id, icn) }
 
     before do
+      Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
+
       allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(true)
     end
 
