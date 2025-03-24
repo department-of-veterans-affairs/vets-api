@@ -35,18 +35,6 @@ module VRE
       ).except!('vaFileNumber')
     end
 
-    def add_office_location(updated_form)
-      regional_office = check_office_location
-      @office_location = regional_office[0]
-      office_name = regional_office[1]
-
-      updated_form['veteranInformation']&.merge!({
-                                                   'regionalOffice' => "#{@office_location} - #{office_name}",
-                                                   'regionalOfficeName' => office_name,
-                                                   'stationId' => @office_location
-                                                 })
-    end
-
     # Common method for VRE form submission:
     # * Adds information from user to payload
     # * Submits to VBMS if participant ID is there, to Lighthouse if not.
@@ -102,10 +90,6 @@ module VRE
       send_to_lighthouse!(user)
     end
 
-    def to_pdf(file_name = nil)
-      PdfFill::Filler.fill_form(self, file_name, { created_at: })
-    end
-
     # Submit claim into lighthouse service, adds veteran info to top level of form,
     # and sends confirmation email to user
     # @param user [User] user account of submitting user
@@ -125,22 +109,7 @@ module VRE
       send_lighthouse_confirmation_email(user)
     rescue => e
       Rails.logger.error('Error uploading VRE claim to Benefits Intake API', { user_uuid: user&.uuid, e: })
-      raise
-    end
-
-    # Send claim via RES service
-    # @param user [User] user account of submitting user
-    # @return [Hash] Response payload of RES service
-    def send_to_res(user)
-      Rails.logger.info('VRE claim sending to RES service',
-                        {
-                          user_uuid: user.uuid,
-                          was_sent: @sent_to_lighthouse,
-                          user_present: user.present?
-                        })
-
-      service = VRE::Ch31Form.new(user:, claim: self)
-      service.submit
+      raise e
     end
 
     # SavedClaims require regional_office to be defined
@@ -206,6 +175,33 @@ module VRE
 
     private
 
+    # Send claim via RES service
+    # @param user [User] user account of submitting user
+    # @return [Hash] Response payload of RES service
+    def send_to_res(user)
+      Rails.logger.info('VRE claim sending to RES service',
+                        {
+                          user_uuid: user.uuid,
+                          was_sent: @sent_to_lighthouse,
+                          user_present: user.present?
+                        })
+
+      service = VRE::Ch31Form.new(user:, claim: self)
+      service.submit
+    end
+
+    def add_office_location(updated_form)
+      regional_office = check_office_location
+      @office_location = regional_office[0]
+      office_name = regional_office[1]
+
+      updated_form['veteranInformation'].merge!({
+                                                  'regionalOffice' => "#{@office_location} - #{office_name}",
+                                                  'regionalOfficeName' => office_name,
+                                                  'stationId' => @office_location
+                                                })
+    end
+
     def check_office_location
       service = bgs_client
       vet_info = parsed_form['veteranAddress']
@@ -234,10 +230,6 @@ module VRE
       parsed_form.dig('veteranInformation', 'fullName', 'first') || parsed_form['email']
     end
 
-    def veteran_information
-      errors.add(:form, 'Veteran Information is missing from form') if parsed_form['veteranInformation'].blank?
-    end
-
     def veteran_va_file_number(user)
       response = ::BGS::People::Request.new.find_person_by_participant_id(user:)
       response.file_number
@@ -251,5 +243,9 @@ module VRE
       elapsed_time = Time.current - start_time
       StatsD.measure("api.1900.#{service}.response_time", elapsed_time, tags: {})
     end
+  end
+
+  def to_pdf(file_name = nil)
+    PdfFill::Filler.fill_form(self, file_name, { created_at: })
   end
 end

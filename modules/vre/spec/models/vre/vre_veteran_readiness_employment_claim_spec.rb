@@ -62,10 +62,6 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
     end
 
     it 'does not obtain va_file_number' do
-      people_service_object = double('people_service')
-      allow(people_service_object).to receive(:find_person_by_participant_id)
-      allow(BGS::People::Request).to receive(:new) { people_service_object }
-
       claim.add_claimant_info(user_object)
       expect(claim.parsed_form['veteranInformation']).to include('VAFileNumber' => nil)
     end
@@ -85,8 +81,8 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
     context 'when VBMS response is VBMSDownForMaintenance' do
       before do
         allow(OpenSSL::PKCS12).to receive(:new).and_return(double.as_null_object)
-        @vbms_client = FakeVBMS.new
-        allow(VBMS::Client).to receive(:from_env_vars).and_return(@vbms_client)
+        vbms_client = FakeVBMS.new
+        allow(VBMS::Client).to receive(:from_env_vars).and_return(vbms_client)
       end
 
       it 'calls #send_to_lighthouse!' do
@@ -150,7 +146,7 @@ RSpec.describe VRE::VREVeteranReadinessEmploymentClaim do
 
   describe '#regional_office' do
     it 'returns an empty array' do
-      expect(claim.regional_office).to be_empty
+      expect(claim.regional_office).to eq []
     end
   end
 
