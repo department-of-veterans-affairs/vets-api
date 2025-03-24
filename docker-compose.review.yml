@@ -37,7 +37,7 @@ x-app: &common
 
 services:
   va_certs:
-    image: 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/va-certs:latest  # This container holds the certs
+    image: 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/va-certs:v0.10.4  # This container holds the certs
     container_name: va_certs_container
     volumes:
       - certs-vol:/etc/ssl/certs  # Create named volume from va_certs
