@@ -17,6 +17,7 @@ vsp_environment:
 affinityWeight:
 mockData:
   enabled: false
+  branch: master
 matchExpressions:
   key: app
   operator: In
