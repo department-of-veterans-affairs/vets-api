@@ -150,6 +150,10 @@ class SavedClaim < ApplicationRecord
     )
   end
 
+  def regional_office
+    []
+  end
+
   private
 
   def validate_schema(schema)
