@@ -1,0 +1,54 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_HOST>/v1/pharmacy/ess/rxtracking/13650541"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - bI7Yh73XXW4LhjzQ6EIVD8g7AO3VDEvg9lWOFprU
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 24 Mar 2025 21:28:28 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '198'
+      X-Amzn-Requestid:
+      - 3b5a6dab-46b3-41f7-8dc5-cc75259b4309
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - H80zbHXkvHMFonQ=
+      X-Amzn-Remapped-Date:
+      - Mon, 24 Mar 2025 21:28:28 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"prescriptionName":"PAROXETINE HCL 30MG TAB","prescriptionNumber":"2719551","facilityName":"DAYT29","rxInfoPhoneNumber":"(555)772-0956","ndcNumber":"00781171601","lastUpdatedtime":"Mon,
+        12 Sep 2016 04:30:15 EDT","trackingInfo":[{"shippedDate":"Wed, 07 Sep 2016
+        00:00:00 EDT","deliveryService":"USPS","trackingNumber":"657068347565","otherPrescriptionListIncluded":[{"prescriptionName":"SIROLIMUS
+        1MG TAB","prescriptionNumber":"2719536","ndcNumber":"00781171601","stationNumber":"989"}]},{"shippedDate":"Wed,
+        06 Jul 2016 00:00:00 EDT","deliveryService":"USPS","trackingNumber":"345787647659","otherPrescriptionListIncluded":[{"prescriptionName":"CARBAMAZEPINE
+        (TEGRETOL) 200MG TAB","prescriptionNumber":"2719552","ndcNumber":"07985440050","stationNumber":"989"}]},{"shippedDate":"Sun,
+        26 Jun 2016 00:00:00 EDT","deliveryService":"USPS","trackingNumber":"345787647655","otherPrescriptionListIncluded":[{"prescriptionName":"ETHAMBUTOL
+        HCL 100MG TAB","prescriptionNumber":"2719553","ndcNumber":"00078042034","stationNumber":"989"},{"prescriptionName":"TERAZOSIN
+        HCL 10MG CAP","prescriptionNumber":"2719554","ndcNumber":"07985440050","stationNumber":"989"}]}]}'
+  recorded_at: Mon, 24 Mar 2025 21:28:28 GMT
+recorded_with: VCR 6.3.1

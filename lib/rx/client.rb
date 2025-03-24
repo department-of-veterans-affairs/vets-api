@@ -139,7 +139,7 @@ module Rx
     # @return [Faraday::Env]
     #
     def post_refill_rxs(ids)
-      if (result = perform(:post, 'prescription/rxrefill', ids, get_headers(token_headers)))
+      if (result = perform(:post, get_path('rxrefill'), ids, get_headers(token_headers)))
         increment_refill(ids.size)
       end
       result

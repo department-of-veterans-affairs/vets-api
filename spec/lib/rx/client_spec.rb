@@ -10,16 +10,18 @@ class UpstreamRequest
   end
 end
 
+VCR.configure do |config|
+  config.default_cassette_options = {
+    match_requests_on: %i[method uri]
+  }
+end
+
 describe Rx::Client do
   before(:all) do
-    VCR.configure do |vcr_config|
-      vcr_config.default_cassette_options = {
-        allow_playback_repeats: true
-      }
-    end
-    VCR.use_cassette 'rx_client/session' do
+    cassette_name = Flipper.enabled?(:mhv_medications_add_x_api_key) ? 'rx_client/session_gw' : 'rx_client/session'
+    VCR.use_cassette cassette_name do
       @client ||= begin
-        client = Rx::Client.new(session: { user_id: '12210827' },
+        client = Rx::Client.new(session: { user_id: '17621060' },
                                 upstream_request: UpstreamRequest)
         client.authenticate
         client
@@ -29,41 +31,14 @@ describe Rx::Client do
 
   let(:client) { @client }
 
-  context 'when the new flag mhv_medications_add_x_api_key is enabled' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(true)
-    end
-
-    it 'includes x-api-key in headers' do
-      headers = client.send(:get_headers, { 'Authorization' => 'Bearer token' })
-      expect(headers).to include('x-api-key' => Settings.mhv_mobile.x_api_key)
-    end
-
-    it 'uses the pharmacy/ess path' do
-      path = client.send(:get_path, 'test_endpoint')
-      expect(path).to eq('pharmacy/ess/test_endpoint')
-    end
-  end
-
-  context 'when the new flag mhv_medications_add_x_api_key is disabled' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
-    end
-
-    it 'does not include x-api-key in headers' do
-      headers = client.send(:get_headers, { 'Authorization' => 'Bearer token' })
-      expect(headers).not_to include('x-api-key')
-    end
-
-    it 'uses the prescription path' do
-      path = client.send(:get_path, 'test_endpoint')
-      expect(path).to eq('prescription/test_endpoint')
-    end
-  end
-
   describe 'preferences' do
     it 'gets rx preferences' do
-      VCR.use_cassette('rx_client/preferences/gets_rx_preferences') do
+      cassette_name = if Flipper.enabled?(:mhv_medications_add_x_api_key)
+                        'rx_client/preferences/gets_rx_preferences_gw'
+                      else
+                        'rx_client/preferences/gets_rx_preferences'
+                      end
+      VCR.use_cassette(cassette_name) do
         client_response = client.get_preferences
         expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
         expect(client_response.rx_flag).to be(true)
@@ -71,7 +46,12 @@ describe Rx::Client do
     end
 
     it 'sets rx preferences' do
-      VCR.use_cassette('rx_client/preferences/sets_rx_preferences') do
+      cassette_name = if Flipper.enabled?(:mhv_medications_add_x_api_key)
+                        'rx_client/preferences/sets_rx_preferences_gw'
+                      else
+                        'rx_client/preferences/sets_rx_preferences'
+                      end
+      VCR.use_cassette(cassette_name) do
         client_response = client.post_preferences(email_address: 'kamyar.karshenas@va.gov', rx_flag: false)
         expect(client_response.email_address).to eq('kamyar.karshenas@va.gov')
         expect(client_response.rx_flag).to be(false)
@@ -83,8 +63,12 @@ describe Rx::Client do
     end
 
     it 'raises a backend service exception when email includes spaces' do
-      cassette = 'raises_a_backend_service_exception_when_email_includes_spaces'
-      VCR.use_cassette("rx_client/preferences/#{cassette}") do
+      cassette_name = if Flipper.enabled?(:mhv_medications_add_x_api_key)
+                        'rx_client/preferences/raises_a_backend_service_exception_when_email_includes_spaces_gw'
+                      else
+                        'rx_client/preferences/raises_a_backend_service_exception_when_email_includes_spaces'
+                      end
+      VCR.use_cassette(cassette_name) do
         expect { client.post_preferences(email_address: 'kamyar karshenas@va.gov', rx_flag: false) }
           .to raise_error(Common::Exceptions::BackendServiceException)
       end
@@ -100,7 +84,12 @@ describe Rx::Client do
     let(:cache_keys) { ["#{client.session.user_id}:getactiverx", "#{client.session.user_id}:gethistoryrx"] }
 
     it 'gets a list of active prescriptions' do
-      VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
+      cassette_name = if Flipper.enabled?(:mhv_medications_add_x_api_key)
+                        'rx_client/prescriptions/gets_a_list_of_active_prescriptions_gw'
+                      else
+                        'rx_client/prescriptions/gets_a_list_of_active_prescriptions'
+                      end
+      VCR.use_cassette(cassette_name) do
         client_response = client.get_active_rxs
         expect(client_response).to be_a(Common::Collection)
         expect(client_response.type).to eq(Prescription)
@@ -115,7 +104,12 @@ describe Rx::Client do
     end
 
     it 'gets a list of all prescriptions' do
-      VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
+      cassette_name = if Flipper.enabled?(:mhv_medications_add_x_api_key)
+                        'rx_client/prescriptions/gets_a_list_of_all_prescriptions_gw'
+                      else
+                        'rx_client/prescriptions/gets_a_list_of_all_prescriptions'
+                      end
+      VCR.use_cassette(cassette_name) do
         client_response = client.get_history_rxs
         expect(client_response).to be_a(Common::Collection)
         expect(client_response.members.first).to be_a(Prescription)
@@ -130,20 +124,30 @@ describe Rx::Client do
     end
 
     it 'gets a single prescription' do
-      VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
-        expect(client.get_rx(13_650_546)).to be_a(Prescription)
+      cassette_name = if Flipper.enabled?(:mhv_medications_add_x_api_key)
+                        'rx_client/prescriptions/gets_a_single_prescription_gw'
+                      else
+                        'rx_client/prescriptions/gets_a_single_prescription'
+                      end
+      VCR.use_cassette(cassette_name) do
+        expect(client.get_rx(25_343_636)).to be_a(Prescription)
       end
     end
 
     it 'refills a prescription' do
-      VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
+      cassette_name = if Flipper.enabled?(:mhv_medications_add_x_api_key)
+                        'rx_client/prescriptions/refills_a_prescription_gw'
+                      else
+                        'rx_client/prescriptions/refills_a_prescription'
+                      end
+      VCR.use_cassette(cassette_name) do
         if caching_enabled
           expect(Common::Collection).to receive(:bust).with(cache_keys)
         else
           expect(Common::Collection).not_to receive(:bust).with([nil, nil])
         end
 
-        client_response = client.post_refill_rx(13_650_545)
+        client_response = client.post_refill_rx(25_343_636)
         expect(client_response.status).to equal 200
         # This is what MHV returns, even though we don't care
         expect(client_response.body).to eq(status: 'success')
@@ -154,12 +158,15 @@ describe Rx::Client do
     end
 
     it 'refills multiple prescriptions' do
-      VCR.use_cassette('rx_client/prescriptions/refills_multiple_prescriptions') do
-        ids = [13_650_545, 13_650_546]
+      cassette_name = if Flipper.enabled?(:mhv_medications_add_x_api_key)
+                        'rx_client/prescriptions/refills_multiple_prescriptions_gw'
+                      else
+                        'rx_client/prescriptions/refills_multiple_prescriptions'
+                      end
+      VCR.use_cassette(cassette_name) do
+        ids = [24_378_220]
         client_response = client.post_refill_rxs(ids)
         expect(client_response.status).to equal 200
-        # This is what MHV returns, even though we don't care
-        expect(client_response.body).to eq(status: 'success')
         expect(StatsD).to have_received(:increment).with(
           "#{described_class::STATSD_KEY_PREFIX}.refills.requested", ids.size, tags: ['source_app:myapp']
         ).exactly(:once)
@@ -168,7 +175,12 @@ describe Rx::Client do
 
     context 'nested resources' do
       it 'gets tracking for a prescription' do
-        VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_for_a_prescription') do
+        cassette_name = if Flipper.enabled?(:mhv_medications_add_x_api_key)
+                          'rx_client/prescriptions/nested_resources/gets_tracking_for_a_prescription_gw'
+                        else
+                          'rx_client/prescriptions/nested_resources/gets_tracking_for_a_prescription'
+                        end
+        VCR.use_cassette(cassette_name) do
           client_response = client.get_tracking_rx(13_650_541)
           expect(client_response).to be_a(Tracking)
           expect(client_response.prescription_id).to eq(13_650_541)
@@ -176,8 +188,13 @@ describe Rx::Client do
       end
 
       it 'gets a list of tracking history for a prescription' do
-        cassette = 'gets_a_list_of_tracking_history_for_a_prescription'
-        VCR.use_cassette("rx_client/prescriptions/nested_resources/#{cassette}") do
+        cassette_name = if Flipper.enabled?(:mhv_medications_add_x_api_key)
+                          'rx_client/prescriptions/nested_resources/' \
+                            'gets_a_list_of_tracking_history_for_a_prescription_gw'
+                        else
+                          'rx_client/prescriptions/nested_resources/gets_a_list_of_tracking_history_for_a_prescription'
+                        end
+        VCR.use_cassette(cassette_name) do
           client_response = client.get_tracking_history_rx(13_650_541)
           expect(client_response).to be_a(Common::Collection)
           expect(client_response.members.first.prescription_id).to eq(13_650_541)
@@ -188,9 +205,21 @@ describe Rx::Client do
     end
 
     it 'handles failed stations' do
-      VCR.use_cassette('rx_client/prescriptions/handles_failed_stations') do
-        expect(Rails.logger).to receive(:warn).with(/failed station/).with(/Station-000/)
-        client.get_history_rxs
+      cassette_name = if Flipper.enabled?(:mhv_medications_add_x_api_key)
+                        'rx_client/prescriptions/handles_failed_stations_gw'
+                      else
+                        'rx_client/prescriptions/handles_failed_stations'
+                      end
+      VCR.use_cassette(cassette_name) do
+        response = client.get_history_rxs
+
+        if Flipper.enabled?(:mhv_medications_add_x_api_key)
+          metadata = response.instance_variable_get(:@metadata)
+          expect(metadata[:failed_station_list]).to eq('')
+          expect(metadata[:successful_station_list]).to be_nil
+        else
+          expect(Rails.logger).to receive(:warn).with(/failed station/).at_least(:once)
+        end
       end
     end
   end

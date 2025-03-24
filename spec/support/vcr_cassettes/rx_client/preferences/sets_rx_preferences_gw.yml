@@ -1,0 +1,46 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_HOST>/v1/preferences/email"
+    body:
+      encoding: UTF-8
+      string: '{"emailAddress":"kamyar.karshenas@va.gov"}'
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      Token: "<SESSION_TOKEN>"
+      Expect:
+      - ''
+  response:
+    status:
+      code: 403
+      message: ''
+    headers:
+      Date:
+      - Mon, 24 Mar 2025 22:24:29 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '51'
+      X-Amzn-Requestid:
+      - c145df43-e81f-4648-8054-95ef472be73b
+      Content-Encoding:
+      - deflate
+      X-Amzn-Errortype:
+      - MissingAuthenticationTokenException
+      X-Amz-Apigw-Id:
+      - H89AsEKLPHMFQnQ=
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"message":"Missing Authentication Token"}
+
+        '
+  recorded_at: Mon, 24 Mar 2025 22:24:29 GMT
+recorded_with: VCR 6.3.1
