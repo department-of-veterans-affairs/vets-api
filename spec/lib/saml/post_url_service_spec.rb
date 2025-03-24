@@ -27,7 +27,7 @@ RSpec.describe SAML::PostURLService do
     SAML::URLService::VIRTUAL_HOST_MAPPINGS.each_key do |vhost_url|
       context "virtual host: #{vhost_url}" do
         let(:saml_settings) do
-          callback_path = URI.parse(Settings.saml_ssoe.callback_url).path
+          callback_path = URI.parse(IdentitySettings.saml_ssoe.callback_url).path
           build(:settings_no_context, assertion_consumer_service_url: "#{vhost_url}#{callback_path}")
         end
         let(:params) { { action: 'new' } }
@@ -99,7 +99,7 @@ RSpec.describe SAML::PostURLService do
     SAML::URLService::VIRTUAL_HOST_MAPPINGS.each do |vhost_url, values|
       context "virtual host: #{vhost_url}" do
         let(:saml_settings) do
-          callback_path = URI.parse(Settings.saml_ssoe.callback_url).path
+          callback_path = URI.parse(IdentitySettings.saml_ssoe.callback_url).path
           build(:settings_no_context, assertion_consumer_service_url: "#{vhost_url}#{callback_path}")
         end
 
@@ -386,7 +386,7 @@ RSpec.describe SAML::PostURLService do
     SAML::URLService::VIRTUAL_HOST_MAPPINGS.each do |vhost_url, values|
       context "virtual host: #{vhost_url}" do
         let(:saml_settings) do
-          callback_path = URI.parse(Settings.saml_ssoe.callback_url).path
+          callback_path = URI.parse(IdentitySettings.saml_ssoe.callback_url).path
           build(:settings_no_context, assertion_consumer_service_url: "#{vhost_url}#{callback_path}")
         end
 
@@ -641,11 +641,11 @@ RSpec.describe SAML::PostURLService do
               let(:cache_expiration) { 5.minutes }
 
               before do
-                allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(enabled_clients)
+                allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return(enabled_clients)
                 allow(Rails.cache).to receive(:read).with(cache_key).and_return(application)
               end
 
-              context 'and application is within Settings.terms_of_use.enabled_clients' do
+              context 'and application is within IdentitySettings.terms_of_use.enabled_clients' do
                 let(:enabled_clients) { application }
 
                 context 'and authentication is occuring on a review instance' do
@@ -664,7 +664,7 @@ RSpec.describe SAML::PostURLService do
                 end
               end
 
-              context 'and stored application is not within Settings.terms_of_use.enabled_clients' do
+              context 'and stored application is not within IdentitySettings.terms_of_use.enabled_clients' do
                 let(:enabled_clients) { '' }
 
                 it 'has a login redirect url with success not embedded in a terms of use page' do
@@ -679,9 +679,9 @@ RSpec.describe SAML::PostURLService do
             end
 
             context 'when associated terms of use redirect user cache object does not exist' do
-              context 'when tracker application is within Settings.terms_of_use.enabled_clients' do
+              context 'when tracker application is within IdentitySettings.terms_of_use.enabled_clients' do
                 before do
-                  allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
+                  allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return(application)
                 end
 
                 context 'and authentication is occuring on a review instance' do
@@ -707,9 +707,9 @@ RSpec.describe SAML::PostURLService do
                 it_behaves_like 'terms of use redirected url'
               end
 
-              context 'when tracker application is not within Settings.terms_of_use.enabled_clients' do
+              context 'when tracker application is not within IdentitySettings.terms_of_use.enabled_clients' do
                 before do
-                  allow(Settings.terms_of_use).to receive(:enabled_clients).and_return('')
+                  allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return('')
                 end
 
                 it 'has a login redirect url with success not embedded in a terms of use page' do
@@ -745,7 +745,8 @@ RSpec.describe SAML::PostURLService do
     around do |example|
       Timecop.freeze('2018-04-09T17:52:03Z')
       RequestStore.store['request_id'] = request_id
-      with_settings(Settings.saml_ssoe, relay: "http://#{slug_id}.review.vetsgov-internal/auth/login/callback") do
+      with_settings(IdentitySettings.saml_ssoe,
+                    relay: "http://#{slug_id}.review.vetsgov-internal/auth/login/callback") do
         with_settings(Settings, review_instance_slug: slug_id) do
           example.run
         end
