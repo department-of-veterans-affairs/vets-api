@@ -490,6 +490,10 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         end
 
         context 'with an email set' do
+          before do
+            expect(HealthCareApplication).to receive(:user_icn).and_return('123')
+          end
+
           expect_async_submit
         end
 
@@ -501,6 +505,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           context 'with async_all set' do
             before do
               params[:async_all] = true
+              expect(HealthCareApplication).to receive(:user_icn).and_return('123')
             end
 
             expect_async_submit
@@ -521,6 +526,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           end
 
           it 'renders success', run_at: '2017-01-31' do
+            expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
             VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
               subject
               expect(JSON.parse(response.body)).to eq(body)
@@ -579,6 +585,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         end
 
         it 'raises an invalid field value error' do
+          expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
           VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
             subject
             expect(JSON.parse(response.body)).to eq(body)
@@ -599,6 +606,8 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             let(:error) { HCA::SOAPParser::ValidationError.new }
 
             it 'renders error message' do
+              expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
+
               subject
 
               expect(response).to have_http_status(:unprocessable_entity)
@@ -624,6 +633,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
             it 'renders error message' do
               expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
+              expect(HealthCareApplication).to receive(:user_icn).thrice.and_return('123')
 
               subject
 
