@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'pdf_fill/forms/form_base'
+require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
 require 'income_and_assets/constants'
 require 'income_and_assets/helpers'
@@ -10,6 +11,7 @@ require 'income_and_assets/helpers'
 module PdfFill
   module Forms
     class Va21p0969 < FormBase
+      include FormHelper
       include IncomeAndAssets::Helpers
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
@@ -305,7 +307,7 @@ module PdfFill
         },
         # 7a
         'assetTransfer' => {
-          key: 'F[0].Page_9[0].DependentsSellAssets7a[0]' # 0 yes, 1 no
+          key: 'F[0].Page_9[0].DependentsSellAssets7a[0]'
         },
         # 7b-7d
         'assetTransfers' => {
@@ -364,7 +366,7 @@ module PdfFill
             question_text: 'RELATIONSHIP TO NEW OWNER'
           },
           'saleReportedToIrs' => {
-            key: "F[0].WasSaleReportedToIRS[#{ITERATOR}]" # 0 yes, 1 no
+            key: "F[0].WasSaleReportedToIRS[#{ITERATOR}]"
           },
           'transferDate' => {
             'month' => {
@@ -378,7 +380,7 @@ module PdfFill
             }
           },
           'assetTransferredUnderFairMarketValue' => {
-            key: "F[0].TransferredForLessThanFMV[#{ITERATOR}]" # 0 yes, 1 no
+            key: "F[0].TransferredForLessThanFMV[#{ITERATOR}]"
           },
           'fairMarketValue' => {
             'millions' => {
@@ -580,27 +582,30 @@ module PdfFill
       end
 
       def expand_asset_transfer(transfer) # rubocop:disable Metrics/MethodLength
+        original_owner_relationship = transfer['originalOwnerRelationship']
+        transfer_method = transfer['transferMethod']
+        new_owner_name = change_hash_to_string(transfer['newOwnerName'])
         {
-          'originalOwnerRelationship' => transfer['originalOwnerRelationship'],
+          'originalOwnerRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[original_owner_relationship],
           'originalOwnerRelationshipOverflow' => transfer['originalOwnerRelationship'],
           'otherOriginalOwnerRelationshipType' => transfer['otherOriginalOwnerRelationshipType'],
-          'transferMethod' => transfer['transferMethod'],
+          'transferMethod' => IncomeAndAssets::Constants::TRANSFER_METHODS[transfer_method],
           'transferMethodOverflow' => transfer['transferMethod'],
           'otherTransferMethod' => transfer['otherTransferMethod'],
           'assetType' => transfer['assetType'],
           'assetTypeOverflow' => transfer['assetType'],
-          'newOwnerName' => transfer['newOwnerName'],
-          'newOwnerNameOverflow' => transfer['newOwnerName'],
+          'newOwnerName' => new_owner_name,
+          'newOwnerNameOverflow' => new_owner_name,
           'newOwnerRelationship' => transfer['newOwnerRelationship'],
           'newOwnerRelationshipOverflow' => transfer['newOwnerRelationship'],
-          'saleReportedToIrs' => transfer['saleReportedToIrs'],
-          'transferDate' => transfer['transferDate'],
-          'assetTransferredUnderFairMarketValue' => transfer['assetTransferredUnderFairMarketValue'], # 0 yes, 1 no
-          'fairMarketValue' => transfer['fairMarketValue'],
+          'saleReportedToIrs' => transfer['saleReportedToIrs'] ? 0 : 1,
+          'transferDate' => split_date(transfer['transferDate']),
+          'assetTransferredUnderFairMarketValue' => transfer['assetTransferredUnderFairMarketValue'] ? 0 : 1,
+          'fairMarketValue' => split_currency_amount_lg(transfer['fairMarketValue']),
           'fairMarketValueOverflow' => transfer['fairMarketValue'],
-          'saleValue' => transfer['saleValue'],
+          'saleValue' => split_currency_amount_lg(transfer['saleValue']),
           'saleValueOverflow' => transfer['saleValue'],
-          'capitalGainValue' => transfer['capitalGainValue'],
+          'capitalGainValue' => split_currency_amount_lg(transfer['capitalGainValue']),
           'capitalGainValueOverflow' => transfer['capitalGainValue']
         }
       end
