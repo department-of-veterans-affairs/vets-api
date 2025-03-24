@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-describe POARequestPolicy do
+describe PoaRequestPolicy do
   subject { described_class }
 
   permissions :access? do
