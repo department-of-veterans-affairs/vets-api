@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'burials/benefits_intake/submission_handler'
 require 'burials/benefits_intake/submit_claim_job'
 require 'burials/monitor'
+require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
 
 RSpec.describe 'Burials End to End', type: :request do
 
@@ -12,9 +14,15 @@ RSpec.describe 'Burials End to End', type: :request do
   let(:monitor) { Burials::Monitor.new }
   let(:service) { ::BenefitsIntake::Service.new }
 
+  let(:stats_key) { BenefitsIntake::SubmissionStatusJob::STATS_KEY }
+
   before do
     allow(Burials::Monitor).to receive(:new).and_return(monitor)
     allow(::BenefitsIntake::Service).to receive(:new).and_return(service)
+
+    allow(Flipper).to receive(:enabled?).with(anything).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:burial_submitted_email_notification).and_return true
+    allow(Flipper).to receive(:enabled?).with(:benefits_intake_submission_status_job).and_return true
   end
 
   it 'successfully completes the submission process' do
@@ -71,11 +79,38 @@ RSpec.describe 'Burials End to End', type: :request do
 
     attempt = submission.latest_pending_attempt
     expect(attempt).to be_present
+    expect(attempt).to eq 'pending'
     expect(attempt.benefits_intake_uuid).to eq lh_bi_uuid
 
     notification = ClaimVANotification.find_by(saved_claim_id:)
     expect(notification).to be_present
 
     # submission status update
+    updated_at = Time.zone.now
+    attributes = { 'status' => 'vbms', 'updated_at' => updated_at }
+    data = [{ 'id' => attempt.benefits_intake_uuid, 'attributes' => attributes }]
+    bulk_status = double(body: { 'data' => data }, success?: true)
+
+    expect(service).to receive(:bulk_status).and_return(bulk_status)
+
+    expect(StatsD).to receive(:increment).with("#{stats_key}.#{form.form_id}.success").once
+    expect(StatsD).to receive(:increment).with("#{stats_key}.all_forms.success").once
+
+    handler = Burials::BenefitsIntake::SubmissionHandler.new(saved_claim_id)
+    expect(Burials::BenefitsIntake::SubmissionHandler).to receive(:new).with(saved_claim_id).and_return(handler)
+    expect(handler).to receive(:handle).with('success').and_call_original
+
+    email = Burials::NotificationEmail.new(saved_claim_id)
+    expect(Burials::NotificationEmail).to receive(:new).and_return(email)
+    expect(email).to receive(:deliver).with(:received).and_call_original
+    expect(VANotify::EmailJob).to receive(:perform_async)
+    expect(VeteranFacingServices::NotificationEmail).to receive(:monitor_deliver_success).and_call_original
+
+    BenefitsIntake::SubmissionStatusJob.new.perform(Burials::FORM_ID)
+
+    updated = attempt.reload
+    expect(updated.aasm_state).to eq 'vbms'
+    expect(updated.lighthouse_updated_at).to be_the_same_time_as updated_at
+    expect(updated.error_message).to be_nil
   end
 end
