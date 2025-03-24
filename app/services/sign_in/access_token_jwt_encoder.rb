@@ -39,7 +39,7 @@ module SignIn
     end
 
     def private_key
-      OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_encode_key))
+      OpenSSL::PKey::RSA.new(File.read(IdentitySettings.sign_in.jwt_encode_key))
     end
   end
 end
