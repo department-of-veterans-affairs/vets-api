@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'logging/monitor'
+require 'zero_silent_failures/monitor'
 
 module Kafka
   # This Monitor class is responsible for tracking and logging various events related to the Kafka service.
@@ -63,12 +64,9 @@ module Kafka
       additional_context = {
         topic:,
         payload:,
-        message: msg,
-        tags:
+        message: msg
       }
       call_location = caller_locations.first
-
-      log_silent_failure(additional_context, nil, call_location:)
 
       track_request('error', "Kafka::EventBusSubmissionJob for #{topic} exhausted!",
                     "#{STATSD_KEY_PREFIX}.exhausted", call_location:, **additional_context)

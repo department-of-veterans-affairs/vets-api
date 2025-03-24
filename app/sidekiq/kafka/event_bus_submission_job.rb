@@ -12,7 +12,7 @@ module Kafka
     sidekiq_retries_exhausted do |msg|
       monitor = Kafka::Monitor.new
       topic = msg['args'].first
-      payload = msg['args'].last
+      payload = msg['args'].second
 
       monitor.track_submission_exhaustion(msg, topic, payload)
     end
