@@ -8,7 +8,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports', type: :request do
   let(:fsr_service) { DebtsApi::V0::FinancialStatusReportService }
   let(:full_transform_service) { DebtsApi::V0::FsrFormTransform::FullTransformService }
   let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
   let(:filenet_id) { '93631483-E9F9-44AA-BB55-3552376400D8' }
 
   before do
