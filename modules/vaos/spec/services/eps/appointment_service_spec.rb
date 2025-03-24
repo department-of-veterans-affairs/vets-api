@@ -64,7 +64,7 @@ describe Eps::AppointmentService do
       end
 
       it 'throws exception' do
-        expect { service.get_appointment(appointment_id:) }.to raise_error(Common::Exceptions::BackendServiceException,
+        expect { service.get_appointment(appointment_id:) }.to raise_error(Eps::ServiceException,
                                                                            /VA900/)
       end
     end
@@ -144,7 +144,7 @@ describe Eps::AppointmentService do
       it 'throws exception' do
         expect do
           service.create_draft_appointment(referral_id:)
-        end.to raise_error(Common::Exceptions::BackendServiceException,
+        end.to raise_error(Eps::ServiceException,
                            /VA900/)
       end
     end
