@@ -127,15 +127,6 @@ describe TravelPay::ClaimsService do
         )
       end
 
-      let(:claim_details_error_response) do
-        Faraday::Response.new(
-          status: 404,
-          body: {
-            error: { message: 'Not found' }
-          }
-        )
-      end
-
       let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
       before do
@@ -155,15 +146,21 @@ describe TravelPay::ClaimsService do
         expect(actual_claim).to eq(expected_claim)
       end
 
-      it 'returns nil if a claim with the given id was not found' do
+      it 'returns an not found error if a claim with the given id was not found' do
         allow_any_instance_of(TravelPay::ClaimsClient)
           .to receive(:get_claim_by_id)
-          .and_return(claim_details_error_response)
+          .and_raise(Common::Exceptions::ResourceNotFound.new(
+                       {
+                         'statusCode' => 404,
+                         'message' => 'Claim not found.',
+                         'success' => false,
+                         'data' => nil
+                       }
+                     ))
 
         claim_id = SecureRandom.uuid
-        actual_claim = @service.get_claim_details(claim_id)
-
-        expect(actual_claim).to be_nil
+        expect { @service.get_claim_details(claim_id) }
+          .to raise_error(Common::Exceptions::ResourceNotFound, /not found/i)
       end
 
       it 'throws an ArgumentException if claim_id is invalid format' do
