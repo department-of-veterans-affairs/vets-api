@@ -26,6 +26,5 @@ describe POARequestPolicy do
         expect(subject).not_to permit(user, :power_of_attorney)
       end
     end
-
   end
 end
