@@ -5,6 +5,8 @@ require 'lighthouse/benefits_intake/metadata'
 require 'pensions/monitor'
 require 'pensions/notification_email'
 require 'pdf_utilities/datestamp_pdf'
+require 'kafka/kafka'
+require 'kafka/event_bus_submission_job'
 
 module Pensions
   ##
@@ -61,6 +63,8 @@ module Pensions
       @metadata = generate_metadata
 
       upload_document
+
+      submit_traceability_to_event_bus if Flipper.enabled?(:pension_event_bus_submission_enabled)
 
       @pension_monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
@@ -162,6 +166,25 @@ module Pensions
       @pension_monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, payload)
       response = @intake_service.perform_upload(**payload)
       raise PensionBenefitIntakeError, response.to_s unless response.success?
+    end
+
+    # Build payload and submit to EventBusSubmissionJob
+    #
+    def submit_traceability_to_event_bus
+      user_icn = UserAccount.find_by(id: @user_account_uuid)&.icn.to_s
+
+      Kafka::EventBusSubmissionJob.perform_async(
+        'pension_submission_trace',
+        {
+          'data' => {
+            'ICN' => user_icn,
+            'currentID' => @claim&.confirmation_number.to_s,
+            'nextID' => @intake_service&.uuid.to_s,
+            'submissionName' => Pensions::FORM_ID,
+            'state' => Kafka::State::SENT
+          }
+        }
+      )
     end
 
     ##

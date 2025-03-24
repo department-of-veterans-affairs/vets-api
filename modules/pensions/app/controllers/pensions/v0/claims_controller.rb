@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'kafka/kafka'
+require 'kafka/event_bus_submission_job'
 require 'pensions/benefits_intake/pension_benefit_intake_job'
 require 'pensions/monitor'
 
@@ -54,6 +56,8 @@ module Pensions
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
 
+        submit_traceability_to_event_bus(claim) if Flipper.enabled?(:pension_event_bus_submission_enabled)
+
         process_and_upload_to_lighthouse(in_progress_form, claim)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
@@ -66,6 +70,30 @@ module Pensions
       end
 
       private
+
+      # Build payload and submit to EventBusSubmissionJob
+      #
+      # @param claim [Pensions::SavedClaim]
+      def submit_traceability_to_event_bus(claim)
+        Kafka::EventBusSubmissionJob.perform_async(
+          'pension_submission_trace',
+          {
+            'data' => {
+              'ICN' => user_icn,
+              'currentID' => claim&.confirmation_number.to_s,
+              'submissionName' => Pensions::FORM_ID,
+              'state' => Kafka::State::RECEIVED
+            }
+          }
+        )
+      end
+
+      # Retrieves the Integration Control Number (ICN) associated with the current user
+      #
+      # @return [String] The ICN of the current user, or an empty string if not available
+      def user_icn
+        (current_user&.icn || UserAccount.find_by(id: current_user&.user_account_uuid)&.icn).to_s
+      end
 
       # link the form to the uploaded attachments and perform submission job
       #

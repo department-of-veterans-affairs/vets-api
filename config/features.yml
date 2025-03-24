@@ -1916,6 +1916,9 @@ features:
   pension_form_profile_module_enabled:
     actor_type: user
     description: Use the module version of the FormProfile
+  pension_event_bus_submission_enabled:
+    actor_type: user
+    description: Enable the EventBusSubmissionJob for Kafka
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
