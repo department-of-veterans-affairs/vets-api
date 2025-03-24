@@ -1795,6 +1795,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         describe 'show a report' do
           context 'successful calls' do
             it 'supports showing a report' do
+              Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
+
               # Using mucked-up yml because apivore has a problem processing non-json responses
               VCR.use_cassette('bb_client/gets_a_text_report_for_apivore') do
                 expect(subject).to validate(:get, '/v0/health_records', 200,
@@ -1805,6 +1807,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
           context 'unsuccessful calls' do
             it 'handles a backend error' do
+              Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
+
               VCR.use_cassette('bb_client/report_error_response') do
                 expect(subject).to validate(:get, '/v0/health_records', 503,
                                             headers.merge('_query_string' => 'doc_type=txt'))
@@ -1816,6 +1820,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         describe 'create a report' do
           context 'successful calls' do
             it 'supports creating a report' do
+              Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
+
               VCR.use_cassette('bb_client/generates_a_report') do
                 expect(subject).to validate(
                   :post, '/v0/health_records', 202,
@@ -1860,6 +1866,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
         describe 'eligible data classes' do
           it 'supports retrieving eligible data classes' do
+            Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
+
             VCR.use_cassette('bb_client/gets_a_list_of_eligible_data_classes') do
               expect(subject).to validate(:get, '/v0/health_records/eligible_data_classes', 200, headers)
             end
@@ -1869,6 +1877,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         describe 'refresh' do
           context 'successful calls' do
             it 'supports health records refresh' do
+              Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
+
               VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
                 expect(subject).to validate(:get, '/v0/health_records/refresh', 200, headers)
               end
