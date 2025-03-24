@@ -509,6 +509,17 @@ forms_api_benefits_intake:
   url: https://sandbox-api.va.gov/services/vba_documents/v1/
 fsr:
   prefill: true
+gclaws:
+  accreditation:
+    agents:
+      url: http://localhost:5000/api/v2/accreditations/agents
+    api_key: fake_key
+    attorneys:
+      url: http://localhost:5000/api/v2/accreditations/attorneys
+    representatives:
+      url: http://localhost:5000/api/v2/accreditations/representatives
+    veteran_service_organizations:
+      url: http://localhost:5000/api/v2/accreditations/veteranserviceorganizations
 genisis:
   base_url: ~
   form_submission_path: "/formdata"
