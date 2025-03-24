@@ -20,10 +20,6 @@ module RepresentationManagement
 
       private
 
-      def authorize_access
-        authorize(current_user, :access?, policy_class: POARequestPolicy)
-      end
-
       def lighthouse_service
         BenefitsClaims::Service.new(icn)
       end
