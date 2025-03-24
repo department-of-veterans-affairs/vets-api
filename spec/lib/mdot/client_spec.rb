@@ -33,6 +33,21 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
+    context 'with a supplies response that includes assistive devices' do
+      it 'returns an array of supplies' do
+        VCR.use_cassette(
+          'mdot/get_supplies_assistive_devices_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          response = subject.get_supplies
+          expect(response).to be_ok
+          expect(response).to be_an MDOT::Response
+          expect(response.eligibility.attributes[:assistive_devices]).to be(true)
+        end
+      end
+    end
+
     context 'with an unknown DLC service error' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/get_supplies_502') do

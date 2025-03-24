@@ -1,17 +1,22 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'common/exceptions'
-require_relative '../../../app/models/ccra/referral_list_entry'
-require_relative '../../../app/models/ccra/referral_detail'
 
 describe Ccra::ReferralService do
   subject { described_class.new(user) }
 
   let(:user) { double('User', account_uuid: '1234', flipper_id: '1234') }
+  let(:access_token) { 'fake-access-token' }
 
   before do
     allow(RequestStore.store).to receive(:[]).with('request_id').and_return('request-id')
+
+    # Allow any cache fetch call to return the access token if it matches our key, otherwise nil
+    # This makes it so we don't need to make a real call to the token endpoint
+    allow(Rails.cache).to receive(:fetch) do |key|
+      access_token if key == Ccra::BaseService::REDIS_TOKEN_KEY
+    end
+
     Settings.vaos ||= OpenStruct.new
     Settings.vaos.ccra ||= OpenStruct.new
     Settings.vaos.ccra.tap do |ccra|

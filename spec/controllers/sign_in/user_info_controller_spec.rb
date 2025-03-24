@@ -25,7 +25,7 @@ describe SignIn::UserInfoController do
   let(:encoded_access_token) { SignIn::AccessTokenJwtEncoder.new(access_token:).perform }
 
   before do
-    allow(Settings.sign_in).to receive(:user_info_clients).and_return(user_info_clients)
+    allow(IdentitySettings.sign_in).to receive(:user_info_clients).and_return(user_info_clients)
     request.headers['Authorization'] = "Bearer #{encoded_access_token}"
   end
 
@@ -33,6 +33,7 @@ describe SignIn::UserInfoController do
     context 'when the client_id is in the list of valid clients' do
       let(:expected_user_info_json) do
         {
+          sub: credential_uuid,
           credential_uuid:,
           icn:,
           sec_id:,

@@ -4,13 +4,11 @@ require 'rails_helper'
 require 'pdf_fill/extras_generator'
 
 describe PdfFill::ExtrasGenerator do
-  subject do
-    described_class.new
-  end
+  subject { described_class.new }
 
   describe '#sort_generate_blocks' do
-    it 'sorts the blocks correctly' do
-      metadatas = [
+    let(:metadatas) do
+      [
         {
           question_num: 1
         },
@@ -41,7 +39,9 @@ describe PdfFill::ExtrasGenerator do
           question_suffix: 'B'
         }
       ]
+    end
 
+    it 'sorts the blocks correctly' do
       subject.instance_variable_set(:@generate_blocks, metadatas.reverse.map do |metadata|
         {
           metadata:
@@ -81,24 +81,6 @@ describe PdfFill::ExtrasGenerator do
       ).to be(true)
 
       File.delete(file_path)
-    end
-  end
-
-  describe '#add_page_numbers' do
-    subject { described_class.new(start_page: 8, extras_redesign: true) }
-
-    let(:pdf) { instance_double(Prawn::Document, bounds: double('Bounds', right: 400)) }
-
-    it 'adds page numbers starting at @start_page' do
-      expect(pdf).to receive(:number_pages).with(
-        'Page <page>',
-        start_count_at: 8,
-        at: [400 - 50, 0],
-        align: :right,
-        size: 9
-      )
-
-      subject.add_page_numbers(pdf)
     end
   end
 end

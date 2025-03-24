@@ -322,11 +322,11 @@
           "details": "Lorem ipsum dolor sit amet.",
           "location": "Stationed on U.S.S. XYZ",
           "timing": "2000",
-          "reports": {
-            "yes": true,
-            "restricted": true,
-            "police": true,
-            "other": true
+          "militaryReports": {
+            "restricted": true
+          },
+          "otherReports": {
+            "police": true
           },
           "agency": "SVI",
           "city": "Dallas",
@@ -338,7 +338,7 @@
           "details": "Lorem ipsum dolor sit amet.", 
           "location": "Back alley in Big Town, USA",
           "timing": "2001",
-          "otherReports": "incident report"
+          "unlistedReport": "incident report"
         },
         {
           "details": "Lorem ipsum dolor sit amet.",
@@ -385,22 +385,34 @@
         "relationships": "Lorem ipsum dolor sit amet.",
         "unlisted": "Lorem ipsum dolor sit amet."
       },
-      "evidence": {
-        "counseling": true,
-        "family": true,
-        "police": true,
-        "medical": true,
-        "peers": true,
-        "journal": true,
-        "other": true,
-        "otherDetails": "Lorem ipsum dolor sit amet."
+      "supportingEvidenceReports": {
+        "police": true
       },
-      "traumaTreatment": true,
-      "treatmentProviders": {
-        "privateCare": true,
-        "communityCare": false,
-        "vamc": true,
-        "mtf": true
+      "supportingEvidenceRecords": {
+        "medical": true,
+        "counseling": true
+      },
+      "supportingEvidenceWitness": {
+        "family": true,
+        "service": true
+      },
+      "supportingEvidenceOther": {
+        "personal": true
+      },
+      "supportingEvidenceNoneCheckbox": {
+        "none": false
+      },
+      "supportingEvidenceUnlisted": "Lorem ipsum dolor sit amet.",
+      "treatmentNoneCheckbox": {
+        "none": false
+      },
+      "treatmentReceivedVaProvider": {
+        "vaPaid": false,
+        "medicalCenter": true,
+        "dod": true
+      },
+      "treatmentReceivedNonVaProvider": {
+        "nonVa": true
       },
       "treatmentProvidersDetails": [
         {

@@ -12,3 +12,8 @@ on_worker_boot do
   SemanticLogger.reopen
   ActiveRecord::Base.establish_connection
 end
+
+on_worker_shutdown do
+  require 'kafka/producer_manager'
+  Kafka::ProducerManager.instance.producer&.close
+end

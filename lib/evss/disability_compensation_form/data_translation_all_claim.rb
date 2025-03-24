@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/ppiu/service'
 require 'evss/intent_to_file/service'
 
 module EVSS
@@ -153,8 +152,7 @@ module EVSS
       def translate_banking_info
         populated = input_form['bankName'].present? && input_form['bankAccountType'].present? &&
                     input_form['bankAccountNumber'].present? && input_form['bankRoutingNumber'].present?
-        # if banking data is not included then it has not changed and will be retrieved
-        # from the PPIU service
+        # If banking data is not included, then it has not changed and will be retrieved from Lighthouse
         if !populated || redacted(input_form['bankAccountNumber'], input_form['bankRoutingNumber'])
           get_banking_info
         else
@@ -166,9 +164,9 @@ module EVSS
       end
 
       def get_banking_info
-        return {} unless @user.authorize :ppiu, :access?
+        return {} unless @user.authorize :lighthouse, :direct_deposit_access?
 
-        # Call to either EVSS or Lighthouse PPIU/Direct Deposit data provider
+        # Call to Lighthouse Direct Deposit (aka PPIU) data provider
         service = ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:ppiu],
           provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
@@ -183,7 +181,7 @@ module EVSS
           set_account(response)
         rescue => e
           method_name = '#get_banking_info'
-          Rails.logger.error "#{method_name} Failed to retrieve PPIU data from #{service.class}: #{e.message}"
+          Rails.logger.error "#{method_name} Failed to retrieve DirectDeposit data from #{service.class}: #{e.message}"
           raise Common::Exceptions::BadRequest.new(errors: [e.message])
         end
       end
@@ -390,7 +388,7 @@ module EVSS
       end
 
       def translate_mailing_address(address)
-        pciu_address = {
+        va_profile_address = {
           'country' => address['country'],
           'addressLine1' => address['addressLine1'],
           'addressLine2' => address['addressLine2'],
@@ -399,20 +397,20 @@ module EVSS
           'endingDate' => address.dig('effectiveDate', 'to')
         }
 
-        pciu_address['type'] = get_address_type(address)
+        va_profile_address['type'] = get_address_type(address)
 
         zip_code = split_zip_code(address['zipCode']) if address['zipCode']
 
-        case pciu_address['type']
+        case va_profile_address['type']
         when 'DOMESTIC'
-          pciu_address.merge!(set_domestic_address(address, zip_code))
+          va_profile_address.merge!(set_domestic_address(address, zip_code))
         when 'MILITARY'
-          pciu_address.merge!(set_military_address(address, zip_code))
+          va_profile_address.merge!(set_military_address(address, zip_code))
         when 'INTERNATIONAL'
-          pciu_address.merge!(set_international_address(address))
+          va_profile_address.merge!(set_international_address(address))
         end
 
-        pciu_address.compact
+        va_profile_address.compact
       end
 
       def get_address_type(address)

@@ -8,12 +8,16 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
   let(:job) { described_class.perform_async }
   let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { user_account.id }
-  let(:current_date_time) { DateTime.current.utc }
+  let(:current_date_time) { DateTime.current }
   let!(:pending_lighthouse_document_upload1) do
     create(:bd_evidence_submission_pending, job_class: 'BenefitsDocuments::Service', request_id: 1)
   end
   let!(:pending_lighthouse_document_upload2) do
     create(:bd_evidence_submission_pending, job_class: 'BenefitsDocuments::Service', request_id: 2)
+  end
+
+  let!(:pending_lighthouse_document_upload_no_request_id) do
+    create(:bd_evidence_submission_pending, job_class: 'BenefitsDocuments::Service', request_id: nil)
   end
 
   let(:error_message) do
@@ -22,7 +26,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
       'step' => 'BENEFITS_GATEWAY_SERVICE'
     }
   end
-  let(:issue_instant) { Time.now.to_i }
+  let(:issue_instant) { Time.current.to_i }
   let(:date_failed) do
     BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(issue_instant)
   end
@@ -30,6 +34,9 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
   context 'when there are EvidenceSubmission records' do
     before do
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:warn)
+      allow(Rails.logger).to receive(:error)
     end
 
     it 'polls and updates status for each EvidenceSubmission record that is still pending to "complete"' do
@@ -42,10 +49,22 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
       pending_es = EvidenceSubmission.where(request_id: 1).first
       pending_es2 = EvidenceSubmission.where(request_id: 2).first
       expect(pending_es.completed?).to be(true)
-      expect(pending_es.delete_date).to be_within(1.second).of((current_date_time + 60.days).utc)
+      expect(pending_es.delete_date).to be_within(1.second).of((current_date_time + 60.days))
 
       expect(pending_es2.completed?).to be(true)
-      expect(pending_es2.delete_date).to be_within(1.second).of((current_date_time + 60.days).utc)
+      expect(pending_es2.delete_date).to be_within(1.second).of((current_date_time + 60.days))
+
+      expect(pending_lighthouse_document_upload_no_request_id.completed?).to be(false)
+
+      expect(StatsD).to have_received(:increment).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_polled', 2
+      )
+      expect(StatsD).to have_received(:increment).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_marked_completed', 2
+      )
+      expect(StatsD).to have_received(:increment).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_marked_failed', 0
+      )
     end
 
     it 'polls and updates status for each failed EvidenceSubmission to "failed"' do
@@ -58,16 +77,26 @@ RSpec.describe Lighthouse::EvidenceSubmissions::EvidenceSubmissionDocumentUpload
       pending_es = EvidenceSubmission.where(request_id: 1).first
       pending_es2 = EvidenceSubmission.where(request_id: 2).first
       expect(pending_es.failed?).to be(true)
-      expect(pending_es.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days).utc)
-      expect(pending_es.failed_date).to be_within(1.second).of(current_date_time.utc)
+      expect(pending_es.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days))
+      expect(pending_es.failed_date).to be_within(1.second).of(current_date_time)
       expect(pending_es.error_message).to eq(error_message.to_s)
       expect(JSON.parse(pending_es.template_metadata)['personalisation']['date_failed']).to eq(date_failed)
 
       expect(pending_es2.failed?).to be(true)
-      expect(pending_es2.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days).utc)
-      expect(pending_es2.failed_date).to be_within(1.second).of(current_date_time.utc)
+      expect(pending_es2.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days))
+      expect(pending_es2.failed_date).to be_within(1.second).of(current_date_time)
       expect(pending_es2.error_message).to eq(error_message.to_s)
       expect(JSON.parse(pending_es2.template_metadata)['personalisation']['date_failed']).to eq(date_failed)
+
+      expect(StatsD).to have_received(:increment).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_polled', 2
+      )
+      expect(StatsD).to have_received(:increment).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_marked_completed', 0
+      )
+      expect(StatsD).to have_received(:increment).with(
+        'worker.lighthouse.cst_document_uploads.pending_documents_marked_failed', 2
+      )
     end
   end
 end

@@ -36,10 +36,12 @@
       "details": "Lorem ipsum dolor sit amet.",
       "location": "abcdefghijklmn opqrstuvwxyz1234a",
       "timing": "Summer of '70",
-      "reports": {
+      "militaryReports": {
         "restricted": true,
         "unrestricted": false,
-        "neither": false,
+        "pre2005": false
+      },
+      "otherReports": {
         "police": true
       },
       "agency": "SVI",
@@ -56,32 +58,22 @@
       "details": "Lorem ipsum dolor sit amet.",
       "location": "abcdefghijklmn opqrstuvwxyz1234a",
       "timing": "June 2007",
-      "otherReports": "incident report",
+      "unlistedReport": "incident report",
       "eventOverflow": {
         "value": "",
         "extras_value": "Event Number: 2\n\nEvent Description: \n\nLorem ipsum dolor sit amet.\n\nEvent Location: \n\nabcdefghijklmn opqrstuvwxyz1234a\n\nEvent Date: \n\nJune 2007"
       }
     }
   ],
-  "workBehaviors": {
+  "behaviors": {
     "reassignment": true,
-    "absences": false,
-    "performance": true
-  },
-  "healthBehaviors": {
+    "performance": true,
     "consultations": false,
     "episodes": true,
-    "medications": false,
     "selfMedication": true,
-    "substances": false,
     "appetite": true,
-    "pregnancy": false,
-    "screenings": true
-  },
-  "otherBehaviors": {
-    "socialEconomic": false,
+    "screenings": true,
     "relationships": true,
-    "misconduct": false,
     "unlisted": true
   },
   "behaviorsDetails": {
@@ -108,15 +100,13 @@
     "other": true,
     "otherDetails": "photographic evidence"
   },
-  "traumaTreatment": false,
-  "treatmentProviders": {
-    "privateCare": true,
-    "vetCenter": false,
-    "communityCare": false,
-    "vamc": true,
-    "cboc": false,
-    "mtf": true,
+  "treatmentNoneCheckbox": {
     "none": false
+  },
+  "treatmentProviders": {
+    "nonVa": true,
+    "medicalCenter": true,
+    "dod": true
   },
   "treatmentProvidersDetails": [
     {
@@ -166,19 +156,18 @@
     "second": "45",
     "third": "6789"
   },
-  "treatment": 1,
-  "noTreatment": 1,
+  "treatment": 0,
+  "noTreatment": 0,
   "reportsDetails": {
     "police": "SVI, Dallas, TX, USA",
     "other": "incident report"
   },
-  "reportFiled": 0,
   "restrictedReport": 0,
   "unrestrictedReport": null,
   "neitherReport": null,
   "policeReport": 3,
   "otherReport": 4,
+  "reportFiled": 0,
   "noReportFiled": null,
   "signature": "/es/ Testy Testerson"
 }
-

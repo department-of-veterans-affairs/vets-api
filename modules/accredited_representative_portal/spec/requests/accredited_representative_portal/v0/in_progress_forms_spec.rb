@@ -12,6 +12,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
     login_as(representative_user)
   end
 
+  after { Flipper.disable(:accredited_representative_portal_pilot) }
+
   describe 'requests' do
     context 'can make requests to InProgressForms controller' do
       it 'can make requests to InProgressForms controller' do

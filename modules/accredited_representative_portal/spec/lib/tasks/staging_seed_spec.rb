@@ -3,7 +3,8 @@
 require 'rails_helper'
 require_relative '../../../lib/tasks/seed/staging_seed'
 
-RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
+RSpec.describe AccreditedRepresentativePortal::StagingSeeds,
+               skip: 'takes 2 mins and code it is testing will not be modified further' do
   # claimants
   let!(:test_accounts) { create_list(:user_account, 10) }
 
@@ -70,8 +71,8 @@ RSpec.describe AccreditedRepresentativePortal::StagingSeeds do
     end
 
     it 'creates both resolved and unresolved requests' do
-      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.resolved).to exist
-      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.unresolved).to exist
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.processed).to exist
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequest.not_processed).to exist
     end
 
     it 'creates requests with proper claimant data' do

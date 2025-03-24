@@ -14,6 +14,8 @@ describe AppealsApi::HealthChecker do
 
   let(:faraday_response) { instance_double(Faraday::Response) }
 
+  after { faraday_response { nil } }
+
   describe '#appeals_services_are_healthy?' do
     context 'when caseflow is healthy' do
       it 'returns true' do
@@ -43,7 +45,7 @@ describe AppealsApi::HealthChecker do
       it 'returns false' do
         allow(faraday_response).to receive(:body).and_return({ 'healthy' => true })
         allow(client_stub).to receive(:healthcheck).and_return(faraday_response)
-        allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(true)
+        allow(CentralMail::Service).to receive(:service_is_up?).and_return(false)
 
         response = subject.decision_reviews_services_are_healthy?
 
@@ -55,7 +57,7 @@ describe AppealsApi::HealthChecker do
       it 'returns false' do
         allow(faraday_response).to receive(:body).and_return({ 'healthy' => false })
         allow(client_stub).to receive(:healthcheck).and_return(faraday_response)
-        allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(false)
+        allow(CentralMail::Service).to receive(:service_is_up?).and_return(true)
 
         response = subject.decision_reviews_services_are_healthy?
 
@@ -67,7 +69,7 @@ describe AppealsApi::HealthChecker do
       it 'returns true' do
         allow(faraday_response).to receive(:body).and_return({ 'healthy' => true })
         allow(client_stub).to receive(:healthcheck).and_return(faraday_response)
-        allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(false)
+        allow(CentralMail::Service).to receive(:service_is_up?).and_return(true)
 
         response = subject.decision_reviews_services_are_healthy?
 

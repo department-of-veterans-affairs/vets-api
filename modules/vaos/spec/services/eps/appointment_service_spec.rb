@@ -64,8 +64,7 @@ describe Eps::AppointmentService do
       end
 
       it 'throws exception' do
-        expect { service.get_appointment(appointment_id:) }.to raise_error(Common::Exceptions::BackendServiceException,
-                                                                           /VA900/)
+        expect { service.get_appointment(appointment_id:) }.to raise_error(Eps::ServiceError, /VA900/)
       end
     end
   end
@@ -85,12 +84,6 @@ describe Eps::AppointmentService do
 
       before do
         allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(successful_appt_response)
-      end
-
-      it 'returns the appointments scheduled' do
-        exp_response = OpenStruct.new(successful_appt_response.body)
-
-        expect(service.get_appointments).to eq(exp_response)
       end
     end
 

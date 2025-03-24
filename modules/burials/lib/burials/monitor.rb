@@ -158,9 +158,88 @@ module Burials
                     call_location: caller_locations.first, **additional_context)
     end
 
+    # log Sidkiq job started
+    # @see Burials::BenefitsIntake::SubmitClaimJob
+    #
+    # @param claim [Burials::SavedClaim]
+    # @param lighthouse_service [BenefitsIntake::Service]
+    # @param user_account_uuid [UUID]
+    def track_submission_begun(claim, lighthouse_service, user_account_uuid)
+      additional_context = {
+        confirmation_number: claim&.confirmation_number,
+        user_account_uuid:,
+        claim_id: claim&.id,
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        tags:
+      }
+      track_request('info', 'Burial 21P-530EZ submission to LH begun',
+                    "#{SUBMISSION_STATS_KEY}.begun", call_location: caller_locations.first, **additional_context)
+    end
+
+    # log Sidkiq job Lighthouse submission attempted
+    # @see Burials::BenefitsIntake::SubmitClaimJob
+    #
+    # @param claim [Burials::SavedClaim]
+    # @param lighthouse_service [BenefitsIntake::Service]
+    # @param user_account_uuid [UUID]
+    # @param upload [Hash] lighthouse upload data
+    def track_submission_attempted(claim, lighthouse_service, user_account_uuid, upload)
+      additional_context = {
+        confirmation_number: claim&.confirmation_number,
+        user_account_uuid:,
+        claim_id: claim&.id,
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        file: upload[:file],
+        attachments: upload[:attachments],
+        tags:
+      }
+      track_request('info', 'Burial 21P-530EZ submission to LH attempted',
+                    "#{SUBMISSION_STATS_KEY}.attempt", call_location: caller_locations.first, **additional_context)
+    end
+
+    # log Sidkiq job completed
+    # @see Burials::BenefitsIntake::SubmitClaimJob
+    #
+    # @param claim [Burials::SavedClaim]
+    # @param lighthouse_service [BenefitsIntake::Service]
+    # @param user_account_uuid [UUID]
+    #
+    def track_submission_success(claim, lighthouse_service, user_account_uuid)
+      additional_context = {
+        confirmation_number: claim&.confirmation_number,
+        user_account_uuid:,
+        claim_id: claim&.id,
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        tags:
+      }
+      track_request('info', 'Burial 21P-530EZ submission to LH succeeded',
+                    "#{SUBMISSION_STATS_KEY}.success", call_location: caller_locations.first, **additional_context)
+    end
+
+    # log Sidkiq job failed, automatic retry
+    # @see Burials::BenefitsIntake::SubmitClaimJob
+    #
+    # @param claim [Burials::SavedClaim]
+    # @param lighthouse_service [BenefitsIntake::Service]
+    # @param user_account_uuid [UUID]
+    # @param e [Error]
+    #
+    def track_submission_retry(claim, lighthouse_service, user_account_uuid, e)
+      additional_context = {
+        confirmation_number: claim&.confirmation_number,
+        user_account_uuid:,
+        claim_id: claim&.id,
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        message: e&.message,
+        tags:
+      }
+      track_request('warn', 'Burial 21P-530EZ submission to LH failed, retrying',
+                    "#{SUBMISSION_STATS_KEY}.failure", call_location: caller_locations.first, **additional_context)
+    end
+
     ##
     # log Sidkiq job exhaustion, complete failure after all retries
-    # @see Lighthouse::SubmitBenefitsIntakeClaim
+    # @see Burials::BenefitsIntake::SubmitClaimJob
     #
     # @param msg [Hash] sidekiq exhaustion response
     # @param claim [SavedClaim::Burial]
@@ -178,35 +257,81 @@ module Burials
       call_location = caller_locations.first
 
       if claim
+        # silent failure tracking in email callback
         Burials::NotificationEmail.new(claim.id).deliver(:error)
-        log_silent_failure_avoided(additional_context, user_account_uuid, call_location:)
       else
         log_silent_failure(additional_context, user_account_uuid, call_location:)
       end
 
-      track_request('error', 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!',
+      track_request('error', 'Burial 21P-530EZ submission to LH exhausted!',
                     "#{SUBMISSION_STATS_KEY}.exhausted", call_location:, **additional_context)
     end
 
     ##
     # Tracks the failure to send a Submission in Progress email for a claim.
-    # @see Lighthouse::SubmitBenefitsIntakeClaim
+    # @see Burials::BenefitsIntake::SubmitClaimJob
     #
     # @param claim [Burials::SavedClaim]
     # @param lighthouse_service [LighthouseService]
     # @param e [Exception]
     #
-    def track_send_submitted_email_failure(claim, lighthouse_service, e)
+    def track_send_confirmation_email_failure(claim, lighthouse_service, user_account_uuid, e)
       additional_context = {
         confirmation_number: claim&.confirmation_number,
+        user_account_uuid:,
         claim_id: claim&.id,
         benefits_intake_uuid: lighthouse_service&.uuid,
         message: e&.message,
         tags:
       }
 
-      track_request('warn', 'Lighthouse::SubmitBenefitsIntakeClaim send_submitted_email failed',
+      track_request('warn', 'Burial 21P-530EZ send_confirmation_email failed',
+                    "#{SUBMISSION_STATS_KEY}.send_confirmation_failed",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    ##
+    # Tracks the failure to send a Submission in Progress email for a claim.
+    # @see Burials::BenefitsIntake::SubmitClaimJob
+    #
+    # @param claim [Burials::SavedClaim]
+    # @param lighthouse_service [LighthouseService]
+    # @param e [Exception]
+    #
+    def track_send_submitted_email_failure(claim, lighthouse_service, user_account_uuid, e)
+      additional_context = {
+        confirmation_number: claim&.confirmation_number,
+        user_account_uuid:,
+        claim_id: claim&.id,
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        message: e&.message,
+        tags:
+      }
+
+      track_request('warn', 'Burial 21P-530EZ send_submitted_email failed',
                     "#{SUBMISSION_STATS_KEY}.send_submitted_failed",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    # log Sidkiq job cleanup error occurred, this can occur post success or failure
+    # @see Burials::BenefitsIntake::SubmitClaimJob
+    #
+    # @param claim [Burials::SavedClaim]
+    # @param lighthouse_service [BenefitsIntake::Service]
+    # @param user_account_uuid [UUID]
+    # @param e [Error]
+    #
+    def track_file_cleanup_error(claim, lighthouse_service, user_account_uuid, e)
+      additional_context = {
+        confirmation_number: claim&.confirmation_number,
+        user_account_uuid:,
+        claim_id: claim&.id,
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        error: e&.message,
+        tags:
+      }
+      track_request('error', 'Burial 21P-530EZ cleanup failed',
+                    "#{SUBMISSION_STATS_KEY}.cleanup_failed",
                     call_location: caller_locations.first, **additional_context)
     end
   end

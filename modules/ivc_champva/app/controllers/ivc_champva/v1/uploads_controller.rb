@@ -16,8 +16,9 @@ module IvcChampva
       }.freeze
 
       def submit
-        begin
+        Datadog::Tracing.trace('Start IVC File Submission') do
           form_id = get_form_id
+          Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
           parsed_form_data = JSON.parse(params.to_json)
           statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
 
@@ -87,6 +88,11 @@ module IvcChampva
 
           attachment.save
           render json: PersistentAttachmentSerializer.new(attachment)
+        else
+          raise Common::Exceptions::UnprocessableEntity.new(
+            detail: "Unsupported form_id: #{params[:form_id]}",
+            source: 'IvcChampva::V1::UploadsController'
+          )
         end
       end
 

@@ -54,9 +54,9 @@
     ],
     "locationOfDeath":
         {
-            "location":"other",
-            "other":"other place",
-            "checkbox":{"other":"On"}
+            "location":"nursingHomePaid",
+            "placeAndLocation": "Best Nursing Home - portland, ME",
+            "checkbox":{"nursingHomePaid":"On"}
         },
     "deathDate":{"month":"01", "day":"01", "year":"2024"},
     "burialDate":{"month":"01", "day":"02", "year":"2024"},

@@ -12,8 +12,6 @@ RSpec.describe FormProfile, type: :model do
     allow(Flipper).to receive(:enabled?).and_call_original
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, anything).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, anything).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, anything).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:disability_compensation_remove_pciu, anything).and_return(true)
     described_class.instance_variable_set(:@mappings, nil)
   end
 
@@ -651,17 +649,8 @@ RSpec.describe FormProfile, type: :model do
           'decisionText' => 'Service Connected',
           'name' => 'Diabetes mellitus0',
           'ratedDisabilityId' => '1',
-          'ratingDecisionId' => '63655',
-          'ratingPercentage' => 100
-        },
-        {
-          'diagnosticCode' => 5238,
-          'decisionCode' => 'SVCCONNCTED',
-          'decisionText' => 'Service Connected',
-          'name' => 'Diabetes mellitus1',
-          'ratedDisabilityId' => '2',
-          'ratingDecisionId' => '63655',
-          'ratingPercentage' => 100
+          'ratingDecisionId' => '0',
+          'ratingPercentage' => 50
         }
       ],
       'servicePeriods' => [
@@ -1105,24 +1094,25 @@ RSpec.describe FormProfile, type: :model do
       let(:form_profile) do
         FormProfiles::VA1010ezr.new(user:, form_id: 'f')
       end
+      let(:ezr_prefilled_data_without_ee_data) do
+        {
+          'veteranFullName' => {
+            'first' => user.first_name&.capitalize,
+            'middle' => user.middle_name&.capitalize,
+            'last' => user.last_name&.capitalize,
+            'suffix' => user.suffix
+          },
+          'veteranSocialSecurityNumber' => user.ssn,
+          'gender' => user.gender,
+          'veteranDateOfBirth' => user.birth_date,
+          'homePhone' => us_phone,
+          'veteranAddress' => address,
+          'email' => user.va_profile_email
+        }
+      end
 
       context 'when the ee service is down' do
-        let(:v10_10_ezr_expected) do
-          {
-            'veteranFullName' => {
-              'first' => user.first_name&.capitalize,
-              'middle' => user.middle_name&.capitalize,
-              'last' => user.last_name&.capitalize,
-              'suffix' => user.suffix
-            },
-            'veteranSocialSecurityNumber' => user.ssn,
-            'gender' => user.gender,
-            'veteranDateOfBirth' => user.birth_date,
-            'homePhone' => us_phone,
-            'veteranAddress' => address,
-            'email' => user.va_profile_email
-          }
-        end
+        let(:v10_10_ezr_expected) { ezr_prefilled_data_without_ee_data.merge('nonPrefill' => {}) }
 
         it 'prefills the rest of the data and logs exception to sentry' do
           expect_any_instance_of(FormProfiles::VA1010ezr).to receive(:log_exception_to_sentry).with(
@@ -1132,82 +1122,56 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
-      context 'with a user with dependents', run_at: 'Tue, 31 Oct 2023 12:04:33 GMT' do
-        let(:v10_10_ezr_expected) do
-          {
-            'veteranFullName' => {
-              'first' => user.first_name&.capitalize,
-              'middle' => user.middle_name&.capitalize,
-              'last' => user.last_name&.capitalize,
-              'suffix' => user.suffix
-            },
-            'veteranSocialSecurityNumber' => user.ssn,
-            'gender' => user.gender,
-            'veteranDateOfBirth' => user.birth_date,
-            'homePhone' => us_phone,
-            'veteranAddress' => address,
-            'email' => user.va_profile_email,
-            'spouseSocialSecurityNumber' => '435345344',
-            'spouseDateOfBirth' => '1950-02-17',
-            'dateOfMarriage' => '2000-10-15',
-            'cohabitedLastYear' => true,
-            'maritalStatus' => 'Married',
-            'isMedicaidEligible' => false,
-            'isEnrolledMedicarePartA' => false,
-            'spouseFullName' => {
-              'first' => 'VSDV',
-              'last' => 'SDVSDV'
-            }
-          }
-        end
-
+      context 'with a user with financial data, insurance data, and dependents',
+              run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
         before do
           allow(user).to receive(:icn).and_return('1012829228V424035')
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:remove_pciu, anything).and_return(true)
         end
 
-        it 'returns a prefilled 10-10EZR form' do
-          VCR.use_cassette(
-            'hca/ee/dependents',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
-          ) do
-            expect_prefilled('10-10EZR')
+        context "when the 'ezr_form_prefill_with_providers_and_dependents' flipper is enabled" do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(true)
+          end
+
+          let(:v10_10_ezr_expected) do
+            JSON.parse(
+              File.read('spec/fixtures/form1010_ezr/veteran_data.json')
+            ).merge(ezr_prefilled_data_without_ee_data)
+          end
+
+          it 'returns a prefilled 10-10EZR form', run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/lookup_user_with_ezr_prefill_data',
+              match_requests_on: %i[method uri body], erb: true
+            ) do
+              expect_prefilled('10-10EZR')
+            end
           end
         end
-      end
 
-      context 'with a user with insurance data', run_at: 'Tue, 24 Oct 2023 17:27:12 GMT' do
-        let(:v10_10_ezr_expected) do
-          {
-            'veteranFullName' => {
-              'first' => user.first_name&.capitalize,
-              'middle' => user.middle_name&.capitalize,
-              'last' => user.last_name&.capitalize,
-              'suffix' => user.suffix
-            },
-            'veteranSocialSecurityNumber' => user.ssn,
-            'gender' => user.gender,
-            'veteranDateOfBirth' => user.birth_date,
-            'homePhone' => us_phone,
-            'veteranAddress' => address,
-            'email' => user.va_profile_email,
-            'maritalStatus' => 'Married',
-            'isMedicaidEligible' => true,
-            'isEnrolledMedicarePartA' => true,
-            'medicarePartAEffectiveDate' => '1999-10-16',
-            'medicareClaimNumber' => '873462432'
-          }
-        end
+        context "when the 'ezr_form_prefill_with_providers_and_dependents' flipper is disabled" do
+          before do
+            allow(Flipper).to receive(:enabled?).with(
+              :ezr_form_prefill_with_providers_and_dependents
+            ).and_return(false)
+          end
 
-        before do
-          allow(user).to receive(:icn).and_return('1013032368V065534')
-        end
+          let(:v10_10_ezr_expected) do
+            JSON.parse(
+              File.read('spec/fixtures/form1010_ezr/veteran_data.json')
+            ).merge(ezr_prefilled_data_without_ee_data).except!('providers', 'dependents')
+          end
 
-        it 'returns a prefilled 10-10EZR form' do
-          VCR.use_cassette(
-            'hca/ee/lookup_user_2023',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
-          ) do
-            expect_prefilled('10-10EZR')
+          it 'returns a prefilled 10-10EZR form that does not include providers and dependents',
+             run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/lookup_user_with_ezr_prefill_data',
+              match_requests_on: %i[method uri body], erb: true
+            ) do
+              expect_prefilled('10-10EZR')
+            end
           end
         end
       end
@@ -1569,7 +1533,7 @@ RSpec.describe FormProfile, type: :model do
 
         context 'when Vet360 prefill is enabled' do
           let(:user) do
-            build(:user, :loa3, icn: '1012666073V986297', suffix: 'Jr.', address: build(:va_profile_v3_address),
+            build(:user, :loa3, icn: '123498767V234859', suffix: 'Jr.', address: build(:va_profile_v3_address),
                                 vet360_id: '1781151')
           end
 
@@ -1585,40 +1549,17 @@ RSpec.describe FormProfile, type: :model do
             VAProfile::Configuration::SETTINGS.prefill = false
           end
 
-          it 'returns prefilled 21-526EZ when disability_526_max_cfi_service_switch is disabled' do
-            allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND,
-                                                      anything).and_return(false)
-            expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
+          it 'returns prefilled 21-526EZ' do
+            expect(user).to receive(:authorize).with(:lighthouse, :direct_deposit_access?)
+                                               .and_return(true).at_least(:once)
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
             expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             VCR.use_cassette('va_profile/v2/contact_information/get_address') do
-              VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+              VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+                VCR.use_cassette('lighthouse/direct_deposit/show/200_valid_new_icn') do
                   VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                                    allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-                    VCR.use_cassette('virtual_regional_office/max_ratings') do
-                      expect_prefilled('21-526EZ')
-                    end
-                  end
-                end
-              end
-            end
-          end
-
-          it 'returns prefilled 21-526EZ when disability_526_max_cfi_service_switch is enabled' do
-            allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND,
-                                                      anything).and_return(false)
-            allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, anything).and_return(true)
-
-            expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
-            VCR.use_cassette('va_profile/v2/contact_information/get_address') do
-              VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
-                  VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
-                                   allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-                    VCR.use_cassette('disability-max-ratings/max_ratings') do
+                    VCR.use_cassette('disability_max_ratings/max_ratings') do
                       expect_prefilled('21-526EZ')
                     end
                   end

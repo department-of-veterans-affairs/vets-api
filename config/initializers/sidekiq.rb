@@ -9,6 +9,7 @@ require 'sidekiq/set_request_id'
 require 'sidekiq/set_request_attributes'
 require 'datadog/statsd' # gem 'dogstatsd-ruby'
 require 'admin/redis_health_checker'
+require 'kafka/producer_manager'
 
 Rails.application.reloader.to_prepare do
   Sidekiq::Enterprise.unique! if Rails.env.production?
@@ -48,6 +49,10 @@ Rails.application.reloader.to_prepare do
 
     config.death_handlers << lambda do |job, ex|
       Rails.logger.error "#{job['class']} #{job['jid']} died with error #{ex.message}."
+    end
+
+    config.on(:shutdown) do
+      Kafka::ProducerManager.instance.producer&.close
     end
   end
 

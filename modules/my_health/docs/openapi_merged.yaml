@@ -2604,6 +2604,9 @@ components:
               type: string
               nullable: true
               example: SMITH, JOHN
+            suggestedNameDisplay:
+              type: string
+              example: Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - Madison, James
         links:
           type: object
           required:
@@ -2699,6 +2702,8 @@ components:
         - hasAttachment
         - unsentDrafts
         - unreadMessages
+        - isOhMessage
+        - suggestedNameDisplay
       properties:
         threadId:
           type: integer
@@ -2765,6 +2770,12 @@ components:
         unreadMessages:
           type: boolean
           example: true
+        isOhMessage:
+          type: boolean
+          example: false
+        suggestedNameDisplay:
+          type: string
+          example: Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - Madison, James
     SecureMessageThreadList:
       type: object
       required:
@@ -3091,6 +3102,7 @@ components:
             - draftDate
             - toDate
             - hasAttachments
+            - suggestedNameDisplay
           properties:
             messageId:
               type: integer
@@ -3165,6 +3177,9 @@ components:
             hasAttachments:
               type: boolean
               example: false
+            suggestedNameDisplay:
+              type: string
+              example: Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - Madison, James
         links:
           type: object
           required:
@@ -3400,7 +3415,7 @@ components:
                   - stationNumber
                   - blockedStatus
                   - preferredTeam
-                  - relationshipType
+                  - relationType
                 properties:
                   triageTeamId:
                     type: integer
@@ -3417,11 +3432,38 @@ components:
                   preferredTeam:
                     type: boolean
                     example: true
-                  relationshipType:
+                  relationType:
                     type: string
                     enum:
                       - PATIENT
                     example: PATIENT
+                  locationName:
+                    type: string
+                    example: Main Hospital
+                  leadProviderName:
+                    type: string
+                    example: Dr. Smith
+                  teamName:
+                    type: string
+                    example: Radiology Team
+                  suggestedNameDisplay:
+                    type: string
+                    example: Radiology Triage Group 1
+                  healthCareSystemName:
+                    type: string
+                    example: VA Health Care System
+                  groupTypeEnumVal:
+                    type: string
+                    example: Primary
+                  subGroupTypeEnumVal:
+                    type: string
+                    example: Secondary
+                  groupTypePatientDisplay:
+                    type: string
+                    example: Primary Care
+                  subGroupTypePatientDisplay:
+                    type: string
+                    example: Specialty Care
         meta:
           type: object
           required:
@@ -3446,6 +3488,9 @@ components:
             associatedBlockedTriageGroups:
               type: integer
               example: 1
+            friendlyTriageTeamPilotFacilities:
+              type: string
+              example: 979,989
     SecureMessagingUpdateTriageTeamRequest:
       type: object
       properties:
@@ -3472,17 +3517,18 @@ components:
           type: object
           required:
             - signatureName
-            - includeSignature
             - signatureTitle
+            - includeSignature
           properties:
             signatureName:
               type: string
               example: My Signature Name
-            includeSignature:
-              type: boolean
             signatureTitle:
               type: string
               example: My Signature Title
+            includeSignature:
+              type: boolean
+              description: Whether or not the signature should be included in messages. If both `signatureName` and `signatureTitle` are present, this defaults to `true`.
         errors:
           type: object
           example: {}
