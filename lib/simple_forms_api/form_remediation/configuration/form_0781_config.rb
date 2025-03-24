@@ -6,17 +6,20 @@ module SimpleFormsApi
   module FormRemediation
     module Configuration
       class Form0781Config < Base
-        def submission_type
-          Form526Submission
+        def submission_archive_class
+          SimpleFormsApi::FormRemediation::Form526SubmissionArchive
         end
 
         def remediation_data_class
           SimpleFormsApi::FormRemediation::Form526SubmissionRemediationData
         end
 
+        def temp_directory_path
+          Rails.root.join("tmp/#{SecureRandom.hex}-archive").to_s
+        end
+
         def s3_settings
-          # TODO: Replace the below with the actual settings
-          # Settings.vff_simple_forms.aws
+          Settings.form0871_remediation.aws
         end
       end
     end
