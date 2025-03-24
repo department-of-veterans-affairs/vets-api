@@ -378,7 +378,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'when type param is logingov' do
         let(:type_value) { SignIn::Constants::Auth::LOGINGOV }
-        let(:expected_redirect_uri) { Settings.logingov.redirect_uri }
+        let(:expected_redirect_uri) { IdentitySettings.logingov.redirect_uri }
 
         context 'and operation param is not given' do
           let(:operation) { {} }
@@ -447,7 +447,7 @@ RSpec.describe V0::SignInController, type: :controller do
       end
 
       shared_context 'an idme service interface with appropriate operation' do
-        let(:expected_redirect_uri) { Settings.idme.redirect_uri }
+        let(:expected_redirect_uri) { IdentitySettings.idme.redirect_uri }
 
         context 'and acr param is not given' do
           let(:acr) { {} }
@@ -800,7 +800,7 @@ RSpec.describe V0::SignInController, type: :controller do
               context 'and credential should be uplevelled' do
                 let(:acr) { 'min' }
                 let(:logingov_acr) { IAL::LOGIN_GOV_IAL1 }
-                let(:expected_redirect_uri) { Settings.logingov.redirect_uri }
+                let(:expected_redirect_uri) { IdentitySettings.logingov.redirect_uri }
                 let(:expected_redirect_uri_param) { { redirect_uri: expected_redirect_uri }.to_query }
 
                 before do
@@ -971,7 +971,7 @@ RSpec.describe V0::SignInController, type: :controller do
               context 'and credential should be uplevelled' do
                 let(:acr) { 'min' }
                 let(:credential_ial) { LOA::ONE }
-                let(:expected_redirect_uri) { Settings.idme.redirect_uri }
+                let(:expected_redirect_uri) { IdentitySettings.idme.redirect_uri }
                 let(:expected_redirect_uri_param) { { redirect_uri: expected_redirect_uri }.to_query }
 
                 before do
@@ -2815,9 +2815,9 @@ RSpec.describe V0::SignInController, type: :controller do
         end
 
         context 'and client configuration has configured a logout redirect uri' do
-          let(:logingov_client_id) { Settings.logingov.client_id }
+          let(:logingov_client_id) { IdentitySettings.logingov.client_id }
           let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
-          let(:logingov_logout_redirect_uri) { Settings.logingov.logout_redirect_uri }
+          let(:logingov_logout_redirect_uri) { IdentitySettings.logingov.logout_redirect_uri }
           let(:random_seed) { 'some-random-seed' }
           let(:logout_state_payload) do
             {
@@ -2833,7 +2833,7 @@ RSpec.describe V0::SignInController, type: :controller do
               state:
             }
           end
-          let(:expected_url_host) { Settings.logingov.oauth_url }
+          let(:expected_url_host) { IdentitySettings.logingov.oauth_url }
           let(:expected_url_path) { 'openid_connect/logout' }
           let(:expected_url) { "#{expected_url_host}/#{expected_url_path}?#{expected_url_params.to_query}" }
           let(:expected_status) { :redirect }
