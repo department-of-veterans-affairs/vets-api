@@ -14,6 +14,8 @@ RSpec.describe 'V0::User', type: :request do
     let!(:mhv_user_verification) { create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid) }
 
     before do
+      Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
+
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       create(:account, idme_uuid: mhv_user.uuid)
