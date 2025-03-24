@@ -338,17 +338,17 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             frozen_time = DateTime.new(2024, 1, 1).utc
 
             Timecop.freeze(frozen_time) do
+              expect(vanotify_service).to receive(:send_email).with({ email_address:,
+                                                                      template_id: 'fake_nod_evidence_template_id',
+                                                                      reference:,
+                                                                      personalisation: })
+
+              expect(vanotify_service).to receive(:send_email).with({ email_address: email_address2,
+                                                                      template_id: 'fake_nod_evidence_template_id',
+                                                                      reference: reference2,
+                                                                      personalisation: personalisation2 })
+
               subject.new.perform
-
-              expect(vanotify_service).to have_received(:send_email).with({ email_address:,
-                                                                            template_id: 'fake_nod_evidence_template_id',
-                                                                            reference:,
-                                                                            personalisation: })
-
-              expect(vanotify_service).to have_received(:send_email).with({ email_address: email_address2,
-                                                                            template_id: 'fake_nod_evidence_template_id',
-                                                                            reference: reference2,
-                                                                            personalisation: personalisation2 })
 
               upload1 = AppealSubmissionUpload.find_by(lighthouse_upload_id: upload_guid1)
               expect(upload1.failure_notification_sent_at).to eq frozen_time
