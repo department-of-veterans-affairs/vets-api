@@ -12,13 +12,12 @@ describe POAPolicy do
         expect(subject).to permit(user, :power_of_attorney)
       end
     end
-
     context 'when user does not have an ICN nor LOA3' do
       let(:user) { build(:user, :loa1) }
 
       before do
         user.identity.attributes = {
-          icn: nil,
+          icn: nil
         }
       end
 
