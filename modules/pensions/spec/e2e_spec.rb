@@ -1,49 +1,49 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'burials/benefits_intake/submission_handler'
-require 'burials/benefits_intake/submit_claim_job'
-require 'burials/monitor'
+require 'pensions/benefits_intake/submission_handler'
+require 'pensions/benefits_intake/pension_benefit_intake_job'
+require 'pensions/monitor'
 require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
 
-RSpec.describe 'Burials End to End', type: :request do
+RSpec.describe 'Penisons End to End', type: :request do
 
-  let(:form) { build(:burials_saved_claim) }
-  let(:param_name) { :burial_claim }
+  let(:form) { build(:pensions_saved_claim) }
+  let(:param_name) { :pension_claim }
   let(:pdf_path) { 'random/path/to/pdf' }
-  let(:monitor) { Burials::Monitor.new }
+  let(:monitor) { Pensions::Monitor.new }
   let(:service) { ::BenefitsIntake::Service.new }
 
   let(:stats_key) { BenefitsIntake::SubmissionStatusJob::STATS_KEY }
 
   before do
-    allow(Burials::Monitor).to receive(:new).and_return(monitor)
+    allow(Pensions::Monitor).to receive(:new).and_return(monitor)
     allow(::BenefitsIntake::Service).to receive(:new).and_return(service)
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
-    allow(Flipper).to receive(:enabled?).with(:burial_submitted_email_notification).and_return true
+    allow(Flipper).to receive(:enabled?).with(:pension_submitted_email_notification).and_return true
     allow(Flipper).to receive(:enabled?).with(:benefits_intake_submission_status_job).and_return true
   end
 
   it 'successfully completes the submission process' do
     # form submission
-    expect(Burials::SavedClaim).to receive(:new).with(form: form.form).and_call_original
+    expect(Pensions::SavedClaim).to receive(:new).with(form: form.form).and_call_original
     expect(monitor).to receive(:track_create_attempt).and_call_original
     expect(SavedClaimSerializer).to receive(:new).and_call_original
     expect(PersistentAttachment).to receive(:where).with(guid: anything).and_call_original
-    expect(Burials::BenefitsIntake::SubmitClaimJob).to receive(:perform_async)
+    expect(Pensions::PensionBenefitIntakeJob).to receive(:perform_async)
     expect(monitor).to receive(:track_create_success).and_call_original
 
-    post '/burials/v0/claims', params: { param_name => { form: form.form } }
+    post '/pensions/v0/claims', params: { param_name => { form: form.form } }
     expect(response).to have_http_status(:success)
 
     data = response.parsed_body['data']
     saved_claim_id = data['id'].to_i
 
     # veify claim created
-    burial_claim = Burials::SavedClaim.find(saved_claim_id)
-    expect(burial_claim).to be_present
-    expect(burial_claim.confirmation_number).to eq data['attributes']['confirmation_number']
+    pension_claim = Pensions::SavedClaim.find(saved_claim_id)
+    expect(pension_claim).to be_present
+    expect(pension_claim.confirmation_number).to eq data['attributes']['confirmation_number']
 
     # claim upload to benefits intake
     expect(::BenefitsIntake::Metadata).to receive(:generate).and_call_original
@@ -61,8 +61,8 @@ RSpec.describe 'Burials End to End', type: :request do
     expect(monitor).to receive(:track_submission_attempted).and_call_original
     expect(service).to receive(:perform_upload).and_return(double(success?: true))
 
-    email = Burials::NotificationEmail.new(saved_claim_id)
-    allow(Burials::NotificationEmail).to receive(:new).and_return(email)
+    email = Pensions::NotificationEmail.new(saved_claim_id)
+    allow(Pensions::NotificationEmail).to receive(:new).and_return(email)
 
     # 'success' email notification
     expect(email).to receive(:deliver).with(:submitted).and_call_original
@@ -72,7 +72,7 @@ RSpec.describe 'Burials End to End', type: :request do
     expect(monitor).to receive(:track_submission_success).and_call_original
     expect(Common::FileHelpers).to receive(:delete_file_if_exists).at_least(1).and_call_original
 
-    lh_bi_uuid = Burials::BenefitsIntake::SubmitClaimJob.new.perform(saved_claim_id)
+    lh_bi_uuid = Pensions::PensionBenefitIntakeJob.new.perform(saved_claim_id)
 
     # verify upload artifacts - form_submission and claim_va_notification
     submission = FormSubmission.find_by(saved_claim_id:)
@@ -94,15 +94,15 @@ RSpec.describe 'Burials End to End', type: :request do
 
     expect(service).to receive(:bulk_status).and_return(bulk_status)
 
-    handler = Burials::BenefitsIntake::SubmissionHandler.new(saved_claim_id)
-    expect(Burials::BenefitsIntake::SubmissionHandler).to receive(:new).with(saved_claim_id).and_return(handler)
+    handler = Pensions::BenefitsIntake::SubmissionHandler.new(saved_claim_id)
+    expect(Pensions::BenefitsIntake::SubmissionHandler).to receive(:new).with(saved_claim_id).and_return(handler)
     expect(handler).to receive(:handle).with('success', anything).and_call_original
 
     expect(email).to receive(:deliver).with(:received).and_call_original
     expect(VANotify::EmailJob).to receive(:perform_async)
     expect(VeteranFacingServices::NotificationEmail).to receive(:monitor_deliver_success).and_call_original
 
-    BenefitsIntake::SubmissionStatusJob.new.perform(Burials::FORM_ID)
+    BenefitsIntake::SubmissionStatusJob.new.perform(Pensions::FORM_ID)
 
     updated = attempt.reload
     expect(updated.aasm_state).to eq 'vbms'
