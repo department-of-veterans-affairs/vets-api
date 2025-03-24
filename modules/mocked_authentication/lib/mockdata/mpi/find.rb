@@ -29,7 +29,7 @@ module MockedAuthentication
 
         def mpi_response
           @mpi_response ||= begin
-            uri = URI.parse(Settings.mvi.url)
+            uri = URI.parse(IdentitySettings.mvi.url)
             request = Net::HTTP::Post.new(uri)
             request.content_type = CONTENT_TYPE
             request['Connection'] = CONNECTION

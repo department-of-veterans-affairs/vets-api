@@ -49,9 +49,7 @@ module IvcChampva
           # Possible values for form.pega_status are 'Processed', 'Not Processed'
           send_email(form_uuid, ivc_forms.first) if form.email.present? && status == 'Processed'
 
-          if Flipper.enabled?(:champva_enhanced_monitor_logging, @current_user)
-            monitor.track_update_status(form_uuid, status)
-          end
+          monitor.track_update_status(form_uuid, status)
 
           { json: {}, status: :ok }
         else
