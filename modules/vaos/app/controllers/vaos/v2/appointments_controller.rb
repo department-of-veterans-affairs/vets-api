@@ -4,7 +4,7 @@ require 'common/exceptions'
 
 module VAOS
   module V2
-    class AppointmentsController < VAOS::BaseController
+    class AppointmentsController < VAOS::BaseController # rubocop:disable Metrics/ClassLength
       before_action :authorize_with_facilities
 
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
@@ -19,6 +19,10 @@ module VAOS
       REASON = 'reason'
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
+      CACHE_ERROR_MSG = 'Error fetching referral data from cache'
+      PROVIDER_SLOTS_ERROR_MSG = 'Error fetching provider slots'
+
+      rescue_from Redis::BaseError, with: :handle_redis_error
 
       def index
         appointments[:data].each do |appt|
@@ -63,17 +67,26 @@ module VAOS
       end
 
       def create_draft
-        # TODO: validate referral_id from the cache from prior referrals response,
-        # TODO: validate that the referral doesn't already have a confirmed appointment #
-        # TODO: cache provider_id, appointment_type_id, end_date from prior referrals response and use here
-        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: draft_params[:referral_id])
+        referral_id = draft_params[:referral_id]
+        # TODO: validate referral_id and other needed referral data from the cache from prior referrals response
 
-        provider = eps_provider_service.get_provider_service(provider_id: draft_params[:provider_id])
+        cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
+
+        referral_validation = check_referral_data_validation(cached_referral_data)
+        unless referral_validation[:success]
+          render json: referral_validation[:json], status: referral_validation[:status] and return
+        end
+
+        referral_usage = check_referral_usage(referral_id)
+        render json: referral_usage[:json], status: referral_usage[:status] and return unless referral_usage[:success]
+
+        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
+        provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
 
         response_data = OpenStruct.new(
           id: draft_appointment.id,
-          provider: provider,
-          slots: fetch_provider_slots,
+          provider:,
+          slots: fetch_provider_slots(cached_referral_data),
           drive_time: fetch_drive_times(provider)
         )
 
@@ -128,6 +141,16 @@ module VAOS
       def eps_provider_service
         @eps_provider_service ||=
           Eps::ProviderService.new(current_user)
+      end
+
+      ##
+      # Lazily initializes and returns an instance of {Eps::RedisClient}.
+      # Ensures a single instance is used within the service to interact with Redis.
+      #
+      # @return [Eps::RedisClient] Memoized instance of the Redis client.
+      #
+      def eps_redis_client
+        @eps_redis_client ||= Eps::RedisClient.new
       end
 
       def appointments
@@ -233,16 +256,8 @@ module VAOS
 
       def draft_params
         params.require(:referral_id)
-        params.require(:provider_id)
-        params.require(:appointment_type_id)
-        params.require(:start_date)
-        params.require(:end_date)
         params.permit(
-          :referral_id,
-          :provider_id,
-          :appointment_type_id,
-          :start_date,
-          :end_date
+          :referral_id
         )
       end
 
@@ -424,26 +439,36 @@ module VAOS
           },
           phone: params[:phone_number],
           email: params[:email],
-          birthDate: params[:birth_date],
+          birth_date: params[:birth_date],
           gender: params[:gender],
           address: {
             line: params.dig(:address, :line),
             city: params.dig(:address, :city),
             state: params.dig(:address, :state),
             country: params.dig(:address, :country),
-            postalCode: params.dig(:address, :postal_code),
+            postal_code: params.dig(:address, :postal_code),
             type: params.dig(:address, :type)
           }
         }
       end
 
-      def fetch_provider_slots
+      # Fetches available provider slots using referral data.
+      #
+      # @param referral_data [Hash] Includes:
+      #   - `:provider_id` [String] The provider's ID.
+      #   - `:appointment_type_id` [String] The appointment type.
+      #   - `:start_date` [String] The earliest appointment date (ISO 8601).
+      #   - `:end_date` [String] The latest appointment date (ISO 8601).
+      #
+      # @return [Array, nil] Available slots array or nil if error occurs
+      #
+      def fetch_provider_slots(referral_data)
         eps_provider_service.get_provider_slots(
-          draft_params[:provider_id],
+          referral_data[:provider_id],
           {
-            appointmentTypeId: draft_params[:appointment_type_id],
-            startOnOrAfter: draft_params[:start_date],
-            startBefore: draft_params[:end_date]
+            appointmentTypeId: referral_data[:appointment_type_id],
+            startOnOrAfter: referral_data[:start_date],
+            startBefore: referral_data[:end_date]
           }
         )
       end
@@ -456,8 +481,8 @@ module VAOS
         eps_provider_service.get_drive_times(
           destinations: {
             provider.id => {
-              latitude: provider.location['latitude'],
-              longitude: provider.location['longitude']
+              latitude: provider.location[:latitude],
+              longitude: provider.location[:longitude]
             }
           },
           origin: {
@@ -465,6 +490,113 @@ module VAOS
             longitude: user_address.longitude
           }
         )
+      end
+
+      ##
+      # Checks if a referral is already in use by cross referrencing referral number against complete
+      # list of existing appointments
+      #
+      # @param referral_id [String] the referral number to check.
+      # @return [Hash] Result hash:
+      #   - If referral is unused: { success: true }
+      #   - If an error occurs: { success: false, json: { message: ... }, status: :bad_gateway }
+      #   - If referral exists: { success: false, json: { message: ... }, status: :unprocessable_entity }
+      #
+      # TODO: pass in date from cached referral data to use as range for CCRA appointments call
+      def check_referral_usage(referral_id)
+        check = appointments_service.referral_appointment_already_exists?(referral_id, pagination_params)
+
+        if check[:error]
+          { success: false, json: { message: "Error checking appointments: #{check[:failures]}" },
+            status: :bad_gateway }
+        elsif check[:exists]
+          { success: false, json: { message: 'No new appointment created: referral is already used' },
+            status: :unprocessable_entity }
+        else
+          { success: true }
+        end
+      end
+
+      ##
+      # Handles Redis connection and operational errors throughout the controller.
+      # Provides a consistent error response when Redis is unavailable or operations fail.
+      #
+      # @param error [Redis::BaseError] The Redis exception that was raised
+      # @return [void]
+      # @see Redis::BaseError
+      def handle_redis_error(error)
+        Rails.logger.error("Redis error: #{error.message}")
+        StatsD.increment("#{STATSD_KEY}.redis_error")
+        render json: { errors: [{ title: CACHE_ERROR_MSG, detail: 'Unable to connect to cache service' }] },
+               status: :bad_gateway
+      end
+
+      ##
+      # Validates that all required referral data attributes are present
+      #
+      # @param referral_data [Hash, nil] The referral data from the cache
+      # @return [Hash] Hash with :valid boolean and :missing_attributes array
+      def validate_referral_data(referral_data)
+        return { valid: false, missing_attributes: ['all required attributes'] } if referral_data.nil?
+
+        required_attributes = %i[provider_id appointment_type_id start_date end_date]
+        missing_attributes = required_attributes.select { |attr| referral_data[attr].blank? }
+
+        {
+          valid: missing_attributes.empty?,
+          missing_attributes: missing_attributes.map(&:to_s).join(', ')
+        }
+      end
+
+      ##
+      # Validates referral data and builds a formatted response object
+      #
+      # @param referral_data [Hash, nil] The referral data from the cache
+      # @return [Hash] Result hash:
+      #   - If data is valid: { success: true }
+      #   - If data is invalid: { success: false, json: { errors: [...] }, status: :unprocessable_entity }
+      def check_referral_data_validation(referral_data)
+        validation_result = validate_referral_data(referral_data)
+        if validation_result[:valid]
+          { success: true }
+        else
+          missing_attributes = validation_result[:missing_attributes]
+          {
+            success: false,
+            json: {
+              errors: [{
+                title: 'Invalid referral data',
+                detail: "Required referral data is missing or incomplete: #{missing_attributes}"
+              }]
+            },
+            status: :unprocessable_entity
+          }
+        end
+      end
+
+      ##
+      # Fetches provider slots and builds a formatted response object
+      #
+      # @param referral_data [Hash] The referral data containing appointment details
+      # @return [Hash] Result hash:
+      #   - If slots are retrieved: { success: true, slots: [...] }
+      #   - If slots cannot be retrieved: { success: false, json: { errors: [...] }, status: :bad_gateway }
+      def build_provider_slots_response(referral_data)
+        slots = fetch_provider_slots(referral_data)
+        if slots.nil?
+          {
+            success: false,
+            json: {
+              errors: [{
+                title: PROVIDER_SLOTS_ERROR_MSG,
+                detail: 'Unable to retrieve available appointment slots'
+              }]
+            },
+            status: :bad_gateway
+          }
+        else
+          { success: true, slots: }
+        end
       end
     end
   end

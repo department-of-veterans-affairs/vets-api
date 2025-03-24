@@ -10,9 +10,9 @@ module AccreditedRepresentativePortal
     #
     concerning :ExceptionRendering do
       included do
-        rescue_from ActiveRecord::RecordNotFound do |e|
+        rescue_from ActiveRecord::RecordNotFound do |_e|
           render(
-            json: { errors: [e.message] },
+            json: { errors: ['Record not found'] },
             status: :not_found
           )
         end
@@ -33,12 +33,8 @@ module AccreditedRepresentativePortal
       end
     end
 
-    def find_poa_request(id)
-      @poa_request = poa_request_scope.find(id)
-    end
-
-    def poa_request_scope
-      policy_scope(PowerOfAttorneyRequest)
+    def set_poa_request(id)
+      @poa_request = policy_scope(PowerOfAttorneyRequest).find(id)
     end
   end
 end

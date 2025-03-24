@@ -173,9 +173,6 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
       it 'saves error message and logs error' do
         expect(Rails.logger).to receive(:error).with("Form5655Submission id: #{form5655_submission.id} failed", message)
         expect(StatsD).to receive(:increment).with(
-          'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
-        )
-        expect(StatsD).to receive(:increment).with(
           'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
         )
         expect(StatsD).to receive(:increment).with(
@@ -202,9 +199,6 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
             "Form5655Submission id: #{form5655_submission.id} failed", message
           )
           expect(StatsD).to receive(:increment).with(
-            'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
-          )
-          expect(StatsD).to receive(:increment).with(
             'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
           )
           expect(StatsD).to receive(:increment).with(
@@ -214,6 +208,13 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
           expect(StatsD).to receive(:increment).with('api.fsr_submission.combined.failure')
           form5655_submission.register_failure(message)
           expect(form5655_submission.error_message).to eq(message)
+        end
+      end
+
+      context 'when Sharepoint error' do
+        it 'does not send an email' do
+          form5655_submission.register_failure('SharepointRequest')
+          expect(DebtManagementCenter::VANotifyEmailJob).not_to receive(:perform_async)
         end
       end
     end
@@ -235,21 +236,6 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
         form5655_submission.register_failure(message)
         expect(form5655_submission.error_message).to eq(message)
       end
-
-      it 'alerts silent error when not sharepoint error' do
-        expect(form5655_submission).to receive(:alert_silent_error)
-        form5655_submission.register_failure(message)
-      end
-
-      it 'does not alert silent error when sharepoint error' do
-        message =
-          'VHA set completed state: [#<struct Sidekiq::Batch::Status::Failure jid=\"058f2988d02722166392ff66\", ' \
-          'error_class=\"Common::Exceptions::BackendServiceException\", ' \
-          'error_message=\"BackendServiceException: {:status=>500, :detail=>\\\"Internal Server Error\\\", ' \
-          ':source=>\\\"SharepointRequest\\\", :code=>\\\"SHAREPOINT_PDF_502\\\"}\", backtrace=nil>]'
-        expect(form5655_submission).not_to receive(:alert_silent_error)
-        form5655_submission.register_failure(message)
-      end
     end
   end
 
@@ -268,15 +254,18 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
       it 'sends an email' do
         Timecop.freeze(Time.new(2025, 1, 1).utc) do
           expected_personalization_info = {
-            'name' => 'Travis Jones',
-            'time' => Time.new(2025, 1, 1).utc,
-            'date' => '01/01/2025'
+            'first_name' => 'Travis',
+            'date_submitted' => '01/01/2025',
+            'confirmation_number' => form5655_submission.id,
+            'updated_at' => form5655_submission.updated_at
           }
 
-          expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
+          expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_in).with(
+            24.hours,
             'test2@test1.net',
             'fake_template_id',
-            expected_personalization_info
+            expected_personalization_info,
+            { id_type: 'email', failure_mailer: true }
           )
 
           form5655_submission.send_failed_form_email

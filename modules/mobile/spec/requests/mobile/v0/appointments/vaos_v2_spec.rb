@@ -11,12 +11,15 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
 
   before do
     Flipper.enable_actor(:appointments_consolidation, user)
-    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
+    allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(true)
   end
 
   context 'with VAOS' do
     before do
-      Flipper.disable(:va_online_scheduling_use_vpg)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
     end
 
     describe 'GET /mobile/v0/appointments' do
@@ -393,7 +396,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
 
   context 'with VPG' do
     before do
-      Flipper.enable(:va_online_scheduling_use_vpg)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
     end
 
     describe 'GET /mobile/v0/appointments' do

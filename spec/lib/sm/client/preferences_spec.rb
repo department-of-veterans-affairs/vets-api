@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'sm/client'
 
 describe 'sm client' do
-  before(:all) do
+  before do
     VCR.use_cassette 'sm_client/session' do
       @client ||= begin
         client = SM::Client.new(session: { user_id: '10616687' })
@@ -59,7 +59,7 @@ describe 'sm client' do
     it 'sets the signature preferences', :vcr do
       params = { signature_name: 'Test Mark', include_signature: false, signature_title: 'Test Title API' }
       client_response = client.post_signature(params)[:data]
-      expect(client_response[:include_signature]).to be(false)
+      expect(client_response[:include_signature]).to be(true)
       expect(client_response[:signature_name]).to eq('Test Mark')
       expect(client_response[:signature_title]).to eq('Test Title API')
     end

@@ -21,6 +21,12 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
       profile: build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
     )
   end
+  let(:no_edipi_profile) do
+    MPI::Responses::FindProfileResponse.new(
+      status: :ok,
+      profile: build(:mpi_profile, participant_id: nil, edipi: nil, participant_ids: %w[])
+    )
+  end
   let(:pws) { ClaimsApi::PersonWebService }
   let(:lbgs) { ClaimsApi::LocalBGS }
 
@@ -28,8 +34,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
     stub_poa_verification
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
     allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
-    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return false
-    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return true
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                        .and_return false
   end
 
   describe '#2122' do
@@ -156,13 +162,23 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
             end
 
             context 'when consumer is Veteran and missing EDIPI' do
+              let(:add_person_proxy_response) do
+                instance_double(MPI::Responses::AddPersonResponse, ok?: true, status: :ok)
+              end
+
               it 'catches a raised 422' do
                 mock_acg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file') do
+                    allow_any_instance_of(pws)
+                      .to receive(:find_by_ssn).and_return({ file_nbr: '987654321' })
                     allow_any_instance_of(MPIData)
-                      .to receive(:mvi_response).and_return(multi_profile)
+                      .to receive(:mvi_response).and_return(no_edipi_profile)
+                    allow_any_instance_of(ClaimsApi::Veteran)
+                      .to receive(:recache_mpi_data).and_return(true)
+                    allow_any_instance_of(MPIData)
+                      .to receive(:add_person_proxy).and_return(add_person_proxy_response)
                     parsed_data = JSON.parse(data)
-                    post path, params: parsed_data, headers: auth_header, as: :json
+                    post path, params: parsed_data, headers: headers.merge(auth_header), as: :json
 
                     response_body = JSON.parse response.body
                     expect(response).to have_http_status(:unprocessable_entity)
@@ -218,7 +234,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
                 expect(ClaimsApi::V1::PoaFormBuilderJob).to receive(:perform_async)
 
-                post path, params: params, headers: auth_header, as: :json
+                post path, params:, headers: auth_header, as: :json
               end
             end
           end
@@ -434,15 +450,15 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
             {
               data: {
                 attributes: {
-                  veteran: { address: address },
+                  veteran: { address: },
                   serviceOrganization: {
                     poaCode: '074',
-                    address: address
+                    address:
                   },
                   claimant: {
                     firstName: 'John',
                     lastName: 'Doe',
-                    address: address,
+                    address:,
                     relationship: 'spouse'
                   }
                 }
@@ -496,15 +512,15 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
             {
               data: {
                 attributes: {
-                  veteran: { address: address },
+                  veteran: { address: },
                   serviceOrganization: {
                     poaCode: '074',
-                    address: address
+                    address:
                   },
                   claimant: {
                     firstName: 'John',
                     lastName: 'Doe',
-                    address: address,
+                    address:,
                     relationship: 'spouse'
                   }
                 }
@@ -613,7 +629,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         include_context 'stub validation methods'
 
         before do
-          Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return false
         end
 
         it "does not include the 'dependent object in the auth_headers" do
@@ -885,7 +901,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
       context 'when the lighthouse_claims_api_poa_dependent_claimants feature is disabled' do
         before do
-          Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return false
         end
 
         it 'calls neither validate_poa_code_exists! nor validate_dependent_by_participant_id!' do

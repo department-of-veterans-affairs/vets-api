@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Create do
   describe '#call' do
     subject do
-      described_class.new(claimant: claimant, form_data: form_data, poa_code: poa_code,
-                          registration_number: registration_number)
+      described_class.new(claimant:, form_data:, poa_code:,
+                          registration_number:)
     end
 
     let(:claimant) { create(:user_account_with_verification) }
@@ -96,7 +96,57 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
     it 'sets the power_of_attorney_holder_type' do
       result = subject.call
 
-      expect(result[:request].power_of_attorney_holder_type).to eq('AccreditedOrganization')
+      expect(result[:request].power_of_attorney_holder_type).to eq('veteran_service_organization')
+    end
+
+    context 'unresolved PowerOfAttorneyRequests' do
+      context 'when there are unresolved requests' do
+        let!(:poa_request1) { create(:power_of_attorney_request, claimant:) }
+        let!(:poa_request2) { create(:power_of_attorney_request, claimant:) }
+
+        it 'creates a resolution for each unresolved request' do
+          expect do
+            subject.call
+          end.to change(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution, :count).by(2)
+        end
+
+        it 'creates a withdrawal for each unresolved request' do
+          expect do
+            subject.call
+          end.to change(AccreditedRepresentativePortal::PowerOfAttorneyRequestWithdrawal, :count).by(2)
+        end
+
+        it 'marks the unresolved requests as replaced' do
+          expect(poa_request1.replaced?).to be false
+          expect(poa_request2.replaced?).to be false
+
+          subject.call
+
+          expect(poa_request1.reload.replaced?).to be true
+          expect(poa_request2.reload.replaced?).to be true
+        end
+
+        it 'sets the superseding_power_of_attorney_request as the newly created request' do
+          result = subject.call
+
+          expect(poa_request1.reload.resolution.resolving.superseding_power_of_attorney_request).to eq(result[:request])
+          expect(poa_request2.reload.resolution.resolving.superseding_power_of_attorney_request).to eq(result[:request])
+        end
+      end
+
+      context 'when there are no unresolved requests' do
+        it 'does not create any new resolutions' do
+          expect do
+            subject.call
+          end.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution, :count)
+        end
+
+        it 'does not create any new withdrawals' do
+          expect do
+            subject.call
+          end.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyRequestWithdrawal, :count)
+        end
+      end
     end
 
     context 'when only poa_code is provided' do
@@ -124,6 +174,12 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
         it 'does not create new records' do
           expect { subject.call }.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyRequest, :count)
           expect { subject.call }.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyForm, :count)
+          expect do
+            subject.call
+          end.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution, :count)
+          expect do
+            subject.call
+          end.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyRequestWithdrawal, :count)
         end
       end
 
@@ -134,6 +190,12 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
 
             expect { subject.call }.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyRequest, :count)
             expect { subject.call }.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyForm, :count)
+            expect do
+              subject.call
+            end.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution, :count)
+            expect do
+              subject.call
+            end.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyRequestWithdrawal, :count)
           end
 
           it 'returns a meaningful error' do
@@ -153,6 +215,12 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
           it 'does not create new records' do
             expect { subject.call }.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyRequest, :count)
             expect { subject.call }.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyForm, :count)
+            expect do
+              subject.call
+            end.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution, :count)
+            expect do
+              subject.call
+            end.not_to change(AccreditedRepresentativePortal::PowerOfAttorneyRequestWithdrawal, :count)
           end
 
           it 'returns a meaningful error' do

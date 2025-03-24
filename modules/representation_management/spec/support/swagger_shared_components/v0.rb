@@ -11,7 +11,9 @@ module SwaggerSharedComponents
         pdf_generator2122:,
         pdf_generator2122_parameter:,
         pdf_generator2122a:,
-        pdf_generator2122a_parameter:
+        pdf_generator2122a_parameter:,
+        poa_request:,
+        poa_request_parameter:
       }
     end
 
@@ -57,6 +59,16 @@ module SwaggerSharedComponents
       }
     end
 
+    def self.poa_request
+      {
+        record_consent: true,
+        consent_address_change: true,
+        consent_limits: [],
+        representative: poa_request_representative,
+        veteran:
+      }
+    end
+
     def self.claimant
       {
         date_of_birth: '1980-12-31',
@@ -72,6 +84,13 @@ module SwaggerSharedComponents
       {
         id: '8c3b3b53-02a1-4dbd-bd23-2b556f5ef635',
         organization_id: '6f76b9c2-2a37-4cd7-8a6c-93a0b3a73943'
+      }
+    end
+
+    def self.poa_request_representative
+      {
+        id: '86753',
+        organization_id: 'B12'
       }
     end
 
@@ -161,6 +180,21 @@ module SwaggerSharedComponents
       }
     end
 
+    def self.poa_request_parameter
+      {
+        name: :poa_request,
+        in: :body,
+        schema: {
+          type: :object,
+          properties: appointment_conditions_parameter.merge(
+            representative: poa_request_rep_parameter,
+            veteran: veteran_parameter
+          ),
+          required: %w[record_consent veteran]
+        }
+      }
+    end
+
     def self.appointment_conditions_parameter
       {
         record_consent: { type: :boolean, example: true },
@@ -200,6 +234,24 @@ module SwaggerSharedComponents
             type: :string,
             example: '6f76b9c2-2a37-4cd7-8a6c-93a0b3a73943',
             description: 'This is an AccreditedOrganization#id or a Veteran::Service::Organization#poa'
+          }
+        }
+      }
+    end
+
+    def self.poa_request_rep_parameter
+      {
+        type: :object,
+        properties: {
+          id: {
+            type: :string,
+            example: '86753',
+            description: 'This is a Veteran::Service::Representative#representative_id'
+          },
+          organization_id: {
+            type: :string,
+            example: 'B12',
+            description: 'This is a Veteran::Service::Organization#poa'
           }
         }
       }

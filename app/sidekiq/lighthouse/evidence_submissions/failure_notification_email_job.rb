@@ -13,8 +13,6 @@ module Lighthouse
       sidekiq_options retry: 0
       NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
       MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
-      # TODO: need to add statsd logic
-      # STATSD_KEY_PREFIX = ''
 
       def perform
         return unless should_perform?
@@ -34,7 +32,8 @@ module Lighthouse
       end
 
       def notify_client
-        VaNotify::Service.new(NOTIFY_SETTINGS.api_key)
+        VaNotify::Service.new(NOTIFY_SETTINGS.api_key,
+                              { callback_klass: 'BenefitsDocuments::VANotifyEmailStatusCallback' })
       end
 
       def send_failed_evidence_submissions
@@ -56,7 +55,7 @@ module Lighthouse
 
       def record_email_send_success(upload, response)
         # Update evidence_submissions table record with the va_notify_id and va_notify_date
-        upload.update(va_notify_id: response.id, va_notify_date: DateTime.now)
+        upload.update(va_notify_id: response.id, va_notify_date: DateTime.current)
         message = "#{upload.job_class} va notify failure email queued"
         ::Rails.logger.info(message)
         StatsD.increment('silent_failure_avoided_no_confirmation',

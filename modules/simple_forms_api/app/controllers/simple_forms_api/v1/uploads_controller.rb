@@ -155,13 +155,13 @@ module SimpleFormsApi
         )
 
         if status == 200
-          if Flipper.enabled?(:simple_forms_email_confirmations)
+          begin
             send_confirmation_email(parsed_form_data, confirmation_number)
+          rescue => e
+            Rails.logger.error('Simple forms api - error sending confirmation email', error: e)
           end
 
-          presigned_s3_url = if Flipper.enabled?(:submission_pdf_s3_upload)
-                               upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
-                             end
+          presigned_s3_url = upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
         end
 
         build_response(confirmation_number, presigned_s3_url, status)
@@ -251,6 +251,8 @@ module SimpleFormsApi
       end
 
       def upload_pdf_to_s3(id, file_path, metadata, submission, form)
+        return unless Flipper.enabled?(:submission_pdf_s3_upload)
+
         config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
         attachments = form_id == 'vba_20_10207' ? form.get_attachments : []
         s3_client = config.s3_client.new(
@@ -311,13 +313,15 @@ module SimpleFormsApi
       end
 
       def send_confirmation_email(parsed_form_data, confirmation_number)
+        return unless Flipper.enabled?(:simple_forms_email_confirmations)
+
         config = {
           form_data: parsed_form_data,
           form_number: form_id,
           confirmation_number:,
           date_submitted: Time.zone.today.strftime('%B %d, %Y')
         }
-        notification_email = SimpleFormsApi::NotificationEmail.new(
+        notification_email = SimpleFormsApi::Notification::Email.new(
           config,
           notification_type: :confirmation,
           user: @current_user
@@ -333,7 +337,7 @@ module SimpleFormsApi
           date_submitted: Time.zone.today.strftime('%B %d, %Y'),
           expiration_date: Time.zone.parse(expiration_date).strftime('%B %d, %Y')
         }
-        notification_email = SimpleFormsApi::NotificationEmail.new(
+        notification_email = SimpleFormsApi::Notification::Email.new(
           config,
           notification_type: :received,
           user: @current_user
@@ -348,7 +352,7 @@ module SimpleFormsApi
           confirmation_number:,
           date_submitted: Time.zone.today.strftime('%B %d, %Y')
         }
-        notification_email = SimpleFormsApi::NotificationEmail.new(
+        notification_email = SimpleFormsApi::Notification::Email.new(
           config,
           notification_type:,
           user: @current_user

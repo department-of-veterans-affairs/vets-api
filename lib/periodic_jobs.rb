@@ -172,6 +172,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 2 * * *', 'InProgressFormCleaner')
   # mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
   mgr.register('0 3 * * *', 'Form1095::New1095BsJob')
+  mgr.register('*/10 0-5 * * *', 'Form1095::DeleteOld1095BsJob')
   mgr.register('0 2 * * *', 'Veteran::VSOReloader')
   mgr.register('15 2 * * *', 'Preneeds::DeleteOldUploads')
   mgr.register('* * * * *', 'ExternalServicesStatusJob')
@@ -225,6 +226,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 
+  # Every 15min job that syncs ARP's allowlist
+  mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')
+
   # Engine version: Sync non-final DR SavedClaims to LH status
   mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')
   mgr.register('15 1-21/4 * * *', 'DecisionReviews::NodStatusUpdaterJob')
@@ -245,7 +249,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
 
   # Daily cleanup of > 12 month old UserAction records
-  mgr.register('45 3 * * *', 'UserActionEventsCleanupJob')
+  mgr.register('45 3 * * *', 'UserActionsCleanupJob')
 
   # CST Daily job that deletes EvidenceSubmissions when their delete_date has been met
   mgr.register('0 6 * * *', 'Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJob')
