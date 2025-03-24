@@ -7,18 +7,17 @@ require 'burials/monitor'
 require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
 
 RSpec.describe 'Burials End to End', type: :request do
-
   let(:form) { build(:burials_saved_claim) }
   let(:param_name) { :burial_claim }
   let(:pdf_path) { 'random/path/to/pdf' }
   let(:monitor) { Burials::Monitor.new }
-  let(:service) { ::BenefitsIntake::Service.new }
+  let(:service) { BenefitsIntake::Service.new }
 
   let(:stats_key) { BenefitsIntake::SubmissionStatusJob::STATS_KEY }
 
   before do
     allow(Burials::Monitor).to receive(:new).and_return(monitor)
-    allow(::BenefitsIntake::Service).to receive(:new).and_return(service)
+    allow(BenefitsIntake::Service).to receive(:new).and_return(service)
 
     allow(Flipper).to receive(:enabled?).with(anything).and_call_original
     allow(Flipper).to receive(:enabled?).with(:burial_submitted_email_notification).and_return true
@@ -46,7 +45,7 @@ RSpec.describe 'Burials End to End', type: :request do
     expect(burial_claim.confirmation_number).to eq data['attributes']['confirmation_number']
 
     # claim upload to benefits intake
-    expect(::BenefitsIntake::Metadata).to receive(:generate).and_call_original
+    expect(BenefitsIntake::Metadata).to receive(:generate).and_call_original
 
     expect(service).to receive(:valid_document?).and_return(pdf_path)
     expect(service).to receive(:request_upload)
