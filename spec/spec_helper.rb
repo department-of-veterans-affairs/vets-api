@@ -219,8 +219,4 @@ RSpec.configure do |config|
   config.before do
     $redis.flushdb
   end
-
-  config.before do
-    Flipper.disable(:mhv_medications_add_x_api_key)
-  end
 end

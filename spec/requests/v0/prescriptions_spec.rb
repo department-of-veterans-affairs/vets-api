@@ -19,7 +19,7 @@ RSpec.describe 'V0::Prescriptions', type: :request do
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before do
-    Flipper.disable(:mhv_medications_add_x_api_key)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
   end

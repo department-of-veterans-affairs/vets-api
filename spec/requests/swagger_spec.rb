@@ -19,7 +19,7 @@ require 'lighthouse/facilities/v1/client'
 
 RSpec.describe 'API doc validations', type: :request do
   before do
-    Flipper.disable(:mhv_medications_add_x_api_key)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
   end
 
   context 'json validation' do
@@ -42,7 +42,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
     before do
-      Flipper.disable(:mhv_medications_add_x_api_key)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
       create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid)
     end
 
@@ -4015,7 +4015,7 @@ RSpec.describe 'the v1 API documentation', order: :defined, type: %i[apivore req
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob', icn: '1012667145V762142') }
 
   before do
-    Flipper.disable(:mhv_medications_add_x_api_key)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
   end
 
   context 'has valid paths' do

@@ -19,7 +19,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
   end
 
   before do
-    Flipper.disable(:mhv_medications_add_x_api_key)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
     allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(true)
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
   end

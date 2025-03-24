@@ -6,7 +6,7 @@ require_relative '../../../../../lib/common/client/concerns/mhv_jwt_session_clie
 
 describe Common::Client::Concerns::MHVJwtSessionClient do
   before do
-    Flipper.disable(:mhv_medications_add_x_api_key)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
   end
 
   let(:dummy_class) do

@@ -12,7 +12,7 @@ end
 
 describe Rx::Client do
   before(:all) do
-    Flipper.disable(:mhv_medications_add_x_api_key)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
     VCR.configure do |vcr_config|
       vcr_config.default_cassette_options = {
         allow_playback_repeats: true
