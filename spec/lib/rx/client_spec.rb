@@ -12,7 +12,6 @@ end
 
 describe Rx::Client do
   before(:all) do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
     VCR.configure do |vcr_config|
       vcr_config.default_cassette_options = {
         allow_playback_repeats: true
@@ -29,6 +28,38 @@ describe Rx::Client do
   end
 
   let(:client) { @client }
+
+  context 'when the new flag mhv_medications_add_x_api_key is enabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(true)
+    end
+
+    it 'includes x-api-key in headers' do
+      headers = client.send(:get_headers, { 'Authorization' => 'Bearer token' })
+      expect(headers).to include('x-api-key' => Settings.mhv_mobile.x_api_key)
+    end
+
+    it 'uses the pharmacy/ess path' do
+      path = client.send(:get_path, 'test_endpoint')
+      expect(path).to eq('pharmacy/ess/test_endpoint')
+    end
+  end
+
+  context 'when the new flag mhv_medications_add_x_api_key is disabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
+    end
+
+    it 'does not include x-api-key in headers' do
+      headers = client.send(:get_headers, { 'Authorization' => 'Bearer token' })
+      expect(headers).not_to include('x-api-key')
+    end
+
+    it 'uses the prescription path' do
+      path = client.send(:get_path, 'test_endpoint')
+      expect(path).to eq('prescription/test_endpoint')
+    end
+  end
 
   describe 'preferences' do
     it 'gets rx preferences' do
