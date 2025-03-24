@@ -117,9 +117,10 @@ module AccreditedRepresentativePortal
       when 'created_at'
         order(created_at: direction)
       when 'resolved_at'
+        safe_direction = direction.to_sym == :asc ? 'ASC' : 'DESC'
         includes(:resolution)
           .references(:resolution)
-          .order(Arel.sql("ar_power_of_attorney_request_resolutions.created_at #{direction} NULLS LAST"))
+          .order(Arel.sql("ar_power_of_attorney_request_resolutions.created_at #{safe_direction} NULLS LAST"))
       else
         raise ArgumentError, "Invalid sort column: #{sort_column}"
       end

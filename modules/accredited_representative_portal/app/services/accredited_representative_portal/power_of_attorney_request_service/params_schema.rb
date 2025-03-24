@@ -7,8 +7,6 @@ module AccreditedRepresentativePortal
       Dry::Schema.load_extensions(:json_schema)
       Dry::Schema.load_extensions(:hints)
 
-      ALLOWED_SORT_FIELDS = %w[created_at updated_at].freeze
-
       module Page
         module Size
           MIN = 10
