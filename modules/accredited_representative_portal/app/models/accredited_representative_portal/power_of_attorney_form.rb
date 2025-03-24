@@ -39,22 +39,6 @@ module AccreditedRepresentativePortal
       @parsed_data ||= JSON.parse(data)
     end
 
-    def veteran_first_name
-      parsed_data.dig('veteran', 'name', 'first')
-    end
-
-    def veteran_last_name
-      parsed_data.dig('veteran', 'name', 'last')
-    end
-
-    def veteran_ssn
-      parsed_data.dig('veteran', 'ssn')
-    end
-
-    def veteran_dob
-      parsed_data.dig('veteran', 'dateOfBirth')
-    end
-
     private
 
     def set_location
