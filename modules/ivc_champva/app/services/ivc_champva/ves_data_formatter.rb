@@ -167,11 +167,6 @@ module IvcChampva
       key = relationship.to_s.downcase
       return VALID_RELATIONSHIPS_LOOKUP[key] if VALID_RELATIONSHIPS_LOOKUP[key]
 
-      # Try to find a partial match
-      RELATIONSHIPS.each do |r|
-        return r if key.match?(r.downcase)
-      end
-
       raise ArgumentError, "Relationship #{relationship} is invalid. Must be in #{RELATIONSHIPS.join(', ')}"
     end
 
