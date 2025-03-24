@@ -153,6 +153,7 @@ describe TravelPay::ClaimsService do
 
         expect(actual_claim['expenses']).not_to be_empty
         expect(actual_claim['appointment']).not_to be_empty
+        expect(actual_claim['totalCostRequested']).to eq(20.00)
         expect(actual_claim['claimStatus']).to eq('Pre approved for payment')
       end
 
