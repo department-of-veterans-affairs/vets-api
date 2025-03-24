@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'lighthouse/facilities/v1/client'
-require 'lighthouse/facilities/client'
 
 module Mobile
   module FacilitiesHelper
@@ -18,7 +17,7 @@ module Mobile
     end
 
     def get_facilities(facility_ids)
-      facilities_service.get_facilities(ids: facility_ids.to_a.map { |id| "vha_#{id}" }.join(','))
+      facilities_service.get_facilities(facilityIds: facility_ids.to_a.map { |id| "vha_#{id}" }.join(','))
     end
 
     def get_facility_names(facility_ids)
