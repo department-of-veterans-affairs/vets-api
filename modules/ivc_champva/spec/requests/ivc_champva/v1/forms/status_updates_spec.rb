@@ -160,7 +160,6 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
       let(:email_instance) { instance_double(IvcChampva::Email) }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:champva_enhanced_monitor_logging, @current_user).and_return(false)
         allow_any_instance_of(IvcChampva::Email).to receive(:valid_environment?).and_return(true)
         allow(IvcChampva::Email).to receive(:new).and_return(email_instance)
         allow(email_instance).to receive(:send_email).and_return(true)
