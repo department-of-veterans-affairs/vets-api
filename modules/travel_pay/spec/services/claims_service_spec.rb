@@ -117,7 +117,8 @@ describe TravelPay::ClaimsService do
                   'costRequested' => 20.00,
                   'costSubmitted' => 20.00
                 }
-              ]
+              ],
+              'documents' => []
             }
         }
       end
@@ -150,7 +151,7 @@ describe TravelPay::ClaimsService do
       it 'returns expanded claim details when passed a valid id' do
         claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
         expected_claim = claim_details_data['data']
-        actual_claim = @service.get_claim_details(claim_id)
+        actual_claim = @service.get_claim_details(claim_id, false)
 
         expect(actual_claim).to eq(expected_claim)
       end
@@ -161,7 +162,7 @@ describe TravelPay::ClaimsService do
           .and_return(claim_details_error_response)
 
         claim_id = SecureRandom.uuid
-        actual_claim = @service.get_claim_details(claim_id)
+        actual_claim = @service.get_claim_details(claim_id, false)
 
         expect(actual_claim).to be_nil
       end
@@ -169,7 +170,7 @@ describe TravelPay::ClaimsService do
       it 'throws an ArgumentException if claim_id is invalid format' do
         claim_id = 'this-is-definitely-a-uuid-right'
 
-        expect { @service.get_claim_details(claim_id) }
+        expect { @service.get_claim_details(claim_id, false) }
           .to raise_error(ArgumentError, /valid UUID/i)
       end
     end

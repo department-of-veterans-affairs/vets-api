@@ -49,7 +49,7 @@ module TravelPay
     end
 
     # Retrieves expanded claim details with additional fields
-    def get_claim_details(claim_id)
+    def get_claim_details(claim_id, include_documents)
       # ensure claim ID is the right format, allowing any version
       uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
 
@@ -59,11 +59,17 @@ module TravelPay
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
       claim_response = client.get_claim_by_id(veis_token, btsss_token, claim_id)
+      documents = []
+      if include_documents
+        documents_response = documents_client.get_document_ids(veis_token, btsss_token, claim_id)
+        documents = documents_response.body['data'] if documents_response.body['data']
+      end
 
       claim = claim_response.body['data']
 
       if claim
         claim['claimStatus'] = claim['claimStatus'].underscore.humanize
+        claim['documents'] = documents
         claim
       end
     end
@@ -141,6 +147,10 @@ module TravelPay
 
     def client
       TravelPay::ClaimsClient.new
+    end
+
+    def documents_client
+      TravelPay::DocumentsClient.new
     end
   end
 end
