@@ -635,6 +635,7 @@ intent_to_file:
 ivc_champva:
   pega_api:
     api_key: fake_api_key
+    base_path: fake_base_path
   prefill: true
   ves_api:
     api_key: fake_api_key
