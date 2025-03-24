@@ -154,6 +154,8 @@ describe TravelPay::ClaimsClient do
               kind_of(Numeric),
               tags: ['travel_pay:get_by_id'])
       expect(actual_claim['claimId']).to eq(expected_id)
+      expect(actual_claim['claimStatus']).to eq('PreApprovedForPayment')
+      expect(actual_claim['expenses']).not_to be_empty
     end
 
     it 'returns response from claims/search endpoint' do
