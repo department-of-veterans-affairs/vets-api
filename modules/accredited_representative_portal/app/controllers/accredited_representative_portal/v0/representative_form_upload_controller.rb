@@ -11,7 +11,6 @@ module AccreditedRepresentativePortal
       # before_action :validate_power_of_attorney, only: :submit
 
       def submit
-        debugger
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:formNumber])
         check_for_changes
 

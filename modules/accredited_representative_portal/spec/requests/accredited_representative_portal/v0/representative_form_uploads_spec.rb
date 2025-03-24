@@ -5,7 +5,6 @@ require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
 
 RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadController, type: :request do
-  
   let(:representative_user) { create(:representative_user) }
   let(:form_number) { '21-686c' }
 
@@ -15,19 +14,24 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
   describe '#submit' do
     let(:representative_fixture_path) do
-      Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data', 'representative_form_upload_21_686c.json')
+      Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
+                      'representative_form_upload_21_686c.json')
     end
     let(:veteran_params) { JSON.parse(representative_fixture_path.read) }
 
     let(:claimant_fixture_path) do
-      Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data', 'claimant_form_upload_21_686c.json')
+      Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
+                      'claimant_form_upload_21_686c.json')
     end
     let(:claimant_params) { JSON.parse(claimant_fixture_path.read) }
     let(:form_name) { 'Request for Nursing Home Information in Connection with Claim for Aid and Attendance' }
     let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
     let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
     let(:random_string) { 'some-unique-simple-forms-file-seed' }
-    let(:pdf_path) { Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'files', '21_686c_empty_form.pdf') }
+    let(:pdf_path) do
+      Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'files',
+                      '21_686c_empty_form.pdf')
+    end
     let(:pdf_stamper) { double(stamp_pdf: nil) }
     let(:confirmation_code) { '123456' }
     let(:attachment) { double }
@@ -65,7 +69,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
     #   expect(response).to have_http_status(:ok)
     # end
 
-
     # it 'stamps the pdf' do
     #   expect(pdf_stamper).to receive(:stamp_pdf)
 
@@ -93,7 +96,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
     # debugger
     it 'checks if the prefill data has been changed' do
-      debugger
       prefill_data = double
       prefill_data_service = double
       in_progress_form = double(form_data: prefill_data)
@@ -116,20 +118,20 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
   describe '#upload_scanned_form' do
     it 'renders the attachment as json' do
-     clamscan = double(safe?: true)
-     allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
-     file = fixture_file_upload('doctors-note.gif')
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+      file = fixture_file_upload('doctors-note.gif')
 
-     params = { form_id: form_number, file: }
+      params = { form_id: form_number, file: }
 
       expect do
-        post "/accredited_representative_portal/v0/representative_form_upload", params:
+        post '/accredited_representative_portal/v0/representative_form_upload', params:
       end.to change(PersistentAttachment, :count).by(1)
 
       expect(response).to have_http_status(:ok)
-     resp = JSON.parse(response.body)
-     expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmationCode name size warnings])
-     expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAForm)
+      resp = JSON.parse(response.body)
+      expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmationCode name size warnings])
+      expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAForm)
     end
   end
 end
