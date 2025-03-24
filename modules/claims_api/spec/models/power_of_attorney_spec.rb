@@ -38,6 +38,64 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
     end
   end
 
+  describe '#find_using_identifier_and_source' do
+    let(:auth_headers) do
+      { 'X-VA-SSN': '796-04-3735',
+        'X-VA-First-Name': 'WESLEY',
+        'X-VA-Last-Name': 'FORD',
+        'X-Consumer-Username': 'TestConsumer',
+        'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
+        'X-VA-Gender': 'M' }
+    end
+
+    let(:attributes) do
+      {
+        status: ClaimsApi::PowerOfAttorney::PENDING,
+        auth_headers:,
+        form_data: {},
+        current_poa: '072',
+        cid: 'cid'
+      }
+    end
+
+    it 'can find a sha256 hash' do
+      source_data = {
+        'name' => 'source_name',
+        'email' => 'source_email'
+      }
+
+      attributes.merge!({ source_data: })
+      power_of_attorney = ClaimsApi::PowerOfAttorney.create(attributes)
+      power_of_attorney.set_md5
+      power_of_attorney.save
+
+      res = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(source_name: source_data['name'],
+                                                                        md5: power_of_attorney.md5)
+      expect(res.source_data).to eq(source_data)
+    end
+
+    it 'can find an md5 record' do
+      source_data = {
+        'name' => 'the_source_name',
+        'email' => 'the_source_email'
+      }
+
+      attributes.merge!({ source_data: })
+      power_of_attorney = ClaimsApi::PowerOfAttorney.create(attributes)
+
+      headers = auth_headers.except('va_eauth_authenticationauthority',
+                                    'va_eauth_service_transaction_id',
+                                    'va_eauth_issueinstant',
+                                    'Authorization')
+      Digest::MD5.hexdigest headers.to_json
+      power_of_attorney.save
+
+      res = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(source_name: source_data['name'],
+                                                                        md5: power_of_attorney.md5)
+      expect(res.source_data).to eq(source_data)
+    end
+  end
+
   describe 'pending?' do
     context 'no pending records' do
       it 'is false' do

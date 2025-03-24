@@ -65,8 +65,8 @@ module ClaimsApi
                                     'va_eauth_issueinstant',
                                     'Authorization')
       headers['status'] = status
-      self.header_md5 = Digest::MD5.hexdigest headers.to_json
-      self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
+      self.header_md5 = Digest::SHA256.hexdigest headers.to_json
+      self.md5 = Digest::SHA256.hexdigest form_data.merge(headers).to_json
     end
 
     def processes
