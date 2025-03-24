@@ -12,12 +12,13 @@ module VAOS
         raise Common::Exceptions::RecordNotFound, message: 'Record not found' if appointment[:state] == 'draft'
 
         referral_detail = fetch_referral_detail(appointment)
-        provider = fetch_provider_with_phone(appointment, referral_detail)
+        provider = fetch_provider(appointment)
+        enriched_provider = Eps::EnrichedProvider.from_referral(provider, referral_detail)
 
         response = OpenStruct.new(
           id: appointment[:id],
           appointment:,
-          provider:
+          provider: enriched_provider
         )
 
         render json: Eps::EpsAppointmentSerializer.new(response)
@@ -44,24 +45,15 @@ module VAOS
       end
 
       ##
-      # Fetches provider information and enhances it with phone number from a referral if available.
+      # Fetches provider information for the given appointment.
       #
       # @param appointment [Hash] The appointment data containing provider service ID
-      # @param referral_detail [Ccra::ReferralDetail, nil] The referral details potentially containing phone number
-      # @return [Object, nil] Provider object enhanced with phone number if available, nil if no provider found
-      def fetch_provider_with_phone(appointment, referral_detail)
+      # @return [Object, nil] Provider object or nil if no provider ID is found
+      def fetch_provider(appointment)
         provider_id = appointment[:provider_service_id]
         return nil if provider_id.nil?
 
-        provider = provider_service.get_provider_service(provider_id:)
-
-        if referral_detail&.phone_number.present?
-          provider_with_phone = provider.to_h
-          provider_with_phone[:phone_number] = referral_detail.phone_number
-          OpenStruct.new(provider_with_phone)
-        else
-          provider
-        end
+        provider_service.get_provider_service(provider_id:)
       end
 
       def eps_appointment_id

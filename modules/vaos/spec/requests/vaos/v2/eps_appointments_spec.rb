@@ -10,10 +10,6 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
   let(:described_class) { VAOS::V2::EpsAppointmentsController }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
-  VCR.configure do |c|
-    c.debug_logger = $stdout
-  end
-
   before do
     allow(Settings.mhv).to receive(:facility_range).and_return([[1, 999]])
     sign_in_as(current_user)
