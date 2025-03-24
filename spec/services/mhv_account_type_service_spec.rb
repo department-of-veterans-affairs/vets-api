@@ -20,6 +20,10 @@ RSpec.describe MHVAccountTypeService do
     )
   end
 
+  before do
+    Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
+  end
+
   context 'no mhv_correlation_id' do
     let(:user) { instance_double(User, mhv_correlation_id: nil) }
 

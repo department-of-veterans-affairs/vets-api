@@ -64,6 +64,8 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
       end
 
       it 'generates a 4142 PDF and sends it to Lighthouse API' do
+        Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
+
         VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
             expect do
