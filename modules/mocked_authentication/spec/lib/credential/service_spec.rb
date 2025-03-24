@@ -16,7 +16,7 @@ describe MockedAuthentication::Credential::Service do
     let(:acr) { 'some-acr' }
     let(:type) { 'some-type' }
     let(:operation) { 'some-operation' }
-    let(:expected_redirect_url) { Settings.sign_in.mock_auth_url }
+    let(:expected_redirect_url) { IdentitySettings.sign_in.mock_auth_url }
     let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
     it 'renders the oauth_get_form template with meta refresh tag' do
