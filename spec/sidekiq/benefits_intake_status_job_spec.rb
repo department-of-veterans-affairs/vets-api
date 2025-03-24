@@ -100,7 +100,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
       before do
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:error)
-        allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send)
+        allow_any_instance_of(SimpleFormsApi::Notification::Email).to receive(:send)
 
         allow(BenefitsIntake::Service).to receive(:new).and_return(service)
         allow(service).to(

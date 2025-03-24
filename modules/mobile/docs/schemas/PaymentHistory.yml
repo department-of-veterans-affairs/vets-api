@@ -34,7 +34,7 @@ properties:
               example: "$350.00"
             date:
               type: string
-              example: "2022-15-01T00:00:00.000-06:00"
+              example: "2022-01-15T00:00:00.000-06:00"
             paymentMethod:
               type: string
               example: "Direct Deposit"
@@ -96,4 +96,4 @@ properties:
             example: "$350.00"
           date:
             type: string
-            example: "2022-15-01T00:00:00.000-06:00"
+            example: "2022-01-15T00:00:00.000-06:00"
