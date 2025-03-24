@@ -173,8 +173,6 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
       end
 
       it 'creates a supplemental claim and queues and saves a 4142 form when 4142 info is provided' do
-        Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
-
         VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
