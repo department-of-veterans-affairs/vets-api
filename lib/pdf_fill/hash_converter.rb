@@ -62,9 +62,9 @@ module PdfFill
       limit.present? && value.size > limit
     end
 
-    def add_to_extras(key_data, v, i, top_level_key)
-      return if v.blank?
-      return if key_data.try(:[], :question_text).blank?
+    def add_to_extras(key_data, v, i, top_level_key, overflow: true)
+      return if v.blank? || key_data.nil?
+      return if key_data[:question_num].blank? || key_data[:question_text].blank?
 
       i = nil if key_data[:skip_index]
       v = "$#{v}" if key_data[:dollar]
@@ -72,7 +72,7 @@ module PdfFill
       @extras_generator.add_text(
         v,
         key_data.slice(:question_num, :question_suffix, :question_text).merge(
-          i:, top_level_key:
+          i:, top_level_key:, overflow:
         )
       )
     end
@@ -102,6 +102,8 @@ module PdfFill
         add_to_extras(key_data, new_value, i, top_level_key)
 
         new_value = EXTRAS_TEXT
+      else
+        add_to_extras(key_data, new_value, i, top_level_key, overflow: false)
       end
 
       @pdftk_form[k] = new_value
