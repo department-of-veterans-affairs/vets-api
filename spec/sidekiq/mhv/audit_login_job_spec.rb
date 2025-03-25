@@ -6,13 +6,15 @@ require 'support/rx_client_helpers'
 RSpec.describe MHV::AuditLoginJob do
   let(:mhv_correlation_id) { '12345' }
   let(:user_uuid) { SecureRandom.uuid }
-  let(:mhv_user) { instance_double(User, uuid: user_uuid, mhv_correlation_id: mhv_correlation_id, mhv_last_signed_in: nil) }
+  let(:mhv_user) do
+    instance_double(User, uuid: user_uuid, mhv_correlation_id:, mhv_last_signed_in: nil)
+  end
   let(:user_account) { instance_double(UserAccount, id: 1) }
-  
+
   let(:authenticated_client) do
     MHVLogging::Client.new(session: { user_id: mhv_correlation_id,
-                                     expires_at: Time.current + (60 * 60),
-                                     token: '<SESSION_TOKEN>' })
+                                      expires_at: Time.current + (60 * 60),
+                                      token: '<SESSION_TOKEN>' })
   end
 
   before do
@@ -38,4 +40,4 @@ RSpec.describe MHV::AuditLoginJob do
       it 'updates the user via the account path'
     end
   end
-end 
+end
