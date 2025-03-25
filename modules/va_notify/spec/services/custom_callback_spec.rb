@@ -33,8 +33,10 @@ describe VANotify::CustomCallback do
           .with(notification).and_raise(StandardError,
                                         'Something went wrong')
 
-        expect(Rails.logger).to receive(:info).with({message: "Rescued VANotify::OtherTeam::OtherForm from VANotify::CustomCallback#call"})
-        expect(Rails.logger).to receive(:info).with({source: "SomeTeam", status: notification.status, error_message: "Something went wrong"})
+        expect(Rails.logger).to receive(:info)
+          .with({ message: 'Rescued VANotify::OtherTeam::OtherForm from VANotify::CustomCallback#call' })
+        expect(Rails.logger).to receive(:info).with({ source: 'SomeTeam', status: notification.status,
+                                                      error_message: 'Something went wrong' })
 
         subject.call(provider_callback)
       end
