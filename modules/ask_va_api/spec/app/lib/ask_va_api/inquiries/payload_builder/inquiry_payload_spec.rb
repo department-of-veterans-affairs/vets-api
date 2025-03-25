@@ -39,6 +39,16 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryPayload do
       end
     end
 
+    context 'when your_health_facility is nil' do
+      let(:params) { i_am_veteran_edu[:inquiry] }
+
+      it 'returns nil for medical center' do
+        response = builder.call
+
+        expect(response[:MedicalCenter]).to be_nil
+      end
+    end
+
     context "when there's no user" do
       let(:authorized_user) { nil }
 
