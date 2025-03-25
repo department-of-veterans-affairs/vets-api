@@ -174,7 +174,7 @@ module Pensions
       user_icn = UserAccount.find_by(id: @user_account_uuid)&.icn.to_s
 
       Kafka::EventBusSubmissionJob.perform_async(
-        'pension_submission_trace',
+        'submission_trace_mock_dev',
         {
           'data' => {
             'ICN' => user_icn,

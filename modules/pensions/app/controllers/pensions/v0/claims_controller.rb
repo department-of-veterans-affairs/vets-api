@@ -76,7 +76,7 @@ module Pensions
       # @param claim [Pensions::SavedClaim]
       def submit_traceability_to_event_bus(claim)
         Kafka::EventBusSubmissionJob.perform_async(
-          'pension_submission_trace',
+          'submission_trace_mock_dev',
           {
             'data' => {
               'ICN' => user_icn,
