@@ -774,7 +774,7 @@ GEM
     patience_diff (1.2.0)
       optimist (~> 3.0)
     pdf-core (0.10.0)
-    pdf-forms (1.5.1)
+    pdf-forms (1.5.2)
       cliver (~> 0.3.2)
       rexml (~> 3.2, >= 3.2.6)
       safe_shell (>= 1.0.3, < 2.0)
