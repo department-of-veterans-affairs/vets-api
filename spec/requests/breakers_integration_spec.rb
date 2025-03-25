@@ -40,61 +40,59 @@ RSpec.describe 'Breakers Integration', type: :request do
       start_time = now - 120
       Timecop.freeze(start_time)
 
-      VCR.use_cassette('breakers_integration/successful_requests') do
-        20.times do
-          response = get '/v0/prescriptions'
-          expect(response).to eq(200)
-        end
-      end
-
-      VCR.use_cassette('breakers_integration/failing_requests') do
-        80.times do
-          response = get '/v0/prescriptions'
-          expect(response).to eq(400)
-        end
-
-        expect do
-          get '/v0/prescriptions'
-        end.to trigger_statsd_increment('api.external_http_request.Rx.skipped', times: 1, value: 1)
-
-        response = get '/v0/prescriptions'
-        expect(response).to eq(503)
-      end
-
-      Timecop.freeze(now)
-      VCR.use_cassette('breakers_integration/recovered_requests') do
+      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
+      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', active_rxs, status_code: 200)
+      20.times do
         response = get '/v0/prescriptions'
         expect(response).to eq(200)
       end
+
+      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', '{"message":"ack"}', status_code: 500)
+      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', '{"message":"ack"}', status_code: 500)
+      80.times do
+        response = get '/v0/prescriptions'
+        expect(response).to eq(400)
+      end
+
+      expect do
+        get '/v0/prescriptions'
+      end.to trigger_statsd_increment('api.external_http_request.Rx.skipped', times: 1, value: 1)
+
+      response = get '/v0/prescriptions'
+      expect(response).to eq(503)
+
+      Timecop.freeze(now)
+      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
+      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', active_rxs, status_code: 200)
+      response = get '/v0/prescriptions'
+      expect(response).to eq(200)
       Timecop.return
     end
   end
 
   describe 'statsd calls from the plugin' do
     it 'increments successes' do
-      VCR.use_cassette('breakers_integration/statsd_success') do
-        expect do
-          get '/v0/prescriptions', headers: { 'Source-App-Name' => 'profile' }
-        end.to trigger_statsd_increment('api.external_http_request.Rx.success',
-                                        times: 1,
-                                        value: 1,
-                                        tags: ['endpoint:/mhv-api/patient/v1/prescription/gethistoryrx', 'method:get',
-                                               'source:profile'])
-      end
+      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
+      expect do
+        get '/v0/prescriptions', headers: { 'Source-App-Name' => 'profile' }
+      end.to trigger_statsd_increment('api.external_http_request.Rx.success',
+                                      times: 1,
+                                      value: 1,
+                                      tags: ['endpoint:/mhv-api/patient/v1/prescription/gethistoryrx', 'method:get',
+                                             'source:profile'])
     end
 
     it 'increments errors' do
-      VCR.use_cassette('breakers_integration/statsd_error') do
-        expect do
-          get '/v0/prescriptions'
-        end.to trigger_statsd_increment('api.external_http_request.Rx.failed', times: 1, value: 1)
-      end
+      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 500)
+      expect do
+        get '/v0/prescriptions'
+      end.to trigger_statsd_increment('api.external_http_request.Rx.failed', times: 1, value: 1)
     end
 
     it 'measures request times' do
-      VCR.use_cassette('breakers_integration/statsd_time') do
-        expect { get '/v0/prescriptions' }.to trigger_statsd_measure('api.external_http_request.Rx.time', times: 1)
-      end
+      path = 'mhv-api/patient/v1/prescription/gethistoryrx'
+      stub_varx_request(:get, path, history_rxs, status_code: 200, tags: ["endpoint:/#{path}"])
+      expect { get '/v0/prescriptions' }.to trigger_statsd_measure('api.external_http_request.Rx.time', times: 1)
     end
   end
 
