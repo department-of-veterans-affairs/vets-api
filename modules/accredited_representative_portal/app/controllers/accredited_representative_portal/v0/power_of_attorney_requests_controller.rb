@@ -14,31 +14,15 @@ module AccreditedRepresentativePortal
         end
       end
 
-      # rubocop:disable Metrics/MethodLength
       def index
         # Validate and normalize pagination parameters
         validated_params = PowerOfAttorneyRequestService::ParamsSchema.validate_and_normalize!(params.to_unsafe_h)
         page_params = validated_params[:page]
-
-        relation = policy_scope(PowerOfAttorneyRequest)
         status = params[:status].presence
-        relation =
-          case status
-          when Statuses::PENDING
-            pending(relation)
-          when Statuses::PROCESSED
-            processed(relation)
-          when NilClass
-            relation
-          else
-            raise ActionController::BadRequest, <<~MSG.squish
-              Invalid status parameter.
-              Must be one of (#{Statuses::ALL.join(', ')})
-            MSG
-          end
 
-        poa_requests = relation.includes(scope_includes)
-                               .paginate(page: page_params[:number], per_page: page_params[:size])
+        poa_requests = with_status(status, policy_scope(PowerOfAttorneyRequest))
+                       .includes(scope_includes)
+                       .paginate(page: page_params[:number], per_page: page_params[:size])
 
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
         render json: {
@@ -46,7 +30,6 @@ module AccreditedRepresentativePortal
           meta: pagination_meta(poa_requests)
         }, status: :ok
       end
-      # rubocop:enable Metrics/MethodLength
 
       def show
         serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
@@ -60,6 +43,22 @@ module AccreditedRepresentativePortal
           PENDING = 'pending',
           PROCESSED = 'processed'
         ].freeze
+      end
+
+      def with_status(status, relation)
+        case status
+        when Statuses::PENDING
+          pending(relation)
+        when Statuses::PROCESSED
+          processed(relation)
+        when NilClass
+          relation
+        else
+          raise ActionController::BadRequest, <<~MSG.squish
+            Invalid status parameter.
+            Must be one of (#{Statuses::ALL.join(', ')})
+          MSG
+        end
       end
 
       def pending(relation)
