@@ -76,7 +76,6 @@ RSpec.describe MHV::AuditLogoutJob do
         allow(User).to receive(:find).with(user_uuid).and_return(user_with_account)
         allow(user_with_account).to receive(:save)
         
-        # Don't expect calls to these in this case
         allow(UserIdentity).to receive(:where).with(mhv_correlation_id: mhv_correlation_id).and_return([user_identity, other_identity])
         allow(User).to receive(:find).with('other-uuid').and_return(other_user)
         allow(other_user).to receive(:save)
