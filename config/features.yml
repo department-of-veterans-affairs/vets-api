@@ -110,9 +110,6 @@ features:
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
-  hca_cache_facilities_job:
-    actor_type: user
-    description: Use import job to update health facilities daily to limit facilities api requests
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
