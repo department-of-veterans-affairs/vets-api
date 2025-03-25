@@ -83,10 +83,6 @@ module AccreditedRepresentativePortal
           "authorizations": {
             "type": "object",
             "properties": {
-              "recordDisclosure": {
-                "type": "boolean",
-                "example": true
-              },
               "recordDisclosureLimitations": {
                 "type": "array",
                 "items": {
@@ -111,7 +107,6 @@ module AccreditedRepresentativePortal
               }
             },
             "required": [
-              "recordDisclosure",
               "recordDisclosureLimitations",
               "addressChange"
             ]
