@@ -8,14 +8,11 @@ module AccreditedRepresentativePortal
   module V0
     class RepresentativeFormUploadController < ApplicationController
       skip_after_action :verify_pundit_authorization
-      before_action :validate_power_of_attorney, only: :submit
+      # before_action :validate_power_of_attorney, only: :submit
 
       def submit
-        debugger
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:formNumber])
-        debugger
         check_for_changes
-        debugger
 
         status, confirmation_number = upload_response
         send_confirmation_email(params, confirmation_number) if status == 200
@@ -149,7 +146,7 @@ module AccreditedRepresentativePortal
           confirmation_number:
         }
 
-        notification_email = SimpleFormsApi::FormUploadNotificationEmail.new(config, notification_type: :confirmation)
+        notification_email = SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type: :confirmation)
         notification_email.send
       end
 
@@ -224,7 +221,6 @@ module AccreditedRepresentativePortal
       def validate_power_of_attorney
         get_icn
         # power_of_attorney_attributes = get_power_of_attorney_attributes(icn)
-        # debugger
 
         # rep_poa_codes = get_rep_poa_codes
         # raise if !rep_poa_codes.include?(power_of_attorney_attributes["code"])

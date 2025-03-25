@@ -55,65 +55,65 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       Common::FileHelpers.delete_file_if_exists(metadata_file)
     end
 
-    # it 'makes the veteran request' do
-    #   expect(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
-    #   post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+    it 'makes the veteran request' do
+      expect(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
+      post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
 
-    #   expect(response).to have_http_status(:ok)
-    # end
+      expect(response).to have_http_status(:ok)
+    end
 
-    # it 'makes the claimant request' do
-    #   expect(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
-    #   post('/accredited_representative_portal/v0/submit_representative_form', params: claimant_params)
+    it 'makes the claimant request' do
+      expect(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
+      post('/accredited_representative_portal/v0/submit_representative_form', params: claimant_params)
 
-    #   expect(response).to have_http_status(:ok)
-    # end
+      expect(response).to have_http_status(:ok)
+    end
 
-    # it 'stamps the pdf' do
-    #   expect(pdf_stamper).to receive(:stamp_pdf)
-
-    #   post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
-
-    #   expect(response).to have_http_status(:ok)
-    # end
-
-    # it 'saves the FormSubmission and FormSubmissionAttempt' do
-    #   form_submission = double
-    #   expect(FormSubmission).to receive(:create).with(
-    #     form_type: form_number,
-    #     form_data: veteran_params['form_data'].to_json,
-    #     user_account: representative_user.user_account
-    #   ).and_return(form_submission)
-    #   expect(FormSubmissionAttempt).to receive(:create).with(
-    #     form_submission:,
-    #     benefits_intake_uuid: anything
-    #   )
-
-    #   post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
-
-    #   expect(response).to have_http_status(:ok)
-    # end
-
-    # debugger
-    it 'checks if the prefill data has been changed' do
-      prefill_data = double
-      prefill_data_service = double
-      in_progress_form = double(form_data: prefill_data)
-
-      allow(SimpleFormsApi::PrefillDataService).to receive(:new).with(
-        prefill_data:,
-        form_data: hash_including(:email),
-        form_id: form_number
-      ).and_return(prefill_data_service)
-      allow(InProgressForm).to receive(:form_for_user).with(form_number,
-                                                            anything).and_return(in_progress_form)
-
-      expect(prefill_data_service).to receive(:check_for_changes)
+    it 'stamps the pdf' do
+      expect(pdf_stamper).to receive(:stamp_pdf)
 
       post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
 
       expect(response).to have_http_status(:ok)
     end
+
+    it 'saves the FormSubmission and FormSubmissionAttempt' do
+      form_submission = double
+      expect(FormSubmission).to receive(:create).with(
+        form_type: form_number,
+        form_data: veteran_params['form_data'].to_json,
+        user_account: representative_user.user_account
+      ).and_return(form_submission)
+      expect(FormSubmissionAttempt).to receive(:create).with(
+        form_submission:,
+        benefits_intake_uuid: anything
+      )
+
+      post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    # debugger
+    # it 'checks if the prefill data has been changed' do
+    #   prefill_data = double
+    #   prefill_data_service = double
+    #   in_progress_form = double(form_data: prefill_data)
+
+    #   allow(SimpleFormsApi::PrefillDataService).to receive(:new).with(
+    #     prefill_data:,
+    #     form_data: hash_including(:email),
+    #     form_id: form_number
+    #   ).and_return(prefill_data_service)
+    #   allow(InProgressForm).to receive(:form_for_user).with(form_number,
+    #                                                         anything).and_return(in_progress_form)
+
+    #   expect(prefill_data_service).to receive(:check_for_changes)
+
+    #   post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
+
+    #   expect(response).to have_http_status(:ok)
+    # end
   end
 
   describe '#upload_scanned_form' do
