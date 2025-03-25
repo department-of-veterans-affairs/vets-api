@@ -3,7 +3,7 @@
 module Lighthouse
   module DirectDeposit
     class Response
-      attr_accessor :status, :control_information, :payment_account
+      attr_accessor :status, :control_information, :payment_account, :veteran_status
 
       def initialize(status, control_information, payment_account, veteran_status)
         @status = status
