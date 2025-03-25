@@ -37,7 +37,7 @@ module Lighthouse
       end
 
       def self.add_log(notification, evidence_submission)
-        context = { 
+        context = {
           notification_id: notification.notification_id,
           source_location: notification.source_location,
           status: notification.status,
@@ -47,7 +47,7 @@ module Lighthouse
           job_class: evidence_submission.job_class
         }
 
-        Rails.logger.error(self.name, context)
+        Rails.logger.error(name, context)
       end
 
       def self.get_api_service_name(job_class)
