@@ -15,15 +15,6 @@ module AccreditedRepresentativePortal
       end
 
       def index
-        # Validate and normalize pagination parameters
-        validated_params = PowerOfAttorneyRequestService::ParamsSchema.validate_and_normalize!(params.to_unsafe_h)
-        page_params = validated_params[:page]
-        status = params[:status].presence
-
-        poa_requests = with_status(status, policy_scope(PowerOfAttorneyRequest))
-                       .includes(scope_includes)
-                       .paginate(page: page_params[:number], per_page: page_params[:size])
-
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
         render json: {
           data: serializer.serializable_hash,
@@ -45,7 +36,16 @@ module AccreditedRepresentativePortal
         ].freeze
       end
 
-      def with_status(status, relation)
+      def validated_params
+        @validated_params ||= PowerOfAttorneyRequestService::ParamsSchema.validate_and_normalize!(params.to_unsafe_h)
+      end
+
+      def poa_requests
+        @poa_requests ||= filter_by_status(policy_scope(PowerOfAttorneyRequest))
+                          .includes(scope_includes).paginate(page:, per_page:)
+      end
+
+      def filter_by_status(relation)
         case status
         when Statuses::PENDING
           pending(relation)
@@ -61,10 +61,20 @@ module AccreditedRepresentativePortal
         end
       end
 
+      def page
+        validated_params[:page][:number]
+      end
+
+      def per_page
+        validated_params[:page][:size]
+      end
+
+      def status
+        params[:status].presence
+      end
+
       def pending(relation)
-        relation
-          .not_processed
-          .order(created_at: :desc)
+        relation.not_processed.order(created_at: :desc)
       end
 
       def processed(relation)
