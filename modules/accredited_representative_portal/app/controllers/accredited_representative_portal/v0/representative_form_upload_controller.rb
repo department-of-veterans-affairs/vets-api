@@ -12,7 +12,7 @@ module AccreditedRepresentativePortal
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:formNumber])
         check_for_changes
         status, confirmation_number = upload_response
-        render json: { status: 200, confirmation_number: params[:confirmationCode] }
+        render json: { status:, confirmation_number: }
       end
 
       def upload_scanned_form
