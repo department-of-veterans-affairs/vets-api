@@ -34,7 +34,7 @@ module MHV
 
     def update_users_with_correlation_id(mhv_correlation_id)
       return unless defined?(UserIdentity) && UserIdentity.respond_to?(:where)
-      
+
       begin
         user_identities = UserIdentity.where(mhv_correlation_id:)
         user_identities.each do |identity|
