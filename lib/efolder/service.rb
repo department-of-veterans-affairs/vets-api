@@ -50,7 +50,7 @@ module Efolder
       uuids = []
       documents = BGS::UploadedDocumentService.new(@user).get_documents || []
 
-      Rails.logger.info "Documents Type: #{documents.class.name}"
+      Rails.logger.info "EFolder Documents Type: #{documents.class.name}"
 
       documents.each do |claim|
         uploaded_docs = claim[:uplded_dcmnts]
