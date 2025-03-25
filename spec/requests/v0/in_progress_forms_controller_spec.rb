@@ -195,10 +195,11 @@ RSpec.describe V0::InProgressFormsController do
         end
       end
 
-      context 'for an MDOT form sans addresses' do 
+      context 'for an MDOT form sans addresses' do
         before do
           allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
         end
+
         let(:user_details) do
           {
             first_name: 'Greg',
@@ -208,16 +209,16 @@ RSpec.describe V0::InProgressFormsController do
             ssn: '000550237'
           }
         end
-      
+
         let(:user) { build(:user, :loa3, user_details) }
-        
+
         it 'returns the form as JSON' do
           VCR.insert_cassette(
             'mdot/get_supplies_null_addresses_200',
             match_requests_on: %i[method uri headers],
             erb: { icn: user.icn }
           )
-          get v0_in_progress_form_url("MDOT"), params: nil
+          get v0_in_progress_form_url('MDOT'), params: nil
           expect(response).to have_http_status(:ok)
         end
       end
