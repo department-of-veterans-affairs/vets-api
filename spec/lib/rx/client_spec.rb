@@ -18,6 +18,12 @@ end
 
 describe Rx::Client do
   before(:all) do
+    Settings.mhv.rx.base_path = if Flipper.enabled?(:mhv_medications_add_x_api_key)
+                                  'v1/'
+                                else
+                                  'mhv-api/patient/v1/'
+                                end
+
     cassette_name = Flipper.enabled?(:mhv_medications_add_x_api_key) ? 'rx_client/session_gw' : 'rx_client/session'
     VCR.use_cassette cassette_name do
       @client ||= begin
