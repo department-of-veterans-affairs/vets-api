@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "https://api.wellhive.com/care-navigation/v1/appointments?patientId=care-nav-patient-casey"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - 5d202f6b-a460-4d4b-91ee-b89771def980
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 500
+      message: Unauthorized
+    headers:
+      Date:
+      - Mon, 24 Mar 2025 16:20:54 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '2'
+      Set-Cookie:
+      - TS016f4012=01c8917e484539b89f5ac9f6171c9000c5affdf54c49ddea8b6140e603e7f367304a2f6f7a343070c5b6427b581d71f15781ad249e;
+        Max-Age=900; Path=/
+      - vamfjwtv3=eyJ6aXAiOiJERUYiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.OcgLZWwhASihFMMZRTi3iJapqv3LzBaWq6lg0yJMZv5rymFlGEsKQFIMEvzKmE5pcmauXPRAWwEoqtwBsweU70MrC0Ad-C4pureETC5V8Zya-Sw5d8CflTCTQzA0ccYGZw3g494S7Uc-2f5HJ4wYRrAXm_-gP5uYJtWILngV3DBTae9LW5K_7p_IhRkTVpc50e7zkm5Ec410m0QXxRiygc3NDzeVuUpdcsLayVFqzlLtPNSEqkyVadyCLdeidOHk-WiP6-AYSRgPVoMWuylFmTXwV_CUO_ATLp9pLNBJa29tz0Ra2v0_341hOG73t6waI6IJK7n1m8N6Ovahr3KD7g.AH4_VGb9kegX_op187hovw.I4hZxgrnOIV6YmZvczLPZQVa4sq1RcfLT-3gYqceYy0nUVR7YjLGD5l20odUX0hnBR4OXov3SEMDYykf0N6LImQSehweBFN8kc8WpfNFkgkZs5O8-LzrbgsarHsES6QxDNfbEG67_VaHlp_BFoe05_ThVArk-kDzJMd8Xvbdtlz5BtNJ-01BU7pi2u5xSF_t0brF4TaETto46avuTiGN77ZyS874FDlfwJrFAALK9jTwpYKIJ8pyldW4PzB_2YvB89E9iJhN2Ps8U7Mq5L-PmjpjaLK5VujHu0Y5xnTfDHsx4NBIpkcBcT3-tfUP_lf7Ym7j7OTApEVyCl6WiEdsU9iZs4jkl9-51Me9yGve9bZhOydI92xcqir3CIb6R6M6Fwgl6J_MdfMbfoyfFfmQ2yspYMF1CdoNvQneF0wW8pHm4-6Pz0bUluRSs-Ixj4f0-lmwCtfb1CARtfgQfXJjirMH8zFwALyucqVTZ9hrqgttyiDQt9tAAi3Q9-Qx_WUsWie5a81bCHyOfXM4Yvs33mRrLxcMrCwm1nQCZZx2TqRyzKP1i_ZByHLWvRbRmq7FpqfvrV4trozez58FxZ065mtDgFu-1-7igYK2IgQWjFTcvHLvj3IsdDnGxKb5mip0.VgsgVQdVj_dM54Igp-c9F-VHyGG1Hn7ilKEO-PcWOQ0;
+        path=/; SameSite=Lax; HttpOnly
+      - vamftimeoutv1=1742834154; SameSite=Lax; path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"isFault": true,"isTemporary": true,"name": "Internal Server Error"}'
+  recorded_at: Thu, 02 Sep 2021 14:00:00 GMT
+recorded_with: VCR 6.3.1
