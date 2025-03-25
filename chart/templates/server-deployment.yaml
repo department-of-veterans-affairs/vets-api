@@ -51,7 +51,6 @@ spec:
             path: /var/run/datadog
 {{ toYaml $root.Values.common.volumes | indent 8 }}
       {{- if $root.Values.mockData.enabled }}
-      {{- if $root.Values.mockData.branch  }}
       initContainers:
         - name: vets-api-mockdata
           image: "{{ $root.Values.git_container_repo }}:{{ $root.Values.git_container_version }}"
