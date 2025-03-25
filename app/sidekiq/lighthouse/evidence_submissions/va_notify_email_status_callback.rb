@@ -5,21 +5,9 @@ require 'lighthouse/benefits_documents/constants'
 module Lighthouse
   module EvidenceSubmissions
     class VANotifyEmailStatusCallback
-      def self.call(notification) # rubocop:disable Metrics/MethodLength
-        notification_id = notification.notification_id
-        source_location = notification.source_location
-        status = notification.status
-        status_reason = notification.status_reason
-        notification_type = notification.notification_type
-        es = EvidenceSubmission.find_by(va_notify_id: notification_id)
-        job_class = es.job_class
-        request_id = es.request_id
-        api_service_name = ''
-        if job_class == 'EVSSClaimService'
-          api_service_name = 'EVSS'
-        elsif job_class == 'BenefitsDocuments::Service'
-          api_service_name = 'Lighthouse'
-        end
+      def self.call(notification)
+        es = EvidenceSubmission.find_by(va_notify_id: notification.notification_id)
+        api_service_name = get_api_service_name(es.job_class)
 
         case notification.status
         when 'delivered'
@@ -36,38 +24,46 @@ module Lighthouse
           StatsD.increment('callbacks.cst_document_uploads.va_notify.notifications.permanent_failure')
           tags = ['service:claim-status', "function: #{api_service_name} - VA Notify evidence upload failure email"]
           StatsD.increment('silent_failure', tags:)
-          Rails.logger.error('Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback',
-                             { notification_id:,
-                               source_location:,
-                               status:,
-                               status_reason:,
-                               notification_type:,
-                               request_id:,
-                               job_class: })
         when 'temporary-failure'
           # the api will continue attempting to deliver - success is still possible
           StatsD.increment('api.vanotify.notifications.temporary_failure')
           StatsD.increment('callbacks.cst_document_uploads.va_notify.notifications.temporary_failure')
-          Rails.logger.warn('Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback',
-                            { notification_id:,
-                              source_location:,
-                              status:,
-                              status_reason:,
-                              notification_type:,
-                              request_id:,
-                              job_class: })
         else
           StatsD.increment('api.vanotify.notifications.other')
           StatsD.increment('callbacks.cst_document_uploads.va_notify.notifications.other')
-          Rails.logger.error('Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback',
-                             { notification_id:,
-                               source_location:,
-                               status:,
-                               status_reason:,
-                               notification_type:,
-                               request_id:,
-                               job_class: })
         end
+
+        add_log(notification, es)
+      end
+
+      def self.add_log(notification, evidence_submission)
+        job_class = evidence_submission.job_class
+        request_id = evidence_submission.request_id
+        notification_id = notification.notification_id
+        source_location = notification.source_location
+        status = notification.status
+        status_reason = notification.status_reason
+        notification_type = notification.notification_type
+
+        Rails.logger.error('Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback',
+                           { notification_id:,
+                             source_location:,
+                             status:,
+                             status_reason:,
+                             notification_type:,
+                             request_id:,
+                             job_class: })
+      end
+
+      def self.get_api_service_name(job_class)
+        api_service_name = ''
+        if job_class == 'EVSSClaimService'
+          api_service_name = 'EVSS'
+        elsif job_class == 'BenefitsDocuments::Service'
+          api_service_name = 'Lighthouse'
+        end
+
+        api_service_name
       end
     end
   end

@@ -143,13 +143,13 @@ describe Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback do
 
         it 'logs error and increments StatsD' do
           allow(StatsD).to receive(:increment)
-          allow(Rails.logger).to receive(:warn)
+          allow(Rails.logger).to receive(:error)
           described_class.call(notification_record)
           es = EvidenceSubmission.find_by(va_notify_id: notification_record.notification_id)
           expect(StatsD).to have_received(:increment).with('api.vanotify.notifications.temporary_failure')
           expect(StatsD).to have_received(:increment)
             .with('callbacks.cst_document_uploads.va_notify.notifications.temporary_failure')
-          expect(Rails.logger).to have_received(:warn).with(
+          expect(Rails.logger).to have_received(:error).with(
             'Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback',
             { notification_id: notification_record.notification_id,
               source_location: notification_record.source_location,
