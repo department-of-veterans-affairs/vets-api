@@ -61,6 +61,11 @@ module AccreditedRepresentativePortal
     end
 
     ##
+    # ⚠️  JSON schema for form data that is exposed in our public-facing API.
+    # ⚠️  Any additions or changes to this schema will be reflected in the API response.
+    # ⚠️  Be mindful of exposing sensitive or unnecessary fields.
+    # ⚠️  Ensure all updates are intentional, well-documented, and reviewed for security and data governance.
+    #
     # TODO: Can couple this to the schema involved in user input during POA
     # request creation.
     #
@@ -79,9 +84,11 @@ module AccreditedRepresentativePortal
     SCHEMA = <<~JSON
       {
         "type": "object",
+        "additionalProperties": false,
         "properties": {
           "authorizations": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
               "recordDisclosureLimitations": {
                 "type": "array",
@@ -113,9 +120,11 @@ module AccreditedRepresentativePortal
           },
           "dependent": {
             "type": ["object", "null"],
+            "additionalProperties": false,
             "properties": {
               "name": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                   "first": {
                     "type": "string",
@@ -138,6 +147,7 @@ module AccreditedRepresentativePortal
               },
               "address": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                   "addressLine1": {
                     "type": "string",
@@ -208,9 +218,11 @@ module AccreditedRepresentativePortal
           },
           "veteran": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
               "name": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                   "first": {
                     "type": "string",
@@ -233,6 +245,7 @@ module AccreditedRepresentativePortal
               },
               "address": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                   "addressLine1": {
                     "type": "string",
