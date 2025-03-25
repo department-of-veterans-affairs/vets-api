@@ -18,8 +18,13 @@ RSpec.describe MHV::AuditLoginJob do
   end
 
   before do
+    # Set up authenticated client stubbing
     allow(MHVLogging::Client).to receive(:new).and_return(authenticated_client)
-    allow(authenticated_client).to receive_message_chain(:authenticate, :auditlogin)
+
+    # Create a double for the authenticate method
+    auth_object = double('authenticate')
+    allow(authenticated_client).to receive(:authenticate).and_return(auth_object)
+    allow(auth_object).to receive(:auditlogin)
   end
 
   describe 'perform' do
@@ -36,6 +41,7 @@ RSpec.describe MHV::AuditLoginJob do
     end
 
     describe 'user account path', skip: 'Implementation pending - will be revisited when PR is fully implemented' do
+      # These tests will be implemented when the PR is being fully implemented
       it 'calls the MHV audit client'
       it 'updates the user via the account path'
     end
