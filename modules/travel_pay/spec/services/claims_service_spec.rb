@@ -189,11 +189,15 @@ describe TravelPay::ClaimsService do
         expect(actual_claim['claimStatus']).to eq('Pre approved for payment')
       end
 
-      it 'includes document info when include_documents flag is true' do
+      it 'includes document summary info when include_documents flag is true' do
         claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
         actual_claim = @service.get_claim_details(claim_id, true)
 
+        expected_doc_ids = %w[uuid1 uuid2]
+        actual_doc_ids = actual_claim['documents'].pluck('documentId')
+
         expect(actual_claim['documents']).not_to be_empty
+        expect(actual_doc_ids).to eq(expected_doc_ids)
         expect(actual_claim['expenses']).not_to be_empty
         expect(actual_claim['appointment']).not_to be_empty
         expect(actual_claim['totalCostRequested']).to eq(20.00)

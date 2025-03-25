@@ -82,6 +82,11 @@ module Swagger::Schemas
           key :$ref, :TravelPayExpense
         end
       end
+      property :documents, type: :array do
+        items do
+          key :$ref, :TravelPayDocumentSummary
+        end
+      end
       property :createdOn, type: :string, example: '2024-06-13T13:57:07.291Z'
       property :modifiedOn, type: :string, example: '2024-06-13T13:57:07.291Z'
     end
@@ -109,6 +114,13 @@ module Swagger::Schemas
       property :description, type: :string, example: 'mileage-expense'
       property :costRequested, type: :number, example: 20.00
       property :costSubmitted, type: :number, example: 20.00
+    end
+
+    swagger_schema :TravelPayDocumentSummary do
+      property :documentId, type: :string, example: '33333333-5555-4444-bbbb-222222444444'
+      property :filename, type: :string, example: 'DecisionLetter.pdf'
+      property :mimetype, type: :string, example: 'application/pdf'
+      property :createdon, type: :string, example: '2024-06-13T13:57:07.291Z'
     end
   end
 end

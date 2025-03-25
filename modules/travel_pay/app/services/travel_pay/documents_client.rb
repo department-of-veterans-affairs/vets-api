@@ -13,7 +13,7 @@ module TravelPay
     #    "mimetype": "string",
     #    "createdon": "2025-03-24T14:00:52.893Z"
     #
-    # @return [TravelPay::DocumentInfo]
+    # @return [TravelPay::DocumentSummary]
     #
     def get_document_ids(veis_token, btsss_token, claim_id)
       btsss_url = Settings.travel_pay.base_url
