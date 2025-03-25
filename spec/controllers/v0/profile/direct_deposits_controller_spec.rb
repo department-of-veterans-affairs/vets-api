@@ -95,7 +95,7 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
         expect(json['control_information']['can_update_direct_deposit']).to be(false)
         expect(json['control_information']['has_payment_address']).to be(false)
         expect(json['control_information']['is_edu_claim_available']).to be(false)
-        expect(json['veteran_status']).not_to eq("VETERAN")
+        expect(json['veteran_status']).not_to eq('VETERAN')
       end
     end
 
