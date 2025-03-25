@@ -1607,7 +1607,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
           response_obj = JSON.parse(response.body)
           expect(response_obj['errors'].first['title']).to eq('Error fetching referral data from cache')
-          expect(response_obj['errors'].first['detail']).to eq('Unable to connect to cache service')
+          expect(response_obj['errors'].first['detail']).to eq('Redis connection refused')
         end
       end
     end

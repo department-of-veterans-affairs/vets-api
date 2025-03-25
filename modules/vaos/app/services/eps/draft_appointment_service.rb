@@ -27,6 +27,7 @@ module Eps
     #
     def call(referral_id, pagination_params)
       referral_data = fetch_referral_data(referral_id)
+      return referral_data unless referral_data[:success]
 
       referral_validation = check_referral_data_validation(referral_data)
       return referral_validation unless referral_validation[:success]
@@ -56,6 +57,12 @@ module Eps
     def fetch_referral_data(referral_id)
       eps_redis_client = Eps::RedisClient.new
       eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
+    rescue Redis::BaseError => e
+      {
+        success: false,
+        json: { errors: [{ title: 'Error fetching referral data from cache', detail: e.message }] },
+        status: :bad_gateway
+      }
     end
 
     ##
