@@ -92,7 +92,7 @@ module AccreditedRepresentativePortal
         {}.tap do |a|
           a[:veteran] = veteran_data
           a[:serviceOrganization] = organization_data
-          a[:recordConsent] = form_data.dig('authorizations', 'recordDisclosure')
+          a[:recordConsent] = form_data.dig('authorizations', 'recordDisclosureLimitations').blank?
           a[:consentLimits] = form_data.dig('authorizations', 'recordDisclosureLimitations')
           a[:consentAddressChange] = form_data.dig('authorizations', 'addressChange')
         end
