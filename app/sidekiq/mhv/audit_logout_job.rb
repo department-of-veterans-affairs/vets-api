@@ -37,7 +37,7 @@ module MHV
       return unless defined?(UserIdentity) && UserIdentity.respond_to?(:where)
       
       begin
-        user_identities = UserIdentity.where(mhv_correlation_id: mhv_correlation_id)
+        user_identities = UserIdentity.where(mhv_correlation_id:)
         user_identities.each do |identity|
           user = User.find(identity.uuid)
           user.mhv_last_signed_in = nil
