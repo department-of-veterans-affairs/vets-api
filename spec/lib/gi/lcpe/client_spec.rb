@@ -8,7 +8,7 @@ describe GI::LCPE::Client do
   let(:client) { described_class.new(v_client:, lcpe_type:) }
   let(:v_fresh) { '3' }
   let(:v_stale) { '2' }
-  let(:enriched_id) { "1@#{v_client}" }
+  let(:enriched_id) { "1v#{v_client}" }
 
   describe '#get_licenses_and_certs_v1' do
     context 'when versioning disabled' do

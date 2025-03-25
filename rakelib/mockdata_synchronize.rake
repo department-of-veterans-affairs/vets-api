@@ -28,7 +28,7 @@ namespace :mockdata_synchronize do
     end
 
     def create_curl(icn)
-      uri = URI.parse(Settings.mvi.url)
+      uri = URI.parse(IdentitySettings.mvi.url)
       request = Net::HTTP::Post.new(uri)
       request.content_type = 'text/xml;charset=UTF-8'
       request['Connection'] = 'close'

@@ -82,7 +82,8 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
           /^Success creating PersistentAttachment FormID=21P-527EZ AttachmentID=\d+/
         )
         expect(Rails.logger).to receive(:error).with(
-          'Error creating PersistentAttachment FormID=21P-527EZ AttachmentID= Common::Exceptions::UnprocessableEntity',
+          'Input error creating PersistentAttachment ' \
+          'FormID=21P-527EZ AttachmentID= Common::Exceptions::UnprocessableEntity',
           instance_of(Hash)
         )
 

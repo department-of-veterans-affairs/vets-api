@@ -9,6 +9,7 @@ module V0
     def available_forms
       form = Form1095B.find_by(veteran_icn: current_user.icn, tax_year: Form1095B.current_tax_year)
       forms = form.nil? ? [] : [{ year: form.tax_year, last_updated: form.updated_at }]
+      StatsD.increment('api.user_has_no_1095b') if forms.empty?
       render json: { available_forms: forms }
     end
 

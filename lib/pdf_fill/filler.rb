@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/extras_generator'
+require 'pdf_fill/extras_generator_v2'
 require 'pdf_fill/forms/va21p0969'
 require 'pdf_fill/forms/va214142'
 require 'pdf_fill/forms/va210781a'
@@ -145,14 +147,8 @@ module PdfFill
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
       merged_form_data = form_class.new(form_data).merge_fields(fill_options)
-      extras_generator = ExtrasGenerator.new(
-        extras_redesign: fill_options.fetch(:extras_redesign, false),
-        form_name: form_id.sub(/V2\z/, ''),
-        submit_date: merged_form_data['signatureDate'] || fill_options.fetch(:created_at, nil),
-        start_page: form_class::START_PAGE,
-        sections: form_class::SECTIONS
-      )
-      hash_converter = HashConverter.new(form_class.date_strftime, extras_generator)
+
+      hash_converter = make_hash_converter(form_id, form_class, merged_form_data, fill_options)
       new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
 
       has_template = form_class.const_defined?(:TEMPLATE)
@@ -163,6 +159,21 @@ module PdfFill
       )
 
       combine_extras(file_path, hash_converter.extras_generator)
+    end
+
+    def make_hash_converter(form_id, form_class, merged_form_data, fill_options)
+      extras_generator =
+        if fill_options.fetch(:extras_redesign, false)
+          ExtrasGeneratorV2.new(
+            form_name: form_id.sub(/V2\z/, ''),
+            submit_date: merged_form_data['signatureDate'] || fill_options.fetch(:created_at, nil),
+            start_page: form_class::START_PAGE,
+            sections: form_class::SECTIONS
+          )
+        else
+          ExtrasGenerator.new
+        end
+      HashConverter.new(form_class.date_strftime, extras_generator)
     end
   end
 end

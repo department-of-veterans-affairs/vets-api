@@ -40,7 +40,7 @@ RSpec.describe DebtManagementCenter::VANotifyEmailJob, type: :worker do
 
       it 'increments the failure counter' do
         expect(StatsD).to receive(:increment).with(
-          'silent_failure', tags: %w[service:debt-resolution function:register_failure]
+          'silent_failure', tags: %w[service:debt-resolution function:sidekiq_retries_exhausted]
         )
 
         expect(StatsD).to receive(:increment).with('api.dmc.va_notify_email.retries_exhausted')

@@ -5,11 +5,16 @@ module IvcChampva
     class MissingStatusCleanup
       # Displays a list of all form submission batches that include a missing PEGA status
       #
+      # @param [boolean] silent whether or not to `puts` the batch information
+      #
       # @returns [Hash] a hash where keys are form UUIDs and values are arrays of
       #   IvcChampvaForm records matching that UUID
-      def get_missing_statuses
+      def get_missing_statuses(silent: false)
         all_nil_statuses = IvcChampvaForm.where(pega_status: nil)
         batches = batch_records(all_nil_statuses)
+
+        return batches if silent
+
         # Print out details of each batch that contains a missing PEGA status:
         batches.each_value do |batch|
           display_batch(batch)
@@ -21,12 +26,16 @@ module IvcChampva
       # Displays a list of all form submission batches that match the provided email address.
       #
       # @param [String] email_addr email address to search for IvcChampvaForm records by
+      # @param [boolean] silent whether or not to `puts` the batch information
       #
       # @returns [Hash] a hash where keys are form UUIDs and values are arrays of
       #   IvcChampvaForm records matching that UUID, all with :email equal to to email_addr
-      def get_batches_for_email(email_addr)
+      def get_batches_for_email(email_addr:, silent: false)
         results = IvcChampvaForm.where(email: email_addr)
         batches = batch_records(results)
+
+        return batches if silent
+
         batches.each_value do |batch|
           display_batch(batch)
         end
@@ -68,7 +77,7 @@ module IvcChampva
         puts "Form UUID:   #{form.form_uuid}"
         puts "Form:   #{form.form_number}"
         puts "Uploaded at: #{form.created_at}"
-        puts "S3 Status:   #{nil_in_batch.distinct.pluck(:s3_status)}\n"
+        puts "S3 Status:   #{batch.distinct.pluck(:s3_status)}\n"
 
         nil
       end
@@ -83,7 +92,8 @@ module IvcChampva
         batch.each do |form|
           next unless form.pega_status.nil?
 
-          puts "Setting #{form.file_name} to 'Manually Processed'"
+          # In this context, `form.file_name` has this structure: "#{uuid}_#{form_id}_supporting_doc-#{index}.pdf"
+          Rails.logger.info("IVC ChampVA Forms - Setting #{form.file_name} to 'Manually Processed'")
           form.update(pega_status: 'Manually Processed')
           form.save
         end

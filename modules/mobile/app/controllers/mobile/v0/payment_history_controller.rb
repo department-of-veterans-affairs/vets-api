@@ -10,11 +10,12 @@ module Mobile
       def index
         validated_params = validate_params(params)
 
-        payments = adapter.payments
-        available_years = available_years(payments)
-        payments = filter(payments, available_years, validated_params) unless payments.empty?
+        unfiltered_payments = adapter.payments
+        available_years = available_years(unfiltered_payments)
+        payments = unfiltered_payments.empty? ? [] : filter(unfiltered_payments, available_years, validated_params)
         list, meta = paginate(payments, validated_params)
         meta[:meta][:available_years] = available_years
+        meta[:meta][:recurring_payment] = recurring_payment(unfiltered_payments)
 
         render json: Mobile::V0::PaymentHistorySerializer.new(list, meta)
       end
@@ -45,6 +46,16 @@ module Mobile
 
       def available_years(payments)
         payments.map { |p| p.date&.year }.compact.uniq.sort { |a, b| b <=> a }
+      end
+
+      def recurring_payment(payments)
+        payment = payments&.find { |p| p[:payment_type] == 'Compensation & Pension - Recurring' }
+        return {} unless payment
+
+        {
+          amount: payment[:amount],
+          date: payment[:date]
+        }
       end
 
       def filter(payments, available_years, validated_params)

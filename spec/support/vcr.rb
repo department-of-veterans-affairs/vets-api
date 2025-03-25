@@ -32,7 +32,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MHV_X_API_KEY>') { Settings.mhv.medical_records.mhv_x_api_key }
   c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
   c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
-  c.filter_sensitive_data('<MPI_URL>') { Settings.mvi.url }
+  c.filter_sensitive_data('<MPI_URL>') { IdentitySettings.mvi.url }
   c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
   c.filter_sensitive_data('<CENTRAL_MAIL_TOKEN>') { Settings.central_mail.upload.token }
   c.filter_sensitive_data('<PPMS_API_KEY>') { Settings.ppms.api_keys }
@@ -51,6 +51,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VRO_URL>') { Settings.virtual_regional_office.url }
   c.filter_sensitive_data('<VRO_API_KEY>') { Settings.virtual_regional_office.api_key }
   c.filter_sensitive_data('<CONTENTION_CLASSIFICATION_API_URL>') { Settings.contention_classification_api.url }
+  c.filter_sensitive_data('<VA_MOBILE_URL>') { Settings.va_mobile.url }
   c.filter_sensitive_data('<ARP_ALLOW_LIST_ACCESS_TOKEN>') do
     Settings.accredited_representative_portal.allow_list.github.access_token
   end

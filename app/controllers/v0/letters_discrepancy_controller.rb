@@ -11,7 +11,6 @@ require 'evss/letters/service'
 # imports needed for lighthouse
 require 'lighthouse/letters_generator/service'
 require 'lighthouse/letters_generator/service_error' # this shouldn't be needed
-require 'lighthouse/letters_generator/veteran_sponsor_resolver' # this shouldn't be needed
 
 module V0
   class LettersDiscrepancyController < ApplicationController

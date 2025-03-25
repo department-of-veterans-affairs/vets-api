@@ -31,7 +31,7 @@ module AccreditedRepresentativePortal
           personalisation: personalisation || poa_request_notification.personalisation
         }.compact
       )
-      poa_request_notification.update!(notification_id: response['id'])
+      poa_request_notification.update!(notification_id: response.id)
     rescue VANotify::Error => e
       handle_backend_exception(e, template_id)
     end

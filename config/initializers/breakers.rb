@@ -44,6 +44,7 @@ require 'va_profile/military_personnel/configuration'
 require 'va_profile/veteran_status/configuration'
 require 'iam_ssoe_oauth/configuration'
 require 'vetext/service'
+require 'unified_health_data/configuration'
 
 Rails.application.reloader.to_prepare do
   redis_namespace = Redis::Namespace.new('breakers', redis: $redis)
@@ -89,7 +90,8 @@ Rails.application.reloader.to_prepare do
     PagerDuty::Configuration.instance.breakers_service,
     ClaimsApi::LocalBGS.breakers_service,
     MebApi::DGI::Configuration.instance.breakers_service,
-    MebApi::DGI::Letters::Configuration.instance.breakers_service
+    MebApi::DGI::Letters::Configuration.instance.breakers_service,
+    UnifiedHealthData::Configuration.instance.breakers_service
   ]
 
   services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled
