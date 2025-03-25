@@ -85,6 +85,9 @@ features:
   bpds_service_enabled:
     actor_type: user
     description: Enables the BPDS service
+  bgs_uploaded_document_web_service:
+    actor_type: user
+    description: Call BGS::UploadedDocumentWebService instead of BGS::UploadedDocumentService
   caregiver_use_facilities_API:
     actor_type: cookie_id
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.

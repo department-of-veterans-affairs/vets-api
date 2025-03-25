@@ -48,9 +48,13 @@ module Efolder
 
     def bgs_doc_uuids
       uuids = []
-      documents = BGS::UploadedDocumentService.new(@user).get_documents || []
-
-      Rails.logger.info "EFolder Documents Type: #{documents.class.name}"
+      if Flipper.enabled?(:bgs_uploaded_document_web_service)
+        documents = BGS::UploadedDocumentWebService.new(@user).get_documents || []
+        Rails.logger.info "EFolder WebServiceDocuments Type: #{documents.class.name}"
+      else
+        documents = BGS::UploadedDocumentService.new(@user).get_documents || []
+        Rails.logger.info "EFolder UploadDocuments Type: #{documents.class.name}"
+      end
 
       documents.each do |claim|
         uploaded_docs = claim[:uplded_dcmnts]
