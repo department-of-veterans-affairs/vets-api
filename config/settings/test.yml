@@ -452,7 +452,7 @@ flipper:
   github_organization: organization
   github_team: 0
   mute_logs: false
-form0871_remediation:
+form0781_remediation:
   aws:
     bucket: ~
     region: ~

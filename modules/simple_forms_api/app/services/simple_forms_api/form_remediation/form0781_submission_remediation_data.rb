@@ -25,7 +25,7 @@ module SimpleFormsApi
       end
     end
 
-    class Form526SubmissionRemediationData < SubmissionRemediationData
+    class Form0781SubmissionRemediationData < SubmissionRemediationData
       def hydrate!
         form_content = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781a']
         submitted_claim_id = submission.submitted_claim_id

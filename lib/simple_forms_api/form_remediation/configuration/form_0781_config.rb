@@ -19,7 +19,7 @@ module SimpleFormsApi
         end
 
         def s3_settings
-          Settings.form0871_remediation.aws
+          Settings.form0781_remediation.aws
         end
       end
     end

@@ -454,7 +454,7 @@ flipper:
   github_organization: department-of-veterans-affairs
   github_team: <%= ENV['flipper__github_team'] %>
   mute_logs: <%= ENV['flipper__mute_logs'] %>
-form0871_remediation:
+form0781_remediation:
   aws:
     bucket: <%= ENV['reports__aws__bucket'] %> # TODO: Change this to the proper bucket
     region: us-gov-west-1
