@@ -125,7 +125,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
   end
 
   describe '#create with 4142' do
-    let(:params) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').deep_dup }
+    let(:params) { File.read('modules/decision_reviews/spec/support/schema_examples/sc_create_with_4142_v1.json') }
 
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?',
@@ -133,7 +133,11 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
     end
 
     context 'when schema validation fails' do
-      let(:invalid_params) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').deep_dup }
+      let(:invalid_params) do
+        invalid_params = JSON.parse(params)
+        invalid_params['form4142']['providerFacility'] = nil
+        invalid_params
+      end
 
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
@@ -144,7 +148,6 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
 
       it 'logs the error and increments the StatsD metric' do
         VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
-          invalid_params['form4142']['providerFacility'] = nil
           post('/decision_reviews/v1/supplemental_claims',
                params: invalid_params.to_json,
                headers:)
@@ -163,7 +166,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
     context 'when tracking 4142 is enabled' do
       subject do
         post '/decision_reviews/v1/supplemental_claims',
-             params: params.to_json,
+             params:,
              headers:
       end
 
@@ -189,13 +192,12 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
               end.to change(DecisionReviews::Form4142Submit.jobs, :size).by(-1)
 
               # SavedClaim should be created with request data and list of uploaded forms
-              request_body = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json)
               saved_claim = SavedClaim::SupplementalClaim.find_by(guid: id)
-              expect(saved_claim.form).to eq(request_body.to_json)
+              expect(JSON.parse(saved_claim.form)).to eq(JSON.parse(params))
               expect(saved_claim.uploaded_forms).to contain_exactly '21-4142'
 
               # SecondaryAppealForm should be created with 4142 data and user data
-              expected_form4142_data = VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV')['form4142']
+              expected_form4142_data = JSON.parse(params)['form4142']
               veteran_data = {
                 'vaFileNumber' => '796111863',
                 'veteranSocialSecurityNumber' => '796111863',
@@ -235,7 +237,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
               previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
               expect do
                 post '/decision_reviews/v1/supplemental_claims',
-                     params: params.to_json,
+                     params:,
                      headers:
               end.to change(DecisionReviews::Form4142Submit.jobs, :size).by(1)
               expect(response).to be_successful
@@ -249,9 +251,8 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
               end.to change(DecisionReviews::Form4142Submit.jobs, :size).by(-1)
 
               # SavedClaim should be created with request data and list of uploaded forms
-              request_body = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json)
               saved_claim = SavedClaim::SupplementalClaim.find_by(guid: id)
-              expect(saved_claim.form).to eq(request_body.to_json)
+              expect(JSON.parse(saved_claim.form)).to eq(JSON.parse(params))
               expect(saved_claim.uploaded_forms).to contain_exactly '21-4142'
             end
           end
@@ -264,7 +265,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
               expect do
                 post '/decision_reviews/v1/supplemental_claims',
-                     params: params.to_json,
+                     params:,
                      headers:
               end.to change(DecisionReviews::Form4142Submit.jobs, :size).by(1)
               expect do

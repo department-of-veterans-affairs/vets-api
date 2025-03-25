@@ -51,7 +51,9 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
       create(:appeal_submission_module, :with_one_upload_module, submitted_appeal_uuid:, type_of_appeal: 'SC')
     end
     let(:user) { build(:user, :loa3) }
-    let(:request_body) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV') }
+    let(:request_body) do
+      JSON.parse(File.read('modules/decision_reviews/spec/support/schema_examples/sc_create_with_4142_v1.json'))
+    end
 
     context 'when form4142 data exists' do
       it '#decrypt_form properly decrypts encrypted payloads' do

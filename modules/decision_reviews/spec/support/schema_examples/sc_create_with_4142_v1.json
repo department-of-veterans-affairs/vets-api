@@ -1,0 +1,35 @@
+{"form4142":
+{"privacyAgreementAccepted":true,
+   "limitedConsent":"Please limit to only non-psych records",
+   "providerFacility":
+    [{"providerFacilityName":"provider 1",
+      "treatmentDateRange":[{"from":"1980-01-01", "to":"1985-01-01"}, {"from":"1986-01-01", "to":"1987-01-01"}],
+      "providerFacilityAddress":{"street":"123 Main Street", "street2":"1B", "city":"Baltimore", "state":"MD", "country":"USA", "postalCode":"21200-1111"}},
+     {"providerFacilityName":"provider 2",
+      "treatmentDateRange":[{"from":"1980-02-01", "to":"1985-02-01"}, {"from":"1986-02-01", "to":"1987-02-01"}],
+      "providerFacilityAddress":{"street":"456 Main Street", "street2":"1B", "city":"Baltimore", "state":"MD", "country":"USA", "postalCode":"21200-1111"}},
+     {"providerFacilityName":"provider 3",
+      "treatmentDateRange":[{"from":"1980-03-01", "to":"1985-03-01"}, {"from":"1986-03-01", "to":"1987-03-01"}],
+      "providerFacilityAddress":{"street":"789 Main Street", "street2":"1B", "city":"Baltimore", "state":"MD", "country":"USA", "postalCode":"21200-1111"}},
+     {"providerFacilityName":"provider 4",
+      "treatmentDateRange":[{"from":"1980-04-01", "to":"1985-04-01"}, {"from":"1986-04-01", "to":"1987-04-01"}],
+      "providerFacilityAddress":{"street":"101 Main Street", "street2":"1B", "city":"Baltimore", "state":"MD", "country":"USA", "postalCode":"21200-1111"}},
+     {"providerFacilityName":"provider 5",
+      "treatmentDateRange":[{"from":"1980-05-01", "to":"1985-05-01"}, {"from":"1986-05-01", "to":"1987-05-01"}],
+      "providerFacilityAddress":{"street":"102 Main Street", "street2":"1B", "city":"Baltimore", "state":"MD", "country":"USA", "postalCode":"21200-1111"}}]},
+ "data":
+  {"type":"supplementalClaim",
+   "attributes":
+    {"benefitType":"fiduciary",
+     "claimantType":"veteran",
+     "veteran":
+      {"address":{"addressLine1":"123  Main St", "city":"New York", "countryCodeISO2":"US", "zipCode5":"30012"},
+       "phone":{"areaCode":"555", "phoneNumber":"8001111"},
+       "email":"josie@example.com",
+       "timezone":"America/Chicago"},
+     "socOptIn":false,
+     "evidenceSubmission":{"evidenceType":["upload"]}}},
+ "additionalDocuments":
+  [{"name":"buddy-statement.pdf", "confirmationCode":"kkkkkkkk-llll-mmmm-nnnn-oooooooooooo", "attachmentId":"L015", "size":40000, "isEncrypted":false},
+   {"name":"photos.pdf", "confirmationCode":"pppppppp-qqqql-rrrr-ssss-ttttttttttt", "attachmentId":"L070", "size":40000, "isEncrypted":false}],
+ "included":[{"type":"contestableIssue", "attributes":{"issue":"right  shoulder", "decisionDate":"1900-01-06"}}]}
