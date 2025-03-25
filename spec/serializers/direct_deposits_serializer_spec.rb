@@ -26,6 +26,10 @@ describe DirectDepositsSerializer, feature: :direct_deposit,
     expect(attributes['payment_account']).to eq direct_deposit[:payment_account].deep_stringify_keys
   end
 
+  it 'includes :veteran_status' do
+    expect(attributes['veteran_status']).to eq direct_deposit[:veteran_status]
+  end
+
   it 'masks account number' do
     masked_account_number = StringHelpers.mask_sensitive(direct_deposit[:payment_account][:account_number])
     expect(attributes['payment_account']['account_number']).to eq masked_account_number

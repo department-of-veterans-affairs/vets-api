@@ -7,7 +7,7 @@ FactoryBot.define do
     trait :with_payment_account do
       payment_account
     end
-
+    veteran_status { "VETERAN" }
     initialize_with { attributes }
   end
 
@@ -37,5 +37,8 @@ FactoryBot.define do
     routing_number { '031000503' }
 
     initialize_with { attributes }
+  end
+  factory :veteran_status, class: Hash do
+    "VETERAN"
   end
 end

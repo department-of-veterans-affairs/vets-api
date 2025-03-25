@@ -6,7 +6,7 @@ class DirectDepositsSerializer
   set_id { '' }
   set_type 'direct_deposits'
 
-  attributes :control_information, :payment_account
+  attributes :control_information, :payment_account, :veteran_status
 
   attribute :control_information do |object|
     object[:control_information]
@@ -24,5 +24,9 @@ class DirectDepositsSerializer
     payment_account[:routing_number] = StringHelpers.mask_sensitive(routing_number) if routing_number
 
     payment_account
+  end
+
+  attribute :veteran_status do |object|
+    object[:veteran_status]
   end
 end
