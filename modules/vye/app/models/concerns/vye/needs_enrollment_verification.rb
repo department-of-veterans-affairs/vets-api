@@ -171,23 +171,23 @@ module Vye
     def flag_open_cert
       puts "\n\nflag_open_cert"
       if dlc_before_ldpm? || date_last_certified.blank?
-        puts 'date last certified is before last day of previous month or is blank - continuing'
+        puts '1 date last certified is before last day of previous month or is blank - continuing'
       else
-        puts 'date last certified is not before last day of previous month and is not blank - returning'
+        puts '1 date last certified is not before last day of previous month and is not blank - returning'
       end
       return unless dlc_before_ldpm? || date_last_certified.blank?
 
       if @award.award_ind_current?
-        puts 'award is current - continuing'
+        puts '2 award is current - continuing'
       else
-        puts 'award is not current - returning'
+        puts '2 award is not current - returning'
       end
       return unless @award.award_ind_current?
 
       if @award.award_end_date.present?
-        puts 'award end date is present - returning'
+        puts '3 award end date is present - returning'
       else
-        puts 'award end date is not present - continuing'
+        puts '3 award end date is not present - continuing'
       end
       return if @award.award_end_date.present?
 
@@ -384,44 +384,44 @@ module Vye
       puts "\n\ncase3"
 
       if dlc_before_ldpm? || date_last_certified.blank?
-        puts 'date last certified is before last day of previous month or is blank - continuing'
+        puts '1 date last certified is before last day of previous month or is blank - continuing'
       else
-        puts 'date last certified is not before last day of previous month and is not blank - returning'
+        puts '1 date last certified is not before last day of previous month and is not blank - returning'
       end
       return unless dlc_before_ldpm? || date_last_certified.blank?
 
       if @award.award_ind_current?
-        puts 'award is current - continuing'
+        puts '2 award is current - continuing'
       else
-        puts 'award is not current - returning'
+        puts '2 award is not current - returning'
       end
       return unless @award.award_ind_current?
 
       if @award.award_end_date.blank?
-        puts 'award end date is blank - returning'
+        puts '3 award end date is blank - returning'
       else
-        puts 'award end date is not blank - continuing'
+        puts '3 award end date is not blank - continuing'
       end
       return if @award.award_end_date.blank?
 
       if are_dates_the_same(@award.award_begin_date, date_last_certified)
-        puts 'award begin date is the same as date last certified - returning'
+        puts '4 award begin date is the same as date last certified - returning'
       else
-        puts 'award begin date is not the same as date last certified - continuing'
+        puts '4 award begin date is not the same as date last certified - continuing'
       end
       return if are_dates_the_same(@award.award_end_date, date_last_certified)
 
       if current_rec_ended?
-        puts 'current record is ended - continuing'
+        puts '5 current record is ended - continuing'
       else
-        puts 'current record is not ended - returning'
+        puts '5 current record is not ended - returning'
       end
       return if current_rec_ended?
 
       if ldpm_before_aed? && !ldpm_before_abd?
-        puts 'last day of previous month is before award end date && last day of previous month is not before award begin date - returning'
+        puts '6 last day of previous month is before award end date && last day of previous month is not < award begin date - returning'
       else
-        puts 'last day of previous month is not before award end date || last day of previous month is before award begin date - continuing'
+        puts '6 last day of previous month is not before award end date || last day of previous month is >= award begin date - continuing'
       end
       return if ldpm_before_aed? && !ldpm_before_abd?
 
@@ -443,30 +443,30 @@ module Vye
       puts "\n\ncase4"
 
       if dlc_before_ldpm? || date_last_certified.blank?
-        puts 'date last certified is before last day of previous month or is blank - continuing'
+        puts '1 date last certified is before last day of previous month or is blank - continuing'
       else
-        puts 'date last certified is not before last day of previous month and is not blank - returning'
+        puts '1 date last certified is not before last day of previous month and is not blank - returning'
       end
       return unless dlc_before_ldpm? || date_last_certified.blank?
 
       if @award.award_ind_future? && !@supress_future_award
-        puts 'award is future && supress future award is false - continuing'
+        puts '2 award is future && supress future award is false - continuing'
       else
-        puts 'award is not future || supress future award is true - returning'
+        puts '2 award is not future || supress future award is true - returning'
       end
       return unless @award.award_ind_future? && !@supress_future_award
 
       if @open_cert
-        puts 'open cert is true - continuing'
+        puts '3 open cert is true - continuing'
       else
-        puts 'open cert is false - returning'
+        puts '3 open cert is false - returning'
       end
       return unless @open_cert
 
       if ldpm_before_abd?
-        puts 'last day of previous month is before award begin date - continuing'
+        puts '4 last day of previous month is before award begin date - continuing'
       else
-        puts 'last day of previous month is not before award begin date - returning'
+        puts '4 last day of previous month is not before award begin date - returning'
       end
       return unless ldpm_before_abd?
 
@@ -489,37 +489,37 @@ module Vye
       puts "\n\ncase5"
 
       if dlc_before_ldpm? || date_last_certified.blank?
-        puts 'date last certified is before last day of previous month or is blank - continuing'
+        puts '1 date last certified is before last day of previous month or is blank - continuing'
       else
-        puts 'date last certified is not before last day of previous month and is not blank - returning'
+        puts '1 date last certified is not before last day of previous month and is not blank - returning'
       end
       return unless dlc_before_ldpm? || date_last_certified.blank?
 
       if @award.award_ind_future? && !@supress_future_award
-        puts 'award is future && supress future award is false - continuing'
+        puts '2 award is future && supress future award is false - continuing'
       else
-        puts 'award is not future || supress future award is true - returning'
+        puts '2 award is not future || supress future award is true - returning'
       end
       return unless @award.award_ind_future? && !@supress_future_award
 
       if @open_cert
-        puts 'open cert is true - continuing'
+        puts '3 open cert is true - continuing'
       else
-        puts 'open cert is false - returning'
+        puts '3 open cert is false - returning'
       end
       return unless @open_cert
 
       if ldpm_before_abd?
-        puts 'last day of previous month is before award begin date - returning'
+        puts '4 last day of previous month is before award begin date - returning'
       else
-        puts 'last day of previous month is not before award begin date - continuing'
+        puts '4 last day of previous month is not before award begin date - continuing'
       end
       return if ldpm_before_abd?
 
       if ldpm_before_aed?
-        puts 'last day of previous month is before award end date - continuing'
+        puts '5 last day of previous month is before award end date - continuing'
       else
-        puts 'last day of previous month is not before award end date - returning'
+        puts '5 last day of previous month is not before award end date - returning'
       end
       return unless ldpm_before_aed?
 
@@ -542,37 +542,37 @@ module Vye
       puts "\n\ncase6"
 
       if dlc_before_ldpm? || date_last_certified.blank?
-        puts 'date last certified is before last day of previous month or is blank - continuing'
+        puts '1 date last certified is before last day of previous month or is blank - continuing'
       else
-        puts 'date last certified is not before last day of previous month and is not blank - returning'
+        puts '1 date last certified is not before last day of previous month and is not blank - returning'
       end
       return unless dlc_before_ldpm? || date_last_certified.blank?
 
       if @award.award_ind_future? && !@supress_future_award
-        puts 'award is future && supress future award is false - continuing'
+        puts '2 award is future && supress future award is false - continuing'
       else
-        puts 'award is not future || supress future award is true - returning'
+        puts '2 award is not future || supress future award is true - returning'
       end
       return unless @award.award_ind_future? && !@supress_future_award
 
       if @open_cert
-        puts 'open cert is true - returning'
+        puts '3 open cert is true - returning'
       else
-        puts 'open cert is false - continuing'
+        puts '3 open cert is false - continuing'
       end
       return if @open_cert
 
       if ldpm_before_abd?
-        puts 'last day of previous month is before award begin date - returning'
+        puts '4 last day of previous month is before award begin date - returning'
       else
-        puts 'last day of previous month is not before award begin date - continuing'
+        puts '4 last day of previous month is not before award begin date - continuing'
       end
       return if ldpm_before_abd?
 
       if date_last_certified.present?
-        puts 'date last certified is present - returning'
+        puts '5 date last certified is present - returning'
       else
-        puts 'date last certified is not present - continuing'
+        puts '5 date last certified is not present - continuing'
       end
       return if date_last_certified.present?
 
@@ -594,44 +594,44 @@ module Vye
       puts "\n\ncase7"
 
       if dlc_before_ldpm? || date_last_certified.blank?
-        puts 'date last certified is before last day of previous month or is blank - continuing'
+        puts '1 date last certified is before last day of previous month or is blank - continuing'
       else
-        puts 'date last certified is not before last day of previous month and is not blank - returning'
+        puts '1 date last certified is not before last day of previous month and is not blank - returning'
       end
       return unless dlc_before_ldpm? || date_last_certified.blank?
 
       if @award.award_ind_future? && !@supress_future_award
-        puts 'award is future && supress future award is false - continuing'
+        puts '2 award is future && supress future award is false - continuing'
       else
-        puts 'award is not future || supress future award is true - returning'
+        puts '2 award is not future || supress future award is true - returning'
       end
       return unless @award.award_ind_future? && !@supress_future_award
 
       if @open_cert
-        puts 'open cert is true - returning'
+        puts '3 open cert is true - returning'
       else
-        puts 'open cert is false - continuing'
+        puts '3 open cert is false - continuing'
       end
       return if @open_cert
 
       if ldpm_before_abd?
-        puts 'last day of previous month is before award begin date - returning'
+        puts '4 last day of previous month is before award begin date - returning'
       else
-        puts 'last day of previous month is not before award begin date - continuing'
+        puts '4 last day of previous month is not before award begin date - continuing'
       end
       return if ldpm_before_abd?
 
       if date_last_certified.blank?
-        puts 'date last certified is blank - returning'
+        puts '5 date last certified is blank - returning'
       else
-        puts 'date last certified is not blank - continuing'
+        puts '5 date last certified is not blank - continuing'
       end
       return if date_last_certified.blank?
 
       if ldpm_before_aed?
-        puts 'last day of previous month is before award end date - continuing'
+        puts '6 last day of previous month is before award end date - continuing'
       else
-        puts 'last day of previous month is not before award end date - returning'
+        puts '6 last day of previous month is not before award end date - returning'
       end
       return unless ldpm_before_aed?
 
@@ -653,44 +653,44 @@ module Vye
       puts "\n\ncase8"
 
       if dlc_before_ldpm? || date_last_certified.blank?
-        puts 'date last certified is before last day of previous month or is blank - continuing'
+        puts '1 date last certified is before last day of previous month or is blank - continuing'
       else
-        puts 'date last certified is not before last day of previous month and is not blank - returning'
+        puts '1 date last certified is not before last day of previous month and is not blank - returning'
       end
       return unless dlc_before_ldpm? || date_last_certified.blank?
 
       if @award.award_ind_future? && !@supress_future_award
-        puts 'award is future && supress future award is false - continuing'
+        puts '2 award is future && supress future award is false - continuing'
       else
-        puts 'award is not future || supress future award is true - returning'
+        puts '2 award is not future || supress future award is true - returning'
       end
       return unless @award.award_ind_future? && !@supress_future_award
 
       if @open_cert
-        puts 'open cert is true - returning'
+        puts '3 open cert is true - returning'
       else
-        puts 'open cert is false - continuing'
+        puts '3 open cert is false - continuing'
       end
       return if @open_cert
 
       if ldpm_before_abd?
-        puts 'last day of previous month is before award begin date - returning'
+        puts '4 last day of previous month is before award begin date - returning'
       else
-        puts 'last day of previous month is not before award begin date - continuing'
+        puts '4 last day of previous month is not before award begin date - continuing'
       end
       return if ldpm_before_abd?
 
       if date_last_certified.blank?
-        puts 'date last certified is blank - returning'
+        puts '5 date last certified is blank - returning'
       else
-        puts 'date last certified is not blank - continuing'
+        puts '5 date last certified is not blank - continuing'
       end
       return if date_last_certified.blank?
 
       if ldpm_before_aed?
-        puts 'last day of previous month is before award end date - returning'
+        puts '6 last day of previous month is before award end date - returning'
       else
-        puts 'last day of previous month is not before award end date - continuing'
+        puts '6 last day of previous month is not before award end date - continuing'
       end
       return if ldpm_before_aed?
 
@@ -712,23 +712,23 @@ module Vye
       puts "\n\ncase9"
 
       if dlc_before_ldpm? || date_last_certified.blank?
-        puts 'date last certified is before last day of previous month or is blank - returning'
+        puts '1 date last certified is before last day of previous month or is blank - returning'
       else
-        puts 'date last certified is not before last day of previous month and is not blank - continuing'
+        puts '1 date last certified is not before last day of previous month and is not blank - continuing'
       end
       return if dlc_before_ldpm? || date_last_certified.blank?
 
       if aed_before_today?
-        puts 'award end date is before today - continuing'
+        puts '2 award end date is before today - continuing'
       else
-        puts 'award end date is not before today - returning'
+        puts '2 award end date is not before today - returning'
       end
       return unless aed_before_today?
 
       if are_dates_the_same(@award.award_begin_date, @award.award_end_date)
-        puts 'award begin date is the same as award end date - continuing'
+        puts '3 award begin date is the same as award end date - continuing'
       else
-        puts 'award begin date is not the same as award end date - returning'
+        puts '3 award begin date is not the same as award end date - returning'
       end
       return unless are_dates_the_same(@award.award_begin_date, @award.award_end_date)
 
