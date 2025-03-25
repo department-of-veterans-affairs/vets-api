@@ -224,6 +224,11 @@ module Rx
       "#{base_path}/#{endpoint}"
     end
 
+    def get_preferences_path(endpoint)
+      base_path = Flipper.enabled?(:mhv_medications_add_x_api_key) ? 'usermgmt/notification' : 'preferences'
+      "#{base_path}/#{endpoint}"
+    end
+
     def cache_key(action)
       return nil unless config.caching_enabled?
       return nil if session.user_id.blank?
@@ -243,23 +248,23 @@ module Rx
 
     # Current Email Account that receives notifications
     def get_notification_email_address
-      config.parallel_connection.get('preferences/email', nil, token_headers).body
+      config.parallel_connection.get(get_preferences_path('email'), nil, get_headers(token_headers)).body
     end
 
     # Current Rx preference setting
     def get_rx_preference_flag
-      config.parallel_connection.get('preferences/rx', nil, token_headers).body
+      config.parallel_connection.get(get_preferences_path('rx'), nil, get_headers(token_headers)).body
     end
 
     # Change Email Account that receives notifications
     def post_notification_email_address(params)
-      config.parallel_connection.post('preferences/email', params, token_headers)
+      config.parallel_connection.post(get_preferences_path('email'), params, get_headers(token_headers))
     end
 
     # Change Rx preference setting
     def post_rx_preference_flag(params)
       params = { flag: params[:rx_flag] }
-      config.parallel_connection.post('preferences/rx', params, token_headers)
+      config.parallel_connection.post(get_preferences_path('rx'), params, get_headers(token_headers))
     end
   end
 end

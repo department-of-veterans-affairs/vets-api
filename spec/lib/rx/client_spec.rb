@@ -46,7 +46,7 @@ describe Rx::Client do
                       end
       VCR.use_cassette(cassette_name) do
         client_response = client.get_preferences
-        expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
+        expect(client_response.email_address).to eq('kamyar.karshenas@va.gov')
         expect(client_response.rx_flag).to be(true)
       end
     end

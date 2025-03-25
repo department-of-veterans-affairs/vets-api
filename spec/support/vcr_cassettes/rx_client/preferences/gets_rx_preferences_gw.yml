@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_HOST>/v1/preferences/email"
+    uri: "<MHV_HOST>/v1/usermgmt/notification/rx"
     body:
       encoding: US-ASCII
       string: ''
@@ -14,33 +14,84 @@ http_interactions:
       Content-Type:
       - application/json
       Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - bI7Yh73XXW4LhjzQ6EIVD8g7AO3VDEvg9lWOFprU
       Expect:
       - ''
   response:
     status:
-      code: 403
+      code: 200
       message: ''
     headers:
       Date:
-      - Mon, 24 Mar 2025 22:24:29 GMT
+      - Tue, 25 Mar 2025 14:23:36 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '51'
+      - '21'
       X-Amzn-Requestid:
-      - 6421bb17-f3b3-476c-85a2-3f10607b76ca
+      - 1a8ac457-b695-4e41-a2dd-3f8fa92c6814
       Content-Encoding:
       - deflate
-      X-Amzn-Errortype:
-      - MissingAuthenticationTokenException
+      X-Amzn-Remapped-Content-Length:
+      - '13'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
       X-Amz-Apigw-Id:
-      - H89AoHQ3vHMFRpQ=
+      - H_JgXE7tvHMFlCA=
+      X-Amzn-Remapped-Date:
+      - Tue, 25 Mar 2025 14:23:36 GMT
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: ASCII-8BIT
-      string: '{"message":"Missing Authentication Token"}
-
-        '
-  recorded_at: Mon, 24 Mar 2025 22:24:29 GMT
+      string: '{"flag":true}'
+  recorded_at: Tue, 25 Mar 2025 14:23:36 GMT
+- request:
+    method: get
+    uri: "<MHV_HOST>/v1/usermgmt/notification/email"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - bI7Yh73XXW4LhjzQ6EIVD8g7AO3VDEvg9lWOFprU
+      Expect:
+      - ''
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 25 Mar 2025 14:22:45 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '21'
+      X-Amzn-Requestid:
+      - 7aacc249-93e0-415a-8b84-086174a102e5
+      Content-Encoding:
+      - deflate
+      X-Amzn-Remapped-Content-Length:
+      - '13'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - H_JYfFqePHMFQfA=
+      X-Amzn-Remapped-Date:
+      - Tue, 25 Mar 2025 14:22:45 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"emailAddress":"kamyar.karshenas@va.gov"}'
+  recorded_at: Tue, 25 Mar 2025 14:26:36 GMT
 recorded_with: VCR 6.3.1

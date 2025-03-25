@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_HOST>/v1/preferences/email"
+    uri: "<MHV_HOST>/v1/usermgmt/notification/email"
     body:
       encoding: UTF-8
       string: '{"emailAddress":"kamyar karshenas@va.gov"}'
@@ -14,33 +14,36 @@ http_interactions:
       Content-Type:
       - application/json
       Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - bI7Yh73XXW4LhjzQ6EIVD8g7AO3VDEvg9lWOFprU
       Expect:
       - ''
   response:
     status:
-      code: 403
+      code: 400
       message: ''
     headers:
       Date:
-      - Mon, 24 Mar 2025 22:24:28 GMT
+      - Tue, 25 Mar 2025 13:37:47 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '51'
+      - '74'
       X-Amzn-Requestid:
-      - f7463120-ef89-4f0b-95c2-707e528ea868
+      - 4e4596b7-417a-44e8-a2d9-9905e9097975
       Content-Encoding:
       - deflate
-      X-Amzn-Errortype:
-      - MissingAuthenticationTokenException
+      X-Amzn-Remapped-Connection:
+      - keep-alive
       X-Amz-Apigw-Id:
-      - H89AjESnPHMFv8Q=
+      - H_CyxGHiPHMFdzw=
+      X-Amzn-Remapped-Date:
+      - Tue, 25 Mar 2025 13:37:47 GMT
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: ASCII-8BIT
-      string: '{"message":"Missing Authentication Token"}
-
-        '
-  recorded_at: Mon, 24 Mar 2025 22:24:28 GMT
+      string: '{"errorCode":157,"developerMessage":"","message":"Email Address is
+        Invalid"}'
+  recorded_at: Tue, 25 Mar 2025 13:37:46 GMT
 recorded_with: VCR 6.3.1
