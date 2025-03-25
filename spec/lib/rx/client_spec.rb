@@ -137,7 +137,9 @@ describe Rx::Client do
         end
 
         it 'gets a list of tracking history for a prescription' do
-          VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_a_list_of_tracking_history_for_a_prescription_gw') do
+          VCR.use_cassette(
+            'rx_client/prescriptions/nested_resources/gets_a_list_of_tracking_history_for_a_prescription_gw'
+          ) do
             client_response = client.get_tracking_history_rx(13_650_541)
             expect(client_response).to be_a(Common::Collection)
             expect(client_response.members.first.prescription_id).to eq(13_650_541)
@@ -291,7 +293,9 @@ describe Rx::Client do
         end
 
         it 'gets a list of tracking history for a prescription' do
-          VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_a_list_of_tracking_history_for_a_prescription') do
+          VCR.use_cassette(
+            'rx_client/prescriptions/nested_resources/gets_a_list_of_tracking_history_for_a_prescription'
+          ) do
             client_response = client.get_tracking_history_rx(13_650_541)
             expect(client_response).to be_a(Common::Collection)
             expect(client_response.members.first.prescription_id).to eq(13_650_541)
