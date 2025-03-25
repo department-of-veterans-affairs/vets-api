@@ -22,7 +22,6 @@ module V0
 
       def show
         response = client.get_payment_info
-
         render json: DirectDepositsSerializer.new(response.body), status: response.status
       end
 
