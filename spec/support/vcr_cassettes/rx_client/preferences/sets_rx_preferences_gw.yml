@@ -15,7 +15,7 @@ http_interactions:
       - application/json
       Token: "<SESSION_TOKEN>"
       X-Api-Key:
-      - bI7Yh73XXW4LhjzQ6EIVD8g7AO3VDEvg9lWOFprU
+      - "<X_API_KEY>"
       Expect:
       - ''
   response:
@@ -50,7 +50,7 @@ http_interactions:
       - application/json
       Token: "<SESSION_TOKEN>"
       X-Api-Key:
-      - bI7Yh73XXW4LhjzQ6EIVD8g7AO3VDEvg9lWOFprU
+      - "<X_API_KEY>"
       Expect:
       - ''
   response:
@@ -85,7 +85,7 @@ http_interactions:
       - application/json
       Token: "<SESSION_TOKEN>"
       X-Api-Key:
-      - bI7Yh73XXW4LhjzQ6EIVD8g7AO3VDEvg9lWOFprU
+      - "<X_API_KEY>"
       Expect:
       - ''
   response:
@@ -120,7 +120,7 @@ http_interactions:
       - application/json
       Token: "<SESSION_TOKEN>"
       X-Api-Key:
-      - bI7Yh73XXW4LhjzQ6EIVD8g7AO3VDEvg9lWOFprU
+      - "<X_API_KEY>"
       Expect:
       - ''
   response:
@@ -155,7 +155,7 @@ http_interactions:
       - application/json
       Token: "<SESSION_TOKEN>"
       X-Api-Key:
-      - bI7Yh73XXW4LhjzQ6EIVD8g7AO3VDEvg9lWOFprU
+      - "<X_API_KEY>"
       Expect:
       - ''
   response:
@@ -190,7 +190,7 @@ http_interactions:
       - application/json
       Token: "<SESSION_TOKEN>"
       X-Api-Key:
-      - bI7Yh73XXW4LhjzQ6EIVD8g7AO3VDEvg9lWOFprU
+      - "<X_API_KEY>"
       Expect:
       - ''
   response:
@@ -225,7 +225,7 @@ http_interactions:
       - application/json
       Token: "<SESSION_TOKEN>"
       X-Api-Key:
-      - bI7Yh73XXW4LhjzQ6EIVD8g7AO3VDEvg9lWOFprU
+      - "<X_API_KEY>"
       Expect:
       - ''
   response:
@@ -260,7 +260,7 @@ http_interactions:
       - application/json
       Token: "<SESSION_TOKEN>"
       X-Api-Key:
-      - bI7Yh73XXW4LhjzQ6EIVD8g7AO3VDEvg9lWOFprU
+      - "<X_API_KEY>"
       Expect:
       - ''
   response:
