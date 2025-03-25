@@ -19,10 +19,6 @@ module VAOS
       REASON = 'reason'
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
-      CACHE_ERROR_MSG = 'Error fetching referral data from cache'
-      PROVIDER_SLOTS_ERROR_MSG = 'Error fetching provider slots'
-
-      rescue_from Redis::BaseError, with: :handle_redis_error
 
       def index
         appointments[:data].each do |appt|
