@@ -66,11 +66,18 @@ module VAOS
       def create_draft
         referral_id = draft_params[:referral_id]
         # TODO: validate referral_id from the cache from prior referrals response
-        binding.pry
+        # binding.pry
         # TODO: fetch referral object attribute for patient icn from cache - if not there, make referral service call
         # TODO: find open api doc referral object structure to know what attribute to fetch from cache
-        cached_patient_id = eps_redis_client.fetch_attribute(referral_number: referral_id, attribute: )
-        unless validate_ref_id(cached_patient_id, current_user[:icn_with_aaid])
+        cached_patient_info = eps_redis_client.fetch_attribute(referral_number: referral_id, attribute: :patient)
+        patient_id_for_validation = cached_patient_info[:icn]
+        if patient_id_for_validation[:icn].nil?
+          referral_for_validation = ccra_referral_service.get_referral(referral_id, '2')
+          patient_id_for_validation = referral_for_validation[:patient][:icn]
+        end
+        
+        
+        unless validate_ref_id(patient_id_for_validation, current_user[:icn_with_aaid])
           render json:, status: 401 and return
         end
 
@@ -140,6 +147,11 @@ module VAOS
       def eps_provider_service
         @eps_provider_service ||=
           Eps::ProviderService.new(current_user)
+      end
+
+      def ccra_referral_service
+        @ccra_referral_service ||=
+          Ccra::ReferralService.new(current_user)
       end
 
       def eps_redis_client
