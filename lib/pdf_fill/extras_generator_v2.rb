@@ -30,9 +30,8 @@ module PdfFill
         prefix += " Line #{i + 1}" if i.present?
 
         pdf.markup("<h4>#{prefix}:</h4>")
-        formatted_value = value.gsub("\n", "<br/>")
+        formatted_value = value.gsub("\n", '<br/>')
         pdf.markup("<b>#{formatted_value}</b>")
-        
       end
     end
 
@@ -110,15 +109,14 @@ module PdfFill
     def write_header_main(pdf, location, bound_width, bound_height)
       pdf.bounding_box(location, width: bound_width, height: bound_height) do
         pdf.markup("<b>ATTACHMENT</b> to VA Form #{@form_name}",
-            text: { align: :left, valign: :bottom, size: bound_height })
+                   text: { align: :left, valign: :bottom, size: bound_height })
       end
     end
 
     def write_header_submit_date(pdf, location, bound_width, bound_height)
       pdf.bounding_box(location, width: bound_width, height: bound_height) do
-        pdf.markup("Submitted on VA.gov on #{@submit_date}", 
-            text: { align: :right, valign: :bottom, size: SUBHEADER_FONT_SIZE })
-
+        pdf.markup("Submitted on VA.gov on #{@submit_date}",
+                   text: { align: :right, valign: :bottom, size: SUBHEADER_FONT_SIZE })
       end
     end
 
