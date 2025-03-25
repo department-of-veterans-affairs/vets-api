@@ -103,44 +103,69 @@ describe PdfFill::ExtrasGeneratorV2 do
     end
 
     context 'when submit_date is present' do
-      let(:submit_date) { { 'month' => '12', 'day' => '25', 'year' => '2020' } }
+      let(:submit_date) { DateTime.new(2020, 12, 25, 14, 30, 0, '+0000') }
 
       it 'adds the header text correctly' do
         subject.set_header(pdf)
         expect(pdf).to have_received(:text).with("<b>ATTACHMENT</b> to VA Form #{form_name}",
                                                  align: :left, valign: :bottom, size: header_font_size,
                                                  inline_format: true)
-        expect(pdf).to have_received(:text).with('Submitted on VA.gov on 12-25-2020',
+        expect(pdf).to have_received(:text).with('VA.gov Submission',
                                                  align: :right, valign: :bottom, size: subheader_font_size)
         expect(pdf).to have_received(:stroke_horizontal_rule)
       end
     end
   end
 
-  describe '#format_date' do
-    it 'returns nil for blank date' do
-      expect(subject.send(:format_date, nil)).to be_nil
-      expect(subject.send(:format_date, '')).to be_nil
+  describe '#format_timestamp' do
+    it 'returns nil for blank datetime' do
+      expect(subject.send(:format_timestamp, nil)).to be_nil
+      expect(subject.send(:format_timestamp, '')).to be_nil
     end
 
-    it 'formats date from hash' do
-      date_hash = { 'month' => '12', 'day' => '25', 'year' => '2020' }
-      expect(subject.send(:format_date, date_hash)).to eq('12-25-2020')
+    it 'formats datetime correctly in UTC' do
+      datetime = DateTime.new(2020, 12, 25, 14, 30, 0, '+0000')
+      expect(subject.send(:format_timestamp, datetime)).to eq('14:30 UTC 2020-12-25')
     end
 
-    it 'formats date from Date object' do
-      date_obj = Date.new(2020, 12, 25)
-      expect(subject.send(:format_date, date_obj)).to eq('12-25-2020')
+    it 'converts non-UTC times to UTC' do
+      datetime = DateTime.new(2020, 12, 25, 9, 30, 0, '-0500') # EST time
+      expect(subject.send(:format_timestamp, datetime)).to eq('14:30 UTC 2020-12-25')
+    end
+  end
+
+  describe '#add_footer' do
+    subject { described_class.new(submit_date: submit_date) }
+    let(:pdf) { instance_double(Prawn::Document, bounds: double('Bounds', bottom: 50, left: 0, width: 500)) }
+    let(:footer_font_size) { described_class::FOOTER_FONT_SIZE }
+    let(:submit_date) { DateTime.new(2020, 12, 25, 14, 30, 0, '+0000') }
+
+    before do
+      allow(pdf).to receive(:repeat).and_yield
+      allow(pdf).to receive(:bounding_box).and_yield
+      allow(pdf).to receive(:text)
     end
 
-    it 'formats date from string' do
-      date_str = '2020-12-25'
-      expect(subject.send(:format_date, date_str)).to eq('12-25-2020')
+    context 'when submit_date is present' do
+      it 'adds the footer text with timestamp and identity verification message' do
+        subject.add_footer(pdf)
+        expected_text = 'Signed electronically and submitted via VA.gov at 14:30 UTC 2020-12-25. ' \
+                       'Signee signed with an identify-verified account.'
+        expect(pdf).to have_received(:text).with(
+          expected_text,
+          align: :left,
+          size: footer_font_size
+        )
+      end
     end
 
-    it 'returns nil for invalid date string' do
-      invalid_date_str = 'invalid-date'
-      expect(subject.send(:format_date, invalid_date_str)).to be_nil
+    context 'when submit_date is not present' do
+      let(:submit_date) { nil }
+
+      it 'does not add footer' do
+        subject.add_footer(pdf)
+        expect(pdf).not_to have_received(:text)
+      end
     end
   end
 end

@@ -4,11 +4,12 @@ module PdfFill
   class ExtrasGeneratorV2 < ExtrasGenerator
     HEADER_FONT_SIZE = 14.5
     SUBHEADER_FONT_SIZE = 10.5
+    FOOTER_FONT_SIZE = 9
 
     def initialize(form_name: nil, submit_date: nil, start_page: 1, sections: nil)
       super()
       @form_name = form_name
-      @submit_date = format_date(submit_date)
+      @submit_date = submit_date
       @start_page = start_page
       @sections = sections
     end
@@ -78,6 +79,7 @@ module PdfFill
           block[:block].call(pdf)
         end
       end
+      add_footer(pdf)
       add_page_numbers(pdf)
     end
 
@@ -93,10 +95,8 @@ module PdfFill
         bound_width = pdf.bounds.width / 2
         location = [pdf.bounds.left, pdf.bounds.top]
         write_header_main(pdf, location, bound_width, HEADER_FONT_SIZE)
-        if @submit_date.present?
-          location[0] += bound_width
-          write_header_submit_date(pdf, location, bound_width, HEADER_FONT_SIZE)
-        end
+        location[0] += bound_width
+        write_submission_header(pdf, location, bound_width, HEADER_FONT_SIZE)
         pdf.pad_top(2) { pdf.stroke_horizontal_rule }
       end
     end
@@ -119,26 +119,36 @@ module PdfFill
       end
     end
 
-    def write_header_submit_date(pdf, location, bound_width, bound_height)
+    def write_submission_header(pdf, location, bound_width, bound_height)
       pdf.bounding_box(location, width: bound_width, height: bound_height) do
-        pdf.text("Submitted on VA.gov on #{@submit_date}",
+        pdf.text('VA.gov Submission',
                  align: :right,
                  valign: :bottom,
                  size: SUBHEADER_FONT_SIZE)
       end
     end
 
-    # Formats the submit_date for the PDF header
-    def format_date(date)
-      return nil if date.blank?
+    def add_footer(pdf)
+      if @submit_date
+        pdf.repeat :all do
+          pdf.bounding_box([pdf.bounds.left, pdf.bounds.bottom], width: pdf.bounds.width, height: FOOTER_FONT_SIZE) do
+            ts = format_timestamp(@submit_date)
+            pdf.text(
+              "Signed electronically and submitted via VA.gov at #{ts}. " +
+              'Signee signed with an identify-verified account.',
+              align: :left,
+              size: FOOTER_FONT_SIZE
+            )
+          end
+        end
+      end
+    end
 
-      return "#{date['month']}-#{date['day']}-#{date['year']}" if date.is_a?(Hash)
-      return date.strftime('%m-%d-%Y') if date.is_a?(Date)
+    # Formats the timestamp for the PDF footer
+    def format_timestamp(datetime)
+      return nil if datetime.blank?
 
-      Date.parse(date).strftime('%m-%d-%Y')
-    rescue
-      Rails.logger.error("Error formatting submit date for PdfFill: #{date}")
-      nil
+      "#{datetime.utc.strftime('%H:%M')} UTC #{datetime.utc.strftime('%Y-%m-%d')}"
     end
   end
 end
