@@ -110,7 +110,7 @@ module MPI
       end
 
       def processing_code
-        Settings.mvi.processing_code
+        IdentitySettings.mvi.processing_code
       end
 
       def element(name, attributes = {}, body_text = nil)

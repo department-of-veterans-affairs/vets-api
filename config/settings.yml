@@ -635,7 +635,8 @@ intent_to_file:
   prefill: true
 ivc_champva:
   pega_api:
-    api_key: fake_api_key
+    api_key: <%= ENV['ivc_champva__pega_api__api_key'] %>
+    base_path: <%= ENV['ivc_champva__pega_api__base_path'] %>
   prefill: true
   ves_api:
     api_key: fake_api_key
@@ -836,6 +837,7 @@ maintenance:
     hcq: PWGA814
     idme: <%= ENV['maintenance__services__idme'] %>
     lighthouse_benefits_claims: <%= ENV['maintenance__services__lighthouse_benefits_claims'] %>
+    lighthouse_benefits_education: <%= ENV['maintenance__services__lighthouse_benefits_education'] %>
     lighthouse_benefits_intake: <%= ENV['maintenance__services__lighthouse_benefits_intake'] %>
     lighthouse_direct_deposit: <%= ENV['maintenance__services__lighthouse_direct_deposit'] %>
     lighthouse_vshe: <%= ENV['maintenance__services__lighthouse_vshe'] %>
@@ -1408,6 +1410,7 @@ vanotify:
   service_callback_tokens:
     1010_health_apps: <%= ENV['vanotify__service_callback_tokens__1010_health_apps'] %>
     benefits_disability: <%= ENV['vanotify__service_callback_tokens__benefits_disability'] %>
+    benefits_management_tools: <%= ENV['vanotify__service_callback_tokens__benefits_management_tools'] %>
     ivc_forms: <%= ENV['vanotify__service_callback_tokens__ivc_forms'] %>
     va_gov: <%= ENV['vanotify__service_callback_tokens__va_gov'] %>
   services:
@@ -1572,6 +1575,9 @@ vanotify:
         form21_10210_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_10210_confirmation_email'] %>
         form21_10210_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_10210_error_email'] %>
         form21_10210_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_10210_received_email'] %>
+        form21_4138_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_confirmation_email'] %>
+        form21_4138_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_error_email'] %>
+        form21_4138_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_received_email'] %>
         form21_4142_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_confirmation_email'] %>
         form21_4142_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_error_email'] %>
         form21_4142_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_received_email'] %>
@@ -1603,6 +1609,7 @@ vanotify:
         login_reactivation_email: reactivation_email_test_b
         preneeds_burial_form_email: <%= ENV['vanotify__services__va_gov__template_id__preneeds_burial_form_email'] %>
         reactivation_email_test_b: <%= ENV['vanotify__services__va_gov__template_id__reactivation_email_test_b'] %>
+        va_appointment_failure: <%= ENV['vanotify__services__va_gov__template_id__va_appointment_failure'] %>
   status_callback:
     bearer_token: <%= ENV['vanotify__status_callback__bearer_token'] %>
 vaos:

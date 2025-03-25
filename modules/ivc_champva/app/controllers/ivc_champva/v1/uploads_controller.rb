@@ -21,15 +21,16 @@ module IvcChampva
           Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
           parsed_form_data = JSON.parse(params.to_json)
 
-          # TODO: add a VES data validation check to be confident that VES submission will succeed before
-          # proceeding with the Pega upload
+          # TODO: add same feature toggle as below for VES integration
+          # expect this formatter to raise errors if data is invalid
+          # ves_request = IvcChampva::VesDataFormatter.format(parsed_form_data)
 
           statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
 
-          # TODO: Add feature toggle around this
+          # TODO: Add feature toggle around this for VES integration
           if Settings.vsp_environment != 'production' && form_id == 'vha_10_10d'
             ves_client = IvcChampva::VesApi::Client.new
-            ves_client.submit_1010d('fake-id', 'fake-user', parsed_form_data)
+            ves_client.submit_1010d('fake-id', 'fake-user', ves_request)
 
             # TODO: Add error handling for VES failures.
           end
