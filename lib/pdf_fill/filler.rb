@@ -23,6 +23,7 @@ require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
 require 'utilities/date_parser'
 
+# rubocop:disable Metrics/ModuleLength
 module PdfFill
   # Provides functionality to fill and process PDF forms.
   #
@@ -213,3 +214,4 @@ module PdfFill
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
