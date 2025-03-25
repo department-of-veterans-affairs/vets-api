@@ -83,7 +83,7 @@ module Eps
     end
 
     def create_draft_appointment(referral_id)
-      eps_appointment_service.create_draft_appointment(referral_id: referral_id)
+      eps_appointment_service.create_draft_appointment(referral_id:)
     end
 
     def fetch_provider(provider_id)
