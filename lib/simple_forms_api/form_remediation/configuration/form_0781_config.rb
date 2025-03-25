@@ -11,7 +11,7 @@ module SimpleFormsApi
         end
 
         def remediation_data_class
-          SimpleFormsApi::FormRemediation::Form526SubmissionRemediationData
+          SimpleFormsApi::FormRemediation::Form0781SubmissionRemediationData
         end
 
         def temp_directory_path
