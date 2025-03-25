@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_25_171006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -538,6 +538,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.text "source_data_ciphertext"
     t.text "encrypted_kms_key"
     t.string "cid"
+    t.string "sha256"
     t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
   end
 
