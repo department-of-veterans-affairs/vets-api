@@ -26,8 +26,10 @@ module UserEligibility
     # @return [Hash] Headers with x-api-key and RX appToken header values for dependent URLs
     #
     def x_headers
-      base_request_headers.merge('x-api-key' => Settings.mhv.medical_records.x_auth_key,
-                                 appToken: Settings.mhv.rx.app_token)
+      base_request_headers.merge({
+                                   'x-api-key': Settings.mhv.medical_records.x_api_key,
+                                   appToken: Settings.mhv.rx.app_token
+                                 })
     end
 
     ##
