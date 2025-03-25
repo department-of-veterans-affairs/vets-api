@@ -190,7 +190,7 @@ module PdfFill
     def stamp_form(file_path, submit_date)
       original_path = file_path
       sig = "Signed electronically and submitted via VA.gov at #{format_timestamp(submit_date)}. " \
-            'Signee signed with an identify-verified account.'
+            'Signee signed with an identity-verified account.'
       initial_stamp_path = PDFUtilities::DatestampPdf.new(file_path).run(
         text: sig, x: 5, y: 5, text_only: true, size: 9
       )

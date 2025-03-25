@@ -151,7 +151,7 @@ describe PdfFill::ExtrasGeneratorV2 do
       it 'adds the footer text with timestamp and identity verification message' do
         subject.add_footer(pdf)
         expected_text = 'Signed electronically and submitted via VA.gov at 14:30 UTC 2020-12-25. ' \
-                        'Signee signed with an identify-verified account.'
+                        'Signee signed with an identity-verified account.'
         expect(pdf).to have_received(:text).with(
           expected_text,
           align: :left,

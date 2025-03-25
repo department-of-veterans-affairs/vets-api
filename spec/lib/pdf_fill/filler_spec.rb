@@ -136,7 +136,7 @@ describe PdfFill::Filler, type: :model do
 
     it 'stamps the form with footer and header' do
       expected_footer = 'Signed electronically and submitted via VA.gov at 14:30 UTC 2020-12-25. ' \
-                        'Signee signed with an identify-verified account.'
+                        'Signee signed with an identity-verified account.'
 
       expect(PDFUtilities::DatestampPdf).to receive(:new).with(file_path).ordered
       expect(datestamp_pdf).to receive(:run).with(

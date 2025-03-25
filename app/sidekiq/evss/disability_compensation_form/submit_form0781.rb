@@ -232,7 +232,7 @@ module EVSS
         )
         PDFUtilities::DatestampPdf.new(stamped_path).run(
           text: "Signed electronically and submitted via VA.gov at #{format_timestamp(submission_date)}. " \
-                'Signee signed with an identify-verified account.',
+                'Signee signed with an identity-verified account.',
           x: 5, y: 5, text_only: true, size: 9
         )
       end
