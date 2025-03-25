@@ -132,7 +132,7 @@ RSpec.describe HCA::StdInstitutionImportJob, type: :worker do
         described_class.new.perform
       end
 
-      it 'does not enqueue when :hca_cache_facilities is disabled' do
+      it 'does not enqueue when :hca_cache_facilities_job is disabled' do
         allow(Flipper).to receive(:enabled?).with(:hca_cache_facilities_job).and_return(false)
         allow_any_instance_of(HCA::StdInstitutionImportJob).to receive(:fetch_csv_data).and_return(csv_data)
 
