@@ -29,7 +29,14 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
            poa_codes: [poa_code])
   end
 
-  let!(:poa_request) { create(:power_of_attorney_request, :with_veteran_claimant, poa_code:) }
+  let!(:vso) { create(:organization, poa: poa_code, can_accept_digital_poa_requests: true) }
+  let!(:other_vso) { create(:organization, poa: other_poa_code, can_accept_digital_poa_requests: true) }
+
+  let(:claimant) { create(:user_account, icn: '1008714701V416111') }
+  let!(:poa_request) do
+    create(:power_of_attorney_request, :with_veteran_claimant, poa_code:, accredited_individual: representative,
+                                                               accredited_organization: vso, claimant:)
+  end
   let!(:other_poa_request) { create(:power_of_attorney_request, :with_veteran_claimant, poa_code: other_poa_code) }
 
   let(:time) { '2024-12-21T04:45:37.000Z' }
