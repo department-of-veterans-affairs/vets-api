@@ -19,24 +19,15 @@ module UserEligibility
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        "#{Settings.mhv.medical_records.host}/v1/usermgmt/usereligibility/"
-      else
-        "#{Settings.mhv.medical_records.host}/mhvapi/v1/usermgmt/usereligibility/"
-      end
+      "#{Settings.mhv.medical_records.host}/v1/usermgmt/usereligibility/"
     end
 
     ##
     # @return [Hash] Headers with x-api-key and RX appToken header values for dependent URLs
     #
     def x_headers
-      api_key = if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-                  Settings.mhv.medical_records.x_auth_key
-                else
-                  Settings.mhv.medical_records.mhv_x_auth_key
-                end
-
-      base_request_headers.merge('x-api-key' => api_key, appToken: Settings.mhv.rx.app_token)
+      base_request_headers.merge('x-api-key' => Settings.mhv.medical_records.x_auth_key,
+                                 appToken: Settings.mhv.rx.app_token)
     end
 
     ##

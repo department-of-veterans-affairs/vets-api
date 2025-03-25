@@ -71,8 +71,6 @@ RSpec.describe Users::Services do
       end
 
       it 'returns an array including the MHV services' do
-        Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
-
         %w[health-records medical-records messaging rx].each do |service|
           expect(subject).to include(service)
         end
