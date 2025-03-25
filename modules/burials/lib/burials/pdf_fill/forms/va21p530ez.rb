@@ -641,7 +641,7 @@ module Burials
           return if location_of_death.blank?
 
           location = location_of_death['location']
-          options = location_of_death[location] || @form_data[location]
+          options = @form_data[location]
           if options.present? && location != 'other'
             location_of_death['placeAndLocation'] = "#{options['facilityName']} - #{options['facilityLocation']}"
           end

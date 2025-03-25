@@ -635,6 +635,7 @@ intent_to_file:
 ivc_champva:
   pega_api:
     api_key: fake_api_key
+    base_path: fake_base_path
   prefill: true
   ves_api:
     api_key: fake_api_key
@@ -844,6 +845,7 @@ maintenance:
     hcq: PWGA814
     idme: PVWB4R8
     lighthouse_benefits_claims: ~
+    lighthouse_benefits_education: ~
     lighthouse_benefits_intake: ~
     lighthouse_direct_deposit: ~
     lighthouse_vshe: ~
@@ -1429,6 +1431,7 @@ vanotify:
   service_callback_tokens:
     1010_health_apps: 1010_health_apps_token
     benefits_disability: benefits_disability_token
+    benefits_management_tools: benefits_management_tools_token
     ivc_forms: ivc_forms_token
     va_gov: va_gov_token
   services:
@@ -1593,6 +1596,9 @@ vanotify:
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
         form21_10210_error_email: form21_10210_error_email_template_id
         form21_10210_received_email: form21_10210_received_email_template_id
+        form21_4138_confirmation_email: form21_4138_confirmation_email_template_id
+        form21_4138_error_email: form21_4138_error_email_template_id
+        form21_4138_received_email: form21_4138_received_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form21_4142_error_email: form21_4142_error_email_template_id
         form21_4142_received_email: form21_4142_received_email_template_id
@@ -1624,6 +1630,7 @@ vanotify:
         login_reactivation_email: reactivation_email_test_b
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         reactivation_email_test_b: ~
+        va_appointment_failure: fake_template_id
   status_callback:
     bearer_token: fake_bearer_token
 vaos:
@@ -1705,7 +1712,7 @@ vet360:
   contact_information:
     cache_enabled: false
     enabled: true
-    mock: false
+    mock: true
     timeout: 30
   demographics:
     cache_enabled: false
