@@ -162,7 +162,6 @@ describe TravelPay::ClaimsService do
         )
       end
 
-
       let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
       before do
@@ -170,7 +169,7 @@ describe TravelPay::ClaimsService do
           .to receive(:get_claim_by_id)
           .and_return(claim_details_response)
 
-          allow_any_instance_of(TravelPay::DocumentsClient)
+        allow_any_instance_of(TravelPay::DocumentsClient)
           .to receive(:get_document_ids)
           .and_return(document_ids_response)
 
@@ -203,7 +202,6 @@ describe TravelPay::ClaimsService do
         expect(actual_claim['totalCostRequested']).to eq(20.00)
         expect(actual_claim['claimStatus']).to eq('Pre approved for payment')
       end
-
 
       it 'returns an not found error if a claim with the given id was not found' do
         allow_any_instance_of(TravelPay::ClaimsClient)
