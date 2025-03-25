@@ -66,11 +66,11 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
 
       attributes.merge!({ source_data: })
       power_of_attorney = ClaimsApi::PowerOfAttorney.create(attributes)
-      power_of_attorney.set_md5
+      power_of_attorney.set_header_hash
       power_of_attorney.save
 
       res = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(source_name: source_data['name'],
-                                                                        md5: power_of_attorney.md5)
+                                                                        header_hash: power_of_attorney.header_hash)
       expect(res.source_data).to eq(source_data)
     end
 

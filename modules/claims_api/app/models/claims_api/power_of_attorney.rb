@@ -24,12 +24,17 @@ module ClaimsApi
     ALL_STATUSES = [PENDING, SUBMITTED, UPLOADED, UPDATED, ERRORED].freeze
 
     before_save :set_md5
+    before_save :set_header_hash
 
-    def self.find_using_identifier_and_source(source_name:, id: nil, header_md5: nil, md5: nil)
+    # rubocop: disable Metrics/ParameterLists
+    def self.find_using_identifier_and_source(source_name:, id: nil, header_md5: nil, md5: nil,
+                                              header_hash: nil, form_data_hash: nil)
       primary_identifier = {}
       primary_identifier[:id] = id if id.present?
       primary_identifier[:header_md5] = header_md5 if header_md5.present?
       primary_identifier[:md5] = md5 if md5.present?
+      primary_identifier[:header_hash] = header_hash if header_hash.present?
+      primary_identifier[:form_data_hash] = form_data_hash if form_data_hash.present?
       # it's possible to have duplicate POAs, so be sure to return the most recently created match
       poas = ClaimsApi::PowerOfAttorney.where(primary_identifier).order(created_at: :desc)
       poas = poas.select { |poa| poa.source_data['name'] == source_name }
@@ -37,6 +42,7 @@ module ClaimsApi
 
       poas.last
     end
+    # rubocop: enable Metrics/ParameterLists
 
     def fetch_file_path(uploader)
       if Settings.evss.s3.uploads_enabled
@@ -65,8 +71,18 @@ module ClaimsApi
                                     'va_eauth_issueinstant',
                                     'Authorization')
       headers['status'] = status
-      self.header_md5 = Digest::SHA256.hexdigest headers.to_json
-      self.md5 = Digest::SHA256.hexdigest form_data.merge(headers).to_json
+      self.header_md5 = Digest::MD5.hexdigest headers.to_json
+      self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
+    end
+
+    def set_header_hash
+      headers = auth_headers.except('va_eauth_authenticationauthority',
+                                    'va_eauth_service_transaction_id',
+                                    'va_eauth_issueinstant',
+                                    'Authorization')
+      headers['status'] = status
+      self.header_hash = Digest::SHA256.hexdigest headers.to_json
+      self.form_data_hash = Digest::SHA256.hexdigest form_data.merge(headers).to_json
     end
 
     def processes
