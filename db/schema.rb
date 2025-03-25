@@ -538,7 +538,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_25_171006) do
     t.text "source_data_ciphertext"
     t.text "encrypted_kms_key"
     t.string "cid"
-    t.string "sha256"
+    t.string "header_hash"
+    t.string "form_data_hash"
+    t.index ["form_data_hash"], name: "index_claims_api_power_of_attorneys_on_form_data_hash"
     t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
   end
 
