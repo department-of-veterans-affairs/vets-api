@@ -6,7 +6,7 @@ describe PowerOfAttorneyPolicy do
   subject { described_class }
 
   permissions :access? do
-    context 'when user has an ICN and is LOA3' do
+    context 'when user is LOA3, has an ICN, and has a participant_id' do
       let(:user) { build(:user, :loa3) }
 
       it 'grants access' do
