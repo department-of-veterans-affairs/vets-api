@@ -6,7 +6,7 @@ require 'pensions/benefits_intake/pension_benefit_intake_job'
 require 'pensions/monitor'
 require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
 
-RSpec.describe 'Penisons End to End', type: :request do
+RSpec.describe 'Pensions End to End', type: :request do
   let(:form) { build(:pensions_saved_claim) }
   let(:param_name) { :pension_claim }
   let(:pdf_path) { 'random/path/to/pdf' }
@@ -39,7 +39,7 @@ RSpec.describe 'Penisons End to End', type: :request do
     data = response.parsed_body['data']
     saved_claim_id = data['id'].to_i
 
-    # veify claim created
+    # verify claim created
     pension_claim = Pensions::SavedClaim.find(saved_claim_id)
     expect(pension_claim).to be_present
     expect(pension_claim.confirmation_number).to eq data['attributes']['confirmation_number']

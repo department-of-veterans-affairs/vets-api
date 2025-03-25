@@ -39,7 +39,7 @@ RSpec.describe 'Burials End to End', type: :request do
     data = response.parsed_body['data']
     saved_claim_id = data['id'].to_i
 
-    # veify claim created
+    # verify claim created
     burial_claim = Burials::SavedClaim.find(saved_claim_id)
     expect(burial_claim).to be_present
     expect(burial_claim.confirmation_number).to eq data['attributes']['confirmation_number']
