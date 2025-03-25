@@ -275,6 +275,8 @@ Example Implementation
 Step 1: Create a Callback Handler Class: Define a class in your module to handle callbacks, which must implement a class-level method `.call`.
 
 ```rb
+# MUST be accessible from an autoloaded directory; Rails.autoloaders.main.dirs
+
 module ExampleTeam
   class CustomNotificationCallback
     def self.call(notification)
