@@ -37,13 +37,13 @@ module Lighthouse
           tags = ['service:claim-status', "function: #{api_service_name} - VA Notify evidence upload failure email"]
           StatsD.increment('silent_failure', tags:)
           Rails.logger.error('Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback',
-                            { notification_id:,
-                              source_location:,
-                              status:,
-                              status_reason:,
-                              notification_type:,
-                              request_id:,
-                              job_class: })
+                             { notification_id:,
+                               source_location:,
+                               status:,
+                               status_reason:,
+                               notification_type:,
+                               request_id:,
+                               job_class: })
         when 'temporary-failure'
           # the api will continue attempting to deliver - success is still possible
           StatsD.increment('api.vanotify.notifications.temporary_failure')
@@ -60,13 +60,13 @@ module Lighthouse
           StatsD.increment('api.vanotify.notifications.other')
           StatsD.increment('callbacks.cst_document_uploads.va_notify.notifications.other')
           Rails.logger.error('Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback',
-                            { notification_id:,
-                              source_location:,
-                              status:,
-                              status_reason:,
-                              notification_type:,
-                              request_id:,
-                              job_class: })
+                             { notification_id:,
+                               source_location:,
+                               status:,
+                               status_reason:,
+                               notification_type:,
+                               request_id:,
+                               job_class: })
         end
       end
     end
