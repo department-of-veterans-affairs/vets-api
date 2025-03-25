@@ -33,26 +33,21 @@ module Lighthouse
           StatsD.increment('callbacks.cst_document_uploads.va_notify.notifications.other')
         end
 
-        add_log(notification, es)
+        add_log(notification, es) if notification.status != 'delivered'
       end
 
       def self.add_log(notification, evidence_submission)
-        job_class = evidence_submission.job_class
-        request_id = evidence_submission.request_id
-        notification_id = notification.notification_id
-        source_location = notification.source_location
-        status = notification.status
-        status_reason = notification.status_reason
-        notification_type = notification.notification_type
+        context = { 
+          notification_id: notification.notification_id,
+          source_location: notification.source_location,
+          status: notification.status,
+          status_reason: notification.status_reason,
+          notification_type: notification.notification_type,
+          request_id: evidence_submission.request_id,
+          job_class: evidence_submission.job_class
+        }
 
-        Rails.logger.error('Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback',
-                           { notification_id:,
-                             source_location:,
-                             status:,
-                             status_reason:,
-                             notification_type:,
-                             request_id:,
-                             job_class: })
+        Rails.logger.error(self.name, context)
       end
 
       def self.get_api_service_name(job_class)
