@@ -10,6 +10,7 @@ describe PdfFill::HashConverter do
   let(:extras_generator) { instance_double(PdfFill::ExtrasGenerator) }
 
   def verify_extras_text(text, metadata)
+    metadata[:overflow] = true unless metadata.key?(:overflow)
     expect(extras_generator).to receive(:add_text).with(text, metadata).once
   end
 
@@ -283,6 +284,9 @@ describe PdfFill::HashConverter do
       end
 
       it 'calls add_to_extras with the correct data and metadata' do
+        verify_extras_text('Hubert',
+                           i: nil, question_num: 1, question_text: 'First Name',
+                           top_level_key: :veteranFullName, overflow: false)
         verify_extras_text('Wolfeschlegelsteinhausenbergerdorff',
                            i: nil, question_num: 2, question_text: 'Last Name', top_level_key: :veteranFullName)
         verify_extras_text('Walter Reed, Bethesda MD',
