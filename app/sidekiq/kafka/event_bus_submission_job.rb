@@ -6,7 +6,7 @@ require 'kafka/monitor'
 module Kafka
   class EventBusSubmissionJob
     include Sidekiq::Job
-    sidekiq_options retry: 16, queue: 'low'
+    sidekiq_options retry: 3, queue: 'low'
 
     # retry exhaustion
     sidekiq_retries_exhausted do |msg|
