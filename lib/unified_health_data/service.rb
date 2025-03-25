@@ -92,7 +92,7 @@ module UnifiedHealthData
         display: record['resource']['code']['text'],
         test_code: code,
         date_completed: record['resource']['effectiveDateTime'],
-        sample_tested:, encoded_data:, location:, ordered_by:, observations:, body_site:,
+        sample_tested:, encoded_data:, location:, ordered_by:, observations:, body_site:
       )
 
       UnifiedHealthData::LabOrTest.new(
@@ -122,19 +122,18 @@ module UnifiedHealthData
 
     def fetch_body_site(resource, contained)
       body_sites = []
-      service_request_references = []
 
       return '' unless resource['basedOn']
+
       service_request_references = resource['basedOn'].pluck('reference')
       service_request_references.each do |reference|
         service_request_object = contained.find do |contained_resource|
-          contained_resource['resourceType'] == 'ServiceRequest' && contained_resource['id'] == reference.split('/').last
+          contained_resource['resourceType'] == 'ServiceRequest' &&
+            contained_resource['id'] == reference.split('/').last
         end
         body_site_object = service_request_object['bodySite'] if service_request_object
-        if body_site_object
-          body_site_object.each do |body_site|
-            body_sites << body_site['text']
-          end
+        body_site_object&.each do |body_site|
+          body_sites << body_site['text']
         end
       end
 

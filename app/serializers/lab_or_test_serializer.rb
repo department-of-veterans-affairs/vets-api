@@ -34,7 +34,7 @@ class LabOrTestSerializer
         status: obs.status,
         comments: obs.comments,
         body_site: obs.body_site,
-        sample_tested: obs.sample_tested,
+        sample_tested: obs.sample_tested
       }
     end
   end
