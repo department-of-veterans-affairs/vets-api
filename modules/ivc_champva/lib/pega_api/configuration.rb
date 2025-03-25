@@ -7,7 +7,7 @@ module IvcChampva
   module PegaApi
     class Configuration < Common::Client::Configuration::REST
       def base_path
-        'https://bt41mfpkj5.execute-api.us-gov-west-1.amazonaws.com/prod/'
+        Settings.ivc_champva.pega_api.base_path.to_s
       end
 
       def service_name

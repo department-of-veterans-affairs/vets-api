@@ -46,19 +46,10 @@ module IvcChampva
           # We only need the first form, outside of the file_names field, the data is the same.
           form = ivc_forms.first
 
-          # rubocop:disable Style/IfInsideElse
-          # Temporarily disabling rubocop because of flipper
-          if Flipper.enabled?(:champva_confirmation_email_bugfix, @user)
-            send_email(form_uuid, ivc_forms.first) if form.email.present? && status == 'Processed'
-            # Possible values for form.pega_status are 'Processed', 'Not Processed'
-          else
-            send_email(form_uuid, ivc_forms.first) if form.email.present?
-          end
-          # rubocop:enable Style/IfInsideElse
+          # Possible values for form.pega_status are 'Processed', 'Not Processed'
+          send_email(form_uuid, ivc_forms.first) if form.email.present? && status == 'Processed'
 
-          if Flipper.enabled?(:champva_enhanced_monitor_logging, @current_user)
-            monitor.track_update_status(form_uuid, status)
-          end
+          monitor.track_update_status(form_uuid, status)
 
           { json: {}, status: :ok }
         else
