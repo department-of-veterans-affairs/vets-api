@@ -29,8 +29,10 @@ module PdfFill
         i = metadata[:i]
         prefix += " Line #{i + 1}" if i.present?
 
-        pdf.text("#{prefix}:", { style: :normal })
-        pdf.text(value.to_s, { style: :bold })
+        pdf.markup("<h4>#{prefix}:</h4>")
+        formatted_value = value.gsub("\n", "<br/>")
+        pdf.markup("<b>#{formatted_value}</b>")
+        
       end
     end
 
@@ -55,6 +57,7 @@ module PdfFill
     end
 
     def render_pdf_content(pdf, generate_blocks)
+      setup_pdf(pdf)
       set_header(pdf)
 
       current_section_index = nil
@@ -79,8 +82,7 @@ module PdfFill
     def render_new_section(pdf, section_index)
       return if @sections.blank?
 
-      pdf.move_down(20)
-      pdf.text(@sections[section_index][:label], { size: 14 })
+      pdf.markup("<h2>#{@sections[section_index][:label]}</h2>")
     end
 
     def set_header(pdf)
@@ -93,6 +95,7 @@ module PdfFill
           write_header_submit_date(pdf, location, bound_width, HEADER_FONT_SIZE)
         end
         pdf.pad_top(2) { pdf.stroke_horizontal_rule }
+        pdf.stroke_horizontal_rule
       end
     end
 
@@ -106,20 +109,16 @@ module PdfFill
 
     def write_header_main(pdf, location, bound_width, bound_height)
       pdf.bounding_box(location, width: bound_width, height: bound_height) do
-        pdf.text("<b>ATTACHMENT</b> to VA Form #{@form_name}",
-                 align: :left,
-                 valign: :bottom,
-                 size: bound_height,
-                 inline_format: true)
+        pdf.markup("<b>ATTACHMENT</b> to VA Form #{@form_name}",
+            text: { align: :left, valign: :bottom, size: bound_height })
       end
     end
 
     def write_header_submit_date(pdf, location, bound_width, bound_height)
       pdf.bounding_box(location, width: bound_width, height: bound_height) do
-        pdf.text("Submitted on VA.gov on #{@submit_date}",
-                 align: :right,
-                 valign: :bottom,
-                 size: SUBHEADER_FONT_SIZE)
+        pdf.markup("Submitted on VA.gov on #{@submit_date}", 
+            text: { align: :right, valign: :bottom, size: SUBHEADER_FONT_SIZE })
+
       end
     end
 
