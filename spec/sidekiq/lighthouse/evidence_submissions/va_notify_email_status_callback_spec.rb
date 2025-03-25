@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'lighthouse/benefits_documents/va_notify_email_status_callback'
 require 'lighthouse/benefits_documents/constants'
 
-describe BenefitsDocuments::VANotifyEmailStatusCallback do
+describe Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback do
   describe '#call' do
     context 'notification callback' do
       let(:notification_type) { :error }
@@ -35,7 +34,7 @@ describe BenefitsDocuments::VANotifyEmailStatusCallback do
           described_class.call(notification_record)
           es = EvidenceSubmission.find_by(va_notify_id: notification_record.notification_id)
           expect(Rails.logger).to have_received(:error).with(
-            'BenefitsDocuments::VANotifyEmailStatusCallback',
+            'Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback',
             { notification_id: notification_record.notification_id,
               source_location: notification_record.source_location,
               status: notification_record.status,
@@ -58,7 +57,7 @@ describe BenefitsDocuments::VANotifyEmailStatusCallback do
           described_class.call(notification_record_evss)
           es = EvidenceSubmission.find_by(va_notify_id: notification_record_evss.notification_id)
           expect(Rails.logger).to have_received(:error).with(
-            'BenefitsDocuments::VANotifyEmailStatusCallback',
+            'Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback',
             { notification_id: notification_record_evss.notification_id,
               source_location: notification_record_evss.source_location,
               status: notification_record_evss.status,
@@ -151,7 +150,7 @@ describe BenefitsDocuments::VANotifyEmailStatusCallback do
           expect(StatsD).to have_received(:increment)
             .with('callbacks.cst_document_uploads.va_notify.notifications.temporary_failure')
           expect(Rails.logger).to have_received(:warn).with(
-            'BenefitsDocuments::VANotifyEmailStatusCallback',
+            'Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback',
             { notification_id: notification_record.notification_id,
               source_location: notification_record.source_location,
               status: notification_record.status,
@@ -181,7 +180,7 @@ describe BenefitsDocuments::VANotifyEmailStatusCallback do
           expect(StatsD).to have_received(:increment).with('api.vanotify.notifications.other')
           StatsD.increment('callbacks.cst_document_uploads.va_notify.notifications.other')
           expect(Rails.logger).to have_received(:error).with(
-            'BenefitsDocuments::VANotifyEmailStatusCallback',
+            'Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback',
             { notification_id: notification_record.notification_id,
               source_location: notification_record.source_location,
               status: notification_record.status,
