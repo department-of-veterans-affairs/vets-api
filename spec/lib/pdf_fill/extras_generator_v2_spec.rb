@@ -135,7 +135,8 @@ describe PdfFill::ExtrasGeneratorV2 do
   end
 
   describe '#add_footer' do
-    subject { described_class.new(submit_date: submit_date) }
+    subject { described_class.new(submit_date:) }
+
     let(:pdf) { instance_double(Prawn::Document, bounds: double('Bounds', bottom: 50, left: 0, width: 500)) }
     let(:footer_font_size) { described_class::FOOTER_FONT_SIZE }
     let(:submit_date) { DateTime.new(2020, 12, 25, 14, 30, 0, '+0000') }
@@ -150,7 +151,7 @@ describe PdfFill::ExtrasGeneratorV2 do
       it 'adds the footer text with timestamp and identity verification message' do
         subject.add_footer(pdf)
         expected_text = 'Signed electronically and submitted via VA.gov at 14:30 UTC 2020-12-25. ' \
-                       'Signee signed with an identify-verified account.'
+                        'Signee signed with an identify-verified account.'
         expect(pdf).to have_received(:text).with(
           expected_text,
           align: :left,

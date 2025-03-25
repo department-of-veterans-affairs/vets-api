@@ -134,7 +134,7 @@ module PdfFill
           pdf.bounding_box([pdf.bounds.left, pdf.bounds.bottom], width: pdf.bounds.width, height: FOOTER_FONT_SIZE) do
             ts = format_timestamp(@submit_date)
             pdf.text(
-              "Signed electronically and submitted via VA.gov at #{ts}. " +
+              "Signed electronically and submitted via VA.gov at #{ts}. " \
               'Signee signed with an identify-verified account.',
               align: :left,
               size: FOOTER_FONT_SIZE

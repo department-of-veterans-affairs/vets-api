@@ -208,6 +208,7 @@ module PdfFill
     # Formats the timestamp for the PDF footer
     def format_timestamp(datetime)
       return nil if datetime.blank?
+
       "#{datetime.utc.strftime('%H:%M')} UTC #{datetime.utc.strftime('%Y-%m-%d')}"
     end
   end
