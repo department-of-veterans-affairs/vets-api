@@ -190,6 +190,14 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
       expect(response).to have_http_status(:ok)
     end
 
+    it 'returns a veteran status of VETERAN' do
+      VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
+        put(:update, params:)
+      end
+      body = JSON.parse(response.body)
+      expect(body['data']['attributes']['veteran_status']).to eq('VETERAN')
+    end
+
     it 'capitalizes account type' do
       VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
         put(:update, params:)
