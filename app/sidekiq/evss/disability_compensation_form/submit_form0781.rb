@@ -213,7 +213,6 @@ module EVSS
       def generate_stamp_pdf(form_content, evss_claim_id, form_id)
         submission_date = @submission&.created_at&.in_time_zone('Central Time (US & Canada)')
         form_content = form_content.merge({ 'signatureDate' => submission_date })
-
         submission = Form526Submission.find(@submission_id)
         user = User.find(submission.user_uuid)
         extras_redesign = Flipper.enabled?(:disability_compensation_0781v2_extras_redesign,
@@ -224,17 +223,17 @@ module EVSS
         # If extras redesign is enabled, the stamp is added during the fill_ancillary_form call as part of the redesign.
         return pdf_path if extras_redesign
 
-        stamped_path = PDFUtilities::DatestampPdf.new(pdf_path).run(
-          text: 'VA.gov Submission',
-          x: 510,
-          y: 775,
-          text_only: true
-        )
-        PDFUtilities::DatestampPdf.new(stamped_path).run(
-          text: "Signed electronically and submitted via VA.gov at #{format_timestamp(submission_date)}. " \
-                'Signee signed with an identity-verified account.',
-          x: 5, y: 5, text_only: true, size: 9
-        )
+        stamped_path = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.gov Submission', x: 510, y: 775,
+                                                                    text_only: true)
+        if form_id == FORM_ID_0781V2
+          PDFUtilities::DatestampPdf.new(stamped_path).run(
+            text: "Signed electronically and submitted via VA.gov at #{format_timestamp(submission_date)}. " \
+                  'Signee signed with an identity-verified account.',
+            x: 5, y: 5, text_only: true, size: 9
+          )
+        else
+          PDFUtilities::DatestampPdf.new(stamped_path).run(text: 'VA.gov', x: 5, y: 5, timestamp: submission_date)
+        end
       end
 
       # Formats the timestamp for the PDF footer
