@@ -137,12 +137,42 @@ describe TravelPay::ClaimsService do
         )
       end
 
+      let(:document_ids_data) do
+        {
+          'data' => [
+            {
+              'documentId' => 'uuid1',
+              'filename' => 'DecisionLetter.pdf',
+              'mimetype' => 'application/pdf',
+              'createdon' => '2025-03-24T14:00:52.893Z'
+            },
+            {
+              'documentId' => 'uuid2',
+              'filename' => 'screenshot.jpg',
+              'mimetype' => 'image/jpeg',
+              'createdon' => '2025-03-24T14:00:52.893Z'
+            }
+          ]
+        }
+      end
+
+      let(:document_ids_response) do
+        Faraday::Response.new(
+          body: document_ids_data
+        )
+      end
+
+
       let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
       before do
         allow_any_instance_of(TravelPay::ClaimsClient)
           .to receive(:get_claim_by_id)
           .and_return(claim_details_response)
+
+          allow_any_instance_of(TravelPay::DocumentsClient)
+          .to receive(:get_document_ids)
+          .and_return(document_ids_response)
 
         auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
         @service = TravelPay::ClaimsService.new(auth_manager)
@@ -155,8 +185,21 @@ describe TravelPay::ClaimsService do
         expect(actual_claim['expenses']).not_to be_empty
         expect(actual_claim['appointment']).not_to be_empty
         expect(actual_claim['totalCostRequested']).to eq(20.00)
+        expect(actual_claim['documents']).to be_empty
         expect(actual_claim['claimStatus']).to eq('Pre approved for payment')
       end
+
+      it 'includes document info when include_documents flag is true' do
+        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+        actual_claim = @service.get_claim_details(claim_id, true)
+
+        expect(actual_claim['documents']).not_to be_empty
+        expect(actual_claim['expenses']).not_to be_empty
+        expect(actual_claim['appointment']).not_to be_empty
+        expect(actual_claim['totalCostRequested']).to eq(20.00)
+        expect(actual_claim['claimStatus']).to eq('Pre approved for payment')
+      end
+
 
       it 'returns an not found error if a claim with the given id was not found' do
         allow_any_instance_of(TravelPay::ClaimsClient)
