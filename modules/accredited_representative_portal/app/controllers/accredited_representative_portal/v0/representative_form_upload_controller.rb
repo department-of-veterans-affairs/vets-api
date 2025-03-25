@@ -11,10 +11,7 @@ module AccreditedRepresentativePortal
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:formNumber])
         check_for_changes
-
         status, confirmation_number = upload_response
-        send_confirmation_email(params, confirmation_number) if status == 200
-
         render json: { status: 200, confirmation_number: params[:confirmationCode] }
       end
 
@@ -58,9 +55,9 @@ module AccreditedRepresentativePortal
 
       def validated_metadata
         raw_metadata = {
-          'veteranFirstName' => veteran_first_name,
-          'veteranLastName' => veteran_last_name,
-          'fileNumber' => veteran_ssn,
+          'veteranFirstName' => form_params.dig('formData', 'veteranFullName', 'first'),
+          'veteranLastName' => form_params.dig('formData', 'veteranFullName', 'last'),
+          'fileNumber' => form_params.dig('formData', 'veteranSsn'),
           'zipCode' => form_params.dig(:formData, :postalCode),
           'source' => 'VA Platform Digital Forms',
           'docType' => params[:formNumber],
@@ -122,33 +119,6 @@ module AccreditedRepresentativePortal
         end
       end
 
-      def create_new_form_data
-        {
-          ssn:,
-          postalCode: form_data[:postalCode],
-          full_name: {
-            first: first_name,
-            last: last_name
-          },
-          email: form_data[:email],
-          veteranDateOfBirth: birth_date
-        }
-      end
-
-      def send_confirmation_email(params, confirmation_number)
-        form_data = create_new_form_data
-
-        config = {
-          form_number: params[:formNumber],
-          form_data:,
-          date_submitted: Time.zone.today.strftime('%B %d, %Y'),
-          confirmation_number:
-        }
-
-        notification_email = SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type: :confirmation)
-        notification_email.send
-      end
-
       def form_params
         params.require(:representative_form_upload).permit(
           :confirmationCode,
@@ -169,56 +139,8 @@ module AccreditedRepresentativePortal
         )
       end
 
-      def veteran_ssn
-        form_params.dig('formData', 'veteranSsn')
-      end
-
-      def veteran_first_name
-        form_params.dig('formData', 'veteranFullName', 'first')
-      end
-
-      def veteran_last_name
-        form_params.dig('formData', 'veteranFullName', 'last')
-      end
-
-      def veteran_birth_date
-        form_params.dig('formData', 'veteranDateOfBirth')
-      end
-
-      def claimant_ssn
-        form_params.dig('formData', 'claimantSsn')
-      end
-
-      def claimant_first_name
-        form_params.dig('formData', 'claimantFullName', 'first')
-      end
-
-      def claimant_last_name
-        form_params.dig('formData', 'claimantFullName', 'last')
-      end
-
-      def claimant_birth_date
-        form_params.dig('formData', 'claimantDateOfBirth')
-      end
-
       def form_data
         form_params['formData']
-      end
-
-      def ssn
-        claimant_ssn || veteran_ssn
-      end
-
-      def first_name
-        claimant_first_name || veteran_last_name
-      end
-
-      def last_name
-        claimant_last_name || veteran_last_name
-      end
-
-      def birth_date
-        claimant_birth_date || veteran_birth_date
       end
     end
   end
