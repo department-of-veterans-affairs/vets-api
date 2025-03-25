@@ -33,9 +33,8 @@ module MHV
     end
 
     def update_users_with_correlation_id(mhv_correlation_id)
-      # Skip if UserIdentity doesn't exist or doesn't respond to where
       return unless defined?(UserIdentity) && UserIdentity.respond_to?(:where)
-      
+
       begin
         user_identities = UserIdentity.where(mhv_correlation_id:)
         user_identities.each do |identity|
