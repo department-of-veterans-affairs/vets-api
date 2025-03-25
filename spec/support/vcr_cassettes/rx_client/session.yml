@@ -16,7 +16,7 @@ http_interactions:
       Apptoken:
       - "<APP_TOKEN>"
       Mhvcorrelationid:
-      - '12210827'
+      - '17621060'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -24,18 +24,78 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Server:
-      - Apache-Coyote/1.1
-      Expires:
-      - Tue, 02 May 2017 06:21:13 GMT
-      Token: "<SESSION_TOKEN>"
+      Date:
+      - Tue, 25 Mar 2025 20:21:56 GMT
+      Content-Type:
+      - application/json
       Content-Length:
       - '0'
-      Date:
-      - Tue, 02 May 2017 06:11:13 GMT
+      X-Amzn-Requestid:
+      - c51f56b4-368d-4a63-9ea0-70436e4b50da
+      X-Amzn-Remapped-Content-Length:
+      - '0'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - H_9_rF88PHMFp1g=
+      Expires:
+      - Wed, 26 Mar 2025 20:21:56 GMT+00:00
+      Token: "<SESSION_TOKEN>"
+      X-Amzn-Remapped-Date:
+      - Tue, 25 Mar 2025 20:21:56 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
       string: ''
-    http_version:
-  recorded_at: Tue, 02 May 2017 06:11:13 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Tue, 25 Mar 2025 20:21:56 GMT
+- request:
+    method: get
+    uri: "<MHV_HOST>/mhv-api/patient/v1/session"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apptoken:
+      - "<APP_TOKEN>"
+      Mhvcorrelationid:
+      - '17621060'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 25 Mar 2025 20:21:56 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '0'
+      X-Amzn-Requestid:
+      - 53728e21-648d-44dc-8a9d-94592fd194f3
+      X-Amzn-Remapped-Content-Length:
+      - '0'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - H_9_vGtsPHMFScQ=
+      Expires:
+      - Wed, 26 Mar 2025 20:21:56 GMT+00:00
+      Token: "<SESSION_TOKEN>"
+      X-Amzn-Remapped-Date:
+      - Tue, 25 Mar 2025 20:21:56 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Tue, 25 Mar 2025 20:21:56 GMT
+recorded_with: VCR 6.3.1
