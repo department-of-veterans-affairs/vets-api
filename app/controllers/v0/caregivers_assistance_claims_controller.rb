@@ -4,6 +4,7 @@ require 'lighthouse/facilities/v1/client'
 module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
+    include Retryable
     service_tag 'caregiver-application'
 
     AUDITOR = ::Form1010cg::Auditor.new
@@ -42,7 +43,14 @@ module V0
     # If we were unable to submit the user's claim digitally, we allow them to the download
     # the 10-10CG PDF, pre-filled with their data, for them to mail in.
     def download_pdf
-      source_file_path = @claim.to_pdf(SecureRandom.uuid, sign: false)
+      source_file_path = if Flipper.enabled?(:caregiver_retry_pdf_fill)
+                           file_name = SecureRandom.uuid
+                           with_retries('Generate 10-10CG PDF', max_attempts: 3, retry_delay: 1) do
+                             @claim.to_pdf(file_name, sign: false)
+                           end
+                         else
+                           @claim.to_pdf(SecureRandom.uuid, sign: false)
+                         end
 
       client_file_name = file_name_for_pdf(@claim.veteran_data)
       file_contents    = File.read(source_file_path)
