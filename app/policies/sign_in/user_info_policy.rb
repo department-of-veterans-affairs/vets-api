@@ -10,7 +10,7 @@ module SignIn
     end
 
     def show?
-      user.present? && client_id.in?(Settings.sign_in.user_info_clients)
+      user.present? && client_id.in?(IdentitySettings.sign_in.user_info_clients)
     end
 
     private

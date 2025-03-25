@@ -2292,6 +2292,21 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#future' do
+    it 'sets future to true if the appointment is not a request and occurs within the past 60 minutes' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'VA'
+      appt[:start] = Time.now.utc - 30.minutes
+      expect(subject.send(:future?, appt)).to be(true)
+    end
+
+    it 'sets future to true if the appointment is telehealth and occurs within the past 240 minutes' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'VA'
+      appt[:kind] = 'telehealth'
+      appt[:start] = Time.now.utc - 210.minutes
+      expect(subject.send(:future?, appt)).to be(true)
+    end
+
     it 'sets future to true if the appointment is not a request and occurs after the beginning of the current day' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:type] = 'VA'
