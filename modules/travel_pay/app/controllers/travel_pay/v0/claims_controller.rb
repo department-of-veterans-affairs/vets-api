@@ -22,7 +22,7 @@ module TravelPay
         end
 
         begin
-          include_documents = Flipper.enabled?(:travel_pay_claims_management)
+          include_documents = Flipper.enabled?(:travel_pay_claims_management, @current_user)
           claim = claims_service.get_claim_details(params[:id], include_documents)
         rescue Faraday::Error => e
           TravelPay::ServiceError.raise_mapped_error(e)
