@@ -34,7 +34,6 @@ RSpec.describe MHV::AuditLoginJob do
     end
 
     describe 'user account path', skip: 'Implementation pending - will be revisited when PR is fully implemented' do
-      # These tests will be implemented when the PR is being fully implemented
       it 'calls the MHV audit client'
       it 'updates the user via the account path'
     end
