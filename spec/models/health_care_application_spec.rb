@@ -491,80 +491,69 @@ RSpec.describe HealthCareApplication, type: :model do
     end
 
     context 'with no email' do
+      let(:service_instance) { instance_double(HCA::Service) }
+      let(:parsed_form) { health_care_application.send(:parsed_form) }
+      let(:success_result) { { success: true, formSubmissionId: '123', timestamp: Time.now.getlocal.to_s } }
+
       before do
         new_form = JSON.parse(health_care_application.form)
         new_form.delete('email')
         health_care_application.form = new_form.to_json
         health_care_application.instance_variable_set(:@parsed_form, nil)
+        allow(HCA::Service).to receive(:new).and_return(service_instance)
       end
 
-      context 'with async_compatible not set' do
-        let(:service_instance) { instance_double(HCA::Service) }
-        let(:parsed_form) { health_care_application.send(:parsed_form) }
-        let(:success_result) { { success: true, formSubmissionId: '123', timestamp: Time.now.getlocal.to_s } }
+      context 'successful submission' do
+        before do
+          allow(service_instance).to receive(:submit_form)
+            .with(parsed_form)
+            .and_return(success_result)
+        end
+
+        it 'successfully submits synchronously' do
+          expect(health_care_application.process!).to eq(success_result)
+        end
+      end
+
+      context 'exception is raised in process!' do
+        let(:client_error) { Common::Client::Errors::ClientError.new('error message flerp') }
 
         before do
-          allow(HCA::Service).to receive(:new).and_return(service_instance)
+          allow(StatsD).to receive(:increment)
+          allow(service_instance).to receive(:submit_form)
+            .and_raise(client_error)
         end
 
-        context 'successful submission' do
-          before do
-            allow(service_instance).to receive(:submit_form)
-              .with(parsed_form)
-              .and_return(success_result)
-          end
-
-          it 'successfully submits synchronously' do
-            expect(health_care_application.process!).to eq(success_result)
-          end
+        it 'logs exception to Sentry and raises BackendServiceException' do
+          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(client_error)
+          expect do
+            health_care_application.process!
+          end.to raise_error(Common::Exceptions::BackendServiceException)
         end
 
-        context 'exception is raised in process!' do
-          let(:client_error) { Common::Client::Errors::ClientError.new('error message flerp') }
+        it 'increments statsd' do
+          expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed")
 
+          expect do
+            health_care_application.process!
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+
+        context 'short form' do
           before do
-            allow(StatsD).to receive(:increment)
-            allow(service_instance).to receive(:submit_form)
-              .and_raise(client_error)
+            health_care_application.form = health_care_application_short_form.to_json
+            health_care_application.instance_variable_set(:@parsed_form, nil)
           end
 
-          it 'logs exception to Sentry and raises BackendServiceException' do
-            expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(client_error)
-            expect do
-              health_care_application.process!
-            end.to raise_error(Common::Exceptions::BackendServiceException)
-          end
-
-          it 'increments statsd' do
+          it 'increments statsd and short_form statsd' do
             expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed")
+            expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed_short_form")
 
             expect do
               health_care_application.process!
             end.to raise_error(Common::Exceptions::BackendServiceException)
           end
-
-          context 'short form' do
-            before do
-              health_care_application.form = health_care_application_short_form.to_json
-              health_care_application.instance_variable_set(:@parsed_form, nil)
-            end
-
-            it 'increments statsd and short_form statsd' do
-              expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed")
-              expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed_short_form")
-
-              expect do
-                health_care_application.process!
-              end.to raise_error(Common::Exceptions::BackendServiceException)
-            end
-          end
         end
-      end
-
-      context 'with async_compatible set' do
-        before { health_care_application.async_compatible = true }
-
-        expect_job_submission(HCA::AnonSubmissionJob)
       end
     end
   end

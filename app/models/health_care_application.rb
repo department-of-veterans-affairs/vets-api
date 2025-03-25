@@ -22,7 +22,7 @@ class HealthCareApplication < ApplicationRecord
   ].freeze
   LOCKBOX = Lockbox.new(key: Settings.lockbox.master_key, encode: true)
 
-  attr_accessor :user, :async_compatible, :google_analytics_client_id, :form
+  attr_accessor :user, :google_analytics_client_id, :form
 
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
@@ -137,7 +137,7 @@ class HealthCareApplication < ApplicationRecord
     # SEND "received" message to EventBus
     HCA::EventBusSubmissionJob.perform_async('submission_trace_mock_dev', build_event_payload('received'))
 
-    if email.present? || async_compatible
+    if email.present?
       submit_async
     else
       submit_sync
@@ -307,15 +307,10 @@ class HealthCareApplication < ApplicationRecord
 
   def submit_async
     Rails.logger.info '~~~~~~~~~~~~~~~ async', email.present?
-    Rails.logger.info '~~~~~~~~~~~~~~~ async', email.present?
-    submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
-    # if testing locally, use the below instead of the above:
-    # submission_job = 'MockSubmissionJob'
-    # if testing locally, use the below instead of the above:
-    # submission_job = 'MockSubmissionJob'
-    @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
-    "HCA::#{submission_job}".constantize.perform_async(
+    @parsed_form = HCA::OverridesParser.new(parsed_form).override
+    # if testing locally, use MockSubmissionJob
+    HCA::SubmissionJob.perform_async(
       self.class.get_user_identifier(user),
       HealthCareApplication::LOCKBOX.encrypt(parsed_form.to_json),
       id,
