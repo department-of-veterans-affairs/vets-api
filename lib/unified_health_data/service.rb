@@ -81,8 +81,8 @@ module UnifiedHealthData
       location = fetch_location(record)
       code = fetch_code(record)
       encoded_data = record['resource']['presentedForm'] ? record['resource']['presentedForm'].first['data'] : ''
-      sample_site = fetch_sample_site(record)
-      fetch_samples_tested(record:, contained: record['resource']['contained'])
+      sample_tested = fetch_sample_tested(record['resource'], record['resource']['contained'])
+      body_site = fetch_body_site(record['resource'], record['resource']['contained'])
       observations = fetch_observations(record)
       ordered_by = fetch_ordered_by(record)
 
@@ -92,7 +92,7 @@ module UnifiedHealthData
         display: record['resource']['code']['text'],
         test_code: code,
         date_completed: record['resource']['effectiveDateTime'],
-        sample_site:, encoded_data:, location:, ordered_by:, observations:
+        sample_tested:, encoded_data:, location:, ordered_by:, observations:, body_site:,
       )
 
       UnifiedHealthData::LabOrTest.new(
@@ -120,21 +120,39 @@ module UnifiedHealthData
       coding ? coding['coding'][0]['code'] : nil
     end
 
-    def fetch_sample_site(record)
-      specimen = record['resource']['contained'].find { |resource| resource['resourceType'] == 'Specimen' }
-      specimen ? specimen['type']&.dig('text') : ''
+    def fetch_body_site(resource, contained)
+      body_sites = []
+      service_request_references = []
+
+      return '' unless resource['basedOn']
+      service_request_references = resource['basedOn'].pluck('reference')
+      service_request_references.each do |reference|
+        service_request_object = contained.find do |contained_resource|
+          contained_resource['resourceType'] == 'ServiceRequest' && contained_resource['id'] == reference.split('/').last
+        end
+        body_site_object = service_request_object['bodySite'] if service_request_object
+        if body_site_object
+          body_site_object.each do |body_site|
+            body_sites << body_site['text']
+          end
+        end
+      end
+
+      body_sites.join(', ').strip
     end
 
-    def fetch_samples_tested(record:, contained:)
-      specimen_references = []
-      specimens = []
-
+    def fetch_sample_tested(record, contained)
       return '' unless record['specimen']
 
+      specimen_references = []
+      specimens = []
       if record['specimen'].is_a?(Hash)
-        specimen_references << record['specimen']['reference']
+        # TODO: add helper method for extracting reference ID
+        specimen_references << record['specimen']['reference'].split('/').last
       elsif record['specimen'].is_a?(Array)
-        specimen_references = record['specimen'].pluck('reference')
+        record['specimen'].each do |specimen|
+          specimen_references << specimen['reference'].split('/').last
+        end
       end
 
       specimen_references.each do |reference|
@@ -149,7 +167,8 @@ module UnifiedHealthData
 
     def fetch_observations(record)
       record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
-        fetch_samples_tested(record: obs, contained: record['resource']['contained'])
+        sample_tested = fetch_sample_tested(obs, record['resource']['contained'])
+        body_site = fetch_body_site(obs, record['resource']['contained'])
         UnifiedHealthData::Observation.new(
           test_code: obs['code']['text'],
           value: fetch_observation_value(obs),
@@ -161,7 +180,9 @@ module UnifiedHealthData
                              ''
                            end,
           status: obs['status'],
-          comments: obs['note']&.map { |note| note['text'] }&.join(', ') || ''
+          comments: obs['note']&.map { |note| note['text'] }&.join(', ') || '',
+          sample_tested:,
+          body_site:
         )
       end
     end
