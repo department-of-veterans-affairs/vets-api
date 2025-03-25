@@ -222,8 +222,8 @@ claims_api:
     services:
       lighthouse:
         api_key: <%= ENV['claims_api__vanotify__services__lighthouse__api_key'] %>
-        notify_service_id: <%= ENV['claims_api__vanotify__services__lighthouse__notify_service_id'] %>
         notification_client_secret: <%= ENV['claims_api__vanotify__services__lighthouse__notification_client_secret'] %>
+        notify_service_id: <%= ENV['claims_api__vanotify__services__lighthouse__notify_service_id'] %>
 clamav:
   host: clamav
   mock: <%= ENV['clamav__mock'] %>
