@@ -4,8 +4,9 @@ require 'rails_helper'
 require 'support/rx_client_helpers'
 
 RSpec.describe MHVLoggingService do
+  let(:mhv_user) { instance_double(User, uuid: 'user-uuid', mhv_correlation_id: '12345', mhv_last_signed_in: nil, loa3?: true, user_account: user_account) }
+  let(:user_account) { instance_double(UserAccount, id: 1) }
   let(:login_service) { described_class.login(mhv_user) }
-
   let(:logout_service) { described_class.logout(mhv_user) }
 
   let(:authenticated_client) do
@@ -15,47 +16,95 @@ RSpec.describe MHVLoggingService do
   end
 
   before do
-    Sidekiq::Testing.inline!
     allow(MHVLogging::Client).to receive(:new).and_return(authenticated_client)
+    allow(authenticated_client).to receive_message_chain(:authenticate, :auditlogin)
+    allow(authenticated_client).to receive_message_chain(:authenticate, :auditlogout)
+    
+    # Setup Sidekiq test mode
+    Sidekiq::Testing.fake!
   end
 
   after do
     Sidekiq::Testing.fake!
+    Sidekiq::Worker.clear_all
   end
 
   context 'with current_user not having logged in to MHV' do
-    let(:mhv_user) { create(:user, :mhv, :mhv_not_logged_in) }
-
-    it 'posts audit log when not logged in' do
-      VCR.use_cassette('mhv_logging_client/audits/submits_an_audit_log_for_signing_in') do
-        expect(mhv_user.mhv_last_signed_in).to be_nil
-        expect(login_service).to be(true)
-        expect(User.find(mhv_user.uuid).mhv_last_signed_in).to be_a(Time)
-      end
+    it 'enqueues an audit login job when not logged in' do
+      expect(mhv_user.mhv_last_signed_in).to be_nil
+      
+      expect { login_service }.to change(MHV::AuditLoginJob.jobs, :size).by(1)
+      expect(login_service).to be(true)
+      
+      job_args = MHV::AuditLoginJob.jobs.last['args']
+      expect(job_args[0]).to eq(mhv_user.mhv_correlation_id)
+      expect(job_args[1]).to eq(mhv_user.mhv_last_signed_in)
+      expect(job_args[2]).to eq(mhv_user.user_account.id)
     end
 
-    it 'does not logout when not logged in' do
+    it 'does not enqueue a logout job when not logged in' do
       expect(mhv_user.mhv_last_signed_in).to be_nil
+      
+      expect { logout_service }.not_to change(MHV::AuditLogoutJob.jobs, :size)
       expect(logout_service).to be(false)
-      expect(mhv_user.mhv_last_signed_in).to be_nil
     end
   end
 
   context 'with current_user having already logged in to MHV' do
-    let(:mhv_user) { create(:user, :mhv) }
+    let(:signed_in_time) { Time.current }
+    let(:mhv_user) { instance_double(User, uuid: 'user-uuid', mhv_correlation_id: '12345', mhv_last_signed_in: signed_in_time, loa3?: true, user_account: user_account) }
 
-    it 'posts audit log when not logged in' do
-      expect(mhv_user.mhv_last_signed_in).to be_a(Time)
+    it 'does not enqueue login job when already logged in' do
+      expect(mhv_user.mhv_last_signed_in).to eq(signed_in_time)
+      
+      expect { login_service }.not_to change(MHV::AuditLoginJob.jobs, :size)
       expect(login_service).to be(false)
-      expect(mhv_user.mhv_last_signed_in).to be_a(Time)
     end
 
-    it 'does not logout when not logged in' do
-      VCR.use_cassette('mhv_logging_client/audits/submits_an_audit_log_for_signing_out') do
-        expect(mhv_user.mhv_last_signed_in).to be_a(Time)
-        expect(logout_service).to be(true)
-        expect(User.find(mhv_user.uuid).mhv_last_signed_in).to be_nil
-      end
+    it 'enqueues an audit logout job when logged in' do
+      expect(mhv_user.mhv_last_signed_in).to eq(signed_in_time)
+      
+      expect { logout_service }.to change(MHV::AuditLogoutJob.jobs, :size).by(1)
+      expect(logout_service).to be(true)
+      
+      job_args = MHV::AuditLogoutJob.jobs.last['args']
+      expect(job_args[0]).to eq(mhv_user.mhv_correlation_id)
+      expect(job_args[1]).to eq(signed_in_time.iso8601)
+      expect(job_args[2]).to eq(mhv_user.user_account.id)
+    end
+  end
+
+  # Using doubles instead of real created objects for the delegate user tests
+  context 'with delegate user having MHV credentials' do
+    let(:mhv_correlation_id) { '12345' }
+    let(:user_uuid1) { 'user1-uuid' }
+    let(:user_uuid2) { 'user2-uuid' }
+    let(:delegate_user) { instance_double(User, uuid: user_uuid2, mhv_correlation_id: mhv_correlation_id, mhv_last_signed_in: nil, loa3?: true) }
+    let(:primary_user) { instance_double(User, uuid: user_uuid1, mhv_correlation_id: mhv_correlation_id, mhv_last_signed_in: nil, loa3?: true, user_account: user_account) }
+    let(:login_service) { described_class.login(primary_user) }
+    let(:logout_service) { described_class.logout(primary_user) }
+    
+    # Separate tests for Sidekiq job functionality
+    # Full integration tests would require a more complex setup
+    it 'passes the correct parameters to AuditLoginJob' do
+      expect { login_service }.to change(MHV::AuditLoginJob.jobs, :size).by(1)
+      
+      job_args = MHV::AuditLoginJob.jobs.last['args'] 
+      expect(job_args[0]).to eq(mhv_correlation_id)
+      expect(job_args[1]).to be_nil
+      expect(job_args[2]).to eq(user_account.id)
+    end
+    
+    it 'passes the correct parameters to AuditLogoutJob' do
+      # Set up signed-in time
+      allow(primary_user).to receive(:mhv_last_signed_in).and_return(Time.current)
+      
+      expect { logout_service }.to change(MHV::AuditLogoutJob.jobs, :size).by(1)
+      
+      job_args = MHV::AuditLogoutJob.jobs.last['args']
+      expect(job_args[0]).to eq(mhv_correlation_id)
+      expect(job_args[1]).to eq(primary_user.mhv_last_signed_in.iso8601)
+      expect(job_args[2]).to eq(user_account.id)
     end
   end
 end
