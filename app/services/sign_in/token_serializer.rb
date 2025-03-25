@@ -37,7 +37,7 @@ module SignIn
       set_cookie!(name: Constants::Auth::INFO_COOKIE_NAME,
                   value: info_cookie_value.to_json,
                   httponly: false,
-                  domain: Settings.sign_in.info_cookie_domain)
+                  domain: IdentitySettings.sign_in.info_cookie_domain)
 
       if anti_csrf_enabled_client?
         set_cookie!(name: Constants::Auth::ANTI_CSRF_COOKIE_NAME,
@@ -50,7 +50,7 @@ module SignIn
       cookies[name] = {
         value:,
         expires: session_expiration,
-        secure: Settings.sign_in.cookies_secure,
+        secure: IdentitySettings.sign_in.cookies_secure,
         httponly:,
         path:,
         domain:
