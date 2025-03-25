@@ -11,8 +11,11 @@ module AccreditedRepresentativePortal
       before_action :validate_power_of_attorney, only: :submit
 
       def submit
+        debugger
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:formNumber])
+        debugger
         check_for_changes
+        debugger
 
         status, confirmation_number = upload_response
         send_confirmation_email(params, confirmation_number) if status == 200
