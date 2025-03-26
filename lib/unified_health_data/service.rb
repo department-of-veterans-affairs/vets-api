@@ -129,7 +129,7 @@ module UnifiedHealthData
       service_request_references.each do |reference|
         service_request_object = contained.find do |contained_resource|
           contained_resource['resourceType'] == 'ServiceRequest' &&
-            contained_resource['id'] == reference.split('/').last
+            contained_resource['id'] == extract_reference_id(reference)
         end
         body_site_object = service_request_object['bodySite'] if service_request_object
         body_site_object&.each do |body_site|
@@ -147,10 +147,10 @@ module UnifiedHealthData
       specimens = []
       if record['specimen'].is_a?(Hash)
         # TODO: add helper method for extracting reference ID
-        specimen_references << record['specimen']['reference'].split('/').last
+        specimen_references << extract_reference_id(record['specimen']['reference'])
       elsif record['specimen'].is_a?(Array)
         record['specimen'].each do |specimen|
-          specimen_references << specimen['reference'].split('/').last
+          specimen_references << extract_reference_id(specimen['reference'])
         end
       end
 
@@ -216,6 +216,10 @@ module UnifiedHealthData
           "#{name['given'].join(' ')} #{name['family']}"
         end
       end
+    end
+
+    def extract_reference_id(reference)
+      reference.split('/').last
     end
   end
 end
