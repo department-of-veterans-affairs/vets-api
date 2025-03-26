@@ -257,14 +257,17 @@ module Eps
     # Extracts a status code from an error message if possible
     #
     # @param error_message [String, nil] Error message that might contain a status code
-    # @return [Symbol, Integer] Extracted status code or default :bad_gateway
+    # @return [Symbol, Integer] Extracted status code, converts 500 to :bad_gateway, or default :bad_gateway if no code found
     #
     def extract_status(error_message)
-      if error_message && (match = error_message.match(/:code=>["']VAOS_(\d+)["']/))
-        match[1].to_i
-      else
-        :bad_gateway
+      return :bad_gateway unless error_message.is_a?(String)
+
+      if (match = error_message.match(/(?:code:|:code\s*=>)\s*["']VAOS_(\d{3})["']/i))
+        status_code = match[1].to_i
+        return status_code == 500 ? :bad_gateway : status_code
       end
+
+      :bad_gateway
     end
 
     ##
