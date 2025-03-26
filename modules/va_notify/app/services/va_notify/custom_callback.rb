@@ -4,9 +4,11 @@ module VANotify
   class CustomCallback
     attr_reader :notification
 
-    def call(notification_callback)
+    def initialize(notification_callback)
       @notification = VANotify::Notification.find_by(notification_id: notification_callback[:id])
+    end
 
+    def call
       return if callback_info_missing?
 
       klass = constantized_class(notification.callback_klass)
