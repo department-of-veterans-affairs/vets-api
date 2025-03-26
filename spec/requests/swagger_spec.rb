@@ -18,10 +18,6 @@ require 'form1010_ezr/service'
 require 'lighthouse/facilities/v1/client'
 
 RSpec.describe 'API doc validations', type: :request do
-  before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
-  end
-
   context 'json validation' do
     it 'has valid json' do
       get '/v0/apidocs.json'
@@ -42,7 +38,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
       create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid)
     end
 
@@ -912,13 +907,32 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
       end
 
-      it 'supports returning list of active facilities' do
-        VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+      context ':hca_cache_facilities feature is off' do
+        before { allow(Flipper).to receive(:enabled?).with(:hca_cache_facilities).and_return(false) }
+
+        it 'supports returning list of active facilities' do
+          VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+            expect(subject).to validate(
+              :get,
+              '/v0/health_care_applications/facilities',
+              200,
+              { '_query_string' => 'facilityIds[]=vha_757&facilityIds[]=vha_358' }
+            )
+          end
+        end
+      end
+
+      context ':hca_cache_facilities feature is on' do
+        before { allow(Flipper).to receive(:enabled?).with(:hca_cache_facilities).and_return(true) }
+
+        it 'supports returning list of active facilities' do
+          create(:health_facility, name: 'Test Facility', station_number: '123', postal_name: 'OH')
+
           expect(subject).to validate(
             :get,
             '/v0/health_care_applications/facilities',
             200,
-            { '_query_string' => 'facilityIds[]=vha_757&facilityIds[]=vha_358' }
+            { '_query_string' => 'state=OH' }
           )
         end
       end
@@ -4013,10 +4027,6 @@ RSpec.describe 'the v1 API documentation', order: :defined, type: %i[apivore req
   subject { Apivore::SwaggerChecker.instance_for('/v1/apidocs.json') }
 
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob', icn: '1012667145V762142') }
-
-  before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
-  end
 
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }

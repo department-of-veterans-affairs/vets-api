@@ -23,7 +23,6 @@ RSpec.describe 'Breakers Integration', type: :request do
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
     allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(session)
     allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
   end
 
   after(:all) do

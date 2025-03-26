@@ -22,7 +22,7 @@ module Rx
     end
 
     def get_headers(headers)
-      if Flipper.enabled?(:mhv_medications_add_x_api_key)
+      if Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api
         headers.merge('x-api-key' => Settings.mhv.rx.x_api_key)
       else
         headers

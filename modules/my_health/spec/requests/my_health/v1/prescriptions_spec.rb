@@ -21,7 +21,6 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
   before do
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
     Flipper.enable(:mhv_medications_display_documentation_content)
-    allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
     sign_in_as(current_user)
   end
 

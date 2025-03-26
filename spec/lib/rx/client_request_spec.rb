@@ -12,7 +12,6 @@ require 'rx/client'
 # method but the behavior applies to all requests made within Rx::Client.
 describe 'ClientRequestSpec', type: :request do
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medications_add_x_api_key).and_return(false)
     klass = Class.new(ApplicationController) do
       skip_before_action :authenticate
 
