@@ -49,7 +49,6 @@ module Efolder
     def bgs_doc_uuids
       uuids = []
       documents = BGS::UploadedDocumentService.new(@user).get_documents || []
-      Rails.logger.info "EFolder UploadedDocumentService Class Type: #{documents.class.name}"
 
       documents.each do |claim|
         uploaded_docs = claim[:uplded_dcmnts]
@@ -60,6 +59,8 @@ module Efolder
             uuids << doc[:uuid_txt] if doc.is_a?(Hash) && doc.key?(:uuid_txt)
           end
         end
+      rescue => e
+        Rails.logger.debug { "Error processing bgs efolder claim: #{e.message}" }
       end
       uuids.compact
     end
