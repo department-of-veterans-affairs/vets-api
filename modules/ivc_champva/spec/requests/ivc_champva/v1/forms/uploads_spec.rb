@@ -456,7 +456,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
               expect(uploader.handle_uploads).to eq([200, nil])
 
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
               expect(statuses).to eq([200])
               expect(error_message).to eq([])
             end
@@ -472,7 +472,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                 uploader.handle_uploads
               end.to raise_error(StandardError, /failed to upload all documents/)
 
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
 
               # TODO: should this be nil, or 400/'Upload failed'?
               expect(statuses).to be_nil
@@ -486,7 +486,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             end
 
             it 'returns success statuses and no error message' do
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
               expect(statuses).to eq([200])
               expect(error_message).to eq([])
             end
@@ -498,14 +498,14 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             end
 
             it 'returns the error statuses and error message' do
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
               expect(statuses).to eq([200, 400])
               expect(error_message).to eq([nil, 'Upload failed'])
             end
           end
 
           context 'when file uploads fail with other errors retry once' do
-            subject(:result) { controller.send(:handle_file_uploads, form_id, parsed_form_data) }
+            subject(:result) { controller.send(:call_handle_file_uploads, form_id, parsed_form_data) }
 
             let(:expected_statuses) { [200, 400] } # All http codes
             let(:expected_error_message) { [nil, 'Upload failed'] } # All error message strings
@@ -526,14 +526,14 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
             it 'handles 400 status with error message' do
               allow(file_uploader).to receive(:handle_uploads).and_return([400, 'Upload failed'])
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
               expect(statuses).to eq([400])
               expect(error_message).to eq(['Upload failed'])
             end
 
             it 'handles server error status codes' do
               allow(file_uploader).to receive(:handle_uploads).and_return([500, 'Server error occurred'])
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
               expect(statuses).to eq([500])
               expect(error_message).to eq(['Server error occurred'])
             end
@@ -541,7 +541,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             it 'retries handle_uploads once and returns an error message' do
               # Expect handle_uploads to be called twice due to one retry
               expect(file_uploader).to receive(:handle_uploads).at_least(:twice)
-              _statuses, _error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+              _statuses, _error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
               # This expectation causes the `.to receive(:handle_uploads)` count to increment by 1:
               expect { file_uploader.handle_uploads }.to raise_error(StandardError, /Unable to find file/)
             end
@@ -586,7 +586,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
               expect(uploader.handle_uploads).to eq([200, nil])
 
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
               expect(statuses).to eq([200])
               expect(error_message).to eq([])
             end
@@ -602,7 +602,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                 uploader.handle_uploads
               end.to raise_error(StandardError, /failed to upload all documents/)
 
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
 
               # TODO: should this be nil, or 400/'Upload failed'?
               expect(statuses).to be_nil
@@ -616,7 +616,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             end
 
             it 'returns success statuses and no error message' do
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
               expect(statuses).to eq([200])
               expect(error_message).to eq([])
             end
@@ -628,14 +628,14 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             end
 
             it 'returns the error statuses and error message' do
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
               expect(statuses).to eq([200, 400])
               expect(error_message).to eq([nil, 'Upload failed'])
             end
           end
 
           context 'when file uploads fail with other errors retry once' do
-            subject(:result) { controller.send(:handle_file_uploads, form_id, parsed_form_data) }
+            subject(:result) { controller.send(:call_handle_file_uploads, form_id, parsed_form_data) }
 
             let(:expected_statuses) { [200, 400] } # All http codes
             let(:expected_error_message) { [nil, 'Upload failed'] } # All error message strings
@@ -656,14 +656,14 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
             it 'handles 400 status with error message' do
               allow(file_uploader).to receive(:handle_uploads).and_return([400, 'Upload failed'])
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
               expect(statuses).to eq([400])
               expect(error_message).to eq(['Upload failed'])
             end
 
             it 'handles server error status codes' do
               allow(file_uploader).to receive(:handle_uploads).and_return([500, 'Server error occurred'])
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
               expect(statuses).to eq([500])
               expect(error_message).to eq(['Server error occurred'])
             end
@@ -671,7 +671,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             it 'retries handle_uploads once and returns an error message' do
               # Expect handle_uploads to be called twice due to one retry
               expect(file_uploader).to receive(:handle_uploads).at_least(:twice)
-              _statuses, _error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+              _statuses, _error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
               # This expectation causes the `.to receive(:handle_uploads)` count to increment by 1:
               expect { file_uploader.handle_uploads }.to raise_error(StandardError, /Unable to find file/)
             end
