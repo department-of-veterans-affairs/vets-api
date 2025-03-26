@@ -75,17 +75,7 @@ module Pensions
       #
       # @param claim [Pensions::SavedClaim]
       def submit_traceability_to_event_bus(claim)
-        Kafka::EventBusSubmissionJob.perform_async(
-          'submission_trace_mock_dev',
-          {
-            'data' => {
-              'ICN' => user_icn,
-              'currentID' => claim&.confirmation_number.to_s,
-              'submissionName' => Pensions::FORM_ID,
-              'state' => Kafka::State::RECEIVED
-            }
-          }
-        )
+        Kafka.submit_event(user_icn, claim&.confirmation_number.to_s, Pensions::FORM_ID, Kafka::State::RECEIVED)
       end
 
       # Retrieves the Integration Control Number (ICN) associated with the current user

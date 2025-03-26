@@ -4,10 +4,11 @@ require 'rails_helper'
 require 'pensions/benefits_intake/submission_handler'
 require 'pensions/monitor'
 require 'pensions/notification_email'
+require 'kafka/kafka'
 
 Rspec.describe Pensions::BenefitsIntake::SubmissionHandler do
   let(:handler) { Pensions::BenefitsIntake::SubmissionHandler }
-  let(:claim) { double(form_id: 'TEST', id: 23) }
+  let(:claim) { build(:pensions_module_pension_claim) }
   let(:monitor) { double(Pensions::Monitor) }
   let(:notification) { double(Pensions::NotificationEmail) }
   let(:instance) { handler.new('fake-claim-id') }
@@ -30,6 +31,7 @@ Rspec.describe Pensions::BenefitsIntake::SubmissionHandler do
       expect(notification).to receive(:deliver).with(:error).and_return false
       message = "#{handler}: on_failure silent failure not avoided"
       expect(monitor).to receive(:log_silent_failure).with(hash_including(message:), call_location: nil)
+      expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
       expect { instance.handle(:failure) }.to raise_error message
     end
   end

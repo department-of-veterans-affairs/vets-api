@@ -173,17 +173,12 @@ module Pensions
     def submit_traceability_to_event_bus
       user_icn = UserAccount.find_by(id: @user_account_uuid)&.icn.to_s
 
-      Kafka::EventBusSubmissionJob.perform_async(
-        'submission_trace_mock_dev',
-        {
-          'data' => {
-            'ICN' => user_icn,
-            'currentID' => @claim&.confirmation_number.to_s,
-            'nextID' => @intake_service&.uuid.to_s,
-            'submissionName' => Pensions::FORM_ID,
-            'state' => Kafka::State::SENT
-          }
-        }
+      Kafka.submit_event(
+        user_icn,
+        @claim&.confirmation_number.to_s,
+        Pensions::FORM_ID,
+        Kafka::State::SENT,
+        @intake_service&.uuid.to_s
       )
     end
 
