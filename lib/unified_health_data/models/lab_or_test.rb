@@ -18,6 +18,8 @@ module UnifiedHealthData
     attribute :reference_range, String
     attribute :status, String
     attribute :comments, String
+    attribute :body_site, String
+    attribute :sample_tested, String
   end
 
   class Attributes
@@ -26,10 +28,11 @@ module UnifiedHealthData
     attribute :display, String
     attribute :test_code, String
     attribute :date_completed, String
-    attribute :sample_site, String
+    attribute :sample_tested, String
     attribute :encoded_data, String
     attribute :location, String
     attribute :ordered_by, String
+    attribute :body_site, String
     attribute :observations, UnifiedHealthData::Observation, array: true
   end
 

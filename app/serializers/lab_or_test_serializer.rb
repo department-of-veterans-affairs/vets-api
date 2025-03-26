@@ -16,10 +16,11 @@ class LabOrTestSerializer
       display: attributes.display,
       test_code: attributes.test_code,
       date_completed: attributes.date_completed,
-      sample_site: attributes.sample_site,
+      sample_tested: attributes.sample_tested,
       encoded_data: attributes.encoded_data,
       location: attributes.location,
       ordered_by: attributes.ordered_by,
+      body_site: attributes.body_site,
       observations: serialize_observations(attributes.observations)
     }
   end
@@ -31,7 +32,9 @@ class LabOrTestSerializer
         value: serialize_value(obs.value),
         reference_range: obs.reference_range,
         status: obs.status,
-        comments: obs.comments
+        comments: obs.comments,
+        body_site: obs.body_site,
+        sample_tested: obs.sample_tested
       }
     end
   end

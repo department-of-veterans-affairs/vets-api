@@ -5,10 +5,11 @@
     "display": "CH",
     "testCode": "CH",
     "dateCompleted": "2025-01-23T22:06:02Z",
-    "sampleSite": "SERUM",
+    "sampleTested": "SERUM",
     "encodedData": "",
     "location": "CHYSHR TEST LAB",
     "orderedBy": "MARCI P MCGUIRE",
+    "bodySite": "",
     "observations": [
       {
         "testCode": "GLUCOSE",
@@ -18,7 +19,9 @@
         },
         "referenceRange": "70 - 110",
         "status": "final",
-        "comments": ""
+        "comments": "",
+        "sampleTested": "SERUM",
+        "bodySite": ""
       },
       {
         "testCode": "UREA NITROGEN",
@@ -28,7 +31,9 @@
         },
         "referenceRange": "7 - 18",
         "status": "final",
-        "comments": ""
+        "comments": "",
+        "sampleTested": "SERUM",
+        "bodySite": ""
       },
       {
         "testCode": "CREATININE",
@@ -38,7 +43,9 @@
         },
         "referenceRange": "0.6 - 1.3",
         "status": "final",
-        "comments": ""
+        "comments": "",
+        "sampleTested": "SERUM",
+        "bodySite": ""
       },
       {
         "testCode": "SODIUM",
@@ -48,7 +55,9 @@
         },
         "referenceRange": "136 - 145",
         "status": "final",
-        "comments": ""
+        "comments": "",
+        "sampleTested": "SERUM",
+        "bodySite": ""
       },
       {
         "testCode": "POTASSIUM",
@@ -58,7 +67,9 @@
         },
         "referenceRange": "3.5 - 5.1",
         "status": "final",
-        "comments": ""
+        "comments": "",
+        "sampleTested": "SERUM",
+        "bodySite": ""
       },
       {
         "testCode": "CHLORIDE",
@@ -68,7 +79,9 @@
         },
         "referenceRange": "98 - 107",
         "status": "final",
-        "comments": ""
+        "comments": "",
+        "sampleTested": "SERUM",
+        "bodySite": ""
       },
       {
         "testCode": "CO2",
@@ -78,7 +91,9 @@
         },
         "referenceRange": "22 - 29",
         "status": "final",
-        "comments": ""
+        "comments": "",
+        "sampleTested": "SERUM",
+        "bodySite": ""
       }
     ]
   }
