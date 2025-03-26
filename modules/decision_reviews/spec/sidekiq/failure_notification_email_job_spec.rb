@@ -27,18 +27,23 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
     service
   end
 
-  let(:user_uuid) { create(:user, :loa3, ssn: '212222112').uuid }
-  let(:user_uuid2) { create(:user, :loa3, uuid: SecureRandom.uuid, ssn: '412222112').uuid }
+  let(:user) { create(:user, :loa3, ssn: '212222112') }
+  let(:user_uuid) { user.uuid }
+  let(:user2) do
+    create(:user, :loa3, uuid: SecureRandom.uuid, idme_uuid: nil, logingov_uuid: SecureRandom.uuid, ssn: '412222112')
+  end
+  let(:user_uuid2) { user2.uuid }
 
-  let(:mpi_profile) { build(:mpi_profile, vet360_id: Faker::Number.number) }
-  let(:mpi_profile2) { build(:mpi_profile, vet360_id: Faker::Number.number) }
+  let(:mpi_profile) { build(:mpi_profile, icn: user.icn, vet360_id: Faker::Number.number) }
+  let(:mpi_profile2) { build(:mpi_profile, icn: user2.icn, vet360_id: Faker::Number.number) }
   let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
   let(:find_profile_response2) { create(:find_profile_response, profile: mpi_profile2) }
   let(:mpi_service) do
     service = instance_double(MPI::Service, find_profile_by_identifier: nil)
-    allow(service).to receive(:find_profile_by_identifier).with(identifier: user_uuid, identifier_type: anything)
+    allow(service).to receive(:find_profile_by_identifier).with(identifier: user.idme_uuid, identifier_type: anything)
                                                           .and_return(find_profile_response)
-    allow(service).to receive(:find_profile_by_identifier).with(identifier: user_uuid2, identifier_type: anything)
+    allow(service).to receive(:find_profile_by_identifier).with(identifier: user2.logingov_uuid,
+                                                                identifier_type: anything)
                                                           .and_return(find_profile_response2)
 
     service
@@ -369,9 +374,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
               expect(upload5.failure_notification_sent_at).to eq frozen_time
 
               expect(mpi_service).to have_received(:find_profile_by_identifier)
-                .with(identifier: user_uuid, identifier_type: 'idme').once
+                .with(identifier: user.idme_uuid, identifier_type: 'idme').once
               expect(mpi_service).to have_received(:find_profile_by_identifier)
-                .with(identifier: user_uuid2, identifier_type: 'idme').once
+                .with(identifier: user2.logingov_uuid, identifier_type: 'logingov').once
 
               logger_params = [
                 'DecisionReviews::FailureNotificationEmailJob evidence email queued',
