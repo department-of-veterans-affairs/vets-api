@@ -78,8 +78,12 @@ describe SimpleFormsApi::Notification::FormUploadEmail do
 
     context 'form_data is missing first_name' do
       let(:config) do
-        { form_data: { 'email' => 'test@email.com' }, form_number: '21-0779', confirmation_number: 'confirmation-number',
-          date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+        {
+          form_data: { 'email' => 'test@email.com' },
+          form_number: '21-0779',
+          confirmation_number: 'confirmation-number',
+          date_submitted: Time.zone.today.strftime('%B %d, %Y')
+        }
       end
 
       it 'fails' do
