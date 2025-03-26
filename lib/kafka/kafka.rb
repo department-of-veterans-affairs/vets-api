@@ -14,6 +14,15 @@ module Kafka
     COMPLETED = 'completed'
   end
 
+  # Submits an event to the Kafka EventBusSubmissionJob
+  #
+  # @param icn [String] The Integration Control Number (ICN) of the user
+  # @param current_id [String] The current identifier for the submission, i.e. confirmation number
+  # @param submission_name [String] The form ID
+  # @param state [String] The state of the event (e.g., received, sent, error, completed)
+  # @param next_id [String, nil] (Optional) The next identifier in the process
+  #
+  # @return [void]
   def self.submit_event(icn:, current_id:, submission_name:, state:, next_id: nil)
     Kafka::EventBusSubmissionJob.perform_async(
       'submission_trace_mock_dev',
