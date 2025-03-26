@@ -45,6 +45,7 @@ module Pensions
         true
       end
 
+      # Retrieves the ICN (Integration Control Number) for the user associated with a claim
       def user_icn
         UserAccount.find_by(id: claim&.user_account_id)&.icn.to_s
       end
