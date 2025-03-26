@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
 
   get '/v0/sign_in/authorize', to: 'v0/sign_in#authorize'
+  get '/v0/sign_in/authorize_sso', to: 'v0/sign_in#authorize_sso' unless Settings.vsp_environment == 'production'
   get '/v0/sign_in/callback', to: 'v0/sign_in#callback'
   post '/v0/sign_in/refresh', to: 'v0/sign_in#refresh'
   post '/v0/sign_in/revoke', to: 'v0/sign_in#revoke'
