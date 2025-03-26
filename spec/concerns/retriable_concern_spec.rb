@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 
-RSpec.describe Retryable do
-  let(:dummy_class) { Class.new { include Retryable }.new }
+RSpec.describe RetriableConcern do
+  let(:dummy_class) { Class.new { include RetriableConcern }.new }
   let(:block_name) { 'Doing a thing' }
   let(:exception_message) { 'Temporary failure' }
 
@@ -18,14 +18,14 @@ RSpec.describe Retryable do
     context 'when the block fails and then succeeds' do
       it 'retries the operation and returns the successful result' do
         expect(Rails.logger).to receive(:warn)
-          .with("Retrying #{block_name} due to error: #{exception_message} (Attempt 1/3)")
+          .with("Retrying #{block_name} (Attempt 2/3)")
 
         expect(Rails.logger).to receive(:info)
           .with("#{block_name} succeeded on attempt 2/3")
 
         attempts = 0
 
-        result = dummy_class.with_retries(block_name, max_attempts: 3) do
+        result = dummy_class.with_retries(block_name, tries: 3) do
           attempts += 1
           raise exception_message if attempts < 2
 
@@ -41,11 +41,9 @@ RSpec.describe Retryable do
       it 'raises an error after max retries' do
         permanent_failure = 'Permanent failure'
         expect(Rails.logger).to receive(:warn)
-          .with("Retrying #{block_name} due to error: #{permanent_failure} (Attempt 1/3)")
+          .with("Retrying #{block_name} (Attempt 2/3)")
         expect(Rails.logger).to receive(:warn)
-          .with("Retrying #{block_name} due to error: #{permanent_failure} (Attempt 2/3)")
-        expect(Rails.logger).to receive(:warn)
-          .with("Retrying #{block_name} due to error: #{permanent_failure} (Attempt 3/3)")
+          .with("Retrying #{block_name} (Attempt 3/3)")
 
         expect(Rails.logger).to receive(:error).with(
           "#{block_name} failed after max retries",
@@ -55,34 +53,13 @@ RSpec.describe Retryable do
         attempts = 0
 
         expect do
-          dummy_class.with_retries(block_name, max_attempts: 3) do
+          dummy_class.with_retries(block_name, tries: 3) do
             attempts += 1
             raise permanent_failure
           end
         end.to raise_error(RuntimeError, permanent_failure)
 
-        expect(attempts).to eq(4)
-      end
-    end
-
-    context 'when retry delay is set' do
-      it 'waits between retries' do
-        attempts = 0
-        delay = 0.1
-
-        allow(dummy_class).to receive(:sleep).and_call_original
-
-        expect do
-          dummy_class.with_retries(block_name, max_attempts: 2, retry_delay: delay) do
-            attempts += 1
-            raise exception_message if attempts < 2
-
-            'success'
-          end
-        end.not_to raise_error
-
-        expect(attempts).to eq(2)
-        expect(dummy_class).to have_received(:sleep).with(delay).once
+        expect(attempts).to eq(3)
       end
     end
   end

@@ -248,7 +248,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         ).and_return(claim)
 
         allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, 'error filling form')
-        expect(claim).to receive(:to_pdf).exactly(4).times.and_raise(StandardError, 'error filling form')
+        expect(claim).to receive(:to_pdf).exactly(3).times.and_raise(StandardError, 'error filling form')
 
         expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
         expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
