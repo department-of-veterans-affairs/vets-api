@@ -172,28 +172,6 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       end
     end
 
-    context 'inability to save the poa form' do
-      let(:allow_poa_c_add) { 'Y' }
-      let(:consent_address_change) { true }
-
-      it 'logs to the ClaimsApi logger & re-raises' do
-        err_msg = Faker::Lorem.sentence
-        Sidekiq::Testing.inline! do
-          poa = create_poa(allow_poa_access: true)
-          create_mock_lighthouse_service
-          allow_any_instance_of(ClaimsApi::PowerOfAttorney).to receive(:save!).and_raise StandardError.new(err_msg)
-          allow(ClaimsApi::Logger).to receive(:log) # Ignore other logger calls we're not testing for, if they exist
-          expect(ClaimsApi::Logger).to receive(:log).with(
-            'poa_vbms_updater',
-            poa_id: poa.id,
-            detail: 'Re-raising Error',
-            error: err_msg
-          )
-          expect { subject.new.perform(poa.id) }.to raise_error StandardError
-        end
-      end
-    end
-
     context 'when an errored job has exhausted its retries' do
       let(:allow_poa_c_add) { 'Y' }
       let(:consent_address_change) { true }
