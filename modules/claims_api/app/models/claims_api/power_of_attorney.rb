@@ -31,6 +31,7 @@ module ClaimsApi
                                               header_hash: nil, form_data_hash: nil)
       primary_identifier = {}
       primary_identifier[:id] = id if id.present?
+      # md5 deprecated 3/26/2025 due to security: https://github.com/department-of-veterans-affairs/vets-api/security/code-scanning/852
       primary_identifier[:header_md5] = header_md5 if header_md5.present?
       primary_identifier[:md5] = md5 if md5.present?
       primary_identifier[:header_hash] = header_hash if header_hash.present?
