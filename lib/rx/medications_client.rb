@@ -6,6 +6,7 @@ require 'rx/configuration'
 require 'rx/client_session'
 require 'rx/rx_gateway_timeout'
 require 'active_support/core_ext/hash/slice'
+require 'rx/client'
 
 module Rx
   ##
