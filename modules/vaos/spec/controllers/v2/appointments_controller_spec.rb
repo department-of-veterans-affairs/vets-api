@@ -28,9 +28,14 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
   end
 
   describe '#validate_ref_id' do
-    context 'with matching icns' do
+    context 'with matching icns with aaid' do
       it 'validates referral id' do
         expect(subject.send(:validate_ref_id, '1012845331V153043','1012845331V153043^NI^200M^USVHA')).to equal(true)
+      end
+    end
+    context 'with matching icns' do
+      it 'validates referral id' do
+        expect(subject.send(:validate_ref_id, '1012845331V153043','1012845331V153043')).to equal(true)
       end
     end
     context 'with non-matching icns' do
@@ -41,6 +46,11 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
     context 'invalid icns' do
       it 'fails validation' do
         expect(subject.send(:validate_ref_id, '123456ABCD','101284^78ABC')).to equal(false)
+      end
+    end
+    context 'missing icns' do
+      it 'fails validation' do
+        expect(subject.send(:validate_ref_id, nil, nil)).to equal(false)
       end
     end
   end

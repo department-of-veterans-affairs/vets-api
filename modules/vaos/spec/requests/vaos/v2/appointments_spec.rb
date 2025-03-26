@@ -1082,12 +1082,48 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         }
       }.to_json
     end
+    let(:referral_response) do
+      {
+        data: {
+          attributes: {
+            referral: {
+              patient: {
+                birthSex: 'F',
+                dob: '1953-04-01',
+                email: 'valid@somedomain.com',
+                first_name: 'Judy',
+                gender: 'F',
+                home_address: {
+                  address1: '20 W 34TH ST APT 2368A',
+                  city: 'NEW YORK',
+                  country: 'United States',
+                  state: 'New York',
+                  zip_code: '10118'
+                },
+                icn: '1012845331V153043',
+                last_name: 'MORRISON',
+                m_name: 'Snow',
+                patient_id: '466',
+                ssn: '796061976',
+                telephone_business: '(703)652-0000',
+                telephone_home: '+1 (510) 4104799',
+                telephone_mobile: '+1 (317) 9087069'
+              }
+            }
+          }
+        }  
+      }
+    end
 
     before do
       allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
       Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
+
+      allow_any_instance_of(Ccra::ReferralService)
+                        .to receive(:get_referral)
+                        .and_return(referral_response)
 
       allow(Rails).to receive(:cache).and_return(memory_store)
       Rails.cache.clear
@@ -1561,6 +1597,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           # Mock the Redis client to raise a connection error
           redis_client = instance_double(Eps::RedisClient)
           allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
+          allow(redis_client).to receive(:fetch_attribute).and_raise(Redis::BaseError,
+                                                                               'Redis connection refused')
           allow(redis_client).to receive(:fetch_referral_attributes).and_raise(Redis::BaseError,
                                                                                'Redis connection refused')
 
