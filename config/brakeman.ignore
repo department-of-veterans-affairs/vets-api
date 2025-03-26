@@ -3,13 +3,13 @@
     {
       "warning_type": "File Access",
       "warning_code": 16,
-      "fingerprint": "36bdf5804cdf3793d9de269f3e842de8ffbb84bf4fbd7a39919700391690e67e",
+      "fingerprint": "1ef76ba73e21bddf49f28d09b0d8934549145618c45a53fd6bd306438092b78d",
       "check_name": "FileAccess",
       "message": "Model attribute used in file name",
       "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
-      "line": 62,
+      "line": 56,
       "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "File.delete((if Flipper.enabled?(:caregiver_retry_pdf_fill) then\n  file_name = SecureRandom.uuid\n  with_retries(\"Generate 10-10CG PDF\", :max_attempts => 3, :retry_delay => 1) do\n   SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\n   end\nelse\n  SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\nend))",
+      "code": "File.read((if Flipper.enabled?(:caregiver_retry_pdf_fill) then\n  file_name = SecureRandom.uuid\n  with_retries(\"Generate 10-10CG PDF\") do\n   SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\n   end\nelse\n  SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\nend))",
       "render_path": null,
       "location": {
         "type": "method",
@@ -70,29 +70,6 @@
       "note": "User input is sanitized in the parent class bin/lib/vets-api/commands/command.rb"
     },
     {
-      "warning_type": "File Access",
-      "warning_code": 16,
-      "fingerprint": "c959efb0b008354dd706f650c3fd7829bc1dc7e3c2787aa9949e699bff2f982e",
-      "check_name": "FileAccess",
-      "message": "Model attribute used in file name",
-      "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
-      "line": 56,
-      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "File.read((if Flipper.enabled?(:caregiver_retry_pdf_fill) then\n  file_name = SecureRandom.uuid\n  with_retries(\"Generate 10-10CG PDF\", :max_attempts => 3, :retry_delay => 1) do\n   SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\n   end\nelse\n  SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\nend))",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "V0::CaregiversAssistanceClaimsController",
-        "method": "download_pdf"
-      },
-      "user_input": "SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)",
-      "confidence": "Medium",
-      "cwe_id": [
-        22
-      ],
-      "note": ""
-    },
-    {
       "warning_type": "Remote Code Execution",
       "warning_code": 110,
       "fingerprint": "d882f63ce96c28fb6c6e0982f2a171460e4b933bfd9b9a5421dca21eef3f76da",
@@ -111,6 +88,29 @@
         502
       ],
       "note": "We are using the cookie serialization default from Rails 4.x"
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "eebfa4680e9b527d7a1b90185802ccaec81184a6270ec9dbdee7eb42c6994410",
+      "check_name": "FileAccess",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
+      "line": 62,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "File.delete((if Flipper.enabled?(:caregiver_retry_pdf_fill) then\n  file_name = SecureRandom.uuid\n  with_retries(\"Generate 10-10CG PDF\") do\n   SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\n   end\nelse\n  SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\nend))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "V0::CaregiversAssistanceClaimsController",
+        "method": "download_pdf"
+      },
+      "user_input": "SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)",
+      "confidence": "Medium",
+      "cwe_id": [
+        22
+      ],
+      "note": ""
     },
     {
       "warning_type": "Mass Assignment",
