@@ -1,11 +1,5 @@
 require 'rails_helper'
 require 'rx/medications_client'
-require 'common/client/base'
-require 'common/client/concerns/mhv_session_based_client'
-require 'rx/configuration'
-require 'rx/client_session'
-require 'rx/rx_gateway_timeout'
-require 'active_support/core_ext/hash/slice'
 
 RSpec.describe Rx::MedicationsClient do
   before(:all) do
