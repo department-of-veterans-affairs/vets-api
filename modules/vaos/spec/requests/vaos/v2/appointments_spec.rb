@@ -1377,7 +1377,24 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                         .and_return(OpenStruct.new(data: []))
                       post '/vaos/v2/appointments/draft', params: draft_params
 
+                      # rubocop:disable Layout/LineLength
+                      expected_error_detail = 'BackendServiceException: ' \
+                                              '{:detail=>"body.latitude must be lesser or equal than 90 but got value 91", ' \
+                                              ':source=>{' \
+                                              ':vamf_url=>#<URI::HTTPS https://api.wellhive.com/care-navigation/v1/drive-times>, ' \
+                                              ':vamf_body=>"{\"name\":\"invalid_range\",\"id\":\"aVFqt9NH\",' \
+                                              '\"message\":\"body.latitude must be lesser or equal than 90 but got value 91\",' \
+                                              '\"temporary\":false,\"timeout\":false,\"fault\":false}", ' \
+                                              ':vamf_status=>400' \
+                                              '}, ' \
+                                              ':code=>"VAOS_400"}'
+                      # rubocop:enable Layout/LineLength
                       expect(response).to have_http_status(:bad_request)
+                      response_obj = JSON.parse(response.body)
+                      expect(response_obj['errors'].first['title']).to eq(
+                        'Unexpected error occurred in draft appointment service'
+                      )
+                      expect(response_obj['errors'].first['detail']).to eq(expected_error_detail)
                     end
                   end
                 end
@@ -1437,7 +1454,22 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                   .and_return(OpenStruct.new(data: []))
                 post '/vaos/v2/appointments/draft', params: draft_params
 
+                # rubocop:disable Layout/LineLength
+                expected_error_detail = 'BackendServiceException: ' \
+                                        '{:detail=>"invalid patientId", ' \
+                                        ':source=>{' \
+                                        ':vamf_url=>#<URI::HTTPS https://api.wellhive.com/care-navigation/v1/appointments>, ' \
+                                        ':vamf_body=>"{\"message\":\"invalid patientId\",\"name\":\"Bad Request\"}\\n", ' \
+                                        ':vamf_status=>400' \
+                                        '}, ' \
+                                        ':code=>"VAOS_400"}'
+                # rubocop:enable Layout/LineLength
+                response_obj = JSON.parse(response.body)
                 expect(response).to have_http_status(:bad_request)
+                expect(response_obj['errors'].first['title']).to eq(
+                  'Unexpected error occurred in draft appointment service'
+                )
+                expect(response_obj['errors'].first['detail']).to eq(expected_error_detail)
               end
             end
           end
@@ -1467,7 +1499,10 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
             response_obj = JSON.parse(response.body)
             expect(response).to have_http_status(:unprocessable_entity)
-            expect(response_obj['message']).to eq('No new appointment created: referral is already used')
+            expect(response_obj['errors'].first['title']).to eq('Referral is already used for an existing appointment')
+            expect(response_obj['errors'].first['detail']).to eq(
+              'Referral ref-124 is already associated with an existing appointment'
+            )
           end
         end
 
@@ -1523,7 +1558,10 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
           response_obj = JSON.parse(response.body)
           expect(response).to have_http_status(:unprocessable_entity)
-          expect(response_obj['message']).to eq('No new appointment created: referral is already used')
+          expect(response_obj['errors'].first['title']).to eq('Referral is already used for an existing appointment')
+          expect(response_obj['errors'].first['detail']).to eq(
+            'Referral ref-126 is already associated with an existing appointment'
+          )
         end
       end
 
@@ -1535,22 +1573,27 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
           response_obj = JSON.parse(response.body)
           expect(response).to have_http_status(:bad_gateway)
-          expect(response_obj['message']).to eq('Error checking appointments: Missing ICN message')
+          expect(response_obj['errors'].first['title']).to eq('Upstream error checking if referral is already in use')
+          expect(response_obj['errors'].first['detail']).to eq('Missing ICN message')
         end
 
         it 'handles partial error as 500' do
-          expected_error_msg = 'Error checking appointments: ' \
-                               '[{:system=>"VSP", :status=>"500", :code=>10000, ' \
-                               ':message=>"Could not fetch appointments from Vista Scheduling Provider", ' \
-                               ':detail=>"icn=1012846043V576341, startDate=1921-09-02T00:00:00Z, ' \
-                               'endDate=2121-09-02T00:00:00Z"}]'
+          expected_error_msg = [{
+            'system' => 'VSP',
+            'status' => '500',
+            'code' => 10_000,
+            'message' => 'Could not fetch appointments from Vista Scheduling Provider',
+            'detail' => 'icn=1012846043V576341, startDate=1921-09-02T00:00:00Z, endDate=2121-09-02T00:00:00Z'
+          }]
+
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_partial_errors',
                            match_requests_on: %i[method path query]) do
             post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
             response_obj = JSON.parse(response.body)
             expect(response).to have_http_status(:bad_gateway)
-            expect(response_obj['message']).to eq(expected_error_msg)
+            expect(response_obj['errors'].first['title']).to eq('Upstream error checking if referral is already in use')
+            expect(response_obj['errors'].first['detail']).to eq(expected_error_msg)
           end
         end
       end
@@ -1564,25 +1607,24 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                   VCR.use_cassette 'vaos/eps/get_provider_service/200' do
                     VCR.use_cassette 'vaos/eps/draft_appointment/200' do
                       VCR.use_cassette 'vaos/eps/token/token_200' do
+                        expected_error_detail = 'BackendServiceException: ' \
+                                                '{:detail=>nil, ' \
+                                                ':source=>{' \
+                                                ':vamf_url=>#<URI::HTTPS https://api.wellhive.com/care-navigation/v1/' \
+                                                'appointments?patientId=care-nav-patient-casey>, ' \
+                                                ':vamf_body=>"{\"isFault\": true,\"isTemporary\": true,\"name\": ' \
+                                                '\"Internal Server Error\"}", ' \
+                                                ':vamf_status=>500' \
+                                                '}, ' \
+                                                ':code=>"VAOS_502"}'
                         post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
                         expect(response).to have_http_status(:bad_gateway)
                         response_body = JSON.parse(response.body)
-                        expect(response_body).to have_key('errors')
-                        expect(response_body['errors']).to be_an(Array)
-
-                        error = response_body['errors'].first
-                        expect(error).to include(
-                          'title' => 'Bad Gateway',
-                          'detail' => 'Received an an invalid response from the upstream server',
-                          'code' => 'VAOS_502',
-                          'status' => '502',
-                          'source' => {
-                            'vamfUrl' => 'https://api.wellhive.com/care-navigation/v1/appointments?patientId=care-nav-patient-casey',
-                            'vamfBody' => '{"isFault": true,"isTemporary": true,"name": "Internal Server Error"}',
-                            'vamfStatus' => 500
-                          }
+                        expect(response_body['errors'].first['title']).to eq(
+                          'Unexpected error occurred in draft appointment service'
                         )
+                        expect(response_body['errors'].first['detail']).to eq(expected_error_detail)
                       end
                     end
                   end
@@ -1606,7 +1648,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           expect(response).to have_http_status(:bad_gateway)
 
           response_obj = JSON.parse(response.body)
-          expect(response_obj['errors'].first['title']).to eq('Error fetching referral data from cache')
+          expect(response_obj['errors'].first['title']).to eq('Failed to retrieve referral data from cache')
           expect(response_obj['errors'].first['detail']).to eq('Redis connection refused')
         end
       end
