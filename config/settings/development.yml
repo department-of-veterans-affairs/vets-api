@@ -509,6 +509,17 @@ forms_api_benefits_intake:
   url: https://sandbox-api.va.gov/services/vba_documents/v1/
 fsr:
   prefill: true
+gclaws:
+  accreditation:
+    agents:
+      url: http://localhost:5000/api/v2/accreditations/agents
+    api_key: fake_key
+    attorneys:
+      url: http://localhost:5000/api/v2/accreditations/attorneys
+    representatives:
+      url: http://localhost:5000/api/v2/accreditations/representatives
+    veteran_service_organizations:
+      url: http://localhost:5000/api/v2/accreditations/veteranserviceorganizations
 genisis:
   base_url: ~
   form_submission_path: "/formdata"
@@ -635,6 +646,7 @@ intent_to_file:
 ivc_champva:
   pega_api:
     api_key: fake_api_key
+    base_path: fake_base_path
   prefill: true
   ves_api:
     api_key: fake_api_key
@@ -844,6 +856,7 @@ maintenance:
     hcq: PWGA814
     idme: PVWB4R8
     lighthouse_benefits_claims: ~
+    lighthouse_benefits_education: ~
     lighthouse_benefits_intake: ~
     lighthouse_direct_deposit: ~
     lighthouse_vshe: ~
@@ -1597,6 +1610,9 @@ vanotify:
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
         form21_10210_error_email: form21_10210_error_email_template_id
         form21_10210_received_email: form21_10210_received_email_template_id
+        form21_4138_confirmation_email: form21_4138_confirmation_email_template_id
+        form21_4138_error_email: form21_4138_error_email_template_id
+        form21_4138_received_email: form21_4138_received_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form21_4142_error_email: form21_4142_error_email_template_id
         form21_4142_received_email: form21_4142_received_email_template_id
