@@ -22,26 +22,29 @@ module Eps
     # Creates a draft appointment and gathers related information
     #
     # @param referral_id [String] The referral identifier
-    # @param pagination_params [Hash] Parameters for pagination
+    # @param pagination_params [Hash] Parameters for pagination when fetching appointments
     # @return [Hash] Response containing draft appointment data or error information
     #
     def call(referral_id, pagination_params)
       referral_data = fetch_referral_data(referral_id)
-      return referral_data unless referral_data[:success]
 
-      referral_validation = check_referral_data_validation(referral_data)
-      return referral_validation unless referral_validation[:success]
-
-      referral_check = check_referral_usage(referral_id, pagination_params)
-      return referral_check unless referral_check[:success]
+      validate_referral_data(referral_data)
+      check_referral_usage(referral_id, pagination_params)
 
       draft_appointment = create_draft_appointment(referral_id)
-
       provider = fetch_provider(referral_data[:provider_id])
       slots = fetch_provider_slots(referral_data)
-
       drive_time = fetch_drive_times(@user, provider)
+
       build_response(draft_appointment, provider, slots, drive_time)
+    rescue ServiceError => e
+      e.to_response
+    rescue => e
+      ServiceError.new(
+        'Unexpected error occurred in draft appointment service',
+        status: nil,
+        detail: e.message
+      ).to_response
     end
 
     private
@@ -52,87 +55,94 @@ module Eps
     # Retrieves referral data from Redis cache
     #
     # @param referral_id [String] The referral identifier
-    # @return [Hash, nil] The referral data or nil if not found
+    # @return [Hash] The referral data
+    # @raise [ServiceError] If referral data cannot be retrieved
     #
     def fetch_referral_data(referral_id)
       eps_redis_client = Eps::RedisClient.new
       eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
     rescue Redis::BaseError => e
-      {
-        success: false,
-        json: { errors: [{ title: 'Error fetching referral data from cache', detail: e.message }] },
-        status: :bad_gateway
-      }
-    end
-
-    ##
-    # Validates referral data and builds a formatted response object
-    #
-    # @param referral_data [Hash, nil] The referral data from the cache
-    # @return [Hash] Result hash:
-    #   - If data is valid: { success: true }
-    #   - If data is invalid: { success: false, json: { errors: [...] }, status: :unprocessable_entity }
-    def check_referral_data_validation(referral_data)
-      validation_result = validate_referral_data(referral_data)
-      if validation_result[:valid]
-        { success: true }
-      else
-        missing_attributes = validation_result[:missing_attributes]
-
-        {
-          success: false,
-          json: {
-            errors: [{
-              title: 'Invalid referral data',
-              detail: "Required referral data is missing or incomplete: #{missing_attributes}"
-            }]
-          },
-          status: :unprocessable_entity
-        }
-      end
+      raise ServiceError.new(
+        'Failed to retrieve referral data from cache',
+        status: :bad_gateway,
+        detail: e.message
+      )
     end
 
     ##
     # Validates that all required referral data attributes are present
     #
     # @param referral_data [Hash, nil] The referral data from the cache
-    # @return [Hash] Hash with :valid boolean and :missing_attributes array
-    ##
+    # @raise [ServiceError] If data is invalid or missing required attributes
+    #
     def validate_referral_data(referral_data)
-      return { valid: false, missing_attributes: ['all required attributes'] } if referral_data.nil?
+      return if referral_data.present? && required_attributes_present?(referral_data)
 
-      required_attributes = %i[provider_id appointment_type_id start_date end_date]
-      missing_attributes = required_attributes.select { |attr| referral_data[attr].blank? }
+      missing = missing_required_attributes(referral_data)
 
-      {
-        valid: missing_attributes.empty?,
-        missing_attributes: missing_attributes.map(&:to_s).join(', ')
-      }
+      raise ServiceError.new(
+        'Invalid referral data',
+        status: :unprocessable_entity,
+        detail: "Required referral data is missing or incomplete: #{missing}"
+      )
     end
 
     ##
-    # Checks if a referral is already in use by cross referrencing referral number against complete
+    # Checks if all required attributes are present in the referral data
+    #
+    # @param referral_data [Hash] The referral data
+    # @return [Boolean] true if all required attributes are present
+    #
+    def required_attributes_present?(referral_data)
+      required_attributes.all? { |attr| referral_data[attr].present? }
+    end
+
+    ##
+    # Returns the list of required attributes for referral data
+    #
+    # @return [Array<Symbol>] Array of required attribute keys
+    #
+    def required_attributes
+      %i[provider_id appointment_type_id start_date end_date]
+    end
+
+    ##
+    # Determines which required attributes are missing from the referral data
+    #
+    # @param referral_data [Hash, nil] The referral data
+    # @return [String] Comma-separated list of missing attributes
+    #
+    def missing_required_attributes(referral_data)
+      return 'all required attributes' if referral_data.nil?
+
+      missing = required_attributes.select { |attr| referral_data[attr].blank? }
+      missing.empty? ? 'none' : missing.map(&:to_s).join(', ')
+    end
+
+    ##
+    # Checks if a referral is already in use by cross-referencing referral number against complete
     # list of existing appointments
     #
-    # @param referral_id [String] the referral number to check.
+    # @param referral_id [String] The referral number to check
     # @param pagination_params [Hash] Parameters for pagination when fetching appointments
-    # @return [Hash] Result hash:
-    #   - If referral is unused: { success: true }
-    #   - If an error occurs: { success: false, json: { message: ... }, status: :bad_gateway }
-    #   - If referral exists: { success: false, json: { message: ... }, status: :unprocessable_entity }
+    # @raise [ServiceError] If the referral is already in use or if checking fails
     #
     # TODO: pass in date from cached referral data to use as range for CCRA appointments call
     def check_referral_usage(referral_id, pagination_params)
       check = appointments_service.referral_appointment_already_exists?(referral_id, pagination_params)
 
       if check[:error]
-        { success: false, json: { message: "Error checking appointments: #{check[:failures]}" },
-          status: :bad_gateway }
+        raise ServiceError.new(
+          'Upstream error checking if referral is already in use',
+          status: :bad_gateway,
+          detail: check[:failures]
+        )
       elsif check[:exists]
-        { success: false, json: { message: 'No new appointment created: referral is already used' },
-          status: :unprocessable_entity }
-      else
-        { success: true }
+        raise ServiceError.new(
+          'Referral is already used for an existing appointment',
+          status: :unprocessable_entity,
+          detail: "Referral #{referral_id} is already associated with an existing appointment"
+        )
       end
     end
 
@@ -141,6 +151,7 @@ module Eps
     #
     # @param referral_id [String] The referral identifier
     # @return [Object] The created draft appointment
+    # @raise [ServiceError] If draft appointment creation fails
     #
     def create_draft_appointment(referral_id)
       eps_appointment_service.create_draft_appointment(referral_id:)
@@ -151,19 +162,20 @@ module Eps
     #
     # @param provider_id [String] The provider's ID
     # @return [Object] Provider information
+    # @raise [ServiceError] If provider information cannot be fetched
     #
     def fetch_provider(provider_id)
       eps_provider_service.get_provider_service(provider_id:)
     end
 
     ##
-    # Fetches available provider slots using referral data.
+    # Fetches available provider slots using referral data
     #
     # @param referral_data [Hash] Includes:
-    #   - `:provider_id` [String] The provider's ID.
-    #   - `:appointment_type_id` [String] The appointment type.
-    #   - `:start_date` [String] The earliest appointment date (ISO 8601).
-    #   - `:end_date` [String] The latest appointment date (ISO 8601).
+    #   - `:provider_id` [String] The provider's ID
+    #   - `:appointment_type_id` [String] The appointment type
+    #   - `:start_date` [String] The earliest appointment date (ISO 8601)
+    #   - `:end_date` [String] The latest appointment date (ISO 8601)
     #
     # @return [Array, nil] Available slots array or nil if error occurs
     #
@@ -217,6 +229,60 @@ module Eps
       response_data = OpenStruct.new(id: draft_appointment.id, provider:, slots:, drive_time:)
       serialized = Eps::DraftAppointmentSerializer.new(response_data)
       { json: serialized, status: :created }
+    end
+  end
+
+  ##
+  # Error class for DraftAppointmentService errors
+  #
+  class ServiceError < StandardError
+    attr_reader :status, :error_type, :detail
+
+    ##
+    # Initialize a new ServiceError
+    #
+    # @param message [String] Error message
+    # @param status [Symbol, Integer, nil] HTTP status code for the error response
+    # @param detail [String, nil] Detailed error information
+    # @param error_type [String, nil] Custom error type identifier
+    #
+    def initialize(message, status: nil, detail: nil, error_type: nil)
+      @error_type = error_type || 'Eps::DraftAppointmentService::ServiceError'
+      @status = status || extract_status(detail)
+      @detail = detail
+      super(message)
+    end
+
+    ##
+    # Extracts a status code from an error message if possible
+    #
+    # @param error_message [String, nil] Error message that might contain a status code
+    # @return [Symbol, Integer] Extracted status code or default :bad_gateway
+    #
+    def extract_status(error_message)
+      if error_message && (match = error_message.match(/:code=>["']VAOS_(\d+)["']/))
+        match[1].to_i
+      else
+        :bad_gateway
+      end
+    end
+
+    ##
+    # Formats the error into a standard API response
+    #
+    # @return [Hash] Hash containing error details and HTTP status
+    #
+    def to_response
+      {
+        json: {
+          errors: [{
+            title: message,
+            detail:,
+            code: error_type
+          }]
+        },
+        status:
+      }
     end
   end
 end
