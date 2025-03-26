@@ -59,6 +59,11 @@ module ClaimsApi
             id: document.id,
             type: 'claim_supporting_document',
             md5: document.file_data['filename'].present? ? Digest::MD5.hexdigest(document.file_data['filename']) : '',
+            header_hash: if document.file_data['filename'].present?
+                           Digest::SHA256.hexdigest(document.file_data['filename'])
+                         else
+                           ''
+                         end,
             filename: document.file_data['filename'],
             uploaded_at: document.created_at
           }
