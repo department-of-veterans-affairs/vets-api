@@ -456,7 +456,7 @@ flipper:
   mute_logs: <%= ENV['flipper__mute_logs'] %>
 form0781_remediation:
   aws:
-    bucket: <%= ENV['reports__aws__bucket'] %> # TODO: Change this to the proper bucket
+    bucket: <%= ENV['evidence_remediation__aws__bucket'] %>
     region: us-gov-west-1
 form1095_b:
   s3:
