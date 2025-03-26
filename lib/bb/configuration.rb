@@ -35,6 +35,10 @@ module BB
       Settings.mhv.rx.app_token
     end
 
+    def x_api_key
+      Settings.mhv.medical_records.x_api_key
+    end
+
     ##
     # @return [String] Base path for dependent URLs
     #

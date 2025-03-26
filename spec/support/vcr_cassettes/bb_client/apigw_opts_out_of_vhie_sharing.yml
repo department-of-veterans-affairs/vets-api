@@ -1,0 +1,48 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_MR_HOST>/v1/bluebutton/external/optinout/optout"
+    body:
+      encoding: UTF-8
+      string: "{}"
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - "<MHV_MR_X_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 26 Mar 2025 14:31:54 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '0'
+      X-Amzn-Requestid:
+      - 8f1e8852-6eec-4470-a5b9-eded4a28e12e
+      X-Amzn-Remapped-Content-Length:
+      - '0'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - ICdqDGEYPHMFcNA=
+      X-Amzn-Remapped-Date:
+      - Wed, 26 Mar 2025 14:31:54 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Wed, 26 Mar 2025 14:31:54 GMT
+recorded_with: VCR 6.3.1

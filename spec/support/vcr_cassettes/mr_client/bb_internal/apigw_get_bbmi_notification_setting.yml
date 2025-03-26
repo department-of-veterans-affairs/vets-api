@@ -15,7 +15,7 @@ http_interactions:
           - Vets.gov Agent
         Token: "<SESSION_TOKEN>"
         X-Api-Key:
-          - d9n1hWo7yq6Cr2Qkweda04WqhyakepJj9uV1oCJM
+          - "<MHV_MR_X_API_KEY>"
         Accept-Encoding:
           - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
     response:

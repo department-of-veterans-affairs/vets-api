@@ -9,6 +9,9 @@ describe PHRMgr::Client do
       Flipper.enable(:mhv_medical_records_migrate_to_api_gateway)
     end
 
+    let(:icn) { '1000000000V000000' }
+    let(:client) { PHRMgr::Client.new(icn) }
+
     it 'checks PHR refresh status', :vcr do
       VCR.use_cassette 'phr_mgr_client/apigw_check_phr_refresh_status' do
         response = client.get_phrmgr_status

@@ -16,7 +16,7 @@ http_interactions:
       X-Authorization-Key:
       - "<MHV_MR_X_AUTH_KEY>"
       X-Api-Key:
-      - qA5tEQj7fu3232fvYdmAkabq1wwlqEXi24968Ppi
+      - "<MHV_MR_X_API_KEY_V2>"
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:

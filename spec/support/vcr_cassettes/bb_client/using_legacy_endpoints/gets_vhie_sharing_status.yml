@@ -1,0 +1,42 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_HOST>/mhv-api/patient/v1/bluebutton/external/optinout/status"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 25 Jul 2023 12:34:14 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '54'
+      X-Amzn-Requestid:
+      - e90916da-ed38-4f27-82a4-1ddb29569302
+      X-Amz-Apigw-Id:
+      - Insi4E6DPHMFnPQ=
+      X-Amzn-Remapped-Date:
+      - Tue, 25 Jul 2023 12:34:13 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"updatedDate":1690200000000,"consentStatus":"OPT-IN"}'
+  recorded_at: Tue, 25 Jul 2023 12:34:14 GMT
+recorded_with: VCR 6.2.0
