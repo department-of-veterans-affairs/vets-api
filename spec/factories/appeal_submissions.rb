@@ -2,6 +2,7 @@
 
 FactoryBot.define do
   factory :appeal_submission do
+    user_account { nil }
     user_uuid do
       user = create(:user, :loa3, ssn: '212222112')
       user.uuid
