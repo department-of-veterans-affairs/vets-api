@@ -92,15 +92,18 @@ class AppealSubmission < ApplicationRecord
     @mpi_profile ||= begin
       service = ::MPI::Service.new
       response = nil
-      if icn = user_account&.icn.presence
-        response = service.find_profile_by_identifier(identifier: icn, identifier_type: MPI::Constants::ICN)
-      elsif idme_verification = user_account&.user_verifications.where.not(idme_uuid: nil)&.first
-        response = service.find_profile_by_identifier(identifier: idme_verification.idme_uuid, identifier_type: MPI::Constants::IDME_UUID)
-      elsif logingov_verification = user_account&.user_verifications.where.not(logingov_uuid: nil)&.first
-        response = service.find_profile_by_identifier(identifier: user_account.logingov_uuid, identifier_type: MPI::Constants::LOGINGOV_UUID)
-      elsif user = User.find(user_uuid)
-        response = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'idme')&.profile
-        response ||= service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'logingov')&.profile
+      if (icn = user_account&.icn.presence)
+        response = service.find_profile_by_identifier(identifier: icn, identifier_type: MPI::Constants::ICN)&.profile
+      elsif (idme_verification = user_account&.user_verifications&.where&.not(idme_uuid: nil)&.first)
+        response = service.find_profile_by_identifier(identifier: idme_verification.idme_uuid,
+                                                      identifier_type: MPI::Constants::IDME_UUID)&.profile
+      elsif (logingov_verification = user_account&.user_verifications&.where&.not(logingov_uuid: nil)&.first)
+        response = service.find_profile_by_identifier(identifier: logingov_verification.logingov_uuid,
+                                                      identifier_type: MPI::Constants::LOGINGOV_UUID)&.profile
+      elsif (user = User.find(user_uuid))
+        response = service.find_profile_by_identifier(identifier: user.idme_uuid, identifier_type: 'idme')&.profile
+        response ||= service.find_profile_by_identifier(identifier: user.logingov_uuid,
+                                                        identifier_type: 'logingov')&.profile
       end
       raise 'Failed to fetch MPI profile' if response.nil?
 
