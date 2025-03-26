@@ -75,14 +75,7 @@ module Pensions
       #
       # @param claim [Pensions::SavedClaim]
       def submit_traceability_to_event_bus(claim)
-        Kafka.submit_event(user_icn, claim&.confirmation_number.to_s, Pensions::FORM_ID, Kafka::State::RECEIVED)
-      end
-
-      # Retrieves the Integration Control Number (ICN) associated with the current user
-      #
-      # @return [String] The ICN of the current user, or an empty string if not available
-      def user_icn
-        (current_user&.icn || UserAccount.find_by(id: current_user&.user_account_uuid)&.icn).to_s
+        Kafka.submit_event(current_user&.icn.to_s, claim&.confirmation_number.to_s, Pensions::FORM_ID, Kafka::State::RECEIVED)
       end
 
       # link the form to the uploaded attachments and perform submission job
