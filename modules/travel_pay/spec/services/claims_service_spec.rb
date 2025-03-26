@@ -63,7 +63,7 @@ describe TravelPay::ClaimsService do
         .and_return(claims_response)
 
       auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
-      @service = TravelPay::ClaimsService.new(auth_manager)
+      @service = TravelPay::ClaimsService.new(auth_manager, user)
     end
 
     it 'returns sorted and parsed claims' do
@@ -174,12 +174,13 @@ describe TravelPay::ClaimsService do
           .and_return(document_ids_response)
 
         auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
-        @service = TravelPay::ClaimsService.new(auth_manager)
+        @service = TravelPay::ClaimsService.new(auth_manager, user)
       end
 
       it 'returns expanded claim details when passed a valid id' do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(false)
         claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
-        actual_claim = @service.get_claim_details(claim_id, false)
+        actual_claim = @service.get_claim_details(claim_id)
 
         expect(actual_claim['expenses']).not_to be_empty
         expect(actual_claim['appointment']).not_to be_empty
@@ -189,8 +190,9 @@ describe TravelPay::ClaimsService do
       end
 
       it 'includes document summary info when include_documents flag is true' do
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(true)
         claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
-        actual_claim = @service.get_claim_details(claim_id, true)
+        actual_claim = @service.get_claim_details(claim_id)
 
         expected_doc_ids = %w[uuid1 uuid2]
         actual_doc_ids = actual_claim['documents'].pluck('documentId')
@@ -216,14 +218,14 @@ describe TravelPay::ClaimsService do
                      ))
 
         claim_id = SecureRandom.uuid
-        expect { @service.get_claim_details(claim_id, false) }
+        expect { @service.get_claim_details(claim_id) }
           .to raise_error(Common::Exceptions::ResourceNotFound, /not found/i)
       end
 
       it 'throws an ArgumentException if claim_id is invalid format' do
         claim_id = 'this-is-definitely-a-uuid-right'
 
-        expect { @service.get_claim_details(claim_id, false) }
+        expect { @service.get_claim_details(claim_id) }
           .to raise_error(ArgumentError, /valid UUID/i)
       end
     end
@@ -347,7 +349,7 @@ describe TravelPay::ClaimsService do
 
     before do
       auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
-      @service = TravelPay::ClaimsService.new(auth_manager)
+      @service = TravelPay::ClaimsService.new(auth_manager, user)
     end
 
     it 'returns claims that are in the specified date range' do
@@ -461,7 +463,7 @@ describe TravelPay::ClaimsService do
 
     before do
       auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
-      @service = TravelPay::ClaimsService.new(auth_manager)
+      @service = TravelPay::ClaimsService.new(auth_manager, user)
     end
 
     it 'returns a claim ID when passed a valid btsss appt id' do
@@ -503,7 +505,7 @@ describe TravelPay::ClaimsService do
 
     before do
       auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
-      @service = TravelPay::ClaimsService.new(auth_manager)
+      @service = TravelPay::ClaimsService.new(auth_manager, user)
     end
 
     it 'returns submitted claim information' do

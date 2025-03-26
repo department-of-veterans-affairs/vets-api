@@ -2,8 +2,9 @@
 
 module TravelPay
   class ClaimsService
-    def initialize(auth_manager)
+    def initialize(auth_manager, user)
       @auth_manager = auth_manager
+      @user = user
     end
 
     def get_claims(params = {})
@@ -49,7 +50,7 @@ module TravelPay
     end
 
     # Retrieves expanded claim details with additional fields
-    def get_claim_details(claim_id, include_documents)
+    def get_claim_details(claim_id)
       # ensure claim ID is the right format, allowing any version
       uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
 
@@ -60,7 +61,7 @@ module TravelPay
       @auth_manager.authorize => { veis_token:, btsss_token: }
       claim_response = client.get_claim_by_id(veis_token, btsss_token, claim_id)
       documents = []
-      if include_documents
+      if include_documents?
         documents_response = documents_client.get_document_ids(veis_token, btsss_token, claim_id)
         documents = documents_response.body['data'] if documents_response.body['data']
       end
@@ -143,6 +144,10 @@ module TravelPay
       "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date}).")
       raise ArgumentError,
             message: "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date})."
+    end
+
+    def include_documents?
+      Flipper.enabled?(:travel_pay_claims_management, @user)
     end
 
     def client
