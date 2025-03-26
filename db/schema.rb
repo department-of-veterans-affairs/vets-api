@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_13_130931) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -268,6 +268,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_13_130931) do
     t.string "veteran_icn"
     t.jsonb "metadata", default: {}
     t.index ["veteran_icn"], name: "index_appeals_api_supplemental_claims_on_veteran_icn"
+  end
+
+  create_table "ar_icn_temporary_identifiers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "icn", null: false
+    t.datetime "created_at"
+    t.index ["created_at"], name: "index_ar_icn_temporary_identifiers_on_created_at"
+    t.index ["icn"], name: "index_ar_icn_temporary_identifiers_on_icn"
   end
 
   create_table "ar_power_of_attorney_form_submissions", force: :cascade do |t|
@@ -1037,6 +1044,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_13_130931) do
     t.datetime "updated_at", null: false
     t.string "case_id"
     t.boolean "email_sent", default: false, null: false
+    t.uuid "application_uuid"
+    t.string "ves_status"
+    t.jsonb "ves_data"
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
   end
 

@@ -47,6 +47,7 @@ Rails.application.routes.draw do
     resources :debts, only: %i[index show]
     resources :debt_letters, only: %i[index show]
     resources :education_career_counseling_claims, only: :create
+    resources :user_action_events, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
     resource :virtual_agent_token_msft, only: [:create], controller: :virtual_agent_token_msft
@@ -157,6 +158,8 @@ Rails.application.routes.draw do
       post :submit5103, on: :member
       post 'benefits_documents', to: 'benefits_documents#create'
     end
+
+    resources :evidence_submissions, only: %i[index]
 
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
