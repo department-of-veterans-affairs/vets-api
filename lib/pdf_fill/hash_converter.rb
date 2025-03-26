@@ -102,7 +102,7 @@ module PdfFill
         add_to_extras(key_data, new_value, i, top_level_key)
 
         new_value = EXTRAS_TEXT
-      else
+      elsif !from_array_overflow
         add_to_extras(key_data, new_value, i, top_level_key, overflow: false)
       end
 

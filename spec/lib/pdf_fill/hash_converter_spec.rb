@@ -149,6 +149,15 @@ describe PdfFill::HashConverter do
         verify_hash(foo: 'bar')
       end
     end
+
+    context 'when called from array overflow' do
+      it 'does not add any text to overflow' do
+        expect(extras_generator).not_to receive(:add_text)
+
+        call_set_value({ key: :foo, question_num: 1, question_text: 'Foo' }, nil, true)
+        verify_hash(foo: 'bar')
+      end
+    end
   end
 
   describe '#transform_data' do
