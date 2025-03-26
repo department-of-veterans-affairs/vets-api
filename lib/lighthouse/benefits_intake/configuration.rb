@@ -51,7 +51,7 @@ module BenefitsIntake
     def connection
       @conn ||= Faraday.new(service_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use(:breakers, service_name:)
-        faraday.use      Faraday::Response::RaiseError
+        faraday.use Faraday::Response::RaiseError
 
         faraday.request :multipart
         faraday.request :json
