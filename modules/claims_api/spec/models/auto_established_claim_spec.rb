@@ -37,6 +37,24 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     end
   end
 
+  describe '#set_header_hash' do
+    it 'creates the header_hash and finds the claim' do
+      expect(pending_record.header_hash).not_to be_nil
+      pending_record.save
+      saved_claim = ClaimsApi::AutoEstablishedClaim.find_by(header_hash: pending_record.header_hash)
+      expect(saved_claim.header_hash).to eq(pending_record.header_hash)
+    end
+  end
+
+  describe '#set_md5' do
+    it 'creates the md5 and finds the claim' do
+      expect(pending_record.md5).not_to be_nil
+      pending_record.save
+      saved_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: pending_record.md5)
+      expect(saved_claim.md5).to eq(pending_record.md5)
+    end
+  end
+
   describe 'validate_service_dates' do
     context 'when activeDutyEndDate is before activeDutyBeginDate' do
       it 'throws an error' do
