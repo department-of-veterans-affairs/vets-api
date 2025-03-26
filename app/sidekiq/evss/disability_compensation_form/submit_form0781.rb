@@ -213,8 +213,7 @@ module EVSS
       def generate_stamp_pdf(form_content, evss_claim_id, form_id)
         submission_date = @submission&.created_at&.in_time_zone('Central Time (US & Canada)')
         form_content = form_content.merge({ 'signatureDate' => submission_date })
-        submission = Form526Submission.find(@submission_id)
-        user = User.find(submission.user_uuid)
+        user = User.find(@submission.user_uuid)
         extras_redesign = Flipper.enabled?(:disability_compensation_0781v2_extras_redesign,
                                            user) && form_id == FORM_ID_0781V2
         fill_options = { extras_redesign: }
