@@ -174,11 +174,11 @@ module Pensions
       user_icn = UserAccount.find_by(id: @user_account_uuid)&.icn.to_s
 
       Kafka.submit_event(
-        user_icn,
-        @claim&.confirmation_number.to_s,
-        Pensions::FORM_ID,
-        Kafka::State::SENT,
-        @intake_service&.uuid.to_s
+        icn: user_icn,
+        current_id: @claim&.confirmation_number.to_s,
+        submission_name: Pensions::FORM_ID,
+        state: Kafka::State::SENT,
+        next_id: @intake_service&.uuid.to_s
       )
     end
 

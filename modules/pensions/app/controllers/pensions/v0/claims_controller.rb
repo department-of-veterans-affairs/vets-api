@@ -75,7 +75,12 @@ module Pensions
       #
       # @param claim [Pensions::SavedClaim]
       def submit_traceability_to_event_bus(claim)
-        Kafka.submit_event(current_user&.icn.to_s, claim&.confirmation_number.to_s, Pensions::FORM_ID, Kafka::State::RECEIVED)
+        Kafka.submit_event(
+          icn: current_user&.icn.to_s,
+          current_id: claim&.confirmation_number.to_s,
+          submission_name: Pensions::FORM_ID,
+          state: Kafka::State::RECEIVED
+        )
       end
 
       # link the form to the uploaded attachments and perform submission job

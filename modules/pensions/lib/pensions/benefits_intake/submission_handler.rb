@@ -54,7 +54,12 @@ module Pensions
       #
       # @param claim [Pensions::SavedClaim]
       def submit_traceability_to_event_bus(claim)
-        Kafka.submit_event(user_icn, claim&.confirmation_number.to_s, Pensions::FORM_ID, Kafka::State::ERROR)
+        Kafka.submit_event(
+          icn: user_icn,
+          current_id: claim&.confirmation_number.to_s,
+          submission_name: Pensions::FORM_ID,
+          state: Kafka::State::ERROR
+        )
       end
     end
   end

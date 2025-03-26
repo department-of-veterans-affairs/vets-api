@@ -14,7 +14,7 @@ module Kafka
     COMPLETED = 'completed'
   end
 
-  def self.submit_event(icn, current_id, submission_name, state, next_id = nil)
+  def self.submit_event(icn:, current_id:, submission_name:, state:, next_id: nil)
     Kafka::EventBusSubmissionJob.perform_async(
       'submission_trace_mock_dev',
       {
