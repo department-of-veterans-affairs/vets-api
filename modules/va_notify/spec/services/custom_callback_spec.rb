@@ -4,13 +4,14 @@ require 'rails_helper'
 require_relative '../support/helpers/callback_class'
 
 describe VANotify::CustomCallback do
+  subject { described_class.new(provider_callback) }
+
   let(:notification_id) { SecureRandom.uuid }
   let(:provider_callback) do
     {
       id: notification_id
     }
   end
-  subject { described_class.new(provider_callback) }
 
   describe '#call' do
     context 'notification with callback' do
