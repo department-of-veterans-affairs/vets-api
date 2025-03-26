@@ -1849,18 +1849,6 @@ features:
     actor_type: user
     description: Enables Decision Review endpoint to process VANotify notification callbacks
     enable_in_development: true
-  nod_confirmation_update:
-    actor_type: user
-    description: Show updated confirmation page with form data & downloadable PDF
-    enable_in_development: true
-  hlr_confirmation_update:
-    actor_type: user
-    description: Show updated confirmation page with form data & downloadable PDF
-    enable_in_development: true
-  sc_confirmation_update:
-    actor_type: user
-    description: Show updated confirmation page with form data & downloadable PDF
-    enable_in_development: true
   sc_new_form:
     actor_type: user
     description: Supplemental Claim new form updates
