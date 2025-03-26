@@ -3,13 +3,13 @@
     {
       "warning_type": "File Access",
       "warning_code": 16,
-      "fingerprint": "8dacdeb55da8e2167ffd9eb2a9d6197e4cbb1006c47815a3b2f3dc425e1c6cac",
+      "fingerprint": "36bdf5804cdf3793d9de269f3e842de8ffbb84bf4fbd7a39919700391690e67e",
       "check_name": "FileAccess",
       "message": "Model attribute used in file name",
       "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
-      "line": 48,
+      "line": 62,
       "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "File.read(SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false))",
+      "code": "File.delete((if Flipper.enabled?(:caregiver_retry_pdf_fill) then\n  file_name = SecureRandom.uuid\n  with_retries(\"Generate 10-10CG PDF\", :max_attempts => 3, :retry_delay => 1) do\n   SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\n   end\nelse\n  SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\nend))",
       "render_path": null,
       "location": {
         "type": "method",
@@ -21,30 +21,7 @@
       "cwe_id": [
         22
       ],
-      "note": "Using SecureRandom.uuid to generate file name."
-    },
-    {
-      "warning_type": "File Access",
-      "warning_code": 16,
-      "fingerprint": "9581a04584de4203ef25072dcdc45b28d99ab12c06eae88c44e18330b3c316c3",
-      "check_name": "FileAccess",
-      "message": "Model attribute used in file name",
-      "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
-      "line": 54,
-      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "File.delete(SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false))",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "V0::CaregiversAssistanceClaimsController",
-        "method": "download_pdf"
-      },
-      "user_input": "SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)",
-      "confidence": "Medium",
-      "cwe_id": [
-        22
-      ],
-      "note": "Using SecureRandom.uuid to generate file name."
+      "note": ""
     },
     {
       "warning_type": "SQL Injection",
@@ -53,7 +30,7 @@
       "check_name": "SQL",
       "message": "Possible SQL injection",
       "file": "modules/check_in/app/services/v2/chip/client.rb",
-      "line": 196,
+      "line": 184,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "connection.delete(\"/#{base_path}/actions/deleteFromLorota/#{check_in_session.uuid}\")",
       "render_path": null,
@@ -91,6 +68,29 @@
         77
       ],
       "note": "User input is sanitized in the parent class bin/lib/vets-api/commands/command.rb"
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "c959efb0b008354dd706f650c3fd7829bc1dc7e3c2787aa9949e699bff2f982e",
+      "check_name": "FileAccess",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
+      "line": 56,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "File.read((if Flipper.enabled?(:caregiver_retry_pdf_fill) then\n  file_name = SecureRandom.uuid\n  with_retries(\"Generate 10-10CG PDF\", :max_attempts => 3, :retry_delay => 1) do\n   SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\n   end\nelse\n  SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\nend))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "V0::CaregiversAssistanceClaimsController",
+        "method": "download_pdf"
+      },
+      "user_input": "SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)",
+      "confidence": "Medium",
+      "cwe_id": [
+        22
+      ],
+      "note": ""
     },
     {
       "warning_type": "Remote Code Execution",
