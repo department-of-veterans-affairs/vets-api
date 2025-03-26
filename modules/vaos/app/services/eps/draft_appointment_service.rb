@@ -246,7 +246,6 @@ module Eps
       # @param error_type [String, nil] Custom error type identifier
       #
       def initialize(message, status: nil, detail: nil)
-        @error_type = 'Eps::DraftAppointmentService::ServiceError'
         @status = status || extract_status(detail)
         @detail = detail
         super(message)
@@ -281,7 +280,7 @@ module Eps
             errors: [{
               title: message,
               detail:,
-              code: error_type
+              code: 'Eps::DraftAppointmentService::ServiceError'
             }]
           },
           status:
