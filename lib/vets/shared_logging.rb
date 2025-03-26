@@ -5,7 +5,7 @@ module Vets
     extend ActiveSupport::Concern
 
     def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
-      level = normalize_level(level, nil)
+      level = normalize_shared_level(level, nil)
       # https://docs.sentry.io/platforms/ruby/usage/set-level/
       # valid sentry levels: log, debug, info, warning, error, fatal
       level = 'warning' if level == 'warn'
@@ -17,7 +17,7 @@ module Vets
     end
 
     def log_exception_to_sentry(exception, extra_context = {}, tags_context = {}, level = 'error')
-      level = normalize_level(level, exception)
+      level = normalize_shared_level(level, exception)
 
       if Settings.sentry.dsn.present?
         set_sentry_metadata(extra_context, tags_context)
@@ -33,7 +33,7 @@ module Vets
     end
 
     def log_exception_to_rails(exception, level = 'error')
-      level = normalize_level(level, exception)
+      level = normalize_shared_level(level, exception)
       if exception.is_a? Common::Exceptions::BackendServiceException
         error_details = exception.errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
         log_message_to_rails(exception.message, level, error_details.merge(backtrace: exception.backtrace))
@@ -44,7 +44,7 @@ module Vets
       log_message_to_rails(exception.backtrace.join("\n"), level) unless exception.backtrace.nil?
     end
 
-    def normalize_level(level, exception)
+    def normalize_shared_level(level, exception)
       case exception
       when Pundit::NotAuthorizedError
         'info'
