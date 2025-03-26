@@ -36,7 +36,7 @@ module Vets
       level = normalize_level(level, exception)
       if exception.is_a? Common::Exceptions::BackendServiceException
         error_details = exception.errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
-        log_message_to_rails(exception.message, level, error_details.merge(exception.backtrace))
+        log_message_to_rails(exception.message, level, error_details.merge(backtrace: exception.backtrace))
       else
         log_message_to_rails("#{exception.message}.", level)
       end
