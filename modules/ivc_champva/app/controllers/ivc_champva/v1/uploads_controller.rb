@@ -31,13 +31,7 @@ module IvcChampva
           # TODO: add same feature toggle as below for VES integration
           # expect this formatter to raise errors if data is invalid
           # ves_request = IvcChampva::VesDataFormatter.format(parsed_form_data)
-          statuses = nil
-          error_message = nil
-          if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
-            statuses, error_message = handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
-          else
-            statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
-          end
+          statuses, error_message = call_handle_file_uploads(form_id, parsed_form_data)
 
           response = build_json(statuses, error_message)
 
@@ -58,6 +52,14 @@ module IvcChampva
         Rails.logger.error "Error: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
         render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
+      end
+
+      def call_handle_file_uploads(form_id, parsed_form_data)
+        if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
+          handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
+        else
+          handle_file_uploads(form_id, parsed_form_data)
+        end
       end
 
       # Modified from claim_documents_controller.rb:
