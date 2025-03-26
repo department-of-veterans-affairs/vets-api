@@ -9,7 +9,7 @@ module AccreditedRepresentativePortal
       skip_after_action :verify_pundit_authorization
 
       def submit
-        Datadog::Tracing.active_trace&.set_tag('form_id', params[:formNumber])
+        Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
         check_for_changes
         status, confirmation_number = upload_response
         render json: { status:, confirmation_number: }
@@ -33,18 +33,19 @@ module AccreditedRepresentativePortal
 
       def upload_response
         file_path = find_attachment_path(params[:confirmationCode])
-        # rubocop:disable Layout/LineLength
-        stamper = SimpleFormsApi::PdfStamper.new(stamped_template_path: file_path, current_loa: @current_user.loa[:current],
-                                                 timestamp: Time.current)
-        # rubocop:enable Layout/LineLength
+        stamper = SimpleFormsApi::PdfStamper.new(
+          stamped_template_path: file_path,
+          current_loa: @current_user.loa[:current],
+          timestamp: Time.current
+        )
         stamper.stamp_pdf
         metadata = validated_metadata
         status, confirmation_number = upload_pdf(file_path, metadata)
         file_size = File.size(file_path).to_f / (2**20)
 
         Rails.logger.info(
-          'Simple forms api - scanned form uploaded',
-          { form_number: params[:formNumber], status:, confirmation_number:, file_size: }
+          'Accredited Rep Form Upload - scanned form uploaded',
+          { form_number: form_data[:formNumber], status:, confirmation_number:, file_size: }
         )
         [status, confirmation_number]
       end
@@ -60,7 +61,7 @@ module AccreditedRepresentativePortal
           'fileNumber' => form_params.dig('formData', 'veteranSsn'),
           'zipCode' => form_params.dig(:formData, :postalCode),
           'source' => 'VA Platform Digital Forms',
-          'docType' => params[:formNumber],
+          'docType' => form_data[:formNumber],
           'businessLine' => 'CMP'
         }
         SimpleFormsApiSubmission::MetadataValidator.validate(raw_metadata)
@@ -89,7 +90,7 @@ module AccreditedRepresentativePortal
 
       def create_form_submission
         FormSubmission.create(
-          form_type: params[:formNumber],
+          form_type: form_data[:formNumber],
           form_data: form_data.to_json,
           user_account: @current_user&.user_account
         )
@@ -97,7 +98,8 @@ module AccreditedRepresentativePortal
 
       def log_upload_details(location, uuid)
         Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
-        Rails.logger.info('Simple forms api - preparing to upload scanned PDF to benefits intake', { location:, uuid: })
+        Rails.logger.info('Accredited Rep Form Upload  - preparing to upload scanned PDF to benefits intake',
+                          { location:, uuid: })
       end
 
       def perform_pdf_upload(location, file_path, metadata)
@@ -109,12 +111,12 @@ module AccreditedRepresentativePortal
       end
 
       def check_for_changes
-        in_progress_form = InProgressForm.form_for_user(params[:formNumber], @current_user)
+        in_progress_form = InProgressForm.form_for_user(form_data[:formNumber], @current_user)
         if in_progress_form
 
           prefill_data_service = SimpleFormsApi::PrefillDataService.new(prefill_data: in_progress_form.form_data,
                                                                         form_data:,
-                                                                        form_id: params[:formNumber])
+                                                                        form_id: form_data[:formNumber])
           prefill_data_service.check_for_changes
         end
       end
@@ -127,6 +129,7 @@ module AccreditedRepresentativePortal
           :formName,
           formData: [
             :veteranSsn,
+            :formNumber,
             :postalCode,
             :veteranDateOfBirth,
             :email,
