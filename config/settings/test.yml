@@ -972,9 +972,10 @@ mhv:
     app_token_va_gov: ~
     base_path: mhv-api/patient/v1/
     collection_caching_enabled: false
+    gw_base_path: v1/
     host: https://mhv-api.example.com
     mock: true
-    x_api_key: fake-x-api-key
+    use_new_api: false
   sm:
     app_token: fake-app-token
     host: https://mhv-api.example.com
