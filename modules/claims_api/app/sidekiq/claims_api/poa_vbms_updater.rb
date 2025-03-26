@@ -60,9 +60,6 @@ module ClaimsApi
                       error_messages: [{ title: 'BGS Error',
                                          detail: poa_form.vbms_error_message }])
       ClaimsApi::Logger.log(LOG_TAG, poa_id: poa_form.id, detail: 'BGS Error', error: e)
-    rescue => e
-      ClaimsApi::Logger.log(LOG_TAG, poa_id: poa_form.id, detail: 'Re-raising Error', error: get_error_message(e))
-      raise e
     end
 
     def update_poa_access(poa_form:, participant_id:, poa_code:)
