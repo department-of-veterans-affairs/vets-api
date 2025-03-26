@@ -223,7 +223,11 @@ module Rx
     end
 
     def get_preferences_path(endpoint)
-      base_path = Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api ? 'usermgmt/notification' : 'preferences'
+      base_path = if Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api
+                    'usermgmt/notification'
+                  else
+                    'preferences'
+                  end
       "#{base_path}/#{endpoint}"
     end
 
