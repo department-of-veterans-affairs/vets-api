@@ -16,11 +16,11 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
                                        track_create_validation_error: nil, track_process_attachment_error: nil)
   end
 
-  it_behaves_like 'a controller that deletes an InProgressForm', 'pension_claim', 'pensions_module_pension_claim',
+  it_behaves_like 'a controller that deletes an InProgressForm', 'pension_claim', 'pensions_saved_claim',
                   '21P-527EZ'
 
   describe '#create' do
-    let(:claim) { build(:pensions_module_pension_claim) }
+    let(:claim) { build(:pensions_saved_claim) }
     let(:param_name) { :pension_claim }
     let(:form_id) { '21P-527EZ' }
     let(:user) { create(:user) }
@@ -71,10 +71,10 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
     end
 
     it 'returns a serialized claim' do
-      claim = build(:pensions_module_pension_claim)
+      claim = build(:pensions_saved_claim)
       allow(Pensions::SavedClaim).to receive(:find_by!).and_return(claim)
 
-      response = get(:show, params: { id: 'pensions_module_pension_claim' })
+      response = get(:show, params: { id: 'pensions_saved_claim' })
 
       expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq(claim.guid)
       expect(response.status).to eq(200)
@@ -82,7 +82,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
   end
 
   describe '#process_and_upload_to_lighthouse' do
-    let(:claim) { build(:pensions_module_pension_claim) }
+    let(:claim) { build(:pensions_saved_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
 
     it 'returns a success' do
@@ -103,7 +103,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
   end
 
   describe '#log_validation_error_to_metadata' do
-    let(:claim) { build(:pensions_module_pension_claim) }
+    let(:claim) { build(:pensions_saved_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
 
     it 'returns if a `blank` in_progress_form' do
