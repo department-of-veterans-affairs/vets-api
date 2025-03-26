@@ -143,25 +143,21 @@ module UnifiedHealthData
     def fetch_sample_tested(record, contained)
       return '' unless record['specimen']
 
-      specimen_references = []
-      specimens = []
-      if record['specimen'].is_a?(Hash)
-        # TODO: add helper method for extracting reference ID
-        specimen_references << extract_reference_id(record['specimen']['reference'])
-      elsif record['specimen'].is_a?(Array)
-        record['specimen'].each do |specimen|
-          specimen_references << extract_reference_id(specimen['reference'])
-        end
-      end
+      specimen_references = if record['specimen'].is_a?(Hash)
+                              [extract_reference_id(record['specimen']['reference'])]
+                            elsif record['specimen'].is_a?(Array)
+                              record['specimen'].map { |specimen| extract_reference_id(specimen['reference']) }
+                            end
 
-      specimen_references.each do |reference|
-        specimen_object = contained.find do |resource|
-          resource['resourceType'] == 'Specimen' && resource['id'] == reference
+      specimens =
+        specimen_references.map do |reference|
+          specimen_object = contained.find do |resource|
+            resource['resourceType'] == 'Specimen' && resource['id'] == reference
+          end
+          specimen_object['type']['text'] if specimen_object
         end
-        specimens << specimen_object['type']['text'] if specimen_object
-      end
 
-      specimens.join(', ').strip
+      specimens.compact.join(', ').strip
     end
 
     def fetch_observations(record)
