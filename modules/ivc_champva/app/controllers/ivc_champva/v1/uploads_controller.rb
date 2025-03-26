@@ -31,8 +31,13 @@ module IvcChampva
           # TODO: add same feature toggle as below for VES integration
           # expect this formatter to raise errors if data is invalid
           # ves_request = IvcChampva::VesDataFormatter.format(parsed_form_data)
-
-          statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
+          statuses = nil
+          error_message = nil
+          if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
+            statuses, error_message = handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
+          else
+            statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
+          end
 
           response = build_json(statuses, error_message)
 
@@ -119,31 +124,6 @@ module IvcChampva
       # @return [Array<Integer, String>] An array with 1 or more http status codes
       #   and an array with 1 or more message strings.
       def handle_file_uploads(form_id, parsed_form_data)
-        if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
-          on_failure = lambda { |e, attempt|
-            Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
-          }
-
-          statuses = nil
-          error_messages = nil
-
-          IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
-            file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-            hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
-            # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
-            statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
-
-            # Since some or all of the files failed to upload to S3, trigger retry
-            raise StandardError, error_messages if error_messages.compact.length.positive?
-          end
-        else
-          legacy_handle_file_uploads(form_id, parsed_form_data)
-        end
-
-        [statuses, error_messages]
-      end
-
-      def legacy_handle_file_uploads(form_id, parsed_form_data)
         attempt = 0
         max_attempts = 1
 
@@ -165,6 +145,27 @@ module IvcChampva
             sleep 1
             retry
           end
+        end
+
+        [statuses, error_messages]
+      end
+
+      def handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
+        on_failure = lambda { |e, attempt|
+          Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
+        }
+
+        statuses = nil
+        error_messages = nil
+
+        IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
+          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
+          statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
+
+          # Since some or all of the files failed to upload to S3, trigger retry
+          raise StandardError, error_messages if error_messages.compact.length.positive?
         end
 
         [statuses, error_messages]
