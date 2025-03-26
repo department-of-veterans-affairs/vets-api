@@ -134,14 +134,6 @@ http_interactions:
       "resource": {
         "resourceType": "AllergyIntolerance",
         "id": "I2-FY4N5GUAQ4IZQVQZUPDFN43S4A000000",
-        "clinicalStatus": {
-          "coding": [
-            {
-              "system": "http://hl7.org/fhir/ValueSet/allergyintolerance-clinical",
-              "code": "active"
-            }
-          ]
-        },
         "type": "allergy",
         "category": [
           "environment"
@@ -155,52 +147,7 @@ http_interactions:
             }
           ],
           "text": "Latex allergy"
-        },
-        "patient": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/43000199",
-          "display": "Ms. Carlita746 Kautzer186"
-        },
-        "recordedDate": "1999-01-07T01:43:31Z",
-        "recorder": {
-          "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-4ZXYC2SQAZCHMOWPPFNLOY65GE000000",
-          "display": "DR. THOMAS359 REYNOLDS206 PHD"
-        },
-        "note": [
-          {
-            "authorReference": {
-              "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-HRJI2MVST2IQSPR7U5SACWIWZA000000",
-              "display": "DR. JANE460 DOE922 MD"
-            },
-            "time": "1999-01-07T01:43:31Z",
-            "text": "Latex allergy"
-          }
-        ],
-        "reaction": [
-          {
-            "substance": {
-              "coding": [
-                {
-                  "system": "http://snomed.info/sct",
-                  "code": "300916003",
-                  "display": "Latex allergy"
-                }
-              ],
-              "text": "Latex allergy"
-            },
-            "manifestation": [
-              {
-                "coding": [
-                  {
-                    "system": "urn:oid:2.16.840.1.113883.6.233",
-                    "code": "43000006",
-                    "display": "Itchy Watery Eyes"
-                  }
-                ],
-                "text": "Itchy Watery Eyes"
-              }
-            ]
-          }
-        ]
+        }
       },
       "search": {
         "mode": "match"
