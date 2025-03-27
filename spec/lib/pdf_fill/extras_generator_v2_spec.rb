@@ -13,22 +13,22 @@ describe PdfFill::ExtrasGeneratorV2 do
       [
         {
           label: 'Section I',
+          question_nums: (1..7).to_a,
           top_level_keys: %w[veteranFullName vaFileNumber veteranDateOfBirth]
         },
         {
           label: 'Section II',
+          question_nums: [8, 9],
           top_level_keys: ['events']
         }
       ]
     end
 
     it 'populates section indices correctly' do
-      blocks = %w[veteranFullName events evidence vaFileNumber].map do |top_level_key|
-        { metadata: { top_level_key: } }
-      end
-      subject.instance_variable_set(:@generate_blocks, blocks)
+      questions = [1, 9, 42, 7].index_with { |_| { subquestions: [], overflow: true } }
+      subject.instance_variable_set(:@questions, questions)
       subject.populate_section_indices!
-      indices = subject.instance_variable_get(:@generate_blocks).map { |block| block[:metadata][:section_index] }
+      indices = subject.instance_variable_get(:@questions).map { |_, question| question[:section_index] }
       expect(indices).to eq([0, 1, nil, 0])
     end
   end
