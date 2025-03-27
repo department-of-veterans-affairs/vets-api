@@ -184,5 +184,22 @@ RSpec.describe IvcChampva::VHA1010d do
         expect(json_result.empty?).to be(true)
       end
     end
+
+    context 'when applicants have wrong properties' do
+      let(:applicant_data) do
+        data.merge(
+          'applicants' => [
+            { 'malformed' => '123456789' }
+          ]
+        )
+      end
+
+      let(:vha1010d_applicants) { described_class.new(applicant_data) }
+
+      it 'returns an empty object' do
+        json_result = vha1010d.add_applicant_properties
+        expect(json_result.empty?).to be(true)
+      end
+    end
   end
 end
