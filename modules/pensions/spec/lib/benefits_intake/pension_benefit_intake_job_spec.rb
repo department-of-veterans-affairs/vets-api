@@ -9,7 +9,7 @@ require 'pensions/notification_email'
 RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
   stub_virus_scan
   let(:job) { described_class.new }
-  let(:claim) { create(:pensions_module_pension_claim) }
+  let(:claim) { create(:pensions_saved_claim) }
   let(:service) { double('service') }
   let(:monitor) { double('monitor') }
   let(:user_account_uuid) { 123 }
@@ -133,7 +133,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     end
 
     context 'with pending form submission attempt' do
-      let(:claim) { create(:pensions_module_pension_claim, :pending) }
+      let(:claim) { create(:pensions_saved_claim, :pending) }
 
       it 'return true' do
         expect(job.send(:form_submission_pending_or_success)).to be(true)
@@ -141,7 +141,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     end
 
     context 'with success form submission attempt' do
-      let(:claim) { create(:pensions_module_pension_claim, :success) }
+      let(:claim) { create(:pensions_saved_claim, :success) }
 
       it 'return true' do
         expect(job.send(:form_submission_pending_or_success)).to be(true)
@@ -149,7 +149,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     end
 
     context 'with failure form submission attempt' do
-      let(:claim) { create(:pensions_module_pension_claim, :failure) }
+      let(:claim) { create(:pensions_saved_claim, :failure) }
 
       it 'return false' do
         expect(job.send(:form_submission_pending_or_success)).to be(false)

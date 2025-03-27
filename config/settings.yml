@@ -510,6 +510,17 @@ forms_api_benefits_intake:
   url: <%= ENV['forms_api_benefits_intake__url'] %>
 fsr:
   prefill: true
+gclaws:
+  accreditation:
+    agents:
+      url: <%= ENV['gclaws__accreditation__agents__url'] %>
+    api_key: <%= ENV['gclaws__accreditation__api_key'] %>
+    attorneys:
+      url: <%= ENV['gclaws__accreditation__attorneys__url'] %>
+    representatives:
+      url: <%= ENV['gclaws__accreditation__representatives__url'] %>
+    veteran_service_organizations:
+      url: <%= ENV['gclaws__accreditation__veteran_service_organizations__url'] %>
 genisis:
   base_url: <%= ENV['genisis__base_url'] %>
   form_submission_path: "/formdata"
@@ -1575,6 +1586,9 @@ vanotify:
         form21_10210_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_10210_confirmation_email'] %>
         form21_10210_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_10210_error_email'] %>
         form21_10210_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_10210_received_email'] %>
+        form21_4138_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_confirmation_email'] %>
+        form21_4138_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_error_email'] %>
+        form21_4138_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_received_email'] %>
         form21_4142_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_confirmation_email'] %>
         form21_4142_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_error_email'] %>
         form21_4142_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_received_email'] %>
