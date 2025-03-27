@@ -106,7 +106,7 @@ class AppealSubmission < ApplicationRecord
     icn = user_account&.icn.presence
     return unless icn
 
-    service.find_profile_by_identifier(identifier: icn, identifier_type: MPI::Constants::ICN)&.profile
+    find_mpi_profile(service, icn, MPI::Constants::ICN)
   end
 
   def fetch_profile_by_user_verification(service)
@@ -121,7 +121,7 @@ class AppealSubmission < ApplicationRecord
                         MPI::Constants::LOGINGOV_UUID
                       end
     identifier = user_verification.idme_uuid || user_verification.backing_idme_uuid || user_verification.logingov_uuid
-    service.find_profile_by_identifier(identifier:, identifier_type:)&.profile
+    find_mpi_profile(service, identifier, identifier_type)
   end
 
   def fetch_profile_by_user(service)
@@ -129,11 +129,13 @@ class AppealSubmission < ApplicationRecord
     return unless user
 
     if user.idme_uuid.present?
-      service.find_profile_by_identifier(identifier: user.idme_uuid,
-                                         identifier_type: MPI::Constants::IDME_UUID)&.profile
+      find_mpi_profile(service, user.idme_uuid, MPI::Constants::IDME_UUID)
     elsif user.logingov_uuid.present?
-      service.find_profile_by_identifier(identifier: user.logingov_uuid,
-                                         identifier_type: MPI::Constants::LOGINGOV_UUID)&.profile
+      find_mpi_profile(service, user.logingov_uuid, MPI::Constants::LOGINGOV_UUID)
     end
+  end
+
+  def find_mpi_profile(service, identifier, identifier_type)
+    service.find_profile_by_identifier(identifier:, identifier_type:)&.profile
   end
 end
