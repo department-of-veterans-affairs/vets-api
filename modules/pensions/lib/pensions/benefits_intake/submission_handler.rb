@@ -3,7 +3,6 @@
 require 'lighthouse/benefits_intake/submission_handler/saved_claim'
 require 'pensions/monitor'
 require 'pensions/notification_email'
-require 'kafka/kafka'
 
 module Pensions
   module BenefitsIntake
@@ -29,7 +28,6 @@ module Pensions
       # handle a failure result
       # inheriting class must assign @avoided before calling `super`
       def on_failure
-        submit_traceability_to_event_bus(claim)
         @avoided = notification_email.deliver(:error)
         super
       end
@@ -43,23 +41,6 @@ module Pensions
       # handle a stale result
       def on_stale
         true
-      end
-
-      # Retrieves the ICN (Integration Control Number) for the user associated with a claim
-      def user_icn
-        UserAccount.find_by(id: claim&.user_account_id)&.icn.to_s
-      end
-
-      # Build payload and submit to EventBusSubmissionJob
-      #
-      # @param claim [Pensions::SavedClaim]
-      def submit_traceability_to_event_bus(claim)
-        Kafka.submit_event(
-          icn: user_icn,
-          current_id: claim&.confirmation_number.to_s,
-          submission_name: Pensions::FORM_ID,
-          state: Kafka::State::ERROR
-        )
       end
     end
   end

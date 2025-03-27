@@ -310,6 +310,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     context 'when retries are exhausted' do
       it 'logs a distinct error when no claim_id provided' do
         Pensions::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block do
+          expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
           expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
@@ -319,6 +320,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
           allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
           expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
+          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
           exhaustion_msg['args'] = [claim.id]
 
@@ -331,6 +333,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
           allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
           expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
+          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
           exhaustion_msg['args'] = [claim.id, 2]
 
@@ -342,6 +345,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
         Pensions::PensionBenefitIntakeJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
           expect(Pensions::SavedClaim).to receive(:find).with(claim.id - 1)
+          expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
 
           exhaustion_msg['args'] = [claim.id - 1, 2]
 

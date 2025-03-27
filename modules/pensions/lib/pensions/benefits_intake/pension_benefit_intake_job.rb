@@ -39,6 +39,18 @@ module Pensions
       rescue
         claim = nil
       end
+
+      if claim.present?
+        user_icn = UserAccount.find_by(id: claim&.user_account_id)&.icn.to_s
+
+        Kafka.submit_event(
+          icn: user_icn,
+          current_id: claim&.confirmation_number.to_s,
+          submission_name: Pensions::FORM_ID,
+          state: Kafka::State::ERROR
+        )
+      end
+
       pension_monitor = Pensions::Monitor.new
       pension_monitor.track_submission_exhaustion(msg, claim)
     end
