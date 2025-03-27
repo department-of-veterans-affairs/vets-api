@@ -4,14 +4,6 @@ require 'rails_helper'
 require 'medical_records/phr_mgr/client'
 
 describe PHRMgr::Client do
-  before(:all) do
-    VCR.configure do |vcr_config|
-      vcr_config.default_cassette_options = {
-        allow_playback_repeats: true
-      }
-    end
-  end
-
   before do
     Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
   end
