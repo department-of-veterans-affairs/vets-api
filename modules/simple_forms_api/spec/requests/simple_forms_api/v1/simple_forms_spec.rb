@@ -424,7 +424,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          expect(response.body).to include('unexpected token at')
+          expect(response.body).to include("expected ',' or '}' after object value, got:")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('veteran_id', 'ssn')&.[](0..2))
@@ -444,8 +444,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
-          expect(response.body).to include('unexpected ken at')
+          expect(response.body).to include("expected ',' or '}' after object value, got:")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
@@ -464,8 +463,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
-          expect(response.body).to include('unexpected token t')
+          # 'after object value' gets mangled by our scrubbing but this indicates that we're getting the right message
+          expect(response.body).to include("expected ',' or '}' fter object vlue, got:")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data['veteran_ssn']&.[](0..2))
@@ -486,7 +485,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          expect(response.body).to include('unexpected token at')
+          expect(response.body).to include("expected ',' or '}' after object value, got: '  '")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
@@ -503,8 +502,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
-          expect(response.body).to include('unexpected token t')
+          # 'after object value' gets mangled by our scrubbing but this indicates that we're getting the right message
+          expect(response.body).to include("expected ',' or '}' fter object vlue, got:")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data['preparer_ssn']&.[](0..2))
@@ -524,8 +523,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
-          expect(response.body).to include('unexpected token t')
+          # 'after object value' gets mangled by our scrubbing but this indicates that we're getting the right message
+          expect(response.body).to include("expected ','  '}' fter object vlue, got:")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('authorizer_address', 'postal_code')&.[](0..4))

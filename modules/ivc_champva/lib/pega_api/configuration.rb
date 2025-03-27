@@ -10,6 +10,10 @@ module IvcChampva
         Settings.ivc_champva.pega_api.base_path.to_s
       end
 
+      def service_name
+        'PEGA_API'
+      end
+
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
           conn.use :breakers
