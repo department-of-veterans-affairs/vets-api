@@ -24,7 +24,7 @@ module ClaimsApi
       slack_client.notify(msg)
     end
 
-    def perform(notification_id, poa_id)
+    def perform(notification_id, poa_id) # rubocop:disable Metrics/MethodLength
       status = notification_response_status(notification_id)
       detail = "Status for notification #{notification_id} was '#{status}'"
 
