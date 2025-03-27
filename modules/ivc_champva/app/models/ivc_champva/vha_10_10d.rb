@@ -37,6 +37,7 @@ module IvcChampva
         'primaryContactInfo' => @data['primary_contact_info'],
         'hasApplicantOver65' => @data['has_applicant_over65'].to_s,
         'primaryContactEmail' => @data.dig('primary_contact_info', 'email').to_s
+        # add individual properties for each applicant in the applicants array:
       }.merge(add_applicant_properties)
     end
 
