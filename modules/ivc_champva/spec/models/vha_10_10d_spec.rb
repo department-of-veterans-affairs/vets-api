@@ -146,4 +146,60 @@ RSpec.describe IvcChampva::VHA1010d do
       end
     end
   end
+
+  describe '#add_applicant_properties' do
+    context 'when applicants array is present' do
+      let(:applicant_data) do
+        data.merge(
+          'applicants' => [
+            { 'applicant_ssn' => '123456789', 'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
+              'applicant_dob' => '1980-01-01' },
+            { 'applicant_ssn' => '987654321', 'applicant_name' => { 'first' => 'Jane', 'last' => 'Doe' },
+              'applicant_dob' => '1981-02-02' }
+          ]
+        )
+      end
+
+      let(:vha1010d_applicants) { described_class.new(applicant_data) }
+
+      it 'returns an object with a key for each applicant' do
+        res = vha1010d_applicants.add_applicant_properties
+        expect(res.keys.include?('applicant_0')).to be(true)
+        expect(res.keys.include?('applicant_1')).to be(true)
+        expect(res['applicant_0']['applicant_name']['first'].to_s).to eq('John')
+      end
+    end
+
+    context 'when applicants array is empty' do
+      let(:applicant_data) do
+        data.merge(
+          'applicants' => []
+        )
+      end
+
+      let(:vha1010d_applicants) { described_class.new(applicant_data) }
+
+      it 'returns an empty object' do
+        json_result = vha1010d.add_applicant_properties
+        expect(json_result.empty?).to be(true)
+      end
+    end
+
+    context 'when applicants have wrong properties' do
+      let(:applicant_data) do
+        data.merge(
+          'applicants' => [
+            { 'malformed' => '123456789' }
+          ]
+        )
+      end
+
+      let(:vha1010d_applicants) { described_class.new(applicant_data) }
+
+      it 'returns an empty object' do
+        json_result = vha1010d.add_applicant_properties
+        expect(json_result.empty?).to be(true)
+      end
+    end
+  end
 end

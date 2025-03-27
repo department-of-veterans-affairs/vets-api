@@ -100,6 +100,14 @@ RSpec.describe FormProfile, type: :model do
     }
   end
   let(:v0873_expected) do
+    user_work_phone = user.vet360_contact_info.work_phone
+    work_phone = [
+      user_work_phone.country_code,
+      user_work_phone.area_code,
+      user_work_phone.phone_number,
+      user_work_phone.extension
+    ].compact.join
+
     {
       'personalInformation' => {
         'first' => user.first_name&.capitalize,
@@ -114,7 +122,8 @@ RSpec.describe FormProfile, type: :model do
       'contactInformation' => {
         'email' => user.va_profile_email,
         'phone' => us_phone,
-        'address' => address
+        'address' => address,
+        'workPhone' => work_phone
       },
       'avaProfile' => {
         'schoolInfo' => {
