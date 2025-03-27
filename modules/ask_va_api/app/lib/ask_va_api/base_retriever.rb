@@ -16,11 +16,6 @@ module AskVAApi
 
       entity_class.new(data)
     rescue => e
-      if e.message.include?('"Message":"Data Validation: No Contact found by ICN"') &&
-         e.instance_of?(AskVAApi::Inquiries::InquiriesRetrieverError)
-        return []
-      end
-
       ::ErrorHandler.handle_service_error(e)
     end
 
