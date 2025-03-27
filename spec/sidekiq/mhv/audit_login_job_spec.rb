@@ -36,7 +36,6 @@ RSpec.describe MHV::AuditLoginJob do
       end
     end
 
-    # Add test for actual functionality that matches what was expected in the removed tests
     it 'posts an audit log when not logged in' do
       VCR.use_cassette('mhv_logging_client/audits/submits_an_audit_log_for_signing_in') do
         expect(authenticated_client).to receive(:authenticate)

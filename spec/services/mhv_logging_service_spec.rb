@@ -18,10 +18,8 @@ RSpec.describe MHVLoggingService do
   end
 
   before do
-    # Setup Sidekiq test mode
     Sidekiq::Testing.fake!
 
-    # Set up authenticated client stubbing
     allow(MHVLogging::Client).to receive(:new).and_return(authenticated_client)
     allow(authenticated_client).to receive(:authenticate).and_return(authenticated_client)
     allow(authenticated_client).to receive(:auditlogin)
@@ -149,7 +147,6 @@ RSpec.describe MHVLoggingService do
     end
 
     it 'handles logout correctly with delegate users' do
-      # Set up signed-in time
       allow(primary_user).to receive(:mhv_last_signed_in).and_return(Time.current)
 
       expect(primary_user).to receive(:mhv_last_signed_in=).with(nil)
