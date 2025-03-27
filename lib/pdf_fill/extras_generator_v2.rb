@@ -99,7 +99,6 @@ module PdfFill
           write_header_submit_date(pdf, location, bound_width, HEADER_FONT_SIZE)
         end
         pdf.pad_top(2) { pdf.stroke_horizontal_rule }
-        pdf.stroke_horizontal_rule
       end
     end
 
