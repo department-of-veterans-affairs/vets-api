@@ -7,8 +7,13 @@ module ClaimsApi
     sidekiq_options retry: 14
 
     LOG_TAG = 'va_notify_follow_up_job'
-    NON_RETRY_STATUSES = %w[delivered preferences-declined permanent-failure].freeze
-    RETRY_STATUSES = %w[sent technical-failure temporary-failure].freeze
+    NON_RETRY_STATUSES = %w[cancelled delivered permanent-failure validation-failed].freeze
+    RETRY_STATUSES = %w[created failed pending sending sent temporary-failure].freeze
+    NOTIFY_STATUS_DICTIONARY = {
+      IN_PROGRESS: %w[created pending sending sent temporary-failure],
+      SUCCESS: ['delivered'],
+      FAILED: %w[cancelled failed permanent-failure validation-failed]
+    }.freeze
 
     sidekiq_retries_exhausted do |message|
       msg = "Retries exhausted. #{message['error_message']}"
@@ -19,9 +24,16 @@ module ClaimsApi
       slack_client.notify(msg)
     end
 
-    def perform(notification_id)
+    def perform(notification_id, poa_id)
       status = notification_response_status(notification_id)
       detail = "Status for notification #{notification_id} was '#{status}'"
+
+      # Call logic to map VANotify status to our internal step status
+      step_status = map_notify_status(status)
+      # Update the POA process step with latest status
+      poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+      process = ClaimsApi::Process.find_or_create_by(processable: poa, step_type: 'CLAIMANT_NOTIFICATION')
+      process.update!(step_status:, error_messages: [], completed_at: Time.zone.now)
 
       handle_failure(detail) if status == 'permanent-failure'
 
@@ -51,6 +63,14 @@ module ClaimsApi
     def notification_response_status(notification_id)
       res = client.get(notification_id.to_s)&.body
       res[:status]
+    end
+
+    def map_notify_status(vanotify_status)
+      status = ''
+      NOTIFY_STATUS_DICTIONARY.each do |key, value|
+        status = key.to_s if value.include?(vanotify_status.to_s)
+      end
+      status
     end
 
     def client
