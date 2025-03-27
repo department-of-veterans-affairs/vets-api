@@ -8,6 +8,7 @@ describe PagerDuty::MaintenanceClient do
 
   before(:all) do
     VCR.turn_off!
+    VCR.eject_cassette if VCR.current_cassette
   end
 
   after(:all) do
