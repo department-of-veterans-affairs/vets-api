@@ -148,7 +148,7 @@ RSpec.describe IvcChampva::VHA1010d do
   end
 
   describe '#add_applicant_properties' do
-    context 'when applicants array is small' do
+    context 'when applicants array is present' do
       let(:applicant_data) do
         data.merge(
           'applicants' => [
