@@ -216,6 +216,61 @@
       "ownedPortionValueOverflow": 12345.67
     }
   ],
+  "assetTransfers": [
+    {
+      "fairMarketValue": 1000000,
+      "saleValue": 8234567.89,
+      "capitalGainValue": 7234567.89,
+      "assetTransferredUnderFairMarketValue": false,
+      "transferDate": "1992-01-01",
+      "newOwnerName": {
+        "first": "John",
+        "last": "Doe",
+        "suffix": "Jr."
+      },
+      "newOwnerRelationship": "Sibling",
+      "saleReportedToIrs": true,
+      "transferMethod": "OTHER",
+      "otherTransferMethod": "Earned",
+      "assetType": "Clothes",
+      "originalOwnerRelationship": "OTHER",
+      "otherOriginalOwnerRelationshipType": "Cousin"
+    },
+    {
+      "fairMarketValue": 123.12,
+      "saleValue": 100,
+      "capitalGainValue": 0,
+      "assetTransferredUnderFairMarketValue": true,
+      "transferDate": "1993-02-02",
+      "newOwnerName": {
+        "first": "Jacob",
+        "last": "Doe",
+        "suffix": "Sr."
+      },
+      "newOwnerRelationship": "Aunt",
+      "saleReportedToIrs": false,
+      "transferMethod": "GIFTED",
+      "assetType": "Artwork",
+      "originalOwnerRelationship": "CHILD"
+    },
+    {
+      "fairMarketValue": 1800.99,
+      "saleValue": 2000,
+      "capitalGainValue": 200.99,
+      "assetTransferredUnderFairMarketValue": false,
+      "transferDate": "1995-05-12",
+      "newOwnerName": {
+        "first": "John",
+        "last": "Doe",
+        "suffix": "Jr."
+      },
+      "newOwnerRelationship": "Brother",
+      "saleReportedToIrs": true,
+      "transferMethod": "TRADED",
+      "assetType": "Bike",
+      "originalOwnerRelationship": "PARENT"
+    }
+  ],
   "unassociatedIncome": "YES",
   "associatedIncome": 0,
   "ownedAsset": 0
