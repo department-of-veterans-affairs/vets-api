@@ -36,8 +36,45 @@ module IvcChampva
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info'],
         'hasApplicantOver65' => @data['has_applicant_over65'].to_s,
-        'primaryContactEmail' => @data.dig('primary_contact_info', 'email').to_s
+        'primaryContactEmail' => @data.dig('primary_contact_info', 'email').to_s,
+        'applicants' => build_applicants_meta_json
       }
+    end
+
+    ##
+    # Creates a JSON object of applicants to be included with the metadata,
+    # ensuring the string does not exceed 1024 bytes in size.
+    # - Only includes SSN, name, and date of birth for each applicant
+    # - Only includes as many applicants as will fit in a 1024 byte string
+    #
+    # @return a stringified JSON array containing applicant objects
+    def build_applicants_meta_json
+      applicants = Marshal.load(Marshal.dump(@data['applicants']))
+      return '[]'.to_json if applicants.blank?
+
+      # Attempt to build JSON and ensure it fits within the 1024-byte limit
+      while applicants.any?
+        json_result = jsonify_applicants_array(applicants)
+        return json_result if json_result.bytesize < 1024
+
+        # If the JSON exceeds the limit, remove the last applicant and retry
+        applicants.pop
+      end
+
+      # If no valid result found within the byte limit, return an empty obj
+      '[]'.to_json
+    end
+
+    ##
+    # Returns the passed in array of applicants as stringified JSON but with
+    # only the specified keys still in place for each applicant.
+    #
+    # @return a stringified JSON array containing applicant objects
+    def jsonify_applicants_array(arr)
+      arr.map do |applicant|
+        # Select only the necessary attributes and symbolize keys
+        applicant.symbolize_keys.slice(:applicant_ssn, :applicant_name, :applicant_dob)
+      end.to_json
     end
 
     def desired_stamps
