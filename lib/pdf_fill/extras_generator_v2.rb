@@ -12,10 +12,17 @@ module PdfFill
       @submit_date = submit_date
       @start_page = start_page
       @sections = sections
+      @questions = {}
     end
 
-    def create_block(value, metadata)
-      lambda do |pdf|
+    def render_question(pdf, question)
+      sorted_subquestions = question[:subquestions].sort_by do |subq|
+        metadata = subq[:metadata]
+        [metadata[:i] || 99_999, metadata[:question_suffix] || '', metadata[:question_text] || '']
+      end
+      sorted_subquestions.each do |subq|
+        value = subq[:value]
+        metadata = subq[:metadata]
         pdf.move_down(10)
         prefix = metadata[:question_num].to_s
         prefix += metadata[:question_suffix] if metadata[:question_suffix].present?
@@ -29,35 +36,23 @@ module PdfFill
     end
 
     def add_text(value, metadata)
-      @generate_blocks << {
-        metadata:,
-        block: create_block(value, metadata)
-      }
+      question_num = metadata[:question_num]
+      question = (@questions[question_num] ||= { subquestions: [], overflow: false })
+      question[:subquestions] << { value:, metadata: }
+      question[:overflow] ||= metadata.fetch(:overflow, true)
     end
 
     def populate_section_indices!
       return if @sections.blank?
 
-      @generate_blocks.each do |generate_block|
-        metadata = generate_block[:metadata]
-        if metadata[:top_level_key].present?
-          metadata[:section_index] = @sections.index { |sec| sec[:top_level_keys].include?(metadata[:top_level_key]) }
-        end
+      @questions.each do |num, question|
+        question[:section_index] = @sections.index { |sec| sec[:question_nums].include?(num) }
       end
     end
 
     def sort_generate_blocks
       populate_section_indices!
-      @generate_blocks.sort_by do |generate_block|
-        metadata = generate_block[:metadata]
-        [
-          metadata[:section_index] || -1,
-          metadata[:question_num] || -1,
-          metadata[:i] || 99_999,
-          metadata[:question_suffix] || '',
-          metadata[:question_text] || ''
-        ]
-      end
+      @questions.keys.sort.map { |qnum| @questions[qnum] }.filter { |question| question[:overflow] }
     end
 
     def render_pdf_content(pdf, generate_blocks)
@@ -71,12 +66,12 @@ module PdfFill
         height: pdf.bounds.height - box_height
       ) do
         generate_blocks.each do |block|
-          section_index = block[:metadata][:section_index]
+          section_index = block[:section_index]
           if section_index.present? && section_index != current_section_index
             render_new_section(pdf, section_index)
             current_section_index = section_index
           end
-          block[:block].call(pdf)
+          render_question(pdf, block)
         end
       end
       add_footer(pdf)
