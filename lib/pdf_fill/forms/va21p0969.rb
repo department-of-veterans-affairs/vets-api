@@ -324,8 +324,8 @@ module PdfFill
           'otherOriginalOwnerRelationshipType' => {
             key: "F[0].OtherRelationship7[#{ITERATOR}]",
             question_num: 7,
-            question_suffix: '(2)',
-            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN"
+            question_suffix: '(1)',
+            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN (OTHER)"
           },
           'transferMethod' => {
             key: "F[0].HowAssetTransferred[#{ITERATOR}]"
@@ -339,7 +339,7 @@ module PdfFill
             key: "F[0].OtherRelationship7[#{ITERATOR}]",
             question_num: 7,
             question_suffix: '(2)',
-            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED'
+            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED (OTHER)'
           },
           'assetType' => {
             key: "F[0].WhatAssetWasTransferred[#{ITERATOR}]"
