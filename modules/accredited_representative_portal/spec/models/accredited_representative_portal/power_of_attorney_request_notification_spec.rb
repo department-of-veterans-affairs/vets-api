@@ -188,8 +188,9 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
 
     context 'when accredited_individual and accredited_organization are present' do
       it 'returns the full name of the individual and the name of the organization' do
-        poa_request = create(:power_of_attorney_request, accredited_individual_registration_number: representative.representative_id,
-                                                         power_of_attorney_holder_poa_code: organization.poa)
+        poa_request = create(:power_of_attorney_request,
+                             accredited_individual_registration_number: representative.representative_id)
+        poa_request.power_of_attorney_holder_poa_code = organization.poa
         notification = create(:power_of_attorney_request_notification, power_of_attorney_request: poa_request)
         expect(notification.representative_name).to eq(
           "#{notification.accredited_individual.full_name.strip} accredited with #{notification.accredited_organization.name.strip}"
@@ -199,6 +200,10 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
 
     context 'when accredited_individual is present' do
       it 'returns the full name of the individual' do
+        poa_request = create(:power_of_attorney_request,
+                             accredited_individual_registration_number: representative.representative_id)
+        notification = create(:power_of_attorney_request_notification,
+                              power_of_attorney_request: poa_request)
         expect(notification.representative_name).to eq(notification.accredited_individual.full_name.strip)
       end
     end
