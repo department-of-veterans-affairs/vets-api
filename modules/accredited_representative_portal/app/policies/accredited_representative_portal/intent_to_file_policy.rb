@@ -18,19 +18,15 @@ module AccreditedRepresentativePortal
       @service ||= ::BenefitsClaims::Service.new(@record)
     end
 
-    def pilot_user_email_poa_codes
-      Settings
-        .accredited_representative_portal
-        .pilot_user_email_poa_codes.to_h
-        .stringify_keys!
-    end
-
     def authorize
       return false unless @user
 
       poa_code_response = service.get_power_of_attorney
-      vet_poa_codes = Set.new(Array(poa_code_response.dig('data', 'attributes', 'code')))
-      Set.new(pilot_user_email_poa_codes[@user.email]).intersect? vet_poa_codes
+      claimant_poa_code = poa_code_response.dig('data', 'attributes', 'code')
+
+      return false if claimant_poa_code.blank?
+
+      @user.user_account.active_power_of_attorney_holders.map(&:poa_code).include? claimant_poa_code
     end
   end
 end

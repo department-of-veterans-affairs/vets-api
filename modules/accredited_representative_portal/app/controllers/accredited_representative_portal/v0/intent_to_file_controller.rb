@@ -6,8 +6,8 @@ module AccreditedRepresentativePortal
       INTENT_TO_FILE_TYPES = %w[compensation pension survivor].freeze
 
       before_action :check_feature_toggle
-      before_action :validate_file_type, only: %i[show create]
       before_action :validate_poa_code, only: %i[show create]
+      before_action :validate_file_type, only: %i[show create]
 
       def show
         parsed_response = service.get_intent_to_file(params[:type])
