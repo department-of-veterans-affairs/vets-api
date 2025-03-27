@@ -3,7 +3,7 @@
 require 'accredited_representation/constants'
 
 class AccreditedIndividual < ApplicationRecord
-  # Represents an accredited individual (attorney, claims agent, representative) as defined by he OGC accreditation
+  # Represents an accredited individual (attorney, claims agent, representative) as defined by the OGC accreditation
   # APIs. Until a form of soft deletion is implemented, these records will only reflect individuals with active
   # accreditation.
   #
