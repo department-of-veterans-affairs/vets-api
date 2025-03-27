@@ -8,8 +8,8 @@ module RetriableConcern
   def with_retries(block_name, tries: 3, base_interval: 1, &block)
     attempts = 0
 
-    result = Retriable.retriable(tries:, base_interval:) do
-      attempts += 1
+    result = Retriable.retriable(tries:, base_interval:) do |attempt|
+      attempts = attempt
       Rails.logger.warn("Retrying #{block_name} (Attempt #{attempts}/#{tries})") if attempts > 1
       block.call
     end
