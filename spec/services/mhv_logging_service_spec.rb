@@ -4,18 +4,17 @@ require 'rails_helper'
 require 'support/rx_client_helpers'
 
 RSpec.describe MHVLoggingService do
-  let(:mhv_user) do
-    instance_double(User, uuid: 'user-uuid', mhv_correlation_id: '12345', mhv_last_signed_in: nil, loa3?: true,
-                          user_account:)
+  let(:mhv_correlation_id) { '12345' }
+  let(:user) do
+    instance_double(User,
+                    uuid: 'user-uuid',
+                    mhv_correlation_id:,
+                    mhv_last_signed_in: nil,
+                    loa3?: true)
   end
-  let(:user_account) { instance_double(UserAccount, id: 1) }
-  let(:login_service) { described_class.login(mhv_user) }
-  let(:logout_service) { described_class.logout(mhv_user) }
 
   let(:authenticated_client) do
-    MHVLogging::Client.new(session: { user_id: mhv_user.mhv_correlation_id,
-                                      expires_at: Time.current + (60 * 60),
-                                      token: '<SESSION_TOKEN>' })
+    MHVLogging::Client.new(session: { user_id: mhv_correlation_id })
   end
 
   before do
@@ -24,12 +23,9 @@ RSpec.describe MHVLoggingService do
 
     # Set up authenticated client stubbing
     allow(MHVLogging::Client).to receive(:new).and_return(authenticated_client)
-
-    # Create a double for the authenticate method
-    auth_object = double('authenticate')
-    allow(authenticated_client).to receive(:authenticate).and_return(auth_object)
-    allow(auth_object).to receive(:auditlogin)
-    allow(auth_object).to receive(:auditlogout)
+    allow(authenticated_client).to receive(:authenticate).and_return(authenticated_client)
+    allow(authenticated_client).to receive(:auditlogin)
+    allow(authenticated_client).to receive(:auditlogout)
   end
 
   after do
@@ -37,57 +33,84 @@ RSpec.describe MHVLoggingService do
     Sidekiq::Worker.clear_all
   end
 
-  context 'with current_user not having logged in to MHV' do
-    it 'enqueues an audit login job when not logged in' do
-      expect(mhv_user.mhv_last_signed_in).to be_nil
+  describe '.login' do
+    context 'with valid user' do
+      before do
+        allow(user).to receive(:save).and_return(true)
+        allow(user).to receive(:mhv_last_signed_in=)
+      end
 
-      expect { login_service }.to change(MHV::AuditLoginJob.jobs, :size).by(1)
-      expect(login_service).to be(true)
+      it 'enqueues login job and updates user' do
+        expect(user).to receive(:mhv_last_signed_in=) do |time|
+          expect(time).to be_a(ActiveSupport::TimeWithZone)
+        end
+        expect(user).to receive(:save)
 
-      job_args = MHV::AuditLoginJob.jobs.last['args']
-      expect(job_args[0]).to eq(mhv_user.mhv_correlation_id)
-      expect(job_args[1]).to eq(mhv_user.mhv_last_signed_in)
-      expect(job_args[2]).to eq(mhv_user.user_account.id)
+        expect { described_class.login(user) }.to change(MHV::AuditLoginJob.jobs, :size).by(1)
+
+        job = MHV::AuditLoginJob.jobs.last
+        expect(job['args']).to eq([mhv_correlation_id])
+      end
     end
 
-    it 'does not enqueue a logout job when not logged in' do
-      expect(mhv_user.mhv_last_signed_in).to be_nil
+    context 'with already logged in user' do
+      let(:user) do
+        instance_double(User,
+                        uuid: 'user-uuid',
+                        mhv_correlation_id:,
+                        mhv_last_signed_in: Time.current,
+                        loa3?: true)
+      end
 
-      expect { logout_service }.not_to change(MHV::AuditLogoutJob.jobs, :size)
-      expect(logout_service).to be(false)
+      it 'does not enqueue job or update user' do
+        expect(user).not_to receive(:mhv_last_signed_in=)
+        expect(user).not_to receive(:save)
+
+        expect { described_class.login(user) }.not_to change(MHV::AuditLoginJob.jobs, :size)
+      end
     end
   end
 
-  context 'with current_user having already logged in to MHV' do
+  describe '.logout' do
     let(:signed_in_time) { Time.current }
-    let(:mhv_user) do
-      instance_double(
-        User,
-        uuid: 'user-uuid',
-        mhv_correlation_id: '12345',
-        mhv_last_signed_in: signed_in_time,
-        loa3?: true,
-        user_account:
-      )
+    let(:user) do
+      instance_double(User,
+                      uuid: 'user-uuid',
+                      mhv_correlation_id:,
+                      mhv_last_signed_in: signed_in_time)
     end
 
-    it 'does not enqueue login job when already logged in' do
-      expect(mhv_user.mhv_last_signed_in).to eq(signed_in_time)
+    context 'with signed in user' do
+      before do
+        allow(user).to receive(:save).and_return(true)
+        allow(user).to receive(:mhv_last_signed_in=)
+      end
 
-      expect { login_service }.not_to change(MHV::AuditLoginJob.jobs, :size)
-      expect(login_service).to be(false)
+      it 'enqueues logout job and updates user' do
+        expect(user).to receive(:mhv_last_signed_in=).with(nil)
+        expect(user).to receive(:save)
+
+        expect { described_class.logout(user) }.to change(MHV::AuditLogoutJob.jobs, :size).by(1)
+
+        job = MHV::AuditLogoutJob.jobs.last
+        expect(job['args']).to eq([mhv_correlation_id, signed_in_time.iso8601])
+      end
     end
 
-    it 'enqueues an audit logout job when logged in' do
-      expect(mhv_user.mhv_last_signed_in).to eq(signed_in_time)
+    context 'with already logged out user' do
+      let(:user) do
+        instance_double(User,
+                        uuid: 'user-uuid',
+                        mhv_correlation_id:,
+                        mhv_last_signed_in: nil)
+      end
 
-      expect { logout_service }.to change(MHV::AuditLogoutJob.jobs, :size).by(1)
-      expect(logout_service).to be(true)
+      it 'does not enqueue job or update user' do
+        expect(user).not_to receive(:mhv_last_signed_in=)
+        expect(user).not_to receive(:save)
 
-      job_args = MHV::AuditLogoutJob.jobs.last['args']
-      expect(job_args[0]).to eq(mhv_user.mhv_correlation_id)
-      expect(job_args[1]).to eq(signed_in_time.iso8601)
-      expect(job_args[2]).to eq(mhv_user.user_account.id)
+        expect { described_class.logout(user) }.not_to change(MHV::AuditLogoutJob.jobs, :size)
+      end
     end
   end
 
@@ -95,34 +118,48 @@ RSpec.describe MHVLoggingService do
     let(:mhv_correlation_id) { '12345' }
     let(:user_uuid1) { 'user1-uuid' }
     let(:user_uuid2) { 'user2-uuid' }
-    let(:delegate_user) do
-      instance_double(User, uuid: user_uuid2, mhv_correlation_id:, mhv_last_signed_in: nil, loa3?: true)
-    end
     let(:primary_user) do
-      instance_double(User, uuid: user_uuid1, mhv_correlation_id:, mhv_last_signed_in: nil, loa3?: true, user_account:)
+      instance_double(User,
+                      uuid: user_uuid1,
+                      mhv_correlation_id:,
+                      mhv_last_signed_in: nil,
+                      loa3?: true)
     end
-    let(:login_service) { described_class.login(primary_user) }
-    let(:logout_service) { described_class.logout(primary_user) }
+    let(:delegate_user) do
+      instance_double(User,
+                      uuid: user_uuid2,
+                      mhv_correlation_id:,
+                      mhv_last_signed_in: nil,
+                      loa3?: true)
+    end
 
-    it 'passes the correct parameters to AuditLoginJob' do
-      expect { login_service }.to change(MHV::AuditLoginJob.jobs, :size).by(1)
+    before do
+      allow(primary_user).to receive(:save).and_return(true)
+      allow(primary_user).to receive(:mhv_last_signed_in=)
+    end
+
+    it 'handles login correctly with delegate users' do
+      expect(primary_user).to receive(:mhv_last_signed_in=)
+      expect(primary_user).to receive(:save)
+
+      expect { described_class.login(primary_user) }.to change(MHV::AuditLoginJob.jobs, :size).by(1)
 
       job_args = MHV::AuditLoginJob.jobs.last['args']
       expect(job_args[0]).to eq(mhv_correlation_id)
-      expect(job_args[1]).to be_nil
-      expect(job_args[2]).to eq(user_account.id)
     end
 
-    it 'passes the correct parameters to AuditLogoutJob' do
+    it 'handles logout correctly with delegate users' do
       # Set up signed-in time
       allow(primary_user).to receive(:mhv_last_signed_in).and_return(Time.current)
 
-      expect { logout_service }.to change(MHV::AuditLogoutJob.jobs, :size).by(1)
+      expect(primary_user).to receive(:mhv_last_signed_in=).with(nil)
+      expect(primary_user).to receive(:save)
+
+      expect { described_class.logout(primary_user) }.to change(MHV::AuditLogoutJob.jobs, :size).by(1)
 
       job_args = MHV::AuditLogoutJob.jobs.last['args']
       expect(job_args[0]).to eq(mhv_correlation_id)
       expect(job_args[1]).to eq(primary_user.mhv_last_signed_in.iso8601)
-      expect(job_args[2]).to eq(user_account.id)
     end
   end
 end
