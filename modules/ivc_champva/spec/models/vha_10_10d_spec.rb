@@ -147,7 +147,7 @@ RSpec.describe IvcChampva::VHA1010d do
     end
   end
 
-  describe '#build_applicants_meta_json' do
+  describe '#add_applicant_properties' do
     context 'when applicants array is small' do
       let(:applicant_data) do
         data.merge(
@@ -162,10 +162,11 @@ RSpec.describe IvcChampva::VHA1010d do
 
       let(:vha1010d_applicants) { described_class.new(applicant_data) }
 
-      it 'returns a valid JSON string within the 1024 byte limit' do
-        json_result = vha1010d_applicants.build_applicants_meta_json
-        expect(json_result.bytesize).to be < 1024
-        expect { JSON.parse(json_result) }.not_to raise_error
+      it 'returns an object with a key for each applicant' do
+        res = vha1010d_applicants.add_applicant_properties
+        expect(res.keys.include?('applicant_0')).to be(true)
+        expect(res.keys.include?('applicant_1')).to be(true)
+        expect(res['applicant_0']['applicant_name']['first'].to_s).to eq('John')
       end
     end
 
@@ -178,31 +179,9 @@ RSpec.describe IvcChampva::VHA1010d do
 
       let(:vha1010d_applicants) { described_class.new(applicant_data) }
 
-      it 'returns an empty JSON array when no applicants are provided' do
-        applicant_data['applicants'] = []
-        json_result = vha1010d.build_applicants_meta_json
-        expect(json_result).to eq('"[]"')
-      end
-    end
-
-    context 'when applicants array is large' do
-      let(:applicant_data) do
-        data.merge(
-          'applicants' => Array.new(25) do |i|
-            { 'applicant_ssn' => '123456789', 'applicant_name' => { 'first' => i.to_s, 'last' => 'Doe' },
-              'applicant_dob' => '1980-01-01' }
-          end
-        )
-      end
-
-      let(:vha1010d_applicants) { described_class.new(applicant_data) }
-
-      it 'returns a valid JSON string within the 1024 byte limit' do
-        expect(vha1010d_applicants.data['applicants'].to_json.bytesize).to be > 1024
-
-        json_result = vha1010d_applicants.build_applicants_meta_json
-        expect(json_result.bytesize).to be < 1024
-        expect { JSON.parse(json_result) }.not_to raise_error
+      it 'returns an empty object' do
+        json_result = vha1010d.add_applicant_properties
+        expect(json_result.empty?).to be(true)
       end
     end
   end
