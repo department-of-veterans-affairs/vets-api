@@ -464,6 +464,16 @@ RSpec.describe HealthCareApplication, type: :model do
           end.to raise_error(Common::Exceptions::ValidationErrors)
         end.to trigger_statsd_increment("#{statsd_key_prefix}.validation_error")
       end
+
+      it 'does not send "received" event' do
+        allow(HCA::EventBusSubmissionJob).to receive(:perform_async)
+
+        expect do
+          described_class.new(form: {}.to_json).process!
+        end.to raise_error(Common::Exceptions::ValidationErrors)
+
+        expect(HCA::EventBusSubmissionJob).not_to have_received(:perform_async)
+      end
     end
 
     def self.expect_job_submission(job)
@@ -488,6 +498,12 @@ RSpec.describe HealthCareApplication, type: :model do
 
     context 'with an email' do
       expect_job_submission(HCA::SubmissionJob)
+
+      it 'sends the "received" event' do
+        expect(health_care_application).to receive(:build_event_payload).with('received').once
+        expect(HCA::EventBusSubmissionJob).to receive(:perform_async)
+        health_care_application.process!
+      end
     end
 
     context 'with no email' do
@@ -512,6 +528,20 @@ RSpec.describe HealthCareApplication, type: :model do
 
         it 'successfully submits synchronously' do
           expect(health_care_application.process!).to eq(success_result)
+        end
+
+        it 'saves the HCA record' do
+          health_care_application.process!
+          health_care_application.reload
+          expect(health_care_application.id).not_to be_nil
+          expect(health_care_application.state).to eq('success')
+        end
+
+        it 'sends the "received", and "sent" event' do
+          expect(health_care_application).to receive(:build_event_payload).with('received').once
+          expect(health_care_application).to receive(:build_event_payload).with('sent', '123').once
+          expect(HCA::EventBusSubmissionJob).to receive(:perform_async).twice
+          health_care_application.process!
         end
       end
 
