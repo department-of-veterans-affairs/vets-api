@@ -172,7 +172,8 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
     let(:notification) { create(:power_of_attorney_request_notification) }
 
     it 'returns the submit date' do
-      expect(notification.submit_date).to eq(Time.zone.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'))
+      time_zone = 'Eastern Time (US & Canada)'
+      expect(notification.submit_date).to eq(Time.zone.now.in_time_zone(time_zone).strftime('%B %d, %Y'))
     end
 
     it 'returns the expiration date' do
