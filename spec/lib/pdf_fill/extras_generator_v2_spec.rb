@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'pdf_fill/extras_generator_v2'
-require 'prawn/markup'
 
 describe PdfFill::ExtrasGeneratorV2 do
   subject { described_class.new(sections:) }
@@ -88,7 +87,6 @@ describe PdfFill::ExtrasGeneratorV2 do
     before do
       allow(pdf).to receive(:repeat).and_yield
       allow(pdf).to receive(:bounding_box).and_yield
-      # allow(pdf).to receive(:text)
       allow(pdf).to receive(:markup)
       allow(pdf).to receive(:pad_top).and_yield
       allow(pdf).to receive(:stroke_horizontal_rule)
