@@ -6,7 +6,7 @@ module AccreditedRepresentativePortal
       INTENT_TO_FILE_TYPES = %w[compensation pension survivor].freeze
 
       before_action :check_feature_toggle
-      before_action :validate_poa_code, only: %i[show create]
+      before_action { authorize params[:id], policy_class: IntentToFilePolicy }
       before_action :validate_file_type, only: %i[show create]
 
       def show
@@ -42,10 +42,6 @@ module AccreditedRepresentativePortal
         end
       end
 
-      def validate_poa_code
-        authorize params[:id], policy_class: IntentToFilePolicy
-      end
-
       def service
         @service ||= BenefitsClaims::Service.new(params[:id])
       end
@@ -57,13 +53,6 @@ module AccreditedRepresentativePortal
             Must be one of (#{INTENT_TO_FILE_TYPES.join(', ')})
           MSG
         end
-      end
-
-      def pilot_user_email_poa_codes
-        Settings
-          .accredited_representative_portal
-          .pilot_user_email_poa_codes.to_h
-          .stringify_keys!
       end
     end
   end

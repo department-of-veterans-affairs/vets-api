@@ -4,9 +4,8 @@ require 'rails_helper'
 
 module AccreditedRepresentativePortal
   RSpec.describe IntentToFilePolicy, type: :policy do
-    subject(:policy) { described_class.new(user, claimant_icn) }
+    subject(:policy) { described_class.new(user, '123498767V234859') }
 
-    let(:claimant_icn) { '123498767V234859' }
     let(:user) { create(:representative_user) }
     let(:power_of_attorney_holders) { [] }
 

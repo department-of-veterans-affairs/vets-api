@@ -14,14 +14,10 @@ module AccreditedRepresentativePortal
 
     private
 
-    def service
-      @service ||= ::BenefitsClaims::Service.new(@record)
-    end
-
     def authorize
       return false unless @user
 
-      poa_code_response = service.get_power_of_attorney
+      poa_code_response = BenefitsClaims::Service.new(@record).get_power_of_attorney
       claimant_poa_code = poa_code_response.dig('data', 'attributes', 'code')
 
       return false if claimant_poa_code.blank?

@@ -24,12 +24,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
            poa_codes: [poa_code])
   end
 
-  let(:time) { '2024-12-21T04:45:37.458Z' }
-
   before do
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
     login_as(test_user)
-    travel_to(time)
   end
 
   around do |example|
