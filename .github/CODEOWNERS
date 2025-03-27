@@ -23,6 +23,7 @@ Rakefile @department-of-veterans-affairs/backend-review-group
 README.md @department-of-veterans-affairs/backend-review-group
 .devcontainer @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
 import-va-certs.sh @department-of-veterans-affairs/backend-review-group
+app/concerns/retriable_concern.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/appeals_base_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/application_controller.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
 app/controllers/bb_controller.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1131,6 +1132,7 @@ rakelib/test_user_account.rake @department-of-veterans-affairs/octo-identity
 rakelib/vbms.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 script @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/concerns/form_attachment_create_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/concerns/retriable_concern_spec.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/concerns/traceable_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/config/initializers/staccato_spec.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/application_controller_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity

@@ -1420,6 +1420,7 @@ vanotify:
   mock: <%= ENV['vanotify__mock'] %>
   service_callback_tokens:
     1010_health_apps: <%= ENV['vanotify__service_callback_tokens__1010_health_apps'] %>
+    benefits_decision_review: <%= ENV['vanotify__service_callback_tokens__benefits_decision_review'] %>
     benefits_disability: <%= ENV['vanotify__service_callback_tokens__benefits_disability'] %>
     benefits_management_tools: <%= ENV['vanotify__service_callback_tokens__benefits_management_tools'] %>
     ivc_forms: <%= ENV['vanotify__service_callback_tokens__ivc_forms'] %>
@@ -1517,7 +1518,7 @@ vanotify:
         form_10_7959f_2_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_email'] %>
         form_10_7959f_2_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_failure_email'] %>
         pega_team_missing_status_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_missing_status_email'] %>
-        pega_team_zsf_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_zsf_email'] %> 
+        pega_team_zsf_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_zsf_email'] %>
     lighthouse:
       api_key: <%= ENV['vanotify__services__lighthouse__api_key'] %>
       template_id:
