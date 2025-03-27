@@ -132,16 +132,16 @@ module Vye
       puts "\n\n*** case_eom"
 
       if last_day_of_month?
-        puts 'last day of month - continuing'
+        puts '1 last day of month - continuing'
       else
-        puts 'not last day of month - returning'
+        puts '1 not last day of month - returning'
       end
       return unless last_day_of_month?
 
       if abd_before_today? && !aed_before_today?
-        puts 'award beg date is before today && award end date is not before today - continuing'
+        puts '2 award beg date is before today && award end date is not before today - continuing'
       else
-        puts 'award beg date is not before today or award end date is not before today - returning'
+        puts '2 award beg date is not before today or award end date is not before today - returning'
       end
       return unless abd_before_today? && !aed_before_today?
 
