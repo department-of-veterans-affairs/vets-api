@@ -33,7 +33,11 @@ module ClaimsApi
       # Update the POA process step with latest status
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
       process = ClaimsApi::Process.find_or_create_by(processable: poa, step_type: 'CLAIMANT_NOTIFICATION')
-      process.update!(step_status:, error_messages: [], completed_at: Time.zone.now)
+      if step_status == 'IN_PROGRESS'
+        process.update!(step_status:, error_messages: [])
+      else
+        process.update!(step_status:, error_messages: [], completed_at: Time.zone.now)
+      end
 
       handle_failure(detail) if status == 'permanent-failure'
 
