@@ -69,7 +69,61 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(parsed_response['data'].map { |p| p['id'] }).not_to include(other_poa_request.id)
       end
 
-      describe 'a variety of POA request configurations' do
+      describe 'sorting' do
+        let!(:poa_requests) do
+          [
+            create(:power_of_attorney_request, :with_veteran_claimant,
+                   created_at: time.to_time - 2.days,
+                   poa_code:),
+            create(:power_of_attorney_request, :with_veteran_claimant,
+                   created_at: time.to_time - 1.day,
+                   poa_code:),
+            create(:power_of_attorney_request, :with_veteran_claimant,
+                   created_at: time.to_time - 3.days,
+                   poa_code:)
+          ]
+        end
+
+        it 'sorts by created_at in ascending order' do
+          get('/accredited_representative_portal/v0/power_of_attorney_requests',
+              params: { sort: { by: 'created_at', order: 'asc' } })
+
+          expect(response).to have_http_status(:ok)
+
+          # check that they're sorted by created_at in ascending order
+          ids = parsed_response.to_h['data'].map { |item| item['id'] }[0..2]
+          expect(ids).to eq([poa_requests[2].id, poa_requests[0].id, poa_requests[1].id])
+        end
+
+        it 'sorts by created_at in descending order' do
+          get('/accredited_representative_portal/v0/power_of_attorney_requests',
+              params: { sort: { by: 'created_at', order: 'desc' } })
+
+          expect(response).to have_http_status(:ok)
+
+          # check that they're sorted by created_at in descending order
+          ids = parsed_response.to_h['data'].map { |item| item['id'] }[1..3]
+          expect(ids).to eq([poa_requests[1].id, poa_requests[0].id, poa_requests[2].id])
+        end
+
+        it 'returns error for invalid sort field' do
+          get('/accredited_representative_portal/v0/power_of_attorney_requests',
+              params: { sort: { by: 'invalid_field' } })
+
+          expect(response).to have_http_status(:bad_request)
+          expect(parsed_response.to_h['errors']).to include(/Invalid parameters/)
+        end
+
+        it 'returns error for invalid sort order' do
+          get('/accredited_representative_portal/v0/power_of_attorney_requests',
+              params: { sort: { by: 'created_at', order: 'invalid' } })
+
+          expect(response).to have_http_status(:bad_request)
+          expect(parsed_response.to_h['errors']).to include(/Invalid parameters/)
+        end
+      end
+
+      describe 'a variety of poa request configurations' do
         let(:poa_requests) do
           [].tap do |memo|
             memo <<
