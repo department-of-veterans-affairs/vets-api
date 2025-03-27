@@ -19,7 +19,7 @@ describe Kafka::SchemaRegistry::Service do
     it 'appends -value to topic name in request' do
       expected_response = [1]
       expect(service).to receive(:request)
-        .with('/subjects/topic-1-value/versions', { idempotent: true })
+        .with('/ves-event-bus-infra/schema-registry/subjects/topic-1-value/versions', { idempotent: true })
         .and_return(expected_response)
 
       response = service.subject_versions(topic_name)
@@ -31,7 +31,7 @@ describe Kafka::SchemaRegistry::Service do
     it 'appends -value to topic name in request' do
       expected_response = JSON.parse(topic_1_response['schema'])
       expect(service).to receive(:request)
-        .with('/subjects/topic-1-value', any_args)
+        .with('/ves-event-bus-infra/schema-registry/subjects/topic-1-value', any_args)
         .and_return(expected_response)
 
       response = service.check(topic_name, topic_1_response['schema'])
@@ -43,7 +43,8 @@ describe Kafka::SchemaRegistry::Service do
     it 'appends -value to topic name in request' do
       expected_response = { is_compatible: false, messages: 'schema may not be empty' }
       expect(service).to receive(:request)
-        .with("/compatibility/subjects/#{topic_name}-value/versions/latest", any_args)
+        .with("/ves-event-bus-infra/schema-registry/compatibility/subjects/#{topic_name}-value/versions/latest",
+              any_args)
         .and_return(expected_response)
 
       response = service.compatible?(topic_name, {})
@@ -56,7 +57,8 @@ describe Kafka::SchemaRegistry::Service do
       expected_response = { is_compatible: false, messages: 'schema may not be empty' }
 
       expect(service).to receive(:request)
-        .with("/compatibility/subjects/#{topic_name}-value/versions/latest", any_args)
+        .with("/ves-event-bus-infra/schema-registry/compatibility/subjects/#{topic_name}-value/versions/latest",
+              any_args)
         .and_return(expected_response)
 
       response = service.compatibility_issues(topic_name, {})
@@ -70,7 +72,7 @@ describe Kafka::SchemaRegistry::Service do
         compatibility: 'FULL'
       }
       expect(service).to receive(:request)
-        .with("/config/#{topic_name}-value", any_args)
+        .with("/ves-event-bus-infra/schema-registry/config/#{topic_name}-value", any_args)
         .and_return(expected_response)
 
       response = service.subject_config(topic_name)
@@ -81,7 +83,7 @@ describe Kafka::SchemaRegistry::Service do
   describe '#subject_version' do
     it 'appends -value to topic name in request' do
       expect(service).to receive(:request)
-        .with("/subjects/#{topic_name}-value/versions/latest", any_args)
+        .with("/ves-event-bus-infra/schema-registry/subjects/#{topic_name}-value/versions/latest", any_args)
         .and_call_original
 
       VCR.use_cassette('kafka/topics') do
