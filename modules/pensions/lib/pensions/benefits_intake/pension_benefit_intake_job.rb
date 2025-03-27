@@ -40,7 +40,7 @@ module Pensions
         claim = nil
       end
 
-      if claim.present?
+      if claim.present? && Flipper.enabled?(:pension_event_bus_submission_enabled)
         user_icn = UserAccount.find_by(id: claim&.user_account_id)&.icn.to_s
 
         Kafka.submit_event(

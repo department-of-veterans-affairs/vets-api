@@ -6,7 +6,7 @@ require 'lighthouse/benefits_claims/intent_to_file/monitor'
 RSpec.describe BenefitsClaims::IntentToFile::Monitor do
   let(:monitor) { described_class.new }
   let(:itf_stats_key) { described_class::STATSD_KEY_PREFIX }
-  let(:claim) { create(:pensions_module_pension_claim) }
+  let(:claim) { create(:pensions_saved_claim) }
   let(:ipf) { create(:in_progress_form) }
 
   context 'with all params supplied' do

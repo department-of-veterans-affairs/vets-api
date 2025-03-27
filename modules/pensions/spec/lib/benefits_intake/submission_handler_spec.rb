@@ -7,7 +7,7 @@ require 'pensions/notification_email'
 
 Rspec.describe Pensions::BenefitsIntake::SubmissionHandler do
   let(:handler) { Pensions::BenefitsIntake::SubmissionHandler }
-  let(:claim) { build(:pensions_module_pension_claim) }
+  let(:claim) { build(:pensions_saved_claim) }
   let(:monitor) { double(Pensions::Monitor) }
   let(:notification) { double(Pensions::NotificationEmail) }
   let(:instance) { handler.new('fake-claim-id') }

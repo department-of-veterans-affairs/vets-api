@@ -106,7 +106,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
   end
 
   describe '#submit_traceability_to_event_bus' do
-    let(:claim) { build(:pensions_module_pension_claim) }
+    let(:claim) { build(:pensions_saved_claim) }
 
     it 'returns a success' do
       expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
