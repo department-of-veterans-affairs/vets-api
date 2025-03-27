@@ -7,8 +7,8 @@ describe PagerDuty::MaintenanceClient do
   let(:subject) { described_class.new }
 
   before(:all) do
-    VCR.turn_off!
     VCR.eject_cassette if VCR.current_cassette
+    VCR.turn_off!
   end
 
   after(:all) do
