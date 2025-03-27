@@ -25,6 +25,7 @@ production:
       statement_timeout: <%= ENV["STATEMENT_TIMEOUT"] || "60s" %>
       lock_timeout: 15s
   audit:
+    <<: *default
     url: <%= "#{IdentitySettings.audit_db.url}" %>
     migrations_paths: db/audit_migrate
-    database_tasks: false
+    database_tasks: <%= "#{IdentitySettings.audit_db.url.present?}" %>
