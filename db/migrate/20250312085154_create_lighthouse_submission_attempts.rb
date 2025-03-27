@@ -4,10 +4,10 @@ class CreateLighthouseSubmissionAttempts < ActiveRecord::Migration[7.2]
       t.timestamps
       t.references :lighthouse_submission, null: false, foreign_key: true
       t.enum :status, enum_type: 'lighthouse_submission_status', default: 'pending'
-      t.jsonb :metadata_ciphertext, comment: 'metadata sent with the submission'
-      t.jsonb :error_message_ciphertext
-      t.jsonb :response_ciphertext
-      t.datetime :lighthouse_updated_at
+      t.jsonb :metadata_ciphertext, comment: 'encrypted metadata sent with the submission'
+      t.jsonb :error_message_ciphertext, comment: 'encrypted error message from the lightouse submission'
+      t.jsonb :response_ciphertext, comment: 'encrypted response from the lightouse submission'
+      t.datetime :lighthouse_updated_at, comment: 'timestamp of the last update from lighthouse'
       t.string :benefits_intake_uuid
     end
   end

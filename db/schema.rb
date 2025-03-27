@@ -438,11 +438,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.datetime "updated_at", null: false
     t.bigint "bpds_submission_id", null: false
     t.enum "status", default: "pending", enum_type: "bpds_submission_status"
-    t.jsonb "metadata_ciphertext", comment: "metadata sent with the submission"
-    t.jsonb "error_message_ciphertext"
-    t.jsonb "response_ciphertext"
-    t.datetime "bpds_updated_at"
-    t.string "bpds_id"
+    t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
+    t.jsonb "error_message_ciphertext", comment: "encrypted error message from the bpds submission"
+    t.jsonb "response_ciphertext", comment: "encrypted response from the bpds submission"
+    t.datetime "bpds_updated_at", comment: "timestamp of the last update from bpds"
+    t.string "bpds_id", comment: "ID of the submission in BPDS"
     t.index ["bpds_submission_id"], name: "index_bpds_submission_attempts_on_bpds_submission_id"
   end
 
@@ -1099,10 +1099,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.datetime "updated_at", null: false
     t.bigint "lighthouse_submission_id", null: false
     t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
-    t.jsonb "metadata_ciphertext", comment: "metadata sent with the submission"
-    t.jsonb "error_message_ciphertext"
-    t.jsonb "response_ciphertext"
-    t.datetime "lighthouse_updated_at"
+    t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
+    t.jsonb "error_message_ciphertext", comment: "encrypted error message from the lightouse submission"
+    t.jsonb "response_ciphertext", comment: "encrypted response from the lightouse submission"
+    t.datetime "lighthouse_updated_at", comment: "timestamp of the last update from lighthouse"
     t.string "benefits_intake_uuid"
     t.index ["lighthouse_submission_id"], name: "idx_on_lighthouse_submission_id_e6e3dbad55"
   end
@@ -1112,8 +1112,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.datetime "updated_at", null: false
     t.integer "saved_claim_id", null: false, comment: "ID of the saved claim in vets-api"
     t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
-    t.string "form_id", null: false
-    t.jsonb "reference_data_ciphertext", comment: "Data that can be used to identify the resource - ie, ICN, etc"
+    t.string "form_id", null: false, comment: "form type of the submission"
+    t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
   end
 
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
