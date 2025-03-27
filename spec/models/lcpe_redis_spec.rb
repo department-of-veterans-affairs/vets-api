@@ -12,7 +12,7 @@ describe LCPERedis do
   let(:raw_response) { generate_response_double(200) }
   let(:cached_response) { GI::LCPE::Response.from(generate_response_double(200)) }
 
-  def generate_response_double(status, headers=response_headers)
+  def generate_response_double(status, headers = response_headers)
     double('FaradayResponse', body: { lacs: [] }, status:, response_headers: headers)
   end
 
