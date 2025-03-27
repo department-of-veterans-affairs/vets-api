@@ -6,16 +6,17 @@ RSpec.describe AppealSubmission, type: :model do
   describe '#get_mpi_profile' do
     subject { appeal_submission.get_mpi_profile }
 
-    let(:user) { create(:user, :with_terms_of_use_agreement, :loa3) }
-    let(:user_account) { user.user_account }
+    let(:user_account) { create(:user_account) }
+    let(:user) { create(:user, :with_terms_of_use_agreement, :loa3, icn: user_account.icn) }
     let(:mpi_profile) { build(:mpi_profile, icn: user_account.icn) }
     let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
-    let(:appeal_submission) { create(:appeal_submission, user_uuid: user.uuid, user_account: user.user_account) }
+    let(:appeal_submission) { create(:appeal_submission, user_uuid: user.uuid, user_account:) }
     let(:identifier) { user_account.icn }
     let(:identifier_type) { MPI::Constants::ICN }
 
     before do
+      allow(User).to receive(:find).with(user.uuid).and_return(user)
       allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).with(identifier:, identifier_type:)
                                                                                  .and_return(find_profile_response)
     end
@@ -39,8 +40,6 @@ RSpec.describe AppealSubmission, type: :model do
         let(:identifier) { idme_user_verification.idme_uuid }
         let(:identifier_type) { MPI::Constants::IDME_UUID }
 
-        before { user_account.user_verifications = [idme_user_verification] }
-
         it_behaves_like 'calls the MPI service with the appropriate identifier and identifier type'
       end
 
@@ -49,8 +48,6 @@ RSpec.describe AppealSubmission, type: :model do
           let(:logingov_user_verification) { create(:logingov_user_verification, user_account:) }
           let(:identifier) { logingov_user_verification.logingov_uuid }
           let(:identifier_type) { MPI::Constants::LOGINGOV_UUID }
-
-          before { user_account.user_verifications = [logingov_user_verification] }
 
           it_behaves_like 'calls the MPI service with the appropriate identifier and identifier type'
         end
@@ -64,21 +61,23 @@ RSpec.describe AppealSubmission, type: :model do
           end
 
           context 'when the User model exists in Redis & does not have an ID.me uuid' do
-            # add code to prevent User.idme_uuid from functioning
+            before { allow(user).to receive(:idme_uuid).and_return(nil) }
 
             context 'when the User model exists in Redis & has a Logingov uuid' do
-              # add Logingov uuid to User model test
+              let(:user) { create(:user, :accountable_with_logingov_uuid, icn: user_account.icn) }
+              let(:identifier) { user.logingov_uuid }
+              let(:identifier_type) { MPI::Constants::LOGINGOV_UUID }
+
+              it_behaves_like 'calls the MPI service with the appropriate identifier and identifier type'
             end
 
             context 'when the User model exists in Redis & does not have a Logingov uuid' do
-              # hopefully fixed by User.idme_uuid prevention above
+              let(:expected_error) { 'Failed to fetch MPI profile' }
 
-              # let(:find_profile_response) { nil }
-              # let(:expected_error) { 'Failed to fetch MPI profile' }
-
-              # it 'raises an error' do
-              #   expect{appeal_submission.get_mpi_profile}.to raise_error(StandardError, expected_error)
-              # end
+              it 'does not attempt to query MPI for a profile & raises an error' do
+                expect_any_instance_of(MPI::Service).not_to receive(:find_profile_by_identifier)
+                expect { subject }.to raise_error(StandardError, expected_error)
+              end
             end
           end
         end

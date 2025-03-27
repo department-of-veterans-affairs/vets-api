@@ -91,23 +91,49 @@ class AppealSubmission < ApplicationRecord
   def get_mpi_profile
     @mpi_profile ||= begin
       service = ::MPI::Service.new
-      response = nil
-      if (icn = user_account&.icn.presence)
-        response = service.find_profile_by_identifier(identifier: icn, identifier_type: MPI::Constants::ICN)&.profile
-      elsif (idme_verification = user_account&.user_verifications&.where&.not(idme_uuid: nil)&.first)
-        response = service.find_profile_by_identifier(identifier: idme_verification.idme_uuid,
-                                                      identifier_type: MPI::Constants::IDME_UUID)&.profile
-      elsif (logingov_verification = user_account&.user_verifications&.where&.not(logingov_uuid: nil)&.first)
-        response = service.find_profile_by_identifier(identifier: logingov_verification.logingov_uuid,
-                                                      identifier_type: MPI::Constants::LOGINGOV_UUID)&.profile
-      elsif (user = User.find(user_uuid))
-        response = service.find_profile_by_identifier(identifier: user.idme_uuid, identifier_type: 'idme')&.profile
-        response ||= service.find_profile_by_identifier(identifier: user.logingov_uuid,
-                                                        identifier_type: 'logingov')&.profile
-      end
+      response = fetch_profile_by_icn(service) ||
+                 fetch_profile_by_user_verification(service) ||
+                 fetch_profile_by_user(service)
       raise 'Failed to fetch MPI profile' if response.nil?
 
       response
+    end
+  end
+
+  private
+
+  def fetch_profile_by_icn(service)
+    icn = user_account&.icn.presence
+    return unless icn
+
+    service.find_profile_by_identifier(identifier: icn, identifier_type: MPI::Constants::ICN)&.profile
+  end
+
+  def fetch_profile_by_user_verification(service)
+    user_verification = user_account&.user_verifications&.where&.not(idme_uuid: nil)&.first ||
+                        user_account&.user_verifications&.where&.not(backing_idme_uuid: nil)&.first ||
+                        user_account&.user_verifications&.where&.not(logingov_uuid: nil)&.first
+    return unless user_verification
+
+    identifier_type = if user_verification.idme_uuid || user_verification.backing_idme_uuid
+                        MPI::Constants::IDME_UUID
+                      else
+                        MPI::Constants::LOGINGOV_UUID
+                      end
+    identifier = user_verification.idme_uuid || user_verification.backing_idme_uuid || user_verification.logingov_uuid
+    service.find_profile_by_identifier(identifier:, identifier_type:)&.profile
+  end
+
+  def fetch_profile_by_user(service)
+    user = User.find(user_uuid)
+    return unless user
+
+    if user.idme_uuid.present?
+      service.find_profile_by_identifier(identifier: user.idme_uuid,
+                                         identifier_type: MPI::Constants::IDME_UUID)&.profile
+    elsif user.logingov_uuid.present?
+      service.find_profile_by_identifier(identifier: user.logingov_uuid,
+                                         identifier_type: MPI::Constants::LOGINGOV_UUID)&.profile
     end
   end
 end
