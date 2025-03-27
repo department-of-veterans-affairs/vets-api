@@ -643,12 +643,22 @@ class Form526Submission < ApplicationRecord
   end
 
   def get_user_verifications
-    UserVerification.where(idme_uuid: user&.idme_uuid)
-                    .or(UserVerification.where(backing_idme_uuid: user&.idme_uuid))
-                    .or(UserVerification.where(logingov_uuid: user&.logingov_uuid))
-                    .or(UserVerification.where(mhv_uuid: user&.mhv_credential_uuid))
-                    .or(UserVerification.where(dslogon_uuid: user&.edipi))
-                    .where.not(user_account_id:)
+    user_verifications = []
+    if (idme_uuid = user&.idme_uuid).present?
+      user_verifications = UserVerification.where(idme_uuid:)
+                                           .or(UserVerification.where(backing_idme_uuid: idme_uuid))
+                                           .where.not(user_account_id:)
+    end
+    if (user_verifications.empty? && logingov_uuid = user&.logingov_uuid).present?
+      user_verifications = UserVerification.where(logingov_uuid:).where.not(user_account_id:)
+    end
+    if (user_verifications.empty? && mhv_uuid = user&.mhv_credential_uuid).present?
+      user_verifications = UserVerification.where(mhv_uuid:).where.not(user_account_id:)
+    end
+    if (user_verifications.empty? && dslogon_uuid = user&.edipi).present?
+      user_verifications = UserVerification.where(dslogon_uuid:).where.not(user_account_id:)
+    end
+    user_verifications
   end
 
   def user
