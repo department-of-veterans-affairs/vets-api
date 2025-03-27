@@ -83,7 +83,7 @@ describe SignIn::Idme::Service do
     end
 
     before do
-      allow(Settings.idme).to receive(:oauth_url).and_return(base_path)
+      allow(IdentitySettings.idme).to receive(:oauth_url).and_return(base_path)
     end
 
     it 'logs information to rails logger' do
@@ -157,8 +157,8 @@ describe SignIn::Idme::Service do
     let(:expected_jwks_fetch_log) { '[SignIn][Idme][Service] Get Public JWKs Success' }
 
     before do
-      allow(Settings.idme).to receive_messages(client_cert_path: test_client_cert_path,
-                                               client_key_path: test_client_key_path)
+      allow(IdentitySettings.idme).to receive_messages(client_cert_path: test_client_cert_path,
+                                                       client_key_path: test_client_key_path)
     end
 
     it 'returns user attributes', vcr: { cassette_name: 'identity/idme_200_responses' } do

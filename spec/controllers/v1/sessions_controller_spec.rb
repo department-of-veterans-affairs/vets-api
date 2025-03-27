@@ -640,9 +640,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: })
         end
 
-        context 'and authentication occurred with a application in Settings.terms_of_use.enabled_clients' do
+        context 'and authentication occurred with a application in IdentitySettings.terms_of_use.enabled_clients' do
           before do
-            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
+            allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return(application)
           end
 
           context 'when the application is not in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
@@ -662,9 +662,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
         end
 
-        context 'and authentication occurred with an application not in Settings.terms_of_use.enabled_clients' do
+        context 'and auth occurred with an application not in IdentitySettings.terms_of_use.enabled_clients' do
           before do
-            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return('')
+            allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return('')
           end
 
           it 'redirects to expected auth page' do
@@ -722,9 +722,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: })
         end
 
-        context 'and authentication occurred with a application in Settings.terms_of_use.enabled_clients' do
+        context 'and authentication occurred with a application in IdentitySettings.terms_of_use.enabled_clients' do
           before do
-            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
+            allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return(application)
           end
 
           context 'when the application is not in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
@@ -744,9 +744,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
         end
 
-        context 'and authentication occurred with an application not in Settings.terms_of_use.enabled_clients' do
+        context 'and auth occurred with an application not in IdentitySettings.terms_of_use.enabled_clients' do
           before do
-            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return('')
+            allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return('')
           end
 
           it 'redirects to expected auth page' do

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class TermsOfUseAgreement < ApplicationRecord
-  CURRENT_VERSION = Settings.terms_of_use.current_version
+  CURRENT_VERSION = IdentitySettings.terms_of_use.current_version
 
   belongs_to :user_account
 
