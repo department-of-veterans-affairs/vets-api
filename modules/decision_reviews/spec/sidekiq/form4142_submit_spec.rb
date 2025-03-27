@@ -127,41 +127,4 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
       end
     end
   end
-
-  describe 'transform_address_fields' do
-    let(:address) do
-      {
-        'addressLine1' => '1202 Pennsylvania Ave NW',
-        'addressLine2' => 'Apt 4',
-        'city' => 'Boston',
-        'stateCode' => 'MA',
-        'countryCodeISO2' => 'US',
-        'zipCode5' => '20500',
-        'country' => 'US',
-        'postalCode' => '20500'
-      }
-    end
-
-    context 'veteran address data is provided' do
-      let(:expected_result) do
-        {
-          'addressLine1' => '1202 Pennsylvania Ave NW',
-          'addressLine2' => 'Apt 4',
-          'city' => 'Boston',
-          'country' => 'USA',
-          'countryCodeISO2' => 'US',
-          'postalCode' => '20500',
-          'state' => 'MA',
-          'stateCode' => 'MA',
-          'street' => '1202 Pennsylvania Ave NW',
-          'street2' => 'Apt 4',
-          'zipCode5' => '20500'
-        }
-      end
-
-      it 'merges the existing address data with the transformed fields' do
-        expect(described_class.new.transform_address_fields(address)).to match(expected_result)
-      end
-    end
-  end
 end
