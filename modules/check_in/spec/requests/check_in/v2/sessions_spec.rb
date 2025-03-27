@@ -299,10 +299,6 @@ RSpec.describe 'CheckIn::V2::Sessions', type: :request do
         }
       end
 
-      before do
-        Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
-      end
-
       context 'in session created using DOB' do
         let(:session_params_with_dob) do
           {
