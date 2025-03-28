@@ -143,7 +143,7 @@ module AccreditedRepresentativePortal
       end
 
       def form_data
-        form_params['formData']
+        form_params['formData'] || {}
       end
     end
   end
