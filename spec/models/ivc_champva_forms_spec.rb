@@ -36,6 +36,12 @@ RSpec.describe IvcChampvaForm, type: :model do
         form.update(email: new_email)
         expect(form.reload.email).to eq(new_email)
       end
+
+      it 'allows hash to be stored in ves_data field' do
+        new_ves_data = { test: 'foo' }
+        form.update(ves_data: new_ves_data)
+        expect(form.reload.ves_data).to eq({ 'test' => 'foo' })
+      end
     end
 
     describe '#destroy' do
