@@ -42,7 +42,7 @@ module DebtManagementCenter
       notify_client.send_email(email_params(identifier, template_id, personalisation, id_type))
 
       if use_failure_mailer == true
-        StatsD.increment("#{V0::Form5655Submission::STATS_KEY}.send_failed_form_email.success")
+        StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.send_failed_form_email.success")
       end
 
       StatsD.increment("#{STATS_KEY}.success")
