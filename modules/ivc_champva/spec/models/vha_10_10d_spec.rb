@@ -149,6 +149,12 @@ RSpec.describe IvcChampva::VHA1010d do
 
   describe '#add_applicant_properties' do
     context 'when applicants array is present' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_pega_applicant_metadata_enabled, @current_user)
+          .and_return(true)
+      end
+
       let(:applicant_data) do
         data.merge(
           'applicants' => [
@@ -162,25 +168,31 @@ RSpec.describe IvcChampva::VHA1010d do
 
       let(:vha1010d_applicants) { described_class.new(applicant_data) }
 
-      it 'returns a valid stringified JSON' do
+      it 'returns valid stringified JSON' do
         res = vha1010d_applicants.add_applicant_properties
-        expect(res).to be_a(String)
-        expect(JSON.parse(res)).to be_a(Hash)
+        expect(res['applicant_0']).to be_a(String)
+        expect(JSON.parse(res['applicant_0'])).to be_a(Hash)
       end
 
       it 'includes a key for each applicant' do
-        res = JSON.parse(vha1010d_applicants.add_applicant_properties)
+        res = vha1010d_applicants.add_applicant_properties
         expect(res.keys.include?('applicant_0')).to be(true)
         expect(res.keys.include?('applicant_1')).to be(true)
       end
 
       it 'contains applicant data' do
-        res = JSON.parse(vha1010d_applicants.add_applicant_properties)
-        expect(res['applicant_0']['applicant_name']['first']).to eq('John')
+        res = vha1010d_applicants.add_applicant_properties
+        expect(JSON.parse(res['applicant_0'])['applicant_name']['first']).to eq('John')
       end
     end
 
     context 'when applicants array is empty' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_pega_applicant_metadata_enabled, @current_user)
+          .and_return(true)
+      end
+
       let(:applicant_data) do
         data.merge(
           'applicants' => []
@@ -196,6 +208,40 @@ RSpec.describe IvcChampva::VHA1010d do
     end
 
     context 'when applicants have wrong properties' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_pega_applicant_metadata_enabled, @current_user)
+          .and_return(false)
+      end
+
+      let(:applicant_data) do
+        data.merge(
+          'applicants' => [
+            { 'applicant_ssn' => '123456789', 'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
+              'applicant_dob' => '1980-01-01' },
+          ]
+        )
+      end
+
+      let(:vha1010d_applicants) { described_class.new(applicant_data) }
+
+      it 'returns an empty object' do
+        json_result = vha1010d.add_applicant_properties
+        expect(json_result.empty?).to be(true)
+      end
+
+      it 'does not interfere with metadata creation' do
+        expect(vha1010d.metadata.keys.include?('veteranFirstName')).to be(true)
+      end
+    end
+
+    context 'when champva_pega_applicant_metadata_enabled flipper is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_pega_applicant_metadata_enabled, @current_user)
+          .and_return(true)
+      end
+
       let(:applicant_data) do
         data.merge(
           'applicants' => [
