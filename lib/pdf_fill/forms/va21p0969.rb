@@ -8,6 +8,8 @@ require 'income_and_assets/helpers'
 module PdfFill
   module Forms
     class Va21p0969 < FormBase
+      include IncomeAndAssets::Helpers
+
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
       KEY = {
@@ -342,8 +344,8 @@ module PdfFill
           }
         else
           form_data['incomeNetWorthDateRange'] = {
-            'from' => IncomeAndAssets::Helpers.format_date_to_mm_dd_yyyy(net_worth_date_range['from']),
-            'to' => IncomeAndAssets::Helpers.format_date_to_mm_dd_yyyy(net_worth_date_range['to']),
+            'from' => format_date_to_mm_dd_yyyy(net_worth_date_range['from']),
+            'to' => format_date_to_mm_dd_yyyy(net_worth_date_range['to']),
             'useDateReceivedByVA' => false
           }
         end
@@ -362,14 +364,14 @@ module PdfFill
         income_type = income['incomeType']
         gross_monthly_income = income['grossMonthlyIncome']
         {
-          'recipientRelationship' => IncomeAndAssets::Constants::RECIPIENTS[recipient_relationship],
+          'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
           'recipientRelationshipOverflow' => recipient_relationship,
           'otherRecipientRelationshipType' => income['otherRecipientRelationshipType'],
           'recipientName' => income['recipientName'],
           'incomeType' => IncomeAndAssets::Constants::INCOME_TYPES[income_type],
           'incomeTypeOverflow' => income_type,
           'otherIncomeType' => income['otherIncomeType'],
-          'grossMonthlyIncome' => IncomeAndAssets::Helpers.split_currency_amount(gross_monthly_income),
+          'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
           'grossMonthlyIncomeOverflow' => gross_monthly_income,
           'payer' => income['payer']
         }
@@ -389,7 +391,7 @@ module PdfFill
         gross_monthly_income = income['grossMonthlyIncome']
         account_value = income['accountValue']
         {
-          'recipientRelationship' => IncomeAndAssets::Constants::RECIPIENTS[recipient_relationship],
+          'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
           'recipientRelationshipOverflow' => recipient_relationship,
           'otherRecipientRelationshipType' => income['otherRecipientRelationshipType'],
           'recipientName' => income['recipientName'],
@@ -397,9 +399,9 @@ module PdfFill
           'incomeType' => IncomeAndAssets::Constants::ACCOUNT_INCOME_TYPES[income_type],
           'incomeTypeOverflow' => income_type,
           'otherIncomeType' => income['otherIncomeType'],
-          'grossMonthlyIncome' => IncomeAndAssets::Helpers.split_currency_amount(gross_monthly_income),
+          'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
           'grossMonthlyIncomeOverflow' => gross_monthly_income,
-          'accountValue' => IncomeAndAssets::Helpers.split_account_value(account_value),
+          'accountValue' => split_currency_amount_lg(account_value),
           'accountValueOverflow' => account_value
         }
       end
@@ -418,15 +420,15 @@ module PdfFill
         gross_monthly_income = asset['grossMonthlyIncome']
         portion_value = asset['ownedPortionValue']
         {
-          'recipientRelationship' => IncomeAndAssets::Constants::RECIPIENTS[recipient_relationship],
+          'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
           'recipientRelationshipOverflow' => recipient_relationship,
           'otherRecipientRelationshipType' => asset['otherRecipientRelationshipType'],
           'recipientName' => asset['recipientName'],
           'assetType' => IncomeAndAssets::Constants::ASSET_TYPES[asset_type],
           'assetTypeOverflow' => asset_type,
-          'grossMonthlyIncome' => IncomeAndAssets::Helpers.split_currency_amount(gross_monthly_income),
+          'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
           'grossMonthlyIncomeOverflow' => gross_monthly_income,
-          'ownedPortionValue' => IncomeAndAssets::Helpers.split_account_value(portion_value),
+          'ownedPortionValue' => split_currency_amount_lg(portion_value),
           'ownedPortionValueOverflow' => portion_value
         }
       end

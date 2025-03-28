@@ -14,21 +14,13 @@ module ClaimsApi
       @validated_token = validated_token
     end
 
-    def set_icn(icn)
-      @identifier.set_icn(icn)
-    end
+    delegate :set_icn, to: :@identifier
 
-    def set_ssn(ssn)
-      @identifier.set_ssn(ssn)
-    end
+    delegate :set_ssn, to: :@identifier
 
-    def icn
-      @identifier.icn
-    end
+    delegate :icn, to: :@identifier
 
-    def loa
-      @identifier.loa
-    end
+    delegate :loa, to: :@identifier
 
     def authn_context
       'authn'
@@ -44,12 +36,8 @@ module ClaimsApi
       @identifier.first_name_last_name(first_name, last_name)
     end
 
-    def ssn
-      @identifier.ssn
-    end
+    delegate :ssn, to: :@identifier
 
-    def client_credentials_token?
-      @validated_token.client_credentials_token?
-    end
+    delegate :client_credentials_token?, to: :@validated_token
   end
 end

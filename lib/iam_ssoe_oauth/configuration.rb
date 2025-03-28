@@ -33,7 +33,7 @@ module IAMSSOeOAuth
     # @return Faraday::Connection connection to make http calls
     #
     def connection
-      @connection ||= Faraday.new(
+      Faraday.new(
         base_path, headers: base_request_headers, request: request_options, ssl: ssl_options
       ) do |conn|
         conn.use :breakers

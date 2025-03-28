@@ -162,7 +162,7 @@ RSpec.describe Representatives::Update do
 
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(
-          "Representatives::Update: Error processing job: unexpected token at 'invalid json'"
+          "Representatives::Update: Error processing job: unexpected character: 'invalid json'"
         )
 
         subject.perform(invalid_json_data)
@@ -666,7 +666,7 @@ RSpec.describe Representatives::Update do
 
         it 'logs an error' do
           expect(Rails.logger).to receive(:error).with(
-            "Representatives::Update: Error processing job: unexpected token at 'invalid json'"
+            "Representatives::Update: Error processing job: unexpected character: 'invalid json'"
           )
 
           subject.perform(invalid_json_data)

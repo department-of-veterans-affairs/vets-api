@@ -105,6 +105,9 @@ class FormProfile
       21-8940-UPLOAD
       21P-0516-1-UPLOAD
       21P-0518-1-UPLOAD
+      21P-530a-UPLOAD
+      21P-8049-UPLOAD
+
     ],
     fsr: ['5655'],
     hca: %w[1010ez 10-10EZR],
@@ -135,6 +138,8 @@ class FormProfile
     '21-8940-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0516-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-530a-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-8049-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-527EZ' => ::FormProfiles::VA21p527ez,
     '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
     '22-0993' => ::FormProfiles::VA0993,

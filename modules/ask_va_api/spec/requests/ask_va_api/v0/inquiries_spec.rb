@@ -80,10 +80,10 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
       end
 
       context 'when an error occurs' do
-        context 'when No Contact found by ICN' do
+        context 'when Multiple Contacts found by ICN' do
           let(:service) { instance_double(Crm::Service) }
           let(:body) do
-            '{"Data":null,"Message":"Data Validation: No Contact found by ICN"' \
+            '{"Data":null,"Message":"Data Validation: Multiple Contacts found by ICN"' \
               ',"ExceptionOccurred":true,"ExceptionMessage"' \
               ':"Data Validation: No Contact found by ICN","MessageId":"19d9799c-159f-4901-8672-6bdfc1d4cc0f"}'
           end
@@ -96,9 +96,11 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
             get inquiry_path
           end
 
-          it 'returns an empty array' do
-            expect(JSON.parse(response.body)['data']).to eq([])
-          end
+          it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                          'AskVAApi::Inquiries::InquiriesRetrieverError:' \
+                          ' {"Data":null,"Message":"Data Validation: Multiple Contacts found by ICN"' \
+                          ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Contact found by ICN",' \
+                          '"MessageId":"19d9799c-159f-4901-8672-6bdfc1d4cc0f"}'
         end
 
         context 'when a standard error' do
