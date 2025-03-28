@@ -218,6 +218,9 @@ features:
   champva_retry_logic_refactor:
     actor_type: user
     description: Enables refactored retry logic for IVC CHAMPVA form submissions
+  champva_pega_applicant_metadata_enabled:
+    actor_type: user
+    description: Enables including applicant data in the S3 metadata sent to PEGA
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
