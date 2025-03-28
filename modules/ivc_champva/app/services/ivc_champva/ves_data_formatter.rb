@@ -8,8 +8,10 @@ module IvcChampva
     VALID_RELATIONSHIPS_LOOKUP = RELATIONSHIPS.index_by(&:downcase).freeze
     VALID_GENDER_LOOKUP = { 'm' => 'MALE', 'male' => 'MALE', 'f' => 'FEMALE', 'female' => 'FEMALE' }.freeze
 
-    # Transform parsed form data from frontend format to VES format & validate
-    def self.format(parsed_form_data)
+    # Transform parsed form data from frontend format to a VES request & validate
+    # @param parsed_form_data [Hash] the parsed form data from the frontend
+    # @return [IvcChampva::VesRequest] the VES request object
+    def self.format_for_request(parsed_form_data)
       ves_data = transform_to_ves_format(parsed_form_data)
       validate_ves_data(ves_data)
 
