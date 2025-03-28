@@ -4,18 +4,18 @@ module DebtManagementCenter
   class VANotifyEmailJob
     include Sidekiq::Job
     include SentryLogging
+    sidekiq_options retry: 14
     STATS_KEY = 'api.dmc.va_notify_email'
     VA_NOTIFY_CALLBACK_OPTIONS = {
-        callback_metadata: {
-          notification_type: 'error',
-          form_number: DebtsApi::V0::Form5655Submission::FORM_ID,
-          statsd_tags: {
-            service: DebtsApi::V0::Form5655Submission::ZSF_DD_TAG_SERVICE,
-            function: DebtsApi::V0::Form5655Submission::ZSF_DD_TAG_SERVICE
-          }
+      callback_metadata: {
+        notification_type: 'error',
+        form_number: DebtsApi::V0::Form5655Submission::FORM_ID,
+        statsd_tags: {
+          service: DebtsApi::V0::Form5655Submission::ZSF_DD_TAG_SERVICE,
+          function: DebtsApi::V0::Form5655Submission::ZSF_DD_TAG_FUNCTION
         }
-      }.freeze
-    sidekiq_options retry: 14
+      }
+    }.freeze
 
     class UnrecognizedIdentifier < StandardError; end
 
@@ -39,11 +39,12 @@ module DebtManagementCenter
       id_type = options['id_type'] || 'email'
       use_failure_mailer = options['failure_mailer']
       notify_client = va_notify_client(use_failure_mailer)
-
       notify_client.send_email(email_params(identifier, template_id, personalisation, id_type))
+
       if use_failure_mailer == true
         StatsD.increment("#{V0::Form5655Submission::STATS_KEY}.send_failed_form_email.success")
       end
+
       StatsD.increment("#{STATS_KEY}.success")
     rescue => e
       StatsD.increment("#{STATS_KEY}.failure")
