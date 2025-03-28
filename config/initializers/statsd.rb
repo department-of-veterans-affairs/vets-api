@@ -28,6 +28,7 @@ Rails.application.reloader.to_prepare do
             "status:#{payload[:status]}"]
     StatsD.measure('api.request.db_runtime', payload[:db_runtime].to_i, tags:)
     StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags:)
+    StatsD.backend = StatsD::Instrument::Backends::UDPBackend.new('127.0.0.1:8125')
   end
 
   ActiveSupport::Notifications.subscribe(/facilities.ppms./) do |_name, start_time, end_time, _id, payload|
