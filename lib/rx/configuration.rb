@@ -32,7 +32,11 @@ module Rx
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      "#{Settings.mhv.rx.host}/mhv-api/patient/v1/"
+      if Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api
+        "#{Settings.mhv.api_gateway.hosts.pharmacy}/#{Settings.mhv.rx.gw_base_path}"
+      else
+        "#{Settings.mhv.rx.host}/#{Settings.mhv.rx.base_path}"
+      end
     end
 
     ##
