@@ -101,7 +101,11 @@ module Common
 
         def breakers_matcher
           base_uri = URI.parse(base_path)
-          proc do |request_env|
+          proc do |breakers_service, request_env, request_service_name|
+            # Match by service_name if available.
+            request_service_name == breakers_service.name if request_service_name
+
+            # Fall back to matching by request URL.
             request_env.url.host == base_uri.host && request_env.url.port == base_uri.port &&
               request_env.url.path =~ /^#{base_uri.path}/
           end
@@ -123,6 +127,7 @@ module Common
         end
 
         def create_new_breakers_service(matcher, exception_handler)
+          Rails.logger.debug('Creating new service for', service_name)
           Breakers::Service.new(
             name: service_name,
             request_matcher: matcher,

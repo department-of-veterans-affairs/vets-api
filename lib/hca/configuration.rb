@@ -19,7 +19,7 @@ module HCA
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers
+        conn.use(:breakers, service_name:)
         conn.options.open_timeout = 10
         conn.options.timeout = Settings.hca.timeout
         conn.request :soap_headers
