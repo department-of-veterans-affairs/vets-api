@@ -86,7 +86,7 @@ module ClaimsApi
             auth_headers: set_auth_headers,
             form_data: form_attributes,
             current_poa: current_poa_code,
-            header_md5:
+            header_hash:
           }
         end
 
@@ -190,6 +190,13 @@ module ClaimsApi
                                                                     'va_eauth_service_transaction_id',
                                                                     'va_eauth_issueinstant',
                                                                     'Authorization').to_json)
+        end
+
+        def header_hash
+          @header_hash ||= Digest::SHA256.hexdigest(auth_headers.except('va_eauth_authenticationauthority',
+                                                                        'va_eauth_service_transaction_id',
+                                                                        'va_eauth_issueinstant',
+                                                                        'Authorization').to_json)
         end
 
         def get_poa_code(form_number)
