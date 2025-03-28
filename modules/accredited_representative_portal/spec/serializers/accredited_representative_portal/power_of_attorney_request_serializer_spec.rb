@@ -66,6 +66,12 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
         expect(veteran_declined_serialized_form['claimant']['ssn']).to match(/\d{4}/)
         expect(veteran_declined_serialized_form['claimant']['vaFileNumber']).to match(/\d{4}/)
       end
+
+      it 'formats phone number' do
+        veteran_declined_serialized_form = veteran_declined_data[:powerOfAttorneyForm]
+
+        expect(veteran_declined_serialized_form['claimant']['phone']).to eq '123-456-7890'
+      end
     end
 
     describe ':resolution' do
@@ -120,6 +126,62 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
           veteran_declined_holder_data = veteran_declined_data[:powerOfAttorneyHolder]
           expect(veteran_declined_holder_data[:type]).to eq 'veteran_service_organization'
           expect(veteran_declined_holder_data[:name]).to eq veteran_declined_poa_request.accredited_organization.name
+        end
+      end
+    end
+
+    describe '.format_phone_number' do
+      let(:serializer) { described_class }
+
+      context 'with a nil phone number' do
+        it 'returns nil' do
+          expect(serializer.format_phone_number(nil)).to be_nil
+        end
+      end
+
+      context 'with an empty string' do
+        it 'returns nil' do
+          expect(serializer.format_phone_number('')).to be_nil
+        end
+      end
+
+      context 'with an unformatted 10-digit phone number' do
+        it 'formats as xxx-xxx-xxxx' do
+          expect(serializer.format_phone_number('1234567890')).to eq('123-456-7890')
+        end
+      end
+
+      context 'with a formatted 10-digit phone number' do
+        it 'strips non-digits and formats correctly' do
+          expect(serializer.format_phone_number('(123) 456-7890')).to eq('123-456-7890')
+          expect(serializer.format_phone_number('123.456.7890')).to eq('123-456-7890')
+          expect(serializer.format_phone_number('123 456 7890')).to eq('123-456-7890')
+        end
+      end
+
+      context 'with an 11-digit number starting with 1' do
+        it 'removes country code and formats as xxx-xxx-xxxx' do
+          expect(serializer.format_phone_number('12345678901')).to eq('234-567-8901')
+        end
+      end
+
+      context 'with an 11-digit formatted number' do
+        it 'handles country code with formatting' do
+          expect(serializer.format_phone_number('+1 (234) 567-8901')).to eq('234-567-8901')
+          expect(serializer.format_phone_number('1-234-567-8901')).to eq('234-567-8901')
+        end
+      end
+
+      context 'with an invalid phone number format' do
+        it 'returns the original number' do
+          # Too few digits
+          expect(serializer.format_phone_number('12345')).to eq('12345')
+
+          # Too many digits
+          expect(serializer.format_phone_number('12345678901234')).to eq('12345678901234')
+
+          # 11 digits not starting with 1
+          expect(serializer.format_phone_number('23456789012')).to eq('23456789012')
         end
       end
     end

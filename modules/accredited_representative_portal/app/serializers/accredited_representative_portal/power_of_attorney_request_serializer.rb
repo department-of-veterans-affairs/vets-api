@@ -26,6 +26,8 @@ module AccreditedRepresentativePortal
           form['claimant'] = form.delete('veteran')
           form.delete('dependent')
         end
+
+        form['claimant']['phone'] = format_phone_number(form['claimant']['phone'])
       end
     end
 
@@ -72,6 +74,22 @@ module AccreditedRepresentativePortal
         end
 
       { status: }
+    end
+
+    class << self
+      def format_phone_number(number)
+        return nil if number.blank?
+
+        digits = number.to_s.gsub(/\D/, '')
+
+        if digits.length == 10
+          "#{digits[0..2]}-#{digits[3..5]}-#{digits[6..9]}"
+        elsif digits.length == 11 && digits[0] == '1'
+          "#{digits[1..3]}-#{digits[4..6]}-#{digits[7..10]}"
+        else
+          number # Return original if not a valid phone number
+        end
+      end
     end
   end
 end
