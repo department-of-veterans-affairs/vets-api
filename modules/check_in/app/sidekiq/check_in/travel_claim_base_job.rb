@@ -7,7 +7,7 @@ module CheckIn
     include Sidekiq::Job
     include SentryLogging
 
-    sidekiq_options retry: false
+    sidekiq_options retry: 12
 
     OH_RESPONSES = Hash.new([Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]).merge(
       TravelClaim::Response::CODE_SUCCESS => [Constants::OH_STATSD_BTSSS_SUCCESS, Constants::OH_SUCCESS_TEMPLATE_ID],
