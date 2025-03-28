@@ -90,8 +90,10 @@ module V0
 
     def token
       SignIn::TokenParamsValidator.new(params: token_params).perform
-      response_body = SignIn::TokenResponseGenerator.new(params: token_params, cookies: token_cookies).perform
-
+      request_attributes = { remote_ip: request.remote_ip, user_agent: request.user_agent }
+      response_body = SignIn::TokenResponseGenerator.new(params: token_params,
+                                                         cookies: token_cookies,
+                                                         request_attributes:).perform
       sign_in_logger.info('token')
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
 
