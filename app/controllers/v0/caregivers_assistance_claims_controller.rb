@@ -40,8 +40,6 @@ module V0
       raise e
     end
 
-    # If we were unable to submit the user's claim digitally, we allow them to the download
-    # the 10-10CG PDF, pre-filled with their data, for them to mail in.
     def download_pdf
       source_file_path = if Flipper.enabled?(:caregiver_retry_pdf_fill)
                            file_name = SecureRandom.uuid
