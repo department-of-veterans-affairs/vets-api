@@ -6,13 +6,11 @@ require_relative '../../../../support/helpers/rails_helper'
 require_relative '../../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, type: :request do
-  include JsonSchemaMatchers
-  include CommitteeHelper
-
-  let!(:user) { sis_user(icn: '1000000000V000000') }
-  let(:default_params) { { 'patient-id': '1000000000V000000', start_date: '2024-01-01', end_date: '2024-12-31' } }
+  let!(:user) { sis_user(icn: '1000123456V123456') }
+  let(:default_params) { { start_date: '2024-01-01', end_date: '2024-12-31' } }
   let(:path) { '/mobile/v1/health/labs-and-tests' }
   let(:labs_cassette) { 'mobile/unified_health_data/get_labs' }
+  let(:labs_attachment_cassette) { 'mobile/unified_health_data/get_labs_value_attachment' }
   let(:uhd_flipper) { :mhv_accelerated_delivery_uhd_enabled }
   let(:ch_flipper) { :mhv_accelerated_delivery_uhd_ch_enabled }
   let(:ch_response) do
@@ -102,6 +100,24 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
 
       it 'returns a 404 when the flipper is disabled' do
         expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'errors' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(ch_flipper, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(sp_flipper, instance_of(User)).and_return(true)
+        allow(Rails.logger).to receive(:error)
+        VCR.use_cassette(labs_attachment_cassette) do
+          get path, headers: sis_headers, params: default_params
+        end
+      end
+
+      it 'returns not_implemented when a value attachment is received' do
+        expect(Rails.logger).to have_received(:error).with(
+          { message: 'Observation with ID b7347c02-4abe-4784-af18-21f8c7b8fc6a has unsupported value type: Attachment' }
+        )
+        expect(response).to have_http_status(:not_implemented)
       end
     end
   end
