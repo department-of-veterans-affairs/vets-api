@@ -59,7 +59,7 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"paymentAccount":{"accountType":"CHECKING","accountNumber":"1234567890","financialInstitutionRoutingNumber":"031000503","financialInstitutionName":"WELLS
+      string: '{"veteran_status":"DEPENDENT","paymentAccount":{"accountType":"CHECKING","accountNumber":"1234567890","financialInstitutionRoutingNumber":"031000503","financialInstitutionName":"WELLS
         FARGO BANK"},"controlInformation":{"canUpdateDirectDeposit":false,"hasCpClaim":true,"hasCpAward":true,"isCorpAvailable":true,"isCorpRecFound":true,"hasNoBdnPayments":true,"hasIndentity":true,"hasIndex":true,"isCompetent":true,"hasMailingAddress":true,"hasNoFiduciaryAssigned":true,"isNotDeceased":true,"hasPaymentAddress":false,"isEduClaimAvailable":false}}'
   recorded_at: Thu, 23 Feb 2023 21:47:59 GMT
 recorded_with: VCR 6.1.0
