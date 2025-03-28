@@ -21,25 +21,11 @@ module IvcChampva
           Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
           parsed_form_data = JSON.parse(params.to_json)
 
-          ves_request = nil
-          if Flipper.enabled?(:champva_send_to_ves, @current_user) && Settings.vsp_environment != 'production' && form_id == 'vha_10_10d'
-            # Format data for VES submission.  If this is unsuccessful an error will be thrown, do not proceed.
-            ves_request = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
-            if ves_request.nil?
-              raise 'Failed to format data for VES submission'
-            end
-          end
+          ves_request = prepare_ves_request(form_id, parsed_form_data)
 
           statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
 
-          if Flipper.enabled?(:champva_send_to_ves, @current_user) && Settings.vsp_environment != 'production' && form_id == 'vha_10_10d' && !ves_request.nil?
-            ves_client = IvcChampva::VesApi::Client.new
-            begin
-              ves_client.submit_1010d('fake-id', 'fake-user', ves_request)
-            rescue => e
-              Rails.logger.error "Ignoring error when submitting to VES: #{e.message}"
-            end
-          end
+          submit_ves_request(form_id, ves_request)
 
           response = build_json(statuses, error_message)
 
@@ -53,6 +39,36 @@ module IvcChampva
         Rails.logger.error "Error: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
         render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
+      end
+
+      # Prepares data for VES, raising an exception if this cannot be done
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @return [IvcChampva::VesRequest, nil] the formatted request data
+      def prepare_ves_request(form_id, parsed_form_data)
+        ves_request = nil
+        if Flipper.enabled?(:champva_send_to_ves, @current_user) &&
+           Settings.vsp_environment != 'production' && form_id == 'vha_10_10d'
+          # Format data for VES submission.  If this is unsuccessful an error will be thrown, do not proceed.
+          ves_request = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+          raise 'Failed to format data for VES submission' if ves_request.nil?
+        end
+        ves_request
+      end
+
+      # Submits data to VES while ignoring any errors that occur
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      # @param [IvcChampva::VesRequest, nil] ves_request the formatted request data
+      def submit_ves_request(form_id, ves_request)
+        if Flipper.enabled?(:champva_send_to_ves, @current_user) && Settings.vsp_environment != 'production' &&
+           form_id == 'vha_10_10d' && !ves_request.nil?
+          ves_client = IvcChampva::VesApi::Client.new
+          begin
+            ves_client.submit_1010d('fake-id', 'fake-user', ves_request)
+          rescue => e
+            Rails.logger.error "Ignoring error when submitting to VES: #{e.message}"
+          end
+        end
       end
 
       # Modified from claim_documents_controller.rb:

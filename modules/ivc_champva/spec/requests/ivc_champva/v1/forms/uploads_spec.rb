@@ -38,9 +38,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   describe '#submit with flipper champva_send_to_ves enabled' do
     before do
       allow(Flipper).to receive(:enabled?)
-                          .with(:champva_send_to_ves, @current_user)
-                          .and_return(true)
+        .with(:champva_send_to_ves, @current_user)
+        .and_return(true)
     end
+
     forms.each do |form|
       fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form)
       data = JSON.parse(fixture_path.read)
@@ -102,7 +103,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
         end
 
-        it 'returns an error and does not call handle_file_uploads or submit_1010d when format_for_request throws an error' do
+        it 'returns an error and does proceed when format_for_request throws an error' do
           with_settings(Settings, vsp_environment: 'staging') do
             if data['form_number'] == '10-10D'
               allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_raise(StandardError.new('oh no'))
@@ -116,12 +117,12 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
               expect(controller).not_to have_received(:handle_file_uploads)
               expect(ves_client).not_to have_received(:submit_1010d)
               expect(controller).to have_received(:render)
-                                     .with({ json: { error_message: "Error: oh no" }, status: :internal_server_error })
+                .with({ json: { error_message: 'Error: oh no' }, status: :internal_server_error })
             end
           end
         end
 
-        it 'returns an error and does not call handle_file_uploads or submit_1010d when format_for_request returns nil' do
+        it 'returns an error and does not proceed when format_for_request returns nil' do
           with_settings(Settings, vsp_environment: 'staging') do
             if data['form_number'] == '10-10D'
               allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(nil)
@@ -135,7 +136,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
               expect(controller).not_to have_received(:handle_file_uploads)
               expect(ves_client).not_to have_received(:submit_1010d)
               expect(controller).to have_received(:render)
-                                      .with({ json: { error_message: "Error: Failed to format data for VES submission" }, status: :internal_server_error })
+                .with({
+                        json: { error_message: 'Error: Failed to format data for VES submission' },
+                        status: :internal_server_error
+                      })
             end
           end
         end
@@ -145,7 +149,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             if data['form_number'] == '10-10D'
               # These must be mocked in order for submit to be able to complete successfully: find_by, put_object
               allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
-                                                                 .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
+                .and_return(double('Record1', created_at: 1.day.ago,
+                                              id: 'some_uuid', file: double(id: 'file0')))
               allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
                 double('response',
                        context: double('context', http_response: double('http_response', status_code: 200)))
@@ -166,9 +171,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   describe '#submit with flipper champva_send_to_ves disabled' do
     before do
       allow(Flipper).to receive(:enabled?)
-                          .with(:champva_send_to_ves, @current_user)
-                          .and_return(false)
+        .with(:champva_send_to_ves, @current_user)
+        .and_return(false)
     end
+
     forms.each do |form|
       fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form)
       data = JSON.parse(fixture_path.read)

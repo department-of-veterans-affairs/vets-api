@@ -7,7 +7,7 @@ RSpec.describe IvcChampva::VesApi::Client do
   let(:client) { described_class.new }
   let(:transaction_uuid) { '12345' }
   let(:acting_user) { 'test_user' }
-  let(:ves_request_data) { instance_double('IvcChampva::VesRequest', to_json: '{}') }
+  let(:ves_request_data) { instance_double(IvcChampva::VesRequest, to_json: '{}') }
 
   describe '#submit_1010d' do
     before do
@@ -15,42 +15,42 @@ RSpec.describe IvcChampva::VesApi::Client do
     end
 
     context 'successful response from VES' do
-      let(:response) { instance_double('Faraday::Response', status: 200, body: '{}') }
+      let(:response) { instance_double(Faraday::Response, status: 200, body: '{}') }
 
       it 'does not raise an error' do
-        expect {
+        expect do
           client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
-        }.not_to raise_error
+        end.not_to raise_error
       end
     end
 
     context '400 response from VES' do
-      let(:response) { instance_double('Faraday::Response', status: 400, body: '{}') }
+      let(:response) { instance_double(Faraday::Response, status: 400, body: '{}') }
 
       it 'raises a VesApiError' do
-        expect {
+        expect do
           client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
-        }.to raise_error(IvcChampva::VesApi::VesApiError)
+        end.to raise_error(IvcChampva::VesApi::VesApiError)
       end
     end
 
     context 'not authorized response from VES' do
-      let(:response) { instance_double('Faraday::Response', status: 403, body: '{}') }
+      let(:response) { instance_double(Faraday::Response, status: 403, body: '{}') }
 
       it 'raises a VesApiError' do
-        expect {
+        expect do
           client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
-        }.to raise_error(IvcChampva::VesApi::VesApiError)
+        end.to raise_error(IvcChampva::VesApi::VesApiError)
       end
     end
 
     context '500 response from VES' do
-      let(:response) { instance_double('Faraday::Response', status: 500, body: '{}') }
+      let(:response) { instance_double(Faraday::Response, status: 500, body: '{}') }
 
       it 'raises a VesApiError' do
-        expect {
+        expect do
           client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
-        }.to raise_error(IvcChampva::VesApi::VesApiError)
+        end.to raise_error(IvcChampva::VesApi::VesApiError)
       end
     end
   end

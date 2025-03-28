@@ -25,7 +25,7 @@ module IvcChampva
           req.body = ves_request_data.to_json
         end
 
-        # TODO log the response
+        # TODO: log the response
 
         raise "response code: #{resp.status}, response body: #{resp.body}" unless resp.status == 200
       rescue => e
