@@ -22,7 +22,7 @@ module TravelPay
         end
 
         begin
-          claim = claims_service.get_claim_by_id(params[:id])
+          claim = claims_service.get_claim_details(params[:id])
         rescue Faraday::Error => e
           TravelPay::ServiceError.raise_mapped_error(e)
         rescue ArgumentError => e
@@ -72,7 +72,7 @@ module TravelPay
       end
 
       def claims_service
-        @claims_service ||= TravelPay::ClaimsService.new(auth_manager)
+        @claims_service ||= TravelPay::ClaimsService.new(auth_manager, @current_user)
       end
 
       def appts_service
