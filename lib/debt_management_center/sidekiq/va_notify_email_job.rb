@@ -48,6 +48,7 @@ module DebtManagementCenter
       StatsD.increment("#{STATS_KEY}.success")
     rescue => e
       StatsD.increment("#{STATS_KEY}.failure")
+      Rails.logger.error("DebtManagementCenter::VANotifyEmailJob failed to send email: #{e.message}")
       log_exception_to_sentry(
         e,
         {
