@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vets/type/base'
+require 'vets/model/type/base'
 
-RSpec.describe Vets::Type::Base do
+RSpec.describe Vets::Model::Type::Base do
   let(:name) { 'example_name' }
   let(:klass) { String }
   let(:base_instance) { described_class.new(name, klass) }
