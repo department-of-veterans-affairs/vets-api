@@ -24,46 +24,5 @@ module DecisionReviews
       token = form_authenticity_token
       response.set_header('X-CSRF-Token', token)
     end
-
-    def log_exception(exception, _extra_context = {}, _tags_context = {}, level = 'error')
-      level = normalize_level(level, exception)
-
-      if exception.is_a? Common::Exceptions::BackendServiceException
-        rails_logger(level, exception.message, exception.errors, exception.backtrace)
-      else
-        rails_logger(level, "#{exception.message}.")
-      end
-      rails_logger(level, exception.backtrace.join("\n")) unless exception.backtrace.nil?
-    end
-
-    alias log_exception_to_sentry log_exception # Method call in shared ExceptionHandling is :log_exception_to_sentry
-
-    def normalize_level(level, exception)
-      # https://docs.sentry.io/platforms/ruby/usage/set-level/
-      # valid sentry levels: log, debug, info, warning, error, fatal
-      level = case exception
-              when Pundit::NotAuthorizedError
-                'info'
-              when Common::Exceptions::BaseError
-                exception.sentry_type.to_s
-              else
-                level.to_s
-              end
-
-      return 'warning' if level == 'warn'
-
-      level
-    end
-
-    def rails_logger(level, message, errors = nil, backtrace = nil)
-      # rails logger uses 'warn' instead of 'warning'
-      level = 'warn' if level == 'warning'
-      if errors.present?
-        error_details = errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
-        Rails.logger.send(level, message, error_details.merge(backtrace:))
-      else
-        Rails.logger.send(level, message)
-      end
-    end
   end
 end
