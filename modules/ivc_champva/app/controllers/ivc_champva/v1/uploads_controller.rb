@@ -96,13 +96,8 @@ module IvcChampva
         if %w[10-10D 10-7959C 10-7959F-2 10-7959A].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
 
-          if Flipper.enabled?(:champva_pdf_decrypt, @current_user)
-            unlocked = unlock_file(params['file'], params['password'])
-            attachment.file = params['password'] ? unlocked : params['file']
-          else
-            attachment.file = params['file']
-          end
-
+          unlocked = unlock_file(params['file'], params['password'])
+          attachment.file = params['password'] ? unlocked : params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
           attachment.save
