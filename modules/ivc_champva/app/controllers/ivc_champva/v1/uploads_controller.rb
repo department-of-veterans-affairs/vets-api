@@ -30,9 +30,6 @@ module IvcChampva
 
           ves_request = prepare_ves_request(form_id, parsed_form_data)
 
-          # TODO: add same feature toggle as below for VES integration
-          # expect this formatter to raise errors if data is invalid
-          # ves_request = IvcChampva::VesDataFormatter.format(parsed_form_data)
           statuses, error_message = call_handle_file_uploads(form_id, parsed_form_data)
 
           submit_ves_request(form_id, ves_request)
