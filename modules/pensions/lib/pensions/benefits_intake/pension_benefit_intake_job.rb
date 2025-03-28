@@ -39,7 +39,7 @@ module Pensions
         claim = nil
       end
 
-      if claim.present? && Flipper.enabled?(:pension_event_bus_submission_enabled)
+      if claim.present? && Flipper.enabled?(:pension_kafka_event_bus_submission_enabled)
         user_icn = UserAccount.find_by(id: claim&.user_account_id)&.icn.to_s
 
         Kafka.submit_event(
@@ -75,7 +75,7 @@ module Pensions
 
       upload_document
 
-      submit_traceability_to_event_bus if Flipper.enabled?(:pension_event_bus_submission_enabled)
+      submit_traceability_to_event_bus if Flipper.enabled?(:pension_kafka_event_bus_submission_enabled)
 
       @pension_monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 

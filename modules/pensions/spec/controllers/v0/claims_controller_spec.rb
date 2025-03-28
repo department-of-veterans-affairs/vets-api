@@ -11,7 +11,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
   let(:monitor) { double('Pensions::Monitor') }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:pension_event_bus_submission_enabled).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:pension_kafka_event_bus_submission_enabled).and_return(true)
     allow(Pensions::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
                                        track_create_error: nil, track_create_success: nil,
