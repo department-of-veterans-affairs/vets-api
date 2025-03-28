@@ -699,6 +699,10 @@ features:
     actor_type: user
     description: Enables Appoint a Representative PDF generation endpoint
     enable_in_development: true
+  representative_status_enable_v2_features:
+    actor_type: user
+    description: Enables Representative Status widget 2.0 features for frontend and backend
+    enable_in_development: true
   form4142_validate_schema:
     actor_type: user
     description: Enable validation of form 4142 in Form4142Processor
