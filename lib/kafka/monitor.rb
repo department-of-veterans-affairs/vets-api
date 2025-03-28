@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'logging/monitor'
-require 'zero_silent_failures/monitor'
 
 module Kafka
   # This Monitor class is responsible for tracking and logging various events related to the Kafka service.

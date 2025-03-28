@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'kafka/kafka'
-require 'kafka/event_bus_submission_job'
 require 'pensions/benefits_intake/pension_benefit_intake_job'
 require 'pensions/monitor'
 

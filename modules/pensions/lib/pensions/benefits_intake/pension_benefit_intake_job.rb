@@ -6,7 +6,6 @@ require 'pensions/monitor'
 require 'pensions/notification_email'
 require 'pdf_utilities/datestamp_pdf'
 require 'kafka/kafka'
-require 'kafka/event_bus_submission_job'
 
 module Pensions
   ##
@@ -183,10 +182,8 @@ module Pensions
     # Build payload and submit to EventBusSubmissionJob
     #
     def submit_traceability_to_event_bus
-      user_icn = UserAccount.find_by(id: @user_account_uuid)&.icn.to_s
-
       Kafka.submit_event(
-        icn: user_icn,
+        icn: @user_account&.icn.to_s,
         current_id: @claim&.confirmation_number.to_s,
         submission_name: Pensions::FORM_ID,
         state: Kafka::State::SENT,

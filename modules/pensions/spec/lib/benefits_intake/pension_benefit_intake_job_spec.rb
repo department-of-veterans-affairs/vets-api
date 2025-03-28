@@ -5,7 +5,7 @@ require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
 require 'pensions/benefits_intake/pension_benefit_intake_job'
 require 'pensions/notification_email'
-require 'kafka/event_bus_submission_job'
+require 'kafka/sidekiq/event_bus_submission_job'
 
 RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
   stub_virus_scan

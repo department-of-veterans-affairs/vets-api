@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 require 'pensions/benefits_intake/pension_benefit_intake_job'
-require 'kafka/event_bus_submission_job'
+require 'kafka/sidekiq/event_bus_submission_job'
 
 RSpec.describe Pensions::V0::ClaimsController, type: :controller do
   routes { Pensions::Engine.routes }
