@@ -21,7 +21,9 @@ module PdfFill
       end
 
       def sorted_subquestions
-        @subquestions.sort_by { |subq| [subq[:metadata][:question_suffix], subq[:metadata][:question_text]] }
+        @subquestions.sort_by do |subq|
+          [subq[:metadata][:question_suffix] || '', subq[:metadata][:question_text] || '']
+        end
       end
 
       def render(pdf, list_format: false)

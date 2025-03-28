@@ -8,6 +8,30 @@ describe PdfFill::ExtrasGeneratorV2 do
 
   let(:sections) { nil }
 
+  describe PdfFill::ExtrasGeneratorV2::Question do
+    subject do
+      question = described_class.new(add_text_calls.first[1])
+      add_text_calls.each { |call| question.add_text(*call) }
+      question
+    end
+
+    describe '#sorted_subquestions' do
+      let(:add_text_calls) do
+        [
+          ['foo', { question_suffix: 'A', question_text: 'Name' }],
+          ['bar', { question_suffix: 'B' }],
+          ['baz', { question_text: 'Email' }]
+        ]
+      end
+
+      context 'when not all subquestions have all metadata' do
+        it 'sorts correctly by defaulting suffix and text to empty' do
+          expect(subject.sorted_subquestions.pluck(:value)).to eq(%w[baz foo bar])
+        end
+      end
+    end
+  end
+
   describe '#populate_section_indices!' do
     let(:sections) do
       [
