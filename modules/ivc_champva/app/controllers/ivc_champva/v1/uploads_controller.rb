@@ -21,18 +21,24 @@ module IvcChampva
           Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
           parsed_form_data = JSON.parse(params.to_json)
 
-          # TODO: add same feature toggle as below for VES integration
-          # expect this formatter to raise errors if data is invalid
-          # ves_request = IvcChampva::VesDataFormatter.format(parsed_form_data)
+          ves_request = nil
+          if Flipper.enabled?(:champva_send_to_ves, @current_user) && Settings.vsp_environment != 'production' && form_id == 'vha_10_10d'
+            # Format data for VES submission.  If this is unsuccessful an error will be thrown, do not proceed.
+            ves_request = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+            if ves_request.nil?
+              raise 'Failed to format data for VES submission'
+            end
+          end
 
           statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
 
-          # TODO: Add feature toggle around this for VES integration
-          if Settings.vsp_environment != 'production' && form_id == 'vha_10_10d'
+          if Flipper.enabled?(:champva_send_to_ves, @current_user) && Settings.vsp_environment != 'production' && form_id == 'vha_10_10d' && !ves_request.nil?
             ves_client = IvcChampva::VesApi::Client.new
-            ves_client.submit_1010d('fake-id', 'fake-user', ves_request)
-
-            # TODO: Add error handling for VES failures.
+            begin
+              ves_client.submit_1010d('fake-id', 'fake-user', ves_request)
+            rescue => e
+              Rails.logger.error "Ignoring error when submitting to VES: #{e.message}"
+            end
           end
 
           response = build_json(statuses, error_message)
