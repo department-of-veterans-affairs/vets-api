@@ -28,8 +28,8 @@ module DecisionReviewV1
         @submission = Form526Submission.find_by(id: submission_id)
         @form = set_signature_date(form_data)
         validate_form4142
+        @uuid = SecureRandom.uuid # this needs to be above generate_stamp_pdf and generate_metadata.
         @pdf_path = generate_stamp_pdf
-        @uuid = SecureRandom.uuid
         @request_body = {
           'document' => to_faraday_upload,
           'metadata' => generate_metadata
