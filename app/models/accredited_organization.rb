@@ -3,7 +3,7 @@
 require 'accredited_representation/constants'
 
 class AccreditedOrganization < ApplicationRecord
-  # Represents an accredited organization as defined by he OGC accreditation APIs. Until a form of soft deletion is
+  # Represents an accredited organization as defined by the OGC accreditation APIs. Until a form of soft deletion is
   # implemented, these records will only reflect organization with active accreditation.
   #
   # Key notes:
