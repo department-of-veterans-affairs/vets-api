@@ -53,16 +53,36 @@ module CheckIn
       begin
         va_notify_send_sms(opts)
       rescue => e
-        retry_attempt += 1
-        if retry_attempt <= MAX_RETRIES
-          log_send_sms_failure(retry_attempt)
+        log_send_sms_failure(retry_attempt)
 
-          sleep(retry_attempt * 2) # Backoff: 2s, 4s, 6s
-          retry
-        end
-        handle_error(e, opts)
         raise e
       end
+    end
+
+    sidekiq_retries_exhausted do |job, ex|
+      CheckIn::TravelClaimBaseJob.handle_error(job, ex)
+    end
+
+    def self.handle_error(job, ex)
+      opts = job['args'].first
+      template_id = opts[:template_id]
+      SentryLogging.log_exception_to_sentry(
+        ex,
+        { phone_number: opts[:mobile_phone].delete('^0-9').last(4), template_id:,
+          claim_number: opts[:claim_number] },
+        { error: :check_in_va_notify_job, team: 'check-in' }
+      )
+
+      if FAILED_CLAIM_TEMPLATE_IDS.include?(template_id)
+        tags = if 'oh'.casecmp?(opts[:facility_type])
+                 Constants::STATSD_OH_SILENT_FAILURE_TAGS
+               else
+                 Constants::STATSD_CIE_SILENT_FAILURE_TAGS
+               end
+        StatsD.increment(Constants::STATSD_NOTIFY_SILENT_FAILURE, tags:)
+      end
+
+      StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
     end
 
     private
@@ -93,25 +113,6 @@ module CheckIn
 
     def log_send_sms_failure(retry_attempt)
       logger.info({ message: "Sending SMS failed, attempt #{retry_attempt} of #{MAX_RETRIES}" })
-    end
-
-    def handle_error(ex, opts = {})
-      template_id = opts[:template_id]
-      log_exception_to_sentry(
-        ex,
-        { phone_number: opts[:mobile_phone].delete('^0-9').last(4), template_id:,
-          claim_number: opts[:claim_number] },
-        { error: :check_in_va_notify_job, team: 'check-in' }
-      )
-      if FAILED_CLAIM_TEMPLATE_IDS.include?(template_id)
-        tags = if 'oh'.casecmp?(opts[:facility_type])
-                 Constants::STATSD_OH_SILENT_FAILURE_TAGS
-               else
-                 Constants::STATSD_CIE_SILENT_FAILURE_TAGS
-               end
-        StatsD.increment(Constants::STATSD_NOTIFY_SILENT_FAILURE, tags:)
-      end
-      StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
     end
   end
 end
