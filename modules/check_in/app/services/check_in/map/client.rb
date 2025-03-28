@@ -74,7 +74,7 @@ module CheckIn
       #
       def connection
         Faraday.new(url:) do |conn|
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.response :raise_custom_error, error_prefix: service_name
           conn.response :betamocks if mock_enabled?
 

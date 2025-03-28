@@ -15,7 +15,7 @@ module VAProfile
       ssl_enabled = Rails.env.production?
       @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options,
                                        ssl: { verify: ssl_enabled }) do |faraday|
-        faraday.use      :breakers
+        faraday.use(:breakers, service_name:)
         faraday.use      Faraday::Response::RaiseError
 
         faraday.response :snakecase, symbolize: false

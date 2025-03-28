@@ -25,8 +25,9 @@ module Eps
         appointment_types: object.provider.appointment_types,
         specialties: object.provider.specialties,
         visit_mode: object.provider.visit_mode,
-        features: object.provider.features
-      }
+        features: object.provider.features,
+        phone_number: object.provider.phone_number
+      }.compact
     end
   end
 end

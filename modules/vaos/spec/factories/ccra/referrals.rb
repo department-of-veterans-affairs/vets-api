@@ -24,6 +24,7 @@ FactoryBot.define do
     location { 'VA Medical Center' }
     referral_number { 'VA0000005681' }
     expiration_date { '2024-05-27' }
+    phone_number { '555-123-4567' }
 
     initialize_with do
       attributes = {
@@ -32,7 +33,8 @@ FactoryBot.define do
           'TreatingProvider' => provider_name,
           'TreatingFacility' => location,
           'ReferralNumber' => referral_number,
-          'ReferralExpirationDate' => expiration_date
+          'ReferralExpirationDate' => expiration_date,
+          'ProviderPhone' => phone_number
         }
       }
       Ccra::ReferralDetail.new(attributes)

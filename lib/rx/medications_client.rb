@@ -17,6 +17,7 @@ module Rx
     client_session Rx::ClientSession
 
     def auth_headers
+      Rails.logger.info('Rx request is coming from VA.gov web')
       config.base_request_headers.merge('appToken' =>
         config.app_token_va_gov, 'mhvCorrelationId' => session.user_id.to_s)
     end
