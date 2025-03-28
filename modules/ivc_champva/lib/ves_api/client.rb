@@ -2,6 +2,7 @@
 
 require 'json'
 require 'common/client/base'
+require 'ivc_champva/monitor'
 require_relative 'configuration'
 
 module IvcChampva
@@ -21,10 +22,12 @@ module IvcChampva
       # @param parsed_form_data [hash] form data from frontend to send to VES
       # @return [Array<Message>] the report rows
       def submit_1010d(transaction_uuid, acting_user, parsed_form_data)
-        connection.post("#{config.base_path}/champva-applications") do |req|
+        resp = connection.post("#{config.base_path}/champva-applications") do |req|
           req.headers = headers(transaction_uuid, acting_user)
           req.body = convert_to_champva_application(parsed_form_data).to_json
         end
+
+        monitor.track_ves_response(transaction_uuid, resp.status, resp.body)
 
         # TODO: check for non-200 responses and handle them appropriately
 
@@ -153,6 +156,15 @@ module IvcChampva
           'middleInitial' => certification_data['middle_initial'],
           'phoneNumber' => certification_data['phone_number']
         }
+      end
+
+      ##
+      # retreive a monitor for tracking
+      #
+      # @return [IvcChampva::Monitor]
+      #
+      def monitor
+        @monitor ||= IvcChampva::Monitor.new
       end
     end
   end
