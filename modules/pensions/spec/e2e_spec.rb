@@ -5,6 +5,7 @@ require 'pensions/benefits_intake/submission_handler'
 require 'pensions/benefits_intake/pension_benefit_intake_job'
 require 'pensions/monitor'
 require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
+require 'kafka/sidekiq/event_bus_submission_job'
 
 RSpec.describe 'Pensions End to End', type: :request do
   let(:form) { build(:pensions_saved_claim) }
@@ -31,6 +32,7 @@ RSpec.describe 'Pensions End to End', type: :request do
     expect(SavedClaimSerializer).to receive(:new).and_call_original
     expect(PersistentAttachment).to receive(:where).with(guid: anything).and_call_original
     expect(Pensions::PensionBenefitIntakeJob).to receive(:perform_async)
+    expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).twice.and_call_original
     expect(monitor).to receive(:track_create_success).and_call_original
 
     post '/pensions/v0/claims', params: { param_name => { form: form.form } }
