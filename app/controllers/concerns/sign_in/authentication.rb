@@ -74,7 +74,7 @@ module SignIn
         access_token_cookie: cookie_access_token(access_token_cookie_name:)
       }.compact
 
-      log_message_to_sentry(error.message, :error, context) if context.present?
+      log_message_all(error.message, :error, context) if context.present?
       render json: { errors: error }, status: :unauthorized
     end
 
