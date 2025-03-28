@@ -36,8 +36,6 @@ module HCA
       }
     end
 
-    def uuid
-      SecureRandom.uuid
-    end
+    delegate :uuid, to: :SecureRandom
   end
 end
