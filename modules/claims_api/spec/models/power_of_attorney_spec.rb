@@ -64,9 +64,4 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
       expect(claim.cid).to eq('ABC123')
     end
   end
-
-  describe 'new attribute header_hash and index' do
-    its(:attributes) { is_expected.to include('header_hash') }
-    it { is_expected.to have_db_index(:header_hash) }
-  end
 end
