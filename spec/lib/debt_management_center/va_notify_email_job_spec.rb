@@ -40,9 +40,9 @@ RSpec.describe DebtManagementCenter::VANotifyEmailJob, type: :worker do
       let(:call_back_metadata) do
         {
           callback_metadata: {
-            notification_type: "error",
-            form_number: "5655",
-            statsd_tags: { service: "debt-resolution", function: "register_failure" }
+            notification_type: 'error',
+            form_number: '5655',
+            statsd_tags: { service: 'debt-resolution', function: 'register_failure' }
           }
         }
       end
@@ -80,7 +80,7 @@ RSpec.describe DebtManagementCenter::VANotifyEmailJob, type: :worker do
           template_id,
           personalisation,
           { 'id_type' => 'email', 'failure_mailer' => true }
-          )
+        )
       end
 
       it 'does not use the callback options' do
@@ -93,7 +93,7 @@ RSpec.describe DebtManagementCenter::VANotifyEmailJob, type: :worker do
           email,
           template_id,
           personalisation
-          )
+        )
       end
     end
   end
