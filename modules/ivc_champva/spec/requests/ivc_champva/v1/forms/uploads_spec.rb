@@ -93,8 +93,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         it 'does VES processing only for form 10-10D' do
           with_settings(Settings, vsp_environment: 'staging') do
             controller = IvcChampva::V1::UploadsController.new
-            allow(controller).to receive(:call_handle_file_uploads).and_return([[200], nil])
-            allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
+            allow(controller).to receive_messages(call_handle_file_uploads: [[200], nil],
+                                                  params: ActionController::Parameters.new(data))
             allow(controller).to receive(:render)
 
             controller.send(:submit)
@@ -155,15 +155,15 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           with_settings(Settings, vsp_environment: 'staging') do
             if data['form_number'] == '10-10D'
               controller = IvcChampva::V1::UploadsController.new
-              allow(controller).to receive(:call_handle_file_uploads).and_return([[400], 'oh no'])
-              allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
+              allow(controller).to receive_messages(call_handle_file_uploads: [[400], 'oh no'],
+                                                    params: ActionController::Parameters.new(data))
               allow(controller).to receive(:render)
 
               controller.send(:submit)
 
               expect(ves_client).not_to have_received(:submit_1010d)
               expect(controller).to have_received(:render)
-                                      .with({ json: { error_message: 'oh no' }, status: 400 })
+                .with({ json: { error_message: 'oh no' }, status: 400 })
             end
           end
         end
