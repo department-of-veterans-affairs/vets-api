@@ -31,10 +31,11 @@ module IvcChampva
           ves_request = prepare_ves_request(form_id, parsed_form_data)
 
           statuses, error_message = call_handle_file_uploads(form_id, parsed_form_data)
-
-          submit_ves_request(form_id, ves_request)
-
           response = build_json(statuses, error_message)
+
+          if response[:status] == 200
+            submit_ves_request(form_id, ves_request)
+          end
 
           if @current_user && response[:status] == 200
             InProgressForm.form_for_user(params[:form_number], @current_user)&.destroy!

@@ -92,7 +92,13 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       context 'when environment is not production' do
         it 'does VES processing only for form 10-10D' do
           with_settings(Settings, vsp_environment: 'staging') do
-            post '/ivc_champva/v1/forms', params: data
+            controller = IvcChampva::V1::UploadsController.new
+            allow(controller).to receive(:call_handle_file_uploads).and_return([[200], nil])
+            allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
+            allow(controller).to receive(:render)
+
+            controller.send(:submit)
+
             if data['form_number'] == '10-10D'
               expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request)
               # make sure submit_1010d is called with the request object from the formatter
@@ -109,13 +115,13 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             if data['form_number'] == '10-10D'
               allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_raise(StandardError.new('oh no'))
               controller = IvcChampva::V1::UploadsController.new
-              allow(controller).to receive(:handle_file_uploads)
+              allow(controller).to receive(:call_handle_file_uploads)
               allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
               allow(controller).to receive(:render)
 
               controller.send(:submit)
 
-              expect(controller).not_to have_received(:handle_file_uploads)
+              expect(controller).not_to have_received(:call_handle_file_uploads)
               expect(ves_client).not_to have_received(:submit_1010d)
               expect(controller).to have_received(:render)
                 .with({ json: { error_message: 'Error: oh no' }, status: :internal_server_error })
@@ -128,19 +134,36 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             if data['form_number'] == '10-10D'
               allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(nil)
               controller = IvcChampva::V1::UploadsController.new
-              allow(controller).to receive(:handle_file_uploads)
+              allow(controller).to receive(:call_handle_file_uploads)
               allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
               allow(controller).to receive(:render)
 
               controller.send(:submit)
 
-              expect(controller).not_to have_received(:handle_file_uploads)
+              expect(controller).not_to have_received(:call_handle_file_uploads)
               expect(ves_client).not_to have_received(:submit_1010d)
               expect(controller).to have_received(:render)
                 .with({
                         json: { error_message: 'Error: Failed to format data for VES submission' },
                         status: :internal_server_error
                       })
+            end
+          end
+        end
+
+        it 'returns an error and does not proceed when handle_file_uploads fails' do
+          with_settings(Settings, vsp_environment: 'staging') do
+            if data['form_number'] == '10-10D'
+              controller = IvcChampva::V1::UploadsController.new
+              allow(controller).to receive(:call_handle_file_uploads).and_return([[400], 'oh no'])
+              allow(controller).to receive(:params).and_return(ActionController::Parameters.new(data))
+              allow(controller).to receive(:render)
+
+              controller.send(:submit)
+
+              expect(ves_client).not_to have_received(:submit_1010d)
+              expect(controller).to have_received(:render)
+                                      .with({ json: { error_message: 'oh no' }, status: 400 })
             end
           end
         end
