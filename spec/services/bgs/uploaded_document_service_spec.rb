@@ -22,7 +22,7 @@ RSpec.describe BGS::UploadedDocumentService do
           allow(user).to receive(:participant_id).and_return('11111111111')
           service = BGS::UploadedDocumentService.new(user)
           response = service.get_documents
-          expect(response).to be(false)
+          expect(response).to be_empty
         end
       end
     end

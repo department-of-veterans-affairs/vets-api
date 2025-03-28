@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/intent_to_file/intent_to_files_response'
 
 describe IntentToFileSerializer, type: :serializer do
+  # TODO: remove this file or update with LH response
   subject { serialize(intent_to_file_response, serializer_class: described_class) }
 
   let(:intent_to_file) { build_list(:evss_intent_to_file, 2) }

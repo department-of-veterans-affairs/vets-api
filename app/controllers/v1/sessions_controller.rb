@@ -31,6 +31,7 @@ module V1
     OPERATION_TYPES = [AUTHORIZE = 'authorize',
                        INTERSTITIAL_VERIFY = 'interstitial_verify',
                        INTERSTITIAL_SIGNUP = 'interstitial_signup',
+                       MHV_EXCEPTION = 'mhv_exception',
                        MYHEALTHEVET_TEST_ACCOUNT = 'myhealthevet_test_account'].freeze
 
     # Collection Action: auth is required for certain types of requests
@@ -55,9 +56,9 @@ module V1
         url = URI.parse(url_service.ssoe_slo_url)
 
         app_key = if ActiveModel::Type::Boolean.new.cast(params[:agreements_declined])
-                    Settings.saml_ssoe.tou_decline_logout_app_key
+                    IdentitySettings.saml_ssoe.tou_decline_logout_app_key
                   else
-                    Settings.saml_ssoe.logout_app_key
+                    IdentitySettings.saml_ssoe.logout_app_key
                   end
 
         query_strings = { appKey: CGI.escape(app_key), clientId: params[:client_id] }.compact
@@ -200,12 +201,12 @@ module V1
     end
 
     def set_sso_saml_cookie!
-      cookies[Settings.ssoe_eauth_cookie.name] = {
+      cookies[IdentitySettings.ssoe_eauth_cookie.name] = {
         value: saml_cookie_content.to_json,
         expires: nil,
-        secure: Settings.ssoe_eauth_cookie.secure,
+        secure: IdentitySettings.ssoe_eauth_cookie.secure,
         httponly: true,
-        domain: Settings.ssoe_eauth_cookie.domain
+        domain: IdentitySettings.ssoe_eauth_cookie.domain
       }
     end
 

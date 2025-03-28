@@ -8,8 +8,10 @@ module VBADocuments
 
       attr_reader :observers
 
-      attribute :location, if: proc { !Settings.vba_documents.v2_upload_endpoint_enabled } do |object, params|
-        object.get_location if params[:render_location]
+      attribute :location, if: proc { |_, params|
+        params[:render_location] == true && !Settings.vba_documents.v2_upload_endpoint_enabled
+      } do |object, _|
+        object.get_location
       rescue => e
         raise Common::Exceptions::InternalServerError, e
       end

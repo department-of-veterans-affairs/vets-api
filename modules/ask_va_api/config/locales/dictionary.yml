@@ -1,7 +1,7 @@
 en:
   ask_va_api:
     veteran_relationship:
-      "Accredited representative (such as an accredited attorney, claims agent, or Veterans Service Officer)": "VSO"
+      "Accredited representative (such as an accredited attorney, claims agent, or Veterans Service Officer)": "Accredited representative (Attorney, VSO, etc)"
       "CHILD": "Child"
       "Fiduciary": "Fiduciary"
       "Funeral director": "Funeral Director"

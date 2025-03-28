@@ -38,6 +38,11 @@ public/assets/**
 public/disability_compensation_supporting_form/**
 public/hca_attachments/**
 public/preneed_attachments/**
+public/decision_review/**
+public/evss_claim_documents/**
+public/lighthouse_documents/**
+public/submissions/**
+public/remediation/**
 spec/support/uploads/
 
 # Ignore local config
@@ -93,15 +98,12 @@ test_users.csv
 **/.DS_STORE
 
 # Ignore VIM/vscode artifact files
-.ignore 
+.ignore
 *.swp
 .vscode
 
 # Ignore node_modules for development tools
 node_modules
-
-# Ignore public folder (used for local document uploads)
-public
 
 # Ignore any files within clamav_tmp
 clamav_tmp/*
@@ -116,3 +118,6 @@ staging.benefits_claims.pem
 
 # ignore Yardoc generation
 .yardoc/
+
+# ignore all local settings files
+**/*.local.yml

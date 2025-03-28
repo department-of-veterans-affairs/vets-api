@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/384759483%5ENI%5E200DOD%5EUSDOD
+    uri: <VETS360_URL>/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/384759483%5ENI%5E200DOD%5EUSDOD
     body:
       encoding: UTF-8
       string: '{"bios":[{"bioPath":"militaryPerson.militaryServiceHistory","parameters":{"scope":"all"}}]}'

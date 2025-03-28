@@ -33,6 +33,8 @@ class LighthousePPIUProvider
   end
 
   def populate_control_information(data)
+    return {} if data&.control_information.blank?
+
     DisabilityCompensation::ApiProvider::ControlInformation.new(
       can_update_address: false,
       corp_avail_indicator: data.control_information[:is_corp_available],
@@ -47,6 +49,8 @@ class LighthousePPIUProvider
   end
 
   def populate_payment_account(data)
+    return {} if data&.payment_account.blank?
+
     DisabilityCompensation::ApiProvider::PaymentAccount.new(
       account_type: data.payment_account[:account_type],
       financial_institution_name: data.payment_account[:name],

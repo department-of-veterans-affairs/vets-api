@@ -189,12 +189,12 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       FileUtils.rm_f(response_pdf)
     end
 
-    context 'caregiver1010 toggle off' do
+    context ':caregiver_retry_pdf_fill feature on' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:caregiver_retry_pdf_fill).and_return(true)
       end
 
-      it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
+      it 'returns a completed PDF' do
         expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
           form: form_data
         ).and_return(
@@ -223,7 +223,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         ).to be(false)
       end
 
-      it 'ensures the tmp file is deleted when send_data fails', run_at: '2017-07-25 00:00:00 -0400' do
+      it 'ensures the tmp file is deleted when send_data fails' do
         expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
           form: form_data
         ).and_return(claim)
@@ -242,12 +242,13 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         ).to be(false)
       end
 
-      it 'ensures the tmp file is deleted when fill_form fails', run_at: '2017-07-25 00:00:00 -0400' do
+      it 'ensures the tmp file is deleted when fill_form fails after retries' do
         expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
           form: form_data
         ).and_return(claim)
 
         allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, 'error filling form')
+        expect(claim).to receive(:to_pdf).exactly(3).times.and_raise(StandardError, 'error filling form')
 
         expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
         expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
@@ -266,12 +267,12 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       end
     end
 
-    context 'caregiver1010 toggle on' do
+    context ':caregiver_retry_pdf_fill feature off' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:caregiver_retry_pdf_fill).and_return(false)
       end
 
-      it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
+      it 'returns a completed PDF' do
         expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
           form: form_data
         ).and_return(
@@ -300,7 +301,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         ).to be(false)
       end
 
-      it 'ensures the tmp file is deleted when send_data fails', run_at: '2017-07-25 00:00:00 -0400' do
+      it 'ensures the tmp file is deleted when send_data fails' do
         expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
           form: form_data
         ).and_return(claim)
@@ -319,7 +320,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         ).to be(false)
       end
 
-      it 'ensures the tmp file is deleted when fill_form fails', run_at: '2017-07-25 00:00:00 -0400' do
+      it 'ensures the tmp file is deleted when fill_form fails once' do
         expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
           form: form_data
         ).and_return(claim)
@@ -356,7 +357,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       }
     end
 
-    let(:params) do
+    let(:unmodified_params) do
       {
         zip: '90210',
         state: 'CA',
@@ -368,10 +369,13 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         mobile: true,
         page: 1,
         per_page: 10,
-        facilityIds: 'vha_123,vha_456',
         services: ['1'],
         bbox: [2]
       }
+    end
+
+    let(:params) do
+      unmodified_params.merge(facility_ids: 'vha_123,vha_456')
     end
 
     let(:mock_facility_response) do
@@ -399,7 +403,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
     it 'calls the Lighthouse facilities service with the permitted params' do
       subject
 
-      expected_params = ActionController::Parameters.new(params).permit!
+      expected_params = unmodified_params.merge(facilityIds: 'vha_123,vha_456')
 
       expect(lighthouse_service).to have_received(:get_paginated_facilities)
         .with(expected_params)

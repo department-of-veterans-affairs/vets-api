@@ -9,7 +9,7 @@ module Mobile
 
       def index
         resource = client.get_history_rxs
-        resource = params[:filter].present? ? resource.find_by(filter_params) : resource
+        resource = resource.find_by(filter_params) if params[:filter].present?
         resource = resource.sort(params[:sort])
         page_resource, page_meta_data = paginate(resource.attributes)
 

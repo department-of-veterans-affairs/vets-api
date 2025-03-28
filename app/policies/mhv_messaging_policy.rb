@@ -8,7 +8,9 @@ MHVMessagingPolicy = Struct.new(:user, :mhv_messaging) do
 
     # client = SM::Client.new(session: { user_id: user.mhv_correlation_id })
     # validate_client(client)
-    true
+    # true
+    client = SM::Client.new(session: { user_id: user.mhv_correlation_id, user_uuid: user.uuid })
+    validate_client(client)
   end
 
   def mobile_access?

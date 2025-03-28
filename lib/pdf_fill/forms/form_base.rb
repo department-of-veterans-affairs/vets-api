@@ -7,6 +7,9 @@ module PdfFill
     class FormBase
       attr_reader :form_data
 
+      START_PAGE = 1
+      SECTIONS = nil
+
       def self.date_strftime
         '%m/%d/%Y'
       end

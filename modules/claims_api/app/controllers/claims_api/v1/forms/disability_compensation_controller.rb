@@ -4,7 +4,6 @@ require 'evss/disability_compensation_form/service'
 require 'evss/disability_compensation_form/dvp/service'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/error_middleware'
-require 'evss/reference_data/service'
 require 'common/exceptions'
 require 'jsonapi/parser'
 require 'evss_service/base' # docker container
@@ -101,7 +100,7 @@ module ClaimsApi
 
             ClaimsApi::Logger.log('526', claim_id: pending_claim.id, detail: 'Uploaded PDF to S3')
             ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id)
-            ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
+            ClaimsApi::ClaimUploader.perform_async(pending_claim.id, 'claim')
 
             render json: ClaimsApi::AutoEstablishedClaimSerializer.new(pending_claim)
 
@@ -136,7 +135,7 @@ module ClaimsApi
             claim_document = claim.supporting_documents.build
             claim_document.set_file_data!(document, EVSS_DOCUMENT_TYPE, params[:description])
             claim_document.save!
-            ClaimsApi::ClaimUploader.perform_async(claim_document.id)
+            ClaimsApi::ClaimUploader.perform_async(claim_document.id, 'document')
           end
 
           render json: ClaimsApi::ClaimDetailSerializer.new(claim, { params: { uuid: claim.id } })
@@ -194,7 +193,7 @@ module ClaimsApi
                Faraday::ParsingError,
                Breakers::OutageException => e
           claims_v1_logging('validate_form_526',
-                            message: "rescuing in validate_form_526, claim_id: #{auto_claim.id}" \
+                            message: "rescuing in validate_form_526, claim_id: #{auto_claim&.id}" \
                                      "#{e.class.name}, error: #{e.try(:as_json) || e}")
           raise e
         end

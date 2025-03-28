@@ -62,9 +62,7 @@ module Rswag
             file_path = File.join(@config.openapi_root, url_path)
             dirname = File.dirname(file_path)
             FileUtils.mkdir_p dirname
-            File.open(file_path, 'w') do |file|
-              file.write(pretty_generate(doc))
-            end
+            File.write(file_path, pretty_generate(doc))
             @output.puts "Swagger doc generated at #{file_path}"
           end # Added conditional
         end

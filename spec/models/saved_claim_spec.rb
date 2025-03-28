@@ -120,7 +120,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
     let(:form_data) { { some_key: [{ confirmationCode: confirmation_code }] }.to_json }
 
     it 'processes attachments associated with the claim' do
-      attachment = create(:persistent_attachment, guid: confirmation_code, saved_claim: saved_claim)
+      attachment = create(:persistent_attachment, guid: confirmation_code, saved_claim:)
       saved_claim.process_attachments!
 
       expect(attachment.reload.saved_claim_id).to eq(saved_claim.id)
@@ -175,7 +175,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
     let!(:notification) do
       ClaimVANotification.create(
-        saved_claim: saved_claim,
+        saved_claim:,
         email_template_id:,
         form_type: saved_claim.form_id,
         email_sent: false

@@ -35,7 +35,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, form: :educati
     context 'when institution is blank' do
       before do
         gids_response = build(:gids_response, :empty)
-        allow_any_instance_of(::GI::Client).to receive(:get_institution_details_v0)
+        allow_any_instance_of(GI::Client).to receive(:get_institution_details_v0)
           .and_return(gids_response)
       end
 
@@ -47,7 +47,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, form: :educati
     context 'when school has changed' do
       before do
         gids_response = build(:gids_response)
-        allow_any_instance_of(::GI::Client).to receive(:get_institution_details_v0)
+        allow_any_instance_of(GI::Client).to receive(:get_institution_details_v0)
           .and_return(gids_response)
       end
 
@@ -63,7 +63,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, form: :educati
     context 'when neither a primary or secondary sco with an email address is found' do
       before do
         gids_response = build(:gids_response, :no_scos)
-        allow_any_instance_of(::GI::Client).to receive(:get_institution_details_v0)
+        allow_any_instance_of(GI::Client).to receive(:get_institution_details_v0)
           .and_return(gids_response)
       end
 
@@ -75,7 +75,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, form: :educati
     context 'when all conditions are met' do
       before do
         gids_response = build(:gids_response)
-        allow_any_instance_of(::GI::Client).to receive(:get_institution_details_v0)
+        allow_any_instance_of(GI::Client).to receive(:get_institution_details_v0)
           .and_return(gids_response)
       end
 

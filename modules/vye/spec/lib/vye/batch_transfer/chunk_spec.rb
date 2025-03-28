@@ -49,7 +49,7 @@ RSpec.describe Vye::BatchTransfer::Chunk do
 
         allow(Vye::BatchTransfer::Chunking)
           .to receive(:new)
-          .with(filename: filename, block_size: anything)
+          .with(filename:, block_size: anything)
           .and_return(mock_chunking)
 
         allow(mock_chunking).to receive(:split).and_return(mock_chunks)

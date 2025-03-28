@@ -27,6 +27,7 @@ module SignIn
     validates :service_levels, presence: true, inclusion: { in: Constants::Auth::ACR_VALUES, allow_nil: false }
     validates :credential_service_providers, presence: true,
                                              inclusion: { in: Constants::Auth::CSP_TYPES, allow_nil: false }
+    validates :json_api_compatibility, inclusion: [true, false]
 
     def self.valid_client_id?(client_id:)
       find_by(client_id:).present?

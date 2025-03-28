@@ -44,12 +44,8 @@ module ClaimsApi
 
     def handle_failure(msg)
       job_name = 'ClaimsApi::VANotifyFollowUpJob'
+      ClaimsApi::Logger.log(LOG_TAG, detail: msg)
       slack_alert_on_failure(job_name, msg)
-
-      ClaimsApi::Logger.log(
-        LOG_TAG,
-        detail: msg
-      )
     end
 
     def notification_response_status(notification_id)

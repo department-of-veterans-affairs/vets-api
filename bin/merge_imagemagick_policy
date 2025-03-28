@@ -1,0 +1,13 @@
+require 'nokogiri'
+
+original_policy_path = '/etc/ImageMagick-6/policy.xml'
+new_policy_path = '/app/config/imagemagick/policies/new-policy.xml'
+
+policy1 = Nokogiri::XML(File.read(original_policy_path)) { |config| config.default_xml.noblanks }
+policy2 = Nokogiri::XML(File.read(new_policy_path)) { |config| config.default_xml.noblanks }
+
+policy2.xpath('//policy').each do |policy|
+  policy1.root.add_child(policy)
+end
+
+File.write(original_policy_path, policy1.to_xml(indent: 2))

@@ -14,6 +14,7 @@ RSpec.describe Message do
                                                                            :attachment, :attachments, :sent_date,
                                                                            :sender_id, :sender_name, :recipient_id,
                                                                            :recipient_name, :read_receipt, :uploads,
+                                                                           :suggested_name_display,
                                                                            :triage_group_name, :proxy_sender_name,
                                                                            :has_attachments, :attachment1_id,
                                                                            :attachment2_id, :attachment3_id,

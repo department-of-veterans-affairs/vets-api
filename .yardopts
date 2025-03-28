@@ -3,6 +3,7 @@
 --private
 --verbose
 --no-cache
+--no-save
 --output-dir .yardoc/output
 --exclude /spec/
 --exclude /swagger/

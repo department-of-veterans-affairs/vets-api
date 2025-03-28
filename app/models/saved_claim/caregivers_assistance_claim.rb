@@ -3,6 +3,8 @@
 require 'pdf_fill/filler'
 
 class SavedClaim::CaregiversAssistanceClaim < SavedClaim
+  include FormValidation
+
   FORM = '10-10CG'
 
   has_one :submission,
@@ -39,7 +41,7 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
     return unless form_is_string
 
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
-    validation_errors = validate_form_with_retries(schema)
+    validation_errors = validate_form_with_retries(schema, parsed_form)
 
     validation_errors.each do |e|
       errors.add(e[:fragment], e[:message])
@@ -92,29 +94,5 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
     return if form.blank?
 
     Form1010cg::Attachment.find_by(guid: parsed_form['poaAttachmentId'])&.destroy!
-  end
-
-  def validate_form_with_retries(schema)
-    attempts = 0
-    max_attempts = 3
-
-    begin
-      attempts += 1
-      errors_array = JSON::Validator.fully_validate(schema, parsed_form, { errors_as_objects: true })
-      Rails.logger.info("Form validation succeeded on attempt #{attempts}/#{max_attempts}") if attempts > 1
-      errors_array
-    rescue => e
-      if attempts <= max_attempts
-        Rails.logger.warn("Retrying form validation due to error: #{e.message} (Attempt #{attempts}/#{max_attempts})")
-        sleep(1) # Delay 1 second in between attempts
-        retry
-      else
-        PersonalInformationLog.create(data: { schema:, parsed_form:, params: { errors_as_objects: true } },
-                                      error_class: 'SavedClaim FormValidationError')
-        Rails.logger.error('Error during form validation after maximimum retries',
-                           { error: e.message, backtrace: e.backtrace, schema: })
-        raise
-      end
-    end
   end
 end

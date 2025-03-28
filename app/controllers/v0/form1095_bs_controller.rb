@@ -2,13 +2,15 @@
 
 module V0
   class Form1095BsController < ApplicationController
-    service_tag 'deprecated'
+    service_tag 'form-1095b'
     before_action { authorize :form1095, :access? }
     before_action :set_form, only: %i[download_pdf download_txt]
-    before_action :set_available_forms, only: :available_forms
 
     def available_forms
-      render json: { available_forms: @available_forms }
+      form = Form1095B.find_by(veteran_icn: current_user.icn, tax_year: Form1095B.current_tax_year)
+      forms = form.nil? ? [] : [{ year: form.tax_year, last_updated: form.updated_at }]
+      StatsD.increment('api.user_has_no_1095b') if forms.empty?
+      render json: { available_forms: forms }
     end
 
     def download_pdf
@@ -30,11 +32,6 @@ module V0
         Rails.logger.error("Form 1095-B for #{download_params[:tax_year]} not found", user_uuid: @current_user&.uuid)
         raise Common::Exceptions::RecordNotFound, download_params[:tax_year]
       end
-    end
-
-    def set_available_forms
-      forms = Form1095B.available_forms(@current_user[:icn])
-      @available_forms = forms.map { |form| { year: form[0], last_updated: form[1] } }
     end
 
     def download_params

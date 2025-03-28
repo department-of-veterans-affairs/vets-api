@@ -15,9 +15,7 @@ module Common
     def generate_random_file(file_body)
       file_path = random_file_path
 
-      File.open(file_path, 'wb') do |file|
-        file.write(file_body)
-      end
+      File.binwrite(file_path, file_body)
 
       file_path
     end
@@ -31,9 +29,7 @@ module Common
 
       file_path = "clamav_tmp/#{file_name}"
 
-      File.open(file_path, 'wb') do |file|
-        file.write(file_body)
-      end
+      File.binwrite(file_path, file_body)
 
       file_path
     end

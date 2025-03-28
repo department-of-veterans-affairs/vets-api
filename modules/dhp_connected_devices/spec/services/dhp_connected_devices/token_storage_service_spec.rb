@@ -63,8 +63,7 @@ RSpec.describe TokenStorageService, type: :service do
       end
 
       it 'returns error when token was not stored locally' do
-        allow_any_instance_of(File).to receive(:write).with(any_args).and_raise(TokenStorageError)
-        allow_any_instance_of(File).to receive(:read).with(any_args).and_raise(TokenStorageError)
+        allow(File).to receive(:write).and_raise(Errno::ENOENT)
 
         expect { subject.store_tokens(current_user, @device_key, @token_hash) }.to raise_error(TokenStorageError)
       end
@@ -158,12 +157,14 @@ RSpec.describe TokenStorageService, type: :service do
       end
 
       it 'returns token when token file is present in tmp folder' do
-        allow(File).to receive(:open).and_return(@token_as_string_io)
+        allow(File).to receive(:read).and_return(@token_json_with_payload_key)
+
         expect(subject.get_token(current_user, @device_key)).to eq(@token_hash_with_payload_key)
       end
 
       it 'returns TokenRetrievalError when token file is not present' do
-        allow_any_instance_of(File).to receive(:read).with(any_args).and_raise(TokenRetrievalError)
+        allow(File).to receive(:read).and_raise(Errno::ENOENT)
+
         expect { subject.get_token(current_user, @device_key) }.to raise_error(TokenRetrievalError)
       end
     end

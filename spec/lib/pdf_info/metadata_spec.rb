@@ -20,7 +20,8 @@ describe PdfInfo::Metadata do
       JavaScript:     no
       Pages:          4
       Encrypted:      no
-      Page size:      612 x 792 pts (letter)
+      Page    1 size: 612 x 792 pts (letter)
+      Page    2 size: 400 x 500 pts (letter)
       Page rot:       0
       File size:      1099807 bytes
       Optimized:      no
@@ -51,7 +52,7 @@ describe PdfInfo::Metadata do
   describe '::read' do
     context 'when passed a string' do
       it 'shells out with the string as the file path' do
-        expect(Open3).to receive(:popen2e).with('pdfinfo', '/tmp/file.pdf').and_yield('', result, good_exit)
+        expect(Open3).to receive(:popen2e).with('pdfinfo', '-l', '-1', '/tmp/file.pdf').and_yield('', result, good_exit)
         described_class.read('/tmp/file.pdf')
       end
     end
@@ -60,14 +61,14 @@ describe PdfInfo::Metadata do
       it 'shells out with the file object path' do
         file = double(File)
         allow(file).to receive(:path).and_return('/tmp/file.pdf')
-        expect(Open3).to receive(:popen2e).with('pdfinfo', '/tmp/file.pdf').and_yield('', result, good_exit)
+        expect(Open3).to receive(:popen2e).with('pdfinfo', '-l', '-1', '/tmp/file.pdf').and_yield('', result, good_exit)
         described_class.read(file)
       end
     end
 
     context 'when the command errors' do
       it 'raises a PdfInfo::MetadataReadError' do
-        expect(Open3).to receive(:popen2e).with('pdfinfo', '/tmp/file.pdf').and_yield('', result, bad_exit)
+        expect(Open3).to receive(:popen2e).with('pdfinfo', '-l', '-1', '/tmp/file.pdf').and_yield('', result, bad_exit)
         expect { described_class.read('/tmp/file.pdf') }.to raise_error(PdfInfo::MetadataReadError, /pdfinfo exited/)
       end
     end
@@ -169,6 +170,37 @@ describe PdfInfo::Metadata do
       it 'returns encryption as a boolean' do
         metadata = described_class.read('/tmp/file.pdf')
         expect(metadata.encrypted?).to be true
+      end
+    end
+
+    context 'when the document has an oversized page' do
+      let(:result) do
+        <<~STDOUT
+          Title:
+          Subject:
+          Author:
+          Creator:
+          Producer:
+          CreationDate:
+          Tagged:         no
+          UserProperties: no
+          Suspects:       no
+          Form:           none
+          JavaScript:     no
+          Pages:          2
+          Encrypted:      no
+          Page    1 size: 612 x 792 pts (letter)
+          Page    2 size: 1944 x 2952 pts (letter)
+          Page rot:       0
+          File size:      1099807 bytes
+          Optimized:      no
+          PDF version:    1.3"
+        STDOUT
+      end
+
+      it "returns hash with oversized page and it's dimensions" do
+        metadata = described_class.read('/tmp/file.pdf')
+        expect(metadata.oversized_pages_inches(20, 30)).to eq([{ page_number: 2, width: 27.0, height: 41.0 }])
       end
     end
   end

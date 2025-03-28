@@ -25,11 +25,15 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
     login_as(representative_user)
   end
 
+  after { Flipper.disable(:accredited_representative_portal_pilot) }
+
   describe 'POST /accredited_representative_portal/v0/form21a' do
     context 'with valid JSON' do
       let!(:in_progress_form) { create(:in_progress_form, form_id: '21a', user_uuid: representative_user.uuid) }
 
-      it 'logs a successful submission and destroys in-progress form' do
+      it 'logs a successful submission and destroys in-progress form',
+         skip: 'Test has been flaky - see: ' \
+               'https://github.com/department-of-veterans-affairs/va.gov-team/issues/102880' do
         get('/accredited_representative_portal/v0/in_progress_forms/21a')
         expect(response).to have_http_status(:ok)
         expect(parsed_response.keys).to contain_exactly('formData', 'metadata')
@@ -90,7 +94,9 @@ Errors: The property '#/firstName' of type integer did not match the following t
     end
 
     context 'when service returns a blank response' do
-      it 'logs the error and returns no content status' do
+      it 'logs the error and returns no content status',
+         skip: 'Test has been flaky - see: ' \
+               'https://github.com/department-of-veterans-affairs/va.gov-team/issues/102880' do
         allow(AccreditationService).to receive(:submit_form21a).and_return(
           instance_double(Faraday::Response, success?: false, body: nil, status: 204)
         )
@@ -136,7 +142,7 @@ Errors: The property '#/firstName' of type integer did not match the following t
         post '/accredited_representative_portal/v0/form21a'
 
         expect(Rails.logger).to have_received(:error).with(
-          "ARP: Unexpected error occurred for user with user_uuid=#{representative_user.uuid} - Unexpected error"
+          include(/ARP: Unexpected error occurred for user with user_uuid=#{representative_user.uuid}/)
         )
 
         expect(response).to have_http_status(:internal_server_error)

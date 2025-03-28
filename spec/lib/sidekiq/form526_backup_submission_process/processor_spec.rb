@@ -39,7 +39,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
           options: { auth_headers:, breakered: true },
           current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: account.icn }),
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
+          feature_toggle: nil
         }
       )
 
@@ -60,7 +60,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
           options: { auth_headers: submission.auth_headers, breakered: true },
           current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: account.icn }),
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
+          feature_toggle: nil
         }
       ).and_call_original
 
@@ -68,30 +68,32 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
         .new(submission.id, get_upload_location_on_instantiation: false)
         .get_form526_pdf
     end
+  end
 
-    it 'pulls from the correct EVSS provider according to the startedFormVersion' do
-      allow_any_instance_of(EvssGeneratePdfProvider).to receive(:generate_526_pdf)
-        .and_return(Faraday::Response.new(status: 200,
-                                          body: { 'pdf' => Base64.encode64('526pdf') }))
+  describe '#get_form0781_pdf' do
+    context 'generates a 0781 version 1 pdf' do
+      let(:submission) { create(:form526_submission, :with_0781, submit_endpoint: 'benefits_intake_api') } # rubocop:disable Naming/VariableNumber
 
-      new_form_data = submission.saved_claim.parsed_form
-      new_form_data['startedFormVersion'] = nil
-      submission.saved_claim.form = new_form_data.to_json
-      submission.saved_claim.save
+      it 'generates a 0781 v1 pdf and a 0781a pdf' do
+        form0781_pdfs = subject
+                        .new(submission.id, get_upload_location_on_instantiation: false)
+                        .get_form0781_pdf
+        expect(form0781_pdfs.count).to eq(2)
+        expect(form0781_pdfs.first[:type]).to eq('21-0781')
+        expect(form0781_pdfs.last[:type]).to eq('21-0781a')
+      end
+    end
 
-      expect(ApiProviderFactory).to receive(:call).with(
-        {
-          type: ApiProviderFactory::FACTORIES[:generate_pdf],
-          provider: ApiProviderFactory::API_PROVIDER[:evss],
-          options: { auth_headers: submission.auth_headers, breakered: true },
-          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: account.icn }),
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
-        }
-      ).and_call_original
+    context 'generates a 0781 version 2 pdf' do
+      let(:submission) { create(:form526_submission, :with_0781v2, submit_endpoint: 'benefits_intake_api') }
 
-      subject
-        .new(submission.id, get_upload_location_on_instantiation: false)
-        .get_form526_pdf
+      it 'generates a 0781 v2 pdf' do
+        form0781_pdfs = subject
+                        .new(submission.id, get_upload_location_on_instantiation: false)
+                        .get_form0781_pdf
+        expect(form0781_pdfs.count).to eq(1)
+        expect(form0781_pdfs.first[:type]).to eq('21-0781V2')
+      end
     end
   end
 end

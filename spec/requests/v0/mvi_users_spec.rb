@@ -64,10 +64,12 @@ RSpec.describe 'V0::MVIUsers', type: :request do
         it 'return 200, add user to MPI' do
           VCR.use_cassette('mpi/add_person/add_person_success') do
             VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
-              # expect success to be achieved by calling MPI's add_person_proxy
-              expect_any_instance_of(MPIData).to receive(:add_person_proxy).once.and_call_original
-              post "/v0/mvi_users/#{valid_form_id}"
-              expect(response).to have_http_status(:ok)
+              VCR.use_cassette('mpi/find_candidate/find_profile_with_identifier') do
+                # expect success to be achieved by calling MPI's add_person_proxy
+                expect_any_instance_of(MPIData).to receive(:add_person_proxy).once.and_call_original
+                post "/v0/mvi_users/#{valid_form_id}"
+                expect(response).to have_http_status(:ok)
+              end
             end
           end
         end

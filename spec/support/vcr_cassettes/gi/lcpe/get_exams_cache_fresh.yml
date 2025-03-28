@@ -1,0 +1,49 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<GIDS_URL>/v1/lcpe/exams"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      If-None-Match:
+      - W/"3"
+  response:
+    status:
+      code: 304
+      message: Not Modified
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Cache-Control:
+      - no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - 2023-12-30 18:37:49 UTC
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - W/"3"
+      X-Request-Id:
+      - 582e7f03-6e42-4e4b-b809-a40cd2a4f2ab
+      X-Runtime:
+      - '0.013559'
+      Server-Timing:
+      - start_processing.action_controller;dur=0.01, sql.active_record;dur=1.05, instantiation.active_record;dur=0.32,
+        render.active_model_serializers;dur=0.59, process_action.action_controller;dur=7.19
+      Content-Length:
+      - '1098'
+  recorded_at: Mon, 30 Dec 2024 18:37:49 GMT
+recorded_with: VCR 6.3.1

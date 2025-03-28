@@ -56,8 +56,6 @@ RSpec.describe V0::UsersController, type: :controller do
 
     before do
       sign_in_as(user)
-      Flipper.disable(:va_v3_contact_information_service)
-      Flipper.disable(:remove_pciu)
       Flipper.disable(:profile_user_claims)
       create(:user_verification, idme_uuid: user.idme_uuid)
     end

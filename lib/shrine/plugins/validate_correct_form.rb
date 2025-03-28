@@ -7,9 +7,10 @@ class Shrine
     module ValidateCorrectForm
       module AttacherMethods
         WRONG_FORM = 'wrong_form'
+        ALLOWED_MIME_TYPE_STRINGS = %i[pdf png jpeg].map { |type| Mime[type].to_s }
 
         def validate_correct_form(form_id: nil)
-          return unless get.mime_type == Mime[:pdf].to_s && form_id
+          return unless ALLOWED_MIME_TYPE_STRINGS.include?(get.mime_type) && form_id
 
           image_path = Rails.root.join("#{Common::FileHelpers.random_file_path}.jpg").to_s
           file = get.download

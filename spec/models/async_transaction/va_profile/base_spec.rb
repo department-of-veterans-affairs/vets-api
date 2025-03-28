@@ -6,7 +6,6 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
   describe 'contact information v1', :skip_va_profile_user do
     before do
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
     end
 
     describe '.find_transaction!' do
@@ -288,7 +287,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
 
   describe 'contact information v2' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     end
 
     describe '.refresh_transaction_status() v2', :skip_vet360 do
@@ -372,15 +371,11 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     describe '.start v2' do
       let(:user) { build(:user, :loa3) }
       let!(:user_verification) { create(:user_verification, idme_uuid: user.idme_uuid) }
-      let(:address) { build(:va_profile_v3_address, source_system_user: user.icn) }
+      let(:address) { build(:va_profile_v3_address, :mobile) }
 
       it 'returns an instance with the user uuid', :aggregate_failures do
         VCR.use_cassette('va_profile/v2/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
           service = VAProfile::V2::ContactInformation::Service.new(user)
-          address.address_line1 = '1493 Martin Luther King Rd'
-          address.city = 'Fulton'
-          address.state_code = 'MS'
-          address.zip_code = '38843'
           response = service.post_address(address)
           transaction = AsyncTransaction::VAProfile::Base.start(user, response)
           expect(transaction.user_uuid).to eq(user.uuid)

@@ -2,6 +2,8 @@
 
 MyHealth::Engine.routes.draw do
   namespace :v1 do
+    resources :tooltips, only: %i[index create update], controller: 'tooltips', defaults: { format: :json }
+
     scope :medical_records do
       resources :vaccines, only: %i[index show], defaults: { format: :json } do
         get :pdf, on: :collection
@@ -85,6 +87,8 @@ MyHealth::Engine.routes.draw do
 
       resource :preferences, only: %i[show update], controller: 'messaging_preferences' do
         post 'recipients', action: :update_triage_team_preferences
+        get :signature, on: :member
+        post :signature, on: :member, action: :update_signature
       end
     end
 

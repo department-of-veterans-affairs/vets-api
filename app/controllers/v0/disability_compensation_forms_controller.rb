@@ -4,8 +4,7 @@ require 'evss/common_service'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/disability_compensation_form/form4142'
 require 'evss/disability_compensation_form/service'
-require 'evss/reference_data/service'
-require 'evss/reference_data/response_strategy'
+require 'lighthouse/benefits_reference_data/response_strategy'
 require 'disability_compensation/factories/api_provider_factory'
 
 module V0
@@ -19,10 +18,10 @@ module V0
       invoker = 'V0::DisabilityCompensationFormsController#rated_disabilities'
       api_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:rated_disabilities],
-        provider: nil,
+        provider: :lighthouse,
         options: { icn: @current_user.icn.to_s, auth_headers: },
         current_user: @current_user,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
+        feature_toggle: nil
       )
 
       response = api_provider.get_rated_disabilities(nil, nil, { invoker: })
@@ -31,21 +30,23 @@ module V0
     end
 
     def separation_locations
-      response = EVSS::ReferenceData::ResponseStrategy.new.cache_by_user_and_type(
+      response = Lighthouse::ReferenceData::ResponseStrategy.new.cache_by_user_and_type(
         :all_users,
         :get_separation_locations
       ) do
-        provider = Flipper.enabled?(:disability_compensation_staging_lighthouse_brd) ? :lighthouse_staging : nil
+        # A separate provider is needed in order to interact with LH Staging and test BRD e2e properly
+        # We use vsp_environment here as RAILS_ENV is set to 'production' in staging
+        provider = Settings.vsp_environment == 'staging' ? :lighthouse_staging : :lighthouse
         api_provider = ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:brd],
           provider:,
           options: {},
           current_user: @current_user,
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_BRD
+          feature_toggle: nil
         )
         api_provider.get_separation_locations
       end
-      render json: EVSSSeparationLocationSerializer.new(response)
+      render json: SeparationLocationSerializer.new(response)
     end
 
     def suggested_conditions

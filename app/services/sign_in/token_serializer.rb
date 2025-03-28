@@ -37,7 +37,7 @@ module SignIn
       set_cookie!(name: Constants::Auth::INFO_COOKIE_NAME,
                   value: info_cookie_value.to_json,
                   httponly: false,
-                  domain: Settings.sign_in.info_cookie_domain)
+                  domain: IdentitySettings.sign_in.info_cookie_domain)
 
       if anti_csrf_enabled_client?
         set_cookie!(name: Constants::Auth::ANTI_CSRF_COOKIE_NAME,
@@ -50,7 +50,7 @@ module SignIn
       cookies[name] = {
         value:,
         expires: session_expiration,
-        secure: Settings.sign_in.cookies_secure,
+        secure: IdentitySettings.sign_in.cookies_secure,
         httponly:,
         path:,
         domain:
@@ -65,7 +65,9 @@ module SignIn
     end
 
     def token_json_response
-      { data: token_json_payload }
+      return { data: token_json_payload } if json_api_compatibility_client?
+
+      token_json_payload
     end
 
     def token_json_payload
@@ -95,6 +97,10 @@ module SignIn
 
     def anti_csrf_enabled_client?
       client_config.anti_csrf
+    end
+
+    def json_api_compatibility_client?
+      client_config.json_api_compatibility
     end
 
     def device_secret

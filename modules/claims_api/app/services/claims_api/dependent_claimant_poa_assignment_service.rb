@@ -5,6 +5,7 @@ require 'bgs_service/person_web_service'
 require 'bgs_service/redis/find_poas_service'
 require 'bgs_service/benefit_claim_web_service'
 require 'bgs_service/benefit_claim_service'
+require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 
 module ClaimsApi
   class DependentClaimantPoaAssignmentService
@@ -125,11 +126,12 @@ module ClaimsApi
     end
 
     def dependent_claims
-      bgs_claim_status_service = ClaimsApi::EbenefitsBnftClaimStatusWebService.new(
+      @bgs_claim_status_service ||= ClaimsApi::EbenefitsBnftClaimStatusWebService.new(
         external_uid: @dependent_participant_id,
         external_key: @dependent_participant_id
       )
-      res = bgs_claim_status_service.find_benefit_claims_status_by_ptcpnt_id(@dependent_participant_id)
+      res = @bgs_claim_status_service.find_benefit_claims_status_by_ptcpnt_id(@dependent_participant_id)
+
       benefit_claims = Array.wrap(res&.dig(:benefit_claims_dto, :benefit_claim))
 
       return benefit_claims if benefit_claims.present? && benefit_claims.is_a?(Array) && benefit_claims.first.present?
@@ -137,6 +139,13 @@ module ClaimsApi
       log(level: :error, detail: 'Dependent claims not found in BGS')
 
       raise ::Common::Exceptions::ResourceNotFound
+    end
+
+    def bgs_claim_status_service
+      @bgs_claim_status_service ||= ClaimsApi::EbenefitsBnftClaimStatusWebService.new(
+        external_uid: @dependent_participant_id,
+        external_key: @dependent_participant_id
+      )
     end
 
     def benefit_claim_web_service

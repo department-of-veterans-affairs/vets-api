@@ -65,7 +65,7 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
 
   context 'with items in vbaDocuments' do
     let(:raw_data) do
-      fixture_file_name = ::Rails.root.join(
+      fixture_file_name = Rails.root.join(
         *'/spec/fixtures/evss_claim/claim-with-documents.json'.split('/')
       ).to_s
       File.open(fixture_file_name, 'rb') do |f|

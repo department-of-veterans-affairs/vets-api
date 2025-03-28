@@ -2,7 +2,6 @@
 
 require 'sentry_logging'
 require 'res/ch31_form'
-require 'vre/ch31_form'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include SentryLogging
@@ -119,9 +118,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   # * Adds information from user to payload
   # * Submits to VBMS if participant ID is there, to Lighthouse if not.
   # * Sends email if user is present
-  # * Sends to RES or VRE service based on flipper status
+  # * Sends to RES service
   # @param user [User] user account of submitting user
-  # @return [Hash] Response payload of service that was used (RES or VRE)
+  # @return [Hash] Response payload of service that was used (RES)
   def send_to_vre(user)
     add_claimant_info(user)
 
@@ -137,11 +136,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr,
                                            @sent_to_lighthouse).deliver_later
 
-    if Flipper.enabled?(:veteran_readiness_employment_to_res)
-      send_to_res(user)
-    else
-      send_vre_form(user)
-    end
+    send_to_res(user)
   end
 
   # Submit claim into VBMS service, uploading document directly to VBMS,
@@ -189,6 +184,14 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     form_copy['veteranFullName'] = parsed_form.dig('veteranInformation', 'fullName')
     form_copy['vaFileNumber'] = parsed_form.dig('veteranInformation', 'VAFileNumber')
 
+    unless form_copy['veteranSocialSecurityNumber']
+      if user&.loa3?
+        Rails.logger.warn('VRE: No SSN found for LOA3 user', { user_uuid: user.uuid })
+      else
+        Rails.logger.info('VRE: No SSN found for LOA1 user', { user_uuid: user.uuid })
+      end
+    end
+
     update!(form: form_copy.to_json)
 
     process_attachments!
@@ -212,25 +215,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
                       })
 
     service = RES::Ch31Form.new(user:, claim: self)
-    service.submit
-  end
-
-  # Send claim via VRE service, does not submit if office location is not permitted
-  # @param user [User] user account of submitting user
-  # @return [Hash] Response payload of VRE service
-  def send_vre_form(user)
-    Rails.logger.info('VRE claim sending to VRE service',
-                      {
-                        user_uuid: user.uuid,
-                        was_sent: @sent_to_lighthouse,
-                        user_present: user.present?
-                      })
-
-    # During Roll out our partners ask that we check vet location and if within proximity to specific offices,
-    # send the data to them. We always send a pdf to VBMS
-    return unless PERMITTED_OFFICE_LOCATIONS.include?(@office_location)
-
-    service = VRE::Ch31Form.new(user:, claim: self)
     service.submit
   end
 

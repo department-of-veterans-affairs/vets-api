@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.wellhive.com/care-navigation/v1/drive-times
+    body:
+      encoding: UTF-8
+      string: '{"destinations":{"9mN718pH":{"latitude":28.08061,"longitude":-80.60322}},"origin":{"latitude":38.901,"longitude":-77.0347}}'
+    headers:
+      Accept:
+        - application/json
+      Content-Type:
+        - application/json
+      User-Agent:
+        - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      X-Request-Id:
+        - 2b7d2bc2-cb28-42f8-900c-4ba0fdfd93d7
+      Accept-Encoding:
+        - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+        - Sat, 11 Jan 2025 23:00:47 GMT
+      Content-Type:
+        - application/json
+      Content-Length:
+        - '227'
+      Connection:
+        - keep-alive
+      Content-Security-Policy:
+        - frame-ancestors 'none'
+      Strict-Transport-Security:
+        - max-age=6307200; includeSubDomains; preload
+      Traceparent:
+        - 00-cab5b367bdd140ffb7c3a93edd26d666-41a9fd6aa52c5f56-01
+      X-Content-Type-Options:
+        - nosniff
+      X-Request-Id:
+        - 2b7d2bc2-cb28-42f8-900c-4ba0fdfd93d7
+      X-Wellhive-Trace-Id:
+        - cab5b367bdd140ffb7c3a93edd26d666
+    body:
+      encoding: UTF-8
+      string: '{"origin":{"latitude":40.7128,"longitude":-74.006},"destinations":{"9mN718pH":{"distanceInMiles":313,"driveTimeInSecondsWithoutTraffic":19096,"driveTimeInSecondsWithTraffic":19561,"latitude":44.475883,"longitude":-73.212074}}}'
+  recorded_at: Sat, 11 Jan 2025 23:00:46 GMT
+recorded_with: VCR 6.3.1

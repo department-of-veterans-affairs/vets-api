@@ -148,7 +148,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         pids.each { |pid| Process.waitpid(pid) } # wait for my children to complete
         responses = []
         temp_files.each do |tf|
-          responses << File.open(tf.path, &:read)
+          responses << File.read(tf.path)
         end
         expect(responses.select { |e| e.eql?('true') }.length).to eq(1)
         expect(responses.select { |e| e.eql?('false') }.length).to eq(num_times - 1)
@@ -250,13 +250,19 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(capture_body).to have_key('metadata')
       expect(capture_body).to have_key('document')
       expect(capture_body).to have_key('attachment1')
+
+      # metadata is json that is sent to EMMS as part of our submission to them
       metadata = JSON.parse(capture_body['metadata'])
       expect(metadata['uuid']).to eq(upload.guid)
       expect(metadata['source']).to eq('test consumer via VA API')
       expect(metadata['numberAttachments']).to eq(1)
       expect(metadata['ICN']).to eq('2112')
+
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('received')
+
+      # confirm UploadSubmission Db record has the icn stored in the metadata field
+      expect(updated.metadata['icn']).to eq('2112')
     end
 
     it 'trims leading\trailing whitespace from consumer supplied fileNumber metadata part' do

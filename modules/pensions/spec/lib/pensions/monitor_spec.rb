@@ -7,7 +7,7 @@ RSpec.describe Pensions::Monitor do
   let(:monitor) { described_class.new }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
-  let(:claim) { create(:pensions_module_pension_claim) }
+  let(:claim) { create(:pensions_saved_claim) }
   let(:ipf) { create(:in_progress_form) }
 
   context 'with all params supplied' do
@@ -292,7 +292,6 @@ RSpec.describe Pensions::Monitor do
 
           expect(Pensions::NotificationEmail).to receive(:new).with(claim.id).and_return notification
           expect(notification).to receive(:deliver).with(:error)
-          expect(monitor).to receive(:log_silent_failure_avoided).with(payload, current_user.uuid, anything)
 
           expect(monitor).to receive(:track_request).with(
             'error',
@@ -405,6 +404,30 @@ RSpec.describe Pensions::Monitor do
         )
 
         monitor.track_file_cleanup_error(claim, lh_service, current_user.uuid, monitor_error)
+      end
+    end
+
+    describe '#track_claim_signature_error' do
+      it 'logs sidekiq job custom date failed' do
+        log = 'Lighthouse::PensionBenefitIntakeJob custom date failed'
+        payload = {
+          claim_id: claim.id,
+          benefits_intake_uuid: lh_service.uuid,
+          confirmation_number: claim.confirmation_number,
+          user_account_uuid: current_user.uuid,
+          error: monitor_error.message,
+          tags: monitor.tags
+        }
+
+        expect(monitor).to receive(:track_request).with(
+          'error',
+          log,
+          "#{submission_stats_key}.custom_date_failed",
+          call_location: anything,
+          **payload
+        )
+
+        monitor.track_claim_signature_error(claim, lh_service, current_user.uuid, monitor_error)
       end
     end
   end

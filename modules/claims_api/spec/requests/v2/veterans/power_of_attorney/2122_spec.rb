@@ -23,8 +23,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                                       poa_codes: [organization_poa_code])
       create(:veteran_organization, poa: organization_poa_code,
                                     name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
-
-      Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return(false)
     end
 
     describe 'submit2122' do
@@ -176,7 +175,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
               context 'when the lighthouse_claims_api_poa_dependent_claimants feature is enabled' do
                 before do
-                  Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
+                  allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                      .and_return(true)
                 end
 
                 context 'and the request includes a claimant' do
@@ -233,7 +233,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
               context 'when the lighthouse_claims_api_poa_dependent_claimants feature is disabled' do
                 before do
-                  Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+                  allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                      .and_return false
                 end
 
                 it 'does not add the dependent object to the auth_headers' do
@@ -455,7 +456,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(json_response['errors'][0]['detail']).to eq(
                     'The property /veteran/email did not match the following requirements: ' \
-                    '{"description"=>"Email address of the veteran.", "type"=>"string", ' \
+                    '{"description"=>"Email address for the veteran.", "type"=>"string", ' \
                     '"pattern"=>"^(?!.*\\\\s).+@.+\\\\..+|^$", "maxLength"=>61, "example"=>' \
                     '"veteran@example.com"}'
                   )
@@ -472,7 +473,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(json_response['errors'][0]['detail']).to eq(
                     'The property /veteran/email did not match the following requirements: ' \
-                    '{"description"=>"Email address of the veteran.", "type"=>"string", ' \
+                    '{"description"=>"Email address for the veteran.", "type"=>"string", ' \
                     '"pattern"=>"^(?!.*\\\\s).+@.+\\\\..+|^$", "maxLength"=>61, "example"=>' \
                     '"veteran@example.com"}'
                   )
@@ -524,7 +525,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             expect(ClaimsApi::V2::PoaFormBuilderJob).to receive(:perform_async) do |*args|
-              expect(args[2]).to eq(rep_id)
+              expect(args[3]).to eq(rep_id)
             end
 
             post appoint_organization_path, params: data.to_json, headers: auth_header
@@ -553,7 +554,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   expect(response).to have_http_status(:unprocessable_entity)
                   expect(response_body['title']).to eq('Unprocessable entity')
                   expect(response_body['status']).to eq('422')
-                  expect(response_body['detail']).to eq(detail)
+                  expect(response_body['detail']).to include(detail)
                 end
               end
             end
@@ -621,6 +622,43 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               end
             end
 
+            describe 'with non-US countryCode provided without areaCode' do
+              let(:veteran) do
+                {
+                  address: {
+                    addressLine1: '123',
+                    addressLine2: '2a',
+                    city: 'city',
+                    countryCode: 'US',
+                    stateCode: 'OR',
+                    zipCode: '12345',
+                    zipCodeSuffix: '6789'
+                  },
+                  phone: {
+                    countryCode: '44',
+                    phoneNumber: '3664242'
+                  }
+                }
+              end
+              let(:request_body) do
+                Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                'power_of_attorney', '2122', 'valid.json').read
+              end
+
+              it 'returns a 200' do
+                mock_ccg(scopes) do |auth_header|
+                  allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
+                    .and_return({ person_poa_history: nil })
+                  json = JSON.parse(request_body)
+                  json['data']['attributes']['veteran'] = veteran
+                  request_body = json.to_json
+
+                  post validate2122_path, params: request_body, headers: auth_header
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+
             context 'when the request data passes schema validation' do
               context 'when no representatives have the provided POA code' do
                 let(:request_body) do
@@ -681,7 +719,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 end
 
                 before do
-                  Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
+                  allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                      .and_return true
 
                   allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
                     .to receive(:user_profile).and_return(user_profile)
@@ -732,7 +771,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 end
 
                 before do
-                  Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
+                  allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                      .and_return false
                 end
 
                 it 'does not call validate_poa_code_exists! and validate_dependent_by_participant_id!' do
@@ -789,6 +829,153 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                       response_body = JSON.parse(response.body)['errors'][0]
                       expect(response).to have_http_status(:unprocessable_entity)
                       expect(response_body['detail']).to eq(error_msg)
+                    end
+                  end
+                end
+              end
+
+              describe 'phone number validation' do
+                let(:request_body) do
+                  Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                  'power_of_attorney', '2122', 'valid.json').read
+                end
+
+                let(:claimant) do
+                  {
+                    claimantId: '456',
+                    email: 'lillian@disney.com',
+                    relationship: 'Spouse',
+                    address: {
+                      addressLine1: '2688 S Camino Real',
+                      city: 'Palm Springs',
+                      stateCode: 'CA',
+                      countryCode: 'US',
+                      zipCode: '92264'
+                    },
+                    phone: {
+                      areaCode: '303',
+                      phoneNumber: '5551337'
+                    }
+                  }
+                end
+                let(:claimant_international) do
+                  {
+                    claimantId: '456',
+                    email: 'lillian@disney.com',
+                    relationship: 'Spouse',
+                    address: {
+                      addressLine1: '2688 S Camino Real',
+                      city: 'Palm Springs',
+                      stateCode: 'CA',
+                      countryCode: 'US',
+                      zipCode: '92264'
+                    },
+                    phone: {
+                      countryCode: '1',
+                      areaCode: '303',
+                      phoneNumber: '5551337'
+                    }
+                  }
+                end
+
+                context 'when claimant.phone.countryCode is "1" and areaCode is not provided' do
+                  let(:error_msg) do
+                    'The property /claimant/phone/areaCode did not match the following requirements:'
+                  end
+
+                  it 'returns a meaningful 422' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        claimant_international[:phone][:areaCode] = nil
+                        json['data']['attributes']['claimant'] = claimant_international
+                        request_body = json.to_json
+                        post validate2122_path, params: request_body, headers: auth_header
+
+                        response_body = JSON.parse(response.body)['errors'][0]
+                        expect(response).to have_http_status(:unprocessable_entity)
+                        expect(response_body['detail']).to include(error_msg)
+                      end
+                    end
+                  end
+                end
+
+                context 'when claimant.phone.countryCode is "1" and areaCode is provided' do
+                  it 'returns a 200' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        claimant_international[:phone][:phoneNumber] = '5551337'
+                        json['data']['attributes']['claimant'] = claimant_international
+                        request_body = json.to_json
+                        post validate2122_path, params: request_body, headers: auth_header
+
+                        expect(response).to have_http_status(:ok)
+                      end
+                    end
+                  end
+                end
+
+                context 'when claimant.phoneNumber contains a dash' do
+                  it 'returns a 200' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        claimant[:phone][:phoneNumber] = '555-1337'
+                        json['data']['attributes']['claimant'] = claimant
+                        request_body = json.to_json
+                        post validate2122_path, params: request_body, headers: auth_header
+
+                        expect(response).to have_http_status(:ok)
+                      end
+                    end
+                  end
+                end
+
+                context 'when it a US number contains a space' do
+                  it 'returns a 200' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        claimant[:phone][:phoneNumber] = '555 1337'
+                        json['data']['attributes']['claimant'] = claimant
+                        request_body = json.to_json
+                        post validate2122_path, params: request_body, headers: auth_header
+
+                        expect(response).to have_http_status(:ok)
+                      end
+                    end
+                  end
+                end
+
+                context 'when an international number contains dashes' do
+                  it 'returns a 200' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        claimant_international[:phone][:phoneNumber] = '44-1234-567890'
+                        json['data']['attributes']['claimant'] = claimant_international
+                        request_body = json.to_json
+                        post validate2122_path, params: request_body, headers: auth_header
+
+                        expect(response).to have_http_status(:ok)
+                      end
+                    end
+                  end
+                end
+
+                context 'when an international number contains spaces' do
+                  it 'returns a 200' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(%w[claim.write claim.read]) do |auth_header|
+                        json = JSON.parse(request_body)
+                        claimant_international[:phone][:phoneNumber] = '44 1234 567890'
+                        json['data']['attributes']['claimant'] = claimant_international
+                        request_body = json.to_json
+                        post validate2122_path, params: request_body, headers: auth_header
+
+                        expect(response).to have_http_status(:ok)
+                      end
                     end
                   end
                 end

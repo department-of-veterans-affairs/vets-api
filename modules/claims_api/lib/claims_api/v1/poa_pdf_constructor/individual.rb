@@ -61,7 +61,7 @@ module ClaimsApi
             # Veteran
             "#{base_form}.VeteransLastName[0]": data.dig('veteran', 'lastName'),
             "#{base_form}.VeteransFirstName[0]": data.dig('veteran', 'firstName'),
-            "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": "#{data.dig('veteran', 'phone', 'areaCode')} #{data.dig('veteran', 'phone', 'phoneNumber')}",
+            "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": handle_country_code(data.dig('veteran', 'phone')),
             "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[0]": data.dig('veteran', 'ssn')[0..2],
             "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[0]": data.dig('veteran', 'ssn')[3..4],
             "#{base_form}.SocialSecurityNumber_LastFourNumbers[0]": data.dig('veteran', 'ssn')[5..8],
@@ -97,7 +97,7 @@ module ClaimsApi
             "#{base_form}.MailingAddress_Country[0]": data.dig('claimant', 'address', 'country'),
             "#{base_form}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.dig('claimant', 'address', 'zipFirstFive'),
             "#{base_form}.MailingAddress_ZIPOrPostalCode_ZIPOrPostalCode_LastFourNumbers[0]": data.dig('address', 'zipLastFour'),
-            "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": "#{data.dig('claimant', 'phone', 'areaCode')} #{data.dig('claimant', 'phone', 'phoneNumber')}",
+            "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": handle_country_code(data.dig('claimant', 'phone')),
             "#{base_form}.EmailAddress_Optional[1]": data.dig('claimant', 'email'),
             "#{base_form}.RelationshipToVeteran[0]": data.dig('claimant', 'relationship'),
 

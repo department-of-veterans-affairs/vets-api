@@ -12,7 +12,7 @@ describe 'vet360 rake tasks' do
   before do
     # Prevents cross-pollination between tests
     ENV['VET360_RAKE_DATA'] = nil
-    Flipper.disable(:va_v3_contact_information_service)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(false)
   end
 
   service = VAProfile::ContactInformation::Service

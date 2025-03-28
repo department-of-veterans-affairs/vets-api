@@ -13,6 +13,21 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
     let(:current_user) { create(:user) }
     let(:monitor_error) { create(:monitor_error) }
 
+    describe '#track_create_itf_initiated' do
+      it 'logs a create ITF initiated' do
+        log = "Lighthouse::CreateIntentToFileJob create pension ITF initiated for form ##{ipf.id}"
+        payload = {
+          itf_type: 'pension',
+          form_start_date: ipf.created_at,
+          user_account_uuid: current_user.user_account_uuid
+        }
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.initiated")
+        expect(Rails.logger).to receive(:info).with(log, payload)
+
+        monitor.track_create_itf_initiated('pension', ipf.created_at, current_user.user_account_uuid, ipf.id)
+      end
+    end
+
     describe '#track_create_itf_begun' do
       it 'logs a create ITF begun' do
         log = 'Lighthouse::CreateIntentToFileJob create pension ITF begun'

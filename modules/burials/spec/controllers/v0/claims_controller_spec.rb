@@ -14,7 +14,7 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
                                        track_create_validation_error: nil, track_process_attachment_error: nil)
   end
 
-  describe 'with a user' do
+  context 'with a user' do
     let(:form) { build(:burials_saved_claim) }
     let(:param_name) { :burial_claim }
     let(:form_id) { '21P-530EZ' }

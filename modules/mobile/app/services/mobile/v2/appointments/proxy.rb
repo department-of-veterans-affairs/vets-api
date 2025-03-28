@@ -24,7 +24,7 @@ module Mobile
 
           unless Flipper.enabled?(:appointments_consolidation, @user)
             filterer = VAOS::V2::AppointmentsPresentationFilter.new
-            appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
+            appointments.keep_if { |appt| filterer.user_facing?(appt) }
           end
 
           appointments = vaos_v2_to_v0_appointment_adapter.parse(appointments)
@@ -50,7 +50,7 @@ module Mobile
         end
 
         def vaos_v2_to_v0_appointment_adapter
-          Mobile::V0::Adapters::VAOSV2Appointments.new(@user)
+          Mobile::V0::Adapters::VAOSV2Appointments.new
         end
       end
     end

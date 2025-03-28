@@ -26,7 +26,8 @@ RSpec.describe IvcChampva::VHA107959c do
       'veteran_supporting_documents' => [
         { 'confirmation_code' => 'abc123' },
         { 'confirmation_code' => 'def456' }
-      ]
+      ],
+      'applicant_email' => 'applicant@email.gov'
     }
   end
   let(:vha107959c) { described_class.new(data) }
@@ -58,7 +59,9 @@ RSpec.describe IvcChampva::VHA107959c do
             'last' => 'Surname'
           },
           'email' => false
-        }
+        },
+        'primaryContactEmail' => 'false',
+        'applicantEmail' => 'applicant@email.gov'
       )
     end
   end

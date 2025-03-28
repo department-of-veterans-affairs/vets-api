@@ -15,7 +15,8 @@ module Mobile
                  :patient,
                  :notes,
                  :recorder,
-                 :reactions
+                 :reactions,
+                 :category
     end
   end
 end

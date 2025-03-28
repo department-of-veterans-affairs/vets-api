@@ -22,7 +22,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     supporting_document = claim.supporting_documents[0]
     supporting_document.set_file_data!(
       Rack::Test::UploadedFile.new(
-        ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
+        Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
       ),
       'docType',
       'description'
@@ -35,7 +35,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     supporting_document = create(:supporting_document)
     supporting_document.set_file_data!(
       Rack::Test::UploadedFile.new(
-        ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
+        Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
       ),
       'docType',
       'description'
@@ -45,10 +45,36 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
   end
 
   let(:auto_claim) do
-    claim = create(:auto_established_claim, evss_id: '12345')
+    claim = create(:auto_established_claim, evss_id: '12345', status: 'pending')
     claim.set_file_data!(
       Rack::Test::UploadedFile.new(
-        ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
+        Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
+      ),
+      'docType',
+      'description'
+    )
+    claim.save!
+    claim
+  end
+
+  let(:pending_auto_claim) do
+    claim = create(:auto_established_claim, evss_id: nil, status: 'pending')
+    claim.set_file_data!(
+      Rack::Test::UploadedFile.new(
+        Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
+      ),
+      'docType',
+      'description'
+    )
+    claim.save!
+    claim
+  end
+
+  let(:errored_auto_claim) do
+    claim = create(:auto_established_claim, evss_id: nil, status: 'errored')
+    claim.set_file_data!(
+      Rack::Test::UploadedFile.new(
+        Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
       ),
       'docType',
       'description'
@@ -69,7 +95,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     allow(Flipper).to receive(:enabled?).with(:claims_claim_uploader_use_bd).and_return true
     expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return true
 
-    subject.new.perform(supporting_document.id)
+    subject.new.perform(supporting_document.id, 'document')
     supporting_document.reload
     expect(auto_claim.uploader.blank?).to be(false)
   end
@@ -81,19 +107,26 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
     allow(evss_service_stub).to receive(:upload) { OpenStruct.new(response: 200) }
 
-    subject.new.perform(supporting_document.id)
+    subject.new.perform(supporting_document.id, 'document')
     supporting_document.reload
     expect(supporting_document.uploader.blank?).to be(false)
   end
 
-  it 'if an evss_id is nil, it reschedules the sidekiq job to the future' do
+  it 'if an evss_id is nil, and claim is not errored, it reschedules the sidekiq job to the future' do
     evss_service_stub = instance_double(EVSS::DocumentsService)
     allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
     allow(evss_service_stub).to receive(:upload) { OpenStruct.new(response: 200) }
 
-    subject.new.perform(supporting_document_failed_submission.id)
-    supporting_document_failed_submission.reload
-    expect(supporting_document.uploader.blank?).to be(false)
+    subject.new.perform(pending_auto_claim.id, 'claim')
+    pending_auto_claim.reload
+    expect(pending_auto_claim.uploader.blank?).to be(false)
+  end
+
+  it 'if an evss_id is nil, and claim is errored, it does not reschedule the sidekiq job to the future' do
+    expect_any_instance_of(subject).to receive(:slack_alert_on_failure)
+
+    subject.new.perform(errored_auto_claim.id, 'claim')
+    expect(subject.jobs).to eq([])
   end
 
   it 'transforms a claim document to the right properties for EVSS' do
@@ -107,7 +140,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
                                                                    tracked_item_id: supporting_document.tracked_item_id
                                                                  ))
 
-    subject.new.perform(supporting_document.id)
+    subject.new.perform(supporting_document.id, 'document')
 
     supporting_document.reload
     expect(supporting_document.uploader.blank?).to be(false)
@@ -125,7 +158,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
                                                                    tracked_item_id: auto_claim.id
                                                                  ))
 
-    subject.new.perform(auto_claim.id)
+    subject.new.perform(auto_claim.id, 'claim')
 
     auto_claim.reload
     expect(auto_claim.uploader.blank?).to be(false)
@@ -139,7 +172,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
 
       args = { claim: auto_claim, doc_type: 'L122', original_filename: 'extras.pdf', pdf_path: tf.path }
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload).with(args).and_return true
-      subject.new.perform(auto_claim.id)
+      subject.new.perform(auto_claim.id, 'claim')
     end
 
     it 'is an attachment' do
@@ -150,7 +183,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
       args = { claim: supporting_document.auto_established_claim, doc_type: 'L023',
                original_filename: 'extras.pdf', pdf_path: tf.path }
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload).with(args).and_return true
-      subject.new.perform(supporting_document.id)
+      subject.new.perform(supporting_document.id, 'document')
     end
 
     it 'is an attachment resulting in error' do
@@ -173,8 +206,8 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
                                               ))
       )
       expect do
-        subject.new.perform(supporting_document.id)
-      end.to raise_error(::Common::Exceptions::BackendServiceException)
+        subject.new.perform(supporting_document.id, 'document')
+      end.to raise_error(Common::Exceptions::BackendServiceException)
     end
   end
 

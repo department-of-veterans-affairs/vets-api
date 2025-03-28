@@ -38,16 +38,16 @@ RSpec.describe Banners::UpdateAllJob, type: :job do
       end
 
       it 'increments the banner_data_fetch_error metric' do
-        expect { job.perform }.to raise_error(Banners::Updater::BannerDataFetchError)
+        job.perform
         expect(StatsD).to have_received(:increment).with('banners.sidekiq.update_all_banners.banner_data_fetch_error')
       end
 
-      it 'logs the error' do
-        expect { job.perform }.to raise_error(Banners::Updater::BannerDataFetchError)
-        expect(Rails.logger).to have_received(:error).with(
+      it 'logs the error as a warning and returns false to avoid retrying' do
+        expect(Rails.logger).to receive(:warn).with(
           'Banner data fetch failed',
           { error_message: 'Fetch error', error_class: 'Banners::Updater::BannerDataFetchError' }
         )
+        expect(job.perform).to be(false)
       end
     end
   end

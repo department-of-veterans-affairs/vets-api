@@ -6,19 +6,20 @@ module Crm
 
     attr_reader :icn, :logger, :settings, :token
 
-    VEIS_API_PATH = 'eis/vagov.lob.ava/api'
     CRM_ENV = {
       'test' => 'iris-dev',
       'development' => 'iris-dev',
-      'staging' => 'veft-qa',
-      'production' => 'iris-PROD'
+      'staging' => 'veft-preprod',
+      'production' => 'veft'
     }.freeze
 
     def_delegators :settings,
                    :base_url,
                    :veis_api_path,
                    :ocp_apim_subscription_key,
-                   :service_name
+                   :service_name,
+                   :e_subscription_key,
+                   :s_subscription_key
 
     def initialize(icn:, logger: LogService.new)
       @settings = Settings.ask_va_api.crm_api
@@ -28,13 +29,18 @@ module Crm
     end
 
     def call(endpoint:, method: :get, payload: {})
-      endpoint = "#{VEIS_API_PATH}/#{endpoint}"
       organization = CRM_ENV[vsp_environment]
+      # Construct endpoint with optional query parameters
+      uri = URI.parse("#{veis_api_path}/#{endpoint}")
+      uri.query = URI.encode_www_form(organizationName: organization) if method == :put
+      endpoint = uri.to_s
 
-      params = { icn:, organizationName: organization }
-
-      response = conn(url: base_url).public_send(method, endpoint, prepare_payload(method, payload, params)) do |req|
-        req.headers = default_header.merge('Authorization' => "Bearer #{token}")
+      # Prepare request details
+      request_payload = prepare_payload(method, payload, { icn:, organizationName: organization })
+      headers = default_header.merge('Authorization' => "Bearer #{token}")
+      # Make the request
+      response = conn(url: base_url).public_send(method, endpoint, request_payload) do |req|
+        req.headers = headers
       end
       parse_response(response.body)
     rescue => e
@@ -76,10 +82,18 @@ module Crm
     end
 
     def default_header
-      {
-        'Content-Type' => 'application/json',
-        'OCP-APIM-Subscription-Key' => ocp_apim_subscription_key
-      }
+      if Settings.vsp_environment == 'production'
+        {
+          'Content-Type' => 'application/json',
+          'OCP-APIM-Subscription-Key-E' => e_subscription_key,
+          'OCP-APIM-Subscription-Key-S' => s_subscription_key
+        }
+      else
+        {
+          'Content-Type' => 'application/json',
+          'OCP-APIM-Subscription-Key' => ocp_apim_subscription_key
+        }
+      end
     end
 
     def vsp_environment

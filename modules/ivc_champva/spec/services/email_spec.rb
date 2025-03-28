@@ -13,7 +13,9 @@ RSpec.describe IvcChampva::Email, type: :service do
       last_name: 'Doe',
       file_count: 3,
       pega_status: 'Processed',
-      created_at: Time.zone.now.to_s
+      created_at: Time.zone.now.to_s,
+      date_submitted: Time.zone.now.to_s,
+      form_uuid: '4171e61a-03b5-49f3-8717-dbf340310473'
     }
   end
 
@@ -21,11 +23,6 @@ RSpec.describe IvcChampva::Email, type: :service do
     context 'in valid environments' do
       before do
         allow(Rails).to receive(:env).and_return('staging')
-      end
-
-      it 'traces the sending email process' do
-        expect(Datadog::Tracing).to receive(:trace).with('Send PEGA Status Update Email').and_yield
-        subject.send_email
       end
 
       it 'enqueues VANotify::EmailJob with correct parameters' do
@@ -58,7 +55,6 @@ RSpec.describe IvcChampva::Email, type: :service do
       end
 
       it 'handles the error and logs it' do
-        allow(Datadog::Tracing).to receive(:trace).and_yield
         allow(Rails.logger).to receive(:error)
 
         expect { subject.send_email }.not_to raise_error

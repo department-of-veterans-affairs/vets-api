@@ -50,7 +50,8 @@ RSpec.describe FormDurations::Worker do
       registry = {
         'standard' => { klazz: FormDurations::StandardDuration, static: true },
         '21-526ez' => { klazz: FormDurations::AllClaimsDuration, static: true },
-        'hc-qstnr' => { klazz: FormDurations::CustomDuration, static: false }
+        'hc-qstnr' => { klazz: FormDurations::CustomDuration, static: false },
+        '686c-674-v2' => { klazz: FormDurations::CustomDuration, static: false }
       }
 
       expect(subject::REGISTRY).to eq(registry)

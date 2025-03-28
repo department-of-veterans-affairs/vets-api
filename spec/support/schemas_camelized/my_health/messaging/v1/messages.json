@@ -1,0 +1,249 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": [
+    "data",
+    "meta"
+  ],
+  "properties": {
+    "data": {
+      "type": "array",
+      "minItems": 0,
+      "uniqueItems": true,
+      "items": {
+        "required": [
+          "id",
+          "type",
+          "attributes",
+          "links"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "messages"
+            ]
+          },
+          "attributes": {
+            "type": "object",
+            "required": [
+              "messageId",
+              "category",
+              "subject",
+              "body",
+              "attachment",
+              "sentDate",
+              "senderId",
+              "senderName",
+              "recipientId",
+              "recipientName",
+              "readReceipt",
+              "suggestedNameDisplay"
+            ],
+            "properties": {
+              "messageId": {
+                "type": "integer"
+              },
+              "category": {
+                "type": "string"
+              },
+              "subject": {
+                "type": "string"
+              },
+              "body": {
+                "type": ["null", "string"]
+              },
+              "attachment": {
+                "type": "boolean"
+              },
+              "sentDate": {
+                "type": "date-time"
+              },
+              "senderId": {
+                "type": "integer"
+              },
+              "senderName": {
+                "type": "string"
+              },
+              "recipientId": {
+                "type": "integer"
+              },
+              "recipientName": {
+                "type": "string"
+              },
+              "readReceipt": {
+                "type": ["null", "string"]
+              },
+              "triageGroupName": {
+                "type": ["null", "string"]
+              },
+              "proxySenderName": {
+                "type": ["null", "string"]
+              },
+              "suggestedNameDisplay": {
+                "type": ["null", "string"]
+              }
+            }
+          },
+          "links": {
+            "type": "object",
+            "required": [
+              "self"
+            ],
+            "properties": {
+              "self": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "links": {
+      "type": "object",
+      "required": [
+        "self",
+        "first",
+        "prev",
+        "next",
+        "last"
+      ],
+      "properties": {
+        "self": {
+          "type": "string"
+        },
+        "first": {
+          "type": "string"
+        },
+        "prev": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "next": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "last": {
+          "type": "string"
+        }
+      }
+    },
+    "meta": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "pagination"
+          ],
+          "properties": {
+            "pagination": {
+              "type": "object",
+              "required": [
+                "currentPage",
+                "perPage",
+                "totalPages",
+                "totalEntries"
+              ],
+              "properties": {
+                "currentPage": {
+                  "type": "integer"
+                },
+                "perPage": {
+                  "type": "integer"
+                },
+                "totalPages": {
+                  "type": "integer"
+                },
+                "totalEntries": {
+                  "type": "integer"
+                }
+              }
+            },
+            "messageCounts": {
+              "type": "object"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "sort",
+            "pagination"
+          ],
+          "properties": {
+            "sort": {
+              "type": "object"
+            },
+            "pagination": {
+              "type": "object",
+              "required": [
+                "currentPage",
+                "perPage",
+                "totalPages",
+                "totalEntries"
+              ],
+              "properties": {
+                "currentPage": {
+                  "type": "integer"
+                },
+                "perPage": {
+                  "type": "integer"
+                },
+                "totalPages": {
+                  "type": "integer"
+                },
+                "totalEntries": {
+                  "type": "integer"
+                }
+              }
+            },
+            "messageCounts": {
+              "type": "object"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "sort",
+            "pagination"
+          ],
+          "properties": {
+            "sort": {
+              "type": "object"
+            },
+            "pagination": {
+              "type": "object",
+              "required": [
+                "currentPage",
+                "perPage",
+                "totalPages",
+                "totalEntries"
+              ],
+              "properties": {
+                "currentPage": {
+                  "type": "integer"
+                },
+                "perPage": {
+                  "type": "integer"
+                },
+                "totalPages": {
+                  "type": "integer"
+                },
+                "totalEntries": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

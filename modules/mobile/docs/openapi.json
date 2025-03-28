@@ -7715,9 +7715,6 @@
           "required": true
         },
         "responses": {
-          "204": {
-            "description": "No Content"
-          },
           "401": {
             "$ref": "#/components/responses/401"
           },
@@ -7729,6 +7726,9 @@
           },
           "408": {
             "$ref": "#/components/responses/408"
+          },
+          "410": {
+            "$ref": "#/components/responses/410"
           },
           "500": {
             "$ref": "#/components/responses/500"
@@ -8147,6 +8147,56 @@
         "summary": "/v0/user/phones"
       }
     },
+    "/v0/vet_verification_status": {
+      "get": {
+        "description": "Returns the veteran's Title 38 status as 'confirmed' or 'not confirmed'.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VetVerificationStatus"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/vet_verification_status"
+      }
+    },
     "/v1/health/immunizations": {
       "get": {
         "description": "Returns a paginated list of immunization records for given user",
@@ -8305,6 +8355,16 @@
           }
         },
         "description": "The response from this API timed out."
+      },
+      "410": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Errors"
+            }
+          }
+        },
+        "description": "The Target resource is no longer available."
       },
       "418": {
         "content": {
@@ -18667,6 +18727,7 @@
                     "code",
                     "recordedDate",
                     "patient",
+                    "category",
                     "notes",
                     "recorder",
                     "reactions"
@@ -18744,6 +18805,16 @@
                             }
                           }
                         }
+                      }
+                    },
+                    "category": {
+                      "type": "array",
+                      "additionalProperties": false,
+                      "items": {
+                        "type": "string",
+                        "additionalProperties": false,
+                        "nullable": true,
+                        "example": "environment"
                       }
                     },
                     "notes": {
@@ -21745,7 +21816,7 @@
                     },
                     "date": {
                       "type": "string",
-                      "example": "2022-15-01"
+                      "example": "2022-01-15T00:00:00.000-06:00"
                     },
                     "paymentMethod": {
                       "type": "string",
@@ -21776,7 +21847,8 @@
             "required": [
               "errors",
               "pagination",
-              "availableYears"
+              "availableYears",
+              "recurringPayment"
             ],
             "properties": {
               "errors": {
@@ -21825,6 +21897,24 @@
                   2016,
                   2015
                 ]
+              },
+              "recurringPayment": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "amount",
+                  "date"
+                ],
+                "properties": {
+                  "amount": {
+                    "type": "string",
+                    "example": "$350.00"
+                  },
+                  "date": {
+                    "type": "string",
+                    "example": "2022-01-15T00:00:00.000-06:00"
+                  }
+                }
               }
             }
           }
@@ -23681,6 +23771,41 @@
           "extension": {
             "type": "string",
             "example": "4567"
+          }
+        }
+      },
+      "VetVerificationStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "attributes"
+            ],
+            "properties": {
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "veteranStatus"
+                ],
+                "properties": {
+                  "veteranStatus": {
+                    "type": "string",
+                    "example": "confirmed"
+                  },
+                  "notConfirmedReason": {
+                    "type": "string",
+                    "example": "PERSON_NOT_FOUND"
+                  }
+                }
+              }
+            }
           }
         }
       },

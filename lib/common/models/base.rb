@@ -64,7 +64,7 @@ module Common
     end
 
     def changes
-      changed.map { |k, _v| [k, [@original_attributes[k], attributes[k]]] }.to_h
+      changed.to_h { |k, _v| [k, [@original_attributes[k], attributes[k]]] }
     end
   end
 end

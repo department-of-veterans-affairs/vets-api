@@ -29,7 +29,9 @@ module IvcChampva
         'docType' => @data['form_number'],
         'businessLine' => 'CMP',
         'uuid' => @uuid,
-        'primaryContactInfo' => @data['primary_contact_info']
+        'primaryContactInfo' => @data['primary_contact_info'],
+        'primaryContactEmail' => @data.dig('primary_contact_info', 'email').to_s,
+        'applicantEmail' => @data['applicant_email'] || ''
       }
     end
 
@@ -54,7 +56,7 @@ module IvcChampva
     # rubocop:disable Naming/BlockForwarding
     def method_missing(method_name, *args, &block)
       super unless respond_to_missing?(method_name)
-      { method: method_name, args: args }
+      { method: method_name, args: }
     end
     # rubocop:enable Naming/BlockForwarding
 

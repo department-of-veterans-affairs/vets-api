@@ -9,13 +9,13 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
     let(:invalid_address) { build(:va_profile_validation_address).to_h }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(false)
     end
 
     shared_examples 'invalid address' do
       it 'returns an error' do
         post(:create, params: { address: invalid_address })
-        expect(response.code).to eq('422')
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)).to include('errors')
         expect(JSON.parse(response.body)).to eq(
           'errors' => [
@@ -63,7 +63,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
       it 'returns suggested addresses for a given address' do
         VCR.use_cassette('va_profile/address_validation/candidate_multiple_matches', VCR::MATCH_EVERYTHING) do
           post(:create, params: { address: multiple_match_addr.to_h })
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(
             'addresses' => [
               {
@@ -132,13 +132,13 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
     let(:incorrect_address_pou) { build(:va_profile_v3_address, :incorrect_address_pou) }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
     end
 
     shared_examples 'invalid address' do
       it 'returns an error' do
         post(:create, params: { address: invalid_address })
-        expect(response.code).to eq('422')
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)).to include('errors')
         expect(JSON.parse(response.body)).to eq(
           'errors' => [
@@ -186,7 +186,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
       it 'returns suggested addresses for a given address' do
         VCR.use_cassette('va_profile/v3/address_validation/candidate_multiple_matches', VCR::MATCH_EVERYTHING) do
           post(:create, params: { address: multiple_match_addr.to_h })
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(
             'addresses' => [
               {
@@ -238,7 +238,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
       it 'returns a valid address' do
         VCR.use_cassette('va_profile/v3/address_validation/candidate_multiple_matches', VCR::MATCH_EVERYTHING) do
           post(:create, params: { address: incorrect_address_pou.to_h })
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(
             'addresses' => [
               {

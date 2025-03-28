@@ -44,7 +44,6 @@ class InProgressForm < ApplicationRecord
 
   validates(:form_data, presence: true)
   validates(:user_uuid, presence: true)
-  validate(:id_me_user_uuid)
 
   # https://guides.rubyonrails.org/active_record_callbacks.html
   before_save :serialize_form_data
@@ -114,16 +113,6 @@ class InProgressForm < ApplicationRecord
     HCA::LogEmailDiffJob.perform_async(id, real_user_uuid) if form_id == '1010ez'
   end
 
-  # Some IDs we get from ID.me are 20, 21, 22 or 23 char hex strings
-  # > we started off with just 22 random hex chars (from openssl random bytes) years
-  # > ago, and switched to UUID v4 (minus dashes) later on
-  # https://dsva.slack.com/archives/C1A7KLZ9B/p1501856503336861
-  def id_me_user_uuid
-    if user_uuid && !user_uuid.length.in?([20, 21, 22, 23, 32])
-      errors.add(:user_uuid, "(#{user_uuid}) is not a proper length")
-    end
-  end
-
   def serialize_form_data
     self.form_data = form_data.to_json unless form_data.is_a?(String)
   end
@@ -142,7 +131,7 @@ class InProgressForm < ApplicationRecord
 
   def default_expires_after
     case form_id
-    when '21-526EZ', '21P-527EZ', '21P-530EZ'
+    when '21-526EZ', '21P-527EZ', '21P-530EZ', '686C-674-V2'
       1.year
     else
       60.days

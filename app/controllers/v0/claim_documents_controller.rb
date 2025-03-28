@@ -11,6 +11,10 @@ module V0
     skip_before_action(:authenticate)
     before_action :load_user
 
+    INPUT_ERRORS = [Common::Exceptions::ValidationErrors,
+                    Common::Exceptions::UnprocessableEntity,
+                    BenefitsIntake::Service::InvalidDocumentError].freeze
+
     def create
       uploads_monitor.track_document_upload_attempt(form_id, current_user)
 
@@ -31,6 +35,9 @@ module V0
       uploads_monitor.track_document_upload_success(form_id, @attachment.id, current_user)
 
       render json: PersistentAttachmentSerializer.new(@attachment)
+    rescue *INPUT_ERRORS => e
+      uploads_monitor.track_document_upload_input_error(form_id, @attachment&.id, current_user, e)
+      raise e
     rescue => e
       uploads_monitor.track_document_upload_failed(form_id, @attachment&.id, current_user, e)
       raise e
@@ -42,7 +49,7 @@ module V0
       case form_id
       when '21P-527EZ', '21P-530EZ', '21P-530V2'
         PersistentAttachments::PensionBurial
-      when '21-686C', '686C-674'
+      when '21-686C', '686C-674', '686C-674-V2'
         PersistentAttachments::DependencyClaim
       when '26-1880'
         LGY::TagSentry.tag_sentry

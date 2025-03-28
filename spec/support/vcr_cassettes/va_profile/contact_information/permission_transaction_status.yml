@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/1/permissions/status/b1b06a34-c6a8-412e-82e7-df09d84862f3
+    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v1/1/permissions/status/b1b06a34-c6a8-412e-82e7-df09d84862f3
     body:
       encoding: US-ASCII
       string: ''
@@ -48,6 +48,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"txAuditId":"b1b06a34-c6a8-412e-82e7-df09d84862f3","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_SUCCESS","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"permissionType":"TextPermission","permissionValue":true,"sourceDate":"2019-11-05T16:49:18Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"78309878549739492","effectiveStartDate":"2019-11-05T16:49:18.000Z","vet360Id":1411684},"txOutput":[{"permissionId":401,"permissionType":"TextPermission","permissionValue":true,"createDate":"2019-11-22T17:58:31Z","updateDate":"2019-11-22T17:58:31Z","txAuditId":"b1b06a34-c6a8-412e-82e7-df09d84862f3","sourceSystem":"VETSGOV","sourceDate":"2019-11-05T16:49:18Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"78309878549739492","effectiveStartDate":"2019-11-05T16:49:18.000Z","vet360Id":1411684}]}'
-    http_version: 
+    http_version:
   recorded_at: Fri, 10 Jan 2020 20:54:32 GMT
 recorded_with: VCR 5.0.0

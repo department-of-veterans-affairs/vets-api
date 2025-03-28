@@ -165,7 +165,7 @@ module Mobile
           FileUtils.mkpath @base_path
           Prawn::Document.generate(pdf_path) do |pdf|
             image_list.each do |img|
-              File.open(img_path, 'wb') { |f| f.write Base64.decode64(img) }
+              File.binwrite(img_path, Base64.decode64(img))
               img = MiniMagick::Image.open(img_path)
               if img.height > pdf.bounds.top || img.width > pdf.bounds.right
                 pdf.image img_path, fit: [pdf.bounds.right, pdf.bounds.top]

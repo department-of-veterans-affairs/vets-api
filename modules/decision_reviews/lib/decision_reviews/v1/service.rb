@@ -5,10 +5,10 @@ require 'common/client/concerns/monitoring'
 require 'common/client/errors'
 require 'common/exceptions/forbidden'
 require 'common/exceptions/schema_validation_errors'
-require 'decision_review_v1/utilities/constants'
-require 'decision_review_v1/configuration'
-require 'decision_review_v1/service_exception'
-require 'decision_review_v1/appeals/supplemental_claim_services'
+require 'decision_reviews/v1/configuration'
+require 'decision_reviews/v1/service_exception'
+require 'decision_reviews/v1/constants'
+require 'decision_reviews/v1/supplemental_claim_services'
 require 'decision_reviews/v1/logging_utils'
 
 module DecisionReviews
@@ -19,15 +19,29 @@ module DecisionReviews
     class Service < Common::Client::Base
       include SentryLogging
       include Common::Client::Concerns::Monitoring
-      include ::DecisionReviewV1::Appeals::SupplementalClaimServices
       include ::DecisionReviewV1
+      include DecisionReviews::V1::SupplementalClaimServices
       include DecisionReviews::V1::LoggingUtils
 
       STATSD_KEY_PREFIX = 'api.decision_review'
       ZIP_REGEX = /^\d{5}(-\d{4})?$/
       NO_ZIP_PLACEHOLDER = '00000'
 
-      configuration ::DecisionReviewV1::Configuration
+      ERROR_MAP = {
+        504 => Common::Exceptions::GatewayTimeout,
+        503 => Common::Exceptions::ServiceUnavailable,
+        502 => Common::Exceptions::BadGateway,
+        500 => Common::Exceptions::ExternalServerInternalServerError,
+        429 => Common::Exceptions::TooManyRequests,
+        422 => Common::Exceptions::UnprocessableEntity,
+        413 => Common::Exceptions::PayloadTooLarge,
+        404 => Common::Exceptions::ResourceNotFound,
+        403 => Common::Exceptions::Forbidden,
+        401 => Common::Exceptions::Unauthorized,
+        400 => Common::Exceptions::BadRequest
+      }.freeze
+
+      configuration DecisionReviews::V1::Configuration
 
       ##
       # Create a Higher-Level Review
@@ -334,22 +348,6 @@ module DecisionReviews
 
       private
 
-      def submit_upload_job
-        if Flipper.enabled? :decision_review_new_engine_submit_upload_job
-          DecisionReviews::SubmitUpload
-        else
-          DecisionReview::SubmitUpload
-        end
-      end
-
-      def form4142_submit_job
-        if Flipper.enabled? :decision_review_new_engine_4142_job
-          DecisionReviews::Form4142Submit
-        else
-          DecisionReview::Form4142Submit
-        end
-      end
-
       def create_higher_level_review_headers(user)
         headers = {
           'X-VA-SSN' => user.ssn.to_s.strip.presence,
@@ -449,18 +447,16 @@ module DecisionReviews
         source_hash = { source: "#{error.class} raised in #{self.class}" }
         raise case error
               when Faraday::ParsingError
-                DecisionReviewV1::ServiceException.new key: 'DR_502', response_values: source_hash
+                DecisionReviews::V1::ServiceException.new key: 'DR_502', response_values: source_hash
               when Common::Client::Errors::ClientError
                 Sentry.set_extras(body: error.body, status: error.status)
-                if error.status == 403
+                if common_exceptions_flag_enabled? && ERROR_MAP.key?(error.status)
+                  ERROR_MAP[error.status].new(source_hash.merge(detail: error.body))
+                elsif error.status == 403
                   Common::Exceptions::Forbidden.new source_hash
                 else
-                  DecisionReviewV1::ServiceException.new(
-                    key: "DR_#{error.status}",
-                    response_values: source_hash,
-                    original_status: error.status,
-                    original_body: error.body
-                  )
+                  DecisionReviews::V1::ServiceException.new(key: "DR_#{error.status}", response_values: source_hash,
+                                                            original_status: error.status, original_body: error.body)
                 end
               else
                 error
@@ -496,6 +492,10 @@ module DecisionReviews
 
       def remove_pii_from_json_schemer_errors(errors)
         errors.map { |error| error.slice 'data_pointer', 'schema', 'root_schema' }
+      end
+
+      def common_exceptions_flag_enabled?
+        Flipper.enabled? :decision_review_service_common_exceptions_enabled
       end
     end
   end

@@ -7,7 +7,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
 
   before do
     Sidekiq::Job.clear_all
-    allow(Flipper).to receive(:enabled?).with(:claims_api_use_vet_record_service).and_return false
+    allow(Flipper).to receive(:enabled?).with(:claims_api_use_update_poa_relationship).and_return false
     allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return false
     allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
   end
@@ -17,6 +17,10 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
     headers = EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     headers['va_eauth_pnid'] = '796104437'
     headers
+  end
+
+  it 'sets retry_for to 48 hours' do
+    expect(described_class.get_sidekiq_options['retry_for']).to eq(48.hours)
   end
 
   context "when call to BGS 'update_birls_record' is successful" do
@@ -195,22 +199,31 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
     end
   end
 
-  describe 'when the claims_api_use_vet_record_service flipper is on' do
-    let(:vet_record_web_service) { instance_double(ClaimsApi::VetRecordWebService) }
+  describe 'when the claims_api_use_update_poa_relationship flipper is on' do
+    let(:manage_rep_poa_update_service) { instance_double(ClaimsApi::ManageRepresentativeService) }
+    let(:successful_response) do
+      {
+        'dateRequestAccepted' => '2025-01-30T00:00:00-06:00',
+        'relationshipType' => 'Power of Attorney For',
+        'vetPtcpntId' => '600049322',
+        'vsoPOACode' => '045',
+        'vsoPtcpntId' => '45973'
+      }
+    end
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:claims_api_use_vet_record_service).and_return true
-      allow(ClaimsApi::VetRecordWebService).to receive(:new).with(external_uid: anything,
-                                                                  external_key: anything)
-                                                            .and_return(vet_record_web_service)
-      allow(vet_record_web_service).to receive(:update_birls_record).and_return({ return_code: 'BMOD0001' })
+      allow(Flipper).to receive(:enabled?).with(:claims_api_use_update_poa_relationship).and_return true
+      allow(ClaimsApi::ManageRepresentativeService).to receive(:new).with(external_uid: anything,
+                                                                          external_key: anything)
+                                                                    .and_return(manage_rep_poa_update_service)
+      allow(manage_rep_poa_update_service).to receive(:update_poa_relationship).and_return(successful_response)
     end
 
     it 'calls local bgs vet record service instead of bgs-ext' do
       poa = create_poa
       subject.new.perform(poa.id)
 
-      expect(vet_record_web_service).to have_received(:update_birls_record)
+      expect(manage_rep_poa_update_service).to have_received(:update_poa_relationship)
     end
   end
 

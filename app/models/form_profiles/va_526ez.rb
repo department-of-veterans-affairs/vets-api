@@ -125,17 +125,17 @@ class FormProfiles::VA526ez < FormProfile
 
     api_provider = ApiProviderFactory.call(
       type: ApiProviderFactory::FACTORIES[:rated_disabilities],
-      provider: nil,
+      provider: :lighthouse,
       options: {
         icn: user.icn.to_s,
         auth_headers: EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
       },
       current_user: user,
-      feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
+      feature_toggle: nil
     )
     invoker = 'FormProfiles::VA526ez#initialize_rated_disabilities_information'
     response = api_provider.get_rated_disabilities(nil, nil, { invoker: })
-    ClaimFastTracking::MaxRatingAnnotator.annotate_disabilities(response, user)
+    ClaimFastTracking::MaxRatingAnnotator.annotate_disabilities(response)
 
     # Remap response object to schema fields
     VA526ez::FormRatedDisabilities.new(
@@ -186,7 +186,7 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   def initialize_veteran_contact_information
-    if Flipper.enabled?(:disability_compensation_remove_pciu, user)
+    if Flipper.enabled?(:remove_pciu, user)
       return {} unless user.authorize :va_profile, :access_to_v2?
 
       contact_info = initialize_vets360_contact_info
@@ -202,11 +202,10 @@ class FormProfiles::VA526ez < FormProfile
     end
     # Logging was added below to contrast/compare completeness of contact information returned
     # from VA Profile alone versus VA Profile + PCIU. This logging will be removed when the Flipper flag is.
-    Rails.logger.info("disability_compensation_remove_pciu=#{Flipper.enabled?(:disability_compensation_remove_pciu,
-                                                                              user)}," \
-                        "mailing_address=#{contact_info[:mailing_address].present?}," \
-                        "email_address=#{contact_info[:email_address].present?}," \
-                        "primary_phone=#{contact_info[:primary_phone].present?}")
+    Rails.logger.info("remove_pciu=#{Flipper.enabled?(:remove_pciu, user)}," \
+                      "mailing_address=#{contact_info[:mailing_address].present?}," \
+                      "email_address=#{contact_info[:email_address].present?}," \
+                      "primary_phone=#{contact_info[:primary_phone].present?}")
 
     contact_info = VA526ez::FormContactInformation.new(contact_info)
 
@@ -282,11 +281,12 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   def initialize_payment_information
-    return {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
+    return {} unless user.authorize(:lighthouse, :direct_deposit_access?) && user.authorize(:evss, :access?)
 
     provider = ApiProviderFactory.call(type: ApiProviderFactory::FACTORIES[:ppiu],
+                                       provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
                                        current_user: user,
-                                       feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+                                       feature_toggle: nil)
     response = provider.get_payment_information
     raw_account = response.responses.first&.payment_account
 
@@ -301,13 +301,13 @@ class FormProfiles::VA526ez < FormProfile
       {}
     end
   rescue => e
-    log_ppiu_error(e, provider)
+    lighthouse_direct_deposit_error(e, provider)
     {}
   end
 
-  def log_ppiu_error(e, provider)
+  def lighthouse_direct_deposit_error(e, provider)
     method_name = '#initialize_payment_information'
-    error_message = "#{method_name} Failed to retrieve PPIU data from #{provider.class}: #{e.message}"
+    error_message = "#{method_name} Failed to retrieve DirectDeposit data from #{provider.class}: #{e.message}"
     Rails.logger.error(error_message)
   end
 

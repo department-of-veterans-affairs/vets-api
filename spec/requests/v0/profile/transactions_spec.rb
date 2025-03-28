@@ -9,7 +9,6 @@ RSpec.describe 'transactions' do
 
   describe 'contact information v1', :skip_va_profile_user do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info
@@ -169,10 +168,9 @@ RSpec.describe 'transactions' do
 
   describe 'contact information v2', :skip_vet360 do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-      user.vaprofile_contact_info
+      user.vet360_contact_info
       sign_in_as(user)
     end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -270,6 +270,24 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
     t.index ["veteran_icn"], name: "index_appeals_api_supplemental_claims_on_veteran_icn"
   end
 
+  create_table "ar_icn_temporary_identifiers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "icn", null: false
+    t.datetime "created_at"
+    t.index ["created_at"], name: "index_ar_icn_temporary_identifiers_on_created_at"
+    t.index ["icn"], name: "index_ar_icn_temporary_identifiers_on_icn"
+  end
+
+  create_table "ar_power_of_attorney_form_submissions", force: :cascade do |t|
+    t.uuid "power_of_attorney_request_id", null: false
+    t.string "service_id"
+    t.text "service_response_ciphertext"
+    t.string "status", null: false
+    t.text "encrypted_kms_key"
+    t.datetime "status_updated_at"
+    t.text "error_message_ciphertext"
+    t.datetime "created_at", null: false
+  end
+
   create_table "ar_power_of_attorney_forms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "power_of_attorney_request_id", null: false
     t.text "encrypted_kms_key"
@@ -293,6 +311,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
   create_table "ar_power_of_attorney_request_expirations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
   end
 
+  create_table "ar_power_of_attorney_request_notifications", force: :cascade do |t|
+    t.uuid "power_of_attorney_request_id", null: false
+    t.uuid "notification_id"
+    t.string "type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["notification_id"], name: "idx_on_notification_id_2402e9daad"
+    t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_b7c74f46e5"
+  end
+
   create_table "ar_power_of_attorney_request_resolutions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "power_of_attorney_request_id", null: false
     t.string "resolving_type", null: false
@@ -304,16 +332,30 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
     t.index ["resolving_type", "resolving_id"], name: "unique_resolving_type_and_id", unique: true
   end
 
+  create_table "ar_power_of_attorney_request_withdrawals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "superseding_power_of_attorney_request_id"
+    t.string "type", null: false
+    t.index ["superseding_power_of_attorney_request_id"], name: "idx_on_superseding_power_of_attorney_request_id_7318c79fef"
+  end
+
   create_table "ar_power_of_attorney_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "claimant_id", null: false
     t.datetime "created_at", null: false
     t.string "claimant_type", null: false
     t.string "power_of_attorney_holder_type", null: false
-    t.uuid "power_of_attorney_holder_id", null: false
-    t.uuid "accredited_individual_id", null: false
-    t.index ["accredited_individual_id"], name: "idx_on_accredited_individual_id_a0a1fab1e0"
+    t.string "accredited_individual_registration_number"
+    t.string "power_of_attorney_holder_poa_code"
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
-    t.index ["power_of_attorney_holder_type", "power_of_attorney_holder_id"], name: "index_ar_power_of_attorney_requests_on_power_of_attorney_holder"
+  end
+
+  create_table "ar_user_account_accredited_individuals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "accredited_individual_registration_number", null: false
+    t.string "power_of_attorney_holder_type", null: false
+    t.string "user_account_email", null: false
+    t.string "user_account_icn"
+    t.index ["accredited_individual_registration_number", "power_of_attorney_holder_type", "user_account_email"], name: "ar_user_account_accredited_individuals_hardcoding", unique: true
+    t.index ["accredited_individual_registration_number", "power_of_attorney_holder_type", "user_account_email"], name: "index_ar_user_account_accredited_individuals_unique", unique: true
+    t.index ["power_of_attorney_holder_type", "user_account_email"], name: "ar_uniq_power_of_attorney_holder_type_user_account_email", unique: true
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -539,6 +581,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
     t.boolean "shared_sessions", default: false, null: false
     t.string "service_levels", default: ["ial1", "ial2", "loa1", "loa3", "min"], array: true
     t.string "credential_service_providers", default: ["logingov", "idme", "dslogon", "mhv"], array: true
+    t.boolean "json_api_compatibility", default: true, null: false
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
@@ -667,8 +710,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
   create_table "evidence_submissions", force: :cascade do |t|
     t.string "job_id"
     t.string "job_class"
-    t.string "request_id"
-    t.string "claim_id"
+    t.integer "request_id"
+    t.integer "claim_id"
     t.uuid "user_account_id", null: false
     t.json "template_metadata_ciphertext"
     t.text "encrypted_kms_key"
@@ -680,7 +723,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
     t.datetime "acknowledgement_date"
     t.datetime "failed_date"
     t.string "error_message"
-    t.string "tracked_item_id"
+    t.integer "tracked_item_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_account_id"], name: "index_evidence_submissions_on_user_account_id"
@@ -925,6 +968,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
     t.string "timestamp"
   end
 
+  create_table "health_facilities", force: :cascade do |t|
+    t.string "name"
+    t.string "station_number"
+    t.string "postal_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["station_number"], name: "index_health_facilities_on_station_number", unique: true
+  end
+
   create_table "health_quest_questionnaire_responses", force: :cascade do |t|
     t.string "user_uuid"
     t.string "appointment_id"
@@ -992,6 +1044,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
     t.datetime "updated_at", null: false
     t.string "case_id"
     t.boolean "email_sent", default: false, null: false
+    t.uuid "application_uuid"
+    t.string "ves_status"
+    t.jsonb "ves_data"
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
   end
 
@@ -1153,11 +1208,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
     t.datetime "delete_date"
     t.text "metadata"
     t.datetime "metadata_updated_at"
+    t.bigint "user_account_id"
+    t.uuid "bpd_uuid"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["delete_date"], name: "index_saved_claims_on_delete_date"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
     t.index ["id"], name: "index_partial_saved_claims_on_id_metadata_like_error", where: "(metadata ~~ '%error%'::text)"
+    t.index ["user_account_id"], name: "index_saved_claims_on_user_account_id"
   end
 
   create_table "schema_contract_validations", force: :cascade do |t|
@@ -1359,6 +1417,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
     t.text "id_types", default: [], array: true
   end
 
+  create_table "tooltips", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_account_id", null: false
+    t.string "tooltip_name", null: false
+    t.datetime "last_signed_in", null: false
+    t.integer "counter", default: 0
+    t.boolean "hidden", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_account_id", "tooltip_name"], name: "index_tooltips_on_user_account_id_and_tooltip_name", unique: true
+    t.index ["user_account_id"], name: "index_tooltips_on_user_account_id"
+  end
+
   create_table "user_acceptable_verified_credentials", force: :cascade do |t|
     t.datetime "acceptable_verified_credential_at"
     t.datetime "idme_verified_credential_at"
@@ -1381,21 +1451,21 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
     t.string "details", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "event_type", null: false
+    t.string "identifier", null: false
+    t.index ["identifier"], name: "index_user_action_events_on_identifier", unique: true
   end
 
   create_table "user_actions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "acting_user_account_id", null: false
-    t.uuid "subject_user_account_id", null: false
     t.bigint "user_action_event_id", null: false
     t.enum "status", default: "initial", null: false, enum_type: "user_action_status"
-    t.bigint "subject_user_verification_id"
+    t.bigint "subject_user_verification_id", null: false
     t.text "acting_ip_address"
     t.text "acting_user_agent"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["acting_user_account_id"], name: "index_user_actions_on_acting_user_account_id"
-    t.index ["status"], name: "index_user_actions_on_status"
-    t.index ["subject_user_account_id"], name: "index_user_actions_on_subject_user_account_id"
+    t.bigint "acting_user_verification_id"
+    t.index ["acting_user_verification_id"], name: "index_user_actions_on_acting_user_verification_id"
     t.index ["subject_user_verification_id"], name: "index_user_actions_on_subject_user_verification_id"
     t.index ["user_action_event_id"], name: "index_user_actions_on_user_action_event_id"
   end
@@ -1440,7 +1510,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
   create_table "va_notify_notifications", force: :cascade do |t|
     t.uuid "notification_id", null: false
     t.text "reference"
-    t.text "to"
     t.text "status"
     t.datetime "completed_at"
     t.datetime "sent_at"
@@ -1455,6 +1524,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
     t.uuid "template_id"
     t.text "to_ciphertext"
     t.text "encrypted_kms_key"
+    t.index ["notification_id"], name: "index_va_notify_notifications_on_notification_id"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
@@ -1771,8 +1841,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
   add_foreign_key "appeal_submissions", "user_accounts"
   add_foreign_key "ar_power_of_attorney_forms", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_request_decisions", "user_accounts", column: "creator_id"
+  add_foreign_key "ar_power_of_attorney_request_notifications", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_request_resolutions", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
-  add_foreign_key "ar_power_of_attorney_requests", "accredited_individuals"
+  add_foreign_key "ar_power_of_attorney_request_withdrawals", "ar_power_of_attorney_requests", column: "superseding_power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_requests", "user_accounts", column: "claimant_id"
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "claim_va_notifications", "saved_claims"
@@ -1796,10 +1867,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "terms_of_use_agreements", "user_accounts"
+  add_foreign_key "tooltips", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
-  add_foreign_key "user_actions", "user_accounts", column: "acting_user_account_id"
-  add_foreign_key "user_actions", "user_accounts", column: "subject_user_account_id"
   add_foreign_key "user_actions", "user_action_events"
+  add_foreign_key "user_actions", "user_verifications", column: "acting_user_verification_id"
   add_foreign_key "user_actions", "user_verifications", column: "subject_user_verification_id"
   add_foreign_key "user_credential_emails", "user_verifications"
   add_foreign_key "user_verifications", "user_accounts"

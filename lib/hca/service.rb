@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'hca/enrollment_system'
 require 'hca/configuration'
 require 'va1010_forms/utils'
+require 'va1010_forms/enrollment_system/service'
 
 module HCA
   class Service < Common::Client::Base
@@ -24,7 +25,11 @@ module HCA
       is_short_form = HealthCareApplication.new(form: form.to_json).short_form?
 
       with_monitoring do
-        es_submit(form, @user, '10-10EZ')
+        if Flipper.enabled?(:va1010_forms_enrollment_system_service_enabled)
+          VA1010Forms::EnrollmentSystem::Service.new(@user).submit(form, '10-10EZ')
+        else
+          es_submit(form, @user, '10-10EZ')
+        end
       rescue => e
         increment_failure('submit_form_short_form', e) if is_short_form
         raise e

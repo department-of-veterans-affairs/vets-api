@@ -51,7 +51,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"sid":"d153285bef879dc7bf59824b2fada476","_links":{"self":"/","keywords":"/keywords","command_types":"/command_types","inbound_sms_messages":"/inbound/sms","sms_messages":"/messages/sms","sms_templates":"/templates/sms","reports_messages_sms_statistics":"/reports/messages/sms/statistics","email_messages":"/messages/email","email_templates":"/templates/email","from_addresses":"/from_addresses","message_types":"/message_types","reports_messages_email_statistics":"/reports/messages/email/statistics","webhooks":"/webhooks","session_info":"/session/info"}}'
-    http_version: 
+    http_version:
   recorded_at: Wed, 30 May 2018 18:17:56 GMT
 - request:
     method: get
@@ -156,7 +156,7 @@ http_interactions:
         {"id":51677931,"subject":"We can''t process your health care application","created_at":"2018-05-29T19:46:00Z","status":"completed","_links":{"self":"/messages/email/51677931","recipients":"/messages/email/51677931/recipients","failed":"/messages/email/51677931/recipients/failed","sent":"/messages/email/51677931/recipients/sent","clicked":"/messages/email/51677931/recipients/clicked","opened":"/messages/email/51677931/recipients/opened"}},
         {"id":51677795,"subject":"We can''t process your health care application","created_at":"2018-05-29T19:30:16Z","status":"completed","_links":{"self":"/messages/email/51677795","recipients":"/messages/email/51677795/recipients","failed":"/messages/email/51677795/recipients/failed","sent":"/messages/email/51677795/recipients/sent","clicked":"/messages/email/51677795/recipients/clicked","opened":"/messages/email/51677795/recipients/opened"}},
         {"id":51678831,"subject":"Confirmation - Your direct deposit information changed on VA.gov","created_at":"2018-05-29T19:46:00Z","status":"completed","_links":{"self":"/messages/email/51678831","recipients":"/messages/email/51678831/recipients","failed":"/messages/email/51678831/recipients/failed","sent":"/messages/email/51678831/recipients/sent","clicked":"/messages/email/51678831/recipients/clicked","opened":"/messages/email/51678831/recipients/opened"}}]'
-    http_version: 
+    http_version:
   recorded_at: Wed, 30 May 2018 18:18:00 GMT
 
 - request:
@@ -262,7 +262,7 @@ http_interactions:
         to date report","created_at":"2018-05-29T08:00:01Z","status":"completed","_links":{"self":"/messages/email/51817502","recipients":"/messages/email/51817502/recipients","failed":"/messages/email/51817502/recipients/failed","sent":"/messages/email/51817502/recipients/sent","clicked":"/messages/email/51817502/recipients/clicked","opened":"/messages/email/51817502/recipients/opened"}},
         {"id":51677931,"subject":"We can''t process your health care application","created_at":"2018-05-29T07:46:00Z","status":"completed","_links":{"self":"/messages/email/51677931","recipients":"/messages/email/51677931/recipients","failed":"/messages/email/51677931/recipients/failed","sent":"/messages/email/51677931/recipients/sent","clicked":"/messages/email/51677931/recipients/clicked","opened":"/messages/email/51677931/recipients/opened"}},
         {"id":51677795,"subject":"We can''t process your health care application","created_at":"2018-05-29T07:30:16Z","status":"completed","_links":{"self":"/messages/email/51677795","recipients":"/messages/email/51677795/recipients","failed":"/messages/email/51677795/recipients/failed","sent":"/messages/email/51677795/recipients/sent","clicked":"/messages/email/51677795/recipients/clicked","opened":"/messages/email/51677795/recipients/opened"}}]'
-    http_version: 
+    http_version:
   recorded_at: Wed, 30 May 2018 18:18:06 GMT
 - request:
     method: get
@@ -315,7 +315,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: "[]"
-    http_version: 
+    http_version:
   recorded_at: Wed, 30 May 2018 18:18:00 GMT
 - request:
     method: get
@@ -368,11 +368,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: "[]"
-    http_version: 
+    http_version:
   recorded_at: Wed, 30 May 2018 18:18:00 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473/collect
+    uri: https://fwdproxy-staging.vfs.va.gov:4473/collect
     body:
       encoding: US-ASCII
       string: v=1&tid=UA-119746669-1&cid=ed64bded-52fa-43aa-9d1b-3b3b8335a261&t=event&ni=1&cn=application-failure&cm=email&ec=API+Calls&ea=GovDelivery+-+Email+HCA+Failure&el=completed
@@ -416,7 +416,7 @@ http_interactions:
       encoding: ASCII-8BIT
       string: !binary |-
         R0lGODlhAQABAID/AP///wAAACwAAAAAAQABAAACAkQBADs=
-    http_version: 
+    http_version:
   recorded_at: Wed, 30 May 2018 18:18:00 GMT
 - request:
     method: get
@@ -469,11 +469,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '[{"status":"failed"}]'
-    http_version: 
+    http_version:
   recorded_at: Wed, 30 May 2018 18:18:00 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473/collect
+    uri: https://fwdproxy-staging.vfs.va.gov:4473/collect
     body:
       encoding: US-ASCII
       string: v=1&tid=UA-119746669-1&cid=ed64bded-52fa-43aa-9d1b-3b3b8335a261&t=event&ni=1&cn=application-failure&cm=email&ec=API+Calls&ea=GovDelivery+-+Email+HCA+Failure&el=completed
@@ -517,6 +517,6 @@ http_interactions:
       encoding: ASCII-8BIT
       string: !binary |-
         R0lGODlhAQABAID/AP///wAAACwAAAAAAQABAAACAkQBADs=
-    http_version: 
+    http_version:
   recorded_at: Wed, 30 May 2018 18:18:00 GMT
 recorded_with: VCR 3.0.3

@@ -119,8 +119,7 @@ module Users
     end
 
     def vet360_contact_information
-      contact_info_v2_enabled = Flipper.enabled?(:va_v3_contact_information_service, user)
-      person = contact_info_v2_enabled ? user.vaprofile_contact_info : user.vet360_contact_info
+      person = user.vet360_contact_info
       return {} if person.blank?
 
       {

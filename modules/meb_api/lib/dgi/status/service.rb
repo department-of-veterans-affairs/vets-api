@@ -28,7 +28,7 @@ module MebApi
         private
 
         def end_point(latest, claimant_id, type)
-          latest = latest.nil? ? 'false' : latest
+          latest = 'false' if latest.nil?
           "claimant/#{claimant_id}/claimType/#{type}/claimstatus?latest=#{latest}"
         end
 

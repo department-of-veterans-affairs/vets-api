@@ -68,7 +68,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       # rubocop:enable RSpec/SubjectStub
 
       Timecop.freeze(Time.zone.parse('2024-11-15')) do
-        expect(subject.send(:cert_through_date).to_date).to eq(Date.new(2024, 10, 31))
+        expect(subject.send(:cert_through_date).to_date).to eq(Date.new(2024, 10, 15))
       end
 
       # show last award day rather than last day of previous month when award has ended

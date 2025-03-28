@@ -14,6 +14,7 @@ FactoryBot.define do
     refresh_token_duration { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
     description { Faker::Lorem.sentence }
     access_token_attributes { [] }
+    json_api_compatibility { true }
     enforced_terms { SignIn::Constants::Auth::VA_TERMS }
     terms_of_use_url { Faker::Internet.url }
     shared_sessions { false }

@@ -13,7 +13,7 @@ module CheckIn
           render json: check_in_session.unauthorized_message, status: :unauthorized and return
         end
 
-        TravelClaimSubmissionWorker.perform_async(permitted_params[:uuid], permitted_params[:appointment_date])
+        TravelClaimSubmissionJob.perform_async(permitted_params[:uuid], permitted_params[:appointment_date])
 
         logger.info({ message: 'Submitted travel claim to background worker' }.merge(permitted_params))
 

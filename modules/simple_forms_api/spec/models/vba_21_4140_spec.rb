@@ -40,6 +40,19 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     it { is_expected.to match(data) }
   end
 
+  describe '#desired_stamps' do
+    subject(:desired_stamps) { form.desired_stamps }
+
+    it 'only adds one stamp' do
+      expect(desired_stamps.size).to eq 1
+    end
+
+    it 'contains the correct properties' do
+      expect(desired_stamps[0][:text]).to eq form.signature_employed
+      expect(desired_stamps[0][:page]).to eq 1
+    end
+  end
+
   describe '#dob' do
     subject(:dob) { form.dob }
 
@@ -158,6 +171,62 @@ RSpec.describe SimpleFormsApi::VBA214140 do
       Timecop.freeze(date) do
         expect(subject).to eq(date)
       end
+    end
+  end
+
+  describe '#signature_date_employed' do
+    subject { form.signature_date_employed }
+
+    context 'when employed' do
+      it { is_expected.to match(%r{\d{2}/\d{2}/\d{4}}) }
+    end
+
+    context 'when unemployed' do
+      let(:fixture_file) { 'vba_21_4140-min.json' }
+
+      it { is_expected.to be_nil }
+    end
+  end
+
+  describe '#signature_date_unemployed' do
+    subject { form.signature_date_unemployed }
+
+    context 'when employed' do
+      it { is_expected.to be_nil }
+    end
+
+    context 'when unemployed' do
+      let(:fixture_file) { 'vba_21_4140-min.json' }
+
+      it { is_expected.to match(%r{\d{2}/\d{2}/\d{4}}) }
+    end
+  end
+
+  describe '#signature_employed' do
+    subject { form.signature_employed }
+
+    context 'when employed' do
+      it { is_expected.to eq data['statement_of_truth_signature'] }
+    end
+
+    context 'when unemployed' do
+      let(:fixture_file) { 'vba_21_4140-min.json' }
+
+      it { is_expected.to be_nil }
+    end
+  end
+
+  describe '#signature_unemployed' do
+    subject { form.signature_unemployed }
+
+    context 'when employed' do
+      it { is_expected.to be_nil }
+    end
+
+    context 'when unemployed' do
+      let(:fixture_file) { 'vba_21_4140-min.json' }
+
+      it { is_expected.to eq data['statement_of_truth_signature'] }
     end
   end
 

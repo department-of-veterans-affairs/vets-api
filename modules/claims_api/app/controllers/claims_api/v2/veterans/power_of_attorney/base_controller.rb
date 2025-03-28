@@ -25,7 +25,7 @@ module ClaimsApi
           if poa_code.blank?
             render json: { data: }
           else
-            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(data, root: :data)
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(data, view: :show, root: :data)
           end
         end
 
@@ -37,9 +37,8 @@ module ClaimsApi
             )
           end
 
-          serialized_response = ClaimsApi::V2::PowerOfAttorneySerializer.new(poa).serializable_hash
-          serialized_response[:data][:type] = serialized_response[:data][:type].to_s.camelize(:lower)
-          render json: serialized_response.deep_transform_keys! { |key| key.to_s.camelize(:lower).to_sym }
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(poa, view: :status, root: :data),
+                 status: :ok
         end
 
         private
@@ -97,12 +96,13 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
           unless disable_jobs?
-            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id, 'post')
+            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number,
+                                                           'post', @rep_id)
           end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
             representative(poa_code).merge({ id: power_of_attorney.id, code: poa_code }),
-            root: :data
+            view: :show, root: :data
           ), status: :accepted, location: url_for(
             controller: 'power_of_attorney/base', action: 'show', id: power_of_attorney.id
           )

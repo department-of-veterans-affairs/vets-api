@@ -1,0 +1,23 @@
+http_interactions:
+  - request:
+      method: get
+      uri: "https://api.wellhive.com/care-navigation/v1/provider-services/<%= provider_id %>"
+    response:
+      status:
+        code: 401
+        message: Unauthorized
+      headers:
+        Server:
+          - Server
+        Date:
+          - Mon, 29 Jun 2020 15:46:52 GMT
+        Content-Type:
+          - application/json
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "name": "Unauthorized"
+          }
+    recorded_at: Thu, 19 Nov 2020 16:45:03 GMT
+recorded_with: VCR 6.0.0

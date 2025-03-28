@@ -76,6 +76,53 @@
                     "nationalCemeteryAdministration"
                   ]
                 },
+                "homeless": { 
+                  "type": "boolean",
+                  "description": "Indicates if the claimant is currently homeless or at risk of becoming homeless." 
+                },
+                "homelessLivingSituation": {
+                  "description": "Claimant's current living situation; provide all that apply. For Other: 'A living situation not described by the previous options.'",
+                  "type": "array", 
+                  "items": {
+                    "type": "string",
+                    "enum": [ 
+                      "I LIVE OR SLEEP IN A PLACE THAT IS NOT MEANT FOR REGULAR SLEEPING",
+                      "I LIVE IN A SHELTER",
+                      "I AM STAYING WITH A FRIEND OR FAMILY MEMBER, BECAUSE I AM UNABLE TO OWN A HOME RIGHT NOW",
+                      "IN THE NEXT 30 DAYS, I WILL HAVE TO LEAVE A FACILITY, LIKE A HOMELESS SHELTER",
+                      "IN THE NEXT 30 DAYS, I WILL LOSE MY HOME",
+                      "NONE OF THESE SITUATIONS APPLY TO ME",
+                      "OTHER"
+                    ]
+                  }
+                },
+                "homelessLivingSituationOther": {
+                  "description": "Details for homeless living situation other",
+                  "type":  "string", 
+                  "maxLength": 100
+                },
+                "homelessPointOfContact": {
+                  "description": "The name of a contact that can be used by VA in order to get in touch with a homeless claimant.",
+                  "type":  "string", 
+                  "maxLength": 150 
+                },
+                "homelessPointOfContactPhone": {
+                  "description": "Phone number for the Claimant's point of contact in order to get in touch with a homeless claimant.",
+                  "allOf": [
+                    { "$ref": "#/definitions/phone" },
+                    { "$comment": "the phone fields must not exceed 20 chars, when concatenated" }
+                  ]
+                },
+                "mstUpcomingEventDisclosure": {
+                  "description": "Allows the Claimant to indicate their consent for VBA to communicate with VHA regarding upcoming events related to the appeals process.",
+                  "type": "string",
+                  "enum": [ 
+                    "I CONSENT",
+                    "I DO NOT CONSENT",
+                    "I REVOKE PRIOR CONSENT",
+                    "NOT APPLICABLE AND/OR NOT ENROLLED IN VHA HEALTHCARE"
+                  ]
+                },
                 "claimantType": {"type": "string", "enum": [ "veteran", "spouse_of_veteran", "child_of_veteran", "parent_of_veteran", "other"] },
                 "claimantTypeOtherValue": { "type":  "string", "minLength": 1, "maxLength": 25 },
                 "veteran": {
@@ -124,6 +171,25 @@
                   "description": "Evidence may be uploaded up to 7 days from the 'created_at' date of the associated Supplemental Claim via 'supplemental_claims/evidence_submissions'.",
                   "type": "object",
                   "properties": {
+                    "treatmentLocations":{
+                      "type": "array",
+                      "description": "Claimant’s treatment locations; provide all that apply. For Other: 'A treatment location not described by the previous options.'",
+                      "items": { 
+                        "type": "string",
+                        "enum": [
+                          "PRIVATE HEALTH CARE PROVIDER",
+                          "VA VET CENTER", 
+                          "COMMUNITY CARE",
+                          "VA MEDICAL CENTERS (VAMC) AND COMMUNITY-BASED OUTPATIENT CLINICS (CBOC)",
+                          "DEPARTMENT OF DEFENSE (DOD) MILITARY TREATMENT FACILITY(IES) (MTF)",
+                          "OTHER"
+                        ]
+                      },
+                      "treatmentLocationOther": {
+                        "description": "Details for treatment location other",
+                        "type":  "string", 
+                        "maxLength": 115 }
+                    },
                     "evidenceType":{
                       "type": "array",
                       "description": "'upload' indicates that the Veteran has supplied additional evidence as uploaded documents. 'retrieval' indicates that the Veteran has supplied contact information for facilities holding evidence relevant to the claim; the 'retrieveFrom' field will contain the facility's contact information. 'none' indicates that the Veteran has not supplied additional evidence.",
@@ -151,14 +217,17 @@
                                   "properties": {
                                     "startDate": { "type": "string", "format": "date" },
                                     "endDate": { "type": "string", "format": "date" }
-                                  },
-                                  "required": [ "startDate", "endDate" ]
+                                  }
                                 },
                                 "minItems": 1,
                                 "maxItems": 4
+                              },
+                              "noTreatmentDates": { 
+                                "type": "boolean", 
+                                "description": "Don't have treatment date"
                               }
                             },
-                            "required": [ "locationAndName", "evidenceDates" ]
+                            "required": [ "locationAndName" ]
                           }
                         },
                         "required": [ "type", "attributes" ]

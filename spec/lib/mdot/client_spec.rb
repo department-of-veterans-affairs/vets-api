@@ -33,6 +33,21 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
+    context 'with a supplies response that includes assistive devices' do
+      it 'returns an array of supplies' do
+        VCR.use_cassette(
+          'mdot/get_supplies_assistive_devices_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          response = subject.get_supplies
+          expect(response).to be_ok
+          expect(response).to be_an MDOT::Response
+          expect(response.eligibility.attributes[:assistive_devices]).to be(true)
+        end
+      end
+    end
+
     context 'with an unknown DLC service error' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/get_supplies_502') do
@@ -109,6 +124,58 @@ describe MDOT::Client, type: :mdot_helpers do
           ) do |e|
             expect(e.message).to match(/MDOT_invalid/)
           end
+        end
+      end
+    end
+
+    context 'validates temporary OR permanent address' do
+      before do
+        VCR.insert_cassette(
+          cassette,
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        )
+      end
+
+      after { VCR.eject_cassette }
+
+      context 'with a null temporary_address value from system of record' do
+        let!(:cassette) { 'mdot/get_supplies_null_temp_address_200' }
+
+        it 'returns a valid response' do
+          response = subject.get_supplies
+          expect(response).to be_ok
+          expect(response).to be_an MDOT::Response
+        end
+      end
+
+      context 'with a no temporary_address from system of record' do
+        let(:cassette) { 'mdot/get_supplies_no_temp_address_200' }
+
+        it 'returns a valid response' do
+          response = subject.get_supplies
+          expect(response).to be_ok
+          expect(response).to be_an MDOT::Response
+        end
+      end
+
+      context 'with a null permanent_address value from system of record' do
+        let(:cassette) { 'mdot/get_supplies_null_perm_address_200' }
+
+        it 'returns a valid response' do
+          response = subject.get_supplies
+          expect(response).to be_ok
+          expect(response).to be_an MDOT::Response
+        end
+      end
+
+      context 'with a no permanent_address from system of record' do
+        let(:cassette) { 'mdot/get_supplies_no_perm_address_200' }
+
+        it 'returns a valid response' do
+          response = subject.get_supplies
+          expect(response).to be_ok
+          expect(response).to be_an MDOT::Response
         end
       end
     end

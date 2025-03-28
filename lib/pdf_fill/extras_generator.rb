@@ -21,6 +21,8 @@ module PdfFill
     end
 
     def add_text(value, metadata)
+      return unless metadata.fetch(:overflow, true)
+
       unless text?
         @generate_blocks << {
           metadata: {},
@@ -69,20 +71,22 @@ module PdfFill
       generate_blocks = sort_generate_blocks
       Prawn::Document.generate(file_path) do |pdf|
         set_font(pdf)
+        render_pdf_content(pdf, generate_blocks)
+      end
+      file_path
+    end
 
-        box_height = 25
-        pdf.bounding_box(
-          [pdf.bounds.left, pdf.bounds.top - box_height],
-          width: pdf.bounds.width,
-          height: pdf.bounds.height - box_height
-        ) do
-          generate_blocks.each do |block|
-            block[:block].call(pdf)
-          end
+    def render_pdf_content(pdf, generate_blocks)
+      box_height = 25
+      pdf.bounding_box(
+        [pdf.bounds.left, pdf.bounds.top - box_height],
+        width: pdf.bounds.width,
+        height: pdf.bounds.height - box_height
+      ) do
+        generate_blocks.each do |block|
+          block[:block].call(pdf)
         end
       end
-
-      file_path
     end
   end
 end

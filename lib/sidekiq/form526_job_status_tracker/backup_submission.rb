@@ -33,6 +33,8 @@ module Sidekiq
 
         if send_backup_submission
           backup_job_jid = Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(form526_submission_id)
+          # send "Submitted" email without claim id here for backup path
+          submission_obj.send_submitted_email("#{self.class}#send_backup_submission_if_enabled backup path")
         end
         vagov_id = JSON.parse(submission_obj.auth_headers_json)['va_eauth_service_transaction_id']
         log_message = {

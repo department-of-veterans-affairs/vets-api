@@ -5,7 +5,9 @@ module V1
     module LCPE
       class ExamsController < GIDS::LCPEController
         def index
-          render json: service.get_exams_v1(scrubbed_params)
+          exams = service.get_exams_v1(scrubbed_params)
+          set_headers(exams[:version]) unless bypass_versioning?
+          render json: exams
         end
 
         def show
