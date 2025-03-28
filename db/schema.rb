@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_28_181133) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -470,7 +470,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.text "encrypted_kms_key"
     t.string "cid"
     t.string "transaction_id"
+    t.string "header_hash"
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
+    t.index ["header_hash"], name: "index_claims_api_auto_established_claims_on_header_hash"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
     t.index ["veteran_icn"], name: "index_claims_api_auto_established_claims_on_veteran_icn"
