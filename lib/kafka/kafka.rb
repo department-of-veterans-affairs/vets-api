@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'kafka/sidekiq/event_bus_submission_job'
+
 # Namespace for Kafka-related classes and modules
 module Kafka
   # Defines constants representing various states in the Kafka event processing lifecycle
