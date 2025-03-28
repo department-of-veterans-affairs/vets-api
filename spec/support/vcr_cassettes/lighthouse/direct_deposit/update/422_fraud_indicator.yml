@@ -21,7 +21,7 @@ http_interactions:
       - application/json
   response:
     status:
-      code: 400
+      code: 422
       message: ''
     headers:
       Date:
@@ -62,11 +62,17 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: '{
-        "type": "https://api.va.gov/direct-deposit-management/errors/bad-request",
-        "title": "Bad Request",
-        "status": 400,
-        "detail": "No changes were made. Request was sent to Benefits Gateway Service (BGS), but BGS update failed. Unknown issue(s). Raw response from BGS: Failed to update Address/Bank Info. Routing number related to potential fraud.",
-        "instance": "e48e3aeb-f312-11ec-88e8-f55e56a472a2"
-      }'
+                "type": "https://api.va.gov/services/direct-deposit-management/errors/unable-to-update",
+                "title": "Unable To Update",
+                "status": 422,
+                "detail": "Unable to update: account fraud indicator = true.",
+                "instance": "e48e3aeb-f312-11ec-88e8-f55e56a472a2",
+                "errorCodes": [
+                  {
+                    "errorCode": "payment.restriction.indicators.present",
+                    "detail": "hasNoBdnPayments is false."
+                  }
+                ]
+              }'
   recorded_at: Thu, 23 Feb 2023 21:47:59 GMT
 recorded_with: VCR 6.1.0
