@@ -184,6 +184,14 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     form_copy['veteranFullName'] = parsed_form.dig('veteranInformation', 'fullName')
     form_copy['vaFileNumber'] = parsed_form.dig('veteranInformation', 'VAFileNumber')
 
+    unless form_copy['veteranSocialSecurityNumber']
+      if user&.loa3?
+        Rails.logger.warn('VRE: No SSN found for LOA3 user', { user_uuid: user.uuid })
+      else
+        Rails.logger.info('VRE: No SSN found for LOA1 user', { user_uuid: user.uuid })
+      end
+    end
+
     update!(form: form_copy.to_json)
 
     process_attachments!

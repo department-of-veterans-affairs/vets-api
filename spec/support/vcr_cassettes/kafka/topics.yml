@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:8081/subjects/topic-1-value/versions/latest
+    uri: http://localhost:8081/ves-event-bus-infra/schema-registry/subjects/topic-1-value/versions/latest
     body:
       encoding: US-ASCII
       string: ''
@@ -63,7 +63,7 @@ http_interactions:
   recorded_at: Tue, 10 Aug 2021 15:55:41 GMT
 - request:
     method: get
-    uri: http://localhost:8081/subjects/topic-2-value/versions/latest
+    uri: http://localhost:8081/ves-event-bus-infra/schema-registry/subjects/topic-2-value/versions/latest
     body:
       encoding: US-ASCII
       string: ''
@@ -124,7 +124,7 @@ http_interactions:
   recorded_at: Tue, 10 Aug 2021 15:55:41 GMT
 - request:
     method: get
-    uri: http://localhost:8081/subjects/topic-1-value/versions/1
+    uri: http://localhost:8081/ves-event-bus-infra/schema-registry/subjects/topic-1-value/versions/1
     body:
       encoding: US-ASCII
       string: ''
@@ -185,7 +185,7 @@ http_interactions:
   recorded_at: Tue, 10 Aug 2021 15:55:41 GMT
 - request:
     method: get
-    uri: http://localhost:8081/subjects/topic-3-value/versions/latest
+    uri: http://localhost:8081/ves-event-bus-infra/schema-registry/subjects/topic-3-value/versions/latest
     body:
       encoding: US-ASCII
       string: ''
