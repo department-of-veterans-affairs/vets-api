@@ -49,7 +49,7 @@ module DecisionReviews
             'street' => address['addressLine1'],
             'street2' => address['addressLine2'],
             'state' => address['stateCode'],
-            'country' => IsoCountryCodes.find(address['countryCodeISO2']).alpha3,
+            'country' => IsoCountryCodes.find(address['countryCodeISO2'])&.alpha3,
             'postalCode' => address['zipCode5']
           }
         )
