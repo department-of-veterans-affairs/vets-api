@@ -22,7 +22,7 @@ module Eps
 
     def connection
       Faraday.new(api_url, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers
+        conn.use(:breakers, service_name:)
         conn.request :camelcase
         conn.request :json
 
