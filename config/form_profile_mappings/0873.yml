@@ -10,6 +10,7 @@ personalInformation:
 contactInformation:
   email: [contact_information, email]
   phone: [contact_information, us_phone]
+  workPhone: [personal_information, work_phone]
   address: [contact_information, address]
 avaProfile:
   schoolInfo:

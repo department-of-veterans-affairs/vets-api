@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: d4cd99ae9041e1f1ebce1aae44be80d6693e3908
+  revision: c0f2a9bcf5f6eefd2182732732b1d6e17473db3d
   branch: master
   specs:
-    vets_json_schema (24.11.2)
+    vets_json_schema (24.12.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -411,7 +411,7 @@ GEM
       dry-logic (~> 1.5)
       dry-types (~> 1.8)
       zeitwerk (~> 2.6)
-    dry-struct (1.7.1)
+    dry-struct (1.8.0)
       dry-core (~> 1.1)
       dry-types (~> 1.8, >= 1.8.2)
       ice_nine (~> 0.11)
@@ -1008,7 +1008,7 @@ GEM
     rubocop-rspec_rails (2.30.0)
       rubocop (~> 1.61)
       rubocop-rspec (~> 3, >= 3.0.1)
-    rubocop-thread_safety (0.7.0)
+    rubocop-thread_safety (0.7.2)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     ruby-progressbar (1.13.0)
