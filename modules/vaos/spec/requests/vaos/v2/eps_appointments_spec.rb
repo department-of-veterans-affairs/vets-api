@@ -115,6 +115,30 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
         end
       end
 
+      context 'when a booked appointment corresponding to the referral is not found' do
+        it 'returns a 404 error' do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/eps/get_appointment/404', match_requests_on: %i[method path query]) do
+              get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+
+              expect(response).to have_http_status(:not_found)
+            end
+          end
+        end
+      end
+
+      context 'when the upstream service returns a 500 error' do
+        it 'returns a 502 error' do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/eps/get_appointment/500', match_requests_on: %i[method path query]) do
+              get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+
+              expect(response).to have_http_status(:bad_gateway)
+            end
+          end
+        end
+      end
+
       context 'draft appointment' do
         it 'returns 404' do
           VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
