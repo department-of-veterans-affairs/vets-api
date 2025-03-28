@@ -55,7 +55,8 @@ spec:
           args:
             - clone
             - --single-branch
-            - --branch {{ $root.Values.mockData.branch }}
+            - --branch 
+            - {{ $root.Values.mockData.branch }}
             - --
             - https://$(GITHUB_TOKEN)@github.com/department-of-veterans-affairs/vets-api-mockdata.git
             - /data
