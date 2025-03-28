@@ -42,12 +42,14 @@ module IvcChampva
     end
 
     def add_applicant_properties
+      unless Flipper.enabled?(:champva_pega_applicant_metadata_enabled, @current_user) return {}
+
       applicants = @data['applicants']
       return {} if applicants.blank?
 
       applicants.each_with_index.with_object({}) do |(app, index), obj|
         obj["applicant_#{index}"] = extract_applicant_properties(app)
-      end.deep_stringify_keys
+      end.to_json
     end
 
     def desired_stamps

@@ -162,11 +162,21 @@ RSpec.describe IvcChampva::VHA1010d do
 
       let(:vha1010d_applicants) { described_class.new(applicant_data) }
 
-      it 'returns an object with a key for each applicant' do
+      it 'returns a valid stringified JSON' do
         res = vha1010d_applicants.add_applicant_properties
+        expect(res).to be_a(String)
+        expect(JSON.parse(res)).to be_a(Hash)
+      end
+
+      it 'includes a key for each applicant' do
+        res = JSON.parse(vha1010d_applicants.add_applicant_properties)
         expect(res.keys.include?('applicant_0')).to be(true)
         expect(res.keys.include?('applicant_1')).to be(true)
-        expect(res['applicant_0']['applicant_name']['first'].to_s).to eq('John')
+      end
+
+      it 'contains applicant data' do
+        res = JSON.parse(vha1010d_applicants.add_applicant_properties)
+        expect(res['applicant_0']['applicant_name']['first']).to eq('John')
       end
     end
 
