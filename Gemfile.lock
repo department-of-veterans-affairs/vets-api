@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: d4cd99ae9041e1f1ebce1aae44be80d6693e3908
+  revision: c0f2a9bcf5f6eefd2182732732b1d6e17473db3d
   branch: master
   specs:
-    vets_json_schema (24.11.2)
+    vets_json_schema (24.12.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -284,7 +284,8 @@ GEM
       msgpack (~> 1.2)
     brakeman (7.0.0)
       racc
-    breakers (0.7.1)
+    breakers (1.0)
+      base64 (~> 0.2)
       faraday (>= 1.2.0, < 3.0)
       multi_json (~> 1.0)
     builder (3.3.0)
@@ -410,7 +411,7 @@ GEM
       dry-logic (~> 1.5)
       dry-types (~> 1.8)
       zeitwerk (~> 2.6)
-    dry-struct (1.7.1)
+    dry-struct (1.8.0)
       dry-core (~> 1.1)
       dry-types (~> 1.8, >= 1.8.2)
       ice_nine (~> 0.11)
@@ -539,7 +540,7 @@ GEM
       base64 (~> 0.2)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.1.0)
-    google-protobuf (4.30.1)
+    google-protobuf (4.30.2)
       bigdecimal
       rake (>= 13)
     googleauth (1.14.0)
@@ -612,8 +613,8 @@ GEM
     jar-dependencies (0.5.5)
     jmespath (1.6.2)
     jruby-openssl (0.15.3-java)
-    json (2.9.1)
-    json (2.9.1-java)
+    json (2.10.2)
+    json (2.10.2-java)
     json-schema (5.1.1)
       addressable (~> 2.8)
       bigdecimal (~> 3.1)
@@ -666,7 +667,7 @@ GEM
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
     lockbox (2.0.1)
-    logger (1.6.6)
+    logger (1.7.0)
     loofah (2.24.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -768,7 +769,7 @@ GEM
     parallel (1.26.3)
     parallel_tests (5.1.0)
       parallel
-    parser (3.3.7.2)
+    parser (3.3.7.3)
       ast (~> 2.4.1)
       racc
     patience_diff (1.2.0)
@@ -996,17 +997,18 @@ GEM
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.29.1)
+    rubocop-rails (2.30.3)
       activesupport (>= 4.2.0)
+      lint_roller (~> 1.1)
       rack (>= 1.1)
-      rubocop (>= 1.52.0, < 2.0)
-      rubocop-ast (>= 1.31.1, < 2.0)
+      rubocop (>= 1.72.1, < 2.0)
+      rubocop-ast (>= 1.38.0, < 2.0)
     rubocop-rspec (3.4.0)
       rubocop (~> 1.61)
     rubocop-rspec_rails (2.30.0)
       rubocop (~> 1.61)
       rubocop-rspec (~> 3, >= 3.0.1)
-    rubocop-thread_safety (0.7.0)
+    rubocop-thread_safety (0.7.2)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     ruby-progressbar (1.13.0)
@@ -1042,7 +1044,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.16.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.22.4)
+    sentry-ruby (5.23.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)

@@ -1435,6 +1435,7 @@ vanotify:
   mock: false
   service_callback_tokens:
     1010_health_apps: 1010_health_apps_token
+    benefits_decision_review: benefits_decision_review_token
     benefits_disability: benefits_disability_token
     benefits_management_tools: benefits_management_tools_token
     ivc_forms: ivc_forms_token
