@@ -218,7 +218,7 @@ RSpec.describe IvcChampva::VHA1010d do
         data.merge(
           'applicants' => [
             { 'applicant_ssn' => '123456789', 'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
-              'applicant_dob' => '1980-01-01' },
+              'applicant_dob' => '1980-01-01' }
           ]
         )
       end
