@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module IncomeAndAssets
-  class Helpers
+  module Helpers
     include ActiveSupport::NumberHelper
 
     # Format a YYYY-MM-DD date string to MM/DD/YYYY
@@ -10,13 +10,13 @@ module IncomeAndAssets
     #
     # @return [String] a date string in the format MM/DD/YYYY
     #
-    def self.format_date_to_mm_dd_yyyy(date_string)
+    def format_date_to_mm_dd_yyyy(date_string)
       return nil if date_string.blank?
 
       Date.parse(date_string).strftime('%m/%d/%Y')
     end
 
-    def self.split_currency_amount(amount)
+    def split_currency_amount_sm(amount)
       return {} if !amount || amount.negative? || amount >= 100_000
 
       arr = ActiveSupport::NumberHelper.number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
@@ -27,7 +27,7 @@ module IncomeAndAssets
       }
     end
 
-    def self.split_account_value(amount)
+    def split_currency_amount_lg(amount)
       return {} if !amount || amount.negative? || amount >= 10_000_000
 
       arr = ActiveSupport::NumberHelper.number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
@@ -39,7 +39,7 @@ module IncomeAndAssets
       }
     end
 
-    def self.get_currency_field(arr, neg_i, field_length)
+    def get_currency_field(arr, neg_i, field_length)
       value = arr.length >= -neg_i ? arr[neg_i] : 0
       format("%0#{field_length}d", value.to_i)
     end

@@ -15,6 +15,13 @@ module IvcChampva
         '10-7959A' => 'vha_10_7959a'
       }.freeze
 
+      RETRY_ERROR_CONDITIONS = [
+        'failed to generate',
+        'no such file',
+        'an error occurred while verifying stamp:',
+        'unable to find file'
+      ].freeze
+
       def submit
         Datadog::Tracing.trace('Start IVC File Submission') do
           form_id = get_form_id
@@ -23,7 +30,10 @@ module IvcChampva
 
           ves_request = prepare_ves_request(form_id, parsed_form_data)
 
-          statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
+          # TODO: add same feature toggle as below for VES integration
+          # expect this formatter to raise errors if data is invalid
+          # ves_request = IvcChampva::VesDataFormatter.format(parsed_form_data)
+          statuses, error_message = call_handle_file_uploads(form_id, parsed_form_data)
 
           submit_ves_request(form_id, ves_request)
 
@@ -68,6 +78,14 @@ module IvcChampva
           rescue => e
             Rails.logger.error "Ignoring error when submitting to VES: #{e.message}"
           end
+        end
+      end
+
+      def call_handle_file_uploads(form_id, parsed_form_data)
+        if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
+          handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
+        else
+          handle_file_uploads(form_id, parsed_form_data)
         end
       end
 
@@ -157,6 +175,28 @@ module IvcChampva
             retry
           end
         end
+
+        [statuses, error_messages]
+      end
+
+      def handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
+        on_failure = lambda { |e, attempt|
+          Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
+        }
+
+        statuses = nil
+        error_messages = nil
+
+        IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
+          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
+          statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
+
+          # Since some or all of the files failed to upload to S3, trigger retry
+          raise StandardError, error_messages if error_messages.compact.length.positive?
+        end
+
         [statuses, error_messages]
       end
 
