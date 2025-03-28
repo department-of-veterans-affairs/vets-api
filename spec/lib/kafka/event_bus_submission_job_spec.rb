@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'kafka/event_bus_submission_job'
+require 'kafka/sidekiq/event_bus_submission_job'
 require 'kafka/avro_producer'
 
 RSpec.describe Kafka::EventBusSubmissionJob, type: :job do
