@@ -7,12 +7,10 @@ module AccreditedRepresentativePortal
     include Pundit::Authorization
 
     rescue_from Pundit::NotAuthorizedError do |e|
+      # Platform skips Sentry for these
       log_auth_failure(e)
-
-      render(
-        json: { errors: [e.message] },
-        status: :forbidden
-      )
+      mapped_error = map_exception(e)
+      render_errors(mapped_error)
     end
 
     service_tag 'accredited-representative-portal' # ARP DataDog monitoring: https://bit.ly/arp-datadog-monitoring
@@ -32,8 +30,24 @@ module AccreditedRepresentativePortal
     def handle_exceptions
       yield
     rescue => e
-      log_unexpected_error(e)
-      raise e
+      mapped_error = map_exception(e)
+
+      unless skip_sentry_exception?(e)
+        log_exception_to_sentry(mapped_error)
+      end
+
+      if(e.is_a?(Pundit::NotAuthorizedError))
+        log_auth_failure(e)
+      end
+      
+      log_unexpected_error(mapped_error)
+      render_errors(mapped_error)
+    end
+
+    def skip_sentry_exception?(exception)
+      # Inherit platform's skip logic
+      return true if exception.class.in?(SKIP_SENTRY_EXCEPTION_TYPES)
+      exception.respond_to?(:sentry_type) && !exception.log_to_sentry?
     end
 
     def verify_pilot_enabled_for_user
@@ -45,6 +59,27 @@ module AccreditedRepresentativePortal
       MSG
 
       raise Common::Exceptions::Forbidden, detail: message
+    end
+
+    def map_exception(exception)
+      case exception
+      when Breakers::OutageException
+        Common::Exceptions::ServiceOutage.new
+      when JsonSchema::JsonApiMissingAttribute
+        Common::Exceptions::ValidationErrors.new(detail: exception.message)
+      when Pundit::NotAuthorizedError
+        Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
+      when Common::Exceptions::BaseError
+        # Pass through any Common::Exceptions we've already mapped
+        exception
+      when ActionController::ParameterMissing
+        Common::Exceptions::ParameterMissing.new(exception.param)
+      when Common::Client::Errors::ClientError
+        Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
+      else
+        # Default to internal server error for unmapped exceptions
+        Common::Exceptions::InternalServerError.new(exception)
+      end
     end
 
     def log_auth_failure(exception)
