@@ -793,7 +793,7 @@ module PdfFill
       end
 
       def expand_collection(collection, format_method, overflow_key)
-        limit = KEY[collection][:limit]
+        limit = KEY[collection].try(:[], :limit) || 0
         collection = @form_data[collection]
         return if collection.blank?
 
