@@ -976,8 +976,8 @@ mhv:
   sm:
     app_token: fake-app-token
     host: https://mhv-api.example.com
+    mock: true    
     x_api_key: ~
-    mock: true
   uhd:
     app_id: 1000
     app_token: faketoken
