@@ -7,7 +7,7 @@ require_relative '../../support/saved_claims_spec_helper'
 RSpec.describe Pensions::SavedClaim, :uploader_helpers do
   subject { described_class.new }
 
-  let(:instance) { build(:pensions_module_pension_claim) }
+  let(:instance) { build(:pensions_saved_claim) }
 
   it_behaves_like 'saved_claim_with_confirmation_number'
 
@@ -19,7 +19,7 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
 
     let(:claim) do
       create(
-        :pensions_module_pension_claim,
+        :pensions_saved_claim,
         form: {
           veteranFullName: {
             first: 'Test',

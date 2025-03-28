@@ -19,7 +19,7 @@ module EVSS
     def self.create_breakers_service(name:, url:)
       path = URI.parse(url).path
       host = URI.parse(url).host
-      matcher = proc do |request_env|
+      matcher = proc do |_breakers_service, request_env, _request_service_name|
         request_env.url.host == host && request_env.url.path =~ /^#{path}/
       end
 
@@ -57,7 +57,7 @@ module EVSS
     # Net/HTTP capitalizes headers
     def conn
       @conn ||= Faraday.new(base_url, headers: @headers, ssl: ssl_options, request: timeout) do |faraday|
-        faraday.use      :breakers
+        faraday.use :breakers
         faraday.use      Faraday::Response::RaiseError
         faraday.use      EVSS::ErrorMiddleware
         faraday.response :betamocks if @use_mock
