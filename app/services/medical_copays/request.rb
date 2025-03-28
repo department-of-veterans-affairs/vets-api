@@ -92,7 +92,7 @@ module MedicalCopays
     def connection
       Faraday.new(url:, headers:, request: request_options) do |conn|
         conn.request :json
-        conn.use :breakers
+        conn.use(:breakers, service_name:)
         conn.use Faraday::Response::RaiseError
         conn.response :raise_custom_error, error_prefix: service_name
         conn.response :json
