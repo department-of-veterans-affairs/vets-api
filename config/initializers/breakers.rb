@@ -23,6 +23,7 @@ require 'gi/configuration'
 require 'gibft/configuration'
 require 'hca/configuration'
 require 'lighthouse/benefits_education/configuration'
+require 'mdot/configuration'
 require 'mhv_ac/configuration'
 require 'mpi/configuration'
 require 'pagerduty/configuration'
@@ -91,7 +92,8 @@ Rails.application.reloader.to_prepare do
     ClaimsApi::LocalBGS.breakers_service,
     MebApi::DGI::Configuration.instance.breakers_service,
     MebApi::DGI::Letters::Configuration.instance.breakers_service,
-    UnifiedHealthData::Configuration.instance.breakers_service
+    UnifiedHealthData::Configuration.instance.breakers_service,
+    MDOT::Configuration.instance.breakers_service
   ]
 
   services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled
