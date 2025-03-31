@@ -20,9 +20,9 @@ redis:
   host: localhost
   port: 63790
   app_data:
-    url: redis://localhost:63790
+    url: rediss://localhost:63790
   sidekiq:
-    url: redis://localhost:63790
+    url: rediss://localhost:63790
 ```
 
 *Note: If you have local instances of Postgres or Redis that were only for use by vets-api, you can stop them to save system resources.*

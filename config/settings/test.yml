@@ -1100,13 +1100,13 @@ rack_timeout:
   wait_timeout: ~
 redis:
   app_data:
-    url: redis://localhost:6379
+    url: rediss://localhost:6379
   host: localhost
   port: 6379
   rails_cache:
-    url: redis://localhost:6379
+    url: rediss://localhost:6379
   sidekiq:
-    url: redis://localhost:6379
+    url: rediss://localhost:6379
 relative_url_root: "/"
 reports:
   aws:
