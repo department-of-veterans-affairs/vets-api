@@ -14,6 +14,7 @@ module VA0873
     attribute :suffix, String
     attribute :preferred_name, String
     attribute :service_number, String
+    attribute :work_phone, String
   end
 
   class FormAvaProfile
@@ -40,10 +41,14 @@ class FormProfiles::VA0873 < FormProfile
 
   # Initializes the personal information for the form with proper error handling
   def initialize_personal_information
-    service_number = profile.is_a?(Hash) ? profile[:service_number] : profile.service_number
+    service_number = extract_service_number
+    work_phone     = format_work_phone
 
-    # Merge the user's normalized name, preferred name, and service number into the payload
-    payload = user.full_name_normalized.merge(preferred_name:, service_number:)
+    payload = user.full_name_normalized.merge(
+      preferred_name:,
+      service_number:,
+      work_phone:
+    )
 
     VA0873::FormPersonalInformation.new(payload)
   rescue => e
@@ -94,6 +99,22 @@ class FormProfiles::VA0873 < FormProfile
   def handle_exception(exception, context)
     log_exception_to_sentry(exception, {}, prefill: context)
     {}
+  end
+
+  def extract_service_number
+    profile.is_a?(Hash) ? profile[:service_number] : profile&.service_number
+  end
+
+  def format_work_phone
+    phone = user&.vet360_contact_info&.work_phone
+    return nil unless phone
+
+    [
+      phone.country_code,
+      phone.area_code,
+      phone.phone_number,
+      phone.extension
+    ].compact.join
   end
 
   # Metadata for the form

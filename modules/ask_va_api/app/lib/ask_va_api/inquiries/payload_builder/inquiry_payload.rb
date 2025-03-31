@@ -118,9 +118,10 @@ module AskVAApi
         def build_residency_state_data
           {
             Name: fetch_state(inquiry_params.dig(:state_or_residency, :residency_state)) ||
-              inquiry_params[:family_members_location_of_residence],
+              inquiry_params[:family_members_location_of_residence] || inquiry_params[:your_location_of_residence],
             StateCode: inquiry_params.dig(:state_or_residency, :residency_state) ||
-              fetch_state_code(inquiry_params[:family_members_location_of_residence])
+              fetch_state_code(inquiry_params[:family_members_location_of_residence] ||
+              inquiry_params[:your_location_of_residence])
           }
         end
 
