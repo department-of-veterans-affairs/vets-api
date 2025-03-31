@@ -6,7 +6,8 @@ require 'stringio'
 
 describe MedicalRecords::Client do
   context 'when a valid session exists', :vcr do
-    before(:all) do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
                        match_requests_on: %i[method sm_user_ignoring_path_param]) do
         VCR.use_cassette 'mr_client/session' do
@@ -20,10 +21,7 @@ describe MedicalRecords::Client do
           end
         end
       end
-    end
 
-    before do
-      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
       MedicalRecords::Client.send(:public, *MedicalRecords::Client.protected_instance_methods)
 
       # Redirect FHIR logger's output to the buffer before each test
