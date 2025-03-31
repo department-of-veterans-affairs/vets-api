@@ -32,7 +32,6 @@ module RepresentationManagement
           {
             representative_id: form_params[:representative][:id],
             organization_id: form_params[:representative][:organization_id],
-            record_consent: [true, 'true'].include?(form_params[:record_consent]),
             consent_limits:,
             consent_address_change: [true, 'true'].include?(form_params[:consent_address_change])
           }.merge(flatten_veteran_params(form_params))
