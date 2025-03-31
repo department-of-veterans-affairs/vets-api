@@ -150,9 +150,7 @@ module IvcChampva
       begin
         # parsed_form_data should be correct already
         # TODO: add checks for other delimiters
-        if date_string.match?(/^\d{2}-\d{2}-\d{4}$/)
-          return "#{date_string[6..-1]}-#{date_string[0..4]}"
-        end
+        "#{date_string[6..]}-#{date_string[0..4]}" if date_string.match?(/^\d{2}-\d{2}-\d{4}$/)
       rescue
         date_string
       end
@@ -199,9 +197,7 @@ module IvcChampva
       sponsor = request_body[:sponsor]
 
       validate_name_fields(sponsor, 'sponsor')
-      if sponsor[:is_deceased]
-        sponsor[:address] = { street_address: 'NA', city: 'NA', state: 'NA', zip_code: 'NA' }
-      end
+      sponsor[:address] = { street_address: 'NA', city: 'NA', state: 'NA', zip_code: 'NA' } if sponsor[:is_deceased]
       validate_address(sponsor[:address], 'sponsor')
       validate_date(sponsor[:date_of_birth], 'date of birth')
       validate_uuid(sponsor[:person_uuid], 'person uuid')
