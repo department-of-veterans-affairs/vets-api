@@ -206,9 +206,6 @@ features:
   champva_log_all_s3_uploads:
     actor_type: user
     description: Enables logging for all s3 uploads using UUID or keys for monitoring
-  champva_pdf_decrypt:
-    actor_type: user
-    description: Enables unlocking password protected file submissions in IVC CHAMPVA forms.
   champva_require_all_s3_success:
     actor_type: user
     description: Enables raising a StandardError if any supporting documents fail to upload to S3 in IVC CHAMPVA forms.
@@ -698,6 +695,10 @@ features:
   appoint_a_representative_enable_pdf:
     actor_type: user
     description: Enables Appoint a Representative PDF generation endpoint
+    enable_in_development: true
+  representative_status_enable_v2_features:
+    actor_type: user
+    description: Enables Representative Status widget 2.0 features for frontend and backend
     enable_in_development: true
   form4142_validate_schema:
     actor_type: user
