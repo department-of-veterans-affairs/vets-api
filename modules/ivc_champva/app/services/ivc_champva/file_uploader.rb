@@ -84,7 +84,7 @@ module IvcChampva
     #
     # @return [Array<Array<Integer, String>>] Array of arrays containing status codes and error messages
     def handle_combined_uploads
-      merged_pdf_path = File.join(Dir.tmpdir, "#{@metadata['uuid']}_#{@form_id}_combined.pdf")
+      merged_pdf_path = File.join('tmp/', "#{@metadata['uuid']}_#{@form_id}_combined.pdf")
 
       begin
         # Combine all PDFs into a single file
