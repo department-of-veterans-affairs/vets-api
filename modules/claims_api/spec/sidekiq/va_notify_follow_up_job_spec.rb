@@ -48,5 +48,47 @@ describe ClaimsApi::VANotifyFollowUpJob, type: :job do
         include_examples 'requeues the job', status.to_s
       end
     end
+
+    context 'logging for completion status' do
+      shared_examples 'does not requeue the job' do |status|
+        it "when the status is #{status}" do
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find(temp.id)
+          allow(ClaimsApi::PowerOfAttorney).to receive(:find).with(temp.id).and_return(power_of_attorney)
+          allow(described_class).to receive(:perform_async)
+          allow_any_instance_of(described_class).to receive(:notification_response_status).and_return(status)
+
+          subject.perform(notification_id, power_of_attorney.id)
+
+          expect(described_class).not_to have_received(:perform_async)
+          process = ClaimsApi::Process.find_by(processable: power_of_attorney, step_type: 'CLAIMANT_NOTIFICATION')
+          expect(process.completed_at).not_to be_nil
+        end
+      end
+
+      described_class::NON_RETRY_STATUSES.each do |status|
+        include_examples 'does not requeue the job', status.to_s
+      end
+    end
+
+    # context 'logging for not completed status' do
+    context 'logging for not completed status' do
+      shared_examples 'requeues the job' do |status|
+        it "when the status is #{status}" do
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find(temp.id)
+          allow(ClaimsApi::PowerOfAttorney).to receive(:find).with(temp.id).and_return(power_of_attorney)
+          allow_any_instance_of(described_class).to receive(:notification_response_status).and_return(status)
+          expect do
+            subject.perform(notification_id, power_of_attorney.id)
+          end.to raise_error(RuntimeError, "Status for notification #{notification_id} was '#{status}'")
+
+          process = ClaimsApi::Process.find_by(processable: power_of_attorney, step_type: 'CLAIMANT_NOTIFICATION')
+          expect(process.completed_at).to be_nil
+        end
+      end
+
+      described_class::RETRY_STATUSES.each do |status|
+        include_examples 'requeues the job', status.to_s
+      end
+    end
   end
 end

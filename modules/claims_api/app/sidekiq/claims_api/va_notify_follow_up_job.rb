@@ -7,8 +7,8 @@ module ClaimsApi
     sidekiq_options retry: 14
 
     LOG_TAG = 'va_notify_follow_up_job'
-    NON_RETRY_STATUSES = %w[cancelled delivered permanent-failure validation-failed].freeze
-    RETRY_STATUSES = %w[created failed pending sending sent temporary-failure].freeze
+    NON_RETRY_STATUSES = %w[cancelled delivered failed permanent-failure validation-failed].freeze
+    RETRY_STATUSES = %w[created pending sending sent temporary-failure].freeze
     NOTIFY_STATUS_DICTIONARY = {
       IN_PROGRESS: %w[created pending sending sent temporary-failure],
       SUCCESS: ['delivered'],
