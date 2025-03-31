@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'pensions/benefits_intake/pension_benefit_intake_job'
 require 'pensions/monitor'
 
 module Pensions

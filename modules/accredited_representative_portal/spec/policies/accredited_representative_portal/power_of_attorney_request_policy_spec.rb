@@ -11,7 +11,7 @@ module AccreditedRepresentativePortal
     let(:power_of_attorney_holders) { [] }
 
     before do
-      allow(user).to receive(:power_of_attorney_holders).and_return(power_of_attorney_holders)
+      allow(user.user_account).to receive(:power_of_attorney_holders).and_return(power_of_attorney_holders)
     end
 
     describe '#index?' do

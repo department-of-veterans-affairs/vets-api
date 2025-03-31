@@ -2,13 +2,14 @@
 
 module V0
   class Form1095BsController < ApplicationController
-    service_tag 'deprecated'
+    service_tag 'form-1095b'
     before_action { authorize :form1095, :access? }
     before_action :set_form, only: %i[download_pdf download_txt]
 
     def available_forms
       form = Form1095B.find_by(veteran_icn: current_user.icn, tax_year: Form1095B.current_tax_year)
       forms = form.nil? ? [] : [{ year: form.tax_year, last_updated: form.updated_at }]
+      StatsD.increment('api.user_has_no_1095b') if forms.empty?
       render json: { available_forms: forms }
     end
 

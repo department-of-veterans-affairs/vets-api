@@ -8,6 +8,10 @@ module GI
     class Configuration < GI::Configuration
       attr_accessor :etag
 
+      def set_etag(version)
+        self.etag = "W/\"#{version}\""
+      end
+
       private
 
       def request_headers

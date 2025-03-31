@@ -41,7 +41,6 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
   end
 
   describe '.upsert_in_progress_form' do
-    let(:user) { create(:form5655_submission, '') }
     let(:form5655_submission) { create(:debts_api_form5655_submission, user_uuid: 'b2fab2b56af045e1a9e2394347af91ef') }
     let(:in_progress_form) { create(:in_progress_5655_form, user_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
@@ -53,7 +52,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
 
         data = '{"its":"me"}'
         form5655_submission.ipf_data = data
-        form5655_submission.upsert_in_progress_form
+        form5655_submission.upsert_in_progress_form(user_account: form5655_submission.user_account)
         form = InProgressForm.find_by(form_id: '5655', user_uuid: form5655_submission.user_uuid)
         expect(form&.form_data).to eq(data)
       end
@@ -69,7 +68,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
         expect(form&.form_data).not_to eq(data)
 
         form5655_submission.ipf_data = data
-        form5655_submission.upsert_in_progress_form
+        form5655_submission.upsert_in_progress_form(user_account: form5655_submission.user_account)
         form = InProgressForm.find_by(form_id: '5655', user_uuid: form5655_submission.user_uuid)
         expect(form&.form_data).to eq(data)
       end
@@ -173,9 +172,6 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
       it 'saves error message and logs error' do
         expect(Rails.logger).to receive(:error).with("Form5655Submission id: #{form5655_submission.id} failed", message)
         expect(StatsD).to receive(:increment).with(
-          'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
-        )
-        expect(StatsD).to receive(:increment).with(
           'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
         )
         expect(StatsD).to receive(:increment).with(
@@ -202,9 +198,6 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
             "Form5655Submission id: #{form5655_submission.id} failed", message
           )
           expect(StatsD).to receive(:increment).with(
-            'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
-          )
-          expect(StatsD).to receive(:increment).with(
             'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
           )
           expect(StatsD).to receive(:increment).with(
@@ -214,6 +207,13 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
           expect(StatsD).to receive(:increment).with('api.fsr_submission.combined.failure')
           form5655_submission.register_failure(message)
           expect(form5655_submission.error_message).to eq(message)
+        end
+      end
+
+      context 'when Sharepoint error' do
+        it 'does not send an email' do
+          form5655_submission.register_failure('SharepointRequest')
+          expect(DebtManagementCenter::VANotifyEmailJob).not_to receive(:perform_async)
         end
       end
     end
@@ -234,21 +234,6 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
         expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
         form5655_submission.register_failure(message)
         expect(form5655_submission.error_message).to eq(message)
-      end
-
-      it 'alerts silent error when not sharepoint error' do
-        expect(form5655_submission).to receive(:alert_silent_error)
-        form5655_submission.register_failure(message)
-      end
-
-      it 'does not alert silent error when sharepoint error' do
-        message =
-          'VHA set completed state: [#<struct Sidekiq::Batch::Status::Failure jid=\"058f2988d02722166392ff66\", ' \
-          'error_class=\"Common::Exceptions::BackendServiceException\", ' \
-          'error_message=\"BackendServiceException: {:status=>500, :detail=>\\\"Internal Server Error\\\", ' \
-          ':source=>\\\"SharepointRequest\\\", :code=>\\\"SHAREPOINT_PDF_502\\\"}\", backtrace=nil>]'
-        expect(form5655_submission).not_to receive(:alert_silent_error)
-        form5655_submission.register_failure(message)
       end
     end
   end
@@ -274,10 +259,12 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
             'updated_at' => form5655_submission.updated_at
           }
 
-          expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
+          expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_in).with(
+            24.hours,
             'test2@test1.net',
             'fake_template_id',
-            expected_personalization_info
+            expected_personalization_info,
+            { id_type: 'email', failure_mailer: true }
           )
 
           form5655_submission.send_failed_form_email

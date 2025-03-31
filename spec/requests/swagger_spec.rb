@@ -431,7 +431,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       ) do
         expect(subject).to validate(
           :post,
-          '/v0/burial_claims',
+          '/burials/v0/claims',
           200,
           '_data' => {
             'burial_claim' => {
@@ -442,7 +442,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
         expect(subject).to validate(
           :post,
-          '/v0/burial_claims',
+          '/burials/v0/claims',
           422,
           '_data' => {
             'burial_claim' => {
@@ -907,13 +907,32 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
       end
 
-      it 'supports returning list of active facilities' do
-        VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+      context ':hca_cache_facilities feature is off' do
+        before { allow(Flipper).to receive(:enabled?).with(:hca_cache_facilities).and_return(false) }
+
+        it 'supports returning list of active facilities' do
+          VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+            expect(subject).to validate(
+              :get,
+              '/v0/health_care_applications/facilities',
+              200,
+              { '_query_string' => 'facilityIds[]=vha_757&facilityIds[]=vha_358' }
+            )
+          end
+        end
+      end
+
+      context ':hca_cache_facilities feature is on' do
+        before { allow(Flipper).to receive(:enabled?).with(:hca_cache_facilities).and_return(true) }
+
+        it 'supports returning list of active facilities' do
+          create(:health_facility, name: 'Test Facility', station_number: '123', postal_name: 'OH')
+
           expect(subject).to validate(
             :get,
             '/v0/health_care_applications/facilities',
             200,
-            { '_query_string' => 'facilityIds[]=vha_757&facilityIds[]=vha_358' }
+            { '_query_string' => 'state=OH' }
           )
         end
       end
@@ -3826,21 +3845,21 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         )
       end
 
-      it 'returns 404 for missing claim' do
+      it 'returns 400 for missing claim' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[path method]) do
+        VCR.use_cassette('travel_pay/404_claim_details', match_requests_on: %i[path method]) do
           expect(subject).to validate(
             :get,
             '/travel_pay/v0/claims/{id}',
-            404,
-            headers.merge('id' => '8656ad4e-5cdf-41e2-bbd5-af843d2fa8fe')
+            400,
+            headers.merge('id' => 'aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e')
           )
         end
       end
 
       it 'returns 400 for invalid request' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[path method]) do
+        VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[path method]) do
           expect(subject).to validate(
             :get,
             '/travel_pay/v0/claims/{id}',
@@ -3852,8 +3871,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'returns 200 for successful response' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        claim_id = '33016896-ed7f-4d4f-a81b-cc4f2ca0832c'
-        VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[path method]) do
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[path method]) do
           expect(subject).to validate(
             :get,
             '/travel_pay/v0/claims/{id}',
@@ -3990,6 +4009,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/coe/download_coe')
       subject.untested_mappings.delete('/v0/coe/document_download/{id}')
       subject.untested_mappings.delete('/v0/caregivers_assistance_claims/download_pdf')
+      subject.untested_mappings.delete('/v0/health_care_applications/download_pdf')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')

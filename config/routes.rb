@@ -47,6 +47,7 @@ Rails.application.routes.draw do
     resources :debts, only: %i[index show]
     resources :debt_letters, only: %i[index show]
     resources :education_career_counseling_claims, only: :create
+    resources :user_action_events, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
     resource :virtual_agent_token_msft, only: [:create], controller: :virtual_agent_token_msft
@@ -124,6 +125,7 @@ Rails.application.routes.draw do
         get(:enrollment_status)
         get(:rating_info)
         get(:facilities)
+        post(:download_pdf)
       end
     end
 
@@ -149,8 +151,6 @@ Rails.application.routes.draw do
 
     resources :dependents_verifications, only: %i[create index]
 
-    resources :burial_claims, only: %i[create show] if Settings.central_mail.upload.enabled
-
     post 'form0969', to: 'income_and_assets_claims#create'
     get 'form0969', to: 'income_and_assets_claims#show'
 
@@ -159,13 +159,12 @@ Rails.application.routes.draw do
       post 'benefits_documents', to: 'benefits_documents#create'
     end
 
+    resources :evidence_submissions, only: %i[index]
+
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
 
     get 'average_days_for_claim_completion', to: 'average_days_for_claim_completion#index'
-
-    get 'virtual_agent_claim_letters', to: 'virtual_agent_claim_letters#index'
-    get 'virtual_agent_claim_letters/:document_id', to: 'virtual_agent_claim_letters#show'
 
     resources :efolder, only: %i[index show]
 
@@ -183,14 +182,6 @@ Rails.application.routes.draw do
       get 'claims', to: 'virtual_agent_claim_status#index'
       get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
-
-    resources :virtual_agent_claim, only: %i[index]
-
-    namespace :virtual_agent do
-      get 'appeal', to: 'virtual_agent_appeal#index'
-    end
-
-    resources :virtual_agent_appeal, only: %i[index]
 
     get 'intent_to_file', to: 'intent_to_files#index'
     post 'intent_to_file/:type', to: 'intent_to_files#submit'
@@ -454,6 +445,7 @@ Rails.application.routes.draw do
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
   mount TravelPay::Engine, at: '/travel_pay'
+  mount VRE::Engine, at: '/vre'
   mount VaNotify::Engine, at: '/va_notify'
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
