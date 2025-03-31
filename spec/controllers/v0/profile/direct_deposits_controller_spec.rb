@@ -329,7 +329,6 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
           put(:update, params:)
         end
         expect(response).to have_http_status(:unprocessable_entity)
-
       end
     end
 
