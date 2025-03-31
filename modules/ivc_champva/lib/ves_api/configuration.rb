@@ -10,6 +10,10 @@ module IvcChampva
         'https://dev.ves.va.gov/ves-vfmp-app-svc'
       end
 
+      def service_name
+        'VesApi::Client'
+      end
+
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
           conn.use :breakers

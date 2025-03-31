@@ -150,7 +150,9 @@ module IvcChampva
       begin
         # parsed_form_data should be correct already
         # TODO: add checks for other delimiters
-        Date.parse(date_string, '%d-%m-%Y').strftime('%Y-%m-%d')
+        if date_string.match?(/^\d{2}-\d{2}-\d{4}$/)
+          return "#{date_string[6..-1]}-#{date_string[0..4]}"
+        end
       rescue
         date_string
       end
@@ -197,6 +199,9 @@ module IvcChampva
       sponsor = request_body[:sponsor]
 
       validate_name_fields(sponsor, 'sponsor')
+      if sponsor[:is_deceased]
+        sponsor[:address] = { street_address: 'NA', city: 'NA', state: 'NA', zip_code: 'NA' }
+      end
       validate_address(sponsor[:address], 'sponsor')
       validate_date(sponsor[:date_of_birth], 'date of birth')
       validate_uuid(sponsor[:person_uuid], 'person uuid')
@@ -299,7 +304,11 @@ module IvcChampva
 
     def self.validate_date(date, name)
       validate_presence_and_stringiness(date, name)
-      raise ArgumentError, "#{name} is invalid. Must match YYYY-MM-DD" unless date.match?(/^\d{4}-\d{2}-\d{2}$/)
+
+      # If we can, coerce date into proper format
+      date = format_date(date)
+
+      raise ArgumentError, "#{name} is invalid. Must match YYYY-MM-DD#{date}" unless date.match?(/^\d{4}-\d{2}-\d{2}$/)
 
       date
     end

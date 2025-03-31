@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'datadog'
+require 'ves_api/client'
 
 module IvcChampva
   module V1
