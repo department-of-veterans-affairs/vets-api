@@ -16,8 +16,7 @@ describe IvcChampva::VesDataFormatter do
         vaFileNumber: '',
         dateOfBirth: '1999-01-01',
         dateOfMarriage: '',
-        isDeceased: true,
-        dateOfDeath: '1999-01-01',
+        isDeceased: false,
         isDeathOnActiveService: false,
         address: {
           streetAddress: '123 Certifier Street ',
@@ -74,10 +73,17 @@ describe IvcChampva::VesDataFormatter do
           'state' => 'AL',
           'postal_code' => '12312'
         },
-        'sponsor_is_deceased' => true,
-        'date_of_death' => '1999-01-01',
+        'sponsor_is_deceased' => false,
+        'is_active_service_death' => false,
         'date_of_marriage' => '',
-        'is_active_service_death' => false
+        'sponsor_address' => {
+          'country' => 'USA',
+          'street' => '456 Circle Street',
+          'city' => 'Clinton',
+          'state' => 'AS',
+          'postal_code' => '56790',
+          'street_combined' => '456 Circle Street '
+        }
       },
       'applicants' => [
         {
@@ -211,16 +217,26 @@ describe IvcChampva::VesDataFormatter do
         IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
       end.to raise_error(ArgumentError, 'sponsor state is missing')
     end
+
+    it 'adds a default address when sponsor is deceased' do
+      @parsed_form_data_copy['veteran']['address'] = nil
+      @parsed_form_data_copy['veteran']['is_deceased'] = true
+
+      res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+      expect(res.sponsor.address.street_address).to eq('NA')
+      expect(res.sponsor.address.state).to eq('NA')
+      expect(res.sponsor.address.city).to eq('NA')
+      expect(res.sponsor.address.zip_code).to eq('NA')
+    end
   end
 
   describe 'sponsor date of birth' do
-    it 'raises an error when not formatted as YYYY-MM-DD' do
-      # Drop the address prop from sponsor
+    it 'when formatted as MM-DD-YYYY, it reformats to YYYY-MM-DD' do
       @parsed_form_data_copy['veteran']['date_of_birth'] = '01-01-2020'
 
-      expect do
-        IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
-      end.to raise_error(ArgumentError, 'date of birth is invalid. Must match YYYY-MM-DD')
+      res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+
+      expect(res.sponsor.date_of_birth).to eq('2020-01-01')
     end
   end
 

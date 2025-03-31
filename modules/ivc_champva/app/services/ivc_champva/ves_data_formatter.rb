@@ -197,9 +197,12 @@ module IvcChampva
       sponsor = request_body[:sponsor]
 
       validate_name_fields(sponsor, 'sponsor')
-      sponsor[:address] = { street_address: 'NA', city: 'NA', state: 'NA', zip_code: 'NA' } if sponsor[:is_deceased]
+      if sponsor[:is_deceased] == true
+        sponsor[:address] =
+          { street_address: 'NA', city: 'NA', state: 'NA', zip_code: 'NA' }
+      end
       validate_address(sponsor[:address], 'sponsor')
-      validate_date(sponsor[:date_of_birth], 'date of birth')
+      sponsor[:date_of_birth] = validate_date(sponsor[:date_of_birth], 'date of birth')
       validate_uuid(sponsor[:person_uuid], 'person uuid')
       validate_ssn(sponsor[:ssn], 'ssn')
       validate_phone(sponsor, 'sponsor phone') if sponsor[:phone_number]
@@ -213,7 +216,7 @@ module IvcChampva
 
       beneficiaries.each do |beneficiary|
         validate_name_fields(beneficiary, 'beneficiary')
-        validate_date(beneficiary[:date_of_birth], 'date of birth')
+        beneficiary[:date_of_birth] = validate_date(beneficiary[:date_of_birth], 'date of birth')
         validate_uuid(beneficiary[:person_uuid], 'person uuid')
         validate_address(beneficiary[:address], 'beneficiary')
         validate_ssn(beneficiary[:ssn], 'ssn')
@@ -232,7 +235,7 @@ module IvcChampva
 
       # only signature and signature_date are required by VES
       validate_presence_and_stringiness(certification[:signature], 'certification signature')
-      validate_date(certification[:signature_date], 'certification signature date')
+      certification[:signature_date] = validate_date(certification[:signature_date], 'certification signature date')
       validate_phone(certification, 'certification phone') if certification[:phone_number]
 
       request_body
