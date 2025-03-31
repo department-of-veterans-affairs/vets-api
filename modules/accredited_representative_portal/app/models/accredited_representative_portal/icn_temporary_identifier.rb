@@ -2,8 +2,6 @@
 
 module AccreditedRepresentativePortal
   class IcnTemporaryIdentifier < ApplicationRecord
-    EXPIRATION_PERIOD = 60.days.freeze
-
     def self.lookup_icn(uuid)
       find(uuid).icn
     end
