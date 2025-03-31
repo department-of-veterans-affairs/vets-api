@@ -294,7 +294,7 @@ http_interactions:
           {
           "closedDate": null,
           "description": "VA needs your payment information",
-          "displayName": "Employment information needed",
+          "displayName": "Employment info needed",
           "overdue": false,
           "receivedDate": "2023-03-15",
           "requestedDate": "2023-04-14",
