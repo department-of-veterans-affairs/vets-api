@@ -10,21 +10,21 @@ module PdfFill
       KEY = {
         'institutionDetails' => {
           'institutionName' => {
-            key: 'Text1',
+            key: 'F[0].#subform[1].INSTITUTION_NAME[0]',
             limit: 50,
             question_num: 1,
             question_suffix: 'A',
             question_text: 'INSTITUTION NAME'
           },
           'facilityCode' => {
-            key: 'Text2',
+            key: 'F[0].#subform[1].FACILITY_CODE[0]',
             limit: 8,
             question_num: 2,
             question_suffix: 'A',
             question_text: 'FACILITY CODE'
           },
           'termStartDate' => {
-            key: 'Text3',
+            key: 'F[0].#subform[1].TERM_START_DATE[0]',
             limit: 14,
             question_num: 3,
             question_suffix: 'C',
@@ -33,28 +33,28 @@ module PdfFill
         },
         'studentRatioCalcChapter' => {
           'beneficiaryStudent' => {
-            key: 'Text4',
+            key: 'F[0].#subform[1].VA_BENEFICIARY_STUDENTS[0]',
             limit: 10,
             question_num: 4,
             question_suffix: 'A',
             question_text: 'NUMBER OF VA BENEFICIARY STUDENTS'
           },
           'numOfStudent' => {
-            key: 'Text5',
+            key: 'F[0].#subform[1].TOTAL_NUMBER_OF_STUDENTS[0]',
             limit: 10,
             question_num: 5,
             question_suffix: 'A',
             question_text: 'TOTAL NUMBER OF STUDENTS'
           },
           'VABeneficiaryStudentsPercentage' => {
-            key: 'Text6',
+            key: 'F[0].#subform[1].VA_BENEFICIARY_STUDENTS_BENEFICIARY[0]',
             limit: 10,
             question_num: 6,
             question_suffix: 'A',
             question_text: 'VA BENEFICIARY STUDENTS PERCENTAGE'
           },
           'dateOfCalculation' => {
-            key: 'Text7',
+            key: 'F[0].#subform[1].Date_Of_Calculation[0]',
             limit: 20,
             question_num: 7,
             question_suffix: 'C',
@@ -63,14 +63,14 @@ module PdfFill
         },
         'certifyingOfficial' => {
           'fullName' => {
-            key: 'Text8',
+            key: 'F[0].#subform[1].SCHOOL_OFFICIAL_PRINTED_NAME[0]',
             limit: 50,
             question_num: 8,
             question_suffix: 'A',
             question_text: 'CERTIFYING OFFICIAL NAME'
           },
           'title' => {
-            key: 'Text9',
+            key: 'F[0].#subform[1].SCHOOL_OFFICIAL_TITLE[0]',
             limit: 30,
             question_num: 9,
             question_suffix: 'A',
@@ -78,14 +78,14 @@ module PdfFill
           }
         },
         'statementOfTruthSignature' => {
-          key: 'Text10',
+          key: 'F[0].#subform[1].SCHOOL_OFFICIAL_PRINTED_NAME[0]',
           limit: 50,
           question_num: 10,
           question_suffix: 'A',
           question_text: 'STATEMENT OF TRUTH SIGNATURE'
         },
         'dateSigned' => {
-          key: 'Text11',
+          key: 'F[0].#subform[1].Date_Signed[0]',
           limit: 10,
           question_num: 11,
           question_suffix: 'A',

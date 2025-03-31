@@ -10,28 +10,28 @@ module PdfFill
       KEY = {
         'institutionDetails' => {
           'institutionName' => {
-            key: 'institutionName',
+            key: 'form1[0].#subform[5].Institution_Name[0]',
             limit: 50,
             question_num: 1,
             question_suffix: 'A',
             question_text: 'INSTITUTION NAME'
           },
           'facilityCode' => {
-            key: 'facilityCode',
+            key: 'form1[0].#subform[5].Facility_Code[0]',
             limit: 8,
             question_num: 2,
             question_suffix: 'A',
             question_text: 'FACILITY CODE'
           },
           'termStartDate' => {
-            key: 'termStartDate',
+            key: 'form1[0].#subform[5].DateField1[1]',
             limit: 10,
             question_num: 3,
             question_suffix: 'A',
             question_text: 'TERM START DATE'
           },
           'dateOfCalculations' => {
-            key: 'institutionDateOfCalculations',
+            key: 'form1[0].#subform[5].DateField1[0]',
             limit: 10,
             question_num: 4,
             question_suffix: 'A',
@@ -40,14 +40,14 @@ module PdfFill
         },
         'certifyingOfficial' => {
           'fullName' => {
-            key: 'fullName',
+            key: 'form1[0].#subform[5].School_Official_Printed_Name[0]',
             limit: 50,
             question_num: 5,
             question_suffix: 'A',
             question_text: 'CERTIFYING OFFICIAL NAME'
           },
           'title' => {
-            key: 'title',
+            key: 'form1[0].#subform[5].School_Official_Title[0]',
             limit: 30,
             question_num: 6,
             question_suffix: 'A',
@@ -58,7 +58,7 @@ module PdfFill
           limit: 16,
           first_key: 'programName',
           'programName' => {
-            key: 'programName[%iterator%]',
+            key: "form1[0].#subform[5].Table2[0].Row#{ITERATOR}[0].Program_Name[0]",
             limit: 50,
             question_num: 7,
             question_suffix: 'A',
@@ -66,28 +66,28 @@ module PdfFill
           },
           'fte' => {
             'supported' => {
-              key: 'supportedStudents[%iterator%]',
+              key: "form1[0].#subform[5].Table2[0].Row#{ITERATOR}[0].Number_Of_Supported_Students_FTE[0]",
               limit: 10,
               question_num: 7,
               question_suffix: 'B',
               question_text: 'SUPPORTED STUDENTS'
             },
             'nonSupported' => {
-              key: 'nonSupportedStudents[%iterator%]',
+              key: "form1[0].#subform[5].Table2[0].Row#{ITERATOR}[0].Number_Of_Non_Supported_Students_FTE[0]",
               limit: 10,
               question_num: 7,
               question_suffix: 'C',
               question_text: 'NON-SUPPORTED STUDENTS'
             },
             'totalFTE' => {
-              key: 'totalFTE[%iterator%]',
+              key: "form1[0].#subform[5].Table2[0].Row#{ITERATOR}[0].Total_Enrollment[0]",
               limit: 10,
               question_num: 7,
               question_suffix: 'D',
               question_text: 'TOTAL FTE'
             },
             'supportedPercentageFTE' => {
-              key: 'supportedPercentageFTE[%iterator%]',
+              key: "form1[0].#subform[5].Table2[0].Row#{ITERATOR}[0].Supported_Student_Percentage_FTE[0]",
               limit: 10,
               question_num: 7,
               question_suffix: 'E',
@@ -95,7 +95,7 @@ module PdfFill
             }
           },
           'programDateOfCalculation' => {
-            key: 'dateOfCalculation[%iterator%]',
+            key: "form1[0].#subform[5].Table2[0].Row#{ITERATOR}[0].Date_Of_Calculation[0]",
             limit: 10,
             question_num: 7,
             question_suffix: 'F',
@@ -103,14 +103,14 @@ module PdfFill
           }
         },
         'statementOfTruthSignature' => {
-          key: 'statementOfTruthSignature',
+          key: 'form1[0].#subform[5].Digital_Signature[0]',
           limit: 50,
           question_num: 8,
           question_suffix: 'A',
           question_text: 'STATEMENT OF TRUTH SIGNATURE'
         },
         'dateSigned' => {
-          key: 'dateSigned',
+          key: 'form1[0].#subform[5].DateField1[2]',
           limit: 10,
           question_num: 9,
           question_suffix: 'A',
