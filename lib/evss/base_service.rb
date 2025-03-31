@@ -57,7 +57,7 @@ module EVSS
     # Net/HTTP capitalizes headers
     def conn
       @conn ||= Faraday.new(base_url, headers: @headers, ssl: ssl_options, request: timeout) do |faraday|
-        faraday.use      :breakers
+        faraday.use :breakers
         faraday.use      Faraday::Response::RaiseError
         faraday.use      EVSS::ErrorMiddleware
         faraday.response :betamocks if @use_mock

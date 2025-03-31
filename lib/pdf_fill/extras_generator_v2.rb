@@ -30,9 +30,16 @@ module PdfFill
         i = metadata[:i]
         prefix += " Line #{i + 1}" if i.present?
 
-        pdf.text("#{prefix}:", { style: :normal })
-        pdf.text(value.to_s, { style: :bold })
+        pdf.markup("<h4>#{prefix}:</h4>")
+        formatted_value = value.gsub("\n", '<br/>')
+        pdf.markup("<b>#{formatted_value}</b>")
       end
+    end
+
+    def set_font(pdf)
+      register_source_sans_font(pdf)
+      pdf.font('SourceSansPro')
+      set_markup_options(pdf)
     end
 
     def add_text(value, metadata)
@@ -81,8 +88,7 @@ module PdfFill
     def render_new_section(pdf, section_index)
       return if @sections.blank?
 
-      pdf.move_down(20)
-      pdf.text(@sections[section_index][:label], { size: 14 })
+      pdf.markup("<h2>#{@sections[section_index][:label]}</h2>")
     end
 
     def set_header(pdf)
@@ -91,7 +97,7 @@ module PdfFill
         location = [pdf.bounds.left, pdf.bounds.top]
         write_header_main(pdf, location, bound_width, HEADER_FONT_SIZE)
         location[0] += bound_width
-        write_submission_header(pdf, location, bound_width, HEADER_FONT_SIZE)
+        write_submission_header(pdf, location, bound_width)
         pdf.pad_top(2) { pdf.stroke_horizontal_rule }
       end
     end
@@ -105,21 +111,16 @@ module PdfFill
     end
 
     def write_header_main(pdf, location, bound_width, bound_height)
-      pdf.bounding_box(location, width: bound_width, height: bound_height) do
-        pdf.text("<b>ATTACHMENT</b> to VA Form #{@form_name}",
-                 align: :left,
-                 valign: :bottom,
-                 size: bound_height,
-                 inline_format: true)
+      pdf.bounding_box(location, width: bound_width) do
+        pdf.markup("<b>ATTACHMENT</b> to VA Form #{@form_name}",
+                   text: { align: :left, size: bound_height })
       end
     end
 
-    def write_submission_header(pdf, location, bound_width, bound_height)
-      pdf.bounding_box(location, width: bound_width, height: bound_height) do
-        pdf.text('VA.gov Submission',
-                 align: :right,
-                 valign: :bottom,
-                 size: SUBHEADER_FONT_SIZE)
+    def write_submission_header(pdf, location, bound_width)
+      pdf.bounding_box(location, width: bound_width) do
+        pdf.markup('VA.gov Submission',
+                   text: { align: :right, size: SUBHEADER_FONT_SIZE })
       end
     end
 
@@ -144,6 +145,32 @@ module PdfFill
       return nil if datetime.blank?
 
       "#{datetime.utc.strftime('%H:%M')} UTC #{datetime.utc.strftime('%Y-%m-%d')}"
+    end
+
+    def register_source_sans_font(pdf)
+      pdf.font_families.update(
+        'SourceSansPro' => {
+          normal: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-Regular.ttf'),
+          bold: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-Bold.ttf'),
+          italic: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-It.ttf')
+        }
+      )
+    end
+
+    def set_markup_options(pdf)
+      pdf.markup_options = {
+        heading2: { style: :normal, size: 13 },
+        heading3: { style: :bold, size: 10.5 },
+        heading4: { style: :normal, size: 10.5 },
+        table: {
+          cell: {
+            border_width: 0,
+            padding: [2, 0, 2, 0]
+          }
+        },
+        list: { bullet: { char: '✓', margin: 0 }, content: { margin: 4 }, vertical_margin: 0 },
+        text: { leading: 1 }
+      }
     end
   end
 end
