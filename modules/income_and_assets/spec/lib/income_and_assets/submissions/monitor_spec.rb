@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../../lib/income_and_assets/submissions/monitor'
+require 'income_and_assets/submissions/monitor'
 
 RSpec.describe IncomeAndAssets::Submissions::Monitor do
   let(:monitor) { described_class.new }
