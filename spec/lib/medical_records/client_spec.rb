@@ -64,17 +64,13 @@ describe MedicalRecords::Client do
 
   context 'using legacy endpoints' do
     context 'when a valid session exists', :vcr do
-      before(:all) do
-        VCR.configure do |vcr_config|
-          vcr_config.default_cassette_options = {
-            allow_playback_repeats: true
-          }
-        end
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+
         VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
                          match_requests_on: %i[method sm_user_ignoring_path_param]) do
           VCR.use_cassette 'mr_client/session' do
             VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
-              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
               @client ||= begin
                 client = MedicalRecords::Client.new(session: { user_id: '22406991', icn: '1013868614V792025' })
                 client.authenticate
@@ -83,10 +79,7 @@ describe MedicalRecords::Client do
             end
           end
         end
-      end
 
-      before do
-        allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
         MedicalRecords::Client.send(:public, *MedicalRecords::Client.protected_instance_methods)
 
         # Redirect FHIR logger's output to the buffer before each test
