@@ -7,7 +7,8 @@ module CheckIn
     include Sidekiq::Job
     include SentryLogging
 
-    sidekiq_options retry: 12
+    MAX_RETRIES = 12
+    sidekiq_options retry: MAX_RETRIES
 
     OH_RESPONSES = Hash.new([Constants::OH_STATSD_BTSSS_ERROR, Constants::OH_ERROR_TEMPLATE_ID]).merge(
       TravelClaim::Response::CODE_SUCCESS => [Constants::OH_STATSD_BTSSS_SUCCESS, Constants::OH_SUCCESS_TEMPLATE_ID],
@@ -44,16 +45,17 @@ module CheckIn
                                  Constants::CIE_ERROR_TEMPLATE_ID, Constants::OH_ERROR_TEMPLATE_ID,
                                  Constants::OH_FAILURE_TEMPLATE_ID, Constants::OH_TIMEOUT_TEMPLATE_ID].freeze
 
-    MAX_RETRIES = 3
 
     def send_notification(opts = {})
       log_sending_travel_claim_notification(opts)
-
       retry_attempt = 0
+      retry_attempt = self.class.sidekiq_options_hash['retry_count'].to_i if self.class.sidekiq_options_hash['retry_count']
+      attempt_number = retry_attempt + 1
+
       begin
         va_notify_send_sms(opts)
       rescue => e
-        log_send_sms_failure(retry_attempt)
+        log_send_sms_failure(attempt_number)
 
         raise e
       end
@@ -111,8 +113,8 @@ module CheckIn
       notify_client.send_sms(phone_number:, template_id:, sms_sender_id:, personalisation:)
     end
 
-    def log_send_sms_failure(retry_attempt)
-      logger.info({ message: "Sending SMS failed, attempt #{retry_attempt} of #{MAX_RETRIES}" })
+    def log_send_sms_failure(attempt_number)
+      logger.info({ message: "Sending SMS failed, attempt #{attempt_number} of #{MAX_RETRIES}" })
     end
   end
 end
