@@ -468,7 +468,7 @@ class User < Common::RedisStore
   end
 
   def power_of_attorney
-    EVSS::CommonService.get_current_info[:poa]
+    nil
   end
 
   def flipper_id

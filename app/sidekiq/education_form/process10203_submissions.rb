@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/vso_search/service'
 require 'sentry_logging'
 
 module EducationForm
@@ -43,7 +42,7 @@ module EducationForm
     private
 
     def evss_is_healthy?
-      Settings.evss.mock_claims || EVSS::VSOSearch::Service.service_is_up?
+      Settings.evss.mock_claims || true
     end
 
     # Group the submissions by user_uuid
@@ -75,22 +74,7 @@ module EducationForm
     # Retrieve poa status fromEVSS VSOSearch for a user
     def get_user_poa_status(auth_headers)
       # stem_automated_decision feature disables EVSS call  for POA which will be removed in a future PR
-      return nil if Flipper.enabled?(:stem_automated_decision)
-
-      if auth_headers.nil? ||
-         !auth_headers.key?('va_eauth_dodedipnid') ||
-         auth_headers['va_eauth_dodedipnid'] == ''
-
-        return nil
-      end
-
-      vsosearch_service = EVSS::VSOSearch::Service.new(nil, auth_headers)
-      vsosearch_service.get_current_info(auth_headers)['userPoaInfoAvailable']
-    rescue => e
-      log_exception_to_sentry(
-        Process10203EVSSError.new("Failed to retrieve VSOSearch data: #{e.message}")
-      )
-      nil
+      return nil
     end
 
     # Ignore already processed either by CreateDailySpoolFiles or this job
