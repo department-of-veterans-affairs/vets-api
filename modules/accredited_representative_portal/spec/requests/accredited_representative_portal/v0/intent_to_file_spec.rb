@@ -23,10 +23,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
            representative_id: accredited_individual.accredited_individual_registration_number,
            poa_codes: [poa_code])
   end
+  let(:feature_flag_state) { true }
 
   before do
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
     login_as(test_user)
+    allow(Flipper).to receive(:enabled?).with(
+      :accredited_representative_portal_intent_to_file_api,
+      instance_of(AccreditedRepresentativePortal::RepresentativeUser)
+    ).and_return(feature_flag_state)
   end
 
   around do |example|
@@ -37,9 +42,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
 
   describe 'GET /accredited_representative_portal/v0/intent_to_file' do
     context 'feature flag is off' do
+      let(:feature_flag_state) { false }
+
       it 'returns forbidden' do
-        Flipper.disable(:accredited_representative_portal_intent_to_file_api)
-        get('/accredited_representative_portal/v0/intent_to_file/123498767V234859')
+        get('/accredited_representative_portal/v0/intent_to_file/123498767V234859?type=compensation')
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -82,6 +88,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
   end
 
   describe 'POST /accredited_representative_portal/v0/intent_to_file' do
+    context 'feature flag is off' do
+      let(:feature_flag_state) { false }
+
+      it 'returns forbidden' do
+        post('/accredited_representative_portal/v0/intent_to_file/?id=123498767V234859&type=compensation')
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'happy path' do
       it 'submits an intent to file' do
         VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
