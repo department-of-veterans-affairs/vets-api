@@ -18,19 +18,15 @@ describe 'bb client' do
   let(:client) { @client }
 
   context 'using API Gateway endpoints' do
-    before(:all) do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
       VCR.use_cassette 'bb_client/apigw_session' do
-        allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
         @client ||= begin
           client = BB::Client.new(session: { user_id: '21207668' })
           client.authenticate
           client
         end
       end
-    end
-
-    before do
-      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
     end
 
     context 'with sentry enabled' do
