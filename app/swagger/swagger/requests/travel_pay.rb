@@ -91,6 +91,42 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/travel_pay/v0/documents/{claimId}/{docId}' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::BadRequestError
+
+          key :description, 'Get a document binary'
+          key :operationId, 'getTravelPayDocumentBinary'
+          key :tags, %w[travel_pay]
+
+          parameter :authorization
+
+          parameter do
+            key :name, 'claimId'
+            key :in, :path
+            key :description, 'The non-PII/PHI id of a claim (UUID - any version)'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'docId'
+            key :in, :path
+            key :description, 'The non-PII/PHI id of a document (UUID - any version)'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'Successfully retrieved claim details for a user'
+            schema do
+              key :$ref, :TravelPayDocumentBinary
+            end
+          end
+        end
+      end
     end
   end
 end
