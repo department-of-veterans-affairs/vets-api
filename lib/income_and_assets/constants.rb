@@ -10,7 +10,7 @@ module IncomeAndAssets
       'CUSTODIAN' => 4
     }.freeze
 
-    RECIPIENTS = {
+    RELATIONSHIPS = {
       'VETERAN' => 0,
       'SPOUSE' => 1,
       'CUSTODIAN' => 2,
@@ -38,6 +38,14 @@ module IncomeAndAssets
       'FARM' => 0,
       'BUSINESS' => 1,
       'RENTAL_PROPERTY' => 2
+    }.freeze
+
+    TRANSFER_METHODS = {
+      'SOLD' => 0,
+      'GIFTED' => 1,
+      'CONVEYED' => 2,
+      'TRADED' => 3,
+      'OTHER' => 4
     }.freeze
   end
 end

@@ -127,7 +127,6 @@ describe TravelPay::ClaimsService do
                   'costSubmitted' => 10.00
                 }
               ],
-              'documents' => []
             }
         }
       end
@@ -217,7 +216,21 @@ describe TravelPay::ClaimsService do
                        }
                      ))
 
+      it 'returns an not found error if a claim with the given id was not found' do
+        allow_any_instance_of(TravelPay::ClaimsClient)
+          .to receive(:get_claim_by_id)
+          .and_raise(Common::Exceptions::ResourceNotFound.new(
+                       {
+                         'statusCode' => 404,
+                         'message' => 'Claim not found.',
+                         'success' => false,
+                         'data' => nil
+                       }
+                     ))
+
         claim_id = SecureRandom.uuid
+        expect { @service.get_claim_details(claim_id) }
+          .to raise_error(Common::Exceptions::ResourceNotFound, /not found/i)
         expect { @service.get_claim_details(claim_id) }
           .to raise_error(Common::Exceptions::ResourceNotFound, /not found/i)
       end
@@ -225,6 +238,7 @@ describe TravelPay::ClaimsService do
       it 'throws an ArgumentException if claim_id is invalid format' do
         claim_id = 'this-is-definitely-a-uuid-right'
 
+        expect { @service.get_claim_details(claim_id) }
         expect { @service.get_claim_details(claim_id) }
           .to raise_error(ArgumentError, /valid UUID/i)
       end
