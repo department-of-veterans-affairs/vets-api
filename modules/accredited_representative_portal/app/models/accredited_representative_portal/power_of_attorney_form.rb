@@ -194,6 +194,7 @@ module AccreditedRepresentativePortal
               },
               "phone": {
                 "type": ["string", "null"],
+                "pattern": "^\\\\d{10}$",
                 "example": "1234567890"
               },
               "email": {
@@ -311,6 +312,7 @@ module AccreditedRepresentativePortal
               },
               "phone": {
                 "type": ["string", "null"],
+                "pattern": "^\\\\d{10}$",
                 "example": "1234567890"
               },
               "email": {
