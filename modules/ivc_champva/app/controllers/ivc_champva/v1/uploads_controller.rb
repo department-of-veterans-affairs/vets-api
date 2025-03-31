@@ -15,12 +15,23 @@ module IvcChampva
         '10-7959A' => 'vha_10_7959a'
       }.freeze
 
+      RETRY_ERROR_CONDITIONS = [
+        'failed to generate',
+        'no such file',
+        'an error occurred while verifying stamp:',
+        'unable to find file'
+      ].freeze
+
       def submit
         Datadog::Tracing.trace('Start IVC File Submission') do
           form_id = get_form_id
           Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
           parsed_form_data = JSON.parse(params.to_json)
-          statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
+
+          # TODO: add same feature toggle as below for VES integration
+          # expect this formatter to raise errors if data is invalid
+          # ves_request = IvcChampva::VesDataFormatter.format(parsed_form_data)
+          statuses, error_message = call_handle_file_uploads(form_id, parsed_form_data)
 
           response = build_json(statuses, error_message)
 
@@ -30,7 +41,7 @@ module IvcChampva
             # TODO: Make call to VES with parsed_form_data e.g.,
 
             # ves_client = IvcChampva::VesApi::Client.new
-            # ves_client.submit_1010d('fake-id', 'fake-user', parsed_form_data)
+            # ves_client.submit_1010d('fake-id', 'fake-user', ves_request)
 
             # TODO: Add error handling for VES failures.
           end
@@ -41,6 +52,14 @@ module IvcChampva
         Rails.logger.error "Error: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
         render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
+      end
+
+      def call_handle_file_uploads(form_id, parsed_form_data)
+        if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
+          handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
+        else
+          handle_file_uploads(form_id, parsed_form_data)
+        end
       end
 
       # Modified from claim_documents_controller.rb:
@@ -77,13 +96,8 @@ module IvcChampva
         if %w[10-10D 10-7959C 10-7959F-2 10-7959A].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
 
-          if Flipper.enabled?(:champva_pdf_decrypt, @current_user)
-            unlocked = unlock_file(params['file'], params['password'])
-            attachment.file = params['password'] ? unlocked : params['file']
-          else
-            attachment.file = params['file']
-          end
-
+          unlocked = unlock_file(params['file'], params['password'])
+          attachment.file = params['password'] ? unlocked : params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
           attachment.save
@@ -129,6 +143,28 @@ module IvcChampva
             retry
           end
         end
+
+        [statuses, error_messages]
+      end
+
+      def handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
+        on_failure = lambda { |e, attempt|
+          Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
+        }
+
+        statuses = nil
+        error_messages = nil
+
+        IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
+          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
+          statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
+
+          # Since some or all of the files failed to upload to S3, trigger retry
+          raise StandardError, error_messages if error_messages.compact.length.positive?
+        end
+
         [statuses, error_messages]
       end
 

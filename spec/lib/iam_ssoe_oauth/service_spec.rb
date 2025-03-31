@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'iam_ssoe_oauth/service'
 
 describe 'IAMSSOeOAuth::Service' do
-  let(:service) { IAMSSOeOAuth::Service.new }
+  subject(:service) { IAMSSOeOAuth::Service.new }
 
   describe '#post_introspect' do
     context 'with an active user response' do

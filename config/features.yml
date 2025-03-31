@@ -97,6 +97,9 @@ features:
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
+  caregiver_retry_pdf_fill:
+    actor_type: user
+    description: Enables 1010CG to retry pdf fill for download_pdf endpoint
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -113,6 +116,12 @@ features:
   hca_ez_use_facilities_v2:
     actor_type: user
     description: Use Lighthouse Facilities API V2 for EZ queries
+  hca_cache_facilities:
+    actor_type: user
+    description: Return facilities list from health_facility table
+  hca_cache_facilities_job:
+    actor_type: user
+    description: Use import job to update health facilities daily to limit facilities api requests
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
@@ -197,21 +206,15 @@ features:
   champva_log_all_s3_uploads:
     actor_type: user
     description: Enables logging for all s3 uploads using UUID or keys for monitoring
-  champva_failure_email_job_enabled:
-    actor_type: user
-    description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
-  champva_confirmation_email_bugfix:
-    actor_type: user
-    description: Enables fix for a bug where confirmation emails may get sent when Pega reports a status of 'Not Processed'
-  champva_enhanced_monitor_logging:
-    actor_type: user
-    description: Enables using the new IVC CHAMPVA Monitoring logging class for enhanced Stats D info.
-  champva_pdf_decrypt:
-    actor_type: user
-    description: Enables unlocking password protected file submissions in IVC CHAMPVA forms.
   champva_require_all_s3_success:
     actor_type: user
     description: Enables raising a StandardError if any supporting documents fail to upload to S3 in IVC CHAMPVA forms.
+  champva_enable_pega_report_check:
+    actor_type: user
+    description: Enables querying PEGA reporting API from MissingFormStatusJob to determine CHAMPVA form status
+  champva_retry_logic_refactor:
+    actor_type: user
+    description: Enables refactored retry logic for IVC CHAMPVA form submissions
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -513,6 +516,12 @@ features:
   decision_review_notification_form_callbacks:
     actor_type: user
     description: Enable using DecisionReviews::FormNotificationCallback to handle VA Notify notification status changes
+  decision_review_notification_evidence_callbacks:
+    actor_type: user
+    description: Enable using DecisionReviews::EvidenceNotificationCallback to handle VA Notify notification status changes for evidence
+  decision_review_notification_secondary_form_callbacks:
+    actor_type: user
+    description: Enable using DecisionReviews::EvidenceNotificationCallback to handle VA Notify notification status changes for secondary form
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -1840,18 +1849,6 @@ features:
     actor_type: user
     description: Enables Decision Review endpoint to process VANotify notification callbacks
     enable_in_development: true
-  nod_confirmation_update:
-    actor_type: user
-    description: Show updated confirmation page with form data & downloadable PDF
-    enable_in_development: true
-  hlr_confirmation_update:
-    actor_type: user
-    description: Show updated confirmation page with form data & downloadable PDF
-    enable_in_development: true
-  sc_confirmation_update:
-    actor_type: user
-    description: Show updated confirmation page with form data & downloadable PDF
-    enable_in_development: true
   sc_new_form:
     actor_type: user
     description: Supplemental Claim new form updates
@@ -2050,10 +2047,10 @@ features:
     actor_type: user
     description: If enabled, use new form and api endpoint for Ch31 VR&E form
   is_updated_gi:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled, use updated gi design
   gi_ct_collab:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled, use VEBT/EDM team GI Comparison Tool homepage
   show_rudisill_1995:
     actor_type: user
