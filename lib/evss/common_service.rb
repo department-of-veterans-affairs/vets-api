@@ -13,10 +13,6 @@ module EVSS
       @use_mock = Settings.evss.mock_common_service || false
     end
 
-    def get_current_info
-      post 'vsoSearch/11.6/getCurrentInfo'
-    end
-
     def get_rating_info
       msg_body = { 'participantId' => @headers['va_eauth_pid'] }
       headers = { 'Content-Type' => 'application/json' }

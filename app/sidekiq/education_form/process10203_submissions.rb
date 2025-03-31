@@ -72,9 +72,9 @@ module EducationForm
     end
 
     # Retrieve poa status fromEVSS VSOSearch for a user
-    def get_user_poa_status(auth_headers)
+    def get_user_poa_status(*)
       # stem_automated_decision feature disables EVSS call  for POA which will be removed in a future PR
-      return nil
+      nil
     end
 
     # Ignore already processed either by CreateDailySpoolFiles or this job
