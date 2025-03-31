@@ -22,7 +22,7 @@ describe PHRMgr::Client do
 
   context 'using legacy endpoints' do
     before do
-      Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     end
 
     describe 'PHR operations', :vcr do

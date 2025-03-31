@@ -6,7 +6,7 @@ require_relative '../../../../../lib/common/client/concerns/mhv_jwt_session_clie
 
 describe Common::Client::Concerns::MHVJwtSessionClient do
   before do
-    Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
   end
 
   let(:dummy_class) do
