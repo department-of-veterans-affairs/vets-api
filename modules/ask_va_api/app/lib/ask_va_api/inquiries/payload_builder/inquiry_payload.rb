@@ -118,9 +118,10 @@ module AskVAApi
         def build_residency_state_data
           {
             Name: fetch_state(inquiry_params.dig(:state_or_residency, :residency_state)) ||
-              inquiry_params[:family_members_location_of_residence],
+              inquiry_params[:family_members_location_of_residence] || inquiry_params[:your_location_of_residence],
             StateCode: inquiry_params.dig(:state_or_residency, :residency_state) ||
-              fetch_state_code(inquiry_params[:family_members_location_of_residence])
+              fetch_state_code(inquiry_params[:family_members_location_of_residence] ||
+              inquiry_params[:your_location_of_residence])
           }
         end
 
@@ -143,6 +144,8 @@ module AskVAApi
         end
 
         def medical_center_guid_lookup
+          return nil if inquiry_params[:your_health_facility].nil?
+
           selected_facility = retrieve_patsr_approved_facilities[:Data].find do |facility|
             inquiry_params[:your_health_facility].include?(facility[:FacilityCode])
           end

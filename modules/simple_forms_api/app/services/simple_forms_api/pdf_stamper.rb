@@ -113,7 +113,7 @@ module SimpleFormsApi
       yield
       stamped_size = File.size(stamped_template_path)
 
-      unless stamped_size > orig_size
+      unless stamped_size.positive? && stamped_size != orig_size
         Rails.logger.info("Original PDF size: #{orig_size} bytes")
         Rails.logger.info("Stamped PDF size: #{stamped_size} bytes")
         raise StandardError, 'The PDF remained unchanged upon stamping.'

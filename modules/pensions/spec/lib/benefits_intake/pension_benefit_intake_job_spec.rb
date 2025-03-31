@@ -9,7 +9,7 @@ require 'pensions/notification_email'
 RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
   stub_virus_scan
   let(:job) { described_class.new }
-  let(:claim) { create(:pensions_module_pension_claim) }
+  let(:claim) { create(:pensions_saved_claim) }
   let(:service) { double('service') }
   let(:monitor) { double('monitor') }
   let(:user_account_uuid) { 123 }
@@ -133,7 +133,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     end
 
     context 'with pending form submission attempt' do
-      let(:claim) { create(:pensions_module_pension_claim, :pending) }
+      let(:claim) { create(:pensions_saved_claim, :pending) }
 
       it 'return true' do
         expect(job.send(:form_submission_pending_or_success)).to be(true)
@@ -141,7 +141,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     end
 
     context 'with success form submission attempt' do
-      let(:claim) { create(:pensions_module_pension_claim, :success) }
+      let(:claim) { create(:pensions_saved_claim, :success) }
 
       it 'return true' do
         expect(job.send(:form_submission_pending_or_success)).to be(true)
@@ -149,7 +149,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     end
 
     context 'with failure form submission attempt' do
-      let(:claim) { create(:pensions_module_pension_claim, :failure) }
+      let(:claim) { create(:pensions_saved_claim, :failure) }
 
       it 'return false' do
         expect(job.send(:form_submission_pending_or_success)).to be(false)
@@ -163,13 +163,13 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     let(:datestamp_pdf_double) { instance_double(PDFUtilities::DatestampPdf) }
 
     before do
-      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
       job.instance_variable_set(:@intake_service, service)
       job.instance_variable_set(:@claim, claim)
     end
 
     it 'returns a datestamp pdf path' do
       run_count = 0
+      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
       allow(datestamp_pdf_double).to receive(:run) {
         run_count += 1
         pdf_path
@@ -179,6 +179,36 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
       expect(new_path).to eq(pdf_path)
       expect(run_count).to eq(2)
+    end
+
+    it 'requests specific pdf stamps' do
+      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
+      expect(datestamp_pdf_double).to receive(:run).with(
+        text: 'VA.GOV',
+        timestamp: claim.created_at,
+        x: 5,
+        y: 5
+      ).and_return(pdf_path)
+
+      expect(datestamp_pdf_double).to receive(:run).with(
+        text: 'FDC Reviewed - VA.gov Submission',
+        timestamp: claim.created_at,
+        x: 429,
+        y: 770,
+        text_only: true
+      ).and_return(pdf_path)
+
+      expect(service).to receive(:valid_document?).and_return(pdf_path)
+
+      new_path = job.send(:process_document, 'test/path')
+
+      expect(new_path).to eq(pdf_path)
+    end
+
+    it 'successfully stamps the generated pdf' do
+      expect(service).to receive(:valid_document?).and_return(pdf_path)
+      new_path = job.send(:process_document, claim.to_pdf)
+      expect(new_path).to eq(pdf_path)
     end
     # process_document
   end
