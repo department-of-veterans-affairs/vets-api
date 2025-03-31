@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://fwdproxy-staging.vfs.va.gov:4466/supplies
+    uri: <MDOT_URL>/supplies
     body:
       encoding: UTF-8
       string: '{"useVeteranAddress":true,"useTemporaryAddress":false,"vetEmail":"vet1@va.gov","order":[{"productId":2499}],"permanentAddress":{"street":"125 SOME RD","street2":"APT 101","city":"DENVER","state":"CO","country":"United States","postalCode":"111119999"},"temporaryAddress":{"street":"17250 w colfax ave","street2":"a-204","city":"Golden","state":"CO","country":"United States","postalCode":"80401"}}'

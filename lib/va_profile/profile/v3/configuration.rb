@@ -44,7 +44,7 @@ module VAProfile
         #
         def connection
           @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
-            faraday.use :breakers
+            faraday.use(:breakers, service_name:)
             faraday.request :json
 
             faraday.response :betamocks if use_mocks?

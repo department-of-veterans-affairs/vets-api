@@ -16,7 +16,7 @@ module Avs
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers
+        conn.use(:breakers, service_name:)
         conn.request :camelcase
         conn.request :json
 

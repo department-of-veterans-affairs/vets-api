@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
 require 'pdf_fill/forms/form_base'
+require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
 require 'income_and_assets/constants'
 require 'income_and_assets/helpers'
 
+# rubocop:disable Metrics/ClassLength
+
 module PdfFill
   module Forms
     class Va21p0969 < FormBase
+      include FormHelper
       include IncomeAndAssets::Helpers
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
@@ -300,6 +304,141 @@ module PdfFill
             question_suffix: '(5)',
             question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY'
           }
+        },
+        # 7a
+        'assetTransfer' => {
+          key: 'F[0].Page_9[0].DependentsSellAssets7a[0]'
+        },
+        # 7b-7d
+        'assetTransfers' => {
+          limit: 3,
+          first_key: 'originalOwnerRelationship',
+          'originalOwnerRelationship' => {
+            key: "F[0].RelationshiptoVeteran7[#{ITERATOR}]"
+          },
+          'originalOwnerRelationshipOverflow' => {
+            question_num: 7,
+            question_suffix: '(1)',
+            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN"
+          },
+          'otherOriginalOwnerRelationshipType' => {
+            key: "F[0].OtherRelationship7[#{ITERATOR}]",
+            question_num: 7,
+            question_suffix: '(1)',
+            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN (OTHER)"
+          },
+          'transferMethod' => {
+            key: "F[0].HowAssetTransferred[#{ITERATOR}]"
+          },
+          'transferMethodOverflow' => {
+            question_num: 7,
+            question_suffix: '(2)',
+            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED'
+          },
+          'otherTransferMethod' => {
+            key: "F[0].OtherRelationship7[#{ITERATOR}]",
+            question_num: 7,
+            question_suffix: '(2)',
+            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED (OTHER)'
+          },
+          'assetType' => {
+            key: "F[0].WhatAssetWasTransferred[#{ITERATOR}]"
+          },
+          'assetTypeOverflow' => {
+            question_num: 7,
+            question_suffix: '(3)',
+            question_text: 'WHAT ASSET WAS TRANSFERRED?'
+          },
+          'newOwnerName' => {
+            key: "F[0].WhoReceivedAsset[#{ITERATOR}]"
+          },
+          'newOwnerNameOverflow' => {
+            question_num: 7,
+            question_suffix: '(4)',
+            question_text: 'WHO RECEIVED THE ASSET?'
+          },
+          'newOwnerRelationship' => {
+            key: "F[0].RelationshipToNewOwner[#{ITERATOR}]"
+          },
+          'newOwnerRelationshipOverflow' => {
+            question_num: 7,
+            question_suffix: '(5)',
+            question_text: 'RELATIONSHIP TO NEW OWNER'
+          },
+          'saleReportedToIrs' => {
+            key: "F[0].WasSaleReportedToIRS[#{ITERATOR}]"
+          },
+          'transferDate' => {
+            'month' => {
+              key: "F[0].DateOfTransferMonth[#{ITERATOR}]"
+            },
+            'day' => {
+              key: "F[0].DateOfTransferDay[#{ITERATOR}]"
+            },
+            'year' => {
+              key: "F[0].DateOfTransferYear[#{ITERATOR}]"
+            }
+          },
+          'assetTransferredUnderFairMarketValue' => {
+            key: "F[0].TransferredForLessThanFMV[#{ITERATOR}]"
+          },
+          'fairMarketValue' => {
+            'millions' => {
+              key: "F[0].FairMarketValue1_7[#{ITERATOR}]"
+            },
+            'thousands' => {
+              key: "F[0].FairMarketValue2_7[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].FairMarketValue3_7[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].FairMarketValue4_7[#{ITERATOR}]"
+            }
+          },
+          'fairMarketValueOverflow' => {
+            question_num: 7,
+            question_suffix: '(9)',
+            question_text: 'WHAT WAS THE FAIR MARKET VALUE WHEN TRANSFERRED?'
+          },
+          'saleValue' => {
+            'millions' => {
+              key: "F[0].SalePrice1_7[#{ITERATOR}]"
+            },
+            'thousands' => {
+              key: "F[0].SalePrice2_7[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].SalePrice3_7[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].SalePrice4_7[#{ITERATOR}]"
+            }
+          },
+          'saleValueOverflow' => {
+            question_num: 7,
+            question_suffix: '(10)',
+            question_text: 'WHAT WAS THE SALE PRICE? (If applicable)'
+          },
+          'capitalGainValue' => {
+            'millions' => {
+              key: "F[0].Gain1_7[#{ITERATOR}]"
+            },
+            'thousands' => {
+              key: "F[0].Gain2_7[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].Gain3_7[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].Gain4_7[#{ITERATOR}]"
+            }
+          },
+          'capitalGainValueOverflow' => {
+            question_num: 7,
+            question_suffix: '(11)',
+            question_text: 'WHAT WAS THE GAIN? (Capital gain, etc.)'
+          }
         }
       }.freeze
 
@@ -316,6 +455,7 @@ module PdfFill
         expand_unassociated_incomes
         expand_associated_incomes
         expand_owned_assets
+        expand_asset_transfers
 
         form_data
       end
@@ -432,6 +572,45 @@ module PdfFill
           'ownedPortionValueOverflow' => portion_value
         }
       end
+
+      def expand_asset_transfers
+        asset_transfers = form_data['assetTransfers']
+        form_data['assetTransfer'] = asset_transfers&.length ? 0 : 1
+        form_data['assetTransfers'] = asset_transfers&.map do |transfer|
+          expand_asset_transfer(transfer)
+        end
+      end
+
+      def expand_asset_transfer(transfer) # rubocop:disable Metrics/MethodLength
+        original_owner_relationship = transfer['originalOwnerRelationship']
+        transfer_method = transfer['transferMethod']
+        new_owner_name = change_hash_to_string(transfer['newOwnerName'])
+        {
+          'originalOwnerRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[original_owner_relationship],
+          'originalOwnerRelationshipOverflow' => transfer['originalOwnerRelationship'],
+          'otherOriginalOwnerRelationshipType' => transfer['otherOriginalOwnerRelationshipType'],
+          'transferMethod' => IncomeAndAssets::Constants::TRANSFER_METHODS[transfer_method],
+          'transferMethodOverflow' => transfer['transferMethod'],
+          'otherTransferMethod' => transfer['otherTransferMethod'],
+          'assetType' => transfer['assetType'],
+          'assetTypeOverflow' => transfer['assetType'],
+          'newOwnerName' => new_owner_name,
+          'newOwnerNameOverflow' => new_owner_name,
+          'newOwnerRelationship' => transfer['newOwnerRelationship'],
+          'newOwnerRelationshipOverflow' => transfer['newOwnerRelationship'],
+          'saleReportedToIrs' => transfer['saleReportedToIrs'] ? 0 : 1,
+          'transferDate' => split_date(transfer['transferDate']),
+          'assetTransferredUnderFairMarketValue' => transfer['assetTransferredUnderFairMarketValue'] ? 0 : 1,
+          'fairMarketValue' => split_currency_amount_lg(transfer['fairMarketValue']),
+          'fairMarketValueOverflow' => transfer['fairMarketValue'],
+          'saleValue' => split_currency_amount_lg(transfer['saleValue']),
+          'saleValueOverflow' => transfer['saleValue'],
+          'capitalGainValue' => split_currency_amount_lg(transfer['capitalGainValue']),
+          'capitalGainValueOverflow' => transfer['capitalGainValue']
+        }
+      end
     end
   end
 end
+
+# rubocop:enable Metrics/ClassLength

@@ -43,5 +43,11 @@ module IncomeAndAssets
       value = arr.length >= -neg_i ? arr[neg_i] : 0
       format("%0#{field_length}d", value.to_i)
     end
+
+    def change_hash_to_string(hash)
+      return '' if hash.blank?
+
+      hash.values.join(' ')
+    end
   end
 end

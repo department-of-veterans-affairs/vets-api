@@ -113,12 +113,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     let(:controller) { IvcChampva::V1::UploadsController.new }
     let(:file) { fixture_file_upload('locked_pdf_password_is_test.pdf') }
 
-    before do
-      allow(Flipper).to receive(:enabled?)
-        .with(:champva_pdf_decrypt, @current_user)
-        .and_return(true)
-    end
-
     context 'with locked PDF and no provided password' do
       let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
 

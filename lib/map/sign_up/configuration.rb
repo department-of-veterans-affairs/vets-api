@@ -62,7 +62,7 @@ module MAP
           headers: base_request_headers,
           request: request_options
         ) do |conn|
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           conn.adapter Faraday.default_adapter
           conn.response :json, content_type: /\bjson/

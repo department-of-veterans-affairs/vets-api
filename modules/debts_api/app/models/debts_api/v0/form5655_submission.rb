@@ -7,6 +7,9 @@ module DebtsApi
     class StaleUserError < StandardError; end
     STATS_KEY = 'api.fsr_submission'
     SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID = Settings.vanotify.services.dmc.template_id.fsr_failed_email
+    FORM_ID = '5655'
+    ZSF_DD_TAG_SERVICE = 'debt-resolution'
+    ZSF_DD_TAG_FUNCTION = 'register_failure'
     enum :state, { unassigned: 0, in_progress: 1, submitted: 2, failed: 3 }
 
     self.table_name = 'form5655_submissions'

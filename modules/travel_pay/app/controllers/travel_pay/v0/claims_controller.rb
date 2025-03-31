@@ -22,7 +22,7 @@ module TravelPay
         end
 
         begin
-          claim = claims_service.get_claim_by_id(params[:id])
+          claim = claims_service.get_claim_details(params[:id])
         rescue Faraday::Error => e
           TravelPay::ServiceError.raise_mapped_error(e)
         rescue ArgumentError => e
