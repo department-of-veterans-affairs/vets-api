@@ -1,17 +1,20 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_intake/service'
+require 'lighthouse/benefits_claims/service'
 require 'simple_forms_api_submission/metadata_validator'
 
 module AccreditedRepresentativePortal
   module V0
     class RepresentativeFormUploadController < ApplicationController
       skip_after_action :verify_pundit_authorization
+      # before_action :validate_power_of_attorney, only: :submit
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
         check_for_changes
         status, confirmation_number = upload_response
+        send_confirmation_email(params, confirmation_number) if status == 200
         render json: { status:, confirmation_number: }
       end
 
@@ -56,9 +59,9 @@ module AccreditedRepresentativePortal
 
       def validated_metadata
         raw_metadata = {
-          'veteranFirstName' => form_params.dig('formData', 'veteranFullName', 'first'),
-          'veteranLastName' => form_params.dig('formData', 'veteranFullName', 'last'),
-          'fileNumber' => form_params.dig('formData', 'veteranSsn'),
+          'veteranFirstName' => veteran_first_name,
+          'veteranLastName' => veteran_last_name,
+          'fileNumber' => veteran_ssn,
           'zipCode' => form_params.dig(:formData, :postalCode),
           'source' => 'VA Platform Digital Forms',
           'docType' => form_data[:formNumber],
@@ -98,8 +101,7 @@ module AccreditedRepresentativePortal
 
       def log_upload_details(location, uuid)
         Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
-        Rails.logger.info('Accredited Rep Form Upload  - preparing to upload scanned PDF to benefits intake',
-                          { location:, uuid: })
+        Rails.logger.info('Accredited Rep Form Upload - preparing to upload scanned PDF to benefits intake', { location:, uuid: })
       end
 
       def perform_pdf_upload(location, file_path, metadata)
@@ -113,12 +115,37 @@ module AccreditedRepresentativePortal
       def check_for_changes
         in_progress_form = InProgressForm.form_for_user(form_data[:formNumber], @current_user)
         if in_progress_form
-
           prefill_data_service = SimpleFormsApi::PrefillDataService.new(prefill_data: in_progress_form.form_data,
                                                                         form_data:,
                                                                         form_id: form_data[:formNumber])
           prefill_data_service.check_for_changes
         end
+      end
+
+      def create_new_form_data
+        {
+          'ssn' => ssn,
+          'postalCode' => form_data[:postalCode],
+          'full_name' => {
+            'first' => first_name,
+            'last' => last_name
+          },
+          'email' => form_data[:email],
+          'veteranDateOfBirth' => birth_date
+        }
+      end
+
+      def send_confirmation_email(params, confirmation_number)
+        new_form_data = create_new_form_data
+        config = {
+          form_number: form_data[:formNumber],
+          form_data: new_form_data,
+          date_submitted: Time.zone.today.strftime('%B %d, %Y'),
+          confirmation_number:
+        }
+
+        notification_email = SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type: :confirmation)
+        notification_email.send
       end
 
       def form_params
@@ -142,8 +169,86 @@ module AccreditedRepresentativePortal
         )
       end
 
+      def veteran_ssn
+        form_params.dig('formData', 'veteranSsn')
+      end
+
+      def veteran_first_name
+        form_params.dig('formData', 'veteranFullName', 'first')
+      end
+
+      def veteran_last_name
+        form_params.dig('formData', 'veteranFullName', 'last')
+      end
+
+      def veteran_birth_date
+        form_params.dig('formData', 'veteranDateOfBirth')
+      end
+
+      def claimant_ssn
+        form_params.dig('formData', 'claimantSsn')
+      end
+
+      def claimant_first_name
+        form_params.dig('formData', 'claimantFullName', 'first')
+      end
+
+      def claimant_last_name
+        form_params.dig('formData', 'claimantFullName', 'last')
+      end
+
+      def claimant_birth_date
+        form_params.dig('formData', 'claimantDateOfBirth')
+      end
+
       def form_data
         form_params['formData'] || {}
+      end
+
+      def ssn
+        claimant_ssn || veteran_ssn
+      end
+
+      def first_name
+        claimant_first_name || veteran_first_name
+      end
+
+      def last_name
+        claimant_last_name || veteran_last_name
+      end
+
+      def birth_date
+        claimant_birth_date || veteran_birth_date
+      end
+
+      def validate_power_of_attorney
+        get_icn
+        # power_of_attorney_attributes = get_power_of_attorney_attributes(icn)
+
+        # rep_poa_codes = get_rep_poa_codes
+        # raise if !rep_poa_codes.include?(power_of_attorney_attributes["code"])
+        # || !(power_of_attorney_agreement["name"].downcase == common_name.downcase)
+        true
+      end
+
+      def get_icn
+        mpi = MPI::Service.new.find_profile_by_attributes(ssn:, first_name:, last_name:, birth_date:)
+        raise if mpi.profile.nil?
+
+        mpi.profile.icn
+      end
+
+      def get_power_of_attorney_attributes(icn)
+        response = BenefitsClaims::Service.new(icn).get_power_of_attorney
+        attributes = response['data']['attributes']
+        raise if attributes.nil?
+
+        attributes
+      end
+
+      def get_rep_poa_codes
+        # ar_user_account_accredited_individuals
+        # ["589"]
       end
     end
   end
