@@ -10,11 +10,11 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
   let(:template_id) { 'template-id-123' }
   let(:job_opts) do
     {
-      mobile_phone: mobile_phone,
-      appointment_date: appointment_date,
-      template_id: template_id,
-      claim_number: claim_number,
-      facility_type: facility_type
+      mobile_phone:,
+      appointment_date:,
+      template_id:,
+      claim_number:,
+      facility_type:
     }
   end
 
@@ -34,7 +34,8 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
 
     context 'when an error occurs' do
       before do
-        allow_any_instance_of(described_class).to receive(:va_notify_send_sms).and_raise(StandardError.new('Test error'))
+        allow_any_instance_of(described_class).to receive(:va_notify_send_sms)
+          .and_raise(StandardError.new('Test error'))
       end
 
       it 'logs the failure and raises the error' do
@@ -45,7 +46,8 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
 
     context 'when it exhausts retries' do
       before do
-        allow_any_instance_of(described_class).to receive(:va_notify_send_sms).and_raise(StandardError.new('Test error'))
+        allow_any_instance_of(described_class).to receive(:va_notify_send_sms)
+          .and_raise(StandardError.new('Test error'))
       end
 
       it 'tracks the failure' do
@@ -71,9 +73,9 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
 
       expect(notify_client).to receive(:send_sms).with(
         phone_number: mobile_phone,
-        template_id: template_id,
+        template_id:,
         sms_sender_id: CheckIn::Constants::OH_SMS_SENDER_ID,
-        personalisation: { claim_number: claim_number, appt_date: formatted_date }
+        personalisation: { claim_number:, appt_date: formatted_date }
       )
 
       described_class.new.send(:va_notify_send_sms, job_opts)
@@ -87,9 +89,9 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
 
         expect(notify_client).to receive(:send_sms).with(
           phone_number: mobile_phone,
-          template_id: template_id,
+          template_id:,
           sms_sender_id: CheckIn::Constants::CIE_SMS_SENDER_ID,
-          personalisation: { claim_number: claim_number, appt_date: formatted_date }
+          personalisation: { claim_number:, appt_date: formatted_date }
         )
 
         described_class.new.send(:va_notify_send_sms, job_opts)
