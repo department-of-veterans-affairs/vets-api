@@ -393,7 +393,8 @@ RSpec.describe V0::InProgressFormsController do
           before { allow(Lighthouse::CreateIntentToFileJob).to receive(:perform_async) }
 
           it 'calls aync CreateIntentToFileJob for newly created forms' do
-            expect(Flipper).to receive(:enabled?).with(:intent_to_file_synchronous_enabled, instance_of(User)).and_return(false)
+            expect(Flipper).to receive(:enabled?).with(:intent_to_file_synchronous_enabled,
+                                                       instance_of(User)).and_return(false)
 
             put v0_in_progress_form_url('21P-527EZ'),
                 params: {
@@ -408,7 +409,8 @@ RSpec.describe V0::InProgressFormsController do
           end
 
           it 'does not call aync CreateIntentToFileJob for newly created forms' do
-            expect(Flipper).to receive(:enabled?).with(:intent_to_file_synchronous_enabled, instance_of(User)).and_return(true)
+            expect(Flipper).to receive(:enabled?).with(:intent_to_file_synchronous_enabled,
+                                                       instance_of(User)).and_return(true)
 
             put v0_in_progress_form_url('21P-527EZ'),
                 params: {
@@ -417,7 +419,7 @@ RSpec.describe V0::InProgressFormsController do
                 }.to_json,
                 headers: { 'CONTENT_TYPE' => 'application/json' }
 
-            latest_form = InProgressForm.last
+            InProgressForm.last
             expect(Lighthouse::CreateIntentToFileJob).not_to have_received(:perform_async)
           end
         end
