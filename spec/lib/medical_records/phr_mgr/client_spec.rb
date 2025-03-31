@@ -6,7 +6,7 @@ require 'medical_records/phr_mgr/client'
 describe PHRMgr::Client do
   context 'using API Gateway endpoints' do
     before do
-      Flipper.enable(:mhv_medical_records_migrate_to_api_gateway)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
     end
 
     let(:icn) { '1000000000V000000' }

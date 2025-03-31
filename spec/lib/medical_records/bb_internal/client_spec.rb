@@ -30,7 +30,7 @@ describe BBInternal::Client do
   context 'using API Gateway endpoints' do
     before(:all) do
       VCR.use_cassette 'mr_client/bb_internal/apigw_session_auth' do
-        Flipper.enable(:mhv_medical_records_migrate_to_api_gateway)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
         @client ||= begin
           client = BBInternal::Client.new(session: { user_id: '11375034', icn: '1012740022V620959' })
           client.authenticate
@@ -40,7 +40,7 @@ describe BBInternal::Client do
     end
 
     before do
-      Flipper.enable(:mhv_medical_records_migrate_to_api_gateway)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
     end
 
     describe '#list_radiology' do
