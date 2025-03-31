@@ -17,7 +17,7 @@ describe 'bb client' do
 
   before(:all) do
     VCR.use_cassette 'bb_client/session' do
-      Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
       @client ||= begin
         client = BB::Client.new(session: { user_id: '5751732' })
         client.authenticate
@@ -27,7 +27,7 @@ describe 'bb client' do
   end
 
   before do
-    Flipper.disable(:mhv_medical_records_migrate_to_api_gateway)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
   end
 
   let(:client) { @client }
