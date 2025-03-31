@@ -31,7 +31,7 @@ module Mobile
 
         def log_not_confirmed(reason)
           ::Rails.logger.info('Mobile Vet Verification Status Success: not confirmed',
-                            { not_confirmed: true, not_confirmed_reason: reason })
+                              { not_confirmed: true, not_confirmed_reason: reason })
         end
 
         def log_confirmed
@@ -40,4 +40,4 @@ module Mobile
       end
     end
   end
-end 
+end
