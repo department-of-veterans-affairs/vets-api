@@ -1100,8 +1100,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.bigint "lighthouse_submission_id", null: false
     t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
-    t.jsonb "error_message_ciphertext", comment: "encrypted error message from the lightouse submission"
-    t.jsonb "response_ciphertext", comment: "encrypted response from the lightouse submission"
+    t.jsonb "error_message_ciphertext", comment: "encrypted error message from the lighthouse submission"
+    t.jsonb "response_ciphertext", comment: "encrypted response from the lighthouse submission"
     t.datetime "lighthouse_updated_at", comment: "timestamp of the last update from lighthouse"
     t.string "benefits_intake_uuid"
     t.index ["lighthouse_submission_id"], name: "idx_on_lighthouse_submission_id_e6e3dbad55"
