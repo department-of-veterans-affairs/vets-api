@@ -81,13 +81,23 @@ module VAOS
         render json: referral_usage[:json], status: referral_usage[:status] and return unless referral_usage[:success]
 
         draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
-        provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
+        
+        # Search for provider services using the referral data
+        search_params = {
+          search_text: cached_referral_data[:provider_name],
+          appointment_id: draft_appointment.id,
+          npi: cached_referral_data[:npi],
+          network_id: cached_referral_data[:network_id]
+        }
+        
+        provider_search_result = eps_provider_service.search_provider_services(search_params)
+        provider = provider_search_result.provider_services&.first
 
         response_data = OpenStruct.new(
           id: draft_appointment.id,
           provider:,
           slots: fetch_provider_slots(cached_referral_data),
-          drive_time: fetch_drive_times(provider)
+          drive_time: provider ? fetch_drive_times(provider) : nil
         )
 
         serialized = Eps::DraftAppointmentSerializer.new(response_data)
