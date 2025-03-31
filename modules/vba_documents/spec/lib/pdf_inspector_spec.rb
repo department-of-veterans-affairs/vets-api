@@ -3,14 +3,20 @@
 require 'rails_helper'
 require_relative '../support/vba_document_fixtures'
 require 'vba_documents/pdf_inspector'
+require 'clamav/patch_client'
 
 RSpec.describe VBADocuments::PDFInspector do
   include VBADocuments::Fixtures
 
   let(:valid_doc) { get_fixture('valid_multipart_pdf_attachments.blob').path }
+  let(:clam_av_patch_client) { instance_double(ClamAV::PatchClient) }
+
+  
 
   context 'when initialized with a valid multipart payload with attachment and add_file_key: false' do
     before do
+      allow(clam_av_patch_client).to receive(:safe?).and_return(true)
+      allow(ClamAV::PatchClient).to receive(:new).and_return(clam_av_patch_client)
       @inspector = described_class.new(pdf: valid_doc, add_file_key: false)
     end
 
@@ -46,6 +52,7 @@ RSpec.describe VBADocuments::PDFInspector do
       end
 
       it 'has the correct document totals' do
+        
         expect(subject[:total_pages]).to eq(2)
         expect(subject[:total_documents]).to eq(2)
       end

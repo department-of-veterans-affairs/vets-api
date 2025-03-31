@@ -320,6 +320,9 @@ RSpec.describe 'VBADocument::V2::Uploads', type: :request do
     end
 
     it '200S even with an invalid doc' do
+      clam_av_patch_client = instance_double(ClamAV::PatchClient)
+      allow(clam_av_patch_client).to receive(:safe?).and_return(true)
+      allow(ClamAV::PatchClient).to receive(:new).and_return(clam_av_patch_client)
       allow(VBADocuments::PayloadManager).to receive(:download_raw_file).and_return(invalid_doc)
       get vba_documents.v2_upload_download_path(upload.guid)
       expect(response).to have_http_status(:ok)
