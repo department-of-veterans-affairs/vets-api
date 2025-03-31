@@ -29,38 +29,11 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequest, type: :mo
 
     let(:poa_code) { 'x23' }
 
-    let(:pending1) { create(:power_of_attorney_request, created_at: time, poa_code:) }
-    let(:pending2) { create(:power_of_attorney_request, created_at: time + 1.day, poa_code:) }
-    let(:pending3) { create(:power_of_attorney_request, created_at: time + 2.days, poa_code:) }
-
-    let(:accepted_request) do
-      create(:power_of_attorney_request, :with_acceptance,
-             resolution_created_at: time,
-             created_at: time,
-             poa_code:)
-    end
-
-    let(:declined_request) do
-      create(:power_of_attorney_request, :with_declination,
-             resolution_created_at: time + 1.day,
-             created_at: time + 1.day,
-             poa_code:)
-    end
-
-    let(:expired_request) do
-      create(:power_of_attorney_request, :with_expiration,
-             resolution_created_at: time + 2.days,
-             created_at: time + 2.days,
-             poa_code:)
-    end
-
     describe '.sorted_by' do
       context 'using created_at column' do
-        before do
-          pending1
-          pending2
-          pending3
-        end
+        let!(:pending1) { create(:power_of_attorney_request, created_at: time, poa_code:) }
+        let!(:pending2) { create(:power_of_attorney_request, created_at: time + 1.day, poa_code:) }
+        let!(:pending3) { create(:power_of_attorney_request, created_at: time + 2.days, poa_code:) }
 
         it 'sorts by creation date ascending' do
           result = described_class.sorted_by('created_at', :asc)
@@ -78,26 +51,37 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequest, type: :mo
       end
 
       context 'using resolution date' do
-        before do
-          accepted_request
-          declined_request
-          expired_request
+        let!(:accepted_request) do
+          create(:power_of_attorney_request, :with_acceptance,
+                 resolution_created_at: time,
+                 created_at: time,
+                 poa_code:)
+        end
+
+        let!(:declined_request) do
+          create(:power_of_attorney_request, :with_declination,
+                 resolution_created_at: time + 1.day,
+                 created_at: time + 1.day,
+                 poa_code:)
+        end
+
+        let!(:expired_request) do
+          create(:power_of_attorney_request, :with_expiration,
+                 resolution_created_at: time + 2.days,
+                 created_at: time + 2.days,
+                 poa_code:)
         end
 
         it 'sorts by resolution date ascending' do
           result = described_class.where.not(resolution: nil).sorted_by('resolved_at', :asc)
 
-          expect(result.first).to eq(accepted_request)
-          expect(result.second).to eq(declined_request)
-          expect(result.third).to eq(expired_request)
+          expect(result).to eq([accepted_request, declined_request, expired_request])
         end
 
         it 'sorts by resolution date descending' do
           result = described_class.where.not(resolution: nil).sorted_by('resolved_at', :desc)
 
-          expect(result.first).to eq(expired_request)
-          expect(result.second).to eq(declined_request)
-          expect(result.third).to eq(accepted_request)
+          expect(result).to eq([expired_request, declined_request, accepted_request])
         end
       end
 
