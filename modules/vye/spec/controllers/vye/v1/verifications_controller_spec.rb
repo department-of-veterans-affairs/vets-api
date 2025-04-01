@@ -290,7 +290,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
         Timecop.freeze(Date.new(2025, 3, 10)) do
           subject.create
         end
-byebug
+
         expect(Vye::Verification.count).to eq(2)
         expect(Vye::Award.count).to eq(2)
       end

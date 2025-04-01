@@ -1,24 +1,12 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'support/controller_spec_helper'
+require_relative '../../../../support/shared_award_helpers'
 
-# rubocop:disable RSpec/SubjectStub
 RSpec.describe Vye::V1::VerificationsController, type: :controller do
-  let!(:current_user) { create(:user, :accountable) }
-  let!(:user_profile) { create(:vye_user_profile, icn: current_user.icn) }
-  let!(:user_info) { create(:vye_user_info, user_profile:, date_last_certified:) }
-  let(:cur_award_ind) { Vye::Award.cur_award_inds[:current] }
+  include_context 'shared_award_helpers'
 
-  before do
-    sign_in_as(current_user)
-    allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
-    allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(current_user)
-    allow_any_instance_of(Vye::V1::VerificationsController).to receive(:authorize).and_return(true)
-  end
-
-  # 1) run date is the end of the month
-  # 2) the award begin date is b4 the run date and the award end date is not b4 the run date
-  # Note: the current award indicator is NOT considered for this case
   describe 'eval_case_eom' do
     subject { described_class.new }
 
@@ -26,10 +14,9 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
     let(:award_begin_date) { Date.new(2025, 2, 9) }
     let(:award_end_date) { Date.new(2025, 3, 1) }
 
-    # there are two outcomes for happy path end of month
-    # a) today is the end of the month
-    # b) award_begin date is before today
-    # c) award end date is not before today
+    # there are two guard conditions for happy path end of month
+    # 1) today is the end of the month
+    # 2) award begin date < today <= award end date
     #
     # If date last certified is before the award begin date and the last day of previous month
     #    act begin is award begin date otherwise act begin is date last certified
@@ -87,13 +74,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
       it 'does not create a pending verification based on eval_case_eom' do
-        # Throws AwardsMismatch
-        Timecop.freeze(Date.new(2025, 2, 27)) do
-          expect { subject.create }.to raise_error(Vye::V1::VerificationsController::AwardsMismatch)
-        end
-
-        pending_verification = Vye::Verification.where(trace: 'case_eom').last
-        expect(pending_verification).to be_nil
+        expect_contra(Date.new(2025, 2, 27), 'case_eom')
       end
     end
 
@@ -103,10 +84,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
       it 'does not create a pending verification based on eval_case_eom' do
-        Timecop.freeze(Date.new(2025, 3, 1)) { subject.create }
-
-        pending_verification = Vye::Verification.where(trace: 'case_eom').last
-        expect(pending_verification).to be_nil
+        expect_contra(Date.new(2025, 3, 1), 'case_eom')
       end
     end
 
@@ -122,13 +100,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
       it 'does not create a pending verification based on eval_case_eom' do
-        # Throws AwardsMismatch
-        Timecop.freeze(Date.new(2025, 2, 28)) do
-          expect { subject.create }.to raise_error(Vye::V1::VerificationsController::AwardsMismatch)
-        end
-
-        pending_verification = Vye::Verification.where(trace: 'case_eom').last
-        expect(pending_verification).to be_nil
+        expect_contra(Date.new(2025, 2, 28), 'case_eom')
       end
     end
 
@@ -141,13 +113,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
       it 'does not create a pending verification based on eval_case_eom' do
-        # Throws AwardsMismatch
-        Timecop.freeze(Date.new(2025, 2, 28)) do
-          expect { subject.create }.to raise_error(Vye::V1::VerificationsController::AwardsMismatch)
-        end
-
-        pending_verification = Vye::Verification.where(trace: 'case_eom').last
-        expect(pending_verification).to be_nil
+        expect_contra(Date.new(2025, 2, 28), 'case_eom')
       end
     end
 
@@ -176,28 +142,5 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
         expect(pending_verification.trace).to eq('case_eom')
       end
     end
-
-    def setup_award(award_begin_date:, award_end_date:, payment_date:)
-      create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:, payment_date:)
-      setup_controller
-    end
-
-    def setup_past_award(award_begin_date:, award_end_date:, payment_date:)
-      create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind: 'P', payment_date:)
-      setup_controller
-    end
-
-    def setup_future_award(award_begin_date:, award_end_date:, payment_date:)
-      create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind: 'F', payment_date:)
-      setup_controller
-    end
-
-    def setup_controller
-      award_ids = user_info.awards.pluck(:id)
-      params = { award_ids: }
-      allow(subject).to receive_messages(params:, current_user:, head: :no_content)
-      subject.send(:load_user_info)
-    end
   end
 end
-# rubocop:enable RSpec/SubjectStub

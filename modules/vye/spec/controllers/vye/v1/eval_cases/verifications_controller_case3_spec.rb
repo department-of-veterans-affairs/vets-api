@@ -1,34 +1,21 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'support/controller_spec_helper'
-
-# rubocop:disable RSpec/SubjectStub
-
-# We really don't care about exceptions here, we're concerned with
-# whether a certain type of pending verification is/isn't created
-# rubocop:disable Lint/SuppressedException
+require_relative '../../../../support/shared_award_helpers'
 
 RSpec.describe Vye::V1::VerificationsController, type: :controller do
-  let!(:current_user) { create(:user, :accountable) }
-  let!(:user_profile) { create(:vye_user_profile, icn: current_user.icn) }
-  let!(:user_info) { create(:vye_user_info, user_profile:, date_last_certified:) }
-  let(:cur_award_ind) { Vye::Award.cur_award_inds[:current] }
-
-  before do
-    sign_in_as(current_user)
-    allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
-    allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(current_user)
-    allow_any_instance_of(Vye::V1::VerificationsController).to receive(:authorize).and_return(true)
-  end
+  include_context 'shared_award_helpers'
 
   # happy path conditions
   # 1 date last certified is before last day of previous month or date last certified is blank
   # 2 award indicator is current
   # 3 award end date contains a value (date)
   # 4 award end date != date last certified
-  # 5 award end date < current date (run date)
-  # 6 last day of prior month <= award begin date || award end date <= last day of prior month
-
+  # 5 current date (run date) <= award end date
+  # 6 last day of prior month < award begin date or last day of prior month >= award end date
+  # Note that the 2nd part of the clause in condition 6 can never be met due to condition 5
+  #      and is not tested. It should also be refactored and removed
   describe 'eval_case3' do
     subject { described_class.new }
 
@@ -38,8 +25,11 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
     let(:last_day_of_prior_month) { Date.new(2025, 1, 31) }
 
     describe 'happy path(s)' do
-      context 'when date last certified is before last day of previous month' do
+      context 'when date last certified is before last day of prior month and ' \
+              'last day of prior month < award begin date' do
         let(:date_last_certified) { Date.new(2025, 1, 5) }
+        let(:award_begin_date) { Date.new(2025, 2, 1) }
+        let(:award_end_date) { Date.new(2025, 2, 16) }
 
         before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
@@ -49,15 +39,17 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
           pending_verification = Vye::Verification.where(trace: 'case3').last
           expect(pending_verification).not_to be_nil
           expect(pending_verification.act_begin).to eq(date_last_certified)
-          expect(pending_verification.act_end).to eq(last_day_of_prior_month)
+          expect(pending_verification.act_end).to eq(award_end_date - 1.day)
           expect(pending_verification.payment_date).to eq(payment_date)
-          expect(pending_verification.transact_date).to eq(last_day_of_prior_month)
+          expect(pending_verification.transact_date).to eq(award_end_date - 1.day)
           expect(pending_verification.trace).to eq('case3')
         end
       end
 
-      context 'when date last certified is blank (nil)' do
+      context 'when date last certified is blank (nil) and last day of prior month < award begin date' do
         let(:date_last_certified) { nil }
+        let(:award_begin_date) { Date.new(2025, 2, 1) }
+        let(:award_end_date) { Date.new(2025, 2, 16) }
 
         before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
@@ -67,9 +59,9 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
           pending_verification = Vye::Verification.where(trace: 'case3').last
           expect(pending_verification).not_to be_nil
           expect(pending_verification.act_begin).to be_nil
-          expect(pending_verification.act_end).to eq(last_day_of_prior_month)
+          expect(pending_verification.act_end).to eq(award_end_date - 1.day)
           expect(pending_verification.payment_date).to eq(payment_date)
-          expect(pending_verification.transact_date).to eq(last_day_of_prior_month)
+          expect(pending_verification.transact_date).to eq(award_end_date - 1.day)
           expect(pending_verification.trace).to eq('case3')
         end
       end
@@ -83,13 +75,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
         before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
         it 'returns from the 1st check' do
-          begin
-            Timecop.freeze(Date.new(2025, 2, 15)) { subject.create }
-          rescue Vye::V1::VerificationsController::AwardsMismatch
-          end
-
-          pending_verification = Vye::Verification.where(trace: 'case3').last
-          expect(pending_verification).to be_nil
+          expect_contra(Date.new(2025, 2, 15), 'case3')
         end
       end
 
@@ -103,13 +89,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
         end
 
         it 'returns from the 2nd check' do
-          begin
-            Timecop.freeze(Date.new(2025, 2, 15)) { subject.create }
-          rescue Vye::V1::VerificationsController::AwardsMismatch
-          end
-
-          pending_verification = Vye::Verification.where(trace: 'case3').last
-          expect(pending_verification).to be_nil
+          expect_contra(Date.new(2025, 2, 15), 'case3')
         end
       end
 
@@ -129,13 +109,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
         before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
         it 'returns from the 4th check' do
-          begin
-            Timecop.freeze(Date.new(2025, 2, 15)) { subject.create }
-          rescue Vye::V1::VerificationsController::AwardsMismatch
-          end
-
-          pending_verification = Vye::Verification.where(trace: 'case3').last
-          expect(pending_verification).to be_nil
+          expect_contra(Date.new(2025, 2, 15), 'case3')
         end
       end
 
@@ -145,52 +119,13 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       # case3 has an award end date < run date
 
       # Happy path is
+      # last day of prior month < award begin date or last day of prior month >= award end date
+      # Unhappy path that triggers this failure condition is
       # award begin date <= last day of prior month < award end date
-      # Unhappy paths that trigger this failure condition are
-      # award begin date > last day of prior month
-      # or
-      # last day of prior month >= award end date
-      context 'the award begin date > last day of prior month' do
-        let(:date_last_certified) { Date.new(2025, 1, 30) }
-        let(:award_begin_date) { Date.new(2025, 2, 1) }
-        let(:award_end_date) { Date.new(2025, 3, 1) }
 
-        before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
-
-        it 'returns from the 6th check because of the award begin date' do
-          Timecop.freeze(Date.new(2025, 2, 13)) { subject.create }
-          pending_verification = Vye::Verification.where(trace: 'case3').last
-          expect(pending_verification).to be_nil
-        end
-      end
-
-      # it won't hit this context because case_1b is handled first and creates a pending verification
-      # context 'the last day of the prior month >= award end date' do
+      # this is another happy path that cannot be met
+      # context 'the award begin date > last day of prior month' do
       # end
-    end
-
-    def setup_award(award_begin_date:, award_end_date:, payment_date:)
-      create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind:, payment_date:)
-      setup_controller
-    end
-
-    def setup_past_award(award_begin_date:, award_end_date:, payment_date:)
-      create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind: 'P', payment_date:)
-      setup_controller
-    end
-
-    def setup_future_award(award_begin_date:, award_end_date:, payment_date:)
-      create(:vye_award, user_info:, award_begin_date:, award_end_date:, cur_award_ind: 'F', payment_date:)
-      setup_controller
-    end
-
-    def setup_controller
-      award_ids = user_info.awards.pluck(:id)
-      params = { award_ids: }
-      allow(subject).to receive_messages(params:, current_user:, head: :no_content)
-      subject.send(:load_user_info)
     end
   end
 end
-# rubocop:enable Lint/SuppressedException
-# rubocop:enable RSpec/SubjectStub
