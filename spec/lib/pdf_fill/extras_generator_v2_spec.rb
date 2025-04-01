@@ -78,14 +78,16 @@ describe PdfFill::ExtrasGeneratorV2 do
 
     let(:form_name) { 'TEST' }
     let(:submit_date) { nil }
-    let(:pdf) { instance_double(Prawn::Document, bounds: double('Bounds', width: 500, top: 700, left: 0, right: 500)) }
+    let(:pdf) do
+      double(Prawn::Document, bounds: double('Bounds', width: 500, top: 700, left: 0, right: 500), markup: nil)
+    end
     let(:header_font_size) { described_class::HEADER_FONT_SIZE }
     let(:subheader_font_size) { described_class::SUBHEADER_FONT_SIZE }
 
     before do
       allow(pdf).to receive(:repeat).and_yield
       allow(pdf).to receive(:bounding_box).and_yield
-      allow(pdf).to receive(:text)
+      allow(pdf).to receive(:markup)
       allow(pdf).to receive(:pad_top).and_yield
       allow(pdf).to receive(:stroke_horizontal_rule)
     end
@@ -93,11 +95,10 @@ describe PdfFill::ExtrasGeneratorV2 do
     context 'when submit_date is not present' do
       it 'adds the header text correctly' do
         subject.set_header(pdf)
-        expect(pdf).to have_received(:text).with("<b>ATTACHMENT</b> to VA Form #{form_name}",
-                                                 align: :left, valign: :bottom, size: header_font_size,
-                                                 inline_format: true)
-        expect(pdf).not_to have_received(:text).with('Submitted on VA.gov on 12-25-2020',
-                                                     align: :right, valign: :bottom, size: subheader_font_size)
+        expect(pdf).to have_received(:markup).with("<b>ATTACHMENT</b> to VA Form #{form_name}",
+                                                   text: { align: :left, size: header_font_size })
+        expect(pdf).not_to have_received(:markup).with(/Submitted on VA\.gov on/,
+                                                       text: { align: :right, size: subheader_font_size })
         expect(pdf).to have_received(:stroke_horizontal_rule)
       end
     end
@@ -107,11 +108,10 @@ describe PdfFill::ExtrasGeneratorV2 do
 
       it 'adds the header text correctly' do
         subject.set_header(pdf)
-        expect(pdf).to have_received(:text).with("<b>ATTACHMENT</b> to VA Form #{form_name}",
-                                                 align: :left, valign: :bottom, size: header_font_size,
-                                                 inline_format: true)
-        expect(pdf).to have_received(:text).with('Submitted on VA.gov on 12-25-2020',
-                                                 align: :right, valign: :bottom, size: subheader_font_size)
+        expect(pdf).to have_received(:markup).with("<b>ATTACHMENT</b> to VA Form #{form_name}",
+                                                   text: { align: :left, size: header_font_size })
+        expect(pdf).to have_received(:markup).with('Submitted on VA.gov on 12-25-2020',
+                                                   text: { align: :right, size: subheader_font_size })
         expect(pdf).to have_received(:stroke_horizontal_rule)
       end
     end

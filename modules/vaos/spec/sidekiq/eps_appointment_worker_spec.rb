@@ -45,10 +45,52 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
       end
 
       it 'sends failure message after max retries' do
-        # rubocop:disable RSpec/SubjectStub
-        expect(worker).to receive(:send_vanotify_message).with(user:, error: 'Could not complete booking')
+        expect(va_notify_service).to receive(:send_email).with(
+          email_address: user.va_profile_email,
+          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
+          parameters: {
+            'error' => 'Could not complete booking'
+          }
+        )
         worker.perform(appointment_id, user, Eps::EpsAppointmentWorker::MAX_RETRIES)
-        # rubocop:enable RSpec/SubjectStub
+      end
+    end
+
+    context 'when the appointment is not found' do
+      before do
+        allow(service).to receive(:get_appointment).with(appointment_id:).and_raise(
+          Common::Exceptions::BackendServiceException.new(nil, {}, 404, 'Appointment not found')
+        )
+      end
+
+      it 'sends failure message after max retries' do
+        expect(va_notify_service).to receive(:send_email).with(
+          email_address: user.va_profile_email,
+          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
+          parameters: {
+            'error' => 'Service error, please contact support'
+          }
+        )
+        worker.perform(appointment_id, user, Eps::EpsAppointmentWorker::MAX_RETRIES)
+      end
+    end
+
+    context 'when the upstream service returns a 500 error' do
+      before do
+        allow(service).to receive(:get_appointment).with(appointment_id:).and_raise(
+          Common::Exceptions::BackendServiceException.new(nil, {}, 500, 'Internal server error')
+        )
+      end
+
+      it 'sends failure message after max retries' do
+        expect(va_notify_service).to receive(:send_email).with(
+          email_address: user.va_profile_email,
+          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
+          parameters: {
+            'error' => 'Service error, please contact support'
+          }
+        )
+        worker.perform(appointment_id, user, Eps::EpsAppointmentWorker::MAX_RETRIES)
       end
     end
 
@@ -61,7 +103,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
             'error' => nil
           }
         )
-        worker.__send__(:send_vanotify_message, user:)
+        worker.send(:send_vanotify_message, user:)
       end
     end
   end

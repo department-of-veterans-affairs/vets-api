@@ -23,6 +23,10 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal
     enable_in_development: true
+  accredited_representative_portal_intent_to_file_api:
+    actor_type: user
+    description: Enables the endpoints of the accredited representative portal intent to file
+    enable_in_development: true
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -206,18 +210,21 @@ features:
   champva_log_all_s3_uploads:
     actor_type: user
     description: Enables logging for all s3 uploads using UUID or keys for monitoring
-  champva_pdf_decrypt:
-    actor_type: user
-    description: Enables unlocking password protected file submissions in IVC CHAMPVA forms.
   champva_require_all_s3_success:
     actor_type: user
     description: Enables raising a StandardError if any supporting documents fail to upload to S3 in IVC CHAMPVA forms.
+  champva_send_to_ves:
+    actor_type: user
+    description: Enables sending form submission data to the VES API.
   champva_enable_pega_report_check:
     actor_type: user
     description: Enables querying PEGA reporting API from MissingFormStatusJob to determine CHAMPVA form status
   champva_retry_logic_refactor:
     actor_type: user
     description: Enables refactored retry logic for IVC CHAMPVA form submissions
+  champva_pega_applicant_metadata_enabled:
+    actor_type: user
+    description: Enables including applicant data in the S3 metadata sent to PEGA
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -699,6 +706,10 @@ features:
     actor_type: user
     description: Enables Appoint a Representative PDF generation endpoint
     enable_in_development: true
+  representative_status_enable_v2_features:
+    actor_type: user
+    description: Enables Representative Status widget 2.0 features for frontend and backend
+    enable_in_development: true
   form4142_validate_schema:
     actor_type: user
     description: Enable validation of form 4142 in Form4142Processor
@@ -1105,7 +1116,7 @@ features:
     enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
-    description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
+    description: Enables/disables Medications on VA.gov (initial transition from MHV to VA.gov)
     enable_in_development: true
   mhv_medications_display_refill_content:
     actor_type: user
@@ -1924,6 +1935,10 @@ features:
     actor_type: user
     description: Enable new Lighthouse ITF logic
     enable_in_development: true
+  intent_to_file_synchronous_enabled:
+    actor_type: user
+    description: Enable ITF synchronous call logic
+    enable_in_development: true
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
@@ -2050,10 +2065,10 @@ features:
     actor_type: user
     description: If enabled, use new form and api endpoint for Ch31 VR&E form
   is_updated_gi:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled, use updated gi design
   gi_ct_collab:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled, use VEBT/EDM team GI Comparison Tool homepage
   show_rudisill_1995:
     actor_type: user
