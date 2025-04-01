@@ -33,7 +33,8 @@ module IvcChampva
         certification: map_certification(
           parsed_form_data['certification'],
           parsed_form_data['statement_of_truth_signature']
-        )
+        ),
+        transaction_uuid: SecureRandom.uuid
       }
     end
 

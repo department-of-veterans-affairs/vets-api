@@ -8,7 +8,7 @@ describe IvcChampva::VesDataFormatter do
       applicationType: 'CHAMPVA_APPLICATION',
       applicationUUID: '12345678-1234-5678-1234-567812345678',
       sponsor: {
-        personUUID: '52345678-1234-5678-1234-567812345678',
+        personUUID: '12345678-1234-5678-1234-567812345678',
         firstName: 'Joe',
         lastName: 'Johnson',
         middleInitial: 'X',
@@ -27,7 +27,7 @@ describe IvcChampva::VesDataFormatter do
       },
       beneficiaries: [
         {
-          personUUID: '62345678-1234-5678-1234-567812345678',
+          personUUID: '12345678-1234-5678-1234-567812345678',
           firstName: 'Johnny',
           lastName: 'Alvin',
           middleInitial: 'T',
@@ -55,7 +55,8 @@ describe IvcChampva::VesDataFormatter do
         lastName: 'Jones',
         middleInitial: 'X',
         phoneNumber: '1231231234'
-      }
+      },
+      transactionUUID: '12345678-1234-5678-1234-567812345678'
     }
   end
 
@@ -127,9 +128,7 @@ describe IvcChampva::VesDataFormatter do
     @parsed_form_data_copy = Marshal.load(Marshal.dump(parsed_form_data))
 
     # Mock SecureRandom.uuid to return expected values
-    uuid_sequence = %w[12345678-1234-5678-1234-567812345678 52345678-1234-5678-1234-567812345678
-                       62345678-1234-5678-1234-567812345678]
-    allow(SecureRandom).to receive(:uuid).and_return(*uuid_sequence)
+    allow(SecureRandom).to receive(:uuid).and_return('12345678-1234-5678-1234-567812345678')
   end
 
   describe 'data is valid' do
