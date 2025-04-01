@@ -51,7 +51,7 @@ describe IvcChampva::FileUploader do
 
     context 'when FMP single file upload flipper is enabled' do
       let(:form_id) { 'vha_10_7959f_2' }
-      let(:combined_pdf_path) { File.join(Dir.tmpdir, "#{metadata['uuid']}_#{form_id}_combined.pdf") }
+      let(:combined_pdf_path) { File.join('tmp/', "#{metadata['uuid']}_#{form_id}_combined.pdf") }
       let(:file_paths) do
         ['modules/ivc_champva/spec/fixtures/pdfs/vha_10_7959f_2-filled.pdf',
          'modules/ivc_champva/spec/fixtures/images/test_image.pdf',
