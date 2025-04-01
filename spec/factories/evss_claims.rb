@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :evss_claim do
-    user_uuid { '1234' }
+    user_uuid { SecureRandom.uuid }
     evss_id   { 1 }
 
     data do
@@ -19,6 +19,10 @@ FactoryBot.define do
         raw_claim = f.read
         JSON.parse(raw_claim).deep_transform_keys!(&:underscore)
       end
+    end
+
+    trait :with_user_account do
+      association :user_account
     end
 
     trait :bad_data do
