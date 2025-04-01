@@ -69,7 +69,7 @@ module Kafka
       # - a list of compatibility issues
       # https://docs.confluent.io/platform/current/schema-registry/develop/api.html#sr-api-compatibility
       def compatibility_issues(topic, schema, version = 'latest')
-        validate_topic
+        validate_topic(topic)
         data = request("#{SCHEMA_REGISTRY_PATH_PREFIX}/compatibility/subjects/#{topic}-value/versions/#{version}",
                        method: :post,
                        expects: [200, 404],
