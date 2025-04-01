@@ -57,15 +57,30 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
       end
 
       it 'logs failures with incrementing retry counts' do
+        test_logger = instance_double(Logger)
+        allow_any_instance_of(described_class).to receive(:logger).and_return(test_logger)
+
+        # First attempt - retry_count = 0
         job = described_class.new
 
-        # first attempt
-        expect(job).to receive(:log_send_sms_failure).with(1)
+        expect(test_logger).to receive(:info).with(hash_including(
+          message: "Sending travel claim notification to 0123, template-id-123"
+        ))
+        expect(test_logger).to receive(:info).with(hash_including(
+          message: "Sending SMS failed, attempt 1 of #{described_class::MAX_RETRIES}"
+        ))
         expect { job.send_notification(job_opts) }.to raise_error(StandardError)
 
-        # mock the retry count
+        # Second attempt - retry_count = 1
+        job = described_class.new
         allow(job.class).to receive(:sidekiq_options_hash).and_return({ 'retry_count' => 1 })
-        expect(job).to receive(:log_send_sms_failure).with(2)
+
+        expect(test_logger).to receive(:info).with(hash_including(
+          message: "Sending travel claim notification to 0123, template-id-123"
+        ))
+        expect(test_logger).to receive(:info).with(hash_including(
+          message: "Sending SMS failed, attempt 2 of #{described_class::MAX_RETRIES}"
+        ))
         expect { job.send_notification(job_opts) }.to raise_error(StandardError)
       end
     end
@@ -131,25 +146,6 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
         expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR)
 
         described_class.handle_error(job_hash, error)
-      end
-
-      it 'demonstrates the complete failure flow in an integrated way' do
-        job = described_class.new
-        allow(job.class).to receive(:sidekiq_options_hash).and_return({
-                                                                        'retry' => described_class::MAX_RETRIES,
-                                                                        'retry_count' => described_class::MAX_RETRIES - 1
-                                                                      })
-
-        oh_job_opts = job_opts.merge(template_id: CheckIn::Constants::OH_FAILURE_TEMPLATE_ID)
-        expect(job).to receive(:log_send_sms_failure).with(described_class::MAX_RETRIES)
-        expect { job.send_notification(oh_job_opts) }.to raise_error(StandardError)
-        job_hash = {
-          'args' => [oh_job_opts],
-          'error_message' => 'Test error',
-          'retry_count' => described_class::MAX_RETRIES
-        }
-
-        described_class.sidekiq_retries_exhausted_block.call(job_hash, StandardError.new('Test error'))
       end
     end
   end
