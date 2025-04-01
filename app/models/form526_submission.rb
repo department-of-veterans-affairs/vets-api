@@ -93,6 +93,7 @@ class Form526Submission < ApplicationRecord
   # go here and call start_evss_submission_job when done.
   def start
     log_max_cfi_metrics_on_submit
+    log_document_type_metrics
     start_evss_submission_job
   end
 
