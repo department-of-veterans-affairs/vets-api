@@ -4,18 +4,9 @@ module IncomeAndAssets
   module Helpers
     include ActiveSupport::NumberHelper
 
-    CURRENCY_LENGTHS_SM = {
-      'cents' => 2,
-      'dollars' => 3,
-      'thousands' => 2
-    }.freeze
+    CURRENCY_LENGTHS_SM = { 'cents' => 2, 'dollars' => 3, 'thousands' => 2 }.freeze
 
-    CURRENCY_LENGTHS_LG = {
-      'cents' => 2,
-      'dollars' => 3,
-      'thousands' => 3,
-      'millions' => 2
-    }.freeze
+    CURRENCY_LENGTHS_LG = { 'cents' => 2, 'dollars' => 3, 'thousands' => 3, 'millions' => 2 }.freeze
 
     # Format a YYYY-MM-DD date string to MM/DD/YYYY
     #

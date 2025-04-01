@@ -782,14 +782,12 @@ module PdfFill
       def expand_trusts
         trusts = form_data['trusts']
         form_data['trust'] = trusts&.length ? 0 : 1
-        form_data['trusts'] = trusts&.map do |trust|
-          expand_trust(trust)
-        end
+        form_data['trusts'] = trusts&.map { |trust| expand_trust(trust) }
       end
 
       def expand_trust(trust)
         market_value = split_currency_amount_lg(trust['marketValueAtEstablishment'], { 'millions' => 1 })
-        {
+        expanded = {
           'establishedDate' => split_date(trust['establishedDate']),
           'marketValueAtEstablishment' => market_value,
           'trustType' => IncomeAndAssets::Constants::TRUST_TYPES[trust['trustType']],
@@ -801,25 +799,13 @@ module PdfFill
           'trustUsedForMedicalExpenses' => trust['trustUsedForMedicalExpenses'] ? 0 : 1,
           'monthlyMedicalReimbursementAmount' => split_currency_amount_sm(trust['monthlyMedicalReimbursementAmount']),
           'trustEstablishedForVeteransChild' => trust['trustEstablishedForVeteransChild'] ? 0 : 1,
-          'haveAuthorityOrControlOfTrust' => trust['haveAuthorityOrControlOfTrust'] ? 0 : 1,
-        }.merge(expand_trust_overflow(trust))
-      end
-
-      def expand_trust_overflow(trust)
-        {
-          'establishedDateOverflow' => trust['establishedDate'],
-          'marketValueAtEstablishmentOverflow' => trust['marketValueAtEstablishment'],
-          'trustTypeOverflow' => trust['trustType'],
-          'addedFundsAfterEstablishmentOverflow' => trust['addedFundsAfterEstablishment'],
-          'addedFundsDateOverflow' => trust['addedFundsDate'],
-          'addedFundsAmountOverflow' => trust['addedFundsAmount'],
-          'receivingIncomeFromTrustOverflow' => trust['receivingIncomeFromTrust'],
-          'annualReceivedIncomeOverflow' => trust['annualReceivedIncome'],
-          'trustUsedForMedicalExpensesOverflow' => trust['trustUsedForMedicalExpenses'],
-          'monthlyMedicalReimbursementAmountOverflow' => trust['monthlyMedicalReimbursementAmount'],
-          'trustEstablishedForVeteransChildOverflow' => trust['trustEstablishedForVeteransChild'],
-          'haveAuthorityOrControlOfTrustOverflow' => trust['haveAuthorityOrControlOfTrust']
+          'haveAuthorityOrControlOfTrust' => trust['haveAuthorityOrControlOfTrust'] ? 0 : 1
         }
+        overflow = {}
+        expanded.each_key do |fieldname|
+          overflow["#{fieldname}Overflow"] = trust[fieldname]
+        end
+        expanded.merge(overflow)
       end
     end
   end
