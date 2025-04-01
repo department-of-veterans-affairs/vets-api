@@ -15,8 +15,7 @@ describe 'bb client' do
         vapathology vaproblemlist varadiology vahth wellness dodmilitaryservice ]
   end
 
-  before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+  before(:all) do
     VCR.use_cassette 'bb_client/session' do
       @client ||= begin
         client = BB::Client.new(session: { user_id: '5751732' })
