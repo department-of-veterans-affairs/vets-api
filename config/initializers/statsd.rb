@@ -23,12 +23,14 @@ require 'hca/service'
 require 'carma/client/mule_soft_client'
 
 Rails.application.reloader.to_prepare do
+  # set connection; accommodate StatsD::Instrument version 3.99
+  StatsD::Instrument::UdpConnection.new('127.0.0.1', 8125)
+
   ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_, _, _, _, payload|
     tags = ["controller:#{payload.dig(:params, :controller)}", "action:#{payload.dig(:params, :action)}",
             "status:#{payload[:status]}"]
     StatsD.measure('api.request.db_runtime', payload[:db_runtime].to_i, tags:)
     StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags:)
-    StatsD.backend = StatsD::Instrument::Backends::UDPBackend.new('127.0.0.1:8125')
   end
 
   ActiveSupport::Notifications.subscribe(/facilities.ppms./) do |_name, start_time, end_time, _id, payload|

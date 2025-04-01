@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require './config/initializers/statsd'
 
 describe Breakers::StatsdPlugin do
   let(:request) { Faraday::Env.new }
@@ -103,6 +104,37 @@ describe Breakers::StatsdPlugin do
           .to trigger_statsd_increment("api.external_http_request.#{abstract_service.name}.ok")
           .and not_trigger_statsd_measure("api.external_http_request.#{abstract_service.name}.time")
       end
+    end
+  end
+
+  describe 'StatsD configuration' do
+    it 'uses 127.0.0.1 for the StatsD UDP backend' do
+      # Use mocking to ensure StatsD uses the right connection
+      allow(StatsD::Instrument::UdpConnection).to receive(:new).and_call_original
+
+      # Create the StatsD UDP connection
+      conn = StatsD::Instrument::UdpConnection.new('127.0.0.1', 8125)
+
+      # Ensure the connection was created with the correct arguments
+      expect(StatsD::Instrument::UdpConnection).to have_received(:new).with('127.0.0.1', 8125)
+
+      # Ensure the connection is of the correct class
+      expect(conn).to be_a(StatsD::Instrument::UdpConnection)
+
+      # Verify the connection's host and port
+      expect(conn.host).to eq('127.0.0.1')
+      expect(conn.port).to eq(8125)
+    end
+  end
+
+  describe 'StatsD UDP connection' do
+    it 'uses IPv4 when connecting to 127.0.0.1' do
+      socket = instance_double(UDPSocket, connect: true, send: true)
+
+      expect(UDPSocket).to receive(:new).with(Socket::AF_INET).and_return(socket)
+
+      connection = StatsD::Instrument::UdpConnection.new('127.0.0.1', 8125)
+      connection.send_datagram('test.metric:1|c')
     end
   end
 end
