@@ -29,15 +29,9 @@ module Kafka
     private
 
     def get_schema(topic, schema_version)
-      if Flipper.enabled?(:kafka_producer_fetch_schema_dynamically)
-        response = @registry.subject_version(topic, schema_version)
-        schema = response['schema']
-        @schema_id = response['id']
-      else
-        schema_path = Rails.root.join('lib', 'kafka', 'schemas', "#{topic}-value-#{schema_version}.avsc")
-        schema = File.read(schema_path)
-      end
-
+      response = @registry.subject_version(topic, schema_version)
+      schema = response['schema']
+      @schema_id = response['id']
       Avro::Schema.parse(schema)
     end
 

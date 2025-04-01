@@ -2085,9 +2085,6 @@ features:
   kafka_producer:
     actor_type: cookie_id
     description: Enables the Kafka producer for the VA.gov platform
-  kafka_producer_fetch_schema_dynamically:
-    actor_type: cookie_id
-    description: Enables the Kafka producer to fetch schema dynamically
   show_about_yellow_ribbon_program:
     actor_type: user
     description: If enabled, show additional info about the yellow ribbon program
