@@ -58,7 +58,7 @@ describe PdfFill::ExtrasGeneratorV2 do
   describe '#add_page_numbers' do
     subject { described_class.new(start_page: 8) }
 
-    let(:pdf) { instance_double(Prawn::Document, bounds: double('Bounds', right: 400)) }
+    let(:pdf) { instance_double(Prawn::Document, bounds: double('Bounds', right: 400, bottom: 0)) }
 
     it 'adds page numbers starting at @start_page' do
       expect(pdf).to receive(:number_pages).with(
@@ -96,9 +96,9 @@ describe PdfFill::ExtrasGeneratorV2 do
       it 'adds the header text correctly' do
         subject.set_header(pdf)
         expect(pdf).to have_received(:markup).with("<b>ATTACHMENT</b> to VA Form #{form_name}",
-                                                   text: { align: :left, size: header_font_size })
-        expect(pdf).not_to have_received(:markup).with(/Submitted on VA\.gov on/,
-                                                       text: { align: :right, size: subheader_font_size })
+                                                   text: { align: :left, valign: :bottom, size: header_font_size })
+        expect(pdf).to have_received(:markup).with('VA.gov Submission',
+                                                   text: { align: :right, valign: :bottom, size: subheader_font_size })
         expect(pdf).to have_received(:stroke_horizontal_rule)
       end
     end
@@ -109,9 +109,9 @@ describe PdfFill::ExtrasGeneratorV2 do
       it 'adds the header text correctly' do
         subject.set_header(pdf)
         expect(pdf).to have_received(:markup).with("<b>ATTACHMENT</b> to VA Form #{form_name}",
-                                                   text: { align: :left, size: header_font_size })
+                                                   text: { align: :left, valign: :bottom, size: header_font_size })
         expect(pdf).to have_received(:markup).with('VA.gov Submission',
-                                                   text: { align: :right, size: subheader_font_size })
+                                                   text: { align: :right, valign: :bottom, size: subheader_font_size })
         expect(pdf).to have_received(:stroke_horizontal_rule)
       end
     end
@@ -137,14 +137,14 @@ describe PdfFill::ExtrasGeneratorV2 do
   describe '#add_footer' do
     subject { described_class.new(submit_date:) }
 
-    let(:pdf) { instance_double(Prawn::Document, bounds: double('Bounds', bottom: 50, left: 0, width: 500)) }
+    let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50, left: 0, width: 500)) }
     let(:footer_font_size) { described_class::FOOTER_FONT_SIZE }
     let(:submit_date) { DateTime.new(2020, 12, 25, 14, 30, 0, '+0000') }
 
     before do
-      allow(pdf).to receive(:repeat).and_yield
+      allow(pdf).to receive(:repeat).with(:all).and_yield
       allow(pdf).to receive(:bounding_box).and_yield
-      allow(pdf).to receive(:text)
+      allow(pdf).to receive(:markup)
     end
 
     context 'when submit_date is present' do
@@ -152,10 +152,8 @@ describe PdfFill::ExtrasGeneratorV2 do
         subject.add_footer(pdf)
         expected_text = 'Signed electronically and submitted via VA.gov at 14:30 UTC 2020-12-25. ' \
                         'Signee signed with an identity-verified account.'
-        expect(pdf).to have_received(:text).with(
-          expected_text,
-          align: :left,
-          size: footer_font_size
+        expect(pdf).to have_received(:markup).with(
+          expected_text, text: { align: :left, size: footer_font_size }
         )
       end
     end
@@ -165,7 +163,7 @@ describe PdfFill::ExtrasGeneratorV2 do
 
       it 'does not add footer' do
         subject.add_footer(pdf)
-        expect(pdf).not_to have_received(:text)
+        expect(pdf).not_to have_received(:markup)
       end
     end
   end

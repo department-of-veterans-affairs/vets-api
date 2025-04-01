@@ -5,6 +5,7 @@ module PdfFill
     HEADER_FONT_SIZE = 14.5
     SUBHEADER_FONT_SIZE = 10.5
     FOOTER_FONT_SIZE = 9
+    HEADER_FOOTER_BOUNDS_HEIGHT = 20
 
     def initialize(form_name: nil, submit_date: nil, start_page: 1, sections: nil)
       super()
@@ -93,48 +94,43 @@ module PdfFill
 
     def set_header(pdf)
       pdf.repeat :all do
-        bound_width = pdf.bounds.width / 2
-        location = [pdf.bounds.left, pdf.bounds.top]
-        write_header_main(pdf, location, bound_width, HEADER_FONT_SIZE)
-        location[0] += bound_width
-        write_submission_header(pdf, location, bound_width)
+        write_header_left(pdf, [pdf.bounds.left, pdf.bounds.top], pdf.bounds.width, HEADER_FOOTER_BOUNDS_HEIGHT)
+        write_header_right(pdf, [pdf.bounds.left, pdf.bounds.top], pdf.bounds.width, HEADER_FOOTER_BOUNDS_HEIGHT)
         pdf.pad_top(2) { pdf.stroke_horizontal_rule }
+      end
+    end
+
+    def write_header_left(pdf, location, bound_width, bound_height)
+      pdf.bounding_box(location, width: bound_width, height: bound_height) do
+        pdf.markup("<b>ATTACHMENT</b> to VA Form #{@form_name}",
+                   text: { align: :left, valign: :bottom, size: HEADER_FONT_SIZE })
+      end
+    end
+
+    def write_header_right(pdf, location, bound_width, bound_height)
+      pdf.bounding_box(location, width: bound_width, height: bound_height) do
+        pdf.markup('VA.gov Submission',
+                   text: { align: :right, valign: :bottom, size: SUBHEADER_FONT_SIZE })
       end
     end
 
     def add_page_numbers(pdf)
       pdf.number_pages('Page <page>',
                        start_count_at: @start_page,
-                       at: [pdf.bounds.right - 50, 0],
+                       at: [pdf.bounds.right - 50, pdf.bounds.bottom],
                        align: :right,
-                       size: 9)
-    end
-
-    def write_header_main(pdf, location, bound_width, bound_height)
-      pdf.bounding_box(location, width: bound_width) do
-        pdf.markup("<b>ATTACHMENT</b> to VA Form #{@form_name}",
-                   text: { align: :left, size: bound_height })
-      end
-    end
-
-    def write_submission_header(pdf, location, bound_width)
-      pdf.bounding_box(location, width: bound_width) do
-        pdf.markup('VA.gov Submission',
-                   text: { align: :right, size: SUBHEADER_FONT_SIZE })
-      end
+                       size: FOOTER_FONT_SIZE)
     end
 
     def add_footer(pdf)
-      if @submit_date
+      if @submit_date.present?
+        ts = format_timestamp(@submit_date)
+        txt = "Signed electronically and submitted via VA.gov at #{ts}. " \
+              'Signee signed with an identity-verified account.'
         pdf.repeat :all do
-          pdf.bounding_box([pdf.bounds.left, pdf.bounds.bottom], width: pdf.bounds.width, height: FOOTER_FONT_SIZE) do
-            ts = format_timestamp(@submit_date)
-            pdf.text(
-              "Signed electronically and submitted via VA.gov at #{ts}. " \
-              'Signee signed with an identity-verified account.',
-              align: :left,
-              size: FOOTER_FONT_SIZE
-            )
+          pdf.bounding_box([pdf.bounds.left, pdf.bounds.bottom], width: pdf.bounds.width,
+                                                                 height: HEADER_FOOTER_BOUNDS_HEIGHT) do
+            pdf.markup(txt, text: { align: :left, size: FOOTER_FONT_SIZE })
           end
         end
       end
@@ -168,8 +164,7 @@ module PdfFill
             padding: [2, 0, 2, 0]
           }
         },
-        list: { bullet: { char: '✓', margin: 0 }, content: { margin: 4 }, vertical_margin: 0 },
-        text: { leading: 1 }
+        list: { bullet: { char: '✓', margin: 0 }, content: { margin: 4 }, vertical_margin: 0 }
       }
     end
   end
