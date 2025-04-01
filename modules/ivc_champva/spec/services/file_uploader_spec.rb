@@ -24,10 +24,9 @@ describe IvcChampva::FileUploader do
       end
     end
 
-    context 'when at least one PDF upload fails and champva_require_all_s3_success flipper is enabled:' do
+    context 'when at least one PDF upload fails:' do
       before do
         allow(uploader).to receive(:upload).and_return([400, 'Upload failed'])
-        allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(true)
       end
 
       it 'raises an error' do
