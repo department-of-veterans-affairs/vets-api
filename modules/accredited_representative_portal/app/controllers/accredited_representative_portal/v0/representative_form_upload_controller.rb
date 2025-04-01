@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_intake/service'
-require 'lighthouse/benefits_claims/service'
 require 'simple_forms_api_submission/metadata_validator'
 
 module AccreditedRepresentativePortal
   module V0
     class RepresentativeFormUploadController < ApplicationController
       skip_after_action :verify_pundit_authorization
-      # before_action :validate_power_of_attorney, only: :submit
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
@@ -221,34 +219,8 @@ module AccreditedRepresentativePortal
         claimant_birth_date || veteran_birth_date
       end
 
-      def validate_power_of_attorney
-        get_icn
-        # power_of_attorney_attributes = get_power_of_attorney_attributes(icn)
-
-        # rep_poa_codes = get_rep_poa_codes
-        # raise if !rep_poa_codes.include?(power_of_attorney_attributes["code"])
-        # || !(power_of_attorney_agreement["name"].downcase == common_name.downcase)
-        true
-      end
-
-      def get_icn
-        mpi = MPI::Service.new.find_profile_by_attributes(ssn:, first_name:, last_name:, birth_date:)
-        raise if mpi.profile.nil?
-
-        mpi.profile.icn
-      end
-
-      def get_power_of_attorney_attributes(icn)
-        response = BenefitsClaims::Service.new(icn).get_power_of_attorney
-        attributes = response['data']['attributes']
-        raise if attributes.nil?
-
-        attributes
-      end
-
-      def get_rep_poa_codes
-        # ar_user_account_accredited_individuals
-        # ["589"]
+      def form_data
+        form_params['formData'] || {}
       end
     end
   end

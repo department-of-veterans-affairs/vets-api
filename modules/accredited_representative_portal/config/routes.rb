@@ -30,5 +30,7 @@ AccreditedRepresentativePortal::Engine.routes.draw do
     namespace :claimant do
       post 'power_of_attorney_requests', to: 'power_of_attorney_requests#index'
     end
+
+    resources :intent_to_file, only: %i[show create]
   end
 end
