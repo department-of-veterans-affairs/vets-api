@@ -39,13 +39,13 @@ describe IvcChampva::VesDataFormatter do
           hasOtherInsurance: true,
           relationshipToSponsor: 'CHILD',
           childtype: 'ADOPTED',
+          dateOfBirth: '2000-01-01',
           address: {
             streetAddress: '456 Circle Street ',
             city: 'Clinton',
             state: 'AS',
             zipCode: '56790'
-          },
-          dateOfBirth: '2000-01-01'
+          }
         }
       ],
       certification: {
@@ -136,7 +136,15 @@ describe IvcChampva::VesDataFormatter do
     it 'returns unmodified data' do
       validated_data = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
 
-      expect(validated_data.to_json).to eq(@request_body)
+      expect(validated_data.to_json).to eq(@request_body.to_json)
+    end
+  end
+
+  describe 'ves_request to_json' do
+    it 'returns json' do
+      ves_request = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+
+      expect(ves_request.to_json).to be_a(String)
     end
   end
 
@@ -162,9 +170,9 @@ describe IvcChampva::VesDataFormatter do
         @parsed_form_data_copy['veteran']['full_name']['first'] = '2Jöhn~! - Jo/hn?\\'
         expected_sponsor_name = 'John - Jo/hn'
 
-        ves_request = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy).to_json
+        ves_request = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
 
-        expect(ves_request[:sponsor][:firstName]).to eq expected_sponsor_name
+        expect(ves_request.sponsor.first_name).to eq expected_sponsor_name
       end
     end
   end
@@ -175,9 +183,9 @@ describe IvcChampva::VesDataFormatter do
         @parsed_form_data_copy['veteran']['full_name']['last'] = '2Jöhnşon~!\\'
         expected_sponsor_name = 'Johnson'
 
-        ves_request = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy).to_json
+        ves_request = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
 
-        expect(ves_request[:sponsor][:lastName]).to eq expected_sponsor_name
+        expect(ves_request.sponsor.last_name).to eq expected_sponsor_name
       end
     end
   end
@@ -218,9 +226,19 @@ describe IvcChampva::VesDataFormatter do
       end.to raise_error(ArgumentError, 'sponsor state is missing')
     end
 
+    it 'raises an error when deceased sponsor date of death is missing' do
+      @parsed_form_data_copy['veteran']['is_deceased'] = true
+      @parsed_form_data_copy['veteran']['date_of_death'] = nil
+
+      expect do
+        IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+      end.to raise_error(ArgumentError, 'date of death is missing')
+    end
+
     it 'adds a default address when sponsor is deceased' do
       @parsed_form_data_copy['veteran']['address'] = nil
       @parsed_form_data_copy['veteran']['is_deceased'] = true
+      @parsed_form_data_copy['veteran']['date_of_death'] = '2020-01-01'
 
       res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
       expect(res.sponsor.address.street_address).to eq('NA')
@@ -296,6 +314,30 @@ describe IvcChampva::VesDataFormatter do
         IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
       end.to raise_error(ArgumentError,
                          "beneficiary gender is invalid. Must be in #{possible_values}")
+    end
+  end
+
+  describe 'phone number is malformed' do
+    it 'removes non-numeric characters' do
+      phone = '+1 (123) 123-1234'
+
+      expect(IvcChampva::VesDataFormatter.format_phone_number(phone)).to eq('11231231234')
+    end
+
+    it 'raises an exception when phone number is not at least 10 digits' do
+      phone = { phone_number: '123456789' } # 9 digits
+
+      expect do
+        IvcChampva::VesDataFormatter.validate_phone(phone, 'phone number')
+      end.to raise_error(ArgumentError, 'phone number is invalid. See regex for more detail')
+
+      phone = { phone_number: '1231231234' } # 10 digits
+
+      expect(IvcChampva::VesDataFormatter.validate_phone(phone, 'phone number')).to eq(phone)
+
+      phone = { phone_number: '11231231234' } # 11 digits
+
+      expect(IvcChampva::VesDataFormatter.validate_phone(phone, 'phone number')).to eq(phone)
     end
   end
 end

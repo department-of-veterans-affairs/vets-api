@@ -19,7 +19,7 @@ module IvcChampva
         sponsor: @sponsor.to_hash,
         beneficiaries: @beneficiaries.map(&:to_hash),
         certification: @certification.to_hash
-      }
+      }.to_json
     end
 
     class Sponsor

@@ -26,7 +26,7 @@ module IvcChampva
 
     def self.transform_to_ves_format(parsed_form_data)
       {
-        application_type: 'CHAMPVA',
+        application_type: 'CHAMPVA_APPLICATION',
         application_uuid: SecureRandom.uuid,
         sponsor: map_sponsor(parsed_form_data['veteran']),
         beneficiaries: parsed_form_data['applicants'].map { |applicant| map_beneficiary(applicant) },
@@ -119,6 +119,8 @@ module IvcChampva
     # Data formatting methods
     def self.format_phone_number(phone)
       return nil if phone.blank?
+
+      phone = phone.to_s.gsub(/\D/, '')
 
       # regex from VES swagger
       return phone if phone.match?(/^[0-9+]+$/)
@@ -332,12 +334,14 @@ module IvcChampva
     def self.validate_email(email)
       validate_presence_and_stringiness(email, 'email address')
       unless email.match?(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/)
-        raise ArgumentError, "email address is invalid. See regex for more detail"
+        raise ArgumentError, 'email address is invalid. See regex for more detail'
+      end
     end
 
     def self.validate_phone(object, name)
       validate_presence_and_stringiness(object[:phone_number], 'phone number')
-      unless object[:phone_number].match?(/^[0-9+]+$/)
+
+      unless object[:phone_number].match?(/^[0-9+]+$/) && object[:phone_number].length >= 10
         raise ArgumentError, "#{name} is invalid. See regex for more detail"
       end
 
