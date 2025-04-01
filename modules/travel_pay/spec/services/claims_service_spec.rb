@@ -75,26 +75,109 @@ describe TravelPay::ClaimsService do
       expect(actual_statuses).to match_array(expected_statuses)
     end
 
-    context 'get claim by id' do
-      it 'returns a single claim when passed a valid id' do
-        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
-        expected_claim = claims_data['data'].find { |c| c['id'] == claim_id }
-        actual_claim = @service.get_claim_by_id(claim_id)
-
-        expect(actual_claim).to eq(expected_claim)
+    context 'get claim details' do
+      let(:user) { build(:user) }
+      let(:claim_details_data) do
+        {
+          'data' =>
+            {
+              'claimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+              'claimNumber' => 'TC0000000000001',
+              'claimantFirstName' => 'Nolle',
+              'claimantMiddleName' => 'Polite',
+              'claimantLastName' => 'Barakat',
+              'claimStatus' => 'PreApprovedForPayment',
+              'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
+              'facilityName' => 'Cheyenne VA Medical Center',
+              'totalCostRequested' => 20.00,
+              'reimbursementAmount' => 14.52,
+              'createdOn' => '2025-03-12T20:27:14.088Z',
+              'modifiedOn' => '2025-03-12T20:27:14.088Z',
+              'appointment' => {
+                'id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                'appointmentSource' => 'API',
+                'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
+                'appointmentType' => 'EnvironmentalHealth',
+                'facilityId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                'facilityName' => 'Cheyenne VA Medical Center',
+                'serviceConnectedDisability' => 30,
+                'appointmentStatus' => 'Complete',
+                'externalAppointmentId' => '12345',
+                'associatedClaimId' => '73611905-71bf-46ed-b1ec-e790593b8565',
+                'associatedClaimNumber' => 'TC0000000000001',
+                'isCompleted' => true
+              },
+              'expenses' => [
+                {
+                  'id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                  'expenseType' => 'Mileage',
+                  'name' => '',
+                  'dateIncurred' => '2024-01-01T16:45:34.465Z',
+                  'description' => 'mileage-expense',
+                  'costRequested' => 10.00,
+                  'costSubmitted' => 10.00
+                },
+                {
+                  'id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                  'expenseType' => 'Mileage',
+                  'name' => '',
+                  'dateIncurred' => '2024-01-01T16:45:34.465Z',
+                  'description' => 'mileage-expense',
+                  'costRequested' => 10.00,
+                  'costSubmitted' => 10.00
+                }
+              ]
+            }
+        }
+      end
+      let(:claim_details_response) do
+        Faraday::Response.new(
+          body: claim_details_data
+        )
       end
 
-      it 'returns nil if a claim with the given id was not found' do
-        claim_id = SecureRandom.uuid
-        actual_claim = @service.get_claim_by_id(claim_id)
+      let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
-        expect(actual_claim).to be_nil
+      before do
+        allow_any_instance_of(TravelPay::ClaimsClient)
+          .to receive(:get_claim_by_id)
+          .and_return(claim_details_response)
+
+        auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+        @service = TravelPay::ClaimsService.new(auth_manager)
+      end
+
+      it 'returns expanded claim details when passed a valid id' do
+        claim_id = '73611905-71bf-46ed-b1ec-e790593b8565'
+        actual_claim = @service.get_claim_details(claim_id)
+
+        expect(actual_claim['expenses']).not_to be_empty
+        expect(actual_claim['appointment']).not_to be_empty
+        expect(actual_claim['totalCostRequested']).to eq(20.00)
+        expect(actual_claim['claimStatus']).to eq('Pre approved for payment')
+      end
+
+      it 'returns an not found error if a claim with the given id was not found' do
+        allow_any_instance_of(TravelPay::ClaimsClient)
+          .to receive(:get_claim_by_id)
+          .and_raise(Common::Exceptions::ResourceNotFound.new(
+                       {
+                         'statusCode' => 404,
+                         'message' => 'Claim not found.',
+                         'success' => false,
+                         'data' => nil
+                       }
+                     ))
+
+        claim_id = SecureRandom.uuid
+        expect { @service.get_claim_details(claim_id) }
+          .to raise_error(Common::Exceptions::ResourceNotFound, /not found/i)
       end
 
       it 'throws an ArgumentException if claim_id is invalid format' do
         claim_id = 'this-is-definitely-a-uuid-right'
 
-        expect { @service.get_claim_by_id(claim_id) }
+        expect { @service.get_claim_details(claim_id) }
           .to raise_error(ArgumentError, /valid UUID/i)
       end
     end
