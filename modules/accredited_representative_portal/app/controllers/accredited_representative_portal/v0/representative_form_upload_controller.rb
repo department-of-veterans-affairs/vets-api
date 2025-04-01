@@ -99,7 +99,8 @@ module AccreditedRepresentativePortal
 
       def log_upload_details(location, uuid)
         Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
-        Rails.logger.info('Accredited Rep Form Upload - preparing to upload scanned PDF to benefits intake', { location:, uuid: })
+        Rails.logger.info('Accredited Rep Form Upload - preparing to upload scanned PDF to benefits intake',
+                          { location:, uuid: })
       end
 
       def perform_pdf_upload(location, file_path, metadata)
@@ -133,7 +134,7 @@ module AccreditedRepresentativePortal
         }
       end
 
-      def send_confirmation_email(params, confirmation_number)
+      def send_confirmation_email(_params, confirmation_number)
         new_form_data = create_new_form_data
         config = {
           form_number: form_data[:formNumber],
@@ -217,10 +218,6 @@ module AccreditedRepresentativePortal
 
       def birth_date
         claimant_birth_date || veteran_birth_date
-      end
-
-      def form_data
-        form_params['formData'] || {}
       end
     end
   end
