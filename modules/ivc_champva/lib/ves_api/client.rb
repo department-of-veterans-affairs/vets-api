@@ -22,7 +22,7 @@ module IvcChampva
       def submit_1010d(transaction_uuid, acting_user, ves_request_data)
         resp = connection.post("#{config.base_path}/champva-applications") do |req|
           req.headers = headers(transaction_uuid, acting_user)
-          req.body = ves_request_data.to_json
+          req.body = ves_request_data.to_json.to_json # VesRequest -> hash -> JSON string
         end
 
         # TODO: log the response

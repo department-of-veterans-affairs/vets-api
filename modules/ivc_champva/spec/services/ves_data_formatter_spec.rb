@@ -5,7 +5,7 @@ require 'rails_helper'
 describe IvcChampva::VesDataFormatter do
   let(:valid_data) do
     {
-      applicationType: 'CHAMPVA',
+      applicationType: 'CHAMPVA_APPLICATION',
       applicationUUID: '12345678-1234-5678-1234-567812345678',
       sponsor: {
         personUUID: '52345678-1234-5678-1234-567812345678',
@@ -33,7 +33,7 @@ describe IvcChampva::VesDataFormatter do
           middleInitial: 'T',
           ssn: '345345345',
           emailAddress: 'johnny@alvin.gov',
-          phoneNumber: '+1 (555) 555-1234',
+          phoneNumber: '5555551234',
           gender: 'MALE',
           enrolledInMedicare: true,
           hasOtherInsurance: true,
@@ -54,7 +54,7 @@ describe IvcChampva::VesDataFormatter do
         firstName: 'Certifier',
         lastName: 'Jones',
         middleInitial: 'X',
-        phoneNumber: '(123) 123-1234'
+        phoneNumber: '1231231234'
       }
     }
   end
@@ -97,7 +97,7 @@ describe IvcChampva::VesDataFormatter do
             'street_combined' => '456 Circle Street '
           },
           'applicant_ssn' => { 'ssn' => '345345345' },
-          'applicant_phone' => '+1 (555) 555-1234',
+          'applicant_phone' => '5555551234',
           'applicant_gender' => { 'gender' => 'MALE' },
           'applicant_dob' => '2000-01-01',
           'applicant_name' => { 'first' => 'Johnny', 'middle' => 'T', 'last' => 'Alvin' },
@@ -114,7 +114,7 @@ describe IvcChampva::VesDataFormatter do
         'last_name' => 'Jones',
         'middle_initial' => 'X',
         'first_name' => 'Certifier',
-        'phone_number' => '(123) 123-1234'
+        'phone_number' => '1231231234'
       },
       'statement_of_truth_signature' => 'certifier jones'
     }
