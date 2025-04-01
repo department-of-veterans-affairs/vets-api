@@ -441,24 +441,16 @@ module PdfFill
           }
         },
         # 8a
-        'trust' => {
-          key: 'F[0].Page_10[0].DependentsEstablishedATrust[0]'
-        },
+        'trust' => { key: 'F[0].Page_10[0].DependentsEstablishedATrust[0]' },
         # 8b-8m (only space for one on form)
         'trusts' => {
           limit: 1,
           first_key: 'establishedDate',
           # 8b
           'establishedDate' => {
-            'month' => {
-              key: "F[0].Page_10[0].Month8b[#{ITERATOR}]"
-            },
-            'day' => {
-              key: "F[0].Page_10[0].Day8b[#{ITERATOR}]"
-            },
-            'year' => {
-              key: "F[0].Page_10[0].Year8b[#{ITERATOR}]"
-            }
+            'month' => { key: "F[0].Page_10[0].Month8b[#{ITERATOR}]" },
+            'day' => { key: "F[0].Page_10[0].Day8b[#{ITERATOR}]" },
+            'year' => { key: "F[0].Page_10[0].Year8b[#{ITERATOR}]" }
           },
           'establishedDateOverflow' => {
             question_num: 8,
@@ -467,18 +459,10 @@ module PdfFill
           },
           # 8c
           'marketValueAtEstablishment' => {
-            'millions' => {
-              key: "F[0].Page_10[0].MarketValue1_8c[#{ITERATOR}]"
-            },
-            'thousands' => {
-              key: "F[0].Page_10[0].MarketValue2_8c[#{ITERATOR}]"
-            },
-            'dollars' => {
-              key: "F[0].Page_10[0].MarketValue3_8c[#{ITERATOR}]"
-            },
-            'cents' => {
-              key: "F[0].Page_10[0].MarketValue4_8c[#{ITERATOR}]"
-            }
+            'millions' => { key: "F[0].Page_10[0].MarketValue1_8c[#{ITERATOR}]" },
+            'thousands' => { key: "F[0].Page_10[0].MarketValue2_8c[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].Page_10[0].MarketValue3_8c[#{ITERATOR}]" },
+            'cents' => { key: "F[0].Page_10[0].MarketValue4_8c[#{ITERATOR}]" }
           },
           'marketValueAtEstablishmentOverflow' => {
             question_num: 8,
@@ -486,18 +470,14 @@ module PdfFill
             question_text: 'SPECIFY MARKET VALUE OF ALL ASSETS WITHIN THE TRUST AT TIME OF ESTABLISHEMENT'
           },
           # 8d
-          'trustType' => {
-            key: "F[0].Page_10[0].TypeOfTrust8d[#{ITERATOR}]"
-          },
+          'trustType' => { key: "F[0].Page_10[0].TypeOfTrust8d[#{ITERATOR}]" },
           'trustTypeOverflow' => {
             question_num: 8,
             question_suffix: '(d)',
             question_text: 'SPECIFY TYPE OF TRUST ESTABLISHED'
           },
           # 8e
-          'addedFundsAfterEstablishment' => {
-            key: "F[0].Page_10[0].AddedAdditionalFunds8e[#{ITERATOR}]"
-          },
+          'addedFundsAfterEstablishment' => { key: "F[0].Page_10[0].AddedAdditionalFunds8e[#{ITERATOR}]" },
           'addedFundsAfterEstablishmentOverflow' => {
             question_num: 8,
             question_suffix: '(e)',
@@ -505,15 +485,9 @@ module PdfFill
           },
           # 8f
           'addedFundsDate' => {
-            'month' => {
-              key: "F[0].Page_10[0].Transfer8fMonth[#{ITERATOR}]"
-            },
-            'day' => {
-              key: "F[0].Page_10[0].Transfer8fDay[#{ITERATOR}]"
-            },
-            'year' => {
-              key: "F[0].Page_10[0].Transfer8fYear[#{ITERATOR}]"
-            }
+            'month' => { key: "F[0].Page_10[0].Transfer8fMonth[#{ITERATOR}]" },
+            'day' => { key: "F[0].Page_10[0].Transfer8fDay[#{ITERATOR}]" },
+            'year' => { key: "F[0].Page_10[0].Transfer8fYear[#{ITERATOR}]" }
           },
           'addedFundsDateOverflow' => {
             question_num: 8,
@@ -522,15 +496,9 @@ module PdfFill
           },
           # 8g
           'addedFundsAmount' => {
-            'thousands' => {
-              key: "F[0].Page_10[0].HowMuchTransferred1_8g[#{ITERATOR}]"
-            },
-            'dollars' => {
-              key: "F[0].Page_10[0].HowMuchTransferred2_8g[#{ITERATOR}]"
-            },
-            'cents' => {
-              key: "F[0].Page_10[0].HowMuchTransferred3_8g[#{ITERATOR}]"
-            }
+            'thousands' => { key: "F[0].Page_10[0].HowMuchTransferred1_8g[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].Page_10[0].HowMuchTransferred2_8g[#{ITERATOR}]" },
+            'cents' => { key: "F[0].Page_10[0].HowMuchTransferred3_8g[#{ITERATOR}]" }
           },
           'addedFundsAmountOverflow' => {
             question_num: 8,
@@ -538,9 +506,7 @@ module PdfFill
             question_text: 'HOW MUCH DID YOU ADD?'
           },
           # 8h
-          'receivingIncomeFromTrust' => {
-            key: "F[0].Page_10[0].ReceivingIncome8h[#{ITERATOR}]"
-          },
+          'receivingIncomeFromTrust' => { key: "F[0].Page_10[0].ReceivingIncome8h[#{ITERATOR}]" },
           'receivingIncomeFromTrustOverflow' => {
             question_num: 8,
             question_suffix: '(h)',
@@ -548,15 +514,9 @@ module PdfFill
           },
           # 8i
           'annualReceivedIncome' => {
-            'thousands' => {
-              key: "F[0].Page_10[0].ReceiveAnnually1_8i[#{ITERATOR}]"
-            },
-            'dollars' => {
-              key: "F[0].Page_10[0].ReceiveAnnually2_8i[#{ITERATOR}]"
-            },
-            'cents' => {
-              key: "F[0].Page_10[0].ReceiveAnnually3_8i[#{ITERATOR}]"
-            }
+            'thousands' => { key: "F[0].Page_10[0].ReceiveAnnually1_8i[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].Page_10[0].ReceiveAnnually2_8i[#{ITERATOR}]" },
+            'cents' => { key: "F[0].Page_10[0].ReceiveAnnually3_8i[#{ITERATOR}]" }
           },
           'annualReceivedIncomeOverflow' => {
             question_num: 8,
@@ -564,9 +524,7 @@ module PdfFill
             question_text: 'HOW MUCH DO YOU RECEIVE ANNUALLY?'
           },
           # 8j
-          'trustUsedForMedicalExpenses' => {
-            key: "F[0].Page_10[0].TrustUsedToPay8j[#{ITERATOR}]"
-          },
+          'trustUsedForMedicalExpenses' => { key: "F[0].Page_10[0].TrustUsedToPay8j[#{ITERATOR}]" },
           'trustUsedForMedicalExpensesOverflow' => {
             question_num: 8,
             question_suffix: '(j)',
@@ -574,15 +532,9 @@ module PdfFill
           },
           # 8k
           'monthlyMedicalReimbursementAmount' => {
-            'thousands' => {
-              key: "F[0].Page_10[0].ReimbursedMonthly1_8k[#{ITERATOR}]"
-            },
-            'dollars' => {
-              key: "F[0].Page_10[0].ReimbursedMonthly2_8k[#{ITERATOR}]"
-            },
-            'cents' => {
-              key: "F[0].Page_10[0].ReimbursedMonthly3_8k[#{ITERATOR}]"
-            }
+            'thousands' => { key: "F[0].Page_10[0].ReimbursedMonthly1_8k[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].Page_10[0].ReimbursedMonthly2_8k[#{ITERATOR}]" },
+            'cents' => { key: "F[0].Page_10[0].ReimbursedMonthly3_8k[#{ITERATOR}]" }
           },
           'monthlyMedicalReimbursementAmountOverflow' => {
             question_num: 8,
@@ -590,18 +542,14 @@ module PdfFill
             question_text: 'HOW MUCH IS BEING REIMBURSED MONTHLY?'
           },
           # 8l
-          'trustEstablishedForVeteransChild' => {
-            key: "F[0].Page_10[0].EstablishedForChild8l[#{ITERATOR}]"
-          },
+          'trustEstablishedForVeteransChild' => { key: "F[0].Page_10[0].EstablishedForChild8l[#{ITERATOR}]" },
           'trustEstablishedForVeteransChildOverflow' => {
             question_num: 8,
             question_suffix: '(l)',
             question_text: 'WAS THE TRUST ESTABLISHED FOR A CHILD OF THE VETERAN WHO WAS INCAPABLE OF SELF-SUPPORT PRIOR TO REACHING AGE 18?' # rubocop:disable Layout/LineLength
           },
           # 8m
-          'haveAuthorityOrControlOfTrust' => {
-            key: "F[0].Page_10[0].AdditionalAuthority8m[#{ITERATOR}]"
-          },
+          'haveAuthorityOrControlOfTrust' => { key: "F[0].Page_10[0].AdditionalAuthority8m[#{ITERATOR}]" },
           'haveAuthorityOrControlOfTrustOverflow' => {
             question_num: 8,
             question_suffix: '(m)',
