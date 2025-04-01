@@ -1,39 +1,39 @@
 ---
 http_interactions:
-- request:
-    method: get
-    uri: <MHV_MR_HOST>/mhvapi/v1/usermgmt/usereligibility/isValidSMUser
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      X-Api-Key:
-      - "<MHV_X_API_KEY>"
-      Apptoken:
-      - "<APP_TOKEN>"
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 400
-      message: ''
-    headers:
-      Date:
-      - Thu, 26 Sep 2024 15:46:29 GMT
-      Content-Type:
-      - application/json
-      Transfer-Encoding:
-      - chunked
-      Strict-Transport-Security:
-      - max-age=16000000; includeSubDomains; preload;
-    body:
-      encoding: UTF-8
-      string: '{"errorCode":405,"developerMessage":"","message":"Not MHV Premium account"}'
-  recorded_at: Thu, 26 Sep 2024 15:46:29 GMT
+  - request:
+      method: get
+      uri: <MHV_MR_HOST>/v1/usermgmt/usereligibility/isValidSMUser
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        X-Api-Key:
+          - "<MHV_X_API_KEY>"
+        Apptoken:
+          - "<APP_TOKEN>"
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 400
+        message: ""
+      headers:
+        Date:
+          - Thu, 26 Sep 2024 15:46:29 GMT
+        Content-Type:
+          - application/json
+        Transfer-Encoding:
+          - chunked
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: UTF-8
+        string: '{"errorCode":405,"developerMessage":"","message":"Not MHV Premium account"}'
+    recorded_at: Thu, 26 Sep 2024 15:46:29 GMT
 recorded_with: VCR 6.3.1
