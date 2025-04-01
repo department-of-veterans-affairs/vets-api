@@ -39,7 +39,6 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
 
       formatted_date = DateTime.strptime(appointment_date, '%Y-%m-%d').to_date.strftime('%b %d')
 
-
       expect(notify_client).to receive(:send_sms).with(
         phone_number: mobile_phone,
         template_id:,
@@ -63,24 +62,28 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
         # First attempt - retry_count = 0
         job = described_class.new
 
-        expect(test_logger).to receive(:info).with(hash_including(
-          message: "Sending travel claim notification to 0123, template-id-123"
-        ))
-        expect(test_logger).to receive(:info).with(hash_including(
-          message: "Sending SMS failed, attempt 1 of #{described_class::MAX_RETRIES}"
-        ))
+        expect(test_logger).to receive(:info)
+          .with(hash_including(
+                  message: 'Sending travel claim notification to 0123, template-id-123'
+                ))
+        expect(test_logger).to receive(:info)
+          .with(hash_including(
+                  message: "Sending SMS failed, attempt 1 of #{described_class::MAX_RETRIES}"
+                ))
         expect { job.send_notification(job_opts) }.to raise_error(StandardError)
 
         # Second attempt - retry_count = 1
         job = described_class.new
         allow(job.class).to receive(:sidekiq_options_hash).and_return({ 'retry_count' => 1 })
 
-        expect(test_logger).to receive(:info).with(hash_including(
-          message: "Sending travel claim notification to 0123, template-id-123"
-        ))
-        expect(test_logger).to receive(:info).with(hash_including(
-          message: "Sending SMS failed, attempt 2 of #{described_class::MAX_RETRIES}"
-        ))
+        expect(test_logger).to receive(:info)
+          .with(hash_including(
+                  message: 'Sending travel claim notification to 0123, template-id-123'
+                ))
+        expect(test_logger).to receive(:info)
+          .with(hash_including(
+                  message: "Sending SMS failed, attempt 2 of #{described_class::MAX_RETRIES}"
+                ))
         expect { job.send_notification(job_opts) }.to raise_error(StandardError)
       end
     end
@@ -105,7 +108,7 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
           hash_including(
             phone_number: '0123',
             template_id: CheckIn::Constants::OH_FAILURE_TEMPLATE_ID,
-            claim_number: claim_number
+            claim_number:
           ),
           hash_including(error: :check_in_va_notify_job, team: 'check-in')
         )
