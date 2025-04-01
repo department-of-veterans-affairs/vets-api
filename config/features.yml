@@ -210,9 +210,6 @@ features:
   champva_log_all_s3_uploads:
     actor_type: user
     description: Enables logging for all s3 uploads using UUID or keys for monitoring
-  champva_require_all_s3_success:
-    actor_type: user
-    description: Enables raising a StandardError if any supporting documents fail to upload to S3 in IVC CHAMPVA forms.
   champva_send_to_ves:
     actor_type: user
     description: Enables sending form submission data to the VES API.
@@ -1089,6 +1086,10 @@ features:
   mhv_medical_records_display_vitals:
     actor_type: user
     description: Show/hide content related to Vitals in Medical Records
+    enable_in_development: true
+  mhv_medical_records_migrate_to_api_gateway:
+    actor_type: user
+    description: Enables the switch to the new MHV API Gateway endpoints
     enable_in_development: true
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
