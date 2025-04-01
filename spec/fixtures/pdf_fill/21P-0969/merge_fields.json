@@ -344,6 +344,22 @@
       "capitalGainValueOverflow": 200.99
     }
   ],
+  "trusts": [
+    {
+      "addedFundsDate":"1985-02-01",
+      "addedFundsAmount":199.99,
+      "addedFundsAfterEstablishment":true,
+      "haveAuthorityOrControlOfTrust":true,
+      "trustEstablishedForVeteransChild":true,
+      "trustUsedForMedicalExpenses":true,
+      "monthlyMedicalReimbursementAmount":12345.67,
+      "receivingIncomeFromTrust":true,
+      "annualReceivedIncome":200,
+      "trustType":"REVOCABLE",
+      "establishedDate":"1982-02-02",
+      "marketValueAtEstablishment":9000000
+    }
+  ],
   "unassociatedIncome": "YES",
   "associatedIncome": 0,
   "ownedAsset": 0,
