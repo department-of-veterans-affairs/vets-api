@@ -17,7 +17,8 @@ module HCA
       )
     end
 
-    def perform(user_identifier, encrypted_form, health_care_application_id, google_analytics_client_id, succeed = true)
+    def perform(_user_identifier, encrypted_form, health_care_application_id, _google_analytics_client_id,
+                succeed: true)
       # super
       @health_care_application = HealthCareApplication.find(health_care_application_id)
 

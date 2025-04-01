@@ -820,7 +820,7 @@ RSpec.describe HealthCareApplication, type: :model do
       }
     end
 
-    before do 
+    before do
       allow_any_instance_of(MPI::Service).to receive(
         :find_profile_by_attributes
       ).and_return(

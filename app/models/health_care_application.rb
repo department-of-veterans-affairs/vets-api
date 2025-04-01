@@ -90,12 +90,9 @@ class HealthCareApplication < ApplicationRecord
     rescue Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
 
-      HCA::EventBusSubmissionJob.perform_async(
-        # replace with prod topic name
-        'submission_trace_mock_dev',
-        build_event_payload('error')
-      )
-  
+      # replace with prod topic name
+      HCA::EventBusSubmissionJob.perform_async('submission_trace_mock_dev', build_event_payload('error'))
+
       raise Common::Exceptions::BackendServiceException.new(
         nil, detail: e.message
       )
@@ -251,7 +248,7 @@ class HealthCareApplication < ApplicationRecord
       user_icn = user&.icn || self.class.user_icn(self.class.user_attributes(parsed_form))
       # local testing
       # user_icn = user&.icn || '12345678'
-      rescue Common::Exceptions::ValidationErrors => e
+    rescue Common::Exceptions::ValidationErrors
       # if certain user attributes are missing, we can't get an ICN
       user_icn = ''
     end
