@@ -1116,7 +1116,6 @@ rakelib/in_progress_forms.rake @department-of-veterans-affairs/vfs-authenticated
 rakelib/lint.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/load_test.rake @department-of-veterans-affairs/octo-identity @department-of-veterans-affairs/mobile-api-team
 rakelib/lockbox_migration.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-rakelib/login.rake @department-of-veterans-affairs/octo-identity
 rakelib/migrate_old_async_transaction_data.rake @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/mockdata_synchronize.rake @department-of-veterans-affairs/octo-identity
 rakelib/piilog_repl @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
