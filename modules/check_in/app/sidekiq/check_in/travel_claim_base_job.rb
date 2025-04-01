@@ -45,11 +45,12 @@ module CheckIn
                                  Constants::CIE_ERROR_TEMPLATE_ID, Constants::OH_ERROR_TEMPLATE_ID,
                                  Constants::OH_FAILURE_TEMPLATE_ID, Constants::OH_TIMEOUT_TEMPLATE_ID].freeze
 
-
     def send_notification(opts = {})
       log_sending_travel_claim_notification(opts)
       retry_attempt = 0
-      retry_attempt = self.class.sidekiq_options_hash['retry_count'].to_i if self.class.sidekiq_options_hash['retry_count']
+      if self.class.sidekiq_options_hash['retry_count']
+        retry_attempt = self.class.sidekiq_options_hash['retry_count'].to_i
+      end
       attempt_number = retry_attempt + 1
 
       begin
