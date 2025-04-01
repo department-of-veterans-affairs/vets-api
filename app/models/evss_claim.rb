@@ -9,11 +9,13 @@ class EVSSClaim < ApplicationRecord
 
   def self.for_user(user)
     return EVSSClaim.none unless user&.user_account
+
     where(user_account: user.user_account)
   end
 
   def self.claim_for_user_account(user_account)
     return EVSSClaim.none if user_account.nil?
+
     where(user_account:)
   end
 end

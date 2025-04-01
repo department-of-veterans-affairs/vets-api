@@ -15,8 +15,8 @@ RSpec.describe EVSSClaim, type: :model do
     context 'when user has a user_account' do
       it 'returns claims associated with the user account' do
         user_account = create(:user_account)
-        create(:user_verification, idme_uuid: user.idme_uuid, user_account: user_account)
-        claim = create(:evss_claim, user_uuid: user.uuid, user_account: user_account)
+        create(:user_verification, idme_uuid: user.idme_uuid, user_account:)
+        claim = create(:evss_claim, user_uuid: user.uuid, user_account:)
         other_claim = create(:evss_claim, :with_user_account)
 
         expect(EVSSClaim.for_user(user)).to include(claim)
