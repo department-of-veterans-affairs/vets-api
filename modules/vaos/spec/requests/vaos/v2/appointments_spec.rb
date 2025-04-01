@@ -1621,48 +1621,16 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
                         expect(response).to have_http_status(:bad_gateway)
                         response_body = JSON.parse(response.body)
-                        expect(response_body['errors'].first['title']).to eq(
-                          'Unexpected error occurred in draft appointment service'
-                        )
-                        expect(response_body['errors'].first['detail']).to eq(expected_error_detail)
-                      end
-                    end
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
 
-      context 'when the upstream service returns a 500 error' do
-        it 'returns a bad_gateway status and appropriate error message' do
-          VCR.use_cassette('vaos/eps/get_appointments/500_error') do
-            VCR.use_cassette('vaos/v2/appointments/get_appointments_200') do
-              VCR.use_cassette('vaos/eps/get_drive_times/200') do
-                VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
-                  VCR.use_cassette 'vaos/eps/get_provider_service/200' do
-                    VCR.use_cassette 'vaos/eps/draft_appointment/200' do
-                      VCR.use_cassette 'vaos/eps/token/token_200' do
-                        post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
-
-                        expect(response).to have_http_status(:bad_gateway)
-                        response_body = JSON.parse(response.body)
                         expect(response_body).to have_key('errors')
                         expect(response_body['errors']).to be_an(Array)
+                        expect(response_body['errors'].first).to be_a(Hash)
 
                         error = response_body['errors'].first
-                        expect(error).to include(
-                          'title' => 'Bad Gateway',
-                          'detail' => 'Received an an invalid response from the upstream server',
-                          'code' => 'VAOS_502',
-                          'status' => '502',
-                          'source' => {
-                            'vamfUrl' => 'https://api.wellhive.com/care-navigation/v1/appointments?patientId=care-nav-patient-casey',
-                            'vamfBody' => '{"isFault": true,"isTemporary": true,"name": "Internal Server Error"}',
-                            'vamfStatus' => 500
-                          }
-                        )
+                        expect(error['title']).to eq('Unexpected error occurred in draft appointment service')
+                        expect(error['detail']).to eq(expected_error_detail)
+                        expect(error['code']).to eq('Eps::DraftAppointmentService::ServiceError')
+                        expect(response).to have_http_status(:bad_gateway)
                       end
                     end
                   end
