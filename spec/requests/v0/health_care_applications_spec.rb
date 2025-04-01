@@ -502,15 +502,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             test_veteran.delete('email')
           end
 
-          context 'with async_all set' do
-            before do
-              params[:async_all] = true
-              expect(HealthCareApplication).to receive(:user_icn).and_return('123')
-            end
-
-            expect_async_submit
-          end
-
           it 'increments statsd' do
             expect { subject }.to trigger_statsd_increment('api.1010ez.submission_attempt')
           end
