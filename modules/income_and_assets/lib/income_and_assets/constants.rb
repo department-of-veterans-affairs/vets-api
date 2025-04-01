@@ -48,10 +48,6 @@ module IncomeAndAssets
       'OTHER' => 4
     }.freeze
 
-    TRUST_TYPES = {
-      'REVOCABLE' => 0,
-      'IRREVOCABLE' => 1,
-      'BURIAL' => 2
-    }.freeze
+    TRUST_TYPES = { 'REVOCABLE' => 0, 'IRREVOCABLE' => 1, 'BURIAL' => 2 }.freeze
   end
 end

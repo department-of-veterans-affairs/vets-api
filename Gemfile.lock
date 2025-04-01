@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: c0f2a9bcf5f6eefd2182732732b1d6e17473db3d
+  revision: 897ad81be907fa6bd3d997f20ff1e0a912d436cd
   branch: master
   specs:
-    vets_json_schema (24.12.0)
+    vets_json_schema (24.12.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -293,7 +293,7 @@ GEM
     bundler-audit (0.9.2)
       bundler (>= 1.2.0, < 3)
       thor (~> 1.0)
-    byebug (11.1.3)
+    byebug (12.0.0)
     carrierwave (3.1.1)
       activemodel (>= 6.0.0)
       activesupport (>= 6.0.0)
@@ -681,7 +681,7 @@ GEM
     marcel (1.0.4)
     matrix (0.4.2)
     memoist (0.16.2)
-    method_source (1.0.0)
+    method_source (1.1.0)
     mime-types (3.6.0)
       logger
       mime-types-data (~> 3.2015)
@@ -809,16 +809,16 @@ GEM
       prawn (>= 1.3.0, < 3.0.0)
     prettyprint (0.2.0)
     prism (1.4.0)
-    pry (0.14.2)
+    pry (0.15.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    pry (0.14.2-java)
+    pry (0.15.2-java)
       coderay (~> 1.1)
       method_source (~> 1.0)
       spoon (~> 0.0)
-    pry-byebug (3.10.1)
-      byebug (~> 11.0)
-      pry (>= 0.13, < 0.15)
+    pry-byebug (3.11.0)
+      byebug (~> 12.0)
+      pry (>= 0.13, < 0.16)
     pstore (0.1.3)
     psych (5.2.3)
       date
