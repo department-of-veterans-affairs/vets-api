@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe Eps::DraftAppointmentService::ServiceError do
-  subject { described_class.new(message, status: status, detail: detail) }
+  subject { described_class.new(message, status:, detail:) }
 
   let(:message) { 'Error message' }
   let(:status) { :bad_gateway }

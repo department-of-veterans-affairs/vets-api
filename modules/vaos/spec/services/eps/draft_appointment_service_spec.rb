@@ -14,7 +14,7 @@ describe Eps::DraftAppointmentService do
   let(:pagination_params) { { page: 1, per_page: 10 } }
   let(:referral_data) do
     {
-      provider_id: provider_id,
+      provider_id:,
       appointment_type_id: 'ov',
       start_date: '2025-01-01T00:00:00Z',
       end_date: '2025-01-03T00:00:00Z'
@@ -31,7 +31,8 @@ describe Eps::DraftAppointmentService do
     redis_client = instance_double(Eps::RedisClient)
     allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
     allow(redis_client).to receive(:fetch_referral_attributes).and_return(referral_data)
-    allow(appointments_service).to receive(:referral_appointment_already_exists?).and_return(exists: false, error: false)
+    allow(appointments_service).to receive(:referral_appointment_already_exists?).and_return(exists: false,
+                                                                                             error: false)
   end
 
   describe '#call' do
@@ -64,9 +65,8 @@ describe Eps::DraftAppointmentService do
     before do
       # Mock successful service calls
       allow(eps_appointment_service).to receive(:create_draft_appointment).and_return(draft_appointment)
-      allow(eps_provider_service).to receive(:get_provider_service).and_return(provider)
-      allow(eps_provider_service).to receive(:get_provider_slots).and_return(slots)
-      allow(eps_provider_service).to receive(:get_drive_times).and_return(drive_time)
+      allow(eps_provider_service).to receive_messages(get_provider_service: provider, get_provider_slots: slots,
+                                                      get_drive_times: drive_time)
       allow(user).to receive(:vet360_contact_info).and_return(
         OpenStruct.new(residential_address: OpenStruct.new(latitude: 40.7128, longitude: -74.006))
       )
@@ -120,7 +120,9 @@ describe Eps::DraftAppointmentService do
 
         expect(result[:status]).to eq(:unprocessable_entity)
         expect(result[:json][:errors].first[:title]).to eq('Invalid referral data')
-        expect(result[:json][:errors].first[:detail]).to eq('Required referral data is missing or incomplete: all required attributes')
+        expect(result[:json][:errors].first[:detail]).to eq(
+          'Required referral data is missing or incomplete: all required attributes'
+        )
         expect(result[:json][:errors].first[:code]).to eq('Eps::DraftAppointmentService::ServiceError')
       end
     end
@@ -154,7 +156,9 @@ describe Eps::DraftAppointmentService do
 
         expect(result[:status]).to eq(:unprocessable_entity)
         expect(result[:json][:errors].first[:title]).to eq('Referral is already used for an existing appointment')
-        expect(result[:json][:errors].first[:detail]).to eq("Referral #{referral_id} is already associated with an existing appointment")
+        expect(result[:json][:errors].first[:detail]).to eq(
+          "Referral #{referral_id} is already associated with an existing appointment"
+        )
         expect(result[:json][:errors].first[:code]).to eq('Eps::DraftAppointmentService::ServiceError')
       end
     end
