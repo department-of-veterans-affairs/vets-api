@@ -16,8 +16,7 @@ describe IvcChampva::VesDataFormatter do
         vaFileNumber: '',
         dateOfBirth: '1999-01-01',
         dateOfMarriage: '',
-        isDeceased: true,
-        dateOfDeath: '1999-01-01',
+        isDeceased: false,
         isDeathOnActiveService: false,
         address: {
           streetAddress: '123 Certifier Street ',
@@ -74,10 +73,17 @@ describe IvcChampva::VesDataFormatter do
           'state' => 'AL',
           'postal_code' => '12312'
         },
-        'sponsor_is_deceased' => true,
-        'date_of_death' => '1999-01-01',
+        'sponsor_is_deceased' => false,
+        'is_active_service_death' => false,
         'date_of_marriage' => '',
-        'is_active_service_death' => false
+        'sponsor_address' => {
+          'country' => 'USA',
+          'street' => '456 Circle Street',
+          'city' => 'Clinton',
+          'state' => 'AS',
+          'postal_code' => '56790',
+          'street_combined' => '456 Circle Street '
+        }
       },
       'applicants' => [
         {
@@ -128,7 +134,7 @@ describe IvcChampva::VesDataFormatter do
 
   describe 'data is valid' do
     it 'returns unmodified data' do
-      validated_data = IvcChampva::VesDataFormatter.format(parsed_form_data)
+      validated_data = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
 
       expect(validated_data.to_json).to eq(@request_body)
     end
@@ -156,7 +162,7 @@ describe IvcChampva::VesDataFormatter do
         @parsed_form_data_copy['veteran']['full_name']['first'] = '2Jöhn~! - Jo/hn?\\'
         expected_sponsor_name = 'John - Jo/hn'
 
-        ves_request = IvcChampva::VesDataFormatter.format(@parsed_form_data_copy).to_json
+        ves_request = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy).to_json
 
         expect(ves_request[:sponsor][:firstName]).to eq expected_sponsor_name
       end
@@ -169,7 +175,7 @@ describe IvcChampva::VesDataFormatter do
         @parsed_form_data_copy['veteran']['full_name']['last'] = '2Jöhnşon~!\\'
         expected_sponsor_name = 'Johnson'
 
-        ves_request = IvcChampva::VesDataFormatter.format(@parsed_form_data_copy).to_json
+        ves_request = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy).to_json
 
         expect(ves_request[:sponsor][:lastName]).to eq expected_sponsor_name
       end
@@ -181,7 +187,7 @@ describe IvcChampva::VesDataFormatter do
       @parsed_form_data_copy['veteran']['address'] = nil
 
       expect do
-        IvcChampva::VesDataFormatter.format(@parsed_form_data_copy)
+        IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
       end.to raise_error(ArgumentError, 'sponsor address is missing')
     end
 
@@ -195,7 +201,7 @@ describe IvcChampva::VesDataFormatter do
       }
 
       expect do
-        IvcChampva::VesDataFormatter.format(@parsed_form_data_copy)
+        IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
       end.to raise_error(ArgumentError, 'sponsor city is an empty string')
     end
 
@@ -208,19 +214,29 @@ describe IvcChampva::VesDataFormatter do
       }
 
       expect do
-        IvcChampva::VesDataFormatter.format(@parsed_form_data_copy)
+        IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
       end.to raise_error(ArgumentError, 'sponsor state is missing')
+    end
+
+    it 'adds a default address when sponsor is deceased' do
+      @parsed_form_data_copy['veteran']['address'] = nil
+      @parsed_form_data_copy['veteran']['is_deceased'] = true
+
+      res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+      expect(res.sponsor.address.street_address).to eq('NA')
+      expect(res.sponsor.address.state).to eq('NA')
+      expect(res.sponsor.address.city).to eq('NA')
+      expect(res.sponsor.address.zip_code).to eq('NA')
     end
   end
 
   describe 'sponsor date of birth' do
-    it 'raises an error when not formatted as YYYY-MM-DD' do
-      # Drop the address prop from sponsor
+    it 'when formatted as MM-DD-YYYY, it reformats to YYYY-MM-DD' do
       @parsed_form_data_copy['veteran']['date_of_birth'] = '01-01-2020'
 
-      expect do
-        IvcChampva::VesDataFormatter.format(@parsed_form_data_copy)
-      end.to raise_error(ArgumentError, 'date of birth is invalid. Must match YYYY-MM-DD')
+      res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+
+      expect(res.sponsor.date_of_birth).to eq('2020-01-01')
     end
   end
 
@@ -230,7 +246,7 @@ describe IvcChampva::VesDataFormatter do
         @parsed_form_data_copy['veteran']['ssn_or_tin'] = '1234567890'
 
         expect do
-          IvcChampva::VesDataFormatter.format(@parsed_form_data_copy)
+          IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
         end.to raise_error(ArgumentError, 'ssn is invalid. Must be 9 digits (see regex for more detail)')
       end
     end
@@ -253,7 +269,7 @@ describe IvcChampva::VesDataFormatter do
       @parsed_form_data_copy['applicants'][0]['vet_relationship'] = 'INVALID'
 
       expect do
-        IvcChampva::VesDataFormatter.format(@parsed_form_data_copy)
+        IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
       end.to raise_error(ArgumentError,
                          "Relationship INVALID is invalid. Must be in #{possible_values}")
     end
@@ -265,7 +281,7 @@ describe IvcChampva::VesDataFormatter do
       @parsed_form_data_copy['applicants'][0]['childtype']['relationship_to_veteran'] = 'INVALID'
 
       expect do
-        IvcChampva::VesDataFormatter.format(@parsed_form_data_copy)
+        IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
       end.to raise_error(ArgumentError,
                          "beneficiary childtype is invalid. Must be in #{possible_values}")
     end
@@ -277,7 +293,7 @@ describe IvcChampva::VesDataFormatter do
       @parsed_form_data_copy['applicants'][0]['applicant_gender']['gender'] = 'INVALID'
 
       expect do
-        IvcChampva::VesDataFormatter.format(@parsed_form_data_copy)
+        IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
       end.to raise_error(ArgumentError,
                          "beneficiary gender is invalid. Must be in #{possible_values}")
     end

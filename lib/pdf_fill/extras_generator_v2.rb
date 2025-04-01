@@ -11,10 +11,17 @@ module PdfFill
       @submit_date = format_date(submit_date)
       @start_page = start_page
       @sections = sections
+      @questions = {}
     end
 
-    def create_block(value, metadata)
-      lambda do |pdf|
+    def render_question(pdf, question)
+      sorted_subquestions = question[:subquestions].sort_by do |subq|
+        metadata = subq[:metadata]
+        [metadata[:i] || 99_999, metadata[:question_suffix] || '', metadata[:question_text] || '']
+      end
+      sorted_subquestions.each do |subq|
+        value = subq[:value]
+        metadata = subq[:metadata]
         pdf.move_down(10)
         prefix = metadata[:question_num].to_s
         prefix += metadata[:question_suffix] if metadata[:question_suffix].present?
@@ -22,41 +29,36 @@ module PdfFill
         i = metadata[:i]
         prefix += " Line #{i + 1}" if i.present?
 
-        pdf.text("#{prefix}:", { style: :normal })
-        pdf.text(value.to_s, { style: :bold })
+        pdf.markup("<h4>#{prefix}:</h4>")
+        formatted_value = value.gsub("\n", '<br/>')
+        pdf.markup("<b>#{formatted_value}</b>")
       end
     end
 
+    def set_font(pdf)
+      register_source_sans_font(pdf)
+      pdf.font('SourceSansPro')
+      set_markup_options(pdf)
+    end
+
     def add_text(value, metadata)
-      @generate_blocks << {
-        metadata:,
-        block: create_block(value, metadata)
-      }
+      question_num = metadata[:question_num]
+      question = (@questions[question_num] ||= { subquestions: [], overflow: false })
+      question[:subquestions] << { value:, metadata: }
+      question[:overflow] ||= metadata.fetch(:overflow, true)
     end
 
     def populate_section_indices!
       return if @sections.blank?
 
-      @generate_blocks.each do |generate_block|
-        metadata = generate_block[:metadata]
-        if metadata[:top_level_key].present?
-          metadata[:section_index] = @sections.index { |sec| sec[:top_level_keys].include?(metadata[:top_level_key]) }
-        end
+      @questions.each do |num, question|
+        question[:section_index] = @sections.index { |sec| sec[:question_nums].include?(num) }
       end
     end
 
     def sort_generate_blocks
       populate_section_indices!
-      @generate_blocks.sort_by do |generate_block|
-        metadata = generate_block[:metadata]
-        [
-          metadata[:section_index] || -1,
-          metadata[:question_num] || -1,
-          metadata[:i] || 99_999,
-          metadata[:question_suffix] || '',
-          metadata[:question_text] || ''
-        ]
-      end
+      @questions.keys.sort.map { |qnum| @questions[qnum] }.filter { |question| question[:overflow] }
     end
 
     def render_pdf_content(pdf, generate_blocks)
@@ -70,12 +72,12 @@ module PdfFill
         height: pdf.bounds.height - box_height
       ) do
         generate_blocks.each do |block|
-          section_index = block[:metadata][:section_index]
+          section_index = block[:section_index]
           if section_index.present? && section_index != current_section_index
             render_new_section(pdf, section_index)
             current_section_index = section_index
           end
-          block[:block].call(pdf)
+          render_question(pdf, block)
         end
       end
       add_page_numbers(pdf)
@@ -84,8 +86,7 @@ module PdfFill
     def render_new_section(pdf, section_index)
       return if @sections.blank?
 
-      pdf.move_down(20)
-      pdf.text(@sections[section_index][:label], { size: 14 })
+      pdf.markup("<h2>#{@sections[section_index][:label]}</h2>")
     end
 
     def set_header(pdf)
@@ -110,21 +111,16 @@ module PdfFill
     end
 
     def write_header_main(pdf, location, bound_width, bound_height)
-      pdf.bounding_box(location, width: bound_width, height: bound_height) do
-        pdf.text("<b>ATTACHMENT</b> to VA Form #{@form_name}",
-                 align: :left,
-                 valign: :bottom,
-                 size: bound_height,
-                 inline_format: true)
+      pdf.bounding_box(location, width: bound_width) do
+        pdf.markup("<b>ATTACHMENT</b> to VA Form #{@form_name}",
+                   text: { align: :left, size: bound_height })
       end
     end
 
-    def write_header_submit_date(pdf, location, bound_width, bound_height)
-      pdf.bounding_box(location, width: bound_width, height: bound_height) do
-        pdf.text("Submitted on VA.gov on #{@submit_date}",
-                 align: :right,
-                 valign: :bottom,
-                 size: SUBHEADER_FONT_SIZE)
+    def write_header_submit_date(pdf, location, bound_width, _bound_height)
+      pdf.bounding_box(location, width: bound_width) do
+        pdf.markup("Submitted on VA.gov on #{@submit_date}",
+                   text: { align: :right, size: SUBHEADER_FONT_SIZE })
       end
     end
 
@@ -139,6 +135,32 @@ module PdfFill
     rescue
       Rails.logger.error("Error formatting submit date for PdfFill: #{date}")
       nil
+    end
+
+    def register_source_sans_font(pdf)
+      pdf.font_families.update(
+        'SourceSansPro' => {
+          normal: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-Regular.ttf'),
+          bold: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-Bold.ttf'),
+          italic: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-It.ttf')
+        }
+      )
+    end
+
+    def set_markup_options(pdf)
+      pdf.markup_options = {
+        heading2: { style: :normal, size: 13 },
+        heading3: { style: :bold, size: 10.5 },
+        heading4: { style: :normal, size: 10.5 },
+        table: {
+          cell: {
+            border_width: 0,
+            padding: [2, 0, 2, 0]
+          }
+        },
+        list: { bullet: { char: '✓', margin: 0 }, content: { margin: 4 }, vertical_margin: 0 },
+        text: { leading: 1 }
+      }
     end
   end
 end

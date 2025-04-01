@@ -510,6 +510,17 @@ forms_api_benefits_intake:
   url: <%= ENV['forms_api_benefits_intake__url'] %>
 fsr:
   prefill: true
+gclaws:
+  accreditation:
+    agents:
+      url: <%= ENV['gclaws__accreditation__agents__url'] %>
+    api_key: <%= ENV['gclaws__accreditation__api_key'] %>
+    attorneys:
+      url: <%= ENV['gclaws__accreditation__attorneys__url'] %>
+    representatives:
+      url: <%= ENV['gclaws__accreditation__representatives__url'] %>
+    veteran_service_organizations:
+      url: <%= ENV['gclaws__accreditation__veteran_service_organizations__url'] %>
 genisis:
   base_url: <%= ENV['genisis__base_url'] %>
   form_submission_path: "/formdata"
@@ -951,9 +962,13 @@ mhv:
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     app_token_va_gov: <%= ENV['mhv__rx__app_token_va_gov'] %>
+    base_path: <%= ENV['mhv__rx__base_path'] %>
     collection_caching_enabled: <%= ENV['mhv__rx__collection_caching_enabled'] %>
+    gw_base_path: <%= ENV['mhv__rx__gw_base_path'] %>
     host: <%= ENV['mhv__rx__host'] %>
     mock: <%= ENV['mhv__rx__mock'] %>
+    use_new_api: <%= ENV['mhv__rx__use_new_api'] %>
+    x_api_key: <%= ENV['mhv__rx__x_api_key'] %>
   sm:
     app_token: <%= ENV['mhv__sm__app_token'] %>
     host: <%= ENV['mhv__sm__host'] %>
@@ -970,6 +985,7 @@ mhv:
 mhv_mobile:
   sm:
     app_token: <%= ENV['mhv_mobile__sm__app_token'] %>
+  x_api_key: <%= ENV['mhv_mobile__x_api_key'] %>
 mobile_lighthouse:
   client_id: <%= ENV['mobile_lighthouse__client_id'] %>
   rsa_key: <%= ENV['mobile_lighthouse__rsa_key'] %>
@@ -1409,6 +1425,7 @@ vanotify:
   mock: <%= ENV['vanotify__mock'] %>
   service_callback_tokens:
     1010_health_apps: <%= ENV['vanotify__service_callback_tokens__1010_health_apps'] %>
+    benefits_decision_review: <%= ENV['vanotify__service_callback_tokens__benefits_decision_review'] %>
     benefits_disability: <%= ENV['vanotify__service_callback_tokens__benefits_disability'] %>
     benefits_management_tools: <%= ENV['vanotify__service_callback_tokens__benefits_management_tools'] %>
     ivc_forms: <%= ENV['vanotify__service_callback_tokens__ivc_forms'] %>
@@ -1506,7 +1523,7 @@ vanotify:
         form_10_7959f_2_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_email'] %>
         form_10_7959f_2_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_failure_email'] %>
         pega_team_missing_status_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_missing_status_email'] %>
-        pega_team_zsf_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_zsf_email'] %> 
+        pega_team_zsf_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_zsf_email'] %>
     lighthouse:
       api_key: <%= ENV['vanotify__services__lighthouse__api_key'] %>
       template_id:

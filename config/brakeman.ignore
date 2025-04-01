@@ -3,13 +3,13 @@
     {
       "warning_type": "File Access",
       "warning_code": 16,
-      "fingerprint": "8dacdeb55da8e2167ffd9eb2a9d6197e4cbb1006c47815a3b2f3dc425e1c6cac",
+      "fingerprint": "1ef76ba73e21bddf49f28d09b0d8934549145618c45a53fd6bd306438092b78d",
       "check_name": "FileAccess",
       "message": "Model attribute used in file name",
       "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
-      "line": 48,
+      "line": 56,
       "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "File.read(SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false))",
+      "code": "File.read((if Flipper.enabled?(:caregiver_retry_pdf_fill) then\n  file_name = SecureRandom.uuid\n  with_retries(\"Generate 10-10CG PDF\") do\n   SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\n   end\nelse\n  SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\nend))",
       "render_path": null,
       "location": {
         "type": "method",
@@ -21,30 +21,7 @@
       "cwe_id": [
         22
       ],
-      "note": "Using SecureRandom.uuid to generate file name."
-    },
-    {
-      "warning_type": "File Access",
-      "warning_code": 16,
-      "fingerprint": "9581a04584de4203ef25072dcdc45b28d99ab12c06eae88c44e18330b3c316c3",
-      "check_name": "FileAccess",
-      "message": "Model attribute used in file name",
-      "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
-      "line": 54,
-      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "File.delete(SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false))",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "V0::CaregiversAssistanceClaimsController",
-        "method": "download_pdf"
-      },
-      "user_input": "SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)",
-      "confidence": "Medium",
-      "cwe_id": [
-        22
-      ],
-      "note": "Using SecureRandom.uuid to generate file name."
+      "note": ""
     },
     {
       "warning_type": "SQL Injection",
@@ -53,7 +30,7 @@
       "check_name": "SQL",
       "message": "Possible SQL injection",
       "file": "modules/check_in/app/services/v2/chip/client.rb",
-      "line": 196,
+      "line": 184,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "connection.delete(\"/#{base_path}/actions/deleteFromLorota/#{check_in_session.uuid}\")",
       "render_path": null,
@@ -111,6 +88,29 @@
         502
       ],
       "note": "We are using the cookie serialization default from Rails 4.x"
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "eebfa4680e9b527d7a1b90185802ccaec81184a6270ec9dbdee7eb42c6994410",
+      "check_name": "FileAccess",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
+      "line": 62,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "File.delete((if Flipper.enabled?(:caregiver_retry_pdf_fill) then\n  file_name = SecureRandom.uuid\n  with_retries(\"Generate 10-10CG PDF\") do\n   SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\n   end\nelse\n  SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\nend))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "V0::CaregiversAssistanceClaimsController",
+        "method": "download_pdf"
+      },
+      "user_input": "SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)",
+      "confidence": "Medium",
+      "cwe_id": [
+        22
+      ],
+      "note": ""
     },
     {
       "warning_type": "Mass Assignment",

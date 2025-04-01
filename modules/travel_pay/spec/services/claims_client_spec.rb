@@ -92,6 +92,72 @@ describe TravelPay::ClaimsClient do
       expect(actual_claim_ids).to eq(expected_ids)
     end
 
+    it 'returns response from claims/:id endpoint' do
+      allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
+      @stubs.get('/api/v1.2/claims/uuid1') do
+        [
+          200,
+          {},
+          {
+            'data' =>
+              {
+                'claimId' => 'uuid1',
+                'claimNumber' => 'TC0000000000001',
+                'claimantFirstName' => 'Nolle',
+                'claimantMiddleName' => 'Polite',
+                'claimantLastName' => 'Barakat',
+                'claimStatus' => 'PreApprovedForPayment',
+                'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
+                'facilityName' => 'Cheyenne VA Medical Center',
+                'totalCostRequested' => 20.00,
+                'reimbursementAmount' => 14.52,
+                'createdOn' => '2025-03-12T20:27:14.088Z',
+                'modifiedOn' => '2025-03-12T20:27:14.088Z',
+                'appointment' => {
+                  'id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                  'appointmentSource' => 'API',
+                  'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
+                  'appointmentType' => 'EnvironmentalHealth',
+                  'facilityId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                  'facilityName' => 'Cheyenne VA Medical Center',
+                  'serviceConnectedDisability' => 30,
+                  'appointmentStatus' => 'Complete',
+                  'externalAppointmentId' => '12345',
+                  'associatedClaimId' => 'uuid1',
+                  'associatedClaimNumber' => 'TC0000000000001',
+                  'isCompleted' => true
+                },
+                'expenses' => [
+                  {
+                    'id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                    'expenseType' => 'Mileage',
+                    'name' => '',
+                    'dateIncurred' => '2024-01-01T16:45:34.465Z',
+                    'description' => 'mileage-expense',
+                    'costRequested' => 20.00,
+                    'costSubmitted' => 20.00
+                  }
+                ]
+              }
+          }
+        ]
+      end
+
+      expected_id = 'uuid1'
+
+      client = TravelPay::ClaimsClient.new
+      claims_response = client.get_claim_by_id('veis_token', 'btsss_token', 'uuid1')
+      actual_claim = claims_response.body['data']
+
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:get_by_id'])
+      expect(actual_claim['claimId']).to eq(expected_id)
+      expect(actual_claim['claimStatus']).to eq('PreApprovedForPayment')
+      expect(actual_claim['expenses']).not_to be_empty
+    end
+
     it 'returns response from claims/search endpoint' do
       allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
       @stubs.get('api/v1.2/claims/search-by-appointment-date') do
