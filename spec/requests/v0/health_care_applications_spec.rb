@@ -647,6 +647,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           before do
             Flipper.disable(:va1010_forms_enrollment_system_service_enabled)
             test_veteran.delete('email')
+            allow(HealthCareApplication).to receive(:user_icn).and_return('123')
             allow_any_instance_of(HCA::Service).to receive(:post) do
               raise error
             end
