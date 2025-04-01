@@ -115,7 +115,7 @@ module CheckIn
     end
 
     def log_send_sms_failure(attempt_number)
-      logger.info({ message: "Sending SMS failed, attempt #{attempt_number} of #{MAX_RETRIES}" })
+      logger.info({ message: "Sending SMS failed, attempt #{attempt_number} of #{MAX_RETRIES + 1}" })
     end
   end
 end

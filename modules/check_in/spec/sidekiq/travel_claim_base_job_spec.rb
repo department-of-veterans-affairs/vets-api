@@ -68,7 +68,7 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
                 ))
         expect(test_logger).to receive(:info)
           .with(hash_including(
-                  message: "Sending SMS failed, attempt 1 of #{described_class::MAX_RETRIES}"
+                  message: "Sending SMS failed, attempt 1 of #{described_class::MAX_RETRIES + 1}"
                 ))
         expect { job.send_notification(job_opts) }.to raise_error(StandardError)
 
@@ -82,7 +82,7 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
                 ))
         expect(test_logger).to receive(:info)
           .with(hash_including(
-                  message: "Sending SMS failed, attempt 2 of #{described_class::MAX_RETRIES}"
+                  message: "Sending SMS failed, attempt 2 of #{described_class::MAX_RETRIES + 1}"
                 ))
         expect { job.send_notification(job_opts) }.to raise_error(StandardError)
       end
