@@ -67,7 +67,8 @@ module Swagger::Schemas
         'Fiscal rescinded',
         'Unspecified'
       ], example: 'Claim paid'
-      property :appointmentDateTime, type: :string, example: '2024-06-13T13:57:07.291Z'
+      property :appointmentDate, type: :string, example: '2024-06-13T13:57:07.291Z'
+      property :claimName, type: :string, example: 'Claim created for NOLLE BARAKAT'
       property :claimantFirstName, type: :string, example: 'Nolle'
       property :claimantMiddleName, type: :string, example: 'Polite'
       property :claimantLastName, type: :string, example: 'Varakat'

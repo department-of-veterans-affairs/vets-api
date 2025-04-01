@@ -103,11 +103,12 @@ describe TravelPay::ClaimsClient do
               {
                 'claimId' => 'uuid1',
                 'claimNumber' => 'TC0000000000001',
+                'claimName' => 'Claim created for NOLLE BARAKAT',
                 'claimantFirstName' => 'Nolle',
                 'claimantMiddleName' => 'Polite',
                 'claimantLastName' => 'Barakat',
                 'claimStatus' => 'PreApprovedForPayment',
-                'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
+                'appointmentDate' => '2024-01-01T16:45:34.465Z',
                 'facilityName' => 'Cheyenne VA Medical Center',
                 'totalCostRequested' => 20.00,
                 'reimbursementAmount' => 14.52,
