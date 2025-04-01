@@ -7,27 +7,27 @@ module SignIn
   module Idme
     class Configuration < Common::Client::Configuration::REST
       def base_path
-        Settings.idme.oauth_url
+        IdentitySettings.idme.oauth_url
       end
 
       def client_id
-        Settings.idme.client_id
+        IdentitySettings.idme.client_id
       end
 
       def client_secret
-        Settings.idme.client_secret
+        IdentitySettings.idme.client_secret
       end
 
       def redirect_uri
-        Settings.idme.redirect_uri
+        IdentitySettings.idme.redirect_uri
       end
 
       def client_key_path
-        Settings.idme.client_key_path
+        IdentitySettings.idme.client_key_path
       end
 
       def client_cert_path
-        Settings.idme.client_cert_path
+        IdentitySettings.idme.client_cert_path
       end
 
       def service_name
@@ -113,7 +113,7 @@ module SignIn
           ssl: { client_cert: ssl_cert,
                  client_key: ssl_key }
         ) do |conn|
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           conn.response :snakecase
           conn.response :json, content_type: /\bjson$/

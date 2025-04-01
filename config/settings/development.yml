@@ -509,6 +509,17 @@ forms_api_benefits_intake:
   url: https://sandbox-api.va.gov/services/vba_documents/v1/
 fsr:
   prefill: true
+gclaws:
+  accreditation:
+    agents:
+      url: http://localhost:5000/api/v2/accreditations/agents
+    api_key: fake_key
+    attorneys:
+      url: http://localhost:5000/api/v2/accreditations/attorneys
+    representatives:
+      url: http://localhost:5000/api/v2/accreditations/representatives
+    veteran_service_organizations:
+      url: http://localhost:5000/api/v2/accreditations/veteranserviceorganizations
 genisis:
   base_url: ~
   form_submission_path: "/formdata"
@@ -635,6 +646,7 @@ intent_to_file:
 ivc_champva:
   pega_api:
     api_key: fake_api_key
+    base_path: fake_base_path
   prefill: true
   ves_api:
     api_key: fake_api_key
@@ -844,6 +856,7 @@ maintenance:
     hcq: PWGA814
     idme: PVWB4R8
     lighthouse_benefits_claims: ~
+    lighthouse_benefits_education: ~
     lighthouse_benefits_intake: ~
     lighthouse_direct_deposit: ~
     lighthouse_vshe: ~
@@ -963,9 +976,13 @@ mhv:
   rx:
     app_token: fake-app-token
     app_token_va_gov: ~
+    base_path: mhv-api/patient/v1/
     collection_caching_enabled: false
+    gw_base_path: v1/
     host: https://mhv-api.example.com
     mock: true
+    use_new_api: false
+    x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
     host: https://mhv-api.example.com
@@ -982,6 +999,7 @@ mhv:
 mhv_mobile:
   sm:
     app_token: fake-app-token
+  x_api_key: fake-x-api-key
 mobile_lighthouse:
   client_id: 0oajpx78t3M8kurld2p7
   rsa_key: ~
@@ -1428,7 +1446,9 @@ vanotify:
   mock: false
   service_callback_tokens:
     1010_health_apps: 1010_health_apps_token
+    benefits_decision_review: benefits_decision_review_token
     benefits_disability: benefits_disability_token
+    benefits_management_tools: benefits_management_tools_token
     ivc_forms: ivc_forms_token
     va_gov: va_gov_token
   services:
@@ -1593,6 +1613,9 @@ vanotify:
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
         form21_10210_error_email: form21_10210_error_email_template_id
         form21_10210_received_email: form21_10210_received_email_template_id
+        form21_4138_confirmation_email: form21_4138_confirmation_email_template_id
+        form21_4138_error_email: form21_4138_error_email_template_id
+        form21_4138_received_email: form21_4138_received_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form21_4142_error_email: form21_4142_error_email_template_id
         form21_4142_received_email: form21_4142_received_email_template_id
@@ -1624,6 +1647,7 @@ vanotify:
         login_reactivation_email: reactivation_email_test_b
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         reactivation_email_test_b: ~
+        va_appointment_failure: fake_template_id
   status_callback:
     bearer_token: fake_bearer_token
 vaos:

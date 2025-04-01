@@ -11,6 +11,10 @@ module V0
     skip_before_action(:authenticate)
     before_action :load_user
 
+    INPUT_ERRORS = [Common::Exceptions::ValidationErrors,
+                    Common::Exceptions::UnprocessableEntity,
+                    BenefitsIntake::Service::InvalidDocumentError].freeze
+
     def create
       uploads_monitor.track_document_upload_attempt(form_id, current_user)
 
@@ -31,6 +35,9 @@ module V0
       uploads_monitor.track_document_upload_success(form_id, @attachment.id, current_user)
 
       render json: PersistentAttachmentSerializer.new(@attachment)
+    rescue *INPUT_ERRORS => e
+      uploads_monitor.track_document_upload_input_error(form_id, @attachment&.id, current_user, e)
+      raise e
     rescue => e
       uploads_monitor.track_document_upload_failed(form_id, @attachment&.id, current_user, e)
       raise e
