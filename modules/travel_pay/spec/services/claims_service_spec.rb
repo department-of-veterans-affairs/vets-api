@@ -281,7 +281,6 @@ describe TravelPay::ClaimsService do
       claim_id = 'this-is-definitely-a-uuid-right'
 
       expect { @service.get_claim_details(claim_id) }
-      expect { @service.get_claim_details(claim_id) }
         .to raise_error(ArgumentError, /valid UUID/i)
     end
   end
