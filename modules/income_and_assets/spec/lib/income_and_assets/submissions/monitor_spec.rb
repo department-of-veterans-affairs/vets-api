@@ -16,7 +16,7 @@ RSpec.describe IncomeAndAssets::Submissions::Monitor do
 
     describe '#track_submission_begun' do
       it 'logs sidekiq job started' do
-        log = 'Lighthouse::IncomeAndAssetsIntakeJob submission to LH begun'
+        log = 'IncomeAndAssets::BenefitIntakeJob submission to LH begun'
         payload = {
           claim_id: claim.id,
           benefits_intake_uuid: lh_service.uuid,
@@ -38,7 +38,7 @@ RSpec.describe IncomeAndAssets::Submissions::Monitor do
           attachments: %w[pdf-attachment1 pdf-attachment2]
         }
 
-        log = 'Lighthouse::IncomeAndAssetsIntakeJob submission to LH attempted'
+        log = 'IncomeAndAssets::BenefitIntakeJob submission to LH attempted'
         payload = {
           claim_id: claim.id,
           benefits_intake_uuid: lh_service.uuid,
@@ -57,7 +57,7 @@ RSpec.describe IncomeAndAssets::Submissions::Monitor do
 
     describe '#track_submission_success' do
       it 'logs sidekiq job successful' do
-        log = 'Lighthouse::IncomeAndAssetsIntakeJob submission to LH succeeded'
+        log = 'IncomeAndAssets::BenefitIntakeJob submission to LH succeeded'
         payload = {
           claim_id: claim.id,
           benefits_intake_uuid: lh_service.uuid,
@@ -74,7 +74,7 @@ RSpec.describe IncomeAndAssets::Submissions::Monitor do
 
     describe '#track_submission_retry' do
       it 'logs sidekiq job failure and retry' do
-        log = 'Lighthouse::IncomeAndAssetsIntakeJob submission to LH failed, retrying'
+        log = 'IncomeAndAssets::BenefitIntakeJob submission to LH failed, retrying'
         payload = {
           claim_id: claim.id,
           benefits_intake_uuid: lh_service.uuid,
@@ -94,7 +94,7 @@ RSpec.describe IncomeAndAssets::Submissions::Monitor do
       it 'logs sidekiq job exhaustion' do
         msg = { 'args' => [claim.id, current_user.user_account_uuid] }
 
-        log = 'Lighthouse::IncomeAndAssetsIntakeJob submission to LH exhausted!'
+        log = 'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!'
         payload = {
           claim_id: claim.id,
           confirmation_number: claim.confirmation_number,
@@ -111,7 +111,7 @@ RSpec.describe IncomeAndAssets::Submissions::Monitor do
 
     describe '#track_file_cleanup_error' do
       it 'logs sidekiq job ensure file cleanup error' do
-        log = 'Lighthouse::IncomeAndAssetsIntakeJob cleanup failed'
+        log = 'IncomeAndAssets::BenefitIntakeJob cleanup failed'
         payload = {
           claim_id: claim.id,
           benefits_intake_uuid: lh_service.uuid,

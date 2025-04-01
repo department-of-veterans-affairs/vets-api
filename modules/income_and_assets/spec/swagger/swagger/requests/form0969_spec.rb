@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rails_helper'
+
 reg_office = 'Department of Veteran Affairs, Pension Intake Center, P.O. Box 5365, Janesville, Wisconsin 53547-5365'
 
 # Income and Assets Claim Integration
@@ -16,9 +18,9 @@ RSpec.describe 'V0::Form0969', type: %i[request serializer] do
 
   describe 'POST create' do
     subject do
-      post('/v0/form0969',
+      post '/income_and_assets/v0/form0969',
            params: params.to_json,
-           headers: { 'CONTENT_TYPE' => 'application/json', 'HTTP_X_KEY_INFLECTION' => 'camel' })
+           headers: { 'CONTENT_TYPE' => 'application/json', 'HTTP_X_KEY_INFLECTION' => 'camel' }
     end
 
     context 'with invalid params' do

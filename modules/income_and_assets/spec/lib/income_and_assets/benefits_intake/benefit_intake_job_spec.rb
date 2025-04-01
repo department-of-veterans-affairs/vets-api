@@ -2,9 +2,10 @@
 
 require 'rails_helper'
 require 'lighthouse/benefits_intake/service'
+require 'income_and_assets/benefits_intake/benefit_intake_job'
 require 'pdf_utilities/datestamp_pdf'
 
-RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
+RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
   stub_virus_scan
   let(:job) { described_class.new }
   let(:claim) { create(:income_and_assets_claim) }
@@ -19,7 +20,7 @@ RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
 
     before do
       job.instance_variable_set(:@claim, claim)
-      allow(SavedClaim::IncomeAndAssets).to receive(:find).and_return(claim)
+      allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(claim)
       allow(claim).to receive_messages(to_pdf: pdf_path, persistent_attachments: [])
 
       job.instance_variable_set(:@intake_service, service)
@@ -53,7 +54,7 @@ RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
     end
 
     it 'is unable to find user_account' do
-      expect(SavedClaim::IncomeAndAssets).not_to receive(:find)
+      expect(IncomeAndAssets::SavedClaim).not_to receive(:find)
       expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
@@ -66,7 +67,7 @@ RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
     end
 
     it 'is unable to find saved_claim_id' do
-      allow(SavedClaim::IncomeAndAssets).to receive(:find).and_return(nil)
+      allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(nil)
 
       expect(UserAccount).to receive(:find)
 
@@ -76,8 +77,8 @@ RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
       expect(job).to receive(:cleanup_file_paths)
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
-        Lighthouse::IncomeAndAssetsIntakeJob::IncomeAndAssetsIntakeError,
-        "Unable to find SavedClaim::IncomeAndAssets #{claim.id}"
+        IncomeAndAssets::BenefitIntakeJob::IncomeAndAssetsIntakeError,
+        "Unable to find IncomeAndAssets::SavedClaim #{claim.id}"
       )
     end
 
@@ -122,7 +123,7 @@ RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
     it 'returns expected hash' do
       expect(monitor).to receive(:track_file_cleanup_error)
       expect { job.send(:cleanup_file_paths) }.to raise_error(
-        Lighthouse::IncomeAndAssetsIntakeJob::IncomeAndAssetsIntakeError,
+        IncomeAndAssets::BenefitIntakeJob::IncomeAndAssetsIntakeError,
         anything
       )
     end
@@ -131,9 +132,9 @@ RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
   describe 'sidekiq_retries_exhausted block' do
     context 'when retries are exhausted' do
       it 'logs a distrinct error when no claim_id provided' do
-        Lighthouse::IncomeAndAssetsIntakeJob.within_sidekiq_retries_exhausted_block do
+        IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block do
           expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'Lighthouse::IncomeAndAssetsIntakeJob submission to LH exhausted!',
+            'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!',
             hash_including(:message, confirmation_number: nil, user_account_uuid: nil, claim_id: nil)
           )
           expect(StatsD).to receive(:increment).with('worker.lighthouse.income_and_assets_intake_job.exhausted')
@@ -141,9 +142,9 @@ RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
       end
 
       it 'logs a distrinct error when only claim_id provided' do
-        Lighthouse::IncomeAndAssetsIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
+        IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
           expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'Lighthouse::IncomeAndAssetsIntakeJob submission to LH exhausted!',
+            'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!',
             hash_including(:message, confirmation_number: claim.confirmation_number,
                                      user_account_uuid: nil, claim_id: claim.id)
           )
@@ -152,9 +153,9 @@ RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
       end
 
       it 'logs a distrinct error when claim_id and user_account_uuid provided' do
-        Lighthouse::IncomeAndAssetsIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
+        IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
           expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'Lighthouse::IncomeAndAssetsIntakeJob submission to LH exhausted!',
+            'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!',
             hash_including(:message, confirmation_number: claim.confirmation_number, user_account_uuid: 2,
                                      claim_id: claim.id)
           )
@@ -163,9 +164,9 @@ RSpec.describe Lighthouse::IncomeAndAssetsIntakeJob, :uploader_helpers do
       end
 
       it 'logs a distrinct error when claim is not found' do
-        Lighthouse::IncomeAndAssetsIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
+        IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
           expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'Lighthouse::IncomeAndAssetsIntakeJob submission to LH exhausted!',
+            'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!',
             hash_including(:message, confirmation_number: nil, user_account_uuid: 2, claim_id: claim.id - 1)
           )
           expect(StatsD).to receive(:increment).with('worker.lighthouse.income_and_assets_intake_job.exhausted')

@@ -5,13 +5,13 @@ require 'lighthouse/benefits_intake/metadata'
 require 'income_and_assets/submissions/monitor'
 require 'pdf_utilities/datestamp_pdf'
 
-module Lighthouse
-  class IncomeAndAssetsIntakeJob
+module IncomeAndAssets
+  class BenefitIntakeJob
     include Sidekiq::Job
 
     class IncomeAndAssetsIntakeError < StandardError; end
 
-    INCOME_AND_ASSETS_SOURCE = 'app/sidekiq/lighthouse/income_and_assets_intake_job.rb'
+    INCOME_AND_ASSETS_SOURCE = 'modules/income_and_assets/lib/benefits_intake/income_and_assets_benefits_intake_job.rb'
 
     # retry for  2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
@@ -19,7 +19,7 @@ module Lighthouse
     sidekiq_retries_exhausted do |msg|
       ia_monitor = IncomeAndAssets::Submissions::Monitor.new
       begin
-        claim = SavedClaim::IncomeAndAssets.find(msg['args'].first)
+        claim = IncomeAndAssets::SavedClaim.find(msg['args'].first)
       rescue
         claim = nil
       end
@@ -70,8 +70,8 @@ module Lighthouse
 
       @user_account_uuid = user_account_uuid
       @user_account = UserAccount.find(@user_account_uuid) if @user_account_uuid.present?
-      @claim = SavedClaim::IncomeAndAssets.find(saved_claim_id)
-      raise IncomeAndAssetsIntakeError, "Unable to find SavedClaim::IncomeAndAssets #{saved_claim_id}" unless @claim
+      @claim = IncomeAndAssets::SavedClaim.find(saved_claim_id)
+      raise IncomeAndAssetsIntakeError, "Unable to find IncomeAndAssets::SavedClaim #{saved_claim_id}" unless @claim
 
       @intake_service = ::BenefitsIntake::Service.new
     end

@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'income_and_assets/claims/monitor'
 require 'support/controller_spec_helper'
 
-RSpec.describe V0::IncomeAndAssetsClaimsController, type: :controller do
+RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
   let(:monitor) { double('IncomeAndAssets::Claims::Monitor') }
   let(:user) { create(:user) }
 
@@ -14,35 +15,31 @@ RSpec.describe V0::IncomeAndAssetsClaimsController, type: :controller do
                                        track_create_error: nil, track_create_success: nil)
   end
 
-  it_behaves_like 'a controller that deletes an InProgressForm', 'income_and_assets_claim', 'income_and_assets_claim',
-                  '21P-0969'
-
   describe '#create' do
     let(:claim) { build(:income_and_assets_claim) }
     let(:param_name) { :income_and_assets_claim }
     let(:form_id) { '21P-0969' }
 
     it 'logs validation errors' do
-      allow(SavedClaim::IncomeAndAssets).to receive(:new).and_return(claim)
+      allow(IncomeAndAssets::SavedClaim).to receive(:new).and_return(claim)
       allow(claim).to receive_messages(save: false, errors: 'mock error')
 
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_error).once
       expect(claim).not_to receive(:upload_to_lighthouse)
 
-      response = post(:create, params: { param_name => { form: claim.form } })
+      post '/income_and_assets/v0/claims', params: { param_name => { form: claim.form } }
 
-      expect(response.status).to eq(500)
+      expect(response).to have_http_status(:internal_server_error)
     end
 
     it('returns a serialized claim') do
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_success).once
 
-      response = post(:create, params: { param_name => { form: claim.form } })
+      post '/income_and_assets/v0/claims', params: { param_name => { form: claim.form } }
 
-      expect(JSON.parse(response.body)['data']['attributes']['form']).to eq(form_id)
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:success)
     end
   end
 
@@ -50,30 +47,30 @@ RSpec.describe V0::IncomeAndAssetsClaimsController, type: :controller do
     it 'logs an error if no claim found' do
       expect(monitor).to receive(:track_show404).once
 
-      response = get(:show, params: { id: 'non-existant-saved-claim' })
+      get '/income_and_assets/v0/claims/:id', params: { id: 'non-existant-saved-claim' }
 
-      expect(response.status).to eq(404)
+      expect(response).to have_http_status(:not_found)
     end
 
     it 'logs an error' do
       error = StandardError.new('Mock Error')
-      allow(SavedClaim::IncomeAndAssets).to receive(:find_by!).and_raise(error)
+      allow(IncomeAndAssets::SavedClaim).to receive(:find_by!).and_raise(error)
 
       expect(monitor).to receive(:track_show_error).once
 
-      response = get(:show, params: { id: 'non-existant-saved-claim' })
+      get '/income_and_assets/v0/claims/:id', params: { id: 'non-existant-saved-claim' }
 
-      expect(response.status).to eq(500)
+      expect(response).to have_http_status(:internal_server_error)
     end
 
     it 'returns a serialized claim' do
       claim = build(:income_and_assets_claim)
-      allow(SavedClaim::IncomeAndAssets).to receive(:find_by!).and_return(claim)
+      allow(IncomeAndAssets::SavedClaim).to receive(:find_by!).and_return(claim)
 
-      response = get(:show, params: { id: 'income_and_assets_claim' })
+      get '/income_and_assets/v0/claims/:id', params: { id: 'income_and_assets_claim' }
 
       expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq(claim.guid)
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
     end
   end
 

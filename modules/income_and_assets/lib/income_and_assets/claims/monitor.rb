@@ -47,7 +47,7 @@ module IncomeAndAssets
       # log POST processing started
       # @see IncomeAndAssetsClaimsController
       #
-      # @param claim [SavedClaim::IncomeAndAssets]
+      # @param claim [IncomeAndAssets::SavedClaim]
       # @param current_user [User]
       #
       def track_create_attempt(claim, user_account_uuid)
@@ -64,7 +64,7 @@ module IncomeAndAssets
       # @see IncomeAndAssetsClaimsController
       #
       # @param in_progress_form [InProgressForm]
-      # @param claim [SavedClaim::IncomeAndAssets]
+      # @param claim [IncomeAndAssets::SavedClaim]
       # @param current_user [User]
       # @param e [Error]
       #
@@ -85,7 +85,7 @@ module IncomeAndAssets
       # @see IncomeAndAssetsClaimsController
       #
       # @param in_progress_form [InProgressForm]
-      # @param claim [SavedClaim::IncomeAndAssets]
+      # @param claim [IncomeAndAssets::SavedClaim]
       # @param current_user [User]
       #
       def track_create_success(in_progress_form_id, claim, user_account_uuid)

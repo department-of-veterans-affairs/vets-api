@@ -2,8 +2,8 @@
 
 require 'pension_burial/processing_office'
 
-class SavedClaim::IncomeAndAssets < SavedClaim
-  FORM = '21P-0969'
+class IncomeAndAssets::SavedClaim < SavedClaim
+  FORM = IncomeAndAssets::FORM_ID
 
   ##
   # the predefined regional office address
@@ -27,6 +27,6 @@ class SavedClaim::IncomeAndAssets < SavedClaim
   def upload_to_lighthouse(current_user = nil)
     return unless Flipper.enabled?(:pension_income_and_assets_clarification, current_user)
 
-    Lighthouse::IncomeAndAssetsIntakeJob.perform_async(id, current_user&.user_account_uuid)
+    IncomeAndAssets::BenefitIntakeJob.perform_async(id, current_user&.user_account_uuid)
   end
 end
