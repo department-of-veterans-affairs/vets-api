@@ -234,8 +234,8 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
           context 'when flipper feature disability_compensation_temp_toxic_exposure_optional_dates_fix is disabled' do
             before do
               allow(Flipper).to receive(:enabled?)
-                                  .with(:disability_compensation_temp_toxic_exposure_optional_dates_fix, anything)
-                                  .and_return(false)
+                .with(:disability_compensation_temp_toxic_exposure_optional_dates_fix, anything)
+                .and_return(false)
             end
 
             it 'fails validation' do
