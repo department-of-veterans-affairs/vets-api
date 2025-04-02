@@ -8,8 +8,12 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
     create(:va10282).education_benefits_claim
   end
 
+  let(:s3_client) { instance_double(Aws::S3::Client) }
+
   before do
     allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
+    allow(s3_client).to receive(:put_object)
   end
 
   after(:all) do
@@ -71,6 +75,7 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
     end
 
     context 'with records in staging', run_at: '2016-09-16 03:00:00 EDT' do
+
       before do
         application_form.saved_claim.form = {}.to_json
         create(:va10282)
@@ -79,6 +84,7 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
 
       it 'processes records and sends email' do
         with_settings(Settings, hostname: 'staging-api.va.gov') do
+          expect(s3_client).to receive(:put_object)
           expect { described_class.new.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(2).to(0)
           expect(ActionMailer::Base.deliveries.count).to be > 0
         end

@@ -68,6 +68,7 @@ module EducationForm
         write_csv_file(formatted_records, filename)
 
         email_excel_files(filename)
+        upload_file_to_s3(filename)
 
         # Make records processed and add excel file event for rake job
         records.each { |r| r.update(processed_at: Time.zone.now) }
@@ -189,6 +190,26 @@ module EducationForm
 
     def email_excel_files(contents)
       CreateExcelFilesMailer.build(contents).deliver_now
+    end
+
+    def upload_file_to_s3(filename)
+      log_info("Form 10282 S3 Upload: Begin")
+      client = Aws::S3::Client.new(
+        region: Settings.form_10282.s3.region,
+        access_key_id: Settings.form_10282.s3.aws_access_key_id,
+        secret_access_key: Settings.form_10282.s3.aws_secret_access_key
+      )
+
+      client.put_object(
+        bucket: Settings.form_10282.s3.bucket,
+        key: filename,
+        body: File.open("tmp/#{filename}"),
+        content_type: 'text/plain'
+      )
+      log_info("Form 10282 S3 Upload: Complete")
+    rescue StandardError => e
+      log_info("Form 10282 S3 Upload: Failed  #{e.message}")
+      raise
     end
   end
 end
