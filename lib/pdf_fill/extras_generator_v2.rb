@@ -100,7 +100,7 @@ module PdfFill
     end
 
     def text?
-      @questions.compact.any?(&:overflow)
+      @questions.values.compact.any?(&:overflow)
     end
 
     def sort_generate_blocks

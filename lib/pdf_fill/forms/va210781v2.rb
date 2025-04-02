@@ -802,6 +802,10 @@ module PdfFill
         end
       end
 
+      # Gathers all visible fields in a list-and-loop item and concatenates them into an overflow field
+      # for the legacy 21-0781v2 overflow page.
+      # If overflow_only is true, the item has been moved from the PDF template to overflow, and the
+      # original fields should be removed so as not to duplicate the concatenated overflow field.
       def format_item_overflow(item, index, format_method, overflow_key, overflow_only: false)
         item_overflow = send(format_method, item, index, overflow_only:)
 
@@ -822,6 +826,7 @@ module PdfFill
         event_overflow.push("Event Location: \n\n#{event_location}")
         event_overflow.push("Event Date: \n\n#{event_timing}")
 
+        # Remove these from legacy overflow page to avoid duplication with concatenated field
         %w[details location timing].each { |key| event[key] = nil } if overflow_only
 
         event_overflow
@@ -839,6 +844,7 @@ module PdfFill
         provider_overflow.push("Treatment Facility Name and Location: \n\n#{facility_info}")
         provider_overflow.push(no_date ? "Treatment Date: Don't have date" : "Treatment Date: #{month}-#{year}")
 
+        # Remove these from legacy overflow page to avoid duplication with concatenated field
         %w[facilityInfo treatmentMonth treatmentYear].each { |key| provider[key] = nil } if overflow_only
 
         provider_overflow
