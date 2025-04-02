@@ -49,7 +49,11 @@ module Common
 
         def get_jwt_from_headers(res_headers)
           # Get the JWT token from the headers
-          auth_header = res_headers['authorization']
+          auth_header = if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+                          res_headers['x-amzn-remapped-authorization']
+                        else
+                          res_headers['authorization']
+                        end
           if auth_header.nil? || !auth_header.start_with?('Bearer ')
             raise Common::Exceptions::Unauthorized, detail: 'Invalid or missing authorization header'
           end
@@ -78,7 +82,11 @@ module Common
 
         def get_session_tagged
           Sentry.set_tags(error: 'mhv_session')
-          env = perform(:post, '/mhvapi/security/v1/login', auth_body, auth_headers)
+          env = if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+                  perform(:post, '/v1/security/login', auth_body, auth_headers)
+                else
+                  perform(:post, '/mhvapi/security/v1/login', auth_body, auth_headers)
+                end
           Sentry.get_current_scope.tags.delete(:error)
           env
         end
@@ -93,6 +101,9 @@ module Common
 
         def auth_headers
           config.base_request_headers.merge('Content-Type' => 'application/json')
+          if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+            config.base_request_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
+          end
         end
 
         def auth_body

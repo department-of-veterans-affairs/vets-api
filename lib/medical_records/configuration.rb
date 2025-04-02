@@ -26,7 +26,11 @@ module MedicalRecords
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      Settings.mhv.medical_records.host
+      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+        Settings.mhv.api_gateway.hosts.security
+      else
+        Settings.mhv.medical_records.host
+      end
     end
 
     ##
@@ -43,7 +47,7 @@ module MedicalRecords
     #
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers
+        conn.use(:breakers, service_name:)
         conn.request :multipart_request
         conn.request :multipart
         conn.request :json

@@ -55,7 +55,7 @@ RSpec.describe FormProfile::MDOT, type: :model do
         )
         form_data = FormProfile.for(form_id: 'MDOT', user:).prefill[:form_data]
         errors = JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS['MDOT'], form_data)
-        expect(errors).not_to be_empty
+        expect(errors).to be_empty
         VCR.eject_cassette
       end
     end

@@ -113,7 +113,7 @@ module SignIn
           ssl: { client_cert: ssl_cert,
                  client_key: ssl_key }
         ) do |conn|
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           conn.response :snakecase
           conn.response :json, content_type: /\bjson$/

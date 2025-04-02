@@ -6,6 +6,7 @@ require 'rx/configuration'
 require 'rx/client_session'
 require 'rx/rx_gateway_timeout'
 require 'active_support/core_ext/hash/slice'
+require 'rx/client'
 
 module Rx
   ##
@@ -17,8 +18,17 @@ module Rx
     client_session Rx::ClientSession
 
     def auth_headers
-      config.base_request_headers.merge('appToken' =>
-        config.app_token_va_gov, 'mhvCorrelationId' => session.user_id.to_s)
+      Rails.logger.info('Rx request is coming from VA.gov web')
+      get_headers(config.base_request_headers.merge('appToken' => config.app_token_va_gov,
+                                                    'mhvCorrelationId' => session.user_id.to_s))
+    end
+
+    def get_headers(headers)
+      if Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api
+        headers.merge('x-api-key' => Settings.mhv.rx.x_api_key)
+      else
+        headers
+      end
     end
   end
 end

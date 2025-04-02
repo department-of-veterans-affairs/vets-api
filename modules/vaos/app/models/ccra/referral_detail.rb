@@ -4,7 +4,7 @@ module Ccra
   # ReferralDetail represents the detailed information for a single referral from CCRA.
   class ReferralDetail
     attr_reader :expiration_date, :type_of_care, :provider_name, :location,
-                :referral_number
+                :referral_number, :phone_number
 
     ##
     # Initializes a new instance of ReferralDetail.
@@ -20,6 +20,7 @@ module Ccra
       @provider_name = referral['TreatingProvider']
       @location = referral['TreatingFacility']
       @referral_number = referral['ReferralNumber']
+      @phone_number = referral['ProviderPhone'] || referral['FacilityPhone']
     end
   end
 end

@@ -21,6 +21,7 @@ RSpec.describe 'V0::HealthRecords', type: :request do
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     allow(BB::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
   end

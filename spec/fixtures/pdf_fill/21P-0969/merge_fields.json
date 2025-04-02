@@ -218,60 +218,188 @@
   ],
   "assetTransfers": [
     {
-      "fairMarketValue": 1000000,
-      "saleValue": 8234567.89,
-      "capitalGainValue": 7234567.89,
-      "assetTransferredUnderFairMarketValue": false,
-      "transferDate": "1992-01-01",
-      "newOwnerName": {
-        "first": "John",
-        "last": "Doe",
-        "suffix": "Jr."
-      },
-      "newOwnerRelationship": "Sibling",
-      "saleReportedToIrs": true,
-      "transferMethod": "OTHER",
+      "originalOwnerRelationship": 5,
+      "originalOwnerRelationshipOverflow": "OTHER",
+      "otherOriginalOwnerRelationshipType": "Cousin",
+      "transferMethod": 4,
+      "transferMethodOverflow": "OTHER",
       "otherTransferMethod": "Earned",
       "assetType": "Clothes",
-      "originalOwnerRelationship": "OTHER",
-      "otherOriginalOwnerRelationshipType": "Cousin"
+      "assetTypeOverflow": "Clothes",
+      "newOwnerName": "John Doe Jr.",
+      "newOwnerNameOverflow": "John Doe Jr.",
+      "newOwnerRelationship": "Sibling",
+      "newOwnerRelationshipOverflow": "Sibling",
+      "saleReportedToIrs": 0,
+      "transferDate": {
+        "month": "01",
+        "day": "01",
+        "year": "1992"
+      },
+      "assetTransferredUnderFairMarketValue": 1,
+      "fairMarketValue": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "000",
+        "millions": "01"
+      },
+      "fairMarketValueOverflow": 1000000,
+      "saleValue": {
+        "cents": "89",
+        "dollars": "567",
+        "thousands": "234",
+        "millions": "08"
+      },
+      "saleValueOverflow": 8234567.89,
+      "capitalGainValue": {
+        "cents": "89",
+        "dollars": "567",
+        "thousands": "234",
+        "millions": "07"
+      },
+      "capitalGainValueOverflow": 7234567.89
     },
     {
-      "fairMarketValue": 123.12,
-      "saleValue": 100,
-      "capitalGainValue": 0,
-      "assetTransferredUnderFairMarketValue": true,
-      "transferDate": "1993-02-02",
-      "newOwnerName": {
-        "first": "Jacob",
-        "last": "Doe",
-        "suffix": "Sr."
-      },
-      "newOwnerRelationship": "Aunt",
-      "saleReportedToIrs": false,
-      "transferMethod": "GIFTED",
+      "originalOwnerRelationship": 3,
+      "originalOwnerRelationshipOverflow": "CHILD",
+      "otherOriginalOwnerRelationshipType": null,
+      "transferMethod": 1,
+      "transferMethodOverflow": "GIFTED",
+      "otherTransferMethod": null,
       "assetType": "Artwork",
-      "originalOwnerRelationship": "CHILD"
+      "assetTypeOverflow": "Artwork",
+      "newOwnerName": "Jacob Doe Sr.",
+      "newOwnerNameOverflow": "Jacob Doe Sr.",
+      "newOwnerRelationship": "Aunt",
+      "newOwnerRelationshipOverflow": "Aunt",
+      "saleReportedToIrs": 1,
+      "transferDate": {
+        "month": "02",
+        "day": "02",
+        "year": "1993"
+      },
+      "assetTransferredUnderFairMarketValue": 0,
+      "fairMarketValue": {
+        "cents": "12",
+        "dollars": "123",
+        "thousands": "000",
+        "millions": "00"
+      },
+      "fairMarketValueOverflow": 123.12,
+      "saleValue": {
+        "cents": "00",
+        "dollars": "100",
+        "thousands": "000",
+        "millions": "00"
+      },
+      "saleValueOverflow": 100,
+      "capitalGainValue": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "000",
+        "millions": "00"
+      },
+      "capitalGainValueOverflow": 0
     },
     {
-      "fairMarketValue": 1800.99,
-      "saleValue": 2000,
-      "capitalGainValue": 200.99,
-      "assetTransferredUnderFairMarketValue": false,
-      "transferDate": "1995-05-12",
-      "newOwnerName": {
-        "first": "John",
-        "last": "Doe",
-        "suffix": "Jr."
-      },
-      "newOwnerRelationship": "Brother",
-      "saleReportedToIrs": true,
-      "transferMethod": "TRADED",
+      "originalOwnerRelationship": 4,
+      "originalOwnerRelationshipOverflow": "PARENT",
+      "otherOriginalOwnerRelationshipType": null,
+      "transferMethod": 3,
+      "transferMethodOverflow": "TRADED",
+      "otherTransferMethod": null,
       "assetType": "Bike",
-      "originalOwnerRelationship": "PARENT"
+      "assetTypeOverflow": "Bike",
+      "newOwnerName": "John Doe Jr.",
+      "newOwnerNameOverflow": "John Doe Jr.",
+      "newOwnerRelationship": "Brother",
+      "newOwnerRelationshipOverflow": "Brother",
+      "saleReportedToIrs": 0,
+      "transferDate": {
+        "month": "05",
+        "day": "12",
+        "year": "1995"
+      },
+      "assetTransferredUnderFairMarketValue": 1,
+      "fairMarketValue": {
+        "cents": "99",
+        "dollars": "800",
+        "thousands": "001",
+        "millions": "00"
+      },
+      "fairMarketValueOverflow": 1800.99,
+      "saleValue": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "002",
+        "millions": "00"
+      },
+      "saleValueOverflow": 2000,
+      "capitalGainValue": {
+        "cents": "99",
+        "dollars": "200",
+        "thousands": "000",
+        "millions": "00"
+      },
+      "capitalGainValueOverflow": 200.99
+    }
+  ],
+  "trusts": [
+    {
+      "establishedDate": {
+        "month": "02",
+        "day": "02",
+        "year": "1982"
+      },
+      "marketValueAtEstablishment": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "000",
+        "millions": "9"
+      },
+      "trustType": 0,
+      "addedFundsAfterEstablishment": 0,
+      "addedFundsDate": {
+        "month": "02",
+        "day": "01",
+        "year": "1985"
+      },
+      "addedFundsAmount": {
+        "cents": "99",
+        "dollars": "199",
+        "thousands": "00"
+      },
+      "receivingIncomeFromTrust": 0,
+      "annualReceivedIncome": {
+        "cents": "00",
+        "dollars": "200",
+        "thousands": "00"
+      },
+      "trustUsedForMedicalExpenses": 0,
+      "monthlyMedicalReimbursementAmount": {
+        "cents": "67",
+        "dollars": "345",
+        "thousands": "12"
+      },
+      "trustEstablishedForVeteransChild": 0,
+      "haveAuthorityOrControlOfTrust": 0,
+      "establishedDateOverflow": "1982-02-02",
+      "marketValueAtEstablishmentOverflow": 9000000,
+      "trustTypeOverflow": "REVOCABLE",
+      "addedFundsAfterEstablishmentOverflow": true,
+      "addedFundsDateOverflow": "1985-02-01",
+      "addedFundsAmountOverflow": 199.99,
+      "receivingIncomeFromTrustOverflow": true,
+      "annualReceivedIncomeOverflow": 200,
+      "trustUsedForMedicalExpensesOverflow": true,
+      "monthlyMedicalReimbursementAmountOverflow": 12345.67,
+      "trustEstablishedForVeteransChildOverflow": true,
+      "haveAuthorityOrControlOfTrustOverflow": true
     }
   ],
   "unassociatedIncome": "YES",
   "associatedIncome": 0,
-  "ownedAsset": 0
+  "ownedAsset": 0,
+  "assetTransfer": 0,
+  "trust": 0
 }

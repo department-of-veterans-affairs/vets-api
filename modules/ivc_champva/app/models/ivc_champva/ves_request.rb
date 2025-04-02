@@ -2,7 +2,7 @@
 
 module IvcChampva
   class VesRequest
-    attr_accessor :application_type, :application_uuid, :sponsor, :beneficiaries, :certification
+    attr_accessor :application_type, :application_uuid, :sponsor, :beneficiaries, :certification, :transaction_uuid
 
     def initialize(params = {})
       @application_type = params[:application_type] || 'CHAMPVA'
@@ -10,6 +10,7 @@ module IvcChampva
       @sponsor = Sponsor.new(params[:sponsor] || {})
       @beneficiaries = (params[:beneficiaries] || []).map { |ben| Beneficiary.new(ben) }
       @certification = Certification.new(params[:certification] || {})
+      @transaction_uuid = params[:transaction_uuid] || SecureRandom.uuid
     end
 
     def to_json(*_args)
@@ -18,8 +19,9 @@ module IvcChampva
         applicationUUID: @application_uuid,
         sponsor: @sponsor.to_hash,
         beneficiaries: @beneficiaries.map(&:to_hash),
-        certification: @certification.to_hash
-      }
+        certification: @certification.to_hash,
+        transactionUUID: @transaction_uuid
+      }.to_json
     end
 
     class Sponsor

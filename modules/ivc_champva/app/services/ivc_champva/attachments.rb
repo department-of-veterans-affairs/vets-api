@@ -22,23 +22,12 @@ module IvcChampva
                           "#{uuid}_#{form_id}_supporting_doc-#{index}.pdf"
                         end
 
-        new_file_path = if Flipper.enabled?(:champva_pdf_decrypt, @current_user)
-                          Rails.logger.info("IVC ChampVA Forms - Attachment #{index} is using decrypt path")
-                          File.join('tmp', new_file_name)
-                        else
-                          Rails.logger.info("IVC ChampVA Forms - Attachment #{index} is using original path")
-                          File.join(File.dirname(attachment), new_file_name)
-                        end
+        new_file_path = File.join('tmp', new_file_name)
 
-        if Flipper.enabled?(:champva_pdf_decrypt, @current_user)
-          # Use FileUtils.mv to handle `Errno::EXDEV` error since encrypted PDFs
-          # get stashed in the clamav_tmp dir which is a different device on staging, apparently
-          Rails.logger.info("IVC ChampVA Forms - Handling attachment #{index} via mv")
-          FileUtils.mv(attachment, new_file_path) # Performs a copy automatically if mv fails
-        else
-          Rails.logger.info("IVC ChampVA Forms - Handling attachment #{index} via rename")
-          File.rename(attachment, new_file_path)
-        end
+        # Use FileUtils.mv to handle `Errno::EXDEV` error since encrypted PDFs
+        # get stashed in the clamav_tmp dir which is a different device on staging, apparently
+        Rails.logger.info("IVC ChampVA Forms - Handling attachment #{index} via mv")
+        FileUtils.mv(attachment, new_file_path) # Performs a copy automatically if mv fails
 
         file_paths << new_file_path
       rescue Errno::ENOENT # File.rename and FileUtils.mv throw this error when a file is not found
