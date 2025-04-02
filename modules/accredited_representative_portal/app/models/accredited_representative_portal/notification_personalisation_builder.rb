@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  class PersonalisationBuilder
+  class NotificationPersonalisationBuilder
     def initialize(notification)
       @notification = notification
     end

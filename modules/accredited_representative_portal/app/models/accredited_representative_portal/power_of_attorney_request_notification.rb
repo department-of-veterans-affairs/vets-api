@@ -29,7 +29,7 @@ module AccreditedRepresentativePortal
     end
 
     def personalisation
-      PersonalisationBuilder.new(self).build
+      NotificationPersonalisationBuilder.new(self).build
     end
 
     def status

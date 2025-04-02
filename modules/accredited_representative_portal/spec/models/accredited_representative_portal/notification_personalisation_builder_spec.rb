@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AccreditedRepresentativePortal::PersonalisationBuilder, type: :model do
+RSpec.describe AccreditedRepresentativePortal::NotificationPersonalisationBuilder, type: :model do
   let(:power_of_attorney_request) { create(:power_of_attorney_request) }
   let(:va_notify_notification) { create(:notification) }
 
