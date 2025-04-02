@@ -1675,6 +1675,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for displaying past cancelled appointments.
+  va_online_scheduling_patient_history_future_appts:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for including future appointments in the patient history retrieval.
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
