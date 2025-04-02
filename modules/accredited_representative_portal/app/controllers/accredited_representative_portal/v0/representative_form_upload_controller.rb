@@ -6,6 +6,7 @@ require 'simple_forms_api_submission/metadata_validator'
 module AccreditedRepresentativePortal
   module V0
     class RepresentativeFormUploadController < ApplicationController
+      include AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern
       skip_after_action :verify_pundit_authorization
 
       def submit
@@ -40,7 +41,8 @@ module AccreditedRepresentativePortal
           timestamp: Time.current
         )
         stamper.stamp_pdf
-        metadata = validated_metadata
+        raw_metadata = validated_metadata
+        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(raw_metadata)
         status, confirmation_number = upload_pdf(file_path, metadata)
         file_size = File.size(file_path).to_f / (2**20)
 
@@ -53,19 +55,6 @@ module AccreditedRepresentativePortal
 
       def find_attachment_path(confirmation_code)
         PersistentAttachment.find_by(guid: confirmation_code).to_pdf.to_s
-      end
-
-      def validated_metadata
-        raw_metadata = {
-          'veteranFirstName' => veteran_first_name,
-          'veteranLastName' => veteran_last_name,
-          'fileNumber' => veteran_ssn,
-          'zipCode' => form_params.dig(:formData, :postalCode),
-          'source' => 'VA Platform Digital Forms',
-          'docType' => form_data[:formNumber],
-          'businessLine' => 'CMP'
-        }
-        SimpleFormsApiSubmission::MetadataValidator.validate(raw_metadata)
       end
 
       def upload_pdf(file_path, metadata)
@@ -121,19 +110,6 @@ module AccreditedRepresentativePortal
         end
       end
 
-      def create_new_form_data
-        {
-          'ssn' => ssn,
-          'postalCode' => form_data[:postalCode],
-          'full_name' => {
-            'first' => first_name,
-            'last' => last_name
-          },
-          'email' => form_data[:email],
-          'veteranDateOfBirth' => birth_date
-        }
-      end
-
       def send_confirmation_email(_params, confirmation_number)
         new_form_data = create_new_form_data
         config = {
@@ -145,79 +121,6 @@ module AccreditedRepresentativePortal
 
         notification_email = SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type: :confirmation)
         notification_email.send
-      end
-
-      def form_params
-        params.require(:representative_form_upload).permit(
-          :confirmationCode,
-          :location,
-          :formNumber,
-          :formName,
-          formData: [
-            :veteranSsn,
-            :formNumber,
-            :postalCode,
-            :veteranDateOfBirth,
-            :email,
-            :postal_code,
-            :claimantDateOfBirth,
-            { claimantFullName: %i[first last] },
-            :claimantSsn,
-            { veteranFullName: %i[first last] }
-          ]
-        )
-      end
-
-      def veteran_ssn
-        form_params.dig('formData', 'veteranSsn')
-      end
-
-      def veteran_first_name
-        form_params.dig('formData', 'veteranFullName', 'first')
-      end
-
-      def veteran_last_name
-        form_params.dig('formData', 'veteranFullName', 'last')
-      end
-
-      def veteran_birth_date
-        form_params.dig('formData', 'veteranDateOfBirth')
-      end
-
-      def claimant_ssn
-        form_params.dig('formData', 'claimantSsn')
-      end
-
-      def claimant_first_name
-        form_params.dig('formData', 'claimantFullName', 'first')
-      end
-
-      def claimant_last_name
-        form_params.dig('formData', 'claimantFullName', 'last')
-      end
-
-      def claimant_birth_date
-        form_params.dig('formData', 'claimantDateOfBirth')
-      end
-
-      def form_data
-        form_params['formData'] || {}
-      end
-
-      def ssn
-        claimant_ssn || veteran_ssn
-      end
-
-      def first_name
-        claimant_first_name || veteran_first_name
-      end
-
-      def last_name
-        claimant_last_name || veteran_last_name
-      end
-
-      def birth_date
-        claimant_birth_date || veteran_birth_date
       end
     end
   end
