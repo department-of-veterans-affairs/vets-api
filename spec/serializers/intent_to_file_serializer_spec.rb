@@ -6,7 +6,7 @@ require 'disability_compensation/responses/intent_to_files_response'
 describe IntentToFileSerializer, type: :serializer do
   subject { serialize(itf_response, serializer_class: described_class) }
 
-  let(:intent_to_file) { build_stubbed(:lh_intent_to_file) }
+  let(:intent_to_file) { build_stubbed(:disability_compensation_intent_to_file) }
   let(:itf_response) { DisabilityCompensation::ApiProvider::IntentToFileResponse.new(intent_to_file:) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }

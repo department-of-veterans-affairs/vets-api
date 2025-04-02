@@ -3,7 +3,7 @@
 require 'disability_compensation/responses/intent_to_files_response'
 
 FactoryBot.define do
-  factory :lh_intent_to_file, class: 'DisabilityCompensation::ApiProvider::IntentToFile' do
+  factory :disability_compensation_intent_to_file, class: 'DisabilityCompensation::ApiProvider::IntentToFile' do
     id { 1 }
     creation_date { Time.current }
     expiration_date { 1.year.from_now }

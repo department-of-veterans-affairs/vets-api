@@ -43,7 +43,7 @@ module Swagger
             end
           end
           property :id, type: :string, example: nil
-          property :type, type: :string, example: 'disability_compensation_intent_to_files_response'
+          property :type, type: :string, example: 'intent_to_file'
         end
       end
 
@@ -56,7 +56,7 @@ module Swagger
             end
           end
           property :id, type: :string, example: nil
-          property :type, type: :string, example: 'disability_compensation_intent_to_files_response'
+          property :type, type: :string, example: 'intent_to_file'
         end
       end
     end
