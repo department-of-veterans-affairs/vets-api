@@ -26,14 +26,15 @@ module IvcChampva
 
     def self.transform_to_ves_format(parsed_form_data)
       {
-        application_type: 'CHAMPVA',
+        application_type: 'CHAMPVA_APPLICATION',
         application_uuid: SecureRandom.uuid,
         sponsor: map_sponsor(parsed_form_data['veteran']),
         beneficiaries: parsed_form_data['applicants'].map { |applicant| map_beneficiary(applicant) },
         certification: map_certification(
           parsed_form_data['certification'],
           parsed_form_data['statement_of_truth_signature']
-        )
+        ),
+        transaction_uuid: SecureRandom.uuid
       }
     end
 
@@ -120,14 +121,13 @@ module IvcChampva
     def self.format_phone_number(phone)
       return nil if phone.blank?
 
+      phone = phone.to_s.gsub(/\D/, '')
+
       # regex from VES swagger
-      return phone if phone.match?(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/)
+      return phone if phone.match?(/^[0-9+]+$/)
 
       # TODO: add country code check/formatting
-      digits = phone.to_s.gsub(/\D/, '')
-      return phone unless digits.length == 10
-
-      "(#{digits[0..2]}) #{digits[3..5]}-#{digits[6..9]}"
+      phone.to_s.gsub(/\D/, '')
     end
 
     def self.format_ssn(ssn)
@@ -200,6 +200,9 @@ module IvcChampva
       if sponsor[:is_deceased] == true
         sponsor[:address] =
           { street_address: 'NA', city: 'NA', state: 'NA', zip_code: 'NA' }
+        sponsor[:date_of_death] = validate_date(sponsor[:date_of_death], 'date of death')
+        # Use a default phone since deceased sponsors don't have one
+        sponsor[:phone_number] = '0000000000'
       end
       validate_address(sponsor[:address], 'sponsor')
       sponsor[:date_of_birth] = validate_date(sponsor[:date_of_birth], 'date of birth')
@@ -224,6 +227,7 @@ module IvcChampva
         # not required by VES
         validate_relationship_fields(beneficiary) if beneficiary[:relationship_to_sponsor]
         validate_gender(beneficiary) if beneficiary[:gender]
+        validate_email(beneficiary[:email_address]) if beneficiary[:email_address]
       end
 
       request_body
@@ -243,8 +247,8 @@ module IvcChampva
 
     def self.validate_application_type(request_body)
       validate_presence_and_stringiness(request_body[:application_type], 'application type')
-      unless request_body[:application_type] == 'CHAMPVA'
-        raise ArgumentError, 'application type invalid. Must be CHAMPVA'
+      unless request_body[:application_type] == 'CHAMPVA_APPLICATION'
+        raise ArgumentError, 'application type invalid. Must be CHAMPVA_APPLICATION'
       end
 
       request_body
@@ -328,9 +332,17 @@ module IvcChampva
       ssn
     end
 
+    def self.validate_email(email)
+      validate_presence_and_stringiness(email, 'email address')
+      unless email.match?(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/)
+        raise ArgumentError, 'email address is invalid. See regex for more detail'
+      end
+    end
+
     def self.validate_phone(object, name)
       validate_presence_and_stringiness(object[:phone_number], 'phone number')
-      unless object[:phone_number].match?(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/)
+
+      unless object[:phone_number].match?(/^[0-9+]+$/) && object[:phone_number].length >= 10
         raise ArgumentError, "#{name} is invalid. See regex for more detail"
       end
 

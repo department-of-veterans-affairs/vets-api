@@ -210,9 +210,6 @@ features:
   champva_log_all_s3_uploads:
     actor_type: user
     description: Enables logging for all s3 uploads using UUID or keys for monitoring
-  champva_require_all_s3_success:
-    actor_type: user
-    description: Enables raising a StandardError if any supporting documents fail to upload to S3 in IVC CHAMPVA forms.
   champva_send_to_ves:
     actor_type: user
     description: Enables sending form submission data to the VES API.
@@ -588,6 +585,9 @@ features:
   disability_compensation_temp_separation_location_code_string:
     actor_type: user
     description: enables forcing separation location code to be a string in submit_all_claim endpoint.
+  disability_compensation_temp_toxic_exposure_optional_dates_fix:
+    actor_type: user
+    description: enables removing malformed optional dates from the Toxic Exposure node of a Form526Submission at SavedClaim creation.
   disability_compensation_form4142_supplemental:
     actor_type: user
     description: Use Lighthouse API to submit supplemental Form 21-4142 from Form 526EZ submissions
@@ -1089,6 +1089,10 @@ features:
   mhv_medical_records_display_vitals:
     actor_type: user
     description: Show/hide content related to Vitals in Medical Records
+    enable_in_development: true
+  mhv_medical_records_migrate_to_api_gateway:
+    actor_type: user
+    description: Enables the switch to the new MHV API Gateway endpoints
     enable_in_development: true
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
@@ -1824,6 +1828,10 @@ features:
   disability_compensation_upload_bdd_instructions_to_lighthouse:
     actor_type: user
     description: If enabled uploads BDD instructions to Lighthouse Benefits Documents API instead of EVSS
+  disability_compensation_0781v2_extras_redesign:
+    actor_type: user
+    description: If enabled, the 0781v2 overflow page will use the new design
+    enable_in_development: true
   disability_compensation_use_api_provider_for_0781_uploads:
     actor_type: user
     description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading 0781/a forms
