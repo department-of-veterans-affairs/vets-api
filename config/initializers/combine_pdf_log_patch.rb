@@ -4,7 +4,7 @@
 # more info: https://github.com/department-of-veterans-affairs/vets-api/pull/16705
 
 Rails.application.config.after_initialize do
-  require 'combine_pdf'
+  require 'combine_pdf/api'
 
   if Rails.env.test?
     CombinePDF::PDFParser.prepend(Module.new do
