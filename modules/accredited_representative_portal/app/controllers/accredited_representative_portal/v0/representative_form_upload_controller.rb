@@ -7,7 +7,8 @@ module AccreditedRepresentativePortal
   module V0
     class RepresentativeFormUploadController < ApplicationController
       include AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern
-      skip_after_action :verify_pundit_authorization
+      skip_after_action :verify_pundit_authorization, only: :upload_scanned_form
+      before_action :validate_power_of_attorney, only: :submit
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
@@ -108,6 +109,19 @@ module AccreditedRepresentativePortal
                                                                         form_id: form_data[:formNumber])
           prefill_data_service.check_for_changes
         end
+      end
+
+      def create_new_form_data
+        {
+          'ssn' => ssn,
+          'postalCode' => form_data[:postalCode],
+          'full_name' => {
+            'first' => first_name,
+            'last' => last_name
+          },
+          'email' => form_data[:email],
+          'veteranDateOfBirth' => birth_date
+        }
       end
 
       def send_confirmation_email(_params, confirmation_number)

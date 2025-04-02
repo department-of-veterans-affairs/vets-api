@@ -102,6 +102,20 @@ module AccreditedRepresentativePortal
       def birth_date
         claimant_birth_date || veteran_birth_date
       end
+
+      def validate_power_of_attorney
+        authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
+      end
+
+      def get_icn
+        mpi = MPI::Service.new.find_profile_by_attributes(ssn:, first_name:, last_name:, birth_date:)
+
+        if mpi.profile&.icn
+          mpi.profile.icn
+        else
+          raise Common::Exceptions::RecordNotFound, 'Could not lookup claimant with given information.'
+        end
+      end
     end
   end
 end
