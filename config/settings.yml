@@ -1339,7 +1339,7 @@ ssoe_eauth_cookie:
   name: <%= ENV['ssoe_eauth_cookie__name'] %>
   secure: <%= ENV['ssoe_eauth_cookie__secure'] %>
 statsd:
-  host: <%= ENV['statsd__host'] %>
+  host: <%= ENV['statsd__addr'] %>
   port: 8125
 terms_of_use:
   current_version: v1
