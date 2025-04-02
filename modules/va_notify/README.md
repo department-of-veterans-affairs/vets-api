@@ -1,3 +1,19 @@
+<a id="top"></a>
+
+| Table of Contents |
+|---|
+| [Introduction](#vanotify) |
+| [Using `VANotify::Service` class directly (inline)][3] |
+| [Using one of our Sidekiq wrapper classes (async sending)][4] |
+| [API key details][5] |
+| [Zero Silent Failure (ZSF) Initiative][6] |
+| [Default Callbacks][1] |
+| [Custom Callbacks][2] |
+| [Delivery Status Reference][9] |
+| [Contact us][8] |
+
+<br><br>
+
 # VaNotify
 
 VANotify enables internal VA teams and systems to integrate and send notifications to Veterans, their families, and the people who support them both inside and outside the VA.
@@ -8,6 +24,8 @@ Depending on which business line you fall under, you may need to have a new Serv
 
 There are several options for interacting with the `VaNotify` module
 
+[Back to top][7]
+<a id="inline"></a>
 ### Using the `VANotify::Service` class directly (inline/synchronous sending)
 
 Example usage to send an email using the `VaNotify::Service` class (using a theoretical api_key)
@@ -74,7 +92,9 @@ sequenceDiagram
 
 ```
 
-### Using the wrapper sidekiq class (async sending)
+[Back to top][7]
+<a id="wrapper"></a>
+### Using one of our wrapper Sidekiq class (async sending)
 
 Example usage to send an email using the `VANotify::EmailJob` (there is also a `VANotify::UserAccountJob` for sending via an ICN, [without persisting or logging the ICN](#misc)).
 This class defaults to using the va.gov service's api key but you can provide your own service's api key as show below.
@@ -154,6 +174,7 @@ Please reach out via [#va-notify-public](https://dsva.slack.com/archives/C010R6A
 
 ICNs are considered PII and therefore should not be logged or stored. https://depo-platform-documentation.scrollhelp.site/developer-docs/personal-identifiable-information-pii-guidelines#PersonalIdentifiableInformation(PII)guidelines-NotesandpoliciesregardingICNs
 
+[Back to top][7]
 # Zero Silent Failures Initiative
 
 Providing some additional context around using VA Notify in `vets-api` and preventing silent failures for notifications
@@ -190,26 +211,25 @@ Using option #2:
 
 ---
 
+[Back to top][7]
+
 ### VA Notify Callback Integration Guide for Vets-API
 
-#### Are you configuring callbacks at the VANotify API level for the first time?
+### Are you using our custom callbacks solution for the first time?
 
-If so please [CONTACT US](https://dsva.slack.com/archives/C010R6AUPHT) so we may arrange for your team to use a dedicated bearer token. We're here to help!
+If so, please [CONTACT US](https://dsva.slack.com/archives/C010R6AUPHT) so we can configure a bearer token for your team/service.
 
-#### Details about callbacks
+#### Details
 
-To effectively track the status of individual notifications, VA Notify provides service callbacks. These callbacks enable you to determine whether a notification was successfully delivered or failed, allowing you to take appropriate action.
-
-This guide outlines two distinct approaches to integrating callback logic:
-
-- [Default Callback Class][1]
-- [Custom Callback Handler][2]
+To effectively track the status of individual notifications, VA Notify provides service callbacks. These callbacks allow you to determine if a notification was successfully delivered or if it failed.
 
 #### Why Teams Need to Integrate with Callback Logic
 
 A successful request to the VA Notify API does **not** guarantee that the recipient will receive the notification.
 
-Callbacks are crucial because they provide updates on the actual delivery status of each notification sent.
+Similarly, a failure to receive a response in your custom callback class does not **specifically** signify failure to deliver a notification.
+
+Properly configured callbacks are crucial because they provide updates on the actual delivery status of each notification sent.
 
 Without callbacks, a team would be unaware of issues that may arise during the delivery process, such as:
   - email hard bounces
@@ -223,10 +243,10 @@ Integrating callback logic allows teams to:
 - Maintain compliance and consistency in Veteran communications
 - Ensure that alternative contact methods can be utilized in case of persistent issues
 
-
 #### How Teams Can Integrate with Callbacks
 
 Reminder: [Flippers](https://depo-platform-documentation.scrollhelp.site/developer-docs/flipper-ui-access) can help alleviate issues during rollout
+
 
 **Option 1: Default Callback Class**
 <a id="default-callback"></a>
@@ -275,6 +295,8 @@ Example Implementation
 Step 1: Create a Callback Handler Class: Define a class in your module to handle callbacks, which must implement a class-level method `.call`.
 
 ```rb
+# MUST be accessible from an autoloaded directory; Rails.autoloaders.main.dirs
+
 module ExampleTeam
   class CustomNotificationCallback
     def self.call(notification)
@@ -355,5 +377,14 @@ If you need any further clarification or help during the integration process, fe
 
 - Slack Channel: [#va-notify-public](https://dsva.slack.com/archives/C010R6AUPHT)
 
+[Back to top][7]
+
 [1]: #default-callback
 [2]: #custom-callback
+[3]: #inline
+[4]: #wrapper
+[5]: #api-key-details
+[6]: #zero-silent-failures-initiative
+[7]: #top
+[8]: #contact-us
+[9]: #delivery-status-reference

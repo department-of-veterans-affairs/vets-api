@@ -449,11 +449,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
   create_table "bpds_submissions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "saved_claim_id", null: false
+    t.integer "saved_claim_id", null: false, comment: "ID of the saved claim in vets-api"
     t.enum "latest_status", default: "pending", enum_type: "bpds_submission_status"
-    t.string "form_id", null: false
-    t.string "va_claim_id"
-    t.jsonb "reference_data_ciphertext"
+    t.string "form_id", null: false, comment: "form type of the submission"
+    t.string "va_claim_id", comment: "claim ID in VA (non-vets-api) systems"
+    t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
   end
 
   create_table "central_mail_submissions", id: :serial, force: :cascade do |t|
@@ -1421,27 +1421,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.string "updated_by"
   end
 
-  create_table "sub_tests", force: :cascade do |t|
-    t.string "subtestable_type", null: false
-    t.bigint "subtestable_id", null: false
-    t.string "sub_name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["subtestable_type", "subtestable_id"], name: "index_sub_tests_on_subtestable"
-  end
-
-  create_table "subtest_ones", force: :cascade do |t|
-    t.string "sub_one"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "subtest_twos", force: :cascade do |t|
-    t.string "sub_two"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "terms_of_use_agreements", force: :cascade do |t|
     t.uuid "user_account_id", null: false
     t.string "agreement_version", null: false
@@ -1449,18 +1428,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_account_id"], name: "index_terms_of_use_agreements_on_user_account_id"
-  end
-
-  create_table "test_ones", force: :cascade do |t|
-    t.string "one"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "test_twos", force: :cascade do |t|
-    t.string "two"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "test_user_dashboard_tud_account_availability_logs", force: :cascade do |t|
@@ -1495,15 +1462,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.string "mfa_code"
     t.uuid "logingov_uuid"
     t.text "id_types", default: [], array: true
-  end
-
-  create_table "tests", force: :cascade do |t|
-    t.string "testable_type", null: false
-    t.bigint "testable_id", null: false
-    t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["testable_type", "testable_id"], name: "index_tests_on_testable"
   end
 
   create_table "tooltips", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

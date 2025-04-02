@@ -39,6 +39,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-gov-west-1
 
+      - name: Git Version
+        id: version
+        uses: codacy/git-version@2.8.0
+        with:
+          release-branch: master
+
+      - name: Echo the version
+        run: |
+          echo ${{ steps.version.outputs.version }}
+
+      - name: Create git tag if on master
+        if: github.ref == 'refs/heads/master'
+        run: |
+          git tag ${{ steps.version.outputs.version }}
+          git push origin ${{ steps.version.outputs.version }}
+
       - name: Login to ECR
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
@@ -65,6 +81,7 @@ jobs:
           push: true
           tags: |
             ${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.event.workflow_run.head_commit.id }}
+            ${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ steps.version.outputs.version }} # for semantic release
           cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
           cache-to: type=inline
   deploy:
