@@ -1814,6 +1814,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         describe 'show a report' do
           context 'successful calls' do
             it 'supports showing a report' do
+              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+
               # Using mucked-up yml because apivore has a problem processing non-json responses
               VCR.use_cassette('bb_client/gets_a_text_report_for_apivore') do
                 expect(subject).to validate(:get, '/v0/health_records', 200,
@@ -1824,6 +1826,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
           context 'unsuccessful calls' do
             it 'handles a backend error' do
+              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+
               VCR.use_cassette('bb_client/report_error_response') do
                 expect(subject).to validate(:get, '/v0/health_records', 503,
                                             headers.merge('_query_string' => 'doc_type=txt'))
@@ -1835,6 +1839,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         describe 'create a report' do
           context 'successful calls' do
             it 'supports creating a report' do
+              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+
               VCR.use_cassette('bb_client/generates_a_report') do
                 expect(subject).to validate(
                   :post, '/v0/health_records', 202,
@@ -1879,6 +1885,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
         describe 'eligible data classes' do
           it 'supports retrieving eligible data classes' do
+            allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+
             VCR.use_cassette('bb_client/gets_a_list_of_eligible_data_classes') do
               expect(subject).to validate(:get, '/v0/health_records/eligible_data_classes', 200, headers)
             end
@@ -1888,6 +1896,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         describe 'refresh' do
           context 'successful calls' do
             it 'supports health records refresh' do
+              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+
               VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
                 expect(subject).to validate(:get, '/v0/health_records/refresh', 200, headers)
               end
@@ -3845,21 +3855,21 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         )
       end
 
-      it 'returns 404 for missing claim' do
+      it 'returns 400 for missing claim' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[path method]) do
+        VCR.use_cassette('travel_pay/404_claim_details', match_requests_on: %i[path method]) do
           expect(subject).to validate(
             :get,
             '/travel_pay/v0/claims/{id}',
-            404,
-            headers.merge('id' => '8656ad4e-5cdf-41e2-bbd5-af843d2fa8fe')
+            400,
+            headers.merge('id' => 'aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e')
           )
         end
       end
 
       it 'returns 400 for invalid request' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[path method]) do
+        VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[path method]) do
           expect(subject).to validate(
             :get,
             '/travel_pay/v0/claims/{id}',
@@ -3871,8 +3881,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'returns 200 for successful response' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        claim_id = '33016896-ed7f-4d4f-a81b-cc4f2ca0832c'
-        VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[path method]) do
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[path method]) do
           expect(subject).to validate(
             :get,
             '/travel_pay/v0/claims/{id}',

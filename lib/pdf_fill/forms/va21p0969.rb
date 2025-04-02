@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 
 require 'pdf_fill/forms/form_base'
+require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
 require 'income_and_assets/constants'
 require 'income_and_assets/helpers'
 
+# rubocop:disable Metrics/ClassLength
+
 module PdfFill
   module Forms
     class Va21p0969 < FormBase
+      include FormHelper
       include IncomeAndAssets::Helpers
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
@@ -300,6 +304,257 @@ module PdfFill
             question_suffix: '(5)',
             question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY'
           }
+        },
+        # 7a
+        'assetTransfer' => {
+          key: 'F[0].Page_9[0].DependentsSellAssets7a[0]'
+        },
+        # 7b-7d
+        'assetTransfers' => {
+          limit: 3,
+          first_key: 'originalOwnerRelationship',
+          'originalOwnerRelationship' => {
+            key: "F[0].RelationshiptoVeteran7[#{ITERATOR}]"
+          },
+          'originalOwnerRelationshipOverflow' => {
+            question_num: 7,
+            question_suffix: '(1)',
+            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN"
+          },
+          'otherOriginalOwnerRelationshipType' => {
+            key: "F[0].OtherRelationship7[#{ITERATOR}]",
+            question_num: 7,
+            question_suffix: '(1)',
+            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN (OTHER)"
+          },
+          'transferMethod' => {
+            key: "F[0].HowAssetTransferred[#{ITERATOR}]"
+          },
+          'transferMethodOverflow' => {
+            question_num: 7,
+            question_suffix: '(2)',
+            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED'
+          },
+          'otherTransferMethod' => {
+            key: "F[0].OtherRelationship7[#{ITERATOR}]",
+            question_num: 7,
+            question_suffix: '(2)',
+            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED (OTHER)'
+          },
+          'assetType' => {
+            key: "F[0].WhatAssetWasTransferred[#{ITERATOR}]"
+          },
+          'assetTypeOverflow' => {
+            question_num: 7,
+            question_suffix: '(3)',
+            question_text: 'WHAT ASSET WAS TRANSFERRED?'
+          },
+          'newOwnerName' => {
+            key: "F[0].WhoReceivedAsset[#{ITERATOR}]"
+          },
+          'newOwnerNameOverflow' => {
+            question_num: 7,
+            question_suffix: '(4)',
+            question_text: 'WHO RECEIVED THE ASSET?'
+          },
+          'newOwnerRelationship' => {
+            key: "F[0].RelationshipToNewOwner[#{ITERATOR}]"
+          },
+          'newOwnerRelationshipOverflow' => {
+            question_num: 7,
+            question_suffix: '(5)',
+            question_text: 'RELATIONSHIP TO NEW OWNER'
+          },
+          'saleReportedToIrs' => {
+            key: "F[0].WasSaleReportedToIRS[#{ITERATOR}]"
+          },
+          'transferDate' => {
+            'month' => {
+              key: "F[0].DateOfTransferMonth[#{ITERATOR}]"
+            },
+            'day' => {
+              key: "F[0].DateOfTransferDay[#{ITERATOR}]"
+            },
+            'year' => {
+              key: "F[0].DateOfTransferYear[#{ITERATOR}]"
+            }
+          },
+          'assetTransferredUnderFairMarketValue' => {
+            key: "F[0].TransferredForLessThanFMV[#{ITERATOR}]"
+          },
+          'fairMarketValue' => {
+            'millions' => {
+              key: "F[0].FairMarketValue1_7[#{ITERATOR}]"
+            },
+            'thousands' => {
+              key: "F[0].FairMarketValue2_7[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].FairMarketValue3_7[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].FairMarketValue4_7[#{ITERATOR}]"
+            }
+          },
+          'fairMarketValueOverflow' => {
+            question_num: 7,
+            question_suffix: '(9)',
+            question_text: 'WHAT WAS THE FAIR MARKET VALUE WHEN TRANSFERRED?'
+          },
+          'saleValue' => {
+            'millions' => {
+              key: "F[0].SalePrice1_7[#{ITERATOR}]"
+            },
+            'thousands' => {
+              key: "F[0].SalePrice2_7[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].SalePrice3_7[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].SalePrice4_7[#{ITERATOR}]"
+            }
+          },
+          'saleValueOverflow' => {
+            question_num: 7,
+            question_suffix: '(10)',
+            question_text: 'WHAT WAS THE SALE PRICE? (If applicable)'
+          },
+          'capitalGainValue' => {
+            'millions' => {
+              key: "F[0].Gain1_7[#{ITERATOR}]"
+            },
+            'thousands' => {
+              key: "F[0].Gain2_7[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].Gain3_7[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].Gain4_7[#{ITERATOR}]"
+            }
+          },
+          'capitalGainValueOverflow' => {
+            question_num: 7,
+            question_suffix: '(11)',
+            question_text: 'WHAT WAS THE GAIN? (Capital gain, etc.)'
+          }
+        },
+        # 8a
+        'trust' => { key: 'F[0].Page_10[0].DependentsEstablishedATrust[0]' },
+        # 8b-8m (only space for one on form)
+        'trusts' => {
+          limit: 1,
+          first_key: 'establishedDate',
+          # 8b
+          'establishedDate' => {
+            'month' => { key: "F[0].Page_10[0].Month8b[#{ITERATOR}]" },
+            'day' => { key: "F[0].Page_10[0].Day8b[#{ITERATOR}]" },
+            'year' => { key: "F[0].Page_10[0].Year8b[#{ITERATOR}]" }
+          },
+          'establishedDateOverflow' => {
+            question_num: 8,
+            question_suffix: '(b)',
+            question_text: 'DATE TRUST ESTABLISHED (MM/DD/YYYY)'
+          },
+          # 8c
+          'marketValueAtEstablishment' => {
+            'millions' => { key: "F[0].Page_10[0].MarketValue1_8c[#{ITERATOR}]" },
+            'thousands' => { key: "F[0].Page_10[0].MarketValue2_8c[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].Page_10[0].MarketValue3_8c[#{ITERATOR}]" },
+            'cents' => { key: "F[0].Page_10[0].MarketValue4_8c[#{ITERATOR}]" }
+          },
+          'marketValueAtEstablishmentOverflow' => {
+            question_num: 8,
+            question_suffix: '(c)',
+            question_text: 'SPECIFY MARKET VALUE OF ALL ASSETS WITHIN THE TRUST AT TIME OF ESTABLISHEMENT'
+          },
+          # 8d
+          'trustType' => { key: "F[0].Page_10[0].TypeOfTrust8d[#{ITERATOR}]" },
+          'trustTypeOverflow' => {
+            question_num: 8,
+            question_suffix: '(d)',
+            question_text: 'SPECIFY TYPE OF TRUST ESTABLISHED'
+          },
+          # 8e
+          'addedFundsAfterEstablishment' => { key: "F[0].Page_10[0].AddedAdditionalFunds8e[#{ITERATOR}]" },
+          'addedFundsAfterEstablishmentOverflow' => {
+            question_num: 8,
+            question_suffix: '(e)',
+            question_text: 'HAVE YOU ADDED FUNDS TO THE TRUST AFTER IT WAS ESTABLISHED?'
+          },
+          # 8f
+          'addedFundsDate' => {
+            'month' => { key: "F[0].Page_10[0].Transfer8fMonth[#{ITERATOR}]" },
+            'day' => { key: "F[0].Page_10[0].Transfer8fDay[#{ITERATOR}]" },
+            'year' => { key: "F[0].Page_10[0].Transfer8fYear[#{ITERATOR}]" }
+          },
+          'addedFundsDateOverflow' => {
+            question_num: 8,
+            question_suffix: '(f)',
+            question_text: 'WHEN DID YOU ADD FUNDS? (MM/DD/YYYY)'
+          },
+          # 8g
+          'addedFundsAmount' => {
+            'thousands' => { key: "F[0].Page_10[0].HowMuchTransferred1_8g[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].Page_10[0].HowMuchTransferred2_8g[#{ITERATOR}]" },
+            'cents' => { key: "F[0].Page_10[0].HowMuchTransferred3_8g[#{ITERATOR}]" }
+          },
+          'addedFundsAmountOverflow' => {
+            question_num: 8,
+            question_suffix: '(g)',
+            question_text: 'HOW MUCH DID YOU ADD?'
+          },
+          # 8h
+          'receivingIncomeFromTrust' => { key: "F[0].Page_10[0].ReceivingIncome8h[#{ITERATOR}]" },
+          'receivingIncomeFromTrustOverflow' => {
+            question_num: 8,
+            question_suffix: '(h)',
+            question_text: 'ARE YOU RECEIVING INCOME FROM THE TRUST? '
+          },
+          # 8i
+          'annualReceivedIncome' => {
+            'thousands' => { key: "F[0].Page_10[0].ReceiveAnnually1_8i[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].Page_10[0].ReceiveAnnually2_8i[#{ITERATOR}]" },
+            'cents' => { key: "F[0].Page_10[0].ReceiveAnnually3_8i[#{ITERATOR}]" }
+          },
+          'annualReceivedIncomeOverflow' => {
+            question_num: 8,
+            question_suffix: '(i)',
+            question_text: 'HOW MUCH DO YOU RECEIVE ANNUALLY?'
+          },
+          # 8j
+          'trustUsedForMedicalExpenses' => { key: "F[0].Page_10[0].TrustUsedToPay8j[#{ITERATOR}]" },
+          'trustUsedForMedicalExpensesOverflow' => {
+            question_num: 8,
+            question_suffix: '(j)',
+            question_text: 'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?'
+          },
+          # 8k
+          'monthlyMedicalReimbursementAmount' => {
+            'thousands' => { key: "F[0].Page_10[0].ReimbursedMonthly1_8k[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].Page_10[0].ReimbursedMonthly2_8k[#{ITERATOR}]" },
+            'cents' => { key: "F[0].Page_10[0].ReimbursedMonthly3_8k[#{ITERATOR}]" }
+          },
+          'monthlyMedicalReimbursementAmountOverflow' => {
+            question_num: 8,
+            question_suffix: '(k)',
+            question_text: 'HOW MUCH IS BEING REIMBURSED MONTHLY?'
+          },
+          # 8l
+          'trustEstablishedForVeteransChild' => { key: "F[0].Page_10[0].EstablishedForChild8l[#{ITERATOR}]" },
+          'trustEstablishedForVeteransChildOverflow' => {
+            question_num: 8,
+            question_suffix: '(l)',
+            question_text: 'WAS THE TRUST ESTABLISHED FOR A CHILD OF THE VETERAN WHO WAS INCAPABLE OF SELF-SUPPORT PRIOR TO REACHING AGE 18?' # rubocop:disable Layout/LineLength
+          },
+          # 8m
+          'haveAuthorityOrControlOfTrust' => { key: "F[0].Page_10[0].AdditionalAuthority8m[#{ITERATOR}]" },
+          'haveAuthorityOrControlOfTrustOverflow' => {
+            question_num: 8,
+            question_suffix: '(m)',
+            question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?'
+          }
         }
       }.freeze
 
@@ -316,6 +571,8 @@ module PdfFill
         expand_unassociated_incomes
         expand_associated_incomes
         expand_owned_assets
+        expand_asset_transfers
+        expand_trusts
 
         form_data
       end
@@ -432,6 +689,74 @@ module PdfFill
           'ownedPortionValueOverflow' => portion_value
         }
       end
+
+      def expand_asset_transfers
+        asset_transfers = form_data['assetTransfers']
+        form_data['assetTransfer'] = asset_transfers&.length ? 0 : 1
+        form_data['assetTransfers'] = asset_transfers&.map do |transfer|
+          expand_asset_transfer(transfer)
+        end
+      end
+
+      def expand_asset_transfer(transfer) # rubocop:disable Metrics/MethodLength
+        original_owner_relationship = transfer['originalOwnerRelationship']
+        transfer_method = transfer['transferMethod']
+        new_owner_name = change_hash_to_string(transfer['newOwnerName'])
+        {
+          'originalOwnerRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[original_owner_relationship],
+          'originalOwnerRelationshipOverflow' => transfer['originalOwnerRelationship'],
+          'otherOriginalOwnerRelationshipType' => transfer['otherOriginalOwnerRelationshipType'],
+          'transferMethod' => IncomeAndAssets::Constants::TRANSFER_METHODS[transfer_method],
+          'transferMethodOverflow' => transfer['transferMethod'],
+          'otherTransferMethod' => transfer['otherTransferMethod'],
+          'assetType' => transfer['assetType'],
+          'assetTypeOverflow' => transfer['assetType'],
+          'newOwnerName' => new_owner_name,
+          'newOwnerNameOverflow' => new_owner_name,
+          'newOwnerRelationship' => transfer['newOwnerRelationship'],
+          'newOwnerRelationshipOverflow' => transfer['newOwnerRelationship'],
+          'saleReportedToIrs' => transfer['saleReportedToIrs'] ? 0 : 1,
+          'transferDate' => split_date(transfer['transferDate']),
+          'assetTransferredUnderFairMarketValue' => transfer['assetTransferredUnderFairMarketValue'] ? 0 : 1,
+          'fairMarketValue' => split_currency_amount_lg(transfer['fairMarketValue']),
+          'fairMarketValueOverflow' => transfer['fairMarketValue'],
+          'saleValue' => split_currency_amount_lg(transfer['saleValue']),
+          'saleValueOverflow' => transfer['saleValue'],
+          'capitalGainValue' => split_currency_amount_lg(transfer['capitalGainValue']),
+          'capitalGainValueOverflow' => transfer['capitalGainValue']
+        }
+      end
+
+      def expand_trusts
+        trusts = form_data['trusts']
+        form_data['trust'] = trusts&.length ? 0 : 1
+        form_data['trusts'] = trusts&.map { |trust| expand_trust(trust) }
+      end
+
+      def expand_trust(trust)
+        market_value = split_currency_amount_lg(trust['marketValueAtEstablishment'], { 'millions' => 1 })
+        expanded = {
+          'establishedDate' => split_date(trust['establishedDate']),
+          'marketValueAtEstablishment' => market_value,
+          'trustType' => IncomeAndAssets::Constants::TRUST_TYPES[trust['trustType']],
+          'addedFundsAfterEstablishment' => trust['addedFundsAfterEstablishment'] ? 0 : 1,
+          'addedFundsDate' => split_date(trust['addedFundsDate']),
+          'addedFundsAmount' => split_currency_amount_sm(trust['addedFundsAmount']),
+          'receivingIncomeFromTrust' => trust['receivingIncomeFromTrust'] ? 0 : 1,
+          'annualReceivedIncome' => split_currency_amount_sm(trust['annualReceivedIncome']),
+          'trustUsedForMedicalExpenses' => trust['trustUsedForMedicalExpenses'] ? 0 : 1,
+          'monthlyMedicalReimbursementAmount' => split_currency_amount_sm(trust['monthlyMedicalReimbursementAmount']),
+          'trustEstablishedForVeteransChild' => trust['trustEstablishedForVeteransChild'] ? 0 : 1,
+          'haveAuthorityOrControlOfTrust' => trust['haveAuthorityOrControlOfTrust'] ? 0 : 1
+        }
+        overflow = {}
+        expanded.each_key do |fieldname|
+          overflow["#{fieldname}Overflow"] = trust[fieldname]
+        end
+        expanded.merge(overflow)
+      end
     end
   end
 end
+
+# rubocop:enable Metrics/ClassLength
