@@ -344,8 +344,62 @@
       "capitalGainValueOverflow": 200.99
     }
   ],
+  "trusts": [
+    {
+      "establishedDate": {
+        "month": "02",
+        "day": "02",
+        "year": "1982"
+      },
+      "marketValueAtEstablishment": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "000",
+        "millions": "9"
+      },
+      "trustType": 0,
+      "addedFundsAfterEstablishment": 0,
+      "addedFundsDate": {
+        "month": "02",
+        "day": "01",
+        "year": "1985"
+      },
+      "addedFundsAmount": {
+        "cents": "99",
+        "dollars": "199",
+        "thousands": "00"
+      },
+      "receivingIncomeFromTrust": 0,
+      "annualReceivedIncome": {
+        "cents": "00",
+        "dollars": "200",
+        "thousands": "00"
+      },
+      "trustUsedForMedicalExpenses": 0,
+      "monthlyMedicalReimbursementAmount": {
+        "cents": "67",
+        "dollars": "345",
+        "thousands": "12"
+      },
+      "trustEstablishedForVeteransChild": 0,
+      "haveAuthorityOrControlOfTrust": 0,
+      "establishedDateOverflow": "1982-02-02",
+      "marketValueAtEstablishmentOverflow": 9000000,
+      "trustTypeOverflow": "REVOCABLE",
+      "addedFundsAfterEstablishmentOverflow": true,
+      "addedFundsDateOverflow": "1985-02-01",
+      "addedFundsAmountOverflow": 199.99,
+      "receivingIncomeFromTrustOverflow": true,
+      "annualReceivedIncomeOverflow": 200,
+      "trustUsedForMedicalExpensesOverflow": true,
+      "monthlyMedicalReimbursementAmountOverflow": 12345.67,
+      "trustEstablishedForVeteransChildOverflow": true,
+      "haveAuthorityOrControlOfTrustOverflow": true
+    }
+  ],
   "unassociatedIncome": "YES",
   "associatedIncome": 0,
   "ownedAsset": 0,
-  "assetTransfer": 0
+  "assetTransfer": 0,
+  "trust": 0
 }

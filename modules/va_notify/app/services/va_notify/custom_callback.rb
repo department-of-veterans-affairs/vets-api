@@ -1,21 +1,19 @@
 # frozen_string_literal: true
 
 module VANotify
-  class StatusUpdate
+  class CustomCallback
     attr_reader :notification
 
-    def delegate(notification_callback)
+    def initialize(notification_callback)
       @notification = VANotify::Notification.find_by(notification_id: notification_callback[:id])
+    end
 
+    def call
       return if callback_info_missing?
 
       klass = constantized_class(notification.callback_klass)
       if klass.respond_to?(:call)
-        begin
-          klass.call(notification)
-        rescue => e
-          Rails.logger.info(e.message)
-        end
+        klass.call(notification)
       else
         begin
           Rails.logger.info(message: 'The callback class does not implement #call')
@@ -24,6 +22,7 @@ module VANotify
         end
       end
     rescue => e
+      Rails.logger.info(message: "Rescued #{notification.callback_klass} from VANotify::CustomCallback#call")
       Rails.logger.info(source: notification.source_location, status: notification.status, error_message: e.message)
     end
 
