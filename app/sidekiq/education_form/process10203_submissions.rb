@@ -22,7 +22,7 @@ module EducationForm
         }
       ).order('education_benefits_claims.created_at')
     )
-      return false unless evss_is_healthy?
+      # return false unless evss_is_healthy?
 
       init_count = records.filter do |r|
         r.education_stem_automated_decision.automated_decision_state == EducationStemAutomatedDecision::INIT
@@ -42,7 +42,7 @@ module EducationForm
     private
 
     def evss_is_healthy?
-      Settings.evss.mock_claims || true
+      false
     end
 
     # Group the submissions by user_uuid

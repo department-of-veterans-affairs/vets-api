@@ -128,6 +128,29 @@ RSpec.describe EducationForm::Process10203Submissions, form: :education_benefits
         expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to be_nil
       end
 
+      it 'skips POA check for user without an EDIPI' do
+        allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
+        application_10203 = create(:va10203)
+        application_10203.after_submit(no_edipi_user)
+
+        subject.perform
+        application_10203.reload
+        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to be_nil
+      end
+
+      it 'sets claim poa for evss user without poa' do
+        allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
+        application_10203 = create(:va10203)
+        application_10203.after_submit(user)
+        evss_response_without_poa = OpenStruct.new({ 'userPoaInfoAvailable' => false })
+        # allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
+        #                                                     .and_return(evss_response_without_poa)
+
+        subject.perform
+        application_10203.reload
+        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to be_nil
+      end
+
       it 'sets claim poa for claim with decision poa flag' do
         application_10203 = create(:education_benefits_claim_10203,
                                    processed_at: Time.zone.now.beginning_of_day,
