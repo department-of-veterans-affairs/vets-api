@@ -136,7 +136,7 @@ describe IvcChampva::VesDataFormatter do
       validated_data = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
 
       # Check that all the original keys/values present in @request_body
-      # are still present in the formatted object. 
+      # are still present in the formatted object.
       h1 = JSON.parse(@request_body.to_json).sort.to_h
       h2 = JSON.parse(validated_data.to_json).sort.to_h
       # Get the intersection and verify h2 contained all original keys
