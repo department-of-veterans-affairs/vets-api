@@ -18,7 +18,7 @@ module ClaimsApi
 
           property :type do
             key :type, :string
-            key :example, 'disability_compensation_intent_to_files'
+            key :example, 'intent_to_file'
             key :description, 'Required by JSON API standard'
           end
 
