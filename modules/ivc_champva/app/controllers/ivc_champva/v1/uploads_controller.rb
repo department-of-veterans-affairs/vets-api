@@ -71,7 +71,7 @@ module IvcChampva
            form_id == 'vha_10_10d' && !ves_request.nil?
           ves_client = IvcChampva::VesApi::Client.new
           begin
-            ves_client.submit_1010d('fake-id', 'fake-user', ves_request)
+            ves_client.submit_1010d(ves_request.transaction_uuid, 'fake-user', ves_request)
           rescue => e
             Rails.logger.error "Ignoring error when submitting to VES: #{e.message}"
           end
