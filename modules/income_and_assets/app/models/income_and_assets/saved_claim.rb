@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'pension_burial/processing_office'
+require 'income_and_assets/benefits_intake/benefit_intake_job'
 
 class IncomeAndAssets::SavedClaim < SavedClaim
   FORM = IncomeAndAssets::FORM_ID
