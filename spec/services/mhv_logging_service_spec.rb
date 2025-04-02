@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/rx_client_helpers'
 
 RSpec.describe MHVLoggingService do
   let(:mhv_correlation_id) { '12345' }
