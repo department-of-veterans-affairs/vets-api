@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe CheckIn::TravelClaimBaseJob do
+RSpec.describe CheckIn::TravelClaimNotificationJob do
   let(:mobile_phone) { '202-555-0123' }
   let(:appointment_date) { '2023-05-15' }
   let(:claim_number) { '1234' }
@@ -25,8 +25,8 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
     end
   end
 
-  describe '#send_notification' do
-    subject { described_class.new.send_notification(job_opts) }
+  describe '#perform' do
+    subject { described_class.new.perform(job_opts) }
 
     before do
       allow_any_instance_of(VaNotify::Service).to receive(:send_sms)
@@ -70,7 +70,7 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
           .with(hash_including(
                   message: "Sending SMS failed, attempt 1 of #{described_class::MAX_RETRIES + 1}"
                 ))
-        expect { job.send_notification(job_opts) }.to raise_error(StandardError)
+        expect { job.perform(job_opts) }.to raise_error(StandardError)
 
         # Second attempt - retry_count = 1
         job = described_class.new
@@ -84,7 +84,7 @@ RSpec.describe CheckIn::TravelClaimBaseJob do
           .with(hash_including(
                   message: "Sending SMS failed, attempt 2 of #{described_class::MAX_RETRIES + 1}"
                 ))
-        expect { job.send_notification(job_opts) }.to raise_error(StandardError)
+        expect { job.perform(job_opts) }.to raise_error(StandardError)
       end
     end
 
