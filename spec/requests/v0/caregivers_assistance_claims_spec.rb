@@ -28,6 +28,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
     let(:valid_form_data) { get_fixture('pdf_fill/10-10CG/simple').to_json }
     let(:invalid_form_data) { '{}' }
+    let(:claim) { {} }
 
     before do
       allow(SavedClaim::CaregiversAssistanceClaim).to receive(:new)
@@ -168,6 +169,32 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
         subject
         expect(response).to have_http_status(:internal_server_error)
+      end
+    end
+
+    context 'when missing params: caregivers_assistance_claim' do
+      let(:body) { {}.to_json }
+
+      it 'logs the error and re-raises it' do
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:submission_attempt)
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(
+          :submission_failure_client_data,
+          errors: ['param is missing or the value is empty: caregivers_assistance_claim']
+        )
+        subject
+      end
+    end
+
+    context 'when missing params: form' do
+      let(:body) { { caregivers_assistance_claim: { form: nil } }.to_json }
+
+      it 'logs the error and re-raises it' do
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:submission_attempt)
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(
+          :submission_failure_client_data,
+          errors: ['param is missing or the value is empty: form']
+        )
+        subject
       end
     end
   end

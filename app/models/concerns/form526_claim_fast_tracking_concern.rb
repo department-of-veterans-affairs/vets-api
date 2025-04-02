@@ -13,6 +13,7 @@ module Form526ClaimFastTrackingConcern
   RRD_STATSD_KEY_PREFIX = 'worker.rapid_ready_for_decision'
   MAX_CFI_STATSD_KEY_PREFIX = 'api.max_cfi'
   FLASHES_STATSD_KEY = 'worker.flashes'
+  DOCUMENT_TYPE_METRICS_STATSD_KEY_PREFIX = 'worker.document_type_metrics'
 
   FLASH_PROTOTYPES = ['Amyotrophic Lateral Sclerosis'].freeze
   OPEN_STATUSES = [
@@ -335,6 +336,55 @@ module Form526ClaimFastTrackingConcern
     end
   rescue => e
     Rails.logger.error("Failed to log Flash Prototypes #{e.message}.", backtrace: e.backtrace)
+  end
+
+  def log_document_type_metrics
+    return if in_progress_form.blank?
+
+    fd = in_progress_form.form_data
+    fd = JSON.parse(fd) if fd.is_a?(String)
+    additional_docs_by_type = get_doc_type_counts(fd, 'additionalDocuments')
+    private_medical_docs_by_type = get_doc_type_counts(fd, 'privateMedicalRecordAttachments')
+    return if additional_docs_by_type.blank? && private_medical_docs_by_type.blank?
+
+    log_doc_type_metrics_for_group(additional_docs_by_type, 'additionalDocuments')
+    log_doc_type_metrics_for_group(private_medical_docs_by_type, 'privateMedicalRecordAttachments')
+
+    Rails.logger.info('Form526 evidence document type metrics',
+                      id:,
+                      additional_docs_by_type:,
+                      private_medical_docs_by_type:)
+  rescue => e
+    # Log the exception but do not fail
+    log_exception_to_sentry(e)
+  end
+
+  def get_group_docs(form_data, group_key)
+    return [] unless form_data.is_a?(Hash)
+
+    form_data.fetch(group_key, form_data.fetch(group_key.underscore, []))
+  end
+
+  def get_doc_type_counts(form_data, group_key)
+    docs = get_group_docs(form_data, group_key)
+    return {} if docs.nil? || !docs.is_a?(Array)
+
+    docs.map do |doc|
+      next nil if doc.blank?
+      next 'unknown' unless doc.is_a?(Hash)
+
+      doc.fetch('attachmentId', doc.fetch('attachment_id', 'unknown'))
+    end.compact
+       .group_by(&:itself)
+       .transform_values(&:count)
+  end
+
+  def log_doc_type_metrics_for_group(doc_type_counts, group_name)
+    doc_type_counts.each do |doc_type, count|
+      StatsD.increment("#{DOCUMENT_TYPE_METRICS_STATSD_KEY_PREFIX}.#{group_name.underscore}_document_type",
+                       count,
+                       tags: ["document_type:#{doc_type}", 'source:form526'])
+    end
   end
 end
 # rubocop:enable Metrics/ModuleLength

@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 require 'pensions/benefits_intake/pension_benefit_intake_job'
+require 'kafka/sidekiq/event_bus_submission_job'
 
 RSpec.describe Pensions::V0::ClaimsController, type: :controller do
   routes { Pensions::Engine.routes }
@@ -10,6 +11,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
   let(:monitor) { double('Pensions::Monitor') }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:pension_kafka_event_bus_submission_enabled).and_return(true)
     allow(Pensions::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
                                        track_create_error: nil, track_create_success: nil,
@@ -33,6 +35,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       expect(monitor).to receive(:track_create_validation_error).once
       expect(monitor).to receive(:track_create_error).once
       expect(Pensions::PensionBenefitIntakeJob).not_to receive(:perform_async)
+      expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
 
       response = post(:create, params: { param_name => { form: claim.form } })
 
@@ -99,6 +102,16 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       expect do
         subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
       end.to raise_error(StandardError, 'mock error')
+    end
+  end
+
+  describe '#submit_traceability_to_event_bus' do
+    let(:claim) { build(:pensions_saved_claim) }
+
+    it 'returns a success' do
+      expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
+
+      subject.send(:submit_traceability_to_event_bus, claim)
     end
   end
 
