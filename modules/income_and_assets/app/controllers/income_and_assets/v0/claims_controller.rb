@@ -4,6 +4,9 @@ require 'income_and_assets/claims/monitor'
 
 module IncomeAndAssets
   module V0
+    ###
+    # The Income and Assets claim controller that handles form submissions
+    #
     class ClaimsController < ClaimsBaseController
       before_action :check_flipper_flag
       service_tag 'income-and-assets-application'
