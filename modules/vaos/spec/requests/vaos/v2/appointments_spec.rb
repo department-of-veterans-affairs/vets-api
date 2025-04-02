@@ -579,9 +579,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               data = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
-              expect(data.size).to eq(10)
+              expect(data.size).to eq(18)
               expect(data[0]['attributes']['location']).to eq(facility_error_msg)
-              expect(data[9]['attributes']['location']).not_to eq(facility_error_msg)
+              expect(data[17]['attributes']['location']).not_to eq(facility_error_msg)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end
@@ -594,8 +594,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               data = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
+              expect(data.size).to eq(18)
               expect(data[0]['attributes']['location']).to eq(facility_error_msg)
-              expect(data[9]['attributes']['location']).not_to eq(facility_error_msg)
+              expect(data[17]['attributes']['location']).not_to eq(facility_error_msg)
               expect(Rails.logger).not_to have_received(:info).with("Details for Cerner 'COL OR 1' Appointment",
                                                                     any_args)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
@@ -1550,6 +1551,44 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             response_obj = JSON.parse(response.body)
             expect(response).to have_http_status(:bad_gateway)
             expect(response_obj['message']).to eq(expected_error_msg)
+          end
+        end
+      end
+
+      context 'when the upstream service returns a 500 error' do
+        it 'returns a bad_gateway status and appropriate error message' do
+          VCR.use_cassette('vaos/eps/get_appointments/500_error') do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200') do
+              VCR.use_cassette('vaos/eps/get_drive_times/200') do
+                VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
+                  VCR.use_cassette 'vaos/eps/get_provider_service/200' do
+                    VCR.use_cassette 'vaos/eps/draft_appointment/200' do
+                      VCR.use_cassette 'vaos/eps/token/token_200' do
+                        post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+                        expect(response).to have_http_status(:bad_gateway)
+                        response_body = JSON.parse(response.body)
+                        expect(response_body).to have_key('errors')
+                        expect(response_body['errors']).to be_an(Array)
+
+                        error = response_body['errors'].first
+                        expect(error).to include(
+                          'title' => 'Bad Gateway',
+                          'detail' => 'Received an an invalid response from the upstream server',
+                          'code' => 'VAOS_502',
+                          'status' => '502',
+                          'source' => {
+                            'vamfUrl' => 'https://api.wellhive.com/care-navigation/v1/appointments?patientId=care-nav-patient-casey',
+                            'vamfBody' => '{"isFault": true,"isTemporary": true,"name": "Internal Server Error"}',
+                            'vamfStatus' => 500
+                          }
+                        )
+                      end
+                    end
+                  end
+                end
+              end
+            end
           end
         end
       end

@@ -5,7 +5,7 @@ require 'decision_review/schemas'
 class Swagger::V1::Requests::Appeals::Appeals
   include Swagger::Blocks
 
-  swagger_path '/v1/higher_level_reviews' do
+  swagger_path '/decision_reviews/v1/higher_level_reviews' do
     operation :post do
       key :tags, %w[higher_level_reviews]
       key :summary, 'Creates a higher level review'
@@ -34,7 +34,7 @@ class Swagger::V1::Requests::Appeals::Appeals
     end
   end
 
-  swagger_path '/v1/higher_level_reviews/{uuid}' do
+  swagger_path '/decision_reviews/v1/higher_level_reviews/{uuid}' do
     operation :get do
       key :description, 'This endpoint returns the details of a specific Higher Level Review'
       key :operationId, 'showHigherLevelReview'
@@ -62,7 +62,7 @@ class Swagger::V1::Requests::Appeals::Appeals
     end
   end
 
-  swagger_path '/v1/higher_level_reviews/contestable_issues/{benefit_type}' do
+  swagger_path '/decision_reviews/v1/higher_level_reviews/contestable_issues/{benefit_type}' do
     operation :get do
       description =
         'For the logged-in veteran, returns a list of issues that could be contested in a Higher-Level Review ' \
@@ -96,7 +96,7 @@ class Swagger::V1::Requests::Appeals::Appeals
     end
   end
 
-  swagger_path '/v1/notice_of_disagreements' do
+  swagger_path '/decision_reviews/v1/notice_of_disagreements' do
     operation :post do
       key :tags, %w[notice_of_disagreements]
       key :summary, 'Creates a notice of disagreement'
@@ -125,7 +125,7 @@ class Swagger::V1::Requests::Appeals::Appeals
     end
   end
 
-  swagger_path '/v1/notice_of_disagreements/{uuid}' do
+  swagger_path '/decision_reviews/v1/notice_of_disagreements/{uuid}' do
     operation :get do
       key :description, 'This endpoint returns the details of a specific notice of disagreement'
       key :operationId, 'showNoticeOfDisagreement'
@@ -153,7 +153,7 @@ class Swagger::V1::Requests::Appeals::Appeals
     end
   end
 
-  swagger_path '/v1/notice_of_disagreements/contestable_issues' do
+  swagger_path '/decision_reviews/v1/notice_of_disagreements/contestable_issues' do
     operation :get do
       description =
         'For the logged-in veteran, returns a list of issues that could be contested in a Notice of Disagreement'
@@ -173,7 +173,7 @@ class Swagger::V1::Requests::Appeals::Appeals
     end
   end
 
-  swagger_path '/v1/supplemental_claims' do
+  swagger_path '/decision_reviews/v1/supplemental_claims' do
     operation :post do
       key :tags, %w[supplemental_claims]
       key :summary, 'Creates a supplemental claim'
@@ -202,7 +202,7 @@ class Swagger::V1::Requests::Appeals::Appeals
     end
   end
 
-  swagger_path '/v1/supplemental_claims/{uuid}' do
+  swagger_path '/decision_reviews/v1/supplemental_claims/{uuid}' do
     operation :get do
       key :description, 'Returns all of the data associated with a specific \
       Supplemental Claim.'
@@ -231,7 +231,7 @@ class Swagger::V1::Requests::Appeals::Appeals
     end
   end
 
-  swagger_path '/v1/supplemental_claims/contestable_issues/{benefit_type}' do
+  swagger_path '/decision_reviews/v1/supplemental_claims/contestable_issues/{benefit_type}' do
     operation :get do
       description =
         'For the logged-in veteran, returns a list of issues that could be \
@@ -260,7 +260,7 @@ class Swagger::V1::Requests::Appeals::Appeals
     end
   end
 
-  swagger_path '/v1/decision_review_evidence' do
+  swagger_path '/decision_reviews/v1/decision_review_evidence' do
     operation :post do
       extend Swagger::Responses::BadRequestError
 

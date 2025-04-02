@@ -15,9 +15,13 @@ module AccreditedRepresentativePortal
       )
     end
 
+    rescue_from ActionController::BadRequest do |e|
+      render json: { errors: [e.message] }, status: :bad_request
+    end
+
     service_tag 'accredited-representative-portal' # ARP DataDog monitoring: https://bit.ly/arp-datadog-monitoring
 
-    validates_access_token_audience Settings.sign_in.arp_client_id
+    validates_access_token_audience IdentitySettings.sign_in.arp_client_id
 
     before_action :verify_pilot_enabled_for_user
     around_action :handle_exceptions
