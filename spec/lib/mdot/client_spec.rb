@@ -68,6 +68,27 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
+    context 'with an unknown error sans result' do
+      it 'raises a Default Exception' do
+        VCR.use_cassette('mdot/get_supplies_502_no_result') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:CommonClientErrorsClientError', 'status:502'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(
+            MDOT::Exceptions::ServiceException
+          ) do |e|
+            expect(e.message).to match(/default_exception/)
+            expect(e.status_code).to eq(400)
+          end
+        end
+      end
+    end
+
     context 'when the DLC API is unavailable' do
       it 'raises a 503' do
         VCR.use_cassette('mdot/get_supplies_503') do
