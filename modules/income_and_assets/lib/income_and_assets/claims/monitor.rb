@@ -5,6 +5,9 @@ module IncomeAndAssets
   # IncomeAndAssets api monitor functions for Rails logging and StatsD
   #
   module Claims
+    ##
+    # Monitor functions for Rails logging and StatsD
+    #
     class Monitor
       # statsd key for api
       CLAIM_STATS_KEY = 'api.income_and_assets'

@@ -6,11 +6,17 @@ require 'income_and_assets/submissions/monitor'
 require 'pdf_utilities/datestamp_pdf'
 
 module IncomeAndAssets
+  ##
+  # Sidekig job to send pension pdf to Lighthouse:BenefitsIntake API
+  # @see https://developer.va.gov/explore/api/benefits-intake/docs
+  #
   class BenefitIntakeJob
     include Sidekiq::Job
 
+    # Error if "Unable to find IncomeAndAssets::SavedClaim"
     class IncomeAndAssetsIntakeError < StandardError; end
 
+    # Source PATH
     INCOME_AND_ASSETS_SOURCE = 'modules/income_and_assets/lib/benefits_intake/income_and_assets_benefits_intake_job.rb'
 
     # retry for  2d 1h 47m 12s

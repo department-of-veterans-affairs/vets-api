@@ -9,13 +9,17 @@ require 'income_and_assets/helpers'
 # rubocop:disable Metrics/ClassLength
 
 module PdfFill
+  # Forms
   module Forms
+    # The Va21p0969 Form
     class Va21p0969 < FormBase
       include FormHelper
       include IncomeAndAssets::Helpers
 
+      # Hash iterator
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
+      # Hash keys
       KEY = {
         # 1a
         'veteranFullName' => {
@@ -579,11 +583,21 @@ module PdfFill
 
       private
 
+      ##
+      # Expands the veteran's information by extracting and capitalizing the first letter of the middle name.
+      #
+      # @note Modifies `form_data`
+      #
       def expand_veteran_info
         veteran_middle_name = form_data['veteranFullName'].try(:[], 'middle')
         form_data['veteranFullName']['middle'] = veteran_middle_name.try(:[], 0)&.upcase
       end
 
+      ##
+      # Expands the claimants's information by extracting and capitalizing the first letter of the middle name.
+      #
+      # @note Modifies `form_data`
+      #
       def expand_claimant_info
         claimant_middle_name = form_data['claimantFullName'].try(:[], 'middle')
         claimant_type = form_data['claimantType']
@@ -608,6 +622,11 @@ module PdfFill
         end
       end
 
+      ##
+      # Expands the unassociated incomes
+      #
+      # @note Modifies `form_data`
+      #
       def expand_unassociated_incomes
         unassociated_incomes = form_data['unassociatedIncomes']
         form_data['unassociatedIncome'] = unassociated_incomes&.length ? 'YES' : 1
@@ -616,6 +635,13 @@ module PdfFill
         end
       end
 
+      ##
+      # Expands unassociated income details by mapping relationships and income types
+      # to their respective constants and formatting the gross monthly income.
+      #
+      # @param income [Hash] The income data to be processed.
+      # @return [Hash]
+      #
       def expand_unassociated_income(income)
         recipient_relationship = income['recipientRelationship']
         income_type = income['incomeType']
@@ -634,6 +660,11 @@ module PdfFill
         }
       end
 
+      ##
+      # Expands associated incomes by processing each income entry and setting an indicator
+      #
+      # @note Modifies `form_data`
+      #
       def expand_associated_incomes
         associated_incomes = form_data['associatedIncomes']
         form_data['associatedIncome'] = associated_incomes&.length ? 0 : 1
@@ -642,6 +673,13 @@ module PdfFill
         end
       end
 
+      ##
+      # Expands an associated income entry by mapping relationships and income types
+      # to predefined constants and formatting financial values.
+      #
+      # @param income [Hash]
+      # @return [Hash]
+      #
       def expand_associated_income(income)
         recipient_relationship = income['recipientRelationship']
         income_type = income['incomeType']
@@ -663,6 +701,12 @@ module PdfFill
         }
       end
 
+      ##
+      # Expands owned assets by processing each asset entry and setting an indicator
+      # based on the presence of owned assets.
+      #
+      # @note Modifies `form_data`
+      #
       def expand_owned_assets
         owned_assets = form_data['ownedAssets']
         form_data['ownedAsset'] = owned_assets&.length ? 0 : 1
@@ -671,6 +715,13 @@ module PdfFill
         end
       end
 
+      ##
+      # Expands an owned asset entry by mapping relationships and asset types
+      # to predefined constants and formatting financial values.
+      #
+      # @param asset [Hash]
+      # @return [Hash]
+      #
       def expand_owned_asset(asset)
         recipient_relationship = asset['recipientRelationship']
         asset_type = asset['assetType']
@@ -690,6 +741,12 @@ module PdfFill
         }
       end
 
+      ##
+      # Expands asset transfers by processing each transfer entry and setting an indicator
+      # based on the presence of asset transfers.
+      #
+      # @note Modifies `form_data`
+      #
       def expand_asset_transfers
         asset_transfers = form_data['assetTransfers']
         form_data['assetTransfer'] = asset_transfers&.length ? 0 : 1
@@ -698,6 +755,13 @@ module PdfFill
         end
       end
 
+      ##
+      # Expands an asset transfer by mapping its details to structured output,
+      # ensuring consistent formatting for relationships, transfer methods, and monetary values.
+      #
+      # @param transfer [Hash]
+      # @return [Hash]
+      #
       def expand_asset_transfer(transfer) # rubocop:disable Metrics/MethodLength
         original_owner_relationship = transfer['originalOwnerRelationship']
         transfer_method = transfer['transferMethod']
@@ -727,12 +791,24 @@ module PdfFill
         }
       end
 
+      ##
+      # Expands trusts by processing each trust entry and setting an indicator
+      # based on the presence of trusts.
+      #
+      # @note Modifies `form_data`
+      #
       def expand_trusts
         trusts = form_data['trusts']
         form_data['trust'] = trusts&.length ? 0 : 1
         form_data['trusts'] = trusts&.map { |trust| expand_trust(trust) }
       end
 
+      ##
+      # Expands a trust's data by processing its attributes and transforming them into structured output
+      #
+      # @param trust [Hash]
+      # @return [Hash]
+      #
       def expand_trust(trust)
         market_value = split_currency_amount_lg(trust['marketValueAtEstablishment'], { 'millions' => 1 })
         expanded = {

@@ -5,6 +5,9 @@ module IncomeAndAssets
   # IncomeAndAssets sidekiq monitor functions for Rails logging and StatsD
   #
   module Submissions
+    ##
+    # Monitor functions for Rails logging and StatsD
+    #
     class Monitor
       # statsd key for sidekiq
       SUBMISSION_STATS_KEY = 'worker.lighthouse.income_and_assets_intake_job'
