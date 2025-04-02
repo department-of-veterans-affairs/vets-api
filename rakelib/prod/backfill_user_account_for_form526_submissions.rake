@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 desc 'Backfill user account records for Form526Submission'
-task backfill_user_account_for_form526_submissions: :environment do
+task :backfill_user_account_for_form526_submissions, %i[batch_size] => :environment do |_, args|
   def form526_submission_rails_logger_message
     "[BackfillUserAccountForForm526Submissions] Form526Submission with user_account_id: nil, count: #{user_account_nil}"
   end
@@ -24,13 +24,16 @@ task backfill_user_account_for_form526_submissions: :environment do
 
   Rails.logger.info('[BackfillUserAccountForForm526Submissions] Starting rake task')
   Rails.logger.info(form526_submission_rails_logger_message)
-  Form526Submission.where(user_account: nil).find_each do |form|
-    icn = get_account_icn(form.user_uuid)
-    user_account = (icn && UserAccount.find_by(icn:)) ||
-                   get_user_verification(form.user_uuid)&.user_account
-    next unless user_account
+  batch_size = args[:batch_size]&.to_i || 1000
+  Form526Submission.where(user_account: nil).find_in_batches(batch_size:) do |forms|
+    forms.each do |form|
+      icn = get_account_icn(form.user_uuid)
+      user_account = (icn && UserAccount.find_by(icn:)) ||
+                    get_user_verification(form.user_uuid)&.user_account
+      next unless user_account
 
-    form.update!(user_account:)
+      form.update!(user_account:)
+    end
   end
   Rails.logger.info('[BackfillUserAccountForForm526Submissions] Finished rake task')
   Rails.logger.info(form526_submission_rails_logger_message)
