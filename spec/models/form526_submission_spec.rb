@@ -1664,26 +1664,14 @@ RSpec.describe Form526Submission do
       )
     end
 
-    def expect_additional_documents_metrics(additional_docs_by_type)
-      return if additional_docs_by_type.blank?
+    def expect_documents_metrics(group_name, docs_by_type)
+      return if docs_by_type.blank?
 
-      additional_docs_by_type.each do |type, count|
+      docs_by_type.each do |type, count|
         expect(StatsD).to have_received(:increment).with(
-          'worker.document_type_metrics.additional_documents_document_type',
-          value: count,
-          tags: ["document_type:#{type}"]
-        )
-      end
-    end
-
-    def expect_private_medical_records_metrics(private_medical_docs_by_type)
-      return if private_medical_docs_by_type.blank?
-
-      private_medical_docs_by_type.each do |type, count|
-        expect(StatsD).to have_received(:increment).with(
-          'worker.document_type_metrics.private_medical_record_attachments_document_type',
-          value: count,
-          tags: ["document_type:#{type}"]
+          "worker.document_type_metrics.#{group_name}_document_type",
+          count,
+          tags: ["document_type:#{type}", 'source:form526']
         )
       end
     end
@@ -1699,6 +1687,31 @@ RSpec.describe Form526Submission do
       end
     end
 
+    context 'when form data has empty documents element' do
+      let(:additional_documents) { [{}] }
+
+      it 'logs empty document type breakdowns' do
+        subject.start
+
+        expect(Rails.logger).not_to have_received(:info).with(
+          'Form526 evidence document type metrics',
+          anything
+        )
+      end
+    end
+
+    context 'when form data has unexpected documents element' do
+      let(:additional_documents) { ["something's up"] }
+
+      it 'logs empty document type breakdowns' do
+        subject.start
+
+        expect_log_statement({ 'unknown' => 1 }, {})
+        expect_documents_metrics('additional_documents', { 'unknown' => 1 })
+        expect_documents_metrics('private_medical_record_attachments', {})
+      end
+    end
+
     context 'when form data has additional documents' do
       let(:additional_documents) do
         [
@@ -1711,8 +1724,8 @@ RSpec.describe Form526Submission do
       it 'logs document type metrics for additional documents' do
         subject.start
         expect_log_statement({ 'type1' => 1, 'type2' => 2 }, {})
-        expect_additional_documents_metrics({ 'type1' => 1, 'type2' => 2 })
-        expect_private_medical_records_metrics({})
+        expect_documents_metrics('additional_documents', { 'type1' => 1, 'type2' => 2 })
+        expect_documents_metrics('private_medical_record_attachments', {})
       end
     end
 
@@ -1728,8 +1741,8 @@ RSpec.describe Form526Submission do
       it 'logs document type metrics for private medical records' do
         subject.start
         expect_log_statement({}, { 'type3' => 2, 'type4' => 1 })
-        expect_additional_documents_metrics({})
-        expect_private_medical_records_metrics({ 'type3' => 2, 'type4' => 1 })
+        expect_documents_metrics('additional_documents', {})
+        expect_documents_metrics('private_medical_record_attachments', { 'type3' => 2, 'type4' => 1 })
       end
     end
 
@@ -1752,8 +1765,8 @@ RSpec.describe Form526Submission do
       it 'logs summary metrics with document type breakdowns' do
         subject.start
         expect_log_statement({ 'type1' => 1, 'type2' => 2 }, { 'type3' => 2, 'type4' => 1 })
-        expect_additional_documents_metrics({ 'type1' => 1, 'type2' => 2 })
-        expect_private_medical_records_metrics({ 'type3' => 2, 'type4' => 1 })
+        expect_documents_metrics('additional_documents', { 'type1' => 1, 'type2' => 2 })
+        expect_documents_metrics('private_medical_record_attachments', { 'type3' => 2, 'type4' => 1 })
       end
     end
 
@@ -1773,8 +1786,8 @@ RSpec.describe Form526Submission do
       it 'uses "unknown" as the attachment type' do
         subject.start
         expect_log_statement({ 'unknown' => 2 }, { 'unknown' => 1 })
-        expect_additional_documents_metrics({ 'unknown' => 2 })
-        expect_private_medical_records_metrics({ 'unknown' => 1 })
+        expect_documents_metrics('additional_documents', { 'unknown' => 2 })
+        expect_documents_metrics('private_medical_record_attachments', { 'unknown' => 1 })
       end
     end
   end

@@ -343,37 +343,47 @@ module Form526ClaimFastTrackingConcern
 
     fd = in_progress_form.form_data
     fd = JSON.parse(fd) if fd.is_a?(String)
-    additional_docs_by_type = get_doc_type_counts(fd.fetch('additionalDocuments', fd.fetch('additional_documents', [])))
-    private_medical_docs_by_type = get_doc_type_counts(
-      fd.fetch('privateMedicalRecordAttachments', fd.fetch('private_medical_record_attachments', []))
-    )
+    additional_docs_by_type = get_doc_type_counts(fd, 'additionalDocuments')
+    private_medical_docs_by_type = get_doc_type_counts(fd, 'privateMedicalRecordAttachments')
+    return if additional_docs_by_type.blank? && private_medical_docs_by_type.blank?
 
-    log_document_type_metrics_for_group(additional_docs_by_type, 'additional_documents')
-    log_document_type_metrics_for_group(private_medical_docs_by_type, 'private_medical_record_attachments')
+    log_doc_type_metrics_for_group(additional_docs_by_type, 'additionalDocuments')
+    log_doc_type_metrics_for_group(private_medical_docs_by_type, 'privateMedicalRecordAttachments')
 
-    # Log summary counts with detailed attachment ID breakdowns
-    if additional_docs_by_type.present? || private_medical_docs_by_type.present?
-      Rails.logger.info('Form526 evidence document type metrics',
-                        id:,
-                        additional_docs_by_type:,
-                        private_medical_docs_by_type:)
-    end
+    Rails.logger.info('Form526 evidence document type metrics',
+                      id:,
+                      additional_docs_by_type:,
+                      private_medical_docs_by_type:)
   rescue => e
     # Log the exception but do not fail
     log_exception_to_sentry(e)
   end
 
-  def get_doc_type_counts(docs)
-    docs.map { |doc| doc.fetch('attachmentId', doc.fetch('attachment_id', 'unknown')) }
-        .group_by(&:itself)
-        .transform_values(&:count)
+  def get_group_docs(form_data, group_key)
+    return [] unless form_data.is_a?(Hash)
+
+    form_data.fetch(group_key, form_data.fetch(group_key.underscore, []))
   end
 
-  def log_document_type_metrics_for_group(doc_type_counts, group_name)
+  def get_doc_type_counts(form_data, group_key)
+    docs = get_group_docs(form_data, group_key)
+    return {} if docs.nil? || !docs.is_a?(Array)
+
+    docs.map do |doc|
+      next nil if doc.blank?
+      next 'unknown' unless doc.is_a?(Hash)
+
+      doc.fetch('attachmentId', doc.fetch('attachment_id', 'unknown'))
+    end.compact
+       .group_by(&:itself)
+       .transform_values(&:count)
+  end
+
+  def log_doc_type_metrics_for_group(doc_type_counts, group_name)
     doc_type_counts.each do |doc_type, count|
-      StatsD.increment("#{DOCUMENT_TYPE_METRICS_STATSD_KEY_PREFIX}.#{group_name}_document_type",
-                       value: count,
-                       tags: ["document_type:#{doc_type}"])
+      StatsD.increment("#{DOCUMENT_TYPE_METRICS_STATSD_KEY_PREFIX}.#{group_name.underscore}_document_type",
+                       count,
+                       tags: ["document_type:#{doc_type}", 'source:form526'])
     end
   end
 end
