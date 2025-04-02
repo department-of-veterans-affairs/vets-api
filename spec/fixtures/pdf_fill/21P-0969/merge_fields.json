@@ -216,6 +216,26 @@
       "ownedPortionValueOverflow": 12345.67
     }
   ],
+  "royaltiesAndOtherProperties": [
+    {
+      "incomeGenerationMethod": "OTHER",
+      "otherIncomeType": "Rental",
+      "grossMonthlyIncome": 12345.67,
+      "fairMarketValue": 12345678.91,
+      "canBeSold": false,
+      "mitigatingCircumstances": "Contractual obligations",
+      "recipientRelationship": "SPOUSE"
+    },
+    {
+      "incomeGenerationMethod": "USE_OF_LAND",
+      "grossMonthlyIncome": 123,
+      "fairMarketValue": 1234,
+      "canBeSold": true,
+      "recipientName": "John Smith",
+      "recipientRelationship": "OTHER",
+      "otherRecipientRelationshipType": "Sibling"
+    }
+  ],
   "assetTransfers": [
     {
       "originalOwnerRelationship": 5,
@@ -395,6 +415,83 @@
       "monthlyMedicalReimbursementAmountOverflow": 12345.67,
       "trustEstablishedForVeteransChildOverflow": true,
       "haveAuthorityOrControlOfTrustOverflow": true
+    }
+  ],
+  "annuities": [
+    {
+      "addedFundsDate": "2022-02-02",
+      "addedFundsAmount": 2222222.22,
+      "addedFundsAfterEstablishment": true,
+      "canBeLiquidated": true,
+      "surrenderValue": 5666777.88,
+      "receivingIncomeFromAnnuity": true,
+      "annualReceivedIncome": 1222333.44,
+      "revocable": true,
+      "establishedDate": "2020-01-01",
+      "marketValueAtEstablishment": 1234568.89
+    }
+  ],
+  "unreportedAssets": [
+    {
+      "assetType": "Cash",
+      "ownedPortionValue": 11222333.44,
+      "assetLocation": "Financial institution",
+      "assetOwnerRelationship": "VETERAN"
+    },
+    {
+      "assetType": "Art",
+      "ownedPortionValue": 123.45,
+      "assetLocation": "123 Main St",
+      "assetOwnerRelationship": "SPOUSE"
+    },
+    {
+      "assetType": "Coins",
+      "ownedPortionValue": 10,
+      "assetLocation": "123 Main St",
+      "assetOwnerRelationship": "CHILD"
+    },
+    {
+      "assetType": "Chandelier",
+      "ownedPortionValue": 2000,
+      "assetLocation": "123 Main St",
+      "assetOwnerRelationship": "PARENT"
+    }
+  ],
+  "discontinuedIncomes": [
+    {
+      "grossAnnualAmount": 123456.78,
+      "incomeLastReceivedDate": "2022-01-01",
+      "incomeFrequency": "ONE_TIME",
+      "incomeType": "Dividends",
+      "payer": "Banking America",
+      "recipientName": "John Smith",
+      "recipientRelationship": "OTHER",
+      "otherRecipientRelationshipType": "Sibling"
+    },
+    {
+      "grossAnnualAmount": 200000,
+      "incomeLastReceivedDate": "2000-05-01",
+      "incomeFrequency": "IRREGULAR",
+      "incomeType": "Interest",
+      "payer": "George Smith",
+      "recipientName": "Brandon Johnson",
+      "recipientRelationship": "CUSTODIAN"
+    }
+  ],
+  "incomeReceiptWaivers": [
+    {
+      "expectedIncome": 123567.9,
+      "paymentResumeDate": "2026-04-01",
+      "waivedGrossMonthlyIncome": 123456.78,
+      "payer": "Bank of America",
+      "recipientName": "George Bankman",
+      "recipientRelationship": "CUSTODIAN"
+    },
+    {
+      "waivedGrossMonthlyIncome": 100,
+      "payer": "Bank of America",
+      "recipientName": "John Smith",
+      "recipientRelationship": "PARENT"
     }
   ],
   "unassociatedIncome": "YES",
