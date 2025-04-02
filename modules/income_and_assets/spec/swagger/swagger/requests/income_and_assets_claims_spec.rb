@@ -5,7 +5,7 @@ require 'rails_helper'
 reg_office = 'Department of Veteran Affairs, Pension Intake Center, P.O. Box 5365, Janesville, Wisconsin 53547-5365'
 
 # Income and Assets Claim Integration
-RSpec.describe 'V0::Form0969', type: %i[request serializer] do
+RSpec.describe Swagger::Requests::IncomeAndAssetsClaims, type: %i[request serializer] do
   before do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)

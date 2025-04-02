@@ -14,7 +14,7 @@ module IncomeAndAssets
       # @see IncomeAndAssetsClaimsController
       #
       # @param confirmation_number [UUID] saved_claim guid
-      # @param current_user [User]
+      # @param user_account_uuid [UUID]
       # @param e [ActiveRecord::RecordNotFound]
       #
       def track_show404(confirmation_number, user_account_uuid, e)
@@ -31,7 +31,7 @@ module IncomeAndAssets
       # @see IncomeAndAssetsClaimsController
       #
       # @param confirmation_number [UUID] saved_claim guid
-      # @param current_user [User]
+      # @param user_account_uuid [UUID]
       # @param e [Error]
       #
       def track_show_error(confirmation_number, user_account_uuid, e)
@@ -48,7 +48,7 @@ module IncomeAndAssets
       # @see IncomeAndAssetsClaimsController
       #
       # @param claim [IncomeAndAssets::SavedClaim]
-      # @param current_user [User]
+      # @param user_account_uuid [UUID]
       #
       def track_create_attempt(claim, user_account_uuid)
         StatsD.increment("#{CLAIM_STATS_KEY}.attempt")
@@ -63,9 +63,9 @@ module IncomeAndAssets
       # log POST processing failure
       # @see IncomeAndAssetsClaimsController
       #
-      # @param in_progress_form [InProgressForm]
+      # @param in_progress_form_id [InProgressForm]
       # @param claim [IncomeAndAssets::SavedClaim]
-      # @param current_user [User]
+      # @param user_account_uuid [UUID]
       # @param e [Error]
       #
       def track_create_error(in_progress_form_id, claim, user_account_uuid, e = nil)
@@ -84,9 +84,9 @@ module IncomeAndAssets
       # log POST processing success
       # @see IncomeAndAssetsClaimsController
       #
-      # @param in_progress_form [InProgressForm]
+      # @param in_progress_form_id [InProgressForm]
       # @param claim [IncomeAndAssets::SavedClaim]
-      # @param current_user [User]
+      # @param user_account_uuid [UUID]
       #
       def track_create_success(in_progress_form_id, claim, user_account_uuid)
         StatsD.increment("#{CLAIM_STATS_KEY}.success")
