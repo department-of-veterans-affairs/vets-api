@@ -29,7 +29,7 @@ task :backfill_user_account_for_form526_submissions, %i[batch_size] => :environm
     forms.each do |form|
       icn = get_account_icn(form.user_uuid)
       user_account = (icn && UserAccount.find_by(icn:)) ||
-                    get_user_verification(form.user_uuid)&.user_account
+                     get_user_verification(form.user_uuid)&.user_account
       next unless user_account
 
       form.update!(user_account:)
