@@ -31,7 +31,7 @@ module SimpleFormsApi
 
     def metadata
       {
-        'veteranFirstName' => data.dig('full_name', 'first'),
+        'veteranFirstName' => notification_first_name,
         'veteranLastName' => data.dig('full_name', 'last'),
         'fileNumber' => data.dig('id_number', 'va_file_number').presence || data.dig('id_number', 'ssn'),
         'zipCode' => data.dig('mailing_address', 'postal_code'),
