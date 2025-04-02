@@ -4,6 +4,10 @@ module IncomeAndAssets
   module Helpers
     include ActiveSupport::NumberHelper
 
+    CURRENCY_LENGTHS_SM = { 'cents' => 2, 'dollars' => 3, 'thousands' => 2 }.freeze
+
+    CURRENCY_LENGTHS_LG = { 'cents' => 2, 'dollars' => 3, 'thousands' => 3, 'millions' => 2 }.freeze
+
     # Format a YYYY-MM-DD date string to MM/DD/YYYY
     #
     # @param date_string [String] a date string in the format YYYY-MM-DD
@@ -16,32 +20,40 @@ module IncomeAndAssets
       Date.parse(date_string).strftime('%m/%d/%Y')
     end
 
-    def split_currency_amount_sm(amount)
+    def split_currency_amount_sm(amount, field_lengths = {})
       return {} if !amount || amount.negative? || amount >= 100_000
 
+      lengths = CURRENCY_LENGTHS_SM.merge(field_lengths)
       arr = ActiveSupport::NumberHelper.number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
       {
-        'cents' => get_currency_field(arr, -1, 2),
-        'dollars' => get_currency_field(arr, -2, 3),
-        'thousands' => get_currency_field(arr, -3, 2)
+        'cents' => get_currency_field(arr, -1, lengths['cents']),
+        'dollars' => get_currency_field(arr, -2, lengths['dollars']),
+        'thousands' => get_currency_field(arr, -3, lengths['thousands'])
       }
     end
 
-    def split_currency_amount_lg(amount)
+    def split_currency_amount_lg(amount, field_lengths = {})
       return {} if !amount || amount.negative? || amount >= 10_000_000
 
+      lengths = CURRENCY_LENGTHS_LG.merge(field_lengths)
       arr = ActiveSupport::NumberHelper.number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
       {
-        'cents' => get_currency_field(arr, -1, 2),
-        'dollars' => get_currency_field(arr, -2, 3),
-        'thousands' => get_currency_field(arr, -3, 3),
-        'millions' => get_currency_field(arr, -4, 2)
+        'cents' => get_currency_field(arr, -1, lengths['cents']),
+        'dollars' => get_currency_field(arr, -2, lengths['dollars']),
+        'thousands' => get_currency_field(arr, -3, lengths['thousands']),
+        'millions' => get_currency_field(arr, -4, lengths['millions'])
       }
     end
 
     def get_currency_field(arr, neg_i, field_length)
       value = arr.length >= -neg_i ? arr[neg_i] : 0
       format("%0#{field_length}d", value.to_i)
+    end
+
+    def change_hash_to_string(hash)
+      return '' if hash.blank?
+
+      hash.values.join(' ')
     end
   end
 end
