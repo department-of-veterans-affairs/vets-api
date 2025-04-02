@@ -28,8 +28,8 @@ module Lighthouse
 
       def connection
         @conn ||= Faraday.new(generator_url, headers: base_request_headers, request: request_options) do |faraday|
-          faraday.use      :breakers
-          faraday.use      Faraday::Response::RaiseError
+          faraday.use(:breakers, service_name:)
+          faraday.use Faraday::Response::RaiseError
 
           faraday.request :json
 

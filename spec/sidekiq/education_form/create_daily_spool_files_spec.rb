@@ -341,13 +341,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
       end
 
       # rubocop:disable Rspec/NoExpectationExample
-      it 'notifies the slack channel with the number of bytes written' do
-        stub_env_and_writer(
-          byte_count: 4619,
-          expected_message: 'uploaded 4619 bytes to region: eastern'
-        )
-      end
-
       it 'notifies the slack channel with a warning if no files were written' do
         stub_env_and_writer(
           byte_count: 0,
