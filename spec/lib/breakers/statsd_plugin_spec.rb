@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require './config/initializers/statsd'
 
 describe Breakers::StatsdPlugin do
   let(:request) { Faraday::Env.new }
