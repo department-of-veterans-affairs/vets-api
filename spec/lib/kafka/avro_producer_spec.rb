@@ -173,6 +173,7 @@ describe Kafka::AvroProducer do
 
   describe '#encode_payload' do
     it 'encodes the payload using the specified schema' do
+      avro_producer.instance_variable_set(:@schema_id, 5)
       encoder = Avro::IO::BinaryEncoder.new(StringIO.new)
       datum_writer = Avro::IO::DatumWriter.new(schema)
 
