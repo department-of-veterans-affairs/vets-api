@@ -7,11 +7,11 @@ module CheckIn
   #
   # @example Enqueue the job with required parameters
   #   CheckIn::TravelClaimNotificationJob.perform_async({
-  #     mobile_phone: '202-555-0123',
-  #     appointment_date: '2023-05-15',
-  #     template_id: 'template-id-123',
-  #     claim_number: '1234',
-  #     facility_type: 'oh'
+  #     mobile_phone: '202-555-0123',         # Required
+  #     appointment_date: '2023-05-15',       # Required
+  #     template_id: 'template-id-123',       # Required
+  #     claim_number: '1234',                 # Required
+  #     facility_type: 'oh'                   # Optional - defaults to 'cie' when nil or not 'oh'
   #   })
   class TravelClaimNotificationJob < TravelClaimBaseJob
     # Maximum number of retry attempts before the job is considered exhausted
@@ -26,11 +26,11 @@ module CheckIn
     # metrics. Returns early if required parameters like mobile_phone are missing.
     #
     # @param opts [Hash] Options hash containing parameters for the notification
-    # @option opts [String] :mobile_phone The phone number to send the SMS to
-    # @option opts [String] :appointment_date The appointment date in YYYY-MM-DD format
-    # @option opts [String] :template_id The VaNotify template ID to use
-    # @option opts [String] :claim_number The claim number to include in the message
-    # @option opts [String] :facility_type The facility type ('oh' or 'cie')
+    # @option opts [String] :mobile_phone The phone number to send the SMS to (required)
+    # @option opts [String] :appointment_date The appointment date in YYYY-MM-DD format (required)
+    # @option opts [String] :template_id The VaNotify template ID to use (required)
+    # @option opts [String] :claim_number The claim number to include in the message (required)
+    # @option opts [String] :facility_type The facility type ('oh' or 'cie'). Optional, defaults to 'cie' when nil.
     # @return [void]
     def perform(opts = {})
       return unless validate_required_fields(opts)
@@ -167,7 +167,7 @@ module CheckIn
     # @return [void]
     def log_sending_travel_claim_notification(opts)
       phone_last_four = self.class.phone_last_four(opts)
-      template_id = opts&.dig(:template_id)
+      template_id = opts[:template_id]
 
       log_message_and_context = {
         message: "Sending travel claim notification to #{phone_last_four}, #{template_id}",
@@ -181,7 +181,7 @@ module CheckIn
     # Sends the SMS notification using VaNotify service
     # Uses the parsed date and selects the appropriate sender ID based on facility type
     #
-    # @param opts [Hash] Options hash containing job parameters
+    # @param opts [Hash] Options hash containing job parameters - all required fields have been validated
     # @param parsed_date [Date] Parsed appointment date
     # @return [Object] The result from the VaNotify send_sms call
     def va_notify_send_sms(opts, parsed_date)
@@ -194,9 +194,9 @@ module CheckIn
                         Constants::CIE_SMS_SENDER_ID
                       end
 
-      phone_number = opts&.dig(:mobile_phone)
-      template_id = opts&.dig(:template_id)
-      claim_number = opts&.dig(:claim_number)
+      phone_number = opts[:mobile_phone]
+      template_id = opts[:template_id]
+      claim_number = opts[:claim_number]
       personalisation = { claim_number:, appt_date: formatted_date }
 
       notify_client.send_sms(phone_number:, template_id:, sms_sender_id:, personalisation:)
