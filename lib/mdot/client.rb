@@ -122,12 +122,11 @@ module MDOT
     end
 
     def handle_error(error)
+      save_error_details(error)
       case error
       when Faraday::ParsingError
-        save_error_details(error)
         raise_backend_exception('MDOT_502')
       when Common::Client::Errors::ClientError
-        save_error_details(error)
         handle_client_error(error)
       else
         raise error
