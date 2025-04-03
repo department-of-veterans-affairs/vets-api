@@ -51,6 +51,8 @@ module TravelPay
 
     # Retrieves expanded claim details with additional fields
     def get_claim_details(claim_id)
+    # Retrieves expanded claim details with additional fields
+    def get_claim_details(claim_id)
       # ensure claim ID is the right format, allowing any version
       uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
 

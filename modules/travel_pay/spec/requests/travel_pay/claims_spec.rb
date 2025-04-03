@@ -74,6 +74,10 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[method path]) do
         claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
         expected_claim_num = 'TC0000000000001'
+    it 'returns expanded claim details on success' do
+      VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[method path]) do
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        expected_claim_num = 'TC0000000000001'
 
         get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
         actual_claim_num = JSON.parse(response.body)['claimNumber']
@@ -85,6 +89,9 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       end
     end
 
+    it 'returns a Bad Request response if claim ID valid but claim not found' do
+      VCR.use_cassette('travel_pay/404_claim_details', match_requests_on: %i[method path]) do
+        claim_id = 'aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e'
     it 'returns a Bad Request response if claim ID valid but claim not found' do
       VCR.use_cassette('travel_pay/404_claim_details', match_requests_on: %i[method path]) do
         claim_id = 'aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e'

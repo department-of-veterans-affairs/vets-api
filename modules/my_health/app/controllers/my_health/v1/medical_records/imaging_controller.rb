@@ -55,7 +55,7 @@ module MyHealth
         def header_callback
           lambda do |headers|
             headers.each do |k, v|
-              next if %w[Content-Type Transfer-Encoding].include?(k)
+              next if %w[Content-Type Transfer-Encoding Content-Encoding].include?(k)
 
               response.headers[k] = v if k.present?
             end
