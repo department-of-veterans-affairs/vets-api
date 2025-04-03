@@ -9,11 +9,17 @@ def instance_vars_to_hash(instance)
   # Create hash where keys are the instance variables with '@' removed and
   # converted from snake_case to camelCase
   # e.g.: '@phone_number' -> :phoneNumber
-  hash = instance.instance_variables.to_h do |name|
-    [name.to_s.tr('@', '').camelize(:lower).to_sym, instance.instance_variable_get(name)]
+  instance_vars_hash = instance.instance_variables.each_with_object({}) do |var, hash|
+    key = var.to_s.delete_prefix('@').camelize(:lower).to_sym
+    value = instance.instance_variable_get(var)
+    hash[key] = value
   end
-  hash[:address] = instance.address.to_hash if instance.address
-  hash.compact
+
+  if instance.respond_to?(:address) && instance.address.respond_to?(:to_hash)
+    instance_vars_hash[:address] = instance.address.to_hash
+  end
+
+  instance_vars_hash.compact
 end
 
 module IvcChampva
