@@ -105,6 +105,7 @@ PATH
     dhp_connected_devices (0.1.0)
     facilities_api (0.1.0)
     health_quest (0.1.0)
+    income_and_assets (0.1.0)
     income_limits (0.1.0)
     ivc_champva (0.1.0)
     meb_api (0.1.0)
@@ -1263,6 +1264,7 @@ DEPENDENCIES
   holidays
   httpclient
   ice_nine
+  income_and_assets!
   income_limits!
   iso_country_codes
   ivc_champva!
