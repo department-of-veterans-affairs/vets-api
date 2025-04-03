@@ -71,7 +71,7 @@ module IvcChampva
            form_id == 'vha_10_10d' && !ves_request.nil?
           ves_client = IvcChampva::VesApi::Client.new
           begin
-            ves_client.submit_1010d('fake-id', 'fake-user', ves_request)
+            ves_client.submit_1010d(ves_request.transaction_uuid, 'fake-user', ves_request)
           rescue => e
             Rails.logger.error "Ignoring error when submitting to VES: #{e.message}"
           end
@@ -150,7 +150,7 @@ module IvcChampva
 
         begin
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user).handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 
@@ -181,7 +181,7 @@ module IvcChampva
 
         IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user).handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 

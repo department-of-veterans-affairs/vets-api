@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: c0f2a9bcf5f6eefd2182732732b1d6e17473db3d
+  revision: 005c292c915aaf1df1f702ab0c44614ec6789df6
   branch: master
   specs:
-    vets_json_schema (24.12.0)
+    vets_json_schema (24.12.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -105,6 +105,7 @@ PATH
     dhp_connected_devices (0.1.0)
     facilities_api (0.1.0)
     health_quest (0.1.0)
+    income_and_assets (0.1.0)
     income_limits (0.1.0)
     ivc_champva (0.1.0)
     meb_api (0.1.0)
@@ -1144,7 +1145,7 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    webmock (3.25.0)
+    webmock (3.25.1)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -1263,6 +1264,7 @@ DEPENDENCIES
   holidays
   httpclient
   ice_nine
+  income_and_assets!
   income_limits!
   iso_country_codes
   ivc_champva!
@@ -1363,7 +1365,7 @@ DEPENDENCIES
   slack-notify
   socksify
   staccato
-  statsd-instrument (= 3.9.8)
+  statsd-instrument
   strong_migrations
   super_diff
   swagger-blocks
