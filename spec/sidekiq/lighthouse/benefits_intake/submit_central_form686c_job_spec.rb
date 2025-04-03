@@ -56,7 +56,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
       'queue' => 'default',
       'args' => [],
       'class' => 'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob',
-      'error_message' => 'An error occurred',
+      'error_message' => 'An error occurred'
     }
   end
 
