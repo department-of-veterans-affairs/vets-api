@@ -11,7 +11,6 @@ module AccreditedRepresentativePortal
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
-        check_for_changes
         status, confirmation_number = upload_response
         send_confirmation_email(params, confirmation_number) if status == 200
         render json: { status:, confirmation_number: }
@@ -98,16 +97,6 @@ module AccreditedRepresentativePortal
           document: file_path,
           upload_url: location
         )
-      end
-
-      def check_for_changes
-        in_progress_form = InProgressForm.form_for_user(form_data[:formNumber], @current_user)
-        if in_progress_form
-          prefill_data_service = SimpleFormsApi::PrefillDataService.new(prefill_data: in_progress_form.form_data,
-                                                                        form_data:,
-                                                                        form_id: form_data[:formNumber])
-          prefill_data_service.check_for_changes
-        end
       end
 
       def send_confirmation_email(_params, confirmation_number)
