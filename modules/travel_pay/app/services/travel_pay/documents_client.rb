@@ -38,7 +38,7 @@ module TravelPay
     def get_document_binary(veis_token, btsss_token, params)
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      params => { claim_id:, doc_id: }
+      params.symbolize_keys => { claim_id:, doc_id: }
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
       log_to_statsd('documents', 'get_document_ids') do
         connection(server_url: btsss_url).get("api/v2/claims/#{claim_id}/documents/#{doc_id}") do |req|

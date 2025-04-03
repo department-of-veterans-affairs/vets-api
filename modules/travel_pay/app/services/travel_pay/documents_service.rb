@@ -13,7 +13,7 @@ module TravelPay
     end
 
     def download_document(params = {})
-      params => { claim_id:, doc_id: }
+      params.symbolize_keys => { claim_id:, doc_id: }
 
       raise ArgumentError, message: "Missing claim ID or document ID, given: #{params}" unless claim_id && doc_id
 
