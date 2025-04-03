@@ -226,6 +226,9 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences
     enable_in_development: true
+  champva_fmp_single_file_upload:
+    actor_type: user
+    description: Enables the ability to upload a single merged PDF file for FMP claims
   check_in_experience_pre_check_in_enabled:
     actor_type: user
     description: Enables the health care check-in experiences to show the pre-check-in experience.
@@ -585,6 +588,9 @@ features:
   disability_compensation_temp_separation_location_code_string:
     actor_type: user
     description: enables forcing separation location code to be a string in submit_all_claim endpoint.
+  disability_compensation_temp_toxic_exposure_optional_dates_fix:
+    actor_type: user
+    description: enables removing malformed optional dates from the Toxic Exposure node of a Form526Submission at SavedClaim creation.
   disability_compensation_form4142_supplemental:
     actor_type: user
     description: Use Lighthouse API to submit supplemental Form 21-4142 from Form 526EZ submissions
@@ -1825,6 +1831,10 @@ features:
   disability_compensation_upload_bdd_instructions_to_lighthouse:
     actor_type: user
     description: If enabled uploads BDD instructions to Lighthouse Benefits Documents API instead of EVSS
+  disability_compensation_0781v2_extras_redesign:
+    actor_type: user
+    description: If enabled, the 0781v2 overflow page will use the new design
+    enable_in_development: true
   disability_compensation_use_api_provider_for_0781_uploads:
     actor_type: user
     description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading 0781/a forms
@@ -1928,6 +1938,9 @@ features:
   pension_form_profile_module_enabled:
     actor_type: user
     description: Use the module version of the FormProfile
+  pension_kafka_event_bus_submission_enabled:
+    actor_type: user
+    description: Enable the EventBusSubmissionJob for Kafka
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
@@ -2086,9 +2099,6 @@ features:
   kafka_producer:
     actor_type: cookie_id
     description: Enables the Kafka producer for the VA.gov platform
-  kafka_producer_fetch_schema_dynamically:
-    actor_type: cookie_id
-    description: Enables the Kafka producer to fetch schema dynamically
   show_about_yellow_ribbon_program:
     actor_type: user
     description: If enabled, show additional info about the yellow ribbon program

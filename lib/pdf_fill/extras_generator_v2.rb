@@ -4,11 +4,13 @@ module PdfFill
   class ExtrasGeneratorV2 < ExtrasGenerator
     HEADER_FONT_SIZE = 14.5
     SUBHEADER_FONT_SIZE = 10.5
+    FOOTER_FONT_SIZE = 9
+    HEADER_FOOTER_BOUNDS_HEIGHT = 20
 
     def initialize(form_name: nil, submit_date: nil, start_page: 1, sections: nil)
       super()
       @form_name = form_name
-      @submit_date = format_date(submit_date)
+      @submit_date = submit_date
       @start_page = start_page
       @sections = sections
       @questions = {}
@@ -80,6 +82,7 @@ module PdfFill
           render_question(pdf, block)
         end
       end
+      add_footer(pdf)
       add_page_numbers(pdf)
     end
 
@@ -91,50 +94,53 @@ module PdfFill
 
     def set_header(pdf)
       pdf.repeat :all do
-        bound_width = pdf.bounds.width / 2
-        location = [pdf.bounds.left, pdf.bounds.top]
-        write_header_main(pdf, location, bound_width, HEADER_FONT_SIZE)
-        if @submit_date.present?
-          location[0] += bound_width
-          write_header_submit_date(pdf, location, bound_width, HEADER_FONT_SIZE)
-        end
+        write_header_left(pdf, [pdf.bounds.left, pdf.bounds.top], pdf.bounds.width, HEADER_FOOTER_BOUNDS_HEIGHT)
+        write_header_right(pdf, [pdf.bounds.left, pdf.bounds.top], pdf.bounds.width, HEADER_FOOTER_BOUNDS_HEIGHT)
         pdf.pad_top(2) { pdf.stroke_horizontal_rule }
+      end
+    end
+
+    def write_header_left(pdf, location, bound_width, bound_height)
+      pdf.bounding_box(location, width: bound_width, height: bound_height) do
+        pdf.markup("<b>ATTACHMENT</b> to VA Form #{@form_name}",
+                   text: { align: :left, valign: :bottom, size: HEADER_FONT_SIZE })
+      end
+    end
+
+    def write_header_right(pdf, location, bound_width, bound_height)
+      pdf.bounding_box(location, width: bound_width, height: bound_height) do
+        pdf.markup('VA.gov Submission',
+                   text: { align: :right, valign: :bottom, size: SUBHEADER_FONT_SIZE })
       end
     end
 
     def add_page_numbers(pdf)
       pdf.number_pages('Page <page>',
                        start_count_at: @start_page,
-                       at: [pdf.bounds.right - 50, 0],
+                       at: [pdf.bounds.right - 50, pdf.bounds.bottom],
                        align: :right,
-                       size: 9)
+                       size: FOOTER_FONT_SIZE)
     end
 
-    def write_header_main(pdf, location, bound_width, bound_height)
-      pdf.bounding_box(location, width: bound_width) do
-        pdf.markup("<b>ATTACHMENT</b> to VA Form #{@form_name}",
-                   text: { align: :left, size: bound_height })
+    def add_footer(pdf)
+      if @submit_date.present?
+        ts = format_timestamp(@submit_date)
+        txt = "Signed electronically and submitted via VA.gov at #{ts}. " \
+              'Signee signed with an identity-verified account.'
+        pdf.repeat :all do
+          pdf.bounding_box([pdf.bounds.left, pdf.bounds.bottom], width: pdf.bounds.width,
+                                                                 height: HEADER_FOOTER_BOUNDS_HEIGHT) do
+            pdf.markup(txt, text: { align: :left, size: FOOTER_FONT_SIZE })
+          end
+        end
       end
     end
 
-    def write_header_submit_date(pdf, location, bound_width, _bound_height)
-      pdf.bounding_box(location, width: bound_width) do
-        pdf.markup("Submitted on VA.gov on #{@submit_date}",
-                   text: { align: :right, size: SUBHEADER_FONT_SIZE })
-      end
-    end
+    # Formats the timestamp for the PDF footer
+    def format_timestamp(datetime)
+      return nil if datetime.blank?
 
-    # Formats the submit_date for the PDF header
-    def format_date(date)
-      return nil if date.blank?
-
-      return "#{date['month']}-#{date['day']}-#{date['year']}" if date.is_a?(Hash)
-      return date.strftime('%m-%d-%Y') if date.is_a?(Date)
-
-      Date.parse(date).strftime('%m-%d-%Y')
-    rescue
-      Rails.logger.error("Error formatting submit date for PdfFill: #{date}")
-      nil
+      "#{datetime.utc.strftime('%H:%M')} UTC #{datetime.utc.strftime('%Y-%m-%d')}"
     end
 
     def register_source_sans_font(pdf)
@@ -158,8 +164,7 @@ module PdfFill
             padding: [2, 0, 2, 0]
           }
         },
-        list: { bullet: { char: '✓', margin: 0 }, content: { margin: 4 }, vertical_margin: 0 },
-        text: { leading: 1 }
+        list: { bullet: { char: '✓', margin: 0 }, content: { margin: 4 }, vertical_margin: 0 }
       }
     end
   end
