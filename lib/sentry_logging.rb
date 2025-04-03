@@ -3,6 +3,10 @@
 require 'sentry_logging'
 
 module SentryLogging
+  # WARNING: This module is deprecated, and will be removed in June 2025. Please use Vets::SharedLogging instead.
+  # If your team currently uses this module, please see documentation for migrating to Vets::SharedLogging: TODO
+  ActiveSupport::Deprecation
+    .new.warn('SentryLogging is deprecated and will be removed in June 2025. Use Vets::SharedLogging instead.')
   extend self
 
   def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
