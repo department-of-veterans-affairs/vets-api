@@ -3,7 +3,8 @@
 require 'debt_management_center/debts_service'
 
 module DebtsApi
-  class V0::OneDebtLetterService
+  module V0
+    class OneDebtLetterService
     # rubocop:disable Metrics/LineLength
     COPAY_TABLE_DESCRIPTION = '<i>– You are receiving this billing statement because you are currently enrolled in a priority group requiring copayments for treatment of nonservice-connected conditions.</i>'
     COPAY_PAYMENT_INSTRUCTIONS = 'To Pay Your Copay Bills:<br><b>In Person:</b>: At your local Veteran Affairs Medical Center Agent Cashier’s Office<br><b>By Phone</b>: Contact VA at 1-888-827-4817<br><b>Online</b>: Pay by ACH withdrawal from your bank account, or by debit or credit card at www.pay.gov'
@@ -19,7 +20,9 @@ module DebtsApi
     end
 
     # rubocop:disable Metrics/MethodLength
-    def get_pdf
+    def get_pdf(document = nil)
+      return combine_pdfs(document) if document
+
       debt_letter_pdf = Prawn::Document.new(page_size: 'LETTER') do |pdf|
         add_and_format_logo(pdf)
         pdf.move_down 30
@@ -91,6 +94,12 @@ module DebtsApi
       combined_pdf.to_pdf
     end
     # rubocop:enable Metrics/MethodLength
+
+    def combine_pdfs(document)
+      legalese_pdf = load_legalese_pdf
+      combined_pdf = CombinePDF.parse(document.read) << legalese_pdf
+      combined_pdf.to_pdf
+    end
 
     def save_pdf(filename = default_filename)
       save_pdf_content(filename, get_pdf)
@@ -204,4 +213,5 @@ module DebtsApi
       MedicalCopays::VBS::Service.build(user: @user).get_copays
     end
   end
-end
+  end
+  end
