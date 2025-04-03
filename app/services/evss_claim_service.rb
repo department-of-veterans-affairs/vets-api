@@ -54,13 +54,7 @@ class EVSSClaimService
 
   # upload file to s3 and enqueue job to upload to EVSS, used by Claim Status Tool
   # EVSS::DocumentsService is where the uploading of documents actually happens
-  def upload_document(evss_claim_document)
-    uploader = EVSSClaimDocumentUploader.new(@user.user_account_uuid, evss_claim_document.uploader_ids)
-    uploader.store!(evss_claim_document.file_obj)
-
-    # the uploader sanitizes the filename before storing, so set our doc to match
-    evss_claim_document.file_name = uploader.final_filename
-
+  def upload_document(evss_claim_document) # this kicks off a job and returns a job_id
     # Workaround for non-Veteran users
     headers = auth_headers.clone
     headers_supplemented = supplement_auth_headers(evss_claim_document.evss_claim_id, headers)
@@ -69,16 +63,11 @@ class EVSSClaimService
     if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
       evidence_submission_id = create_initial_evidence_submission(evss_claim_document).id
     end
-    job_id = EVSS::DocumentUpload.perform_async(headers, @user.user_account_uuid,
-                                                evss_claim_document.to_serializable_hash, evidence_submission_id)
-    record_workaround('document_upload', evss_claim_document.evss_claim_id, job_id) if headers_supplemented
+    # job_id = EVSS::DocumentUpload.perform_async(headers, @user.user_account_uuid,
+    #                                             evss_claim_document.to_serializable_hash, evidence_submission_id)
+    # record_workaround('document_upload', evss_claim_document.evss_claim_id, job_id) if headers_supplemented
 
-    job_id
-  rescue CarrierWave::IntegrityError => e
-    log_exception_to_sentry(e, nil, nil, 'warn')
-    raise Common::Exceptions::UnprocessableEntity.new(
-      detail: e.message, source: 'EVSSClaimService.upload_document'
-    )
+    # job_id
   end
 
   private

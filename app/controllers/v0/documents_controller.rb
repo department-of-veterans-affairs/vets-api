@@ -22,7 +22,15 @@ module V0
       )
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
-      jid = service.upload_document(document_data)
+      document_data.upload(current_user)
+
+      job_id = EVSS::DocumentUpload.perform_async(headers, @user.user_account_uuid,
+                                                  evss_claim_document.to_serializable_hash, evidence_submission_id)
+      record_workaround('document_upload', evss_claim_document.evss_claim_id, job_id) if headers_supplemented
+
+      job_id
+
+      # jid = service.upload_document(document_data)
       render_job_id(jid)
     end
 

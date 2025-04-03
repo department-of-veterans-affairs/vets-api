@@ -85,6 +85,19 @@ class EVSSClaimDocument < Common::Base
     super num
   end
 
+  def upload(user)
+    uploader = EVSSClaimDocumentUploader.new(@user.user_account_uuid, uploader_ids)
+    uploader.store!(file_obj)
+
+    # the uploader sanitizes the filename before storing, so set our doc to match
+    self.file_name = uploader.final_filename
+  rescue CarrierWave::IntegrityError => e
+    log_exception_to_sentry(e, nil, nil, 'warn')
+    raise Common::Exceptions::UnprocessableEntity.new(
+      detail: e.message, source: 'EVSSClaimService.upload_document'
+    )
+  end
+
   private
 
   def content_type_matches_extension?
