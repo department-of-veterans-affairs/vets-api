@@ -118,16 +118,6 @@ RSpec.describe EducationForm::Process10203Submissions, form: :education_benefits
                    .and change { EducationStemAutomatedDecision.processed.count }.from(0).to(1)
       end
 
-      it 'always sets POA to nil for new submissions' do
-        allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
-        application_10203 = create(:va10203)
-        application_10203.after_submit(user)
-
-        subject.perform
-        application_10203.reload
-        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to be_nil
-      end
-
       it 'skips POA check for user without an EDIPI' do
         allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
         application_10203 = create(:va10203)
@@ -138,13 +128,10 @@ RSpec.describe EducationForm::Process10203Submissions, form: :education_benefits
         expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to be_nil
       end
 
-      it 'sets claim poa for evss user without poa' do
+      it 'sets POA to nil for new submissions' do
         allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
         application_10203 = create(:va10203)
         application_10203.after_submit(user)
-        evss_response_without_poa = OpenStruct.new({ 'userPoaInfoAvailable' => false })
-        # allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
-        #                                                     .and_return(evss_response_without_poa)
 
         subject.perform
         application_10203.reload
