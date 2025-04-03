@@ -9,11 +9,26 @@ module RepresentationManagement
         'agents' => {
           'sortColumn' => 'LastName',
           'sortOrder' => 'ASC'
+        },
+        'attorneys' => {
+          'sortColumn' => 'LastName',
+          'sortOrder' => 'ASC'
+        },
+        'representatives' => {
+          'sortColumn' => 'LastName',
+          'sortOrder' => 'ASC'
+        },
+        'veteran_service_organizations' => {
+          'sortColumn' => 'Organization.OrganizationName',
+          'sortOrder' => 'ASC'
         }
       }.freeze
 
       URL_MAPPING = {
-        'agents' => Settings.gclaws.accreditation.agents.url
+        'agents' => Settings.gclaws.accreditation.agents.url,
+        'attorneys' => Settings.gclaws.accreditation.attorneys.url,
+        'representatives' => Settings.gclaws.accreditation.representatives.url,
+        'veteran_service_organizations' => Settings.gclaws.accreditation.veteran_service_organizations.url
       }.freeze
 
       def initialize(type:, page:, page_size:)
