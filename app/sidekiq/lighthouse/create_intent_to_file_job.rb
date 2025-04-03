@@ -66,7 +66,7 @@ module Lighthouse
       service = BenefitsClaims::Service.new(veteran_icn)
       begin
         itf_found = service.get_intent_to_file(itf_type)
-        return itf_found if itf_found.present? && itf_found['data']['attributes']['status'] == 'active'
+        return itf_found if itf_found&.dig('data', 'attributes', 'status') == 'active'
       rescue Common::Exceptions::ResourceNotFound
         # do nothing, continue with creation
       end
