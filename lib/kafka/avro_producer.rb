@@ -4,9 +4,12 @@ require 'avro'
 require 'kafka/producer_manager'
 require 'kafka/schema_registry/service'
 require 'logger'
+require 'kafka/concerns/topic'
 
 module Kafka
   class AvroProducer
+    include Kafka::Topic
+
     attr_reader :producer, :registry
 
     def initialize(producer: nil)
@@ -15,7 +18,8 @@ module Kafka
       @schema_id = nil
     end
 
-    def produce(topic, payload, schema_version: 'latest')
+    def produce(payload, use_test_topic: false, schema_version: 'latest')
+      topic = get_topic(use_test_topic:)
       schema = get_schema(topic, schema_version)
       encoded_payload = encode_payload(schema, payload)
       producer.produce_sync(topic:, payload: encoded_payload)
