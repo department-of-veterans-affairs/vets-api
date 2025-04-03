@@ -88,7 +88,8 @@ module IvcChampva
       filler = IvcChampva::PdfFiller.new(
         form_number: form_id,
         form: self.class.name.constantize.new(additional_form_data),
-        name: "#{form_id}_additional_#{self.class::ADDITIONAL_PDF_KEY}-#{index}"
+        name: "#{form_id}_additional_#{self.class::ADDITIONAL_PDF_KEY}-#{index}",
+        uuid:
       )
       filler.generate
     end
