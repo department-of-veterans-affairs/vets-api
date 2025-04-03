@@ -62,9 +62,11 @@ RUN bundle install \
   && find /usr/local/bundle/gems/ -name "*.c" -delete \
   && find /usr/local/bundle/gems/ -name "*.o" -delete \
   && find /usr/local/bundle/gems/ -name ".git" -type d -prune -execdir rm -rf {} + \
-  # 🔧 fix bad permissions from Nokogiri 1.18.7
-  && find /usr/local/bundle/gems/nokogiri-* -type f -exec chmod a+r {} \; \
-  && find /usr/local/bundle/gems/nokogiri-* -type d -exec chmod a+rx {} \;
+  # 🔧 fix bad permissions from Nokogiri 1.18.7 (only if installed)
+  && for d in /usr/local/bundle/gems/nokogiri-*; do \
+       [ -d "$d" ] && find "$d" -type f -exec chmod a+r {} \; && \
+       find "$d" -type d -exec chmod a+rx {} \;; \
+     done
 COPY --chown=nonroot:nonroot . .
 
 # Make the ImageMagick script executable
