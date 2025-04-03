@@ -167,10 +167,11 @@ RSpec.describe IvcChampva::Monitor do
     end
 
     describe '#track_ves_response' do
+      # rubocop:disable Layout/LineLength
       it 'on success, calls track_request with the correct parameters' do
         form_uuid = '12345678-1234-5678-1234-567812345678',
-          status = 200,
-          messages = '{"messages": [{"code": "abc123", "key": "someKey", "text": "someText", "severity": "INFO", "potentiallySelfCorrectingOnRetry": true}]}'
+                    status = 200,
+                    messages = '{"messages": [{"code": "abc123", "key": "someKey", "text": "someText", "severity": "INFO", "potentiallySelfCorrectingOnRetry": true}]}'
 
         additional_context = {
           form_uuid:,
@@ -188,10 +189,11 @@ RSpec.describe IvcChampva::Monitor do
 
         monitor.track_ves_response(form_uuid, status, messages)
       end
+
       it 'on failure, calls track_request with the correct parameters' do
         form_uuid = '12345678-1234-5678-1234-567812345678',
-          status = 500,
-          messages = '{"messages": [{"code": "abc123", "key": "someKey", "text": "someText", "severity": "INFO", "potentiallySelfCorrectingOnRetry": true}]}'
+                    status = 500,
+                    messages = '{"messages": [{"code": "abc123", "key": "someKey", "text": "someText", "severity": "INFO", "potentiallySelfCorrectingOnRetry": true}]}'
 
         additional_context = {
           form_uuid:,
@@ -209,6 +211,7 @@ RSpec.describe IvcChampva::Monitor do
 
         monitor.track_ves_response(form_uuid, status, messages)
       end
+      # rubocop:enable Layout/LineLength
     end
   end
 end
