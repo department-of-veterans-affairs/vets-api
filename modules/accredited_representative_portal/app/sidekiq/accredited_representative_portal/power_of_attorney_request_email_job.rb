@@ -28,7 +28,7 @@ module AccreditedRepresentativePortal
         {
           email_address: poa_request_notification.email_address,
           template_id:,
-          personalisation: personalisation || poa_request_notification.personalisation
+          personalisation: generate_personalisation || personalisation
         }.compact
       )
       poa_request_notification.update!(notification_id: response.id)
@@ -48,6 +48,26 @@ module AccreditedRepresentativePortal
       else
         raise e
       end
+    end
+
+    private
+
+    def generate_personalisation
+      personalisation_klass =
+        case @notification.type
+        when 'requested'
+          Personalisations::Requested
+        when 'declined'
+          Personalisations::Declined
+        when 'expiring'
+          Personalisations::Expiring
+        when 'expired'
+          Personalisations::Expired
+        end
+
+      personalisation_klass.generate(
+        @notification
+      )
     end
   end
 end
