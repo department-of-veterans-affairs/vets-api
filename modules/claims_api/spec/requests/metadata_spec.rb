@@ -40,6 +40,10 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
 
     %w[v1].each do |version|
       context version do
+        before do
+          allow(IdentitySettings.mvi).to receive(:mock).and_return(false)
+        end
+
         it 'returns correct response and status when healthy' do
           allow(MPI::Service).to receive(:service_is_up?).and_return(true)
           allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:healthcheck).and_return(200)

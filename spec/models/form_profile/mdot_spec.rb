@@ -32,6 +32,34 @@ RSpec.describe FormProfile::MDOT, type: :model do
       VCR.eject_cassette
     end
 
+    context 'with assistive devices' do
+      it 'still prefills the MDOT form' do
+        VCR.insert_cassette(
+          'mdot/get_supplies_assistive_devices_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        )
+        form_data = FormProfile.for(form_id: 'MDOT', user:).prefill[:form_data]
+        errors = JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS['MDOT'], form_data)
+        expect(errors).to be_empty
+        VCR.eject_cassette
+      end
+    end
+
+    context 'with null addresses' do
+      it 'still prefills the MDOT form' do
+        VCR.insert_cassette(
+          'mdot/get_supplies_null_addresses_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        )
+        form_data = FormProfile.for(form_id: 'MDOT', user:).prefill[:form_data]
+        errors = JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS['MDOT'], form_data)
+        expect(errors).to be_empty
+        VCR.eject_cassette
+      end
+    end
+
     it 'handles 500 responses from system-of-record' do
       VCR.insert_cassette(
         'mdot/get_supplies_500',

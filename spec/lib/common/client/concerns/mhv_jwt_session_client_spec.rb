@@ -5,6 +5,10 @@ require 'medical_records/client_session'
 require_relative '../../../../../lib/common/client/concerns/mhv_jwt_session_client'
 
 describe Common::Client::Concerns::MHVJwtSessionClient do
+  before do
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+  end
+
   let(:dummy_class) do
     Class.new do
       include Common::Client::Concerns::MHVJwtSessionClient

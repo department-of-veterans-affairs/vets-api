@@ -39,15 +39,8 @@ describe VAOS::V2::AppointmentsPresentationFilter do
       expect(filterer.user_facing?(past)).to be true
     end
 
-    describe 'cancelled appointments' do
-      it 'returns true for a cancelled appointment with a valid start time 30 days ago or after' do
-        expect(filterer.user_facing?(cancelled)).to be true
-      end
-
-      it 'returns false if start time is more than 30 days ago' do
-        cancelled[:start] = 31.days.ago
-        expect(filterer.user_facing?(cancelled)).to be false
-      end
+    it 'returns true for cancelled appointments' do
+      expect(filterer.user_facing?(cancelled)).to be true
     end
 
     describe 'appointment requests' do

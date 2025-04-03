@@ -6,6 +6,7 @@ module RepresentationManagement
   module V0
     class PowerOfAttorneyController < ApplicationController
       service_tag 'representation-management'
+      before_action { authorize :power_of_attorney, :access? }
 
       def index
         @active_poa = lighthouse_service.get_power_of_attorney
