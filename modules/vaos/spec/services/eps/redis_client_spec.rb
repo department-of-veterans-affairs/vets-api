@@ -12,6 +12,7 @@ describe Eps::RedisClient do
   let(:referral_number) { '12345' }
   let(:provider_id) { '67890' }
   let(:appointment_type_id) { 'abc' }
+  let(:start_date) { '2023-12-31' }
   let(:end_date) { '2023-12-31' }
 
   let(:referral_identifiers) do
@@ -19,7 +20,7 @@ describe Eps::RedisClient do
       data: {
         id: referral_number,
         type: :referral_identifier,
-        attributes: { provider_id:, appointment_type_id:, end_date: }
+        attributes: { provider_id:, appointment_type_id:, start_date:, end_date: }
       }
     }.to_json
   end
@@ -178,6 +179,54 @@ describe Eps::RedisClient do
 
       it 'returns the cached value' do
         expect(redis_client.fetch_attribute(referral_number:, attribute: :provider_id)).to eq(provider_id)
+      end
+    end
+  end
+
+  describe '#fetch_referral_attributes' do
+    context 'when cache does not exist' do
+      it 'returns nil' do
+        expect(redis_client.fetch_referral_attributes(referral_number:)).to be_nil
+      end
+    end
+
+    context 'when cache exists' do
+      before do
+        Rails.cache.write(
+          "vaos_eps_referral_identifier_#{referral_number}",
+          referral_identifiers,
+          namespace: 'vaos-eps-cache',
+          expires_in: redis_token_expiry
+        )
+      end
+
+      it 'returns all cached attributes' do
+        expected_attributes = {
+          provider_id:,
+          appointment_type_id:,
+          start_date:,
+          end_date:
+        }
+
+        referral_attrs = redis_client.fetch_referral_attributes(referral_number:)
+        expect(referral_attrs).to eq(expected_attributes.with_indifferent_access)
+      end
+    end
+
+    context 'when cache has expired' do
+      before do
+        Rails.cache.write(
+          "vaos_eps_referral_identifier_#{referral_number}",
+          referral_identifiers,
+          namespace: 'vaos-eps-cache',
+          expires_in: redis_token_expiry
+        )
+      end
+
+      it 'returns nil' do
+        Timecop.travel(redis_token_expiry.from_now) do
+          expect(redis_client.fetch_referral_attributes(referral_number:)).to be_nil
+        end
       end
     end
   end

@@ -90,8 +90,10 @@ module V0
 
     def token
       SignIn::TokenParamsValidator.new(params: token_params).perform
-      response_body = SignIn::TokenResponseGenerator.new(params: token_params, cookies: token_cookies).perform
-
+      request_attributes = { remote_ip: request.remote_ip, user_agent: request.user_agent }
+      response_body = SignIn::TokenResponseGenerator.new(params: token_params,
+                                                         cookies: token_cookies,
+                                                         request_attributes:).perform
       sign_in_logger.info('token')
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
 
@@ -340,7 +342,7 @@ module V0
       cookies.delete(SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME, domain: :all)
       cookies.delete(SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME)
       cookies.delete(SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME)
-      cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME, domain: Settings.sign_in.info_cookie_domain)
+      cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME, domain: IdentitySettings.sign_in.info_cookie_domain)
     end
 
     def auth_service(type, client_id = nil)

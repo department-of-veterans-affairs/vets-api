@@ -13,11 +13,19 @@ describe ModuleGenerator do
 
   describe 'create_directory_structure' do
     let(:path) { Rails.root.join('modules', module_name, 'app') }
+    let(:spec_path) { Rails.root.join('modules', module_name, 'spec') }
 
     it 'the directories should exist' do
       ModuleGenerator.new([module_name]).create_directory_structure
       %w[controllers models serializers services].each do |module_dir|
-        expect(File.directory?("#{path}/#{module_dir}")).to be(true)
+        expect(File.directory?("#{path}/#{module_dir}/#{module_name}")).to be(true)
+      end
+    end
+
+    it 'the spec directories should exist' do
+      ModuleGenerator.new([module_name]).create_directory_structure
+      %w[controllers models lib serializers services factories support].each do |module_dir|
+        expect(File.directory?("#{spec_path}/#{module_dir}/#{module_name}")).to be(true)
       end
     end
   end
@@ -60,6 +68,10 @@ MESSAGES
       create  modules/foo/config/routes.rb
       create  modules/foo/foo.gemspec
       create  modules/foo/Gemfile
+      create  modules/foo/.adr-dir
+      create  modules/foo/.irbrc
+      create  modules/foo/.rspec
+      create  modules/foo/.gitignore
 MESSAGES
       expect do
         ModuleGenerator.new([module_name]).create_additional_files
@@ -94,6 +106,22 @@ MESSAGES
 
     it 'creates the Gemfile' do
       expect(File).to exist("#{path}/Gemfile")
+    end
+
+    it 'creates the adr-dir' do
+      expect(File).to exist("#{path}/.adr-dir")
+    end
+
+    it 'creates the irbrc' do
+      expect(File).to exist("#{path}/.irbrc")
+    end
+
+    it 'creates the rspec' do
+      expect(File).to exist("#{path}/.rspec")
+    end
+
+    it 'creates the gitignore' do
+      expect(File).to exist("#{path}/.gitignore")
     end
   end
 

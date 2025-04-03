@@ -45,7 +45,8 @@ module ClaimsApi
             add_person_proxy_response = target_veteran.recache_mpi_data.add_person_proxy
             unless add_person_proxy_response.ok?
               claims_logging('unable_to_locate_participant_id',
-                             message: 'unable_to_locate_participant_id on request in target veteran (Flipper on).')
+                             message: 'unable_to_locate_participant_id on request in target veteran (Flipper on).' \
+                                      "Failed call to add_person_proxy returned: #{add_person_proxy_response&.error}")
 
               raise ::Common::Exceptions::UnprocessableEntity.new(
                 detail: "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \

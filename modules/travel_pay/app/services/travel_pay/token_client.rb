@@ -53,7 +53,7 @@ module TravelPay
     end
 
     def request_sts_token(user)
-      private_key_file = Settings.sign_in.sts_client.key_path
+      private_key_file = IdentitySettings.sign_in.sts_client.key_path
       private_key = OpenSSL::PKey::RSA.new(File.read(private_key_file))
 
       assertion = build_sts_assertion(user)

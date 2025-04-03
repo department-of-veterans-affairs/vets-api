@@ -7,6 +7,9 @@ module DebtsApi
     class StaleUserError < StandardError; end
     STATS_KEY = 'api.fsr_submission'
     SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID = Settings.vanotify.services.dmc.template_id.fsr_failed_email
+    FORM_ID = '5655'
+    ZSF_DD_TAG_SERVICE = 'debt-resolution'
+    ZSF_DD_TAG_FUNCTION = 'register_failure'
     enum :state, { unassigned: 0, in_progress: 1, submitted: 2, failed: 3 }
 
     self.table_name = 'form5655_submissions'
@@ -90,7 +93,7 @@ module DebtsApi
       StatsD.increment("#{STATS_KEY}.failure")
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
       begin
-        send_failed_form_email unless message.include?('SharepointRequest')
+        send_failed_form_email unless message.match?(/sharepoint/i)
       rescue => e
         StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue.failure")
         Rails.logger.error("Failed to send failed form email: #{e.message}")
@@ -103,14 +106,14 @@ module DebtsApi
         submission_email = ipf_form['personal_data']['email_address'].downcase
 
         jid = DebtManagementCenter::VANotifyEmailJob.perform_in(
-          6.hours,
+          24.hours,
           submission_email,
           SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
           failure_email_personalization_info,
           { id_type: 'email', failure_mailer: true }
         )
 
-        Rails.logger.info("Failed 5655 form: #{id} email scheduled with jid: #{jid}")
+        Rails.logger.info("Failed 5655 email enqueued form: #{id} email scheduled with jid: #{jid}")
       end
     end
 
@@ -135,9 +138,9 @@ module DebtsApi
       public_metadata.dig('streamlined', 'value') == true
     end
 
-    def upsert_in_progress_form
+    def upsert_in_progress_form(user_account:)
       form = InProgressForm.find_or_initialize_by(form_id: '5655', user_uuid:)
-      form.user_account = user_account_from_uuid(user_uuid)
+      form.user_account = user_account
       form.real_user_uuid = user_uuid
 
       form.update!(form_data: ipf_data, metadata: fresh_metadata)
@@ -159,13 +162,6 @@ module DebtsApi
         'lastUpdated' => Time.now.to_i,
         'inProgressFormId' => '5655'
       }
-    end
-
-    def user_account_from_uuid(user_uuid)
-      UserVerification.where(idme_uuid: user_uuid)
-                      .or(UserVerification.where(logingov_uuid: user_uuid))
-                      .or(UserVerification.where(backing_idme_uuid: user_uuid))
-                      .last&.user_account
     end
   end
 end
