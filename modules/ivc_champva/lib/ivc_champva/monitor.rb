@@ -163,7 +163,7 @@ module IvcChampva
                       "#{STATS_KEY}.ves_response.success",
                       call_location: caller_locations.first, **additional_context)
       else
-        track_request('error', "IVC ChampVA Forms - Error on submission to VES for form #{form_uuid}",
+        track_request('error', "IVC ChampVa Forms - Error on submission to VES for form #{form_uuid}",
                       "#{STATS_KEY}.ves_response.failure",
                       call_location: caller_locations.first, **additional_context)
       end

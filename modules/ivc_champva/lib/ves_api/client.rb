@@ -28,8 +28,6 @@ module IvcChampva
 
         monitor.track_ves_response(transaction_uuid, resp.status, resp.body)
 
-        # TODO: check for non-200 responses and handle them appropriately
-
         raise "response code: #{resp.status}, response body: #{resp.body}" unless resp.status == 200
       rescue => e
         raise VesApiError, e.message.to_s

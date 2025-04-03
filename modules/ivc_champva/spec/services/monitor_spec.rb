@@ -201,7 +201,7 @@ RSpec.describe IvcChampva::Monitor do
 
         expect(monitor).to receive(:track_request).with(
           'error',
-          "IVC ChampVA Forms - Error on submission to VES for form #{form_uuid}",
+          "IVC ChampVa Forms - Error on submission to VES for form #{form_uuid}",
           "#{IvcChampva::Monitor::STATS_KEY}.ves_response.failure",
           call_location: anything,
           **additional_context
