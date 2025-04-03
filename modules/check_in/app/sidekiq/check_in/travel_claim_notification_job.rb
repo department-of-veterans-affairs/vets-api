@@ -196,7 +196,7 @@ module CheckIn
 
       phone_number = opts[:mobile_phone]
       template_id = opts[:template_id]
-      claim_number = opts.dig(:claim_number).presence
+      claim_number = opts[:claim_number].presence
       personalisation = { claim_number:, appt_date: formatted_date }
 
       notify_client.send_sms(phone_number:, template_id:, sms_sender_id:, personalisation:)

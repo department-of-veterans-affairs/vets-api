@@ -101,7 +101,9 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
         expect(test_logger).to receive(:info)
           .with(hash_including(message: 'Sending travel claim notification to 0123, template-id-123'))
         expect(test_logger).to receive(:info)
-          .with(hash_including(message: "TravelClaimNotificationJob failed, attempt 1 of #{described_class::MAX_RETRIES + 1}"))
+          .with(hash_including(
+                  message: "TravelClaimNotificationJob failed, attempt 1 of #{described_class::MAX_RETRIES + 1}"
+                ))
 
         expect { job.perform(job_opts) }.to raise_error(StandardError)
         expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR)
@@ -113,7 +115,9 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
         expect(test_logger).to receive(:info)
           .with(hash_including(message: 'Sending travel claim notification to 0123, template-id-123'))
         expect(test_logger).to receive(:info)
-          .with(hash_including(message: "TravelClaimNotificationJob failed, attempt 2 of #{described_class::MAX_RETRIES + 1}"))
+          .with(hash_including(
+                  message: "TravelClaimNotificationJob failed, attempt 2 of #{described_class::MAX_RETRIES + 1}"
+                ))
 
         expect { job.perform(job_opts) }.to raise_error(StandardError)
         expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR).at_least(:once)
