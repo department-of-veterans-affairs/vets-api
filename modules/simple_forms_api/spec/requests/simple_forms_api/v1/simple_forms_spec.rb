@@ -95,9 +95,12 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
           if is_authenticated
             it 'clears the InProgressForm' do
-              expect do
-                post '/simple_forms_api/v1/simple_forms', params: data
-              end.to change(InProgressForm, :count).by(-1)
+              initial_count = InProgressForm.count
+
+              post '/simple_forms_api/v1/simple_forms', params: data
+
+              final_count = InProgressForm.count
+              expect(final_count).to eq(initial_count - 1)
             end
           end
 
