@@ -26,10 +26,6 @@ describe Kafka::AvroProducer do
     "\x12VASI98765\x00\x00\x00\x00\x10received(2024-03-04T12:00:00Z\x00".b
   end
 
-  before do
-    allow(Settings.kafka_producer).to receive(:topic_name).and_return('topic-3')
-  end
-
   after do
     avro_producer.producer.client.reset
   end
@@ -40,7 +36,7 @@ describe Kafka::AvroProducer do
       VCR.use_cassette('kafka/topics') do
         avro_producer.produce(valid_payload)
         expect(avro_producer.producer.client.messages.length).to eq(1)
-        topic_3_messages = avro_producer.producer.client.messages_for('topic-3')
+        topic_3_messages = avro_producer.producer.client.messages_for('topic-1')
         expect(topic_3_messages.length).to eq(1)
         expect(topic_3_messages[0][:payload]).to be_a(String)
         expect(topic_3_messages[0][:payload]).to eq(topic3_payload_value)

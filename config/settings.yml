@@ -669,9 +669,9 @@ kafka_producer:
   broker_urls: <%= ENV['kafka_producer__broker_urls'] %>
   sasl_mechanisms: 'OAUTHBEARER'
   schema_registry_url: <%= ENV['kafka_producer__schema_registry_url'] %>
-  topic_name: <%= ENV['kafka_producer__topic_name'] %>
-  test_topic_name: <%= ENV['kafka_producer__test_topic_name'] %>
   security_protocol: 'sasl_ssl'
+  test_topic_name: <%= ENV['kafka_producer__test_topic_name'] %>
+  topic_name: <%= ENV['kafka_producer__topic_name'] %>
 kms_key_id: <%= ENV['kms_key_id'] %>
 lgy:
   api_key: <%= ENV['lgy__api_key'] %>

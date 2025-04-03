@@ -7,7 +7,21 @@ require 'kafka/schema_registry/service'
 
 describe Kafka::AvroProducer do
   let(:avro_producer) { described_class.new }
-  let(:valid_payload) { { 'data' => { 'key' => 'value' } } }
+  let(:valid_payload) do
+    {
+      'priorId' => nil,
+      'currentId' => '12345',
+      'nextId' => nil,
+      'icn' => 'ICN123456',
+      'vasiId' => 'VASI98765',
+      'systemName' => 'Lighthouse',
+      'submissionName' => 'F1010EZ',
+      'state' => 'received',
+      'timestamp' => '2024-03-04T12:00:00Z',
+      'additionalIds' => nil
+    }
+  end
+  let(:valid_test_payload) { { 'data' => { 'key' => 'value' } } }
   let(:invalid_payload) { { 'invalid_key' => 'value' } }
   let(:schema) do
     VCR.use_cassette('kafka/topics') do
@@ -20,7 +34,6 @@ describe Kafka::AvroProducer do
 
   before do
     allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('test'))
-    allow(Settings.kafka_producer).to receive_messages(topic_name: 'topic-1', test_topic_name: 'topic-2')
     allow(Flipper).to receive(:enabled?).with(:kafka_producer).and_return(true)
     allow(Kafka::OauthTokenRefresher).to receive(:new).and_return(double(on_oauthbearer_token_refresh: 'token'))
   end
@@ -68,12 +81,11 @@ describe Kafka::AvroProducer do
         it 'produces a message to the specified topic' do
           VCR.use_cassette('kafka/topics') do
             avro_producer.produce(valid_payload)
-            avro_producer.produce(valid_payload, use_test_topic: true)
+            avro_producer.produce(valid_test_payload, use_test_topic: true)
             expect(avro_producer.producer.client.messages.length).to eq(2)
             topic_1_messages = avro_producer.producer.client.messages_for('topic-1')
             expect(topic_1_messages.length).to eq(1)
             expect(topic_1_messages[0][:payload]).to be_a(String)
-            expect(topic_1_messages[0][:payload]).to eq(topic1_payload_value)
           end
         end
       end

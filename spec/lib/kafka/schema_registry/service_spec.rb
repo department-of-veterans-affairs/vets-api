@@ -11,8 +11,14 @@ describe Kafka::SchemaRegistry::Service do
     { 'subject' => 'topic-1-value',
       'version' => 1,
       'id' => 5,
-      'schema' => "{\"type\":\"record\",\"name\":\"TestRecord\",\"namespace\":\"gov.va.eventbus.test.data\"\
-,\"fields\":[{\"name\":\"data\",\"type\":{\"type\":\"map\",\"values\":\"string\"},\"default\":{}}]}" }
+      'schema' => "{\"type\":\"record\",\"name\":\"SubmissionTrace\",\"namespace\":\"gov.va.submissiontrace.form.data\"\
+,\"fields\":[{\"name\":\"priorId\",\"type\":[\"null\",\"string\"]},{\"name\":\"currentId\",\"type\":\"string\"},\
+{\"name\":\"nextId\",\"type\":[\"null\",\"string\"]},{\"name\":\"icn\",\"type\":[\"null\",\"string\"]},\
+{\"name\":\"vasiId\",\"type\":\"string\"},{\"name\":\"systemName\",\"type\":[{\"type\":\"enum\",\
+\"name\":\"systemName\",\"symbols\":[\"Lighthouse\",\"CMP\",\"VBMS\",\"VA_gov\",\"VES\"]}]},\
+{\"name\":\"submissionName\",\"type\":[{\"type\":\"enum\",\"name\":\"submissionName\",\"symbols\":[\"F1010EZ\"\
+,\"F527EZ\"]}]},{\"name\":\"state\",\"type\":\"string\"},{\"name\":\"timestamp\",\"type\":\"string\"},\
+{\"name\":\"additionalIds\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"string\"}]}]}"}
   end
 
   describe '#subject_versions' do
