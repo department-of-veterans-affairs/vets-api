@@ -21,7 +21,7 @@ describe Kafka::AvroProducer do
     }
   end
   let(:invalid_payload_format) { 'invalid' }
-  let(:topic3_payload_value) do
+  let(:topic_payload_value) do
     "\x00\x00\x00\x00\x05\x00\n12345\x00\x02\x12ICN123456" \
     "\x12VASI98765\x00\x00\x00\x00\x10received(2024-03-04T12:00:00Z\x00".b
   end
@@ -36,10 +36,10 @@ describe Kafka::AvroProducer do
       VCR.use_cassette('kafka/topics') do
         avro_producer.produce(valid_payload)
         expect(avro_producer.producer.client.messages.length).to eq(1)
-        topic_3_messages = avro_producer.producer.client.messages_for('topic-1')
+        topic_3_messages = avro_producer.producer.client.messages_for('submission_trace_form_status_change_test')
         expect(topic_3_messages.length).to eq(1)
         expect(topic_3_messages[0][:payload]).to be_a(String)
-        expect(topic_3_messages[0][:payload]).to eq(topic3_payload_value)
+        expect(topic_3_messages[0][:payload]).to eq(topic_payload_value)
       end
     end
 

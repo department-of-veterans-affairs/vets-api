@@ -25,7 +25,8 @@ describe Kafka::AvroProducer do
   let(:invalid_payload) { { 'invalid_key' => 'value' } }
   let(:schema) do
     VCR.use_cassette('kafka/topics') do
-      response = Kafka::SchemaRegistry::Service.new.subject_version('topic-1', 'latest')
+      response = Kafka::SchemaRegistry::Service.new.subject_version('submission_trace_form_status_change_test',
+                                                                    'latest')
 
       schema = response['schema']
       Avro::Schema.parse(schema)
@@ -83,7 +84,7 @@ describe Kafka::AvroProducer do
             avro_producer.produce(valid_payload)
             avro_producer.produce(valid_test_payload, use_test_topic: true)
             expect(avro_producer.producer.client.messages.length).to eq(2)
-            topic_1_messages = avro_producer.producer.client.messages_for('topic-1')
+            topic_1_messages = avro_producer.producer.client.messages_for('submission_trace_form_status_change_test')
             expect(topic_1_messages.length).to eq(1)
             expect(topic_1_messages[0][:payload]).to be_a(String)
           end
