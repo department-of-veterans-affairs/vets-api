@@ -185,7 +185,6 @@ module CheckIn
     # @param parsed_date [Date] Parsed appointment date
     # @return [Object] The result from the VaNotify send_sms call
     def va_notify_send_sms(opts, parsed_date)
-      # Format the already parsed date
       formatted_date = parsed_date.strftime('%b %d')
       facility_type = opts&.dig(:facility_type)
       sms_sender_id = if facility_type && 'oh'.casecmp?(facility_type)
