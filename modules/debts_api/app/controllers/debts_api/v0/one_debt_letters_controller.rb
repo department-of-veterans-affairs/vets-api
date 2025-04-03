@@ -7,7 +7,7 @@ module DebtsApi
     class OneDebtLettersController < ApplicationController
       service_tag 'debt-resolution'
 
-      def download_pdf
+      def combine_pdf
         service = DebtsApi::V0::OneDebtLetterService.new(current_user)
         file_contents = service.get_pdf(pdf_params[:document])
 
