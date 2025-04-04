@@ -6,18 +6,12 @@ module MHV
 
     sidekiq_options retry: false
 
-    def perform(uuid)
-      user = User.find(uuid)
+    def perform(mhv_correlation_id, mhv_last_signed_in = nil)
+      return if mhv_correlation_id.blank? || mhv_last_signed_in.present?
 
-      return if user.mhv_last_signed_in
-
-      MHVLogging::Client.new(session: { user_id: user.mhv_correlation_id })
+      MHVLogging::Client.new(session: { user_id: mhv_correlation_id })
                         .authenticate
                         .auditlogin
-
-      # Update the user object with the time of login
-      user.mhv_last_signed_in = Time.current
-      user.save
     end
   end
 end
