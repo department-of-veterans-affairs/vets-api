@@ -16,7 +16,7 @@ module FacilitiesApi
 
         def connection
           Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-            conn.use :breakers
+            conn.use(:breakers, service_name:)
             conn.request :instrumentation, name: 'facilities.mobile_covid.v2.request.faraday'
 
             # Uncomment this if you want curlggg command equivalent or response output to log

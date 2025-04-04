@@ -42,9 +42,7 @@ module EducationForm::Forms
       "V#{@record.form_type}"
     end
 
-    def school
-      @applicant.school
-    end
+    delegate :school, to: :@applicant
 
     def applicant_name
       @applicant.veteranFullName

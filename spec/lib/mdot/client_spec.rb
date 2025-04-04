@@ -52,6 +52,9 @@ describe MDOT::Client, type: :mdot_helpers do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/get_supplies_502') do
           expect(StatsD).to receive(:increment).once.with(
+            'api.external_http_request.MDOT.failed', 1, { tags: ['endpoint:/supplies', 'method:get'] }
+          )
+          expect(StatsD).to receive(:increment).once.with(
             'api.mdot.get_supplies.fail', tags: [
               'error:CommonClientErrorsClientError', 'status:502'
             ]
@@ -71,6 +74,9 @@ describe MDOT::Client, type: :mdot_helpers do
     context 'when the DLC API is unavailable' do
       it 'raises a 503' do
         VCR.use_cassette('mdot/get_supplies_503') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.external_http_request.MDOT.failed', 1, { tags: ['endpoint:/supplies', 'method:get'] }
+          )
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.get_supplies.fail', tags: [
               'error:CommonClientErrorsClientError', 'status:503'
@@ -270,6 +276,9 @@ describe MDOT::Client, type: :mdot_helpers do
     context 'with an unknown DLC service error' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/submit_order_502') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.external_http_request.MDOT.failed', 1, { tags: ['endpoint:/supplies', 'method:post'] }
+          )
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.submit_order.fail', tags: [
               'error:CommonClientErrorsClientError', 'status:502'

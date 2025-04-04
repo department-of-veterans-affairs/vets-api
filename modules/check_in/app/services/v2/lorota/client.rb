@@ -77,7 +77,7 @@ module V2
 
       def connection
         Faraday.new(url:) do |conn|
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.response :raise_custom_error, error_prefix: 'LOROTA-API'
           conn.response :betamocks if mock_enabled?
 

@@ -16,6 +16,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::ImagingController', type: :request
   let(:study_id) { '453-2487448' }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     bb_internal_client = BBInternal::Client.new(
       session: {
         user_id: 11_375_034,

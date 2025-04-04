@@ -1,0 +1,159 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/oauth2/health/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=<TOKEN>&scope=launch+patient%2FPatient.read+system%2FPatient.read+patient%2FObservation.read+patient%2FPractitioner.read+patient%2FMedicationRequest.read&launch=eyJwYXRpZW50IjogIjMyMDAwMjI1In0%3D
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 11 Jan 2022 03:10:08 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Vary:
+      - Origin
+      Etag:
+      - W/"4ca-ItFBtr+iciimlNVkY++s45MekTk"
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS01dd66bd=01874af5a4c0ac097ab105776b40e1e8a41948de46170379cb470cece3a87aa2ef6a77d2915525fccf7da2d27cacbb3d82cd0ec8e9;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"<TOKEN>","token_type":"Bearer","scope":"launch
+        patient/Patient.read patient/Practitioner.read patient/Observation.read patient/MedicationRequest.read
+        system/Patient.read","expires_in":300,"state":null,"patient":"32000225"}'
+  recorded_at: Tue, 11 Jan 2022 03:10:08 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/fhir/v0/r4/AllergyIntolerance?_count=100&patient=32000225
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULnZIYlBtU0JOR3NnOXQwTHdHbEZqZFBsZHo5T3YzVWJxR3hCby1oOFdaUGMiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2NDE4NzA2MDcsImV4cCI6MTY0MTg3MDkwNywiY2lkIjoiMG9hYXhrcDBhZVhFSmtNRncycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FheGtwMGFlWEVKa01GdzJwNyJ9.DSgQt4xC6FgqXuHo1OarhhFAR3jwnVfuZ9a_zI31cVGnG59IlfKMSCfPFnl-kDx-_snjcPkTg5sVMcxY8z8-oy5AWI3LKCW5fHPVea1UWD6OV_lEs07z1oGms6yjj7fhgBdak-utJdDElLeNLes7WScAf2M8kt7mKdfffepd6odaNTP7VR8pHkfx0VFGe-tdUGeXe6-359PtQsJz2jLJ9Fw0QxdawLVjsnCZLVBiHl6zENJHxLHNxL16V9ZPSpABuQlLBCDOnJbr5moeaUP9Ubmym4bVyYMJGqNcL1B5vKenyMdzHyYw2t92f2nsNTL_6QLUG_-adqkdioDZj2alRw
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 11 Jan 2022 03:10:10 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '299'
+      X-Ratelimit-Limit-Minute:
+      - '300'
+      Ratelimit-Remaining:
+      - '299'
+      Ratelimit-Limit:
+      - '300'
+      Ratelimit-Reset:
+      - '52'
+      Vary:
+      - Accept-Encoding
+      - Origin
+      X-Va-Includes-Icn:
+      - '32000225'
+      Pragma:
+      - no-cache
+      - no-cache
+      X-Kong-Upstream-Latency:
+      - '1531'
+      X-Kong-Proxy-Latency:
+      - '5'
+      Via:
+      - kong/2.3.2
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - no-cache, no-store
+      Set-Cookie:
+      - TS01dd66bd=01874af5a4403e8c835b5983bd7cb731bcfe1b9f7bfa850803d25114b91cc506f4c0cd2f115b2a0bcf61343cd457f8d6350ea68a65;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '
+      {
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 15,
+  "link": [
+    {
+      "relation": "first",
+      "url": "https://sandbox-api.va.gov/services/fhir/v0/r4/AllergyIntolerance?patient=43000199&_count=1&page=1"
+    },
+    {
+      "relation": "self",
+      "url": "https://sandbox-api.va.gov/services/fhir/v0/r4/AllergyIntolerance?patient=43000199&_count=1&page=1"
+    },
+    {
+      "relation": "last",
+      "url": "https://sandbox-api.va.gov/services/fhir/v0/r4/AllergyIntolerance?patient=43000199&_count=1&page=15"
+    }
+  ],
+  "entry": [
+    {
+      "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/AllergyIntolerance/I2-FY4N5GUAQ4IZQVQZUPDFN43S4A000000",
+      "resource": {
+        "resourceType": "AllergyIntolerance",
+        "id": "I2-FY4N5GUAQ4IZQVQZUPDFN43S4A000000",
+        "type": "allergy",
+        "category": [
+          "environment"
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "300916003",
+              "display": "Latex allergy"
+            }
+          ],
+          "text": "Latex allergy"
+        }
+      },
+      "search": {
+        "mode": "match"
+      }
+    }
+  ]
+}
+      '
+  recorded_at: Tue, 11 Jan 2022 03:10:10 GMT

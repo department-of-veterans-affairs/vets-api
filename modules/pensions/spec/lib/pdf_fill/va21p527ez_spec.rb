@@ -17,7 +17,7 @@ describe Pensions::PdfFill::Va21p527ez do
 
   it_behaves_like 'a form filler', {
     form_id: described_class::FORM_ID,
-    factory: :pensions_module_pension_claim,
+    factory: :pensions_saved_claim,
     use_vets_json_schema: true,
     input_data_fixture_dir: 'modules/pensions/spec/lib/pdf_fill/fixtures',
     output_pdf_fixture_dir: 'modules/pensions/spec/lib/pdf_fill/fixtures'

@@ -287,8 +287,8 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
 
   describe 'sidekiq_retries_exhausted block' do
     let(:exhaustion_msg) do
-      { 'args' => [], 'class' => 'Burials::BenefitsIntake::SubmitClaimJob', 'error_message' => 'An error occured',
-        'queue' => nil }
+      { 'args' => [], 'class' => 'Burials::BenefitsIntake::SubmitClaimJob', 'error_message' => 'An error occurred',
+        'queue' => 'low' }
     end
 
     before do

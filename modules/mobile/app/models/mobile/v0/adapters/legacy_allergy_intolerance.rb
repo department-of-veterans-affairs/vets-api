@@ -13,7 +13,7 @@ module Mobile
               type: allergy_info['type'],
               clinicalStatus: clinical_status(allergy_info['clinicalStatus']),
               code: code(allergy_info['code']),
-              recordedDate: allergy_info['recordedDate'],
+              recordedDate: allergy_info&.dig('recordedDate'),
               patient: patient(allergy_info['patient']),
               recorder: recorder(allergy_info['recorder']),
               notes: notes(allergy_info['note']),
@@ -26,6 +26,8 @@ module Mobile
         private
 
         def clinical_status(attributes)
+          return { 'coding' => [] } if attributes.blank?
+
           values = Array.wrap(attributes['coding'])
           coding_hash = values.map do |code|
             {
@@ -55,19 +57,21 @@ module Mobile
 
         def patient(attributes)
           {
-            'reference' => attributes['reference'],
-            'display' => attributes['display']
+            'reference' => attributes&.dig('reference'),
+            'display' => attributes&.dig('display')
           }
         end
 
         def recorder(attributes)
           {
-            'reference' => attributes['reference'],
-            'display' => attributes['display']
+            'reference' => attributes&.dig('reference'),
+            'display' => attributes&.dig('display')
           }
         end
 
         def notes(attributes)
+          return [] if attributes.blank?
+
           Array.wrap(attributes).map do |note|
             {
               'authorReference' => {
@@ -81,6 +85,8 @@ module Mobile
         end
 
         def reactions(attributes)
+          return [] if attributes.blank?
+
           Array.wrap(attributes).map do |reaction|
             substance = Array.wrap(reaction.dig('substance', 'coding'))
 

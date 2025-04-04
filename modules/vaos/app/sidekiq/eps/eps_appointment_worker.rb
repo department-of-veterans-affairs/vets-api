@@ -34,7 +34,7 @@ module Eps
         else
           send_vanotify_message(user:, error: 'Could not complete booking')
         end
-      rescue Eps::AppointmentService::ServiceError
+      rescue Common::Exceptions::BackendServiceException
         send_vanotify_message(user:, error: 'Service error, please contact support')
       rescue => e
         send_vanotify_message(user:, error: e.message)

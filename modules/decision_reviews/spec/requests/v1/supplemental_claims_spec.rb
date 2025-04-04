@@ -106,7 +106,9 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
           message: "Exception occurred while submitting Supplemental Claim: #{extra_error_log_message}",
           backtrace: anything
         )
-        expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
+        expect(Rails.logger).to receive(:error) do |message|
+          expect(message).to include(extra_error_log_message)
+        end
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_995.overall_claim_submission.failure')
 

@@ -168,7 +168,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
               {
                 job_id: form526_job_status.job_id,
                 error_class: nil,
-                error_message: 'An error occured',
+                error_message: 'An error occurred',
                 timestamp: instance_of(Time),
                 form526_submission_id: form526_submission.id
               },

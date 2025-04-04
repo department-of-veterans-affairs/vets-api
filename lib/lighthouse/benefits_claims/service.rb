@@ -17,7 +17,7 @@ module BenefitsClaims
     FRIENDLY_DISPLAY_MAPPING = {
       '21-4142/21-4142a' => 'Authorization to Disclose Information',
       'Proof of Service (DD214, etc.)' => 'Proof of Service',
-      'Employment information needed' => 'Employment information',
+      'Employment info needed' => 'Employment information',
       'EFT - Treasury Mandate Notification' => 'Direct deposit information',
       'PTSD - Need stressor details/med evid of stressful incdnt' => 'Details about cause of PTSD'
     }.freeze
@@ -26,7 +26,7 @@ module BenefitsClaims
       '21-4142/21-4142a' => 'We need your permission to request your personal information from a non-VA source,' \
                             ' like a private doctor or hospital.',
       'Proof of Service (DD214, etc.)' => 'We need copies of your separation papers for all periods of service.',
-      'Employment information needed' => 'We need employment information from your most recent employer.',
+      'Employment info needed' => 'We need employment information from your most recent employer.',
       'EFT - Treasury Mandate Notification' => 'We need your direct deposit information in order to pay benefits,' \
                                                ' if awarded.',
       'PTSD - Need stressor details/med evid of stressful incdnt' => 'We need information about the cause of' \
@@ -36,7 +36,7 @@ module BenefitsClaims
     SUPPORT_ALIASES_MAPPING = {
       '21-4142/21-4142a' => ['VA Form 21-4142'],
       'Proof of Service (DD214, etc.)' => ['Form DD214'],
-      'Employment information needed' => ['VA Form 21-4192'],
+      'Employment info needed' => ['VA Form 21-4192'],
       'EFT - Treasury Mandate Notification' => ['EFT - Treasure Mandate Notification'],
       'PTSD - Need stressor details/med evid of stressful incdnt' => ['VA Form 21-0781', 'PTSD - Need stressor details']
     }.freeze

@@ -29,17 +29,18 @@ module DecisionReviewV1
         @form = set_signature_date(form_data)
         validate_form4142
         @pdf_path = generate_stamp_pdf
-        @uuid = SecureRandom.uuid
         @request_body = {
           'document' => to_faraday_upload,
           'metadata' => generate_metadata
         }
       end
 
+      def uuid
+        @uuid ||= SecureRandom.uuid
+      end
+
       def generate_stamp_pdf
-        pdf = PdfFill::Filler.fill_ancillary_form(
-          @form, @uuid, FORM_ID
-        )
+        pdf = PdfFill::Filler.fill_ancillary_form(@form, uuid, FORM_ID)
         stamped_path = PDFUtilities::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
                                                                timestamp: submission_date)
         PDFUtilities::DatestampPdf.new(stamped_path).run(
@@ -70,7 +71,7 @@ module DecisionReviewV1
           'receiveDt' => received_date,
           # 'uuid' => "#{@uuid}_4142", # was trying to include the main claim uuid here and just append 4142
           # but central mail portal does not support that
-          'uuid' => @uuid,
+          'uuid' => uuid,
           'zipCode' => address['postalCode'],
           'source' => 'VA Forms Group B',
           'hashV' => Digest::SHA256.file(@pdf_path).hexdigest,

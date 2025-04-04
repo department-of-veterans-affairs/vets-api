@@ -7,7 +7,7 @@ RSpec.describe Pensions::Monitor do
   let(:monitor) { described_class.new }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
-  let(:claim) { create(:pensions_module_pension_claim) }
+  let(:claim) { create(:pensions_saved_claim) }
   let(:ipf) { create(:in_progress_form) }
 
   context 'with all params supplied' do

@@ -13,9 +13,13 @@ module Kafka
         super.merge('Content-Type' => 'application/vnd.schemaregistry.v1+json')
       end
 
+      def service_name
+        'KafkaSchemaRegistry'
+      end
+
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           conn.adapter Faraday.default_adapter
         end

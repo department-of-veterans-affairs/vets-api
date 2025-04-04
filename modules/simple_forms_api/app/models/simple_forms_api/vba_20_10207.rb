@@ -74,10 +74,12 @@ module SimpleFormsApi
     end
 
     def notification_email_address
-      if %w[veteran third-party-veteran].include? data['preparer_type']
+      if data['preparer_type'] == 'veteran'
         data['veteran_email_address']
-      else
+      elsif data['preparer_type'] == 'non-veteran'
         data['non_veteran_email_address']
+      else
+        data['third_party_email_address']
       end
     end
 

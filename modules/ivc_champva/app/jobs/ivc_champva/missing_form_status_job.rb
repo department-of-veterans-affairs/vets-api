@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'pega_api/client'
 
 # This job grabs all IVC Forms that are missing a status update from the third-party Pega
 # Returns a sends stats to DataDog with the form ids

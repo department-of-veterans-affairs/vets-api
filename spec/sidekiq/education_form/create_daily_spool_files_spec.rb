@@ -340,60 +340,39 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
         end
       end
 
-      it 'notifies the slack channel with the number of bytes written' do
-        allow(Rails.env).to receive(:production?).and_return(true)
-        allow(Settings).to receive(:hostname).and_return('api.va.gov')
-        expect(EducationBenefitsClaim.unprocessed).not_to be_empty
-
-        # any readable file will work for this spec
-        key_path = Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
-        with_settings(Settings.edu.sftp, host: 'localhost', key_path:) do
-          sftp_writer_mock = instance_double(SFTPWriter::Remote)
-          allow(SFTPWriter::Factory).to receive(:get_writer).with(Settings.edu.sftp).and_return(SFTPWriter::Remote)
-          allow(SFTPWriter::Remote)
-            .to receive(:new)
-            .with(Settings.edu.sftp, logger: anything)
-            .and_return(sftp_writer_mock)
-
-          allow(sftp_writer_mock).to receive(:write).once.and_return(4619)
-          allow(sftp_writer_mock).to receive(:close).once.and_return(true)
-
-          log_message = 'Uploaded 4619 bytes to region: eastern'
-          instance = described_class.new
-          allow(instance).to receive(:log_to_slack)
-
-          instance.perform
-          expect(instance).to have_received(:log_to_slack).with(include(log_message))
-        end
-      end
-
+      # rubocop:disable Rspec/NoExpectationExample
       it 'notifies the slack channel with a warning if no files were written' do
+        stub_env_and_writer(
+          byte_count: 0,
+          expected_message: 'Warning: Uploaded 0 bytes to region: eastern'
+        )
+      end
+      # rubocop:enable Rspec/NoExpectationExample
+
+      def stub_env_and_writer(byte_count:, expected_message:)
         allow(Rails.env).to receive(:production?).and_return(true)
         allow(Settings).to receive(:hostname).and_return('api.va.gov')
         expect(EducationBenefitsClaim.unprocessed).not_to be_empty
 
-        # any readable file will work for this spec
-        key_path = Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
+        key_path = Rails.root.join('spec', 'fixtures', 'files', 'idme_cert.crt').to_s
         with_settings(Settings.edu.sftp, host: 'localhost', key_path:) do
           sftp_writer_mock = instance_double(SFTPWriter::Remote)
+
           allow(SFTPWriter::Factory).to receive(:get_writer).with(Settings.edu.sftp).and_return(SFTPWriter::Remote)
           allow(SFTPWriter::Remote)
             .to receive(:new)
             .with(Settings.edu.sftp, logger: anything)
             .and_return(sftp_writer_mock)
 
-          # this would happen if by some fluke they changed the production host name by accident.
-          # It shouldn't happen, but it did happen during a configuration change and platform asked
-          # for this extra check after we figured out what was going on
-          allow(sftp_writer_mock).to receive(:write).once.and_return(0)
+          allow(sftp_writer_mock).to receive(:write).once.and_return(byte_count)
           allow(sftp_writer_mock).to receive(:close).once.and_return(true)
 
-          log_message = 'Warning: Uploaded 0 bytes to region: eastern'
           instance = described_class.new
+          # allow is needed because it's called multiple times and expect fails without it
           allow(instance).to receive(:log_to_slack)
+          expect(instance).to receive(:log_to_slack).with(include(expected_message))
 
           instance.perform
-          expect(instance).to have_received(:log_to_slack).with(log_message)
         end
       end
     end

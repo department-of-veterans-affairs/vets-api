@@ -15,8 +15,6 @@ module Eps
 
       response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {}, headers)
       OpenStruct.new(response.body)
-    rescue => e
-      raise Eps::ServiceError, "Error fetching appointment details: #{e.message}"
     end
 
     ##

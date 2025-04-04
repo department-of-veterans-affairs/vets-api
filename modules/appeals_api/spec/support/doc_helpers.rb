@@ -152,9 +152,7 @@ module DocHelpers
     enabled_docs.include?(sym)
   end
 
-  def wip_doc_enabled?(sym)
-    DocHelpers.wip_doc_enabled?(sym)
-  end
+  delegate :wip_doc_enabled?, to: :DocHelpers
 
   def self.doc_suffix
     ENV['RSWAG_ENV'] == 'dev' ? '_dev' : ''

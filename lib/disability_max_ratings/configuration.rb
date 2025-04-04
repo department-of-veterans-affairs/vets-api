@@ -18,7 +18,7 @@ module DisabilityMaxRatings
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
-        faraday.use :breakers
+        faraday.use(:breakers, service_name:)
         faraday.use Faraday::Response::RaiseError
         faraday.response :json, content_type: /\bjson/
         faraday.adapter Faraday.default_adapter

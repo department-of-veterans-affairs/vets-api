@@ -17,6 +17,4 @@ def load(key)
   REDIS_CONNECTION.get(key)
 end
 
-def keys(namespace)
-  REDIS_CONNECTION.keys(namespace)
-end
+delegate :keys, to: :REDIS_CONNECTION

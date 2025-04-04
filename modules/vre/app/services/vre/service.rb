@@ -2,7 +2,7 @@
 
 module VRE
   class Service < ::Common::Client::Base
-    include Common::Client::Concerns::Monitoring
+    include ::Common::Client::Concerns::Monitoring
 
     def send_to_res(payload:)
       with_monitoring do

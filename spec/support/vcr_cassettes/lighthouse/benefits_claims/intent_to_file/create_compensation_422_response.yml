@@ -1,0 +1,72 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/intent-to-file
+    body:
+      encoding: UTF-8
+      string: '{"data":{"type":"intent_to_file","attributes":{"type":"compensation","claimantSsn":""}}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer fake_access_token
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 422
+      message: Unprocessable entity
+    headers:
+      Date:
+      - Wed, 26 Jun 2024 13:44:12 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '65'
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      Ratelimit-Reset:
+      - '49'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Limit:
+      - '120'
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 87b5a2f2d08bc05205824e885d812aae2248f275
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 395ec00b-b8ff-4efb-8953-9cf5befc199b
+      X-Runtime:
+      - '0.153940'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Unprocessable entity","detail":"Invalid claimantSsn parameter"}]}'
+  recorded_at: Wed, 26 Jun 2024 13:44:12 GMT
+recorded_with: VCR 6.2.0

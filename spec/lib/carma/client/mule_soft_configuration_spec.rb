@@ -20,7 +20,7 @@ describe CARMA::Client::MuleSoftConfiguration do
     it 'creates the connection' do
       allow(Faraday).to receive(:new).and_yield(faraday)
 
-      expect(faraday).to receive(:use).once.with(:breakers)
+      expect(faraday).to receive(:use).once.with(:breakers, { service_name: subject.service_name })
       expect(faraday).to receive(:request).once.with(:instrumentation, { name: 'CARMA::Client::MuleSoftConfiguration' })
       expect(faraday).to receive(:adapter).once.with(Faraday.default_adapter)
 
