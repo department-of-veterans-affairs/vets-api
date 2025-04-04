@@ -13,6 +13,7 @@ module SignIn
     attribute :credential_email, String
     attribute :user_attributes, Hash
     attribute :device_sso, Boolean
+    attribute :web_sso_session_id, Integer
 
     validates(:code, :user_verification_id, presence: true)
 
