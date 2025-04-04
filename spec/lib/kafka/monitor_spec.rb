@@ -6,13 +6,10 @@ require 'kafka/monitor'
 RSpec.describe Kafka::Monitor do
   let(:monitor) { described_class.new }
   let(:use_test_topic) { false }
-  let(:topic) { 'kafka-topic' }
+  let(:topic) { 'submission_trace_form_status_change_test' }
   let(:payload) { { 'data' => { 'ICN' => '123' } } }
   let(:error) { StandardError.new('Something went wrong') }
 
-  before do
-    allow(Settings.kafka_producer).to receive(:topic_name).and_return('kafka-topic')
-  end
 
   describe '#track_submission_success' do
     it 'tracks the submit success event' do
@@ -51,7 +48,7 @@ RSpec.describe Kafka::Monitor do
       exhausted_payload = {
         message: msg,
         payload:,
-        topic: 'kafka-topic'
+        topic:
       }
 
       expect(monitor).to receive(:track_request).with(
