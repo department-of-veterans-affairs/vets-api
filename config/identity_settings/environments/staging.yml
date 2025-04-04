@@ -58,6 +58,7 @@ sign_in:
   sts_client:
     base_url: https://staging-api.va.gov
     key_path: /srv/vets-api/secret/sign-in-service-sts-client.pem
+  usip_uri: https://staging.va.gov/sign-in
   vamobile_client_id:
     - vamobile
     - vamobile_test
