@@ -9,6 +9,7 @@ module PdfFill
 
       START_PAGE = 1
       SECTIONS = nil
+      QUESTION_KEY = nil
 
       def self.date_strftime
         '%m/%d/%Y'
