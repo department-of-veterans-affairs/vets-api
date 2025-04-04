@@ -12,12 +12,15 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
 
       it 'returns the full hash for the digital submit confirmation email' do
         notification.power_of_attorney_request.power_of_attorney_holder_poa_code = organization.poa
+        expiration_date = (Time.zone.now.in_time_zone('Eastern Time (US & Canada)') + 60.days).strftime('%B %d, %Y')
+        rep_name = notification.accredited_individual.full_name.strip
+        org_name = notification.accredited_organization.name.strip
         expected_hash = {
           'first_name' => notification.claimant_hash['name']['first'],
           'last_name' => notification.claimant_hash['name']['last'],
           'submit_date' => Time.zone.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-          'expiration_date' => (Time.zone.now.in_time_zone('Eastern Time (US & Canada)') + 60.days).strftime('%B %d, %Y'),
-          'representative_name' => "#{notification.accredited_individual.full_name.strip} accredited with #{notification.accredited_organization.name.strip}"
+          'expiration_date' => expiration_date,
+          'representative_name' => "#{rep_name} accredited with #{org_name}"
         }
         expect(described_class::Requested.new(notification).generate).to eq(expected_hash)
       end
