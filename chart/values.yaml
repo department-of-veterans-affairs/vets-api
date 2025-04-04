@@ -2,7 +2,7 @@ parameters:
   - SETTINGS__HOSTNAME
   - SETTINGS__VIRTUAL_HOSTS
   - SETTINGS__VSP_ENVIRONMENT
-appName:
+appName: vets-api
 target_env:
 domain:
 manualRoll:

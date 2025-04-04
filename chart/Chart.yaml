@@ -118,7 +118,8 @@ type: application
 # 0.15.14  - remove secret with SETTINGS__ prefix, as no longer used
 # 0.15.15  - Add branch selector to mockData 
 # 0.15.16  - Fix branch selector to mockData
-version: 0.15.16
+# 0.15.17  - Set appname for all deployments
+version: 0.15.17
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
