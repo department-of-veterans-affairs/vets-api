@@ -287,10 +287,11 @@ module ClaimsApi
 
         def find_claim(claim)
           # Fetch the claim by md5 if it doesn't have an ID (given duplicate md5)
-          if claim.id.nil? && claim.errors.find { |e| e.attribute == :md5 }&.type == :taken
+          if claim.new_record? && claim.errors.find { |e| e.attribute == :md5 }&.type == :taken
+
             claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: claim.md5) || claim
           end
-          ClaimsApi::AutoEstablishedClaim.find_by(header_hash: claim.header_hash) || claim if claim.nil?
+          ClaimsApi::AutoEstablishedClaim.find_by(header_hash: claim.header_hash) || claim
         end
       end
     end
