@@ -184,7 +184,7 @@ Rspec.describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/s
       description claim_by_id_description
 
       before do
-        Flipper.disable :claims_load_testing
+        allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
       end
 
       describe 'Getting a 200 response' do
