@@ -56,13 +56,13 @@ module AccreditedRepresentativePortal
       personalisation_klass =
         case notification.type
         when 'requested'
-          Personalisations::Requested
+          EmailPersonalisations::Requested
         when 'declined'
-          Personalisations::Declined
+          EmailPersonalisations::Declined
         when 'expiring'
-          Personalisations::Expiring
+          EmailPersonalisations::Expiring
         when 'expired'
-          Personalisations::Expired
+          EmailPersonalisations::Expired
         end
 
       personalisation_klass.generate(

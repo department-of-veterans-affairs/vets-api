@@ -1,5 +1,5 @@
 module AccreditedRepresentativePortal
-  class Personalisations
+  class EmailPersonalisations
     class << self
       def generate(notification)
         new(notification).generate

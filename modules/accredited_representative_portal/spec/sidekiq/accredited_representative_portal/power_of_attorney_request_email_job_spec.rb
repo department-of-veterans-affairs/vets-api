@@ -8,7 +8,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
   let(:template_id) { 'template-id' }
   let(:type) { 'declined' }
   let(:personalisation) do
-    AccreditedRepresentativePortal::Personalisations::Declined.generate(power_of_attorney_request_notification)
+    AccreditedRepresentativePortal::EmailPersonalisations::Declined.generate(power_of_attorney_request_notification)
   end
   let(:api_key) { 'test-api-key' }
   let(:response) { Struct.new(:id).new(Faker::Internet.uuid) }
