@@ -100,7 +100,7 @@ RSpec.describe Lighthouse::CreateIntentToFileJob do
     context 'when retries are exhausted' do
       let(:exhaustion_msg) do
         { 'args' => [pension_ipf.id, user_account.icn, 'PID'], 'class' => 'Lighthouse::CreateIntentToFileJob',
-          'error_message' => 'An error occured', 'queue' => nil }
+          'error_message' => 'An error occurred', 'queue' => 'default' }
       end
 
       before do
