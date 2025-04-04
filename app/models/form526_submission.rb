@@ -60,7 +60,7 @@ class Form526Submission < ApplicationRecord
 
   has_many :form526_job_statuses, dependent: :destroy
   has_many :form526_submission_remediations, dependent: :destroy
-  belongs_to :user_account, dependent: nil, optional: true
+  belongs_to :user_account, dependent: nil
 
   validates(:auth_headers_json, presence: true)
   enum :backup_submitted_claim_status, { accepted: 0, rejected: 1, paranoid_success: 2 }
@@ -470,18 +470,9 @@ class Form526Submission < ApplicationRecord
     account = user_account
     return account if account&.icn.present?
 
-    # next, check past submissions for different UserAccounts that might have ICNs
-    past_submissions = get_past_submissions
-    account = find_user_account_with_icn(past_submissions, 'past submissions')
-    return account if account.present? && account.icn.present?
-
-    # next, check for any historical UserAccounts for that user which might have an ICN
-    user_verifications = get_user_verifications
-    account = find_user_account_with_icn(user_verifications, 'user verifications')
-    return account if account.present? && account.icn.present?
-
-    # failing all the above, default to an Account lookup
-    Account.lookup_by_user_uuid(user_uuid)
+    # next, check MPI for profile information using the saved EDIPI
+    mpi_response = MPI::Service.new.find_profile_by_edipi(edipi: auth_headers['va_eauth_dodedipnid'])
+    OpenStruct.new(icn: mpi_response.profile.icn) if mpi_response && mpi_response.profile.icn.present?
   end
 
   # Send the Submitted Email - when the Veteran has clicked the "submit" button in va.gov
@@ -625,40 +616,6 @@ class Form526Submission < ApplicationRecord
 
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
-  end
-
-  def find_user_account_with_icn(records, record_type)
-    records.pluck(:user_account_id).uniq.each do |user_account_id|
-      user_account = UserAccount.find(user_account_id)
-      next if user_account&.icn.blank?
-
-      Rails.logger.info("ICN not found on submission #{id}, " \
-                        "using ICN for user account #{user_account_id} instead (based on #{record_type})")
-      return user_account
-    end
-  end
-
-  def get_past_submissions
-    Form526Submission.where(user_uuid:).where.not(user_account_id:)
-  end
-
-  def get_user_verifications
-    user_verifications = []
-    if (idme_uuid = user&.idme_uuid).present?
-      user_verifications = UserVerification.where(idme_uuid:)
-                                           .or(UserVerification.where(backing_idme_uuid: idme_uuid))
-                                           .where.not(user_account_id:)
-    end
-    if (user_verifications.empty? && logingov_uuid = user&.logingov_uuid).present?
-      user_verifications = UserVerification.where(logingov_uuid:).where.not(user_account_id:)
-    end
-    if (user_verifications.empty? && mhv_uuid = user&.mhv_credential_uuid).present?
-      user_verifications = UserVerification.where(mhv_uuid:).where.not(user_account_id:)
-    end
-    if (user_verifications.empty? && dslogon_uuid = user&.edipi).present?
-      user_verifications = UserVerification.where(dslogon_uuid:).where.not(user_account_id:)
-    end
-    user_verifications
   end
 
   def user
