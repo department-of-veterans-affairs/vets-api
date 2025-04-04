@@ -144,7 +144,6 @@ module MedicalRecords
     end
 
     def list_clinical_notes
-      loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY},#{CONSULT_RESULT}"
       bundle = fhir_search(FHIR::DocumentReference,
                            search: { parameters: { patient: patient_fhir_id,
                                                    'status:not': 'entered-in-error' } })
