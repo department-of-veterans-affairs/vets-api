@@ -83,7 +83,6 @@ module ClaimsApi
                                     'Authorization')
       headers['status'] = status
       self.header_hash = Digest::SHA256.hexdigest headers.to_json
-      self.form_data_hash = Digest::SHA256.hexdigest form_data.merge(headers).to_json
     end
 
     def processes
