@@ -28,10 +28,6 @@ module AccreditedRepresentativePortal
       claimant_hash['email']
     end
 
-    def personalisation
-      NotificationPersonalisationBuilder.new(self).build
-    end
-
     def status
       va_notify_notification&.status.to_s
     end

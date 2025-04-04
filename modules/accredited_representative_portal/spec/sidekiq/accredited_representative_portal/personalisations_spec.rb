@@ -8,8 +8,10 @@ RSpec.describe AccreditedRepresentativePortal::Personalisations do
 
     context 'when type is requested' do
       let(:type) { 'requested' }
+      let(:organization) { create(:organization, name: 'Org Name') }
 
       it 'returns the full hash for the digital submit confirmation email' do
+        notification.power_of_attorney_request.power_of_attorney_holder_poa_code = organization.poa
         expected_hash = {
           'first_name' => notification.claimant_hash['name']['first'],
           'last_name' => notification.claimant_hash['name']['last'],
@@ -51,6 +53,7 @@ RSpec.describe AccreditedRepresentativePortal::Personalisations do
 
   describe 'Requested subclass' do
     let(:notification) { create(:power_of_attorney_request_notification, type: 'requested') }
+    let(:organization) { create(:organization, name: 'Org Name') }
     let(:personalisation) { described_class::Requested.new(notification) }
 
     it 'returns the submit date' do
@@ -64,6 +67,7 @@ RSpec.describe AccreditedRepresentativePortal::Personalisations do
     end
 
     it 'returns the representative name' do
+      notification.power_of_attorney_request.power_of_attorney_holder_poa_code = organization.poa
       accredited_individual_name = notification.accredited_individual.full_name.strip
       accredited_organization_name = notification.accredited_organization.name.strip
       expected_name = "#{accredited_individual_name} accredited with #{accredited_organization_name}"

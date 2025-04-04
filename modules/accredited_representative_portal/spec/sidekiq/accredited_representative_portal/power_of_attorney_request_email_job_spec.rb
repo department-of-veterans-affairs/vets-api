@@ -29,8 +29,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
 
       expect(power_of_attorney_request_notification.notification_id).to be_nil
 
-      described_class.new.perform(power_of_attorney_request_notification.id, nil,
-                                  api_key)
+      described_class.new.perform(power_of_attorney_request_notification.id, nil, api_key)
 
       power_of_attorney_request_notification.reload
       expect(power_of_attorney_request_notification.notification_id).to eq(response.id)
@@ -46,8 +45,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
         { error: :accredited_representative_portal_power_of_attorney_request_email_job }
       )
 
-      described_class.new.perform(power_of_attorney_request_notification.id, personalisation,
-                                  api_key)
+      described_class.new.perform(power_of_attorney_request_notification.id, nil, api_key)
       expect(power_of_attorney_request_notification.notification_id).to be_nil
     end
 
@@ -56,8 +54,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
       allow(client).to receive(:send_email).and_raise(error)
 
       expect do
-        described_class.new.perform(power_of_attorney_request_notification.id, personalisation,
-                                    api_key)
+        described_class.new.perform(power_of_attorney_request_notification.id, nil, api_key)
       end.to raise_error(VANotify::Error)
     end
   end
