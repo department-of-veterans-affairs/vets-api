@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/vso_search/service'
 require 'sentry_logging'
 
 module EducationForm
@@ -23,7 +22,7 @@ module EducationForm
         }
       ).order('education_benefits_claims.created_at')
     )
-      return false unless evss_is_healthy?
+      # return false unless evss_is_healthy?
 
       init_count = records.filter do |r|
         r.education_stem_automated_decision.automated_decision_state == EducationStemAutomatedDecision::INIT
@@ -43,7 +42,7 @@ module EducationForm
     private
 
     def evss_is_healthy?
-      Settings.evss.mock_claims || EVSS::VSOSearch::Service.service_is_up?
+      false
     end
 
     # Group the submissions by user_uuid
@@ -73,23 +72,8 @@ module EducationForm
     end
 
     # Retrieve poa status fromEVSS VSOSearch for a user
-    def get_user_poa_status(auth_headers)
+    def get_user_poa_status(*)
       # stem_automated_decision feature disables EVSS call  for POA which will be removed in a future PR
-      return nil if Flipper.enabled?(:stem_automated_decision)
-
-      if auth_headers.nil? ||
-         !auth_headers.key?('va_eauth_dodedipnid') ||
-         auth_headers['va_eauth_dodedipnid'] == ''
-
-        return nil
-      end
-
-      vsosearch_service = EVSS::VSOSearch::Service.new(nil, auth_headers)
-      vsosearch_service.get_current_info(auth_headers)['userPoaInfoAvailable']
-    rescue => e
-      log_exception_to_sentry(
-        Process10203EVSSError.new("Failed to retrieve VSOSearch data: #{e.message}")
-      )
       nil
     end
 
