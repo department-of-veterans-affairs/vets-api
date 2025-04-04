@@ -26,8 +26,8 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
     end
 
     it 'just returns immediately' do
-      expect(s3_client).to_not receive(:put_object)
-      expect { described_class.new.perform }.to_not change { EducationBenefitsClaim.unprocessed.count }
+      expect(s3_client).not_to receive(:put_object)
+      expect { described_class.new.perform }.not_to change { EducationBenefitsClaim.unprocessed.count }
     end
   end
 
