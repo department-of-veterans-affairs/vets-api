@@ -2,7 +2,6 @@
 
 require 'pdf_fill/extras_generator'
 require 'pdf_fill/extras_generator_v2'
-require 'pdf_fill/forms/va21p0969'
 require 'pdf_fill/forms/va214142'
 require 'pdf_fill/forms/va210781a'
 require 'pdf_fill/forms/va210781'
@@ -21,7 +20,9 @@ require 'pdf_fill/forms/va261880'
 require 'pdf_fill/forms/va5655'
 require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
+require 'utilities/date_parser'
 
+# rubocop:disable Metrics/ModuleLength
 module PdfFill
   # Provides functionality to fill and process PDF forms.
   #
@@ -52,7 +53,6 @@ module PdfFill
 
     # Registers form classes for various form IDs.
     {
-      '21P-0969' => PdfFill::Forms::Va21p0969,
       '21-4142' => PdfFill::Forms::Va214142,
       '21-0781a' => PdfFill::Forms::Va210781a,
       '21-0781' => PdfFill::Forms::Va210781,
@@ -147,8 +147,11 @@ module PdfFill
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
       merged_form_data = form_class.new(form_data).merge_fields(fill_options)
+      submit_date = Utilities::DateParser.parse(
+        merged_form_data['signatureDate'] || fill_options[:created_at] || Time.now.utc
+      )
 
-      hash_converter = make_hash_converter(form_id, form_class, merged_form_data, fill_options)
+      hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
       new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
 
       has_template = form_class.const_defined?(:TEMPLATE)
@@ -158,15 +161,21 @@ module PdfFill
         template_path, file_path, new_hash, flatten: Rails.env.production?
       )
 
+      # If the form is being generated with the overflow redesign, stamp the top and bottom of the document before the
+      # form is combined with the extras overflow pages. This allows the stamps to be placed correctly for the redesign
+      # implemented in lib/pdf_fill/extras_generator_v2.rb.
+      if fill_options.fetch(:extras_redesign, false) && submit_date.present?
+        file_path = stamp_form(file_path, submit_date)
+      end
       combine_extras(file_path, hash_converter.extras_generator)
     end
 
-    def make_hash_converter(form_id, form_class, merged_form_data, fill_options)
+    def make_hash_converter(form_id, form_class, submit_date, fill_options)
       extras_generator =
         if fill_options.fetch(:extras_redesign, false)
           ExtrasGeneratorV2.new(
             form_name: form_id.sub(/V2\z/, ''),
-            submit_date: merged_form_data['signatureDate'] || fill_options.fetch(:created_at, nil),
+            submit_date:,
             start_page: form_class::START_PAGE,
             sections: form_class::SECTIONS
           )
@@ -175,5 +184,32 @@ module PdfFill
         end
       HashConverter.new(form_class.date_strftime, extras_generator)
     end
+
+    def stamp_form(file_path, submit_date)
+      original_path = file_path
+      sig = "Signed electronically and submitted via VA.gov at #{format_timestamp(submit_date)}. " \
+            'Signee signed with an identity-verified account.'
+      initial_stamp_path = PDFUtilities::DatestampPdf.new(file_path).run(
+        text: sig, x: 5, y: 5, text_only: true, size: 9
+      )
+      file_path = initial_stamp_path
+      file_path = PDFUtilities::DatestampPdf.new(initial_stamp_path).run(
+        text: 'VA.gov Submission', x: 510, y: 775, text_only: true, size: 9
+      )
+      file_path
+    rescue => e
+      Rails.logger.error("Error stamping form for PdfFill: #{file_path}, error: #{e.message}")
+      original_path
+    ensure
+      File.delete(initial_stamp_path) if initial_stamp_path
+    end
+
+    # Formats the timestamp for the PDF footer
+    def format_timestamp(datetime)
+      return nil if datetime.blank?
+
+      "#{datetime.utc.strftime('%H:%M')} UTC #{datetime.utc.strftime('%Y-%m-%d')}"
+    end
   end
 end
+# rubocop:enable Metrics/ModuleLength

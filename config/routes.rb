@@ -151,9 +151,6 @@ Rails.application.routes.draw do
 
     resources :dependents_verifications, only: %i[create index]
 
-    post 'form0969', to: 'income_and_assets_claims#create'
-    get 'form0969', to: 'income_and_assets_claims#show'
-
     resources :benefits_claims, only: %i[index show] do
       post :submit5103, on: :member
       post 'benefits_documents', to: 'benefits_documents#create'
@@ -436,6 +433,7 @@ Rails.application.routes.draw do
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
+  mount IncomeAndAssets::Engine, at: '/income_and_assets'
   mount IvcChampva::Engine, at: '/ivc_champva'
   mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'

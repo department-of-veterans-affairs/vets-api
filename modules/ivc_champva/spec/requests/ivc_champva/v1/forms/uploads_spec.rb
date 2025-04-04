@@ -30,6 +30,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(ves_request)
     allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
     allow(ves_client).to receive(:submit_1010d).with(anything, anything, anything)
+    allow(ves_request).to receive(:transaction_uuid).and_return('78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
   end
 
   after do
@@ -576,7 +577,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           let(:error_response) { [[200, nil], [400, 'Upload failed']] }
 
           before do
-            allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(false)
             allow(controller).to receive(:get_file_paths_and_metadata).and_return([file_paths, metadata])
             allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
           end
@@ -586,7 +586,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             let(:mock_s3) { instance_double(IvcChampva::S3) }
 
             before do
-              allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(true)
               allow(Flipper).to receive(:enabled?).with(:champva_log_all_s3_uploads, @current_user).and_return(false)
               allow(IvcChampva::S3).to receive(:new).and_return(mock_s3)
               allow(IvcChampva::FileUploader).to receive(:new).and_call_original
@@ -706,7 +705,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           let(:error_response) { [[200, nil], [400, 'Upload failed']] }
 
           before do
-            allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(false)
             allow(controller).to receive(:get_file_paths_and_metadata).and_return([file_paths, metadata])
             allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
           end
@@ -716,7 +714,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             let(:mock_s3) { instance_double(IvcChampva::S3) }
 
             before do
-              allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(true)
               allow(Flipper).to receive(:enabled?).with(:champva_log_all_s3_uploads, @current_user).and_return(false)
               allow(IvcChampva::S3).to receive(:new).and_return(mock_s3)
               allow(IvcChampva::FileUploader).to receive(:new).and_call_original
