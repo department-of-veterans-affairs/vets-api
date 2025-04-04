@@ -4,6 +4,7 @@ require 'avro'
 require 'kafka/producer_manager'
 require 'kafka/schema_registry/service'
 require 'logger'
+require 'kafka/models/form_trace'
 
 module Kafka
   class AvroProducer
@@ -16,6 +17,10 @@ module Kafka
     end
 
     def produce(topic, payload, schema_version: 'latest')
+      trace = Kafka::FormTrace.new(payload)
+
+      raise Common::Exceptions::ValidationErrors, trace.errors unless trace.valid?
+
       schema = get_schema(topic, schema_version)
       encoded_payload = encode_payload(schema, payload)
       producer.produce_sync(topic:, payload: encoded_payload)
@@ -51,6 +56,10 @@ module Kafka
     end
 
     def validate_payload!(schema, payload)
+      if schema.name == 'SubmissionTrace'
+        
+      end
+      
       Avro::SchemaValidator.validate!(schema, payload)
     end
 
