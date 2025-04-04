@@ -40,7 +40,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
       user_uuid: @user.uuid,
       user_account: @user.user_account,
       auth_headers_json: EVSS::AuthHeaders.new(@user).to_h.to_json,
-      poa: get_user_poa,
+      poa: nil,
       remaining_entitlement:
     ).save
   end
@@ -48,10 +48,6 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   def email_sent(sco_email_sent)
     update_form('scoEmailSent', sco_email_sent)
     save
-  end
-
-  def get_user_poa
-    nil
   end
 
   private
