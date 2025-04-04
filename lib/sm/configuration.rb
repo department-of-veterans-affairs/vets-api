@@ -26,7 +26,11 @@ module SM
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      "#{Settings.mhv.sm.host}/mhv-sm-api/patient/v1/"
+      if Settings.mhv.sm.use_new_api.present? && Settings.mhv.sm.use_new_api
+        "#{Settings.mhv.api_gateway.hosts.sm_patient}/#{Settings.mhv.sm.gw_base_path}"
+      else
+        "#{Settings.mhv.sm.host}/#{Settings.mhv.sm.base_path}"
+      end
     end
 
     ##
