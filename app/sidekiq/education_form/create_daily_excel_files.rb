@@ -208,7 +208,7 @@ module EducationForm
       )
       log_info("Form 10282 S3 Upload: Complete")
     rescue StandardError => e
-      log_info("Form 10282 S3 Upload: Failed  #{e.message}")
+      log_exception(DailyExcelFileError.new("Failed S3 upload: #{e.message}"))
       raise
     end
   end
