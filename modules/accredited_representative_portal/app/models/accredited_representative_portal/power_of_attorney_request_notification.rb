@@ -11,6 +11,8 @@ module AccreditedRepresentativePortal
                primary_key: 'notification_id',
                optional: true
 
+    delegate :accredited_individual, :accredited_organization, to: :power_of_attorney_request
+
     validates :type, inclusion: { in: PERMITTED_TYPES }
 
     scope :requested, -> { where(type: 'requested') }
@@ -18,20 +20,12 @@ module AccreditedRepresentativePortal
     scope :expiring, -> { where(type: 'expiring') }
     scope :expired, -> { where(type: 'expired') }
 
+    def claimant_hash
+      @claimant_hash ||= form.parsed_data['dependent'] || form.parsed_data['veteran']
+    end
+
     def email_address
       claimant_hash['email']
-    end
-
-    def first_name
-      claimant_hash['name']['first']
-    end
-
-    def personalisation
-      if %w[declined expiring expired].include?(type)
-        {
-          'first_name' => first_name
-        }
-      end
     end
 
     def status
@@ -52,10 +46,6 @@ module AccreditedRepresentativePortal
     end
 
     private
-
-    def claimant_hash
-      @claimant_hash ||= form.parsed_data['dependent'] || form.parsed_data['veteran']
-    end
 
     def form
       @form ||= power_of_attorney_request.power_of_attorney_form
