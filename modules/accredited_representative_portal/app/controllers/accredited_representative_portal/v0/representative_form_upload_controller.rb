@@ -111,19 +111,6 @@ module AccreditedRepresentativePortal
         end
       end
 
-      def create_new_form_data
-        {
-          'ssn' => ssn,
-          'postalCode' => form_data[:postalCode],
-          'full_name' => {
-            'first' => first_name,
-            'last' => last_name
-          },
-          'email' => form_data[:email],
-          'veteranDateOfBirth' => birth_date
-        }
-      end
-
       def send_confirmation_email(_params, confirmation_number)
         new_form_data = create_new_form_data
         config = {
