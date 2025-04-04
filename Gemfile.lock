@@ -105,6 +105,7 @@ PATH
     dhp_connected_devices (0.1.0)
     facilities_api (0.1.0)
     health_quest (0.1.0)
+    income_and_assets (0.1.0)
     income_limits (0.1.0)
     ivc_champva (0.1.0)
     meb_api (0.1.0)
@@ -896,9 +897,9 @@ GEM
     rchardet (1.8.0)
     rdoc (6.12.0)
       psych (>= 4.0.0)
-    redis (5.3.0)
+    redis (5.4.0)
       redis-client (>= 0.22.0)
-    redis-client (0.23.0)
+    redis-client (0.23.2)
       connection_pool
     redis-namespace (1.11.0)
       redis (>= 4)
@@ -1263,6 +1264,7 @@ DEPENDENCIES
   holidays
   httpclient
   ice_nine
+  income_and_assets!
   income_limits!
   iso_country_codes
   ivc_champva!
@@ -1363,7 +1365,7 @@ DEPENDENCIES
   slack-notify
   socksify
   staccato
-  statsd-instrument (= 3.9.8)
+  statsd-instrument
   strong_migrations
   super_diff
   swagger-blocks
