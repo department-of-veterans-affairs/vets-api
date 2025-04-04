@@ -7,7 +7,7 @@ class AppealSubmission < ApplicationRecord
 
   APPEAL_TYPES = %w[HLR NOD SC].freeze
   validates :user_uuid, :submitted_appeal_uuid, presence: true
-  belongs_to :user_account, dependent: nil, optional: true
+  belongs_to :user_account, dependent: nil
   validates :type_of_appeal, inclusion: APPEAL_TYPES
 
   has_kms_key
@@ -90,52 +90,11 @@ class AppealSubmission < ApplicationRecord
 
   def get_mpi_profile
     @mpi_profile ||= begin
-      service = ::MPI::Service.new
-      response = fetch_profile_by_icn(service) ||
-                 fetch_profile_by_user_verification(service) ||
-                 fetch_profile_by_user(service)
+      response = MPI::Service.new.find_profile_by_identifier(identifier: user_account.icn,
+                                                             identifier_type: MPI::Constants::ICN)&.profile
       raise 'Failed to fetch MPI profile' if response.nil?
 
       response
     end
-  end
-
-  private
-
-  def fetch_profile_by_icn(service)
-    icn = user_account&.icn.presence
-    return unless icn
-
-    find_mpi_profile(service, icn, MPI::Constants::ICN)
-  end
-
-  def fetch_profile_by_user_verification(service)
-    user_verification = user_account&.user_verifications&.where&.not(idme_uuid: nil)&.first ||
-                        user_account&.user_verifications&.where&.not(backing_idme_uuid: nil)&.first ||
-                        user_account&.user_verifications&.where&.not(logingov_uuid: nil)&.first
-    return unless user_verification
-
-    identifier_type = if user_verification.idme_uuid || user_verification.backing_idme_uuid
-                        MPI::Constants::IDME_UUID
-                      else
-                        MPI::Constants::LOGINGOV_UUID
-                      end
-    identifier = user_verification.idme_uuid || user_verification.backing_idme_uuid || user_verification.logingov_uuid
-    find_mpi_profile(service, identifier, identifier_type)
-  end
-
-  def fetch_profile_by_user(service)
-    user = User.find(user_uuid)
-    return unless user
-
-    if user.idme_uuid.present?
-      find_mpi_profile(service, user.idme_uuid, MPI::Constants::IDME_UUID)
-    elsif user.logingov_uuid.present?
-      find_mpi_profile(service, user.logingov_uuid, MPI::Constants::LOGINGOV_UUID)
-    end
-  end
-
-  def find_mpi_profile(service, identifier, identifier_type)
-    service.find_profile_by_identifier(identifier:, identifier_type:)&.profile
   end
 end
