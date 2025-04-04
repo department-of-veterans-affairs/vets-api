@@ -7,6 +7,7 @@ RSpec.describe Form526Submission do
   subject do
     Form526Submission.create(
       user_uuid: user.uuid,
+      user_account:,
       saved_claim_id: saved_claim.id,
       auth_headers_json: auth_headers.to_json,
       form_json:,
@@ -1565,6 +1566,8 @@ RSpec.describe Form526Submission do
   describe 'ICN retrieval' do
     context 'various ICN retrieval scenarios' do
       let(:user) { create(:user, :loa3) }
+      let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
+      let(:mpi_profile) { build(:mpi_profile) }
       let(:auth_headers) do
         EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
       end
@@ -1576,53 +1579,22 @@ RSpec.describe Form526Submission do
       end
       let!(:form526_submission) { create(:form526_submission) }
 
+      before do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).and_return(profile_response)
+      end
+
       it 'submissions user account has an ICN, as expected' do
         submission.user_account = UserAccount.new(icn: '123498767V222222')
         account = submission.account
         expect(account.icn).to eq('123498767V222222')
       end
 
-      it 'submissions user account has no ICN, lookup from past submissions' do
-        user_account_with_icn = UserAccount.create!(icn: '123498767V111111')
-        create(:form526_submission, user_uuid: submission.user_uuid, user_account: user_account_with_icn)
+      it 'submissions user account has no ICN, lookup from MPI with edipi' do
         submission.user_account = UserAccount.create!(icn: nil)
         submission.save!
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).with(edipi: user.edipi)
         account = submission.account
-        expect(account.icn).to eq('123498767V111111')
-      end
-
-      it 'lookup ICN from User model csp_uuid-sourced UserVerifications, idme_uuid defined' do
-        user_account_with_icn = UserAccount.create!(icn: '123498767V333333')
-        UserVerification.create!(idme_uuid: user.idme_uuid, user_account_id: user_account_with_icn.id)
-        submission.user_account = UserAccount.create!(icn: nil)
-        submission.save!
-        account = submission.account
-        expect(account.icn).to eq('123498767V333333')
-      end
-
-      it 'lookup ICN from User model csp_uuid-sourced UserVerifications, backing_idme_uuid defined' do
-        user_account_with_icn = UserAccount.create!(icn: '123498767V444444')
-        UserVerification.create!(dslogon_uuid: Faker::Internet.uuid, backing_idme_uuid: user.idme_uuid,
-                                 user_account_id: user_account_with_icn.id)
-        submission.user_account = UserAccount.create!(icn: nil)
-        submission.save!
-        account = submission.account
-        expect(account.icn).to eq('123498767V444444')
-      end
-
-      it 'lookup ICN from user verifications, alternate provider id defined' do
-        user_account_with_icn = UserAccount.create!(icn: '123498767V555555')
-        UserVerification.create!(dslogon_uuid: user.edipi, backing_idme_uuid: Faker::Internet.uuid,
-                                 user_account_id: user_account_with_icn.id)
-        submission.user_account = UserAccount.create!(icn: nil)
-        submission.save!
-        account = submission.account
-        expect(account.icn).to eq('123498767V555555')
-      end
-
-      it 'submission has NO user account & NO linked user verifications, default to Account lookup' do
-        account = submission.account
-        expect(account.icn).to eq('123498767V234859')
+        expect(account.icn).to eq(mpi_profile.icn)
       end
     end
   end
