@@ -14,7 +14,6 @@ AccreditedRepresentativePortal::Engine.routes.draw do
     # TODO: Carry out this per-environment guard of these endpoints by using
     # Flipper feature toggling and controller before actions instead.
     #
-
     if Rails.env.development? || Rails.env.test?
       post 'form21a', to: 'form21a#submit'
       resources :in_progress_forms, only: %i[update show destroy]
