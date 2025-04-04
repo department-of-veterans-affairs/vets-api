@@ -15,7 +15,7 @@ module IncomeAndAssets
         require 'pdf_fill/filler'
         require 'income_and_assets/pdf_fill/forms/va21p0969'
 
-        # Register our Burial Pdf Fill form
+        # Register our Income and Assets Pdf Fill form
         ::PdfFill::Filler.register_form(IncomeAndAssets::FORM_ID, IncomeAndAssets::PdfFill::Forms::Va21p0969)
       end
     end
