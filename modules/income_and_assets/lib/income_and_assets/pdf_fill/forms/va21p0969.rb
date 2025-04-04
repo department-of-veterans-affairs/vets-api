@@ -558,7 +558,91 @@ module PdfFill
             question_num: 8,
             question_suffix: '(m)',
             question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?'
-          }
+          },
+          # 11a
+          # TODO -> Replace these with correct keys
+          'discontinuedIncome' => { key: 'F[0].Page_10[0].DependentsEstablishedATrust[0]' },
+          # 11b-11c (only space for 2 on form)
+          'discontinuedIncomes' => {
+            limit: 2,
+            first_key: 'recipientRelationship',
+            # Q1
+            'recipientRelationship' => {
+              key: "" # TODO -> Key here
+            },
+            'recipientRelationshipOverflow' => {
+              question_num: 11,
+              question_suffix: '(1)',
+              question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            },
+            'otherRecipientRelationshipType' => {
+                question_num: 11,
+                question_suffix: '(1)',
+                question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            },
+            # Q2
+            'recipientName' => {
+              key: "", # TODO -> Key here
+              question_number: 11,
+              question_suffix: '(2)',
+              question_text:
+              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+            },
+            # Q3
+            'payer' => {
+              key: '', # TODO -> Key here
+              question_number: 11,
+              question_suffix: '(3)',
+              question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)'
+            },
+            # Q4
+            'incomeType' => {
+              key: "" # TODO -> Key here
+            },
+            'incomeTypeOverflow' => {
+              question_num: 11,
+              question_suffix: '(4)',
+              question_text: 'SPECIFY TYPE OF INCOME RECEIVED (Interest, dividends, etc.)'
+            },
+            # Q5
+            'incomeFrequency' => {
+              key: "" # TODO -> Key here
+            },
+            'incomeFrequencyOverflow' => {
+              key: "", # TODO -> Key here
+              question_num: 11,
+              question_suffix: '(5)',
+              question_text: 'SPECIFY FREQUENCY OF INCOME RECEIVED'
+            },
+            # Q6
+            'incomeLastReceivedDate' => {
+              'month' => { key: "", # TODO -> Key here },
+              'day' => { key: "", # TODO -> Key here },
+              'year' => { key: "", # TODO -> Key here }
+            },
+            'incomeLastReceivedDateOverflow' => {
+              question_num: 11,
+              question_suffix: '(6)',
+              question_text: 'DATE INCOME LAST PAID (MM/DD/YYYY)'
+            },
+            # Q7
+            'grossAnnualAmount' => {
+              'thousands' => {
+                key: "", # TODO -> Key here
+              },
+              'dollars' => {
+                key: "", # TODO -> Key here
+              },
+              'cents' => {
+                key: "", # TODO -> Key here
+              }
+            },
+            'grossAnnualAmountOverflow' => {
+              question_num: 11,
+              question_suffix: '(7)',
+              question_text: 'WHAT WAS THE GROSS ANNUAL AMOUNT REPORTED TO THE IRS?'
+            }
+          },
         }
       }.freeze
 
@@ -577,6 +661,7 @@ module PdfFill
         expand_owned_assets
         expand_asset_transfers
         expand_trusts
+        expand_discontinued_incomes
 
         form_data
       end
@@ -830,6 +915,33 @@ module PdfFill
           overflow["#{fieldname}Overflow"] = trust[fieldname]
         end
         expanded.merge(overflow)
+      end
+
+      def expand_discontinued_incomes
+        incomes = form_data['discontinued_incomes']
+        form_data['discontinued_income'] = incomes&.length ? 0 : 1
+        form_data['discontinued_incomes'] = incomes&.map { |income| expand_discontinued_income(income) }
+      end
+
+      def expand_discontinued_income(discontinued_income)
+        recipient_relationship = income['recipientRelationship']
+        income_frequency = income['incomeFrequency']
+
+        {
+          'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
+          'recipientRelationshipOverflow' => recipient_relationship,
+          'otherRecipientRelationshipType' => income['otherRecipientRelationshipType'],
+          'recipientName' => income['recipientName'],
+          'payer' => income['payer'],
+          'incomeType' => income['incomeType'],
+          'incomeTypeOverflow' => income['incomeType'],
+          'incomeFrequency' => IncomeAndAssets::Constants::INCOME_FREQUENCIES[income_frequency],
+          'incomeFrequencyOverflow' => IncomeAndAssets::Constants::INCOME_FREQUENCIES[income_frequency],
+          'incomeLastReceivedDate' => split_date(income['incomeLastReceivedDate']),
+          'incomeLastReceivedDateOverflow' => split_date(income['incomeLastReceivedDate']),
+          'grossAnnualAmount' => split_currency_amount_sm(income['grossAnnualAmount']),
+          'grossAnnualAmountOverflow' => split_currency_amount_sm(income['grossAnnualAmount']),
+        }
       end
     end
   end
