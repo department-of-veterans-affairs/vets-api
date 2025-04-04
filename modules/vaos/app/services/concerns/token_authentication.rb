@@ -76,7 +76,7 @@ module TokenAuthentication
     #
     # @return [Common::JwtWrapper] the JWT wrapper instance.
     def jwt_wrapper
-      @jwt_wrapper ||= Common::JwtWrapper.new(settings)
+      @jwt_wrapper ||= Common::JwtWrapper.new(settings, config)
     end
   end
 
