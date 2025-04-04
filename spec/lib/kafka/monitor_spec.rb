@@ -10,7 +10,6 @@ RSpec.describe Kafka::Monitor do
   let(:payload) { { 'data' => { 'ICN' => '123' } } }
   let(:error) { StandardError.new('Something went wrong') }
 
-
   describe '#track_submission_success' do
     it 'tracks the submit success event' do
       expect(monitor).to receive(:track_request).with(
