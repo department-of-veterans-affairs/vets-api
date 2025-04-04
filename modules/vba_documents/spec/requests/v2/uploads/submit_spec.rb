@@ -15,6 +15,13 @@ RSpec.describe 'VBADocument::V2::Uploads::Submit', retry: 3, type: :request do
 
   let(:submit_endpoint) { '/services/vba_documents/v2/uploads/submit' }
 
+  let(:clam_av_patch_client) { instance_double(ClamAV::PatchClient) }
+
+  before do
+    allow(clam_av_patch_client).to receive(:safe?).and_return(true)
+    allow(ClamAV::PatchClient).to receive(:new).and_return(clam_av_patch_client)
+  end
+
   def build_fixture(fixture, is_metadata = false, is_erb = false)
     fixture_path = if is_erb && is_metadata
                      get_erbed_fixture(fixture).path
@@ -159,6 +166,9 @@ RSpec.describe 'VBADocument::V2::Uploads::Submit', retry: 3, type: :request do
     end
 
     it 'returns an error when a content is missing' do
+      clam_av_patch_client = instance_double(ClamAV::PatchClient)
+      allow(clam_av_patch_client).to receive(:safe?).and_return(true)
+      allow(ClamAV::PatchClient).to receive(:new).and_return(clam_av_patch_client)
       post submit_endpoint,
            params: {}.merge(valid_metadata).merge(invalid_content_missing).merge(valid_attachments)
       expect(response).to have_http_status(:bad_request)
