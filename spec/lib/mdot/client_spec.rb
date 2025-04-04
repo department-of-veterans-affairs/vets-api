@@ -75,6 +75,9 @@ describe MDOT::Client, type: :mdot_helpers do
       it 'raises a Default Exception' do
         VCR.use_cassette('mdot/get_supplies_502_no_result') do
           expect(StatsD).to receive(:increment).once.with(
+            'api.external_http_request.MDOT.failed', 1, { tags: ['endpoint:/supplies', 'method:get'] }
+          )
+          expect(StatsD).to receive(:increment).once.with(
             'api.mdot.get_supplies.fail', tags: [
               'error:CommonClientErrorsClientError', 'status:502'
             ]
