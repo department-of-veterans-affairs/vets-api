@@ -30,9 +30,6 @@ module SimpleFormsApi
 
       def send(at: nil)
         return unless flipper?
-
-        template_id_suffix = TEMPLATE_IDS[form_number][notification_type.to_s]
-        template_id = Settings.vanotify.services.va_gov.template_id[template_id_suffix]
         return unless template_id
 
         scheduled_at = at
@@ -84,6 +81,12 @@ module SimpleFormsApi
         number = form_number
         number = 'vba_21_0966' if form_number.start_with? 'vba_21_0966'
         Flipper.enabled?(:"form#{number.gsub('vba_', '')}_confirmation_email")
+      end
+
+      def template_id
+        template_id_suffix = TEMPLATE_IDS[form_number][notification_type.to_s]
+        template_id_suffix = TEMPLATE_IDS['vba_20_10207']['point_of_contact_error'] if should_send_to_point_of_contact?
+        @_template_id ||= Settings.vanotify.services.va_gov.template_id[template_id_suffix]
       end
 
       def enqueue_email(at, template_id)
@@ -173,6 +176,10 @@ module SimpleFormsApi
         # All email templates require confirmation_number except :duplicate for 26-4555 (SAHSHA)
         # Only 26-4555 supports the :duplicate notification_type
         notification_type != :duplicate
+      end
+
+      def should_send_to_point_of_contact?
+        form_number == 'vba_20_10207' && form.send_to_point_of_contact?
       end
     end
   end

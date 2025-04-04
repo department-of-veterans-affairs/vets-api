@@ -64,6 +64,8 @@ module SimpleFormsApi
     end
 
     def notification_first_name
+      return data['point_of_contact_name'] if send_to_point_of_contact?
+
       if data['preparer_type'] == 'veteran'
         data.dig('veteran_full_name', 'first')
       elsif data['preparer_type'] == 'non-veteran'
@@ -74,6 +76,8 @@ module SimpleFormsApi
     end
 
     def notification_email_address
+      return data['point_of_contact_email'] if send_to_point_of_contact?
+
       if data['preparer_type'] == 'veteran'
         data['veteran_email_address']
       elsif data['preparer_type'] == 'non-veteran'
@@ -131,6 +135,18 @@ module SimpleFormsApi
 
     def get_attachments
       PersistentAttachment.where(guid: attachment_guids).map(&:to_pdf)
+    end
+
+    def send_to_point_of_contact?
+      preparer_is_not_third_party? && living_situation_is_none?
+    end
+
+    def preparer_is_not_third_party?
+      %w[third-party-veteran third-party-non-veteran].exclude?(data['preparer_type'])
+    end
+
+    def living_situation_is_none?
+      data['living_situation']['NONE']
     end
 
     private
