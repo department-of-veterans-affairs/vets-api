@@ -2,10 +2,25 @@
 
 require 'rails_helper'
 require 'pdf_fill/filler'
+require 'income_and_assets/pdf_fill/forms/va21p0969'
+require 'lib/pdf_fill/fill_form_examples'
 
-describe PdfFill::Filler, type: :model do
+def basic_class
+  IncomeAndAssets::PdfFill::Forms::Va21p0969.new({})
+end
+
+describe IncomeAndAssets::PdfFill::Forms::Va21p0969 do
   include SchemaMatchers
+
   test_data_types ||= %w[simple kitchen_sink overflow]
+
+  it_behaves_like 'a form filler', {
+    form_id: described_class::FORM_ID,
+    factory: :income_and_assets_claim,
+    use_vets_json_schema: true,
+    input_data_fixture_dir: 'modules/income_and_assets/spec/fixtures/pdf_fill/21P-0969',
+    output_pdf_fixture_dir: 'modules/income_and_assets/spec/fixtures/pdf_fill/21P-0969'
+  }
 
   xcontext 'Form filler', run_at: '2017-07-25 00:00:00 -0400' do # rubocop:disable RSpec/PendingWithoutReason
     skip 'Pending implementation of PDF form filling functionality for 21P-0969 form'

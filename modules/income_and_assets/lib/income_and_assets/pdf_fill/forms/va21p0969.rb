@@ -8,16 +8,22 @@ require 'income_and_assets/helpers'
 
 # rubocop:disable Metrics/ClassLength
 
-module PdfFill
+module IncomeAndAssets::PdfFill
   # Forms
   module Forms
     # The Va21p0969 Form
-    class Va21p0969 < FormBase
-      include FormHelper
+    class Va21p0969 < ::PdfFill::Forms::FormBase
+      include ::PdfFill::Forms::FormHelper
       include IncomeAndAssets::Helpers
 
+      # The Form ID
+      FORM_ID = IncomeAndAssets::FORM_ID
+
+      # The PDF Template
+      TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/forms/pdfs/21P-0969.pdf".freeze
+
       # Hash iterator
-      ITERATOR = PdfFill::HashConverter::ITERATOR
+      ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
       # Hash keys
       KEY = {
@@ -834,5 +840,4 @@ module PdfFill
     end
   end
 end
-
 # rubocop:enable Metrics/ClassLength
