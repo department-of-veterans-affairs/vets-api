@@ -20,7 +20,6 @@ path 'modules' do
   gem 'dhp_connected_devices'
   gem 'facilities_api'
   gem 'health_quest'
-  gem 'income_and_assets'
   gem 'income_limits'
   gem 'ivc_champva'
   gem 'meb_api'

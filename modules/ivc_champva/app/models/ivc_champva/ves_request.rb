@@ -1,27 +1,5 @@
 # frozen_string_literal: true
 
-##
-# Function to get all instance variables from a class and convert them
-# to a hash, converting names from snake_case to camelCase symbols.
-# Also runs `to_hash` on any existing top-level `address` properties.
-#
-def instance_vars_to_hash(instance)
-  # Create hash where keys are the instance variables with '@' removed and
-  # converted from snake_case to camelCase
-  # e.g.: '@phone_number' -> :phoneNumber
-  instance_vars_hash = instance.instance_variables.each_with_object({}) do |var, hash|
-    key = var.to_s.delete_prefix('@').camelize(:lower).to_sym
-    value = instance.instance_variable_get(var)
-    hash[key] = value
-  end
-
-  if instance.respond_to?(:address) && instance.address.respond_to?(:to_hash)
-    instance_vars_hash[:address] = instance.address.to_hash
-  end
-
-  instance_vars_hash.compact
-end
-
 module IvcChampva
   class VesRequest
     attr_accessor :application_type, :application_uuid, :sponsor, :beneficiaries, :certification, :transaction_uuid
@@ -69,12 +47,22 @@ module IvcChampva
       end
 
       def to_hash
-        # Camelize doesn't handle 'UUID' properly
-        hash = instance_vars_to_hash(self).except(:personUuid)
-        hash[:personUUID] = @person_uuid
-        hash[:isDeceased] = @is_deceased.nil? ? false : @is_deceased
-        hash[:vaFileNumber] = @va_file_number || ''
-        hash
+        hash = {
+          personUUID: @person_uuid,
+          firstName: @first_name,
+          lastName: @last_name,
+          middleInitial: @middle_initial,
+          suffix: @suffix,
+          ssn: @ssn,
+          vaFileNumber: @va_file_number || '',
+          dateOfBirth: @date_of_birth,
+          dateOfMarriage: @date_of_marriage,
+          isDeceased: @is_deceased.nil? ? false : @is_deceased,
+          dateOfDeath: @date_of_death,
+          isDeathOnActiveService: @is_death_on_active_service,
+          address: @address.to_hash
+        }
+        hash.compact
       end
     end
 
@@ -103,10 +91,24 @@ module IvcChampva
       end
 
       def to_hash
-        # Camelize doesn't handle 'UUID' properly
-        hash = instance_vars_to_hash(self).except(:personUuid)
-        hash[:personUUID] = @person_uuid
-        hash
+        hash = {
+          personUUID: @person_uuid,
+          firstName: @first_name,
+          lastName: @last_name,
+          middleInitial: @middle_initial,
+          suffix: @suffix,
+          ssn: @ssn,
+          emailAddress: @email_address,
+          phoneNumber: @phone_number,
+          gender: @gender,
+          enrolledInMedicare: @enrolled_in_medicare,
+          hasOtherInsurance: @has_other_insurance,
+          relationshipToSponsor: @relationship_to_sponsor,
+          childtype: @child_type,
+          dateOfBirth: @date_of_birth,
+          address: @address.to_hash
+        }
+        hash.compact
       end
     end
 
@@ -146,7 +148,20 @@ module IvcChampva
       end
 
       def to_hash
-        instance_vars_to_hash(self)
+        hash = {
+          signature: @signature,
+          signatureDate: @signature_date,
+          firstName: @first_name,
+          lastName: @last_name,
+          middleInitial: @middle_initial,
+          phoneNumber: @phone_number,
+          relationship: @relationship
+        }
+
+        # Only include address if it was provided
+        hash[:address] = @address.to_hash if @address
+
+        hash.compact
       end
     end
   end

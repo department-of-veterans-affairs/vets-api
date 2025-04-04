@@ -66,8 +66,7 @@ module SignIn
                                                         credential_email: code_container.credential_email,
                                                         client_config:,
                                                         user_attributes: code_container.user_attributes,
-                                                        device_sso: code_container.device_sso,
-                                                        web_sso_session_id: code_container.web_sso_session_id)
+                                                        device_sso: code_container.device_sso)
     end
 
     def client_config

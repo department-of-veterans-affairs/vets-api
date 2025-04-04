@@ -9,8 +9,7 @@ module SignIn
       :credential_email,
       :client_config,
       :user_attributes,
-      :device_sso,
-      :web_sso_session_id
+      :device_sso
     )
 
     validates(
@@ -19,18 +18,16 @@ module SignIn
       presence: true
     )
 
-    def initialize(user_verification:, # rubocop:disable Metrics/ParameterLists
+    def initialize(user_verification:,
                    client_config:,
                    credential_email:,
                    user_attributes:,
-                   device_sso:,
-                   web_sso_session_id:)
+                   device_sso:)
       @user_verification = user_verification
       @client_config = client_config
       @credential_email = credential_email
       @user_attributes = user_attributes
       @device_sso = device_sso
-      @web_sso_session_id = web_sso_session_id
 
       validate!
     end

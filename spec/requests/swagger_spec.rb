@@ -453,6 +453,30 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
+    it 'supports adding an income and assets statement' do
+      expect(subject).to validate(
+        :post,
+        '/v0/form0969',
+        200,
+        '_data' => {
+          'income_and_assets_claim' => {
+            'form' => build(:income_and_assets_claim).form
+          }
+        }
+      )
+
+      expect(subject).to validate(
+        :post,
+        '/v0/form0969',
+        422,
+        '_data' => {
+          'income_and_assets_claim' => {
+            'invalid-form' => { invalid: true }.to_json
+          }
+        }
+      )
+    end
+
     context 'MDOT tests' do
       let(:user_details) do
         {
@@ -3996,7 +4020,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/coe/document_download/{id}')
       subject.untested_mappings.delete('/v0/caregivers_assistance_claims/download_pdf')
       subject.untested_mappings.delete('/v0/health_care_applications/download_pdf')
-      subject.untested_mappings.delete('/v0/form0969')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')

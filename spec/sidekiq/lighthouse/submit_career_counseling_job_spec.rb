@@ -8,8 +8,8 @@ RSpec.describe Lighthouse::SubmitCareerCounselingJob do
   let(:job) { described_class.new }
   let(:monitor) { double('monitor') }
   let(:exhaustion_msg) do
-    { 'args' => [], 'class' => 'Lighthouse::SubmitCareerCounselingJob', 'error_message' => 'An error occurred',
-      'queue' => 'default' }
+    { 'args' => [], 'class' => 'Lighthouse::SubmitCareerCounselingJob', 'error_message' => 'An error occured',
+      'queue' => nil }
   end
   let(:user_account_uuid) { 123 }
 

@@ -132,16 +132,10 @@ describe IvcChampva::VesDataFormatter do
   end
 
   describe 'data is valid' do
-    it 'maintains all the original keys/values after validating' do
+    it 'returns unmodified data' do
       validated_data = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
 
-      # Check that all the original keys/values present in @request_body
-      # are still present in the formatted object.
-      h1 = JSON.parse(@request_body.to_json).sort.to_h
-      h2 = JSON.parse(validated_data.to_json).sort.to_h
-      # Get the intersection and verify h2 contained all original keys
-      h3 = h1.slice(*h2.keys)
-      expect(h3.to_json).to eq(h1.to_json)
+      expect(validated_data.to_json).to eq(@request_body.to_json)
     end
   end
 
