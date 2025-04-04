@@ -11,14 +11,16 @@ module IvcChampva
     # @param [Hash] metadata The metadata accompanying this form submission (see IvcChampva::VHA1010d.metadata example)
     # @param [Array] file_paths List of local file paths of all attachments to be uploaded
     # @param [Boolean] insert_db_row whether or not to record the uploads and S3 responses in the database
+    # @param [User] current_user The current user, used for feature flags
     #
     # @return [IvcChampva::FileUploader]
     #
-    def initialize(form_id, metadata, file_paths, insert_db_row = false) # rubocop:disable Style/OptionalBooleanParameter
+    def initialize(form_id, metadata, file_paths, insert_db_row = false, current_user = nil) # rubocop:disable Style/OptionalBooleanParameter
       @form_id = form_id
       @metadata = metadata || {}
       @file_paths = Array(file_paths)
       @insert_db_row = insert_db_row
+      @current_user = current_user
     end
 
     ##
@@ -34,15 +36,11 @@ module IvcChampva
     #
     # @return [Array<Integer, String>] An array with a status code and an optional error message string.
     def handle_uploads
-      results = @metadata['attachment_ids'].zip(@file_paths).map do |attachment_id, file_path|
-        next if file_path.blank?
-
-        file_name = File.basename(file_path).gsub('-tmp', '')
-        response_status = upload(file_name, file_path, metadata_for_s3(attachment_id))
-        insert_form(file_name, response_status.to_s) if @insert_db_row
-
-        response_status
-      end.compact
+      results = if Flipper.enabled?(:champva_fmp_single_file_upload, @current_user) && @form_id == 'vha_10_7959f_2'
+                  handle_combined_uploads
+                else
+                  handle_iterative_uploads
+                end
 
       s3_err = nil
       all_success = results.all? do |(status, err)|
@@ -61,6 +59,50 @@ module IvcChampva
     end
 
     private
+
+    ##
+    # Handles iterative uploading of files for standard claims (non-FMP or when feature flag is off)
+    #
+    # @return [Array<Array<Integer, String>>] Array of arrays containing status codes and error messages
+    def handle_iterative_uploads
+      @metadata['attachment_ids'].zip(@file_paths).map do |attachment_id, file_path|
+        next if file_path.blank?
+
+        file_name = File.basename(file_path).gsub('-tmp', '')
+        response_status = upload(file_name, file_path, metadata_for_s3(attachment_id))
+        insert_form(file_name, response_status.to_s) if @insert_db_row
+
+        response_status
+      end.compact
+    end
+
+    ##
+    # Handles combining multiple PDFs into a single PDF for FMP claims and uploads the result to S3
+    #
+    # @return [Array<Array<Integer, String>>] Array of arrays containing status codes and error messages
+    def handle_combined_uploads
+      merged_pdf_path = File.join('tmp/', "#{@metadata['uuid']}_#{@form_id}_combined.pdf")
+
+      begin
+        # Combine all PDFs into a single file
+        IvcChampva::PdfCombiner.combine(merged_pdf_path, @file_paths.compact)
+
+        attachment_id = @form_id
+        file_name = File.basename(merged_pdf_path)
+
+        # Upload the combined PDF
+        response_status = upload(file_name, merged_pdf_path, metadata_for_s3(attachment_id))
+        insert_form(file_name, response_status.to_s) if @insert_db_row
+
+        [response_status]
+      rescue => e
+        Rails.logger.error("FMP Single File Upload: Error during PDF combining for submission #{@metadata['uuid']}:" \
+                           "#{e.message}")
+        raise
+      ensure
+        FileUtils.rm_f(merged_pdf_path)
+      end
+    end
 
     ##
     # Creates a modified metadata hash to be attached to individual files upon upload to S3.

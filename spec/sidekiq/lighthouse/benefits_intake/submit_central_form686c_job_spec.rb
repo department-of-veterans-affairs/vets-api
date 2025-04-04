@@ -53,10 +53,10 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
   let(:monitor) { double('monitor') }
   let(:exhaustion_msg) do
     {
+      'queue' => 'default',
       'args' => [],
       'class' => 'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob',
-      'error_message' => 'An error occured',
-      'queue' => nil
+      'error_message' => 'An error occurred'
     }
   end
 

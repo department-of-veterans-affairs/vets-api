@@ -226,6 +226,9 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences
     enable_in_development: true
+  champva_fmp_single_file_upload:
+    actor_type: user
+    description: Enables the ability to upload a single merged PDF file for FMP claims
   check_in_experience_pre_check_in_enabled:
     actor_type: user
     description: Enables the health care check-in experiences to show the pre-check-in experience.
@@ -1675,6 +1678,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for displaying past cancelled appointments.
+  va_online_scheduling_patient_history_future_appts:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for including future appointments in the patient history retrieval.
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -2096,9 +2103,6 @@ features:
   kafka_producer:
     actor_type: cookie_id
     description: Enables the Kafka producer for the VA.gov platform
-  kafka_producer_fetch_schema_dynamically:
-    actor_type: cookie_id
-    description: Enables the Kafka producer to fetch schema dynamically
   show_about_yellow_ribbon_program:
     actor_type: user
     description: If enabled, show additional info about the yellow ribbon program
