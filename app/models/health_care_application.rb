@@ -22,7 +22,7 @@ class HealthCareApplication < ApplicationRecord
   ].freeze
   LOCKBOX = Lockbox.new(key: Settings.lockbox.master_key, encode: true)
 
-  attr_accessor :user, :async_compatible, :google_analytics_client_id, :form
+  attr_accessor :user, :google_analytics_client_id, :form
 
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
@@ -77,10 +77,16 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_sync
+    Rails.logger.info '~~~~~~~~~~~~~~~ sync'
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
+      # {
+      #   success: true,
+      #   formSubmissionId: 123,
+      #   timestamp: Time.now.getlocal.to_s
+      # }
     rescue Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
 
@@ -88,13 +94,15 @@ class HealthCareApplication < ApplicationRecord
         nil, detail: e.message
       )
     end
+    # message out valid submission {state: "received"}
+    Rails.logger.info '~~~~~~~~~~~~~~~ received anon sync'
 
-    Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
+    set_result_on_success!(result)
 
+    Rails.logger.info "~~~~~~~~~~~~~~~ SubmissionID=#{result[:formSubmissionId]}"
     result
   rescue
     log_sync_submission_failure
-
     raise
   end
 
@@ -115,9 +123,15 @@ class HealthCareApplication < ApplicationRecord
 
       raise(Common::Exceptions::ValidationErrors, self)
     end
+    # message out valid submission {state: "received"}
+    Rails.logger.info '~~~~~~~~~~~~~~~ received, id:', id
+    save!
+    Rails.logger.info '~~~~~~~~~~~~~~~ received saved, id:', id
 
-    if email.present? || async_compatible
-      save!
+    # SEND "received" message to EventBus
+    Kafka::EventBusSubmissionJob.perform_async('submission_trace_mock_stage', build_event_payload('received')) if Flipper.enabled?(:hca_kafka_submission_enabled)
+
+    if email.present?
       submit_async
     else
       submit_sync
@@ -208,6 +222,13 @@ class HealthCareApplication < ApplicationRecord
       form_submission_id_string: result[:formSubmissionId].to_s,
       timestamp: result[:timestamp]
     )
+
+    Kafka::EventBusSubmissionJob.perform_async(
+      'submission_trace_mock_stage',
+      build_event_payload('sent', result[:formSubmissionId].to_s)
+    ) if Flipper.enabled?(:hca_kafka_submission_enabled)
+
+    Rails.logger.info '~~~~~~~~~~~~~~~ sent'
   end
 
   def form_submission_id
@@ -216,6 +237,30 @@ class HealthCareApplication < ApplicationRecord
 
   def parsed_form
     @parsed_form ||= form.present? ? JSON.parse(form) : nil
+  end
+
+  def build_event_payload(state, next_id = nil)
+    begin
+      user_icn = user&.icn || self.class.user_icn(self.class.user_attributes(parsed_form))
+      # local testing
+      # user_icn = user&.icn || '12345678'
+    rescue Common::Exceptions::ValidationErrors
+      # if certain user attributes are missing, we can't get an ICN
+      user_icn = ''
+    end
+
+    # replace with final schema when defined
+    payload = {
+      'data' => {
+        'ICN' => user_icn,
+        'currentID' => id.to_s,
+        'submissionName' => '1010EZ',
+        'state' => state
+      }
+    }
+
+    payload['data'].merge!('nextID' => next_id.to_s) if next_id
+    payload
   end
 
   private
@@ -245,10 +290,11 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_async
-    submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
-    @parsed_form = HCA::OverridesParser.new(parsed_form).override
+    Rails.logger.info '~~~~~~~~~~~~~~~ async', email.present?
 
-    "HCA::#{submission_job}".constantize.perform_async(
+    @parsed_form = HCA::OverridesParser.new(parsed_form).override
+    # if testing locally, use MockSubmissionJob
+    HCA::SubmissionJob.perform_async(
       self.class.get_user_identifier(user),
       HealthCareApplication::LOCKBOX.encrypt(parsed_form.to_json),
       id,
@@ -272,6 +318,11 @@ class HealthCareApplication < ApplicationRecord
 
   def log_submission_failure_details
     return if parsed_form.blank?
+    Kafka::EventBusSubmissionJob.perform_async(
+      # replace with prod topic name
+      'submission_trace_mock_stage',
+      build_event_payload('error')
+    ) if Flipper.enabled?(:hca_kafka_submission_enabled)
 
     PersonalInformationLog.create!(
       data: parsed_form,
