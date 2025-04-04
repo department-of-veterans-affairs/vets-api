@@ -8,12 +8,27 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
     create(:va10282).education_benefits_claim
   end
 
+  let(:s3_client) { instance_double(Aws::S3::Client) }
+
   before do
-    allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:form_10282_s3_upload).and_return(true)
+    allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
+    allow(s3_client).to receive(:put_object)
   end
 
   after(:all) do
     FileUtils.rm_rf('tmp/*.csv')
+  end
+
+  context 'with the feature flag disabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:form_10282_s3_upload).and_return(false)
+    end
+
+    it 'just returns immediately' do
+      expect(s3_client).not_to receive(:put_object)
+      expect { described_class.new.perform }.not_to change { EducationBenefitsClaim.unprocessed.count }
+    end
   end
 
   context 'scheduling' do
@@ -77,10 +92,10 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
         ActionMailer::Base.deliveries.clear
       end
 
-      it 'processes records and sends email' do
+      it 'processes records and uploads to S3' do
         with_settings(Settings, hostname: 'staging-api.va.gov') do
+          expect(s3_client).to receive(:put_object)
           expect { described_class.new.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(2).to(0)
-          expect(ActionMailer::Base.deliveries.count).to be > 0
         end
       end
     end

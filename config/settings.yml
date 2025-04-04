@@ -476,6 +476,12 @@ form526_export:
     bucket: <%= ENV['form526_export__aws__bucket'] %>
     region: us-gov-west-1
     secret_access_key: <%= ENV['form526_export__aws__secret_access_key'] %>
+form_10282:
+  s3:
+    aws_access_key_id: <%= ENV['form_10282__s3__aws_access_key_id'] %>
+    aws_secret_access_key: <%= ENV['form_10282__s3__aws_secret_access_key'] %>
+    bucket: <%= ENV['form_10282__s3__bucket'] %>
+    region: us-gov-west-1
 form_10_10cg:
   carma:
     mulesoft:

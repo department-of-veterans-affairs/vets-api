@@ -42,6 +42,8 @@ module EducationForm
 
     # rubocop:disable Metrics/MethodLength
     def perform
+      return unless Flipper.enabled?(:form_10282_s3_upload)
+
       retry_count = 0
       filename = "22-10282_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}.csv"
       excel_file_event = ExcelFileEvent.build_event(filename)
@@ -67,7 +69,7 @@ module EducationForm
         formatted_records = format_records(records)
         write_csv_file(formatted_records, filename)
 
-        email_excel_files(filename)
+        upload_file_to_s3(filename)
 
         # Make records processed and add excel file event for rake job
         records.each { |r| r.update(processed_at: Time.zone.now) }
@@ -187,8 +189,24 @@ module EducationForm
       logger.info(message)
     end
 
-    def email_excel_files(contents)
-      CreateExcelFilesMailer.build(contents).deliver_now
+    def upload_file_to_s3(filename)
+      log_info('Form 10282 S3 Upload: Begin')
+      client = Aws::S3::Client.new(
+        region: Settings.form_10282.s3.region,
+        access_key_id: Settings.form_10282.s3.aws_access_key_id,
+        secret_access_key: Settings.form_10282.s3.aws_secret_access_key
+      )
+
+      client.put_object(
+        bucket: Settings.form_10282.s3.bucket,
+        key: filename,
+        body: File.open("tmp/#{filename}"),
+        content_type: 'text/plain'
+      )
+      log_info('Form 10282 S3 Upload: Complete')
+    rescue => e
+      log_exception(DailyExcelFileError.new("Failed S3 upload: #{e.message}"))
+      raise
     end
   end
 end
