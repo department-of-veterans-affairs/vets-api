@@ -654,7 +654,7 @@ module PdfFill
       SECTIONS = [
         {
           label: 'Section I: Veteran\'s Identification Information',
-          question_nums: (1..7).to_a,
+          question_nums: (1..7).to_a
         },
         {
           label: 'Section II: Traumatic Event(s) Information',
