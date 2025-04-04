@@ -33,10 +33,10 @@ module CheckIn
     # @option opts [String] :facility_type The facility type ('oh' or 'cie'). Optional, defaults to 'cie' when nil.
     # @return [void]
     def perform(opts = {})
-      return unless validate_required_fields(opts)
+      return self.class.log_failure(opts) unless validate_required_fields(opts)
 
       parsed_date = parse_appointment_date(opts[:appointment_date])
-      return unless parsed_date
+      return self.class.log_failure(opts) unless parsed_date
 
       log_sending_travel_claim_notification(opts)
       attempt_number = current_attempt_number
@@ -75,7 +75,19 @@ module CheckIn
         },
         { error: :check_in_va_notify_job, team: 'check-in' }
       )
+      log_failure(opts)
+    end
 
+    # Extracts the last four digits of a phone number from a hash
+    # Removes any non-numeric characters before extracting the last four digits
+    #
+    # @param hash [Hash, nil] Hash containing a :mobile_phone key
+    # @return [String, nil] Last four digits of the phone number, or nil if not present
+    def self.phone_last_four(hash)
+      hash&.dig(:mobile_phone)&.delete('^0-9')&.last(4)
+    end
+
+    def self.log_failure(opts)
       if FAILED_CLAIM_TEMPLATE_IDS.include?(opts&.dig(:template_id))
         tags = if opts&.dig(:facility_type) == 'cie'
                  Constants::STATSD_CIE_SILENT_FAILURE_TAGS
@@ -86,15 +98,7 @@ module CheckIn
       end
 
       StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
-    end
-
-    # Extracts the last four digits of a phone number from a hash
-    # Removes any non-numeric characters before extracting the last four digits
-    #
-    # @param hash [Hash, nil] Hash containing a :mobile_phone key
-    # @return [String, nil] Last four digits of the phone number, or nil if not present
-    def self.phone_last_four(hash)
-      hash&.dig(:mobile_phone)&.delete('^0-9')&.last(4)
+      nil
     end
 
     private
@@ -128,10 +132,6 @@ module CheckIn
     def log_missing_fields(missing_data)
       missing_data = missing_data.join(', ')
       logger.info({ message: "TravelClaimNotificationJob failed without retry: missing #{missing_data}" })
-      StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
-
-      tags = ['service:check-in', "function: Travel Claim Notification Failure due to missing fields #{missing_data}"]
-      StatsD.increment(Constants::STATSD_NOTIFY_SILENT_FAILURE, tags:)
     end
 
     # Parses the appointment date string into a Date object
@@ -143,9 +143,6 @@ module CheckIn
       DateTime.strptime(date_string.to_s, '%Y-%m-%d').to_date
     rescue
       logger.info({ message: 'TravelClaimNotificationJob failed without retry: invalid appointment date format' })
-      StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
-      tags = ['service:check-in', "function: Travel Claim Notification Failure due to invalid appointment date format"]
-      StatsD.increment(Constants::STATSD_NOTIFY_SILENT_FAILURE, tags:)
 
       # return nil to end job without retrying
       nil
