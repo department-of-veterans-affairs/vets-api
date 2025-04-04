@@ -144,9 +144,10 @@ module ClaimsApi
           @page2_path = temp_path
         end
 
-        # With how the PDF reads, we leave blank if included in the form data, all other scenarios they are checked
+        # positive grants are provided in the form data, but the pdf form reverses this logic in box 20
+        # e.g. if form data includes ['ABC'], then ABC in box 20 will NOT be checked, but everything else will
         def set_limitation_of_consent_check_box(consent_limits, item)
-          return 1 if consent_limits.blank?
+          return 0 if consent_limits.blank?
 
           consent_limits.include?(item) ? 0 : 1
         end
