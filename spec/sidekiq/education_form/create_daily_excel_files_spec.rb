@@ -11,7 +11,7 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
   let(:s3_client) { instance_double(Aws::S3::Client) }
 
   before do
-    allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:form_10282_s3_upload).and_return(true)
     allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
     allow(s3_client).to receive(:put_object)
   end
