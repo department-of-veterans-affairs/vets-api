@@ -51,9 +51,9 @@ redis:
   host: localhost
   port: 6379
   app_data:
-    url: redis://localhost:6379
+    url: rediss://localhost:6379
   sidekiq:
-    url: redis://localhost:6379
+    url: rediss://localhost:6379
 
 betamocks:
   cache_dir: ../vets-api-mockdata
