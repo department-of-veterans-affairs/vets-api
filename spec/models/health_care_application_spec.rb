@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'kafka/sidekiq/event_bus_submission_job'
 
 RSpec.describe HealthCareApplication, type: :model do
   let(:health_care_application) { create(:health_care_application) }
@@ -14,6 +15,10 @@ RSpec.describe HealthCareApplication, type: :model do
   let(:statsd_key_prefix) { HCA::Service::STATSD_KEY_PREFIX }
   let(:zsf_tags) { described_class::DD_ZSF_TAGS }
   let(:form_id) { described_class::FORM_ID }
+
+  before do
+    allow(Flipper).to receive(:enabled?).with(:hca_kafka_submission_enabled).and_return(true)
+  end
 
   describe 'LOCKBOX' do
     it 'can encrypt strings over 4kb' do
@@ -274,6 +279,89 @@ RSpec.describe HealthCareApplication, type: :model do
     end
   end
 
+  describe '#build_event_payload' do
+    let(:health_care_application) { create(:health_care_application) }
+    let(:expected_base_payload) do
+      {
+        'data' => {
+          'currentID' => health_care_application.id.to_s,
+          'submissionName' => '1010EZ'
+        }
+      }
+    end
+    let(:user_attributes) { an_object_having_attributes(
+      first_name: 'FirstName',
+      middle_name: 'MiddleName',
+      last_name: 'ZZTEST',
+      birth_date: '1923-01-02',
+      ssn: '111111234'
+    ) }
+
+    context 'with a user' do
+      let(:user) { create(:user) }
+      before do
+        health_care_application.user = user
+      end
+
+      it 'returns the right payload' do 
+        expected_payload = expected_base_payload.dup
+        expected_payload['data'].merge!({ 'ICN' => user.icn, 'state' => 'received' })
+
+        expect(health_care_application.build_event_payload('received')).to eq(expected_payload)
+      end
+
+      context 'without an icn' do
+        before do
+          health_care_application.user = build(:user, icn: nil)
+        end
+
+
+        it 'falls back on looking up the user icn' do
+          allow(described_class).to receive(:user_icn).with(user_attributes).and_return('123')
+
+          expected_payload = expected_base_payload.dup
+          expected_payload['data'].merge!({ 'ICN' => '123', 'state' => 'sent', 'nextID' => '456' })
+          expect(health_care_application.build_event_payload('sent', '456')).to eq(expected_payload)
+        end
+      end
+    end
+
+    context 'without a user' do
+
+      it 'returns the right payload' do
+        allow(described_class).to receive(:user_icn).with(user_attributes).and_return('123')
+        expected_payload = expected_base_payload.dup
+        expected_payload['data'].merge!({ 'ICN' => '123', 'state' => 'received' })
+
+        expect(health_care_application.build_event_payload('received')).to eq(expected_payload)
+      end
+  
+      it 'returns the right payload with a submission id' do
+        allow(described_class).to receive(:user_icn).with(user_attributes).and_return('123')
+        expected_payload = expected_base_payload.dup
+        expected_payload['data'].merge!({ 'ICN' => '123', 'state' => 'sent', 'nextID' => '456' })
+        
+        expect(health_care_application.build_event_payload('sent', '456')).to eq(expected_payload)
+      end
+
+      context 'and invalid user attributes' do
+        let(:invalid_user_attributes) { double(errors: ['error']) }
+        before do
+          allow(described_class).to receive(:user_attributes).and_raise(Common::Exceptions::ValidationErrors.new(invalid_user_attributes))
+        end
+
+        it 'returns a payload with no ICN' do
+          expected_payload = expected_base_payload.dup
+          expected_base_payload['data'].merge!({ 'ICN' => '', 'state' => 'received' })
+
+          expect(health_care_application.build_event_payload('received')).to eq(expected_payload)
+        end
+      end
+    end
+
+
+  end
+
   describe 'validations' do
     context 'long form validations' do
       let(:health_care_application) { build(:health_care_application) }
@@ -466,13 +554,13 @@ RSpec.describe HealthCareApplication, type: :model do
       end
 
       it 'does not send "received" event' do
-        allow(HCA::EventBusSubmissionJob).to receive(:perform_async)
+        allow(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
         expect do
           described_class.new(form: {}.to_json).process!
         end.to raise_error(Common::Exceptions::ValidationErrors)
 
-        expect(HCA::EventBusSubmissionJob).not_to have_received(:perform_async)
+        expect(Kafka::EventBusSubmissionJob).not_to have_received(:perform_async)
       end
     end
 
@@ -501,7 +589,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
       it 'sends the "received" event' do
         expect(health_care_application).to receive(:build_event_payload).with('received').once
-        expect(HCA::EventBusSubmissionJob).to receive(:perform_async)
+        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
         health_care_application.process!
       end
     end
@@ -540,7 +628,7 @@ RSpec.describe HealthCareApplication, type: :model do
         it 'sends the "received", and "sent" event' do
           expect(health_care_application).to receive(:build_event_payload).with('received').once
           expect(health_care_application).to receive(:build_event_payload).with('sent', '123').once
-          expect(HCA::EventBusSubmissionJob).to receive(:perform_async).twice
+          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).twice
           health_care_application.process!
         end
       end
@@ -564,6 +652,15 @@ RSpec.describe HealthCareApplication, type: :model do
         it 'increments statsd' do
           expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed")
 
+          expect do
+            health_care_application.process!
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+
+        it 'sends an error event to the Event Bus' do
+          expect(health_care_application).to receive(:build_event_payload).with('received').once
+          expect(health_care_application).to receive(:build_event_payload).with('error').once
+          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).twice
           expect do
             health_care_application.process!
           end.to raise_error(Common::Exceptions::BackendServiceException)
@@ -759,6 +856,12 @@ RSpec.describe HealthCareApplication, type: :model do
           )
           subject
         end
+
+        it 'sends the "error" event to the Event Bus' do
+          expect(health_care_application).to receive(:build_event_payload).with('error').once
+          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).once
+          subject
+        end
       end
 
       context '@parsed_form is nil' do
@@ -836,6 +939,14 @@ RSpec.describe HealthCareApplication, type: :model do
       expect(health_care_application.success?).to be(true)
       expect(health_care_application.form_submission_id).to eq(result[:formSubmissionId])
       expect(health_care_application.timestamp).to eq(result[:timestamp])
+    end
+
+    it 'sends the "sent" event to the Event Bus' do
+      health_care_application = build(:health_care_application)
+      expect(health_care_application).to receive(:build_event_payload).with('sent', result[:formSubmissionId].to_s).once
+      expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).once
+      
+      health_care_application.set_result_on_success!(result)
     end
   end
 

@@ -90,9 +90,6 @@ class HealthCareApplication < ApplicationRecord
     rescue Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
 
-      # replace with prod topic name
-      HCA::EventBusSubmissionJob.perform_async('submission_trace_mock_dev', build_event_payload('error'))
-
       raise Common::Exceptions::BackendServiceException.new(
         nil, detail: e.message
       )
@@ -132,7 +129,7 @@ class HealthCareApplication < ApplicationRecord
     Rails.logger.info '~~~~~~~~~~~~~~~ received saved, id:', id
 
     # SEND "received" message to EventBus
-    HCA::EventBusSubmissionJob.perform_async('submission_trace_mock_dev', build_event_payload('received'))
+    Kafka::EventBusSubmissionJob.perform_async('submission_trace_mock_stage', build_event_payload('received')) if Flipper.enabled?(:hca_kafka_submission_enabled)
 
     if email.present?
       submit_async
@@ -226,13 +223,12 @@ class HealthCareApplication < ApplicationRecord
       timestamp: result[:timestamp]
     )
 
-    HCA::EventBusSubmissionJob.perform_async(
-      'submission_trace_mock_dev',
+    Kafka::EventBusSubmissionJob.perform_async(
+      'submission_trace_mock_stage',
       build_event_payload('sent', result[:formSubmissionId].to_s)
-    )
+    ) if Flipper.enabled?(:hca_kafka_submission_enabled)
 
     Rails.logger.info '~~~~~~~~~~~~~~~ sent'
-    # message out successful submission {state: "sent"}
   end
 
   def form_submission_id
@@ -253,15 +249,6 @@ class HealthCareApplication < ApplicationRecord
       user_icn = ''
     end
 
-    # test schema: {
-    #   "data" => {
-    #     "ICN" => 1234567790,
-    #     "currentID" => [HCA id],
-    #     "submissionName" => "1010EZ",
-    #     "state" => [received|sent|error],
-    #     "nextID"? => [VES form ID]
-    #   }
-    # }
     # replace with final schema when defined
     payload = {
       'data' => {
@@ -320,27 +307,22 @@ class HealthCareApplication < ApplicationRecord
   def log_sync_submission_failure
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.sync_submission_failed")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.sync_submission_failed_short_form") if short_form?
-    HCA::EventBusSubmissionJob.perform_async(
-      # replace with prod topic name
-      'submission_trace_mock_dev',
-      build_event_payload('error')
-    )
     log_submission_failure_details
   end
 
   def log_async_submission_failure
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
-    HCA::EventBusSubmissionJob.perform_async(
-      # replace with prod topic name
-      'submission_trace_mock_dev',
-      build_event_payload('error')
-    )
     log_submission_failure_details
   end
 
   def log_submission_failure_details
     return if parsed_form.blank?
+    Kafka::EventBusSubmissionJob.perform_async(
+      # replace with prod topic name
+      'submission_trace_mock_stage',
+      build_event_payload('error')
+    ) if Flipper.enabled?(:hca_kafka_submission_enabled)
 
     PersonalInformationLog.create!(
       data: parsed_form,
