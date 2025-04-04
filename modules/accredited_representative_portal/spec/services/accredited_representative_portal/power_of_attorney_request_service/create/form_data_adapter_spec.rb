@@ -27,7 +27,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
         veteran_country: 'US',
         veteran_zip_code: '12345',
         veteran_zip_code_suffix: '6789',
-        veteran_phone: '5555555555',
+        veteran_phone: '555-555-5555',
         veteran_email: 'veteran@example.com',
         claimant_first_name: 'Bob',
         claimant_middle_initial: 'E',
@@ -41,7 +41,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
         claimant_country: 'US',
         claimant_zip_code: '54321',
         claimant_zip_code_suffix: '9876',
-        claimant_phone: '2225555555',
+        claimant_phone: '222-555-5555',
         claimant_email: 'claimant@example.com'
       }
     end
@@ -153,6 +153,22 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
           'value at `/veteran/address/addressLine1` is not a string'
         ]
         expect(subject.call[:errors]).to eq(expected_error)
+      end
+    end
+
+    describe '#sanitize_phone_number' do
+      it 'removes all non-digit characters' do
+        expect(subject.send(:sanitize_phone_number, '(555) 123-4567')).to eq('5551234567')
+        expect(subject.send(:sanitize_phone_number, '555.987.6543')).to eq('5559876543')
+        expect(subject.send(:sanitize_phone_number, '555-555-5555')).to eq('5555555555')
+      end
+
+      it 'returns digits unchanged' do
+        expect(subject.send(:sanitize_phone_number, '1234567890')).to eq('1234567890')
+      end
+
+      it 'returns nil string if input has no digits' do
+        expect(subject.send(:sanitize_phone_number, 'abc-def')).to be_nil
       end
     end
   end
