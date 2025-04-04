@@ -18,6 +18,6 @@ DebtsApi::Engine.routes.draw do
     post 'calculate_monthly_expenses', to: 'financial_status_reports_calculations#monthly_expenses'
     post 'calculate_all_expenses', to: 'financial_status_reports_calculations#all_expenses'
     post 'calculate_monthly_income', to: 'financial_status_reports_calculations#monthly_income'
-    get 'download_one_debt_letter_pdf', to: 'one_debt_letters#download_pdf'
+    post 'combine_one_debt_letter_pdf', to: 'one_debt_letters#combine_pdf'
   end
 end
