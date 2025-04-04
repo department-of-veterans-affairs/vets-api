@@ -46,7 +46,6 @@ module CheckIn
         StatsD.increment(Constants::STATSD_NOTIFY_SUCCESS)
       rescue => e
         log_send_sms_failure(attempt_number)
-        StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
         raise e
       end
     end
