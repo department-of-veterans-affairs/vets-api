@@ -7,7 +7,8 @@ module AccreditedRepresentativePortal
   module V0
     class RepresentativeFormUploadController < ApplicationController
       include AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern
-      skip_after_action :verify_pundit_authorization
+      skip_after_action :verify_pundit_authorization, only: :upload_scanned_form
+      before_action :validate_power_of_attorney, only: :submit
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
