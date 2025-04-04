@@ -146,7 +146,7 @@ module SimpleFormsApi
     end
 
     def living_situation_is_none?
-      data['living_situation']['NONE']
+      data.dig('living_situation', 'NONE')
     end
 
     private
