@@ -36,20 +36,21 @@ module ClaimsApi
           claimant_information = validate_dependent_claimant!(poa_code:)
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
-                                                                                          source_name:)
+                                                                                          source_name:, header_hash:)
+
           unless power_of_attorney&.status&.in?(%w[submitted pending])
             attributes = {
               status: ClaimsApi::PowerOfAttorney::PENDING,
               auth_headers:,
               form_data: form_attributes,
               current_poa: power_of_attorney_verifier.current_poa_code,
-              header_md5:,
+              header_hash:,
               cid: token.payload['cid']
             }
             attributes.merge!({ source_data: }) unless token.client_credentials_token?
             power_of_attorney = ClaimsApi::PowerOfAttorney.create(attributes)
             unless power_of_attorney.persisted?
-              power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5)
+              power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(header_hash: power_of_attorney.header_hash)
             end
 
             if allow_dependent_claimant?
@@ -210,6 +211,13 @@ module ClaimsApi
                                                                     'va_eauth_service_transaction_id',
                                                                     'va_eauth_issueinstant',
                                                                     'Authorization').to_json)
+        end
+
+        def header_hash
+          @header_hash ||= Digest::SHA256.hexdigest(auth_headers.except('va_eauth_authenticationauthority',
+                                                                        'va_eauth_service_transaction_id',
+                                                                        'va_eauth_issueinstant',
+                                                                        'Authorization').to_json)
         end
 
         def source_data
