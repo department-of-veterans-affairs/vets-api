@@ -56,7 +56,8 @@ module Form1010Ezr
 
       res
     rescue => e
-      log_submission_failure(parsed_form)
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
+      log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
       raise e
     end
 
@@ -69,19 +70,25 @@ module Form1010Ezr
 
       submit_async(parsed_form)
     rescue => e
-      log_submission_failure(parsed_form)
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
+      log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
       raise e
     end
 
-    def log_submission_failure(parsed_form)
-      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
-
+    # @param [JSON] parsed_form
+    # @param [String] sentry_msg
+    # @param [String] sentry_context - identifier specific to the error
+    def log_submission_failure_to_sentry(
+      parsed_form,
+      sentry_msg,
+      sentry_context
+    )
       if parsed_form.present?
         log_message_to_sentry(
-          '1010EZR failure',
+          sentry_msg.to_s,
           :error,
           veteran_initials(parsed_form),
-          ezr: :failure
+          ezr: :"#{sentry_context}"
         )
       end
     end
